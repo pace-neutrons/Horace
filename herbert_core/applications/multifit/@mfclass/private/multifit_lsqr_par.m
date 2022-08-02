@@ -303,6 +303,7 @@ for i=1:numel(w)
     for j = 1:numel(md)
         merge_data(i,j).nelem = md(j).nelem;
         merge_data(i,j).nomerge = md(j).nomerge;
+        merge_data(i,j).range = md(j).range;
     end
 
     for j=1:nWorkers
@@ -351,7 +352,9 @@ for i=1:nWorkers
     data(i).x = tmp2{1};
     data(i).y = w.y(points(i)+1:points(i+1));
     data(i).e = w.e(points(i)+1:points(i+1));
+    merge_data(i).range = [points(i)+1,points(i+1)];
 end
+
 end
 
 function [data, merge_data] = split_dataset(w, nWorkers)
@@ -369,6 +372,7 @@ for i = 1:nWorkers
     data(i).x = w.x(points(i)+1:points(i+1));
     data(i).signal = w.signal(points(i)+1:points(i+1));
     data(i).error = w.error(points(i)+1:points(i+1));
+    merge_data(i).range = [points(i)+1,points(i+1)];
 end
 
 if dims > 1

@@ -40,6 +40,7 @@ function [obj, merge_data] = split_sqw(varargin)
             obj(i).npix = sqw_in.npix(points(i)+1:points(i+1));
             merge_data(i).nelem = sum(logical(obj(i).npix));
             merge_data(i).nomerge = true;
+            merge_data(i).range = [points(i)+1, points(i+1)];
         end
 
     elseif isa(sqw_in, 'sqw')
@@ -51,8 +52,7 @@ function [obj, merge_data] = split_sqw(varargin)
         if split_bins
             points = [0, cumsum(num_pixels)];
 
-            [npix, nomerge] = split_npix(num_pixels, sqw_in.data.npix);
-
+            [npix, merge_data] = split_npix(num_pixels, sqw_in.data.npix, merge_data);
         else
             points = [0, cumsum(num_pixels)];
             prev = 0;
@@ -69,6 +69,7 @@ function [obj, merge_data] = split_sqw(varargin)
                 end
 
                 npix{i} = sqw_in.data.npix(prev+1:curr);
+                merge_data(i).range = [prev+1, curr];
                 num_pixels(i) = sum(sqw_in.data.npix(prev+1:curr));
                 points(i+1) = points(i)+num_pixels(i);
                 prev = curr;
@@ -96,7 +97,7 @@ function [obj, merge_data] = split_sqw(varargin)
 
 end
 
-function [npix, nomerge] = split_npix(num_pixels, old_npix)
+function [npix, merge_data] = split_npix(num_pixels, old_npix, merge_data)
 % Splits npix between workers for accumulations, determining the split
 % points with respect to bins.
 %
@@ -115,7 +116,8 @@ function [npix, nomerge] = split_npix(num_pixels, old_npix)
 
     if nWorkers == 1
         npix = {old_npix};
-        nomerge = true;
+        merge_data.nomerge = true;
+        merge_data.range = [1, numel(old_npix)]
         return
     end
 
@@ -124,7 +126,7 @@ function [npix, nomerge] = split_npix(num_pixels, old_npix)
     prev_ind = 0;
 
     rem = cumpix(1);
-    nomerge = false(nWorkers, 1);
+    merge_data(:).nomerge = false(nWorkers, 1);
 
     for i=1:nWorkers-1
         % Catch all-in-one
@@ -156,8 +158,10 @@ function [npix, nomerge] = split_npix(num_pixels, old_npix)
         rem = old_npix(ind+1) - diff;
 
         % Have to be careful to not merge if whole bin
-        nomerge(i+1) = rem == 0;
+        merge_data(i+1).nomerge = rem == 0;
+        merge_data(i).range = [prev_ind+1, ind];
 
+        range
         % Skip split bin
         prev_ind = ind+1;
     end
@@ -165,6 +169,7 @@ function [npix, nomerge] = split_npix(num_pixels, old_npix)
     % Fill last worker
     if prev_ind > 0
         npix{nWorkers} = old_npix(prev_ind+1:end);
+        merge_data(nWorkers).range = [prev_ind+1, numel(old_npix)];
     end
     npix{nWorkers} = [rem; npix{nWorkers}];
 

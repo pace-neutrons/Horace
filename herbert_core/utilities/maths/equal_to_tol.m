@@ -677,7 +677,7 @@ elseif rel_tol == 0
 
 elseif abs_tol == 0
 
-    [max_delta, ind] = max(abs(a-b)./max(abs(a),abs(b)));
+    [max_delta, ind] = max(rel_diff(a, b));
 
     if max_delta > rel_tol
         % Relative tolerance must be satisfied
@@ -723,5 +723,11 @@ else
     end
     str=str(1:end-1);
 end
+
+end
+
+function rel = rel_diff(a, b)
+
+    rel = abs(a-b)./max(abs(a),abs(b));
 
 end
