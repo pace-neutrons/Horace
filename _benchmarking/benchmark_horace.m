@@ -64,18 +64,43 @@ if isempty(bm_folders)% no tests specified on command line - run them all
         'bm_combine_sqw'...
         'bm_func_eval'...
         'bm_sqw_eval'...
+<<<<<<< HEAD
+<<<<<<< HEAD
         'bm_tobyfit'...
 %         'bm_gen_sqw'...
 %         'bm_multifit_simulate'...
 %         'bm_multifit_fit'...
+<<<<<<< HEAD
+=======
+%         'bm_tobyfit'...
+=======
+        'bm_tobyfit'...
+>>>>>>> 3e222a29a (adding folder and fixing typos)
+%         'bm_gen_sqw'...
+>>>>>>> 4ad9d7cfa (add first benchmarking version)
+=======
+>>>>>>> f19dcce9c (switch to using dummy_sqw to generate bm data)
         };
 end
 
 % Generate full path to benchmarking tests
 % --------------------------------------
+<<<<<<< HEAD
+<<<<<<< HEAD
 pths = horace_paths;
 bm_path = pths.bm;
 bm_folders_full = fullfile(bm_path, bm_folders);
+=======
+horace_path = horace_root();
+bm_path = fullfile(horace_path,'_benchmarking');
+bm_folders_full = cellfun(@(x)fullfile(bm_path, x), bm_folders, ...
+    'UniformOutput', false);
+>>>>>>> 4ad9d7cfa (add first benchmarking version)
+=======
+pths = horace_paths;
+bm_path = pths.bm;
+bm_folders_full = fullfile(bm_path, bm_folders);
+>>>>>>> 7a8c2792b (Use horace_paths object)
 
 % Get and store intial Horace config
 % --------------------------------------
@@ -98,6 +123,11 @@ else
     hoc.log_level = -1; % turn off informational output
 end
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f19dcce9c (switch to using dummy_sqw to generate bm data)
 % %% Genrate the sqw objects needed for the benhcmarks
 % bigtic
 % % gen_fake_sqw_data(5);
@@ -106,7 +136,19 @@ end
 % gen_fake_sqw_data(8);
 % % gen_fake_sqw_data(9);
 % bigtoc
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4ad9d7cfa (add first benchmarking version)
+=======
+%% Genrate the sqw objects needed for the benhcmarks
+smallDataSource = gen_fake_sqw_data(5);
+% mediumDataSource = gen_fake_sqw_data(6);
+% largeDataSource = gen_fake_sqw_data(7);
+=======
+>>>>>>> f19dcce9c (switch to using dummy_sqw to generate bm data)
+
+>>>>>>> 3e222a29a (adding folder and fixing typos)
 %% Run benchmarks for small sized data set
 if smallData
     for i = 1:numel(bm_folders_full)
@@ -168,6 +210,18 @@ end
 function benchmark_horace_cleanup(cur_horace_config)
 % Reset the configurations for Horace and HPC
 set(hor_config, cur_horace_config);
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 % DELETE GENERATED SQW FILES
 % delete(string(smallDataSource))
+=======
+>>>>>>> 4ad9d7cfa (add first benchmarking version)
+=======
+% DELETE GENERATED SQW FILES/OBJS
+=======
+% DELETE GENERATED SQW FILES
+>>>>>>> f19dcce9c (switch to using dummy_sqw to generate bm data)
+% delete(string(smallDataSource))
+>>>>>>> 3e222a29a (adding folder and fixing typos)
 end

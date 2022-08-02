@@ -59,6 +59,14 @@ properties([
       description: 'If this pipeline is to build docs.',
       name: 'BUILD_DOCS'
     ),
+<<<<<<< HEAD
+    booleanParam(
+      defaultValue: false,
+      description: 'If this pipeline is to run benchmarks.',
+      name: 'RUN_BENCHMARKS'
+    )
+=======
+>>>>>>> fcfb56d2b (Fix CI (#828))
     booleanParam(
       defaultValue: false,
       description: 'If this pipeline is to run benchmarks.',
@@ -76,7 +84,15 @@ if (env.BRANCH_NAME) {
 
 Boolean run_build_stage = !(env?.PR_LABELS =~ "do-not-build")
 Boolean run_test_stage = !(env?.PR_LABELS =~ "(do-not-build|do-not-test)") || pli.release_type != 'benchmark'
+<<<<<<< HEAD
+<<<<<<< HEAD
 Boolean run_benchmark_stage = env?.RELEASE_TYPE == 'benchmark' || env?.RUN_BENCHMARK
+=======
+Boolean run_benchmark_stage = pli.release_type == 'benchmark' || env?.RUN_BENCHMARK
+>>>>>>> 956e9a7d2 (Add preliminary benchmarking to Jenkins)
+=======
+Boolean run_benchmark_stage = env?.RELEASE_TYPE == 'benchmark' || env?.RUN_BENCHMARK
+>>>>>>> 20c0493b6 (Fix benchmark conditional)
 
 pipeline {
   agent {

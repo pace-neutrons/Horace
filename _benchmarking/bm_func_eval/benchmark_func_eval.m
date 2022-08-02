@@ -1,4 +1,16 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 function benchmark_func_eval(nDims,dataSource,dataType,dataNum,func_handle,params,nProcs,filename)
+=======
+function benchmark_func_eval(sqw_obj,func_handle,params,nProcs,filename,nslow)
+>>>>>>> 4ad9d7cfa (add first benchmarking version)
+=======
+function benchmark_func_eval(sqw_obj,func_handle,params,nProcs,filename)
+>>>>>>> e70c887a5 (use of string instead of char)
+=======
+function benchmark_func_eval(nDims,dataSource,dataType,dataNum,func_handle,params,nProcs,filename)
+>>>>>>> 8d4db5de5 (updating gen_data functions)
 %BENCHMARK_FUNC_EVAL Summary of this function goes here
 %   Detailed explanation goes here
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
@@ -25,6 +37,10 @@ else
 end
 
 %% Start profiler
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8d4db5de5 (updating gen_data functions)
 sqw_obj=gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 profile on
 w_sqw=func_eval(sqw_obj,func_handle,params);
@@ -32,6 +48,23 @@ prof_results = profile('info');
 
 pths = horace_paths;
 prof_folder = fullfile(pths.bm,'bm_func_eval');
+=======
+profile on
+w_sqw=func_eval(sqw_obj,func_handle,params);
+prof_results = profile('info');
+<<<<<<< HEAD
+prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...
+<<<<<<< HEAD
+                )),'benchmarking_results');
+>>>>>>> 4ad9d7cfa (add first benchmarking version)
+=======
+                )),'bm_func_eval');
+>>>>>>> f19dcce9c (switch to using dummy_sqw to generate bm data)
+=======
+
+pths = horace_paths;
+prof_folder = fullfile(pths.bm,'bm_func_eval');
+>>>>>>> 7a8c2792b (Use horace_paths object)
 dump_profile(prof_results,fullfile(prof_folder,filename));
 end
 

@@ -72,14 +72,30 @@ classdef horace_paths
         end
 
         function path = get.bm(obj)
+<<<<<<< HEAD
+<<<<<<< HEAD
             path = fullfile(obj.root, '_benchmarking');
+=======
+            path = fullfile(obj.root, '_benchmarking')
+>>>>>>> 7a8c2792b (Use horace_paths object)
+=======
+            path = fullfile(obj.root, '_benchmarking');
+>>>>>>> f360046bd (adding bm and bm_common to Properties)
             if ~is_folder(path)
                 warning('HORACE:paths:bad_path', 'Cannot find benchmarking path, possible failed setup')
             end
         end
 
         function path = get.bm_common(obj)
+<<<<<<< HEAD
+<<<<<<< HEAD
             path = fullfile(obj.bm, 'common_data');
+=======
+            path = fullfile(obj.bm, 'common_data')
+>>>>>>> 7a8c2792b (Use horace_paths object)
+=======
+            path = fullfile(obj.bm, 'common_data');
+>>>>>>> f360046bd (adding bm and bm_common to Properties)
             if ~is_folder(path)
                 warning('HORACE:paths:bad_path', 'Cannot find benchmarking/common_data, possibly failed setup')
             end

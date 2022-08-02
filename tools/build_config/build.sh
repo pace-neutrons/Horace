@@ -69,7 +69,15 @@ function run_benchmarks() {
   local build_dir=$1
 
   echo -e "\nRunning benchmark step..."
+<<<<<<< HEAD
+<<<<<<< HEAD
   echo_and_run "cmake --build ${build_dir} --target benchmark_all"
+=======
+  echo_and_run "cmake --build ${build_dir} -- benchmark_all"
+>>>>>>> 956e9a7d2 (Add preliminary benchmarking to Jenkins)
+=======
+  echo_and_run "cmake --build ${build_dir} --target benchmark_all"
+>>>>>>> 23f112885 (Fix cmake call to work on VS builder)
 }
 
 function run_analysis() {
@@ -102,7 +110,15 @@ flags:
       Run the Horace build commands.
   -t, --test
       Run all Horace tests.
+<<<<<<< HEAD
+<<<<<<< HEAD
   -k, --benchmark
+=======
+  -B, --benchmark
+>>>>>>> 956e9a7d2 (Add preliminary benchmarking to Jenkins)
+=======
+  -k, --benchmark
+>>>>>>> fcfb56d2b (Fix CI (#828))
       Run all Horace benchmarks.
   -c, --configure
       Run cmake configuration stage
@@ -164,7 +180,15 @@ function main() {
     case $key in
         # flags
         -b|--build) build=$TRUE; shift ;;
+<<<<<<< HEAD
+<<<<<<< HEAD
         -k|--benchmark) benchmark=$TRUE; shift;;
+=======
+        -B|--benchmark) benchmark=$TRUE; shift;;
+>>>>>>> 956e9a7d2 (Add preliminary benchmarking to Jenkins)
+=======
+        -k|--benchmark) benchmark=$TRUE; shift;;
+>>>>>>> fcfb56d2b (Fix CI (#828))
         -t|--test) test=$TRUE; shift ;;
         -c|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
@@ -202,7 +226,15 @@ function main() {
   fi
 
   if ((benchmark)); then
+<<<<<<< HEAD
+<<<<<<< HEAD
     run_benchmarks "${build_dir}"
+=======
+    run_benchmark "${build_dir}"
+>>>>>>> 956e9a7d2 (Add preliminary benchmarking to Jenkins)
+=======
+    run_benchmarks "${build_dir}"
+>>>>>>> fcfb56d2b (Fix CI (#828))
   fi
 
   if ((test)); then

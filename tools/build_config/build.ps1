@@ -35,7 +35,15 @@ param (
   # Run all Horace tests.
   [switch][Alias("t")]$test,
   # Run all Horace benchmarks.
+<<<<<<< HEAD
+<<<<<<< HEAD
   [switch][Alias("k")]$benchmark,
+=======
+  [switch][Alias("B")]$benchmark,
+>>>>>>> 956e9a7d2 (Add preliminary benchmarking to Jenkins)
+=======
+  [switch][Alias("k")]$benchmark,
+>>>>>>> fcfb56d2b (Fix CI (#828))
   # Package Horace into a .zip file.
   [switch][Alias("p")]$package,
   # Print the versions of libraries being used e.g. Matlab.
@@ -188,7 +196,15 @@ function Invoke-Test {
 function Invoke-Benchmark {
   param([string]$build_dir, [string]$build_config)
   Write-Output "`nRunning CMake benchmark step..."
+<<<<<<< HEAD
+<<<<<<< HEAD
   Write-And-Invoke "cmake --build ""$build_dir"" --config ""$build_config"" --target benchmark_all"
+=======
+  Write-And-Invoke "cmake --build ""$build_dir"" --config ""$build_config"" -- benchmark_all"
+>>>>>>> 956e9a7d2 (Add preliminary benchmarking to Jenkins)
+=======
+  Write-And-Invoke "cmake --build ""$build_dir"" --config ""$build_config"" --target benchmark_all"
+>>>>>>> 23f112885 (Fix cmake call to work on VS builder)
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }

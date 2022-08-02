@@ -1,4 +1,12 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
 function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filename,contiguous)
+=======
+function benchmark_cut_sqw(nDims,nData,objType,nProcs,eRange,filename,contiguous)
+>>>>>>> 4ad9d7cfa (add first benchmarking version)
+=======
+function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filename,contiguous)
+>>>>>>> 8d4db5de5 (updating gen_data functions)
 %BENCHMARK_CUT_SQW This function generates cuts from sqw or dnd objects and
 %uses the profiler to generate a csv file of timing data.
 %BENCHMARK_CUT_SQW is used in 2 ways:
@@ -15,6 +23,10 @@ function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filenam
 
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7a8c2792b (Use horace_paths object)
 
 hpc = hpc_config();
 cur_hpc_config = hpc.get_data_to_store();
@@ -22,6 +34,14 @@ cur_hpc_config = hpc.get_data_to_store();
 % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
 cleanup_obj = onCleanup(@()benchmark_cut_sqw_cleanup(cur_hpc_config));
 
+<<<<<<< HEAD
+=======
+hpc = hpc_config();
+cur_hpc_config = hpc.get_data_to_store();
+
+>>>>>>> 4ad9d7cfa (add first benchmarking version)
+=======
+>>>>>>> 7a8c2792b (Use horace_paths object)
 % remove configurations from memory. Ensure only stored configurat  ions are
 % stored
 clear config_store;
@@ -90,7 +110,11 @@ end
 
 % Check if the "contiguous", has been set to true (will do X contiguous
 % cuts)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 
+<<<<<<< HEAD
 dataSource = gen_bm_cut_data(dataFile,dataSize);
 profile on
 if contiguous
@@ -129,9 +153,98 @@ pths = horace_paths;
 prof_folder = fullfile(pths.bm,'bm_cut_sqw');
 dump_profile(prof_result,fullfile(prof_folder,filename));
 
+=======
+=======
+>>>>>>> e70c887a5 (use of string instead of char)
+=======
+profile on
+>>>>>>> f19dcce9c (switch to using dummy_sqw to generate bm data)
+if isa(nData, 'char')
+    if ~contiguous
+        switch objType
+            case "sqw"
+                sqw_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin);
+            case "dnd"
+                dnd_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
+            otherwise
+                error("HORACE:benchmark_cut_sqw:invalid_argument",...
+                    "objType must be sqw or dnd")
+        end
+    else
+        switch objType
+            case "sqw"
+                for j=0:4
+                    p1_bin = [j-3,0.5,j];
+                    sqw_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin);
+                end
+            case "dnd"
+                for j=0:4
+                    p1_bin = [j-3,0.5,j];
+                    dnd_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
+                end
+            otherwise
+                error("HORACE:benchmark_cut_sqw:invalid_argument",...
+                    "objType must be sqw or dnd")
+        end
+    end
+elseif isa(nData,'double')
+=======
+
+dataSource = gen_bm_cut_data(dataFile,dataSize);
+profile on
+if contiguous
+>>>>>>> 8d4db5de5 (updating gen_data functions)
+    switch objType
+        case "sqw"
+            for j=0:4
+                p1_bin = [j-3,0.5,j];
+                sqw_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
+            end
+        case "dnd"
+            for j=0:4
+                p1_bin = [j-3,0.5,j];
+                dnd_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
+            end
+        otherwise
+            error("HORACE:benchmark_cut_sqw:invalid_argument",...
+                "objType must be sqw or dnd")
+    end
+    
+else
+    switch objType
+        case "sqw"
+            sqw_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
+        case "dnd"
+            dnd_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
+        otherwise
+            error("HORACE:benchmark_cut_sqw:invalid_argument",...
+                "objType must be sqw or dnd")
+    end
+end
+
+%% dump benchmark info (setup seperate dumps function for differnet type of dumps: html, all text(profsave), csv, just bm time...
+prof_result = profile('info');
+pths = horace_paths;
+
+prof_folder = fullfile(pths.bm,'bm_cut_sqw');
+dump_profile(prof_result,fullfile(prof_folder,filename));
+
+<<<<<<< HEAD
+% % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
+cleanup_obj = onCleanup(@()benchmark_cut_sqw_cleanup(cur_hpc_config));
+>>>>>>> 4ad9d7cfa (add first benchmarking version)
+=======
+>>>>>>> 7a8c2792b (Use horace_paths object)
 end
 
 function benchmark_cut_sqw_cleanup(cur_hpc_config)
 % Reset hpc configurations
 set(hpc_config, cur_hpc_config);
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+% delete(string(sqw_file))
+>>>>>>> 4ad9d7cfa (add first benchmarking version)
+=======
+>>>>>>> 8d4db5de5 (updating gen_data functions)
 end
