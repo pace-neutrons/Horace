@@ -1,4 +1,4 @@
-function benchmark_cut_sqw(nDims,nData,objType,nProcs,eRange,filename,contiguous)
+function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filename,contiguous)
 %BENCHMARK_CUT_SQW This function generates cuts from sqw or dnd objects and
 %uses the profiler to generate a csv file of timing data.
 %BENCHMARK_CUT_SQW is used in 2 ways:
@@ -90,51 +90,36 @@ end
 
 % Check if the "contiguous", has been set to true (will do X contiguous
 % cuts)
+
+dataSource = gen_bm_cut_data(dataFile,dataSize);
 profile on
-if isa(nData, 'char')
-    if ~contiguous
-        switch objType
-            case "sqw"
-                sqw_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            case "dnd"
-                dnd_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
-            otherwise
-                error("HORACE:benchmark_cut_sqw:invalid_argument",...
-                    "objType must be sqw or dnd")
-        end
-    else
-        switch objType
-            case "sqw"
-                for j=0:4
-                    p1_bin = [j-3,0.5,j];
-                    sqw_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-                end
-            case "dnd"
-                for j=0:4
-                    p1_bin = [j-3,0.5,j];
-                    dnd_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
-                end
-            otherwise
-                error("HORACE:benchmark_cut_sqw:invalid_argument",...
-                    "objType must be sqw or dnd")
-        end
-    end
-elseif isa(nData,'double')
+if contiguous
     switch objType
         case "sqw"
-            sqw_obj = gen_bm_cut_data(nData);
-            sqw_cut = cut_sqw(sqw_obj,proj,p1_bin,p2_bin,p3_bin,p4_bin);
+            for j=0:4
+                p1_bin = [j-3,0.5,j];
+                sqw_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
+            end
         case "dnd"
-            dnd_obj = gen_bm_cut_data(nData);
-            dnd_cut = cut_sqw(dnd_obj,proj,p1_bin,p2_bin,p3_bin,p4_bin,'-nopix');
+            for j=0:4
+                p1_bin = [j-3,0.5,j];
+                dnd_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
+            end
         otherwise
             error("HORACE:benchmark_cut_sqw:invalid_argument",...
-                    "objType must be sqw or dnd")
+                "objType must be sqw or dnd")
     end
+    
 else
-    error("HORACE:benchmark_cut_sqw:invalid_argument",...
-                    "dataSource must be an integer or an exisiting" + ...
-                    " sqw filename")
+    switch objType
+        case "sqw"
+            sqw_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
+        case "dnd"
+            dnd_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
+        otherwise
+            error("HORACE:benchmark_cut_sqw:invalid_argument",...
+                "objType must be sqw or dnd")
+    end
 end
 
 %% dump benchmark info (setup seperate dumps function for differnet type of dumps: html, all text(profsave), csv, just bm time...
@@ -149,5 +134,4 @@ end
 function benchmark_cut_sqw_cleanup(cur_hpc_config)
 % Reset hpc configurations
 set(hpc_config, cur_hpc_config);
-% delete(string(sqw_file))
 end

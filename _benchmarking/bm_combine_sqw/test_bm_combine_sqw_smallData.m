@@ -22,198 +22,198 @@ classdef test_bm_combine_sqw_smallData < TestCase
             obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "small";
+            dataType = 'small';
+            dataNum = 'small';
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_1D_smallData_mediumNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "medium";
+            dataType = 'small';
+            dataNum = 'medium';
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_1D_smallData_largeNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "large";
+            dataType = 'small';
+            dataNum = 'large';
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_2D_smallData_smallNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "small";
+            dataType = 'small';
+            dataNum = 'small';
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_2D_smallData_mediumNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "medium";
+            dataType = 'small';
+            dataNum = 'medium';
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_2D_smallData_largeNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "large";
+            dataType = 'small';
+            dataNum = 'large';
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_1D_smallData_smallNumber_2procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "small";
+            dataType = 'small';
+            dataNum = 'small';
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_1D_smallData_mediumNumber_2procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "medium";
+            dataType = 'small';
+            dataNum = 'medium';
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_1D_smallData_largeNumber_2procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "large";
+            dataType = 'small';
+            dataNum = 'large';
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_2D_smallData_smallNumber_2procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "small";
+            dataType = 'small';
+            dataNum = 'small';
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_2D_smallData_mediumNumber_2procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "medium";
+            dataType = 'small';
+            dataNum = 'medium';
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_2D_smallData_largeNumber_2procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "large";
+            dataType = 'small';
+            dataNum = 'large';
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_1D_smallData_smallNumber_4procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "small";
+            dataType = 'small';
+            dataNum = 'small';
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_1D_smallData_mediumNumber_4procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "medium";
+            dataType = 'small';
+            dataNum = 'medium';
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_1D_smallData_largeNumber_4procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "large";
+            dataType = 'small';
+            dataNum = 'large';
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_2D_smallData_smallNumber_4procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "small";
+            dataType = 'small';
+            dataNum = 'small';
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_2D_smallData_mediumNumber_4procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "medium";
+            dataType = 'small';
+            dataNum = 'medium';
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
 
         function test_bm_combine_sqw_2D_smallData_largeNumber_4procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType ="small";
-            dataNum = "large";
+            dataType = 'small';
+            dataNum = 'large';
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
-            benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
+            benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,...
+                obj.function_name);
         end
     end
 

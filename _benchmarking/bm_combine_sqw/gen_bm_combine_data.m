@@ -1,8 +1,40 @@
-function [cut1, cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum)
+function [cut1, cutN] = gen_bm_combine_data(nDims,dataSource, dataSize,dataSet)
 
-% pths = horace_paths;
-% common_data = pths.bm_common;
+pths = horace_paths;
+common_data = pths.bm_common;
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
+
+switch dataSize
+  case 'small'
+      if isfile(dataSource)
+      else
+          gen_fake_sqw_data(6)
+          dataSource = fullfile(common_data,'NumData6.sqw');
+      end
+  case 'medium'
+      if isfile(dataSource)
+      else
+          gen_fake_sqw_data(7)
+          dataSource = fullfile(common_data,'NumData7.sqw');
+      end
+    case 'large'
+      if isfile(dataSource)
+      else
+          gen_fake_sqw_data(8)
+          dataSource = fullfile(common_data,'NumData8.sqw');
+      end
+    otherwise
+        try
+            gen_fake_sqw_data(dataSize)
+            filenameStr= "Numdata" + num2str(dataSize) + ".sqw";
+            filenameChar = char(filenameStr);
+            dataSource=fullfile(common_data,filenameChar);
+        catch
+            error("HORACE:gen_bm_data:invalid_argument"...
+                ,"dataSize is the size of the sqw object : must be small, " + ...
+                "medium, large (char type) or numeric (from 1 to 9)")
+        end
+end
 
 switch nDims
     case 1
@@ -14,134 +46,29 @@ switch nDims
             ,"nDims is the dimensions of the cuts to combine: must be 1 or 2 ")
 end
 
-switch true
-    case nDims==1 && dataType=="small" && dataNum=="small"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
+cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
+
+switch dataSet
+    case 'small'
         cutN=copy(cut1);
-        cutN.data.pix.signal = 2*cutN.data.pix.signal;
-
-    case nDims==1 && dataType=="small" && dataNum=="medium"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,3);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-    case nDims==1 && dataType=="small" && dataNum=="large"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,7);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-    case nDims==1 && dataType=="medium" && dataNum=="small"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN=copy(cut1);
-        cutN.data.pix.signal = 2*cutN.data.pix.signal;
-
-    case nDims==1 && dataType=="medium" && dataNum=="medium"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,3);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-    case nDims==1 && dataType=="medium" && dataNum=="large"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,7);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-    case nDims==1 && dataType=="large" && dataNum=="small"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN=copy(cut1);
-        cutN.data.pix.signal = 2*cutN.data.pix.signal;
-
-    case nDims==1 && dataType=="large" && dataNum=="medium"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,3);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-    case nDims==1 && dataType=="large" && dataNum=="large"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,7);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-     case nDims==2 && dataType=="small" && dataNum=="small"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN=copy(cut1);
-        cutN.data.pix.signal = 2*cutN.data.pix.signal;
-
-    case nDims==2 && dataType=="small" && dataNum=="medium"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,3);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-    case nDims==2 && dataType=="small" && dataNum=="large"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,7);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-    case nDims==2 && dataType=="medium" && dataNum=="small"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN=copy(cut1);
-        cutN.data.pix.signal = 2*cutN.data.pix.signal;
-
-    case nDims==2 && dataType=="medium" && dataNum=="medium"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,3);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-    case nDims==2 && dataType=="medium" && dataNum=="large"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,7);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-    case nDims==2 && dataType=="large" && dataNum=="small"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN=copy(cut1);
-        cutN.data.pix.signal = 2*cutN.data.pix.signal;
-
-    case nDims==2 && dataType=="large" && dataNum=="medium"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,3);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
-
-    case nDims==2 && dataType=="large" && dataNum=="large"
-        cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-        cutN = cell(1,7);
-        for i=1:numel(cutN)
-            cutN{i} = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            cutN{i}.data.pix.signal = 2*cut1.data.pix.signal;
-        end
+        cutN.data.pix.signal = 2*cut1.data.pix.signal;
+    case 'medium'
+        cut2 = cut1;
+        cut2.data.pix.signal = 2*cut1.data.pix.signal;
+        cutN=repmat(cut2,1,3);
+    case 'large'
+        cut2 = cut1;
+        cut2.data.pix.signal = 2*cut1.data.pix.signal;
+        cutN=repmat(cut2,1,7);
     otherwise
-        warning("HORACE:gen_combine_bm_data:invalid_argument",...
-            "nDims, dataType and dataNum must be valid args")
+        try
+            cut2 = cut1;
+            cut2.data.pix.signal = 2*cut1.data.pix.signal;
+            cutN=repmat(cut2,1,dataSet);
+        catch
+            error("HORACE:gen_bm_data:invalid_argument"...
+                ,"dataSet is the number of sets : must be small, medium, " + ...
+                "large (char) or numeric")
+        end
 end
 end

@@ -1,4 +1,4 @@
-function benchmark_combine_sqw(cut1,cutN,nProcs,filename)
+function benchmark_combine_sqw(nDims,dataSource,dataType,dataNum,nProcs,filename)
 %BENCHMARK_COMBINE_SQW Summary of this function goes here
 %   Detailed explanation goes here
 %% Setup nprocs and other config info with hpc_config() (save intial config details for later)
@@ -24,6 +24,7 @@ else
         "nProcs currently only valid for 1, 2 and 4")
 end
 
+[cut1,cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum);
 profile on
 wout = combine_sqw(cut1, cutN);
 prof_results = profile('info');

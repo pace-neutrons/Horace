@@ -30,298 +30,299 @@ classdef test_bm_func_eval_mediumData < TestCase
         function test_bm_func_eval_1D_mediumData_smallNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
-            dataSource = fullfile(obj.common_data,'NumData7.sqw');
-            dataType = "medium";
-            dataNum = "small";
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            dataType = 'medium';
+            dataNum = 'small';
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-            benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
+            benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+                obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
         end
 
         function test_bm_func_eval_1D_mediumData_mediumNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
-            dataSource = fullfile(obj.common_data,'NumData7.sqw');
-            dataType = "medium";
-            dataNum = "medium";
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            dataType = 'medium';
+            dataNum = 'medium';
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-            benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
+            benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+                obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
         end
 
         function test_bm_func_eval_1D_mediumData_largeNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
-            dataSource = fullfile(obj.common_data,'NumData7.sqw');
-            dataType = "medium";
-            dataNum = "large";
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            dataType = 'medium';
+            dataNum = 'large';
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-            benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
+            benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+                obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
         end
 
         function test_bm_func_eval_2D_mediumData_smallNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
-            dataSource = fullfile(obj.common_data,'NumData7.sqw');
-            dataType = "medium";
-            dataNum = "small";
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            dataType = 'medium';
+            dataNum = 'small';
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-            benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
+            benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+                obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
         end
 
         function test_bm_func_eval_2D_mediumData_mediumNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
-            dataSource = fullfile(obj.common_data,'NumData7.sqw');
-            dataType = "medium";
-            dataNum = "medium";
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            dataType = 'medium';
+            dataNum = 'medium';
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-            benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
+            benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+                obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
         end
 
         function test_bm_func_eval_2D_mediumData_largeNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
-            dataSource = fullfile(obj.common_data,'NumData7.sqw');
-            dataType = "medium";
-            dataNum = "large";
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            dataType = 'medium';
+            dataNum = 'large';
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-            benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
+            benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+                obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
         end
 
         function test_bm_func_eval_3D_mediumData_smallNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=3;
-            dataSource = fullfile(obj.common_data,'NumData7.sqw');
-            dataType = "medium";
-            dataNum = "small";
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            dataType = 'medium';
+            dataNum = 'small';
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-            benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
+            benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+                obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
         end
 
         function test_bm_func_eval_3D_mediumData_mediumNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=3;
-            dataSource = fullfile(obj.common_data,'NumData7.sqw');
-            dataType = "medium";
-            dataNum = "medium";
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            dataType = 'medium';
+            dataNum = 'medium';
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-            benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
+            benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+                obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
         end
 
         function test_bm_func_eval_3D_mediumData_largeNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=3;
-            dataSource = fullfile(obj.common_data,'NumData7.sqw');
-            dataType = "medium";
-            dataNum = "large";
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            dataType = 'medium';
+            dataNum = 'large';
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-            benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
+            benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+                obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
         end
 
+%% The following benchmarks are for multi-processor/parallel-enabled codes
 %         function test_bm_func_eval_1D_mediumData_smallNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "small";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'small';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_1D_mediumData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "medium";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'medium';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_1D_mediumData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "large";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'large';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_2D_mediumData_smallNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "small";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'small';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_2D_mediumData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "medium";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'medium';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_2D_mediumData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "large";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'large';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_3D_mediumData_smallNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "small";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'small';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_3D_mediumData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "medium";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'medium';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_3D_mediumData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "large";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'large';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_1D_mediumData_smallNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "small";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'small';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_1D_mediumData_mediumNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "medium";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'medium';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_1D_mediumData_largeNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "large";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'large';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 %         
 %         function test_bm_func_eval_2D_mediumData_smallNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "small";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'small';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_2D_mediumData_mediumNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "medium";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'medium';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_2D_mediumData_largeNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "large";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'large';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_3D_mediumData_smallNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "small";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'small';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_3D_mediumData_mediumNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "medium";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'medium';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_3D_mediumData_largeNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
-%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
-%             dataType = "medium";
-%             dataNum = "large";
+%             dataSource = fullfile(obj.common_data,'NumData8.sqw');
+%             dataType = 'medium';
+%             dataNum = 'large';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
+%             benchmark_func_eval(nDims,dataSource,dataType,dataNum,...
+%                 obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 
     end

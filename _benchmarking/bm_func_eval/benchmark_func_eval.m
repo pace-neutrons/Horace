@@ -1,4 +1,4 @@
-function benchmark_func_eval(sqw_obj,func_handle,params,nProcs,filename)
+function benchmark_func_eval(nDims,dataSource,dataType,dataNum,func_handle,params,nProcs,filename)
 %BENCHMARK_FUNC_EVAL Summary of this function goes here
 %   Detailed explanation goes here
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
@@ -25,6 +25,7 @@ else
 end
 
 %% Start profiler
+sqw_obj=gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 profile on
 w_sqw=func_eval(sqw_obj,func_handle,params);
 prof_results = profile('info');
