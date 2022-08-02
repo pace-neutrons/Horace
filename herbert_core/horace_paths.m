@@ -35,35 +35,35 @@ classdef horace_paths
         end
 
         function path = get.admin(obj)
-            path = fullfile(obj.root, 'admin')
+            path = fullfile(obj.root, 'admin');
             if ~is_folder(path)
                 warning('HORACE:paths:bad_path', 'Cannot find admin path, possibly failed setup')
             end
         end
 
         function path = get.low_level(obj)
-            path = fullfile(obj.root, '_LowLevelCode')
+            path = fullfile(obj.root, '_LowLevelCode');
             if ~is_folder(path)
                 warning('HORACE:paths:bad_path', 'Cannot find low level code path, possibly failed setup')
             end
         end
 
         function path = get.test(obj)
-            path = fullfile(obj.root, '_test')
+            path = fullfile(obj.root, '_test');
             if ~is_folder(path)
                 warning('HORACE:paths:bad_path', 'Cannot find test path, possible failed setup')
             end
         end
 
         function path = get.test_common(obj)
-            path = fullfile(obj.test, 'common_data')
+            path = fullfile(obj.test, 'common_data');
             if ~is_folder(path)
                 warning('HORACE:paths:bad_path', 'Cannot find test/common_data, possibly failed setup')
             end
         end
 
         function path = get.test_common_func(obj)
-            path = fullfile(obj.test, 'common_functions')
+            path = fullfile(obj.test, 'common_functions');
             if ~is_folder(path)
                 warning('HORACE:paths:bad_path', 'Cannot find test/common_functions, possibly failed setup')
             end
