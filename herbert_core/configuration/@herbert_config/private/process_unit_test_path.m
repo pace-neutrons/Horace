@@ -4,8 +4,16 @@ function  tests_path = process_unit_test_path(init, set_path)
 % search path
 %
 pths = horace_paths;
+
+if isempty(pths.horace) % Horace not initialised
+    global root_path
+    root_path = fileparts(pths.herbert);
+    clobj = onCleanup(@() clear('global','root_path'));
+end
+
 rootpath = pths.root;
 tests_path = pths.test;
+
 if ~is_folder(tests_path)
     if init
         warning('HERBERT_INIT:invalid_setup',...
@@ -15,16 +23,12 @@ if ~is_folder(tests_path)
     tests_path = '';
     return;
 end
+
 system_admin = pths.admin;
 xunit_path = fullfile(pths.test, 'shared', 'matlab_xunit', 'xunit');  % path for unit tests harness
 xunit_path_extras = fullfile(pths.test, 'shared', 'matlab_xunit_ISISextras');  % path for additional functions
 % add to path the MPI unit tests as these have to be on the  path for all MPI workers
 mpi_path = fullfile(pths.test,'test_mpi');
-
-% if the connection is done dynamically, additional folders should be added to Horace too
-% not a real dependency, though not nice Herbert knows about Horace.
-hor_path = pths.horace;
-hor_uproot = pths.root;
 
 if nargin>1
     common_path = pths.test_common_func;   % path for unit tests
@@ -34,7 +38,7 @@ if nargin>1
         addpath(xunit_path_extras);
         addpath(mpi_path);
         addpath(system_admin);
-        if ~isempty(hor_uproot)
+        if ~isempty(rootpath)
             addpath(pths.admin);
             addpath(pths.test_common_func);
         end
@@ -45,7 +49,7 @@ if nargin>1
         rmpath(common_path);
         rmpath(mpi_path);
         rmpath(system_admin);
-        if ~isempty(hor_uproot)
+        if ~isempty(rootpath)
             rmpath(pths.admin);
             rmpath(pths.test_common_func);
         end
