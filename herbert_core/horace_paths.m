@@ -9,6 +9,8 @@ classdef horace_paths
         admin
         test
         low_level
+        bm
+        bm_common
     end
 
     methods
@@ -70,14 +72,14 @@ classdef horace_paths
         end
 
         function path = get.bm(obj)
-            path = fullfile(obj.root, '_benchmarking')
+            path = fullfile(obj.root, '_benchmarking');
             if ~is_folder(path)
                 warning('HORACE:paths:bad_path', 'Cannot find benchmarking path, possible failed setup')
             end
         end
 
         function path = get.bm_common(obj)
-            path = fullfile(obj.bm, 'common_data')
+            path = fullfile(obj.bm, 'common_data');
             if ~is_folder(path)
                 warning('HORACE:paths:bad_path', 'Cannot find benchmarking/common_data, possibly failed setup')
             end
