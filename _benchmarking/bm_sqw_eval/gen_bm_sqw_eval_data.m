@@ -1,4 +1,4 @@
-function sqw_obj = gen_bm_sqw_eval_data(nDims,dataSource,dataSize,dataSet,objType)
+function sqw_obj = gen_bm_sqw_eval_data(nDims,dataFile,dataSize,dataSet,objType)
 %GEN_BM_SQW_EVAL_DATA Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -7,26 +7,29 @@ proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
 switch dataSize
   case 'small'
-      if isfile(dataSource)
+      if isfile(dataFile)
+          dataSource = dataFile;
       else
-          gen_fake_sqw_data(6)
+          gen_fake_sqw_data(6);
           dataSource = fullfile(pths.bm_common,'NumData6.sqw');
       end
   case 'medium'
-      if isfile(dataSource)
+      if isfile(dataFile)
+          dataSource = dataFile;
       else
-          gen_fake_sqw_data(7)
+          gen_fake_sqw_data(7);
           dataSource = fullfile(pths.bm_common,'NumData7.sqw');
       end
     case 'large'
-      if isfile(dataSource)
+      if isfile(dataFile)
+          dataSource = dataFile;
       else
-          gen_fake_sqw_data(8)
+          gen_fake_sqw_data(8);
           dataSource = fullfile(pths.bm_common,'NumData8.sqw');
       end
     otherwise
         try
-            gen_fake_sqw_data(dataSize)
+            gen_fake_sqw_data(dataSize);
             filenameStr= "Numdata" + num2str(dataSize) + ".sqw";
             filenameChar = char(filenameStr);
             dataSource=fullfile(pths.bm_common,filenameChar);

@@ -1,26 +1,29 @@
-function sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataSize,dataSet)
+function sqw_obj = gen_bm_tobyfit_data(nDims,dataFile,dataSize,dataSet)
 %GEN_TOBYFIT_DATA Summary of this function goes here
 
-pths = horace_paths;
+pths=horace_paths;
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
 switch dataSize
   case 'small'
-      if isfile(dataSource)
+      if isfile(dataFile)
+          dataSource=dataFile;
       else
-          gen_fake_sqw_data(6)
+          gen_fake_sqw_data(6);
           dataSource = fullfile(pths.bm_common,'NumData6.sqw');
       end
   case 'medium'
-      if isfile(dataSource)
+      if isfile(dataFile)
+          dataSource=dataFile;
       else
-          gen_fake_sqw_data(7)
+          gen_fake_sqw_data(7);
           dataSource = fullfile(pths.bm_common,'NumData7.sqw');
       end
     case 'large'
-      if isfile(dataSource)
+      if isfile(dataFile)
+          dataSource=dataFile;
       else
-          gen_fake_sqw_data(8)
+          gen_fake_sqw_data(8);
           dataSource = fullfile(pths.bm_common,'NumData8.sqw');
       end
     otherwise
