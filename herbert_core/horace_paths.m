@@ -18,6 +18,7 @@ classdef horace_paths
         function herbert_path = get.herbert(obj)
             global herbert_path
             if ~exist('herbert_path', 'var') || isempty(herbert_path)
+
                 herbert_path = obj.get_folder('herbert_init');
             end
         end
@@ -25,6 +26,7 @@ classdef horace_paths
         function horace_path = get.horace(obj)
             global horace_path
             if ~exist('horace_path', 'var') || isempty(horace_path)
+
                 horace_path = obj.get_folder('horace_init');
             end
         end

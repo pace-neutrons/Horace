@@ -27,7 +27,7 @@ cleanup_obj = onCleanup(@()benchmark_tobyfit_cleanup(cur_hpc_config));
 
 % Set hpc config for benchmarks
 if nProcs > 1
-%     hpc.func_eval_parallel = true for future implementation
+%     hpc.tobyfit_parallel = true for future implementation
 %     hpc.parallel_workers_number = nProcs;
     warning("HORACE:benchmark_tobyfit:not_implemented",...
         "tobyfit_parallel does not yet exist, setting nProcs to 0")
