@@ -29,12 +29,11 @@ clear config_store;
 cleanup_obj = onCleanup(@()benchmark_combine_sqw_cleanup(cur_hpc_config));
 
 % Set hpc config for benchmarks
-if nProcs > 1
+if nProcs > 0
 %     hpc.combine_parallel = true;
     hpc.parallel_workers_number = nProcs;
-elseif nProcs==1
-%     hpc.combine_parallel=false
 else
+%     hpc.combine_parallel=false;
     warning("HORACE:benchmark_combine_sqw:invalid_argument",...
         "nProcs currently only valid for 1, 2 and 4")
 end

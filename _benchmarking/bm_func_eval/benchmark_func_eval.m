@@ -26,7 +26,7 @@ clear config_store;
 cleanup_obj = onCleanup(@()benchmark_func_eval_cleanup(cur_hpc_config));
 
 % Set hpc config for benchmarks
-if nProcs > 1
+if nProcs > 0
 %     hpc.func_eval_parallel = true for future implementation
 %     hpc.parallel_workers_number = nProcs;
     warning("HORACE:benchmark_func_eval:not_implemented",...

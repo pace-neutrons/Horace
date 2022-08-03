@@ -47,7 +47,7 @@ cur_hpc_config = hpc.get_data_to_store();
 clear config_store;
 
 % Set hpc config for benchmarks
-if nProcs > 1
+if nProcs > 0
 %     hpc.cut_parallel = true for future implementation
 %     hpc.parallel_workers_number = nProcs;
     warning("HORACE:benchmark_cut_sqw:not_implemented",...
