@@ -9,6 +9,7 @@ function sqw_obj = gen_bm_func_eval_data(nDims,dataFile,dataSize,dataSet)
 pths = horace_paths;
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
+<<<<<<< HEAD
 switch dataSize
   case 'small'
       if isfile(dataFile)
@@ -126,6 +127,27 @@ switch dataSize
                 ,"dataSize is the size of the sqw object : must be small, " + ...
                 "medium, large (char type) or numeric (from 1 to 9)")
         end
+=======
+if is_file(dataFile)
+          dataSource=dataFile;
+else
+    switch dataSize
+        case 'small'
+            dataSource = gen_fake_sqw_data(6);
+        case 'medium'
+            dataSource = gen_fake_sqw_data(7);
+        case 'large'
+            dataSource = gen_fake_sqw_data(8);
+        otherwise
+            try
+                dataSource = gen_fake_sqw_data(dataSize);
+            catch
+                error("HORACE:gen_bm_data:invalid_argument"...
+                    ,"dataSize is the size of the sqw object : must be small, " + ...
+                    "medium, large (char type) or numeric (from 1 to 9)")
+            end
+    end
+>>>>>>> 22c35e817 (changing order of if loop wrapping and adding output variable)
 end
 
 switch nDims

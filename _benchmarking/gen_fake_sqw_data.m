@@ -1,6 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 function gen_fake_sqw_data(nData)
+=======
+function output_sqw = gen_fake_sqw_data(nData)
+>>>>>>> 22c35e817 (changing order of if loop wrapping and adding output variable)
 % This function will generate an sqw object for benchmarking using dummy_sqw
 %   Using the input parameter nData, dummy_sqw will generate an sqw object
 %   with the requested amount of pixel data. nData must be an integer
@@ -178,6 +182,7 @@ disp("Generating sqw object with 10^" + nData + " pixels:")
 
 dummy_sqw(e_bin_boundaries,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 
+output_sqw = sqw_file;
 disp("Sqw object generated")
 disp("--------------------")
 

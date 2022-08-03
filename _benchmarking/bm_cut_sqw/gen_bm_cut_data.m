@@ -9,39 +9,25 @@ function dataSource = gen_bm_cut_data(dataFile,dataSize)
 pths=horace_paths;
 <<<<<<< HEAD
 
-switch dataSize
-  case 'small'
-      if isfile(dataFile)
+if is_file(dataFile)
           dataSource=dataFile;
-      else
-          gen_fake_sqw_data(6);
-          dataSource = fullfile(pths.bm_common,'NumData6.sqw');
-      end
-  case 'medium'
-      if isfile(dataFile)
-          dataSource=dataFile;
-      else
-          gen_fake_sqw_data(7);
-          dataSource = fullfile(pths.bm_common,'NumData7.sqw');
-      end
-    case 'large'
-      if isfile(dataFile)
-          dataSource=dataFile;
-      else
-          gen_fake_sqw_data(8);
-          dataSource = fullfile(pths.bm_common,'NumData8.sqw');
-      end
-    otherwise
-        try
-            gen_fake_sqw_data(dataSize);
-            filenameStr= "Numdata" + num2str(dataSize) + ".sqw";
-            filenameChar = char(filenameStr);
-            dataSource=fullfile(pths.bm_common,filenameChar);
-        catch
-            error("HORACE:gen_bm_data:invalid_argument"...
-                ,"dataSize is the size of the sqw object : must be small, " + ...
-                "medium, large (char type) or numeric (from 1 to 9)")
-        end
+else
+    switch dataSize
+        case 'small'
+            dataSource = gen_fake_sqw_data(6);
+        case 'medium'
+            dataSource = gen_fake_sqw_data(7);
+        case 'large'
+            dataSource = gen_fake_sqw_data(8);
+        otherwise
+            try
+                dataSource = gen_fake_sqw_data(dataSize);
+            catch
+                error("HORACE:gen_bm_data:invalid_argument"...
+                    ,"dataSize is the size of the sqw object : must be small, " + ...
+                    "medium, large (char type) or numeric (from 1 to 9)")
+            end
+    end
 end
 
 =======
