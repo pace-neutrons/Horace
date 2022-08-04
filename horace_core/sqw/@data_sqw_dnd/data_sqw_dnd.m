@@ -248,7 +248,7 @@ classdef data_sqw_dnd < DnDBase
             % rebinning.
             % TODO: remove this property setter or enable rebinning algorithm
             % on its change
-            warning('HORACE:data_sqw_dnd:runtime_erroe',...
+            warning('HORACE:data_sqw_dnd:runtime_error',...
                 'using redundant property img_db_range. Use set/get.img_range instead')
             obj.img_range = val;
         end

@@ -44,7 +44,7 @@ if ~isfield(S,'version')
         if isfield(ss,'data') && isa(ss.data,'data_sqw_dnd')
             hav = header_average(ss.experiment_info);
             proj = ss.data.get_projection(hav);
-            ax   = ss.data.get_axes();
+            ax   = ss.data.axes;
             ss.pix = ss.data.pix;
             ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
         end

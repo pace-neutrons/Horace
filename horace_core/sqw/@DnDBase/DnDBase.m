@@ -381,7 +381,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             end
             if isfield(inputs,'pax') && isfield(inputs,'iax')
                 inputs.axes = axes_block.get_from_old_data(inputs);
+                if isfield(inputs,'img_db_range')
+                    inputs = rmfield(inputs,'img_db_range');
+                end
                 inputs.proj = ortho_proj.get_from_old_data(inputs);
+            end
+            if isfield(inputs,'uoffset')
+                inputs.proj.offset = inputs.uoffset;
+                inputs = rmfield(inputs,'uoffset');
             end
 
             if isfield(inputs,'array_dat')
