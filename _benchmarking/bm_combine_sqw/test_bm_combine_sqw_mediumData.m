@@ -94,6 +94,33 @@ classdef test_bm_combine_sqw_mediumData < TestCase
                 obj.function_name);
         end
 
+        function test_bm_combine_sqw_3D_mediumData_smallNumber_1procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=3;
+            dataSet = 'small';
+            nProcs = 1;
+            benchmark_combine_sqw(nDims,obj.dataSource,obj.dataSize,dataSet,nProcs,...
+                obj.function_name);
+        end
+
+        function test_bm_combine_sqw_3D_mediumData_mediumNumber_1procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=3;
+            dataSet = 'medium';
+            nProcs = 1;
+            benchmark_combine_sqw(nDims,obj.dataSource,obj.dataSize,dataSet,nProcs,...
+                obj.function_name);
+        end
+
+        function test_bm_combine_sqw_3D_mediumData_largeNumber_1procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=3;
+            dataSet = 'large';
+            nProcs = 1;
+            benchmark_combine_sqw(nDims,obj.dataSource,obj.dataSize,dataSet,nProcs,...
+                obj.function_name);
+        end
+
         function test_bm_combine_sqw_1D_mediumData_smallNumber_2procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
@@ -148,6 +175,33 @@ classdef test_bm_combine_sqw_mediumData < TestCase
                 obj.function_name);
         end
 
+        function test_bm_combine_sqw_3D_mediumData_smallNumber_2procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=3;
+            dataSet = 'small';
+            nProcs = 2;
+            benchmark_combine_sqw(nDims,obj.dataSource,obj.dataSize,dataSet,nProcs,...
+                obj.function_name);
+        end
+
+        function test_bm_combine_sqw_3D_mediumData_mediumNumber_2procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=3;
+            dataSet = 'medium';
+            nProcs = 2;
+            benchmark_combine_sqw(nDims,obj.dataSource,obj.dataSize,dataSet,nProcs,...
+                obj.function_name);
+        end
+
+        function test_bm_combine_sqw_3D_mediumData_largeNumber_2procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=3;
+            dataSet = 'large';
+            nProcs = 2;
+            benchmark_combine_sqw(nDims,obj.dataSource,obj.dataSize,dataSet,nProcs,...
+                obj.function_name);
+        end
+
         function test_bm_combine_sqw_1D_mediumData_smallNumber_4procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
@@ -196,6 +250,33 @@ classdef test_bm_combine_sqw_mediumData < TestCase
         function test_bm_combine_sqw_2D_mediumData_largeNumber_4procs(obj)
             obj.function_name = get_bm_name();
             nDims=2;
+            dataSet = 'large';
+            nProcs = 4;
+            benchmark_combine_sqw(nDims,obj.dataSource,obj.dataSize,dataSet,nProcs,...
+                obj.function_name);
+        end
+
+        function test_bm_combine_sqw_3D_mediumData_smallNumber_4procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=3;
+            dataSet = 'small';
+            nProcs = 4;
+            benchmark_combine_sqw(nDims,obj.dataSource,obj.dataSize,dataSet,nProcs,...
+                obj.function_name);
+        end
+
+        function test_bm_combine_sqw_3D_mediumData_mediumNumber_4procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=3;
+            dataSet = 'medium';
+            nProcs = 4;
+            benchmark_combine_sqw(nDims,obj.dataSource,obj.dataSize,dataSet,nProcs,...
+                obj.function_name);
+        end
+
+        function test_bm_combine_sqw_3D_mediumData_largeNumber_4procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=3;
             dataSet = 'large';
             nProcs = 4;
             benchmark_combine_sqw(nDims,obj.dataSource,obj.dataSize,dataSet,nProcs,...

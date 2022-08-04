@@ -100,9 +100,11 @@ switch nDims
         p1_bin=[-3,0.05,3];p2_bin=[1.9,2.1];p3_bin=[-0.1,0.1];p4_bin=[0,175];
     case 2
         p1_bin=[-3,0.05,3];p2_bin=[-2.1,-1.9];p3_bin=[-0.1,0.1];p4_bin=[0,16,350];
+    case 3
+        p1_bin=[-3,0.05,3];p2_bin=[-3,0.05,3];p3_bin=[-0.1,0.1];p4_bin=[0,16,700];
     otherwise
         error("HORACE:test_combine_sqw_smallData:gen_bm_data:invalid_argument"...
-            ,"nDims is the dimensions of the cuts to combine: must be 1 or 2 ")
+            ,"nDims is the dimensions of the cuts to combine: must be 1, 2 or 3 ")
 end
 
 <<<<<<< HEAD
