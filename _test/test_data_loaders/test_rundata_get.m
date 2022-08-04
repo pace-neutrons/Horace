@@ -17,8 +17,8 @@ classdef test_rundata_get< TestCase
         function this=test_rundata_get(name)
             this = this@TestCase(name);
             % define default rundata class instance
-            [~,tdp] = herbert_root();
-            this.test_data_path = tdp;
+            pths = horace_paths;
+            this.test_data_path = pths.test_common;
 
             this.the_run = rundata(fullfile(this.test_data_path,'MAP11014.nxspe'));
             % from 01/04/2017 rundata needs minimal non-default oriented lattice to use

@@ -20,8 +20,8 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             % to support loading the previous version
             obj = obj@TestCaseWithSave(name,'data_sqw_dnd_V1_ref_data.mat');
 
-            root_dir = horace_root();
-            data_dir = fullfile(root_dir,'_test','common_data');
+            pths = horace_paths;
+            data_dir = pths.test_common;
             obj.par_file =  fullfile(data_dir,obj.par_file);
             ref_sqw = fake_sqw(-80:8:760, obj.par_file, '', 800,...
                 1, [2,2.5,2], [95,110,90],...
@@ -206,9 +206,9 @@ classdef test_data_sqw_dnd < TestCaseWithSave
                 sum(reshape(same_sqw.data.npix,1,cut_size)));
             assertEqual(sum(reshape(obj.ref_sqw.data.s,1,cut_size)),...
                 sum(reshape(same_sqw.data.s,1,cut_size)));
-            % This is the full comparison. The creation date is different 
+            % This is the full comparison. The creation date is different
             % as cut is the same but created at different time
-            same_sqw.main_header.creation_date = obj.ref_sqw.main_header.creation_date;            
+            same_sqw.main_header.creation_date = obj.ref_sqw.main_header.creation_date;
             assertEqualToTol(obj.ref_sqw,same_sqw,'tol',[2.e-15,3.e-16])
 
             same_proj = same_sqw.data.get_projection();

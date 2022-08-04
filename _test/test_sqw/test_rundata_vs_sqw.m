@@ -43,8 +43,8 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             ref_data = fullfile(fileparts(this_folder),'common_data','rundata_vs_sqw_refdata.mat');
             this = this@TestCaseWithSave(name,ref_data);
             %
-            root_dir = horace_root();
-            data_dir = fullfile(root_dir,'_test','common_data');
+            pths = horace_paths;
+            data_dir = pths.test_common;
             this.sqw_file_single = fullfile(this.out_dir,this.sqw_file_single);
             this.par_file = fullfile(data_dir,this.par_file);
             if this.save_file
@@ -183,8 +183,8 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
         end
         %
         function test_rundata_sqw(obj)
-            test_file = fullfile(horace_root(),...
-                '_test','common_data','MAP11014.nxspe');
+            pths = horace_paths;
+            test_file = fullfile(pths.test_common,'MAP11014.nxspe');
             ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[90,90,90],...
                 'u',[1,0,0],'v',[0,1,0]);
 
@@ -210,8 +210,8 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
         end
         %
         function test_rundata_mex_nomex(~)
-            test_file = fullfile(horace_root(),...
-                '_test','common_data','MAP11014.nxspe');
+            pths = horace_paths;
+            test_file = fullfile(pths.test_common,'MAP11014.nxspe');
             ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[97,60,80],...
                 'u',[1,0,0],'v',[0,1,0]);
 

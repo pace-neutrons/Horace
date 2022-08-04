@@ -46,7 +46,7 @@ end
 % -----------------------------------------------------------------------------
 if isempty(test_folders) % No tests specified on command line - run them all
     test_folders = { ...
-        'test_admin', ...    
+        'test_admin', ...
         'test_data_loaders', ...
         'test_config', ...
         'test_IX_classes', ...
@@ -85,8 +85,8 @@ par_config = pcf.get_data_to_store();
 pcf.shared_folder_on_local = tmp_dir;
 
 % Generate full test paths to unit tests:
-rootpath = fileparts(fileparts(which('herbert_init')));
-test_path = fullfile(rootpath, '_test'); % path to folder with all unit tests folders:
+pths = horace_paths;
+test_path = pths.test; % path to folder with all unit tests folders:
 test_folders_full = cellfun(...
     @(x) fullfile(test_path, x), test_folders, 'UniformOutput', false);
 %
@@ -124,7 +124,7 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
         end
         matlabpool(cores);
     end
-    
+
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
     parfor i = 1:numel(test_folders_full)
@@ -145,7 +145,7 @@ else
     %     end
     %     tests_ok = all(test_ok);
     bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
-    
+
 end
 
 if tests_ok

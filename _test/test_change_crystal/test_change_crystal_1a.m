@@ -48,8 +48,8 @@ classdef test_change_crystal_1a < TestCase
 
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
-            hor_root = horace_root();
-            common_data_dir=fullfile(hor_root,'_test','common_data');
+            pths = horace_paths;
+            common_data_dir = pths.test_common;
             % -----------------------------------------------------------------------------
             % generate shifted sqw file
             obj.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');

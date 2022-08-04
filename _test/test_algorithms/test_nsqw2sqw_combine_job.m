@@ -20,7 +20,8 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             class_dir = fileparts(which('test_nsqw2sqw_combine_job.m'));
             obj.this_tests_dir = fileparts(class_dir);
 
-            source_test_dir = fullfile(horace_root(),'_test','common_data');
+            pths = horace_paths;
+            source_test_dir = pths.test_common;
             source_file = fullfile(source_test_dir,'MAP11014.nxspe');
 
             psi = [0,2,20]; %-- test settings;

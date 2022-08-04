@@ -12,8 +12,8 @@ classdef test_a_loader< TestCase
                 name = 'test_a_loader';
             end
             this = this@TestCase(name);
-            [~,tdp] = herbert_root();
-            this.test_data_path =tdp;
+            pths = horace_paths;
+            this.test_data_path = pths.test_common;
         end
 
         function test_abstract_methods(~)
@@ -336,4 +336,3 @@ classdef test_a_loader< TestCase
         end
     end
 end
-

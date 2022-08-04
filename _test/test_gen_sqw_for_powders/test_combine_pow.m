@@ -26,8 +26,8 @@ classdef test_combine_pow < TestCaseWithSave
                 name= mfilename('class');
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_pow_output.mat'));
-            hor_root = horace_root();
-            common_data_dir=fullfile(hor_root,'_test','common_data');
+            pths = horace_paths;
+            common_data_dir = pths.test_common;
 
 
             % =====================================================================================================================

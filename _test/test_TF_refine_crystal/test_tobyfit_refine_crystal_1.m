@@ -68,7 +68,8 @@ datafile='test_tobyfit_refine_crystal_1_data.mat';
 % File to which to save results of refinement
 savefile='test_tobyfit_refine_crystal_1_out.mat';   % filename where saved results are written
 
-test_tobyfit_dir = fullfile(horace_root(), '_test', 'test_tobyfit');
+pths = horace_paths;
+test_tobyfit_dir = fullfile(pths.test, 'test_tobyfit');
 addpath(test_tobyfit_dir)
 cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
@@ -86,7 +87,7 @@ fprintf('RNG seed: %i\n', rng_state.Seed);
 efix=45;
 emode=1;
 en=-0.75:0.5:0.75;
-par_file=fullfile(horace_root,'_test','common_data','map_4to1_dec09.par');
+par_file=fullfile(pths.test_common,'map_4to1_dec09.par');
 
 % Parameters for reference lattice (i.e. what we think we have)
 alatt=[5,5,5];
@@ -366,4 +367,3 @@ for i=1:numel(flname)
         disp(['Unable to delete temporary file: ',flname{i}])
     end
 end
-
