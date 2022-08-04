@@ -1,5 +1,5 @@
 %% ===================================================================================
-% Simultaneous fit of several two-dimensional datasets with constrained 
+% Simultaneous fit of several two-dimensional datasets with constrained
 % parameters accross data sets
 
 nw = 5;
@@ -34,11 +34,11 @@ nslow = 0;    % each function evaluation of the 2D Gaussian will take
 kk = multifit (win);
 pf0 = [100, 65, 1055, 12, 3, 25];   % starting parameters different from initial parameters
 kk = kk.set_local_foreground;       % independent functions for each dataset
-kk = kk.set_fun (@slow_func2d, {pf0, @gauss2d, nslow});     % set all functions with same initial parameters
+kk = kk.set_fun (@slow_func, {pf0, @gauss2d, nslow});     % set all functions with same initial parameters
 kk = kk.set_bind ({2,[2,1],1}, {3,[3,1],1});    % bind centres to all be the same
 kk = kk.add_bind ({6,[6,1],1});     % bind variance of x2 to be the same in all datasets
-pb0 = [15,0,0]; 
-kk = kk.set_bfun (@slow_func2d, {pb0, @linear2D_bg, nslow});
+pb0 = [15,0,0];
+kk = kk.set_bfun (@slow_func, {pb0, @linear2D_bg, nslow});
 kk = kk.set_bfree ([1,0,0]);
 
 % Perform fit
