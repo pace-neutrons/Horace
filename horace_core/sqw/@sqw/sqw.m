@@ -41,7 +41,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
     properties(Access = protected)
         % holder for image data, e.g. appropriate dnd object
-        data_
+        data_ = d0d();
         % holder for pix data
         pix_ = PixelData()      % Object containing data for each pixe
     end
