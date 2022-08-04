@@ -27,6 +27,5 @@ function y = slow_func (varargin)
 %   y           Array of calculated y-axis values
 
 [p, funchandle, nslow] = varargin{end-2:end};
-x = [varargin{1:end-3}];
-y = funchandle (x, p);
+y = funchandle (varargin{1:end-3}, p);
 y = time_waster (y, nslow);
