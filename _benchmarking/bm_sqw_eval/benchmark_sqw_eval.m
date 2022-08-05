@@ -29,9 +29,9 @@ cleanup_obj = onCleanup(@()benchmark_sqw_eval_cleanup(cur_hpc_config));
 % Set hpc config for benchmarks
 if nProcs > 0
 %     hpc.sqw_eval_parallel = true for future implementation
-%      hpc.parallel_workers_number = nProcs;
-    warning("HORACE:benchmark_sqw_eval:not_implemented",...
-        "sqw_eval_parallel does not yet exist, setting nProcs to 0")
+     hpc.parallel_workers_number = nProcs;
+%     warning("HORACE:benchmark_sqw_eval:not_implemented",...
+%         "sqw_eval_parallel does not yet exist, setting nProcs to 0")
     nProcs=0;
 else
 %     hpc.sqw_eval_parallel=false

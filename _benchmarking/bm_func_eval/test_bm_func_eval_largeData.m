@@ -15,6 +15,12 @@ classdef test_bm_func_eval_largeData < TestCase
             @gauss3d,10^0};
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        func_4D = @slow_func;
+        func_4D_params={[700,-1,2,1,500,0.05,0.05,0.05,0.05,0.05,0.05,0.05...
+            ,0.05,0.05,0.05],@gauss4d,10^0};
+>>>>>>> cd66f557b (adding 4D benchmarks)
         common_data;
         dataSize = 'large';
         dataSource;
@@ -395,6 +401,33 @@ classdef test_bm_func_eval_largeData < TestCase
                 obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
         end
 
+        function test_bm_func_eval_4D_largeData_smallNumber_1procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=4;
+            dataSet = 'small';
+            nProcs = 1;
+            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+                obj.func_4D,obj.func_4D_params,nProcs,obj.function_name);
+        end
+
+        function test_bm_func_eval_4D_largeData_mediumNumber_1procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=4;
+            dataSet = 'medium';
+            nProcs = 1;
+            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+                obj.func_4D,obj.func_4D_params,nProcs,obj.function_name);
+        end
+
+        function test_bm_func_eval_4D_largeData_largeNumber_1procs(obj)
+            obj.function_name = get_bm_name();
+            nDims=4;
+            dataSet = 'large';
+            nProcs = 1;
+            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+                obj.func_4D,obj.func_4D_params,nProcs,obj.function_name);
+        end
+
 %% The following benchmarks are for multi-processor/parallel-enabled codes
 %         function test_bm_func_eval_1D_largeData_smallNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
@@ -475,6 +508,33 @@ classdef test_bm_func_eval_largeData < TestCase
 %             nProcs = 2;
 %             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
 %                 obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
+%         end
+
+%         function test_bm_func_eval_4D_largeData_smallNumber_2procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=4;
+%             dataSet = 'small';
+%             nProcs = 2;
+%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 obj.func_4D,obj.func_4D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_4D_largeData_mediumNumber_2procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=4;
+%             dataSet = 'medium';
+%             nProcs = 2;
+%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 obj.func_4D,obj.func_4D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_4D_largeData_largeNumber_2procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=4;
+%             dataSet = 'large';
+%             nProcs = 2;
+%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 obj.func_4D,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_func_eval_1D_largeData_smallNumber_4procs(obj)
@@ -566,6 +626,33 @@ classdef test_bm_func_eval_largeData < TestCase
 >>>>>>> ab0cb176e (making dataSize and dataSource class Properties)
 %                 obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 >>>>>>> 8d4db5de5 (updating gen_data functions)
+%         end
+%
+%         function test_bm_func_eval_4D_largeData_smallNumber_4procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=4;
+%             dataSet = 'small';
+%             nProcs = 4;
+%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 obj.func_4D,obj.func_4D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_4D_largeData_mediumNumber_4procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=4;
+%             dataSet = 'medium';
+%             nProcs = 4;
+%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 obj.func_4D,obj.func_4D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_4D_largeData_largeNumber_4procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=4;
+%             dataSet = 'large';
+%             nProcs = 4;
+%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 obj.func_4D,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 
     end
