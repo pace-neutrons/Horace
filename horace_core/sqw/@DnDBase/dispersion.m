@@ -47,14 +47,14 @@ function [wout_disp, wout_weight] = dispersion(win, dispreln, pars)
 %                              one dispersion relation, a cell array of arrays.
 %
 %              More general form is:
-%                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)
+%                   [w,s] = dispreln (qh,qk,ql,{p,c1,c2,..})
 %                 where
 %                   p           Typically a vector of parameters that we might want
 %                              to fit in a least-squares algorithm
 %                   c1,c2,...   Other constant parameters e.g. file name for look-up
 %                              table.
 %
-%   p           Arguments needed by the function. Most commonly, a vector of parameter
+%   pars       Arguments needed by the function. Most commonly, a vector of parameter
 %              values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
 %              set of parameters is required by the function, then
 %              package these into a cell array and pass that as pars. In the example
@@ -79,14 +79,17 @@ function [wout_disp, wout_weight] = dispersion(win, dispreln, pars)
 %   e.g.        If win is a 2D dataset with Q and E axes, then wdisp is a 1D dataset
 %              with just the Q axis
 
-
-wout_disp = copy(win);
-if nargout==2
-    wout_weight=wout_disp;
+if ~iscell(pars)   % package parameters as a cell for convenience
+    pars={pars};
 end
 
-if ~iscell(pars)                        % package parameters as a cell for convenience
-    pars={pars};
+
+wout_disp      = copy(win);
+wout_disp.s    = zeros(size(wout_disp.s));
+wout_disp.e    = zeros(size(wout_disp.s));
+wout_disp.npix = ones(size(wout_disp.s));
+if nargout==2
+    wout_weight=wout_disp;
 end
 
 for i=1:numel(win)
@@ -116,7 +119,7 @@ for i=1:numel(win)
 
     % Compute dispersion relation at bin centres
     qw = calculate_qw_bins(data);
-    if nargout < 2
+    if nargout(dispreln) < 2
         wdisp = dispreln(qw{1:3}, pars{:});  % only dispersion seems to be provided
     else
         [wdisp,sfact] = dispreln(qw{1:3}, pars{:});

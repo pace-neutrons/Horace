@@ -14,7 +14,7 @@ function obj = set_from_old_struct_(obj,S)
 % the modern structure, this method needs the specific overloading
 % to allow loadobj to recover new structure from an old structure.
 %
-if ~isfield(S,'version')
+if ~isfield(S,'version') || S.version<4
     % previous version did not store any version data
     if numel(S)>1
         tmp = sqw();
@@ -33,6 +33,9 @@ if ~isfield(S,'version')
             end
             ss = rmfield(ss,'header');
         end
+        if isfield(ss,'experiment_info') && isstruct(ss.experiment_info)
+            ss.experiment_info = Experiment.loadobj(ss.experiment_info);
+        end
         if isfield(ss,'data_')
             ss.data = ss.data_;
             ss = rmfield(ss,'data_');
@@ -41,12 +44,17 @@ if ~isfield(S,'version')
             ss.experiment_info.runid_map = ss.runid_map;
             ss = rmfield(ss,'runid_map');
         end
-        if isfield(ss,'data') && isa(ss.data,'data_sqw_dnd')
-            hav = header_average(ss.experiment_info);
-            proj = ss.data.get_projection(hav);
-            ax   = ss.data.axes;
-            ss.pix = ss.data.pix;
-            ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
+        if isfield(ss,'data') 
+            if isstruct(ss.data)
+                ss.data = data_sqw_dnd.loadobj(ss.data);
+            end
+            if isa(ss.data,'data_sqw_dnd')
+                hav = header_average(ss.experiment_info);
+                proj = ss.data.get_projection(hav);
+                ax   = ss.data.axes;
+                ss.pix = ss.data.pix;
+                ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
+            end
         end
         % guard against old data formats, which may or may not contain
         % runid map and the map may or may not correspond to

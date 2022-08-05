@@ -31,4 +31,8 @@ if numel(win)~=1
         'Only a single object is valid - cannot take an array of %s objects',...
          class(win))
 end
-qw = win.data.calculate_qw_bins(optstr);
+if nargin == 2
+    qw = win.data.calculate_qw_bins(optstr);
+else
+    qw = win.data.calculate_qw_bins();    
+end

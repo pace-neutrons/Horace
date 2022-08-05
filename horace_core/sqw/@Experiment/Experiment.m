@@ -318,7 +318,11 @@ classdef Experiment < serializable
             else
                 ebins_are_the_same=[];
             end
-            avh = avh.to_bare_struct();
+            if isempty(avh)
+                avh = struct();
+            else
+                avh = avh.to_bare_struct();
+            end
             sampl = obj.samples_{1};
             avh.alatt = sampl.alatt;
             avh.angdeg = sampl.angdeg;

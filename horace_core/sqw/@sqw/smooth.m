@@ -8,7 +8,7 @@ function wout = smooth(win, varargin)
 
 % Check all elements before smoothing (avoids possibly costly wasted computation if error)
 if any(has_pixels(win))
-    error('HORACE:smooth:invalid_arguments', ...
+    error('HORACE:sqw:invalid_argument', ...
         'No smoothing of sqw data implemented. Convert to corresponding dnd object and smooth that.')
 end
 

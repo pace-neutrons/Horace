@@ -34,8 +34,6 @@ classdef data_sqw_dnd < DnDBase
             ver = 4;
         end
         %------------------------------------------------------------------
-        % Determine data type of the data field of an sqw data structure
-        data_type = data_structure_type(data);
         % Extract projection, used to build sqw file from full data_sqw_dnd
         % object.
         proj = get_projection(obj,header_av)

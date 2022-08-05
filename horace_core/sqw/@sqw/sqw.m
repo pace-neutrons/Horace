@@ -387,7 +387,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     in_filename);
             end
             lds = obj.get_loader_struct_(ldr,pixel_page_size);
-            obj = sqw();
             obj = from_bare_struct(obj,lds);
         end
         function ld_str = get_loader_struct_(~,ldr,pixel_page_size)

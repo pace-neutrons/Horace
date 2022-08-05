@@ -91,7 +91,7 @@ if numel(win)>1
     wout_disp = repmat(wout_disp,size(win));
 end
 if nargout>1
-    wout_disp = dispersion(wout_disp,dispreln,pars{:});
+    [wout_disp,wout_weight] = dispersion(wout_disp,dispreln,pars);
 else
-    [wout_disp,wout_weight] = dispersion(wout_disp,dispreln,pars{:});
+    wout_disp = dispersion(wout_disp,dispreln,pars);    
 end

@@ -139,8 +139,11 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
         function test_dimensions_match_returns_false_if_not_all_equal(obj)
             sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
-            match_dims = dimensions_match([sqw_2d_obj, sqw_4d_obj]);
-            assertFalse(match_dims);
+            [dims_match,mess,nd,eq_dim] = dimensions_match([sqw_2d_obj, sqw_4d_obj]);
+            assertFalse(dims_match);
+            assertTrue(strncmp(mess,'Not all elements in',19));
+            assertEqual(nd,2);
+            assertEqual(eq_dim,[true,false]);
         end
 
         %% sqw_eval/func_eval/Disp2sqw_eval
@@ -158,11 +161,11 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
         function test_dispersion_with_disp_return_value(obj)
             params = {'scale', 10};
             sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
-            [wout_disp]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, params);
+            wout_disp  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, params);
 
             expected = load('test_migrated_apis_data.mat', 'wout_disp');
 
-            assertEqualToTol(expected.wout_disp.data, wout_disp.data, ...
+            assertEqualToTol(expected.wout_disp.data, wout_disp, ...
                 'ignore_str', true,'tol',[1.e-6,1.e-6]);
         end
         function test_dispersion_with_disp_and_weight_retval(obj)
@@ -172,9 +175,9 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
 
             expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
 
-            assertEqualToTol(expected.wout_disp.data, wout_disp.data, ...
+            assertEqualToTol(expected.wout_disp.data, wout_disp, ...
                 'ignore_str', true,'tol',[1.e-6,1.e-6]);
-            assertEqualToTol(expected.wout_weight.data, wout_weight.data, ...
+            assertEqualToTol(expected.wout_weight.data, wout_weight, ...
                 'ignore_str', true,'tol',[1.e-6,1.e-6]);
         end
 
@@ -259,20 +262,20 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
         end
 
         function test_get_proj_and_pbin(obj)
-            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
-            [proj, pbin] = sqw_obj.get_proj_and_pbin();
+            sqw_obj = sqw_tester(obj.test_sqw_2d_fullpath);
+            [proj, pbin] = sqw_obj.get_proj_and_pbin_public();
 
             % Reference data calculated from call on old class
             expected_pbin = {[-0.7, 0.02, -0.4],  [-0.65, 0.02, -0.45], [-0.05, 0.05], [-0.25, 0.25]};
             expected_proj = ortho_proj( ...
-                [1,1,0], [1.1102e-16 1.1102e-16 1], [1 -1 9.9580e-17], ...
-                'type', 'ppp', ...
+                [1,1,0], [1.1102e-16 1.1102e-16 1], ...
+                'alatt',4.2275,...
                 'nonorthogonal', 0, ...
                 'lab', {'\zeta'  '\xi'  '\eta'  'E'});
 
             % low tolerance as ref data to 5sf only
             assertEqualToTol(proj, expected_proj, 1e-6);
-            assertEqualToTol(pbin, expected_pbin, 1e-6);
+            assertEqualToTol(pbin{1}, expected_pbin', 1e-6);
         end
 
         %% split/join
@@ -336,10 +339,11 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, params);
         end
         function test_shift_pixels(obj)
-            %TODO: test return values
+            %TODO: test return values more
             params = {}; % no paramters required by test shift_rln function
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
             wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, params);
+            assertEqual(sqw_4d_obj.npixels,wout.npixels);
         end
 
         %% values

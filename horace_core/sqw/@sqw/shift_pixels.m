@@ -91,27 +91,31 @@ for i=1:numel(win)
         % Convert wout(i) into a single bin object
         pix  = wout(i).pix;
         new_data = d0d();
+        new_data.axes.img_range = wout(i).data.axes.img_range;
+        new_data.proj = wout.data.proj;
 
         new_data.npix = pix.num_pixels;
         eps_lo = min(pix.dE);
         eps_hi = max(pix.dE);
 
-        new_data.img_range(:,4) = [eps_lo;eps_hi];
+        new_data.axes.img_range(:,4) = [eps_lo;eps_hi];
         wout(i).data = new_data;
-        wout(i) = recompute_bin_data(wout(i));
+        %wout(i) = recompute_bin_data(wout(i));
+            
 
-        % Recut wout(i) with energy bin limits extended, if necessary
-        if numel(pbin{4})~=2
-            elo = pbin{4}(1);
-            ehi = pbin{4}(3);
-            de = pbin{4}(2);
-            if elo>eps_lo || ehi>eps_hi
-                pbin{4}(1) = elo - de*ceil((elo-eps_lo)/de);
-                pbin{4}(3) = ehi + de*ceil((eps_hi-ehi)/de);
-            end
+        pbin_i = pbin{i};
+        % Redefine energy binning ranges with energy bin limits extended, if necessary
+        if numel(pbin_i{4})==2
+            pbin_i{4}(1) = floor(eps_lo);
+            pbin_i{4}(2) = ceil(eps_hi);            
+        else
+            de = pbin_i{4}(2);            
+            elo = floor(eps_lo)-0.5*de;
+            ehi = ceil(eps_hi)+0.5*de;
+            pbin_i{4} = [elo,de,ehi];
         end
 
-        wout(i) = cut(wout(i),proj,pbin{:});
+        wout(i) = cut(wout(i),proj(i),pbin_i{:});
 
     else
         error('HORACE:sqw:not_implemented', ...

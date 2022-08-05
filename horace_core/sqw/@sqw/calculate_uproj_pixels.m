@@ -1,5 +1,5 @@
 function uproj=calculate_uproj_pixels(win,opt)
-%DODO: Use generic projection!!!!
+%DODO: Use generic projection Ticket #836
 % Calculate coordinates in projection axes for the pixels in an sqw dataset
 %
 %   >> qw=calculate_uproj_pixels(win)
@@ -44,7 +44,7 @@ upix_offset = header_ave.uoffset;
 upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
 
 uproj_to_rlu = win.data.u_to_rlu(1:3,1:3);
-uproj_offset = win.data.uoffset;
+uproj_offset = win.data.offset';
 
 iax = win.data.iax;
 iint = win.data.iint;
@@ -64,9 +64,9 @@ end
 if step
     uproj_to_rlu = repmat(ustep(1:3),3,1).*uproj_to_rlu;
 end
-u = (uproj_to_rlu\upix_to_rlu)*win.data.pix.q_coordinates -...
+u = (uproj_to_rlu\upix_to_rlu)*win.pix.q_coordinates -...
     uproj_to_rlu\(uproj_offset(1:3)-upix_offset(1:3));
-en = (win.data.pix.dE - (uproj_offset(4)-upix_offset(4)));
+en = (win.pix.dE - (uproj_offset(4)-upix_offset(4)));
 if step
     en = en/ustep(4);
 end

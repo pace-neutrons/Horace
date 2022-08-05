@@ -10,7 +10,7 @@ function proj = get_projection(obj,header_av)
 %
 alatt=obj.alatt;
 angdeg=obj.angdeg;
-if exist('header_av','var')
+if exist('header_av','var') && isfield(header_av,'u_to_rlu')
     bmat_inv_ext  =  header_av.u_to_rlu;
 else
     bmat_inv_ext   = [];

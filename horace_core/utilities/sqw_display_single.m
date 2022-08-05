@@ -1,10 +1,10 @@
-function sqw_display_single_(data,npixtot,nfiles,type)
+function sqw_display_single(din,npixtot,type)
 % Display useful information from an sqw object
 %
 % Syntax:
 %
 %   >> sqw_display_single (din)
-%   >> sqw_display_single (din,npixtot,nfiles,type)
+%   >> sqw_display_single (din,npixtot,type)
 %
 %   din             Structure from sqw object (sqw-type or dnd-type)
 %
@@ -33,22 +33,22 @@ function sqw_display_single_(data,npixtot,nfiles,type)
 % Determine if displaying dnd-type or sqw-type sqw object
 
 
-ndim = data.dimensions;
-sz = data.data_nbins;
+ndim = din.dimensions;
 if ~exist('npixtot','var') || isempty(npixtot)
-    npixtot = sum(data.npix(:));
+    npixtot = sum(din.data.npix(:));
 end
 
 if ~exist('type','var') || isempty(type)
-    type = data_structure_type(data);
-end
-
-if ~exist('nfiles','var')
-    nfiles = nan;
+    if isempty(din.pix)
+        type = 'b+';        
+    else
+        type = 'a';
+    end
 end
 
 if strcmpi(type,'a')
-    sqw_type=true;  % object will be dnd type    
+    sqw_type=true;  % object will be dnd type
+    nfiles = din.main_header.nfiles;
 else
     sqw_type=false;
 end
@@ -57,18 +57,21 @@ end
 disp(' ')
 disp([' ',num2str(ndim),'-dimensional object:'])
 disp(' -------------------------')
+if isa(din,'sqw')
+    din = din.data;
+end
 
 
-if ~isempty(data.filename)
-    filename=fullfile(data.filepath,data.filename);
+if ~isempty(din.filename)
+    filename=fullfile(din.filepath,din.filename);
     disp([' Original datafile: ',filename])
 else
     disp([' Original datafile: ','<none>'])
 end
 
 
-if ~isempty(data.title)
-    disp(['             Title: ',data.title])
+if ~isempty(din.title)
+    disp(['             Title: ',din.title])
 else
     disp(['             Title: ','<none>'])
 end
@@ -76,8 +79,8 @@ end
 
 disp(' ')
 disp( ' Lattice parameters (Angstroms and degrees):')
-disp(['         a=',sprintf('%-11.4g',data.alatt(1)),    '    b=',sprintf('%-11.4g',data.alatt(2)),   '     c=',sprintf('%-11.4g',data.alatt(3))])
-disp(['     alpha=',sprintf('%-11.4g',data.angdeg(1)),' beta=',sprintf('%-11.4g',data.angdeg(2)),' gamma=',sprintf('%-11.4g',data.angdeg(3))])
+disp(['         a=',sprintf('%-11.4g',din.alatt(1)),    '    b=',sprintf('%-11.4g',din.alatt(2)),   '     c=',sprintf('%-11.4g',din.alatt(3))])
+disp(['     alpha=',sprintf('%-11.4g',din.angdeg(1)),' beta=',sprintf('%-11.4g',din.angdeg(2)),' gamma=',sprintf('%-11.4g',din.angdeg(3))])
 disp(' ')
 
 
@@ -88,11 +91,12 @@ if sqw_type
     disp(' ')
 end
 
-[title_main, title_pax, title_iax, display_pax, display_iax] = data_plot_titles (data);
+[title_main, title_pax, title_iax, display_pax, display_iax] = data_plot_titles (din);
 if ndim~=0
+    sz = din.nbins;
     npchar = '[';
     for i=1:ndim
-        npchar = [npchar,num2str(sz(data.dax(i))),'x'];   % size along each of the display axes
+        npchar = [npchar,num2str(sz(din.dax(i))),'x'];   % size along each of the display axes
     end
     npchar(end)=']';
     disp([' Size of ',num2str(ndim),'-dimensional dataset: ',npchar])

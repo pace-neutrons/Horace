@@ -111,7 +111,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %                             % centres of the bins of an n-dimensional
         %                             % sqw or dnd dataset.
         %------------------------------------------------------------------
-        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
+        [wout_disp, wout_weight] = dispersion(win, dispreln, varargin);
         wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % calculate
         %                             % dispersion function on the dnd object
         wout = func_eval(win, func_handle, pars, varargin);  % calculate the
@@ -387,19 +387,28 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %   Add appropriate code to convert from specific version to
             %   modern version
             %end
-            if isfield(inputs,'data_')
-                inputs = inputs.data_;
-            end
-            if isfield(inputs,'pax') && isfield(inputs,'iax')
-                inputs.axes = axes_block.get_from_old_data(inputs);
-                if isfield(inputs,'img_db_range')
-                    inputs = rmfield(inputs,'img_db_range');
+            if isfield(inputs,'version') && inputs.version<4
+               inputs.proj = ortho_proj.get_from_old_data(inputs);     
+               inputs.axes = axes_block.get_from_old_data(inputs);               
+            else
+                if isfield(inputs,'data_')
+                    inputs = inputs.data_;
                 end
-                inputs.proj = ortho_proj.get_from_old_data(inputs);
-            end
-            if isfield(inputs,'uoffset')
-                inputs.proj.offset = inputs.uoffset;
-                inputs = rmfield(inputs,'uoffset');
+                if isfield(inputs,'pax') && isfield(inputs,'iax')
+                    inputs.axes = axes_block.get_from_old_data(inputs);
+                    if isfield(inputs,'img_db_range')
+                        inputs = rmfield(inputs,'img_db_range');
+                    end
+                    inputs.proj = ortho_proj.get_from_old_data(inputs);
+                end
+                if isfield(inputs,'uoffset')
+                    if isfield(inputs,'proj')
+                        inputs.proj.offset = inputs.uoffset;
+                    else
+                        inputs.offset = inputs.uoffset;
+                    end
+                    inputs = rmfield(inputs,'uoffset');
+                end
             end
 
             if isfield(inputs,'array_dat')

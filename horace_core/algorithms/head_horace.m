@@ -85,11 +85,11 @@ if n_outputs==0
         if loaders{i}.sqw_type
             npixtot  = loaders{i}.npixels;
             nfiles = loaders{i}.num_contrib_files;
-            sqw_display_single_(data,npixtot,nfiles,'a');
+            sqw_display_single(data,npixtot,nfiles,'a');
         else
             npixtot=1;    % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
             nfiles =1;
-            sqw_display_single_(data,npixtot,nfiles ,'b+');
+            sqw_display_single(data,npixtot,nfiles ,'b+');
         end
     end
 else

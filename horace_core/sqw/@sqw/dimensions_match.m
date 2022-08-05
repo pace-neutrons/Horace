@@ -35,6 +35,7 @@ if all(matching)
     ok=true;
     mess='';
 else
+    ok=false;
     if numel(w)==1
         mess=sprintf('sqw object is not %d-dimensional',nd_ref);
     else
@@ -44,7 +45,4 @@ else
             mess='Not all elements in the array of sqw objects have the same dimensionality';
         end
     end
-
 end
-
-
