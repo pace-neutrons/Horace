@@ -304,6 +304,7 @@ for i=1:numel(w)
         merge_data(i,j).nelem = md(j).nelem;
         merge_data(i,j).nomerge = md(j).nomerge;
         merge_data(i,j).range = md(j).range;
+        merge_data(i,j).pix_range = md(j).pix_range;
     end
 
     for j=1:nWorkers
@@ -320,16 +321,12 @@ if exist('tobyfit', 'var')
         for k = 1:numel(tobyfit)
             for j = 1:numel(tobyfit{k}.kf)
 
-                n = numel(tobyfit{k}.kf{j});
-                nPer = repmat(floor(n / nWorkers), nWorkers, 1);
-                nPer(1:mod(n, nWorkers)) = nPer(1:mod(n, nWorkers)) + 1;
-                points = [0; cumsum(nPer)];
-
-                loop_data{i}.tobyfit_data{k}.kf{j}     = tobyfit{k}.kf{j}(points(i)+1:points(i+1));
-                loop_data{i}.tobyfit_data{k}.dt{j}     = tobyfit{k}.dt{j}(points(i)+1:points(i+1));
-                loop_data{i}.tobyfit_data{k}.dq_mat{j} = tobyfit{k}.dq_mat{j}(:,:,points(i)+1:points(i+1));
+                pr = merge_data(j,i).pix_range;
+                loop_data{i}.tobyfit_data{k}.kf{j}     = tobyfit{k}.kf{j}(pr(1):pr(2));
+                loop_data{i}.tobyfit_data{k}.dt{j}     = tobyfit{k}.dt{j}(pr(1):pr(2));
+                loop_data{i}.tobyfit_data{k}.dq_mat{j} = tobyfit{k}.dq_mat{j}(:,:,pr(1):pr(2));
                 for l=1:4
-                    loop_data{i}.tobyfit_data{k}.qw{j}{l} = tobyfit{k}.qw{j}{l}(points(i)+1:points(i+1));
+                    loop_data{i}.tobyfit_data{k}.qw{j}{l} = tobyfit{k}.qw{j}{l}(pr(1):pr(2));
                 end
             end
         end

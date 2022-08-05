@@ -41,6 +41,12 @@ function [obj, merge_data] = split_sqw(varargin)
             merge_data(i).nelem = sum(logical(obj(i).npix));
             merge_data(i).nomerge = true;
             merge_data(i).range = [points(i)+1, points(i+1)];
+            if i > 1
+                merge_data(i).pix_range = [merge_data(i-1).pix_range(2)+1, ...
+                                           merge_data(i-1).pix_range(2)+1+obj(i).npix];
+            else
+                merge_data(i).pix_range = [1, obj(i).npix+1];
+            end
         end
 
     elseif isa(sqw_in, 'sqw')
@@ -89,6 +95,7 @@ function [obj, merge_data] = split_sqw(varargin)
 
             merge_data(i).nomerge = nomerge(i);
             merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
+            merge_data(i).pix_range = [points(i)+1, points(i)+num_pixels(i)];
         end
 
     else
