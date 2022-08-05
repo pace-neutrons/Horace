@@ -504,6 +504,18 @@ classdef test_dnd_constructor < TestCaseWithSave
             assertEqual(dnd_obj.axes.dimensions,0)
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
+        function test_d0d_empty_constructor_contains_1D_array(~)
+            dnd_obj = d0d();
+            assertEqual(dnd_obj.dimensions,0)            
+            assertEqual(dnd_obj.s,0)
+            assertEqual(dnd_obj.e,0)         
+            assertEqual(dnd_obj.npix,0)                     
+
+            dnd_obj.npix = 1;
+            assertEqual(dnd_obj.npix,1);
+        end
+
+        
 
         function assert_dnd_contains_expected_properties(~, dnd_obj)
             expected_props = { ...

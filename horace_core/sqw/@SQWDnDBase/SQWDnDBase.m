@@ -32,7 +32,7 @@ classdef (Abstract) SQWDnDBase < serializable
         % exceeds real pix_range (or input pix_range) by this value.
         border_size = -4*eps
     end
-    
+
 
     methods (Static)
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
@@ -68,7 +68,9 @@ classdef (Abstract) SQWDnDBase < serializable
         %                             % centres of the bins of an n-dimensional
         %                             % sqw or dnd dataset.
 
-        [ok,mess,nd_ref] = dimensions_match(w, nd_ref);
+        % rebin an object to the other object with the dimensionality
+        % smaller then the dimensionality of the current object
+        obj = rebin(obj,varargin);
         %------------------------------------------------------------------
         [wout_disp, wout_weight] = dispersion(win, dispreln, pars) % Calculate
         %                             % dispersion relation for dataset or

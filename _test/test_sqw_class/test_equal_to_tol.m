@@ -51,7 +51,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         end
 
         function test_sqw_and_d2d_objects_are_not_equal(obj)
-            dnd_2d_ = d2d(obj.test_dnd_file_path);
+            dnd_2d_ = read_dnd(obj.test_dnd_file_path);
             [ok, mess] = equal_to_tol(obj.sqw_2d, dnd_2d_);
             assertFalse(ok);
             assertEqual(mess, 'Objects being compared are not both sqw-type or both dnd-type');
@@ -59,7 +59,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
         function test_different_sqw_objects_are_not_equal(obj)
             class_fields = properties(obj.sqw_2d);
-            is_dependent = ismember(class_fields,{'npixels','runid_map','pix'});
+            is_dependent = ismember(class_fields,{'npixels','runid_map','pix','border_size'});
             class_fields = class_fields(~is_dependent);
             for idx = 1:numel(class_fields)
                 sqw_copy = obj.sqw_2d;
@@ -90,11 +90,11 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
         function test_same_sqw_objs_equal_if_pixels_in_each_bin_shuffled(obj)
             original_sqw = copy(obj.sqw_2d);
-            pix = original_sqw.data.pix;
+            pix = original_sqw.pix;
             npix = original_sqw.data.npix;
 
             shuffled_sqw = original_sqw;
-            shuffled_sqw.data.pix = obj.shuffle_pixel_bin_rows(pix, npix);
+            shuffled_sqw.pix = obj.shuffle_pixel_bin_rows(pix, npix);
 
             assertTrue(equal_to_tol(shuffled_sqw, original_sqw));
         end
@@ -110,11 +110,16 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data, npix_in_page);
 
+            original_sqw.data.do_check_combo_arg = false; % disable object integrity validation            
+            % to be able to modify npix array size independently on other
+            % arrays. Object becomes invalid, but we are not testing it
+            % here
+            
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.npix = npix;
-            original_sqw.data.pix = pix;
+            original_sqw.pix = pix;
             shuffled_sqw = copy(original_sqw);
-            shuffled_sqw.data.pix = shuffled_pix;
+            shuffled_sqw.pix = shuffled_pix;
 
             assertTrue(equal_to_tol(shuffled_sqw, original_sqw));
         end
@@ -130,11 +135,16 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data, npix_in_page);
 
+            original_sqw.data.do_check_combo_arg = false; % disable object integrity validation            
+            % to be able to modify npix array size independently on other
+            % arrays. Object becomes invalid, but we are not testing it
+            % here
+            
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.npix = npix;
-            original_sqw.data.pix = pix;
+            original_sqw.pix = pix;
             shuffled_sqw = copy(original_sqw);
-            shuffled_sqw.data.pix = shuffled_pix;
+            shuffled_sqw.pix = shuffled_pix;
 
             assertFalse(equal_to_tol(shuffled_sqw, original_sqw, 'reorder', false));
         end
@@ -199,11 +209,16 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             edited_pix = obj.get_pix_with_fake_faccess(edited_data, npix_in_page);
 
+            original_sqw.data.do_check_combo_arg = false; % disable object integrity validation            
+            % to be able to modify npix array size independently on other
+            % arrays. Object becomes invalid, but we are not testing it
+            % here
+
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.npix = npix;
-            original_sqw.data.pix = pix;
+            original_sqw.pix = pix;
             edited_sqw = copy(original_sqw);
-            edited_sqw.data.pix = edited_pix;
+            edited_sqw.pix = edited_pix;
 
             % check equal_to_tol false when comparing all bins
             assertFalse(equal_to_tol(edited_sqw, original_sqw, 'fraction', 1));
@@ -212,7 +227,9 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         end
 
         function test_using_fraction_argument_is_faster_than_comparing_all_pix(obj)
-            skipTest('Regularly failing, so skipping to avoid test noise');
+            if is_jenkins
+                skipTest('Regularly failing, so skipping to avoid test noise');
+            end
             sqw_copy = copy(obj.sqw_2d);
 
             num_reps = 5;
@@ -265,7 +282,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         function test_objects_are_not_equal_if_one_has_empty_pixeldata(obj)
             non_empty_sqw = obj.sqw_2d;
             empty_sqw = obj.sqw_2d;
-            empty_sqw.data.pix = PixelData();
+            empty_sqw.pix = PixelData();
 
             assertFalse(equal_to_tol(empty_sqw, non_empty_sqw));
             assertFalse(equal_to_tol(non_empty_sqw, empty_sqw));

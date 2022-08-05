@@ -26,6 +26,17 @@ classdef d3d < DnDBase
 
         function obj = d3d(varargin)
             obj = obj@DnDBase(varargin{:});
+            if nargin == 0
+                obj.axes.single_bin_defines_iax = [false,false,false,true];
+                obj.axes.dax= [1,2,3];
+                obj.s_ = 0;
+                obj.e_ = 0;
+                obj.npix_ = 0;
+            end
+        end
+        function [nd,sz] = dimensions(obj)
+            nd = 3;
+            sz = obj.axes_.data_nbins;
         end
         % actual plotting interface:
         %------------------------------------------------------------------

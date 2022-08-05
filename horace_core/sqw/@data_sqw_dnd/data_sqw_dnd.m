@@ -255,7 +255,10 @@ classdef data_sqw_dnd < DnDBase
         function nd = get.NUM_DIMS(obj)
             nd =obj.axes_.dimensions();
         end
-
+        function [nd,sz] = dimensions(obj)
+            nd =obj.axes_.dimensions();
+            sz = obj.axes_.data_nbins;
+        end
     end
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
@@ -268,7 +271,7 @@ classdef data_sqw_dnd < DnDBase
             %
             obj = from_old_struct@DnDBase(obj,inputs);
 
-     end
+        end
     end
     methods(Static)
         %

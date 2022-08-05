@@ -14,6 +14,13 @@ classdef d1d < DnDBase
     methods
         function obj = d1d(varargin)
             obj = obj@DnDBase(varargin{:});
+            if nargin == 0
+                obj.axes.single_bin_defines_iax = [false,true,true,true];
+                obj.axes.dax= 1;
+                obj.s_ = 0;
+                obj.e_ = 0;
+                obj.npix_ = 0;                
+            end
         end
         dat = IX_dataset_1d(obj);
 
@@ -25,7 +32,10 @@ classdef d1d < DnDBase
         function nd = get.NUM_DIMS(~)
             nd =1;
         end
-
+        function [nd,sz] = dimensions(obj)
+            nd = 1;
+            sz = obj.axes_.data_nbins;
+        end
     end
     methods(Access = protected)
         function obj = set_senpix(obj,val,field)

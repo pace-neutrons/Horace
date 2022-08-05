@@ -48,6 +48,8 @@ elseif isa(input_data{1}, 'SQWDnDBase')
             end
             args.sqw_obj = input_data{1};
         end
+    elseif input_data{1}.dimensions() >= obj.dimensions
+           args.dnd_obj = input_data{1};
     else
         error(['HORACE:', class(obj),':invalid_argument'], ...
             'Class %s cannot be constructed from an instance of object %s',...

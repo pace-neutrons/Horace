@@ -87,6 +87,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
 
         wout=combine_sqw(w1,w2);
+        function wout= rebin(win,varargin)
+            wout=rebin_sqw(win,varargin{:});
+        end
         wout=rebin_sqw(win,varargin);
         wout=symmetrise_sqw(win,v1,v2,v3);
         [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
@@ -103,6 +106,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [sqw_type, ndims, nfiles, filename, mess,ld] = is_sqw_type_file(w,infile);
         [d, mess] = make_sqw_from_data(varargin);
         varargout = head (varargin);
+        %
+        [ok,mess,nd_ref,matching]=dimensions_match(w,nd_ref)
         d=spe(w);
         %{
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);
@@ -113,6 +118,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
 
+        %------------------------------------------------------------------
+        % ACCESSORS TO OBJECT PROPERTIES
         function dtp = my_detpar(obj)
             dtp = obj.detpar_x;
         end

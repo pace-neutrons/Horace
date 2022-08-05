@@ -12,9 +12,19 @@ classdef d0d < DnDBase
     methods
         function obj = d0d(varargin)
             obj = obj@DnDBase(varargin{:});
+            if nargin == 0
+                obj.s_ = 0;
+                obj.e_ = 0;
+                obj.npix_ = 0;
+            end
         end
         function nd = get.NUM_DIMS(~)
             nd =0;
+        end
+        function [nd, sz] = dimensions(~)
+            % overloaded dimensions for special case of d0d object
+            nd = 0;
+            sz = [1,1];
         end
     end
 

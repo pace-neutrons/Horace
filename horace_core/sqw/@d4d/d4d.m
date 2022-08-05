@@ -24,9 +24,21 @@ classdef d4d < DnDBase
         wout = cut (varargin);
         function obj = d4d(varargin)
             obj = obj@DnDBase(varargin{:});
+            if nargin == 0
+                obj.axes.single_bin_defines_iax = [false,false,false,false];
+                obj.axes.dax= [1,2,3,4];
+                obj.s_ = 0;
+                obj.e_ = 0;
+                obj.npix_ = 0;
+            end
+
         end
         function nd = get.NUM_DIMS(~)
             nd =4;
+        end
+        function [nd,sz] = dimensions(obj)
+            nd = 4;
+            sz = obj.axes_.data_nbins;
         end
 
     end

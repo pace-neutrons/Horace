@@ -52,7 +52,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     end
     properties(Dependent,Hidden)
         % legacy operations, necessary for saving dnd object in the old sqw
-        % data format
+        % data format. Will be removed when old sqw format saving is
+        % removed
         u_to_rlu;
         ulen;
     end
@@ -119,13 +120,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %------------------------------------------------------------------
         %
         wout = copy(w);
+        % rebin an object to the other object with the dimensionality
+        % smaller then the dimensionality of the current object
+        obj = rebin(obj,varargin);
+        %
         wout = cut_dnd_main (data_source, ndims, varargin);
         [val, n] = data_bin_limits (din);
 
         save_xye(obj,varargin)  % save data in xye format
         s=xye(w, null_value);   % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
-        % return the number of dimensions and the size of the data array(s)
-        [nd, sz] = dimensions(w);
         % smooth dnd object or array of dnd objects
         wout = smooth(win, varargin)
 
@@ -148,7 +151,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             for i=1:args.array_numel
                 % i) copy
                 if ~isempty(args.dnd_obj)
-                    obj(i) = copy(args.dnd_obj(i));
+                    if args.dnd_obj.dimensions == obj.dimensions
+                        obj(i) = copy(args.dnd_obj(i));
+                    else % rebin the input object to the object
+                        %  with the dimensionality, smaller then the
+                        %  dimensionalify of the input object.
+                        %  Bigger dimensionality will be rejected.
+                        %
+                        obj(i) = rebin(obj(i),args.dnd_obj(i));
+                    end
                     % ii) struct
                 elseif ~isempty(args.data_struct)
                     obj(i) = obj(i).from_bare_struct(args.data_struct(i));
