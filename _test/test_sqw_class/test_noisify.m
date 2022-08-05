@@ -36,7 +36,7 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
                 pixel_page_size);
 
             % ensure we're actually paging pixel data
-            pix = sqw_obj1.data.pix;
+            pix = sqw_obj1.pix;
             assertTrue(pix.num_pixels > pix.page_size);
 
             % and we noisify it
@@ -101,14 +101,14 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
 
             sqw_obj = sqw(obj.test_sqw_file_full_path);
             % ensure we're not paging pixel data
-            pix = sqw_obj.data.pix;
+            pix = sqw_obj.pix;
             assertEqual(pix.page_size, pix.num_pixels);
 
             noise_factor = 0.01;
             noisy_obj = noisify(sqw_obj, noise_factor);
 
-            original_signal = sqw_obj.data.pix.signal;
-            noisy_signal = noisy_obj.data.pix.signal;
+            original_signal = sqw_obj.pix.signal;
+            noisy_signal = noisy_obj.pix.signal;
             signal_diff = original_signal - noisy_signal;
 
             % Fit the signal differences and check that the expected mu and sigma

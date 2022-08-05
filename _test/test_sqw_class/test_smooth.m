@@ -30,7 +30,7 @@ classdef test_smooth < TestCase
         %% SMOOTH
         function test_smooth_returns_sqw_object(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth(10, 'hat');
             assertTrue(isa(d, 'sqw'));
@@ -38,7 +38,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_no_args(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth();
 
@@ -49,7 +49,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_scalar_width_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth(100, 'gaussian');
 
@@ -60,7 +60,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_array_width_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth([100, 25], 'gaussian');
 
@@ -72,7 +72,7 @@ classdef test_smooth < TestCase
         function test_smooth_resolution_shape_arg(obj)
             skipTest('No valid agruments allowed for ''resolution'' shape call bug #628');
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth([100, 201, 301], 'resolution');
 
@@ -83,7 +83,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_hat_shape_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth(100, 'hat');
 
@@ -94,7 +94,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_gaussian_shape_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth(100, 'gaussian');
 
@@ -105,7 +105,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_raises_error_with_invalid_shape_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             actual = assertExceptionThrown( ...
                 @() s.smooth(100, 'invalid_shape'), ...
@@ -115,7 +115,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_raises_error_with_incorrect_dimension_width_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             actual = assertExceptionThrown( ...
                 @() s.smooth([100,200,300,400,500], 'hat'), ...
@@ -135,7 +135,7 @@ classdef test_smooth < TestCase
             % array-case of previvious test
             s = sqw(obj.test_sqw_2d_fullpath);
             s_nopix = copy(s);
-            s_nopix.data.pix = PixelData();
+            s_nopix.pix = PixelData();
 
             actual = assertExceptionThrown(@() smooth([s_nopix, s, s_nopix], 10), ...
                 'HORACE:smooth:invalid_arguments');
@@ -146,7 +146,7 @@ classdef test_smooth < TestCase
         %% SMOOTH_UNITS
         function test_smooth_units_returns_sqw_object(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth_units(10, 'hat');
             assertTrue(isa(d, 'sqw'));
@@ -154,7 +154,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_units_scalar_width_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth_units(100);
 
@@ -165,7 +165,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_units_array_width_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth_units([100, 25]);
 
@@ -178,7 +178,7 @@ classdef test_smooth < TestCase
         function test_smooth_units_resolution_shape_arg(obj)
             skipTest('No valid agruments possible for resolution call #628');
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth_units([1, 1.1, 1.2], 'resolution');
 
@@ -189,7 +189,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_units_hat_shape_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth_units(100, 'hat');
 
@@ -200,7 +200,7 @@ classdef test_smooth < TestCase
 
         function test_smooth_units_gaussian_shape_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
-            s.data.pix = PixelData();
+            s.pix = PixelData();
 
             d = s.smooth_units(100, 'gaussian');
 
@@ -212,7 +212,7 @@ classdef test_smooth < TestCase
         function test_smooth_units_raises_error_with_no_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             s_nopix = copy(s);
-            s_nopix.data.pix = PixelData();
+            s_nopix.pix = PixelData();
 
             % omit the required 'width' argument
             actual = assertExceptionThrown(@() s_nopix.smooth_units(), ...
@@ -223,7 +223,7 @@ classdef test_smooth < TestCase
         function test_smooth_units_raises_error_with_invalid_shape_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             s_nopix = copy(s);
-            s_nopix.data.pix = PixelData();
+            s_nopix.pix = PixelData();
 
             actual = assertExceptionThrown( ...
                 @() s_nopix.smooth_units(100, 'invalid_shape'), ...
@@ -235,7 +235,7 @@ classdef test_smooth < TestCase
         function test_smooth_units_raises_error_with_wrong_dimension_width_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             s_nopix = copy(s);
-            s_nopix.data.pix = PixelData();
+            s_nopix.pix = PixelData();
 
             actual = assertExceptionThrown( ...
                 @() s_nopix.smooth_units([100, 123, 454], 'hat'), ...
@@ -246,7 +246,7 @@ classdef test_smooth < TestCase
         function test_smooth_units_raises_error_if_any_sqw_has_pixel_data(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             s_nopix = copy(s);
-            s_nopix.data.pix = PixelData();
+            s_nopix.pix = PixelData();
 
             actual = assertExceptionThrown( ...
                 @() smooth_units([s_nopix, s, s_nopix], 10), ...

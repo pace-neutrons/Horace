@@ -41,7 +41,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
     properties(Access = protected)
         % holder for image data, e.g. appropriate dnd object
-        data_ = d0d();
+        data_;
         % holder for pix data
         pix_ = PixelData()      % Object containing data for each pixe
     end
@@ -140,6 +140,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj = obj@SQWDnDBase();
 
             if nargin==0 % various serializers need empty constructor
+                obj.data_ = d0d();
                 return;
             end
             obj = obj.init(varargin{:});
