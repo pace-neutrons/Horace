@@ -6,16 +6,14 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
         function_name;
         common_data;
         dataSize = 'large';
-        tobyfit_func = @slow_func;
-        amp = 6000;
-        fwhh = 0.2;
-        parmas = {[amp,fwhh],@testfunc_nb_sqw,10^0}
+        func_handle = @slow_func;
+        params = {[6000, 0.2],@testfunc_nb_sqw,10}
         dataSource;
     end
     
     methods
         function obj = test_bm_tobyfit_fit_largeData(test_class_name)
-            %TEST_BM_tobyfit_fit_LARGEDATA Construct an instance of this class
+            %TEST_BM_TOBYFIT_FIT_LARGEDATA Construct an instance of this class
             if ~exist('test_class_name','var')
                 test_class_name = 'test_bm_tobyfit_fit_largeData';
             end
@@ -32,7 +30,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
             dataSet = 'small';
             nProcs = 1;
             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.function_name);
+                nProcs,obj.func_handle,obj.params,obj.function_name);
         end
     
         function test_bm_tobyfit_fit_1D_largeData_mediumNumber_1procs(obj)
@@ -41,7 +39,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
             dataSet = 'medium';
             nProcs = 1;
             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.function_name);
+                nProcs,obj.func_handle,obj.params,obj.function_name);
         end
  
         function test_bm_tobyfit_fit_1D_largeData_largeNumber_1procs(obj)
@@ -50,7 +48,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
             dataSet = 'large';
             nProcs = 1;
             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.function_name);
+                nProcs,obj.func_handle,obj.params,obj.function_name);
         end
 
         function test_bm_tobyfit_fit_2D_largeData_smallNumber_1procs(obj)
@@ -59,7 +57,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
             dataSet = 'small';
             nProcs = 1;
             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.function_name);
+                nProcs,obj.func_handle,obj.params,obj.function_name);
         end
 
 
@@ -69,7 +67,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
             dataSet = "medium";
             nProcs = 1;
             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.function_name);
+                nProcs,obj.func_handle,obj.params,obj.function_name);
         end
 
         function test_bm_tobyfit_fit_2D_largeData_largeNumber_1procs(obj)
@@ -78,7 +76,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
             dataSet = 'large';
             nProcs = 1;
             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.function_name);        
+                nProcs,obj.func_handle,obj.params,obj.function_name);        
         end
 
         function test_bm_tobyfit_fit_3D_largeData_smallNumber_1procs(obj)
@@ -87,7 +85,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
             dataSet = 'small';
             nProcs = 1;
             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.function_name);        
+                nProcs,obj.func_handle,obj.params,obj.function_name);        
         end
 
         function test_bm_tobyfit_fit_3D_largeData_mediumNumber_1procs(obj)
@@ -96,7 +94,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
             dataSet = "medium";
             nProcs = 1;
             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.function_name);        
+                nProcs,obj.func_handle,obj.params,obj.function_name);        
         end
 
         function test_bm_tobyfit_fit_3D_largeData_largeNumber_1procs(obj)
@@ -105,7 +103,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
             dataSet = 'large';
             nProcs = 1;
             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.function_name);        
+                nProcs,obj.func_handle,obj.params,obj.function_name);        
         end
 
 %         function test_bm_tobyfit_fit_4D_largeData_smallNumber_1procs(obj)
@@ -114,7 +112,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'small';
 %             nProcs = 1;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_4D_largeData_mediumNumber_1procs(obj)
@@ -123,7 +121,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = "medium";
 %             nProcs = 1;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);        
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);        
 %         end
 % 
 %         function test_bm_tobyfit_fit_4D_largeData_largeNumber_1procs(obj)
@@ -132,7 +130,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'large';
 %             nProcs = 1;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);        
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);        
 %         end
 
 %% The following benchmarks are for multi-processor/parallel-enabled codes
@@ -142,7 +140,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'small';
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 %     
 %         function test_bm_tobyfit_fit_1D_largeData_mediumNumber_2procs(obj)
@@ -151,7 +149,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = "medium";
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 %  
 %         function test_bm_tobyfit_fit_1D_largeData_largeNumber_2procs(obj)
@@ -160,7 +158,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'large';
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_2D_largeData_smallNumber_2procs(obj)
@@ -169,7 +167,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'small';
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_2D_largeData_mediumNumber_2procs(obj)
@@ -178,7 +176,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = "medium";
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_2D_largeData_largeNumber_2procs(obj)
@@ -187,7 +185,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'large';
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_3D_largeData_smallNumber_2procs(obj)
@@ -196,7 +194,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'small';
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_3D_largeData_mediumNumber_2procs(obj)
@@ -205,7 +203,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = "medium";
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_3D_largeData_largeNumber_2procs(obj)
@@ -214,7 +212,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'large';
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 
 %         function test_bm_tobyfit_fit_4D_largeData_smallNumber_2procs(obj)
@@ -223,7 +221,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'small';
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_4D_largeData_mediumNumber_2procs(obj)
@@ -232,7 +230,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = "medium";
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);        
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);        
 %         end
 % 
 %         function test_bm_tobyfit_fit_4D_largeData_largeNumber_2procs(obj)
@@ -241,7 +239,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'large';
 %             nProcs = 2;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);        
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);        
 %         end
 % 
 %         function test_bm_tobyfit_fit_1D_largeData_smallNumber_4procs(obj)
@@ -250,7 +248,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'small';
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 %     
 %         function test_bm_tobyfit_fit_1D_largeData_mediumNumber_4procs(obj)
@@ -259,7 +257,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = "medium";
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 %  
 %         function test_bm_tobyfit_fit_1D_largeData_largeNumber_4procs(obj)
@@ -268,7 +266,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'large';
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_2D_largeData_smallNumber_4procs(obj)
@@ -277,7 +275,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'small';
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_2D_largeData_mediumNumber_4procs(obj)
@@ -286,7 +284,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = "medium";
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_2D_largeData_largeNumber_4procs(obj)
@@ -295,7 +293,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'large';
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_3D_largeData_smallNumber_4procs(obj)
@@ -304,7 +302,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'small';
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_3D_largeData_mediumNumber_4procs(obj)
@@ -313,7 +311,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = "medium";
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_3D_largeData_largeNumber_4procs(obj)
@@ -322,7 +320,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'large';
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 
 %         function test_bm_tobyfit_fit_4D_largeData_smallNumber_4procs(obj)
@@ -331,7 +329,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'small';
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_fit_4D_largeData_mediumNumber_4procs(obj)
@@ -340,7 +338,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = "medium";
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);        
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);        
 %         end
 % 
 %         function test_bm_tobyfit_fit_4D_largeData_largeNumber_4procs(obj)
@@ -349,7 +347,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
 %             dataSet = 'large';
 %             nProcs = 4;
 %             benchmark_tobyfit_fit(nDims,obj.dataSource,obj.dataSize,dataSet,...
-%                 nProcs,obj.function_name);        
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);        
 %         end
     end
 end
