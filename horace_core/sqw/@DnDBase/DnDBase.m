@@ -119,7 +119,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %                             % bin centers of the image axes
         %------------------------------------------------------------------
         %
-        varargout = head(obj,vararin);        
+        varargout = head(obj,vararin);
         wout = copy(w);
         % rebin an object to the other object with the dimensionality
         % smaller then the dimensionality of the current object
@@ -350,6 +350,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %
             obj = check_combo_arg_(obj);
         end
+        %
+        function struct = to_head_struct(obj,keep_data_arrays)
+            %convert dnd data into structure, obtained by head operation
+            if nargin == 1
+                keep_data_arrays = true;
+            end
+            struct = to_head_struct_(obj,keep_data_arrays);
+        end
     end
 
     methods(Access = protected)
@@ -357,13 +365,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         wout = binary_op_manager_single(w1, w2, binary_op);
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
-        function struct = to_head_struct(obj,keep_data_arrays) 
-            %convert dnd data into structure, obtained by head operation
-            if nargin == 1
-                keep_data_arrays = true;
-            end
-            struct = to_head_struct_(obj,keep_data_arrays);
-        end
 
         %------------------------------------------------------------------
         wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate
@@ -396,8 +397,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %   modern version
             %end
             if isfield(inputs,'version') && inputs.version<4
-               inputs.proj = ortho_proj.get_from_old_data(inputs);     
-               inputs.axes = axes_block.get_from_old_data(inputs);               
+                inputs.proj = ortho_proj.get_from_old_data(inputs);
+                inputs.axes = axes_block.get_from_old_data(inputs);
             else
                 if isfield(inputs,'data_')
                     inputs = inputs.data_;

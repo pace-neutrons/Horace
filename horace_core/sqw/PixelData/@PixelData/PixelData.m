@@ -691,6 +691,18 @@ classdef PixelData < handle
         function file_path = get.file_path(obj)
             file_path = obj.file_path_;
         end
+        function set.file_path(obj,val)
+            if obj.is_filebacked()
+                error('HORACE:PixelData:invalid_argument',...
+                    'you can not change file for already activated filebacked pixels')
+            else
+                if ~(ischar(val)||isstring(val))
+                    error('HORACE:PixelData:invalid_argument',...
+                        'filename for PixelData have to be char string');
+                end
+                obj.file_path_ = val;
+            end
+        end
 
         function page_size = get.page_size(obj)
             % The number of pixels that are held in the current page.
@@ -726,11 +738,11 @@ classdef PixelData < handle
             % Function allows to set the pixels range (min/max values of
             % pixels coordinates)
             %
-            % Use with caution!!! As this is performance function, 
+            % Use with caution!!! As this is performance function,
             % no checks that the set range is the
             % correct range for pixels, holded by the class are
             % performed, while subsequent algorithms may rely on pix range
-            % to be correct. A out-of memory assignment can occur during 
+            % to be correct. A out-of memory assignment can occur during
             % rebinning if the range is smaller, then the actual range.
             %
             % Necessary to set up the pixel range when filebased
@@ -828,7 +840,7 @@ classdef PixelData < handle
             % Get the index of the final pixel to read given the maximum page size
             pix_idx_end = min(pix_idx_start + obj.base_page_size - 1, obj.num_pixels);
 
-            obj.data_ = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
+            obj.data_ = obj.f_accessor_.get_raw_pix(pix_idx_start, pix_idx_end);
             if obj.page_size == obj.num_pixels
                 % Delete accessor and close the file if all pixels have been read
                 obj.f_accessor_ = [];

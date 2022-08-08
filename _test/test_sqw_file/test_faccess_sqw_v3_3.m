@@ -97,11 +97,13 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(numel(det.group),96)
 
             data = file_accessor.get_data();
-            assertEqual(data.pix.num_pixels,7680)
+
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
 
+            pix = file_accessor.get_pix();
+            assertEqual(pix.num_pixels,7680)            
         end
         %
         function obj = test_get_data(obj)
@@ -112,19 +114,21 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(data_h.filename,file_accessor.filename)
             assertEqual(data_h.filepath,file_accessor.filepath)
 
-            data_dnd = file_accessor.get_data('-verb','-nopix');
-            assertTrue(isa(data_dnd,'data_sqw_dnd'));
+            data_dnd = file_accessor.get_data('-verb');
+            assertTrue(isa(data_dnd,'DnDBase'));
             assertEqual(data_dnd.filename,'test_sqw_file_read_write_v3.sqw');
 
             data = file_accessor.get_data('-ver');
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
-            assertTrue(isa(data.pix, 'PixelData'));
-            assertEqual(data.pix.file_path, obj.sample_file);
-            assertEqual(data.pix.num_pixels, 7680);
+            
+            pix = file_accessor.get_pix();
+            assertTrue(isa(pix, 'PixelData'));
+            assertEqual(pix.file_path, obj.sample_file);
+            assertEqual(pix.num_pixels, 7680);
 
-            raw_pix = file_accessor.get_pix(1,20);
-            assertEqual(data.pix.get_pixels(1:20).data, raw_pix);
+            raw_pix = file_accessor.get_raw_pix(1,20);
+            assertEqual(pix.get_pixels(1:20).data, raw_pix);
         end
         %
         function obj = test_get_inst_or_sample(obj)
@@ -167,7 +171,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             so = faccess_sqw_v2(samp_f);
             sqw_ob = so.get_sqw();
 
-            ref_range = sqw_ob.data.img_db_range;
+            ref_range = sqw_ob.data.img_range;
 
             assertTrue(isa(sqw_ob,'sqw'));
             % Create sample
@@ -213,7 +217,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             % between pixels_id and headers
             assertTrue(sqw_ob.experiment_info.runid_recalculated)
 
-            ref_range = sqw_ob.data.img_db_range;
+            ref_range = sqw_ob.data.img_range;
 
             assertTrue(isa(sqw_ob,'sqw'));
 
@@ -245,7 +249,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
             ver_obj.experiment_info.runid_recalculated = true; % for testing;
-            assertEqual(sqw_ob,ver_obj);
+            assertEqualToTol(sqw_ob,ver_obj,[1.e-7,1.e-7]);
         end
 
         %

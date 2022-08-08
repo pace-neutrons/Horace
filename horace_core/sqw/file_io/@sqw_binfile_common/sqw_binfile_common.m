@@ -13,7 +13,8 @@ classdef sqw_binfile_common < sqw_file_interface
     % get_header      - obtain information stored in one of the
     %                   contributing file's header
     % get_detpar      - retrieve detectors information.
-    % get_pix         - get pixels info
+    % get_pix         - get PixelData object, containing pixels data
+    % get_raw_pix     - get pixels array as it is stored on hdd
     % get_instrument  - get instrument information specific for a run
     % get_sample      - get sample information
     %
@@ -242,6 +243,7 @@ classdef sqw_binfile_common < sqw_file_interface
 
         % read pixels information
         pix = get_pix(obj,varargin);
+        pix = get_raw_pix(obj,varargin);
         % read pixels at the given indices
         pix = get_pix_at_indices(obj,indices);
         % read pixels in the given index ranges

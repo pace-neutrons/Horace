@@ -210,8 +210,6 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %           values corresponding to the file that is being read.]
             %
             %   data.title      Title of sqw data structure
-            %   data.alatt      Lattice parameters for data field (Ang^-1)
-            %   data.angdeg     Lattice angles for data field (degrees)
             %   data.uoffset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
             %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
             %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
@@ -260,8 +258,9 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             sqw_data.filepath=[path,filesep];
 
             sqw_data.title = '';
-            sqw_data.alatt = zeros(1,3);
-            sqw_data.angdeg = zeros(1,3);
+            %sqw_data.alatt = zeros(1,3);  % 08/08/2022 default lattice
+            %sqw_data.angdeg = zeros(1,3); % values are set up in
+            %                               projection conversion
 
         end
         %

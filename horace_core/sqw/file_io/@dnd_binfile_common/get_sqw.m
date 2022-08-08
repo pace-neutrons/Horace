@@ -1,4 +1,4 @@
-function [res,varargout] = get_sqw (obj,varargin)
+function [res,obj] = get_sqw (obj,varargin)
 % Load an dnd file from disk and return dnd object.
 %
 % The same as  get_dnd function providing unified interface for all sqw/dnd
@@ -37,7 +37,7 @@ function [res,varargout] = get_sqw (obj,varargin)
 %
 %
 if nargout > 1
-    [res,varargout] = obj.get_dnd(varargin{:});
+    [res,obj] = obj.get_dnd(varargin{:});
 else
     res = obj.get_dnd(varargin{:});
 end

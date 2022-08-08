@@ -64,9 +64,9 @@ for i=1:n_inputs
     if use_urange
         pix_range = ld.get_img_db_range();
     else
-        data = ld.get_data();
-        data.pix.recalc_pix_range();
-        pix_range = data.pix.pix_range;
+        pix = ld.get_pix();
+        pix.recalc_pix_range();
+        pix_range = pix.pix_range;
     end
     ld = ld.store_pix_range(pix_range);
     %ld = ld.put_sqw_footer();

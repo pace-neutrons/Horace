@@ -184,45 +184,46 @@ classdef test_sqw_binfile_common <  TestCase
             mh = tob.get_dnd_form();
 
             var_fields = {'filename','filepath','title'};
-            const_fields={'alatt','angdeg','uoffset','u_to_rlu',...
+            const_fields={'alatt','angdeg','offset','u_to_rlu',...
                 'ulen','label','npax','iax','iint','pax','p_size','p',...
-                'dax','s','e','npix','img_db_range','dummy'};
+                'dax','s','e','npix'};
             tot = [var_fields(:);const_fields(:)];
 
             fn = fieldnames(mh);
             memb = ismember(fn,tot);
             assertTrue(all(memb));
 
-            mh = tob.get_data_form('-const');
+            mh = tob.get_dnd_form('-const');
             fn = fieldnames(mh);
             memb = ismember(fn,const_fields);
             assertTrue(all(memb));
 
+            tob = sqw_binfile_common_tester();
 
-            mh = tob.get_data_form('-const','-head');
+            mh = tob.get_dnd_form('-const','-head');
             fn = fieldnames(mh);
-            ch ={'alatt','angdeg','uoffset','u_to_rlu',...
+            ch ={'alatt','angdeg','offset','u_to_rlu',...
                 'ulen','label','npax','iax','iint','pax','p_size','p',...
                 'dax'};
             memb = ismember(fn,ch);
             assertTrue(all(memb));
 
 
-            mh = tob.get_data_form('-head');
+            mh = tob.get_dnd_form('-head');
             fn = fieldnames(mh);
 
+            var_fields = {'filename','filepath','title'};
             tot_head =[var_fields(:);ch(:)];
             memb = ismember(fn,tot_head);
             assertTrue(all(memb));
 
             tob = tob.set_data_type('a');
-            mh = tob.get_data_form();
+            mh = tob.get_dnd_form();
             fn = fieldnames(mh);
             memb = ismember(fn,tot);
             assertTrue(all(memb));
         end
         %
     end
-
 end
 

@@ -65,7 +65,7 @@ classdef test_faccess_sqw_prototype< TestCase
             %access to incorrect object
             f = @()(to.init());
             assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
-            
+
         end
 
         function obj = test_init(obj)
@@ -99,10 +99,13 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(numel(det.group),28160)
 
             data = to.get_data();
-            assertEqual(data.pix.num_pixels,16)
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
+
+            pix = to.get_pix();
+            assertTrue(isa(pix, 'PixelData'));
+            assertEqual(pix.num_pixels,16)
 
         end
         function obj = test_get_data(obj)
@@ -117,16 +120,17 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(data_h.filename,to.filename)
             assertEqual(data_h.filepath,to.filepath)
 
-            data_dnd = to.get_data('-ver','-nopix');
-            assertTrue(isa(data_dnd,'data_sqw_dnd'));
+            data_dnd = to.get_data('-ver');
+            assertTrue(isa(data_dnd,'DnDBase'));
             assertEqual(data_dnd.filename,'test_sqw_read_write_v0_t.sqw');
 
             data = to.get_data('-ver');
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
-            assertTrue(isa(data.pix, 'PixelData'));
-            assertEqual(data.pix.file_path, obj.sample_file);
-            assertEqual(data.pix.num_pixels, 16);
+            pix = to.get_pix();
+            assertTrue(isa(pix, 'PixelData'));
+            assertEqual(pix.file_path, obj.sample_file);
+            assertEqual(pix.num_pixels, 16);
         end
 
     end

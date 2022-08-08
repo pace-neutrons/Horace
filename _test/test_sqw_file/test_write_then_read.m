@@ -27,8 +27,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             assertTrue(saved_sqw.main_header.creation_date_defined);
 
             sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
-            [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
-            assertTrue(ok,mess);
+            assertEqualToTol(saved_sqw, sqw_obj,1.e-9,'ignore_str', true);
         end
 
         function test_sqw_with_paged_pix_not_on_1st_pg_saved_correctly(obj)
@@ -43,8 +42,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             assertTrue(saved_sqw.main_header.creation_date_defined);
 
             sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
-            [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
-            assertTrue(ok,mess);
+            assertEqualToTol(saved_sqw, sqw_obj,1.e-9,'ignore_str', true);
         end
 
         function test_saved_sqw_with_paged_pix_equal_to_original_sqw(obj)
@@ -58,8 +56,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             assertTrue(saved_sqw.main_header.creation_date_defined);
 
             sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
-            [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
-            assertTrue(ok,mess);
+            assertEqualToTol(saved_sqw, sqw_obj,1.e-9,'ignore_str', true);
         end
 
         function test_sqw_w_paged_pix_saved_correctly_with_small_mem_chunk_size(obj)
@@ -77,8 +74,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             assertTrue(saved_sqw.main_header.creation_date_defined);
 
             sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
-            [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
-            assertTrue(ok,mess);
+            assertEqualToTol(saved_sqw, sqw_obj,1.e-9,'ignore_str', true);
         end
 
         function test_sqw_w_pix_on_2nd_pg_saved_right_with_small_mem_chunk_size(obj)
@@ -97,8 +93,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             assertTrue(saved_sqw.main_header.creation_date_defined);
 
             sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
-            [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
-            assertTrue(ok,mess);
+            assertEqualToTol(saved_sqw, sqw_obj,1.e-9,'ignore_str', true);
         end
 
     end

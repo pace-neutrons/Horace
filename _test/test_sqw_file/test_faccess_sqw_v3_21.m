@@ -80,7 +80,7 @@ classdef test_faccess_sqw_v3_21< TestCase
             %--------------------------------------------------------------
             % we can get proper sqw object
             sqw_obj = fl_acc.get_sqw();
-            pix_range = sqw_obj.data.pix.pix_range;
+            pix_range = sqw_obj.pix.pix_range;
             assertFalse(any(any(pix_range == PixelData.EMPTY_RANGE_)));
 
             assertTrue(isa(sqw_obj,'sqw'));

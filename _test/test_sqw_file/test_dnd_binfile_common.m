@@ -185,8 +185,10 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             samp = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_d1d.sqw');
             ttob = dnd_binfile_common_tester(samp);
-            % important! -verbatim is critical here! without it we should
-            % reinitialize object to write!
+            % important! -verbatim is critical here!, as it returns filenames
+            % as they were stored on file, so we can write everyting exactly 
+            % at the same places as before. Without it we should
+            % reinitialize object to write
             sq_obj = ttob.get_sqw('-verbatim');
             assertTrue(isa(sq_obj,'d1d'));
 
@@ -214,7 +216,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
         function test_activate_reopens_file_in_rb_if_read_given(obj)
             file_path = fullfile( ...
-                    fileparts(obj.test_folder), 'test_symmetrisation', 'w1d_d1d.sqw');
+                fileparts(obj.test_folder), 'test_symmetrisation', 'w1d_d1d.sqw');
             bin_file = dnd_binfile_common_tester(file_path);
             cleanup = onCleanup(@() bin_file.delete());
             bin_file.deactivate();
@@ -232,7 +234,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
         function test_activate_reopens_file_in_rbplus_if_write_given(obj)
             file_path = fullfile( ...
-                    fileparts(obj.test_folder), 'test_symmetrisation', 'w1d_d1d.sqw');
+                fileparts(obj.test_folder), 'test_symmetrisation', 'w1d_d1d.sqw');
             bin_file = dnd_binfile_common_tester(file_path);
             cleanup = onCleanup(@() bin_file.delete());
             bin_file.deactivate();
@@ -251,7 +253,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
         function test_error_raised_if_activating_file_with_bad_permission(obj)
             file_path = fullfile( ...
-                    fileparts(obj.test_folder), 'test_symmetrisation', 'w1d_d1d.sqw');
+                fileparts(obj.test_folder), 'test_symmetrisation', 'w1d_d1d.sqw');
             bin_file = dnd_binfile_common_tester(file_path);
             cleanup = onCleanup(@() bin_file.delete());
             bin_file.deactivate();

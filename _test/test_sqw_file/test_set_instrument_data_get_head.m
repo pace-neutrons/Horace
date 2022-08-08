@@ -35,7 +35,7 @@ classdef test_set_instrument_data_get_head< TestCase
             if is_file(obj.data_inst)
                 delete(obj.data_inst);
             end
-            save(obj.w1,obj.data_inst);            
+            save(obj.w1,obj.data_inst);
 
         end
         function test_moderator_params(obj)
@@ -54,7 +54,7 @@ classdef test_set_instrument_data_get_head< TestCase
 
             assertEqual(ppmod,ppmod_f)
             assertEqual(mess,mess_f)
-            pf_m = p_f;              % Only some runs and instrument contribute to 
+            pf_m = p_f;              % Only some runs and instrument contribute to
             pf_m.pp = pf_m.pp(1:29,:); % the pixels
             assertEqual(p,pf_m)
             assertEqual(present,pres_f)
@@ -89,7 +89,7 @@ classdef test_set_instrument_data_get_head< TestCase
             assertEqual(present,pres_f)
             assertEqual(pulse_model_obj,pulse_model_file);
         end
-        
+
         function test_head_data(obj)
             % Set up names of data files
 
@@ -114,25 +114,8 @@ classdef test_set_instrument_data_get_head< TestCase
 
             h_obj_s=head(obj.w1);
             h_obj=head(obj.w1,'-full');
-            assertEqual(h_obj.data,h_obj_s)
+            assertEqual(h_obj,h_obj_s)
 
-        end
-        function test_head(obj)
-            % Now do the same on file: this time no errors:
-            copyfile(obj.data_inst_ref,obj.data_inst,'f')
-
-            %HACK: should be ivoked without lhs to check disp option
-            hh=head_horace(obj.data_inst_ref);
-            hh=head_horace(obj.data_inst_ref,'-full');
-
-            %TODO: look at this carefully. The stuctures, extracted by different means
-            % are a bit different. Do we want this?
-            h_file_s=head_horace(obj.data_inst_ref);
-            h_file_s = rmfield(h_file_s,{'npixels','nfiles','pix_range'});
-
-            h_file=head_horace(obj.data_inst_ref,'-full');
-            data = h_file.data.get_dnd_data('+');
-            assertEqual(data,h_file_s)
         end
         function test_get_ei_set_ei(obj)
 
@@ -150,8 +133,6 @@ classdef test_set_instrument_data_get_head< TestCase
 
             ei=get_efix_horace(obj.data_inst);
             assertEqual(ei_obj,ei);
-
-
 
             % Set incident energies - OK
             ei=1000+(1:29);

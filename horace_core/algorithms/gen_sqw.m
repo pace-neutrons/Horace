@@ -609,7 +609,7 @@ for i=1:numel(files_to_check)
     % --------------------------------------------
     header = ldr.get_header('-all');
     data   = ldr.get_data('-head');
-    pix1  = ldr.get_pix(1,1);
+    pix1  = ldr.get_raw_pix(1,1);
     run_ids(i) = pix1(5);
 
     pix_range_l = ldr.get_pix_range();

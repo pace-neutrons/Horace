@@ -10,7 +10,7 @@ pix_form = obj.get_pix_form();
 pos = obj.dnd_eof_pos_;
 if isa(pix,'pix_combine_info') % data contains not pixels themselves but input for
     % combining pixels from multiple files together.
-    pix_form = rmfield(pix_form,'data'); 
+    pix_form = rmfield(pix_form,'data');
     dat = obj.sqw_holder_.data;
     % The oddity in old sqw data format -- the range of data is
     % stored only when pixels are stored. Here we estimate the size of pixel
@@ -19,14 +19,16 @@ if isa(pix,'pix_combine_info') % data contains not pixels themselves but input f
     [pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,dat,pos);
     pix_info_pos.data_pos_ = pos;
     npix = pix.num_pixels;
-    % Calculate the size of the combined pixels array from knowlege of the 
+    % Calculate the size of the combined pixels array from knowlege of the
     % number of pixels in every file
     % start of npix pos + npix+ pix info size (single precision array of
     % 8 x npix)
     pos = pos + 8 + npix*9*4;
     obj.npixels_ = npix;
 else
-    [pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,pix,pos);
+    pix_info = struct('img_range',single(ones(2,4)),'dummy',single(1),'data',[]);
+    pix_info.data = pix;
+    [pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,pix_info,pos);
     obj.npixels_ = pix.num_pixels;
 end
 

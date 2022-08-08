@@ -156,7 +156,7 @@ if ~header_only
     data_str = obj.get_se_npix(data_str);
 end
 
-if header_only || verbatim || noclass
+if header_only || noclass
     data_str.img_range = axes_block.calc_img_db_range(data_str );
     return;
 end
@@ -170,3 +170,4 @@ proj = ortho_proj.get_from_old_data(data_str);
 ax   = axes_block.get_from_old_data(data_str);
 
 data_str = DnDBase.dnd(ax,proj,data_str.s,data_str.e,data_str.npix);
+obj.sqw_holder_ = data_str;

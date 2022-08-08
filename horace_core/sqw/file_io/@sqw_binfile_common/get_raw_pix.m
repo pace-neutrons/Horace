@@ -1,4 +1,4 @@
-function pix  = get_pix(obj,varargin)
+function pix  = get_raw_pix(obj,varargin)
 % read full or partial pixel information using propertly initalized
 % sqw file information
 % Usage:
@@ -12,16 +12,9 @@ function pix  = get_pix(obj,varargin)
 %                                    to the end of pixels or from npix_lo
 %                                    to the pixel N npix_hi
 
-
 [obj,nothing_to_do,npix_lo,npix_hi] = parse_get_pix_arguments_(obj,varargin{:});
 if nothing_to_do
-    pix = PixelData();
+    pix = zeros(9,0);
     return
 end
 pix  = get_pix_(obj,npix_lo,npix_hi);
-if isempty(pix)
-    pix = PixelData();
-else
-    pix = PixelData(pix);
-    pix.file_path = fullfile(obj.filepath, obj.filename);
-end

@@ -53,14 +53,17 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(initobj.file_id>0);
 
         end
-        %
-        function obj = test_init_and_get(obj)
+        function test_init_invalid_arg(~)
             to = faccess_sqw_v3();
 
             % access to incorrect object
             f = @()(to.init());
             assertExceptionThrown(f, ...
                 'HORACE:dnd_binfile_common:invalid_argument');
+        end
+        %
+        function obj = test_init_and_get(obj)
+            to = faccess_sqw_v3();
 
             [ok,initobj] = to.should_load(obj.sample_file);
             assertTrue(ok);
@@ -78,7 +81,8 @@ classdef test_faccess_sqw_v3< TestCase
 
             [exp_info,~] = to.get_header();
 
-            assertEqual(exp_info.runid_map,containers.Map(1,1))
+            assertEqual(exp_info.runid_map.keys(),{1})
+            assertEqual(exp_info.runid_map.values(),{1})
 
             assertTrue(isa(exp_info,'Experiment'));
             inf = exp_info.expdata(1);
@@ -93,11 +97,12 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(numel(det.group),96)
 
             data = to.get_data();
-            assertEqual(data.pix.num_pixels,7680)
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
 
+            pix  = to.get_pix();
+            assertEqual(pix.num_pixels,7680)
         end
         %
         function obj = test_get_data(obj)
@@ -108,19 +113,21 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(data_h.filename,to.filename)
             assertEqual(data_h.filepath,to.filepath)
 
-            data_dnd = to.get_data('-verb','-nopix');
-            assertTrue(isa(data_dnd,'data_sqw_dnd'));
+            data_dnd = to.get_data('-verb');
+            assertTrue(isa(data_dnd,'DnDBase'));
             assertEqual(data_dnd.filename,'test_sqw_file_read_write_v3.sqw');
 
             data = to.get_data('-ver');
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
-            assertTrue(isa(data.pix, 'PixelData'));
-            assertEqual(data.pix.file_path, obj.sample_file);
-            assertEqual(data.pix.num_pixels, 7680);
 
-            raw_pix = to.get_pix(1,20);
-            assertEqual(data.pix.get_pixels(1:20).data, raw_pix);
+            pix = to.get_pix();
+            assertTrue(isa(pix, 'PixelData'));
+            assertEqual(pix.file_path, obj.sample_file);
+            assertEqual(pix.num_pixels, 7680);
+
+            raw_pix = to.get_raw_pix(1,20);
+            assertEqual(pix.get_pixels(1:20).data, raw_pix);
         end
         %
         function obj = test_get_inst_or_sample(obj)
@@ -227,7 +234,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
 
             ver_obj.experiment_info.runid_recalculated = true;
-            assertEqual(sqw_ob,ver_obj);
+            assertEqualToTol(sqw_ob,ver_obj,1.e-7);
         end
         %
         function obj = test_save_load_sqwV31_crossbuf(obj)
@@ -264,7 +271,7 @@ classdef test_faccess_sqw_v3< TestCase
             tob=tob.init(tf);
             ver_obj =tob.get_sqw('-verbatim');
             tob.delete();
-            assertTrue(ver_obj.main_header.creation_date_defined);            
+            assertTrue(ver_obj.main_header.creation_date_defined);
 
             sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
@@ -273,7 +280,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertFalse(ver_obj.experiment_info.runid_recalculated);
 
             ver_obj.experiment_info.runid_recalculated = true;
-            assertEqual(sqw_ob,ver_obj);
+            assertEqualToTol(sqw_ob,ver_obj,1.e-7);
         end
         %
         function test_save_sqwV3toV2(obj)
@@ -365,7 +372,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             % we trust .get_pix, which is tested elsewhere, to load in the full
             % range
-            raw_pix_full = faccess.get_pix(1, faccess.npixels);
+            raw_pix_full = faccess.get_raw_pix(1, faccess.npixels);
 
             raw_pix = faccess.get_pix_at_indices(pix_indices);
             expected_pix = raw_pix_full(:, pix_indices);
@@ -390,7 +397,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             % we trust .get_pix, which is tested elsewhere, to load in the full
             % range
-            raw_pix_full = faccess.get_pix(1, faccess.npixels);
+            raw_pix_full = faccess.get_raw_pix(1, faccess.npixels);
 
             raw_pix = faccess.get_pix_in_ranges(pix_starts, block_sizes);
             expected_pix = raw_pix_full(:, pix_indices);
@@ -418,7 +425,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             % we trust .get_pix, which is tested elsewhere, to load in the full
             % range
-            raw_pix_full = faccess.get_pix(1, faccess.npixels);
+            raw_pix_full = faccess.get_raw_pix(1, faccess.npixels);
 
             raw_pix = faccess.get_pix_in_ranges(pix_starts, bl_sizes);
             expected_pix = raw_pix_full(:, pix_indices);
@@ -436,7 +443,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             % we trust .get_pix, which is tested elsewhere, to load in the full
             % range
-            raw_pix_full = faccess.get_pix(1, faccess.npixels);
+            raw_pix_full = faccess.get_raw_pix(1, faccess.npixels);
 
             raw_pix = faccess.get_pix_in_ranges(pix_starts, bl_sizes);
             expected_pix = raw_pix_full(:, pix_indices);

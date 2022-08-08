@@ -1,7 +1,12 @@
 function proj =  build_from_old_data_struct_(data_struct,header_av)
 
-alatt=data_struct.alatt;
-angdeg=data_struct.angdeg;
+if isfield(data_struct,'alatt')
+    alatt=data_struct.alatt;
+    angdeg=data_struct.angdeg;
+else % old binary file format (prototype)
+    alatt = [2*pi,2*pi,2*pi];
+    angdeg= [90,90,90];
+end
 if ~isempty(header_av)
     bmat_inv_ext  =  header_av.u_to_rlu;
 else
@@ -19,7 +24,7 @@ proj = proj.set_from_data_mat(data_struct.u_to_rlu(1:3,1:3),data_struct.ulen(1:3
 if isfield(data_struct,'offset')
     proj.offset = data_struct.offset;
 elseif isfield(data_struct,'uoffset')
-    proj.offset = data_struct.uoffset;    
+    proj.offset = data_struct.uoffset;
 end
 
 %--------------------------------------------------------------------------

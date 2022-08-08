@@ -14,7 +14,8 @@ classdef sqw_file_interface < dnd_binfile_common
     % get_header      - obtain information stored in one of the
     %                   contributing file's header
     % get_detpar      - retrieve detectors information.
-    % get_pix         - get pixels info
+    % get_pix         - get PixelData object, containing pixels data
+    % get_raw_pix     - get pixels array as it is stored on hdd
     % get_instrument  - get instrument information specific for a run
     % get_sample      - get sample information
     %
@@ -143,6 +144,7 @@ classdef sqw_file_interface < dnd_binfile_common
         [header,pos]= get_header(obj,varargin);
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
+        pix         = get_raw_pix(obj,varargin);
         range       = get_pix_range(obj);
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);

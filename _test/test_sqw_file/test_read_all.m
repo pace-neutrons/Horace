@@ -17,6 +17,7 @@ classdef test_read_all< TestCase
     end
 
     methods
+        
 
         %The above can now be read into the test routine directly.
         function this=test_read_all(varargin)
@@ -95,8 +96,6 @@ classdef test_read_all< TestCase
             assertTrue(iscell(out));
             assertTrue(isa(out{1},'sqw'));
             assertTrue(isa(out{3},'d2d'));
-        end
-        function obj = test_head(obj)
         end
 
     end
