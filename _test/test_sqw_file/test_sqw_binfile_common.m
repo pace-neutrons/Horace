@@ -181,12 +181,12 @@ classdef test_sqw_binfile_common <  TestCase
         function obj = test_get_data_form(obj)
             tob = sqw_binfile_common_tester();
 
-            mh = tob.get_data_form();
+            mh = tob.get_dnd_form();
 
             var_fields = {'filename','filepath','title'};
             const_fields={'alatt','angdeg','uoffset','u_to_rlu',...
                 'ulen','label','npax','iax','iint','pax','p_size','p',...
-                'dax','s','e','npix','img_db_range','dummy','pix'};
+                'dax','s','e','npix','img_db_range','dummy'};
             tot = [var_fields(:);const_fields(:)];
 
             fn = fieldnames(mh);

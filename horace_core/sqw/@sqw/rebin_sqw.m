@@ -106,7 +106,7 @@ switch route
             crossprod1=cross(v11,v12); crossprod2=cross(v21,v22);
             crossprod=cross(crossprod1,crossprod2);
             %
-            %NB - realise crossprod will be zero if one of the vectors is
+            %NB - realise cross-prod will be zero if one of the vectors is
             %made of zeros (i.e. one of the axes is energy)
             energy_axis=false;
             if (u1(4,win.data.pax(1))==1 || u1(4,win.data.pax(2))==1) && ...

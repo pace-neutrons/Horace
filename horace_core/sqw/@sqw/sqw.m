@@ -105,7 +105,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = section (win,varargin);
         [sqw_type, ndims, nfiles, filename, mess,ld] = is_sqw_type_file(w,infile);
         [d, mess] = make_sqw_from_data(varargin);
-        varargout = head (varargin);
+        varargout = head(obj,vararin);
         %
         [ok,mess,nd_ref,matching]=dimensions_match(w,nd_ref)
         d=spe(w);

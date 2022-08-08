@@ -48,21 +48,24 @@ else
     n_inputs = numel(argi);
 end
 if n_outputs>n_inputs
-    error('HEAD:invalid_argument',...
+    error('HORACE:head:invalid_argument',...
         'number of output objects requested is bigger then the number of input files provided')
 end
 
-files = argi{1};
+files = argi{1}; % check if all files are provided in single cellarray
 if iscell(files)
     argi = files;
 else
-    argi = {files};
+    if numel(argi) ==1
+        argi = {files};
+    end
 end
 %
 all_fnames = cellfun(@ischar,argi,'UniformOutput',true);
 all_ldrs    = cellfun(@(x)isa(x,'dnd_file_interface'),argi,'UniformOutput',true);
 if ~any(all_fnames|all_ldrs)
-    error('READ_SQW:invalid_argument','read_sqw: not all input arguments represent filenames or loaders')
+    error('HORACE:head:invalid_argument',...
+        'read_sqw: not all input arguments represent filenames or loaders')
 end
 
 fnames = argi(all_fnames);
@@ -104,27 +107,19 @@ else
         nfi = min(n_inputs,nargout);
     end
     for i=1:nfi
+        data      = loaders{i}.get_data('-verbatim','-head');
+        if hfull
+            data_d    = loaders{i}.get_se_npix();
+            flds = {'s','e','npix'};
+            for j = 1:numel(flds)
+                data.(flds{j}) = data_d.(flds{j});
+            end
+        end
         if loaders{i}.sqw_type
-            if hfull
-                data = struct();
-                [data.main_header,exper_block,data.detpar,data.data] = ...
-                    loaders{i}.get_sqw('-legacy','-nopix','-verbatim');
-                data.header = exper_block.header;
-            else
-                data         = loaders{i}.get_data('-verbatim','-nopix');
-                if isa(data,'data_sqw_dnd')
-                    data         = data.get_dnd_data('+'); % + get pix_range if available
-                    data.pix_range = loaders{i}.get_pix_range();
-                end
-                data.npixels = loaders{i}.npixels;
-                data.nfiles  = loaders{i}.num_contrib_files;
-            end
-        else
-            if hfull
-                data         = loaders{i}.get_data('-verbatim','-nopix');
-            else
-                data         = loaders{i}.get_data('-verbatim','-nopix','-head');
-            end
+            data.pix_range = loaders{i}.get_pix_range();
+            data.npixels = loaders{i}.npixels;
+            data.nfiles  = loaders{i}.num_contrib_files;
+            data.creatrion_date = loaders{i}.creation_date;
         end
         vout{i} = data;
     end
