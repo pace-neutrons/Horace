@@ -6,6 +6,10 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
         function_name;
         common_data;
         dataSize = 'large';
+        tobyfit_func = @slow_func;
+        amp = 6000;
+        fwhh = 0.2;
+        parmas = {[amp,fwhh],@testfunc_nb_sqw,10^0}
         dataSource;
     end
     
