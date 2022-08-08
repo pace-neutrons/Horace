@@ -18,7 +18,7 @@ methods
     function obj = setUp(obj)
         obj.sqw_obj = copy(obj.base_sqw_obj);
         obj.no_pix_sqw_obj = copy(obj.base_sqw_obj);
-        obj.no_pix_sqw_obj.data.pix = PixelData();
+        obj.no_pix_sqw_obj.pix = PixelData();
     end
 
     function test_has_pixels_returns_true_for_full_sqw_object(obj)

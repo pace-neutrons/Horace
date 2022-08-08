@@ -24,7 +24,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             pixel_page_size = 400e3;
             obj.sqw_2d_paged = sqw(obj.test_sqw_file_path, 'pixel_page_size', ...
                 pixel_page_size);
-            pix = obj.sqw_2d_paged.data.pix;
+            pix = obj.sqw_2d_paged.pix;
             assertTrue(pix.num_pixels > pix.page_size);
 
             obj.sqw_2d = sqw(obj.test_sqw_file_path);
@@ -63,11 +63,11 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
         function test_same_sqw_objs_equal_if_pixels_in_each_bin_shuffled(obj)
             original_sqw = copy(obj.sqw_2d);
-            pix = original_sqw.data.pix;
+            pix = original_sqw.pix;
             npix = original_sqw.data.npix;
 
             shuffled_sqw = original_sqw;
-            shuffled_sqw.data.pix = obj.shuffle_pixel_bin_rows(pix, npix);
+            shuffled_sqw.pix = obj.shuffle_pixel_bin_rows(pix, npix);
 
             assertTrue(equal_to_tol(shuffled_sqw, original_sqw));
         end
@@ -85,9 +85,9 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.npix = npix;
-            original_sqw.data.pix = pix;
+            original_sqw.pix = pix;
             shuffled_sqw = copy(original_sqw);
-            shuffled_sqw.data.pix = shuffled_pix;
+            shuffled_sqw.pix = shuffled_pix;
 
             assertTrue(equal_to_tol(shuffled_sqw, original_sqw));
         end
@@ -105,9 +105,9 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.npix = npix;
-            original_sqw.data.pix = pix;
+            original_sqw.pix = pix;
             shuffled_sqw = copy(original_sqw);
-            shuffled_sqw.data.pix = shuffled_pix;
+            shuffled_sqw.pix = shuffled_pix;
 
             assertFalse(equal_to_tol(shuffled_sqw, original_sqw, 'reorder', false));
         end
@@ -179,9 +179,9 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.npix = npix;
-            original_sqw.data.pix = pix;
+            original_sqw.pix = pix;
             edited_sqw = copy(original_sqw);
-            edited_sqw.data.pix = edited_pix;
+            edited_sqw.pix = edited_pix;
 
             % check equal_to_tol false when comparing all bins
             assertFalse(equal_to_tol(edited_sqw, original_sqw, 'fraction', 1));

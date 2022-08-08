@@ -7,10 +7,10 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         idxs_to_mask;
         mask_array_2d;
         masked_2d_pix_range
-        masked_2d_img_db_range
+        masked_2d_img_range
         masked_2d_paged_cache;
         
-        sqw_3d_file_path = '../test_rebin/w3d_sqw.sqw';
+        sqw_3d_file_path = '../common_data/w3d_sqw.sqw';
         sqw_3d;
         sqw_3d_paged;
         idxs_to_mask_3d;
@@ -34,7 +34,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
                                     
             % 2D case setup
             obj.sqw_2d = sqw(obj.sqw_2d_file_path);
-            pix = obj.sqw_2d.data.pix;
+            pix = obj.sqw_2d.pix;
             pix.recalc_pix_range();
             
             
@@ -68,8 +68,8 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         function test_pix_range_equal_for_paged_and_non_paged_sqw_after_mask(obj)
             if isempty(obj.masked_2d_pix_range)
                 masked_2d = mask(obj.sqw_2d, obj.mask_array_2d);
-                obj.masked_2d_pix_range = masked_2d.data.pix.pix_range;
-                obj.masked_2d_img_db_range = masked_2d.data.img_db_range;
+                obj.masked_2d_pix_range = masked_2d.pix.pix_range;
+                obj.masked_2d_img_range = masked_2d.data.img_range;
             end
             
             if isempty(obj.masked_2d_paged_cache)
@@ -81,7 +81,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             end
             
             
-            paged_pix_range = masked_2d_paged.data.pix.pix_range;
+            paged_pix_range = masked_2d_paged.pix.pix_range;
             mem_pix_range = obj.masked_2d_pix_range;
             assertElementsAlmostEqual(mem_pix_range, paged_pix_range, 'absolute', 0.001);
         end
@@ -107,16 +107,16 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             
             % test_num_pixels_has_been_reduced_by_correct_amount
             expected_num_pix = sum(obj.sqw_2d.data.npix(obj.mask_array_2d));
-            assertEqual(masked_2d.data.pix.num_pixels, expected_num_pix);
+            assertEqual(masked_2d.pix.num_pixels, expected_num_pix);
             
-            % test_img_db_range_recalculated_after_mask
-            % TODO: enable check when img_db_range is fully supported
-            obj.masked_2d_img_db_range = obj.sqw_2d.data.img_db_range;
+            % test_img_range_recalculated_after_mask
+            % TODO: enable check when img_range is fully supported
+            obj.masked_2d_img_range = obj.sqw_2d.data.img_range;
             %assertElementsAlmostEqual(original_pix_range(2:end), new_pix_range(2:end), ...
             %    'absolute', 0.001);
             
-            original_pix_range = obj.sqw_2d.data.pix.pix_range;
-            new_pix_range = masked_2d.data.pix.pix_range;
+            original_pix_range = obj.sqw_2d.pix.pix_range;
+            new_pix_range = masked_2d.pix.pix_range;
             obj.masked_2d_pix_range = new_pix_range;
             
             pix_range_diff = abs(original_pix_range - new_pix_range);
@@ -135,8 +135,8 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             
             
             % test_paged_and_non_paged_sqw_have_equivalent_pixels_after_mask
-            raw_paged_pix = concatenate_pixel_pages(masked_2d_paged.data.pix);
-            assertEqual(raw_paged_pix, masked_2d.data.pix.data);
+            raw_paged_pix = concatenate_pixel_pages(masked_2d_paged.pix);
+            assertEqual(raw_paged_pix, masked_2d.pix.data);
         end
         
         function test_mask_works_with_paged(obj)
@@ -168,14 +168,14 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             
             % function test_num_pix_has_been_reduced_by_correct_amount_with_paged_pix(obj)
             expected_num_pix = sum(obj.sqw_2d.data.npix(obj.mask_array_2d));
-            assertEqual(masked_2d_paged.data.pix.num_pixels, expected_num_pix);
+            assertEqual(masked_2d_paged.pix.num_pixels, expected_num_pix);
             
-            %function test_img_db_range_recalculated_after_mask_with_paged_pix(obj)
-            original_pix_range = obj.sqw_2d.data.pix.pix_range;
-            new_pix_range = masked_2d_paged.data.pix.pix_range;
+            %function test_img_range_recalculated_after_mask_with_paged_pix(obj)
+            original_pix_range = obj.sqw_2d.pix.pix_range;
+            new_pix_range = masked_2d_paged.pix.pix_range;
             
-            img_db_range_diff = abs(original_pix_range - new_pix_range);
-            assertTrue(img_db_range_diff(1) > 0.001);
+            img_range_diff = abs(original_pix_range - new_pix_range);
+            assertTrue(img_range_diff(1) > 0.001);
             assertElementsAlmostEqual(original_pix_range(2,:), new_pix_range(2,:), ...
                 'absolute', 0.001);
             assertElementsAlmostEqual(original_pix_range(1,3:end), new_pix_range(1,3:end), ...
@@ -240,54 +240,54 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         
         function test_num_pixels_has_been_reduced_by_correct_amount_3d(obj)
             expected_num_pix = sum(obj.sqw_3d.data.npix(obj.mask_array_3d));
-            assertEqual(obj.masked_3d.data.pix.num_pixels, expected_num_pix);
+            assertEqual(obj.masked_3d.pix.num_pixels, expected_num_pix);
         end
         
         function test_num_pix_has_been_reduced_by_correct_amount_paged_pix_3d(obj)
             expected_num_pix = sum(obj.sqw_3d.data.npix(obj.mask_array_3d));
-            assertEqual(obj.masked_3d_paged.data.pix.num_pixels, expected_num_pix);
+            assertEqual(obj.masked_3d_paged.pix.num_pixels, expected_num_pix);
         end
         
-        function test_img_db_range_recalculated_after_mask_3d(obj)
-            original_img_db_range = obj.sqw_3d.data.img_db_range;
-            img_db_range_diff = abs(original_img_db_range - obj.masked_3d.data.img_db_range);
-            assertTrue(obj.fh_range_check(img_db_range_diff,1.e-7));
+        function test_img_range_recalculated_after_mask_3d(obj)
+            original_img_range = obj.sqw_3d.data.img_range;
+            img_range_diff = abs(original_img_range - obj.masked_3d.data.img_range);
+            assertTrue(obj.fh_range_check(img_range_diff,1.e-7));
         end
         
-        function test_img_db_range_recalculated_after_mask_with_paged_pix_3d(obj)
-            original_img_db_range = obj.sqw_3d.data.img_db_range;
-            img_db_range_diff = abs(original_img_db_range - obj.masked_3d_paged.data.img_db_range);
-            assertTrue(obj.fh_range_check(img_db_range_diff ,1.e-7));
+        function test_img_range_recalculated_after_mask_with_paged_pix_3d(obj)
+            original_img_range = obj.sqw_3d.data.img_range;
+            img_range_diff = abs(original_img_range - obj.masked_3d_paged.data.img_range);
+            assertTrue(obj.fh_range_check(img_range_diff ,1.e-7));
         end
         
         function test_paged_and_non_paged_sqw_have_same_pixels_after_mask_3d(obj)
-            raw_paged_pix = concatenate_pixel_pages(obj.masked_3d_paged.data.pix);
-            assertEqual(raw_paged_pix, obj.masked_3d.data.pix.data);
+            raw_paged_pix = concatenate_pixel_pages(obj.masked_3d_paged.pix);
+            assertEqual(raw_paged_pix, obj.masked_3d.pix.data);
         end
         
         function test_img_range_equal_for_paged_and_non_paged_sqw_after_mask_3d(obj)
-            paged_img_db_range = obj.masked_3d_paged.data.img_db_range;
-            mem_img_db_range = obj.masked_3d.data.img_db_range;
-            assertElementsAlmostEqual(mem_img_db_range, paged_img_db_range, 'absolute', 0.001);
+            paged_img_range = obj.masked_3d_paged.data.img_range;
+            mem_img_range = obj.masked_3d.data.img_range;
+            assertElementsAlmostEqual(mem_img_range, paged_img_range, 'absolute', 0.001);
         end
         
         function test_mask_pixels_removes_pixels_given_in_mask_array(obj)
             sqw_obj = sqw(obj.sqw_2d_file_path);
-            mask_array = ones(1, sqw_obj.data.pix.num_pixels, 'logical');
+            mask_array = ones(1, sqw_obj.pix.num_pixels, 'logical');
             
             % Remove all pix where u1 greater than median u1
-            % This ensures img_db_range and pix_range will be sufficiently different
-            median_u1_range = median(sqw_obj.data.pix.u1);
-            pix_to_remove = sqw_obj.data.pix.u1 > median_u1_range;
+            % This ensures img_range and pix_range will be sufficiently different
+            median_u1_range = median(sqw_obj.pix.u1);
+            pix_to_remove = sqw_obj.pix.u1 > median_u1_range;
             
             mask_array(pix_to_remove) = false;
             new_sqw = mask_pixels(sqw_obj, mask_array);
             
-            assertEqual(new_sqw.data.pix.num_pixels, sum(mask_array));
+            assertEqual(new_sqw.pix.num_pixels, sum(mask_array));
             assertFalse(equal_to_tol(new_sqw.data.s, sqw_obj.data.s,[0, 1e-4]));
-            % masking have not changed binning, so img_db_range remains the
+            % masking have not changed binning, so img_range remains the
             % same
-            assertTrue(equal_to_tol(new_sqw.data.img_db_range, sqw_obj.data.img_db_range,[0, 1e-7]));
+            assertTrue(equal_to_tol(new_sqw.data.img_range, sqw_obj.data.img_range,[0, 1e-7]));
         end
         
         function test_mask_random_fraction_pixels_removes_percentage_of_pixels(obj)
@@ -296,8 +296,8 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             frac_to_keep = 0.8;
             new_sqw = mask_random_fraction_pixels(sqw_obj, frac_to_keep);
             
-            expected_num_pix = round(frac_to_keep*sqw_obj.data.pix.num_pixels);
-            assertEqual(new_sqw.data.pix.num_pixels, expected_num_pix);
+            expected_num_pix = round(frac_to_keep*sqw_obj.pix.num_pixels);
+            assertEqual(new_sqw.pix.num_pixels, expected_num_pix);
         end
         
         function test_mask_random_pixels_retains_correct_number_of_pixels(obj)
@@ -306,7 +306,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             num_pix_to_keep = 5000;
             new_sqw = mask_random_pixels(sqw_obj, num_pix_to_keep);
             
-            assertEqual(new_sqw.data.pix.num_pixels, num_pix_to_keep);
+            assertEqual(new_sqw.pix.num_pixels, num_pix_to_keep);
         end
         
         
@@ -323,7 +323,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             masked_sqw = mask(paged_sqw, mask_array);
             
             % make sure we're actually paging the pixel data
-            assertTrue(paged_sqw.data.pix.page_size < paged_sqw.data.pix.num_pixels);
+            assertTrue(paged_sqw.pix.page_size < paged_sqw.pix.num_pixels);
         end
         
     end

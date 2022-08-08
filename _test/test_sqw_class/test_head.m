@@ -20,15 +20,15 @@ classdef test_head < TestCaseWithSave
     methods
         function obj = test_head(varargin)
             %hor_root = horace_root();
-            com_data_path = fileparts(mfilename('fullpath'));
-            test_data = fullfile(com_data_path,'test_head.mat');
+            this_data_path = fileparts(mfilename('fullpath'));
+            test_data = fullfile(this_data_path,'test_head.mat');
             if nargin == 0
                 argi = {test_data};
             else
                 argi = {varargin{1},test_data};
             end
             obj = obj@TestCaseWithSave(argi{:});
-            obj.common_data = com_data_path;
+            obj.common_data = fullfile(fileparts(com_data_path),'common_data');
 
             obj.test_sqw_1d_fullpath = fullfile(obj.common_data, obj.sqw_file_1d_name);
             obj.test_sqw_2d_fullpath = fullfile(obj.common_data, obj.sqw_file_2d_name);

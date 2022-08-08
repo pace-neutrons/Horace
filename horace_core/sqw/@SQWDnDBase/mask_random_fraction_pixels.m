@@ -11,7 +11,7 @@ function wout = mask_random_fraction_pixels(win,npix)
 % ------
 %   win                 Input sqw object
 %
-%   npix_frac           Fraction of pixels in win.data_.pix array to keep.
+%   npix_frac           Fraction of pixels in win.pix array to keep.
 %                       These are chosen at random. If win is an array then
 %                       npix can either be a scalar, in which case all
 %                       outputs will have the same number of retained
@@ -60,12 +60,12 @@ for i=1:sz
     end
 
     %Determine number of pixels to keep:
-    n=nn.*win(i).data_.pix.num_pixels;
+    n=nn.*win(i).pix.num_pixels;
     nn=round(n);%ensure integer number of pixels retained
 
     % reuce the number of pixels using mask
-    mask0 = false([1 win(i).data_.pix.num_pixels]);
-    mask0(randperm(win(i).data_.pix.num_pixels, nn)) = true;
+    mask0 = false([1 win(i).pix.num_pixels]);
+    mask0(randperm(win(i).pix.num_pixels, nn)) = true;
     wout(i) = mask_pixels(win(i),mask0);
 end
 

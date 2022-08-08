@@ -61,15 +61,15 @@ if isa(mask_array, 'SQWDnDBase')
         if numel(sz_msk)==1
             sz_msk=[sz_msk,1];
         end
-        if isequal(nd,nd_msk) && isequal(sz,sz_msk) && isequal(win.data_.npix,mask_array.data_.npix)
-            mask_array=logical(mask_array.data_.pix.signal);
+        if isequal(nd,nd_msk) && isequal(sz,sz_msk) && isequal(win.data.npix,mask_array.data.npix)
+            mask_array=logical(mask_array.pix.signal);
         else
             error('Dimensionality, number of bins on each dimension and number of pixels in each bin of input and mask must match')
         end
     else
         error('If the mask object is a Horace object if must be sqw-type i.e. contain pixel information')
     end
-elseif (isnumeric(mask_array) || islogical(mask_array)) && numel(mask_array)~=numel(win.data_.s)
+elseif (isnumeric(mask_array) || islogical(mask_array)) && numel(mask_array)~=numel(win.data.s)
     if ~islogical(mask_array)
         mask_array=logical(mask_array);
     end
@@ -78,8 +78,8 @@ else
 end
 
 % Section the pix array, if sqw type, and update pix_range and img_db_range(s)
-ibin = replicate_array(1:prod(sz),win.data_.npix);   % (linear) bin number for each pixel
+ibin = replicate_array(1:prod(sz),win.data.npix);   % (linear) bin number for each pixel
 npix=accumarray(ibin(mask_array),ones(1,sum(mask_array)),[prod(sz),1]);
-wout.data_.npix=reshape(npix,sz);
-wout.data_.pix=win.data_.pix.mask(mask_array);
+wout.img_range.npix=reshape(npix,sz);
+wout.img_range.pix=win.pix.mask(mask_array);
 wout=recompute_bin_data(wout);
