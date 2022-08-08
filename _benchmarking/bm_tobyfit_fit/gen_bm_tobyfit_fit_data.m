@@ -50,7 +50,7 @@ sample.angdeg = [90 90 90];
 main_sqw = set_instrument(main_sqw, instrument);
 main_sqw = set_sample (main_sqw, sample);
 
-disp("Number of pixels in sqw object: " + main_sqw.npixels)
+% disp("Number of pixels in sqw object: " + main_sqw.npixels)
 switch dataSet
     case 'small'
         sqw_obj=repmat(main_sqw,1,1);

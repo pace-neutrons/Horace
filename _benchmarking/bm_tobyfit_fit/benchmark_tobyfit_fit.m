@@ -29,11 +29,10 @@ sqw_obj = gen_bm_tobyfit_fit_data(nDims,dataSource,dataSize,dataSet);
 amp=6000;
 fwhh=0.2;
 nlist=0;
-disp('Fitting Nb data...')
 w_sqw = tobyfit(sqw_obj);
 w_sqw = w_sqw.set_local_foreground;
-w_sqw = w_sqw.set_fun(@testfunc_nb_sqw,[amp,fwhh]);
-w_sqw = w_sqw.set_bind({2,[2,1]});
+w_sqw = w_sqw.set_fun(@slow_func,{[amp,fwhh],@testfunc_nb_sqw,10^0});
+% w_sqw = w_sqw.set_bind({2,[2,1]});
 w_sqw = w_sqw.set_bfun(@testfunc_bkgd,[0,0]);
 w_sqw = w_sqw.set_mc_points(2);
 w_sqw = w_sqw.set_options('listing',nlist);
@@ -41,9 +40,9 @@ w_sqw = w_sqw.set_options('listing',nlist);
 %% Start profiler
 profile on
 [wfit_1,fitpar_1]=w_sqw.fit;
-acolor r b;
-plot(w_sqw); 
-pl(wfit_1);
+% acolor r b;
+% plot(w_sqw); 
+% pl(wfit_1);
 prof_results = profile('info');
 
 pths = horace_paths;
