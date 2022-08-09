@@ -58,7 +58,7 @@ if ~all(right_type)
         n_empty);
 end
 % Ignore empty datasets
-is_empty = arrayfun(@(x)(x.data_.pix.num_pixels == 0),inputs);
+is_empty = arrayfun(@(x)(x.pix.num_pixels == 0),inputs);
 if all(is_empty)
     wout= w1;
     return;
@@ -80,7 +80,7 @@ full_img_rng = cellfun(@(box)(expand_box(box(1,:),box(2,:))),img_ranges,...
 
 %
 % retrieve projections for all contributing cuts
-all_proj_block = arrayfun(@(ws)(ws.data_.get_projection()),inputs,...
+all_proj_block = arrayfun(@(ws)(ws.data_.proj),inputs,...
     'UniformOutput',false);
 % transform the ranges into common coordinate system
 full_pix_rng = cellfun(@(proj,data)(proj.transform_img_to_pix(data)),...
@@ -97,16 +97,18 @@ full_img_rng = [full_img_rng{:}];
 combine_range = [min(full_img_rng,[],2),max(full_img_rng,[],2)]';
 combine_range = range_add_border(combine_range);
 
+
 % Extract binning from the first sqw object and extend this binning onto
 % whole combine range:
 new_range_arg = cell(1,4);
-paxis  = inputs(1).data.nbins_all_dims>1;
+nbins = inputs(1).data.axes.nbins_all_dims;
+paxis = nbins>1;
 npax = 0;
 for i=1:4
     new_range_arg{i} = combine_range(:,i)';
     if paxis(i)
         npax = npax+1;
-        np = inputs(1).data.nbins_all_dims(i);
+        np   = nbins(i);
         range = new_range_arg{i};
         dist = range(2)-range(1);
         if np>1
@@ -117,6 +119,7 @@ for i=1:4
         new_range_arg{i} = [range(1),step,range(2)];
     end
 end
+
 % combine pixels into single pixels block
 wout = copy(inputs(1));
 pixout = wout.pix;
@@ -134,9 +137,8 @@ set(hor_config,'log_level',-1);
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin.
 % TODO: refactor and make applicable for file-based operations
-%
-wout.data.img_range = combine_range ;
-wout.data.nbins_all_dims = ones(4,1);
+ax = axes_block('nbins_all_dims',ones(4,1),'img_range',combine_range);
+wout.data = d0d(ax,proj1);
 wout.data.npix = wout.pix.num_pixels;
 
 wout=cut(wout,proj1,new_range_arg{:});
