@@ -50,4 +50,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     % Evaluate function
     wout(i).s(ok) = func_handle(pcent{:},pars{:});
     wout(i).e = zeros(size(win(i).e));
+    if opts.all
+        wout(i).npix = ones(size(wout(i).npix));
+    end
 end

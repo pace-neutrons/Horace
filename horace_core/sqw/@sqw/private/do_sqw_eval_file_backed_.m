@@ -23,8 +23,8 @@ function wout = do_sqw_eval_file_backed_(wout, sqwfunc, pars, outfile)
 %
 %==============================================================================
 
-pg_size = wout.data.pix.base_page_size;
-pix = wout.data.pix;
+pg_size = wout.pix.base_page_size;
+pix = wout.pix;
 npix = wout.data.npix;
 
 % divide npix into chunks of the base page size

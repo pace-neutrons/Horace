@@ -84,7 +84,7 @@ classdef test_cut < TestCase & common_state_holder
             sqw_cut = cut(sqw_obj,ref_par{:});
             %
             % offset is currently expressed in hkl
-            assertElementsAlmostEqual(sqw_cut.data.uoffset,obj.ref_params{1}.uoffset);
+            assertElementsAlmostEqual(sqw_cut.data.offset,obj.ref_params{1}.offset);
 
             ref_sqw = read_sqw(obj.ref_file);
 
@@ -96,7 +96,7 @@ classdef test_cut < TestCase & common_state_holder
         function test_take_a_cut_with_nopix_argument(obj)
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
 
-            ref_sqw = d3d(obj.ref_file);
+            ref_sqw = read_dnd(obj.ref_file);
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
         end
 
@@ -142,7 +142,7 @@ classdef test_cut < TestCase & common_state_holder
             loaded_cut.experiment_info.instruments = ret_sqw.experiment_info.instruments;
 
             assertEqualToTol(ret_sqw, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')                        
+            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
         %
         function test_cut_from_an_sqw_file_to_another_sqw_file_combined_mex(obj)
@@ -156,8 +156,8 @@ classdef test_cut < TestCase & common_state_holder
             hpc.combine_sqw_using = 'mex';
             %
             ref_obj= copy(obj.sqw_4d); % it has been read in constructor
-            %ref_obj.data.pix.signal = 1:ref_obj.data.pix.num_pixels;
-            %ref_obj.data.pix.data = single(ref_obj.data.pix.data);
+            %ref_obj.pix.signal = 1:ref_obj.pix.num_pixels;
+            %ref_obj.pix.data = single(ref_obj.pix.data);
             ref_tfile = fullfile(obj.working_dir, 'mex_combine_source_from_file_to_file.sqw');
             rf_cleanup = onCleanup(@()delete(ref_tfile ));
             save(ref_obj,ref_tfile);
@@ -175,10 +175,10 @@ classdef test_cut < TestCase & common_state_holder
             ref_cut = cut(ref_obj,ref_par{:});
             % bug #797 requesting investigation
             loaded_cut.experiment_info.instruments = ref_cut.experiment_info.instruments;
-            
+
 
             assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')            
+            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
 
 
@@ -208,7 +208,7 @@ classdef test_cut < TestCase & common_state_holder
 
 
             assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')            
+            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
 
 
@@ -237,7 +237,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_you_can_take_a_cut_from_a_dnd_object(obj)
-            dnd_obj = d4d(obj.sqw_file);
+            dnd_obj = read_dnd(obj.sqw_file);
 
             u_axis_lims = [-0.1, 0.024, 0.1];
             v_axis_lims = [-0.1, 0.024, 0.1];
@@ -379,7 +379,7 @@ classdef test_cut < TestCase & common_state_holder
             %
             contrubuted_keys = output_sqw.runid_map.keys;
             contrib_ind  = [contrubuted_keys{:}];
-            real_contr_ind = unique(ref_sqw.data.pix.run_idx);
+            real_contr_ind = unique(ref_sqw.pix.run_idx);
             assertTrue(all(ismember(contrib_ind,real_contr_ind)));
 
             contr_headers = output_sqw.experiment_info.get_subobj(contrib_ind);
@@ -411,11 +411,10 @@ classdef test_cut < TestCase & common_state_holder
             assertTrue(logical(exist(outfile, 'file')));
             ldr = sqw_formats_factory.instance().get_loader(outfile);
             output_obj = ldr.get_dnd();
-            ref_object = d3d(obj.ref_file);
+            ref_object = read_dnd(obj.ref_file);
 
             assertEqualToTol(output_obj, ref_object, ...
                 'ignore_str', true,'abstol',2.e-7);
         end
     end
-
 end

@@ -87,11 +87,11 @@ classdef test_symm < TestCase
 
             w3d_sqw_sym=symmetrise_sqw(w3d_sqw,[0,0,1],[-1,1,0],[0,0,0]);
             % one pixel lost, pity, but bearable.
-            assertEqual(w3d_sqw.data.num_pixels-1,w3d_sqw_sym.data.num_pixels);
+            assertEqual(w3d_sqw.pix.num_pixels-1,w3d_sqw_sym.pix.num_pixels);
             w3d_sqw_sym2=symmetrise_sqw(w3d_sqw_sym,[1,1,0],[0,0,1],[0,0,0]);
-            assertEqual(w3d_sqw_sym.data.num_pixels,w3d_sqw_sym2.data.num_pixels);
+            assertEqual(w3d_sqw_sym.pix.num_pixels,w3d_sqw_sym2.pix.num_pixels);
             w3d_sqw_sym3=symmetrise_sqw(w3d_sqw_sym2,[0,0,1],[-1,1,0],[0,0,0]);
-            assertEqual(w3d_sqw_sym3.data.num_pixels,w3d_sqw_sym2.data.num_pixels);
+            assertEqual(w3d_sqw_sym3.pix.num_pixels,w3d_sqw_sym2.pix.num_pixels);
 
             cc1=cut(w3d_sqw_sym,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
             cc2=cut(w3d_sqw_sym3,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
@@ -103,8 +103,8 @@ classdef test_symm < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_sym_d2d(this)
             % d2d symmetrisation:
-            w2d_qe_d2d = d2d(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
-            w2d_qq_d2d = d2d(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
+            w2d_qe_d2d = read_dnd(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
+            w2d_qq_d2d = read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
 
             skipTest('Symmetrize DND is disabled until DND is refactored #796')
             w2_1 = symmetrise_horace_2d(w2d_qe_d2d,[0,NaN]);
@@ -146,7 +146,7 @@ classdef test_symm < TestCase
 
         % ------------------------------------------------------------------------------------------------
         function this=test_random_symax(this)
-            w2d_qq_small_d2d=d2d(fullfile(this.testdir,'w2d_qq_small_d2d.sqw'));
+            w2d_qq_small_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_small_d2d.sqw'));
             skipTest('Symmetrize DND is disabled until DND is refactored #796')
             % Random symm axis (ensure shoelace algorithm is actually tested)
             disp(' ')

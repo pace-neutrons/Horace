@@ -99,7 +99,7 @@ wout = copy(win);
 % This has not been implemented but should
 % for i=1:numel(wout)
 %     if isa(wout(i),'sqw')
-%         if wout(i).data.pix.is_filebacked()
+%         if wout(i).pix.is_filebacked()
 %             opts.filebacked = true;
 %             break
 %         end
@@ -175,7 +175,7 @@ end
 outfiles_empty = all(cellfun(@(x) isempty(x), opts.outfile));
 if ~outfiles_empty && (numel(win) ~= numel(opts.outfile))
     error( ...
-        'HORACE:SQW:invalid_arguments', ...
+        'HORACE:sqw:invalid_argument', ...
         ['Number of outfiles specified must match number of input objects.\n' ...
         'Found %i outfile(s), but %i sqw object(s).'], ...
         numel(opts.outfile), numel(win) ...
@@ -202,7 +202,7 @@ function write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
 ldr = sqw_formats_factory.instance().get_pref_access(sqw_obj);
 ldr = ldr.init(sqw_obj, outfile);
 ldr.put_sqw('-nopix');
-ldr = write_out_of_mem_pix(sqw_obj.data_.pix, sqw_obj.data_.npix, sqw_obj.data_.s, ldr);
+ldr = write_out_of_mem_pix(sqw_obj.pix, sqw_obj.data.npix, sqw_obj.data.s, ldr);
 ldr = ldr.validate_pixel_positions();
 ldr = ldr.put_footers();
 ldr.delete();
