@@ -1,4 +1,4 @@
-classdef data_plot_interface
+classdef (Abstract=true) data_plot_interface
     % Class defines interface to all plotting functions available in Horace
     % for sqw and dnd objects.
     properties
@@ -11,17 +11,17 @@ classdef data_plot_interface
         %------------------------------------------------------------------
         % generic plotting interfaces for N-D objects
         %------------------------------------------------------------------
-        % Plot 1D, 2D or 3D sqw or dnd object or array of objects        
-        [figureHandle, axesHandle, plotHandle] = plot(w,varargin)        
-        % Overplot 1D, 2D or 3D sqw or dnd object or array of objects        
+        % Plot 1D, 2D or 3D sqw or dnd object or array of objects
+        [figureHandle, axesHandle, plotHandle] = plot(w,varargin)
+        % Overplot 1D, 2D or 3D sqw or dnd object or array of objects
         [figureHandle, axesHandle, plotHandle] = plotover(w,varargin)
 
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         % 1d Plotting functions
         %------------------------------------------------------------------
         % PLOT
         function [figureHandle, axesHandle, plotHandle] = dd(w,varargin)
-            % Draws a plot of markers, error bars and lines of a 1D sqw 
+            % Draws a plot of markers, error bars and lines of a 1D sqw
             % or dnd object or array of objects
             [figureHandle, axesHandle, plotHandle] = throw_unavailable_( ...
                 w,'dd',varargin{:});

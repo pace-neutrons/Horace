@@ -1,4 +1,4 @@
-classdef dnd_plot_interface < data_plot_interface
+classdef (Abstract=true) dnd_plot_interface < data_plot_interface
     % Class defines all functions may be used for plotting various sqw
     % objects
     methods

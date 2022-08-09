@@ -48,11 +48,7 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
     methods  % Public
-
-        wout = mask_pixels(win, mask_array);
         [sel,ok,mess] = mask_points(win, varargin);
-        wout = mask_random_fraction_pixels(win,npix);
-        wout = mask_random_pixels(win,npix);
         varargout = change_crystal (varargin);
 
         cl = save(w, varargin);

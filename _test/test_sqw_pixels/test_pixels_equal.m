@@ -84,6 +84,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data, npix_in_page);
 
             % Replace sqw objects' npix and pix arrays
+            original_sqw.data.do_check_combo_arg = false;
             original_sqw.data.npix = npix;
             original_sqw.pix = pix;
             shuffled_sqw = copy(original_sqw);
@@ -104,6 +105,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data, npix_in_page);
 
             % Replace sqw objects' npix and pix arrays
+            original_sqw.data.do_check_combo_arg = false;            
             original_sqw.data.npix = npix;
             original_sqw.pix = pix;
             shuffled_sqw = copy(original_sqw);
@@ -126,10 +128,9 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             pobj = obj.sqw_2d_paged;
             pobj.experiment_info = obj.sqw_2d.experiment_info;
             pobj.main_header.nfiles = obj.sqw_2d.main_header.nfiles;
-            pobj.main_header.creation_date = obj.sqw_2d.main_header.creation_date;
+            %pobj.main_header.creation_date = obj.sqw_2d.main_header.creation_date;
             [ok,mess]=equal_to_tol(pobj, obj.sqw_2d, 'fraction', 0.5,'-ignore_date');
             assertTrue(ok,mess);
-            skipTest('TODO: filebased and memory based versions of run_id map may be different, unitl the map is stored with file')
         end
 
         function test_false_returned_if_NaNs_in_sqw_and_nan_equal_is_false(obj)
@@ -178,6 +179,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             edited_pix = obj.get_pix_with_fake_faccess(edited_data, npix_in_page);
 
             % Replace sqw objects' npix and pix arrays
+            original_sqw.data.do_check_combo_arg = false;
             original_sqw.data.npix = npix;
             original_sqw.pix = pix;
             edited_sqw = copy(original_sqw);

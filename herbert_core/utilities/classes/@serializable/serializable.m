@@ -1,4 +1,4 @@
-classdef serializable
+classdef (Abstract=true) serializable
     % SERIALIZABLE interface:
     %----------------------------------------------------------------------
     % Class supports common interface to convert class or array of classes
