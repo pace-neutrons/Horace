@@ -396,34 +396,23 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %   Add appropriate code to convert from specific version to
             %   modern version
             %end
-            if isfield(inputs,'version') && inputs.version<4
-                inputs.proj = ortho_proj.get_from_old_data(inputs);
-                inputs.axes = axes_block.get_from_old_data(inputs);
+            if numel(inputs)>1
+                out = cell(numel(inputs),1);
+                for i=1:numel(inputs)
+                    out{i} = modify_old_structure_(inputs(i));
+                end
+                outa = [out{:}];
+
+                out = struct('array_dat',[]);
+                out.array_dat = outa;
             else
-                if isfield(inputs,'data_')
-                    inputs = inputs.data_;
-                end
-                if isfield(inputs,'pax') && isfield(inputs,'iax')
-                    inputs.axes = axes_block.get_from_old_data(inputs);
-                    if isfield(inputs,'img_db_range')
-                        inputs = rmfield(inputs,'img_db_range');
-                    end
-                    inputs.proj = ortho_proj.get_from_old_data(inputs);
-                end
-                if isfield(inputs,'uoffset')
-                    if isfield(inputs,'proj')
-                        inputs.proj.offset = inputs.uoffset;
-                    else
-                        inputs.offset = inputs.uoffset;
-                    end
-                    inputs = rmfield(inputs,'uoffset');
-                end
+                out = modify_old_structure_(inputs);
             end
 
-            if isfield(inputs,'array_dat')
-                obj = obj.from_bare_struct(inputs.array_dat);
+            if isfield(out,'array_dat')
+                obj = obj.from_bare_struct(out.array_dat);
             else
-                obj = obj.from_bare_struct(inputs);
+                obj = obj.from_bare_struct(out);
             end
         end
         %

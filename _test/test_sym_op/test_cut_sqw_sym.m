@@ -43,7 +43,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             sdiag= symop([1,1,0],[0,0,1],[1,1,0]);
             this.sym = {sdiag,s100,[sdiag,s100]};
             
-            this.proj = ortho_proj([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
+            this.proj = ortho_proj([1,-1,0], [1,1,0], 'offset', [1,1,0], 'type', 'paa');
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
             this.bin = [range(1)+step/2,step,range(2)-step/2];
