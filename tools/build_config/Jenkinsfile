@@ -63,11 +63,6 @@ properties([
       defaultValue: false,
       description: 'If this pipeline is to run benchmarks.',
       name: 'RUN_BENCHMARKS'
-    ),
-    booleanParam(
-      defaultValue: false,
-      description: 'If this pipeline is to run benchmarks.',
-      name: 'RUN_BENCHMARKS'
     )
   ])
 ])
