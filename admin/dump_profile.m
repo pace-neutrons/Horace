@@ -41,7 +41,7 @@ function dump_profile(prof, filename)
 %     dataStr = regexprep(dataStr, '<.*?>', '');
 %     dataStr = regexprep(dataStr, '[{}]', ' ');
 %     dataStr = dataStr(24:end);
-% 
+%
 %     fh = fopen(filename, 'w');
 %     fwrite(fh, dataStr);
 %     fclose(fh);
