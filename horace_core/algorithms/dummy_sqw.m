@@ -27,7 +27,7 @@ function [tmp_sqw, grid_size, img_db_range] = dummy_sqw (en, par_file, sqw_file,
 %                   elastic scattering (0-energy transfer)
 %
 %   sqw_file        Full file name of output sqw file, or empty string if
-%                   one wants to return a fake sqw object.
+%                   one wants to return a dummy sqw object.
 %
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2    [scalar]
@@ -127,10 +127,10 @@ end
 
 
 % A q-range at zero energy transfer is provided
-if ~ischar(par_file) && (isnumeric(par_file) )
+if isnumeric(par_file)
     if ~isempty(nfiles_in) && nfiles_in>1
         error('HORACE:dummy_sqw:invalid_argument',...
-            'Fake sqw with q-range input can not generate multiple sqw files');
+            'dummy_sqw with q-range input can not generate multiple sqw files');
     end
     % now the par file is the
     par_file = build_det_from_q_range(par_file,efix,lattice);
