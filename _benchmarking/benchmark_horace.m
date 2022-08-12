@@ -63,10 +63,10 @@ if isempty(bm_folders)% no tests specified on command line - run them all
         'bm_combine_sqw'...
         'bm_cut_sqw', ...
         'bm_func_eval'...
+        'bm_gen_sqw'...
         'bm_sqw_eval'...
         'bm_tobyfit_fit'...
         'bm_tobyfit_simulate'...
-%         'bm_gen_sqw'...
         };
 end
 
@@ -96,15 +96,6 @@ if verbose
 else
     hoc.log_level = -1; % turn off informational output
 end
-
-% %% Genrate the sqw objects needed for the benhcmarks
-% bigtic
-% % gen_fake_sqw_data(5);
-% gen_fake_sqw_data(6);
-% gen_fake_sqw_data(7);
-% gen_fake_sqw_data(8);
-% % gen_fake_sqw_data(9);
-% bigtoc
 
 %% Run benchmarks for small sized data set
 if smallData
