@@ -163,17 +163,14 @@ if drop_subzone_headers
 else
     nfiles_tot=sum(nspe);
 end
-main_header_combined.filename='';
-main_header_combined.filepath='';
-main_header_combined.title='';
-main_header_combined.nfiles=nfiles_tot;
+mhc = main_header_cl('nfiles',nfiles_tot);
 
 ab = axes_block.get_from_old_data(datahdr{1});
 proj = ortho_proj.get_from_old_data(datahdr{1});
 sqw_data = DnDBase.dnd(ab,proj);
-sqw_data.filename=main_header_combined.filename;
-sqw_data.filepath=main_header_combined.filepath;
-sqw_data.title=main_header_combined.title;
+sqw_data.filename=mhc.filename;
+sqw_data.filepath=mhc.filepath;
+sqw_data.title=mhc.title;
 
 % Now read in binning information
 % ---------------------------------
@@ -261,10 +258,10 @@ pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,n
 pix.pix_range = pix_range;
 
 [fp,fn,fe] = fileparts(outfile);
-main_header_combined.filename = [fn,fe];
-main_header_combined.filepath = [fp,filesep];
+mhc.filename = [fn,fe];
+mhc.filepath = [fp,filesep];
 %
-data_sum= struct('main_header',main_header_combined,'experiment_info',[],'detpar',det);
+data_sum= struct('main_header',mhc,'experiment_info',[],'detpar',det);
 data_sum.data = sqw_data;
 data_sum.experiment_info = header_combined;
 data_sum.pix = pix;

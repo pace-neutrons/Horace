@@ -316,11 +316,15 @@ classdef sqw_binfile_common < sqw_file_interface
             %                      pixels are written
             %   data.dummy         4-byte field kept for compartibility
             %                      with old data formats
-            %   data.data          A data field of PixelData object
+            %   data.pix_block     A field containing information about
+            %                      contents of PixelData object. npixels 
+            %                      and PixelData.data array are usually
+            %                      written here, which gives the size of
+            %                      block: 8+npixels*9*4
 
             pix_form= struct('img_range',single([2,4]),...
                 'dummy',field_not_in_structure('img_range'),...
-                'data',field_pix());
+                'pix_block',field_pix());
         end
         function img_db_range_pos = get_img_db_range_pos(obj)
             % returns byte-position from the start of the file

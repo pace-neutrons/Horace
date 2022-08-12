@@ -86,9 +86,9 @@ end
 % are written
 % % redefine formatter and remove pix_data fields not intended for serialization
 
-head_pix_format = struct('img_range',head_pix_format.img_range,...
-    'dummy',head_pix_format.dummy);
-%
+head_pix_format = rmfield(head_pix_format,'pix_block');
+% Remain oddities from old file format. Pixel part was initially stored in
+% data so now when we write pixels, we analyze remaining part of data
 data = obj.sqw_holder_.data;
 bytes = obj.sqw_serializer_.serialize(data ,head_pix_format);
 %--------------------------------------------------------------------------
