@@ -114,7 +114,7 @@ classdef test_smooth < TestCaseWithSave
 
             actual = assertExceptionThrown( ...
                 @() d2d_obj.smooth(100, 'invalid_shape'), ...
-                'HORACE:smooth:invalid_argument');
+                'HORACE:DnDBase:invalid_argument');
             assertTrue(contains(actual.message, '''invalid_shape'' is not recognised'));
 
         end
@@ -123,7 +123,7 @@ classdef test_smooth < TestCaseWithSave
             d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
             actual = assertExceptionThrown(@() d2d_obj.smooth([10,10,10,10,10]), ...
-                'HORACE:smooth:invalid_argument');
+                'HORACE:DnDBase:invalid_argument');
             assertTrue(contains(actual.message, 'length equal to the dimensions of the dataset'))
         end
     end

@@ -230,13 +230,10 @@ classdef test_migrated_apis < TestCaseWithSave
     end
 
     methods(Static)
-        function [val,weit] = disp_rln(qh, qk, ql, varargin)
+        function val = disp_rln(qh, qk, ql, varargin)
             % simple function to testing; uses the first keyword argument
             scale = varargin{2};
             val = qh .* qk .* ql .* scale;
-            if nargout>1
-                weit = ones(size(val));
-            end
         end
     end
 end
