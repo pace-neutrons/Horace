@@ -108,8 +108,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             obj_m8=read_sqw(sqw_file_123_t8);
             obj_m1=read_sqw(sqw_file_123_t1);
             %
-            pix = sortrows(obj_m8.data.pix.data')';
-            pix1 = sortrows(obj_m1.data.pix.data')';
+            pix = sortrows(obj_m8.pix.data')';
+            pix1 = sortrows(obj_m1.pix.data')';
             assertEqual(pix,pix1);
             assertEqual(obj_m8.data.s,obj_m1.data.s);
             assertEqual(obj_m8.data.e,obj_m1.data.e);
@@ -117,8 +117,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
 
             [ok,mess]=is_cut_equal(sqw_file_123_t8,sqw_file_123_t1,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
-            w_8 = d0d(sqw_file_123_t8);
-            w_1 = d0d(sqw_file_123_t1);
+            w_8 = read_dnd(sqw_file_123_t8);
+            w_1 = read_dnd(sqw_file_123_t1);
             [ok,mess]=equal_to_tol(w_8,w_1,-1.e-8,'ignore_str',true);
             assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
 

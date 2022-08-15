@@ -105,11 +105,15 @@ function [data,obj] = get_data(obj,varargin)
 % Initialise output arguments
 
 % remove options unrelated to get_data@dnd_binfile_common
-[ok,mess,noclass,noupgrade,argi]=...
-    parse_char_options(varargin,{'-noclass','-noupgrade'});
+[ok,mess,noclass,noupgrade,nopix,argi]=...
+    parse_char_options(varargin,{'-noclass','-noupgrade','-nopix'});
 if ~ok
     error('HORACE:sqw_binfile_common:invalid_argument', ...
         ['get_data: ',mess]);
+end
+if nopix
+    warning('HORACE:invalid_argument', ...
+        '-nopix option in get_data is depricated. New data do not contain pixel information. Use get_pix to obtain pixel data')
 end
 
 [data_str,obj] = get_data@dnd_binfile_common(obj,argi{:});
