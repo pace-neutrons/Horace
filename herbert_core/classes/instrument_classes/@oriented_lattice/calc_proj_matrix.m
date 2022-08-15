@@ -42,6 +42,6 @@ b_matrix  = obj.bmatrix();       % bmat takes Vrlu to V_crystal_Cart
 %u_matrix  = ub_matrix / b_matrix;         % u matrix takes V in crystal Cartesian coordinates to orthonormal frame defined by u, v
 
 
-obj=obj.set_rad();
+obj=obj(1).set_rad();
 [spec_to_u, u_to_rlu, spec_to_rlu] = ...
     calc_proj_matrix(b_matrix,u_matrix, '', '', obj.psi, obj.omega, obj.dpsi, obj.gl, obj.gs);
