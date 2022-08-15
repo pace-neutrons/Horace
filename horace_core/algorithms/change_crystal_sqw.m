@@ -58,7 +58,7 @@ end
 % Perform operations
 for i=1:numel(filenames)
     ld = sqw_formats_factory.instance().get_loader(filenames{i});
-    data    = ld.get_data('-nopix');
+    data    = ld.get_data();
     target_file = fullfile(ld.filepath,ld.filename);
     ld = ld.set_file_to_update(target_file);
     if ld.sqw_type

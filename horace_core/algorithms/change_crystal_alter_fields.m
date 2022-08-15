@@ -1,4 +1,6 @@
 function [header,data,ok,mess]=change_crystal_alter_fields(header_in,data_in,varargin)
+% TODO: modify to use generic projection
+% 
 % Change fields in the header and data structures when change crystal lattice parameters and orientation
 %
 %   >> [header,data]=change_crystal_alter_fields(header_in,data_in,alatt)
@@ -92,5 +94,6 @@ end
 
 data.alatt=alatt;
 data.angdeg=angdeg;
-data.uoffset(1:3)=rlu_corr*data.uoffset(1:3);
-data.u_to_rlu(1:3,1:3)=rlu_corr*data.u_to_rlu(1:3,1:3);
+u_to_rlu = data.proj.u_to_rlu;
+data.offset(1:3)=rlu_corr*data.offset(1:3)';
+data.proj = data.proj.set_from_data_mat(rlu_corr*u_to_rlu(1:3,1:3),data.axes.ulen);

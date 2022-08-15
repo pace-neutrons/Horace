@@ -106,7 +106,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [header_ave, ebins_all_same]=header_average(header);
         [alatt,angdeg,ok,mess] = lattice_parameters(win);
         [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in);
-        img_range = recompute_img_range(w);
 
         wout = section (win,varargin);
         [sqw_type, ndims, nfiles, filename, mess,ld] = is_sqw_type_file(w,infile);

@@ -323,7 +323,7 @@ classdef ortho_proj<aProjection
                     obj,pix_origin,varargin{:});
             end
         end
-        %
+        %------------------------------------------------------------------
         function  flds = saveableFields(obj)
             flds = saveableFields@aProjection(obj);
             flds = [flds(:);obj.fields_to_save_(:)];

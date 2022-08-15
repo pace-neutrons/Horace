@@ -65,7 +65,9 @@ for n=1:numel(win)
     irange = zeros(2,ndim);
     array_section = cell(1,ndim);
     p=win(n).data.p;   % extract bin boundaries
-    p_ind = find(win(n).data.nbins_all_dims>1); %what actual indexes of the projection axis along all DnD object indexes
+    nbins_all_dims = win(n).data.axes.nbins_all_dims;
+    img_range = win(n).data.axes.img_range;
+    p_ind = find(win(n).data.axes.nbins_all_dims>1); %what actual indexes of the projection axis along all DnD object indexes
     % axis are among all indexes
     for i=1:nargs
         if isempty(varargin{i}) || (isscalar(varargin{i}) && isequal(varargin{i},0))
@@ -75,18 +77,19 @@ for n=1:numel(win)
             array_section{pax}=irange(1,pax):irange(2,pax);
         elseif isa_size(varargin{i},[1,2],'double')
             if varargin{i}(1)>varargin{i}(2)
-                error ('HORACE:section:invalid_argument', ...                
-                'Lower limit larger than upper limit for axis %d',i)
+                error ('HORACE:section:invalid_argument', ...
+                    'Lower limit larger than upper limit for axis %d',i)
             end
             pax=win(n).data.dax(i);
             pcent = 0.5*(p{pax}(2:end)+p{pax}(1:end-1));          % values of bin centres
             lis=find(pcent>=(varargin{i}(1)-tol) & pcent<=(varargin{i}(2)+tol));    % index of bins whose centres lie in the sectioning range
+
             if ~isempty(lis)
                 irange(1,pax) = lis(1);
                 irange(2,pax) = lis(end);
-                wout(n).data.img_range(:,p_ind(pax))    = ...
+                img_range(:,p_ind(pax))    = ...
                     [pcent(irange(1,pax));pcent(irange(1,pax))];
-                wout(n).data.nbins_all_dims(p_ind(pax)) = irange(2,pax)-irange(1,pax)+1;
+                nbins_all_dims(p_ind(pax)) = irange(2,pax)-irange(1,pax)+1;
                 %wout(n).data.p{pax} = p{pax}(lis(1):lis(end)+1);
                 array_section{pax}=irange(1,pax):irange(2,pax);
             else
@@ -100,24 +103,26 @@ for n=1:numel(win)
                 i)
         end
     end
+    ab = axes_block('nbins_all_dims',nbins_all_dims,'img_range',img_range, ...
+        'single_bin_defines_iax',win(n).data.axes.single_bin_defines_iax);
+
 
     % Section signal, variance and npix arrays
-    wout(n).data.s = win(n).data.s(array_section{:});
-    wout(n).data.e = win(n).data.e(array_section{:});
-    wout(n).data.npix = win(n).data.npix(array_section{:});
+
+    data = DnDBase.dnd(ab,win(n).data.proj, ...
+        win(n).data.s(array_section{:}), win(n).data.e(array_section{:}), ...
+        win(n).data.npix(array_section{:}));
+    wout(n).data = data;
 
     % Section the pix array, if sqw type, and update img_range
     if has_pixels(win(n))
         % Section pix array
-        proj = win(n).data.get_projection();
-        [bl_start,bl_size] = proj.get_nrange(win(n).data.npix,win(n).data, ...
-            win(n).data,proj);   % get contiguous ranges of pixels to be retained
+        proj = win(n).data.proj;
+        ax_origin= win(n).data.axes;
+        [bl_start,bl_size] = proj.get_nrange(win(n).data.npix,ax_origin, ...
+            ax_origin,proj);   % get contiguous ranges of pixels to be retained
         ind=ind_from_nrange(bl_start,bl_start+bl_size-1);
         wout(n).pix = win(n).pix.get_pixels(ind);
-        %TODO: Do we actually need this? is this a suitable algorithm?
-        % need careful checking if the pixels are indeed arranged according
-        % to new bins.
-        wout(n).data.img_range=recompute_img_range(wout(n));
     end
 
 end
