@@ -659,7 +659,7 @@ classdef iMessagesFramework < handle
         clear_messages(obj);
 
         % method verifies if job has been cancelled
-        is = is_job_cancelled(obj)
+        is = is_job_cancelled(obj);
 
         % the method, used by filebased framework to set up number of
         % parallel workers and the worker-id or by other frameworks to set
