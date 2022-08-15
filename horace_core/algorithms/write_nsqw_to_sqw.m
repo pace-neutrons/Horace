@@ -92,139 +92,9 @@ if combine_in_parallel && isempty(job_disp) % define name of new parallel job an
     %
     job_disp = JobDispatcher(job_name);
 end
-
-
-hor_log_level=config_store.instance().get_value('herbert_config','log_level');
-
-% Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
-% --------------------------------------------------------------------------------------------------------------------
-
-
-% Check that the input files all exist and give warning if the output files overwrite the input files.
-% ----------------------------------------------------------------------------------------------------
-% Convert to cell array of strings if necessary
-if ~iscellstr(infiles)
-    infiles=cellstr(infiles);
-end
-
-% Check input files exist
-nfiles=length(infiles);
-for i=1:nfiles
-    if exist(infiles{i},'file')~=2
-        error('HORACE:write_nsqw_to_sqw:invalid_argument',...
-            'Can not find file: %s',infiles{i})
-    end
-end
-
-% *** Check output file can be opened
-% *** Check that output file and input files do not coincide
-% *** Check do not repeat an input file name
-% *** Check they are all sqw files
-
-
-% Read header information from files, and check consistency
-% ---------------------------------------------------------
-% At present we require that all detector info is the same for all files, and each input file contains only one spe file
-if hor_log_level>-1
-    disp(' ')
-    disp('Reading header(s) of input file(s) and checking consistency...')
-end
-
-%[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs]
-[~,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
-    accumulate_headers_job.read_input_headers(infiles);
-if all(all(pix_range == PixelData.EMPTY_RANGE_))
-    pix_range = pix_combine_info.recalc_pix_range_from_loaders(ldrs);
-end
-
-% Check consistency:
-% At present, we insist that the contributing spe data are distinct in that:
-%   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
-%   - emode, lattice parameters, u, v, sample must be the same for all spe data input
-% We must have same data information for alatt, angdeg, uoffset, u_to_rlu, ulen, pax, iint, p
-% This guarantees that the pixels are independent (the data may be the same if an spe file name is repeated, but
-% it is assigned a different Q, and is in the spirit of independence)
-[header_combined,nspe] = Experiment.combine_experiments(header,allow_equal_headers,drop_subzone_headers);
-%[header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
-
-
-img_db_range=datahdr{1}.img_range;
-for i=2:nfiles
-    img_db_range=[min(img_db_range(1,:),datahdr{i}.img_range(1,:));max(img_db_range(2,:),datahdr{i}.img_range(2,:))];
-end
-
-
-
-%  Build combined header
-if drop_subzone_headers
-    nfiles_2keep = nspe>0;
-    nspec = nspe(nfiles_2keep);
-    nfiles_tot=sum(nspec);
-else
-    nfiles_tot=sum(nspe);
-end
-mhc = main_header_cl('nfiles',nfiles_tot);
-
-ab = axes_block.get_from_old_data(datahdr{1});
-proj = ortho_proj.get_from_old_data(datahdr{1});
-sqw_data = DnDBase.dnd(ab,proj);
-sqw_data.filename=mhc.filename;
-sqw_data.filepath=mhc.filepath;
-sqw_data.title=mhc.title;
-
-% Now read in binning information
-% ---------------------------------
-% We did not read in the arrays s, e, npix from the files because if have a 50^4 grid then the size of the three
-% arrays is is total 24*50^4 bytes = 150MB. Firstly, we cannot afford to read all of these arrays as it would
-% require too much RAM (30GB if 200 spe files); also if we just want to check the consistency of the header information
-% in the files first we do not want to spend lots of time reading and accumulating the s,e,npix arrays. We can do
-% that now, as we have checked the consistency.
-if hor_log_level>-1
-    disp(' ')
-    disp('Reading and accumulating binning information of input file(s)...')
-end
-
-if combine_in_parallel
-    %TODO:  check config for appropriate ways of combining the tmp and what
-    %to do with cluster
-    comb_using = config_store.instance().get_value('hpc_config','combine_sqw_using');
-    if strcmp(comb_using,'mpi_code') % keep cluster running for combining procedure
-        keep_workers_running = true;
-    else
-        keep_workers_running = false;
-    end
-    [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);
-    if jd_initialized
-        [outputs,n_failed,~,job_disp]=job_disp.restart_job(...
-            'accumulate_headers_job',common_par,loop_par,true,keep_workers_running );
-        n_workers = job_disp.cluster.n_workers;
-    else
-        n_workers = config_store.instance().get_value('hpc_config','parallel_workers_number');
-        [outputs,n_failed,~,job_disp]=job_disp.start_job(...
-            'accumulate_headers_job',common_par,loop_par,true,n_workers,keep_workers_running );
-    end
-    %
-    if n_failed == 0
-        s_accum = outputs{1}.s;
-        e_accum = outputs{1}.e;
-        npix_accum = outputs{1}.npix;
-    else
-        job_disp.display_fail_job_results(outputs,n_failed,n_workers, ...
-            'HORACE:write_nsqw_to_sqw:runtime_error');
-    end
-    
-    
-else
-    % read arrays and accumulate headers directly
-    [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
-end
-[s_accum,e_accum] = normalize_signal(s_accum,e_accum,npix_accum);
 %
-sqw_data.s=s_accum;
-sqw_data.e=e_accum;
-sqw_data.npix=uint64(npix_accum);
-
-clear nopix
+% check if writing to output file is possible so that all further
+% operations make sense.
 [ok,sqw_exist,outfile,err_mess] = check_file_writable(outfile);
 if ~ok
     error('HORACE:write_nsqw_to_sqw:invalid_argument',...
@@ -234,41 +104,29 @@ if sqw_exist          % init may want to upgrade the file and this
     delete(outfile);  %  is not the option we want to do here
 end
 
-
-% Write to output file
-% ---------------------------
+if ~jd_initialized
+    job_disp = [];
+end
+% construct target sqw object containing everything except pixel data.
+% Instead of PixelData, it will contain information about how to combine
+% PixelData
+[data_sum,img_db_range,job_disp]=get_pix_comb_info_(infiles,pix_range,job_disp, ...
+    allow_equal_headers,keep_runid,drop_subzone_headers);
+%
+%
+%
+[fp,fn,fe] = fileparts(outfile);
+data_sum.main_header.filename = [fn,fe];
+data_sum.main_header.filepath = [fp,filesep];
+%
+ds = sqw(data_sum);
+wrtr = sqw_formats_factory.instance().get_pref_access(ds);
+%
+hor_log_level=config_store.instance().get_value('herbert_config','log_level');
 if hor_log_level>-1
     disp(' ')
     disp(['Writing to output file ',outfile,' ...'])
 end
-if drop_subzone_headers || keep_runid
-    run_label = 'nochange';
-else
-    run_label=cumsum(nspe(1:end));
-end
-% if old_matlab
-%     npix_cumsum = cumsum(double(sqw_data.npix(:)));
-% else
-%     npix_cumsum = cumsum(sqw_data.npix(:));
-% end
-%
-% instead of the real pixels to place in target sqw file, place in pix field the
-% information about the way to get the contributing pixels
-pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
-pix.pix_range = pix_range;
-
-[fp,fn,fe] = fileparts(outfile);
-mhc.filename = [fn,fe];
-mhc.filepath = [fp,filesep];
-%
-data_sum= struct('main_header',mhc,'experiment_info',[],'detpar',det);
-data_sum.data = sqw_data;
-data_sum.experiment_info = header_combined;
-data_sum.pix = pix;
-
-ds = sqw(data_sum);
-wrtr = sqw_formats_factory.instance().get_pref_access(ds);
-
 % initialize sqw writer algorithm with sqw file to write, containing a normal sqw
 % object with pix field containing information about the way to assemble the
 % pixels
@@ -297,13 +155,13 @@ is_jd = cellfun(@(x)(isa(x,'JobDispatcher')),argi,'UniformOutput',true);
 if any(is_jd)
     job_disp = argi(is_jd);
     if numel(job_disp) >1
-    error('HORACE:write_nsqw_to_sqw:invalid_argument',...
+        error('HORACE:write_nsqw_to_sqw:invalid_argument',...
             'only one instance of JobDispatcher can be provided as input');
     else
         job_disp  = job_disp{1};
     end
     if ~job_disp.is_initialized
-    error('HORACE:write_nsqw_to_sqw:invalid_argument',...
+        error('HORACE:write_nsqw_to_sqw:invalid_argument',...
             ['Only initialized JobDispatcher is currently supported',...
             ' as input for write_nsqw_to_sqw.',...
             ' Use "parallel" option to combine files in parallel']);
