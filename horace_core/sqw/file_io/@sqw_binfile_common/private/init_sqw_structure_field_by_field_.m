@@ -93,7 +93,7 @@ obj.eof_pix_pos_ = pos;
 if ~io_error
     obj.npix_pos_=data_pos.npix_pos_;
     obj.img_db_range_pos_=pix_data_pos.img_range_pos_;
-    obj.pix_pos_=pix_data_pos.data_pos_+8;  % pixels are written with their size in front of the array.
+    obj.pix_pos_=pix_data_pos.pix_block_pos_+8;  % pixels are written with their size in front of the array.
 
     % calculate number of pixels from pixels block position and its size
     obj.npixels_  = (obj.eof_pix_pos_ - obj.pix_pos_)/(4*9);
