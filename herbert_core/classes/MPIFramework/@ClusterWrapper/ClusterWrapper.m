@@ -741,15 +741,11 @@ classdef ClusterWrapper
             %end
             %err_stream_scan.close();
 
-            if isunix()
-                is_alive = task_handle.isAlive();
-                if is_alive
-                    running = true;
-                    failed  = false;
-                    return;
-                end
-            else %isAlive does not work on Windows Its thread class method, where task may or may not be implemented as thread
-                is_alive = true;
+            is_alive = task_handle.isAlive();
+            if is_alive
+                running = true;
+                failed  = false;
+                return;
             end
 
             try
