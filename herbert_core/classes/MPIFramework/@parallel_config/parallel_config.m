@@ -316,7 +316,7 @@ classdef parallel_config<config_base
             if n_threads < 1
                 n_threads = obj.n_cores;
             elseif n_threads > obj.n_cores
-                warning('HERBERT:parallel_config:threads', 'Number of threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
+                warning('HERBERT:parallel_config:threads', 'Number of threads (%d) might exceed computer capacity (%d)', n_threads, obj.n_cores)
             end
         end
 
