@@ -59,9 +59,9 @@ end
 spec_to_cc = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel
-[use_mex,nThreads,mem_chunk_size]=config_store.instance().get_value( ...
+[use_mex,nThreads]=config_store.instance().get_value( ...
     'hor_config','use_mex','threads','mem_chunk_size'); % pixel_page_size is redundant property
-pixel_page_size = mem_chunk_size*36;
+%pixel_page_size = mem_chunk_size*36;
 if use_mex
     if ~isempty(qspec) % why is this?
         use_mex = false;
@@ -78,7 +78,7 @@ if use_mex
             %nThreads = 1;
             [pix_range,pix] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             if proj_mode==2
-                pix = PixelData(pix,pixel_page_size,false);
+                pix = PixelData(pix,[],false);
                 pix.set_range(pix_range);
             end
         catch  ERR % use Matlab routine

@@ -275,7 +275,8 @@ classdef PixelData < handle
             %
             %>> obj = PixelData(__,false) -- not upgrade class averages
             %         (pix_range) for old file format, if these averages
-            %         are not stored in the file. Default -- true
+            %         are not stored in the file. Default -- true. Pixel
+            %         averages are calculated on construction
             %
             % Input:
             % ------
@@ -328,7 +329,7 @@ classdef PixelData < handle
             end
 
             obj.object_id_ = polyval(randi([0, 9], 1, 5), 10);
-            if exist('mem_alloc', 'var')
+            if exist('mem_alloc', 'var')&& ~isempty(mem_alloc)
                 obj.validate_mem_alloc(mem_alloc);
                 obj.page_memory_size_ = mem_alloc;
             else
@@ -389,14 +390,23 @@ classdef PixelData < handle
 
             end
             % Input sets underlying data
-            if exist('mem_alloc', 'var') && ...
-                    (obj.calculate_page_size_(mem_alloc) < size(arg, 2))
-                error('HORACE:PixelData:invalid_argument', ...
-                    ['The size of the input array cannot exceed the given ' ...
-                    'memory_allocation.']);
+            if exist('mem_alloc', 'var') 
+                if isempty(mem_alloc) 
+                    if isa(arg,'single'); byte_per_wd= 4;
+                    else;                 byte_per_wd = 8;
+                    end
+                    mem_alloc = numel(arg)*byte_per_wd;
+                    obj.page_memory_size_ = mem_alloc;
+                elseif obj.calculate_page_size_(mem_alloc) < size(arg, 2)
+                    error('HORACE:PixelData:invalid_argument', ...
+                        ['The size of the input array cannot exceed the given ' ...
+                        'memory_allocation.']);
+                end
             end
             obj.data_ = arg;
-            obj.reset_changed_coord_range('coordinates')
+            if upgrade
+               obj.reset_changed_coord_range('coordinates')
+            end
             obj.num_pixels_ = size(arg, 2);
             obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
         end
