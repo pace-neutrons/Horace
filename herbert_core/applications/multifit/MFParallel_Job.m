@@ -149,6 +149,7 @@ classdef MFParallel_Job < JobExecutor
 
         function obj = do_job(obj)
 
+            timer = tic;
             data = obj.loop_data_{1};
             common = obj.common_data_;
 
@@ -283,6 +284,9 @@ classdef MFParallel_Job < JobExecutor
             end
 
             [obj.converged, obj.finished] = obj.bcast(1, obj.converged, obj.finished);
+
+            tend = toc(timer);
+            obj.log_progress(obj.iter, obj.niter, tend)
 
         end
 
