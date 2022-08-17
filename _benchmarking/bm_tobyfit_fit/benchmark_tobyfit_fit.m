@@ -1,6 +1,28 @@
 function benchmark_tobyfit_fit(nDims,dataSource,dataSize,dataSet,nProcs,func_handle,params,filename)
-%BENCHMARK_TOBYFIT_FIT Summary of this function goes here
-%   Detailed explanation goes here
+%BENCHMARK_TOBYFIT_FIT This funciton initiates the benchmarks for
+%fit()
+% This function is used to run all the individual benchamrks in the 3 
+% test_tobyfit_fit classes.
+% This function generates cuts from sqw or dnd objects and uses the 
+% profiler to generate a csv file of timing data.
+% There is also the option for a user to run a custom benchmark of
+% fit() by calling benchmark_tobyfit_fit() directly
+% Inputs:
+%
+%   nDims       dimensions of the sqw objects to combine: [int: 1,2 or 3]
+%   dataSource  filepath to a saved sqw object or emoty string
+%   dataSize    size of sqw objects to cut:
+%               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
+%               pixels) or an int from 5-9.]
+%   dataSet     the size of the array of sqw objects
+%               [char: 'small','medium' or 'large'or an int]
+%   func_handle the name of the function to fit
+%   params      the parameters of the function used in func_handle
+%   nProcs      the number of processors the benchmark will run on 
+%               [int > 0 for parallel code]
+%               [string: "small","medium" or "large" or an array]
+%   filename    filepath to where benchmarking data will be saved (.csv file)
+
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
 
 hpc = hpc_config();

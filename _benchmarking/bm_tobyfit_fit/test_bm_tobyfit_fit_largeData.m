@@ -1,13 +1,17 @@
 classdef test_bm_tobyfit_fit_largeData < TestCase
-    %TEST_BM_TOBYFIT_FIT_LARGEDATA Summary of this class goes here
-    %   Detailed explanation goes here
+%TEST_BM_TOBYFIT_FIT_LARGEDATA largeData Benchmark class for fit()
+% This set of benchmarks uses "large" sized sqw objects (10^8 pixels).
+% The parameters that are varied in this set of benchmarks are:
+%   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
+%   - dataSet: the number of sqw objects in the array
+%   - nProcs: the number of processors the benchmarks will run on
     
     properties
         function_name;
         common_data;
         dataSize = 'large';
         func_handle = @slow_func;
-        params = {[6000, 0.2],@testfunc_nb_sqw,10}
+        params = {[250 0 2.4 10 5],@demo_FM_spinwaves,10^0};
         dataSource;
     end
     

@@ -1,6 +1,14 @@
 classdef test_bm_combine_sqw_largeData < TestCase
-    %TEST_BM_COMBINE_SQW_LARGEDATA Summary of this class goes here
-    %   Detailed explanation goes here
+    %TEST_BM_COMBINE_SQW_LARGEDATA largeData Benchmark class for combine_sqw()
+% This set of benchmarks uses "large" sized sqw objects created using 
+% dummy_sqw (10^8 pixels) and then cut into 1,2, or 3D objects using 
+% cut_sqw().
+% The parameters that are varied in this set of benchmarks are:
+%   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
+%   - dataSet: the amount of sqw objects to combine:
+%     Char: 'small', 'medium' or 'large' (2,4 or 8) or an integer amount 
+%       of objects
+%   - nProcs: the number of processors the benchmarks will run on
     properties
         function_name;
         common_data;
@@ -11,14 +19,13 @@ classdef test_bm_combine_sqw_largeData < TestCase
     methods
         function obj = test_bm_combine_sqw_largeData(test_class_name)
             %TEST_BM_COMBINE_SQW_LARGEDATA Construct an instance of this class
-            %   Detailed explanation goes here
             if ~exist('test_class_name','var')
                 test_class_name = 'test_bm_combine_sqw_largeData';
             end
             obj = obj@TestCase(test_class_name);
             pths = horace_paths;
             obj.common_data = pths.bm_common;
-            obj.dataSource = fullfile(obj.common_data,'NumData6.sqw');
+            obj.dataSource = fullfile(obj.common_data,'NumData8.sqw');
         end
 
         function test_bm_combine_sqw_1D_largeData_smallNumber_1procs(obj)

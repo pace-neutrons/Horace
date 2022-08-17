@@ -1,9 +1,20 @@
 function dataSource = gen_bm_cut_data(dataFile,dataSize)
-% Generate sqw object or select exisiting sqw file for benchmarking cut_sqw
-% If input parameter is a string represnting an existing sqw file then this
-% will be selected, otherswise if the input is an integer, dummy_sqw will be
-% used to generate an sqw object of the requested size/number of pixels
-    
+%GEN_BM_CUT_SQW This funciton generates the data needed to run
+%benchmarks of cut_sqw()
+% This function returns an sqw object generated using the gen_fake_sqw_data()
+% function, or else the filepath to an existing sqw object 
+% Inputs:
+%
+%   dataFile    filepath to a saved sqw object or empty string
+%   dataSize    size of sqw objects to generate:
+%               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
+%               pixels) or an int from 5-9]
+%
+% Output:
+%   dataSource  filepath to existing/generated sqw file
+
+% Check if there is alredy an exisiting sqw object to use, otherwise
+% genreate it
 if is_file(dataFile)
       dataSource=dataFile;
 else

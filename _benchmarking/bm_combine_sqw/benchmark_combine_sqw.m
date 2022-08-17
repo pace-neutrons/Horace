@@ -1,6 +1,29 @@
 function benchmark_combine_sqw(nDims,dataSource,dataSize,dataSet,nProcs,filename)
-%BENCHMARK_COMBINE_SQW Summary of this function goes here
-%   Detailed explanation goes here
+%BENCHMARK_COMBINE_SQW This funciton initiates the benchmarks for
+%combine_sqw()
+%   This function is used to run all the individual benchamrks in the 3 
+%   test_combine_sqw classes.
+%   The function checks if the benchmarks are to be run in serial or
+%   parallel. It then generates the sqw objects specified.
+%   combine_sqw() is run and the benchamrk data saved in a csv file with 
+%   the name of the benchmark function run.
+%   There is also the option for a user to run a custom benchmark of
+%   combine_sqw() by calling the benchmark_combine_sqw() directly.
+%
+% Inputs:
+%
+%   nDims       dimensions of the sqw objects to combine: 1,2 or 3
+%   dataSource  filepath to a saved sqw object or an integer between 5-9 to
+%               generate a new sqw object
+%   dataSize    size of the original sqw objects to combine:
+%               char type: 'small','medium' or 'large' (10^6,10^7 and 10^8
+%               pixels) or an integer from 5-9.
+%   dataSet     the amount of sqw objects to combine:
+%               Char: 'small', 'medium' or 'large' (2, 4 and 8 files 
+%               respectively) or a numeric amount.
+%   nProcs      the number of processors the benchmark will run on
+%   filename    filepath to where benchmarking data will be saved (.csv file)
+
 %% Setup nprocs and other config info with hpc_config() (save intial config details for later)
 
 hpc = hpc_config();
@@ -22,7 +45,7 @@ else
     warning("HORACE:benchmark_combine_sqw:invalid_argument",...
         "nProcs currently only valid for 1, 2 and 4")
 end
-
+% Generate the needed data for combine_sqw()
 [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataSize,dataSet);
 profile on
 wout = combine_sqw(cut1, cutN);

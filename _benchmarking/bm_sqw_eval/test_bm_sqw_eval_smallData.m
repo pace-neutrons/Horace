@@ -1,6 +1,11 @@
 classdef test_bm_sqw_eval_smallData <TestCase
-    %TEST_BM_SQW_EVAL_SMALLDATA Summary of this class goes here
-    %   Detailed explanation goes here
+%TEST_BM_SQW_EVAL_SMALLDATA smallData Benchmark class for sqw_eval()
+% This set of benchmarks uses "small" sized sqw objects (10^6 pixels).
+% The parameters that are varied in this set of benchmarks are:
+%   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
+%   - dataSet: the number of sqw objects in the array
+%   - nProcs: the number of processors the benchmarks will run on
+%   - objectType: sqw or dnd object
     
     properties
         function_name;

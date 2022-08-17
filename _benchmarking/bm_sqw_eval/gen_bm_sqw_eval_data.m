@@ -1,9 +1,25 @@
 function sqw_obj = gen_bm_sqw_eval_data(nDims,dataFile,dataSize,dataSet,objType)
-%GEN_BM_SQW_EVAL_DATA Summary of this function goes here
-%   Detailed explanation goes here
+%GEN_BM_SQW_EVAL_DATA This funciton generates the data needed to run
+%benchmarks of sqw_eval()
+% Using either a saved sqw object or generating an sqw using
+% gen_fake_sqw_data(), this funciton generates N cuts of sqw objects.
+% Inputs:
+%
+%   nDims       dimensions of the sqw objects: [1,2 or 3]
+%   dataFile    filepath to a saved sqw object or else empty string
+%   dataSize    size of the original sqw objects:
+%               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
+%               pixels) or an integer from 5-9.]
+%   dataSet     the amount of sqw objects in the array:
+%               [char: 'small', 'medium' or 'large' (2, 4 and 8 files 
+%               respectively) or a numeric amount]
+%   objType     type of object [string: "sqw" or "dnd"]
+%
+% Output:
+%   sqw_obj     array of sqw objects
 
-proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
-
+% Check if there is alredy an exisiting sqw object to use, otherwise
+% generate it
 if is_file(dataFile)
           dataSource=dataFile;
 else
@@ -25,6 +41,8 @@ else
     end
 end
 
+% Generate cuts of the given sqw or dnd objects
+proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 if objType == "sqw"
     switch nDims
         case 1
@@ -42,6 +60,7 @@ if objType == "sqw"
             error("HORACE:gen_bm_sqw_eval_data:invalid_argument"...
                 ,"nDims is the dimensions of the cuts : must be 1, 2, 3 or 4")
     end
+
 
 elseif objType == "dnd"
     switch nDims
@@ -65,6 +84,7 @@ else
         "objType must be either sqw or dnd (string type)")
 end
 
+% Build array of sqw/dnd objects
 switch dataSet
     case 'small'
         sqw_obj=sqw_dnd;

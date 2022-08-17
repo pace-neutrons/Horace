@@ -1,6 +1,28 @@
 function benchmark_func_eval(nDims,dataSource,dataSize,dataSet,func_handle,params,nProcs,filename)
-%BENCHMARK_FUNC_EVAL Summary of this function goes here
-%   Detailed explanation goes here
+%BENCHMARK_FUNC_EVAL This funciton initiates the benchmarks for
+%func_eval()
+% This function is used to run all the individual benchamrks in the 3 
+% test_func_eval classes.
+% This function generates cuts from sqw and uses the profiler to generate 
+% a csv file of timing data.
+% There is also the option for a user to run a custom benchmark of
+% func_eval() by calling benchmark_func_eval() directly
+% Inputs:
+%
+%   nDims       dimensions of the sqw objects to combine: [int: 1,2 or 3]
+%   dataSource  filepath to a saved sqw object or emoty string
+%   dataSize    size of sqw objects to cut:
+%               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
+%               pixels) or an int from 5-9.]
+%   dataSet     the size of the array of sqw objects
+%               [char: 'small','medium' or 'large'or an int]
+%   func_handle the name of the function to evaluate
+%   params      the parameters of the function used in func_handle
+%   nProcs      the number of processors the benchmark will run on 
+%               [int > 0 for parallel code]
+%               [string: "small","medium" or "large" or an array]
+%   filename    filepath to where benchmarking data will be saved (.csv file)
+
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
 
 hpc = hpc_config();

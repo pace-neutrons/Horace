@@ -1,5 +1,11 @@
 classdef test_bm_cut_sqw_smallData < TestCase
-    %test_bm_cut_sqw has the benchmark tests for the cut_sqw function
+%TEST_BM_CUT_SQW_SMALLDATA smallData Benchmark class for cut_sqw()
+% This set of benchmarks uses "small" sized sqw objects (10^6 pixels).
+% The parameters that are varied in this set of benchmarks are:
+%   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
+%   - objType: the type of object to cut: sqw or dnd
+%   - nProcs: the number of processors the benchmarks will run on
+%   - eRange: the binning along the energy axis: see p4_bin in "help sqw/cut"
 
     properties
         function_name;

@@ -1,6 +1,12 @@
 classdef test_bm_cut_sqw_mediumData < TestCase
-    %TEST_BM_CUT_SQW_MEDIUMDATA Summary of this class goes here
-    %   Detailed explanation goes here
+%TEST_BM_CUT_SQW_MEDIUMDATA mediumData Benchmark class for cut_sqw()
+% This set of benchmarks uses "medium" sized sqw objects created using 
+% dummy_sqw (10^7 pixels).
+% The parameters that are varied in this set of benchmarks are:
+%   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
+%   - objType: the type of object to cut: sqw or dnd
+%   - nProcs: the number of processors the benchmarks will run on
+%   - eRange: the binning along the energy axis: see p4_bin in "help sqw/cut"
 
     properties
         function_name;

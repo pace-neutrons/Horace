@@ -1,19 +1,39 @@
 function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filename,contiguous)
-%BENCHMARK_CUT_SQW This function generates cuts from sqw or dnd objects and
-%uses the profiler to generate a csv file of timing data.
-%BENCHMARK_CUT_SQW is used in 2 ways:
-%                   - Called from the test_bm_cut_sqw... functions that
-%                   supply BENCHMARK_CUT_SQW with default "use-case"
-%                   parameters
-%                   - Called directly from command line to run a "custom"
-%                   benchmark using parameters supplied by the user
-%For the "custom" benchmarks case, the input parameters must be as follows:
-% nDims: dimensioon of cut, must 1D, 2D or 3D
-% dataSource: must be the filename of an sqw object in the bm_cut_sqw
-% folder of a integer corresponding to the amount of data/pixels wanted
-% i.e.
+%BENCHMARK_CUT_SQW This funciton initiates the benchmarks for
+%cut_sqw()
+% This function is used to run all the individual benchamrks in the 3 
+% test_cut_sqw classes.
+% This function generates cuts from sqw or dnd objects and uses the 
+% profiler to generate a csv file of timing data.
+% There is also the option for a user to run a custom benchmark of
+% cut_sqw() by calling benchmark_cut_sqw() directly.
+% Inputs:
+%
+%   nDims       dimensions of the sqw objects to combine: [int: 1,2 or 3]
+%   dataFile    filepath to a saved sqw object or emoty string
+%   dataSize    size of sqw objects to cut:
+%               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
+%               pixels) or an int from 5-9.]
+%   objType     the type of object to cut [string: "sqw" or "dnd"]
+%   nProcs      the number of processors the benchmark will run on 
+%               [int > 0 for parallel code]
+%   eRange      the binning along the energy axis: see p4_bin in "help sqw/cut"
+%               [string: "small","medium" or "large" or an array]
+%   filename    filepath to where benchmarking data will be saved (.csv file)
+%   contiguous  make 4 contigous cuts of the same sqw object.
+%               boolean: true or false
+
 
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
+
+hpc = hpc_config();
+cur_hpc_config = hpc.get_data_to_store();
+% remove configurations from memory. Ensure only stored configurat  ions are
+% stored
+clear config_store;
+
+% % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
+cleanup_obj = onCleanup(@()benchmark_cut_sqw_cleanup(cur_hpc_config));
 
 % Set hpc config for benchmarks
 if nProcs > 0
@@ -25,14 +45,6 @@ else
 %     hpc.cut_parallel=false
 end
 
-hpc = hpc_config();
-cur_hpc_config = hpc.get_data_to_store();
-% remove configurations from memory. Ensure only stored configurat  ions are
-% stored
-clear config_store;
-
-% % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
-cleanup_obj = onCleanup(@()benchmark_cut_sqw_cleanup(cur_hpc_config));
 %% set projection and binning info, start profiler and call cut_sqw
 
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
@@ -84,7 +96,7 @@ else
                 "eRange must be either an array of doubles or a string")
 end
 
-% Check if the "contiguous", has been set to true (will do X contiguous
+% Check if the "contiguous", has been set to true (will do 4 contiguous
 % cuts)
 dataSource = gen_bm_cut_data(dataFile,dataSize);
 profile on

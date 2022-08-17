@@ -1,13 +1,18 @@
 classdef test_bm_tobyfit_simulate_smallData < TestCase
-    %TEST_BM_TOBYFIT_SIMULATE_SMALLDATA Summary of this class goes here
-    %   Detailed explanation goes here
+% TEST_BM_TOBYFIT_SIMULATE_SMALLDATA smallData Benchmark class for 
+% simulate()
+% This set of benchmarks uses "small" sized sqw objects (10^6 pixels).
+% The parameters that are varied in this set of benchmarks are:
+%   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
+%   - dataSet: the number of sqw objects in the array
+%   - nProcs: the number of processors the benchmarks will run on
     
     properties
         function_name;
         common_data;
         dataSize = 'small';
         func_handle = @slow_func;
-        params = {[6000, 0.2],@testfunc_nb_sqw,10}
+        params = {[250 0 2.4 10 5],@demo_FM_spinwaves,10^0};
         dataSource;
     end
     
@@ -33,78 +38,78 @@ classdef test_bm_tobyfit_simulate_smallData < TestCase
                 nProcs,obj.func_handle,obj.params,obj.function_name);
         end
      
-        function test_bm_tobyfit_simulate_1D_smallData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'medium';
-            nProcs = 1;
-            benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.func_handle,obj.params,obj.function_name);
-        end
- 
-        function test_bm_tobyfit_simulate_1D_smallData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'large';
-            nProcs = 1;
-            benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.func_handle,obj.params,obj.function_name);
-        end
-
-        function test_bm_tobyfit_simulate_2D_smallData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'small';
-            nProcs = 1;
-            benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.func_handle,obj.params,obj.function_name);
-        end
-
-
-        function test_bm_tobyfit_simulate_2D_smallData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = "medium";
-            nProcs = 1;
-            benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.func_handle,obj.params,obj.function_name);
-        end
-
-        function test_bm_tobyfit_simulate_2D_smallData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'large';
-            nProcs = 1;
-            benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.func_handle,obj.params,obj.function_name);        
-        end
-
-        function test_bm_tobyfit_simulate_3D_smallData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'small';
-            nProcs = 1;
-            benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.func_handle,obj.params,obj.function_name);        
-        end
-
-        function test_bm_tobyfit_simulate_3D_smallData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = "medium";
-            nProcs = 1;
-            benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.func_handle,obj.params,obj.function_name);        
-        end
-
-        function test_bm_tobyfit_simulate_3D_smallData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'large';
-            nProcs = 1;
-            benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
-                nProcs,obj.func_handle,obj.params,obj.function_name);        
-        end
+%         function test_bm_tobyfit_simulate_1D_smallData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'medium';
+%             nProcs = 1;
+%             benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
+%         end
+%  
+%         function test_bm_tobyfit_simulate_1D_smallData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
+%         end
+% 
+%         function test_bm_tobyfit_simulate_2D_smallData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
+%         end
+% 
+% 
+%         function test_bm_tobyfit_simulate_2D_smallData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = "medium";
+%             nProcs = 1;
+%             benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);
+%         end
+% 
+%         function test_bm_tobyfit_simulate_2D_smallData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);        
+%         end
+% 
+%         function test_bm_tobyfit_simulate_3D_smallData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);        
+%         end
+% 
+%         function test_bm_tobyfit_simulate_3D_smallData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = "medium";
+%             nProcs = 1;
+%             benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);        
+%         end
+% 
+%         function test_bm_tobyfit_simulate_3D_smallData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             benchmark_tobyfit_simulate(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%                 nProcs,obj.func_handle,obj.params,obj.function_name);        
+%         end
 
 %         function test_bm_tobyfit_simulate_4D_smallData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();

@@ -1,6 +1,12 @@
 classdef test_bm_func_eval_largeData < TestCase
-    %TEST_BM_FUNC_EVAL_LARGEDATA Summary of this class goes here
-    %   Detailed explanation goes here
+%TEST_BM_FUNC_EVAL_LARGEDATA largeData Benchmark class for func_eval()
+% This set of benchmarks uses "large" sized sqw objects (10^8 pixels).
+% The parameters that are varied in this set of benchmarks are:
+%   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
+%   - dataSet: the number of sqw objects in the array
+%   - nProcs: the number of processors the benchmarks will run on
+%   - func_handle: the function used with func_eval(), will deend on
+%     whether the sqw objects are 1,2,3 or 4 dimensional
     
     properties
         function_name;

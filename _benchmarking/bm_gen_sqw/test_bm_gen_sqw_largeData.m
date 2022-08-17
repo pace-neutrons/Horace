@@ -1,13 +1,16 @@
 classdef test_bm_gen_sqw_largeData < TestCase
-    %TEST_BM_GEN_SQW_LARGEDATA mediumData Benchmark class for gen_sqw
-    % This set of benchmarks uses "large" sized nxspe files to generate 
-    % sqw objects.The nxspe files are created using dummy_spe, with Energy 
-    % bin boundaries of 0:4:787 (largeData).
-    % The parameters that are varied in this set of benchmarks are:
-    %   - dataSet: the amount of nxspe files used to generate an sqw obj
-    %   - detectorNum: the amount of detectors used to generate a
-    %   the needed par_file info
-    %   - nProcs: the number of processors the benchmark will run on
+%TEST_BM_GEN_SQW_LARGEDATA largeData Benchmark class for gen_sqw()
+% This set of benchmarks uses "large" sized nxspe files to generate 
+% sqw objects.The nxspe files are created using dummy_spe, with Energy 
+% bin boundaries of 0:4:787 (largeData).
+% Inputs:
+%   - dataSet: the amount of nxspe files used to generate an sqw obj.
+%            'small', 'medium' or 'large' (12, 23 and 46 files respectively)
+%            or an integer amount of files.
+%   - detectorNum: the amount of detectors used to generate a
+%            the needed par_file info. 'small', 'medium' or 'large' (32768,
+%            46656, 74088 respectively)
+%   - nProcs: the number of processors the benchmark will run on
     
     properties
         function_name;
@@ -24,8 +27,6 @@ classdef test_bm_gen_sqw_largeData < TestCase
         end
         
         function test_bm_gen_sqw_largeData_smallNumber_smallDetector_1procs(obj)
-            % Benchmarking using "large" data (ebin = 0:4:787), 12 nxspe files, 
-            % small sized par_file (35937 detectors) and 1 processor 
             obj.function_name = get_bm_name();
             dataSet = 'small';
             detectorSize = 'small';
@@ -34,8 +35,6 @@ classdef test_bm_gen_sqw_largeData < TestCase
         end
 
         function test_bm_gen_sqw_largeData_mediumNumber_smallDetector_1procs(obj)
-            % Benchmarking using "large" data (ebin = 0:4:787), 23 nxspe files, 
-            % small sized par_file (35937 detectors) and 1 processor 
             obj.function_name = get_bm_name();
             dataSet = 'medium';
             detectorSize = 'small';
@@ -44,8 +43,6 @@ classdef test_bm_gen_sqw_largeData < TestCase
         end
 
         function test_bm_gen_sqw_largeData_largeNumber_smallDetector_1procs(obj)
-            % Benchmarking using "large" data (ebin = 0:4:787), 46 nxspe files, 
-            % small sized par_file (35937 detectors) and 1 processor
             obj.function_name = get_bm_name();
             dataSet = 'large';
             detectorSize = 'small';
@@ -55,7 +52,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 
         function test_bm_gen_sqw_largeData_smallNumber_mediumDetector_1procs(obj)
             % Benchmarking using "large" data (ebin = 0:4:787), 12 nxspe files, 
-            % medium sized par_file (64000 detectors) and 1 processor
+            % medium sized par_file (46656 detectors) and 1 processor
             obj.function_name = get_bm_name();
             dataSet = 'small';
             detectorSize = 'medium';
@@ -65,7 +62,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 
         function test_bm_gen_sqw_largeData_mediumNumber_mediumDetector_1procs(obj)
             % Benchmarking using "large" data (ebin = 0:4:787), 23 nxspe files, 
-            % medium sized par_file (64000 detectors) and 1 processor 
+            % medium sized par_file (46656 detectors) and 1 processor 
             obj.function_name = get_bm_name();
             dataSet = 'medium';
             detectorSize = 'medium';
@@ -75,7 +72,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 
         function test_bm_gen_sqw_largeData_largeNumber_mediumDetector_1procs(obj)
             % Benchmarking using "large" data (ebin = 0:4:787), 46 nxspe files, 
-            % medium sized par_file (64000 detectors) and 1 processor
+            % medium sized par_file (46656 detectors) and 1 processor
             obj.function_name = get_bm_name();
             dataSet = 'large';
             detectorSize = 'medium';
@@ -85,7 +82,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 
         function test_bm_gen_sqw_largeData_smallNumber_largeDetector_1procs(obj)
             % Benchmarking using "large" data (ebin = 0:4:787), 12 nxspe files, 
-            % large sized par_file (125000 detectors) and 1 processor 
+            % large sized par_file (74088 detectors) and 1 processor 
             obj.function_name = get_bm_name();
             dataSet = 'small';
             detectorSize = 'large';
@@ -95,7 +92,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 
         function test_bm_gen_sqw_largeData_mediumNumber_largeDetector_1procs(obj)
             % Benchmarking using "large" data (ebin = 0:4:787), 23 nxspe files, 
-            % large sized par_file (125000 detectors) and 1 processor
+            % large sized par_file (74088 detectors) and 1 processor
             obj.function_name = get_bm_name();
             dataSet = 'medium';
             detectorSize = 'large';
@@ -105,7 +102,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 
         function test_bm_gen_sqw_largeData_largeNumber_largeDetector_1procs(obj)
             % Benchmarking using "large" data (ebin = 0:4:787), 46 nxspe files, 
-            % large sized par_file (125000 detectors) and 1 processor
+            % large sized par_file (74088 detectors) and 1 processor
             obj.function_name = get_bm_name();
             dataSet = 'large';
             detectorSize = 'large';
@@ -116,7 +113,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 
 %         function test_bm_gen_sqw_largeData_smallNumber_smallDetector_2procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 12 nxspe files, 
-%             % small sized par_file (35937 detectors) and 2 processors 
+%             % small sized par_file (32768 detectors) and 2 processors 
 %             obj.function_name = get_bm_name();
 %             dataSet = 'small';
 %             detectorSize = 'small';
@@ -126,7 +123,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_mediumNumber_smallDetector_2procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 23 nxspe files, 
-%             % small sized par_file (35937 detectors) and 2 processors 
+%             % small sized par_file (32768 detectors) and 2 processors 
 %             obj.function_name = get_bm_name();
 %             dataSet = 'medium';
 %             detectorSize = 'small';
@@ -136,7 +133,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_largeNumber_smallDetector_2procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 46 nxspe files, 
-%             % small sized par_file (35937 detectors) and 2 processors
+%             % small sized par_file (32768 detectors) and 2 processors
 %             obj.function_name = get_bm_name();
 %             dataSet = 'large';
 %             detectorSize = 'small';
@@ -146,7 +143,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_smallNumber_mediumDetector_2procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 12 nxspe files, 
-%             % medium sized par_file (64000 detectors) and 2 processors
+%             % medium sized par_file (46656 detectors) and 2 processors
 %             obj.function_name = get_bm_name();
 %             dataSet = 'small';
 %             detectorSize = 'medium';
@@ -156,7 +153,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_mediumNumber_mediumDetector_2procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 23 nxspe files, 
-%             % medium sized par_file (64000 detectors) and 2 processors 
+%             % medium sized par_file (46656 detectors) and 2 processors 
 %             obj.function_name = get_bm_name();
 %             dataSet = 'medium';
 %             detectorSize = 'medium';
@@ -166,7 +163,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_largeNumber_mediumDetector_2procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 46 nxspe files, 
-%             % medium sized par_file (64000 detectors) and 2 processors
+%             % medium sized par_file (46656 detectors) and 2 processors
 %             obj.function_name = get_bm_name();
 %             dataSet = 'large';
 %             detectorSize = 'medium';
@@ -176,7 +173,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_smallNumber_largeDetector_2procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 12 nxspe files, 
-%             % large sized par_file (125000 detectors) and 2 processors 
+%             % large sized par_file (74088 detectors) and 2 processors 
 %             obj.function_name = get_bm_name();
 %             dataSet = 'small';
 %             detectorSize = 'large';
@@ -186,7 +183,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_mediumNumber_largeDetector_2procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 23 nxspe files, 
-%             % large sized par_file (125000 detectors) and 2 processors
+%             % large sized par_file (74088 detectors) and 2 processors
 %             obj.function_name = get_bm_name();
 %             dataSet = 'medium';
 %             detectorSize = 'large';
@@ -196,7 +193,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_largeNumber_largeDetector_2procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 46 nxspe files, 
-%             % large sized par_file (125000 detectors) and 2 processors
+%             % large sized par_file (74088 detectors) and 2 processors
 %             obj.function_name = get_bm_name();
 %             dataSet = 'large';
 %             detectorSize = 'large';
@@ -206,7 +203,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_smallNumber_smallDetector_4procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 12 nxspe files, 
-%             % small sized par_file (35937 detectors) and 4 processors 
+%             % small sized par_file (32768 detectors) and 4 processors 
 %             obj.function_name = get_bm_name();
 %             dataSet = 'small';
 %             detectorSize = 'small';
@@ -216,7 +213,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_mediumNumber_smallDetector_4procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 23 nxspe files, 
-%             % small sized par_file (35937 detectors) and 4 processors 
+%             % small sized par_file (32768 detectors) and 4 processors 
 %             obj.function_name = get_bm_name();
 %             dataSet = 'medium';
 %             detectorSize = 'small';
@@ -226,7 +223,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_largeNumber_smallDetector_4procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 46 nxspe files, 
-%             % small sized par_file (35937 detectors) and 4 processors
+%             % small sized par_file (32768 detectors) and 4 processors
 %             obj.function_name = get_bm_name();
 %             dataSet = 'large';
 %             detectorSize = 'small';
@@ -236,7 +233,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_smallNumber_mediumDetector_4procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 12 nxspe files, 
-%             % medium sized par_file (64000 detectors) and 4 processors
+%             % medium sized par_file (46656 detectors) and 4 processors
 %             obj.function_name = get_bm_name();
 %             dataSet = 'small';
 %             detectorSize = 'medium';
@@ -246,7 +243,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_mediumNumber_mediumDetector_4procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 23 nxspe files, 
-%             % medium sized par_file (64000 detectors) and 4 processors 
+%             % medium sized par_file (46656 detectors) and 4 processors 
 %             obj.function_name = get_bm_name();
 %             dataSet = 'medium';
 %             detectorSize = 'medium';
@@ -256,7 +253,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_largeNumber_mediumDetector_4procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 46 nxspe files, 
-%             % medium sized par_file (64000 detectors) and 4 processors
+%             % medium sized par_file (46656 detectors) and 4 processors
 %             obj.function_name = get_bm_name();
 %             dataSet = 'large';
 %             detectorSize = 'medium';
@@ -266,7 +263,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_smallNumber_largeDetector_4procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 12 nxspe files, 
-%             % large sized par_file (125000 detectors) and 4 processors 
+%             % large sized par_file (74088 detectors) and 4 processors 
 %             obj.function_name = get_bm_name();
 %             dataSet = 'small';
 %             detectorSize = 'large';
@@ -276,7 +273,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_mediumNumber_largeDetector_4procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 23 nxspe files, 
-%             % large sized par_file (125000 detectors) and 4 processors
+%             % large sized par_file (74088 detectors) and 4 processors
 %             obj.function_name = get_bm_name();
 %             dataSet = 'medium';
 %             detectorSize = 'large';
@@ -286,7 +283,7 @@ classdef test_bm_gen_sqw_largeData < TestCase
 % 
 %         function test_bm_gen_sqw_largeData_largeNumber_largeDetector_4procs(obj)
 %             % Benchmarking using "large" data (ebin = 0:4:787), 46 nxspe files, 
-%             % large sized par_file (125000 detectors) and 4 processors
+%             % large sized par_file (74088 detectors) and 4 processors
 %             obj.function_name = get_bm_name();
 %             dataSet = 'large';
 %             detectorSize = 'large';

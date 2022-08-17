@@ -1,6 +1,14 @@
 classdef test_bm_combine_sqw_smallData < TestCase
-    %TEST_BM_COMBINE_SQW_SMALLDATA Summary of this class goes here
-    %   Detailed explanation goes here
+%TEST_BM_COMBINE_SQW_SMALLDATA smallData Benchmark class for combine_sqw()
+% This set of benchmarks uses "small" sized sqw objects created using 
+% dummy_sqw (10^6 pixels) and then cut into 1,2, or 3D objects using 
+% cut_sqw().
+% The parameters that are varied in this set of benchmarks are:
+%   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
+%   - dataSet: the amount of sqw objects to combine:
+%     Char: 'small', 'medium' or 'large' (2,4 or 8) or an integer amount 
+%       of objects
+%   - nProcs: the number of processors the benchmarks will run on
 
     properties
         function_name;

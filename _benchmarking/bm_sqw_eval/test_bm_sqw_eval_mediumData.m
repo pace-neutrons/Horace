@@ -1,6 +1,11 @@
 classdef test_bm_sqw_eval_mediumData < TestCase
-    %TEST_BM_SQW_EVAL_MEDIUMDATA Summary of this class goes here
-    %   Detailed explanation goes here
+%TEST_BM_SQW_EVAL_MEDIUMDATA mediumData Benchmark class for sqw_eval()
+% This set of benchmarks uses "medium" sized sqw objects (10^8 pixels).
+% The parameters that are varied in this set of benchmarks are:
+%   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
+%   - dataSet: the number of sqw objects in the array
+%   - nProcs: the number of processors the benchmarks will run on
+%   - objectType: sqw or dnd object
     properties
         function_name;
         sqw_eval_func=@slow_func;
