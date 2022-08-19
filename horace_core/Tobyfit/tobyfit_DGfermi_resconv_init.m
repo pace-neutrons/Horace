@@ -18,18 +18,18 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 % that need to know about resolution functions. Note that for Tobyfit the
 % constraints of the mfclass_class object for initialisation function have a very
 % specific function call: [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win) i.e
-% no other optional paratmeters.
+% no other optional parameters.
 %
 % Input:
 % ------
 %   win         Array of sqw objects, or cell array of scalar sqw objects
 %
 %  [Optional]
-%   indx        Pixel indicies:
+%   indx        Pixel indices:
 %
 %               Single sqw object:
 %               ------------------
-%                 - ipix            Array of pixels indicies
+%                 - ipix            Array of pixels indices
 %            *OR* - {irun,idet,ien} Arrays of run, detector and energy bin index
 %                                   Dimension expansion is performed on scalar
 %                                  quantities i.e. each must be a scalar or array
@@ -251,9 +251,8 @@ for iw=1:nw
     kf{iw}=sqrt((ei{iw}(irun)-eps)/k_to_e);
 
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
-    [ok,mess,sample(iw),s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
+    [sample(iw),s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
-    if ~ok, return, end
 
     % Get detector information
     % Because detpar only contains minimal information, hardwire in the detector type here
@@ -292,7 +291,7 @@ ok=true;
 mess='';
 lookup = struct();    % reinitialise
 
-if keywrd.tables    % lookup tables to minimise memory and optimiose speed of random sampling
+if keywrd.tables    % lookup tables to minimise memory and optimise speed of random sampling
     lookup.moderator_table = object_lookup(moderator);
     lookup.aperture_table = object_lookup(aperture);
     lookup.fermi_table = object_lookup(chopper);

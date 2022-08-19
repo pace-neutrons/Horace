@@ -52,7 +52,7 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
 %
 % {optional]
-%   proj            Projection structure or object. Defines the coordinate frame in which
+%   proj           Projection structure or object. Defines the coordinate frame in which
 %                  to plot the resolution ellipsoid. Type help ortho_proj for details or <a href="matlab:help('ortho_proj');">Click here</a>.
 %
 %                   Default: if not given or empty: assume to be spectrometer axes
@@ -180,12 +180,6 @@ end
 % Construct sqw object
 % --------------------
 % Create a two-dimensional sqw object with one pixel
-% psi = psi_deg * (pi/180);
-% omega = omega_deg * (pi/180);
-% dpsi = dpsi_deg * (pi/180);
-% gl = gl_deg * (pi/180);
-% gs = gs_deg * (pi/180);
-
 % Make main_header
 main_header.filename = '';
 main_header.filepath = '';
@@ -255,48 +249,20 @@ wres.detpar = detpar;
 
 
 % Make data structure
-data.filename = '';
-data.filepath = '';
-data.title = '';
-data.alatt = lat.alatt;
-data.angdeg = lat.angdeg;
-if ~isempty(proj)
-    % Projection axes were specified
-    data.uoffset = proj.uoffset;
-    data.u_to_rlu = zeros(4,4);
-    data.ulen = zeros(1,4);
-    proj.alatt = lat.alatt;
-    proj.angdeg = lat.angdeg;
-    data.u_to_rlu=  proj.u_to_rlu;
-    data.ulen = [1,1,1,1];
-    %[~,data.u_to_rlu(1:3,1:3), data.ulen(1:3), mess] = projaxes_to_rlu (proj, lat.alatt, lat.angdeg);
-    %if ~isempty(mess), error(mess); end
-    %data.u_to_rlu(4,4) = 1;
-    %data.ulen(4) = 1;
-else
-    % Make the projection axes correspond to the spectrometer axes
-    data.uoffset = [0,0,0,0]';
-    data.u_to_rlu = zeros(4,4);
-    data.u_to_rlu(1:3,1:3) = spec_to_rlu;
-    data.u_to_rlu(4,4) = 1;
-    data.ulen = [1,1,1,1];
-end
-data.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
-iaxis=true(1,4); iaxis(pax(1:2))=false;
-data.iax = find(iaxis);
-%data.iint = [-Inf,-Inf; Inf,Inf];
-data.iint = 1e-10*[-1,-1; 1,1];
-data.pax = pax(1:2);
-%data.p = {1e-10*(-3:2:3)'/3, 1e-10*(-3:2:3)'/3};    % something tiny
-data.dax = [1,2];
-data.s = [0,0,0; 0,NaN,0; 0,0,0];
-data.e = [0,0,0; 0,NaN,0; 0,0,0];
-data.npix = [0,0,0; 0,1,0; 0,0,0];
-data.img_range = range_add_border([data.uoffset,data.uoffset]');
-data.nbins_all_dims = [3,3,1,1];
-data.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but this is OK
 
-wres.data = data_sqw_dnd(data);
+if ~isempty(proj)
+    proj.alatt = lat.alatt;
+    proj.angdeg = lat.angdeg;    
+else
+    proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg);
+end
+proj = proj.set_ub_inv_compat(spec_to_rlu);
+ax = axes_block('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));
+ax.label = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
+
+wres.data = DnDBase.dnd(ax,proj, ...
+    [0,0,0; 0,NaN,0; 0,0,0],[0,0,0; 0,NaN,0; 0,0,0],[0,0,0; 0,1,0; 0,0,0]);
+wres.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but this is OK
 
 % Make the sqw object. The defining qualities of this sqw object that mean it can be
 % picked out as special are that it is:

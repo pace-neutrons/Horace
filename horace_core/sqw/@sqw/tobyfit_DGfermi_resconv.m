@@ -9,10 +9,10 @@ function [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,
 % ------
 %   win         sqw object or array of objects
 %
-%   caller      Stucture that contains ionformation from the caller routine. Fields
+%   caller      Structure that contains information from the caller routine. Fields
 %                   reset_state     Reset internal state to stored value in
 %                                  state_in (logical scalar)
-%                   ind             Indicies into lookup tables. The number of elements
+%                   ind             Indices into lookup tables. The number of elements
 %                                  of ind must match the number of sqw objects in win
 %
 %   state_in    Cell array of internal state of this function for function evaluation.
@@ -207,8 +207,7 @@ for i=1:numel(ind)
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
 
         % Update s_mat and spec_to_rlu because crystal orientation will have changed
-        [ok,mess,~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
-        if ~ok, error(mess), end
+        [~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
 
         % Recompute Q because crystal orientation will have changed (don't need to update qw{4})
         qw(1:3) = calculate_q (ki(irun), kf, detdcn(:,idet), spec_to_rlu(:,:,irun));

@@ -237,7 +237,12 @@ classdef ortho_proj<aProjection
         % TODO: remove when new SQW object is fully implemented
         %
         function mat = get.u_to_rlu(obj)
-            [~, mat] = obj.uv_to_rot();
+            if ~isempty(obj.ub_inv_compat_) % TODO: fudge! BUG! should be integrated in the
+                % the changes to projection!!!!
+                mat = obj.ub_inv_compat_;
+            else
+                [~, mat] = obj.uv_to_rot();
+            end
             mat = [mat,[0;0;0];[0,0,0,1]];
         end
         function off = get.uoffset(obj)

@@ -68,9 +68,6 @@ datafile='test_tobyfit_refine_crystal_1_data.mat';
 % File to which to save results of refinement
 savefile='test_tobyfit_refine_crystal_1_out.mat';   % filename where saved results are written
 
-test_tobyfit_dir = fullfile(horace_root(), '_test', 'test_tobyfit');
-addpath(test_tobyfit_dir)
-cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
 % This seed provides a passing test at time of writing
 FIXED_SEED = 101;
@@ -162,7 +159,6 @@ if save_data
 else
     % Read in data
     data = load(datafile, 'wsim');         % load from .mat file
-
     save(data.wsim,sqw_file_res);   % save as an sqw file (se want to perform tests on sqw files, no objects
 end
 

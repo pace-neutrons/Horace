@@ -191,7 +191,7 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             assertEqualToTolWithSave (S, ww1, 'tol', [1e-12,1e-12])
             assertEqualToTolWithSave (S, ww2, 'tol', [1e-12,1e-12])
 
-            skipTest('Check with Toby about what aspec ration is and how it works #801')
+            skipTest('Check with Toby about what aspect ratio is and how it works #801')
             % Check aspect ratio of plots
             assertEqualToTol (aspect1(1:2), [1/S.ulen,1/S.vlen], 'tol', [1e-12,1e-12])
             assertEqualToTol (aspect2(1:2), [1/S.ulen,1/S.vlen], 'tol', [1e-12,1e-12])

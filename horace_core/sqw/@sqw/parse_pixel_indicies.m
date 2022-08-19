@@ -131,7 +131,7 @@ if exist('iw','var')
     if numel(iw)~=numel(win)
         mess = 'Number of indicies in index argument ''iw'' must equal the number of sqw objects';
         return
-    elseif any(iw)<1
+    elseif any(iw<1)
         mess = 'Indicies in index argument ''iw'' must be greater or equal to zero';
         return
     end
@@ -186,7 +186,7 @@ for i=1:nw
     end
     indx_tmp = indx_internal{iw_internal(i)};
     if size(indx_tmp,2)==1
-        if ~(max(indx_tmp)<=wtmp.data.pix.num_pixels && min(indx_tmp)>=0)
+        if ~(max(indx_tmp)<=wtmp.pix.num_pixels && min(indx_tmp)>=0)
             mess = 'One or more pixel indicies outside range of sqw object';
             return
         end
