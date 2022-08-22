@@ -10,7 +10,6 @@ function output_sqw = gen_fake_sqw_data(nData)
 % Inputs:
 % nData     an integer between [5-9]
 
-
 %% Set parameters for generating an sqw object
     pths = horace_paths;
     common_data = pths.bm_common;
@@ -27,43 +26,52 @@ function output_sqw = gen_fake_sqw_data(nData)
 
 % Set e_bin_boundaries and psi to get npix in the right order of magnitude
     switch nData
-        case 5 % Generates sqw obj with 10^5 pixels
+        case 6 % Generates sqw obj with 10^6
             e_bin_boundaries=0:80:efix;
-%             q_range = [0 80 efix];
+            n_a = floor(sqrt(1e5/numel(e_bin_boundaries)));
             psi=0:4:90;
-        case 6 % Generates sqw obj with 10^6 pixels
+        case 7 % Generates sqw obj with 10^7
             e_bin_boundaries=0:32:efix;
-%             q_range = [0 32 efix];
-            psi=0:4:90;
-        case 7 % Generates sqw obj with 10^7 pixels
+            n_a = floor(sqrt(1e6/numel(e_bin_boundaries)));
+            psi=0:3:90;
+        case 8 % Generates sqw obj with 10^8
             e_bin_boundaries=0:32:efix;
-%             q_range = [0 32 efix];
+            n_a = floor(sqrt(1e7/numel(e_bin_boundaries)));
             psi=0:2:90;
-        case 8 % Generates sqw obj with 10^8 pixels
-            e_bin_boundaries=0:16:efix;
-%             q_range = [0 16 efix];
+        case 9 % Generates sqw obj with 10^9
+            e_bin_boundaries=0:24:efix;
+            n_a = floor(sqrt(1e8/numel(e_bin_boundaries)));
             psi=0:2:90;
-        case 9 % Generates sqw obj with 10^9 pixels
+        case 10 % Generates sqw obj with 10^10
             e_bin_boundaries=0:12:efix;
-%             q_range = [0 12 efix];
+            n_a = floor(sqrt(1e9/numel(e_bin_boundaries)));
             psi=0:2:90;
         otherwise
             error("HORACE:gen_bm_data:invalid_argument",...
                 "When using a integer, nData must be between 5 and 9.")
     end
 
-% Get oriented lattice object using alatt,angdeg etc to generate fake 
-% detector data
-%     lattice = convert_old_input_to_lat(alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
-%     par_file = build_det_from_q_range(q_range,efix,lattice);
-    par_file = [common_data,filesep,'4to1_124.par'];
+    % Alternative using fixed detector angles
+    % Angular limits {{lower, upper, n}, {left, right, n}}:
+    ang_lims = {{5, 60, n_a}, {-170, 170, n_a}};  % For MAPS
+    %ang_lims = {{5, 130, n_a}, {-170, 170, n_a}};  % For MERLIN / LET
+    theta_angs = linspace(ang_lims{1}{:});
+    phi_angs = linspace(ang_lims{2}{:});
+    [theta2d, phi2d] = ndgrid(theta_angs, phi_angs);
+    theta2d = theta2d(:);
+    phi2d = phi2d(:);
+    r = ones(size(theta2d)) .* 6;   % for MAPS, r=6; for MERLIN, r = 2.5; for LET, r = 4;
+    detwidth = ones(size(theta2d)) .* 0.0254;   % in metres (1" diameter tubes)
+    detheight = ones(size(theta2d)) .* 0.017;   % in metres (1m long tubes split into 256 "pixels")
+    par_file = get_hor_format([r theta2d phi2d detwidth detheight [1:numel(theta2d)]']');
     
     disp("--------------------------------------")
     disp("Generating sqw object with 10^" + nData + " pixels:")
     dummy_sqw(e_bin_boundaries,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
     output_sqw = sqw_file;
-    sqw_obj = sqw(output_sqw);
-    disp(sqw_obj.npixels)
     disp("Sqw object generated")
-    disp("--------------------")
+%     disp("--------------------")
+%     sqw_obj = sqw(output_sqw);
+%     disp("10^" + nData + " sqw object has: " + sqw_obj.npixels + " pixels")
+    
 end
