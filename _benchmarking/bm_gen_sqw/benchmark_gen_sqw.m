@@ -1,4 +1,4 @@
-function benchmark_gen_sqw(q_range,dataSet,par_file_data,nProcs,filename)
+function benchmark_gen_sqw(dataSize,dataSet,par_file_data,nProcs,filename)
 %BENCHMARK_GEN_SQW This funciton initiates the benchmarks for gen_sqw()
 %   This function is used to run all the individual benchamrks in the 3 
 %   test_gen_sqw classes.
@@ -11,23 +11,23 @@ function benchmark_gen_sqw(q_range,dataSet,par_file_data,nProcs,filename)
 %   gen_sqw() by calling the benchmark_gen_sqw() directly.
 %
 % Inputs:
-%   - q_range: 3xNdet array of [h,k,l] momentum transfers, corresponding to the
-%             detectors positions (in elastic scattering)
-%             or
-%             3x3 matrix in the format [qh_min,qh_step,qh_max;
-%             qk_min;qk_step,qk_max;ql_min;q;_step,q;_max] providing
-%             q-range (at zero energy transfer) to evaluate sqw file.
-%             The fake detectors positions would be calculated from the
-%             q-range provided.]
-%             or 1x3 vector [q_min,q_step,q_max] providing the same
-%             range in all 3 hkl directions.
+%   - dataSize: the size and number of the energy bins.
+%             'small', 'medium' or 'large', or an integer: 0:X:efix
 %   - dataSet: the amount of nxspe files to gnerate.
 %             'small', 'medium' or 'large' (12, 23 and 46 files respectively)
-%              or an integer amount of files.
-%   - par_file_data: number of detectors. 'small','medium', or 'large';
-%              35937,64000 and 125000 detectors respectively.
+%              or an integer amount of files (default psi angle is 90, so 90/X 
+%              will determine the number of files generated i.e. 10 will 
+%              generate 9 files).
+%   - par_file_data: number of detector pixels. 'small','medium', or 'large';
+%              Corresponding to MAPS, MERLIN and LET. 
+%              If a custom detector is wanted, input must be the number of
+%              detector pixels
 %   - nProcs: the number of processors the benchmark will run on
 %   - filename: filepath to where benchmarking data will be saved (.csv file)
+% Custom example:
+% >>> benchmark_gen_sqw('small',small',36864,1,'custom.csv')
+% >>> benchmark_gen_sqw(16,10,36864,4,'custom.csv')
+
 
     hpc = hpc_config();
     cur_hpc_config = hpc.get_data_to_store();
@@ -54,9 +54,8 @@ function benchmark_gen_sqw(q_range,dataSet,par_file_data,nProcs,filename)
     omega=0;dpsi=0;gl=0;gs=0;
     
     % Generate nxspe and detector data
-    
-    [nxspe_files,psi] = gen_bm_gen_sqw_data(q_range,dataSet,par_file_data,...
-        efix,alatt,angdeg,u,v,omega,dpsi,gl,gs);
+    [nxspe_files,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,par_file_data,...
+        efix);
     pths = horace_paths;
     gen_folder = fullfile(pths.bm,'bm_gen_sqw');
     sqw_file = [gen_folder,filesep,'bm_sqw.sqw'];

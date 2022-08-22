@@ -22,7 +22,9 @@ function benchmark_tobyfit_simulate(nDims,dataSource,dataSize,dataSet,nProcs,fun
 %               [int > 0 for parallel code]
 %               [string: "small","medium" or "large" or an array]
 %   filename    filepath to where benchmarking data will be saved (.csv file)
-
+% Custom example:
+% >>> benchmark_tobyfit_simulate(1,'','medium',3,4,@slow_func,{[250 0 2.4 10 5],@demo_FM_spinwaves,10^0},'custom.csv')
+% >>> benchmark_tobyfit_simulate(1,'saved.sqw',9,3,4,@slow_func,{[250 0 2.4 10 5],@demo_FM_spinwaves,10^0},'custom.csv')
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
 
 hpc = hpc_config();
@@ -46,15 +48,12 @@ else
 %     hpc.tobyfit_simulate_parallel=false
 end
 
+% Generate the sqw object for tobyfit
 sqw_obj = gen_bm_tobyfit_simulate_data(nDims,dataSource,dataSize,dataSet);
 nlist=0;
 sim_sqw=tobyfit(sqw_obj);
 sim_sqw = sim_sqw.set_local_foreground;
 sim_sqw = sim_sqw.set_fun(func_handle,params);
-% if strcmp(dataSet,'small') == 0
-%     sim_sqw = sim_sqw.set_bind({2,[2,1]});
-% end
-% w_sqw = w_sqw.set_bfun(@testfunc_bkgd,[0,0]);
 sim_sqw = sim_sqw.set_mc_points(2);
 sim_sqw = sim_sqw.set_options('listing',nlist);
 %% Start profiler

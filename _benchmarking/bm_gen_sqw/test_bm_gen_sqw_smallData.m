@@ -8,8 +8,8 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %     Char: 'small', 'medium' or 'large' (12, 23 and 46 files 
 %     respectively) or an integer amount of files.
 %   - detectorSize: the amount of detectors used to generate a
-%     the needed par_file info. 'small', 'medium' or 'large' (32768,
-%     46656, 74088 respectively)
+%     the needed par_file info. 'small', 'medium' or 'large'.
+%     Corresponding to MAPS, MERLIN and LET. 
 %   - nProcs: the number of processors the benchmark will run on
     
     properties

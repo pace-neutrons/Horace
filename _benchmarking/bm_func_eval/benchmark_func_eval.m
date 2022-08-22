@@ -22,7 +22,9 @@ function benchmark_func_eval(nDims,dataSource,dataSize,dataSet,func_handle,param
 %               [int > 0 for parallel code]
 %               [string: "small","medium" or "large" or an array]
 %   filename    filepath to where benchmarking data will be saved (.csv file)
-
+% Custom example:
+% >>> benchmark_func_eval(1,'',6,'small',@slow_func,{[175,1,0.05],@gauss,10^0},1,'custom.csv')
+% >>> benchmark_func_eval(1,'saved.sqw',6,'7',@slow_func,{[175,1,0.05],@gauss,10^0},1,'custom.csv')
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
 
 hpc = hpc_config();

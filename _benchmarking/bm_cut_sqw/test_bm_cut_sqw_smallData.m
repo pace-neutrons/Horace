@@ -25,7 +25,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             obj = obj@TestCase(test_class_name);
             pths = horace_paths;
             obj.common_data = pths.bm_common;
-            obj.dataSource = fullfile(obj.common_data,'NumData6.sqw');
+            obj.dataSource = fullfile(obj.common_data,'NumData7.sqw');
 
         end
 

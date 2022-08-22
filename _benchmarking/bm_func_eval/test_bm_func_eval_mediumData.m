@@ -1,6 +1,6 @@
 classdef test_bm_func_eval_mediumData < TestCase
 %TEST_BM_FUNC_EVAL_MEDIUMDATA mediumData Benchmark class for func_eval()
-% This set of benchmarks uses "medium" sized sqw objects (10^7 pixels).
+% This set of benchmarks uses "medium" sized sqw objects (10^8 pixels).
 % The parameters that are varied in this set of benchmarks are:
 %   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
 %   - dataSet: the number of sqw objects in the array
@@ -32,7 +32,7 @@ classdef test_bm_func_eval_mediumData < TestCase
             obj = obj@TestCase(test_class_name);
             pths = horace_paths;
             obj.common_data = pths.bm_common;
-            obj.dataSource = fullfile(obj.common_data,'NumData7.sqw');
+            obj.dataSource = fullfile(obj.common_data,'NumData8.sqw');
         end
                
         function test_bm_func_eval_1D_mediumData_smallNumber_1procs(obj)

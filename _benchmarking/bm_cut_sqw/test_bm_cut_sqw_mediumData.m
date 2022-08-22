@@ -13,7 +13,6 @@ classdef test_bm_cut_sqw_mediumData < TestCase
         common_data;
         dataSize = 'medium';
         dataSource;
-
     end
 
     methods
@@ -26,8 +25,7 @@ classdef test_bm_cut_sqw_mediumData < TestCase
             obj = obj@TestCase(test_class_name);
             pths = horace_paths;
             obj.common_data = pths.bm_common;
-            obj.dataSource = fullfile(obj.common_data,'NumData7.sqw');
-
+            obj.dataSource = fullfile(obj.common_data,'NumData8.sqw');
         end
 
         function test_bm_cut_sqw_mediumData_3D_sqw_largeEnergy_1procs(obj)

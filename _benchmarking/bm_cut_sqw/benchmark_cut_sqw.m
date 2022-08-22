@@ -13,7 +13,7 @@ function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filenam
 %   dataFile    filepath to a saved sqw object or emoty string
 %   dataSize    size of sqw objects to cut:
 %               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
-%               pixels) or an int from 5-9.]
+%               pixels) or an int from 6-10.]
 %   objType     the type of object to cut [string: "sqw" or "dnd"]
 %   nProcs      the number of processors the benchmark will run on 
 %               [int > 0 for parallel code]
@@ -22,7 +22,9 @@ function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filenam
 %   filename    filepath to where benchmarking data will be saved (.csv file)
 %   contiguous  make 4 contigous cuts of the same sqw object.
 %               boolean: true or false
-
+% Custom example:
+% >>> benchmark_cut_sqw(1,'',6,"sqw",1,"small",'custom.csv',false)
+% >>> benchmark_cut_sqw(1,'',6,"sqw",1,[0,175],'custom.csv',false)
 
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
 
@@ -51,27 +53,27 @@ proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 %Set pixel bins
 switch nDims
     case 1
-        p1_bin=[-3,0.05,3];p2_bin=[1.9,2.1];p3_bin=[-0.1,0.1];
+        p1_bin=[-3,0.05,3];p2_bin=[-2.1,-1.9];p3_bin=[-0.5,0.5];
     case 2
-        p1_bin=[-3,0.05,3];p2_bin=[-2.1,-1.9];p3_bin=[-0.1,0.1];
+        p1_bin=[-3,0.05,3];p2_bin=[-3,0];p3_bin=[-0.5,0.5];
     case 3
-        p1_bin=[-3,0.05,3];p2_bin=[-3,0.05,3];p3_bin=[-0.1,0.1];
+        p1_bin=[-3,0.05,3];p2_bin=[-3,0.05,3];p3_bin=[-1,1];
     otherwise
         error("HORACE:benchmark_cut_sqw:invalid_argument",...
             "nDims is the dimensions of the cut: must be 1, 2 or 3")
 end
 
 % Set energy bins
-if isa(eRange, 'string')
+if isa(eRange,'string')
     switch true
         case eRange == "large" && nDims == 1
-            p4_bin=[0,700];
+            p4_bin=[0,787];
         case eRange == "medium" && nDims == 1
             p4_bin=[0,350];
         case eRange == "small" && nDims == 1
             p4_bin=[0,175];
         case eRange == "large" && (nDims == 2 || nDims == 3)
-            p4_bin=[0,16,700];
+            p4_bin=[0,16,787];
         case eRange == "medium" && (nDims == 2 || nDims == 3)
             p4_bin=[0,16,350];
         case eRange == "small" && (nDims == 2 || nDims == 3)
@@ -81,6 +83,7 @@ if isa(eRange, 'string')
                 "if using a string for eRange, must be either ""small"", ""medium"" or ""large""")
     end
 elseif isa(eRange,'double')
+    disp(numel(eRange))
     switch true
         case (numel(eRange) == 2 || numel(eRange) == 4) && nDims == 1
             p4_bin = eRange;
@@ -89,7 +92,8 @@ elseif isa(eRange,'double')
         otherwise
             error("HORACE:benchmark_cut_sqw:invalid_argument",...
                 "if using an array of doubles for eRange, length of the" + ...
-                " array must be from 1 to 4, see help sqw/cut for more details")
+                " array must be 2 and 4 for 1D cuts and 1 or 3 for 2-3D " + ...
+                "cuts, see help sqw/cut for more details")
     end
 else
     error("HORACE:benchmark_cut_sqw:invalid_argument",...
@@ -121,6 +125,8 @@ else
     switch objType
         case "sqw"
             sqw_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
+            plot(sqw_cut)
+            disp("Cut has: " + sqw_cut.npixels + " pixels")
         case "dnd"
             dnd_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
         otherwise

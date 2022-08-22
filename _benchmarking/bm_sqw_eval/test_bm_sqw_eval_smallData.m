@@ -1,6 +1,6 @@
 classdef test_bm_sqw_eval_smallData <TestCase
 %TEST_BM_SQW_EVAL_SMALLDATA smallData Benchmark class for sqw_eval()
-% This set of benchmarks uses "small" sized sqw objects (10^6 pixels).
+% This set of benchmarks uses "small" sized sqw objects (10^7 pixels).
 % The parameters that are varied in this set of benchmarks are:
 %   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
 %   - dataSet: the number of sqw objects in the array
@@ -25,7 +25,7 @@ classdef test_bm_sqw_eval_smallData <TestCase
             obj = obj@TestCase(test_class_name);
             pths = horace_paths;
             obj.common_data = pths.bm_common;
-            obj.dataSource = fullfile(obj.common_data,'NumData6.sqw');
+            obj.dataSource = fullfile(obj.common_data,'NumData7.sqw');
         end
         
         function test_bm_sqw_eval_1D_sqw_smallData_smallNumber_1procs(obj)

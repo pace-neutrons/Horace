@@ -13,16 +13,20 @@ function benchmark_combine_sqw(nDims,dataSource,dataSize,dataSet,nProcs,filename
 % Inputs:
 %
 %   nDims       dimensions of the sqw objects to combine: 1,2 or 3
-%   dataSource  filepath to a saved sqw object or an integer between 5-9 to
-%               generate a new sqw object
+%   dataSource  filepath to a saved sqw object or an empty char if
+%   generating a new sqw object
 %   dataSize    size of the original sqw objects to combine:
 %               char type: 'small','medium' or 'large' (10^6,10^7 and 10^8
-%               pixels) or an integer from 5-9.
+%               pixels) or an integer from 5-9 (number of pixels 
+% in base sqw object to generate)                       
 %   dataSet     the amount of sqw objects to combine:
 %               Char: 'small', 'medium' or 'large' (2, 4 and 8 files 
 %               respectively) or a numeric amount.
 %   nProcs      the number of processors the benchmark will run on
 %   filename    filepath to where benchmarking data will be saved (.csv file)
+% Custom example:
+% >>> benchmark_combine_sqw(2,'saved.sqw','small','medium',2,'custom.csv')
+% >>> benchmark_combine_sqw(2,'',6,10,2,'custom.csv')
 
 %% Setup nprocs and other config info with hpc_config() (save intial config details for later)
 

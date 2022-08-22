@@ -10,12 +10,12 @@ function benchmark_sqw_eval(nDims,dataSource,dataSize,dataSet,objType,func_handl
 % Inputs:
 %
 %   nDims       dimensions of the sqw objects to combine: [int: 1,2 or 3]
-%   dataSource  filepath to a saved sqw object or emoty string
+%   dataSource  filepath to a saved sqw object or empty string
 %   dataSize    size of sqw objects to cut:
-%               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
-%               pixels) or an int from 5-9.]
+%               [char: 'small','medium' or 'large' (10^7,10^8 and 10^9
+%               pixels) or an int from 6-10]
 %   dataSet     the size of the array of sqw objects
-%               [char: 'small','medium' or 'large'or an int]
+%               [char: 'small','medium' or 'large' or an int]
 %   objType    type of object [string: "sqw" or "dnd"]
 %   func_handle the name of the function to evaluate
 %   params      the parameters of the function used in func_handle
@@ -23,6 +23,9 @@ function benchmark_sqw_eval(nDims,dataSource,dataSize,dataSet,objType,func_handl
 %               [int > 0 for parallel code]
 %               [string: "small","medium" or "large" or an array]
 %   filename    filepath to where benchmarking data will be saved (.csv file)
+% Custom example:
+% >>> benchmark_sqw_eval(1,'',6,'small',"dnd",@slow_func,{[250 0 2.4 10 5],@demo_FM_spinwaves,10^0},1,'custom.csv')
+% >>> benchmark_sqw_eval(1,'saved.sqw',6,7,"sqw",@slow_func,{[250 0 2.4 10 5],@demo_FM_spinwaves,10^0},1,'custom.csv')
 
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
 

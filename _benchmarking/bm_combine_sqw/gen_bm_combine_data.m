@@ -9,8 +9,8 @@ function [cut1, cutN] = gen_bm_combine_data(nDims,dataFile,dataSize,dataSet)
 %   nDims       dimensions of the sqw objects to combine: [1,2 or 3]
 %   dataFile    filepath to a saved sqw object or empty string
 %   dataSize    size of the original sqw objects to combine:
-%               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
-%               pixels) or an integer from 5-9.]
+%               [char: 'small','medium' or 'large' (10^7,10^6 and 10^9
+%               pixels) or an integer from 6-10]
 %   dataSet     the amount of sqw objects to combine:
 %               [char: 'small', 'medium' or 'large' (2, 4 and 8 files 
 %               respectively) or a numeric amount]
@@ -24,11 +24,11 @@ if is_file(dataFile)
 else
     switch dataSize
         case 'small'
-            dataSource = gen_fake_sqw_data(6);
-        case 'medium'
             dataSource = gen_fake_sqw_data(7);
-        case 'large'
+        case 'medium'
             dataSource = gen_fake_sqw_data(8);
+        case 'large'
+            dataSource = gen_fake_sqw_data(9);
         otherwise
             try
                 dataSource = gen_fake_sqw_data(dataSize);
@@ -42,11 +42,11 @@ end
 
 switch nDims
     case 1
-        p1_bin=[-3,0.05,3];p2_bin=[1.9,2.1];p3_bin=[-0.1,0.1];p4_bin=[0,175];
+        p1_bin=[-3,0.05,3];p2_bin=[-2.1,-1.9];p3_bin=[-0.5,0.5];p4_bin=[0,175];
     case 2
-        p1_bin=[-3,0.05,3];p2_bin=[-2.1,-1.9];p3_bin=[-0.1,0.1];p4_bin=[0,16,350];
+        p1_bin=[-3,0.05,3];p2_bin=[-3,0];p3_bin=[-0.5,0.5];p4_bin=[0,16,350];
     case 3
-        p1_bin=[-3,0.05,3];p2_bin=[-3,0.05,3];p3_bin=[-0.1,0.1];p4_bin=[0,16,700];
+        p1_bin=[-3,0.05,3];p2_bin=[-3,0.05,3];p3_bin=[-1,1];p4_bin=[0,16,700];
     otherwise
         error("HORACE:test_combine_sqw_smallData:gen_bm_data:invalid_argument"...
             ,"nDims is the dimensions of the cuts to combine: must be 1, 2 or 3 ")
@@ -55,7 +55,7 @@ end
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 % Generate inital cut of sqw object
 cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-
+disp("Cut has: " + cut1.npixels + " pixels")
 % Generate additional cuts to combine, doubling number of pixels of the
 % additonal cuts
 switch dataSet

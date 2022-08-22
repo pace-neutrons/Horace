@@ -20,11 +20,11 @@ if is_file(dataFile)
 else
     switch dataSize
         case 'small'
-            dataSource = gen_fake_sqw_data(6);
-        case 'medium'
             dataSource = gen_fake_sqw_data(7);
-        case 'large'
+        case 'medium'
             dataSource = gen_fake_sqw_data(8);
+        case 'large'
+            dataSource = gen_fake_sqw_data(9);
         otherwise
             try
                 dataSource = gen_fake_sqw_data(dataSize);

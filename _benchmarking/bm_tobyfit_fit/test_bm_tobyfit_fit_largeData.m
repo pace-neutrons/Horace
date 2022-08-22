@@ -1,6 +1,6 @@
 classdef test_bm_tobyfit_fit_largeData < TestCase
 %TEST_BM_TOBYFIT_FIT_LARGEDATA largeData Benchmark class for fit()
-% This set of benchmarks uses "large" sized sqw objects (10^8 pixels).
+% This set of benchmarks uses "large" sized sqw objects (10^9 pixels).
 % The parameters that are varied in this set of benchmarks are:
 %   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
 %   - dataSet: the number of sqw objects in the array
@@ -25,7 +25,7 @@ classdef test_bm_tobyfit_fit_largeData < TestCase
             obj = obj@TestCase(test_class_name);
             pths = horace_paths;
             obj.common_data = pths.bm_common;
-            obj.dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            obj.dataSource = fullfile(obj.common_data,'NumData9.sqw');
         end
         
         function test_bm_tobyfit_fit_1D_largeData_smallNumber_1procs(obj)

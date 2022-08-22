@@ -7,6 +7,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %   - objType: the type of object to cut: sqw or dnd
 %   - nProcs: the number of processors the benchmarks will run on
 %   - eRange: the binning along the energy axis: see p4_bin in "help sqw/cut"
+
     properties
         function_name;
         common_data;
@@ -24,7 +25,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
             obj = obj@TestCase(test_class_name);
             pths = horace_paths;
             obj.common_data = pths.bm_common;
-            obj.dataSource = fullfile(obj.common_data,'NumData8.sqw');
+            obj.dataSource = fullfile(obj.common_data,'NumData9.sqw');
         end
 
         function test_bm_cut_sqw_largeData_3D_sqw_largeEnergy_1procs(obj)
@@ -33,6 +34,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
             objType="sqw";
             nProcs = 1;
             eRange = "large";
+            disp(obj.dataSource)
             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
                 eRange,obj.function_name,false);
         end

@@ -1,4 +1,4 @@
-function [nxspe_file_names,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,detectorSize,efix,alatt,angdeg,u,v,omega,dpsi,gl,gs)
+function [nxspe_file_names,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,detectorSize,efix)
 %GEN_GEN_SQW_DATA This function generates the required data to run gen_sqw
 %benchmarks
 %   To run the benchmarks, par and nxspe data need to be generated in
@@ -18,22 +18,14 @@ function [nxspe_file_names,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,detectorS
 %                monotonically increasing and equally spaced) or cell array
 %                of arrays of energy bin boundaries, one array per spe
 %                file. Energy bins are either: char: 'small','medium' and
-%                'large' or an input energy bin.
+%                'large' or an integer to split 787 into seperate bins.
 %   dataSet      the amount of nxspe files to generate. Char: 'small', 
 %                'medium' or 'large' (12, 23 and 46 files respectively)
 %                 or an integer amount of files.
-%   detectorSize  number of detectors. 'small','medium', or 'large';
-%                 35937,64000 and 125000 detectors respectively.
+%   detectorSize  number of detectors. 'small','medium', or 'large'.
+%                 Corresponding to MAPS, MERLIN and LET.
 %   efix          Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode         Direct geometry=1, indirect geometry=2    [scalar]
-%   alatt         Lattice parameters (Ang^-1)        [row or column vector]
-%   angdeg        Lattice angles (deg)               [row or column vector]
-%   u             First vector (1x3) defining scattering plane (r.l.u.)
-%   v             Second vector (1x3) defining scattering plane (r.l.u.)
-%   omega         Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
-%   dpsi          Correction to psi (deg)            [scalar or vector length nfile]
-%   gl            Large goniometer arc angle (deg)   [scalar or vector length nfile]
-%   gs            Small goniometer arc angle (deg)   [scalar or vector length nfile]
 %
 % Outputs:
 %   nxspe_file_names    cell array of nxspe filenames
@@ -41,6 +33,24 @@ function [nxspe_file_names,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,detectorS
 
     pths = horace_paths;
     
+    switch dataSize
+        case 'small'
+            en = 0:16:efix;
+        case 'medium'
+            en = 0:8:efix;
+        case 'large'
+            en = 0:4:efix;
+        otherwise
+            try
+                en = 0:dataSize:efix;
+            catch
+                error("HORACE:gen_bm_gen_sqw_data:invalid_argument"...
+                    ,"dataSize is the size of the nxspe files used to generate an" + ...
+                    "sqw object : must be small, medium, large (char type) or " + ...
+                    "represent the size of the ebins (an array of type: 0:X:Y)")
+            end
+    end
+
     switch dataSet
         case 'small'
             psi = 0:8:90;
@@ -63,49 +73,59 @@ function [nxspe_file_names,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,detectorS
     spe_file_names = cell(1,numel(psi));
     nxspe_file_names = cell(1,numel(psi));
     
-    switch dataSize
-        case 'small'
-            en = 0:16:efix;
-        case 'medium'
-            en = 0:8:efix;
-        case 'large'
-            en = 0:4:efix;
-        otherwise
-            try
-                en = dataSize;
-            catch
-                error("HORACE:gen_bm_gen_sqw_data:invalid_argument"...
-                    ,"dataSize is the size of the nxspe files used to generate an" + ...
-                    "sqw object : must be small, medium, large (char type) or " + ...
-                    "represnet the size of the ebins (an array of type: 0:X:Y)")
-            end
-    end
-    
     switch detectorSize
         case 'small'
-            q_range = [0 25 efix];
-            num_detectors = 32768;
+            num_detectors = 36864; % Num of detector pixels for MAPS
+            n_a = floor(sqrt(num_detectors));
+            ang_lims = {{5, 60, n_a}, {-170, 170, n_a}};  % For MAPS
+            theta_angs = linspace(ang_lims{1}{:});
+            phi_angs = linspace(ang_lims{2}{:});
+            [theta2d, phi2d] = ndgrid(theta_angs, phi_angs);
+            theta2d = theta2d(:);
+            phi2d = phi2d(:);
+            r = ones(size(theta2d)) .* 6;   % for MAPS, r=6; 
         case 'medium'
-            q_range = [0 22 efix];
-            num_detectors = 46656;
+            num_detectors = 69169; % ~Num of detector pixels for MERLIN
+            n_a = floor(sqrt(num_detectors));
+            ang_lims = {{5, 130, n_a}, {-170, 170, n_a}};  % For MERLIN
+            theta_angs = linspace(ang_lims{1}{:});
+            phi_angs = linspace(ang_lims{2}{:});
+            [theta2d, phi2d] = ndgrid(theta_angs, phi_angs);
+            theta2d = theta2d(:);
+            phi2d = phi2d(:);
+            r = ones(size(theta2d)) .* 2.5;   % for MERLIN, r = 2.5;
         case 'large'
-            q_range = [0 19 efix];
-            num_detectors = 74088;
+            num_detectors = 79524; % Num of detector pixels for LET (TO BE CONFIRMED)
+            n_a = floor(sqrt(num_detectors));
+            ang_lims = {{5, 130, n_a}, {-170, 170, n_a}};  % LET
+            theta_angs = linspace(ang_lims{1}{:});
+            phi_angs = linspace(ang_lims{2}{:});
+            [theta2d, phi2d] = ndgrid(theta_angs, phi_angs);
+            theta2d = theta2d(:);
+            phi2d = phi2d(:);
+            r = ones(size(theta2d)) .* 4;   % for LET, r = 4;
         otherwise
             try
-                q_range = detectorSize;
-    %             num_detectors = 125000;
+                num_detectors = detectorSize; % Num of detector pixels
+                n_a = floor(sqrt(num_detectors));
+                ang_lims = {{5, 130, n_a}, {-170, 170, n_a}};
+                theta_angs = linspace(ang_lims{1}{:});
+                phi_angs = linspace(ang_lims{2}{:});
+                [theta2d, phi2d] = ndgrid(theta_angs, phi_angs);
+                theta2d = theta2d(:);
+                phi2d = phi2d(:);
+                r = ones(size(theta2d)) .* 2;
             catch
                 error("HORACE:gen_bm_gen_sqw_data:invalid_argument"...
-                    ,"par_file must be a 3x1 or 3x3 array of q-ranges.")
+                    ,"par_file must be a small, medium, large (char type) or " + ...
+                    "or an array with [numDetectorPixels, r]")
             end
     end
-    
-    % Get oriented lattice object using alatt,angdeg etc to generate fake 
-    % detector data
-    lattice = convert_old_input_to_lat(alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
-    par_file = build_det_from_q_range(q_range,efix,lattice);
-    
+
+    detwidth = ones(size(theta2d)) .* 0.0254;   % in metres (1" diameter tubes)
+    detheight = ones(size(theta2d)) .* 0.017;   % in metres (1m long tubes split into 256 "pixels")
+    par_file = get_hor_format([r theta2d phi2d detwidth detheight [1:numel(theta2d)]']');
+
     for i=1:numel(psi)
         spe_file_names{i}=fullfile(['bm_gen_sqw',num2str(i),'.spe']);
         nxspe_file_names{i}=fullfile(['bm_gen_sqw',num2str(i),'.nxspe']);
