@@ -16,9 +16,9 @@ classdef test_cut < TestCase & common_state_holder
         FLOAT_TOL = 1e-5;
 
         sqw_file = '../test_sym_op/test_cut_sqw_sym.sqw';
-        ref_file = 'test_cut_ref_sqw.sqw'
+        ref_cut_file = 'test_cut_ref_sqw.sqw'
         ref_params = { ...
-            ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa'), ...
+            ortho_proj([1, -1 ,0], [1, 1, 0]/sqrt(2), 'offset', [1, 1, 0], 'type', 'paa'), ...
             [-0.1, 0.025, 0.1], ...
             [-0.1, 0.025, 0.1], ...
             [-0.1, 0.1], ...
@@ -52,9 +52,9 @@ classdef test_cut < TestCase & common_state_holder
             %
             if save_reference
                 fprintf('*** Rebuilding and overwriting reference cut file %s\n',...
-                    obj.ref_file);
+                    obj.ref_cut_file);
                 sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
-                save(sqw_cut,obj.ref_file);
+                save(sqw_cut,obj.ref_cut_file);
             end
         end
         %
@@ -72,7 +72,7 @@ classdef test_cut < TestCase & common_state_holder
 
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
 
-            ref_sqw = sqw(obj.ref_file);
+            ref_sqw = read_sqw(obj.ref_cut_file);
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
                 'ignore_str', true,'-ignore_date');
         end
@@ -86,7 +86,7 @@ classdef test_cut < TestCase & common_state_holder
             % offset is currently expressed in hkl
             assertElementsAlmostEqual(sqw_cut.data.offset,obj.ref_params{1}.offset);
 
-            ref_sqw = read_sqw(obj.ref_file);
+            ref_sqw = read_sqw(obj.ref_cut_file);
 
             assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');
@@ -96,7 +96,7 @@ classdef test_cut < TestCase & common_state_holder
         function test_take_a_cut_with_nopix_argument(obj)
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
 
-            ref_sqw = read_dnd(obj.ref_file);
+            ref_sqw = read_dnd(obj.ref_cut_file);
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
         end
 
@@ -137,7 +137,7 @@ classdef test_cut < TestCase & common_state_holder
             runid = unique(ret_sqw.pix.run_idx);
             assertEqual(runid,ret_sqw.experiment_info.expdata.get_run_ids());
 
-            loaded_cut = sqw(outfile);
+            loaded_cut = read_sqw(outfile);
             % bug #797 requesting investigation
             loaded_cut.experiment_info.instruments = ret_sqw.experiment_info.instruments;
 
@@ -218,20 +218,20 @@ classdef test_cut < TestCase & common_state_holder
             conf.mem_chunk_size = 4000;
             cleanup = onCleanup(@() set(hor_config, old_conf));
 
-            sqw_obj = sqw(obj.sqw_file);
+            sqw_obj = read_sqw(obj.sqw_file);
 
             outfile = fullfile(tmp_dir, 'test_cut_from_obj_to_file.sqw');
 
             cut(sqw_obj, obj.ref_params{:}, outfile);
             cleanup = onCleanup(@() clean_up_file(outfile));
 
-            loaded_sqw = sqw(outfile);
-            ref_sqw = sqw(obj.ref_file);
+            loaded_cut = read_sqw(outfile);
+            ref_cut = read_sqw(obj.ref_cut_file);
 
             % bug #797 requesting investigation
-            loaded_sqw.experiment_info.instruments = ref_sqw.experiment_info.instruments;
+            loaded_cut.experiment_info.instruments = ref_cut.experiment_info.instruments;
 
-            assertEqualToTol(loaded_sqw, ref_sqw, obj.FLOAT_TOL, ...
+            assertEqualToTol(loaded_cut, ref_cut, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');
             skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
@@ -349,7 +349,7 @@ classdef test_cut < TestCase & common_state_holder
             cut(obj.sqw_file, obj.ref_params{:}, outfile);
             cleanup_tmp_file = onCleanup(@() clean_up_file(outfile));
 
-            ref_sqw = sqw(obj.ref_file);
+            ref_sqw = sqw(obj.ref_cut_file);
             output_sqw = sqw(outfile);
             %HACK: reference stored in binary file and one obtained from
             %cut contains different representaion of empty instruments
@@ -374,7 +374,7 @@ classdef test_cut < TestCase & common_state_holder
             cut(obj.sqw_file, obj.ref_params{:}, outfile);
             cleanup_tmp_file = onCleanup(@() clean_up_file(outfile));
 
-            ref_sqw = sqw(obj.ref_file);
+            ref_sqw = sqw(obj.ref_cut_file);
             output_sqw = sqw(outfile);
             %
             contrubuted_keys = output_sqw.runid_map.keys;
@@ -411,7 +411,7 @@ classdef test_cut < TestCase & common_state_holder
             assertTrue(logical(exist(outfile, 'file')));
             ldr = sqw_formats_factory.instance().get_loader(outfile);
             output_obj = ldr.get_dnd();
-            ref_object = read_dnd(obj.ref_file);
+            ref_object = read_dnd(obj.ref_cut_file);
 
             assertEqualToTol(output_obj, ref_object, ...
                 'ignore_str', true,'abstol',2.e-7);

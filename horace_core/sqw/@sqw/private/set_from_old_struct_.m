@@ -56,6 +56,10 @@ if ~isfield(S,'version') || S.version<4
                 ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
             end
         end
+        proj = ss.data.proj;
+        header_av = ss.experiment_info.header_average();
+        ss.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+        
         % guard against old data formats, which may or may not contain
         % runid map and the map may or may not correspond to
         % pixel_id

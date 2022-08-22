@@ -10,8 +10,8 @@ function [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu_(proj,ustep)
 %
 % Input:
 % ------
-%   proj    projaxes object containing information about projection axes
-%          (type >> help projaxes for details)
+%   proj    ortho_proj object containing information about projection axes
+%          (type >> help ortho_proj for details)
 %   ustep   Row vector giving step sizes along the projection axes as multiple
 %           of the projection axes (e.g. [0.05,0.05,0.025]
 %           Default if not given: [1,1,1] i.e. unit step
