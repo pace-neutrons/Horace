@@ -12,8 +12,8 @@ function benchmark_tobyfit_simulate(nDims,dataSource,dataSize,dataSet,nProcs,fun
 %   nDims       dimensions of the sqw objects to combine: [int: 1,2 or 3]
 %   dataSource  filepath to a saved sqw object or emoty string
 %   dataSize    size of sqw objects to cut:
-%               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
-%               pixels) or an int from 5-9.]
+%               [char: 'small','medium' or 'large' (10^7,10^8 and 10^9
+%               pixels) or an int from 6-10]
 %   dataSet     the size of the array of sqw objects
 %               [char: 'small','medium' or 'large'or an int]
 %   func_handle the name of the function to simulate

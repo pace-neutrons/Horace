@@ -7,8 +7,8 @@ function dataSource = gen_bm_cut_data(dataFile,dataSize)
 %
 %   dataFile    filepath to a saved sqw object or empty string
 %   dataSize    size of sqw objects to generate:
-%               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
-%               pixels) or an int from 5-9]
+%               [char: 'small','medium' or 'large' (10^7,10^8 and 10^9
+%               pixels) or an int from 6-10]
 %
 % Output:
 %   dataSource  filepath to existing/generated sqw file
@@ -31,7 +31,7 @@ else
             catch
                 error("HORACE:gen_bm_data:invalid_argument"...
                     ,"dataSize is the size of the sqw object : must be small, " + ...
-                    "medium, large (char type) or numeric (from 1 to 9)")
+                    "medium, large (char type) or numeric (from 6 to 10)")
             end
     end
 end

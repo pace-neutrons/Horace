@@ -1,7 +1,7 @@
 classdef test_bm_cut_sqw_largeData < TestCase
 %TEST_BM_CUT_SQW_LARGEDATA largeData Benchmark class for cut_sqw()
 % This set of benchmarks uses "large" sized sqw objects created using 
-% dummy_sqw (10^8 pixels).
+% dummy_sqw (10^9 pixels).
 % The parameters that are varied in this set of benchmarks are:
 %   - nDims: the dimensions of the sqw objects to combine: 1,2 or 3
 %   - objType: the type of object to cut: sqw or dnd
@@ -28,26 +28,25 @@ classdef test_bm_cut_sqw_largeData < TestCase
             obj.dataSource = fullfile(obj.common_data,'NumData9.sqw');
         end
 
-        function test_bm_cut_sqw_largeData_3D_sqw_largeEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 3;
-            objType="sqw";
-            nProcs = 1;
-            eRange = "large";
-            disp(obj.dataSource)
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_2D_sqw_largeEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 2;
-            objType="sqw";
-            nProcs = 1;
-            eRange = "large";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
+%         function test_bm_cut_sqw_largeData_3D_sqw_largeEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 3;
+%             objType="sqw";
+%             nProcs = 1;
+%             eRange = "large";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_2D_sqw_largeEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 2;
+%             objType="sqw";
+%             nProcs = 1;
+%             eRange = "large";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
 
         function test_bm_cut_sqw_largeData_1D_sqw_largeEnergy_1procs(obj)
             obj.function_name = get_bm_name();
@@ -59,195 +58,195 @@ classdef test_bm_cut_sqw_largeData < TestCase
                 eRange,obj.function_name,false);
         end
 
-        function test_bm_cut_sqw_largeData_3D_dnd_largeEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 3;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "large";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_2D_dnd_largeEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 2;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "large";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_1D_dnd_largeEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 1;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "large";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_3D_sqw_mediumEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 3;
-            objType="sqw";
-            nProcs = 1;
-            eRange = "medium";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_2D_sqw_mediumEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 2;
-            objType="sqw";
-            nProcs = 1;
-            eRange = "medium";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_1D_sqw_mediumEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 1;
-            objType="sqw";
-            nProcs = 1;
-            eRange = "medium";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_3D_dnd_mediumEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 3;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "medium";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_2D_dnd_mediumEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 2;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "medium";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_1D_dnd_mediumEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 1;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "medium";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_3D_sqw_smallEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 3;
-            objType="sqw";
-            nProcs = 1;
-            eRange = "small";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_2D_sqw_smallEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 2;
-            objType="sqw";
-            nProcs = 1;
-            eRange = "small";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_1D_sqw_smallEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 1;
-            objType="sqw";
-            nProcs = 1;
-            eRange = "small";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_3D_dnd_smallEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 3;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "small";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_2D_dnd_smallEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 2;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "small";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_largeData_1D_dnd_smallEnergy_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 1;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "small";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,false);
-        end
-
-        function test_bm_cut_sqw_contiguous_largeData_2D_sqw_mediumE_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 2;
-            objType="sqw";
-            nProcs = 1;
-            eRange = "medium";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,true);
-        end
-
-        function test_bm_cut_sqw_contiguous_largeData_1D_sqw_mediumE_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 1;
-            objType="sqw";
-            nProcs = 1;
-            eRange = "medium";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,true);
-        end
-
-        function test_bm_cut_sqw_contiguous_largeData_2D_dnd_mediumE_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 2;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "medium";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,true);
-        end
-
-        function test_bm_cut_sqw_contiguous_largeData_1D_dnd_mediumE_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims = 1;
-            objType="dnd";
-            nProcs = 1;
-            eRange = "medium";
-            benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
-                eRange,obj.function_name,true);
-        end
+%         function test_bm_cut_sqw_largeData_3D_dnd_largeEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 3;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "large";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_2D_dnd_largeEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 2;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "large";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_1D_dnd_largeEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 1;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "large";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_3D_sqw_mediumEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 3;
+%             objType="sqw";
+%             nProcs = 1;
+%             eRange = "medium";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_2D_sqw_mediumEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 2;
+%             objType="sqw";
+%             nProcs = 1;
+%             eRange = "medium";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_1D_sqw_mediumEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 1;
+%             objType="sqw";
+%             nProcs = 1;
+%             eRange = "medium";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_3D_dnd_mediumEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 3;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "medium";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_2D_dnd_mediumEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 2;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "medium";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_1D_dnd_mediumEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 1;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "medium";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_3D_sqw_smallEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 3;
+%             objType="sqw";
+%             nProcs = 1;
+%             eRange = "small";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_2D_sqw_smallEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 2;
+%             objType="sqw";
+%             nProcs = 1;
+%             eRange = "small";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_1D_sqw_smallEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 1;
+%             objType="sqw";
+%             nProcs = 1;
+%             eRange = "small";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_3D_dnd_smallEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 3;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "small";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_2D_dnd_smallEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 2;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "small";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_largeData_1D_dnd_smallEnergy_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 1;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "small";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,false);
+%         end
+% 
+%         function test_bm_cut_sqw_contiguous_largeData_2D_sqw_mediumE_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 2;
+%             objType="sqw";
+%             nProcs = 1;
+%             eRange = "medium";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,true);
+%         end
+% 
+%         function test_bm_cut_sqw_contiguous_largeData_1D_sqw_mediumE_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 1;
+%             objType="sqw";
+%             nProcs = 1;
+%             eRange = "medium";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,true);
+%         end
+% 
+%         function test_bm_cut_sqw_contiguous_largeData_2D_dnd_mediumE_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 2;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "medium";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,true);
+%         end
+% 
+%         function test_bm_cut_sqw_contiguous_largeData_1D_dnd_mediumE_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims = 1;
+%             objType="dnd";
+%             nProcs = 1;
+%             eRange = "medium";
+%             benchmark_cut_sqw(nDims,obj.dataSource,obj.dataSize,objType,nProcs,...
+%                 eRange,obj.function_name,true);
+%         end
 
 %% Below functions are for when cut_sqw is parallelised: using 2 and 4 processors
 

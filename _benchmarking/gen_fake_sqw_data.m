@@ -8,7 +8,7 @@ function output_sqw = gen_fake_sqw_data(nData)
 %   These parameters can be changed by the user.
 % 
 % Inputs:
-% nData     an integer between [5-9]
+% nData     an integer between [6-10]
 
 %% Set parameters for generating an sqw object
     pths = horace_paths;
@@ -40,11 +40,11 @@ function output_sqw = gen_fake_sqw_data(nData)
             psi=0:2:90;
         case 9 % Generates sqw obj with 10^9
             e_bin_boundaries=0:24:efix;
-            n_a = floor(sqrt(1e8/numel(e_bin_boundaries)));
+            n_a = floor(sqrt(4e7/numel(e_bin_boundaries)));
             psi=0:2:90;
         case 10 % Generates sqw obj with 10^10
             e_bin_boundaries=0:12:efix;
-            n_a = floor(sqrt(1e9/numel(e_bin_boundaries)));
+            n_a = floor(sqrt(1e8/numel(e_bin_boundaries)));
             psi=0:2:90;
         otherwise
             error("HORACE:gen_bm_data:invalid_argument",...
@@ -70,8 +70,6 @@ function output_sqw = gen_fake_sqw_data(nData)
     dummy_sqw(e_bin_boundaries,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
     output_sqw = sqw_file;
     disp("Sqw object generated")
-%     disp("--------------------")
-%     sqw_obj = sqw(output_sqw);
-%     disp("10^" + nData + " sqw object has: " + sqw_obj.npixels + " pixels")
+    disp("--------------------")
     
 end

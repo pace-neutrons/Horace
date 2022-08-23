@@ -12,8 +12,8 @@ function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filenam
 %   nDims       dimensions of the sqw objects to combine: [int: 1,2 or 3]
 %   dataFile    filepath to a saved sqw object or emoty string
 %   dataSize    size of sqw objects to cut:
-%               [char: 'small','medium' or 'large' (10^6,10^7 and 10^8
-%               pixels) or an int from 6-10.]
+%               [char: 'small','medium' or 'large' (10^7,10^8 and 10^9
+%               pixels) or an int from 6-10]
 %   objType     the type of object to cut [string: "sqw" or "dnd"]
 %   nProcs      the number of processors the benchmark will run on 
 %               [int > 0 for parallel code]
@@ -125,8 +125,8 @@ else
     switch objType
         case "sqw"
             sqw_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            plot(sqw_cut)
-            disp("Cut has: " + sqw_cut.npixels + " pixels")
+%             sqw_obj=sqw(dataSource);
+%             disp("Original sqw has: " + sqw_obj.npixels + " pixels")
         case "dnd"
             dnd_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
         otherwise
