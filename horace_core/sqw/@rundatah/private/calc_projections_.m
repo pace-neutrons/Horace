@@ -63,7 +63,7 @@ spec_to_cc = obj.lattice.calc_proj_matrix();
     'hor_config','use_mex','threads','mem_chunk_size'); % pixel_page_size is redundant property
 %pixel_page_size = mem_chunk_size*36;
 if use_mex
-    if ~isempty(qspec) % why is this?
+    if ~isempty(qspec) % why is this? % See ticket #838 to address this. 
         use_mex = false;
     else
         try

@@ -307,8 +307,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertElementsAlmostEqual(pix_range1,pix_range2);
 
             % Make some cuts: ---------------
-            obj.proj.u=[1,0,0.1]/sqrt(1+0.01); obj.proj.v=[0,0,1];
-
+            obj.proj.u=[1,0,0.1]; obj.proj.v=[0,0,1];
 
 
             % Check cuts from gen_sqw output with spe files in a different

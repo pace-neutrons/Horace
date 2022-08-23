@@ -175,6 +175,8 @@ classdef instr_proj<aProjection
             % Convert pixels into the coordinate system, defined by the
             % projection and bin them into the coordinate system, defined
             % by the axes block, specified as input.
+            %
+            % See #838 for possible optimization of this
             [pix,det0,axes]  = obj.convert_rundata_to_pix(run_data,axes);
             [npix,s,e,pix_ok,unique_runid] = ...
                 bin_pixels@aProjection(obj,axes,pix,varargin{:});

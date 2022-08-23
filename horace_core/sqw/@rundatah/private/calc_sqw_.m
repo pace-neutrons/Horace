@@ -77,6 +77,12 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
 % Original author: T.G.Perring
 
 
+% TODO: CLARIFY! the projection here defines the transformation from pixels
+% (Crystal Cartesian) coordinate system to image (rlu) system. Does 4D
+% image produces by gen_sqw also should be in rlu? In
+% original Horace, it remains in Crystal Cartesian, but the projection says
+% that it is in rlu. See Ticket #839
+
 % Create header block
 % -------------------
 [fp,fn,fe]=fileparts(obj.data_file_name);
