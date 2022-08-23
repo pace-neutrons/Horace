@@ -48,7 +48,7 @@ function output_sqw = gen_fake_sqw_data(nData)
             psi=0:2:90;
         otherwise
             error("HORACE:gen_bm_data:invalid_argument",...
-                "When using a integer, nData must be between 5 and 9.")
+                "When using a integer, nData must be between 6 and 10.")
     end
 
     % Alternative using fixed detector angles
