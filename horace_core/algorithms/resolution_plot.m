@@ -248,8 +248,7 @@ wres.detpar = detpar;
 
 
 % Make data structure
-
-if ~isempty(proj)
+if ~isempty(proj) 
     proj.do_check_combo_arg = false;
     proj.alatt = lat.alatt;
     proj.angdeg = lat.angdeg;
@@ -258,7 +257,7 @@ if ~isempty(proj)
     proj.do_check_combo_arg = true;
     proj = proj.check_combo_arg();
 else
-    proj = fudge_proj('alatt',lat.alatt,'angdeg',lat.angdeg);
+    proj = fudge_proj('alatt',lat.alatt,'angdeg',lat.angdeg); % deal with fuge_projection Ticket #840
     proj.spec_to_rlu = spec_to_rlu;
 end
 %proj = proj.set_ub_inv_compat(spec_to_rlu); % This operation was in the
