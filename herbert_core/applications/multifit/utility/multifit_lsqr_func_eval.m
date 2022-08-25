@@ -323,39 +323,19 @@ end
 % (There will be either a calculated foreground or calculated background for every dataset
 %  We can only do this now because we have no way of knowing the size of the zero arrays for objects)
 
-if nw==1
-    if fcalc_filled && bcalc_filled
-        ycalc = fcalc{1}+bcalc{1};
-        varcalc = fvar{1}+bvar{1};
-    elseif ~fcalc_filled && bcalc_filled
-        ycalc = bcalc{1};
-        varcalc = bvar{1};
-    elseif fcalc_filled && ~bcalc_filled
-        ycalc = fcalc{1};
-        varcalc = fvar{1};
-    else
-        error('Logic error in multifit. See T.G.Perring')
-    end
-    ycalc = {ycalc};
-    varcalc = {varcalc};
-else
-    ycalc = cell(iw, 1);
-    varcalc = cell(iw, 1);
-    for iw=1:nw
-        if ~fcalc_filled(iw) && bcalc_filled(iw)
-            fcalc{iw}=zeros(size(bcalc{iw}));
-            fvar{iw}=zeros(size(bvar{iw}));
-        elseif fcalc_filled(iw) && ~bcalc_filled(iw)
-            bcalc{iw}=zeros(size(fcalc{iw}));
-            bvar{iw}=zeros(size(fvar{iw}));
-        elseif ~fcalc_filled(iw) && ~bcalc_filled(iw)
-            error('Logic error in multifit. See T.G.Perring')
-        end
-        ycalc{iw} = fcalc{iw} + bcalc{iw};
-        varcalc{iw} = fvar{iw} + bvar{iw};
-    end
-
+if ~all(fcalc_filled | bcalc_filled)
+    error('HERBERT:multifit_lsqr_func_eval:bad_output', 'Logic error in multifit. See T.G.Perring')
 end
+
+% Adding scalar zeros to array is equivalent without the need for excess memory
+fcalc(~fcalc_filled) = 0; %zeros(size(bcalc(~fcalc_filled)));
+fvar(~fcalc_filled) = 0; %zeros(size(bvar(~fcalc_filled)));
+
+bcalc(~bcalc_filled) = 0; %zeros(size(fcalc(~bcalc_filled)));
+bvar(~bcalc_filled) = 0; %zeros(size(fvar(~bcalc_filled)));
+
+ycalc = cellfun(@plus, fcalc, bcalc, 'UniformOutput', false);
+varcalc = cellfun(@plus, fvar, bvar, 'UniformOutput', false);
 
 % Write diagnostics to screen, if requested
 if listing>2

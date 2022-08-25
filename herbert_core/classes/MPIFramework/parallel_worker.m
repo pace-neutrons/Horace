@@ -121,7 +121,7 @@ try
     % inform the control node that the cluster have been started and ready
     % to accept jobs
     if mis.trace_log_enabled
-        fwrite(fhe,sprintf('reporing cluser ready\n'));
+        fwrite(fhe,sprintf('reporting cluster ready\n'));
     end
     JobExecutor.report_cluster_ready(fbMPI,intercomm);
     if mis.trace_log_enabled
@@ -469,7 +469,7 @@ end
     function log_input_message_exception_caught()
         fprintf(fh,'Receiving Init messages exception caught, ErrMessage: %s, ID: %s;\n',...
             ME.message,ME.identifier);
-        ss =numel(ME.stack);
+        ss = numel(ME.stack);
         for i=1:ss
             fprintf(fh,'%s\n',ME.stack(i).file);
             fprintf(fh,'%s\n',ME.stack(i).name);
@@ -483,7 +483,7 @@ end
     function log_exception_caught()
         fprintf(fh,'je exception caught, Message: %s, ID: %s;| job_completed: %d \n',...
             ME.message,ME.identifier,je.do_job_completed);
-        ss =numel(ME.stack);
+        ss = numel(ME.stack);
         for i=1:ss
             fprintf(fh,'%s\n',ME.stack(i).file);
             fprintf(fh,'%s\n',ME.stack(i).name);
@@ -496,16 +496,18 @@ end
 end
 
 function f_canc(job_executor)
+
 if job_executor.is_job_cancelled()
     error('MESSAGE_FRAMEWORK:cancelled',...
         'Messages framework has been cancelled or is not initialized any more')
 end
+
 end
 
 function check_cancellation_status(je, state)
 is_cancelled = je.is_job_cancelled();
 if is_cancelled
-    error('JOB_EXECUTOR:cancelled',...
-          'Job cancelled %s.', state)
+    error('JOB_EXECUTOR:cancelled', 'Job cancelled %s.', state)
 end
+
 end

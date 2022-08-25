@@ -123,7 +123,7 @@
          <parallel_workers_number>2</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>1</mex_combine_thread_mode>
-         <mex_combine_buffer_size>16384</mex_combine_buffer_size>
+         <mex_combine_buffer_size>8192</mex_combine_buffer_size>
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
@@ -157,7 +157,7 @@
          <parallel_workers_number>6</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>1</mex_combine_thread_mode>
-         <mex_combine_buffer_size>16384</mex_combine_buffer_size>
+         <mex_combine_buffer_size>131072</mex_combine_buffer_size>
          <parallel_multifit>[false]</parallel_multifit>
       </hpc_config>
       <parallel_config>
