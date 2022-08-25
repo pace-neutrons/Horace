@@ -8,8 +8,8 @@ classdef test_asciipar_loader< TestCase
         %
         function obj=test_asciipar_loader(name)
             obj = obj@TestCase(name);
-            [~,tdp] = herbert_root();
-            obj.test_data_path = tdp;
+            pths = horace_paths;
+            obj.test_data_path = pths.test_common;
         end
 
         function test_constructors(obj)
@@ -330,4 +330,3 @@ classdef test_asciipar_loader< TestCase
         end
     end
 end
-

@@ -9,7 +9,7 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
         ref_pix_range
         cleanup_ob1
     end
-    
+
     methods
         function obj=test_pix_combine_info(test_class_name)
             %
@@ -18,23 +18,24 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
             end
             obj = obj@TestCase(test_class_name);
             data_path= fullfile(fileparts(mfilename('fullpath')),'TestData');
-            
+
             obj.data_path = data_path;
-            source_test_dir = fullfile(horace_root(),'_test','common_data');
+            pths = horace_paths;
+            source_test_dir = pths.test_common;
             source_file = fullfile(source_test_dir,'MAP11014.nxspe');
             target_file = fullfile(tmp_dir,'TPC11014.nxspe');
             copyfile(source_file,target_file,'f');
-            
+
             psi = [0,2,20]; %-- test settings;
             %psi = 0:1:200;  %-- evaluate_performance settings;
             source_test_file  = cell(1,numel(psi));
             for i=1:numel(psi)
                 source_test_file{i}  = target_file;
             end
-            
+
             wk_dir = tmp_dir;
             targ_file =fullfile(wk_dir,'never_created_sqw.sqw');
-            
+
             hc = hor_config;
             hc.saveable = false;
             del_tmp_state = hc.delete_tmp;
@@ -51,8 +52,8 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
             hpc.combine_sqw_using  = 'matlab';
             clob2 = onCleanup(@()set(hpc,'build_sqw_in_parallel',comb_state,...
                 'combine_sqw_using',combine_sqw_using));
-            
-            
+
+
             [temp_files,~,obj.ref_pix_range]=gen_sqw(source_test_file,'',targ_file,...
                 787.,1,[2.87,2.87,2.87],[90,90,90],...
                 [1,0,0],[0,1,0],psi,0,0,0,0,'replicate','tmp_only');
@@ -63,15 +64,15 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
         %
         function test_pix_range(obj)
             tester = pix_combine_info(obj.test_souce_files);
-            
+
             assertEqual(tester.pix_range,PixelData.EMPTY_RANGE_);
-            
+
             tester = tester.recalc_pix_range();
-            
+
             assertElementsAlmostEqual(tester.pix_range,obj.ref_pix_range,'relative',1.e-6);
         end
         %
-        
+
         %
     end
 end

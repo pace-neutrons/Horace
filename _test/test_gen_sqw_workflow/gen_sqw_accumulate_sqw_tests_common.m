@@ -69,7 +69,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 [fpath,fn,~] = fileparts(fls);
                 flt = fullfile(fpath,[fn,new_ext]);
                 new_names{i} = flt;
-                if exist(fls,'file')==2
+                if is_file(fls)
                     movefile(fls,flt,'f');
                 end
             end
@@ -101,8 +101,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % do other initialization
             obj.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
             obj.tol = 1.e-5;
-            hor_root= horace_root();
-            obj.test_functions_path=fullfile(hor_root,'_test/common_functions');
+
+            pths = horace_paths;
+            obj.test_functions_path = pths.test_common_func;
 
             addpath(obj.test_functions_path);
 
@@ -112,7 +113,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             else
                 obj.working_dir = obj.new_working_folder;
             end
-            if ~(exist(obj.working_dir,'dir') == 7)
+
+            if ~is_folder(obj.working_dir)
                 mkdir(obj.working_dir);
             end
 

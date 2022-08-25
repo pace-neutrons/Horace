@@ -29,8 +29,8 @@ classdef test_fake_sqw_bin_pix < TestCase
                 this.skip_this_test= true;
             end
             this.tmp_data_folder = tmp_dir;
-            root_dir = horace_root();
-            this.sample_dir = fullfile(root_dir,'_test','common_data');
+            pths = horace_paths;
+            this.sample_dir = pths.test_common;
         end
         function test_bin_c(this)
             if this.skip_this_test

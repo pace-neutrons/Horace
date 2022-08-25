@@ -12,7 +12,8 @@ function herbert_init
 
 % Root directory is assumed to be that in which this function resides
 % (keep this path, as may be removed by call to application_off)
-rootpath = fileparts(which('herbert_init'));
+global herbert_path
+herbert_path = fileparts(which('herbert_init'));
 
 % Remove all instances of Herbert
 % -------------------------------
@@ -24,24 +25,24 @@ warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 % end
 % Add paths
 % ---------
-addpath(rootpath);  % MUST have rootpath so that herbert_init, herbert_off included
-addpath(fullfile(rootpath,'admin'));
+addpath(herbert_path);  % MUST have herbert_path so that herbert_init, herbert_off included
+addpath(fullfile(herbert_path,'admin'));
 
 % Configurations
-addgenpath_message (rootpath,'configuration');
+addgenpath_message (herbert_path,'configuration');
 
 % Class definitions, with methods and operator definitions
-addgenpath_message (rootpath,'classes');
+addgenpath_message (herbert_path,'classes');
 
 % Utilities definitions
-addgenpath_message (rootpath,'utilities')
+addgenpath_message (herbert_path,'utilities')
 
 % Graphics
-addgenpath_message (rootpath,'graphics')
+addgenpath_message (herbert_path,'graphics')
 genieplot_init
 
 % Applications definitions
-addgenpath_message (rootpath,'applications')
+addgenpath_message (herbert_path,'applications')
 
 
 % set up multi-users computer specific settings,

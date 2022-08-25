@@ -31,8 +31,8 @@ classdef test_gen_sqw_powder < TestCaseWithSave
 
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
-            hor_root = horace_root();
-            common_data_dir = fullfile(hor_root, '_test', 'common_data');
+            pths = horace_paths;
+            common_data_dir = pths.test_common;
             % -----------------------------------------------------------------------------
             hcfg=herbert_config();
             current = hcfg.use_mex;

@@ -11,7 +11,8 @@ function horace_mex
 
 start_dir=pwd;
 C_compiled=false;
-root_dir = horace_root();
+pths = horace_paths;
+root_dir = pths.root;
 
 % build package version
 build_version_h(root_dir)
@@ -31,9 +32,9 @@ end
 hdf_version = ma+0.1*me+0.001*mi;
 build_hdf_reader= true;
 if hdf_version == 1.812
-    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.12',hdf_ext]);
+    hdf_root_dir = fullfile(pths.low_level,'external',['HDF5_1.8.12',hdf_ext]);
 elseif hdf_version == 1.806
-    hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.6',hdf_ext]);
+    hdf_root_dir = fullfile(pths.low_level,'external',['HDF5_1.8.6',hdf_ext]);
 else
     build_hdf_reader = false;
     warning('HORACE_MEX:not_implemented',...
@@ -265,4 +266,3 @@ else
     end
 
 end
-

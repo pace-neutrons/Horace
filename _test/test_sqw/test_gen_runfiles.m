@@ -11,14 +11,14 @@ classdef test_gen_runfiles < TestCase
 
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
-            hor_root = horace_root();
-            addpath(fullfile(hor_root, '_test', 'common_functions'))
-            obj.common_data_dir = fullfile(hor_root, '_test', 'common_data');
+            pths = horace_paths;
+            addpath(pths.test_common_func);
+            obj.common_data_dir = pths.test_common;
             % -----------------------------------------------------------------------------
         end
 
         function test_gen_sqw_serial(obj)
-            
+
             % This test should always run serially
             % test_gen_sqw_accumulate_sqw_<framework> tests in parallel
             hpc = hpc_config;

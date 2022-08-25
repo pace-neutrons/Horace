@@ -38,10 +38,10 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         % (test_nameN(nWorkergs) above)
         default_test_names
     end
-    
+
     properties
         % if true, when number of test files changes, (n_files_to_use)
-        % build sqw file directly, writing and combining tmp files, 
+        % build sqw file directly, writing and combining tmp files,
         % not building contributing nxspe files for testing gen_sqw performance
         % Also keep this file for future usage
         build_sqw_file_directly = false;
@@ -57,7 +57,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         % number of energy transfer bins used by test files generation routine
         num_energy_bins = 220;
     end
-    
+
     properties(Access=protected)
         % list of source files to process
         test_source_files_list_
@@ -121,7 +121,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             % completed.
             obj.add_to_files_cleanList(obj.sqw_file);
         end
-        
+
         %------------------------------------------------------------------
         % Interface defining existing perfornance tests
         %
@@ -131,7 +131,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         [perf,varargout]=large_cut_pix_fbased_task_perfornance(obj,field_names_map);
         %
         [perf,varargout]=combine_task_performance(obj,varargin);
-        
+
         %------------------------------------------------------------------
         function nf = get.n_files_to_use(obj)
             % number of test files, used in performance tests
@@ -141,6 +141,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         function [psi,efix,alatt,angdeg,u,v,omega,dpsi,gl,gs,...
                 en,par_file,alatt_true,angdeg_true,qfwhh,efwhh,rotvec]=...
                 gen_sqw_parameters(obj)
+            pths = horace_paths;
             % return list of the parameters, used for sqw file generation
             % set up the exactly the same parameters as defined below
             % in test_gensqw_performance method.
@@ -153,17 +154,17 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             dpsi=-1.8464+(0.9246);
             gl=-3.1871+(-0.1634);
             gs=-1.7047+(0.0028);
-            
+
             nfiles=obj.n_files_to_use_;
             %psi angles (in degrees). Should be the same number of these as there are runs
             %also the first element of irun must correspond to the first element of psi, and so on.
             psi= 0.5*(1:nfiles);
-            
+
             %  parameters, used at fake sqw files generation
             step = (21+1)/obj.num_energy_bins;
             en=-1:step:21;
-            par_file = fullfile(horace_root,'_test','common_data',obj.par_file);
-            
+            par_file = fullfile(pths.test_common,obj.par_file);
+
             alatt_true=[10.5,10.5,10.5];
             angdeg_true=[90,90,90];
             qfwhh=0.1;                  % Spread of Bragg peaks
@@ -171,7 +172,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             rotvec=[10,10,0]*(pi/180);  % orientation of the true lattice w.r.t reference lattice
         end
         %-------------------------------------------------------------
-        
+
         function set.n_files_to_use(obj,val)
             % change number of files to use and modify all related
             % internal properties which depends on this number
@@ -194,7 +195,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             [~,fb] = fileparts(obj.sqw_file);
             [~,fb] = fileparts(fb);
             obj.sqw_file = fullfile(obj.source_data_dir,sprintf('%s.%dFiles.sqw',fb,obj.n_files_to_use_));
-            
+
             %
             [filelist,smpl_data_size] = obj.generate_source_test_files();
             obj.sample_data_size_ = smpl_data_size;
@@ -202,7 +203,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             % delete generated files after the test completed.
             obj.add_to_files_cleanList(filelist);
             obj.test_source_files_list_ = filelist;
-            
+
             obj.data_size_ = obj.n_files_to_use_*smpl_data_size*(4*9)/ ... %numWords*word_size = bytes
                 (1024*1024*1024); %Convert to GB
         end
@@ -247,7 +248,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             ds = pc.get_data_to_store();
             clob_par_config = onCleanup(@()set(pc,ds));
             pc.working_directory=pwd;
-            
+
             if nargin <= 2
                 n_workers = 0;
             else
@@ -278,7 +279,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
                 targ_file = fullfile(obj.working_dir,obj.sqw_file);
                 obj.sqw_file = targ_file;
             end
-            
+
             % define location of the sqw file to be the same as working
             % directory
             fp = fileparts(obj.sqw_file);
@@ -286,25 +287,25 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
                 targ_file = fullfile(obj.working_dir,obj.sqw_file);
                 obj.sqw_file = targ_file;
             end
-            
+
             obj.add_to_files_cleanList(obj.sqw_file)
             if tests_to_run(1)
                 perf_res=obj.gen_sqw_task_performance(field_names_map);
             end
-            
+
             if tests_to_run(2)
                 perf_res = obj.small_cut_task_performance(field_names_map);
             end
-            
+
             % check nopix performance -- read and integrate the whole file from the HDD
             if tests_to_run(3)
                 perf_res = obj.large_cut_nopix_task_performance(field_names_map);
             end
-            
+
             if tests_to_run(4)
                 perf_res = obj.large_cut_pix_fbased_task_perfornance(field_names_map);
             end
-            
+
             % spurious check to ensure the cleanup object is not deleted
             % before the end of the test
             assertTrue(isa(clob_wk,'onCleanup'))
@@ -313,11 +314,11 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         function names = build_default_test_names(obj,nwk,varargin)
             % generate default test names to use as keys for performance
             % database structure
-            
+
             % Inputs:
             % nwk      -- Number of parallel workers used to run the algorithm
             % addinfo  -- char array, describing other properties of the algorithm.
-            
+
             % Returns:
             % map in the form key=test name, value -- cellarray of subtests
             % to run for the given test.
@@ -360,7 +361,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             else
                 nwkc = num2str(n_workers);
             end
-            
+
             an = hc.parallel_workers_number;
             if bsp && an > 1
                 clob = onCleanup(@()set(hc,'build_sqw_in_parallel',bsp,'parallel_workers_number',an));

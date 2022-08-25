@@ -14,11 +14,13 @@ classdef test_sqw_dnd_eval < TestCase
                 name = 'test_sqw_dnd_eval';
             end
             obj = obj@TestCase(name);
-            obj.data_dir = fullfile(horace_root(),'_test','common_data');
+            pths = horace_paths;
+            obj.data_dir = pths.test_common;
             test_sqw_file = fullfile(obj.data_dir,'sqw_2d_2.sqw');
             obj.sqw_4_test = sqw(test_sqw_file);
             obj.dnd_4_test = read_dnd(test_sqw_file);
         end
+
         function test_tobyfit(obj)
             %
             sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
