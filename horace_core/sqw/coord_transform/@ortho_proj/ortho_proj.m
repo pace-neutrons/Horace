@@ -237,13 +237,8 @@ classdef ortho_proj<aProjection
         % TODO: remove when new SQW object is fully implemented
         %
         function mat = get.u_to_rlu(obj)
-  %          if ~isempty(obj.ub_inv_compat_) % TODO: fudge! BUG! should be integrated in the
-  %              % the changes to projection!!!!
-  %              mat = obj.ub_inv_compat_;
- %           else
-                [~, mat] = obj.uv_to_rot();
- %           end
-            mat = [mat,[0;0;0];[0,0,0,1]];
+            %
+            mat = get_u_to_rlu_mat(obj);
         end
         function off = get.uoffset(obj)
             off = obj.offset';
@@ -364,11 +359,16 @@ classdef ortho_proj<aProjection
         end
     end
     methods(Access = protected)
-        function is = check_validity(obj)
-            % overload this property to verify validity of interdependent
-            % properties
-            is = obj.isvalid_;
+        function  mat = get_u_to_rlu_mat(obj)
+            % overloadavble accessor for getting value for ub matrix
+            % property
+            [~, mat] = obj.uv_to_rot();
+
+            mat = [mat,[0;0;0];[0,0,0,1]];
+
         end
+
+
         %------------------------------------------------------------------
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...

@@ -1,5 +1,4 @@
-function uproj=calculate_uproj_pixels(win,opt)
-%DODO: Use generic projection Ticket #836
+function img_coord = calculate_uproj_pixels(win,opt)
 % Calculate coordinates in projection axes for the pixels in an sqw dataset
 %
 %   >> qw=calculate_uproj_pixels(win)
@@ -14,11 +13,8 @@ function uproj=calculate_uproj_pixels(win,opt)
 %
 % Output:
 % -------
-%   u       Components of pixels in the dataset along the projection axes
-%           Arrays are packaged as cell array of column vectors for convenience
-%           with fitting routines etc.
-%               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
-
+% img_coord  4xnpix array of components of pixels in the dataset along 
+%            the projection axes
 
 % Original author: T.G.Perring
 
@@ -34,42 +30,15 @@ if exist('opt','var')
         step = true;
     else
         error('HORACE:calculate_uproj_pixels:invalid_argument',...
-        'Invalid optional argument - the only permitted option is ''step''')
+            'Invalid optional argument - the only permitted option is ''step''')
     end
 end
 
-header_ave=header_average(win);
+img_coord = win.data.proj.transform_pix_to_img(win.pix.coordinates);
 
-upix_offset = header_ave.uoffset;
-upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
-
-uproj_to_rlu = win.data.u_to_rlu(1:3,1:3);
-uproj_offset = win.data.offset';
-
-iax = win.data.iax;
-iint = win.data.iint;
-pax = win.data.pax;
-p = win.data.p;
-
-% Get bin centres and step sizes
-ustep = zeros(1,4);
-for i=1:numel(pax)
-    ustep(pax(i)) = (p{i}(end)-p{i}(1))/(numel(p{i})-1);
-end
-for i=1:numel(iax)
-    ustep(iax(i)) = abs(iint(2,i)-iint(1,i));    % taks abs to ensure always >=0
-end
-
-% Get pixels in appropriate units along projection axes
 if step
-    uproj_to_rlu = repmat(ustep(1:3),3,1).*uproj_to_rlu;
+    % Get bin centres and step sizes    
+    img_range = win.data.axes.img_range;
+    step = (img_range(2,:)-img_range(1,:))./win.data.axes.nbins_all_dims;
+    img_coord = (img_coord-img_range(1,:)')./step';
 end
-u = (uproj_to_rlu\upix_to_rlu)*win.pix.q_coordinates -...
-    uproj_to_rlu\(uproj_offset(1:3)-upix_offset(1:3));
-en = (win.pix.dE - (uproj_offset(4)-upix_offset(4)));
-if step
-    en = en/ustep(4);
-end
-
-% package as cell array of column vectors
-uproj = {u(1,:)', u(2,:)', u(3,:)', en'};

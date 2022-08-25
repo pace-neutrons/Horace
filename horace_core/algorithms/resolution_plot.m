@@ -209,6 +209,7 @@ header.en = en;
 header.uoffset = [0,0,0,0]';
 header.u_to_rlu = zeros(4,4);
 [~, header.u_to_rlu(1:3,1:3),spec_to_rlu] = lat.calc_proj_matrix();
+%[~, header.u_to_rlu(1:3,1:3)] = lat.calc_proj_matrix();
 header.u_to_rlu(4,4) = 1;
 header.ulen = [1,1,1,1];
 header.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
@@ -226,10 +227,8 @@ else
     sample.alatt = lat.alatt;
     sample.angdeg = lat.angdeg;
 end
-exper = Experiment([],instrument,sample);
-exper.expdata = expdata;
 
-wres.experiment_info = exper;
+wres.experiment_info = Experiment([],instrument,sample,expdata);
 
 
 % Check detector
@@ -251,12 +250,19 @@ wres.detpar = detpar;
 % Make data structure
 
 if ~isempty(proj)
+    proj.do_check_combo_arg = false;
     proj.alatt = lat.alatt;
-    proj.angdeg = lat.angdeg;    
+    proj.angdeg = lat.angdeg;
+    proj.u = lat.u;
+    proj.v = lat.v;
+    proj.do_check_combo_arg = true;
+    proj = proj.check_combo_arg();
 else
-    proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg);
+    proj = fudge_proj('alatt',lat.alatt,'angdeg',lat.angdeg);
+    proj.spec_to_rlu = spec_to_rlu;
 end
-proj = proj.set_ub_inv_compat(spec_to_rlu);
+%proj = proj.set_ub_inv_compat(spec_to_rlu); % This operation was in the
+%                                              previous code and it looks completely wrong
 ax = axes_block('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));
 ax.label = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 
@@ -290,7 +296,7 @@ if newplot
     % Delete the meaningless colorslider and unwanted title
     colorslider('delete')
     delete(get(gca,'title'))
-    
+
     % If spectrometer coordinates, then give meaningful axes titles
     Angstrom=char(197);     % Angstrom symbol
     title_ax = cell(4,1);
@@ -298,10 +304,10 @@ if newplot
     title_ax{2} = ['Q perp k_i (in-plane) (',Angstrom,'^{-1})'];
     title_ax{3} = ['Q vertically up  (',Angstrom,'^{-1})'];
     title_ax{4} = 'Energy transfer  (meV)';
-    
+
     xlabel(title_ax(pax(1)))
     ylabel(title_ax(pax(2)))
-    
+
     % Round up limits
     lx('round')
     ly('round')
