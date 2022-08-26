@@ -1,4 +1,4 @@
-function [figureHandle, axesHandle, plotHandle] = plot(w,varargin)
+function varargout = plot(w,varargin)
 % Plot 1D, 2D or 3D sqw object or array of objects
 %
 %   >> plot(w)
@@ -33,6 +33,6 @@ switch nd
 end
 
 % Output only if requested
-if nargout>=1, figureHandle=figureHandle_; end
-if nargout>=2, axesHandle=axesHandle_; end
-if nargout>=3, plotHandle=plotHandle_; end
+if nargout>=1, varargout{1} = figureHandle_; end
+if nargout>=2, varargout{2} = axesHandle_; end
+if nargout>=3, varargout{3} = plotHandle_; end

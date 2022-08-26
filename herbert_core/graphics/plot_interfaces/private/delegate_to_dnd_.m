@@ -1,4 +1,4 @@
-function  varargout = delegate_to_dnd_( ...
+function  out = delegate_to_dnd_( ...
     obj,nout,method_name,varargin)
 % invoke appropriate plotting method on dnd object of sqw object or array
 % of objects provided as input
@@ -19,7 +19,7 @@ nobj = numel(obj);
 %         'pd','pdoc','pe','peoc','ph','phoc','pl','ploc','pm','pmoc','pp','ppoc',...
 %         'pa','paoc','ps','ps2','ps2oc','psoc'};
 %     is_op = ismember(method,overplot_methods); % check if the method is overplot method
-
+out = cell(1,nout);
 switch(nout)
     case 0
         for i=1:nobj
@@ -27,15 +27,15 @@ switch(nout)
         end
     case 1
         for i=1:nobj
-            varargout{1} = feval(method_name,obj(i).data,varargin{:});
+            out{1} = feval(method_name,obj(i).data,varargin{:});
         end
     case 2
         for i=1:nobj
-            [varargout{1},varargout{2}]=feval(method_name,obj(i).data,varargin{:});
+            [out{1},out{2}]=feval(method_name,obj(i).data,varargin{:});
         end
     case 3
         for i=1:nobj
-            [varargout{1},varargout{2},varargout{3}]=feval(method_name,obj(i).data,varargin{:});
+            [out{1},out{2},out{3}]=feval(method_name,obj(i).data,varargin{:});
         end
 
     otherwise

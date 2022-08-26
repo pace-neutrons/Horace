@@ -97,7 +97,7 @@ ustep = step(pax);
 xpstep = xp_ok ./ repmat(ustep,size(xp_ok,1),1);
 
 % Get components along projection axes of the pixels in the sqw object
-uprojstep = calculate_uproj_pixels (win, 'step');   % in units of steps
+uprojstep = calculate_uproj_pixels (win, step);   % in units of steps
 uprojstep = uprojstep';
 
 ipix = zeros(numel(ind),1);
