@@ -328,11 +328,11 @@ if ~all(fcalc_filled | bcalc_filled)
 end
 
 % Adding scalar zeros to array is equivalent without the need for excess memory
-fcalc(~fcalc_filled) = 0; %zeros(size(bcalc(~fcalc_filled)));
-fvar(~fcalc_filled) = 0; %zeros(size(bvar(~fcalc_filled)));
+fcalc(~fcalc_filled) = {0}; %zeros(size(bcalc(~fcalc_filled)));
+fvar(~fcalc_filled) = {0}; %zeros(size(bvar(~fcalc_filled)));
 
-bcalc(~bcalc_filled) = 0; %zeros(size(fcalc(~bcalc_filled)));
-bvar(~bcalc_filled) = 0; %zeros(size(fvar(~bcalc_filled)));
+bcalc(~bcalc_filled) = {0}; %zeros(size(fcalc(~bcalc_filled)));
+bvar(~bcalc_filled) = {0}; %zeros(size(fvar(~bcalc_filled)));
 
 ycalc = cellfun(@plus, fcalc, bcalc, 'UniformOutput', false);
 varcalc = cellfun(@plus, fvar, bvar, 'UniformOutput', false);
