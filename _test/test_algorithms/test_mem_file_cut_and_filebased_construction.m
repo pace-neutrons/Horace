@@ -191,8 +191,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
 
             s1_s=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_f_h=cut(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
-            assertEqualToTol(s1_s,s1_f_h,[1.e-7,1.e-7], ...
-                             'Memory based and file based cuts are different: ','ignore_str', 1)
+            assertEqualToTol(s1_s,s1_f_h,[1.e-7,1.e-7],'ignore_str', 1)
         end
 
         function test_cut_file_multichunk_vs_memory(obj)
@@ -209,8 +208,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             s1_s=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_f_h=cut(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
 
-            assertEqualToTol(s1_s,s1_f_h,[1.e-7,1.e-7], ...
-                             'Memory based and file based cuts are different: ','ignore_str', 1)
+            assertEqualToTol(s1_s,s1_f_h,[1.e-7,1.e-7],'ignore_str', 1)
 
         end
 
@@ -222,7 +220,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             assertExceptionThrown(@()cut_dnd(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]), ...
                 'HORACE:cut_dnd:invalid_argument');
 
-            skipTest('Does not work and fixe needs cut_dnd to be refactored as proper method similar to cut_sqw.  Ticket #796')
+            skipTest('Does not work and fix needs cut_dnd to be refactored as proper method similar to cut_sqw.  Ticket #796')
             assertExceptionThrown(@()cut_dnd(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]), ...
                 'HORACE:cut_dnd:invalid_argument');
         end
