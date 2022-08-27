@@ -1,9 +1,9 @@
 function path=horace_on(non_default_hor_path,non_default_her_path)
 %  safely switches Horace on
-%  horace_on()                         -- calls Horace with default settings
-%  horace_on(non_default_horace_path)  -- calls Horace with non-default Horace folder;
+%  horace_on()                         -- initializes Horace with default settings
+%  horace_on(non_default_horace_path)  -- initializes Horace with non-default Horace folder;
 %  horace_on(non_default_horace_path,non_default_her_path)
-%                                      -- calls Horace with non-default Horace folder
+%                                      -- initializes Horace with non-default Horace folder
 %                                         and non-default Herbert folder,
 %                                         not located within non-default
 %                                         Horace folder (for old versions
@@ -17,7 +17,7 @@ default_horace_path  = '${Horace_CORE}';
 % with horace_on.m script.
 default_spinw_path = '/usr/local/mprogs/spinW';
 %
-if exist('non_default_hor_path','var')
+if exist('non_default_hor_path','var') && ~isempty(non_default_hor_path)
     if (strcmpi(non_default_hor_path,'where') || strcmpi(non_default_hor_path,'which'))
         path = find_default_hor_path(default_horace_path);
         return;
