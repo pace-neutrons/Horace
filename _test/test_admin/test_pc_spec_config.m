@@ -14,12 +14,36 @@ classdef test_pc_spec_config< TestCase
             this = this@TestCase(name);
             this.working_dir = tmp_dir;
         end
+        function test_optimal_config_can_not_have_memory_too_big(~)
+            cm = opt_config_manager();   
+            cm = cm.load_configuration();            
+            known_configs = cm.known_configurations;            
+            % 
+            % lets assume that we have win_small and it has so little
+            % memory, that known pc configuration is invalid
+            win_small_config = known_configs.win_small;
+            % let assume that we have identified pc with current configuration
+            % have twice as much memory as we may assume
+            hc = win_small_config.hor_config;
+            hc.mem_chunk_size = floor(cm.this_pc_memory*2*0.8/sqw_binfile_common.FILE_PIX_SIZE);
+            win_small_config.hor_config = hc;
+            known_configs.win_small = win_small_config;
+            cm = cm.set_known_configurations(known_configs);
+            % 
+            % 
+            % optimal configuration in this case should have reasonable
+            % amount of memory
+            cm.this_pc_type = 'win_small';
+            def_config = cm.optimal_config;            
+            hc = def_config.hor_config;
+            assertEqual(hc.mem_chunk_size,floor(cm.this_pc_memory*0.8/sqw_binfile_common.FILE_PIX_SIZE))
+        end
         %
-        function test_load_config(obj)
+        function test_load_config(~)
             cm = opt_config_manager();
             assertTrue(isempty(cm.optimal_config));
             %
-            % The strung sets configuration in memory. Should not be used
+            % The string sets configuration in memory. Should not be used
             % in tests.
             %cm = cm.load_configuration('-set_config','-change_only_default','-force_save');
             cm = cm.load_configuration();
@@ -86,7 +110,7 @@ classdef test_pc_spec_config< TestCase
             assertEqual(hc.log_level,ll);
         end
         
-        function test_is_current_idaaas(obj)
+        function test_is_current_idaaas(~)
             
             is = is_idaaas('some_host_name');
             assertFalse(is);
@@ -95,27 +119,27 @@ classdef test_pc_spec_config< TestCase
             assertTrue(is);
         end
         %
-        function test_set_wrong_pc_name(obj)
+        function test_set_wrong_pc_name(~)
             cm = opt_config_manager();
             try
                 cm.this_pc_type = 'rubbish';
                 assertTrue(false,'No exception was thrown on invalid configuration')
             catch ME
-                assertEqual(ME.identifier,'OPT_CONFIG_MANAGER:invalid_argument')
+                assertEqual(ME.identifier,'HERBERT:opt_config_manager:invalid_argument')
             end
         end
         %
-        function test_set_wrong_pc_id(obj)
+        function test_set_wrong_pc_id(~)
             cm = opt_config_manager();
             try
                 cm.this_pc_type = -1;
                 assertTrue(false,'No exception was thrown on invalid configuration')
             catch ME
-                assertEqual(ME.identifier,'OPT_CONFIG_MANAGER:invalid_argument')
+                assertEqual(ME.identifier,'HERBERT:opt_config_manager:invalid_argument')
             end
         end
         %
-        function test_set_pc_type_by_id(obj)
+        function test_set_pc_type_by_id(~)
             cm = opt_config_manager();
             kpc = cm.known_pc_types;
             ntypes = numel(kpc);
@@ -126,7 +150,7 @@ classdef test_pc_spec_config< TestCase
             end
         end
         %
-        function test_set_pc_id_by_name(obj)
+        function test_set_pc_id_by_name(~)
             cm = opt_config_manager();
             kpc = cm.known_pc_types;
             ntypes = numel(kpc);
