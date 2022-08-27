@@ -1,8 +1,13 @@
-function horace_path=horace_on(non_default_path)
+function path=horace_on(non_default_hor_path,non_default_her_path)
 %  safely switches Horace on
-%  horace_on()                         -- calls Horace with default settings
-%  horace_on(non_default_horace_path)  -- calls Horace with non-default Horace folder;
-%
+%  horace_on()                         -- initializes Horace with default settings
+%  horace_on(non_default_horace_path)  -- initializes Horace with non-default Horace folder;
+%  horace_on(non_default_horace_path,non_default_her_path)
+%                                      -- initializes Horace with non-default Horace folder
+%                                         and non-default Herbert folder,
+%                                         not located within non-default
+%                                         Horace folder (for old versions
+%                                         of Horace/Herbert pairs)
 %
 %
 default_horace_path  = '${Horace_CORE}';
@@ -12,9 +17,15 @@ default_horace_path  = '${Horace_CORE}';
 % with horace_on.m script.
 default_spinw_path = '/usr/local/mprogs/spinW';
 %
-if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
-    path = find_default_hor_path(default_horace_path);
-    return;
+if exist('non_default_hor_path','var') && ~isempty(non_default_hor_path)
+    if (strcmpi(non_default_hor_path,'where') || strcmpi(non_default_hor_path,'which'))
+        path = find_default_hor_path(default_horace_path);
+        return;
+    else
+        horace_path  = non_default_hor_path;
+    end
+else
+    horace_path = default_horace_path;
 end
 
 warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
@@ -30,26 +41,36 @@ if ~isempty(sw_start)
     spinw_on(default_spinw_path);
 end
 
-% if Herbert is not initialised, try to init it.
-if isempty(which('herbert_init.m'))
-    default_herbert_path = build_default_her_path(default_horace_path);
+if nargin > 1
+    independent_herbert = true;
+else
+    independent_herbert = false;
+end
+herbert_initated=~isempty(which('herbert_init.m'));
+% if Herbert is not initiated, try to init it.
+if ~herbert_initated
+    if independent_herbert
+        herbert_path = non_default_her_path;
+    else
+        herbert_path = build_default_her_path(horace_path);
+    end
     try
-        init_herbert(default_herbert_path);
+        init_herbert(herbert_path);
     catch ME
         disp('HORACE:horace_on:bad_dependencies cannot initialise Herbert');
         rethrow(ME);
     end
 else % reinitialize Herbert on where it is now.
-    her_path = fileparts(which('herbert_init.m'));
-    init_herbert(her_path);
+    if independent_herbert
+        init_herbert(non_default_her_path);
+    else
+        her_path = fileparts(which('herbert_init.m'));
+        init_herbert(her_path);
+    end
 end
 
 % init Horace
-if nargin==1
-    init_horace(non_default_path);
-else
-    init_horace(default_horace_path);
-end
+init_horace(horace_path);
 
 horace_path = fileparts(which('horace_init.m'));
 %
