@@ -23,7 +23,7 @@ function [u,v,w,type,nonortho]=uv_from_rlu_mat_(obj,u_rot_mat,ulen)
 %u_rot_mat(:,i) = ubinv(:,i)*ulen(i);
 
 
-ulen_inv = 1./ulen;
+ulen_inv = 1./ulen(:)';
 ubinv = u_rot_mat.*repmat(ulen_inv,3,1);
 ubmat = inv(ubinv); % correctly recovered ubmatrix; ulen matrix extracted
 b_mat = bmatrix(obj.alatt,obj.angdeg); % converts hkl to Crystal Cartesian

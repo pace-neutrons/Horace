@@ -187,7 +187,11 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,4];
             data.iint=[1;30];
             data.p={1:10;1:20;1:40};
-            do = data_sqw_dnd(data);
+            ax = axes_block.get_from_old_data(data);
+            proj = ortho_proj.get_from_old_data(data);
+            
+            do = data_sqw_dnd(ax,proj);
+            
 
             proj1=do.get_projection();
             opt = ortho_projTester(proj1);
@@ -215,7 +219,10 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,3,4];
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
-            do = data_sqw_dnd(data);
+            ax = axes_block.get_from_old_data(data);
+            proj = ortho_proj.get_from_old_data(data);
+            
+            do = data_sqw_dnd(ax,proj);
 
             proj1=do.get_projection();
             opt = ortho_projTester(proj1);
@@ -240,7 +247,9 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,3,4];
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
-            do = data_sqw_dnd(data);
+            ax = axes_block.get_from_old_data(data);
+            proj = ortho_proj.get_from_old_data(data);
+            do = data_sqw_dnd(ax,proj);
 
             proj = ortho_proj('alatt',data.alatt,'angdeg',data.angdeg,...
                 'label',{'a','b','c','d'},'type','aaa');
