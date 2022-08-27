@@ -61,10 +61,10 @@ classdef ClusterSlurm < ClusterWrapper
             })
         sjob_reaction_ = containers.Map(ClusterSlurm.sacct_state_abbr_,...
             {'running','paused','paused','paused','finished','failed','failed','failed',...
-            'failed','failed','failed','failed','failed'})        
+            'failed','failed','failed','failed','failed'})
     end
-    
-    
+
+
     methods
         function obj = ClusterSlurm(n_workers,mess_exchange_framework,...
                 log_level)
@@ -94,7 +94,7 @@ classdef ClusterSlurm < ClusterWrapper
                 '**** Slurm MPI job configured,  Starting MPI job  with %d workers ****\n';
             obj.started_info_message_  = ...
                 '**** Slurm MPI job with ID: %10d submitted                 ****\n';
-            
+
             % The default name of the messages framework, used for communications
             % between the nodes of the parallel job
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
@@ -112,8 +112,8 @@ classdef ClusterSlurm < ClusterWrapper
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
-            
-            
+
+
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
         %
@@ -135,8 +135,8 @@ classdef ClusterSlurm < ClusterWrapper
             end
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             obj.log_level = log_level;
-            
-            
+
+
             slurm_str = {'srun ',['-N',num2str(n_workers)],' --mpi=pmi2 '};
             %
             % May change for compiled Horace
@@ -151,19 +151,20 @@ classdef ClusterSlurm < ClusterWrapper
             % currently used as ISIS implementation does not transfer
             % environmental variables to cluster)
             obj.set_env();
-           
+
             % modify executor script values to export it to remote Slurm
             % session
-            run_source = fullfile(herbert_root,'herbert_core','admin','srun_runner.sh');
+            pths = horace_paths;
+            run_source = fullfile(pths.herbert,'admin','srun_runner.sh');
             [fp,fon] = fileparts(mess_exchange_framework.mess_exchange_folder);
             % the enviromental variables are transferred and stored and set
             % in the shel script
             runner= obj.create_runparam_script(run_source,...
                 fullfile(fp,[fon,'.sh']));
             obj.runner_script_name_  = runner;
-            
+
             queue0_rows = obj.get_queue_info();
-            
+
             run_str = [slurm_str{:},runner,' &'];
             %run_str = [slurm_str{:},runner];
             [failed,mess]=system(run_str);
@@ -175,16 +176,16 @@ classdef ClusterSlurm < ClusterWrapper
             % parse queue and extract new job ID
             obj = extract_job_id(obj,queue0_rows);
             obj.starting_cluster_name_ = sprintf('SlurmJobID%d',obj.slurm_job_id);
-            
+
             % check if job control API reported failure
             pause(obj.time_to_wait_for_job_running_);
             obj.check_failed();
-            
+
         end
         %
         function obj=finalize_all(obj)
             % complete parallel job execution
-            
+
             % close exchange framework and delete exchange folder
             obj = finalize_all@ClusterWrapper(obj);
             if ~isempty(obj.runner_script_name_)
@@ -319,7 +320,7 @@ classdef ClusterSlurm < ClusterWrapper
                 error('HERBERT:ClusterSlurm:invalid_argument',mess);
             end
             queue_rows = get_queue_info_(obj,full_header);
-            
+
         end
         %
         function queue_text = get_queue_text_from_system(obj,full_header)
@@ -336,7 +337,7 @@ classdef ClusterSlurm < ClusterWrapper
         %
         function obj=init_queue_parser(obj)
             % initialize parameters, needed for job queue management
-            
+
             % retrieve user name
             [fail,uname]=system('whoami');
             if fail
@@ -385,5 +386,5 @@ classdef ClusterSlurm < ClusterWrapper
             end
         end
     end
-    
+
 end

@@ -3,7 +3,7 @@ classdef common_state_holder < handle
     % completed
     properties
     end
-    
+
     methods
         function obj = common_state_holder()
             %
@@ -16,10 +16,11 @@ classdef common_state_holder < handle
                     'state',{'off','off'});
                 old_warn_state = warning(ws);
                 obj.store_holder(old_warn_state);
-                
+
                 % add path for deterministic pseudorandom sequence and
                 % common Herbert utilities
-                search_path_herbert_shared = fullfile(herbert_root, '_test/shared');
+                pths = horace_paths;
+                search_path_herbert_shared = fullfile(pths.test, 'shared');
                 obj.store_holder(search_path_herbert_shared);
                 addpath(search_path_herbert_shared);
             end
@@ -70,14 +71,14 @@ classdef common_state_holder < handle
                 stor_val = '';
                 return
             end
-            
+
             if isfield(storage,field_name)
                 stor_val = storage.(field_name);
             else
                 stor_val  = '';
             end
             storage.(field_name) = var_to_store;
-            
+
         end
         function count = call_count(direction)
             % return persistent call counter
@@ -110,4 +111,3 @@ classdef common_state_holder < handle
         end
     end
 end
-
