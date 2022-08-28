@@ -690,8 +690,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                     ~stored_reference(1).main_header.creation_date_defined)
                     % ignore creation date if comparing sqw objects (usually
                     % old and new sqw objects are stored)
-                    stored_reference.main_header.creation_date = datetime('now');
-                    var.main_header.creation_date = stored_reference.main_header.creation_date;
+                    for i=1:numel(stored_reference)
+                        stored_reference(i).main_header.creation_date = datetime('now');
+                        var(i).main_header.creation_date = stored_reference(i).main_header.creation_date;
+                    end
                 end
                 funcHandle(var, stored_reference, varargin{:})
             else

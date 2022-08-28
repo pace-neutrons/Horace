@@ -24,8 +24,8 @@ classdef test_IX_dataset_1d <  TestCase
 
             ds = d1d_obj.IX_dataset_1d();
 
-            assertEqual(ds.signal,d1d_obj.s');
-            assertEqual(ds.error,sqrt(d1d_obj.e'));
+            assertEqual(ds.signal,d1d_obj.s);
+            assertEqual(ds.error,sqrt(d1d_obj.e));
 
         end
         function test_properties(~)

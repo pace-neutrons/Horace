@@ -26,18 +26,45 @@ switch(nout)
             feval(method_name,obj(i).data,varargin{:});
         end
     case 1
-        for i=1:nobj
-            out{1} = feval(method_name,obj(i).data,varargin{:});
+        out{1}=feval(method_name,obj(1).data,varargin{:});
+        if nobj>1
+            addh_1 = cell(1,nobj); addh_1{1} = out{1};
+            for i=2:nobj
+                [addh_1{i}]=feval(method_name,obj(i).data,varargin{:});
+            end
+            out{1}= [addh_1{:}];
         end
     case 2
-        for i=1:nobj
-            [out{1},out{2}]=feval(method_name,obj(i).data,varargin{:});
+        [out{1},out{2}]=feval(method_name,obj(1).data,varargin{:});
+        if nobj>1
+            addh_1 = cell(1,nobj); addh_1{1} = out{1};
+            addh_2 = cell(1,nobj); addh_2{1} = out{2};
+            for i=2:nobj
+                [addh_1{i},addh_2{i}]=feval(method_name,obj(i).data,varargin{:});
+            end
+            out{1}= [addh_1{:}];
+            out{2}= [addh_2{:}];
         end
     case 3
-        for i=1:nobj
-            [out{1},out{2},out{3}]=feval(method_name,obj(i).data,varargin{:});
+        [out{1},out{2},out{3}]=feval(method_name,obj(1).data,varargin{:});
+        if nobj>1
+            addh_1 = cell(1,nobj); addh_1{1} = out{1};
+            addh_2 = cell(1,nobj); addh_2{1} = out{2};
+            addh_3 = cell(1,nobj); addh_3{1} = out{3};
+            for i=2:nobj
+                [addh_1{i},addh_2{i},addh_3{i}]=feval(method_name,obj(i).data,varargin{:});
+            end
+            out{1}= [addh_1{:}];
+            out{2}= [addh_2{:}];
+            cl_out = class(addh_3{1});
+            size_out = size(addh_3{1});
+            the_same = cellfun(@(x)(isa(x,cl_out) && all(size(x)==size_out)),addh_3);
+            if all(the_same )
+                out{3}= [addh_3{:}];
+            else
+                out{3} = addh_3;
+            end
         end
-
     otherwise
         error(['HORACE:',class(obj),':invalid_argument'], ...
             'unrecognized number %d of output parameters. From 0 to 3 allowed.',nout)

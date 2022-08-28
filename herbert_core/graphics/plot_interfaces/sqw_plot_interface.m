@@ -14,9 +14,7 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
                 delegate_to_dnd_(w,nout,'dd',varargin{:});
             else
                 out = delegate_to_dnd_(w,nout,'dd',varargin{:});
-                for i=1:nout
-                    varargout{i} = out{i};
-                end
+                for i=1:nout;varargout{i} = out{i};end
             end
         end
         function varargout= de(w,varargin)
@@ -26,9 +24,7 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
                 delegate_to_dnd_(w,nout,'de',varargin{:});
             else
                 out = delegate_to_dnd_(w,nout,'de',varargin{:});
-                for i=1:nout
-                    varargout{i} = out{i};
-                end
+                for i=1:nout;varargout{i} = out{i};end
             end
         end
         function varargout = dh(w,varargin)
@@ -39,9 +35,7 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
                     w,nout,'dh',varargin{:});
             else
                 out = delegate_to_dnd_(w,nout,'dh',varargin{:});
-                for i=1:nout
-                    varargout{i} = out{i};
-                end
+                for i=1:nout;varargout{i} = out{i};end
             end
         end
         function varargout = dl(w,varargin)
@@ -52,9 +46,7 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
                     w,nout,'dl',varargin{:});
             else
                 out = delegate_to_dnd_(w,nout,'dl',varargin{:});
-                for i=1:nout
-                    varargout{i} = out{i};
-                end
+                for i=1:nout; varargout{i} = out{i}; end
             end
         end
         function varargout = dm(w,varargin)
@@ -66,9 +58,7 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
                 delegate_to_dnd_(w,nout,'dm',varargin{:});
             else
                 out = delegate_to_dnd_(w,nout,'dm',varargin{:});
-                for i=1:nout
-                    varargout{i} = out{i};
-                end
+                for i=1:nout;varargout{i} = out{i};end
             end
 
         end
@@ -79,9 +69,7 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
                 delegate_to_dnd_(w,nout,'dp',varargin{:});
             else
                 out = delegate_to_dnd_(w,nout,'dp',varargin{:});
-                for i=1:nout
-                    varargout{i} = out{i};
-                end
+                for i=1:nout; varargout{i} = out{i}; end
             end
         end
         %------------------------------------------------------------------
@@ -94,9 +82,7 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
                 delegate_to_dnd_(w,nout,'pd',varargin{:});
             else
                 out = delegate_to_dnd_(w,nout,'pd',varargin{:});
-                for i=1:nout
-                    varargout{i} = out{i};
-                end
+                for i=1:nout;varargout{i} = out{i}; end
             end
         end
         function varargout = pdoc(w,varargin)
@@ -107,9 +93,7 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
                 delegate_to_dnd_(w,nout,'pdoc',varargin{:});
             else
                 out = delegate_to_dnd_(w,nout,'pdoc',varargin{:});
-                for i=1:nout
-                    varargout{i} = out{i};
-                end
+                for i=1:nout;varargout{i} = out{i}; end
             end
         end
         function varargout = pe(w,varargin)
@@ -117,9 +101,7 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
             % on an existing plot
             nout = nargout;
             out = delegate_to_dnd_(w,nout,'pe',varargin{:});
-            for i=1:nout
-                varargout{i} = out{i};
-            end
+            for i=1:nout;varargout{i} = out{i};end
 
         end
         function varargout = peoc(w,varargin)
