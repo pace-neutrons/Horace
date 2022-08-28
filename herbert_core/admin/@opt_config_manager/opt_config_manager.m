@@ -36,6 +36,12 @@ classdef opt_config_manager
         % The configuration, considered optimal for this particular pc type
         optimal_config;
     end
+    properties(Constant)
+        % transformation constant between mem_chunk_size in hor_config
+        % and this chunk size in bytes. Located here as this class may be
+        % invoked before full package is initialized
+        DEFAULT_PIX_SIZE = 36;
+    end
 
 
     properties(Access=private)
