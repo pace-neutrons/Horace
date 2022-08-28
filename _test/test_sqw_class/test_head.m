@@ -28,7 +28,7 @@ classdef test_head < TestCaseWithSave
                 argi = {varargin{1},test_data};
             end
             obj = obj@TestCaseWithSave(argi{:});
-            obj.common_data = fullfile(fileparts(com_data_path),'common_data');
+            obj.common_data = fullfile(fileparts(this_data_path),'common_data');
 
             obj.test_sqw_1d_fullpath = fullfile(obj.common_data, obj.sqw_file_1d_name);
             obj.test_sqw_2d_fullpath = fullfile(obj.common_data, obj.sqw_file_2d_name);
@@ -48,8 +48,14 @@ classdef test_head < TestCaseWithSave
             hd = head(obj.d1d_obj,'-full');
             assertEqualWithSave(obj,hd);
         end
+        function test_head_dnd_1d(obj)
+            hd = head(obj.d1d_obj.data);
 
-        function test_head_1d(obj)
+            assertEqualWithSave(obj,hd);
+        end
+        
+
+        function test_head_sqw_1d(obj)
             hd = head(obj.d1d_obj);
 
             assertEqualWithSave(obj,hd);

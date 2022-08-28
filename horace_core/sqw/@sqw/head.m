@@ -39,10 +39,13 @@ function varargout = head(obj,varargin)
 
 
 % Check input arguments
+[ok,mess,full_data] = parse_char_options(varargin,{'-full'});
+if ~ok
+    error('HORACE:head:invalid_argument',mess);
+end
 
 nout = nargout;
 nw = numel(obj);
-
 if nout==0
     for i=1:nw
         display(obj(i));
@@ -50,10 +53,10 @@ if nout==0
 else
     hout = cell(1,nw);
     for i=1:nw
-        hout{i} =obj(i).data.to_head_struct(varargin{:});
+        hout{i} =obj(i).data.to_head_struct(full_data);
         hout{i}.npixels = obj(i).pix.num_pixels;
         hout{i}.nfiles   = obj(i).main_header.nfiles;
-        hout{i}.creation_data= obj(i).main_header.creation_date;
+        hout{i}.creation_date= obj(i).main_header.creation_date;
     end
 end
 if nout>0
