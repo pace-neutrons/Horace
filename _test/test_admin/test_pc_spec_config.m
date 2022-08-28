@@ -25,7 +25,7 @@ classdef test_pc_spec_config< TestCase
             % let assume that we have identified pc with current configuration
             % have twice as much memory as we may assume
             hc = win_small_config.hor_config;
-            hc.mem_chunk_size = floor(cm.this_pc_memory*2*0.8/sqw_binfile_common.FILE_PIX_SIZE);
+            hc.mem_chunk_size = floor(cm.this_pc_memory*2*0.8/opt_config_manager.DEFAULT_PIX_SIZE);
             win_small_config.hor_config = hc;
             known_configs.win_small = win_small_config;
             cm = cm.set_known_configurations(known_configs);
@@ -36,7 +36,7 @@ classdef test_pc_spec_config< TestCase
             cm.this_pc_type = 'win_small';
             def_config = cm.optimal_config;            
             hc = def_config.hor_config;
-            assertEqual(hc.mem_chunk_size,floor(cm.this_pc_memory*0.8/sqw_binfile_common.FILE_PIX_SIZE))
+            assertEqual(hc.mem_chunk_size,floor(cm.this_pc_memory*0.8/opt_config_manager.DEFAULT_PIX_SIZE))
         end
         %
         function test_load_config(~)

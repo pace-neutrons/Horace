@@ -14,6 +14,6 @@ obj.current_config_ = config_data.(current_pc);
 % the 0.8 of available memory
 hc = obj.current_config_.hor_config;
 if hc.mem_chunk_size*obj.DEFAULT_PIX_SIZE > 0.8*obj.this_pc_memory_
-    hc.mem_chunk_size = floor(0.8*obj.this_pc_memory_/sqw_binfile_common.FILE_PIX_SIZE);
+    hc.mem_chunk_size = floor(0.8*obj.this_pc_memory_/obj.DEFAULT_PIX_SIZE);
     obj.current_config_.hor_config = hc;
 end
