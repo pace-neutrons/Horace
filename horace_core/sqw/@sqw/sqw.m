@@ -308,12 +308,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         function [nd,sz] = dimensions(obj)
             % return size and shape of the image arrays
-            if isempty(obj.data_)
-                nd = [];
-                sz = [];
-            else
-                [nd,sz] = obj.data_.dimensions();
-            end
+             [nd,sz] = obj.data_.dimensions();
         end
     end
 

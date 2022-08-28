@@ -18,7 +18,7 @@ function varargout = plot(w,varargin)
 % or >> help sqw/sliceomatic as appropriate
 
 
-nd=w.dimensions();
+nd=w(1).dimensions();
 
 switch nd
     case 1

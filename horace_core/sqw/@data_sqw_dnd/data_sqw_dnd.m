@@ -1,6 +1,8 @@
 classdef data_sqw_dnd < DnDBase
-    % Transient class, left for loading data from old format .mat files
+    % Transient class used as part of sqw object in the Horace, version < 4.0
+    % and  left for loading data from old format .mat files.
     %
+    % Do not use in any new development
     properties(Dependent)
         pix;
 
@@ -246,8 +248,8 @@ classdef data_sqw_dnd < DnDBase
             % rebinning.
             % TODO: remove this property setter or enable rebinning algorithm
             % on its change
-            warning('HORACE:data_sqw_dnd:runtime_error',...
-                'using redundant property img_db_range. Use set/get.img_range instead')
+            %warning('HORACE:data_sqw_dnd:runtime_error',...
+            %    'using redundant property img_db_range. Use set/get.img_range instead')
             obj.img_range = val;
         end
         function nd = get.NUM_DIMS(obj)
