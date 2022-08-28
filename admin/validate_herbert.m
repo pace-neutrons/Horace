@@ -27,7 +27,7 @@ function err = validate_herbert(varargin)
 
 % For running from shell script:
 err = -1;
-if isempty(which('herbert_init'))
+if isempty(which('horace_init'))
     horace_on();
 end
 
