@@ -71,7 +71,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = mask_pixels(win, mask_array);
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
-        
+
 
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
@@ -308,7 +308,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         function [nd,sz] = dimensions(obj)
             % return size and shape of the image arrays
-             [nd,sz] = obj(1).data_.dimensions();
+            [nd,sz] = obj(1).data_.dimensions();
+        end
+        function str = saveobj(obj)
+            if ~obj.main_header_.creation_date_defined
+                % support old files, which do not have creation date defined
+                obj.main_header_.creation_date = datetime('now');
+            end
+            str = saveobj@serializable(obj);
         end
     end
 

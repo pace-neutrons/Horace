@@ -61,10 +61,10 @@ classdef test_fake_sqw_bin_pix < TestCase
             w_mex=read_sqw(sqw_file_single);
 
 
-            n_det_out = sum(w_mex.data.pix.detector_idx < 1 | w_mex.data.pix.detector_idx > 36864);
+            n_det_out = sum(w_mex.pix.detector_idx < 1 | w_mex.pix.detector_idx > 36864);
             assertEqual(0,n_det_out,'found detectors with ID-s outp of the range allowed');
 
-            n_en_zeros = sum(w_mex.data.pix.energy_idx==0);
+            n_en_zeros = sum(w_mex.pix.energy_idx==0);
             assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
 
 
@@ -73,9 +73,9 @@ classdef test_fake_sqw_bin_pix < TestCase
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_nomex=read_sqw(sqw_file_single);
-            n_det_out = sum(w_nomex.data.pix.detector_idx<1 | w_nomex.data.pix.detector_idx>36864);
+            n_det_out = sum(w_nomex.pix.detector_idx<1 | w_nomex.pix.detector_idx>36864);
             assertEqual(0,n_det_out,'found detectors with ID-s outp of the range allowed');
-            n_en_zeros = sum(w_nomex.data.pix.energy_idx==0);
+            n_en_zeros = sum(w_nomex.pix.energy_idx==0);
             assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
 
 
@@ -123,10 +123,10 @@ classdef test_fake_sqw_bin_pix < TestCase
             w_mex=read_sqw(sqw_file_single);
 
 
-            n_det_out = sum(w_mex.data.pix.detector_idx<1 | w_mex.data.pix.detector_idx>96);
+            n_det_out = sum(w_mex.pix.detector_idx<1 | w_mex.pix.detector_idx>96);
             assertEqual(0,n_det_out,'found detectors with ID-s outp of the range allowed');
 
-            n_en_zeros = sum(w_mex.data.pix.energy_idx==0);
+            n_en_zeros = sum(w_mex.pix.energy_idx==0);
             assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
 
             %
@@ -137,9 +137,9 @@ classdef test_fake_sqw_bin_pix < TestCase
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_mex_thr=read_sqw(sqw_file_single);
-            n_det_out = sum(w_mex_thr.data.pix.detector_idx<1 | w_mex_thr.data.pix.detector_idx>96);
+            n_det_out = sum(w_mex_thr.pix.detector_idx<1 | w_mex_thr.pix.detector_idx>96);
             assertEqual(0,n_det_out,'found detectors with ID-s outp of the range allowed');
-            n_en_zeros = sum(w_mex_thr.data.pix.energy_idx==0);
+            n_en_zeros = sum(w_mex_thr.pix.energy_idx==0);
             assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
 
             % can not compare pixel arrays as pixel sorting will be
