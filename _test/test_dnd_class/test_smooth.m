@@ -106,7 +106,7 @@ classdef test_smooth < TestCaseWithSave
 
             d2d_smoorh100_gaus = d2d_obj.smooth(100, 'gaussian');
 
-            assertEqualToTolWithSave(obj,d2d_smoorh100_gaus,'ignore_str',true)
+            assertEqualToTolWithSave(obj,d2d_smoorh100_gaus,1.e-7,'ignore_str',true)
         end
 
         function test_smooth_raises_error_with_invalid_shape_arg(obj)
