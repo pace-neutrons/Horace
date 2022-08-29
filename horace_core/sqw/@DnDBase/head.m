@@ -46,18 +46,23 @@ end
 nout = nargout;
 
 nw = numel(obj);
-if nout==0
-    for i=1:nw
-        display(obj(i));
-    end
-else
-    hout = cell(1,nw);
-    for i=1:nw
-        hout{i} =obj(i).to_head_struct(hfull);
-    end
+
+hout = cell(1,nw);
+for i=1:nw
+    hout{i} =obj(i).to_head_struct(hfull);
 end
 
 if nout>0
-    varargout = hout(1:nout);
+    if nout == 1
+        varargout{1} = [hout{:}];
+    else
+        for i=1:nout
+            varargout{i} = hout{i};
+        end
+    end
+else
+    for i=1:nw
+        display(hout{i})
+    end
 end
 

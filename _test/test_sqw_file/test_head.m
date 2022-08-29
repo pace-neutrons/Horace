@@ -28,6 +28,7 @@ classdef test_head < TestCase
         function tearDown(~)
             warning('on','SQW_FILE_IO:legacy_data');
         end
+       
 
         function test_head_horace_multiout(obj)
             [out1,out2,out3] = head_horace(obj.files,'-full');

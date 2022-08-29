@@ -1,4 +1,4 @@
-classdef test_set_instrument_data_get_head< TestCase
+classdef test_set_instrument_data< TestCase
     properties
         data_inst;
         data_inst_ref;
@@ -9,9 +9,9 @@ classdef test_set_instrument_data_get_head< TestCase
 
 
     methods
-        function obj = test_set_instrument_data_get_head(varargin)
+        function obj = test_set_instrument_data(varargin)
             if nargin < 1
-                name = 'test_set_instrument_data_get_head';
+                name = 'test_set_instrument_data';
             else
                 name = varargin{1};
             end
@@ -102,20 +102,7 @@ classdef test_set_instrument_data_get_head< TestCase
             assertTrue(isa(inst,'IX_inst'));
             assertEqual(inst.name,'_');
             %% --------------------------------------------------------------------------------------------------
-            % Header:
-            % ---------
-            % First on object:
-
-            % Head without return argument works
-            %HACK: should be ivoked without lhs to check disp option
-            hh=head(obj.w1);
-            hh=head(obj.w1,'-full');
             % assertThrowsNothing!
-
-            h_obj_s=head(obj.w1);
-            h_obj=head(obj.w1,'-full');
-            assertEqual(h_obj,h_obj_s)
-
         end
         function test_get_ei_set_ei(obj)
 

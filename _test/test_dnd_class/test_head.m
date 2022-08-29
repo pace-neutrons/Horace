@@ -36,6 +36,31 @@ classdef test_head < TestCaseWithSave
             obj.d1d_obj = read_dnd(obj.test_sqw_1d_fullpath);
             obj.save();
         end
+        function test_head_no_arg_full_works(obj)
+            % Header:
+
+            % Head without return argument works
+            try
+                head(obj.d1d_obj,'-full');
+            catch ME
+                assertTrue(works,ME.message);
+            end
+        end
+
+        function test_head_no_arg_works(obj)
+            % Header:
+            % ---------
+            % First on object:
+
+            % Head without return argument works
+            works = false;
+            try
+                head(obj.d1d_obj);
+            catch ME
+                assertTrue(works,ME.message);
+            end
+        end
+        
         function test_head_1d_multi(obj)
             obj_arr = [obj.d1d_obj,obj.d1d_obj];
             [hd1,hd2] = head(obj_arr);

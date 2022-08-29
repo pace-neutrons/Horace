@@ -46,19 +46,24 @@ end
 
 nout = nargout;
 nw = numel(obj);
-if nout==0
-    for i=1:nw
-        display(obj(i));
+hout = cell(1,nw);
+for i=1:nw
+    hout{i} =obj(i).data.to_head_struct(full_data);
+    hout{i}.npixels = obj(i).pix.num_pixels;
+    hout{i}.nfiles   = obj(i).main_header.nfiles;
+    hout{i}.creation_date= obj(i).main_header.creation_date;
+end
+
+if nout>0
+    if nout == 1
+        varargout{1} = [hout{:}];
+    else
+        for i=1:nout
+            varargout{i} = hout{i};
+        end
     end
 else
-    hout = cell(1,nw);
     for i=1:nw
-        hout{i} =obj(i).data.to_head_struct(full_data);
-        hout{i}.npixels = obj(i).pix.num_pixels;
-        hout{i}.nfiles   = obj(i).main_header.nfiles;
-        hout{i}.creation_date= obj(i).main_header.creation_date;
+        display(hout{i})
     end
-end
-if nout>0
-    varargout = hout(1:nout);
 end
