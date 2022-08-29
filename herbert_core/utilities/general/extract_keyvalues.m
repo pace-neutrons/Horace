@@ -24,10 +24,6 @@ function [keyval,data]=extract_keyvalues(arglist,keywords)
 % Throws an error if a key is not followed by a value e.g:
 
 
-% Original author: A.Buts
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-
 
 % Catch case of empty data cell array
 if numel(arglist) == 0
