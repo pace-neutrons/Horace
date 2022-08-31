@@ -24,7 +24,6 @@ set(TEST_DIRECTORIES_HORACE
     "test_ascii_column_data"
     "test_change_crystal"
     "test_combine"
-    "test_configuration"
     "test_converters"
     "test_dnd_class"
     "test_experiment"
