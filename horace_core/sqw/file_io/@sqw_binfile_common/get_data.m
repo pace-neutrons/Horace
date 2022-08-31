@@ -31,13 +31,6 @@ function [data,obj] = get_data(obj,varargin)
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
-% Keyword Arguments:
-% ------------------
-%   pixel_page_size    The maximum amount of memory to allocate to holding
-%                      pixel data. This argument is passed to the PixelData
-%                      constructor's 'mem_alloc' argument.
-%                      The value should have units of bytes.
-%
 % Output:
 % -------
 
@@ -113,7 +106,7 @@ if ~ok
 end
 if nopix
     warning('HORACE:invalid_argument', ...
-        '-nopix option in get_data is depricated. New data do not contain pixel information. Use get_pix to obtain pixel data')
+        '-nopix option in get_data is deprecated. New data do not contain pixel information. Use get_pix to obtain pixel data')
 end
 
 [data_str,obj] = get_data@dnd_binfile_common(obj,argi{:});

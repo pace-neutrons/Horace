@@ -50,7 +50,23 @@ if ~isfield(S,'version') || S.version<4
             end
             if isa(ss.data,'data_sqw_dnd')
                 hav = header_average(ss.experiment_info);
-                proj = ss.data.get_projection(hav);
+                if isempty(hav.alatt) % no actual header, happens in old test files
+                    proj = ss.data.get_projection();     
+                    exper = IX_experiment('','','alatt',proj.alatt,'angdeg',proj.angdeg);
+                    if isempty(ss.data.pix)
+                        exper.run_id = 1;
+                    else
+                        exper.run_id = unique(ss.data.pix.run_idx);                        
+                        if numel(exper.run_id)>1
+                            error('HORACE:sqw:invalid_argumet', ...
+                                'the sqw object without header refers to more then 1 run according to pixels run_id')
+                        end
+                    end
+                    ss.experiment_info.expdata = exper;
+                    ss.main_header.nfiles = 1;
+                else
+                    proj = ss.data.get_projection(hav);
+                end
                 ax   = ss.data.axes;
                 ss.pix = ss.data.pix;
                 ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
@@ -58,7 +74,9 @@ if ~isfield(S,'version') || S.version<4
         end
         proj = ss.data.proj;
         header_av = ss.experiment_info.header_average();
-        ss.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+        if ~isempty(header_av.u_to_rlu)
+            ss.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+        end
         
         % guard against old data formats, which may or may not contain
         % runid map and the map may or may not correspond to

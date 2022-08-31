@@ -317,6 +317,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
             str = saveobj@serializable(obj);
         end
+        function is = dnd_type(obj)
+            is = isempty(obj.pix_);
+        end
     end
 
     methods(Static)

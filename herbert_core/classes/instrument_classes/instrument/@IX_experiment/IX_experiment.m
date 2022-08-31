@@ -15,16 +15,16 @@ classdef IX_experiment < serializable
 
     properties
         efix = []
-        emode=[]
+        emode=1
 
-        cu=[];
-        cv=[];
-        psi=[];
-        omega=[];
-        dpsi=[];
-        gl=[];
-        gs=[];
-        uoffset=[];
+        cu=[1,0,0];
+        cv=[0,1,0];
+        psi=0;
+        omega=0;
+        dpsi=0;
+        gl=0;
+        gs=0;
+        uoffset=[0,0,0,0];
         u_to_rlu=[];
         ulen=[];
         ulabel=[];

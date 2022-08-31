@@ -17,12 +17,6 @@ function [data_str,obj] = get_data (obj,varargin)
 %                  '-head'
 %                  '-verbatim'
 %
-% Keyword Arguments:
-% ------------------
-%   pixel_page_size    The maximum amount of memory to allocate to holding
-%                      pixel data. This argument is passed to the PixelData
-%                      constructor's 'mem_alloc' argument.
-%                      The value should have units of bytes.
 %
 % Output:
 % -------
@@ -160,11 +154,6 @@ if header_only || noclass
     data_str.img_range = axes_block.calc_img_db_range(data_str );
     return;
 end
-%data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in
-%                        %  binary file into the form, suitable for
-%                        %  recovering using serializable class methods, as
-%                        %  data_sqw_dnd is serializable
-%data_str = serializable.from_struct(data_str);
 %
 proj = ortho_proj.get_from_old_data(data_str);
 ax   = axes_block.get_from_old_data(data_str);

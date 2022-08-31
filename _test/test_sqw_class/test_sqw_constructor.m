@@ -121,7 +121,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             mat_stored_new = from_file.sqw_obj; % expand variable into full
             % variable with name to provide assertEqual with the variable
             % name
-            assertEqualToTol(mat_stored_new, sqw_obj,[1.e-15,1.e-15]);
+            assertEqualToTol(mat_stored_new, sqw_obj,[1.e-15,1.e-15],'-ignore_date');
 
             old_file = fullfile(obj.test_dir,'data','sqw_loadobj_test_v3_6_1.mat');
             from_file = load(old_file);

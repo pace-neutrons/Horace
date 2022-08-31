@@ -30,20 +30,24 @@ else
 end
 
 function sqw_dnd_obj=obj_from_faccessor(ldr)
-% Get sqw/dnd object from appropriatly initialized file accessor
+% Get sqw/dnd object from appropriately initialized file accessor
 %
 if ldr.sqw_type
-    % harmonize pixel_page_size and mem_chunk_size
     hc = hor_config;
-    mem_pix_page_size  = hc.mem_page_chunk_size_byte_conversion;
-    page_size          = hc.pixel_page_size;
-    if page_size<mem_pix_page_size  % TODO:  this normally should happen in testing only
-        mem_pix_page_size = page_size; % only one variable (mem_chunk or  page_size should
-        % remain in a future)
+    mem          = sys_memory();
+    page_size    = hc.pixel_page_size;
+    crit = min(0.3*mem,3*page_size); % TODO: is this rule well justified?
+    % here we check and load data -- if they are small enough, they are
+    % loaded in memory, but if large according to criteria, filebased
+    % algorithm invoked
+    if ldr.npixels*sqw_binfile_common.FILE_PIX_SIZE > crit
+        % Load the .sqw file using the sqw constructor so that we can pass the
+        % pixel_page_size argument to get an sqw with file-backed pixels.
+        sqw_dnd_obj = sqw(ldr, 'pixel_page_size', mem_pix_page_size);
+    else
+        % load everything in memory
+        sqw_dnd_obj = sqw(ldr);
     end
-    % Load the .sqw file using the sqw constructor so that we can pass the
-    % pixel_page_size argument to get an sqw with file-backed pixels.
-    sqw_dnd_obj = sqw(ldr, 'pixel_page_size', mem_pix_page_size);
 else
     % In contrast to the above case, we can use the loader to get the dnd
     % as no extra constructor arguments are required.

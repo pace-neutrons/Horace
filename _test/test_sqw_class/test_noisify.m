@@ -54,7 +54,7 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             noisy_obj1 = noisify(sqw_obj1,noise_factor,'random_number_function',myrng);
 
             % step 2 load sqw object to memory
-            % We make another sqw objectfrom the same file
+            % We make another sqw object from the same file
             sqw_obj2 = read_sqw(obj.test_sqw_file_full_path);
             % and we noisify it
             % - reset pseudorandom number distribution. If this reverted to

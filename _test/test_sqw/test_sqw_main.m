@@ -12,10 +12,9 @@ classdef test_sqw_main < TestCase & common_state_holder
         end
         
         function test_sqw_constructor(~)
-            skipTest("Construction of sqw from data_sqw_dnd not yet available");
-            data = data_sqw_dnd();
+            data = d2d();
             sqw_obj = sqw(data);
-            assertTrue(sqw_obj.data.dnd_type)
+            assertTrue(sqw_obj.dnd_type)
         end
         
         function test_read_sqw(obj)

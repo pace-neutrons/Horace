@@ -11,7 +11,7 @@ classdef test_sqw_eval < TestCase & common_state_holder
         sqw_2d_file_path = '../common_data/sqw_2d_1.sqw';
         sqw_2d_sqw_eval_ref_obj;
         sqw_2d_sqw_eval_ref_file = 'test_sqw_eval_gauss_ref.sqw';
-        sqw_2d_pix_pg_size = 3e5; % Gives us 6 pages
+        sqw_2d_pix_pg_size = floor(3e5/36); % Gives us 6 pages
 
         gauss_sqw;
         gauss_params;
@@ -224,9 +224,9 @@ classdef test_sqw_eval < TestCase & common_state_holder
             skipTest('PAGED SQW: this test uses paged sqw file, which then saved into final SQW. This needs to be fixed')
         end
 
-        function test_output_is_given_outfile_if_filebacked_true(obj)
+        function test_output_is_given_outfile_if_filebacked_true(obj)            
             conf_cleanup = set_temporary_config_options( ...
-                hor_config, 'pixel_page_size', obj.sqw_2d_pix_pg_size ...
+                hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size ...
                 );
 
             outfile = gen_tmp_file_path();

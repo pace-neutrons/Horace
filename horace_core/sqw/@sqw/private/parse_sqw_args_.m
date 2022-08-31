@@ -23,9 +23,10 @@ args.pixel_page_size = parser.Results.pixel_page_size;
 
 if isa(input, 'SQWDnDBase')
     if isa(input, 'DnDBase')
-        error('HORACE:sqw:invalid_argument', 'SQW cannot be constructed from a DnD object');
+        args.data_struct = struct('data',input);
+    else
+        args.sqw_obj = input;        
     end
-    args.sqw_obj = input;
 elseif is_string(parser.Results.input)
     args.filename = input;
 elseif (isstruct(input)||isa(input,'dnd_file_interface')) && ~isempty(input)

@@ -178,7 +178,7 @@ classdef test_cut < TestCase & common_state_holder
 
 
             assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
+            skipTest('Instrument is not stored/restored properly. Horace ticket #797')
         end
 
 
@@ -338,11 +338,11 @@ classdef test_cut < TestCase & common_state_holder
 
         function test_you_can_take_an_out_of_memory_cut_with_tmp_files_with_mex(obj)
             skipTest('mex cutting is disabled for the time being')
-            pix_pg_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
+            mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup_config = set_temporary_config_options( ...
                 hor_config, ...
-                'pixel_page_size', pix_pg_size, ...
+                'mem_chunk_size', mem_chunk_size, ...
                 'use_mex', true ...
                 );
 
@@ -352,8 +352,8 @@ classdef test_cut < TestCase & common_state_holder
             ref_sqw = sqw(obj.ref_cut_file);
             output_sqw = sqw(outfile);
             %HACK: reference stored in binary file and one obtained from
-            %cut contains different representaion of empty instruments
-            % these representations have to be alighned
+            %cut contains different representation of empty instruments
+            % these representations have to be aligned
 
             ref_sqw.experiment_info.samples = output_sqw.experiment_info.samples;
             ref_sqw.experiment_info.instruments = output_sqw.experiment_info.instruments;
@@ -362,12 +362,12 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_you_can_take_an_out_of_memory_cut_with_tmp_files_no_mex(obj)
-            pix_pg_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
+            mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             hc = hor_config;
             cleanup_config_handle = set_temporary_config_options( ...
                 hc, ...
-                'pixel_page_size', pix_pg_size, ...
+                'mem_chunk_size', mem_chunk_size, ...
                 'use_mex', false ...
                 );
 
