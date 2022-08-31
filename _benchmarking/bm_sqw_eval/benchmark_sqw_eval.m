@@ -1,4 +1,4 @@
-function benchmark_sqw_eval(nDims,dataSource,dataSize,dataSet,objType,func_handle,params,nProcs,filename)
+function benchmark_sqw_eval(nDims,dataInfo,dataSet,objType,func_handle,params,nProcs,filename)
 %BENCHMARK_SQW_EVAL This funciton initiates the benchmarks for
 %sqw_eval()
 % This function is used to run all the individual benchamrks in the 3 
@@ -10,10 +10,11 @@ function benchmark_sqw_eval(nDims,dataSource,dataSize,dataSet,objType,func_handl
 % Inputs:
 %
 %   nDims       dimensions of the sqw objects to combine: [int: 1,2 or 3]
-%   dataSource  filepath to a saved sqw object or empty string
-%   dataSize    size of sqw objects to cut:
-%               [char: 'small','medium' or 'large' (10^7,10^8 and 10^9
-%               pixels) or an int from 6-10]
+%   dataInfo    size of the original sqw objects to combine:
+%               char type: 'small','medium' or 'large' (10^6,10^7 and 10^8
+%               pixels), an integer from 6-10 (number of pixels 
+%               in base sqw object to generate) or the filepath to an 
+%               existing sqw file
 %   dataSet     the size of the array of sqw objects
 %               [char: 'small','medium' or 'large' or an int]
 %   objType    type of object [string: "sqw" or "dnd"]
@@ -50,7 +51,7 @@ else
 end
 
 %% Start profiler
-sqw_dnd_obj = gen_bm_sqw_eval_data(nDims,dataSource,dataSize,dataSet,objType);
+sqw_dnd_obj = gen_bm_sqw_eval_data(nDims,dataInfo,dataSet,objType);
 profile on
 w_sqw=sqw_eval(sqw_dnd_obj,func_handle,params);
 prof_results = profile('info');

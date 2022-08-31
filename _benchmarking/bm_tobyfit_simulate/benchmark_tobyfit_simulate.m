@@ -1,4 +1,4 @@
-function benchmark_tobyfit_simulate(nDims,dataSource,dataSize,dataSet,nProcs,func_handle,params,filename)
+function benchmark_tobyfit_simulate(nDims,dataInfo,dataSet,nProcs,func_handle,params,filename)
 %BENCHMARK_TOBYFIT_SIMULATE This funciton initiates the benchmarks for
 %simulate()
 % This function is used to run all the individual benchamrks in the 3 
@@ -10,10 +10,11 @@ function benchmark_tobyfit_simulate(nDims,dataSource,dataSize,dataSet,nProcs,fun
 % Inputs:
 %
 %   nDims       dimensions of the sqw objects to combine: [int: 1,2 or 3]
-%   dataSource  filepath to a saved sqw object or emoty string
-%   dataSize    size of sqw objects to cut:
-%               [char: 'small','medium' or 'large' (10^7,10^8 and 10^9
-%               pixels) or an int from 6-10]
+%   dataInfo    size of the original sqw objects to combine:
+%               char type: 'small','medium' or 'large' (10^6,10^7 and 10^8
+%               pixels), an integer from 6-10 (number of pixels 
+%               in base sqw object to generate) or the filepath to an 
+%               existing sqw file
 %   dataSet     the size of the array of sqw objects
 %               [char: 'small','medium' or 'large'or an int]
 %   func_handle the name of the function to simulate
@@ -49,7 +50,7 @@ else
 end
 
 % Generate the sqw object for tobyfit
-sqw_obj = gen_bm_tobyfit_simulate_data(nDims,dataSource,dataSize,dataSet);
+sqw_obj = gen_bm_tobyfit_simulate_data(nDims,dataInfo,dataSet);
 nlist=0;
 sim_sqw=tobyfit(sqw_obj);
 sim_sqw = sim_sqw.set_local_foreground;
@@ -58,7 +59,7 @@ sim_sqw = sim_sqw.set_mc_points(2);
 sim_sqw = sim_sqw.set_options('listing',nlist);
 %% Start profiler
 profile on
-[wsim_1,simpar_1]=sim_sqw.simulate;
+[wsim_1,simpar_1]=sim_sqw.simulate();
 
 prof_results = profile('info');
 pths = horace_paths;

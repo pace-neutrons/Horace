@@ -11,15 +11,14 @@ classdef test_bm_func_eval_mediumData < TestCase
     properties
         function_name;
         func_handle = @slow_func;
-        func_1D_params={[175,1,0.05],@gauss,10^0};
-        func_2D_params={[350,1,100,0.05,0.05,0.05],@gauss2d,10^0};
+        func_1D_params={[175,1,0.05],@gauss,10^-1};
+        func_2D_params={[350,1,100,0.05,0.05,0.05],@gauss2d,10^-1};
         func_3D_params={[700,-1,2,500,0.05,0.05,0.04,0.05,0.05,0.05],...
-            @gauss3d,10^0};
+            @gauss3d,10^-1};
         func_4D_params={[700,-1,2,1,500,0.05,0.05,0.05,0.05,0.05,0.05,0.05...
-            ,0.05,0.05,0.05],@gauss4d,10^0};
+            ,0.05,0.05,0.05],@gauss4d,10^-1};
         common_data;
         dataSize = 'medium';
-        dataSource;
     end
     
     methods
@@ -32,7 +31,6 @@ classdef test_bm_func_eval_mediumData < TestCase
             obj = obj@TestCase(test_class_name);
             pths = horace_paths;
             obj.common_data = pths.bm_common;
-            obj.dataSource = fullfile(obj.common_data,'NumData8.sqw');
         end
                
         function test_bm_func_eval_1D_mediumData_smallNumber_1procs(obj)
@@ -40,7 +38,7 @@ classdef test_bm_func_eval_mediumData < TestCase
             nDims=1;
             dataSet = 'small';
             nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
         end
 
@@ -49,7 +47,7 @@ classdef test_bm_func_eval_mediumData < TestCase
             nDims=1;
             dataSet = 'medium';
             nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
         end
 
@@ -58,7 +56,7 @@ classdef test_bm_func_eval_mediumData < TestCase
             nDims=1;
             dataSet = 'large';
             nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
         end
 
@@ -67,7 +65,7 @@ classdef test_bm_func_eval_mediumData < TestCase
             nDims=2;
             dataSet = 'small';
             nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
         end
 
@@ -76,7 +74,7 @@ classdef test_bm_func_eval_mediumData < TestCase
             nDims=2;
             dataSet = 'medium';
             nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
         end
 
@@ -85,7 +83,7 @@ classdef test_bm_func_eval_mediumData < TestCase
             nDims=2;
             dataSet = 'large';
             nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
         end
 
@@ -94,7 +92,7 @@ classdef test_bm_func_eval_mediumData < TestCase
             nDims=3;
             dataSet = 'small';
             nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
         end
 
@@ -103,7 +101,7 @@ classdef test_bm_func_eval_mediumData < TestCase
             nDims=3;
             dataSet = 'medium';
             nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
         end
 
@@ -112,7 +110,7 @@ classdef test_bm_func_eval_mediumData < TestCase
             nDims=3;
             dataSet = 'large';
             nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
         end
 
@@ -121,7 +119,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=4;
 %             dataSet = 'small';
 %             nProcs = 1;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -130,7 +128,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=4;
 %             dataSet = 'medium';
 %             nProcs = 1;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -139,7 +137,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=4;
 %             dataSet = 'large';
 %             nProcs = 1;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 
@@ -150,7 +148,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=1;
 %             dataSet = 'small';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -159,7 +157,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=1;
 %             dataSet = 'medium';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -168,7 +166,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=1;
 %             dataSet = 'large';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -177,7 +175,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=2;
 %             dataSet = 'small';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -186,7 +184,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=2;
 %             dataSet = 'medium';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -195,7 +193,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=2;
 %             dataSet = 'large';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -204,7 +202,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=3;
 %             dataSet = 'small';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -213,7 +211,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=3;
 %             dataSet = 'medium';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -222,7 +220,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=3;
 %             dataSet = 'large';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -231,7 +229,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=4;
 %             dataSet = 'small';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -240,7 +238,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=4;
 %             dataSet = 'medium';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -249,7 +247,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=4;
 %             dataSet = 'large';
 %             nProcs = 2;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -258,7 +256,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=1;
 %             dataSet = 'small';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -267,7 +265,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=1;
 %             dataSet = 'medium';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -276,7 +274,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=1;
 %             dataSet = 'large';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 %         
@@ -285,7 +283,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=2;
 %             dataSet = 'small';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -294,7 +292,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=2;
 %             dataSet = 'medium';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -303,7 +301,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=2;
 %             dataSet = 'large';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -312,7 +310,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=3;
 %             dataSet = 'small';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -321,7 +319,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=3;
 %             dataSet = 'medium';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -330,7 +328,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=3;
 %             dataSet = 'large';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -339,7 +337,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=4;
 %             dataSet = 'small';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -348,7 +346,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=4;
 %             dataSet = 'medium';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -357,7 +355,7 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             nDims=4;
 %             dataSet = 'large';
 %             nProcs = 4;
-%             benchmark_func_eval(nDims,obj.dataSource,obj.dataSize,dataSet,...
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
 %                 obj.func_handle,obj.func_4D_params,nProcs,obj.function_name);
 %         end
 

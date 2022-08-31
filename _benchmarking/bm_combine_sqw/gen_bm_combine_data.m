@@ -1,4 +1,4 @@
-function [cut1, cutN] = gen_bm_combine_data(nDims,dataFile,dataSize,dataSet)
+function [cut1, cutN] = gen_bm_combine_data(nDims,dataInfo,dataSet)
 %GEN_BM_COMBINE_SQW This funciton generates the data needed to run
 %benchmarks of combine_sqw()
 % Using either a saved sqw object or generating an sqw using
@@ -7,10 +7,10 @@ function [cut1, cutN] = gen_bm_combine_data(nDims,dataFile,dataSize,dataSet)
 % Inputs:
 %
 %   nDims       dimensions of the sqw objects to combine: [1,2 or 3]
-%   dataFile    filepath to a saved sqw object or empty string
-%   dataSize    size of the original sqw objects to combine:
+%   dataInfo    info about the original sqw objects to combine:
 %               [char: 'small','medium' or 'large' (10^7,10^6 and 10^9
-%               pixels) or an integer from 6-10]
+%               pixels), an integer from 6-10] or a filepath to an existing
+%               sqw file
 %   dataSet     the amount of sqw objects to combine:
 %               [char: 'small', 'medium' or 'large' (2, 4 and 8 files 
 %               respectively) or a numeric amount]
@@ -19,26 +19,7 @@ function [cut1, cutN] = gen_bm_combine_data(nDims,dataFile,dataSize,dataSet)
 %   cut1        initial sqw obj to combine
 %   cutN        array of N sqw objects
 
-if is_file(dataFile)
-          dataSource=dataFile;
-else
-    switch dataSize
-        case 'small'
-            dataSource = gen_fake_sqw_data(7);
-        case 'medium'
-            dataSource = gen_fake_sqw_data(8);
-        case 'large'
-            dataSource = gen_fake_sqw_data(9);
-        otherwise
-            try
-                dataSource = gen_fake_sqw_data(dataSize);
-            catch
-                error("HORACE:gen_bm_data:invalid_argument"...
-                    ,"dataSize is the size of the sqw object : must be small, " + ...
-                    "medium, large (char type) or numeric (from 1 to 9)")
-            end
-    end
-end
+dataSource = gen_fake_sqw_data(dataInfo);
 
 switch nDims
     case 1
@@ -55,7 +36,6 @@ end
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 % Generate inital cut of sqw object
 cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-disp("Cut has: " + cut1.npixels + " pixels")
 % Generate additional cuts to combine, doubling number of pixels of the
 % additonal cuts
 switch dataSet

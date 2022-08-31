@@ -1,4 +1,4 @@
-function sqw_obj = gen_bm_sqw_eval_data(nDims,dataFile,dataSize,dataSet,objType)
+function sqw_obj = gen_bm_sqw_eval_data(nDims,dataInfo,dataSet,objType)
 %GEN_BM_SQW_EVAL_DATA This funciton generates the data needed to run
 %benchmarks of sqw_eval()
 % Using either a saved sqw object or generating an sqw using
@@ -6,10 +6,10 @@ function sqw_obj = gen_bm_sqw_eval_data(nDims,dataFile,dataSize,dataSet,objType)
 % Inputs:
 %
 %   nDims       dimensions of the sqw objects: [1,2 or 3]
-%   dataFile    filepath to a saved sqw object or else empty string
-%   dataSize    size of the original sqw objects:
-%               [char: 'small','medium' or 'large' (10^7,10^8 and 10^9
-%               pixels) or an integer from 6-10]
+%   dataInfo    info about the original sqw objects to combine:
+%               [char: 'small','medium' or 'large' (10^7,10^6 and 10^9
+%               pixels), an integer from 6-10] or a filepath to an existing
+%               sqw file
 %   dataSet     the amount of sqw objects in the array:
 %               [char: 'small', 'medium' or 'large' (2, 4 and 8 files 
 %               respectively) or a numeric amount]
@@ -20,29 +20,13 @@ function sqw_obj = gen_bm_sqw_eval_data(nDims,dataFile,dataSize,dataSet,objType)
 
 % Check if there is alredy an exisiting sqw object to use, otherwise
 % generate it
-if is_file(dataFile)
-          dataSource=dataFile;
-else
-    switch dataSize
-        case 'small'
-            dataSource = gen_fake_sqw_data(7);
-        case 'medium'
-            dataSource = gen_fake_sqw_data(8);
-        case 'large'
-            dataSource = gen_fake_sqw_data(9);
-        otherwise
-            try
-                dataSource = gen_fake_sqw_data(dataSize);
-            catch
-                error("HORACE:gen_bm_sqw_eval_data:invalid_argument"...
-                    ,"dataSize is the size of the sqw object : must be small, " + ...
-                    "medium, large (char type) or numeric (from 1 to 9)")
-            end
-    end
-end
+dataSource = gen_fake_sqw_data(dataInfo);
 
 % Generate cuts of the given sqw or dnd objects
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
+
+% oct96 use switch here instead of if and add lower(objtype) to be case
+% insensitive
 if objType == "sqw"
     switch nDims
         case 1

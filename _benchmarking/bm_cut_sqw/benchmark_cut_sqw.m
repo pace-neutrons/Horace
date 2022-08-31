@@ -1,4 +1,4 @@
-function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filename,contiguous)
+function benchmark_cut_sqw(nDims,dataInfo,objType,nProcs,eRange,filename,contiguous)
 %BENCHMARK_CUT_SQW This funciton initiates the benchmarks for
 %cut_sqw()
 % This function is used to run all the individual benchamrks in the 3 
@@ -10,10 +10,10 @@ function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filenam
 % Inputs:
 %
 %   nDims       dimensions of the sqw objects to combine: [int: 1,2 or 3]
-%   dataFile    filepath to a saved sqw object or emoty string
-%   dataSize    size of sqw objects to cut:
+%   dataInfo    details of sqw object to cut:
 %               [char: 'small','medium' or 'large' (10^7,10^8 and 10^9
-%               pixels) or an int from 6-10]
+%               pixels), an int from 6-10 or a filepath to exisiting sqw 
+%               file]
 %   objType     the type of object to cut [string: "sqw" or "dnd"]
 %   nProcs      the number of processors the benchmark will run on 
 %               [int > 0 for parallel code]
@@ -23,8 +23,9 @@ function benchmark_cut_sqw(nDims,dataFile,dataSize,objType,nProcs,eRange,filenam
 %   contiguous  make 4 contigous cuts of the same sqw object.
 %               boolean: true or false
 % Custom example:
-% >>> benchmark_cut_sqw(1,'',6,"sqw",1,"small",'custom.csv',false)
-% >>> benchmark_cut_sqw(1,'',6,"sqw",1,[0,175],'custom.csv',false)
+% >>> benchmark_cut_sqw(1,6,"sqw",1,"small",'custom.csv',false)
+% >>> benchmark_cut_sqw(1,'large',"sqw",1,[0,175],'custom.csv',false)
+% >>> benchmark_cut_sqw(1,'saved.sqw',"sqw",1,[0,175],'custom.csv',false)
 
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
 
@@ -102,7 +103,7 @@ end
 
 % Check if the "contiguous", has been set to true (will do 4 contiguous
 % cuts)
-dataSource = gen_bm_cut_data(dataFile,dataSize);
+dataSource = gen_bm_cut_data(dataInfo);
 profile on
 if contiguous
     switch objType

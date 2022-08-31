@@ -1,19 +1,77 @@
-function output_sqw = gen_fake_sqw_data(nData)
+function dataSource = gen_fake_sqw_data(dataInfo)
 %   This function will generate an sqw object for benchmarking using dummy_sqw
-%   Using the input parameter nData, dummy_sqw will generate an sqw object
-%   with the requested amount of pixel data. nData must be an integer
-%   ranging from 5 to 9. Depending on nData, an sqw object with
-%   10^nData pixels will be generated. Parameters fed into dummy_sqw, such
-%   as alatt, u, v are currently set to generate an iron sqw object.
-%   These parameters can be changed by the user.
+%   Using the input parameter dataInfo, dummy_sqw will generate an sqw object
+%   with the requested amount of pixel data.
+%   dataInfo must be:
+%       - an int from 6 to 10. Depending on dataInfo, an sqw object with
+%         10^nData pixels will be generated.
+%       - 'small', 'medium' or 'large' (char type) referring to 10^7,8,9 
+%         pixels respectively
+%       - filepath to an existing sqw file
+%   Parameters fed into dummy_sqw, such as alatt, u, v are currently set to
+%   generate an iron sqw object. These parameters can be changed by the user.
 % 
 % Inputs:
-% nData     an integer between [6-10]
+% dataInfo     information about the sqw file to generate:
+%
+% Outputs:
+% dataSource   filepath to the generated sqw file
 
-%% Set parameters for generating an sqw object
     pths = horace_paths;
     common_data = pths.bm_common;
-    sqw_file=[common_data,filesep,'NumData',num2str(nData),'.sqw']; % output sqw file
+%% Check if necessary sqw file exists, if not then generate it with gen_data()
+    if isnumeric(dataInfo)
+          nData=dataInfo;
+          dataSource = gen_data(nData,common_data);
+    elseif ischar(dataInfo)
+        switch dataInfo
+            case 'small'
+                if is_file(fullfile(common_data,'NumData7.sqw'))
+                    dataSource = fullfile(common_data,'NumData7.sqw');
+                else
+                    nData = 7;
+                    dataSource = gen_data(nData,common_data);
+                end
+            case 'medium'
+                if is_file(fullfile(common_data,'NumData8.sqw'))
+                    dataSource = fullfile(common_data,'NumData8.sqw');
+                else
+                    nData = 8;
+                    dataSource = gen_data(nData,common_data);
+                end
+            case 'large'
+                if is_file(fullfile(common_data,'NumData9.sqw'))
+                    dataSource = fullfile(common_data,'NumData9.sqw');
+                else
+                    nData = 9;
+                    dataSource = gen_data(nData,common_data);
+                end
+            otherwise
+                try
+                    if is_file(dataInfo)
+                        dataSource = dataInfo;
+                    else
+                        error("HORACE:gen_bm_data:invalid_argument" + ...
+                            "the filepath to this sqw object does not exist")
+                    end
+                catch
+                    error("HORACE:gen_bm_data:invalid_argument"...
+                        ,"dataInfo describes the sqw object : must be small, " + ...
+                        "medium, large (char type), numeric (from 6 to 10), or a " + ...
+                        "filepath to an existing sqw file (char type)")
+                end
+        end
+    else
+        error("HORACE:gen_bm_data:invalid_argument"...
+            ,"dataInfo describes the sqw object : must be small, " + ...
+            "medium, large (char type), numeric (from 6 to 10), or a " + ...
+            "filepath to an existing sqw file (char type)")
+    end
+    
+end
+
+function dataSource = gen_data(nData,common_data)
+%% Set parameters for generating an sqw object
     efix=787;
     emode=1;
     alatt=[2.87,2.87,2.87];
@@ -21,9 +79,7 @@ function output_sqw = gen_fake_sqw_data(nData)
     u=[1,0,0];
     v=[0,1,0];
     omega=0;dpsi=0;gl=0;gs=0;
-
-%% Set parameters for generating an sqw object
-
+    sqw_file=[common_data,filesep,'NumData',num2str(nData),'.sqw']; % output sqw file
 % Set e_bin_boundaries and psi to get npix in the right order of magnitude
     switch nData
         case 6 % Generates sqw obj with 10^6
@@ -64,12 +120,10 @@ function output_sqw = gen_fake_sqw_data(nData)
     detwidth = ones(size(theta2d)) .* 0.0254;   % in metres (1" diameter tubes)
     detheight = ones(size(theta2d)) .* 0.017;   % in metres (1m long tubes split into 256 "pixels")
     par_file = get_hor_format([r theta2d phi2d detwidth detheight [1:numel(theta2d)]']');
-    
     disp("--------------------------------------")
     disp("Generating sqw object with 10^" + nData + " pixels:")
     dummy_sqw(e_bin_boundaries,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
-    output_sqw = sqw_file;
+    dataSource = sqw_file;
     disp("Sqw object generated")
     disp("--------------------")
-    
 end
