@@ -12,7 +12,10 @@ function benchmark_gen_sqw(dataSize,dataSet,par_file_data,nProcs,filename)
 %
 % Inputs:
 %   - dataSize: the size and number of the energy bins.
-%             'small', 'medium' or 'large', or an integer: 0:X:efix
+%             'small', 'medium' or 'large', or an integer: 0:X:efix.
+%             Note: 'small' here will result in a small amount of large
+%             energy bins, and 'large' will result in a big amount of small
+%             energy bins.
 %   - dataSet: the amount of nxspe files to gnerate.
 %             'small', 'medium' or 'large' (12, 23 and 46 files respectively)
 %              or an integer amount of files (default psi angle is 90, so 90/X 
@@ -58,12 +61,13 @@ function benchmark_gen_sqw(dataSize,dataSet,par_file_data,nProcs,filename)
         efix);
     pths = horace_paths;
     gen_folder = fullfile(pths.bm,'bm_gen_sqw');
-    sqw_file = [gen_folder,filesep,'bm_sqw.sqw'];
+    sqw_file = fullfile(gen_folder,'bm_sqw.sqw');
     %% Start profiler
     profile on
     
     gen_sqw(nxspe_files,'',sqw_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
-    
+    %% dump benchmark info 
+    % ocr96: (setup seperate dumps functions for differnet type of dumps: html, all text(profsave), csv, just bm time...
     prof_results = profile('info');
     prof_folder = fullfile(pths.bm,'bm_gen_sqw');
     dump_profile(prof_results,fullfile(prof_folder,filename));

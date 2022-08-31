@@ -30,33 +30,35 @@ function benchmark_combine_sqw(nDims,dataInfo,dataSet,nProcs,filename)
 
 %% Setup nprocs and other config info with hpc_config() (save intial config details for later)
 
-hpc = hpc_config();
-cur_hpc_config = hpc.get_data_to_store();
-
-% remove configurations from memory. Ensure only stored configurations are
-% stored
-clear config_store;
-
-% % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
-cleanup_obj = onCleanup(@()benchmark_combine_sqw_cleanup(cur_hpc_config));
-
-% Set hpc config for benchmarks
-if nProcs > 0
-%     hpc.combine_parallel = true;
-    hpc.parallel_workers_number = nProcs;
-else
-%     hpc.combine_parallel=false;
-    warning("HORACE:benchmark_combine_sqw:invalid_argument",...
-        "nProcs currently only valid for 1, 2 and 4")
-end
-% Generate the needed data for combine_sqw()
-[cut1,cutN] = gen_bm_combine_data(nDims,dataInfo,dataSet);
-profile on
-wout = combine_sqw(cut1, cutN);
-prof_results = profile('info');
-pths = horace_paths;
-prof_folder = fullfile(pths.bm,'bm_combine_sqw');
-dump_profile(prof_results,fullfile(prof_folder,filename));
+    hpc = hpc_config();
+    cur_hpc_config = hpc.get_data_to_store();
+    
+    % remove configurations from memory. Ensure only stored configurations are
+    % stored
+    clear config_store;
+    
+    % % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
+    cleanup_obj = onCleanup(@()benchmark_combine_sqw_cleanup(cur_hpc_config));
+    
+    % Set hpc config for benchmarks
+    if nProcs > 0
+    %     hpc.combine_parallel = true;
+        hpc.parallel_workers_number = nProcs;
+    else
+    %     hpc.combine_parallel=false;
+        warning("HORACE:benchmark_combine_sqw:invalid_argument",...
+            "nProcs currently only valid for 1, 2 and 4")
+    end
+    % Generate the needed data for combine_sqw()
+    [cut1,cutN] = gen_bm_combine_data(nDims,dataInfo,dataSet);
+    profile on
+    wout = combine_sqw(cut1, cutN);
+    %% dump benchmark info 
+    % ocr96: (setup seperate dumps functions for differnet type of dumps: html, all text(profsave), csv, just bm time...
+    prof_results = profile('info');
+    pths = horace_paths;
+    prof_folder = fullfile(pths.bm,'bm_combine_sqw');
+    dump_profile(prof_results,fullfile(prof_folder,filename));
 end
 
 function benchmark_combine_sqw_cleanup(cur_hpc_config)

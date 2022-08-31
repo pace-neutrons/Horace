@@ -21,7 +21,9 @@ function [nxspe_file_names,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,detectorS
 %                'large' or an integer to split 787 into seperate bins.
 %   dataSet      the amount of nxspe files to generate. Char: 'small', 
 %                'medium' or 'large' (12, 23 and 46 files respectively)
-%                 or an integer amount of files.
+%                 or an integer amount of files (the integer here will 
+%                 divide 90 to give the final amountof nxspe files i.e.10 
+%                 will generate 9 files: 90/10).
 %   detectorSize  number of detectors. 'small','medium', or 'large'.
 %                 Corresponding to MAPS, MERLIN and LET.
 %   efix          Fixed energy (meV)                 [scalar or vector length nfile]
@@ -32,7 +34,7 @@ function [nxspe_file_names,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,detectorS
 %   psi                 Angle of u w.r.t. ki (deg) [scalar or vector length nfile]
 
     pths = horace_paths;
-    
+
     switch dataSize
         case 'small'
             en = 0:16:efix;

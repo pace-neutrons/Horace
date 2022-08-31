@@ -14,13 +14,10 @@ function dataSource = gen_bm_cut_data(dataInfo)
 % Output:
 %   dataSource  filepath to existing/generated sqw file
 
-% Check if there is alredy an exisiting sqw object to use, otherwise
-% generate it
+    % Check if there is alredy an exisiting sqw object to use, otherwise
+    % generate it
 
-% add additional checks to check that datafile and datasize are checked
-% make a single variable and check if numeric or char else error out
-
-dataSource = gen_fake_sqw_data(dataInfo);
+    dataSource = gen_fake_sqw_data(dataInfo);
 
 end
 
