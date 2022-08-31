@@ -185,7 +185,7 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_output_file_of_out_of_memory_op_matches_reference_data(obj)
-            mem_chunk_size = floor(3e5/36)
+            mem_chunk_size = floor(3e5/36);
             config_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', mem_chunk_size ...
                 );
@@ -206,7 +206,7 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_output_files_of_cell_array_of_files_on_out_of_memory_data(obj)
-            mem_chunk_size = floor(3e5/36)        
+            mem_chunk_size = floor(3e5/36);        
             config_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', mem_chunk_size ...
                 );
@@ -276,7 +276,7 @@ classdef test_func_eval < TestCase & common_state_holder
 
         function test_output_matches_ref_file_if_pixel_page_size_small(obj)
             skipTest("Need to resolve use of page size with merge of new sqw object");
-            mem_chunk_size = floor(3e5/36)            
+            mem_chunk_size = floor(3e5/36);            
             config_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', mem_chunk_size ...
                 );

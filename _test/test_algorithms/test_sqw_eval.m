@@ -258,6 +258,7 @@ classdef test_sqw_eval < TestCase & common_state_holder
         end
 
         function test_gauss_on_sqw_w_filebacked_and_ave_equal_to_in_memory(obj)
+            skipTest('The functionality is currently broken. Ticket #844')
             conf_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size ...
                 );

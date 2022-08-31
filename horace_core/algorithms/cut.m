@@ -35,15 +35,15 @@ function sqw_dnd_obj=obj_from_faccessor(ldr)
 if ldr.sqw_type
     hc = hor_config;
     mem          = sys_memory();
-    page_size    = hc.pixel_page_size;
-    crit = min(0.3*mem,3*page_size); % TODO: is this rule well justified?
+    pix_page_size    = hc.pixel_page_size;
+    crit = min(0.3*mem,3*pix_page_size); % TODO: is this rule well justified?
     % here we check and load data -- if they are small enough, they are
     % loaded in memory, but if large according to criteria, filebased
     % algorithm invoked
     if ldr.npixels*sqw_binfile_common.FILE_PIX_SIZE > crit
         % Load the .sqw file using the sqw constructor so that we can pass the
         % pixel_page_size argument to get an sqw with file-backed pixels.
-        sqw_dnd_obj = sqw(ldr, 'pixel_page_size', mem_pix_page_size);
+        sqw_dnd_obj = sqw(ldr, 'pixel_page_size', pix_page_size);
     else
         % load everything in memory
         sqw_dnd_obj = sqw(ldr);

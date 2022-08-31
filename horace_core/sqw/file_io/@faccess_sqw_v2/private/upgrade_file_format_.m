@@ -33,16 +33,18 @@ if isempty(new_obj.sqw_holder_) % all file positions except instrument and sampl
     % done.
     hc = hor_config;
     mem          = sys_memory();
-    page_size    = hc.pixel_page_size;
-    ll           = hc.log_level;    
-    crit = min(0.6*mem,6*page_size); % TODO: is this rule well justified?
-    
-    if ldr.num_pixels*sqw_binfile_common.FILE_PIX_SIZE > crit
-        fprintf(['*** Upgrading file format to a latest binary version.\n',...
-            '    This is once per-old file long operation, analysing the whole pixels array\n'])    
+    pix_page_size    = hc.pixel_page_size;
+    ll           = hc.log_level;
+    crit = min(0.6*mem,6*pix_page_size); % TODO: is this rule well justified?
+
+    if obj.npixels*sqw_binfile_common.FILE_PIX_SIZE > crit
+        if ll>0
+            fprintf(['*** Upgrading file format to a latest binary version.\n',...
+                '    This is once per-old file long operation, analysing the whole pixels array\n'])
+        end
         % Load the .sqw file using the sqw constructor so that we can pass the
         % pixel_page_size argument to get an sqw with file-backed pixels.
-        new_obj.sqw_holder_.pix = PixelData(obj,page_size);        
+        new_obj.sqw_holder_.pix = PixelData(obj,pix_page_size);
     else
         % load everything in memory
         new_obj.sqw_holder_.pix = PixelData(obj);
