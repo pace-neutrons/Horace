@@ -133,6 +133,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % smooth dnd object or array of dnd objects
         wout = smooth(win, varargin)
 
+        wout = change_crystal(win,varargin);
         %------------------------------------------------------------------
         % Accessors
         function pixels = has_pixels(w)

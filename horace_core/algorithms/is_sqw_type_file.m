@@ -1,7 +1,7 @@
-function [sqw_type, ndims, nfiles, filename, mess,ld] = is_sqw_type_file(w,infile)
+function [sqw_type, ndims, nfiles, filename, ld] = is_sqw_type_file(infile)
 % Determine if file contains data of an sqw-type object or dnd-type sqw object
-% 
-%   >> [sqw_type, ndims, nfiles, filename, mess] = is_sqw_type_file(w, infile)
+%
+%   >> [sqw_type, ndims, nfiles, filename,ld] = is_sqw_type_file(w, infile)
 %
 % Input:
 % --------
@@ -14,13 +14,11 @@ function [sqw_type, ndims, nfiles, filename, mess,ld] = is_sqw_type_file(w,infil
 %   ndims       Number of dimensions (array if more than one file)
 %   nfiles      Number of contributing spe data sets (array if more than one file)
 %   filename    Cell array of file names (even if only one file, this is still a cell array)
-%   mess        Error message; blank if no errors, non-blank otherwise
 %   ld          if mess is empty, list of loaders to get file information
 %               and load the file
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Default return values if there is an error
@@ -32,41 +30,37 @@ if ischar(infile) && numel(size(infile))==2
 elseif iscellstr(infile)
     filename=strtrim(infile);
 else
-    filename={};
-    mess='File name(s) must be character array or cell array of character strings';
-    return
+    error('HORACE:algorithms:invalid_argumemt',...
+        'File name(s) must be character array or cell array of character strings');
 end
 
 for i=1:numel(filename)
     if length(size(filename{i}))~=2 || size(filename{i},1)~=1
-        mess='File name(s) must be non-empty character array or cell array of character strings';
-        return
+        error('HORACE:algorithms:invalid_argumemt',...
+            'File name(s) must be non-empty character array or cell array of character strings');
     elseif ~exist(filename{i},'file')
-        mess=['File does not exist: ',filename{i}];
-        return
+        error('HORACE:algorithms:invalid_argumemt',...
+            'File: %s does not exist. ',filename{i});
     end
 end
-    
+
 % Simply an interface to private function that we wish to keep hidden
 sqw_type=true(size(filename));
 ndims=zeros(size(filename));
 nfiles=zeros(size(filename));
-try
-    ld = sqw_formats_factory.instance().get_loader(filename);
-    if ~iscell(ld)
-        ld = {ld};
-    end
-catch ME
-    mess = ME.message;
-    return;
+
+ld = sqw_formats_factory.instance().get_loader(filename);
+if ~iscell(ld)
+    ld = {ld};
 end
+
 for i=1:numel(filename)
     [sqw_type_tmp, ndims_tmp, nfiles_tmp] = get_sqw_type_from_ld(ld{i});   % must use temporary output arguments as may be unfilled if error
     sqw_type(i)=sqw_type_tmp;
     ndims(i)=ndims_tmp;
     nfiles(i)=nfiles_tmp;
 end
-mess='';
+
 
 function [sqw_type, ndims, nfiles] = get_sqw_type_from_ld(ld)
 % Get sqw_type and dimensionality of an sqw file on disk
@@ -93,6 +87,3 @@ if sqw_type
 else
     nfiles = 0;
 end
-
-
-

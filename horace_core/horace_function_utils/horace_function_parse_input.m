@@ -155,11 +155,9 @@ if narg>=2 && is_filename(varargin{2}) && ...
     %  - if sqw object: All files contain sqw data i.e. have pixel information.
     %  - if dnd object: All files must have the same dimensionality as the dummy object.
     %                  The files will be read as dnd data; any pixel information is ignored.
-    try
-        [sqw_type,ndims,nfiles,filename,mess,ld] = is_sqw_type_file(sqw,varargin{2});
-    catch
-        mess = 'Unable to read data file(s) - check file(s) exist and are Horace data file(s) (sqw or dnd type binary file)';
-    end
+
+    [sqw_type,ndims,nfiles,filename,ld] = is_sqw_type_file(varargin{2});
+    %
     if isempty(mess)
         [is_opt,opt_sqw,opt_dnd,opt_hor]=is_horace_data_file_opt(varargin{1});
         if is_opt

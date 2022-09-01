@@ -55,23 +55,7 @@ end
 % Perform operations
 % ------------------
 if w.source_is_file
-    for i = 1:numel(w.data)
-        ld = w.loaders_list{i};
-        data = ld.get_data('-nopix');
-        target_file = fullfile(ld.filepath,ld.filename);
-        ld = ld.set_file_to_update(target_file);
-        if ld.sqw_type
-            exp_info = ld.get_header('-all');
-            [exp_info, data]=change_crystal_alter_fields(exp_info,data,args{:});
-            ld = ld.put_headers(exp_info);
-            ld = ld.put_samples(exp_info.samples);
-        else
-            exp_info = struct([]);
-            [~, data] = change_crystal_alter_fields(exp_info,data,args{:});
-        end
-        ld = ld.put_dnd_metadata(data);
-        ld.delete();
-    end
+    change_crystal_sqw(w.data,args{:});
     argout = {};
 else
     argout{1} = w.data;

@@ -1,4 +1,4 @@
-function change_crystal_sqw(filenames,varargin)
+function wout = change_crystal (obj,varargin)
 % Change the crystal lattice and orientation of an sqw object or array of objects
 %
 % Most commonly:
@@ -43,12 +43,19 @@ function change_crystal_sqw(filenames,varargin)
 %    - call with inv(rlu_corr)
 %    - call with the original alatt, angdeg, u and v
 
-% Original author: T.G.Perring
-%
-
-
 % This routine is also used to change the crystal in sqw files, when it overwrites the input file.
 
-% Parse input
-% -----------
-change_crystal(filenames,varargin{:});
+
+
+% Perform operations
+% ------------------
+wout = obj;
+for i=1:numel(obj)
+    alatt0 = obj(i).data.alatt;
+    angdeg0 = obj(i).data.angdeg;
+    header = obj(i).experiment_info;
+    [alatt,angdeg,rlu_corr]=SQWDnDBase.parse_change_crystal_arguments(alatt0,angdeg0,header,varargin{:});
+    obj(i).data = change_crystal(obj(i).data,alatt,angdeg,rlu_corr,'-parsed');
+    obj(i).experiment_info = change_crystal(obj(i).experiment_info,alatt,angdeg,rlu_corr);
+end
+
