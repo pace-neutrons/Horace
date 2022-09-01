@@ -26,95 +26,95 @@ classdef test_bm_sqw_eval_largeData <TestCase
             obj.common_data = pths.bm_common;
         end
                 
-        function test_bm_sqw_eval_1D_sqw_largeData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'small';
-            nProcs = 1;
-            objType="sqw";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_1D_sqw_largeData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'medium';
-            nProcs = 1;
-            objType="sqw";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_1D_sqw_largeData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'large';
-            nProcs = 1;
-            objType="sqw";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_2D_sqw_largeData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'small';
-            nProcs = 1;
-            objType="sqw";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_2D_sqw_largeData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'medium';
-            nProcs = 1;
-            objType="sqw";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_2D_sqw_largeData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'large';
-            nProcs = 1;
-            objType="sqw";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_3D_sqw_largeData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'small';
-            nProcs = 1;
-            objType="sqw";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_3D_sqw_largeData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'medium';
-            nProcs = 1;
-            objType="sqw";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_3D_sqw_largeData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'large';
-            nProcs = 1;
-            objType="sqw";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
+%         function test_bm_sqw_eval_1D_sqw_largeData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             objType="sqw";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_1D_sqw_largeData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'medium';
+%             nProcs = 1;
+%             objType="sqw";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_1D_sqw_largeData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             objType="sqw";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_2D_sqw_largeData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             objType="sqw";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_2D_sqw_largeData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'medium';
+%             nProcs = 1;
+%             objType="sqw";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_2D_sqw_largeData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             objType="sqw";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_3D_sqw_largeData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             objType="sqw";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_3D_sqw_largeData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'medium';
+%             nProcs = 1;
+%             objType="sqw";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_3D_sqw_largeData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             objType="sqw";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
 
 %         function test_bm_sqw_eval_4D_sqw_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
@@ -146,95 +146,95 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
 %         end         
 
-         function test_bm_sqw_eval_1D_dnd_largeData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'small';
-            nProcs = 1;
-            objType="dnd";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_1D_dnd_largeData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'medium';
-            nProcs = 1;
-            objType="dnd";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_1D_dnd_largeData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'large';
-            nProcs = 1;
-            objType="dnd";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_2D_dnd_largeData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'small';
-            nProcs = 1;
-            objType="dnd";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_2D_dnd_largeData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'medium';
-            nProcs = 1;
-            objType="dnd";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_2D_dnd_largeData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'large';
-            nProcs = 1;
-            objType="dnd";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_3D_dnd_largeData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'small';
-            nProcs = 1;
-            objType="dnd";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_3D_dnd_largeData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'medium';
-            nProcs = 1;
-            objType="dnd";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
-
-        function test_bm_sqw_eval_3D_dnd_largeData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'large';
-            nProcs = 1;
-            objType="dnd";
-            benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-                obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-        end
+%          function test_bm_sqw_eval_1D_dnd_largeData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             objType="dnd";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_1D_dnd_largeData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'medium';
+%             nProcs = 1;
+%             objType="dnd";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_1D_dnd_largeData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             objType="dnd";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_2D_dnd_largeData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             objType="dnd";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_2D_dnd_largeData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'medium';
+%             nProcs = 1;
+%             objType="dnd";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_2D_dnd_largeData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             objType="dnd";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_3D_dnd_largeData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             objType="dnd";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_3D_dnd_largeData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'medium';
+%             nProcs = 1;
+%             objType="dnd";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_sqw_eval_3D_dnd_largeData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             objType="dnd";
+%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%         end
 
 %         function test_bm_sqw_eval_4D_dnd_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();

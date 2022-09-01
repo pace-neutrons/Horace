@@ -26,77 +26,77 @@ classdef test_bm_gen_sqw_largeData < TestCase
             obj = obj@TestCase(test_class_name);
         end
         
-        function test_bm_gen_sqw_largeData_smallNumber_smallDetector_1procs(obj)
-            obj.function_name = get_bm_name();
-            dataSet = 'small';
-            detectorSize = 'small';
-            nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
-        end
-
-        function test_bm_gen_sqw_largeData_mediumNumber_smallDetector_1procs(obj)
-            obj.function_name = get_bm_name();
-            dataSet = 'medium';
-            detectorSize = 'small';
-            nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
-        end
-
-        function test_bm_gen_sqw_largeData_largeNumber_smallDetector_1procs(obj)
-            obj.function_name = get_bm_name();
-            dataSet = 'large';
-            detectorSize = 'small';
-            nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
-        end
-
-        function test_bm_gen_sqw_largeData_smallNumber_mediumDetector_1procs(obj)
-            obj.function_name = get_bm_name();
-            dataSet = 'small';
-            detectorSize = 'medium';
-            nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
-        end
-
-        function test_bm_gen_sqw_largeData_mediumNumber_mediumDetector_1procs(obj)
-            obj.function_name = get_bm_name();
-            dataSet = 'medium';
-            detectorSize = 'medium';
-            nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
-        end
-
-        function test_bm_gen_sqw_largeData_largeNumber_mediumDetector_1procs(obj)
-            obj.function_name = get_bm_name();
-            dataSet = 'large';
-            detectorSize = 'medium';
-            nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
-        end
-
-        function test_bm_gen_sqw_largeData_smallNumber_largeDetector_1procs(obj)
-            obj.function_name = get_bm_name();
-            dataSet = 'small';
-            detectorSize = 'large';
-            nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
-        end
-
-        function test_bm_gen_sqw_largeData_mediumNumber_largeDetector_1procs(obj)
-            obj.function_name = get_bm_name();
-            dataSet = 'medium';
-            detectorSize = 'large';
-            nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
-        end
-
-        function test_bm_gen_sqw_largeData_largeNumber_largeDetector_1procs(obj)
-            obj.function_name = get_bm_name();
-            dataSet = 'large';
-            detectorSize = 'large';
-            nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
-        end
+%         function test_bm_gen_sqw_largeData_smallNumber_smallDetector_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             dataSet = 'small';
+%             detectorSize = 'small';
+%             nProcs = 1;
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_gen_sqw_largeData_mediumNumber_smallDetector_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             dataSet = 'medium';
+%             detectorSize = 'small';
+%             nProcs = 1;
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_gen_sqw_largeData_largeNumber_smallDetector_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             dataSet = 'large';
+%             detectorSize = 'small';
+%             nProcs = 1;
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_gen_sqw_largeData_smallNumber_mediumDetector_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             dataSet = 'small';
+%             detectorSize = 'medium';
+%             nProcs = 1;
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_gen_sqw_largeData_mediumNumber_mediumDetector_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             dataSet = 'medium';
+%             detectorSize = 'medium';
+%             nProcs = 1;
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_gen_sqw_largeData_largeNumber_mediumDetector_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             dataSet = 'large';
+%             detectorSize = 'medium';
+%             nProcs = 1;
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_gen_sqw_largeData_smallNumber_largeDetector_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             dataSet = 'small';
+%             detectorSize = 'large';
+%             nProcs = 1;
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_gen_sqw_largeData_mediumNumber_largeDetector_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             dataSet = 'medium';
+%             detectorSize = 'large';
+%             nProcs = 1;
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_gen_sqw_largeData_largeNumber_largeDetector_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             dataSet = 'large';
+%             detectorSize = 'large';
+%             nProcs = 1;
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%         end
         
 %% The following benchmarks are for multi-processor/parallel-enabled codes
 

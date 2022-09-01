@@ -33,86 +33,86 @@ classdef test_bm_func_eval_largeData < TestCase
             obj.common_data = pths.bm_common;
         end
         
-        function test_bm_func_eval_1D_largeData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'small';
-            nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
-                obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
-        end
-
-        function test_bm_func_eval_1D_largeData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'medium';
-            nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
-                obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
-        end
-
-        function test_bm_func_eval_1D_largeData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=1;
-            dataSet = 'large';
-            nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
-                obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
-        end
-
-        function test_bm_func_eval_2D_largeData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'small';
-            nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
-                obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
-        end
-
-        function test_bm_func_eval_2D_largeData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'medium';
-            nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
-                obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
-        end
-
-        function test_bm_func_eval_2D_largeData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=2;
-            dataSet = 'large';
-            nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
-                obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
-        end
-
-        function test_bm_func_eval_3D_largeData_smallNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'small';
-            nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
-                obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
-        end
-
-        function test_bm_func_eval_3D_largeData_mediumNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'medium';
-            nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
-                obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
-        end
-
-        function test_bm_func_eval_3D_largeData_largeNumber_1procs(obj)
-            obj.function_name = get_bm_name();
-            nDims=3;
-            dataSet = 'large';
-            nProcs = 1;
-            benchmark_func_eval(nDims,obj.dataSize,dataSet,...
-                obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
-        end
+%         function test_bm_func_eval_1D_largeData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
+%                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_1D_largeData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'medium';
+%             nProcs = 1;
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
+%                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_1D_largeData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=1;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
+%                 obj.func_handle,obj.func_1D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_2D_largeData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
+%                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_2D_largeData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'medium';
+%             nProcs = 1;
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
+%                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_2D_largeData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=2;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
+%                 obj.func_handle,obj.func_2D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_3D_largeData_smallNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'small';
+%             nProcs = 1;
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
+%                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_3D_largeData_mediumNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'medium';
+%             nProcs = 1;
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
+%                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
+%         end
+% 
+%         function test_bm_func_eval_3D_largeData_largeNumber_1procs(obj)
+%             obj.function_name = get_bm_name();
+%             nDims=3;
+%             dataSet = 'large';
+%             nProcs = 1;
+%             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
+%                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
+%         end
 
 %         function test_bm_func_eval_4D_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
