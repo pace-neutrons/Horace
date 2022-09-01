@@ -22,7 +22,8 @@ classdef test_main_header_operates_properly< TestCase
         function equal_date = get_closest_date(~,date_tested,date_now,time_spawn)
             % helper routine to get current date and time, close to one,
             % to be obtained from main_header_cl method, with purpose of
-            % testing the date to have expected value
+            % testing the date to have expected value accounting for the
+            % dealays the program run
             %
             % Use after main_header_cl.creation_date function is called.
             % Inputs:
@@ -118,22 +119,27 @@ classdef test_main_header_operates_properly< TestCase
 
         end
         function test_load_save_old_sqw_mat_file(obj)
+            % old source file, stored without the creation date
             source_file = fullfile(obj.sample_dir,'sqwfile_readwrite_testdata_base_objects.mat');
             ld = load(source_file,'f1_1');
             sq_old = ld.f1_1;
             cr_date = sq_old.main_header.creation_date;
             near_date = obj.get_closest_date(cr_date);
             assertTrue(isa(sq_old.main_header,'main_header_cl'));
+            % file is old, so creation date is poorly defined
             assertFalse(sq_old.main_header.creation_date_defined);
             assertEqual(cr_date,near_date);
 
             test_file = fullfile(obj.working_dir,'sample_test_load_save_old_sqw.mat');
             clOb = onCleanup(@()delete(test_file));
+            % here the creation date should be set
             save(test_file,'sq_old');
 
             ld = load(test_file);
             sq_rec = ld.sq_old;
-            assertEqual(sq_rec.main_header.creation_date,cr_date);
+            near_date = obj.get_closest_date(sq_rec.main_header.creation_date);
+            
+            assertEqual(sq_rec.main_header.creation_date,near_date );
             assertTrue(sq_rec.main_header.creation_date_defined);
         end
     end
