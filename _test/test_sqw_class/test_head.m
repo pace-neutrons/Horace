@@ -66,24 +66,24 @@ classdef test_head < TestCaseWithSave
             [hd1,hd2] = head(obj_arr);
             assertEqual(hd1,hd2);
 
-            assertEqualWithSave(obj,hd1);
+            assertEqualToTolWithSave(obj,hd1,4.e-9,'ignore_str',true);
         end
 
         function test_head_1d_full(obj)
             hd = head(obj.sq1d_obj,'-full');
-            assertEqualWithSave(obj,hd);
+            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
         end
         function test_head_dnd_1d(obj)
             hd = head(obj.sq1d_obj.data);
 
-            assertEqualWithSave(obj,hd);
+            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
         end
 
 
         function test_head_sqw_1d(obj)
             hd = head(obj.sq1d_obj);
 
-            assertEqualWithSave(obj,hd);
+            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
         end
     end
 end
