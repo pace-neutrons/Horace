@@ -49,7 +49,7 @@ function [cut1, cutN] = gen_bm_combine_data(nDims,dataInfo,dataSet)
         case 'large'
             cut2 = cut1;
             cut2.data.pix.signal = 2*cut1.data.pix.signal;
-            cutN=repmat(cut2,1,7);
+            cutN=repmat(cut2,1,5);
         otherwise
             try
                 cut2 = cut1;

@@ -48,7 +48,7 @@ function sqw_obj = gen_bm_func_eval_data(nDims,dataInfo,dataSet)
         case 'medium'
             sqw_obj = repmat(main_sqw,1,4);
         case 'large'
-            sqw_obj = repmat(main_sqw,1,8);
+            sqw_obj = repmat(main_sqw,1,6);
         otherwise
             try
                 sqw_obj = repmat(main_sqw,1,dataSet);
