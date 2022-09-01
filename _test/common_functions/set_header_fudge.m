@@ -10,7 +10,7 @@ else
     if isa(tmp,'Experiment')
         if numel(val)==1
             if strcmp(field,'instrument')
-                for i=1:numel(tmp.instruments)
+                for i=1:n_runs(tmp.instruments)
 
                     tmp.instruments{i}=val;
                 end
@@ -25,7 +25,7 @@ else
             end
         elseif numel(val)==numel(tmp.expdata)
             if strcmp(field,'instrument')
-                for i=1:numel(tmp.instruments)
+                for i=1:n_runs(tmp.instruments)
                     tmp.instruments{i}=val(i);
                 end
             elseif strcmp(field,'sample')

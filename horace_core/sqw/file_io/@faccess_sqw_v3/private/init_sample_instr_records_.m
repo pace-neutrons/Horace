@@ -33,7 +33,7 @@ else
     obj.([type,'_pos_']) = pos;
     data_form = obj.get_si_form();
     if data_block.all_same
-        if iscell(data)
+        if iscell(data) || (isa(data,'unique_objects_container') && strcmp(data.type,'{}'))
             [~,pos] = obj.sqw_serializer_.calculate_positions(data_form,data{1},pos);
         else
             [~,pos] = obj.sqw_serializer_.calculate_positions(data_form,data(1),pos);

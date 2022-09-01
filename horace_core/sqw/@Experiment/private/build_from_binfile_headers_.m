@@ -6,7 +6,7 @@ function exp_info = build_from_binfile_headers_(header)
 n_header = numel(header);
 exper = repmat(IX_experiment,1,n_header);
 samp = cell(n_header,1);
-inst = cell(n_header,1);
+inst = unique_objects_container('type','{}','baseclass','IX_inst'); %cell(n_header,1);
 for i=1:n_header
     if iscell(header)
         [exper(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(header{i});

@@ -67,6 +67,9 @@ if any(is_positional)
     % first
     % associate positional argument names with their values
     % set up positional arguments values
+    if numel(pos_arg_names)==4 && strcmp(pos_arg_names{2},'instruments')
+        %disp('instruments')
+    end
     for i=1:numel(pos_arg_val)
         obj.(pos_arg_names{i}) = pos_arg_val{i};
     end

@@ -23,24 +23,60 @@ if isempty(sample_or_instrument)
     if strcmp(class_base,'IX_samp')
         std_form = {IX_null_sample()};
     else
-        std_form = {IX_null_inst()};
+        std_form = unique_objects_container('type','{}','baseclass','IX_inst'); %{IX_null_inst()};
     end
     return;
 end
-if iscell(sample_or_instrument)
+if isa(sample_or_instrument,'unique_objects_container')
+    is = strcmp(class_base, sample_or_instrument.baseclass);
+    if ~is
+        std_form = unique_objects_container('type','{}','baseclass',class_base);
+    end 
+elseif iscell(sample_or_instrument)
     is = cellfun(@(x)isa(x,class_base),sample_or_instrument);
     is = all(is);
     if ~is
         std_form = {}; % will throw anyway
+    else
+        if isa(sample_or_instrument{1},'IX_samp')
+            % temporarily leave cell(IX_samp) as-is until its duplicates
+            % are also removed
+        elseif isa(sample_or_instrument{1},'IX_inst')
+            std_form = unique_objects_container('type','{}','baseclass',class_base);
+            for i = 1:numel(sample_or_instrument)
+                std_form = std_form.add(sample_or_instrument{i});
+            end
+        else
+            error('HORACE:check_sample_or_inst...:invalid_argument','must be inst or sample');
+        end
     end
 elseif isa(sample_or_instrument,class_base)
     is = true;
-    if numel(sample_or_instrument) == 1&& obj.n_runs>1 % replicate sample or instrument
-        % to have the sample per each run.
-        % TODO: it will be compressed container avoiding this.
-        sample_or_instrument = repmat(sample_or_instrument,1,obj.n_runs);
+    if strcmp(class_base,'IX_samp')
+        if numel(sample_or_instrument) == 1&& obj.n_runs>1 % replicate sample or instrument
+            % to have the sample per each run.
+            % TODO: it will be compressed container avoiding this.
+            sample_or_instrument = repmat(sample_or_instrument,1,obj.n_runs);
+        end
+        std_form = num2cell(sample_or_instrument);
+    elseif strcmp(class_base,'IX_inst')
+        std_form = unique_objects_container('type','{}','baseclass',class_base);
+        if numel(sample_or_instrument)==1
+            for i=1:max(1,obj.n_runs)
+                std_form = std_form.add(sample_or_instrument);
+            end
+        elseif numel(sample_or_instrument)==obj.n_runs
+            for i=1:obj.n_runs
+                std_form = std_form.add(sample_or_instrument(i));
+            end
+        else
+            error('HORACE:check_sample_or_inst...:invalid_argument',...
+                  'number of instruments must be 1 or  number of runs');
+        end
+    else
+        error('HORACE:check_sample_or_inst...:invalid_argument',...
+              'must be inst or sample (singleton)');
     end
-    std_form = num2cell(sample_or_instrument);
 else
     is = false;
 end

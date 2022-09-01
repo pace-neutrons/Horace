@@ -11,6 +11,22 @@ classdef test_unique_objects < TestCase
         end
         %
         %------------------------------------------------------------------
+        
+        function test_replace(~)
+            disp("test replace  ***");
+            uoc = unique_objects_container();
+            uoc{1} = 'a';
+            uoc{2} = 'b';
+            uoc{3} = 'c';
+            uoc.baseclass
+            uoc.type
+            uoc{1}='d';
+            uoc{3}='d';
+            uoc{2} = 'c';
+            uoc{3} = 'd';
+            uoc{1}='a';
+        end
+        
         function test_add_non_unique_objects(~)
             disp('Test: test_add_non_unique_objects');
             

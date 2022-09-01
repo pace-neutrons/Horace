@@ -58,7 +58,11 @@ for i=1:numel(fn)
         end
         % 2)---------------------------------------------------------------
     elseif ischar(fmt) % strings are always converted into standard form
+        try
         length = double(typecast(bytes(pos:pos+4-1),'int32'));
+        catch ME
+            disp('');
+        end
         pos = pos+4;
         if length == 0
             res = '';

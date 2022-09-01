@@ -1,8 +1,8 @@
 classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
 
-    properties(Access=protected)
-        instruments_ = {IX_null_inst()};
+    properties(Access=private)
+        instruments_ = unique_objects_container('type','{}','baseclass','IX_inst'); %{}; %IX_inst.empty;
         detector_arrays_ = []
         samples_ = {IX_null_sample()}; % IX_samp.empty;
         expdata_ = [];
@@ -124,9 +124,12 @@ classdef Experiment < serializable
             val=obj.instruments_;
         end
         function obj=set.instruments(obj, val)
+            if iscell(val)
+                %disp("set instruments");
+            end
             [is,std_form] = check_si_input(obj,val,'IX_inst');
             if is
-                obj.instruments_ = std_form(:)';
+                obj.instruments_ = std_form; %(:)';
             else
                 error('HORACE:Experiment:invalid_argument', ...
                     'instruments must be a cellarray or array of IX_inst objects . In fact it is %s',...
@@ -316,7 +319,7 @@ classdef Experiment < serializable
         function instr = get_unique_instruments(obj)
             % compatibility fields with old binary file formats
             % TODO: needs proper implementation
-            instr = obj.instruments_;
+            instr = obj.instruments_.stored_objects;
         end
         %
         function samp = get_unique_samples(obj)

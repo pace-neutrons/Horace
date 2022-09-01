@@ -202,7 +202,7 @@ classdef unique_objects_container < serializable
         
         function istype = check_type(self, type)
             N = numel(self.stored_objects_);
-            istype = true(1,N);
+            istype = true(1,N);;
             for i=1:numel(self.stored_objects_)
                 if iscell(self.stored_objects_)
                     istype(i) = isa(self.stored_objects_{i},type);
@@ -216,7 +216,7 @@ classdef unique_objects_container < serializable
             sset = unique_objects_container('type',self.type,'baseclass',self.baseclass);
             for i = indices
                 item = self.get(i);
-                [sset,~] = sset.add(item);
+                [sset,j] = sset.add(item);
             end
         end
             
@@ -329,12 +329,11 @@ classdef unique_objects_container < serializable
             if isempty(ix) % means obj not in container and should be added
                 if no_more_duplicates
                     if iscell(self.stored_objects_)
-                        self.stored_objects{oldix} = obj;
+                        self.stored_objects{oldix) = obj;
                     else
                         self.stored_objects(oldix) = obj;
                     end
-                    self.stored_hashes(oldix,:) = hash;
-                    self.n_duplicates_(oldix) = self.n_duplicates_(oldix)+1;
+                    self.stored_hashes(oldix) = hash;
                 else
                     if iscell(self.stored_objects_)
                         self.stored_objects_ = cat(1, self.stored_objects_, {obj});
@@ -352,50 +351,23 @@ classdef unique_objects_container < serializable
                 if no_more_duplicates
                     % need to remove the old object by replacing it with
                     % the previous last object in stored_objects_
-                    
-                    
-                    % collect the final unique object currently in the
-                    % container
-                    if iscell(self.stored_objects_)
-                        lastobj = self.stored_objects_{end};
-                    else
-                        lastobj = self.stored_objects_(end);
-                    end
-                    lasthash = self.stored_hashes(end,:);
+                    lastobj = self.stored_objects_(end);
+                    lasthash = self.stored_hashes(end);
                     lastidx = numel(self.stored_objects_);
                     
-                    if oldix<lastidx
-                        % oldix is the location where there are no more
-                        % duplicates, put the last object here
-                        if iscell(self.stored_objects_)
-                            self.stored_objects{oldix} = lastobj;
-                        else
-                            self.stored_objects(oldix) = lastobj;
-                        end
-                        self.stored_hashes(oldix,:) = lasthash;
-                        self.n_duplicates(oldix) = self.n_duplicates(lastidx);
-
-                        % reference all non-unique objects equivalent to the
-                        % last unique object as now referring to this oldix
-                        % location 
-                        self.idx_(self.idx_==lastidx) = oldix;
+                    % oldix is the location where there are no more
+                    % duplicates, put the last object here
+                    if iscell(self.stored_objects_)
+                        self.stored_objects{oldix} = lastobj;
+                    else
+                        self.stored_objects(oldix) = lastobj;
                     end
-                    
-                    % if the existing item was the last in stored, then
-                    % make it the new location
-                    if ix==lastidx
-                        ix=oldix;
-                    end
-                    
-                    % reduce the size of the unique object arrays
+                    self.stored_hashes(oldix) = lasthash;
+                    self.idx_(self.idx_==lastidx) = oldix;
+                    self.n_duplicates(oldix) = self.n_duplicates(lastidx);
                     self.stored_objects_(end)=[];
-                    self.stored_hashes_(end,:) = [];
+                    self.stored_hashes_(end) = [];
                     self.n_duplicates(end) = [];
-                    
-                    % do the replacement
-                    self.idx_(nuix) = ix;
-                    self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
-                    
                 else
                     self.idx_(nuix) = ix;
                     self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
@@ -470,11 +442,7 @@ classdef unique_objects_container < serializable
                 elseif nuix > numel(self.idx_)+1
                     error('HERBERT:unique_objects_container:invalid_argument','index outside legal range');
                 elseif nuix == numel(self.idx_)+1
-                    if strcmp(idxstr(1).type, self.type)
-                        [self,~] = self.add(val);
-                    else
-                        error('bracket type for indexing does not match container');
-                    end
+                    [self,~] = self.add(val);
                     return;
                 end
             end
@@ -519,24 +487,6 @@ classdef unique_objects_container < serializable
                 end
                 disp([num2str(i) '; uix=' num2str(uix)]);
                 disp(fld);
-            end
-        end
-        
-        function newself = reorder(self)
-            % the internal order of unique_objects_container is not well
-            % defined. As long as idx and stored_objects between them
-            % return the correct object, the internal order does not
-            % matter.
-            % However, in test comparisons, this can cause false failures.
-            % This reordering provides a standard order when comparing.
-            % This is only used for tests and so its efficiency is not
-            % important.
-            newself = unique_objects_container('type',self.type,'baseclass',self.baseclass);%,'convert_to_stream',self.convert_to_stream');
-            % It is unclear why specifying convert_to_stream in the
-            % constructor causes a failure but it works if specified next.
-            newself.convert_to_stream = self.convert_to_stream;
-            for i=1:self.n_runs
-                newself = newself.add(self.get(i));
             end
         end
 

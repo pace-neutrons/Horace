@@ -91,7 +91,11 @@ if ~any(isempty(instr)) % all instruments are valid instruments
         if iscell(instr)
             instr = instr{1};
         end
-        exp_info.instruments  = repmat({instr},1,n_runs);
+        if isa(instr,'unique_objects_container')
+            exp_info.instruments = instr;
+        else
+            exp_info.instruments  = repmat({instr},1,n_runs);
+        end
     else
         if ~iscell(instr)
             instr = num2cell(instr);

@@ -1,0 +1,100 @@
+function path=horace_on(non_default_path)
+%  safely switches Horace on
+%  horace_on()                         -- calls Horace with default settings
+%  horace_on(non_default_horace_path)  -- calls Horace with non-default Horace folder;
+%
+%
+%
+default_horace_path  = 'C:\Users\nvl96446\STFC\H-220629\horace_core';
+
+% To use spinW together with Horace, modify the row below pointing to correct
+% spinW location. Also need to modify spinw_on template and place it together
+% with horace_on.m script.
+default_spinw_path = '/usr/local/mprogs/spinW';
+%
+if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
+    path = find_default_hor_path(default_horace_path);
+    return;
+end
+
+warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
+try
+    horace_off();
+catch
+end
+warning(warn_state);    % return warnings to initial state
+
+% if spinW start up file exist, try to initialize it
+sw_start = which('spinw_on.m');
+if ~isempty(sw_start)
+    spinw_on(default_spinw_path);
+end
+
+herbert_initated=~isempty(which('herbert_init.m'));
+% if Herbert is not initiated, try to init it.
+if ~herbert_initated
+    default_herbert_path = build_default_her_path(default_horace_path);
+    try
+        init_herbert(default_herbert_path);
+    catch ME
+        disp('HORACE_ON:wrong_dependencies - cannot initiate Herbert');
+        rethrow(ME);
+    end
+else % reinitialize Herbert on where it is now.
+    her_path = fileparts(which('herbert_init.m'));
+    init_herbert(her_path);
+end
+
+% init Horace
+if nargin==1
+    init_horace(non_default_path);
+else
+    init_horace(default_horace_path);
+end
+path = fileparts(which('horace_init.m'));
+%
+
+warning('off','MATLAB:subscripting:noSubscriptsSpecified');
+
+function init_horace(path)
+if ~(exist(fullfile(path,'horace_init.m'),'file') == 2)
+    path = fullfile(path,'horace_core');
+end
+addpath(path);
+horace_init;
+
+function her_path = build_default_her_path(hor_path)
+% build default Herbert path from knowledge that Herbert is located
+% alongside the Horace
+[fp,hor_folder] = fileparts(hor_path);
+if strcmp(hor_folder,'horace_core')
+    her_path = fullfile(fp,'herbert_core');
+else
+    her_path = fullfile(hor_path,'herbert_core');    
+end
+
+
+function path =find_default_hor_path(hor_default_path)
+path = which('horace_init.m');
+if isempty(path)
+    path = hor_default_path;
+    if ~exist(fullfile(path,'horace_init.m'),'file')
+        path='';
+    end
+else
+    path=fileparts(path);
+end
+
+
+function init_herbert(path)
+% initialize Herbert directories.
+if ~exist(fullfile(path,'herbert_init.m'),'file')
+    path = fullfile(path,'herbert_core');
+end
+
+try
+    herbert_off();
+catch
+end
+addpath(path);
+herbert_init;

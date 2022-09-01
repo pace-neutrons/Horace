@@ -18,12 +18,15 @@ if nruns == 0
     return;
 end
 
+if iscell(obj.instruments_)
+    disp("check_combo_arg");
+end
 
-if numel(obj.instruments_) ~= nruns        
+if n_runs(obj.instruments_) ~= nruns        
     ok = false;
     mess = sprintf(...
         'Number of instruments: %d is not equal to number of runs: %d; ',...
-        numel(obj.instruments_),nruns);
+        n_runs(obj.instruments_),nruns);
 end
 if numel(obj.samples_) ~= nruns
     ok = false;

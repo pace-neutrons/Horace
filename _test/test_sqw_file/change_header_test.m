@@ -32,6 +32,8 @@ save(w,tmpsqwfile);
 if ~no_inst, set_instrument_horace(tmpsqwfile,inst); end
 if ~no_samp, set_sample_horace(tmpsqwfile,samp); end
 tmpfromfile=read_sqw(tmpsqwfile);
+wnew.experiment_info.instruments = wnew.experiment_info.instruments.reorder();
+tmpfromfile.experiment_info.instruments = tmpfromfile.experiment_info.instruments.reorder();
 [ok,mess]=equal_to_tol(wnew.to_struct(),tmpfromfile.to_struct(),'ignore_str',1); if ~ok, assertTrue(false,mess), end
 
 % Delete output file, if can
