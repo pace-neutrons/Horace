@@ -126,8 +126,6 @@ function benchmark_cut_sqw(nDims,dataInfo,objType,nProcs,eRange,filename,contigu
         switch objType
             case "sqw"
                 sqw_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-    %             sqw_obj=sqw(dataSource);
-    %             disp("Original sqw has: " + sqw_obj.npixels + " pixels")
             case "dnd"
                 dnd_cut = cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
             otherwise
