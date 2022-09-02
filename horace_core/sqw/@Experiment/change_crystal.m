@@ -16,4 +16,4 @@ for i=1:obj.n_runs
     exper(i).u_to_rlu(1:3,1:3)=rlu_corr*exper(i).u_to_rlu(1:3,1:3);
 end
 obj.samples = sam;
-exper.expdata = exper;
+obj.expdata = exper;

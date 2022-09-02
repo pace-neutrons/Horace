@@ -201,6 +201,22 @@ classdef test_ortho_proj_construction<TestCase
                 'absolute',1.e-4)
             assertElementsAlmostEqual(data.ulen(1:3),ulen','absolute',1.e-4);
         end
+        function test_get_projection_from_other_aligned_data(~)
+            data = struct();
+            data.alatt = [3.1580 3.1752 3.1247];
+            data.angdeg = [90.0013 89.9985 90.0003];
+            data.u_to_rlu = [0.3541,-0.3465,-0.0921,0;...                
+                             0.3586, 0.3445, 0.0823,0;...
+                             0.0069,-0.1217, 0.4821,0;...
+                             0     , 0     , 0     ,1];
+            data.label = {'h','k','l','en'};
+            data.ulen = ones(4,1);
+            proj = ortho_proj.get_from_old_data(data);
+            u_to_rlu_rec = proj.u_to_rlu;
+            assertElementsAlmostEqual(data.u_to_rlu,u_to_rlu_rec,...
+                'absolute',1.e-4)
+
+        end
         %
         function test_get_projection_from_aligned_sqw_data(~)
 
