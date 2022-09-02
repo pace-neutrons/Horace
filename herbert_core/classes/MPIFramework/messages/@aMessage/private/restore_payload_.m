@@ -14,7 +14,7 @@ function payload = restore_payload_(input)
 %   payload  -- restored data, presumably in the form, before saveobj was
 %               applied
 
-% service field used by a parce_payload_ /restore_payload_  only to
+% service field used by a parse_payload_ /restore_payload_  only to
 % identify class.
 if isfield(input,'cln_4_amess')
     % let's make it strange and unique for aMessage. And shorter, as its

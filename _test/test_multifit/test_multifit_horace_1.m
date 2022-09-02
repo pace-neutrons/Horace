@@ -18,6 +18,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
     properties
         w1data
         w2data
+        w4ddata
         win
     end
 
@@ -32,13 +33,63 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             this.w1data = sqw(fullfile(data_dir,'w1data.sqw'));
             this.w2data = sqw(fullfile(data_dir,'w2data.sqw'));
+            this.w4ddata = sqw(fullfile(data_dir,'sqw_4d.sqw'));
             this.win=[this.w1data,this.w2data];     % combine the two cuts into an array of sqw objects and fit
 
-            % Save output, if requrested
-            %this.save();
+            % Save output, if requested
+            % this.save();
         end
 
         % ------------------------------------------------------------------------------------------------
+        function this = test_fit_one_dataset(this)
+            % Example of fitting one sqw object
+
+            mss = multifit_sqw_sqw([this.w1data]);
+            mss = mss.set_fun(@sqw_bcc_hfm,  [5,5,0,10,0]);  % set foreground function(s)
+            mss = mss.set_free([1,1,0,0,0]); % set which parameters are floating
+            mss = mss.set_bfun(@sqw_bcc_hfm, {[5,5,1.2,10,0]}); % set background function(s)
+            mss = mss.set_bfree([1,1,1,1,1]);    % set which parameters are floating
+            mss = mss.set_bbind({1,[1,-1],1},{2,[2,-1],1});
+
+            % Simulate at the initial parameter values
+            wsim_1 = mss.simulate();
+
+            % And now fit
+            [wfit_1, fitpar_1] = mss.fit();
+
+            % Test against saved or store to save later; ingnore string
+            % changes - these are filepaths
+            tol = [1e-10,1e-8];
+            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+        end
+
+        % ------------------------------------------------------------------------------------------------
+        function this = test_fit_multidimensional_dataset(this)
+            % Example of simultaneously fitting more than one sqw object
+
+            mss = multifit_sqw_sqw([this.w4ddata]);
+            mss = mss.set_fun(@sqw_bcc_hfm,  [5,5,0,10,0]);  % set foreground function(s)
+            mss = mss.set_free([1,1,0,0,0]); % set which parameters are floating
+            mss = mss.set_bfun(@sqw_bcc_hfm, {[5,5,1.2,10,0]}); % set background function(s)
+            mss = mss.set_bfree([1,1,1,1,1]);    % set which parameters are floating
+            mss = mss.set_bbind({1,[1,-1],1},{2,[2,-1],1});
+
+            % Simulate at the initial parameter values
+            wsim_1 = mss.simulate();
+
+            % And now fit
+            [wfit_1, fitpar_1] = mss.fit();
+
+            % Test against saved or store to save later; ingnore string
+            % changes - these are filepaths
+            tol = [1e-10,1e-8];
+            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+        end
+
         function this = test_fit_two_datasets(this)
             % Example of simultaneously fitting more than one sqw object
 
@@ -125,8 +176,8 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             mss = mss.set_bfun(@linear_bkgd, [0,0]); % set background function(s)
             [wfit_single12,fitpar_single12] = mss.fit();
 
-            assertTrue(equal_to_tol([wfit_single1,wfit_single2],wfit_single12),'fit_sqw workspaces not working');
             assertTrue(equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12),'fit_sqw fitting not working')
+            assertTrue(equal_to_tol([wfit_single1,wfit_single2],wfit_single12),'fit_sqw workspaces not working');
 
 %             % Test against saved or store to save later
 %             this=save_or_test_variables(this,wfit_single1,wfit_single2,wfit_single12);
@@ -143,8 +194,8 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             [wfit_single1,fitpar_single1]=multifit_sqw(this.w1data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
             [wfit_single2,fitpar_single2]=multifit_sqw(this.w2data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
 
-            assertTrue(equal_to_tol([wfit_single1,wfit_single2],wfit_single12),'fit_sqw not working for dataset');
             assertTrue(equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12),'fit_sqw not working for fit parameters');
+            assertTrue(equal_to_tol([wfit_single1,wfit_single2],wfit_single12),'fit_sqw not working for dataset');
 
             fitpar_single1.corr=[];
             fitpar_single2.corr=[];

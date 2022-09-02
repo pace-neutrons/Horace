@@ -28,15 +28,15 @@ classdef ExampleRealJobExecutor < JobExecutor
                 obj.my_int = obj.my_int + i;
             end
 
-            % Send my ID to my +1 neighbour (assuming 4 neighbours)
+            % Send my ID to my +1 neighbour
             my_message = DataMessage(obj.labIndex);
-            [ok, err_mess] = obj.mess_framework.send_message(mod(obj.labIndex,4)+1, my_message);
+            [ok, err_mess] = obj.mess_framework.send_message(mod(obj.labIndex + 1, obj.mess_framework.numLabs)+1, my_message);
             if ~ok
                 error('HORACE:ExampleRealJobExecutor:send_error', err_mess)
             end
 
             % Recieve the data
-            [ok, err_mess, data] = obj.mess_framework.receive_message(mod(obj.labIndex + 2,4)+1, 'data');
+            [ok, err_mess, data] = obj.mess_framework.receive_message(mod(obj.labIndex + 3, obj.mess_framework.numLabs)+1, 'any');
             if ~ok
                 error('HORACE:ExampleRealJobExecutor:receive_error', err_mess)
             end

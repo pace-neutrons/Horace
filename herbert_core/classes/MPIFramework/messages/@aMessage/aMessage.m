@@ -76,7 +76,7 @@ classdef aMessage
             
             ws = warning('off','MATLAB:structOnObject');
             clob = onCleanup(@()warning(ws));
-            ser_struc.payload = parce_payload_(obj.payload_);
+            ser_struc.payload = parse_payload_(obj.payload_);
         end
         %------------------------------------------------------------------
         function rez = get.payload(obj)

@@ -3,7 +3,7 @@ classdef test_fake_sqw_bin_pix < TestCase
 
     properties
         tmp_data_folder;
-        skip_this_test=false;
+        skip_tests;
         current_mex_state;
         current_thread_state;
         sample_dir;
@@ -18,23 +18,23 @@ classdef test_fake_sqw_bin_pix < TestCase
             end
             this = this@TestCase(name);
 
-            this.skip_this_test = false;
             hc = hor_config;
             this.current_mex_state =hc.use_mex;
             this.current_thread_state = hc.threads;
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state));
 
             hc.use_mex = 1;
-            if hc.use_mex ~= 1
-                this.skip_this_test= true;
-            end
+
+            this.skip_tests = ~hc.use_mex;
+
             this.tmp_data_folder = tmp_dir;
             pths = horace_paths;
             this.sample_dir = pths.test_common;
         end
+
         function test_bin_c(this)
-            if this.skip_this_test
-                warning('TEST_FAKE_SQW_BIN_PIX:test_bin_c','skipping this test as mex files are not enabled');
+            if this.skip_tests
+                skipTest('MEX not enabled')
             end
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state));
 
@@ -86,9 +86,10 @@ classdef test_fake_sqw_bin_pix < TestCase
             [ok,mess]=equal_to_tol(w_mex,w_nomex,-1.e-8);
             assertTrue(ok,[' MEX and non-mex versions of gen_sqw are different: ',mess]);
         end
+
         function test_bin_c_multithread(this)
-            if this.skip_this_test
-                warning('TEST_FAKE_SQW_BIN_PIX:test_bin_c','skipping this test as mex files are not enabled');
+            if this.skip_tests
+                skipTest('MEX not enabled')
             end
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state,'threads',this.current_thread_state));
 
@@ -113,10 +114,10 @@ classdef test_fake_sqw_bin_pix < TestCase
             cleanup_files=onCleanup(@()delete(sqw_file_single));
 
             hc=hor_config;
-            %
+
             hc.use_mex = 1;
             hc.threads = 1;
-            %
+
             fake_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
 
@@ -129,10 +130,10 @@ classdef test_fake_sqw_bin_pix < TestCase
             n_en_zeros = sum(w_mex.pix.energy_idx==0);
             assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
 
-            %
+
             hc.use_mex = 1;
             hc.threads = 8;
-            %
+
             fake_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
 
@@ -152,9 +153,6 @@ classdef test_fake_sqw_bin_pix < TestCase
             assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
             %%}
         end
-
-
-
     end
 
 end
