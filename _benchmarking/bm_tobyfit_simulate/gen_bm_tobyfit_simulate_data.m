@@ -1,5 +1,5 @@
 function sqw_obj = gen_bm_tobyfit_simulate_data(nDims,dataInfo,dataSet)
-%GEN_BM_TOBYFIT_SIMULATE_DATA This funciton generates the data needed to run
+%GEN_BM_TOBYFIT_SIMULATE_DATA This function generates the data needed to run
 %benchmarks of simulate()
 % Using either a saved sqw object or generating an sqw using
 % gen_fake_sqw_data(), this funciton generates N cuts of sqw objects
@@ -50,11 +50,14 @@ function sqw_obj = gen_bm_tobyfit_simulate_data(nDims,dataInfo,dataSet)
     main_sqw = set_instrument(main_sqw, instrument);
     main_sqw = set_sample (main_sqw, sample);
     
+    % dataSet for small, medium and large set to 1, 3 and 6 to get a look
+    % at effects of scaling linearly (was originally 1, 4 and 8 but was
+    % changed due to memory issues
     switch dataSet
         case 'small'
             sqw_obj=repmat(main_sqw,1,1);
         case 'medium'
-            sqw_obj = repmat(main_sqw,1,4);
+            sqw_obj = repmat(main_sqw,1,3);
         case 'large'
             sqw_obj = repmat(main_sqw,1,6);
         otherwise

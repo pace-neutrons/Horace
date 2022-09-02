@@ -1,5 +1,5 @@
 function benchmark_cut_sqw(nDims,dataInfo,objType,nProcs,eRange,filename,contiguous)
-%BENCHMARK_CUT_SQW This funciton initiates the benchmarks for
+%BENCHMARK_CUT_SQW This function initiates the benchmarks for
 %cut_sqw()
 % This function is used to run all the individual benchamrks in the 3 
 % test_cut_sqw classes.
@@ -104,6 +104,7 @@ function benchmark_cut_sqw(nDims,dataInfo,objType,nProcs,eRange,filename,contigu
     % Check if the "contiguous", has been set to true (will do 4 contiguous
     % cuts)
     dataSource = gen_bm_cut_data(dataInfo);
+    % Start the profiler
     profile on
     if contiguous
         switch objType
@@ -134,8 +135,8 @@ function benchmark_cut_sqw(nDims,dataInfo,objType,nProcs,eRange,filename,contigu
         end
     end
     
-    %% dump benchmark info 
-    % ocr96: (setup seperate dumps functions for differnet type of dumps: html, all text(profsave), csv, just bm time...
+    % dump the benchmark info in csv file
+    % ocr96: (setup seperate dumps functions for different type of dumps: html, all text(profsave), csv, just bm time...
     prof_result = profile('info');
     pths = horace_paths;
     prof_folder = fullfile(pths.bm,'bm_cut_sqw');

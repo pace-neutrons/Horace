@@ -25,6 +25,10 @@ classdef test_bm_sqw_eval_largeData <TestCase
             pths = horace_paths;
             obj.common_data = pths.bm_common;
         end
+
+% ocr96: Currently running into Out of Memory error in Anvil when running largeData test
+% commented out untill appropriate data size is chosen or memory issue in
+% Anvil resolved
                 
 %         function test_bm_sqw_eval_1D_sqw_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
@@ -115,36 +119,38 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
 %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
 %         end
+% 4D tests commented out as they take very long to run, and needs to be
+% determined if they are worth running: do they represent a true use case ?
 
-%         function test_bm_sqw_eval_4D_sqw_largeData_smallNumber_1procs(obj)
-%             obj.function_name = get_bm_name();
-%             nDims=4;
-%             dataSet = 'small';
-%             nProcs = 1;
-%             objType="sqw";
-%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-%         end
-% 
-%         function test_bm_sqw_eval_4D_sqw_largeData_mediumNumber_1procs(obj)
-%             obj.function_name = get_bm_name();
-%             nDims=4;
-%             dataSet = 'medium';
-%             nProcs = 1;
-%             objType="sqw";
-%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-%         end
-% 
-%         function test_bm_sqw_eval_4D_sqw_largeData_largeNumber_1procs(obj)
-%             obj.function_name = get_bm_name();
-%             nDims=4;
-%             dataSet = 'large';
-%             nProcs = 1;
-%             objType="sqw";
-%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-%         end         
+% %         function test_bm_sqw_eval_4D_sqw_largeData_smallNumber_1procs(obj)
+% %             obj.function_name = get_bm_name();
+% %             nDims=4;
+% %             dataSet = 'small';
+% %             nProcs = 1;
+% %             objType="sqw";
+% %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+% %         end
+% % 
+% %         function test_bm_sqw_eval_4D_sqw_largeData_mediumNumber_1procs(obj)
+% %             obj.function_name = get_bm_name();
+% %             nDims=4;
+% %             dataSet = 'medium';
+% %             nProcs = 1;
+% %             objType="sqw";
+% %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+% %         end
+% % 
+% %         function test_bm_sqw_eval_4D_sqw_largeData_largeNumber_1procs(obj)
+% %             obj.function_name = get_bm_name();
+% %             nDims=4;
+% %             dataSet = 'large';
+% %             nProcs = 1;
+% %             objType="sqw";
+% %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+% %         end         
 
 %          function test_bm_sqw_eval_1D_dnd_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
@@ -236,35 +242,38 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
 %         end
 
-%         function test_bm_sqw_eval_4D_dnd_largeData_smallNumber_1procs(obj)
-%             obj.function_name = get_bm_name();
-%             nDims=4;
-%             dataSet = 'small';
-%             nProcs = 1;
-%             objType="dnd";
-%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-%         end
-% 
-%         function test_bm_sqw_eval_4D_dnd_largeData_mediumNumber_1procs(obj)
-%             obj.function_name = get_bm_name();
-%             nDims=4;
-%             dataSet = 'medium';
-%             nProcs = 1;
-%             objType="dnd";
-%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-%         end
-% 
-%         function test_bm_sqw_eval_4D_dnd_largeData_largeNumber_1procs(obj)
-%             obj.function_name = get_bm_name();
-%             nDims=4;
-%             dataSet = 'large';
-%             nProcs = 1;
-%             objType="dnd";
-%             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-%         end  
+% 4D tests commented out as they take very long to run, and needs to be
+% determined if they are worth running: do they represent a true use case ?
+
+% %         function test_bm_sqw_eval_4D_dnd_largeData_smallNumber_1procs(obj)
+% %             obj.function_name = get_bm_name();
+% %             nDims=4;
+% %             dataSet = 'small';
+% %             nProcs = 1;
+% %             objType="dnd";
+% %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+% %         end
+% % 
+% %         function test_bm_sqw_eval_4D_dnd_largeData_mediumNumber_1procs(obj)
+% %             obj.function_name = get_bm_name();
+% %             nDims=4;
+% %             dataSet = 'medium';
+% %             nProcs = 1;
+% %             objType="dnd";
+% %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+% %         end
+% % 
+% %         function test_bm_sqw_eval_4D_dnd_largeData_largeNumber_1procs(obj)
+% %             obj.function_name = get_bm_name();
+% %             nDims=4;
+% %             dataSet = 'large';
+% %             nProcs = 1;
+% %             objType="dnd";
+% %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
+% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+% %         end  
 
 %% The following benchmarks are for multi-processor/parallel-enabled codes
 %         function test_bm_sqw_eval_1D_sqw_largeData_smallNumber_2procs(obj)

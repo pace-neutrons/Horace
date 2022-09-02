@@ -1,5 +1,5 @@
 function dataSource = gen_bm_cut_data(dataInfo)
-%GEN_BM_CUT_SQW This funciton generates the data needed to run
+%GEN_BM_CUT_SQW This function generates the data needed to run
 %benchmarks of cut_sqw()
 % This function returns an sqw object generated using the gen_fake_sqw_data()
 % function, or else the filepath to an existing sqw object 

@@ -107,6 +107,8 @@ classdef test_bm_tobyfit_simulate_smallData < TestCase
             benchmark_tobyfit_simulate(nDims,obj.dataSize,dataSet,...
                 nProcs,obj.func_handle,obj.params,obj.function_name);        
         end
+% 4D tests commented out as they take very long to run, and needs to be
+% determined if they are worth running: do they represent a true use case ?
 
 %         function test_bm_tobyfit_simulate_4D_smallData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();

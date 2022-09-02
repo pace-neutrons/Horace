@@ -25,6 +25,10 @@ classdef test_bm_gen_sqw_largeData < TestCase
             end
             obj = obj@TestCase(test_class_name);
         end
+
+% ocr96: Currently running into Out of Memory error in Anvil when running largeData test
+% commented out untill appropriate data size is chosen or memory issue in
+% Anvil resolved
         
 %         function test_bm_gen_sqw_largeData_smallNumber_smallDetector_1procs(obj)
 %             obj.function_name = get_bm_name();

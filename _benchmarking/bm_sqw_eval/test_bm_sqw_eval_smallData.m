@@ -115,6 +115,8 @@ classdef test_bm_sqw_eval_smallData <TestCase
             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
         end
+% 4D tests commented out as they take very long to run, and needs to be
+% determined if they are worth running: do they represent a true use case ?
 
 %         function test_bm_sqw_eval_4D_sqw_smallData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
@@ -235,6 +237,9 @@ classdef test_bm_sqw_eval_smallData <TestCase
             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
         end
+% 4D tests commented out as they take very long to run, and needs to be
+% determined if they are worth running: do they represent a true use case ?
+
 
 %         function test_bm_sqw_eval_4D_dnd_smallData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();

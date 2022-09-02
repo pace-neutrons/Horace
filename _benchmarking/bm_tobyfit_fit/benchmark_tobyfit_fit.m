@@ -1,5 +1,5 @@
 function benchmark_tobyfit_fit(nDims,dataInfo,dataSet,nProcs,func_handle,params,filename)
-%BENCHMARK_TOBYFIT_FIT This funciton initiates the benchmarks for
+%BENCHMARK_TOBYFIT_FIT This function initiates the benchmarks for
 %fit()
 % This function is used to run all the individual benchamrks in the 3 
 % test_tobyfit_fit classes.
@@ -58,12 +58,12 @@ function benchmark_tobyfit_fit(nDims,dataInfo,dataSet,nProcs,func_handle,params,
     fit_sqw = fit_sqw.set_mc_points(2);
     fit_sqw = fit_sqw.set_options('listing',nlist);
     
-    %% Start profiler
+    % Start the profiler
     profile on
     [wfit_1,fitpar_1]=fit_sqw.fit();
     prof_results = profile('info');
-    %% dump benchmark info 
-    % ocr96: (setup seperate dumps functions for differnet type of dumps: html, all text(profsave), csv, just bm time...
+    % dump the benchmark info in csv file
+    % ocr96: (setup seperate dumps functions for different type of dumps: html, all text(profsave), csv, just bm time...
     pths = horace_paths;
     prof_folder = fullfile(pths.bm,'bm_tobyfit_fit');
 dump_profile(prof_results,fullfile(prof_folder,filename));

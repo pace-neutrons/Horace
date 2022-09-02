@@ -1,5 +1,5 @@
 function [cut1, cutN] = gen_bm_combine_data(nDims,dataInfo,dataSet)
-%GEN_BM_COMBINE_SQW This funciton generates the data needed to run
+%GEN_BM_COMBINE_SQW This function generates the data needed to run
 %benchmarks of combine_sqw()
 % Using either a saved sqw object or generating an sqw using
 % gen_fake_sqw_data(), this funciton generates N cuts of sqw objects to
@@ -36,16 +36,22 @@ function [cut1, cutN] = gen_bm_combine_data(nDims,dataInfo,dataSet)
     proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
     % Generate inital cut of sqw object
     cut1=cut_sqw(dataSource,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-    % Generate additional cuts to combine, doubling number of pixels of the
-    % additonal cuts
+
+    % dataSet for small, medium and large set to 2, 4 and 6 to get a look
+    % at effects of scaling linearly (was originally 2, 4 and 8 but was
+    % changed due to memory issues). Note dataSet here is different than in
+    % other gen_bm_XX_data() (usually 1,3,6) as it is to combine at least 
+    % 2 sqw objects
     switch dataSet
+        % Generate additional cuts to combine, doubling number of pixels of the
+        % additonal cuts
         case 'small'
             cutN=copy(cut1);
             cutN.data.pix.signal = 2*cut1.data.pix.signal;
         case 'medium'
             cut2 = cut1;
             cut2.data.pix.signal = 2*cut1.data.pix.signal;
-            cutN=repmat(cut2,1,3);
+            cutN=repmat(cut2,1,2);
         case 'large'
             cut2 = cut1;
             cut2.data.pix.signal = 2*cut1.data.pix.signal;

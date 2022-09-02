@@ -1,5 +1,5 @@
 function sqw_obj = gen_bm_func_eval_data(nDims,dataInfo,dataSet)
-%GEN_BM_FUNC_EVAL_DATA This funciton generates the data needed to run
+%GEN_BM_FUNC_EVAL_DATA This function generates the data needed to run
 %benchmarks of func_eval()
 % Using either a saved sqw object or generating an sqw using
 % gen_fake_sqw_data(), this funciton generates N cuts of sqw objects to
@@ -41,12 +41,14 @@ function sqw_obj = gen_bm_func_eval_data(nDims,dataInfo,dataSet)
                 ,"nDims is the dimensions of the cuts : must be 1, 2, 3 or 4.")
     end
     
-    % Build array of sqw objects
+    % dataSet for small, medium and large set to 1, 3 and 6 to get a look
+    % at effects of scaling linearly (was originally 1, 4 and 8 but was
+    % changed due to memory issues
     switch dataSet
         case 'small'
             sqw_obj=main_sqw;
         case 'medium'
-            sqw_obj = repmat(main_sqw,1,4);
+            sqw_obj = repmat(main_sqw,1,3);
         case 'large'
             sqw_obj = repmat(main_sqw,1,6);
         otherwise

@@ -25,6 +25,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             pths = horace_paths;
             obj.common_data = pths.bm_common;
         end
+% ocr96: Currently running into Out of Memory error in Anvil when running largeData test
+% commented out untill appropriate data size is chosen or memory issue in
+% Anvil resolved
 
 %         function test_bm_cut_sqw_largeData_3D_sqw_largeEnergy_1procs(obj)
 %             obj.function_name = get_bm_name();

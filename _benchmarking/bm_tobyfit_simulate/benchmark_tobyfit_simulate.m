@@ -1,5 +1,5 @@
 function benchmark_tobyfit_simulate(nDims,dataInfo,dataSet,nProcs,func_handle,params,filename)
-%BENCHMARK_TOBYFIT_SIMULATE This funciton initiates the benchmarks for
+%BENCHMARK_TOBYFIT_SIMULATE This function initiates the benchmarks for
 %simulate()
 % This function is used to run all the individual benchamrks in the 3 
 % test_tobyfit_simulate classes.
@@ -57,11 +57,11 @@ function benchmark_tobyfit_simulate(nDims,dataInfo,dataSet,nProcs,func_handle,pa
     sim_sqw = sim_sqw.set_fun(func_handle,params);
     sim_sqw = sim_sqw.set_mc_points(2);
     sim_sqw = sim_sqw.set_options('listing',nlist);
-    %% Start profiler
+    % Start the profiler
     profile on
     [wsim_1,simpar_1]=sim_sqw.simulate();
-    %% dump benchmark info 
-    % ocr96: (setup seperate dumps functions for differnet type of dumps: html, all text(profsave), csv, just bm time...
+    % dump the benchmark info in csv file
+    % ocr96: (setup seperate dumps functions for different type of dumps: html, all text(profsave), csv, just bm time...
     prof_results = profile('info');
     pths = horace_paths;
     prof_folder = fullfile(pths.bm,'bm_tobyfit_simulate');

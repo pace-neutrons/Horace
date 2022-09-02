@@ -113,6 +113,9 @@ classdef test_bm_func_eval_mediumData < TestCase
             benchmark_func_eval(nDims,obj.dataSize,dataSet,...
                 obj.func_handle,obj.func_3D_params,nProcs,obj.function_name);
         end
+% 4D tests commented out as they take very long to run, and needs to be
+% determined if they are worth running: do they represent a true use case ?
+
 
 %         function test_bm_func_eval_4D_mediumData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();

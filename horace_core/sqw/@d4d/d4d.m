@@ -1,5 +1,5 @@
 classdef d4d < DnDBase
-    %D4D Create an 3-dimensional DnD object
+    %D4D Create an 4-dimensional DnD object
     %
     % Syntax:
     %   >> w = d4d()               % Create a default, empty, D4D object
