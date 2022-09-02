@@ -7,7 +7,7 @@ classdef hpc_config < config_base
     % The settings optimal for given machine (or rather given machine
     % configuration) should be enabled/disabled running hpc on/hpc off
     % helper method.
-    % 
+    %
     % To see the list of current configuration option values:
     %   >> hpc_config
     %
@@ -41,7 +41,7 @@ classdef hpc_config < config_base
     % mex_combine_thread_mode   - various thread modes deployed when
     %                             combining sqw files using mex code.
     % mex_combine_buffer_size  - size of buffer used by mex code while
-    %                            combining files per each contributing file.    
+    %                            combining files per each contributing file.
     %---
     % parallel_cluster          - what parallel cluster type to use to perform
     %                             parallel  tasks. Possibilities currenlty are
@@ -56,12 +56,12 @@ classdef hpc_config < config_base
         % if true, launch separate Matlab session(s) or parallel job to
         % generate tmp files
         build_sqw_in_parallel;
-        
+
         % number of workers to deploy in parallel jobs
         parallel_workers_number;
 
         % set-up algorithm, to use for combining multiple sqw(tmp) filesL
-        combine_sqw_using
+        combine_sqw_using;
 
         % helper read-only property, displaying possible codes to use to
         % combines sqw (combine_sqw_using) available options, namely:
@@ -77,8 +77,8 @@ classdef hpc_config < config_base
         %            of MPI workers and the speed of parallel file system.
         % To select one of the options above, one can provide only first
         % distinctive input for any option. (e.g. ma, me or mp)
-        
-        combine_sqw_options
+
+        combine_sqw_options;
         % If mex code is used for combining tmp files various thread
         % modes can be deployed for this operation:
         % namely:
@@ -94,31 +94,35 @@ classdef hpc_config < config_base
         % 3  - a thread is launched per contributing file to read pixel
         %      information while common thread is used to read bin
         %      information
-        mex_combine_thread_mode
-        
+        mex_combine_thread_mode;
+
         % size of buffer used by mex code while combining files per each
         % file.
-        mex_combine_buffer_size
-        
+        mex_combine_buffer_size;
+
+        % parallelise multifit select
+        parallel_multifit;
+
         % exposes the folder used by the parallel_config for
-        % storing/reading job data        
+        % storing/reading job data
         remote_folder;
-        
+
         % what parallel framework to use for parallel  tasks. Available
         % options are: matlab, partool, mpiexec. Defined in parallel_config and
         % exposed here for clarity.
         parallel_cluster;
-        
+
         %----
         % immutable reference to the class, which describes the parallel
         % configuration. To change the parallel configuration, work with
         % this configuration class itself;
-        parallel_configuration
-        
+        parallel_configuration;
+
         % helper read-only property, returining the list of options, which
         % define hpc configuration. Coinsides with saved_properties_list_
-        hpc_options
+        hpc_options;
     end
+
     properties(Dependent,Hidden=true)
         % DEPRECATED properties left for old parallel interface to work
         %
@@ -133,6 +137,7 @@ classdef hpc_config < config_base
     end
     properties(Access=protected,Hidden = true)
         build_sqw_in_parallel_ = false;
+        parallel_multifit_ = false;
         parallel_workers_number_ = 2;
         %
         combine_sqw_using_ = 'matlab';
@@ -146,11 +151,12 @@ classdef hpc_config < config_base
         saved_properties_list_={...
             'build_sqw_in_parallel','parallel_workers_number',...
             'combine_sqw_using',...
-            'mex_combine_thread_mode','mex_combine_buffer_size'...
+            'mex_combine_thread_mode','mex_combine_buffer_size',...
+            'parallel_multifit'
             }
         combine_sqw_options_ = {'matlab','mex_code','mpi_code'};
     end
-    
+
     methods
         function this=hpc_config()
             %
@@ -165,11 +171,12 @@ classdef hpc_config < config_base
                 end
             end
         end
+
         %----------------------------------------------------------------
         function mode = get.combine_sqw_using(obj)
             mode = get_or_restore_field(obj,'combine_sqw_using');
         end
-        %
+
         function use = get.use_mex_for_combine(obj)
             mode = get_or_restore_field(obj,'combine_sqw_using');
             if strcmpi(mode,'mex_code')
@@ -178,37 +185,53 @@ classdef hpc_config < config_base
                 use = false;
             end
         end
+
         function size= get.mex_combine_buffer_size(this)
             size = get_or_restore_field(this,'mex_combine_buffer_size');
         end
+
         function type= get.mex_combine_thread_mode(this)
             type = get_or_restore_field(this,'mex_combine_thread_mode');
         end
+
         function accum = get.accum_in_separate_process(this)
             accum = get_or_restore_field(this,'build_sqw_in_parallel');
         end
+
         function accum = get.accumulating_process_num(this)
             accum = get_or_restore_field(this,'parallel_workers_number');
         end
+
         function accum = get.build_sqw_in_parallel(this)
             accum = get_or_restore_field(this,'build_sqw_in_parallel');
         end
+
+        function accum = get.parallel_multifit(this)
+            accum = get_or_restore_field(this,'parallel_multifit');
+        end
+
         function accum = get.parallel_workers_number(this)
             accum = get_or_restore_field(this,'parallel_workers_number');
         end
+
         function framework = get.parallel_cluster(~)
             framework = config_store.instance.get_value('parallel_config','parallel_cluster');
         end
+
         function rem_f = get.remote_folder(~)
             rem_f = config_store.instance.get_value('parallel_config','remote_folder');
         end
+
         function config = get.parallel_configuration(~)
             config = parallel_config();
         end
+
         function hpco = get.hpc_options(obj)
             hpco = obj.saved_properties_list_;
         end
+
         %----------------------------------------------------------------
+
         function this = set.combine_sqw_using(this,val)
             opt = this.combine_sqw_options_;
             [ok,mess,use_matlab,use_mex,use_mpi,argi] = parse_char_options({val},opt );
@@ -238,11 +261,14 @@ classdef hpc_config < config_base
                 config_store.instance().store_config(this,'combine_sqw_using','mpi_code');
             end
         end
+
         function opt = get.combine_sqw_options(obj)
             %
             opt = obj.combine_sqw_options_;
         end
+
         %---------
+
         function this = set.use_mex_for_combine(this,val)
             % Hidden, old option
             if val>0
@@ -261,6 +287,7 @@ classdef hpc_config < config_base
                 config_store.instance().store_config(this,'combine_sqw_using','matlab');
             end
         end
+
         function this= set.mex_combine_buffer_size(this,val)
             if val<64
                 error('HPC_CONFIG:invalid_argument',...
@@ -272,6 +299,7 @@ classdef hpc_config < config_base
             end
             config_store.instance().store_config(this,'mex_combine_buffer_size',val);
         end
+
         function this= set.mex_combine_thread_mode(this,val)
             if  val>3 || val < 0
                 error('HPC_CONFIG:invalid_argument',...
@@ -285,17 +313,27 @@ classdef hpc_config < config_base
             end
             config_store.instance().store_config(this,'mex_combine_thread_mode',val);
         end
-        
+
         function this = set.accum_in_separate_process(this,val)
             this.build_sqw_in_parallel= val;
         end
-        %
-        function this = set.build_sqw_in_parallel(this,val)
-            if val>0
-                accum = true;
-            else
-                accum = false;
+
+        function this = set.parallel_multifit(this,val)
+            p_mf = val>0;
+            if p_mf
+                [ok,mess] = check_worker_configured(this);
+                if ~ok
+                    warning('HPC_CONFIG:invalid_argument',...
+                        ' Can not start accumulating in separate process as: %s',...
+                        mess);
+                    p_mf = false;
+                end
             end
+            config_store.instance().store_config(this,'parallel_multifit',p_mf);
+        end
+
+        function this = set.build_sqw_in_parallel(this,val)
+            accum = val>0;
             if accum
                 [ok,mess] = check_worker_configured(this);
                 if ~ok
@@ -306,11 +344,13 @@ classdef hpc_config < config_base
                 end
             end
             config_store.instance().store_config(this,'build_sqw_in_parallel',accum);
-            
+
         end
+
         function this = set.accumulating_process_num(this,val)
             this.parallel_workers_number = val;
         end
+
         function this = set.parallel_workers_number(this,val)
             if val<1
                 error('HPC_CONFIG:invalid_argument',...
@@ -320,7 +360,7 @@ classdef hpc_config < config_base
             end
             config_store.instance().store_config(this,'parallel_workers_number',nproc);
         end
-        
+
         function obj = set.parallel_cluster(obj,val)
             pf = parallel_config;
             pf.parallel_cluster = val;
@@ -329,7 +369,7 @@ classdef hpc_config < config_base
             pf = parallel_config;
             pf.remote_folder = val;
         end
-        
+
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
@@ -338,7 +378,7 @@ classdef hpc_config < config_base
             % which should be saved
             fields = this.saved_properties_list_;
         end
-        %
+
         function value = get_internal_field(this,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface.
@@ -346,8 +386,7 @@ classdef hpc_config < config_base
             % field has a private field with name different by underscore
             value = this.([field_name,'_']);
         end
-        
-        
+
+
     end
 end
-

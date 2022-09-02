@@ -123,45 +123,64 @@ for i=1:numel(win)
 
     wout_disp(i).data_ = data;
 
-    if nargout==2
+    has_sfact = nargout(dispreln)>=2;
+    has_weight = nargout == 2
+    if has_weight
         wout_weight=wout_disp;
     end
 
     % Compute dispersion relation at bin centres
     qw = calculate_qw_bins(wout_disp(i));
-    if nargout(dispreln)<2
+    if ~has_sfact
         wdisp = dispreln(qw{1:3}, pars{:});  % only dispersion seems to be provided
     else
         [wdisp,sfact] = dispreln(qw{1:3}, pars{:});
     end
+
     if iscell(wdisp)
         if numel(win)==1    % single input sqw object
             wout_disp=repmat(wout_disp,size(wdisp));  % make one output array per dispersion relation
-            if nargout==2, wout_weight=repmat(wout_weight,size(wdisp)); end  % make one output array per dispersion relation
+            if has_weight
+                wout_weight=repmat(wout_weight,size(wdisp));
+            end  % make one output array per dispersion relation
             for j=1:numel(wdisp)
                 wout_disp(j).data_.s=reshape(wdisp{j},sz);
-                if exist('sfact','var'), wout_disp(j).data_.e=reshape(sfact{j},sz).^2; end
-                if nargout==2
-                    if exist('sfact','var'), wout_weight(j).data_.s=reshape(sfact{j},sz); end
+                if has_sfact
+                    wout_disp(j).data_.e=reshape(sfact{j},sz).^2;
+                end
+                if has_weight
+                    if has_sfact
+                        wout_weight(j).data_.s=reshape(sfact{j},sz);
+                    end
                     wout_weight(j).data_.e=reshape(wdisp{j},sz).^2;
                 end
             end
         else
             wout_disp(i).data_.s=reshape(wdisp{1},sz);
-            if exist('sfact','var'), wout_disp(i).data_.e=reshape(sfact{1},sz).^2; end
-            if nargout==2
-                if exist('sfact','var'), wout_weight(i).data_.s=reshape(sfact{1},sz); end
+            if has_sfact
+                wout_disp(i).data_.e=reshape(sfact{1},sz).^2;
+            end
+            if has_weight
+                if has_sfact
+                    wout_weight(i).data_.s=reshape(sfact{1},sz);
+                end
                 wout_weight(i).data_.e=reshape(wdisp{1},sz).^2;
             end
         end
     else
         wout_disp(i).data_.s=reshape(wdisp,sz);
-        if exist('sfact','var'), wout_disp(i).data_.e=reshape(sfact,sz).^2; end
-        if nargout==2
-            if exist('sfact','var'), wout_weight(i).data_.s=reshape(sfact,sz); end
+        if has_sfact
+            wout_disp(i).data_.e=reshape(sfact,sz).^2;
+        end
+        if has_weight
+            if has_sfact
+                wout_weight(i).data_.s=reshape(sfact,sz);
+            end
             wout_weight(i).data_.e=reshape(wdisp,sz).^2;
         end
     end
+
+end
 
 end
 

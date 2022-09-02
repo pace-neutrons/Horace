@@ -72,7 +72,7 @@ if ~ok
     n_restart_attempts = 5;
     ic = 0;
     pc = parallel_config;
-    
+
     while ~ok && ic <n_restart_attempts
         if isempty(cluster_wrp)
             fprintf(2,'*** Trying to restart parallel cluster for the %d time\n',ic+1);
@@ -81,16 +81,16 @@ if ~ok
                 sprintf(' Trying to restart parallel cluster for the %d time',ic+1));
             cluster_wrp.finalize_all(); % will destroy current mf
         end
-        
+
         % Reinitialize mf and create job folder
         mf = MessagesFilebased(job_info);
         if ~isempty(pc.shared_folder_on_local)
             mf.mess_exchange_folder = pc.shared_folder_on_local;
         end
-        
+
         obj.mess_framework_ = mf;
-        
-        
+
+
         cluster_wrp = par_fc.get_initialized_cluster(n_workers,mf);
         if isempty(cluster_wrp)
             pause(obj.task_check_time);
@@ -121,11 +121,13 @@ if exist('clob_mf', 'var')
 end
 
 
+end
+
 function n_wk = check_loop_param(loop_param,n_workers)
 % Available number of workers
 n_wk = n_workers;
 
-if ~isscalar(loop_param)
+if ~isscalar(loop_param) || iscell(loop_param)
     n_jobs = numel(loop_param);
 elseif isscalar(loop_param) && isnumeric(loop_param)
     n_jobs = loop_param;
@@ -145,4 +147,6 @@ end
 % Clip workers to number of jobs
 if n_wk > n_jobs
     n_wk = n_jobs;
+end
+
 end

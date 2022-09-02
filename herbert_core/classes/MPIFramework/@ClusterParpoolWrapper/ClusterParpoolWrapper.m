@@ -9,6 +9,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         current_job_ = [];
         task_ = [];
     end
+
     properties(Constant,Access = private)
         % list of states available for parallel computer toolbox cluster
         % class
@@ -32,7 +33,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         %Unavailable ( 'unavailable' , 102 )
         %Destroyed   ( 'deleted'     , 103 )
     end
-    
+
     methods
         function obj = ClusterParpoolWrapper(n_workers,mess_exchange_framework)
             % Constructor, which initiates wrapper around Matlab Parallel
@@ -62,7 +63,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             obj.started_info_message_  = ...
                 '*** Matlab MPI job started                                 ***\n';
             obj.cluster_config_ = 'default';
-            
+
             % The default name of the messages framework, used for communications
             % between the nodes of the parallel job
             obj.pool_exchange_frmwk_name_ = 'MessagesParpool';
@@ -75,7 +76,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             end
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
-        %
+
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % Method to initiate/reinitiate empty Parpool class wrapper.
             % The method to initate the cluster wrapper
@@ -92,12 +93,12 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
-            
+
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             assert(~obj.is_compiled_script_, ...
                 'HERBERT:ClusterParpoolWrapper:invalid_argument', ...
                 'Parpool cluster does not work with compiled workers')
-            
+
             % delete interactive parallel cluster if any exist
             cl = gcp('nocreate');
             if ~isempty(cl)
@@ -109,11 +110,11 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
             obj.common_env_var_('WORKER_CONTROL_STRING')=cs;
             pc = parallel_config;
-            
-            
+
+
             cl  = parcluster();
             cl.JobStorageLocation = pc.working_directory;
-            
+
             % By default Matlab only utilises physical cores; enable use of
             % logical cores if required
             n_requested_workers = obj.n_workers;
@@ -123,7 +124,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                     cl.NumWorkers = n_requested_workers;
                 end
             end
-            
+
             num_labs = cl.NumWorkers;
             if num_labs < obj.n_workers
                 error('HERBERT:ClusterParpoolWrapper:invalid_argument',...
@@ -131,7 +132,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                     obj.job_id,obj.n_workers,num_labs);
             end
             cjob = createCommunicatingJob(cl,'Type','SPMD');
-            
+
             if n_workers > 0
                 cjob.NumWorkersRange  = obj.n_workers;
             end
@@ -142,20 +143,20 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             obj.set_env();
             h_worker = str2func(obj.worker_name_);
             task = createTask(cjob,h_worker,0,{cs});
-            
+
             obj.cluster_ = cl;
             obj.current_job_  = cjob;
             obj.task_ = task;
-            
+
             %actually submit the job
             submit(cjob);
             %wait(cjob);
-            
+
             % check if job control API reported failure
             obj.check_failed();
-            
+
         end
-        %
+
         function obj=finalize_all(obj)
             % Close the MPI job, delete filebased exchange folders
             % and complete parallel job
@@ -164,9 +165,9 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                 delete(obj.current_job_);
                 obj.current_job_ = [];
             end
-            
+
         end
-        %
+
         function check_availability(obj)
             % verify the availability of the Matlab Parallel Computing
             % toolbox and the possibility to use the paropool cluster to
@@ -178,76 +179,75 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             check_availability@ClusterWrapper(obj);
             check_parpool_can_be_enabled_(obj);
         end
-        %
+
         function is = is_job_initiated(obj)
             % returns true, if the cluster wrapper is running communicating
             % job
             is = ~isempty(obj.task_);
         end
         %------------------------------------------------------------------
-        
+
     end
     methods(Access = protected)
         function ex = exit_worker_when_job_ends_(~)
             ex  = false;
         end
-        %         %
+
         function [running,failed,paused,mess]=get_state_from_job_control(obj)
             % retrieve the job state by accessing job control framework
             % and set current status accordingly
             %
             cljob = obj.current_job_;
             state = cljob.State;
-            
+
             code = obj.cluster_name2code(state);
-            if code == 3 % job is running
-                running = true;
-                failed = false;
-                paused = false;
-                mess = 'running';
-                return;
-            end
-            if code < 3 % paused, pended, not yet started
+            switch code
+              case {0,1,2} % paused, pending, not yet started
                 running = false;
                 failed = false;
                 paused = true;
                 mess = LogMessage(0,0,0,sprintf('Matlab MPI job is in %s',state));
-                return;
-            end
-            if code == 4
+
+              case 3 % job is running
+                running = true;
+                failed = false;
+                paused = false;
+                mess = 'running';
+
+              case 4 % Completed
                 running = false;
                 failed = false;
                 paused = false;
                 mess   = CompletedMessage();
-                return;
-            end
-            %  failed
-            paused = false;
-            running= false;
-            failed = true;
-            
-            %ErrorMessage	Message from task error
-            err = obj.task_.Error;
-            %Error	Task error information
-            messer_txt = obj.task_.ErrorMessage;
-            %ErrorIdentifier	Task error identifier
-            err_id = obj.task_.ErrorIdentifier;
-            
-            fail_text = sprintf('Cluster job: %s failed. Message: %s, Code: %d',obj.job_id,messer_txt,err_id);
-            if isa(err,'MException')
-                rep_err = err;
-            elseif ischar(err)
-                if contains(err,':')
-                    rep_err = MException(err,messer_txt);
+
+              otherwise %  failed
+                paused = false;
+                running= false;
+                failed = true;
+
+                %ErrorMessage	Message from task error
+                err = obj.task_.Error;
+                %Error	Task error information
+                messer_txt = obj.task_.ErrorMessage;
+                %ErrorIdentifier	Task error identifier
+                err_id = obj.task_.ErrorIdentifier;
+
+                fail_text = sprintf('Cluster job: %s failed. Message: %s, Code: %d',obj.job_id,messer_txt,err_id);
+                if isa(err,'MException')
+                    rep_err = err;
+                elseif ischar(err)
+                    if contains(err,':')
+                        rep_err = MException(err,messer_txt);
+                    else
+                        rep_err = MException(['HERBERT:',strrep(err,' ','_')],messer_txt);
+                    end
                 else
-                    rep_err = MException(['HERBERT:',strrep(err,' ','_')],messer_txt);
+                    err = strtrim(evalc('disp(err)'));
+                    rep_err = MException(['HERBERT:ParpoolWrapper:',strrep(err,' ','_')],messer_txt);
                 end
-            else
-                err = strtrim(evalc('disp(err)'));
-                rep_err = MException(['HERBERT:ParpoolWrapper:',strrep(err,' ','_')],messer_txt);
+                mess   = FailedMessage(fail_text,rep_err);
             end
-            mess   = FailedMessage(fail_text,rep_err);
         end
     end
-    
+
 end

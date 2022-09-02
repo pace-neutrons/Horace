@@ -11,7 +11,7 @@ classdef ClusterHerbert < ClusterWrapper
     properties(Access = private)
         task_common_str_ = {'-nosplash','-nodesktop','-r'};
     end
-    
+
     methods
         function obj = ClusterHerbert(n_workers,mess_exchange_framework,log_level)
             % Constructor, which initiates wrapper around Herbert Poor man
@@ -68,7 +68,7 @@ classdef ClusterHerbert < ClusterWrapper
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
-            
+
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             %
             %
@@ -76,7 +76,7 @@ classdef ClusterHerbert < ClusterWrapper
                 obj.task_common_str_ = [{'-softwareopengl'},obj.task_common_str_{:}];
             end
             obj.tasks_handles_  = cell(1,n_workers);
-            
+
             intecomm_name = obj.pool_exchange_frmwk_name_;
             for task_id=1:n_workers
                 cs = obj.mess_exchange_.get_worker_init(intecomm_name ,task_id,n_workers);
@@ -129,7 +129,7 @@ classdef ClusterHerbert < ClusterWrapper
                 end
                 obj.tasks_handles_ = {};
             end
-            
+
         end
         function is = is_job_initiated(obj)
             % returns true, if the cluster wrapper is running bunch of
@@ -172,6 +172,6 @@ classdef ClusterHerbert < ClusterWrapper
             end
         end
         %
-        
+
     end
 end

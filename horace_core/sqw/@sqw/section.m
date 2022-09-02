@@ -38,19 +38,17 @@ end
 
 % Dimension of input data structures
 ndim=dimensions(win(1));
-for i=2:numel(win)
-    if dimensions(win(i))~=ndim
-        error('All objects must have same dimensionality for sectioning to work')
-    end
-end
 if ndim==0  % no sectioning possible
-    error ('Cannot section a zero dimensional object')
+    error('HORACE:sqw:invalid_argument', 'Cannot section a zero dimensional object')
 end
 
+if numel(win) > 1 && any(cellfun(@(x)(dimensions(x)~=ndim), win(2:end)))
+    error('HORACE:sqw:invalid_argument', 'All objects must have same dimensionality for sectioning to work')
+end
 
-nargs= length(varargin);
+nargs = length(varargin);
 if nargs~=ndim
-    error ('Check number of arguments')
+    error('HORACE:sqw:invalid_argument', 'Check number of arguments')
 end
 
 % Initialise output argument
@@ -75,7 +73,7 @@ for n=1:numel(win)
             array_section{pax}=irange(1,pax):irange(2,pax);
         elseif isa_size(varargin{i},[1,2],'double')
             if varargin{i}(1)>varargin{i}(2)
-                error ('HORACE:section:invalid_argument', ...                
+                error ('HORACE:section:invalid_argument', ...
                 'Lower limit larger than upper limit for axis %d',i)
             end
             pax=win(n).data.dax(i);
@@ -166,6 +164,5 @@ if numel(nstart)==numel(nend)
     ind(ix)=dind;
     ind=cumsum(ind);
 else
-    error('Number of elements in input arrays incompatible')
+    error('HORACE:sqw:invalid_argument', 'Number of elements in input arrays incompatible')
 end
-
