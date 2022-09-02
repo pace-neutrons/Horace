@@ -186,7 +186,7 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
             rec_dnd = tn.get_sqw('-ver');
             tn.delete();
             
-            assertEqual(struct(tob_dnd),struct(rec_dnd));
+            assertEqualToTol(tob_dnd,rec_dnd);
             
         end
         %

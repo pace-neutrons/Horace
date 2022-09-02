@@ -171,7 +171,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
                 ll           = hc.log_level;
                 page_size    = pix.page_size;
 
-                crit = pix.num_pixels*sqw_binfile_common.FILE_PIX_SIZE > 6*page_size;
+                crit = pix.num_pixels > 6*page_size;
                 if crit && ll >0
                     fprintf(['*** Recalculating pixel range to upgrade file format to the latest binary version.\n',...
                         '    This is once per-old file long operation, analysing the whole pixels array\n'])

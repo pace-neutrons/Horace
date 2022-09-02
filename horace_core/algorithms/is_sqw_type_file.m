@@ -21,9 +21,6 @@ function [sqw_type, ndims, nfiles, filename, ld] = is_sqw_type_file(infile)
 %
 
 
-% Default return values if there is an error
-sqw_type=[]; ndims=[]; nfiles=[];
-
 % Check input file argument
 if ischar(infile) && numel(size(infile))==2
     filename=strtrim(cellstr(infile));
