@@ -1,8 +1,8 @@
 function sqw_obj = gen_bm_tobyfit_fit_data(nDims,dataInfo,dataSet)
-%GEN_TOBYFIT_FIT_DATA This function generates the data needed to run
+%GEN_BM_TOBYFIT_FIT_DATA This function generates the data needed to run
 %benchmarks of fit()
 % Using either a saved sqw object or generating an sqw using
-% gen_fake_sqw_data(), this funciton generates N cuts of sqw objects to
+% gen_dummy_sqw_data(), this funciton generates N cuts of sqw objects to
 % fit.
 % Inputs:
 %
@@ -21,7 +21,7 @@ function sqw_obj = gen_bm_tobyfit_fit_data(nDims,dataInfo,dataSet)
 % Check if there is alredy an exisiting sqw object to use, otherwise
 % generate it
 
-    dataSource = gen_fake_sqw_data(dataInfo);
+    dataSource = gen_dummy_sqw_data(dataInfo);
     
     proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
     switch nDims

@@ -1,4 +1,4 @@
-function dataSource = gen_fake_sqw_data(dataInfo)
+function dataSource = gen_dummy_sqw_data(dataInfo)
 %   This function will generate an sqw object for benchmarking using dummy_sqw
 %   Using the input parameter dataInfo, dummy_sqw will generate an sqw object
 %   with the requested amount of pixel data.

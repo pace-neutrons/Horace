@@ -2,7 +2,7 @@ function [cut1, cutN] = gen_bm_combine_data(nDims,dataInfo,dataSet)
 %GEN_BM_COMBINE_SQW This function generates the data needed to run
 %benchmarks of combine_sqw()
 % Using either a saved sqw object or generating an sqw using
-% gen_fake_sqw_data(), this funciton generates N cuts of sqw objects to
+% gen_dummy_sqw_data(), this funciton generates N cuts of sqw objects to
 % combine.
 % Inputs:
 %
@@ -19,7 +19,7 @@ function [cut1, cutN] = gen_bm_combine_data(nDims,dataInfo,dataSet)
 %   cut1        initial sqw obj to combine
 %   cutN        array of N sqw objects
 
-    dataSource = gen_fake_sqw_data(dataInfo);
+    dataSource = gen_dummy_sqw_data(dataInfo);
     
     switch nDims
         case 1
