@@ -92,7 +92,10 @@ if ~any(isempty(instr)) % all instruments are valid instruments
             instr = instr{1};
         end
         if isa(instr,'unique_objects_container')
-            exp_info.instruments = instr;
+            % equivalent to repmat in the else clause below
+            for i=1:n_runs
+                exp_info.instruments = exp_info.instruments.add(instr);
+            end
         else
             exp_info.instruments  = repmat({instr},1,n_runs);
         end

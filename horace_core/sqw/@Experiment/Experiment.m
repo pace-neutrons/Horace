@@ -2,6 +2,8 @@ classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
 
     properties(Access=private)
+    	% the vanilla constructor will give instruments_ one IX_null_inst
+    	% if no other instrument input is provided - see constructor
         instruments_ = unique_objects_container('type','{}','baseclass','IX_inst'); %{}; %IX_inst.empty;
         detector_arrays_ = []
         samples_ = {IX_null_sample()}; % IX_samp.empty;
@@ -93,6 +95,10 @@ classdef Experiment < serializable
             %
             % Each argument can be a single object or array of objects.
             if nargin == 0
+            	% add one null instrument in if using the vanilla constructor
+            	% to satisfy the requirements of subsequent initialisation
+                inst = IX_null_inst();
+                obj.instruments = obj.instruments.add(inst);
                 return;
             end
             obj = init_(obj,varargin{:});
