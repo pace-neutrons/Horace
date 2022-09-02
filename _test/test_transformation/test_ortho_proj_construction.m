@@ -202,6 +202,7 @@ classdef test_ortho_proj_construction<TestCase
             assertElementsAlmostEqual(data.ulen(1:3),ulen','absolute',1.e-4);
         end
         function test_get_projection_from_other_aligned_data(~)
+            skipTest('Demonstrates issue #846')
             data = struct();
             data.alatt = [3.1580 3.1752 3.1247];
             data.angdeg = [90.0013 89.9985 90.0003];

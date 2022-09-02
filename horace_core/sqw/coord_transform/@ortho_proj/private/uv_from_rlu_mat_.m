@@ -73,7 +73,7 @@ end
 type = [lt{:}];
 
 % get_proj_and_pbin(w) T.G.Perring   30 September 2018
-% Extracted from it on 19/07/2022; Caution ticket #827
+% Extracted from it on 19/07/2022; Caution: ticket #827
 uu = u_rot_mat(:, 1)';
 vv = u_rot_mat(:, 2)';
 ww = u_rot_mat(:, 3)';

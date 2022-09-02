@@ -45,7 +45,7 @@ if any(is_parsed) % driven mode
     rlu_corr = varargin{3};
     if ~iscell(alatt)
         alatt = {alatt};
-        angdeg = {angdeg};        
+        angdeg = {angdeg};
         rlu_corr = {rlu_corr};
     end
 else
@@ -65,4 +65,8 @@ for i=1:numel(obj)
     u_to_rlu = wout(i).proj.u_to_rlu;
     wout(i).offset(1:3)=rlu_corr{i}*wout(i).offset(1:3)';
     wout(i).proj = wout(i).proj.set_from_data_mat(rlu_corr{i}*u_to_rlu(1:3,1:3),wout(i).axes.ulen);
+    %     u0 = wout(i).proj.u';
+    %     v0 = wout(i).proj.v';
+    %     wout(i).proj.u = rlu_corr{i}*u0;
+    %     wout(i).proj.v = rlu_corr{i}*v0;
 end

@@ -1,6 +1,6 @@
 function [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu_(proj,ustep)
 % Determine matrices to convert rlu <=> projection axes, and the scaler
-% 
+%
 %
 %   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj)
 %   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, ustep)
@@ -60,29 +60,14 @@ end
 
 uvw=[u(:),v(:),w(:)];
 uvw_orthonorm=ubmat*uvw;    % u,v,w in the orthonormal (Crystal Cartesian)
-                            % frame defined by u and v
+% frame defined by u and v
 
 u_to_rlu = zeros(3,3);
 ulen = zeros(1,3);
 ustep_to_rlu = zeros(3,3);
 
 type=proj.type;
-if ~proj.nonorthogonal
-    % Get orthogonal Q vectors in r.l.u., u1||u, u2 perp. u1 in plane of u and v, u3 forms rh set with u1,u2:
-    % (Note ui is parallel to ubinv(:,i) in r.l.u.; length of this vector is presently 1 Ang^-1;
-    %  normalise these vectors according to argument 'type', get step, and finally get inverse)
-    for i=1:3
-        if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
-            ulen(i) = 1/max(abs(ubinv(:,i)));       % length of ui in Ang^-1
-        elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
-            ulen(i) = 1;                            % length of ui in Ang^-1
-        elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
-            ulen(i) = uvw_orthonorm(i,i);
-        end
-        u_to_rlu(:,i) = ubinv(:,i)*ulen(i);
-        ustep_to_rlu(:,i) = ustep(i)*u_to_rlu(:,i);
-    end
-else
+if proj.nonorthogonal
     % Keep non-orthogonality of u,v, and w (if given)
     for i=1:3
         veclen=norm(uvw_orthonorm(:,i));
@@ -96,6 +81,22 @@ else
             ulen(i) = veclen;
             u_to_rlu(:,i) = uvw(:,i);
         end
+        ustep_to_rlu(:,i) = ustep(i)*u_to_rlu(:,i);
+    end
+
+else
+    % Get orthogonal Q vectors in r.l.u., u1||u, u2 perp. u1 in plane of u and v, u3 forms rh set with u1,u2:
+    % (Note ui is parallel to ubinv(:,i) in r.l.u.; length of this vector is presently 1 Ang^-1;
+    %  normalise these vectors according to argument 'type', get step, and finally get inverse)
+    for i=1:3
+        if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
+            ulen(i) = 1/max(abs(ubinv(:,i)));       % length of ui in Ang^-1
+        elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
+            ulen(i) = 1;                            % length of ui in Ang^-1
+        elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
+            ulen(i) = uvw_orthonorm(i,i);
+        end
+        u_to_rlu(:,i) = ubinv(:,i)*ulen(i);
         ustep_to_rlu(:,i) = ustep(i)*u_to_rlu(:,i);
     end
 end

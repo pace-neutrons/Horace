@@ -55,7 +55,7 @@ for i=1:numel(obj)
     angdeg0 = obj(i).data.angdeg;
     header = obj(i).experiment_info;
     [alatt,angdeg,rlu_corr]=SQWDnDBase.parse_change_crystal_arguments(alatt0,angdeg0,header,varargin{:});
-    obj(i).data = change_crystal(obj(i).data,alatt,angdeg,rlu_corr,'-parsed');
-    obj(i).experiment_info = change_crystal(obj(i).experiment_info,alatt,angdeg,rlu_corr);
+    wout(i).data = change_crystal(obj(i).data,alatt,angdeg,rlu_corr,'-parsed');
+    wout(i).experiment_info = change_crystal(obj(i).experiment_info,alatt,angdeg,rlu_corr);
 end
 

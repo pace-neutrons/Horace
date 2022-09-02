@@ -1,6 +1,6 @@
 function change_crystal(filenames,varargin)
 % Change the crystal lattice and orientation of an sqw object stored in a file
-% or array of files
+% or celarray of files
 %
 % Most commonly:
 %   >> change_crystal (filenames, rlu_corr)              % change lattice parameters and orientation

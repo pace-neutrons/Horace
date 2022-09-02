@@ -97,7 +97,7 @@ classdef ortho_proj<aProjection
     properties(Hidden)
         % Developers option. Use old (v3 and below) subalgorithm in
         % ortho-ortho transformation to identify cells which may contribute
-        % to a cut. Correct value is selected from performance analysis
+        % to a cut. Correct value is choosed on basis of performance analysis
         use_old_cut_sub_alg=true;
     end
 
