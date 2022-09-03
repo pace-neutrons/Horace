@@ -450,7 +450,7 @@ else
 
     % Generate unique temporary sqw files, one for each of the spe files
     [grid_size,pix_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
-        pix_db_range,grid_size_in,keep_par_cl_running);
+        pix_db_range,grid_size_in,opt.tmp_only,keep_par_cl_running);
     verify_pix_range_est(pix_range,pix_range_est,log_level);
 
     if keep_par_cl_running
@@ -747,8 +747,11 @@ end
 disp('--------------------------------------------------------------------------------')
 %---------------------------------------------------------------------------------------
 function  [grid_size,pix_range,update_runids,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
-    pix_db_range,grid_size_in,gen_tmp_files_only)
+    pix_db_range,grid_size_in,gen_tmp_files_only,keep_parallel_pool_running)
 %
+    % if further operations are necessary to perform with generated tmp files,
+    % keep parallel pool running to save time on restarting it.
+
 log_level = ...
     config_store.instance().get_value('herbert_config','log_level');
 [use_separate_matlab,num_matlab_sessions] = ...
@@ -808,9 +811,6 @@ if use_separate_matlab
     job_name = ['gen_sqw_',fn];
     %
     jd = JobDispatcher(job_name);
-    % if further operations are necessary to perform with generated tmp files,
-    % keep parallel pool running to save time on restarting it.
-    keep_parallel_pool_running = ~gen_tmp_files_only;
 
     % aggregate the conversion parameters into array of structures,
     % suitable for splitting jobs between workers

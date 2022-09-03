@@ -28,35 +28,39 @@ obj.check_obj_initated_properly();
 if ~isempty(argi) % parse inputs which may or may not contain any
     % combination of 3 following input parameters:
     sqw_pos = cellfun(@(x)(isa(x,'sqw')||isstruct(x)),argi);
-    numeric_pos = cellfun(@isnumeric,argi);
+    numeric_pos = cellfun(@(x)(isnumeric(x)&&~isempty(x)),argi);
     parallel_Fw = cellfun(@(x)isa(x,'JobDispatcher'),argi);
     %
     unknown  = ~(sqw_pos|numeric_pos|parallel_Fw);
     if any(unknown)
-        disp('unknown input: ',argi{unknown});
+        if isempty(argi{1})
+            disp('unknown empty input ');
+        else
+            disp(['unknown input: ',argi{unknown}]);
+        end
         error('SQW_BINFILE_COMMON:invalid_argument',...
             'put_pixel: the routine accepts only sqw object and/or low and high numbers for pixels to save');
     end
-
+    
     if any(parallel_Fw)
         jobDispatcher = argi{parallel_Fw};
     else
         jobDispatcher  = [];
     end
-
+    
     if any(sqw_pos)
         input_obj = argi{sqw_pos};
     else
         input_obj = [];
     end
-
+    
     if ~isempty(input_obj)
         if isa(input_obj,'sqw')
-            input_obj = input_obj.data;
+            input_obj = input_obj.pix;
         end
         update = true;
     else
-        input_obj = obj.sqw_holder_.data;
+        input_obj = obj.sqw_holder_.pix;
     end
 else
     input_obj = obj.sqw_holder_.pix;
@@ -105,7 +109,7 @@ obj.eof_pix_pos_ = obj.pix_pos_ + npix * 9*4;
 if nopix
     if reserve
         block_size= config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
-
+        
         fseek(obj.file_id_,obj.pix_pos_ ,'bof');
         if block_size >= npix
             res_data = single(zeros(9,npix));
@@ -123,7 +127,7 @@ if nopix
             end
         end
         clear res_data;
-
+        
     else %TODO: Copied from prototype. Does this make any sense?
         fseek(obj.file_id_,obj.eof_pix_pos_ ,'bof');
         ferror(obj.file_id_, 'clear'); % clear error in case if pixels have never been written
@@ -140,15 +144,15 @@ if isa(input_obj,'pix_combine_info') % pix field contains info to read &
     %to do that.
     obj = put_sqw_data_pix_from_file_(obj,input_obj, jobDispatcher);
 else % write pixels directly
-
+    
     % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
     % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
     % could have no pixels because none contributed to the given data range.
     block_size = config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
-
+    
     fseek(obj.file_id_, obj.pix_pos_ , 'bof');
     check_error_report_fail_(obj, 'Error moving to the start of the pixels record');
-
+    
     npix_to_write = obj.npixels;
     if npix_to_write <= block_size
         input_obj.move_to_first_page();

@@ -11,7 +11,12 @@ if use_mex
         if fm
             rethrow(ME);
         else
-            warning(ME.identifier,'%s',ME.message);
+            persistent wc;
+            if isempty(wc) || wc > 50
+                wc = 0;
+                warning(ME.identifier,'%s',ME.message);                
+            end
+            wc = wc+1;
         end
     end
 end

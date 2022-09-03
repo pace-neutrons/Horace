@@ -105,13 +105,19 @@ if sqw_exist          % init may want to upgrade the file and this
 end
 
 if ~jd_initialized
-    job_disp = [];
+    job_disp_4head = []; % do not initialize job dispatcher to process headers. 
+    %  overhead is high and the job is small
+else
+    job_disp_4head =job_disp;
 end
 % construct target sqw object containing everything except pixel data.
 % Instead of PixelData, it will contain information about how to combine
 % PixelData
-[data_sum,img_db_range,job_disp]=get_pix_comb_info_(infiles,pix_range,job_disp, ...
+[data_sum,img_db_range,job_disp_4head]=get_pix_comb_info_(infiles,pix_range,job_disp_4head, ...
     allow_equal_headers,keep_runid,drop_subzone_headers);
+if ~isempty(job_disp_4head)
+    job_disp = job_disp_4head;
+end
 %
 %
 %

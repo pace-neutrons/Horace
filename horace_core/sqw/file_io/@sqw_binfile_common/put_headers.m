@@ -23,7 +23,7 @@ obj.check_obj_initated_properly();
 %
 header_num =[];  % by default, return all headers
 if ~isempty(argi)
-    numeric_pos = cellfun(@isnumeric,argi); % if numeric argument provided,
+    numeric_pos = cellfun(@(x)(isnumeric(x)&&~isempty(x)),argi); % if numeric argument provided,
     % return that header
     if any(numeric_pos)
         if sum(numeric_pos)>1

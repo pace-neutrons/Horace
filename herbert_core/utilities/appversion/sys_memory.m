@@ -24,4 +24,4 @@ end
 
 function mem_size = parse_mem_string(mem_string)
 cont = regexp(mem_string,'\s+','split');
-mem_size =  sscanf(cont{2},'%d');
+mem_size =  sscanf(cont{2},'%d')*1024;

@@ -6,7 +6,7 @@ function [subobj,subobj_is_new] = extract_correct_subobj_(obj,obj_name,varargin)
 %
 char_keys = cellfun(@is_char_key,varargin);
 argi = varargin(~char_keys);
-if ~isempty(argi)
+if ~( isempty(argi) || (iscell(argi)&& numel(argi)== 1 && isempty(argi{1})))
     input_obj = argi{1};
     subobj_is_new = true;
 else
