@@ -275,7 +275,7 @@ classdef JobExecutor
             %              ['-synchronous'|'-asynchronous']);
             %
             % Where the first form waits until all workers return
-            %'completed' message to the lab == 1,
+            % 'completed' message to the lab == 1,
             % The second form if message is not empty,
             % return of SomeMessage (usually 'failed' message)
             % asynchronous.
@@ -370,12 +370,16 @@ classdef JobExecutor
             % to give opportunity to initialise JobExecutor data
             % with access to parallel comms.
 
+            % Function is empty with intent to be overridden by subclasses
+
         end
 
         function obj = finalise(obj)
             % Function called once after leaving do_job loop
             % to give opportunity to finalise JobExecutor data
             % with access to parallel comms.
+
+            % Function is empty with intent to be overridden by subclasses
 
         end
 

@@ -341,15 +341,15 @@ classdef mfclass
         options
 
     end
-    properties(Dependent,Hidden) %
+    properties(Dependent,Hidden) % 
         % Hide excessive interface to avoid confusion but keep it if
         % some external programs use it
         %
         % Foreground is local if true, or global if false
-        global_foreground
+        global_foreground 
         % Background is local if true, or global if false
         local_background
-
+        
     end
 
     methods

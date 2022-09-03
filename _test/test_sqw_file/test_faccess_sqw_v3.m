@@ -405,7 +405,7 @@ classdef test_faccess_sqw_v3< TestCase
             bl_sizes = pix_ends-pix_starts+1;
 
             f = @() faccess.get_pix_in_ranges(pix_starts, bl_sizes);
-            assertExceptionThrown(f, 'HORACE:sqw_binfile_common:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:validate_ranges:invalid_range');
         end
 
         function test_get_pix_in_ranges_can_handle_out_of_order_ranges(obj)
@@ -450,7 +450,7 @@ classdef test_faccess_sqw_v3< TestCase
             bl_sizes = [2, 4, 6];
 
             f = @() faccess.get_pix_in_ranges(pix_starts, bl_sizes);
-            assertExceptionThrown(f, 'HORACE:sqw_binfile_common:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:validate_ranges:invalid_range');
         end
     end
 end

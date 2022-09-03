@@ -32,7 +32,7 @@ classdef iMessagesFramework < handle
         % Time in seconds a system waits for blocking message until
         % returning "not-received" (and normally throwing error)
         time_to_fail;
-        %
+
         % The property defines framework behavior in case when interrupt
         % message (cancelled or failed) received through the network.
         % Normally this means that
@@ -95,45 +95,45 @@ classdef iMessagesFramework < handle
         %------------------------------------------------------------------
         % SETTERS/GETTERS       *****
         %------------------------------------------------------------------
-        %
+
         function id = get.job_id(obj)
             id = obj.job_id_;
         end
-        %
+
         function set.job_id(obj,val)
             % set the string uniquely defining job name.
             set_job_id_(obj,val);
         end
-        %
+
         function ind = get.labIndex(obj)
             ind = get_lab_index_(obj);
         end
-        %
+
         function ind = get.numLabs(obj)
             ind = get_num_labs_(obj);
         end
-        %
+
         function is = get.is_tested(obj)
             is = get_is_tested(obj);
         end
-        %
+
         function set.time_to_fail(obj,val)
             obj.time_to_fail_ = val;
         end
-        %
+
         function val = get.time_to_fail(obj)
             val = obj.time_to_fail_ ;
         end
-        %
+
         function set.throw_on_interrupts(obj,val)
             obj.throw_on_interrupts_ = logical(val);
         end
-        %
+
         function do = get.throw_on_interrupts(obj)
             do = obj.throw_on_interrupts_;
         end
         %------------------------------------------------------------------
-        %
+
         function cs = get_worker_init(obj,intercom_name,labID,numLabs,varargin)
             % Generate slave MPI worker init info, using static
             % build_worker_init method and information, retrieved from
@@ -169,7 +169,7 @@ classdef iMessagesFramework < handle
             % numLabs       -- if present, total  number of Herbert pseudo MPI
             %                  workers in the pool.
             %
-            %
+
             datapath = fileparts(fileparts(obj.mess_exchange_folder));
             if exist('labID', 'var') % Herbert MPI worker. numlabs and labNum are defined by configuration
                 if nargin> 4
@@ -190,7 +190,7 @@ classdef iMessagesFramework < handle
                     datapath,obj.job_id,intercom_name);
             end
         end
-        %
+
         function set_interrupt(obj,mess,source_address)
             % check if the input message is an interrupt message
             % and if the message is an interrupt,
@@ -203,7 +203,7 @@ classdef iMessagesFramework < handle
 
             set_interrupt_(obj,mess,source_address);
         end
-        %
+
         function [mess,id_from] = get_interrupt(obj,source_address)
             % check if an interrupt message has been received from any of the
             % source addresses and return such messages.
@@ -223,7 +223,7 @@ classdef iMessagesFramework < handle
             %            framework
             [mess,id_from] = get_interrupt_(obj,source_address);
         end
-        %
+
         function [all_messages,mid_from] = retrieve_interrupt(obj,...
                 all_messages,mid_from,mes_addr_to_check)
             % Helper method used to add interrupt (persistent) messages
@@ -246,7 +246,7 @@ classdef iMessagesFramework < handle
             [all_messages,mid_from] = retrieve_interrupt_(obj,...
                 all_messages,mid_from,mes_addr_to_check);
         end
-        %
+
         function clear_interrupt(obj,task_id)
             % method clears interrupt, receved from task_id (labIndex)
             % provided as input
@@ -258,7 +258,7 @@ classdef iMessagesFramework < handle
             end
 
         end
-        %
+
         function [all_messages,task_ids] = receive_all(obj,task_ids,varargin)
             % receive messages from a task with id-s specified as array or
             % all messages from all labs available.
@@ -313,7 +313,7 @@ classdef iMessagesFramework < handle
             end
             [all_messages,task_ids] = receive_all_messages_(obj,task_ids,varargin{:});
         end
-        %
+
         function [ok,err_mess,message] = receive_message(obj,from_task_id,varargin)
             %
             % receive message from a task with specified id.
@@ -433,7 +433,7 @@ classdef iMessagesFramework < handle
                 cs = iMessagesFramework.serialize_par(cs);
             end
         end
-        %
+
         function params = deserialize_par(par_string)
             % function restores structure or class from a string
             % representation, build to allow transfer through standard
@@ -454,7 +454,7 @@ classdef iMessagesFramework < handle
             iarr = uint8(mod(int16(y),256)); % convert from int8 to uint8, wrapping negatives back into 255 range
             params  =  deserialise(iarr);
         end
-        %
+
         function [par,mess] = serialize_par(param)
             % convert a structure or class into a string representation
             % which allows transfer through standard system pipe
@@ -482,7 +482,7 @@ classdef iMessagesFramework < handle
             v = strrep(v,'=','-');
             par = strrep(v,'/','_');
         end
-        %
+
     end
 
     methods(Static,Access=protected)
@@ -503,12 +503,12 @@ classdef iMessagesFramework < handle
 
             id = sprintf('%i',pid+round(datetime('now').Second*10));
         end
-        %
+
         function is_blocking = check_is_blocking(mess_name,options)
             % helper function used to check if the requested message should
             % be processed synchronously or asynchronously.
             %
-            %
+
             if isempty(options)
                 is_blocking = MESS_NAMES.is_blocking(mess_name);
                 return
@@ -529,7 +529,7 @@ classdef iMessagesFramework < handle
                 is_blocking = MESS_NAMES.is_blocking(mess_name);
             end
         end
-        %
+
         function [messages,tid_from] = mix_messages(messages,tid_from,add_mess,tid_add_from)
             % helper function to add more messages to the list of existing messages
             %
@@ -666,7 +666,7 @@ classdef iMessagesFramework < handle
         % up these numbers in test mode.
         obj = set_framework_range(obj,labNum,NumLabs);
     end
-    %
+
     methods(Abstract,Access=protected)
         % return the labIndex
         ind = get_lab_index_(obj);
@@ -693,9 +693,9 @@ classdef iMessagesFramework < handle
 
         [is_ok,err_mess,message] = receive_message_internal(obj,task_id,mess_name,is_blocking)
     end
-    %
+
     methods(Access = protected)
-        %
+
         function set_job_id_(obj,new_job_id)
             % Set a string, which defines unique job.
             if is_string(new_job_id) && ~isempty(new_job_id)
@@ -705,7 +705,7 @@ classdef iMessagesFramework < handle
                     'MPI job id has to be a string');
             end
         end
-        %
+
         function [from_task_id,mess_name,is_blocking]=check_receive_inputs(obj,from_task_id,mess_name,varargin)
             % Helper function to check if receive message inputs are correct
             %
@@ -718,7 +718,7 @@ classdef iMessagesFramework < handle
             % is_blocking  -- if the receiving should be blocking(synchronous)
             %                 or unblocking (asynchronous)
             %
-            %
+
             if ~exist('from_task_id', 'var') || isempty(from_task_id) ||...
                     (isnumeric(from_task_id ) && from_task_id < 0) || ...
                     ischar(from_task_id)
@@ -755,7 +755,7 @@ classdef iMessagesFramework < handle
             % check if the message should be received synchronously or asynchronously
             is_blocking = obj.check_is_blocking(mess_name,varargin);
         end
-        %
+
         function [receive_now,message_names_array,n_steps] = check_whats_coming(obj,task_ids,mess_name,mess_array,n_steps)
             % Service function to check what messages will be arriving during next step waiting in
             % synchronous mode.
@@ -782,7 +782,7 @@ classdef iMessagesFramework < handle
             %
             [receive_now,message_names_array,n_steps] = check_whats_coming_(obj,task_ids,mess_name,mess_array,n_steps);
         end
-        %
+
     end
 
 end

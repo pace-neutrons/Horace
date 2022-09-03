@@ -21,16 +21,14 @@ function pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
 % -------
 % pix_out     A PixelData object containing the pixels in the given ranges.
 %
+
 if ~exist('recalculate_pix_range','var')
     recalculate_pix_range = true;
 end
 if ~exist('keep_precision','var')
     keep_precision = false;
 end
-[ok, mess] = validate_ranges(abs_indices_starts, block_sizes);
-if ~ok
-    error('HORACE:PixelData:invalid_argument', mess);
-end
+validate_ranges(abs_indices_starts, block_sizes);
 
 if obj.is_filebacked()
     if any(obj.page_dirty_)

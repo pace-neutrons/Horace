@@ -9,6 +9,7 @@
  * This is a MEX-file for MATLAB.
  *=======================================================*/
 #include <iostream>
+#include <string>
 #include <cstring>
 #include <cmath>
 #include <vector>
@@ -248,17 +249,21 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
 
         memPtr += 2; // Skip name_tag and dim tag
 
+
         uint32_t nameLen;
         deser(data, memPtr, &nameLen, types_size[UINT32]);
 
-        std::vector<char> name(nameLen + 1);
+        std::string name = std::string(nameLen, ' ');
 
-        // Null terminator
-        name[nameLen] = 0;
-        deser(data, memPtr, name.data(), nameLen * types_size[CHAR]);
+        deser(data, memPtr, &name[0], nameLen * types_size[CHAR]);
 
         uint8_t ser_tag;
         deser(data, memPtr, &ser_tag, types_size[UINT8]);
+
+        if (name == "MException") {
+          name += "_her";
+          ser_tag = 1;
+        }
 
         switch (ser_tag) {
         case SELF_SER:

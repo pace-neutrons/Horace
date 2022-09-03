@@ -184,6 +184,7 @@ classdef ClusterMPI < ClusterWrapper
             end
         end
     end
+
     methods(Access = protected)
         function [running,failed,paused,mess] = get_state_from_job_control(obj)
             % check if java process is still running or has been completed
@@ -194,10 +195,8 @@ classdef ClusterMPI < ClusterWrapper
             [running,failed,mess] = obj.is_java_process_running(task_handle);
             if failed
                 mess = FailedMessage(mess);
-            else % not failed
-                if ~running
-                    mess = CompletedMessage(mess);
-                end
+            elseif ~running
+                mess = CompletedMessage(mess);
             end
         end
     end
