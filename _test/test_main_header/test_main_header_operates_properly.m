@@ -97,7 +97,7 @@ classdef test_main_header_operates_properly< TestCase
             assertTrue(isa(w1_rec.main_header,'main_header_cl'));
 
             near_date = obj.get_closest_date( ...
-                w1_rec.main_header.creation_date,write_date,4);
+                w1_rec.main_header.creation_date,write_date,6);
             assertEqual(near_date,w1_rec.main_header.creation_date)
         end
 
