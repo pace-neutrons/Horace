@@ -343,6 +343,25 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                 end
             end
         end
+        function var = get_ref_dataset_(obj, var_name, test_name)
+            % Retrieve variable from the store for the named test
+            % Input:
+            % ------
+            %   var_name    The name of the variable to retrieve
+            %   test_name   The name of the test the variable belongs to
+            %
+            % Output:
+            % ------
+            %   var         Retrieved variable
+            %
+            % NOTE: for backwards compatibility with earlier versions:
+            % If the variable is not found in the structure for the named
+            % test it is looked for at the top level of the class property
+            % ref_data_.
+
+            var = get_ref_dataset_(obj, var_name, test_name);
+
+        end
 
         %------------------------------------------------------------------
         function val = get.test_results_file(this)
@@ -686,8 +705,8 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             if ~this.save_output
                 stored_reference = this.get_ref_dataset_(var_name, test_name);
                 if isa(stored_reference,'sqw') && ...
-                    (isa(stored_reference(1).main_header,'main_header_cl') && ...
-                    ~stored_reference(1).main_header.creation_date_defined)
+                        (isa(stored_reference(1).main_header,'main_header_cl') && ...
+                        ~stored_reference(1).main_header.creation_date_defined)
                     % ignore creation date if comparing sqw objects (usually
                     % old and new sqw objects are stored)
                     for i=1:numel(stored_reference)
