@@ -49,7 +49,7 @@ classdef test_data_in_sqw < TestCaseWithSave
         end
         %
         function test_loadobj_v0_v1(obj)
-            ax = axes_block([ 1,0.01,2],[-1,1],[0,1],[0,1,10],...                              
+            ax = axes_block([ 1,0.01,2],[-1,1],[0,1],[0,1,10],...
                 'label',{'\zeta','\xi','\eta','E'});
             ref_obj = data_sqw_dnd(ax,ortho_proj());
             % ocasionally old objects contain npix == 1
@@ -167,7 +167,7 @@ classdef test_data_in_sqw < TestCaseWithSave
             assertEqualToTol(ref_cut,same_cut,'tol',[1.e-9,1.e-9]);
         end
 
-        function test_get_proj_hkl_3D(obj)
+        function test_get_proj_same_cut_with_extracted_proj_is_the_same(obj)
             proj = ortho_proj([1,0,0],[0,0,1]);
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
 
@@ -182,8 +182,7 @@ classdef test_data_in_sqw < TestCaseWithSave
 
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
 
-            same_cut.main_header.creation_date = ref_cut.main_header.creation_date;
-            assertEqualToTol(ref_cut,same_cut,'tol',1.e-9);
+            assertEqualToTol(ref_cut,same_cut,'tol',1.e-9,'-ignore_date');
         end
 
 
