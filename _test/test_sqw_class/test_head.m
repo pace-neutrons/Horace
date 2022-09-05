@@ -40,6 +40,7 @@ classdef test_head < TestCaseWithSave
             % Header:
 
             % Head without return argument works
+            works = false;
             try
                 head(obj.sq1d_obj,'-full');
             catch ME

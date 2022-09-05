@@ -14,15 +14,15 @@ classdef test_plot_dnd < TestCase
 
         function obj = test_plot_dnd(varargin)
             obj = obj@TestCase('test_plot_dnd');
-            test_folder = fileparts(fileparts(mfilename('fullpath')));
-            tst_files = {fullfile(test_folder,'common_data',obj.sqw_1d_file),...
-                fullfile(test_folder,'common_data',obj.sqw_2d_file),...
-                fullfile(test_folder,'common_data',obj.sqw_3d_file),...
-                fullfile(test_folder,'common_data',obj.sqw_4d_file)};
+
+            hp = horace_paths();
+            tst_files = {fullfile(hp.test_common,obj.sqw_1d_file),...
+                fullfile(hp.test_common,obj.sqw_2d_file),...
+                fullfile(hp.test_common,obj.sqw_3d_file),...
+                fullfile(hp.test_common,obj.sqw_4d_file)};
             obj.dnd_obj = cell(4,1);
-            for i = 1:4
-                obj.dnd_obj{i} = read_dnd(tst_files{i});
-            end
+            obj.dnd_obj = cellfun(@(x)read_dnd(x),tst_files, ...
+                'UniformOutput',false);
         end
         %------------------------------------------------------------------
         function test_d4d_all_plot_methods_throw(obj)

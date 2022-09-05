@@ -1,4 +1,5 @@
 classdef sqw_tester<sqw
+    % the class to test protected methods of sqw class.
     properties
     end
 

@@ -1,10 +1,12 @@
 classdef test_join < TestCase
     properties
-        test_dir = fileparts(fileparts(mfilename('fullpath')));
+        test_dir;
     end
     methods
         function obj = test_join(~)
             obj = obj@TestCase('test_join');
+            hc = horace_paths;
+            obj.test_dir = hc.tests;
         end
 
         function test_split_and_join_returns_same_object_excluding_pixels(obj)

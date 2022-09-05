@@ -1,5 +1,5 @@
 function varargout = head(obj,varargin)
-% Display a summary of an sqw object or file containing sqw information.
+% Display a summary of an dnd object or array of dnd objects.
 %
 %   >> head(w)              % Display summary for object (or array of objects)
 %   >> head(sqw,filename)   % Display summary for named file (or array of names)

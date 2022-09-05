@@ -7,7 +7,6 @@ classdef test_migrated_apis < TestCaseWithSave
         sqw_file_2d_name = 'sqw_2d_1.sqw';
         sqw_file_4d_name = 'sqw_4d.sqw';
 
-        common_data
 
         test_sqw_1d_fullpath = '';
         test_sqw_2d_fullpath = '';
@@ -24,12 +23,11 @@ classdef test_migrated_apis < TestCaseWithSave
                 argi = {varargin{1},'test_migrated_apis'};
             end
             obj = obj@TestCaseWithSave(argi{:});
-            hor_root = horace_root();
-            obj.common_data = fullfile(hor_root,'_test/common_data');
+            hc = horace_paths();
 
-            obj.test_sqw_1d_fullpath = fullfile(obj.common_data, obj.sqw_file_1d_name);
-            obj.test_sqw_2d_fullpath = fullfile(obj.common_data, obj.sqw_file_2d_name);
-            obj.test_sqw_4d_fullpath = fullfile(obj.common_data, obj.sqw_file_4d_name);
+            obj.test_sqw_1d_fullpath = fullfile(hc.test_common, obj.sqw_file_1d_name);
+            obj.test_sqw_2d_fullpath = fullfile(hc.test_common, obj.sqw_file_2d_name);
+            obj.test_sqw_4d_fullpath = fullfile(hc.test_common, obj.sqw_file_4d_name);
             obj.save();
         end
 
@@ -153,7 +151,7 @@ classdef test_migrated_apis < TestCaseWithSave
 
             assertEqualToTolWithSave(obj, wout_disp, 'ignore_str', true,'tol',3.e-7);
         end
-        
+
 
         function test_get_proj_and_pbin(obj)
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);

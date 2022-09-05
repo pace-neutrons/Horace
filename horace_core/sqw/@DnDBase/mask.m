@@ -5,7 +5,7 @@ function [wout,mask_array] = mask (win, mask_array)
 %
 % Input:
 % ------
-%   win                 Input sqw object
+%   win                 Input dnd object
 %
 %   mask_array          Array of 1 or 0 (or true or false) that indicate
 %                      which points to retain (true to retain, false to ignore)

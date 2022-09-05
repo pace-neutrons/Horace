@@ -33,11 +33,11 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             this.w1data = read_sqw(fullfile(data_dir,'w1data.sqw'));
             this.w2data = read_sqw(fullfile(data_dir,'w2data.sqw'));
-            common_data = fullfile(fileparts(data_dir),'common_data');
-            this.w4ddata = read_sqw(fullfile(common_data,'sqw_4d.sqw'));
+            hp = horace_paths;
+            this.w4ddata = read_sqw(fullfile(hp.test_common,'sqw_4d.sqw'));
             this.win=[this.w1data,this.w2data];     % combine the two cuts into an array of sqw objects and fit
 
-            % Save reference resutlts, if '-save' option is requested
+            % Save reference results, if '-save' option is requested
             this.save();
         end
 
@@ -87,10 +87,10 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % changes - these are filepaths
             tol = [1e-10,1e-8];
             assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
-            ref_ds = this.get_ref_dataset_('wsim_1', 'test_fit_multidimensional_dataset'); % Bug #797
+            ref_ds = this.getReferenceData('wsim_1'); % Bug #797
             wsim_1.experiment_info.instruments = ref_ds.experiment_info.instruments();
             assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
-            ref_ds = this.get_ref_dataset_('wfit_1', 'test_fit_multidimensional_dataset');  % Bug #797
+            ref_ds = this.getReferenceData('wfit_1');  % Bug #797
             wfit_1.experiment_info.instruments = ref_ds.experiment_info.instruments();
             
             assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')

@@ -1,5 +1,5 @@
 classdef dnd_tester < DnDBase
-    % Class for testing protected properties end methods of dnd objects
+    % Class for testing protected properties and methods of dnd objects
     properties(Dependent,Access = protected)
         NUM_DIMS;
     end
@@ -27,6 +27,8 @@ classdef dnd_tester < DnDBase
             end
         end
         function [nd,sz] = dimensions(obj)
+            % just to allow to instantiate the class.
+            % not currently used
             nd = 0;
             sz = obj.axes_.data_nbins;
         end

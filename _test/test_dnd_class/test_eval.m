@@ -3,7 +3,6 @@ classdef test_eval < TestCase
     % same interface
 
     properties
-        data_dir
         d1d_obj
         d2d_obj
         sqw1d_obj        
@@ -13,11 +12,11 @@ classdef test_eval < TestCase
     methods
         function obj=test_eval(varargin)
             obj = obj@TestCase('test_eval');
-            obj.data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'common_data');
-            obj.d1d_obj = read_dnd(fullfile(obj.data_dir,'sqw_1d_2.sqw'));
-            obj.d2d_obj = read_dnd(fullfile(obj.data_dir,'sqw_2d_2.sqw'));
-            obj.sqw1d_obj = read_sqw(fullfile(obj.data_dir,'sqw_1d_2.sqw'));
-            obj.sqw2d_obj = read_sqw(fullfile(obj.data_dir,'sqw_2d_2.sqw'));
+            hp = horace_paths();
+            obj.d1d_obj = read_dnd(fullfile(hp.test_common,'sqw_1d_2.sqw'));
+            obj.d2d_obj = read_dnd(fullfile(hp.test_common,'sqw_2d_2.sqw'));
+            obj.sqw1d_obj = read_sqw(fullfile(hp.test_common,'sqw_1d_2.sqw'));
+            obj.sqw2d_obj = read_sqw(fullfile(hp.test_common,'sqw_2d_2.sqw'));
             
         end
         %

@@ -10,8 +10,8 @@ function obj = sqw_eval_nopix_(obj, sqwfunc, all_bins, pars)
 %              for the calculation
 %
 %   sqwfunc     Handle to function that calculates S(Q,w)
-%   all_bins    Boolean flag wither to apply function to all bins or only those contaiing data
-%   pars       Arguments needed by the function.
+%   all_bins    Boolean flag either to apply function to all bins or only those containing data
+%   pars        Arguments needed by the function.
 %
 %=================================================================
 

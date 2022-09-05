@@ -1,8 +1,8 @@
-function [ok,mess,nd_ref,matching]=dimensions_match(w,nd_ref)
+function [ok,mess,nd,matching]=dimensions_match(w,nd_ref)
 % Check that the dimensions of an array of sqw objects are all the same
 %
 %   >> [ok,mess]=dimensions_match(w)
-%   >> [ok,mess]=dimensions_match(w,nref)
+%   >> [ok,mess]=dimensions_match(w,nd_ref)
 %
 % Input:
 % ------
@@ -13,7 +13,7 @@ function [ok,mess,nd_ref,matching]=dimensions_match(w,nd_ref)
 %
 % Output:
 % -------
-%   ok      True if all have the same dimensionality (and match nref, if given)
+%   ok      True if all have the same dimensionality (and match nd_ref, if given)
 %   mess    Empty if ok==true; error message if not
 %   nd      Dimensionality
 %   matching boolean array containing true, where objects have the same
@@ -30,6 +30,7 @@ if nargin==1
 else
     nd_ref_given=true;
 end
+nd = nd_ref;
 matching = arrayfun(@(x)dimensions(x)==nd_ref,w);
 if all(matching)
     ok=true;

@@ -121,22 +121,21 @@ classdef test_pc_spec_config< TestCase
         %
         function test_set_wrong_pc_name(~)
             cm = opt_config_manager();
-            try
+            function pc_type_setter(cm)
                 cm.this_pc_type = 'rubbish';
-                assertTrue(false,'No exception was thrown on invalid configuration')
-            catch ME
-                assertEqual(ME.identifier,'HERBERT:opt_config_manager:invalid_argument')
             end
+            assertExceptionThrown(@()pc_type_setter(cm),...
+                'HERBERT:opt_config_manager:invalid_argument');
+            
         end
         %
         function test_set_wrong_pc_id(~)
             cm = opt_config_manager();
-            try
+            function pc_type_setter(cm)
                 cm.this_pc_type = -1;
-                assertTrue(false,'No exception was thrown on invalid configuration')
-            catch ME
-                assertEqual(ME.identifier,'HERBERT:opt_config_manager:invalid_argument')
             end
+            assertExceptionThrown(@()pc_type_setter(cm),...
+                'HERBERT:opt_config_manager:invalid_argument');
         end
         %
         function test_set_pc_type_by_id(~)

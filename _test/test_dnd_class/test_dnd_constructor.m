@@ -31,9 +31,9 @@ classdef test_dnd_constructor < TestCaseWithSave
             end
 
             obj = obj@TestCaseWithSave(argi{:});
-            hor_root = horace_root();
-            obj.common_data = fullfile(hor_root,'_test/common_data');
-            obj.test_data=fullfile(hor_root,'_test/test_combine');
+            hp = horace_paths();
+            obj.common_data = hp.test_common;
+            obj.test_data=fullfile(hp.test,'test_combine');
 
             obj.test_sqw_1d_fullpath = fullfile(obj.common_data, obj.SQW_FILE_1D_NAME);
             obj.test_sqw_2d_fullpath = fullfile(obj.common_data, obj.SQW_FILE_2D_NAME);
@@ -41,9 +41,9 @@ classdef test_dnd_constructor < TestCaseWithSave
 
             obj.test_dnd_2d_fullpath = fullfile(obj.common_data, obj.DND_FILE_2D_NAME);
         end
-        function this = test_dnd_from_sqw_array(this)
+        function obj = test_dnd_from_sqw_array(obj)
             % generate test data
-            par_file = fullfile(this.common_data,'96dets.par');
+            par_file = fullfile(obj.common_data,'96dets.par');
             S=ones(10,96);
             ERR=ones(10,96);
             en = 0:2:20;
@@ -97,7 +97,7 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
 
 
-        function obj = test_arg_constructor(obj)
+        function test_arg_constructor_from_file(obj)
             % TODO: This does not work any more. Should we recover this
             % constructor? #824
             %
@@ -115,12 +115,13 @@ classdef test_dnd_constructor < TestCaseWithSave
 
             t2 = read_dnd(fullfile(obj.test_data,'w2d_qq_d2d.sqw'));
             assertTrue(isa(t2,'d2d'))
+        end
+        function test_arg_constructor_from_ax_and_proj(~)
             ax = axes_block([-2,0.05,2],[-2,0.05,2],[0,1],[0,1]);
             proj = ortho_proj('alatt',3.2,'offset',[0,1,1,0],'u',[1,0,0],'v',[0,1,0]);
             t2 = d2d(ax,proj,zeros(81,81),zeros(81,81),ones(81,81));
             assertTrue(isa(t2,'d2d'))
             assertEqual(t2.offset,[0,1,1,0]);
-
         end
 
 
@@ -413,20 +414,20 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
 
         function test_d1d_get_returns_set_properties(obj)
-            ab = axes_block('nbins_all_dims',[1,1,10,1]);                        
+            ab = axes_block('nbins_all_dims',[1,1,10,1]);
             dnd_obj = d1d(ab,ortho_proj());
             obj.assert_dnd_get_returns_set_properties(dnd_obj,[10,1]);
         end
 
         function test_d2d_get_returns_set_properties(obj)
-            ab = axes_block('nbins_all_dims',[1,20,10,1]);            
+            ab = axes_block('nbins_all_dims',[1,20,10,1]);
             dnd_obj = d2d(ab,ortho_proj());
-            
+
             obj.assert_dnd_get_returns_set_properties(dnd_obj,[20,10]);
         end
 
         function test_d3d_get_returns_set_properties(obj)
-            ab = axes_block('nbins_all_dims',[10,10,1,10]);            
+            ab = axes_block('nbins_all_dims',[10,10,1,10]);
             dnd_obj = d3d(ab,ortho_proj());
             obj.assert_dnd_get_returns_set_properties(dnd_obj,[10,10,10]);
         end
@@ -474,28 +475,28 @@ classdef test_dnd_constructor < TestCaseWithSave
         function test_d4d_contains_expected_properties(obj)
             dnd_obj = d4d();
             assertEqual(dnd_obj.axes.dimensions,4)
-            assertEqual(dnd_obj.dimensions,4)            
+            assertEqual(dnd_obj.dimensions,4)
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
 
         function test_d3d_contains_expected_properties(obj)
             dnd_obj = d3d();
             assertEqual(dnd_obj.axes.dimensions,3)
-            assertEqual(dnd_obj.dimensions,3)            
+            assertEqual(dnd_obj.dimensions,3)
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
 
         function test_d2d_contains_expected_properties(obj)
             dnd_obj = d2d();
             assertEqual(dnd_obj.axes.dimensions,2)
-            assertEqual(dnd_obj.dimensions,2)            
+            assertEqual(dnd_obj.dimensions,2)
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
 
         function test_d1d_contains_expected_properties(obj)
             dnd_obj = d1d();
             assertEqual(dnd_obj.axes.dimensions,1)
-            assertEqual(dnd_obj.dimensions,1)            
+            assertEqual(dnd_obj.dimensions,1)
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
 
@@ -506,16 +507,16 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
         function test_d0d_empty_constructor_contains_1D_array(~)
             dnd_obj = d0d();
-            assertEqual(dnd_obj.dimensions,0)            
+            assertEqual(dnd_obj.dimensions,0)
             assertEqual(dnd_obj.s,0)
-            assertEqual(dnd_obj.e,0)         
-            assertEqual(dnd_obj.npix,0)                     
+            assertEqual(dnd_obj.e,0)
+            assertEqual(dnd_obj.npix,0)
 
             dnd_obj.npix = 1;
             assertEqual(dnd_obj.npix,1);
         end
 
-        
+
 
         function assert_dnd_contains_expected_properties(~, dnd_obj)
             expected_props = { ...
@@ -549,8 +550,6 @@ classdef test_dnd_constructor < TestCaseWithSave
             rec_file = fullfile(this_folder , ...
                 sprintf('loadsave_dnd_v%d.mat',1));
             ld = load(rec_file);
-            %ld.d2d_obj.data.img_db_range = d2d_obj.data.img_db_range; %
-            %this is old version bug now fixed
             assertEqualToTol(d2d_obj,ld.d2d_obj,'ignore_str',true)
         end
 

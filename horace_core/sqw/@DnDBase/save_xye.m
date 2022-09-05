@@ -1,5 +1,5 @@
 function  save_xye(obj,varargin)
-% Save 1D,2D,.. sqw or dnd object to ascii file.
+% Save any-dimensional image of 1D,2D,.. dnd or sqw object to ascii file.
 %
 % Syntax:
 %   >> save_xye (w)                 %  Prompts for file to write to

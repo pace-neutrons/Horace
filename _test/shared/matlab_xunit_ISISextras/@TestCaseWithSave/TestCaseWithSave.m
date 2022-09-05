@@ -343,26 +343,6 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                 end
             end
         end
-        function var = get_ref_dataset_(obj, var_name, test_name)
-            % Retrieve variable from the store for the named test
-            % Input:
-            % ------
-            %   var_name    The name of the variable to retrieve
-            %   test_name   The name of the test the variable belongs to
-            %
-            % Output:
-            % ------
-            %   var         Retrieved variable
-            %
-            % NOTE: for backwards compatibility with earlier versions:
-            % If the variable is not found in the structure for the named
-            % test it is looked for at the top level of the class property
-            % ref_data_.
-
-            var = get_ref_dataset_(obj, var_name, test_name);
-
-        end
-
         %------------------------------------------------------------------
         function val = get.test_results_file(this)
             % Retrieve the name of the file, where the test results will be
@@ -550,14 +530,19 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
         end
 
         function data = getReferenceData(this, var_name)
+            % Retrieve the variable, stored in test class for comparison
+            % with its current value
+            %
             % Wrapper to assertion methods to enable test or save functionality
             %
-            %   >> getReferenceData(this, var_name)
+            %   >>data= getReferenceData(this, var_name)
             %
             % Input:
             % ------
-            %   var         Variable to test or save
-            %   var_name    Name under which the variable will be saved
+            %   var_name    Name under which the variable is saved
+            % Output:
+            %   data        Stored name of the dataset for comparison with
+            %               its current value
 
             % Get the name of the test method. Determine this as the highest
             % method of the class in the call stack that begins with 'test'

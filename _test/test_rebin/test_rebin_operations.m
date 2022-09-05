@@ -9,7 +9,7 @@ classdef test_rebin_operations < TestCase
         amp=10;
         testdir;
         this_folder;
-        data_dir 
+        data_dir;
 
         % Tolerance to use when comparing single floats
         FLOAT_TOL = 4e-6;
@@ -19,7 +19,8 @@ classdef test_rebin_operations < TestCase
         function this=test_rebin_operations(name)
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
-            this.data_dir = fullfile(fileparts(this.testdir),'common_data');
+            hp = horace_paths();
+            this.data_dir = hp.test_common;
         end
 
         function this=prepare_test_data(this)
@@ -106,7 +107,7 @@ classdef test_rebin_operations < TestCase
             w2d_qq_small_sqw=sqw(fullfile(this.data_dir,'w2d_qq_small_sqw.sqw'));
 
             w2d_qq_small_sqw_1=rebin(w2d_qq_small_sqw,[0,0.04,0.4],[0,0.04,0.4]);
-            skipTest('DND rebinning disabled unil #798 is fixed')            
+            skipTest('DND rebinning disabled unil #798 is fixed')
             w2d_qq_sqw_reb=rebin(w2d_qq_sqw,w2d_qq_small_sqw_1);
 
             % Compare output with a direct simulation

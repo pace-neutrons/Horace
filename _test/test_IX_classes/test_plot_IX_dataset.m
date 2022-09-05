@@ -13,10 +13,10 @@ classdef test_plot_IX_dataset < TestCase
 
         function obj = test_plot_IX_dataset(varargin)
             obj = obj@TestCase('test_plot_dnd');
-            test_folder = fileparts(fileparts(mfilename('fullpath')));
-            tst_files = {fullfile(test_folder,'common_data',obj.sqw_1d_file),...
-                fullfile(test_folder,'common_data',obj.sqw_2d_file),...
-                fullfile(test_folder,'common_data',obj.sqw_3d_file)};
+            hp = horace_paths;
+            tst_files = {fullfile(hp.test_common,obj.sqw_1d_file),...
+                fullfile(hp.test_common,obj.sqw_2d_file),...
+                fullfile(hp.test_common,obj.sqw_3d_file)};
             obj.IX_data = cell(4,1);
             for i = 1:3
                 obj.IX_data{i} = read_dnd(tst_files{i});

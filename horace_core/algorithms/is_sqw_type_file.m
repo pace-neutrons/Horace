@@ -14,8 +14,8 @@ function [sqw_type, ndims, nfiles, filename, ld] = is_sqw_type_file(infile)
 %   ndims       Number of dimensions (array if more than one file)
 %   nfiles      Number of contributing spe data sets (array if more than one file)
 %   filename    Cell array of file names (even if only one file, this is still a cell array)
-%   ld          if mess is empty, list of loaders to get file information
-%               and load the file
+%   ld          list of loaders to get file information and load the file
+% Throws if some requested files are missing
 
 % Original author: T.G.Perring
 %
