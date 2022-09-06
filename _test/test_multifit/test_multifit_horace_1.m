@@ -67,10 +67,10 @@ classdef test_multifit_horace_1 < TestCaseWithSave
         end
 
         % ------------------------------------------------------------------------------------------------
-        function this = test_fit_multidimensional_dataset(this)
+        function obj = test_fit_multidimensional_dataset(obj)
             % Example of simultaneously fitting more than one sqw object
 
-            mss = multifit_sqw_sqw([this.w4ddata]);
+            mss = multifit_sqw_sqw([obj.w4ddata]);
             mss = mss.set_fun(@sqw_bcc_hfm,  [5,5,0,10,0]);  % set foreground function(s)
             mss = mss.set_free([1,1,0,0,0]); % set which parameters are floating
             mss = mss.set_bfun(@sqw_bcc_hfm, {[5,5,1.2,10,0]}); % set background function(s)
@@ -86,14 +86,14 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
             tol = [1e-10,1e-8];
-            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
-            ref_ds = this.getReferenceData('wsim_1'); % Bug #797
+            assertEqualToTolWithSave (obj, fitpar_1, 'tol', tol, 'ignore_str', 1)
+            ref_ds = obj.getReferenceDataset('test_fit_multidimensional_dataset','wsim_1'); % Bug #797
             wsim_1.experiment_info.instruments = ref_ds.experiment_info.instruments();
-            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
-            ref_ds = this.getReferenceData('wfit_1');  % Bug #797
+            assertEqualToTolWithSave (obj, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            ref_ds = obj.getReferenceDataset('test_fit_multidimensional_dataset','wfit_1');  % Bug #797
             wfit_1.experiment_info.instruments = ref_ds.experiment_info.instruments();
             
-            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            assertEqualToTolWithSave (obj, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
             skipTest('This is known bug #797. Instrument is not stored/restored properly');
         end
 

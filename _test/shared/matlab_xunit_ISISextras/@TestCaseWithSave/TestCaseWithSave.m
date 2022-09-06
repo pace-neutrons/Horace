@@ -529,7 +529,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             this.remove_paths (this.paths_to_remove_)
         end
 
-        function data = getReferenceData(this, var_name)
+        function data = getReferenceDataset(this, test_name,var_name)
             % Retrieve the variable, stored in test class for comparison
             % with its current value
             %
@@ -539,29 +539,13 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %
             % Input:
             % ------
-            %   var_name    Name under which the variable is saved
+            %  test_name    Name of the test function, the reference
+            %               variable belongs to
+            %   var_name    Name of variable to retrieve from cache
             % Output:
-            %   data        Stored name of the dataset for comparison with
+            %   data        Stored dataset retrieved for comparison with
             %               its current value
 
-            % Get the name of the test method. Determine this as the highest
-            % method of the class in the call stack that begins with 'test'
-            % ignoring character case
-            % (The test method may itself call functions in which the assertion
-            % test is performed, which is why we need to search the stack to get
-            % the test name)
-
-            class_name = class(this);
-            call_struct = dbstack(1);
-            for i=numel(call_struct):-1:2
-                cont=regexp(call_struct(i).name,'\.','split');
-                test_name = cont{end};
-
-                if strcmp(cont{1},class_name) && ~strcmp(cont{end},class_name) &&...
-                        strncmpi(cont{end},'test',4)
-                    break
-                end
-            end
 
             data = this.get_ref_dataset_(var_name, test_name);
         end
