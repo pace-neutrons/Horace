@@ -29,9 +29,6 @@ function err = validate_herbert(varargin)
 err = -1;
 if isempty(which('herbert_init'))
     horace_on();
-    % clear any previous configurations stored before and start tests from
-    % default configuration
-    config_store.instance().clear_all('-files');
 end
 
 % Parse arguments
@@ -47,7 +44,12 @@ end
 %==============================================================================
 % Place list of test folders here (relative to the master _test folder)
 % -----------------------------------------------------------------------------
-if isempty(test_folders) % No tests specified on command line - run them all
+if ~isempty(test_folders)
+    % normally run under cmake
+    % clear any previous configurations stored before and start tests from
+    % default configuration
+    config_store.instance().clear_all('-files');
+else % No tests specified on command line - run them all
     test_folders = { ...
         'test_admin', ...
         'test_data_loaders', ...
