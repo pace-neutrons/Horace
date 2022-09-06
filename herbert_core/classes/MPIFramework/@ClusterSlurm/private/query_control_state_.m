@@ -20,7 +20,7 @@ else
     if fail
         error('HERBERT:ClusterSlurm:runtime_error',...
             'Can not execute sacct query for job %d state Error: %s',...
-            obj.slurn_job_id,full_state);
+            obj.slurm_job_id,full_state);
     end
 end
 res = strsplit(strtrim(full_state));
