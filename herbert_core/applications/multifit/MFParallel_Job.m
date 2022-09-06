@@ -286,7 +286,7 @@ classdef MFParallel_Job < JobExecutor
             [obj.converged, obj.finished] = obj.bcast(1, obj.converged, obj.finished);
 
             tend = toc(timer);
-            obj.log_progress(obj.iter, obj.niter, tend)
+            obj.log_progress(obj.iter, obj.niter, tend, '')
 
         end
 
