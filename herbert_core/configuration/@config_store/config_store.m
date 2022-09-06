@@ -324,7 +324,7 @@ classdef config_store < handle
             options={'-files'};
             [ok,mess,clear_file]=parse_char_options(varargin,options);
             if ~ok
-                error('CONFIG_STORE:invalid_argument',mess);
+                error('HERBERT:config_store:invalid_argument',mess);
             end
             clear_particular_config(this,class_instance,clear_file);
         end

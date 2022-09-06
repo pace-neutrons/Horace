@@ -27,8 +27,11 @@ function err = validate_horace(varargin)
 
 err = -1;
 
-if isempty(which('horace_init'))
+if isempty(which('horace_init'))   
     horace_on();
+    % clear any previous configurations stored before and start tests from
+    % default configuration
+    config_store.instance().clear_all('-files');    
 end
 
 % Parse arguments

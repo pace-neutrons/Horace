@@ -29,6 +29,9 @@ function err = validate_herbert(varargin)
 err = -1;
 if isempty(which('herbert_init'))
     horace_on();
+    % clear any previous configurations stored before and start tests from
+    % default configuration
+    config_store.instance().clear_all('-files');
 end
 
 % Parse arguments
