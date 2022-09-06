@@ -142,3 +142,4 @@ function [nxspe_file_names,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,detectorS
     end
 
 end
+

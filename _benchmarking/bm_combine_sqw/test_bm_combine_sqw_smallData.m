@@ -247,3 +247,4 @@ classdef test_bm_combine_sqw_smallData < TestCase
     end
 
 end
+

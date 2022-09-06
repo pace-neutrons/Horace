@@ -72,3 +72,4 @@ function benchmark_combine_sqw_cleanup(cur_hpc_config)
 % Reset hpc configurations
 set(hpc_config, cur_hpc_config);
 end
+

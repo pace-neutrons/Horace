@@ -61,3 +61,4 @@ function sqw_obj = gen_bm_func_eval_data(nDims,dataInfo,dataSet)
             end
     end
 end
+
