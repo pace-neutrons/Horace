@@ -52,8 +52,11 @@ There are standard defined benchmarks for combinations of tests including:
 ## Execution
 
 The Benchmarking framework exploits the existing MATLAB xunit framework in the Horace
-repository. This means that individual benchmarks may be run using the standard ```MATLAB runtests
-[file:[test]] ``` syntax.
+repository. This means that individual benchmarks may be run using the standard
+```MATLAB
+runtests [file:[test]]
+```
+syntax.
 
 There also exists the `benchmark_horace` analogue to the `validate_horace` script which runs all
 registered benchmarks. There is also the CMake target `benchmark_all`, which generates the data and
