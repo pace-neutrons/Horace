@@ -40,8 +40,8 @@ tobyfit_fit
 ```
 
 for different data sizes, those sizes are `largeData`, `mediumData`, `smallData`, the definitions of
-which change depending on the function being run. In general, `smallData` ~10^4 elements,
-`mediumData` ~10^5 elements, `largeData` ~10^6 elements.
+which change depending on the function being run. In general, `smallData` ~10^7 elements, `mediumData`
+~10^8 elements, `largeData` ~10^9 elements and 10^4/5/6 elements for 1D/2D/3D operations respectively.
 
 There are standard defined benchmarks for combinations of tests including:
 - Number of cores
