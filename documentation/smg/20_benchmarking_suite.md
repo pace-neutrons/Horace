@@ -49,6 +49,9 @@ There are standard defined benchmarks for combinations of tests including:
 - Size of datasets
 - Dimensionality of data (i.e. 1D, 2D, 3D, 4D cuts)
 
+The `sqw` datafiles are created once on demand by the `gen_bm_<function>` functions or by the CMake 
+script and reused on subsequent calls. This generation is not recorded in timings.
+
 ## Execution
 
 The Benchmarking framework exploits the existing MATLAB xunit framework in the Horace
