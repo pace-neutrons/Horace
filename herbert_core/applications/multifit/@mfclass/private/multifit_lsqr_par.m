@@ -350,6 +350,7 @@ for i=1:nWorkers
     data(i).y = w.y(points(i)+1:points(i+1));
     data(i).e = w.e(points(i)+1:points(i+1));
     merge_data(i).range = [points(i)+1,points(i+1)];
+    merge_data(i).pix_range = merge_data(i).range;
 end
 
 end
@@ -370,6 +371,7 @@ for i = 1:nWorkers
     data(i).signal = w.signal(points(i)+1:points(i+1));
     data(i).error = w.error(points(i)+1:points(i+1));
     merge_data(i).range = [points(i)+1,points(i+1)];
+    merge_data(i).pix_range = merge_data(i).range;
 end
 
 if dims > 1
