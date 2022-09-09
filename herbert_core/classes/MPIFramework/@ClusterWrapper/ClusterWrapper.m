@@ -338,7 +338,8 @@ classdef ClusterWrapper
 
         function task_info = generate_run_string(obj, target_threads, ...
                                                  prefix_command, postfix_command, matlab_extra)
-
+        % Construct the string required for running a parallel Horace instance based on the required
+        % threads, and any extra commands which need to be added (e.g. mpi starters)
 
             matlab_command = sprintf('maxNumCompThreads(%d);%s;%s(''%s'');exit;', ...
                                      target_threads, ...
@@ -774,6 +775,7 @@ classdef ClusterWrapper
 
     methods(Static)
         function mpi_exec = get_mpiexec()
+        % Get the appropriate mpiexec program for running MPI jobs
             mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
             if ~isempty(mpi_exec)
                 if is_file(mpi_exec) % found external mpiexec

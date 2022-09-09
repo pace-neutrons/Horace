@@ -143,6 +143,9 @@ classdef ClusterSlurm < ClusterWrapper
             n_nodes = 1;
             cores_per_node = 4;
 
+            % For now assume all MPI applications are wanting to not be threaded
+            target_threads = 1;
+
             req_nodes = ceil(n_workers / cores_per_node);
             if req_nodes > n_nodes
                 error('HERBERT:ClusterSlurm:runtime_error',...
@@ -153,9 +156,6 @@ classdef ClusterSlurm < ClusterWrapper
 
             mpiexec = obj.get_mpiexec();
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
-
-            % For now assume all MPI applications are wanting to not be threaded
-            target_threads = 1;
 
             slurm_str = {'srun', ...
                          '-N',num2str(req_nodes), ...
@@ -168,19 +168,17 @@ classdef ClusterSlurm < ClusterWrapper
             obj.common_env_var_('WORKER_CONTROL_STRING') =...
                 obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
 
-            task_info = obj.generate_run_string(target_threads, mpiexec_str, ...
+            task_info = obj.generate_run_string(target_threads, [slurm_str, mpiexec_str], ...
                                                 {}, '');
             task_info{end} = ['''', task_info{end}, ''''];
-            run_str = join([slurm_str, task_info],' ');
+            run_str = join(task_info,' ')
 
-            run_str = [run_str{1}, ' &'];
+            run_str = [run_str{1}, ' &']
 
             % set up job variables on local environment (Does not
             % currently used as ISIS implementation does not transfer
             % environmental variables to cluster)
             obj.set_env();
-
-            queue0_rows = obj.get_queue_info();
 
             [failed,mess]=system(run_str);
             if failed
@@ -188,7 +186,9 @@ classdef ClusterSlurm < ClusterWrapper
                     ' Can not execute srun command for %d workers, Error: %s',...
                     n_workers,mess);
             end
+
             % parse queue and extract new job ID
+            queue0_rows = obj.get_queue_info();
             obj = extract_job_id(obj,queue0_rows);
             obj.starting_cluster_name_ = sprintf('SlurmJobID%d',obj.slurm_job_id);
 
