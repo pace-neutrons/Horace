@@ -171,9 +171,9 @@ classdef ClusterSlurm < ClusterWrapper
             task_info = obj.generate_run_string(target_threads, [slurm_str, mpiexec_str], ...
                                                 {}, '');
             task_info{end} = ['''', task_info{end}, ''''];
-            run_str = join(task_info,' ')
+            run_str = join(task_info,' ');
 
-            run_str = [run_str{1}, ' &']
+            run_str = [run_str{1}, ' &'];
 
             % set up job variables on local environment (Does not
             % currently used as ISIS implementation does not transfer
