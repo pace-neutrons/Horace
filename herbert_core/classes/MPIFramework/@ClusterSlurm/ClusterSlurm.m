@@ -3,9 +3,11 @@ classdef ClusterSlurm < ClusterWrapper
     % MPI interface controlled by Slurm job manager.
     %
     %----------------------------------------------------------------------
+
     properties(Access = public)
         slurm_job_id
     end
+
     properties(Access = protected)
         % The Slurm Job identifier
         slurm_job_id_ = [];
@@ -22,6 +24,7 @@ classdef ClusterSlurm < ClusterWrapper
         % verbosity of ClusterSlurm specific outputs
         log_level = 0;
     end
+
     properties(Constant, Access = private)
         %------------------------------------------------------------------
         % sacct state description list:
@@ -42,7 +45,7 @@ classdef ClusterSlurm < ClusterWrapper
         % Expected outputs can be:
         % RUNNING, RESIZING, SUSPENDED, PENDING, COMPLETED, CANCELLED, FAILED,
         % TIMEOUT, PREEMPTED, BOOT_FAIL, DEADLINE or NODE_FAIL
-        %
+
         sacct_state_abbr_ =  {'RU','RE','SU','PE','CO','CA','FA','TI','PR','BO','DE','NO','PD'}
         sjob_long_description_ = containers.Map(ClusterSlurm.sacct_state_abbr_ ,...
             {'Job currently has an allocation and running.',...
@@ -63,7 +66,6 @@ classdef ClusterSlurm < ClusterWrapper
             {'running','paused','paused','paused','finished','failed','failed','failed',...
             'failed','failed','failed','failed','failed'})
     end
-
 
     methods
         function obj = ClusterSlurm(n_workers,mess_exchange_framework,...
@@ -106,17 +108,18 @@ classdef ClusterSlurm < ClusterWrapper
             % initiate parameters necessary for job queue parsing
             obj=obj.init_queue_parser();
             obj.starting_cluster_name_ = class(obj);
+
             if nargin < 2
                 return;
             end
+
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
 
-
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
-        %
+
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initiate the cluster wrapper and start running
             % the cluster job.
@@ -136,37 +139,49 @@ classdef ClusterSlurm < ClusterWrapper
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             obj.log_level = log_level;
 
+            % n_nodes, cores_per_node = obj.get_remote_info();
+            n_nodes = 1;
+            cores_per_node = 4;
 
-            slurm_str = {'srun ',['-N',num2str(n_workers)],' --mpi=pmi2 '};
-            %
-            % May change for compiled Horace
-            obj.common_env_var_('HERBERT_PARALLEL_WORKER') =...
-                sprintf('-batch %s',obj.worker_name_);
+            req_nodes = ceil(n_workers / cores_per_node);
+            if req_nodes > n_nodes
+                error('HERBERT:ClusterSlurm:runtime_error',...
+                      ' Can not execute srun command for %d workers, requires %d nodes, only %d available',...
+                    n_workers, req_nodes, n_nodes);
+            end
+
+
+            mpiexec = obj.get_mpiexec();
+            mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
+
+            % For now assume all MPI applications are wanting to not be threaded
+            target_threads = 1;
+
+            slurm_str = {'srun', ...
+                         '-N',num2str(req_nodes), ...
+                         '-n',num2str(cores_per_node), ...
+                         '--mpi=pmi2', ...
+                         '--export=ALL'};
+
             % build worker init string describing the data exchange
             % location
             obj.common_env_var_('WORKER_CONTROL_STRING') =...
                 obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
-            %
+
+            task_info = obj.generate_run_string(target_threads, mpiexec_str, ...
+                                                {}, '');
+            task_info{end} = ['''', task_info{end}, ''''];
+            run_str = join([slurm_str, task_info],' ');
+
+            run_str = [run_str{1}, ' &'];
+
             % set up job variables on local environment (Does not
             % currently used as ISIS implementation does not transfer
             % environmental variables to cluster)
             obj.set_env();
 
-            % modify executor script values to export it to remote Slurm
-            % session
-            pths = horace_paths;
-            run_source = fullfile(pths.herbert,'admin','srun_runner.sh');
-            [fp,fon] = fileparts(mess_exchange_framework.mess_exchange_folder);
-            % the enviromental variables are transferred and stored and set
-            % in the shel script
-            runner= obj.create_runparam_script(run_source,...
-                fullfile(fp,[fon,'.sh']));
-            obj.runner_script_name_  = runner;
-
             queue0_rows = obj.get_queue_info();
 
-            run_str = [slurm_str{:},runner,' &'];
-            %run_str = [slurm_str{:},runner];
             [failed,mess]=system(run_str);
             if failed
                 error('HERBERT:ClusterSlurm:runtime_error',...
@@ -182,7 +197,7 @@ classdef ClusterSlurm < ClusterWrapper
             obj.check_failed();
 
         end
-        %
+
         function obj=finalize_all(obj)
             % complete parallel job execution
 
@@ -201,7 +216,7 @@ classdef ClusterSlurm < ClusterWrapper
                 end
             end
         end
-        %
+
         function config = get_cluster_configs_available(~)
             % The function returns the list of the available clusters
             % to run using correspondent parallel framework.
@@ -213,7 +228,7 @@ classdef ClusterSlurm < ClusterWrapper
             %
             config = {'srun','sbatch'};
         end
-        %
+
         function check_availability(obj)
             % verify the availability of Slurm cluster management
             % and the possibility to use the Slurm cluster
@@ -238,17 +253,16 @@ classdef ClusterSlurm < ClusterWrapper
         function id = get.slurm_job_id(obj)
             id = obj.slurm_job_id_;
         end
-        %
+
         function is = is_job_initiated(obj)
             % returns true, if the cluster wrapper is responsible for a job
             is = ~isempty(obj.slurm_job_id_);
         end
-        %
+
     end
-    methods(Static)
-    end
+
     methods(Access = protected)
-        %
+
         function [running,failed,paused,mess]=get_state_from_job_control(obj)
             % check if the job is still on the cluster and running and
             % return the job state and the information about this state
@@ -302,7 +316,7 @@ classdef ClusterSlurm < ClusterWrapper
                         'Undefined sacct control state %s',description);
             end
         end
-        %
+
         function [sacct_state,full_state] = query_control_state(obj,debug_state)
             % retrieve the state of the job issuing Slurm sacct
             % query command and parsing the results
@@ -311,7 +325,7 @@ classdef ClusterSlurm < ClusterWrapper
             %
             [sacct_state,full_state] = query_control_state_(obj,debug_state);
         end
-        %
+
         function queue_rows = get_queue_info(obj,varargin)
             % Auxiliary function to return existing jobs queue list
             opt = {'-full_header'};
@@ -322,7 +336,7 @@ classdef ClusterSlurm < ClusterWrapper
             queue_rows = get_queue_info_(obj,full_header);
 
         end
-        %
+
         function queue_text = get_queue_text_from_system(obj,full_header)
             % retrieve queue information from the system
             % Input keys:
@@ -334,7 +348,7 @@ classdef ClusterSlurm < ClusterWrapper
             %                 (squeue command output)
             queue_text = get_queue_text_from_system_(obj,full_header);
         end
-        %
+
         function obj=init_queue_parser(obj)
             % initialize parameters, needed for job queue management
 
@@ -347,7 +361,7 @@ classdef ClusterSlurm < ClusterWrapper
             end
             obj.user_name_ = strtrim(uname);
         end
-        %
+
         function  obj = extract_job_id(obj,old_queue_rows)
             % Retrieve job queue logs from the system
             % and extract new job ID from the log
@@ -360,7 +374,7 @@ classdef ClusterSlurm < ClusterWrapper
             % cluster object with slurm_job_id property set.
             obj = extract_job_id_(obj,old_queue_rows);
         end
-        %
+
         function bash_target = create_runparam_script(obj,bash_source,bash_target)
             % modify executor script to set up enviromental variables necessary
             % to provide remote parallel job startup information
