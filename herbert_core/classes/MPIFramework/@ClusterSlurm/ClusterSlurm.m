@@ -25,10 +25,6 @@ classdef ClusterSlurm < ClusterWrapper
         log_level = 0;
     end
 
-    properties(Constant)
-        MAX_JOB_LENGTH = 50;
-    end
-
     properties(Constant, Access = private)
         %------------------------------------------------------------------
         % sacct state description list:
@@ -145,7 +141,7 @@ classdef ClusterSlurm < ClusterWrapper
 
             par = parallel_config();
             comm = par.slurm_commands;
-            
+
             [n_nodes, cores_per_node] = obj.get_remote_info(comm);
 
             if par.is_auto_par_threads
@@ -157,24 +153,15 @@ classdef ClusterSlurm < ClusterWrapper
 
             req_nodes = ceil(n_workers / cores_per_node);
             if req_nodes > n_nodes
-                error('HERBERT:ClusterSlurm:runtime_error', ...
-                      'Can not execute srun command for %d workers, requires %d nodes, only %d available',...
+                error('HERBERT:ClusterSlurm:runtime_error',...
+                      ' Can not execute srun command for %d workers, requires %d nodes, only %d available',...
                     n_workers, req_nodes, n_nodes);
-            elseif req_nodes * target_threads > n_nodes
-                warning('HERBERT:ClusterSlurm:runtime_error', ...
-                        'Requested nodes with threading may oversubscribe nodes causing slowdown')
-            end
-
-            if numel(obj.job_id) > obj.MAX_JOB_LENGTH
-                error('HERBERT:ClusterSlurm:runtime_error', ...
-                      'Cannot start job %s, job id too long (max %d)', ...
-                      obj.job_id, obj.MAX_JOB_LENGTH)
             end
 
 
-            if any(comm.isKey({'-J', '--job-name', '-n', '--ntasks', '--ntasks-per-node', '--mpi', '--export'}))
-                warning('Keys present in slurm_commands which will be over-ridden')
-            end
+
+            % For now assume all MPI applications are wanting to not be threaded
+            target_threads = 1;
 
             w = warning('off', 'MATLAB:Containers:Map:NoKeyToRemove');
             comm.remove({'-J', '-n'});
@@ -189,13 +176,28 @@ classdef ClusterSlurm < ClusterWrapper
 
             % build worker init string describing the data exchange
             % location
-            wcs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            obj.common_env_var_('WORKER_CONTROL_STRING') =...
+                obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
 
             obj.start_workers(wcs, ...
                               'prefix_command', slurm_str, ...
                               'target_threads', target_threads);
 
+            run_str = [run_str{1}, ' &'];
 
+            % set up job variables on local environment (Does not
+            % currently used as ISIS implementation does not transfer
+            % environmental variables to cluster)
+            obj.set_env();
+
+            queue0_rows = obj.get_queue_info();
+
+            [failed,mess]=system(run_str);
+            if failed
+                error('HERBERT:ClusterSlurm:runtime_error',...
+                    ' Can not execute srun command for %d workers, Error: %s',...
+                    n_workers,mess);
+            end
             % parse queue and extract new job ID
             obj = obj.extract_job_id();
             obj.starting_cluster_name_ = sprintf('SlurmJobID%d',obj.slurm_job_id);
@@ -367,7 +369,7 @@ classdef ClusterSlurm < ClusterWrapper
             obj.user_name_ = strtrim(uname);
         end
 
-        function  obj = extract_job_id(obj)
+        function  obj = extract_job_id(obj,old_queue_rows)
             % Retrieve job queue logs from the system
             % and extract new job ID from the log
             %
