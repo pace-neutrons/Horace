@@ -394,7 +394,7 @@ classdef ClusterSlurm < ClusterWrapper
                 end
             end
 
-            job_comp = strsplit(strtrim(new_job_info{ind}));
+            job_comp = strsplit(strtrim(queue_rows{ind}));
             obj.slurm_job_id_ = str2double(job_comp{1});
 
         end
