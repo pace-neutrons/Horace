@@ -157,7 +157,14 @@ classdef ClusterSlurm < ClusterWrapper
             mpiexec = obj.get_mpiexec();
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
 
+            if numel(obj.job_id) > 50
+                error('HERBERT:ClusterSlurm:runtime_error', ...
+                      'Cannot start job %s, job id too long (max %d)', ...
+                      obj.job_id, 50)
+            end
+
             slurm_str = {'srun', ...
+                         '-J',obj.job_id, ...
                          '-N',num2str(req_nodes), ...
                          '-n',num2str(cores_per_node), ...
                          '--mpi=pmi2', ...
@@ -188,8 +195,7 @@ classdef ClusterSlurm < ClusterWrapper
             end
 
             % parse queue and extract new job ID
-            queue0_rows = obj.get_queue_info();
-            obj = extract_job_id(obj,queue0_rows);
+            obj = obj.extract_job_id();
             obj.starting_cluster_name_ = sprintf('SlurmJobID%d',obj.slurm_job_id);
 
             % check if job control API reported failure
@@ -362,43 +368,34 @@ classdef ClusterSlurm < ClusterWrapper
             obj.user_name_ = strtrim(uname);
         end
 
-        function  obj = extract_job_id(obj,old_queue_rows)
+        function  obj = extract_job_id(obj)
             % Retrieve job queue logs from the system
             % and extract new job ID from the log
             %
             % Inputs:
-            % old_queue_rows -- the cellarray of rows, which contains the
-            %                   job logs, obtained before new job was
-            %                   submitted
             % Returns:
             % cluster object with slurm_job_id property set.
-            obj = extract_job_id_(obj,old_queue_rows);
+
+            ind = [];
+            fail_c = 0;
+            while isempty(ind)
+                queue_rows = obj.get_queue_info();
+                ind = find(contains(queue_rows, obj.job_id));
+                if isempty(ind)
+                    fail_c = fail_c + 1;
+                    if fail_c > 10
+                        error('HERBERT:ClusterSlurm:runtime_error',...
+                              'Can not find job %s in Slurm queue',obj.job_id)
+                    end
+                    pause(obj.time_to_wait_for_job_running_);
+                end
+            end
+
+            job_comp = strsplit(strtrim(new_job_info{ind}));
+            obj.slurm_job_id_ = str2double(job_comp{1});
+
         end
 
-        function bash_target = create_runparam_script(obj,bash_source,bash_target)
-            % modify executor script to set up enviromental variables necessary
-            % to provide remote parallel job startup information
-            %
-            [~,cont,var_pos] = extract_bash_exports(bash_source);
-            cont = modify_contents(cont,var_pos,obj.common_env_var_);
-            fh = fopen(bash_target,'w');
-            if fh<1
-                error('HERBERT:ClusterSlurm:io_error',...
-                    'Can not open file %s to modify for job submission',...
-                    bash_source);
-            end
-            clOb = onCleanup(@()fclose(fh));
-            for i=1:numel(cont)
-                fprintf(fh,'%s\n',cont{i});
-            end
-            clear clOb;
-            [fail,mess] = system(['chmod a+x ',bash_target]);
-            if fail
-                error('HERBERT:ClusterSlurm:runtime_error',...
-                    'Can not set up executable mode for file %s. Readon: %s',...
-                    bash_target,mess);
-            end
-        end
     end
 
 end
