@@ -277,6 +277,7 @@ classdef ClusterSlurm < ClusterWrapper
             % Debugging operation. Seems not all states are described in
             % manual
             states = obj.sjob_reaction_.keys;
+
             if ~ismember(sacct_state,states)
                 if obj.log_level>-1
                     fprintf(2,'*** SLURM control returned unknown state: %s,\n',...
@@ -296,26 +297,22 @@ classdef ClusterSlurm < ClusterWrapper
                 control_state = obj.sjob_reaction_(sacct_state);
                 description = obj.sjob_long_description_(sacct_state);
             end
+
+            running = false;
+            failed = false;
+            paused = false;
+
             switch(control_state)
                 case 'running'
                     running = true;
-                    failed  = false;
-                    paused  = false;
                     mess    = 'running';
                 case 'failed'
-                    running = false;
-                    failed  = true;
-                    paused  = false;
-                    mess = FailedMessage(description );
+                    failed = true;
+                    mess = FailedMessage(description);
                 case 'finished'
-                    running = false;
-                    failed  = false;
-                    paused  = false;
                     mess = CompletedMessage(description);
                 case 'paused'
-                    running = false;
-                    failed  = false;
-                    paused  = true;
+                    paused = true;
                     mess = LogMessage(0,0,0,description);
                 otherwise % Never happens
                     error('HERBERT:ClusterSlurn:runtime_error',...
@@ -391,7 +388,7 @@ classdef ClusterSlurm < ClusterWrapper
                 end
             end
 
-            job_comp = strsplit(strtrim(new_job_info{ind}));
+            job_comp = strsplit(strtrim(queue_rows{ind}));
             obj.slurm_job_id_ = str2double(job_comp{1});
 
         end
