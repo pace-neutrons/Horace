@@ -186,7 +186,7 @@ classdef ClusterSlurm < ClusterWrapper
                               'prefix_command', slurm_str, ...
                               'target_threads', target_threads);
 
-            run_str = [run_str{1}, ' &']
+            run_str = [run_str{1}, ' &'];
 
             % set up job variables on local environment (Does not
             % currently used as ISIS implementation does not transfer
