@@ -201,8 +201,7 @@ classdef ClusterSlurm < ClusterWrapper
             end
 
             % parse queue and extract new job ID
-            queue0_rows = obj.get_queue_info();
-            obj = extract_job_id(obj,queue0_rows);
+            obj = obj.extract_job_id();
             obj.starting_cluster_name_ = sprintf('SlurmJobID%d',obj.slurm_job_id);
 
             % check if job control API reported failure
@@ -372,7 +371,7 @@ classdef ClusterSlurm < ClusterWrapper
             obj.user_name_ = strtrim(uname);
         end
 
-        function  obj = extract_job_id(obj,old_queue_rows)
+        function  obj = extract_job_id(obj)
             % Retrieve job queue logs from the system
             % and extract new job ID from the log
             %
@@ -395,7 +394,7 @@ classdef ClusterSlurm < ClusterWrapper
                 end
             end
 
-            job_comp = strsplit(strtrim(queue_rows{ind}));
+            job_comp = strsplit(strtrim(new_job_info{ind}));
             obj.slurm_job_id_ = str2double(job_comp{1});
 
         end
