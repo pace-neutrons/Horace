@@ -151,6 +151,9 @@ classdef ClusterSlurm < ClusterWrapper
                 target_threads = par.par_threads;
             end
 
+            % For now assume all MPI applications are wanting to not be threaded
+            target_threads = 1;
+
             req_nodes = ceil(n_workers / cores_per_node);
             if req_nodes > n_nodes
                 error('HERBERT:ClusterSlurm:runtime_error',...
@@ -183,14 +186,12 @@ classdef ClusterSlurm < ClusterWrapper
                               'prefix_command', slurm_str, ...
                               'target_threads', target_threads);
 
-            run_str = [run_str{1}, ' &'];
+            run_str = [run_str{1}, ' &']
 
             % set up job variables on local environment (Does not
             % currently used as ISIS implementation does not transfer
             % environmental variables to cluster)
             obj.set_env();
-
-            queue0_rows = obj.get_queue_info();
 
             [failed,mess]=system(run_str);
             if failed
@@ -198,8 +199,10 @@ classdef ClusterSlurm < ClusterWrapper
                     ' Can not execute srun command for %d workers, Error: %s',...
                     n_workers,mess);
             end
+
             % parse queue and extract new job ID
-            obj = obj.extract_job_id();
+            queue0_rows = obj.get_queue_info();
+            obj = extract_job_id(obj,queue0_rows);
             obj.starting_cluster_name_ = sprintf('SlurmJobID%d',obj.slurm_job_id);
 
             % check if job control API reported failure
