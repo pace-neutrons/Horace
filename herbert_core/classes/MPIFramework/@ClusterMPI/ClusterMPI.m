@@ -137,30 +137,6 @@ classdef ClusterMPI < ClusterWrapper
 
     %------------------------------------------------------------------
 
-    methods(Static)
-        function mpi_exec = get_mpiexec()
-            mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
-            if ~isempty(mpi_exec)
-                if is_file(mpi_exec) % found external mpiexec
-                    return
-                else
-                    warning('HERBERT:ClusterMPI:invalid_argument',...
-                        'External mpiexec %s selected but is not available',mpi_exec);
-                end
-            end
-
-            % Get current horace root dir
-            pths = horace_paths;
-            external_dll_dir = fullfile(pths.horace, 'DLL', 'external');
-
-            if ispc()
-                mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
-            else
-                mpi_exec = fullfile(external_dll_dir, 'mpiexec');
-            end
-        end
-    end
-
     methods(Access = protected)
         function [running,failed,paused,mess] = get_state_from_job_control(obj)
             % check if java process is still running or has been completed

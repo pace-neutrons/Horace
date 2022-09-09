@@ -210,12 +210,10 @@ classdef ClusterWrapper
                       'Can not find Matlab');
             end
 
-            obj.matlab_starter_ = prog_path;
-
             if ispc()
-                obj.matlab_starter_ = fullfile(obj.matlab_starter_,'matlab.exe');
+                obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
             else
-                obj.matlab_starter_= fullfile(obj.matlab_starter_,'matlab');
+                obj.matlab_starter_= fullfile(prog_path,'matlab');
             end
 
             if obj.is_compiled_script_
@@ -316,18 +314,13 @@ classdef ClusterWrapper
             postfix_command = p.Results.postfix_command;
             matlab_extra = p.Results.matlab_extra;
 
-            obj.common_env_var_('WORKER_CONTROL_STRING') = worker_control_string;
-
             par = parallel_config;
             target_threads = par.par_threads;
 
-            matlab_command = sprintf('maxNumCompThreads(%d);%s;%s(''%s'');exit;', ...
-                                     target_threads, matlab_extra, obj.worker_name_, worker_control_string);
+            obj.common_env_var_('WORKER_CONTROL_STRING') = worker_control_string;
 
-            task_info = [prefix_command(:)',...
-                         {obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},...
-                         postfix_command(:)', ...
-                         {'-batch'},{matlab_command}];
+            task_info = obj.generate_run_string(target_threads, ...
+                                                prefix_command, postfix_command, matlab_extra)
 
             if ispc()
                 runtime = java.lang.ProcessBuilder('cmd.exe');
@@ -342,6 +335,23 @@ classdef ClusterWrapper
             task_id = runtime.start();
 
         end
+
+        function task_info = generate_run_string(obj, target_threads, ...
+                                                 prefix_command, postfix_command, matlab_extra)
+
+
+            matlab_command = sprintf('maxNumCompThreads(%d);%s;%s(''%s'');exit;', ...
+                                     target_threads, ...
+                                     matlab_extra, ...
+                                     obj.worker_name_, ...
+                                     obj.common_env_var_('WORKER_CONTROL_STRING'));
+
+            task_info = [prefix_command(:)',...
+                         {obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},...
+                         postfix_command(:)', ...
+                         {'-batch'},{matlab_command}];
+        end
+
 
         function [obj,ok]=wait_started_and_report(obj,check_time,varargin)
         % check for 'ready' message and report cluster ready to user.
@@ -758,6 +768,30 @@ classdef ClusterWrapper
                 else
                     rethrow(Err);
                 end
+            end
+        end
+    end
+
+    methods(Static)
+        function mpi_exec = get_mpiexec()
+            mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
+            if ~isempty(mpi_exec)
+                if is_file(mpi_exec) % found external mpiexec
+                    return
+                else
+                    warning('HERBERT:ClusterMPI:invalid_argument',...
+                        'External mpiexec %s selected but is not available',mpi_exec);
+                end
+            end
+
+            % Get current horace root dir
+            pths = horace_paths;
+            external_dll_dir = fullfile(pths.horace, 'DLL', 'external');
+
+            if ispc()
+                mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
+            else
+                mpi_exec = fullfile(external_dll_dir, 'mpiexec');
             end
         end
     end
