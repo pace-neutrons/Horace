@@ -166,7 +166,7 @@ classdef main_header_cl < serializable
         end
 
         function obj = set.nfiles(obj,val)
-            if ~isnumeric(val) || val<0 || numel(val) ~= 1
+            if ~isnumeric(val) || val<0 || ~isscalar(val)
                 error('HORACE:main_header:invalid_argument', ...
                     'Number of files should have a single non-negative numeric value. It is %s',...
                     evalc('disp(val)'));
