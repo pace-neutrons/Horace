@@ -105,7 +105,7 @@ classdef main_header_cl < serializable
 
                 else
                     error('HORACE:main_header:invalid_argument',...
-                        'can not construct main header from parameter %s',...
+                        'Can not construct main header from parameter %s',...
                         evalc('disp(arg))'))
                 end
 
@@ -129,8 +129,8 @@ classdef main_header_cl < serializable
         function obj = set.title(obj,val)
             if ~(ischar(val) || isstring(val))
                 error('HORACE:main_header:invalid_argument', ...
-                    'title has to be string or char array and it is %s',...
-                    class(val));
+                      'Bad title (%s). title must be string or char array.', ...
+                      evalc('disp(val)'));
             end
             obj.title_ = val;
         end
@@ -142,8 +142,8 @@ classdef main_header_cl < serializable
         function obj = set.filename(obj,val)
             if ~(ischar(val) || isstring(val))
                 error('HORACE:main_header:invalid_argument', ...
-                    'filename has to be string or char array and it is %s',...
-                    class(val));
+                      'Bad filename (%s). filename must be string or char array.', ...
+                      evalc('disp(val)'));
             end
             obj.filename_ = val;
         end
@@ -155,8 +155,8 @@ classdef main_header_cl < serializable
         function obj = set.filepath(obj,val)
             if ~(ischar(val) || isstring(val))
                 error('HORACE:main_header:invalid_argument', ...
-                    'filepath has to be string or char array and it is %s',...
-                    class(val));
+                      'Bad filepath (%s). filepath must be string or char array.', ...
+                      evalc('disp(val)'));
             end
             obj.filepath_ = val;
         end
@@ -168,8 +168,8 @@ classdef main_header_cl < serializable
         function obj = set.nfiles(obj,val)
             if ~isnumeric(val) || val<0 || ~isscalar(val)
                 error('HORACE:main_header:invalid_argument', ...
-                    'Number of files should have a single non-negative numeric value. It is %s',...
-                    evalc('disp(val)'));
+                      'Bad nfiles (%s). Number of files must be a non-negative scalar numeric value.',...
+                      evalc('disp(val)'));
             end
             obj.nfiles_ = val;
         end
@@ -207,8 +207,8 @@ classdef main_header_cl < serializable
                 dt  = val;
             else
                 error('HORACE:main_header:invalid_argument', ...
-                      'file creation date may be datetime class or string, transferrable to datetime function according to format %s. Provided %s', ...
-                      obj.dt_format,evalc('disp(val)'));
+                      'Bad creation date (%s). File creation date must be datetime class or string, compatible with datetime function according to format %s.', ...
+                      evalc('disp(val)'), obj.dt_format);
             end
 
             obj.creation_date_    = dt;
@@ -272,10 +272,10 @@ classdef main_header_cl < serializable
     end
 
     methods(Static)
-        % Service routines:
+        % Utility routines:
         function datt = convert_datetime_from_str(in_str)
             % convert main_header_cl's generated time string into
-            % datetime format
+            % datetime format (datetime format differs from date(vec|num|str) format)
             tmp = datevec(in_str, main_header_cl.dt_format);
             datt = datetime(tmp);
         end
