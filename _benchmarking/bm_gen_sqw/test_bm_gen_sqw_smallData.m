@@ -31,7 +31,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
             dataSet = 'small';
             detectorSize = 'small';
             nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
         end
 
         function test_bm_gen_sqw_smallData_mediumNumber_smallDetector_1procs(obj)
@@ -39,7 +39,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
             dataSet = 'medium';
             detectorSize = 'small';
             nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
         end
 
         function test_bm_gen_sqw_smallData_largeNumber_smallDetector_1procs(obj)
@@ -47,7 +47,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
             dataSet = 'large';
             detectorSize = 'small';
             nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
         end
 
         function test_bm_gen_sqw_smallData_smallNumber_mediumDetector_1procs(obj)
@@ -55,7 +55,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
             dataSet = 'small';
             detectorSize = 'medium';
             nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
         end
 
         function test_bm_gen_sqw_smallData_mediumNumber_mediumDetector_1procs(obj)
@@ -63,7 +63,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
             dataSet = 'medium';
             detectorSize = 'medium';
             nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
         end
 
         function test_bm_gen_sqw_smallData_largeNumber_mediumDetector_1procs(obj)
@@ -71,7 +71,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
             dataSet = 'large';
             detectorSize = 'medium';
             nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
         end
 
         function test_bm_gen_sqw_smallData_smallNumber_largeDetector_1procs(obj)
@@ -79,7 +79,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
             dataSet = 'small';
             detectorSize = 'large';
             nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
         end
 
         function test_bm_gen_sqw_smallData_mediumNumber_largeDetector_1procs(obj)
@@ -87,7 +87,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
             dataSet = 'medium';
             detectorSize = 'large';
             nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
         end
 
         function test_bm_gen_sqw_smallData_largeNumber_largeDetector_1procs(obj)
@@ -95,7 +95,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
             dataSet = 'large';
             detectorSize = 'large';
             nProcs = 1;
-            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+            benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
         end
 
 %% The following benchmarks are for multi-processor/parallel-enabled codes
@@ -105,7 +105,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'small';
 %             detectorSize = 'small';
 %             nProcs = 2;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_mediumNumber_smallDetector_2procs(obj)
@@ -113,7 +113,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'medium';
 %             detectorSize = 'small';
 %             nProcs = 2;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_largeNumber_smallDetector_2procs(obj)
@@ -121,7 +121,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'large';
 %             detectorSize = 'small';
 %             nProcs = 2;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_smallNumber_mediumDetector_2procs(obj)
@@ -129,7 +129,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'small';
 %             detectorSize = 'medium';
 %             nProcs = 2;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_mediumNumber_mediumDetector_2procs(obj)
@@ -137,7 +137,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'medium';
 %             detectorSize = 'medium';
 %             nProcs = 2;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_largeNumber_mediumDetector_2procs(obj)
@@ -145,7 +145,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'large';
 %             detectorSize = 'medium';
 %             nProcs = 2;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_smallNumber_largeDetector_2procs(obj)
@@ -153,7 +153,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'small';
 %             detectorSize = 'large';
 %             nProcs = 2;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_mediumNumber_largeDetector_2procs(obj)
@@ -161,7 +161,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'medium';
 %             detectorSize = 'large';
 %             nProcs = 2;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_largeNumber_largeDetector_2procs(obj)
@@ -169,7 +169,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'large';
 %             detectorSize = 'large';
 %             nProcs = 2;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_smallNumber_smallDetector_4procs(obj)
@@ -177,7 +177,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'small';
 %             detectorSize = 'small';
 %             nProcs = 4;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_mediumNumber_smallDetector_4procs(obj)
@@ -185,7 +185,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'medium';
 %             detectorSize = 'small';
 %             nProcs = 4;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_largeNumber_smallDetector_4procs(obj)
@@ -193,7 +193,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'large';
 %             detectorSize = 'small';
 %             nProcs = 4;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_smallNumber_mediumDetector_4procs(obj)
@@ -201,7 +201,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'small';
 %             detectorSize = 'medium';
 %             nProcs = 4;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_mediumNumber_mediumDetector_4procs(obj)
@@ -209,7 +209,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'medium';
 %             detectorSize = 'medium';
 %             nProcs = 4;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_largeNumber_mediumDetector_4procs(obj)
@@ -217,7 +217,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'large';
 %             detectorSize = 'medium';
 %             nProcs = 4;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_smallNumber_largeDetector_4procs(obj)
@@ -225,7 +225,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'small';
 %             detectorSize = 'large';
 %             nProcs = 4;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_mediumNumber_largeDetector_4procs(obj)
@@ -233,7 +233,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'medium';
 %             detectorSize = 'large';
 %             nProcs = 4;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
 % 
 %         function test_bm_gen_sqw_smallData_largeNumber_largeDetector_4procs(obj)
@@ -241,7 +241,7 @@ classdef test_bm_gen_sqw_smallData < TestCase
 %             dataSet = 'large';
 %             detectorSize = 'large';
 %             nProcs = 4;
-%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs,obj.function_name);
+%             benchmark_gen_sqw(obj.dataSize,dataSet,detectorSize,nProcs);
 %         end
     end
 end

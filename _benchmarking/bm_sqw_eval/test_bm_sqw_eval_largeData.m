@@ -6,7 +6,7 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %   - dataSet: the number of sqw objects in the array
 %   - nProcs: the number of processors the benchmarks will run on
 %   - objectType: sqw or dnd object
-    
+
     properties
         function_name;
         sqw_eval_func=@slow_func;
@@ -14,7 +14,7 @@ classdef test_bm_sqw_eval_largeData <TestCase
         common_data;
         dataSize = 'large';
     end
-    
+
     methods
         function obj = test_bm_sqw_eval_largeData(test_class_name)
             %TEST_BM_SQW_EVAL_largeData Construct an instance of this class
@@ -24,12 +24,13 @@ classdef test_bm_sqw_eval_largeData <TestCase
             obj = obj@TestCase(test_class_name);
             pths = horace_paths;
             obj.common_data = pths.bm_common;
+            addpath(pths.bm_common_func);
         end
 
 % ocr96: Currently running into Out of Memory error in Anvil when running largeData test
 % commented out untill appropriate data size is chosen or memory issue in
 % Anvil resolved
-                
+
 %         function test_bm_sqw_eval_1D_sqw_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -37,9 +38,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_sqw_largeData_mediumNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -47,9 +48,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_sqw_largeData_largeNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -57,9 +58,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_sqw_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -67,9 +68,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_sqw_largeData_mediumNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -77,9 +78,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_sqw_largeData_largeNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -87,9 +88,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_sqw_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -97,9 +98,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_sqw_largeData_mediumNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -107,9 +108,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_sqw_largeData_largeNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -117,7 +118,7 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
 % 4D tests commented out as they take very long to run, and needs to be
 % determined if they are worth running: do they represent a true use case ?
@@ -129,9 +130,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 % %             nProcs = 1;
 % %             objType="sqw";
 % %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+% %                 obj.sqw_eval_func,obj.params,nProcs);
 % %         end
-% % 
+% %
 % %         function test_bm_sqw_eval_4D_sqw_largeData_mediumNumber_1procs(obj)
 % %             obj.function_name = get_bm_name();
 % %             nDims=4;
@@ -139,9 +140,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 % %             nProcs = 1;
 % %             objType="sqw";
 % %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+% %                 obj.sqw_eval_func,obj.params,nProcs);
 % %         end
-% % 
+% %
 % %         function test_bm_sqw_eval_4D_sqw_largeData_largeNumber_1procs(obj)
 % %             obj.function_name = get_bm_name();
 % %             nDims=4;
@@ -149,8 +150,8 @@ classdef test_bm_sqw_eval_largeData <TestCase
 % %             nProcs = 1;
 % %             objType="sqw";
 % %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-% %         end         
+% %                 obj.sqw_eval_func,obj.params,nProcs);
+% %         end
 
 %          function test_bm_sqw_eval_1D_dnd_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
@@ -159,9 +160,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_dnd_largeData_mediumNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -169,9 +170,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_dnd_largeData_largeNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -179,9 +180,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_dnd_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -189,9 +190,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_dnd_largeData_mediumNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -199,9 +200,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_dnd_largeData_largeNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -209,9 +210,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_dnd_largeData_smallNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -219,9 +220,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_dnd_largeData_mediumNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -229,9 +230,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_dnd_largeData_largeNumber_1procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -239,7 +240,7 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 1;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
 
 % 4D tests commented out as they take very long to run, and needs to be
@@ -252,9 +253,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 % %             nProcs = 1;
 % %             objType="dnd";
 % %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+% %                 obj.sqw_eval_func,obj.params,nProcs);
 % %         end
-% % 
+% %
 % %         function test_bm_sqw_eval_4D_dnd_largeData_mediumNumber_1procs(obj)
 % %             obj.function_name = get_bm_name();
 % %             nDims=4;
@@ -262,9 +263,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 % %             nProcs = 1;
 % %             objType="dnd";
 % %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+% %                 obj.sqw_eval_func,obj.params,nProcs);
 % %         end
-% % 
+% %
 % %         function test_bm_sqw_eval_4D_dnd_largeData_largeNumber_1procs(obj)
 % %             obj.function_name = get_bm_name();
 % %             nDims=4;
@@ -272,8 +273,8 @@ classdef test_bm_sqw_eval_largeData <TestCase
 % %             nProcs = 1;
 % %             objType="dnd";
 % %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-% %                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-% %         end  
+% %                 obj.sqw_eval_func,obj.params,nProcs);
+% %         end
 
 %% The following benchmarks are for multi-processor/parallel-enabled codes
 %         function test_bm_sqw_eval_1D_sqw_largeData_smallNumber_2procs(obj)
@@ -283,9 +284,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_sqw_largeData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -293,9 +294,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_sqw_largeData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -303,9 +304,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_sqw_largeData_smallNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -313,9 +314,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_sqw_largeData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -323,9 +324,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_sqw_largeData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -333,9 +334,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_sqw_largeData_smallNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -343,9 +344,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_sqw_largeData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -353,9 +354,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_sqw_largeData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -363,7 +364,7 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
 
 %         function test_bm_sqw_eval_4D_sqw_largeData_smallNumber_2procs(obj)
@@ -373,9 +374,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_4D_sqw_largeData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=4;
@@ -383,9 +384,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_4D_sqw_largeData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=4;
@@ -393,9 +394,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-%         end  
-% 
+%                 obj.sqw_eval_func,obj.params,nProcs);
+%         end
+%
 %          function test_bm_sqw_eval_1D_dnd_largeData_smallNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -403,9 +404,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_dnd_largeData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -413,9 +414,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_dnd_largeData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -423,9 +424,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_dnd_largeData_smallNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -433,9 +434,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_dnd_largeData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -443,9 +444,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_dnd_largeData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -453,9 +454,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_dnd_largeData_smallNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -463,9 +464,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_dnd_largeData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -473,9 +474,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_dnd_largeData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -483,7 +484,7 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
 %
 %         function test_bm_sqw_eval_4D_dnd_largeData_smallNumber_2procs(obj)
@@ -493,9 +494,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_4D_dnd_largeData_mediumNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=4;
@@ -503,9 +504,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_4D_dnd_largeData_largeNumber_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=4;
@@ -513,9 +514,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 2;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-%         end  
-% 
+%                 obj.sqw_eval_func,obj.params,nProcs);
+%         end
+%
 %         function test_bm_sqw_eval_1D_sqw_largeData_smallNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -523,9 +524,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_sqw_largeData_mediumNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -533,9 +534,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_sqw_largeData_largeNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -543,9 +544,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_sqw_largeData_smallNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -553,9 +554,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_sqw_largeData_mediumNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -563,9 +564,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_sqw_largeData_largeNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -573,9 +574,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_sqw_largeData_smallNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -583,9 +584,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_sqw_largeData_mediumNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -593,9 +594,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_sqw_largeData_largeNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -603,7 +604,7 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="sqw";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
 %
 %          function test_bm_sqw_eval_4D_sqw_largeData_smallNumber_4procs(obj)
@@ -613,9 +614,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %                     nProcs = 4;
 %                     objType="sqw";
 %                     benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                         obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                         obj.sqw_eval_func,obj.params,nProcs);
 %          end
-% 
+%
 %          function test_bm_sqw_eval_4D_sqw_largeData_mediumNumber_4procs(obj)
 %                     obj.function_name = get_bm_name();
 %                     nDims=4;
@@ -623,9 +624,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %                     nProcs = 4;
 %                     objType="sqw";
 %                     benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                         obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                         obj.sqw_eval_func,obj.params,nProcs);
 %          end
-% 
+%
 %          function test_bm_sqw_eval_4D_sqw_largeData_largeNumber_4procs(obj)
 %                     obj.function_name = get_bm_name();
 %                     nDims=4;
@@ -633,9 +634,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %                     nProcs = 4;
 %                     objType="sqw";
 %                     benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                         obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-%          end  
-% 
+%                         obj.sqw_eval_func,obj.params,nProcs);
+%          end
+%
 %          function test_bm_sqw_eval_1D_dnd_largeData_smallNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -643,9 +644,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_dnd_largeData_mediumNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -653,9 +654,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_1D_dnd_largeData_largeNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=1;
@@ -663,9 +664,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_dnd_largeData_smallNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -673,9 +674,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_dnd_largeData_mediumNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -683,9 +684,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_2D_dnd_largeData_largeNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=2;
@@ -693,9 +694,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_dnd_largeData_smallNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -703,9 +704,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_dnd_largeData_mediumNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -713,9 +714,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_3D_dnd_largeData_largeNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=3;
@@ -723,7 +724,7 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
 %
 %         function test_bm_sqw_eval_4D_dnd_largeData_smallNumber_4procs(obj)
@@ -733,9 +734,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_4D_dnd_largeData_mediumNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=4;
@@ -743,9 +744,9 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
+%                 obj.sqw_eval_func,obj.params,nProcs);
 %         end
-% 
+%
 %         function test_bm_sqw_eval_4D_dnd_largeData_largeNumber_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims=4;
@@ -753,8 +754,7 @@ classdef test_bm_sqw_eval_largeData <TestCase
 %             nProcs = 4;
 %             objType="dnd";
 %             benchmark_sqw_eval(nDims,obj.dataSize,dataSet,objType,...
-%                 obj.sqw_eval_func,obj.params,nProcs,obj.function_name);
-%         end  
+%                 obj.sqw_eval_func,obj.params,nProcs);
+%         end
     end
 end
-

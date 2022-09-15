@@ -109,8 +109,9 @@ if smallData
             end
         end
     end
+end
 %% Run benchmarks for a medium sized data set
-elseif mediumData
+if mediumData
     for i = 1:numel(bm_folders_full)
         % Get filenames for benchmarks in each folder
         current_folder = dir(bm_folders_full{i});
@@ -124,8 +125,9 @@ elseif mediumData
             end
         end
     end
+end
 %% Run benchmarks for large sized data set
-elseif largeData
+if largeData
     for i = 1:numel(bm_folders_full)
         % Get filenames for benchmarks in each folder
         current_folder = dir(bm_folders_full{i});
@@ -139,8 +141,9 @@ elseif largeData
             end
         end
     end
+end
 %% Run all benchmarks (small, medium and large data sets)
-else
+if ~any([smallData, mediumData, largeData])
     for i = 1:numel(bm_folders_full)
         runtests(bm_folders_full{i})
     end
@@ -155,6 +158,4 @@ end
 function benchmark_horace_cleanup(cur_horace_config)
 % Reset the configurations for Horace and HPC
 set(hor_config, cur_horace_config);
-% DELETE GENERATED SQW FILES
-% delete(string(smallDataSource))
 end

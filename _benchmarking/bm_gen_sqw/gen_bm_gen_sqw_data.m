@@ -77,7 +77,7 @@ function [nxspe_file_names,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,detectorS
     
     switch detectorSize
         case 'small'
-            num_detectors = 36864; % Num of detector pixels for MAPS
+            num_detectors = 36864; % ~Num of detector pixels for MAPS
             n_a = floor(sqrt(num_detectors));
             ang_lims = {{5, 60, n_a}, {-170, 170, n_a}};  % For MAPS
             theta_angs = linspace(ang_lims{1}{:});
@@ -97,7 +97,7 @@ function [nxspe_file_names,psi] = gen_bm_gen_sqw_data(dataSize,dataSet,detectorS
             phi2d = phi2d(:);
             r = ones(size(theta2d)) .* 2.5;   % for MERLIN, r = 2.5;
         case 'large'
-            num_detectors = 79524; % Num of detector pixels for LET (TO BE CONFIRMED)
+            num_detectors = 97969; % ~Num of detector pixels for LET
             n_a = floor(sqrt(num_detectors));
             ang_lims = {{5, 130, n_a}, {-170, 170, n_a}};  % LET
             theta_angs = linspace(ang_lims{1}{:});

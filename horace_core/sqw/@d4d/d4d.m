@@ -7,8 +7,8 @@ classdef d4d < DnDBase
     %   >> w = d4d(filename)       % Create a D4D object from a file
     %   >> w = d4d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent,Access = protected)
-        NUM_DIMS;
+    properties (Constant, Access = protected)
+        NUM_DIMS = 4;
     end
 
     methods(Static)
@@ -24,22 +24,9 @@ classdef d4d < DnDBase
         wout = cut (varargin);
         function obj = d4d(varargin)
             obj = obj@DnDBase(varargin{:});
-            if nargin == 0
-                obj.axes.single_bin_defines_iax = [false,false,false,false];
-                obj.axes.dax= [1,2,3,4];
-                obj.s_ = 0;
-                obj.e_ = 0;
-                obj.npix_ = 0;
+            if nargin==0
+                obj.nbins_all_dims = [2,2,2,2];
             end
-
         end
-        function nd = get.NUM_DIMS(~)
-            nd =4;
-        end
-        function [nd,sz] = dimensions(obj)
-            nd = 4;
-            sz = obj.axes_.data_nbins;
-        end
-
     end
 end
