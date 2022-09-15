@@ -105,15 +105,15 @@ classdef MFParallel_Job < JobExecutor
             obj.nval = numel(obj.yval);
 
             obj.npts = obj.reduce(1, obj.nval, @vertcat, 'args');
-            nval = sum(obj.npts);
+            nvals = sum(obj.npts);
             obj.npfree = numel(common.p);
 
             if obj.is_root
-                if nval < obj.npfree
+                if nvals < obj.npfree
                     error("HERBERT:mfclass:multifit_lsqr",'Number of data points must be greater than or equal to the number of free parameters')
                 end
 
-                obj.nnorm = max(nval-obj.npfree,1);   % we allow for the case nval=npfree
+                obj.nnorm = max(nvals-obj.npfree,1);   % we allow for the case nval=npfree
 
             end
 
@@ -154,7 +154,6 @@ classdef MFParallel_Job < JobExecutor
             common = obj.common_data_;
 
             max_rescale_lambda=false;
-            improved = false;
 
             obj.p_best = obj.bcast(1, obj.p_best);
 
@@ -277,10 +276,10 @@ classdef MFParallel_Job < JobExecutor
 
             if obj.is_root
                 % If chisqr lowered, but not to goal, so converged; or chisqr==0 i.e. perfect fit; then exit loop
-                obj.converged = (obj.c_best>c_goal) || (obj.c_best==0)
+                obj.converged = (obj.c_best>c_goal) || (obj.c_best==0);
 
                 % If multipled lambda to limit of the table, give up
-                obj.finished = obj.converged || max_rescale_lambda
+                obj.finished = obj.converged || max_rescale_lambda;
             end
 
             [obj.converged, obj.finished] = obj.bcast(1, obj.converged, obj.finished);
