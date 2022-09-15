@@ -25,6 +25,10 @@ classdef ClusterSlurm < ClusterWrapper
         log_level = 0;
     end
 
+    properties(Constant)
+        MAX_JOB_LENGTH = 50;
+    end
+
     properties(Constant, Access = private)
         %------------------------------------------------------------------
         % sacct state description list:
@@ -139,9 +143,7 @@ classdef ClusterSlurm < ClusterWrapper
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             obj.log_level = log_level;
 
-            % n_nodes, cores_per_node = obj.get_remote_info();
-            n_nodes = 1;
-            cores_per_node = 4;
+            [n_nodes, cores_per_node] = obj.get_remote_info();
 
             % For now assume all MPI applications are wanting to not be threaded
             target_threads = 1;
@@ -153,46 +155,27 @@ classdef ClusterSlurm < ClusterWrapper
                     n_workers, req_nodes, n_nodes);
             end
 
-
-            mpiexec = obj.get_mpiexec();
-            mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
-
-            if numel(obj.job_id) > 50
+            if numel(obj.job_id) > obj.MAX_JOB_LENGTH
                 error('HERBERT:ClusterSlurm:runtime_error', ...
                       'Cannot start job %s, job id too long (max %d)', ...
-                      obj.job_id, 50)
+                      obj.job_id, obj.MAX_JOB_LENGTH)
             end
 
             slurm_str = {'srun', ...
                          '-J',obj.job_id, ...
-                         '-N',num2str(req_nodes), ...
-                         '-n',num2str(cores_per_node), ...
+                         '-n',num2str(n_workers), ...
+                         sprintf('--ntasks-per-node=%d', cores_per_node), ...
                          '--mpi=pmi2', ...
                          '--export=ALL'};
 
             % build worker init string describing the data exchange
             % location
-            obj.common_env_var_('WORKER_CONTROL_STRING') =...
-                obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            wcs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
 
-            task_info = obj.generate_run_string(target_threads, [slurm_str, mpiexec_str], ...
-                                                {}, '');
-            task_info{end} = ['''', task_info{end}, ''''];
-            run_str = join(task_info,' ');
+            obj.start_workers(target_threads, wcs, ...
+                              'prefix_command', slurm_str, ...
+                              'target_threads', 1);
 
-            run_str = [run_str{1}, ' &'];
-
-            % set up job variables on local environment (Does not
-            % currently used as ISIS implementation does not transfer
-            % environmental variables to cluster)
-            obj.set_env();
-
-            [failed,mess]=system(run_str);
-            if failed
-                error('HERBERT:ClusterSlurm:runtime_error',...
-                    ' Can not execute srun command for %d workers, Error: %s',...
-                    n_workers,mess);
-            end
 
             % parse queue and extract new job ID
             obj = obj.extract_job_id();
@@ -393,6 +376,23 @@ classdef ClusterSlurm < ClusterWrapper
 
         end
 
+    end
+
+    methods(Static)
+        function [n_nodes, cores_per_node] = get_remote_info(partition)
+        % Retrieve info about remote nodes.
+
+            if exist(parititon, 'var')
+                partition = ['-p ', partition];
+            else
+                partition = '';
+            end
+
+            [status, result] = system(['sinfo ' partition ' -h -o"%%20P %%6D %%4c"']);
+            result = splitlines(result);
+            [partition, n_nodes, cores_per_node] = strsplit(result{1});
+
+        end
     end
 
 end

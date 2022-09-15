@@ -18,6 +18,9 @@ if nargin<1 || isempty(worker_controls_string)
     worker_controls_string = getenv('WORKER_CONTROL_STRING');
 end
 
+% Don't print warnings on remote workers
+warning('off', 'all')
+
 je = [];
 ok = false;
 if isempty(which('horace_init.m'))
@@ -32,7 +35,7 @@ end
 
 %DO_DEBUGGING = parse_env_var_logical('DO_PARALLEL_MATLAB_DEBUGGING');
 DO_DEBUGGING = false;
-% logging occurs into config_exchange_folder, where all MPI processes write 
+% logging occurs into config_exchange_folder, where all MPI processes write
 % files with names:
 % 'Job_job_id_wkNlabIndex#numLabs.log'
 % The logging may be enabled in ClusterWrapper setting DEBUG_REMOTE
