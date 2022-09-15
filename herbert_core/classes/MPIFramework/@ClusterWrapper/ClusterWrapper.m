@@ -301,7 +301,7 @@ classdef ClusterWrapper
             obj = init_workers_(obj,je_init_message,task_init_mess,log_message_prefix );
         end
 
-        function [obj, task_id] = start_workers(obj, n_workers, worker_control_string, ...
+        function [obj, task_id] = start_workers(obj, worker_control_string, ...
                                                 varargin)
         % Start workers running in parallel and return appropriate task_id to calling function
         % Should appropriately start workers for the Herbert, mpiexec_mpi and slurm_mpi modes
@@ -334,6 +334,10 @@ classdef ClusterWrapper
                 runtime = java.lang.ProcessBuilder('cmd.exe');
             else
                 runtime = java.lang.ProcessBuilder('/bin/sh');
+            end
+
+            if p.Results.debug
+                runtime.inheritIO();
             end
 
             env = runtime.environment();

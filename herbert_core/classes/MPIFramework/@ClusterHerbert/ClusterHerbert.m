@@ -90,7 +90,7 @@ classdef ClusterHerbert < ClusterWrapper
                     log_str = {};
                 end
 
-                [obj, obj.tasks_handles_{task_id}] = obj.start_workers(n_workers, cs, {}, log_str);
+                [obj, obj.tasks_handles_{task_id}] = obj.start_workers(cs, 'postfix_command', log_str);
 
                 [ok,failed,mess] = obj.is_java_process_running(obj.tasks_handles_{task_id});
                 if ~ok && failed

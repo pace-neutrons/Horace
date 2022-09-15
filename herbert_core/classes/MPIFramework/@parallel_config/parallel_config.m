@@ -196,6 +196,10 @@ classdef parallel_config<config_base
         % and true tries to idenfiy mpiexec on system using "where mpiexec"
         % if this fails, external mpiexec remains empty.
         external_mpiexec;
+
+        % Commands to be passed to slurm, can be provided as a cell array or
+        % loaded from an sbatch-like file
+        slurm_commands;
     end
 
     properties(Dependent,Hidden)
@@ -332,6 +336,12 @@ classdef parallel_config<config_base
             end
         end
 
+        function commands = get.slurm_commands(obj)
+            % extra slurm commands to be passed through to
+            % slurm when initialising slurm job
+            commands = obj.get_or_restore_field('slurm_commands');
+        end
+
         function folder = get.shared_folder_on_local(obj)
             folder = obj.get_or_restore_field('shared_folder_on_local');
             if isempty(folder) && MPI_State.instance().is_deployed
@@ -465,6 +475,25 @@ classdef parallel_config<config_base
             config_store.instance().store_config(obj,'par_threads',val);
         end
 
+        function obj = set.slurm_commands(obj,val)
+            if isstring(val) || ischar(val)
+                val = strsplit(val)
+            elseif iscellstr(val)
+                ...
+            else
+                error('HERBERT:parallel_config:invalid_argument', ...
+                      'slurm_commands must be string or cell array of strings')
+            end
+
+            if any(ismember(val, {'-J', '-n', '--ntasks-per-node', '-mpi', '--export'}))
+                error('HERBERT:parallel_config:invalid_argument', ...
+                      'slurm_commands cannot contain any of: -J, -n, --ntasks-per-node, -mpi or --export')
+            end
+
+            config_store.instance().store_config(obj, 'slurm_commands', val);
+
+        end
+
         function obj=set.shared_folder_on_local(obj,val)
             if isempty(val)
                 val = '';
@@ -552,6 +581,26 @@ classdef parallel_config<config_base
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
+
+        function obj = load_slurm_commands_from_file(obj, filename)
+            if ~is_file(filename)
+                error('HERBERT:parallel_config:invalid_argument', ...
+                      'File (%s) does not exist', filename);
+            end
+            fh = fopen(filename, 'r');
+            if fh < 0
+                error('HERBERT;parallel_config:io_error', ...
+                      'Unknown error opening %s', filename)
+            end
+            data = fscanf(fh, ['#SBATCH %s'])
+            fh = fclose(fh);
+            if fh < 0
+                error('HERBERT;parallel_config:io_error', ...
+                      'Unknown error closing %s', filename)
+            end
+
+
+        end
 
         function fields = get_storage_field_names(obj)
             % helper function returns the list of the name of the structure,

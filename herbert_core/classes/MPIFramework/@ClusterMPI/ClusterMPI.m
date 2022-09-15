@@ -89,8 +89,8 @@ classdef ClusterMPI < ClusterWrapper
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
 
             % build generic worker init string without lab parameters
-            cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
-            [obj, obj.mpiexec_handle_] = obj.start_workers(n_workers, cs, mpiexec_str);
+            wcs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            [obj, obj.mpiexec_handle_] = obj.start_workers(wcs, mpiexec_str);
 
             % check if job control API reported failure
             obj.check_failed();

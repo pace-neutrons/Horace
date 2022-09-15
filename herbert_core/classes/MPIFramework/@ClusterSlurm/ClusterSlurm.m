@@ -25,6 +25,10 @@ classdef ClusterSlurm < ClusterWrapper
         log_level = 0;
     end
 
+    properties(Constant)
+        MAX_JOB_LENGTH = 50;
+    end
+
     properties(Constant, Access = private)
         %------------------------------------------------------------------
         % sacct state description list:
@@ -179,26 +183,12 @@ classdef ClusterSlurm < ClusterWrapper
 
             % build worker init string describing the data exchange
             % location
-            obj.common_env_var_('WORKER_CONTROL_STRING') =...
-                obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            wcs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
 
             obj.start_workers(wcs, ...
                               'prefix_command', slurm_str, ...
                               'target_threads', target_threads);
 
-            run_str = [run_str{1}, ' &'];
-
-            % set up job variables on local environment (Does not
-            % currently used as ISIS implementation does not transfer
-            % environmental variables to cluster)
-            obj.set_env();
-
-            [failed,mess]=system(run_str);
-            if failed
-                error('HERBERT:ClusterSlurm:runtime_error',...
-                    ' Can not execute srun command for %d workers, Error: %s',...
-                    n_workers,mess);
-            end
 
             % parse queue and extract new job ID
             obj = obj.extract_job_id();
@@ -421,6 +411,23 @@ classdef ClusterSlurm < ClusterWrapper
             parse = strsplit(result{1});
             n_nodes = str2num(parse{2});
             cores_per_node = str2num(parse{3});
+
+        end
+    end
+
+    methods(Static)
+        function [n_nodes, cores_per_node] = get_remote_info(partition)
+        % Retrieve info about remote nodes.
+
+            if exist(parititon, 'var')
+                partition = ['-p ', partition];
+            else
+                partition = '';
+            end
+
+            [status, result] = system(['sinfo ' partition ' -h -o"%%20P %%6D %%4c"']);
+            result = splitlines(result);
+            [partition, n_nodes, cores_per_node] = strsplit(result{1});
 
         end
     end
