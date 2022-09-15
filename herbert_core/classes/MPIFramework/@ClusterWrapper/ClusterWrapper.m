@@ -301,21 +301,23 @@ classdef ClusterWrapper
             obj = init_workers_(obj,je_init_message,task_init_mess,log_message_prefix );
         end
 
-        function [obj, task_id] = start_workers(obj, n_workers, worker_control_string, ...
+        function [obj, task_id] = start_workers(obj, worker_control_string, ...
                                                 varargin)
 
+            par = parallel_config;
+
             p = inputParser();
-            addOptional(p,'prefix_command' , {}, @iscellstr);
-            addOptional(p,'postfix_command', {}, @iscellstr);
-            addOptional(p,'matlab_extra'   , '', @isstring);
+            addOptional(p, 'prefix_command' , {}, @iscellstr);
+            addOptional(p, 'postfix_command', {}, @iscellstr);
+            addOptional(p, 'matlab_extra'   , '', @isstring);
+            addOptional(p, 'debug', false, @islognumscalar);
+            addOptional(p, 'target_threads', par.par_threads, @isnumeric);
             parse(p, varargin{:});
 
             prefix_command = p.Results.prefix_command;
             postfix_command = p.Results.postfix_command;
             matlab_extra = p.Results.matlab_extra;
-
-            par = parallel_config;
-            target_threads = par.par_threads;
+            target_threads = p.Results.target_threads;
 
             obj.common_env_var_('WORKER_CONTROL_STRING') = worker_control_string;
 
@@ -326,6 +328,10 @@ classdef ClusterWrapper
                 runtime = java.lang.ProcessBuilder('cmd.exe');
             else
                 runtime = java.lang.ProcessBuilder('/bin/sh');
+            end
+
+            if p.Results.debug
+                runtime.inheritIO();
             end
 
             env = runtime.environment();
