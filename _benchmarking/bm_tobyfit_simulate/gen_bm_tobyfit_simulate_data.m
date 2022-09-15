@@ -11,8 +11,8 @@ function sqw_obj = gen_bm_tobyfit_simulate_data(nDims,dataInfo,dataSet)
 %               pixels), an integer from 6-10] or a filepath to an existing
 %               sqw file
 %   dataSet     the amount of sqw objects in the array:
-%               [char: 'small', 'medium' or 'large' (2, 4 and 8 files 
-%               respectively) or a numeric amount]
+%               [char: 'small', 'medium' or 'large' (1, 2 and 4 objects) 
+%               or a numeric amount]
 %
 % Output:
 %   sqw_obj     array of sqw objects
@@ -50,16 +50,16 @@ function sqw_obj = gen_bm_tobyfit_simulate_data(nDims,dataInfo,dataSet)
     main_sqw = set_instrument(main_sqw, instrument);
     main_sqw = set_sample (main_sqw, sample);
     
-    % dataSet for small, medium and large set to 1, 3 and 6 to get a look
+    % dataSet for small, medium and large set to 1, 2 and 4 to get a look
     % at effects of scaling linearly (was originally 1, 4 and 8 but was
     % changed due to memory issues
     switch dataSet
         case 'small'
-            sqw_obj=repmat(main_sqw,1,1);
+            sqw_obj=main_sqw;
         case 'medium'
-            sqw_obj = repmat(main_sqw,1,3);
+            sqw_obj = repmat(main_sqw,1,2);
         case 'large'
-            sqw_obj = repmat(main_sqw,1,6);
+            sqw_obj = repmat(main_sqw,1,4);
         otherwise
             try
                 sqw_obj = repmat(main_sqw,1,dataSet);
@@ -71,4 +71,3 @@ function sqw_obj = gen_bm_tobyfit_simulate_data(nDims,dataInfo,dataSet)
     end
 
 end
-

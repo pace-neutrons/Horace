@@ -40,7 +40,7 @@ function [cut1, cutN] = gen_bm_combine_data(nDims,dataInfo,dataSet)
     % dataSet for small, medium and large set to 2, 4 and 6 to get a look
     % at effects of scaling linearly (was originally 2, 4 and 8 but was
     % changed due to memory issues). Note dataSet here is different than in
-    % other gen_bm_XX_data() (usually 1,3,6) as it is to combine at least 
+    % other gen_bm_XX_data() (usually 1,2,4) as it is to combine at least 
     % 2 sqw objects
     switch dataSet
         % Generate additional cuts to combine, doubling number of pixels of the

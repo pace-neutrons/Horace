@@ -11,8 +11,8 @@ function sqw_obj = gen_bm_sqw_eval_data(nDims,dataInfo,dataSet,objType)
 %               pixels), an integer from 6-10] or a filepath to an existing
 %               sqw file
 %   dataSet     the amount of sqw objects in the array:
-%               [char: 'small', 'medium' or 'large' (2, 4 and 8 files 
-%               respectively) or a numeric amount]
+%               [char: 'small', 'medium' or 'large' (1, 2 and 4 objects) 
+%               or a numeric amount]
 %   objType     type of object [string: "sqw" or "dnd"], case insensitive
 %
 % Output:
@@ -69,16 +69,16 @@ function sqw_obj = gen_bm_sqw_eval_data(nDims,dataInfo,dataSet,objType)
                 "objType must be either sqw or dnd (string type)")
     end
     
-    % dataSet for small, medium and large set to 1, 3 and 6 to get a look
+    % dataSet for small, medium and large set to 1, 2 and 4 to get a look
     % at effects of scaling linearly (was originally 1, 4 and 8 but was
     % changed due to memory issues
     switch dataSet
         case 'small'
             sqw_obj=sqw_dnd;
         case 'medium'
-            sqw_obj = repmat(sqw_dnd,1,3);
+            sqw_obj = repmat(sqw_dnd,1,2);
         case 'large'
-            sqw_obj = repmat(sqw_dnd,1,6);
+            sqw_obj = repmat(sqw_dnd,1,4);
         otherwise
             try
                 sqw_obj = repmat(sqw_dnd, 1, dataSet);
