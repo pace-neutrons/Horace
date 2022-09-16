@@ -255,7 +255,7 @@ classdef parallel_config<config_base
         external_mpiexec_ = '';
 
         % slurm will run on default cluster with standard args by default
-        slurm_commands_ = {};
+        slurm_commands_ = containers.Map('KeyType', 'char', 'ValueType', 'char');
     end
 
     properties(Constant)
@@ -329,7 +329,13 @@ classdef parallel_config<config_base
         function commands = get.slurm_commands(obj)
             % extra slurm commands to be passed through to
             % slurm when initialising slurm job
-            commands = obj.get_or_restore_field('slurm_commands');
+            orig_obj = obj.get_or_restore_field('slurm_commands');
+            % Due to handle class need to return copy of obj.
+            if isempty(orig_obj)
+                containers.Map('KeyType', 'char', 'ValueType', 'char')
+            else
+                commands = containers.Map(orig_obj.keys, orig_obj.values);
+            end
         end
 
         function folder = get.shared_folder_on_local(obj)
@@ -462,20 +468,23 @@ classdef parallel_config<config_base
 
         function obj = set.slurm_commands(obj,val)
             if isstring(val) || ischar(val)
-                val = strsplit(val)
+                val = strsplit(val, {' ', '\t', '='})
+            end
+
+            if isempty(val)
+                map = containers.Map('KeyType', 'char', 'ValueType', 'char');
+
             elseif iscellstr(val)
-                ...
+                map = containers.Map(val(1:2:numel(val)), val(2:2:numel(val)));
+
+            elseif isa(val, 'containers.Map')
+                map = val;
             else
                 error('HERBERT:parallel_config:invalid_argument', ...
                       'slurm_commands must be string or cell array of strings')
             end
 
-            if any(ismember(val, {'-J', '-n', '--ntasks-per-node', '-mpi', '--export'}))
-                error('HERBERT:parallel_config:invalid_argument', ...
-                      'slurm_commands cannot contain any of: -J, -n, --ntasks-per-node, -mpi or --export')
-            end
-
-            config_store.instance().store_config(obj, 'slurm_commands', val);
+            config_store.instance().store_config(obj, 'slurm_commands', map);
 
         end
 
@@ -567,23 +576,32 @@ classdef parallel_config<config_base
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
 
-        function obj = load_slurm_commands_from_file(obj, filename)
+        function obj = load_slurm_commands_from_file(obj, filename, append)
             if ~is_file(filename)
                 error('HERBERT:parallel_config:invalid_argument', ...
                       'File (%s) does not exist', filename);
             end
-            fh = fopen(filename, 'r');
-            if fh < 0
-                error('HERBERT;parallel_config:io_error', ...
-                      'Unknown error opening %s', filename)
-            end
-            data = fscanf(fh, ['#SBATCH %s'])
-            fh = fclose(fh);
-            if fh < 0
-                error('HERBERT;parallel_config:io_error', ...
-                      'Unknown error closing %s', filename)
+
+            if exist('append', 'var') && append
+                map = obj.slurm_commands;
+            else
+                map = containers.Map('KeyType', 'char', 'ValueType', 'char');
             end
 
+            data = fileread(filename);
+            data = splitlines(data);
+            matches = regexp(data, '^#SBATCH\s+([^#]+).*', 'tokens');
+
+            for i = 1:numel(matches)
+                match = matches{i};
+                if isempty(match)
+                    continue
+                end
+                match = strsplit(strtrim(match{1}{1}), {' ', '\t', '='})
+                map(match{1}) = match{2};
+            end
+
+            obj.slurm_commands = map;
 
         end
 

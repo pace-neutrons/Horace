@@ -161,12 +161,23 @@ classdef ClusterSlurm < ClusterWrapper
                       obj.job_id, obj.MAX_JOB_LENGTH)
             end
 
-            slurm_str = {'srun', ...
-                         '-J',obj.job_id, ...
-                         '-n',num2str(n_workers), ...
-                         sprintf('--ntasks-per-node=%d', cores_per_node), ...
-                         '--mpi=pmi2', ...
-                         '--export=ALL'};
+            par = parallel_config();
+            comm = par.slurm_commands;
+
+            if any(comm.isKey({'-J', '--job-name', '-n', '--ntasks', '--ntasks-per-node', '--mpi', '--export'}))
+                warning('Keys present in slurm_commands which will be over-ridden')
+            end
+
+            w = warning('off', 'MATLAB:Containers:Map:NoKeyToRemove')
+            comm.remove({'-J', '-n'});
+            warning(w)
+            comm('--job-name') = obj.job_id;
+            comm('-ntasks') = num2str(n_workers);
+            comm('--ntasks-per-node') = cores_per_node;
+            comm('--mpi') = 'pmi2';
+            comm('--export') = 'ALL';
+
+            slurm_str = [{'srun'}, cellfun(@(a,b) [a '=' b], comm.keys(), comm.values(), 'UniformOutput', false)];
 
             % build worker init string describing the data exchange
             % location
