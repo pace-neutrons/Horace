@@ -144,9 +144,6 @@ classdef test_unique_objects < TestCase
         function test_constructor_arguments(~)
             disp('Test: test_constructor_arguments');
             disp('NB This test WILL emit warningS');
-            f = @() unique_objects_container();
-            assertExceptionThrown(f, 'HORACE:unique_objects_container:invalid_argument',...
-                                     'constructor must specify minimum arguments');
             mi1 = merlin_instrument(180, 600, 'g'); 
             sm1 = IX_null_sample();
             uoc = unique_objects_container('type','{}');
@@ -197,8 +194,6 @@ classdef test_unique_objects < TestCase
             % repeats test_constructor_arguments using subscripting
             disp('Test: test_constructor_arguments');
             disp('NB This test WILL emit warningS');
-            f = @() unique_objects_container();
-            assertExceptionThrown(f, 'HORACE:unique_objects_container:invalid_argument','mymessage');
             mi1 = merlin_instrument(180, 600, 'g'); 
             sm1 = IX_null_sample();
             uoc = unique_objects_container('type','{}');
@@ -277,9 +272,8 @@ classdef test_unique_objects < TestCase
             assertEqual( numel(uoc.stored_objects),2);            
             assertEqual( uoc.n_duplicates(1),1);
             uoc{3} = IX_null_inst();
-            assertEqual( numel(uoc.stored_objects),2);            
-            assertEqual( uoc.n_duplicates(1),0);         
-            uoc
+            assertEqual( numel(uoc.stored_objects),1);            
+            assertEqual( uoc.n_duplicates(1),3);         
         end
     end
 end
