@@ -86,6 +86,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % changes - these are filepaths
             tol = [1e-10,1e-8];
             assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
+            wsim_1.experiment_info.instruments = wsim_1.experiment_info.instruments.rename_all_blank();
             assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
             assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
         end

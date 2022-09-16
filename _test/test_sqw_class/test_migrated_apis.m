@@ -309,7 +309,11 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
 
             updated = s.set_instrument(expected_inst);
-            assertTrue(all(cellfun(@(x) equal_to_tol(x, expected_inst), updated.experiment_info.instruments)));
+            %assertTrue(all(cellfun(@(x) equal_to_tol(x, expected_inst), updated.experiment_info.instruments)));
+            for i=1:n_total(updated.experiment_info.instruments)
+                instr = updated.experiment_info.instruments{i};
+                assertTrue( equal_to_tol( instr, expected_inst) );
+            end
         end
 
         %        function test_set_mod_pulse(obj)

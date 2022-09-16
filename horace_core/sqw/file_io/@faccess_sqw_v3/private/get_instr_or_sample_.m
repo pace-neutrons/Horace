@@ -127,6 +127,12 @@ if version == 3
                 res = IX_null_sample();
             end
         else
+            % NB This will produce a cell array of the deserialized objects
+            % in res. For cellarrays of instruments or samples this is
+            % fine. For a unique_objects_container this is also fine as the
+            % subsequent code will extract the singleton
+            % unique_objects_container later on.
+            
             res = arrayfun(@(x)serializable.from_struct(x),res,...
                 'UniformOutput',false);
         end

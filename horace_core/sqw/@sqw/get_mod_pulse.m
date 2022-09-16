@@ -157,12 +157,13 @@ function [pulse_model,pp,ok,mess,present]=get_mod_pulse_single(header)
 % Get array of moderator objects from the header
 present = false;
 if isa(header,'Experiment')
-    nrun=numel(header.instruments);
+    nrun=n_runs(header.instruments);
     moderator = repmat(IX_moderator,nrun,1);
 
     for i=1:nrun
         try
-            moderator(i) = header.instruments{i}.moderator;
+            instr = header.instruments{i};
+            moderator(i) = instr.moderator;
         catch
             pulse_model=''; pp=[]; ok=false;
             mess='IX_moderator object not found in all instrument descriptions';

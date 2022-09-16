@@ -91,7 +91,29 @@ if ~any(isempty(instr)) % all instruments are valid instruments
         if iscell(instr)
             instr = instr{1};
         end
-        exp_info.instruments  = repmat({instr},1,n_runs);
+        if isa(instr,'unique_objects_container')
+            % equivalent to repmat in the else clause below
+            if instr.n_runs()==1
+                % initial temp container as exp info currently not allowing
+                % setting of instruments to empty container nor to
+                % container with wrong number of runs, so assemble tmp
+                % container with correct properties before assigning
+                tmp_instr = unique_objects_container('type','{}','baseclass','IX_inst');
+                tmp_instr = tmp_instr.add(instr{1});
+                for i=2:n_runs
+                    tmp_instr = tmp_instr.add(instr{1}); %exp_info.instruments.add(instr{i});
+                end
+                exp_info.instruments = tmp_instr;
+            elseif instr.n_runs()==n_runs
+                exp_info.instruments = instr;
+            else
+                error('HORACE:get_header:invalid argument', ...
+                      ['instruments from file is neither a single instrument, ' ...
+                       'nor contains an instrument for each run']);
+            end
+        else
+            exp_info.instruments  = repmat({instr},1,n_runs);
+        end
     else
         if ~iscell(instr)
             instr = num2cell(instr);

@@ -232,7 +232,7 @@ else
     sample.alatt = lat.alatt;
     sample.angdeg = lat.angdeg;
 end
-exper = Experiment([],instrument,sample);
+exper = Experiment([],instrument,sample,IX_experiment());
 exper.expdata = expdata;
 
 wres.experiment_info = exper;

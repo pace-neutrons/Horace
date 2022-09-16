@@ -66,15 +66,19 @@ classdef test_experiment_cnstrct_and_properties < TestCase
         end
 
         function test_constructor_raises_error_with_no_sample(~)
-            assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, 'not-a-sample'),...
+            assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, 'not-a-sample',IX_experiment),...
                 'HORACE:Experiment:invalid_argument');
         end
         function test_constructor_raises_error_with_no_instrument(~)
-            assertExceptionThrown(@()Experiment(IX_detector_array, 'not-an-inst', IX_sample),...
+            assertExceptionThrown(@()Experiment(IX_detector_array, 'not-an-inst', IX_sample, IX_experiment),...
                 'HORACE:Experiment:invalid_argument');
         end
         function test_constructor_raises_error_with_no_detectors(~)
-            assertExceptionThrown(@()Experiment('not-a-da', IX_inst_DGfermi, IX_sample),...
+            assertExceptionThrown(@()Experiment('not-a-da', IX_inst_DGfermi, IX_sample, IX_experiment),...
+                'HORACE:Experiment:invalid_argument');
+        end
+        function test_constructor_raises_error_with_no_expdata(~)
+            assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, IX_sample, 'not-a-expd'),...
                 'HORACE:Experiment:invalid_argument');
         end
 
@@ -89,7 +93,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 [sample, sample],info);
 
             assertEqual(expt.samples, {sample, sample});
-            assertEqual(expt.instruments, {instrument, instrument});
+            assertEqual({expt.instruments{1}, expt.instruments{2}}, {instrument, instrument});
             assertEqual(expt.detector_arrays, [detector_array, detector_array]);
             info = expt.expdata;
             assertTrue(expt.runid_recalculated)
@@ -157,7 +161,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             expt = Experiment();
             expt.instruments = instruments;
 
-            assertEqual(expt.instruments, instruments);
+            assertEqual(expt.instruments{1}, instruments{1});
+            assertEqual(expt.instruments{2}, instruments{2});
         end
 
         function test_instruments_setter_raises_error_for_invalid_value(~)
