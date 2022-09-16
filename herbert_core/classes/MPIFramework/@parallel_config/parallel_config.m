@@ -342,7 +342,7 @@ classdef parallel_config<config_base
             orig_obj = obj.get_or_restore_field('slurm_commands');
             % Due to handle class need to return copy of obj.
             if isempty(orig_obj)
-                containers.Map('KeyType', 'char', 'ValueType', 'char')
+                commands = containers.Map('KeyType', 'char', 'ValueType', 'char')
             else
                 commands = containers.Map(orig_obj.keys, orig_obj.values);
             end
