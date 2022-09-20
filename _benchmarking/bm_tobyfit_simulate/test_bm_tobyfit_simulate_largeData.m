@@ -361,4 +361,3 @@ classdef test_bm_tobyfit_simulate_largeData < TestCase
 %         end
     end
 end
-

@@ -87,6 +87,13 @@ classdef horace_paths
             end
         end
 
+        function path = get.bm_common_func(obj)
+            path = fullfile(obj.bm, 'common_functions');
+            if ~is_folder(path)
+                warning('HORACE:paths:bad_path', 'Cannot find benchmarking/common_functions, possibly failed setup')
+            end
+        end
+
     end
 
     methods(Static)

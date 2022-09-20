@@ -357,4 +357,3 @@ classdef test_bm_tobyfit_simulate_mediumData < TestCase
 %         end
     end
 end
-
