@@ -419,13 +419,21 @@ classdef ClusterSlurm < ClusterWrapper
         function [n_nodes, cores_per_node] = get_remote_info(partition)
         % Retrieve info about remote nodes.
 
-            if exist(parititon, 'var')
+            if exist('partition', 'var')
                 partition = ['-p ', partition];
+            elseif obj.slurm_commands.isKey('--partition')
+                partition = ['-p ', obj.slurm_commands('--partition')];
+            elseif obj.slurm_commands.isKey('-p')
+                partition = ['-p ', obj.slurm_commands('-p')];
             else
                 partition = '';
             end
 
             [status, result] = system(['sinfo ' partition ' -h -o"%%20P %%6D %%4c"']);
+            if status ~= 0
+                error('HERBERT:get_remote_info:runtime_error', ...
+                      'Could not get info on remote nodes')
+            end
             result = splitlines(result);
             [partition, n_nodes, cores_per_node] = strsplit(result{1});
 
