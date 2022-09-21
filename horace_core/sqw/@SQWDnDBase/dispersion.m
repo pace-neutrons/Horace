@@ -124,7 +124,7 @@ for i=1:numel(win)
     wout_disp(i).data_ = data;
 
     has_sfact = nargout(dispreln)>=2;
-    has_weight = nargout == 2
+    has_weight = nargout == 2;
     if has_weight
         wout_weight=wout_disp;
     end

@@ -36,6 +36,7 @@ classdef unique_objects_container < serializable
         end
         function self = set.stored_objects(self, val)
             self.stored_objects_ = val;
+            self = self.rehashify_all();
         end
         
         function x = get.stored_hashes(self)
@@ -85,8 +86,7 @@ classdef unique_objects_container < serializable
     % SERIALIZABLE interface
     %------------------------------------------------------------------
     properties(Constant,Access=private)
-        fields_to_save_ = {'stored_objects',...
-                           'stored_hashes', ...
+        fields_to_save_ = {'stored_objects',... %'stored_hashes', ...
                            'idx',           ...
                            'baseclass',     ...
                            'convert_to_stream',...
@@ -137,6 +137,14 @@ classdef unique_objects_container < serializable
             Engine.update(self.convert_to_stream_(obj));
             hash = typecast(Engine.digest,'uint8');
             hash = hash';
+        end
+        
+        function newself = rehashify_all(self)
+            newself = self;
+            newself.stored_hashes_ = zeros(numel(self.stored_objects_),16);
+            for i=1:numel(self.stored_objects_)
+                newself.stored_hashes(i,:) = self.hashify(self.stored_objects{i});
+            end
         end
     end    
     
@@ -550,6 +558,7 @@ classdef unique_objects_container < serializable
             % save-able class
             obj = unique_objects_container();
             obj = loadobj@serializable(S,obj);
+            obj = obj.rehashify_all();
         end
     end % static methods
     

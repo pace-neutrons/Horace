@@ -977,4 +977,11 @@
          <completed_on>[2022 5 6 13 43 8.417]</completed_on>
       </cutE_AllInt_flBsd_nwk0_comb_matlab>
    </ndlt1121_nf10>
+   <ndlt1405_nf5>
+      <gen_tmp_nwk_0_herbert>
+         <time_sec>32.4632569</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2022 9 16 10 31 15.398]</completed_on>
+      </gen_tmp_nwk_0_herbert>
+   </ndlt1405_nf5>
 </test_cuts_performance>

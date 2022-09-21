@@ -183,6 +183,7 @@ classdef test_sqw_file_read_write < TestCase
             inst_arr=create_test_instrument(95,250,'s');
             inst_arr(2)=create_test_instrument(105,300,'a');
             wref=change_header_test(wref,inst_arr,obj.sam1);
+            wref2 = wref;
             
             save(wref,tmpsqwfile);
             wref=sqw(tmpsqwfile);     % creates with same file name will be set with read_sqw
