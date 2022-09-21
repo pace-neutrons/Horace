@@ -11,6 +11,7 @@ classdef horace_paths
         low_level
         bm
         bm_common
+        bm_common_func
     end
 
     methods
