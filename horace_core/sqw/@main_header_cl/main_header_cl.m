@@ -45,7 +45,7 @@ classdef main_header_cl < serializable
     end
     properties(Dependent,Hidden)
         % return filename mangled with the creation date, used to write
-        % creation date together with filename in old style v3 binary
+        % creation data together with filename in old style v3 binary
         % Horace files
         filename_with_cdate;
         % hidden property allowing save/restore creation_date_defined
@@ -68,10 +68,8 @@ classdef main_header_cl < serializable
 
     properties(Constant,Access = protected)
         % fields used with serializable interface. Keep order of fields
-        % unchanged, as setting creation_date sets also creation_date_defined_
-        % and creation_date_defined_privately sets/reads creation_date_defined_
-        % (contrary to usual convention, but necessary for supporting old
-        % mat and sqw files, which do not have these proerties stored within them)
+        % unchanged, as setting creation_date sets also no_cr_data_known_
+        % and creation_date_defined_privately should override this
         fields_to_save_ = {'filename','filepath','title','nfiles',...
             'creation_date','creation_date_defined_privately'};
     end
@@ -87,40 +85,40 @@ classdef main_header_cl < serializable
             % obj = main_header(filename,filepath,title,nfiles);
 
             switch nargin
-                case 0
-                    return;
+              case 0
+                return;
 
-                case 1
-                    arg = varargin{1};
+              case 1
+                arg = varargin{1};
 
-                    if isa(arg,'main_header')
-                        obj = arg;
+                if isa(arg,'main_header')
+                    obj = arg;
 
-                    elseif isstruct(arg)
-                        obj = serializable.from_struct(arg,obj);
-                        if isfield(arg,'filename_with_cdate')
-                            obj.filename_with_cdate = arg.filename_with_cdate;
-                        end
-
-                    elseif ischar(arg)
-                        obj.filename = arg;
-
-                    else
-                        error('HORACE:main_header:invalid_argument',...
-                            'Can not construct main header from parameter %s',...
-                            evalc('disp(arg))'))
+                elseif isstruct(arg)
+                    obj = serializable.from_struct(arg,obj);
+                    if isfield(arg,'filename_with_cdate')
+                        obj.filename_with_cdate = arg.filename_with_cdate;
                     end
 
-                otherwise
+                elseif ischar(arg)
+                    obj.filename = arg;
 
-                    param_names_list = obj.saveableFields();
-                    [obj,remains] = obj.set_positional_and_key_val_arguments(...
-                        param_names_list(1:4),varargin{:});
+                else
+                    error('HORACE:main_header:invalid_argument',...
+                        'Can not construct main header from parameter %s',...
+                        evalc('disp(arg))'))
+                end
 
-                    if ~isempty(remains)
-                        error('HORACE:main_header:invalid_argument',...
-                            'Too many arguments provided on instantiation, excess args: %s', evalc('disp(remains)'))
-                    end
+              otherwise
+
+                param_names_list = obj.saveableFields();
+                [obj,remains] = obj.set_positional_and_key_val_arguments(...
+                    param_names_list(1:4),varargin{:});
+
+                if ~isempty(remains)
+                    error('HORACE:main_header:invalid_argument',...
+                          'Too many arguments provided on instantiation, excess args: %s', evalc('disp(remains)'))
+                end
             end
         end
 
@@ -131,8 +129,8 @@ classdef main_header_cl < serializable
         function obj = set.title(obj,val)
             if ~(ischar(val) || isstring(val))
                 error('HORACE:main_header:invalid_argument', ...
-                    'Bad title (%s). title must be string or char array.', ...
-                    evalc('disp(val)'));
+                      'Bad title (%s). title must be string or char array.', ...
+                      evalc('disp(val)'));
             end
             obj.title_ = val;
         end
@@ -144,8 +142,8 @@ classdef main_header_cl < serializable
         function obj = set.filename(obj,val)
             if ~(ischar(val) || isstring(val))
                 error('HORACE:main_header:invalid_argument', ...
-                    'Bad filename (%s). filename must be string or char array.', ...
-                    evalc('disp(val)'));
+                      'Bad filename (%s). filename must be string or char array.', ...
+                      evalc('disp(val)'));
             end
             obj.filename_ = val;
         end
@@ -157,8 +155,8 @@ classdef main_header_cl < serializable
         function obj = set.filepath(obj,val)
             if ~(ischar(val) || isstring(val))
                 error('HORACE:main_header:invalid_argument', ...
-                    'Bad filepath (%s). filepath must be string or char array.', ...
-                    evalc('disp(val)'));
+                      'Bad filepath (%s). filepath must be string or char array.', ...
+                      evalc('disp(val)'));
             end
             obj.filepath_ = val;
         end
@@ -170,8 +168,8 @@ classdef main_header_cl < serializable
         function obj = set.nfiles(obj,val)
             if ~isnumeric(val) || val<0 || ~isscalar(val)
                 error('HORACE:main_header:invalid_argument', ...
-                    'Bad nfiles (%s). Number of files must be a non-negative scalar numeric value.',...
-                    evalc('disp(val)'));
+                      'Bad nfiles (%s). Number of files must be a non-negative scalar numeric value.',...
+                      evalc('disp(val)'));
             end
             obj.nfiles_ = val;
         end
@@ -179,15 +177,15 @@ classdef main_header_cl < serializable
         %------------------------------------------------------------------
 
         function cd = get.creation_date(obj)
-            % Retrieve file creation date either from stored value, or
-            % from system file date.
+        % Retrieve file creation date either from stored value, or
+        % from system file date.
             if obj.creation_date_defined_
                 dt = obj.creation_date_;
             else % assume that creation date is unknown and
-                % will be set as creation date of the file later and
-                % explicitly.
-                % Return either file date if file exist or
-                % actual date, if it does not
+                 % will be set as creation date of the file later and
+                 % explicitly.
+                 % Return either file date if file exist or
+                 % actual date, if it does not
                 file = fullfile(obj.filepath,obj.filename);
 
                 if ~isfile(file)
@@ -209,8 +207,8 @@ classdef main_header_cl < serializable
                 dt  = val;
             else
                 error('HORACE:main_header:invalid_argument', ...
-                    'Bad creation date (%s). File creation date must be datetime class or string, compatible with datetime function according to format %s.', ...
-                    evalc('disp(val)'), obj.dt_format);
+                      'Bad creation date (%s). File creation date must be datetime class or string, compatible with datetime function according to format %s.', ...
+                      evalc('disp(val)'), obj.dt_format);
             end
 
             obj.creation_date_    = dt;
