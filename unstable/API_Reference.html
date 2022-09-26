@@ -16,6 +16,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -108,7 +109,7 @@
 <dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.IX_dataset_2d">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">IX_dataset_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.IX_dataset_2d" title="Permalink to this definition"></a></dt>
-<dd><p>Convert 2D sqw object into IX_dataset_2d</p>
+<dd><p>Convert 2D sqw object(s) into IX_dataset_2d(s)</p>
 <p>&gt;&gt; wout = IX_dataset_2d (w)</p>
 </dd></dl>
 
@@ -122,9 +123,55 @@
 <dl class="mat class">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.SQWDnDBase">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">SQWDnDBase</span></span><a class="headerlink" href="#sqw.@SQWDnDBase.SQWDnDBase" title="Permalink to this definition"></a></dt>
-<dd><p>SQWDnDBase Abstract SQW/DnD object base class
-Abstract class defining common API and atrributes of the SQW and
+<dd><p>SQWDnDBase Abstract SQW/DnD object base class</p>
+<p>Abstract class defining common API and atrributes of the SQW and
 DnD objects</p>
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.SQWDnDBase.border_size">
+<span class="sig-name descname"><span class="pre">border_size</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'-4*eps'</span></em><a class="headerlink" href="#sqw.@SQWDnDBase.SQWDnDBase.border_size" title="Permalink to this definition"></a></dt>
+<dd><p>the size of the border, used in gen_sqw. The img_db_range in gen_sqw
+exceeds real pix_range (or input pix_range) by this value.</p>
+</dd></dl>
+
+<dl class="mat staticmethod">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.SQWDnDBase.parse_change_crystal_arguments">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">parse_change_crystal_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">alatt0</span></em>, <em class="sig-param"><span class="pre">angdeg0</span></em>, <em class="sig-param"><span class="pre">exper_info</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.SQWDnDBase.parse_change_crystal_arguments" title="Permalink to this definition"></a></dt>
+<dd><p>process input parameters for change crystal routine and
+return standard form of the arguments to use in change_crystal
+Most commonly:</p>
+<blockquote>
+<div><blockquote>
+<div><dl class="simple">
+<dt>&gt;&gt; [alatt,angdeg,cor_mat] = change_crystal (alatt0,angdeg0,exper_info,rlu_corr)</dt><dd><p>change lattice parameters and orientation</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>where</p>
+</div></blockquote>
+<p>alat0   – initial lattice parametes stored in the sqw file
+angdeg0 – initial lattice angles stored in the sqw file
+exper_info – Experiment class, describing the experiment,</p>
+<blockquote>
+<div><blockquote>
+<div><p>stored in sqw file
+May be empty for dnd objects</p>
+</div></blockquote>
+<dl>
+<dt>rlu_corr    Matrix to convert notional rlu in the current crystal lattice to</dt><dd><p>the rlu in the the new crystal lattice together with any re-orientation
+of the crystal. The matrix is defined by the matrix:</p>
+<blockquote>
+<div><blockquote>
+<div><p>qhkl(i) = rlu_corr(i,j) * qhkl_0(j)</p>
+</div></blockquote>
+<p>This matrix can be obtained from refining the lattice and</p>
+</div></blockquote>
+<p>orientation with the function refine_crystal (type
+&gt;&gt; help refine_crystal  for more details).</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="mat function">
@@ -693,118 +740,6 @@ wref is empty then the co-ordinate system remains unchanged.</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.da">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">da</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.da" title="Permalink to this definition"></a></dt>
-<dd><p>Draw an area plot of a 2D sqw dataset or array of datasets</p>
-<blockquote>
-<div><p>&gt;&gt; da(w)
-&gt;&gt; da(w,xlo,xhi)
-&gt;&gt; da(w,xlo,xhi,ylo,yhi)
-&gt;&gt; da(w,xlo,xhi,ylo,yhi,zlo,zhi)</p>
-</div></blockquote>
-<dl>
-<dt>Advanced use:</dt><dd><p>&gt;&gt; da(w,…,’name’,fig_name)        % Draw with name = fig_name</p>
-<dl class="simple">
-<dt>&gt;&gt; da(w,…,’-noaspect’)            % Do not change aspect ratio</dt><dd><p>% according to data axes unit lengths</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = da(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.dd">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">dd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.dd" title="Permalink to this definition"></a></dt>
-<dd><p>Draws a plot of markers, error bars and lines of a 1D sqw object or array of objects</p>
-<blockquote>
-<div><p>&gt;&gt; dd(w)
-&gt;&gt; dd(w,xlo,xhi)
-&gt;&gt; dd(w,xlo,xhi,ylo,yhi)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><p>&gt;&gt; dd(w,…,’name’,fig_name)        % draw with name = fig_name</p>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = dd(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.de">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">de</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.de" title="Permalink to this definition"></a></dt>
-<dd><p>Draws a plot of error bars of a 1D sqw object or array of objects</p>
-<blockquote>
-<div><p>&gt;&gt; de(w)
-&gt;&gt; de(w,xlo,xhi)
-&gt;&gt; de(w,xlo,xhi,ylo,yhi)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><p>&gt;&gt; de(w,…,’name’,fig_name)        % draw with name = fig_name</p>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = de(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.dh">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">dh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.dh" title="Permalink to this definition"></a></dt>
-<dd><p>Draws a histogram plot of a 1D sqw object or array of objects</p>
-<blockquote>
-<div><p>&gt;&gt; dh(w)
-&gt;&gt; dh(w,xlo,xhi)
-&gt;&gt; dh(w,xlo,xhi,ylo,yhi)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><p>&gt;&gt; dh(w,…,’name’,fig_name)        % draw with name = fig_name</p>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = dh(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.dimensions">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.dimensions" title="Permalink to this definition"></a></dt>
-<dd><p>Find number of dimensions and extent along each dimension of
-the signal arrays.
-- If 0D sqw object, nd=0,  sz=zeros(1,0) (nb: []==zeros(0,0))
-- if 1D sqw object, nd=1,  sz=n1
-- If 2D sqw object, nd=2,  sz=[n1,n2]
-- If 3D sqw object, nd=3,  sz=[n1,n2,n3]   even if n3=1
-- If 4D sqw object, nd=4,  sz=[n1,n2,n3,n4]  even if n4=1</p>
-<p>The convention is that size(sz)=1 x ndim</p>
-<blockquote>
-<div><p>&gt;&gt; [nd,sz]=dimensions(w)</p>
-</div></blockquote>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.dimensions_match">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">dimensions_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">nd_ref</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.dimensions_match" title="Permalink to this definition"></a></dt>
-<dd><p>Check that the dimensions of an array of sqw objects are all the same</p>
-<blockquote>
-<div><p>&gt;&gt; [ok,mess]=dimensions_match(w)
-&gt;&gt; [ok,mess]=dimensions_match(w,nref)</p>
-</div></blockquote>
-<blockquote>
-<div><p>w       sqw object or array of objects
-nd_ref  [optional] If not given, check all sqw objects in the array</p>
-<blockquote>
-<div><p>have the same dimensionality. If given, check that they match
-this dimensionality</p>
-</div></blockquote>
-</div></blockquote>
-<blockquote>
-<div><p>ok      True if all have the smae dimensionality (and match nref, if given)
-mess    Empty if ok==true; error message if not
-nd      Dimensionality</p>
-</div></blockquote>
-</dd></dl>
-
-<dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.disp2sqw_eval">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">disp2sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">dispreln</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">fwhh</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.disp2sqw_eval" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate sqw for a model scattering function</p>
@@ -911,6 +846,10 @@ pixel individually. Reduces cost of expensive calculations.</p>
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.dispersion">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">dispreln</span></em>, <em class="sig-param"><span class="pre">pars</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.dispersion" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate dispersion relation for dataset or array of datasets.</p>
+<p>New behaviour: Always returns appropriate dnd object. May be modified in
+a future.</p>
+<p>If the input contains array of sqw objects, the objects need to have the
+same number of dimensions (may be relaxed if requested)</p>
 <blockquote>
 <div><p>&gt;&gt; wdisp = dispersion (win, dispreln, p)            % dispersion only
 &gt;&gt; [wdisp,weight] = dispersion (win, dispreln, p)   % dispersion and spectral weight</p>
@@ -1001,115 +940,6 @@ input dataset.</p>
 </dd>
 </dl>
 </div></blockquote>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.dl">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">dl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.dl" title="Permalink to this definition"></a></dt>
-<dd><p>Draws a line plot of a 1D sqw object or array of objects</p>
-<blockquote>
-<div><p>&gt;&gt; dl(w)
-&gt;&gt; dl(w,xlo,xhi)
-&gt;&gt; dl(w,xlo,xhi,ylo,yhi)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><p>&gt;&gt; dl(w,…,’name’,fig_name)        % draw with name = fig_name</p>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = dl(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.dm">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">dm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.dm" title="Permalink to this definition"></a></dt>
-<dd><p>Draws a marker plot of a 1D sqw object or array of objects</p>
-<blockquote>
-<div><p>&gt;&gt; dm(w)
-&gt;&gt; dm(w,xlo,xhi)
-&gt;&gt; dm(w,xlo,xhi,ylo,yhi)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><p>&gt;&gt; dm(w,…,’name’,fig_name)        % draw with name = fig_name</p>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = dm(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.dp">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">dp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.dp" title="Permalink to this definition"></a></dt>
-<dd><p>Draws a plot of markers and error bars for a 1D sqw object or array of objects</p>
-<blockquote>
-<div><p>&gt;&gt; dp(w)
-&gt;&gt; dp(w,xlo,xhi)
-&gt;&gt; dp(w,xlo,xhi,ylo,yhi)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><p>&gt;&gt; dp(w,…,’name’,fig_name)        % draw with name = fig_name</p>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = dp(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.ds">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">ds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.ds" title="Permalink to this definition"></a></dt>
-<dd><p>Draw a surface plot of a 2D sqw dataset or array of datasets</p>
-<blockquote>
-<div><p>&gt;&gt; ds(w)
-&gt;&gt; ds(w,xlo,xhi)
-&gt;&gt; ds(w,xlo,xhi,ylo,yhi)
-&gt;&gt; ds(w,xlo,xhi,ylo,yhi,zlo,zhi)</p>
-</div></blockquote>
-<dl>
-<dt>Advanced use:</dt><dd><p>&gt;&gt; ds(w,…,’name’,fig_name)        % Draw with name = fig_name</p>
-<dl class="simple">
-<dt>&gt;&gt; ds(w,…,’-noaspect’)            % Do not change aspect ratio</dt><dd><p>% according to data axes unit lengths</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = ds(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.ds2">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">ds2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.ds2" title="Permalink to this definition"></a></dt>
-<dd><p>Draw a surface plot of a 2D sqw dataset or array of datasets</p>
-<blockquote>
-<div><p>&gt;&gt; ds2(w)       % Use error bars to set colour scale
-&gt;&gt; ds2(w,wc)    % Signal in wc sets colour scale</p>
-<blockquote>
-<div><p>%   wc can be any object with a signal array with same
-%  size as w, e.g. sqw object, IX_dataset_2d object, or
-%  a numeric array.
-%   - If w is an array of objects, then wc must contain
-%     the same number of objects.
-%   - If wc is a numeric array then w must be a scalar
-%     object.</p>
-</div></blockquote>
-<p>&gt;&gt; ds2(…,xlo,xhi)
-&gt;&gt; ds2(…,xlo,xhi,ylo,yhi)
-&gt;&gt; ds2(…,xlo,xhi,ylo,yhi,zlo,zhi)</p>
-</div></blockquote>
-<p>Differs from ds in that the signal sets the z axis, and the colouring is
-set by the error bars, or by another object. This enables two related
-functions to be plotted (e.g. dispersion relation where the ‘signal’
-array holds the energy and the error array holds the spectral weight).</p>
-<dl>
-<dt>Advanced use:</dt><dd><p>&gt;&gt; ds2(w,…,’name’,fig_name)       % Draw with name = fig_name</p>
-<dl class="simple">
-<dt>&gt;&gt; ds2(w,…,’-noaspect’)           % Do not change aspect ratio</dt><dd><p>% according to data axes unit lengths</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = ds2(…)</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="mat function">
@@ -1225,7 +1055,8 @@ takes time, however, so the option to test on a few bins is given.</p>
 <dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.func_eval">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">func_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">func_handle</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.func_eval" title="Permalink to this definition"></a></dt>
-<dd><p>Evaluate a function at the plotting bin centres of sqw object or array of sqw object
+<dd><p>Evaluate a function at the plotting bin centres of sqw object or array
+of sqw objects
 Syntax:</p>
 <blockquote>
 <div><p>&gt;&gt; wout = func_eval (win, func_handle, pars)
@@ -1302,25 +1133,6 @@ y = (pars(1)/(sig*sqrt(2*pi))) * …</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.get_proj_and_pbin">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">get_proj_and_pbin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.get_proj_and_pbin" title="Permalink to this definition"></a></dt>
-<dd><p>Reverse engineer the projection and binning of an sqw object</p>
-<blockquote>
-<div><p>&gt;&gt; [proj, pbin] = get_proj_and_pbin (w)</p>
-</div></blockquote>
-<blockquote>
-<div><p>w       sqw object</p>
-</div></blockquote>
-<blockquote>
-<div><p>proj    Projection as a projaxes object
-pbin    Cell array, a row length 4, of the binning description of the</p>
-<blockquote>
-<div><p>sqw object</p>
-</div></blockquote>
-</div></blockquote>
-</dd></dl>
-
-<dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.log">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.log" title="Permalink to this definition"></a></dt>
 <dd><p>Implements log(w1) for objects</p>
@@ -1357,82 +1169,10 @@ pbin    Cell array, a row length 4, of the binning description of the</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mask">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">mask_array</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mask" title="Permalink to this definition"></a></dt>
-<dd><p>Remove the bins indicated by the mask array</p>
-<blockquote>
-<div><p>&gt;&gt; wout = mask (win, mask_array)</p>
-</div></blockquote>
-<blockquote>
-<div><p>win                 Input sqw object</p>
-<dl>
-<dt>mask_array          Array of 1 or 0 (or true or false) that indicate</dt><dd><dl class="simple">
-<dt>which points to retain (true to retain, false to ignore)</dt><dd><p>Numeric or logical array of same number of elements</p>
-</dd>
-<dt>as the <a href="#id11"><span class="problematic" id="id12">data_</span></a>.</dt><dd><p>Note: mask will be applied to the stored data array</p>
-</dd>
-</dl>
-<p>according as the projection axes, not the display axes.
-Thus permuting the display axes does not alter the
-effect of masking the <a href="#id13"><span class="problematic" id="id14">data_</span></a>.</p>
-</dd>
-</dl>
-</div></blockquote>
-<blockquote>
-<div><p>wout                Output dataset.</p>
-</div></blockquote>
-<p>Original author: T.G.Perring</p>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mask_pixels">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mask_pixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">mask_array</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mask_pixels" title="Permalink to this definition"></a></dt>
-<dd><p>Remove the pixels indicated by the mask array</p>
-<blockquote>
-<div><p>&gt;&gt; wout = mask_pixels (win, mask_array)     % Mask array
-&gt;&gt; wout = mask_pixels (win, wmask)          % Mask according to pixel array</p>
-<blockquote>
-<div><p>% contents</p>
-</div></blockquote>
-</div></blockquote>
-<blockquote>
-<div><p>win                 Input sqw object</p>
-<dl>
-<dt>mask_array          Array of 1 or 0 (or true or false) that indicate</dt><dd><blockquote>
-<div><dl class="simple">
-<dt>which pixels to retain (true to retain, false to ignore)</dt><dd><p>Numeric or logical array of same number of pixels</p>
-</dd>
-<dt>as the data.</dt><dd><p>Note: mask will be applied to the stored data array</p>
-</dd>
-</dl>
-<p>according as the projection axes, not the display axes.
-Thus permuting the display axes does not alter the
-effect of masking the data.</p>
-</div></blockquote>
-<p><em>OR</em></p>
-</dd>
-<dt>wmask               sqw object in which the signal in individual pixels is</dt><dd><dl>
-<dt>interpreted as a mask array:</dt><dd><blockquote>
-<div><p>=1 (or true)  to retain
-=0 (or false) to remove</p>
-</div></blockquote>
-<p>wmask must have the same dimensionality, number of bins</p>
-</dd>
-</dl>
-<p>along each dimension, and number of pixels in each bins
-as the array to be masked.</p>
-</dd>
-</dl>
-</div></blockquote>
-<blockquote>
-<div><p>wout                Output dataset.</p>
-</div></blockquote>
-</dd></dl>
-
-<dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mask_points">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mask_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mask_points" title="Permalink to this definition"></a></dt>
-<dd><p>Determine the points to keep on the basis of ranges and mask array.</p>
+<dd><p>TODO: Does not look like this function should be here</p>
+<p>Determine the points to keep on the basis of ranges and mask array.</p>
 <blockquote>
 <div><p>&gt;&gt; sel = mask_points (win, ‘keep’, xkeep, ‘remove’, xremove, ‘mask’, mask)</p>
 </div></blockquote>
@@ -1472,14 +1212,14 @@ For example in case of two dimensions:</p>
 </div></blockquote>
 <p>according as the projection axes, not the display axes.
 Thus permuting the display axes does not alter the
-effect of masking the <a href="#id15"><span class="problematic" id="id16">data_</span></a>. The mask array works
+effect of masking the data. The mask array works
 consistently with the input required by the mask method.</p>
 </dd>
 </dl>
 </div></blockquote>
 <blockquote>
 <div><blockquote>
-<div><p>sel     Mask array of same shape as <a href="#id17"><span class="problematic" id="id18">data_</span></a>. true for bins to keep, false to discard.</p>
+<div><p>sel     Mask array of same shape as <a href="#id11"><span class="problematic" id="id12">data_</span></a>. true for bins to keep, false to discard.</p>
 </div></blockquote>
 <p>Advanced use: in addition the following two arguments, if present, suppress failure or the
 display of informational messges. Instead, the messages are returned to be used as desired.</p>
@@ -1487,54 +1227,6 @@ display of informational messges. Instead, the messages are returned to be used 
 <div><p>ok      =true if worked, =false if error</p>
 <p>mess    messages: if ok=true then informational or warning, if ok=false then the error message</p>
 </div></blockquote>
-</div></blockquote>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mask_random_fraction_pixels">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mask_random_fraction_pixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">npix</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mask_random_fraction_pixels" title="Permalink to this definition"></a></dt>
-<dd><p>reduce the number of pixels randomly in a sqw object</p>
-<p>The function uses the mask_pixels() function to keep only a fixed
-fraction of pixels randomly chosen. Useful when doing numerically intensive
-simulations of sqw objects with sqw_eval or fit_sqw, to speed things up</p>
-<p>wout = mask_random_fraction_pixels(win,npix_frac)</p>
-<blockquote>
-<div><p>win                 Input sqw object</p>
-<dl class="simple">
-<dt>npix_frac           Fraction of pixels in <a href="#id19"><span class="problematic" id="id20">win.data_</span></a>.pix array to keep.</dt><dd><p>These are chosen at random. If win is an array then
-npix can either be a scalar, in which case all
-outputs will have the same number of retained
-pixels, or an array of the same size as win, in
-which case each mask is applied separately.</p>
-</dd>
-</dl>
-</div></blockquote>
-<blockquote>
-<div><p>wout                Output dataset.</p>
-</div></blockquote>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mask_random_pixels">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mask_random_pixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">npix</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mask_random_pixels" title="Permalink to this definition"></a></dt>
-<dd><p>reduce the number of pixels randomly in a sqw object</p>
-<p>The function uses the mask_pixels() function to keep only a fixed amount
-of pixels randomly chosen. Useful when doing numerically intensive
-simulations of sqw objects with sqw_eval or fit_sqw, to speed things up</p>
-<p>wout = mask_random_pixels(win,npix)</p>
-<blockquote>
-<div><p>win                 Input sqw object</p>
-<dl class="simple">
-<dt>npix               Number of pixels in <a href="#id21"><span class="problematic" id="id22">win.data_</span></a>.pix array to keep.</dt><dd><p>These are chosen at random. If win is an array then
-npix can either be a scalar, in which case all
-outputs will have the same number of retained
-pixels, or an array of the same size as win, in
-which case each mask is applied separately.</p>
-</dd>
-</dl>
-</div></blockquote>
-<blockquote>
-<div><p>wout                Output dataset.</p>
 </div></blockquote>
 </dd></dl>
 
@@ -1990,201 +1682,6 @@ be &lt;a href=”matlab:help(‘sqw/multifit_legacy_sqw_sqw’);”&gt;found her
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.pa">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">pa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.pa" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot an area plot of a 2D sqw dataset or array of datasets</p>
-<blockquote>
-<div><p>&gt;&gt; pa(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><dl class="simple">
-<dt>&gt;&gt; pa(w,’name’,fig_name)        % overplot on figure with name = fig_name</dt><dd><p>% or figure with given figure number or handle</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = pa(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.paoc">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">paoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.paoc" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot an area plot of a 2D sqw dataset or array of datasets on the current figure</p>
-<blockquote>
-<div><p>&gt;&gt; paoc(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = paoc(w)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.pd">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">pd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.pd" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot markers, error bars and lines for a 1D sqw object or array of objects on an existing plot</p>
-<blockquote>
-<div><p>&gt;&gt; pd(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><dl class="simple">
-<dt>&gt;&gt; pd(w,’name’,fig_name)        % overplot on figure with name = fig_name</dt><dd><p>% or figure with given figure number or handle</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = pd(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.pdoc">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">pdoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.pdoc" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot markers, error bars and lines for a 1D sqw object or array of objects on the current plot</p>
-<blockquote>
-<div><p>&gt;&gt; pdoc(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = pdoc(w)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.pe">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">pe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.pe" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot error bars for a 1D sqw object or array of objects on an existing plot</p>
-<blockquote>
-<div><p>&gt;&gt; pe(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><dl class="simple">
-<dt>&gt;&gt; pe(w,’name’,fig_name)        % overplot on figure with name = fig_name</dt><dd><p>% or figure with given figure number or handle</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = pe(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.peoc">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">peoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.peoc" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot error bars for a 1D sqw object or array of objects on the current plot</p>
-<blockquote>
-<div><p>&gt;&gt; peoc(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = peoc(w)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.ph">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">ph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.ph" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot histogram for a 1D sqw object or array of objects on an existing plot</p>
-<blockquote>
-<div><p>&gt;&gt; ph(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><dl class="simple">
-<dt>&gt;&gt; ph(w,’name’,fig_name)        % overplot on figure with name = fig_name</dt><dd><p>% or figure with given figure number or handle</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = ph(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.phoc">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">phoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.phoc" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot histogram for a 1D sqw object or array of objects on the current plot</p>
-<blockquote>
-<div><p>&gt;&gt; phoc(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = phoc(w)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.pl">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">pl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.pl" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot line for a 1D sqw object or array of objects on an existing plot</p>
-<blockquote>
-<div><p>&gt;&gt; pl(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><dl class="simple">
-<dt>&gt;&gt; pl(w,’name’,fig_name)        % overplot on figure with name = fig_name</dt><dd><p>% or figure with given figure number or handle</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = pl(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.ploc">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">ploc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.ploc" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot line for a 1D sqw object or array of objects on the current plot</p>
-<blockquote>
-<div><p>&gt;&gt; ploc(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = ploc(w)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.plot">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.plot" title="Permalink to this definition"></a></dt>
-<dd><p>Plot 1D, 2D or 3D sqw object or array of objects</p>
-<blockquote>
-<div><p>&gt;&gt; plot(w)
-&gt;&gt; plot(w,opt1,opt2,…)    % plot with optional arguments</p>
-</div></blockquote>
-<dl>
-<dt>Equivalent to:</dt><dd><p>&gt;&gt; dp(w)                % 1D dataset
-&gt;&gt; dp(w,…)</p>
-<p>&gt;&gt; da(w)                % 2D dataset
-&gt;&gt; da(w,…)</p>
-<p>&gt;&gt; sliceomatic(w)       % 3D dataset
-&gt;&gt; sliceomatic(w,…)</p>
-</dd>
-</dl>
-<p>For details of optional parameters type &gt;&gt; help sqw/dp, &gt;&gt; help sqw/da,
-or &gt;&gt; help sqw/sliceomatic as appropriate</p>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.plotover">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">plotover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.plotover" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot 1D, 2D or 3D sqw object or array of objects</p>
-<blockquote>
-<div><p>&gt;&gt; plotover(w)
-&gt;&gt; plotover(w,opt1,opt2,…)    % plot with optional arguments</p>
-</div></blockquote>
-<dl>
-<dt>Equivalent to:</dt><dd><p>&gt;&gt; pp(w)                % 1D dataset
-&gt;&gt; pp(w,…)</p>
-<p>&gt;&gt; pa(w)                % 2D dataset
-&gt;&gt; pa(w,…)</p>
-</dd>
-</dl>
-<p>For details of optional parameters type &gt;&gt; help sqw/pp, &gt;&gt; help sqw/pa,
-as appropriate</p>
-</dd></dl>
-
-<dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.plus">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.plus" title="Permalink to this definition"></a></dt>
 <dd><p>Implements w1 + w2 for objects</p>
@@ -2246,166 +1743,6 @@ size.]</p>
 <blockquote>
 <div><p>w           Output object or array of objects.</p>
 </div></blockquote>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.pm">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">pm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.pm" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot markers for a 1D sqw object or array of objects on an existing plot</p>
-<blockquote>
-<div><p>&gt;&gt; pm(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><dl class="simple">
-<dt>&gt;&gt; pm(w,’name’,fig_name)        % overplot on figure with name = fig_name</dt><dd><p>% or figure with given figure number or handle</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = pm(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.pmoc">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">pmoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.pmoc" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot markers for a 1D sqw object or array of objects on the current plot</p>
-<blockquote>
-<div><p>&gt;&gt; pmoc(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = pmoc(w)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.pp">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">pp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.pp" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot markers and error bars for a 1D sqw object or array of objects on an existing plot</p>
-<blockquote>
-<div><p>&gt;&gt; pp(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><dl class="simple">
-<dt>&gt;&gt; pp(w,’name’,fig_name)        % overplot on figure with name = fig_name</dt><dd><p>% or figure with given figure number or handle</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = pp(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.ppoc">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">ppoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.ppoc" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot markers and error bars for a 1D sqw object or array of objects on the current plot</p>
-<blockquote>
-<div><p>&gt;&gt; ppoc(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = ppoc(w)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.ps">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">ps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.ps" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot a surface plot of a 2D sqw dataset or array of datasets</p>
-<blockquote>
-<div><p>&gt;&gt; ps(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><dl class="simple">
-<dt>&gt;&gt; ps(w,’name’,fig_name)        % overplot on figure with name = fig_name</dt><dd><p>% or figure with given figure number or handle</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = ps(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.ps2">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">ps2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.ps2" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot a surface plot of a 2D sqw dataset or array of datasets</p>
-<blockquote>
-<div><p>&gt;&gt; ps2(w)       % Use error bars to set colour scale
-&gt;&gt; ps2(w,wc)    % Signal in wc sets colour scale</p>
-<blockquote>
-<div><p>%   wc can be any object with a signal array with same
-%  size as w, e.g. sqw object, IX_dataset_2d object, or
-%  a numeric array.
-%   - If w is an array of objects, then wc must contain
-%     the same number of objects.
-%   - If wc is a numeric array then w must be a scalar
-%     object.</p>
-</div></blockquote>
-</div></blockquote>
-<p>Differs from ds in that the signal sets the z axis, and the colouring is
-set by the error bars, or by another object. This enables two related
-functions to be plotted (e.g. dispersion relation where the ‘signal’
-array holds the energy and the error array holds the spectral weight).</p>
-<dl class="simple">
-<dt>Advanced use:</dt><dd><dl class="simple">
-<dt>&gt;&gt; ps(w,’name’,fig_name)        % overplot on figure with name = fig_name</dt><dd><p>% or figure with given figure number or handle</p>
-</dd>
-</dl>
-</dd>
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = ps2(w,…)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.ps2oc">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">ps2oc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.ps2oc" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot a surface plot of a 2D sqw dataset or array of datasets on the current figure
-The colour scale comes from a second source</p>
-<blockquote>
-<div><p>&gt;&gt; ps2oc(w)     % Use error bars to set colour scale
-&gt;&gt; ps2oc(w,wc)  % Signal in wc sets colour scale</p>
-<blockquote>
-<div><p>%   wc can be any object with a signal array with same
-%  size as w, e.g. sqw object, IX_dataset_2d object, or
-%  a numeric array.
-%   - If w is an array of objects, then wc must contain
-%     the same number of objects.
-%   - If wc is a numeric array then w must be a scalar
-%     object.</p>
-</div></blockquote>
-</div></blockquote>
-<p>Differs from ds in that the signal sets the z axis, and the colouring is
-set by the error bars, or by another object. This enables two related
-functions to be plotted (e.g. dispersion relation where the ‘signal’
-array holds the energy and the error array holds the spectral weight).</p>
-<dl class="simple">
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = ps2oc(w)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.psoc">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">psoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.psoc" title="Permalink to this definition"></a></dt>
-<dd><p>Overplot a surface plot of a 2D sqw dataset or array of datasets on the current figure</p>
-<blockquote>
-<div><p>&gt;&gt; psoc(w)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Return figure, axes and plot handles:</dt><dd><p>&gt;&gt; [fig_handle, axes_handle, plot_handle] = psoc(w)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.recompute_bin_data">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">recompute_bin_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.recompute_bin_data" title="Permalink to this definition"></a></dt>
-<dd><p>Given sqw_type object, recompute w.data.s and w.data.e from the contents of pix array</p>
-<p>&gt;&gt; wout=recompute_bin_data(w)</p>
 </dd></dl>
 
 <dl class="mat function">
@@ -2492,13 +1829,6 @@ implemented properly</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sigvar_get">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sigvar_get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sigvar_get" title="Permalink to this definition"></a></dt>
-<dd><p>Get signal and variance from object, and a logical array of which values to ignore</p>
-<p>&gt;&gt; [s,var,mask_null] = sigvar_get (w)</p>
-</dd></dl>
-
-<dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sin">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sin" title="Permalink to this definition"></a></dt>
 <dd><p>Implements sin(w1) for objects</p>
@@ -2532,90 +1862,6 @@ implemented properly</p>
 <blockquote>
 <div><p>w           Output object or array of objects.</p>
 </div></blockquote>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sliceomatic">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sliceomatic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sliceomatic" title="Permalink to this definition"></a></dt>
-<dd><p>Plots 3D sqw object using sliceomatic</p>
-<blockquote>
-<div><p>&gt;&gt; sliceomatic (w)
-&gt;&gt; sliceomatic (w, ‘isonormals’, true)     % to enable isonormals</p>
-<dl class="simple">
-<dt>&gt;&gt; sliceomatic (w,…,’-noaspect’)  % Do not change aspect ratio</dt><dd><p>% according to data axes unit lengths</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="simple">
-<dt>To get handles to the graphics figure:</dt><dd><p>&gt;&gt; [<a href="#id23"><span class="problematic" id="id24">figureHandle_</span></a>, <a href="#id25"><span class="problematic" id="id26">axesHandle_</span></a>, <a href="#id27"><span class="problematic" id="id28">plotHandle_</span></a>] = sliceomatic(w,…)</p>
-</dd>
-</dl>
-<p>NOTES:</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt>Ensure that the slice color plotting is in ‘texture’ mode -</dt><dd><p>On the ‘AllSlices’ menu click ‘Color Texture’. No indication will
-be made on this menu to show that it has been selected, but you can
-see the result if you right-click on an arrow indicating a slice on
-the graphics window.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>To set the default for future Sliceomatic sessions -</dt><dd><p>On the ‘Object_Defaults’ menu select ‘Slice Color Texture’</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sliceomatic_overview">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sliceomatic_overview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sliceomatic_overview" title="Permalink to this definition"></a></dt>
-<dd><p>Plots 3D sqw object using sliceomatic with view straight down one of the axes</p>
-<blockquote>
-<div><p>&gt;&gt; sliceomatic_overview (w)         % down third (vertical) axis
-&gt;&gt; sliceomatic_overview (w, axis)   % down axis of choice (axis=1,2 or 3)</p>
-<p>&gt;&gt; sliceomatic_overview (w,… ‘isonormals’, true) % to enable isonormals</p>
-<dl class="simple">
-<dt>&gt;&gt; sliceomatic_overview (w,…,’-noaspect’)  % Do not change aspect ratio</dt><dd><p>% according to data axes unit lengths</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="simple">
-<dt>To get handles to the graphics figure:</dt><dd><p>&gt;&gt; [<a href="#id29"><span class="problematic" id="id30">figureHandle_</span></a>, <a href="#id31"><span class="problematic" id="id32">axesHandle_</span></a>, <a href="#id33"><span class="problematic" id="id34">plotHandle_</span></a>] = sliceomatic(w,…)</p>
-</dd>
-</dl>
-<p>Do a sliceomatic plot, but set the axes so that we look straight down the
-chosen axis, so that when the slider is moved we get a series of
-what appear to be 2d slices.</p>
-<p>NOTES:</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt>Ensure that the slice color plotting is in ‘texture’ mode -</dt><dd><p>On the ‘AllSlices’ menu click ‘Color Texture’. No indication will
-be made on this menu to show that it has been selected, but you can
-see the result if you right-click on an arrow indicating a slice on
-the graphics window.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>To set the default for future Sliceomatic sessions -</dt><dd><p>On the ‘Object_Defaults’ menu select ‘Slice Color Texture’</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.smooth">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.smooth" title="Permalink to this definition"></a></dt>
-<dd><p>Smooth method - gataway to dnd object smoothing only.</p>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.smooth_units">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">smooth_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.smooth_units" title="Permalink to this definition"></a></dt>
-<dd><p>Smooth method - gataway to dnd object smoothing only.</p>
 </dd></dl>
 
 <dl class="mat function">
@@ -2700,7 +1946,7 @@ array of file paths with equal number of elements as win.</p>
 </dd>
 <dt>all        If true, requests that the calculated sqw be returned over</dt><dd><p>the whole of the domain of the input dataset. If false, then
 the function will be returned only at those points of the dataset
-that contain <a href="#id35"><span class="problematic" id="id36">data_</span></a>.</p>
+that contain <a href="#id13"><span class="problematic" id="id14">data_</span></a>.</p>
 <blockquote>
 <div><p>Applies only to input with no pixel information - it is ignored if</p>
 </div></blockquote>
@@ -2735,9 +1981,9 @@ Output argument must be specified if <cite>outfile</cite> not given.</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqw_eval_nopix_">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqw_eval_nopix_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">all_bins</span></em>, <em class="sig-param"><span class="pre">pars</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqw_eval_nopix_" title="Permalink to this definition"></a></dt>
-<dd><p><a href="#id37"><span class="problematic" id="id38">SQW_EVAL_NOPIX_</span></a></p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqw_eval_nopix">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqw_eval_nopix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">all_bins</span></em>, <em class="sig-param"><span class="pre">pars</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqw_eval_nopix" title="Permalink to this definition"></a></dt>
+<dd><p>SQW_EVAL_NOPIX</p>
 <blockquote>
 <div><p>Helper function for sqw eval executed on a pixel-less object (i.e. DnD or SQW with no pixels
 Called by <cite>sqw_eval_</cite> defined in sqw/DnDBase</p>
@@ -2825,41 +2071,6 @@ pars       Arguments needed by the function.</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.xye">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">xye</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em>, <em class="sig-param"><span class="pre">null_value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.xye" title="Permalink to this definition"></a></dt>
-<dd><p>Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset</p>
-<blockquote>
-<div><p>&gt;&gt; S = xye(w)
-&gt;&gt; S = xye(w, null_value)</p>
-</div></blockquote>
-<blockquote>
-<div><p>w       sqw object or array of objects (1D, 2D, 3D or 4D)
-null_value  Numeric value to substitute for the intensity in bins</p>
-<blockquote>
-<div><p>with no data.
-Default: NaN</p>
-</div></blockquote>
-</div></blockquote>
-<blockquote>
-<div><p>S       Structure with the following fields:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>x   If a 1D sqw object, a column vector with the bin centres</dt><dd><p>Otherwise, a cell array (row vector) of arrays, each array containing the
-bin centres for the plot axes. Each array of bin centres
-is a column vector.</p>
-</dd>
-<dt>y   n1 x n2 x… array of intensities, where n1 is the number of</dt><dd><p>bins along the first plot axis, n2 the number of bins along
-the second plot axis etc</p>
-</dd>
-<dt>e   n1 x n2 x… array of error bars, where n1 is the number of</dt><dd><p>bins along the first plot axis, n2 the number of bins along
-the second plot axis etc</p>
-</dd>
-</dl>
-</div></blockquote>
-</div></blockquote>
-</dd></dl>
-
 </section>
 <section id="module-sqw.&#64;Experiment">
 <span id="experiment-class"></span><h2><a class="toc-backref" href="#id9"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a><a class="headerlink" href="#module-sqw.@Experiment" title="Permalink to this heading"></a></h2>
@@ -2867,6 +2078,19 @@ the second plot axis etc</p>
 <dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">Experiment</span></span><a class="headerlink" href="#sqw.@Experiment.Experiment" title="Permalink to this definition"></a></dt>
 <dd><p>EXPERIMENT Container object for all data describing the Experiment</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.change_crystal">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">change_crystal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">alatt</span></em>, <em class="sig-param"><span class="pre">angdeg</span></em>, <em class="sig-param"><span class="pre">rlu_corr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.change_crystal" title="Permalink to this definition"></a></dt>
+<dd><dl>
+<dt>Change fields in the experiment with correction related to change crystal</dt><dd><p>lattice parameters and orientation</p>
+<blockquote>
+<div><p>&gt;&gt; obj=change_crystal(obj,alatt,angdeg,rlu_corr)</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>Change fields of Experiment as required</p>
 </dd></dl>
 
 </section>
@@ -2892,7 +2116,7 @@ an instance of sqw_binfile_common.</p>
 data object. No pixel data will be loaded from the file on construction.
 Data will be loaded when a getter is called e.g. pix_data.signal. Data will
 be loaded in pages such that the data held in memory will not exceed the
-size (in bytes) specified by private attribute <a href="#id39"><span class="problematic" id="id40">page_memory_size_</span></a> - this can
+size (in bytes) specified by private attribute <a href="#id15"><span class="problematic" id="id16">page_memory_size_</span></a> - this can
 be set on construction (see mem_alloc above).</p>
 <p>The file-backed operations work by loading “pages” of data into memory as
 required. If editing pixels, to avoid losing changes, if a page has been
@@ -2986,7 +2210,8 @@ array.</p>
 </dd>
 <dt>&gt;&gt; obj = PixelData(__,false) – not upgrade class averages</dt><dd><blockquote>
 <div><p>(pix_range) for old file format, if these averages
-are not stored in the file. Default – true</p>
+are not stored in the file. Default – true. Pixel
+averages are calculated on construction</p>
 </div></blockquote>
 <blockquote>
 <div><blockquote>
@@ -3596,7 +2821,7 @@ abs_pix_indices  The indices to set data on. If not specified all indices are</p
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on Sep 15, 2022, 10:35:07 AM.
+      <span class="lastupdated">Last updated on Sep 26, 2022, 10:42:31 AM.
       </span></p>
   </div>
 
