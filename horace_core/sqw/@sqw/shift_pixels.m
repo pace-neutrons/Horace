@@ -67,7 +67,7 @@ for i=1:numel(win)
             if iscell(wdisp)
                 wdisp=wdisp{1};     % pick out the first dispersion relation
             end
-            wout(i).data.pix.dE=wout(i).data.pix.dE-wdisp(:)';
+            wout(i).pix.dE=wout(i).pix.dE-wdisp(:)';
         else
             % Get average h,k,l,e for the bin, compute sqw for that average, and fill pixels with the average signal for the bin that contains them
             qw = calculate_qw_pixels(win(i));
@@ -77,7 +77,7 @@ for i=1:numel(win)
                 wdisp=wdisp{1};     % pick out the first dispersion relation
             end
             wdisp=replicate_array(wdisp,win(i).data.npix);
-            wout(i).data.pix.dE=wout(i).data.pix.dE-wdisp(:)';
+            wout(i).pix.dE=wout(i).pix.dE-wdisp(:)';
         end
         % Have shifted the energy, but need to recompute the bins.
         % - If energy is a plot axis, then extend the range of the
@@ -89,40 +89,41 @@ for i=1:numel(win)
         [proj, pbin] = get_proj_and_pbin (win(i));
 
         % Convert wout(i) into a single bin object
-        data = wout(i).data;    % to get a convenient pointer
-        data.nbins_all_dims = ones(4,1);
-        data.img_range = win(i).data.img_range;        
+        pix  = wout(i).pix;
+        new_data = d0d();
+        new_data.axes.img_range = wout(i).data.axes.img_range;
+        new_data.proj = wout.data.proj;
 
-        data.dax = zeros(1,0);
-        data.s = 0;
-        data.e = 0;
-        data.npix = data.pix.num_pixels;
-        eps_lo = min(data.pix.dE);
-        eps_hi = max(data.pix.dE);
-        % TODO: meaning?
-        data.img_range(:,4) = [eps_lo;eps_hi];
-        wout(i).data = data;
-        wout(i) = recompute_bin_data(wout(i));
+        new_data.npix = pix.num_pixels;
+        eps_lo = min(pix.dE);
+        eps_hi = max(pix.dE);
 
-        % Recut wout(i) with energy bin limits extended, if necessary
-        if numel(pbin{4})~=2
-            elo = pbin{4}(1);
-            ehi = pbin{4}(3);
-            de = pbin{4}(2);
-            if elo>eps_lo || ehi>eps_hi
-                pbin{4}(1) = elo - de*ceil((elo-eps_lo)/de);
-                pbin{4}(3) = ehi + de*ceil((eps_hi-ehi)/de);
-            end
+        new_data.axes.img_range(:,4) = [eps_lo;eps_hi];
+        wout(i).data = new_data;
+        %wout(i) = recompute_bin_data(wout(i));
+            
+
+        pbin_i = pbin{i};
+        % Redefine energy binning ranges with energy bin limits extended, if necessary
+        if numel(pbin_i{4})==2
+            pbin_i{4}(1) = floor(eps_lo);
+            pbin_i{4}(2) = ceil(eps_hi);            
+        else
+            de = pbin_i{4}(2);            
+            elo = floor(eps_lo)-0.5*de;
+            ehi = ceil(eps_hi)+0.5*de;
+            pbin_i{4} = [elo,de,ehi];
         end
 
-        wout(i) = cut(wout(i),proj,pbin{:});
+        wout(i) = cut(wout(i),proj(i),pbin_i{:});
 
     else
-        error('Not yet implemented for dnd objects')
-%         qw = calculate_qw_bins(win(i));
-%         wdisp=dispreln(qw{1:3},pars{:});
-%         if icell(wdisp)
-%             wdisp=wdisp{1};     % pick out the first dispersion relation
-%         end
+        error('HORACE:sqw:not_implemented', ...
+            'Not yet implemented for dnd objects')
+        %         qw = calculate_qw_bins(win(i));
+        %         wdisp=dispreln(qw{1:3},pars{:});
+        %         if icell(wdisp)
+        %             wdisp=wdisp{1};     % pick out the first dispersion relation
+        %         end
     end
 end

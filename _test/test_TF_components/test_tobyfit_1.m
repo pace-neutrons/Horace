@@ -361,7 +361,10 @@ else
     kk = kk.set_mc_points(10);
     w110arr1_sim=kk.simulate;
 end
-acolor k b r; dp(w110arr); pl(w110arr1_sim); ly 0 0.8
+acolor k b r;
+dp(w110arr);
+pl(w110arr1_sim);
+ly 0 0.8
 pause(1)
 
 

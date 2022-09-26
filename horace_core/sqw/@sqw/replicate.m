@@ -61,7 +61,7 @@ wout = repmat(wref_dnd_type,size(win));  % wout will be a dnd-type sqw object
 for i=1:numel(win)
     dnd_obj = dnd(win(i));
     rep_obj = replicate(dnd_obj,wref_dnd_type);
-    wout(i).data = rep_obj.data;
+    wout(i) = rep_obj;
     %     % TODO: what about pixels? Should we replicate target pixels too to
     %     % have fully consistent target sqw object (if target is sqw) with whole
     %     % pixel informathion

@@ -92,15 +92,13 @@ if ~any(ok)
 end
 
 % Get coordinates of points along each projection axis
-ustep = zeros(1,nd);
-for i=1:nd
-    ustep(i) = (p{i}(end)-p{i}(1))/(numel(p{i})-1);
-end
+step = (win.data.axes.img_range(2,:)-win.data.axes.img_range(1,:))./win.data.axes.nbins_all_dims;
+ustep = step(pax);
 xpstep = xp_ok ./ repmat(ustep,size(xp_ok,1),1);
 
 % Get components along projection axes of the pixels in the sqw object
-ucell = calculate_uproj_pixels (win, 'step');   % in units of steps
-uprojstep = cell2mat(ucell);
+uprojstep = calculate_uproj_pixels (win, step);   % in units of steps
+uprojstep = uprojstep';
 
 ipix = zeros(numel(ind),1);
 nend = cumsum(npix);

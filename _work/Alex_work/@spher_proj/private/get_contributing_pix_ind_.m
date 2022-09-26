@@ -3,7 +3,7 @@ function [indx,ok]=get_contributing_pix_ind_(this,v)
 %
 % Input:
 % v --9xNpix array of pixels where rows 1:4 of array v represent
-%     pixels coordinates in crystal cartesian coordinate system
+%     pixels coordinates in crystal Cartesian coordinate system
 %
 % Output:
 % indx -- 4xNpix_cotnr integer indexes of pixels, contributing into the cut.
@@ -24,7 +24,7 @@ trans =  this.data_upix_to_rlu_\(this.ucentre-this.data_uoffset_(1:3));
 % then?
 rs = this.data_upix_to_rlu_*[(v(1,:)-trans(1));(v(2,:)-trans(2));(v(3,:)-trans(3))];
 %
-% convert cartezian coordinates into spherical one
+% convert Cartesian coordinates into spherical one
 %
 [phi,theta,r] = cart2sph(rs(1,:),rs(2,:),rs(3,:));
 %

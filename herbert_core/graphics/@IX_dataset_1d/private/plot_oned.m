@@ -158,11 +158,11 @@ elseif plot_type(1)=='l'
     end
     plot_line (w)
 elseif plot_type(1)=='m'
-    plot_markers (w)
+    plot_markers (w);
 elseif plot_type(1)=='d'
-    plot_markers_errors_lines(w)
+    plot_markers_errors_lines(w);
 elseif plot_type(1)=='p'
-    plot_markers_errors(w)
+    plot_markers_errors(w);
 end
 hold off    % release plot (could have been held for overplotting, for example
 

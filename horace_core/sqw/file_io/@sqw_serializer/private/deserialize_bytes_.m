@@ -30,9 +30,9 @@ else
 end
 
 if isa(template_str,'sqw_field_format_interface')  % field has special convertor
-   [targ_str,length] = template_str.field_from_bytes(bytes,pos);
-   pos = pos+length;
-   return;
+    [targ_str,length] = template_str.field_from_bytes(bytes,pos);
+    pos = pos+length;
+    return;
 end
 
 
@@ -50,7 +50,7 @@ for i=1:numel(fn)
         end
         [res,length] = fmt.field_from_bytes(bytes,pos);
         pos = pos+length;
-        
+
         if isa(fmt,'iVirt_field')
             fmt.field_value = res;
             template_str.(field) = fmt;
@@ -94,5 +94,3 @@ for i=1:numel(fn)
     end
     targ_str.(field) = res;
 end
-
-

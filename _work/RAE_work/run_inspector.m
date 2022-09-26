@@ -31,16 +31,19 @@ function run_inspector(w,varargin)
 
 %Do some checks on the data:
 if ~isa(w,'sqw') || ~has_pixels(w)
-    error('Input dataset has to be sqw object with full contributing run information present');
+    error('HORACE:run_inspector:invalid_argument',...
+    'Input dataset has to be sqw object with full contributing run information present');
 end
 
 if numel(w)~=1
-    error('run inspector can only be used for a single sqw object, rather than an array of objects')
+    error('HORACE:run_inspector:invalid_argument',...
+    'run inspector can only be used for a single sqw object, rather than an array of objects')
 end
 
 [nd,sz]=dimensions(w);
 if nd<1 || nd>2
-    error('Input dataset must be an sqw object that is 2d or 1d');
+    error('HORACE:run_inspector:invalid_argument',...
+    'Input dataset must be an sqw object that is 2d or 1d');
 end
 
 

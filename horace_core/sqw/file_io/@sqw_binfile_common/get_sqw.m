@@ -46,19 +46,13 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 % --------
 %  fully formed sqw object
 %
-%   data        Output data structure actually read from the file. Will be one of:
-%                   type 'h'    fields: filename,...,uoffset,...,dax[,img_db_range]
-%                   type 'b'    fields: filename,...,uoffset,...,dax,s,e
-%                   type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
-%                   type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,img_db_range
-%                   type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,img_db_range,pix
-%               The final field img_db_range is present for type 'h' if the header information was read from an sqw-type file.
 %
 % Original author: T.G.Perring
 %
 opts = parse_args(obj, varargin{:});
 
-sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[],'data',[]);
+sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[], ...
+    'data',[],'pix',[]);
 
 % Get main header
 % ---------------
@@ -90,65 +84,34 @@ if (opts.head || opts.his)
 else
     opt2 = {};
 end
-if opts.nopix
-    opt3={'-nopix'};
-else
-    opt3={};
-end
-if opts.noupgrade
-    opt4={'-noupgrade'};
-else
-    opt4={};
-end
 
 
-data_opt= [opt1, opt2, opt3, opt4];
-sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
+data_opt= [opt1, opt2];
+sqw_struc.data = obj.get_data(data_opt{:});
+proj = sqw_struc.data.proj;
+header_av = exp_info.header_average();
+sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+
+if ~opts.nopix && obj.npixels>0
+    sqw_struc.pix = PixelData(obj, opts.pixel_page_size,~opts.noupgrade);
+    %
+end
 
 sqw_struc.experiment_info = exp_info;
 old_file = ~sqw_struc.main_header.creation_date_defined;
 % run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
-if (sqw_struc.data.pix.num_pixels >0 ) && ...
-        old_file
-    runid = unique(sqw_struc.data.pix.run_idx);
-    file_id = exp_info.runid_map.keys;
-    file_id = [file_id{:}];
-    if sqw_struc.data.pix.n_pages == 1 % all pixels are in memory and we
-        % can properly analyse run-ids
-
-        if ~all(ismember(runid,file_id))  % old style pixel data, run_id-s
-            % have been recalculated
-            % use the fact that the headers were recalculated as subsequent numbers
-            % going from 1 to n_headers
-            id=1:exp_info.n_runs;
-            if min(runid)< 1 || max(runid)>exp_info.n_runs
-                error('HORACE:sqw_binfile_common:invalid_argument', ...
-                    'pixels runid-s were recalculated but lie outside of runid-s, defined for headers. Contact developers to deal with the issue')
-            end
-            % reset run-ids and runid_map stored in current experiment info.
-            exp_info.runid_map = id;
-            %
-            exp_info = exp_info.get_subobj(runid);
-            sqw_struc.main_header.nfiles = exp_info.n_runs;
-            %
-        end
-
-    else % not all pixels are loaded into memory
-        if ~any(ismember(runid,file_id))  % old style pixel data, run_id-s
-            % have been recalculated
-            id=1:exp_info.n_runs;
-            exp_info.runid_map = id;
-        end
-    end
-    sqw_struc.experiment_info = exp_info;
+if (sqw_struc.pix.num_pixels >0 ) && old_file
+    % try to update pixels run id-s
+    sqw_struc = update_pixels_run_id(sqw_struc);
 end
 if opts.legacy
     sqw_object = sqw_struc.main_header;
     varargout{1} = sqw_struc.experiment_info;
     varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
+    varargout{4} = sqw_struc.pix;    
 elseif opts.head || opts.his
     sqw_object  = sqw_struc;
 else

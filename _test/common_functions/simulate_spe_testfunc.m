@@ -63,7 +63,7 @@ wcalc=sqw_eval(w{1},sqwfunc,pars);
 clear w
 
 % Add random looking, but determinisitic, noise
-peak=max(abs(wcalc.data.pix.signal));
+peak=max(abs(wcalc.pix.signal));
 if peak==0
     peak=10; % Case of all signal==0
 end
@@ -77,7 +77,7 @@ else
 end
 wran=sqw_eval(wcalc,@sqw_rand_like,par); % range is -0.5 to +0.5
 %save(wran,'c:/temp/rand_sqw_new.sqw');
-wcalc.data.pix.signal=wcalc.data.pix.signal+(0.1*peak)*wran.data.pix.signal;  % spread is 10% of peak
+wcalc.pix.signal=wcalc.pix.signal+(0.1*peak)*wran.pix.signal;  % spread is 10% of peak
 
 if ~seed_defined
     si = Singleton.instance();
@@ -113,7 +113,7 @@ if ~seed_defined
     save(seeds_file,'seeds_store');
 end
 
-wcalc.data.pix.variance=(0.05*peak*scale)*(1+wran.data.pix.signal);
+wcalc.pix.variance=(0.05*peak*scale)*(1+wran.pix.signal);
 
 % Convert to equivalent spe data
 wspe=rundatah(wcalc);

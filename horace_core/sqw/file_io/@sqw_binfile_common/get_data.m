@@ -31,13 +31,6 @@ function [data,obj] = get_data(obj,varargin)
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
-% Keyword Arguments:
-% ------------------
-%   pixel_page_size    The maximum amount of memory to allocate to holding
-%                      pixel data. This argument is passed to the PixelData
-%                      constructor's 'mem_alloc' argument.
-%                      The value should have units of bytes.
-%
 % Output:
 % -------
 
@@ -87,8 +80,7 @@ function [data,obj] = get_data(obj,varargin)
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.img_range True range of the data along each axis [img_range(2,4)]
-%   data.pix       A PixelData objects
-%
+
 %
 % NOTES:
 % ======
@@ -106,36 +98,40 @@ function [data,obj] = get_data(obj,varargin)
 % Initialise output arguments
 
 % remove options unrelated to get_data@dnd_binfile_common
-[ok,mess,~,noclass,noupgrade,argi]=...
-    parse_char_options(varargin,{'-nopix','-noclass','-noupgrade'});
+[ok,mess,noclass,noupgrade,nopix,argi]=...
+    parse_char_options(varargin,{'-noclass','-noupgrade','-nopix'});
 if ~ok
     error('HORACE:sqw_binfile_common:invalid_argument', ...
         ['get_data: ',mess]);
 end
+if nopix
+    warning('HORACE:invalid_argument', ...
+        '-nopix option in get_data is deprecated. New data do not contain pixel information. Use get_pix to obtain pixel data')
+end
 
-[data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
-% 
-% In old files img_range (urange) is also stored separately and contains
-% real image range (the range pixel data converted to image actually
-% occupy) This will be used as range if old files integration range is
-% unlimited
-data_str.img_range = obj.get_img_db_range(data_str);
-%
+[data_str,obj] = get_data@dnd_binfile_common(obj,argi{:});
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
+%
 
 if opts.header || opts.hverbatim || noclass
     data  = data_str;
     return;
-end
-data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in 
-                        %  binary file into the form, suitable for
-                        %  recovering using serializable class methods, as
-                        %  data_sqw_dnd is serializable
-data = serializable.from_struct(data_str);
-if ~opts.nopix && obj.npixels>0
-    data.pix = PixelData(obj, opts.pixel_page_size,~noupgrade);
+else
+    % In old files img_range (urange) is also stored separately and contains
+    % real image range (the range pixel data converted to image actually
+    % occupy) This will be used as range if old files integration range is
+    % unlimited
+    data_str.axes.img_range = obj.get_img_db_range(data_str);
     %
+
+end
+if isa(data_str,'DnDBase')
+    data = data_str;
+else
+    ab = axes_block.get_from_old_data(data_str);
+    proj=ortho_proj.get_from_old_data(data_str);
+    data = DnDBase.dnd(ab,proj,data_str.s,data_str.e,data_str.npix);
 end
 
 end  % function

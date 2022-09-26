@@ -39,7 +39,7 @@ classdef test_experiment_loadsave < TestCase
             ld1 = load(wkfile);
             % tmp_sqw is checked that it now does not have the marker field                      
             assertTrue( isa(ld1.tmp_sqw.experiment_info, 'Experiment') );
-            assertEqual( ld1.tmp_sqw, ld.test_rundata_sqw.sq4);
+            assertEqualToTol( ld1.tmp_sqw, ld.test_rundata_sqw.sq4,1.e-7,'-ignore_date');
         end
 
         function test_loadsave_multiple_run_and_sqw(obj)
@@ -80,7 +80,7 @@ classdef test_experiment_loadsave < TestCase
             assertTrue( isa(ld1.sq3(1).experiment_info, 'Experiment') );
             assertTrue( isa(ld1.sq3(2).experiment_info, 'Experiment') );
             assertEqual( numel(ld1.sq3), 2);
-            assertEqualToTol(sq3.to_struct,ld1.sq3.to_struct,'ignore_str',true);
+            assertEqualToTol(sq3,ld1.sq3,1.e-12,'-ignore_date','ignore_str',true);
         end
     end
 end

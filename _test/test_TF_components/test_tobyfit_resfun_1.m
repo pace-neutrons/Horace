@@ -116,7 +116,7 @@ det.height=0.0367;
 ww1=resolution_plot([12.5,13.5],inst,samp,det,100,1,[3,4,5],[90,90,90],[1,1,0],[0,0,1],24,0,1,2,3);
 if test_output
     [ok,mess] = equal_to_tol(ww1,tmp.ww1,[1e-8,1e-8]);
-    assertTrue(ok,mess)    
+    assertTrue(ok,mess)
 end
 pause(pause_time)
 
@@ -131,8 +131,8 @@ pause(pause_time)
 iax = [1,4];
 ww3=resolution_plot([39.5,40.5],inst,samp,det,100,1,[3,4,5],[90,90,90],[1,1,0],[0,0,1],24,0,1,2,3, iax);
 if test_output
-    [ok,mess] = equal_to_tol(ww3,tmp.ww3,[1e-8,1e-8]);    
-    assertTrue(ok,mess)    
+    [ok,mess] = equal_to_tol(ww3,tmp.ww3,[1e-8,1e-8]);
+    assertTrue(ok,mess)
 end
 pause(pause_time)
 

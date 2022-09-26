@@ -1,83 +1,85 @@
-classdef test_smooth < TestCase
+classdef test_smooth < TestCaseWithSave
     properties
         sqw_file_1d_name = 'sqw_1d_1.sqw';
         sqw_file_2d_name = 'sqw_2d_1.sqw';
+        sqw_file_3d_name = 'w3d_d3d.sqw'
         sqw_file_4d_name = 'sqw_4d.sqw';
-        sqw_files_path = '../common_data/';
 
         test_sqw_1d_fullpath = '';
         test_sqw_2d_fullpath = '';
+        test_sqw_3d_fullpath = '';
         test_sqw_4d_fullpath = '';
+        test_folder
     end
 
 
     methods
-        function obj = test_smooth(~)
-            obj = obj@TestCase('test_smooth');
-            obj.test_sqw_1d_fullpath = obj.build_fullpath(obj.sqw_file_1d_name);
-            obj.test_sqw_2d_fullpath = obj.build_fullpath(obj.sqw_file_2d_name);
-            obj.test_sqw_4d_fullpath = obj.build_fullpath(obj.sqw_file_4d_name);
-        end
-        function fullpath = build_fullpath(obj, testfile_name)
-            test_file = java.io.File(pwd(), fullfile(obj.sqw_files_path, testfile_name));
-            fullpath = char(test_file.getCanonicalPath());
+        function obj = test_smooth(varargin)
+            if nargin == 0
+                argi = {'test_smooth'};
+            else
+                argi = {varargin{1},'test_smooth'};
+            end
+            obj = obj@TestCaseWithSave(argi{:});
+            obj.test_folder = fileparts(fileparts(mfilename('fullpath')));
+            obj.test_sqw_1d_fullpath = fullfile(obj.test_folder,'common_data',obj.sqw_file_1d_name);
+            obj.test_sqw_2d_fullpath = fullfile(obj.test_folder,'common_data',obj.sqw_file_2d_name);
+            obj.test_sqw_3d_fullpath = fullfile(obj.test_folder,'common_data',obj.sqw_file_3d_name);
+            obj.test_sqw_4d_fullpath = fullfile(obj.test_folder,'common_data',obj.sqw_file_4d_name);
+            obj.save();
         end
 
         %% SMOOTH
-        function test_smooth_d1d_returns_d1d_object(obj)
-            d1d_obj = d1d(obj.test_sqw_1d_fullpath);
+        function test_smooth_sqw1d_returns_sqw1d_object(obj)
+            sqw_obj_dnd_type = read_dnd(obj.test_sqw_1d_fullpath);
 
-            d = d1d_obj.smooth(10, 'hat');
+            d = sqw_obj_dnd_type.smooth(10, 'hat');
+            assertFalse(isa(d, 'sqw'));
             assertTrue(isa(d, 'd1d'));
         end
         function test_smooth_d2d_returns_d2d_object(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
             d = d2d_obj.smooth(10, 'hat');
             assertTrue(isa(d, 'd2d'));
         end
         function test_smooth_d3d_returns_d3d_object(obj)
-            skipTest('No d3d test data');
-            d3d_obj = d3d(obj.test_sqw_3d_fullpath);
+            d3d_obj = read_dnd(obj.test_sqw_3d_fullpath);
 
             d = d3d_obj.smooth(10, 'hat');
             assertTrue(isa(d, 'd3d'));
         end
-        function test_smooth_d4d_returns_d4d_object(obj)
-            d4d_obj = d4d(obj.test_sqw_4d_fullpath);
+        function test_smooth_sqwd4d_returns_sqwd4d_object(obj)
+            sqw4d_obj = read_sqw(obj.test_sqw_4d_fullpath);
+            sqw4d_obj.pix = [];
 
-            d = d4d_obj.smooth(10, 'hat');
-            assertTrue(isa(d, 'd4d'));
+            d = sqw4d_obj.smooth(10, 'hat');
+            assertTrue(isa(d, 'sqw'));
+            assertTrue(isa(d.data, 'd4d'));
+            assertFalse(d.has_pixels());
         end
 
         function test_smooth_no_args(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
-            d = d2d_obj.smooth();
+            d2d_smooth = d2d_obj.smooth();
 
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
+            assertEqualToTolWithSave(obj,d2d_smooth,'ignore_str',true)
         end
 
         function test_smooth_scalar_width_arg(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
-            d = d2d_obj.smooth(100);
+            d2d_smooth100 = d2d_obj.smooth(100);
 
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
+            assertEqualToTolWithSave(obj,d2d_smooth100,'ignore_str',true)
         end
 
         function test_smooth_array_width_arg(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
-            d = d2d_obj.smooth([100, 25]);
-
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
+            d2d_smooth_100_25 = d2d_obj.smooth([100, 25]);
+            assertEqualToTolWithSave(obj,d2d_smooth_100_25,'ignore_str',true)
         end
 
         function test_smooth_resolution_shape_arg(obj)
@@ -92,147 +94,37 @@ classdef test_smooth < TestCase
         end
 
         function test_smooth_hat_shape_arg(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
-            d = d2d_obj.smooth(100, 'hat');
+            d2d_smoorh100_hat = d2d_obj.smooth(100, 'hat');
+            assertEqualToTolWithSave(obj,d2d_smoorh100_hat,'ignore_str',true)
 
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
         end
 
         function test_smooth_gaussian_shape_arg(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
-            d = d2d_obj.smooth(100, 'gaussian');
+            d2d_smoorh100_gaus = d2d_obj.smooth(100, 'gaussian');
 
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
+            assertEqualToTolWithSave(obj,d2d_smoorh100_gaus,1.e-7,'ignore_str',true)
         end
 
         function test_smooth_raises_error_with_invalid_shape_arg(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
             actual = assertExceptionThrown( ...
                 @() d2d_obj.smooth(100, 'invalid_shape'), ...
-                'HORACE:smooth:invalid_arguments');
+                'HORACE:DnDBase:invalid_argument');
             assertTrue(contains(actual.message, '''invalid_shape'' is not recognised'));
 
         end
 
         function test_smooth_raises_error_with_incorrect_dimension_width_arg(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
             actual = assertExceptionThrown(@() d2d_obj.smooth([10,10,10,10,10]), ...
-                'HORACE:smooth:invalid_arguments');
+                'HORACE:DnDBase:invalid_argument');
             assertTrue(contains(actual.message, 'length equal to the dimensions of the dataset'))
         end
-
-        %% SMOOTH_UNITS
-        function test_smooth_units_returns_d2d_object(obj)
-            s = d2d(obj.test_sqw_2d_fullpath);
-
-            d = s.smooth_units(10, 'hat');
-            assertTrue(isa(d, 'd2d'));
-        end
-
-        function test_smooth_units_d1d_scalar_width_arg(obj)
-            s = d1d(obj.test_sqw_1d_fullpath);
-
-            d = s.smooth_units(100);
-
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-        end
-        function test_smooth_units_d2d_scalar_width_arg(obj)
-            s = d2d(obj.test_sqw_2d_fullpath);
-
-            d = s.smooth_units(100);
-
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-        end
-        function test_smooth_units_d4d_scalar_width_arg(obj)
-            s = d4d(obj.test_sqw_4d_fullpath);
-
-            d = s.smooth_units(1); % smaller scale used here to prevent array allocation overflow
-
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-        end
-
-        function test_smooth_units_array_width_arg(obj)
-            s = d2d(obj.test_sqw_2d_fullpath);
-
-            d = s.smooth_units([100, 25]);
-
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-        end
-
-
-        function test_smooth_units_resolution_shape_arg(obj)
-            skipTest('No valid agruments possible for resolution call #628');
-            s = d2d(obj.test_sqw_2d_fullpath);
-
-            d = s.smooth_units([1, 1.1, 1.2], 'resolution');
-
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-        end
-
-        function test_smooth_units_hat_shape_arg(obj)
-            s = d2d(obj.test_sqw_2d_fullpath);
-
-            d = s.smooth_units(100, 'hat');
-
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-        end
-
-        function test_smooth_units_gaussian_shape_arg(obj)
-            s = d2d(obj.test_sqw_2d_fullpath);
-
-            d = s.smooth_units(100, 'gaussian');
-
-            % TODO: assert data matches expected...
-            %assertEqualToTol(d.data.s, expected.data.s, 1e-8);
-            %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
-        end
-
-        function test_smooth_units_raises_error_with_no_width_arg(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
-
-            actual = assertExceptionThrown(@() d2d_obj.smooth_units(), ...
-                'HORACE:smooth:invalid_arguments');
-
-            assertTrue(contains(actual.message, 'Must give smoothing parameter(s)'));
-        end
-
-        function test_smooth_units_raises_error_with_invalid_shape_arg(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
-
-            actual = assertExceptionThrown( ...
-                @() d2d_obj.smooth_units(100, 'invalid_shape'), ...
-                'HORACE:smooth:invalid_arguments');
-            assertTrue(contains(actual.message, '''invalid_shape'' is not recognised'));
-        end
-
-        function test_smooth_units_raises_error_with_wrong_dimension_width_arg(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
-
-            actual = assertExceptionThrown( ...
-                @() d2d_obj.smooth_units([100,200,300,400,500], 'hat'), ...
-                'HORACE:smooth:invalid_arguments');
-            assertTrue(contains(actual.message, 'length equal to the dimensions of the dataset'))
-        end
-
     end
 end

@@ -4,9 +4,6 @@ function  new_obj = upgrade_file_format_(obj)
 % currently preferred is format v 3.3
 %
 %
-%
-%
-%
 
 new_obj = sqw_formats_factory.instance().get_pref_access();
 if ischar(obj.num_dim) % source object is not initiated. Just return
@@ -35,19 +32,23 @@ if isempty(new_obj.sqw_holder_) % all file positions except instrument and sampl
     % TODO: modify this to direct filebased algorithm when refactoring is
     % done.
     hc = hor_config;
-    buf_size = hc.mem_page_chunk_size_byte_conversion;
-    pix_page = hc.pixel_page_size;
-    ll =       hc.log_level;
-    if 2*buf_size < pix_page
-        clOb = onCleanup(@()set(hc,'pixel_page_size',pix_page));
-        % set up pixel_page size of to be buf_size converted in bytes
-        hc.mem_page_chunk_size_byte_conversion = hc.mem_chunk_size;
+    mem          = sys_memory();
+    pix_page_size    = hc.pixel_page_size;
+    ll           = hc.log_level;
+    crit = min(0.6*mem,6*pix_page_size); % TODO: is this rule well justified?
+
+    if obj.npixels*sqw_binfile_common.FILE_PIX_SIZE > crit
+        if ll>0
+            fprintf(['*** Upgrading file format to a latest binary version.\n',...
+                '    This is once per-old file long operation, analysing the whole pixels array\n'])
+        end
+        % Load the .sqw file using the sqw constructor so that we can pass the
+        % pixel_page_size argument to get an sqw with file-backed pixels.
+        new_obj.sqw_holder_.pix = PixelData(obj,pix_page_size);
+    else
+        % load everything in memory
+        new_obj.sqw_holder_.pix = PixelData(obj);
     end
-    if ll>0
-        fprintf(['*** Upgrading file format to a latest binary version.\n',...
-            '    This is once per-old file long operation, analyzing the whole pixels array\n'])
-    end
-    new_obj.sqw_holder_.data.pix = PixelData(obj,hc.mem_page_chunk_size_byte_conversion);
     clear_sqw_holder = true; %
 
 end

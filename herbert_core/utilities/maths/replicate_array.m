@@ -15,8 +15,6 @@ function vout = replicate_array (v, n)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-
 if numel(n)==numel(v)
     if ~isempty(n)
         % Get the bin index for each pixel
@@ -32,6 +30,8 @@ if numel(n)==numel(v)
         vout=zeros(0,1);
     end
 else
-    error('Number of elements in input array(s) incompatible')
+    error('HERBERT:replicate_array:invalid_argument',...
+        'Number of elements in input array 1 (%d) different from number of elements in input array 2 (%d)',...
+        numel(n),numel(v));
 end
 

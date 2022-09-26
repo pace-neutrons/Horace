@@ -128,8 +128,9 @@ data_source=struct(...
     'source_arg_is_struct',{}, ...
     'nargout_req',         {}, ...
     'loaders_list',        {}  ...
-);
+    );
 args=cell(1,0);
+mess = '';
 
 % Parse input arguments
 % ---------------------
@@ -145,9 +146,9 @@ end
 
 % Check for valid argument lists
 if narg>=2 && is_filename(varargin{2}) && ...
-    ( is_horace_data_file_opt(varargin{1}) || ...
-      (obj_and_file_ok && isa(varargin{1},'SQWDnDBase')) ...
-    )
+        ( is_horace_data_file_opt(varargin{1}) || ...
+        (obj_and_file_ok && isa(varargin{1},'SQWDnDBase')) ...
+        )
     %                                                 <----- varargin ----------------------->
     % Input arguments must start: (nargout_in_caller, dummy_obj, filename,...,'$obj_and_file_ok')
     %                         or: (nargout_in_caller, file_opt,  filename,...)
@@ -155,52 +156,49 @@ if narg>=2 && is_filename(varargin{2}) && ...
     %  - if sqw object: All files contain sqw data i.e. have pixel information.
     %  - if dnd object: All files must have the same dimensionality as the dummy object.
     %                  The files will be read as dnd data; any pixel information is ignored.
-    try
-        [sqw_type,ndims,nfiles,filename,mess,ld] = is_sqw_type_file(sqw,varargin{2});
-    catch
-        mess = 'Unable to read data file(s) - check file(s) exist and are Horace data file(s) (sqw or dnd type binary file)';
+
+    [sqw_type,ndims,nfiles,filename,ld] = is_sqw_type_file(varargin{2});
+    %
+
+    [is_opt,opt_sqw,opt_dnd,opt_hor]=is_horace_data_file_opt(varargin{1});
+    if is_opt
+        sqw_obj=false;
+        dnd_obj=false;
+    else
+        sqw_obj=isa(varargin{1},'sqw');
+        dnd_obj=~sqw_obj;
     end
-    if isempty(mess)
-        [is_opt,opt_sqw,opt_dnd,opt_hor]=is_horace_data_file_opt(varargin{1});
-        if is_opt
-            sqw_obj=false;
-            dnd_obj=false;
+    if (sqw_obj||opt_sqw) && ~all(sqw_type(:))
+        mess='Data file(s) must all be sqw type i.e. must contain pixel information';
+    elseif dnd_obj && ~all(ndims(:)==dimensions(varargin{1}(1)))
+        mess=['Data file(s) must all contain data with the same dimensionality as the dnd method (n=',...
+            num2str(dimensions(varargin{1}(1))),')'];
+    elseif opt_dnd && ~all(ndims(:)==ndims(1))
+        mess='Data file(s) must all contain data with the same dimensionality';
+    elseif opt_hor && ~(all(sqw_type(:))||all(ndims(:)==ndims(1)))
+        mess='Data file(s) must all be sqw type (i.e. must contain pixel information) or have the same number of dimensions';
+    else
+        data_source(1).source_is_file=true;
+        data_source(1).data=filename;
+        if narg>=3     % to work in all cases
+            args=varargin(3:narg);
         else
-            sqw_obj=isa(varargin{1},'sqw');
-            dnd_obj=~sqw_obj;
+            args=cell(1,0);
         end
-        if (sqw_obj||opt_sqw) && ~all(sqw_type(:))
-            mess='Data file(s) must all be sqw type i.e. must contain pixel information';
-        elseif dnd_obj && ~all(ndims(:)==dimensions(varargin{1}(1)))
-            mess=['Data file(s) must all contain data with the same dimensionality as the dnd method (n=',...
-                num2str(dimensions(varargin{1}(1))),')'];
-        elseif opt_dnd && ~all(ndims(:)==ndims(1))
-            mess='Data file(s) must all contain data with the same dimensionality';
-        elseif opt_hor && ~(all(sqw_type(:))||all(ndims(:)==ndims(1)))
-            mess='Data file(s) must all be sqw type (i.e. must contain pixel information) or have the same number of dimensions';
+        if sqw_obj||opt_sqw||(opt_hor&&all(sqw_type(:)))
+            data_source(1).sqw_type=sqw_type;
         else
-            data_source(1).source_is_file=true;
-            data_source(1).data=filename;
-            if narg>=3     % to work in all cases
-                args=varargin(3:narg);
-            else
-                args=cell(1,0);
-            end
-            if sqw_obj||opt_sqw||(opt_hor&&all(sqw_type(:)))
-                data_source(1).sqw_type=sqw_type;
-            else
-                data_source(1).sqw_type=false(size(sqw_type));  % force dnd reading of files
-            end
-            data_source(1).ndims=ndims;
-            if data_source(1).sqw_type
-                data_source(1).nfiles=nfiles;
-            else
-                data_source(1).nfiles=zeros(size(nfiles));      % if forced dnd reading, set nfiles to match
-            end
-            data_source(1).source_arg_is_struct=false;
-            data_source(1).nargout_req=nargout_caller;
-            data_source(1).loaders_list = ld; % cellarray of loaders --- one per file
+            data_source(1).sqw_type=false(size(sqw_type));  % force dnd reading of files
         end
+        data_source(1).ndims=ndims;
+        if data_source(1).sqw_type
+            data_source(1).nfiles=nfiles;
+        else
+            data_source(1).nfiles=zeros(size(nfiles));      % if forced dnd reading, set nfiles to match
+        end
+        data_source(1).source_arg_is_struct=false;
+        data_source(1).nargout_req=nargout_caller;
+        data_source(1).loaders_list = ld; % cellarray of loaders --- one per file
     end
 
 elseif narg>=2 && isa(varargin{1},'SQWDnDBase') && (isstruct(varargin{2}) &&...

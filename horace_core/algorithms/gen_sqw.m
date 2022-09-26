@@ -450,7 +450,7 @@ else
 
     % Generate unique temporary sqw files, one for each of the spe files
     [grid_size,pix_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
-        pix_db_range,grid_size_in,keep_par_cl_running);
+        pix_db_range,grid_size_in,opt.tmp_only,keep_par_cl_running);
     verify_pix_range_est(pix_range,pix_range_est,log_level);
 
     if keep_par_cl_running
@@ -609,7 +609,7 @@ for i=1:numel(files_to_check)
     % --------------------------------------------
     header = ldr.get_header('-all');
     data   = ldr.get_data('-head');
-    pix1  = ldr.get_pix(1,1);
+    pix1  = ldr.get_raw_pix(1,1);
     run_ids(i) = pix1(5);
 
     pix_range_l = ldr.get_pix_range();
@@ -728,7 +728,7 @@ if ~all(ief)
 end
 % Add a border
 pix_db_range=range_add_border(pix_range,...
-    data_sqw_dnd.border_size);
+    SQWDnDBase.border_size);
 
 if log_level>-1
     bigtoc('Time to compute limits:',log_level);
@@ -747,8 +747,11 @@ end
 disp('--------------------------------------------------------------------------------')
 %---------------------------------------------------------------------------------------
 function  [grid_size,pix_range,update_runids,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
-    pix_db_range,grid_size_in,gen_tmp_files_only)
+    pix_db_range,grid_size_in,gen_tmp_files_only,keep_parallel_pool_running)
 %
+    % if further operations are necessary to perform with generated tmp files,
+    % keep parallel pool running to save time on restarting it.
+
 log_level = ...
     config_store.instance().get_value('herbert_config','log_level');
 [use_separate_matlab,num_matlab_sessions] = ...
@@ -808,9 +811,6 @@ if use_separate_matlab
     job_name = ['gen_sqw_',fn];
     %
     jd = JobDispatcher(job_name);
-    % if further operations are necessary to perform with generated tmp files,
-    % keep parallel pool running to save time on restarting it.
-    keep_parallel_pool_running = ~gen_tmp_files_only;
 
     % aggregate the conversion parameters into array of structures,
     % suitable for splitting jobs between workers
@@ -878,22 +878,21 @@ if any(any(abs(pix_range-pix_range_est)>1.e-4)) && log_level>0
         'Estimated range is used for binning pixels so all pixels outside the range are lost');
 end
 %
-function [present_and_valid,pix_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
+function [present_and_valid,img_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
 % TODO:
 % write check for grid_size_in which has to be equal to grid_size of head.
 % but head (without s,e,npix) does not have method to idnentify grid_size
 % (it should be written and tested)
 if ~is_file(tmp_file)
     present_and_valid  = false;
-    pix_range = [];
+    img_range = [];
     return;
 end
 tol = 4*eps(single(pix_db_range)); % double of difference between single and double precision
 %
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
-head = ldr.get_data('-head');
-pix_range = ldr.get_pix_range;
-if any(abs(head.img_range-pix_db_range)>tol)
+img_range = ldr.read_img_range();
+if any(abs(img_range-pix_db_range)>tol)
     present_and_valid   = false;
 else
     present_and_valid   = true;

@@ -1,9 +1,10 @@
 function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data)
+%TODO: overload for other projections #825
 % Get titling and caption information for an sqw data structure
 %
 % Syntax:
 %   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data)
-% 
+%
 % Input:
 % ------
 %   data            Structure for which titles are to be created from the data in its fields.
@@ -14,16 +15,15 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %   title_main      Main title (cell array of character strings)
 %   title_pax       Cell array containing axes annotations for each of the plot axes
 %   title_iax       Cell array containing annotations for each of the integration axes
-%   display_pax     Cell array containing axes annotations for each of the plot axes suitable 
+%   display_pax     Cell array containing axes annotations for each of the plot axes suitable
 %                  for printing to the screen
-%   display_iax     Cell array containing axes annotations for each of the integration axes suitable 
+%   display_iax     Cell array containing axes annotations for each of the integration axes suitable
 %                  for printing to the screen
 %   energy_axis     The index of the column in the 4x4 matrix din.u that corresponds
 %                  to the energy axis
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
@@ -33,9 +33,10 @@ Angstrom=char(197);     % Angstrom symbol
 file = fullfile(data.filepath,data.filename);
 title = data.title;
 
-uoff = data.uoffset;
-u_to_rlu = data.u_to_rlu;
-ulen = data.ulen;
+uoff = data.offset;
+%TODO: overload for other projections
+u_to_rlu = data.proj.u_to_rlu;
+ulen = data.axes.ulen;
 label = data.label;
 iax = data.iax;
 iint = data.iint;
@@ -69,14 +70,14 @@ uofftot_ch=cell(1,4);
 u_to_rlu_ch=cell(4,4);
 for j=1:4
     if abs(uoff(j)) > small
-        uoff_ch{j} = num2str(uoff(j),'%+11.4g');        
+        uoff_ch{j} = num2str(uoff(j),'%+11.4g');
     else
-        uoff_ch{j} = num2str(0,'%+11.4g');        
+        uoff_ch{j} = num2str(0,'%+11.4g');
     end
     if abs(uofftot(j)) > small
-        uofftot_ch{j} = num2str(uofftot(j),'%+11.4g');        
+        uofftot_ch{j} = num2str(uofftot(j),'%+11.4g');
     else
-        uofftot_ch{j} = num2str(0,'%+11.4g');        
+        uofftot_ch{j} = num2str(0,'%+11.4g');
     end
     for i=1:4
         if abs(u_to_rlu(i,j)) > small
@@ -129,7 +130,7 @@ for j=1:4
         end
         totvector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];
         in_totvector{j} = [' in ',totvector{j}];
-        
+
         % Captions excluding offsets from integration axes
         for i=1:3
             if ~strcmp(uoff_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')     % uoff(i) and u_to_rlu(i,j) both contain non-zero values
@@ -153,7 +154,7 @@ for j=1:4
         end
         vector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];
         in_vector{j} = [' in ',vector{j}];
-        
+
         % Create captioning
         if any(j==pax)   % j appears in the list of plot axes
             ipax = find(j==pax(dax));
@@ -172,7 +173,7 @@ for j=1:4
         else
             error ('ERROR: Axis is neither plot axis nor integration axis')
         end
-        
+
     else
         % energy axis ------------------------------------------------------------------------------
         % Captions including offsets from integration axes
@@ -200,7 +201,7 @@ for j=1:4
             totvector{j} = ['[0, 0, 0, ',ch{4,j},']'];
             in_totvector{j} = [' in ',totvector{j}];
         end
-        
+
         % Captions excluding offsets from integration axes
         if ~strcmp(uoff_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')     % uoff(4) and u_to_rlu(4,j) both contain non-zero values
             if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
@@ -224,8 +225,8 @@ for j=1:4
         else
             vector{j} = ['[0, 0, 0, ',ch{4,j},']'];
             in_vector{j} = [' in ',vector{j}];
-        end        
-        
+        end
+
         if any(j==pax)   % j appears in the list of plot axes
             ipax = find(j==pax(dax));
             if abs(ulen(j)-1) > small
@@ -277,4 +278,3 @@ if ~isempty(pax)
         end
     end
 end
-

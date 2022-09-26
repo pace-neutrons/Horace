@@ -14,7 +14,8 @@ classdef sqw_file_interface < dnd_binfile_common
     % get_header      - obtain information stored in one of the
     %                   contributing file's header
     % get_detpar      - retrieve detectors information.
-    % get_pix         - get pixels info
+    % get_pix         - get PixelData object, containing pixels data
+    % get_raw_pix     - get pixels array as it is stored on hdd
     % get_instrument  - get instrument information specific for a run
     % get_sample      - get sample information
     %
@@ -80,6 +81,13 @@ classdef sqw_file_interface < dnd_binfile_common
             flds = fields_to_save@dnd_binfile_common(obj);
             flds = [obj.fields_to_save_(:);flds(:)];
         end
+        function date = get_creation_date(obj)
+            % overload accessor to creation_date on the main file
+            % interface, to retrieve creation date, stored in recent
+            % versions of the sqw files
+            main_head = obj.get_main_header();
+            date = main_head.creation_date;
+        end
     end
 
     %----------------------------------------------------------------------
@@ -132,9 +140,11 @@ classdef sqw_file_interface < dnd_binfile_common
     methods(Abstract)
         % retrieve different parts of sqw data
         %------------------------------------------------------------------
-        [header,pos,runid_map]= get_header(obj,varargin);
+        main_header = get_main_header(obj,varargin);
+        [header,pos]= get_header(obj,varargin);
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
+        pix         = get_raw_pix(obj,varargin);
         range       = get_pix_range(obj);
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);

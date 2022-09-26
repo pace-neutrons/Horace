@@ -49,29 +49,32 @@ methods
                 PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
 
             sqw_obj = sqw();
-            sqw_obj.data.pix = PixelData(data);
-            sqw_obj.data.npix = [num_pix];
+            sqw_obj.pix = PixelData(data);
+            sqw_obj.data.npix = num_pix;
             sqw_obj.data.s = -99;
-            sqw_obj.data.e = -99;
+            sqw_obj.data.e = 99;
 
             % exception will be thrown if method not implemented
             result = unary_op(sqw_obj);
 
             % confirm the raw pixel data has changed
-            assertFalse(equal_to_tol(result.data.pix.signal, sqw_obj.data.pix.signal))
+            assertFalse(equal_to_tol(result.pix.signal, sqw_obj.pix.signal))
 
             % confirm the (previously unset) image data (s, e) has been
             % calculated correctly from the updated raw pixels
-            assertEqualToTol(result.data.s, mean(result.data.pix.signal));
-            assertEqualToTol(result.data.e, sum(result.data.pix.variance)./num_pix^2);
+            assertEqualToTol(result.data.s, mean(result.pix.signal));
+            assertEqualToTol(result.data.e, sum(result.pix.variance)./num_pix^2);
         end
     end
 
     function test_unary_op_updates_image_signal_and_error_if_no_pixeldata(~)
         sqw_obj = sqw();
-        sqw_obj.data.pix = PixelData();
-        dnd_obj.s = [2, 21951]; % simple dataset for ease of testing
-        dnd_obj.e = [1.5, 4123];
+        ax = axes_block('img_range',[-1,-1,-1,-1;1,1,1,1],'nbins_all_dims',[2,1,1,1]);
+        sqw_obj.data = d1d(ax,ortho_proj());
+        sqw_obj.pix = PixelData();
+        sqw_obj.data.s = [2, 21951]; % simple dataset for ease of testing
+        sqw_obj.data.e = [1.5, 4123];
+        sqw_obj.data.npix = [1,1];
 
         % arbitrary unary op for test
         result = log10(sqw_obj);
@@ -85,16 +88,16 @@ methods
         assertEqualToTol(result.data.e, expected_var);
     end
 
-    function test_unary_op_updates_image_signal_and_error(obj)
+    function test_unary_op_updates_image_signal_and_error(~)
         num_pix = 23; % create small, single bin dataset for test
         data = get_random_data_in_range( ...
             PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
-        sqw_obj.data.pix = PixelData(data);
+        sqw_obj.pix = PixelData(data);
         sqw_obj.data.npix = num_pix;
         sqw_obj.data.s = -99; % fake data that will be overwritten
-        sqw_obj.data.e = -99;
+        sqw_obj.data.e = 99;
 
         % arbitrary unary op for test
         result = log10(sqw_obj);
@@ -102,8 +105,8 @@ methods
         % explicit calculation test - the values should be calculated
         % from the pixel data not from the inconsistent image data
         % calculate reference values using code matching implmentation in 'compute_bin_data_mex_'
-        expected_signal =  mean(result.data.pix.signal);
-        expected_var = sum(result.data.pix.variance)./num_pix^2;
+        expected_signal =  mean(result.pix.signal);
+        expected_var = sum(result.pix.variance)./num_pix^2;
 
         assertEqualToTol(result.data.s, expected_signal);
         assertEqualToTol(result.data.e, expected_var);
@@ -115,21 +118,21 @@ methods
             PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
-        sqw_obj.data.pix = PixelData(data);
+        sqw_obj.pix = PixelData(data);
         sqw_obj.data.npix = num_pix;
         sqw_obj.data.s = -99; % fake data that will be overwritten
-        sqw_obj.data.e = -99;
+        sqw_obj.data.e =  99;
 
         % arbitrary unary op for test
         result = log10(sqw_obj);
 
         % explicit calculation test
         % calculate reference values using code matching implmentation in 'log10_single'
-        expected_signal = log10(sqw_obj.data.pix.signal);
-        expected_var = sqw_obj.data.pix.variance./(sqw_obj.data.pix.signal * log(10)).^2;
+        expected_signal = log10(sqw_obj.pix.signal);
+        expected_var = sqw_obj.pix.variance./(sqw_obj.pix.signal * log(10)).^2;
 
-        assertEqualToTol(result.data.pix.signal, expected_signal);
-        assertEqualToTol(result.data.pix.variance, expected_var);
+        assertEqualToTol(result.pix.signal, expected_signal);
+        assertEqualToTol(result.pix.variance, expected_var);
     end
 
 end

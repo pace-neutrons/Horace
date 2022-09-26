@@ -143,7 +143,7 @@ end
 hc= hor_config;
 log_level = hc.log_level;
 
-dnd_type = obj.data.pix.num_pixels == 0;
+dnd_type = obj.pix.num_pixels == 0;
 if dnd_type
     % Input has no pixels, delegate to cut_dnd
     % TODO: refactor so cut_dnd_main sits on DnDBase class
@@ -191,12 +191,13 @@ function [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin
 % define target axes from existing axes, inputs and the projections
 %
 img_block = w.data;
-source_proj = img_block.get_projection(header_av);
+%source_proj = img_block.get_projection(header_av);
+source_proj = img_block.proj;
 %--------------------------------------------------------------------------
 % Get the source binning ranges, transformed into target coordinate system.
 % It is actually axes_block method, so source projection is provided as
 % input of this method. Left in this form unil data_sqw_dnd is a axes_block
-source_binning = img_block.get_binning_range(...
+source_binning = img_block.axes.get_binning_range(...
     source_proj,targ_proj);
 %
 targ_ax_block  = targ_proj.get_proj_axes_block(source_binning,pbin);

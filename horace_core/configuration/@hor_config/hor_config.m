@@ -92,37 +92,28 @@ classdef hor_config < config_base
         %      The larger the value, the more information is printed.
         % See log_level for more details.
         horace_info_level
-        
+
         %   pixel_page_size   - Maximum memory size of pixel data array in
         %                       file-backed algorithms (units of bytes).
         % PixelData page size in bytes. Overrides mem_chunk_size for
         % filebased PixelData if pixel_page_size is smaller then
         % appropriate mem_chunk_size expressed in bytes.
         pixel_page_size
-        % property to help in conversion from mem_chunk_size, which is 
-        % expressed in number of pixels and pixel_page_size (in bytes)        
-        % on get returns mem_chunk_size expressed in bytes, 
-        % on set, accept value in pixels and sets up pixel_page_size in
-        % bytes
-        mem_page_chunk_size_byte_conversion
     end
-    
+
     properties(Access=protected, Hidden=true)
         % private properties behind public interface
         mem_chunk_size_ = 10000000;
-        
-        % set page size very large to effectively disable paging of pixels as
-        % the implementation is not complete
-        pixel_page_size_ = PixelData.DEFAULT_PAGE_SIZE;
+
         threads_ =1;
-        
+
         ignore_nan_ = true;
         ignore_inf_ = false;
-        
+
         use_mex_ = true;
         delete_tmp_ = true;
     end
-    
+
     properties(Constant, Access=private)
         % change this list if saveable fields have changed or redefine
         % get_storage_field_names function below
@@ -134,15 +125,15 @@ classdef hor_config < config_base
             'use_mex',...
             'delete_tmp'}
     end
-    
+
     methods
         function this=hor_config()
             %
             this=this@config_base(mfilename('class'));
-            
+
             this.threads_ = find_nproc_to_use(this);
         end
-        
+
         %-----------------------------------------------------------------
         % overloaded getters
         function use = get.mem_chunk_size(this)
@@ -150,7 +141,7 @@ classdef hor_config < config_base
         end
         function page_size = get.pixel_page_size(obj)
             chunk_size = obj.mem_chunk_size;
-            page_size = chunk_size*36;
+            page_size = chunk_size*sqw_binfile_common.FILE_PIX_SIZE;
         end
         function n_threads=get.threads(this)
             n_threads = get_or_restore_field(this,'threads');
@@ -182,7 +173,7 @@ classdef hor_config < config_base
             if isempty(work_dir)
                 work_dir = tmp_dir;
             end
-            
+
         end
         function is = wkdir_is_default(~)
             % return true if working directory has not been set and refers
@@ -200,9 +191,6 @@ classdef hor_config < config_base
         function hpcc = get.high_perf_config_info(~)
             hpcc = hpc_config;
         end
-        function mcs = get.mem_page_chunk_size_byte_conversion(obj)
-            mcs = obj.mem_chunk_size*sqw_binfile_common.FILE_PIX_SIZE;
-        end
         %-----------------------------------------------------------------
         % overloaded setters
         function this = set.mem_chunk_size(this,val)
@@ -211,20 +199,21 @@ classdef hor_config < config_base
                     ' mem chunk size should not be too small at least 1M is recommended (and set)');
                 val = 1000;
             end
+            size = sys_memory();
+            if val*sqw_binfile_common.FILE_PIX_SIZE >= size/3
+                if val <= size*0.8
+                    warning('HORACE:invalid_argument', ...
+                        'Buffer chunk size exceeds 1/3 of avalable physical memory. HORACE may got unstable, trying to use such chunk in calculations')
+                else
+                    error('HORACE:hor_config:invalid_argument', ...
+                        'attempt to set up mem_chunk_size exceeding 0.8 of total physical memory available (Evaluated to: %dkB). This would not work',...
+                        floor(size/1024))
+
+                end
+            end
             config_store.instance().store_config(this,'mem_chunk_size',val);
         end
-        function obj = set.mem_page_chunk_size_byte_conversion(obj,val)
-             pixel_size = val*sqw_binfile_common.FILE_PIX_SIZE;
-             obj.pixel_page_size = pixel_size;
-        end
-        
 
-        function this = set.pixel_page_size(this, val)
-            PixelData.validate_mem_alloc(val);
-            m_chunk_size = floor(val/36);
-            config_store.instance().store_config(this, 'mem_chunk_size', m_chunk_size);
-        end
-        
         function this = set.threads(this,val)
             if val<1
                 warning('HOR_CONFIG:set_threads',...
@@ -281,10 +270,10 @@ classdef hor_config < config_base
                 if ~can_combine_with_mex
                     config_store.instance().store_config(this,'combine_sqw_using','matlab');
                 end
-                
+
             end
             config_store.instance().store_config(this,'use_mex',use);
-            
+
         end
         %
         function this = set.force_mex_if_use_mex(this,val)
@@ -307,9 +296,9 @@ classdef hor_config < config_base
             hc = parallel_config;
             hc.working_directory = val;
         end
-        
+
         %--------------------------------------------------------------------
-        
+
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
@@ -326,6 +315,6 @@ classdef hor_config < config_base
             % field has a private field with name different by underscore
             value = this.([field_name,'_']);
         end
-        
+
     end
 end

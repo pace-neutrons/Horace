@@ -88,9 +88,9 @@ classdef test_combine_cyl < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
             acolor k
-            plot(w2_1)
+            plot(w2_1);
             acolor b
-            dd(w1_1)
+            dd(w1_1);
             % acolor r
             % pd(w1_tot)  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------
@@ -119,9 +119,9 @@ classdef test_combine_cyl < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
             acolor k
-            plot(w2_2)
+            plot(w2_2);
             acolor b
-            dd(w1_2)
+            dd(w1_2);
             % acolor r
             % pd(w1_tot)  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------
@@ -150,11 +150,11 @@ classdef test_combine_cyl < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
             acolor k
-            plot(w2_tot)
+            plot(w2_tot);
             % acolor b
             % pd(w1_2)
             acolor r
-            plot(w1_tot)  % does not overlay - but that is OK
+            plot(w1_tot);  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------
         end
     end

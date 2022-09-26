@@ -331,7 +331,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
 
             % TODO: disabled - read does not work for dnd objects, an SQW is returned
             %tmp=read(d2d, obj.d2d_name{2});
-            tmp=d2d(obj.d2d_name{2});
+            tmp=read_dnd(obj.d2d_name{2});
             [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
             assertTrue(ok,['Error in functionality: ',mess])
 

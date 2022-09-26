@@ -3,10 +3,6 @@ classdef test_read_all< TestCase
     % Validate fast sqw reader used in combining sqw
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
-    %
-
-
     properties
         sample_dir;
         sample_file;
@@ -21,6 +17,7 @@ classdef test_read_all< TestCase
     end
 
     methods
+        
 
         %The above can now be read into the test routine directly.
         function this=test_read_all(varargin)
@@ -99,56 +96,6 @@ classdef test_read_all< TestCase
             assertTrue(iscell(out));
             assertTrue(isa(out{1},'sqw'));
             assertTrue(isa(out{3},'d2d'));
-        end
-        function obj = test_head(obj)
-            warning('off','SQW_FILE_IO:legacy_data');
-            clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
-
-            files = {fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3_1.sqw'),...
-                fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3.sqw'),...
-                obj.sample_file};
-
-            out = head_sqw(files);
-            %head_sqw(files);
-
-            assertEqual(numel(out),3)
-            assertTrue(isstruct(out{1}))
-            assertEqual(numel(fields(out{1})),21)
-            assertTrue(isstruct(out{2}))
-            assertEqual(numel(fields(out{2})),21)
-            assertTrue(isstruct(out{3}))
-            assertEqual(numel(fields(out{3})),12)
-
-            [out1,out2,out3] = head_horace(files,'-full');
-            assertEqual(numel(fields(out1)),4)
-            assertEqual(numel(fields(out2)),4)
-            assertEqual(numel(fields(out3)),15)
-
-
-            out = head_dnd(obj.sample_file);
-            assertTrue(isstruct(out))
-            assertEqual(numel(fields(out)),12)
-
-            out4 = head_horace(obj.sample_file);
-            assertTrue(isstruct(out4))
-            assertEqual(numel(fields(out4)),12)
-            assertEqual(out,out4);
-
-            tsw = sqw();
-            files = {fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3_1.sqw'),...
-                fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3.sqw')};
-
-            [out1a,out2a] = head(tsw,files,'-full');
-            assertEqual(out1,out1a)
-            assertEqual(out2,out2a)
-
-            out3a = head(tsw,files{1},'-full');
-            assertEqual(out1,out3a)
-
-            outc = head(tsw,files,'-full');
-            assertEqual(numel(outc),1)
-            assertEqual(outc,out1)
-
         end
 
     end

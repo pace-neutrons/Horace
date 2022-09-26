@@ -78,8 +78,13 @@ elseif strcmp(combine_algorithm,'mpi_code')
     if exist('jobDispatcher','var') && ~isempty(jobDispatcher)
         % reuse existing parallel pool
         jd = jobDispatcher;
-        n_workers = jd.cluster.n_workers;
         pool_exist  = true;
+        if jd.is_initialized
+            n_workers = jd.cluster.n_workers;
+        else
+            n_workers  = config_store.instance().get_value('hpc_config','parallel_workers_number');
+            pool_exist  = false;
+        end
     else
         fn = obj.filename;
         if numel(fn) > 8; fn = fn(1:8); end
@@ -104,7 +109,7 @@ elseif strcmp(combine_algorithm,'mpi_code')
     else
         pix_num_exchanged = [outputs{:}];
         if sum(pix_num_exchanged) ~= 2*pix_num_exchanged(1)
-            warning('COMBINE_SQW_PIX_JOB:runtime_error',... 
+            warning('COMBINE_SQW_PIX_JOB:runtime_error',...
                 ' Number of pixels sent by parallel workers sum(outputs(2:end)) not equal to the number of pixels, written to hdd outputs{1}');
             disp(pix_num_exchanged);
         end

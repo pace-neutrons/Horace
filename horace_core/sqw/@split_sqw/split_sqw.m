@@ -58,6 +58,7 @@ function [obj, merge_data] = split_sqw(varargin)
 
         points = [0, cumsum(num_pixels)];
 
+        obj = repmat(sqw_in,nworkers,1);
         for i=1:nWorkers
             obj(i) = sqw_in;
             obj(i).s = sqw_in.s(points(i)+1:points(i+1));
@@ -109,14 +110,14 @@ function [obj, merge_data] = split_sqw(varargin)
             nomerge = true(nWorkers, 1);
 
         end
-
+        obj = repmat(sqw(),nworkers,1);
         for i=1:nWorkers
             obj(i) = copy(sqw_in);
             obj(i).data.npix = npix{i};
-            obj(i).data.pix = get_pix_in_ranges(sqw_in.data.pix, points(i)+1, num_pixels(i));
+            obj(i).pix = get_pix_in_ranges(sqw_in.pix, points(i)+1, num_pixels(i));
 
             obj(i).data.num_pixels = num_pixels(i);
-            [obj(i).data.s, obj(i).data.e] = obj(i).data.pix.compute_bin_data(obj(i).data.npix);
+            [obj(i).data.s, obj(i).data.e] = obj(i).pix.compute_bin_data(obj(i).data.npix);
 
             merge_data(i).nomerge = nomerge(i);
             merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
@@ -149,7 +150,7 @@ function [npix, merge_data] = split_npix(num_pixels, old_npix, merge_data)
     if nWorkers == 1
         npix = {old_npix};
         merge_data.nomerge = true;
-        merge_data.range = [1, numel(old_npix)]
+        merge_data.range = [1, numel(old_npix)];
         return
     end
 

@@ -5,6 +5,18 @@ classdef axes_block < serializable
     % It also contains main methods, used to produce physical image of the
     % sqw/dnd object
     %
+    % Construction:
+    %1) ab = axes_block(num) where num belongs to [0,1,2,3,4];
+    %2) ab = axes_block([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
+    %                                          parameters
+    %        or
+    %   ab = axes_block([min1,max1],...,[min4,max4]); - 4 binning
+    %                                          parameters
+    %        or any combination of ranges [min,step,max] or [min,max]
+    %3) ab = axes_block(structure) where structure contains any fields
+    %                              returned by savebleFields method
+    %4) ab = axes_block(param,param,param,'key1',value1,'key2',value2....)
+    %        where param are the values of the fields
     properties(Dependent)
         title;      % Title of sqw data structure, displayed on plots.
         filename;   % Name of sqw file that is being read, excluding path. Used in titles
@@ -45,7 +57,7 @@ classdef axes_block < serializable
         % axes block describes
         img_range;
         %
-        n_dims;  % Number of axes_block object dimensions
+        dimensions;  % Number of axes_block object dimensions
         %
         % binning along each dimension of an object assuming that
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
@@ -55,6 +67,19 @@ classdef axes_block < serializable
         % number of bins for each non-unit dimension. This would be the
         % binning of the data arrays associated with the given axes_block
         data_nbins;
+        % number of bins in each non-unit dimension presented in the form,
+        % which allows you to allocate an array of the appropriate size
+        % i.e. size(s) == dims_as_ssize and size(zeros(dims_as_ssize)) ==
+        % size(s)
+        dims_as_ssize;
+        % boolean row, identifying if a single bin direction
+        % (nbins_all_dims(dir)==1) is integration axis or a projection
+        % axis. By default, single nbins_all_dims direction is
+        % integration direction.
+        % If the index is false in a direction, where more then one bin
+        % is defined, the bining parameters in this direction are treated
+        % as bin edges rather then bin centers.
+        single_bin_defines_iax;
     end
 
     properties
@@ -76,6 +101,7 @@ classdef axes_block < serializable
             PixelData.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
 
         nbins_all_dims_ = [1,1,1,1];    % number of bins in each dimension
+        single_bin_defines_iax_ = true(1,4); % true if single nbin direction represents integration axis
         dax_=[];                        % display axes numbers holder
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
     end
@@ -83,7 +109,7 @@ classdef axes_block < serializable
         % fields which fully represent the state of the class and allow to
         % recover it state by setting properties through public interface
         fields_to_save_ = {'title','filename','filepath',...
-            'label','ulen','img_range','nbins_all_dims',...
+            'label','ulen','img_range','nbins_all_dims','single_bin_defines_iax',...
             'dax','nonorthogonal'};
     end
     properties(Dependent,Hidden)
@@ -95,7 +121,7 @@ classdef axes_block < serializable
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
         % as the original object
-        range = get_cut_range(obj);
+        range = get_cut_range(obj,varargin);
         % find the coordinates along each of the axes of the smallest cuboid
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
@@ -307,7 +333,7 @@ classdef axes_block < serializable
         %------------------------------------------------------------------
         % ACCESSORS
         %------------------------------------------------------------------
-        function sz = dims_as_ssize(obj)
+        function sz = get.dims_as_ssize(obj)
             % Return the extent along each dimension of the signal arrays.
             % suitable for allocating appropriate size memory
             sz = obj.data_nbins;
@@ -401,30 +427,39 @@ classdef axes_block < serializable
                 obj = check_combo_arg(obj);
             end
         end
+        %
+        function is = get.single_bin_defines_iax(obj)
+            is = obj.single_bin_defines_iax_;
+        end
+        function obj = set.single_bin_defines_iax(obj,val)
+            if numel(val) ~= 4
+                error('HORACE:axes_block:invalid_argument', ...
+                    'single_bin_defines_iax property accepts only 4-element logical vector or vector convertible to logical')
+            end
+            obj.single_bin_defines_iax_ = logical(val(:)');
+        end
+
 
         %------------------------------------------------------------------
         % historical and convenience getters for dependent properties
         % which do not have setters
         %------------------------------------------------------------------
-        function ndim = get.n_dims(obj)
-            ndim = sum(obj.nbins_all_dims_>1);
-            % should we do that? Inconsistent and inconvenient.
-            %  if ndim == 0 && all(obj.nbins_all_dims_ == 1)
-            %     ndim =4;
-            %  end
+        function ndim = get.dimensions(obj)
+            ndim = sum(is_pax_(obj));
         end
         function ds = get.data_nbins(obj)
             ds= obj.nbins_all_dims_(obj.nbins_all_dims_>1);
         end
 
         function ia = get.iax(obj)
-            ia = find(obj.nbins_all_dims_==1);
+            ia = find(obj.nbins_all_dims_==1 & obj.single_bin_defines_iax_);
         end
         function pa = get.pax(obj)
-            pa = find(obj.nbins_all_dims_>1);
+            pa = find(is_pax_(obj));
         end
         function iin = get.iint(obj)
-            iin = obj.img_range_(:,obj.nbins_all_dims_==1);
+            is_iint = obj.nbins_all_dims_==1 & obj.single_bin_defines_iax_;
+            iin = obj.img_range_(:,is_iint);
         end
         function pc = get.p(obj)
             pc = build_axes_from_ranges_(obj);
@@ -443,7 +478,7 @@ classdef axes_block < serializable
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 2;
+            ver = 4;
         end
         %
         function flds = saveableFields(~)
@@ -461,9 +496,6 @@ classdef axes_block < serializable
         %
     end
     methods(Access=protected)
-        function is = check_validity(obj)
-            is = obj.isvalid_;
-        end
 
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
@@ -503,6 +535,10 @@ classdef axes_block < serializable
                     isfield(inputs,'iint')
                 inputs = axes_block.convert_old_struct_into_nbins(inputs);
             end
+            if isfield(inputs,'one_nb_is_iax')
+                inputs.single_bin_defines_iax = inputs.one_nb_is_iax;
+                inputs = rmfield(inputs,'one_nb_is_iax');
+            end
             if isfield(inputs,'array_dat')
                 obj = obj.from_bare_struct(inputs.array_dat);
             else
@@ -512,6 +548,13 @@ classdef axes_block < serializable
     end
     %
     methods(Static)
+        function ax = get_from_old_data(input)
+            % supports getting axes block from the data, stored in binary
+            % Horace files versions 3 and lower.
+            ax = axes_block();
+            ax = ax.from_old_struct(input);
+        end
+        %
         function input = convert_old_struct_into_nbins(input)
             % the function, used to convert old v1 axes_block structure,
             % containing axes information, into the v2 structure,

@@ -1,4 +1,4 @@
-function varargout = horace_version()
+function varargout = horace_version(varargin)
 % Returns the version of this instance of Herbert
 %
 % If one or fewer output arguments are specified, the full version string is
@@ -14,11 +14,11 @@ function varargout = horace_version()
 %
 
 if nargout <=1
-    varargout{1} = herbert_version();
+    varargout{1} = herbert_version(varargin{:});
 end
 if nargout ==2
-    [varargout{1},varargout{2}] = herbert_version();
+    [varargout{1},varargout{2}] = herbert_version(varargin{:});
 end
 if nargout ==3
-    [varargout{1},varargout{2},varargout{3}] = herbert_version();
+    [varargout{1},varargout{2},varargout{3}] = herbert_version(varargin{:});
 end

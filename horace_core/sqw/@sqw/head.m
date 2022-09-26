@@ -1,4 +1,4 @@
-function varargout = head (varargin)
+function varargout = head(obj,varargin)
 % Display a summary of an sqw object or file containing sqw information.
 %
 %   >> head(w)              % Display summary for object (or array of objects)
@@ -21,10 +21,6 @@ function varargout = head (varargin)
 % -----
 %   w           sqw object or array of sqw objects
 %       *OR*
-%   sqw         Dummy sqw object to enforce the execution of this method.
-%               Can simply create a dummy object with a call to sqw:
-%                   e.g. >> w = head(sqw,'c:\temp\my_file.sqw')
-%
 %   file        File name, or cell array of file names. In latter case, displays
 %               summary for each sqw object
 %
@@ -42,90 +38,32 @@ function varargout = head (varargin)
 %
 
 
-
-% Parse input
-% -----------
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:},'$obj_and_file_ok');
-if ~isempty(mess), error(mess); end
-
-% Perform operations
-% ------------------
-nout=w.nargout_req;
-nw=numel(w.data);
-
 % Check input arguments
-hfull=false;
-if ~isempty(args)
-    sz=size(args{1});
-    if numel(args)==1 && ischar(args{1}) && ~isempty(args) && numel(sz)==2 && sz(1)==1 &&...
-            strncmpi(args{1},'-full',numel(args{1}))
-        hfull=true;
-    else
-        error('Check optional input argument')
-    end
+[ok,mess,full_data] = parse_char_options(varargin,{'-full'});
+if ~ok
+    error('HORACE:head:invalid_argument',mess);
 end
 
-% Display data as the requested object i.e. if requested the data to be
-% treated as dnd-type, then give the header information as if it was read from
-% sqw file as dnd (if data source is file), or performed dnd(data_source)
-% if data_source is a sqw object.
-
-if w.source_is_file
-    if hfull
-        opt = {'-full'};
-    else
-        opt ={};
-    end
-    if nout==0
-        head_horace(w.loaders_list,opt{:});
-    else
-        hout = head_horace(w.loaders_list,opt{:});
-        if ~iscell(hout)
-            hout = {hout};
-        end
-        if iscell(hout{1}) && numel(hout)== 1
-            hout = hout{1};
-        end
-        
-    end
-else
-    if nout==0
-        for i=1:nw
-            display(w.data(i))
-        end
-    else
-        for i=1:nw
-            if has_pixels(w.data(i)) && hfull
-                h=w.data(i).data.to_bare_struct();
-                h.data=rmfield(h,{'s','e','npix','pix'});
-            else
-                %w.data(i)
-                h=w.data(i).data.to_bare_struct();
-                h=rmfield(h,{'s','e','npix'});
-                if has_pixels(w.data(i))
-                    h=rmfield(h,'pix');
-                else
-                    if isfield(h,'pix_range'), h=rmfield(h,'pix_range'); end  % if, for some reason, there is a pix_range field, remove it.
-                end
-            end
-            if nw==1
-                hout={h};
-            else
-                if i==1, hout=cell(size(w.data)); end
-                hout{i}=h;
-            end
-        end
-    end
+nout = nargout;
+nw = numel(obj);
+hout = cell(1,nw);
+for i=1:nw
+    hout{i} =obj(i).data.to_head_struct(full_data);
+    hout{i}.npixels = obj(i).pix.num_pixels;
+    hout{i}.nfiles   = obj(i).main_header.nfiles;
+    hout{i}.creation_date= obj(i).main_header.creation_date;
 end
 
 if nout>0
-    argout = hout;
+    if nout == 1
+        varargout{1} = [hout{:}];
+    else
+        for i=1:nout
+            varargout{i} = hout{i};
+        end
+    end
 else
-    argout={};
+    for i=1:nw
+        display(hout{i})
+    end
 end
-
-% Package output arguments
-% ------------------------
-[varargout,mess]=horace_function_pack_output(w,argout{:});
-if ~isempty(mess), error(mess), end
-

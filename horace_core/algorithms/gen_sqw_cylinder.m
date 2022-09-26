@@ -142,9 +142,13 @@ eps_max=max(pix_range(2,4,:));
 % Choose suitable rebinning for the final sqw file
 nQbin_def=33;
 nepsbin_def=33;
-head_full=head_sqw(tmp_file{1},'-full');
+ldr = sqw_formats_factory.instance().get_loader(tmp_file{1});
+detpar = ldr.get_detpar();
+hdr    = ldr.get_header();
+hdr    = hdr.expdata(1);
+ldr.delete();
 
-ndet=numel(head_full.detpar.group);
+ndet=numel(detpar.group);
 nqbin=min(max(1,round(sqrt(ndet)/2)),nQbin_def);     % A reasonable number of bins along each Q axis
 dQip=round_to_vals((Qip_max-Qip_min)/nqbin);
 dQz=round_to_vals((Qz_max-Qz_min)/nqbin);
@@ -152,30 +156,31 @@ small=1e-10;
 Qip_bins=[dQip*(floor((Qip_min-small)/dQip)+0.5),dQip,dQip*(ceil((Qip_max+small)/dQip)-0.5)];
 Qz_bins=[dQz*(floor((Qz_min-small)/dQz)+0.5),dQz,dQz*(ceil((Qz_max+small)/dQz)-0.5)];
 
-if nfiles==1 && (numel(head_full.header.en)-1)<=50  % one spe file and 50 energy bins or less
+if nfiles==1 && (numel(hdr.en)-1)<=50  % one spe file and 50 energy bins or less
     %epsbins=0;           % Use intrinsic energy bins
-    epsbins = min(head_full.header.en(2:end)-head_full.header.en(1:end-1));    
+    epsbins = min(hdr.en(2:end)-hdr.en(1:end-1));    
 else
     deps=round_to_vals((eps_max-eps_min)/nepsbin_def);
     epsbins=[eps_min-deps/2,deps,eps_max+deps/2];
 end
 
 % Compute Qip and Qz for each tmp file, and save all the tmp files onto the same grid
-proj.u=[1,0,0];
-proj.v=[0,1,0];
-proj.type='rrr';
-proj.label={'Q_{ip}','dummy','Q_z','E'};
+proj = ortho_proj([1,0,0],[0,1,0],'type','rrr', ...
+    'label',{'Q_{ip}','dummy','Q_z','E'},'alatt', ...
+    head{1}.alatt,'angdeg',head{1}.angdeg);
 
 for i=1:nfiles
     % Read in
     w=read_sqw(tmp_file{i});
     % Compute new coordinates
-    data=w.data;
-    data.pix.coordinates(1:2,:)=[sqrt(sum(data.pix.coordinates(1:2,:).^2,1));zeros(1,data.pix.num_pixels)];
-    data.img_range=range_add_border(data.pix.pix_range);
-    data.nbins_all_dims = [1,1,1,1];
-    data.label={'Q_{ip}','dummy','Q_z','E'};
-    w.data=data;
+    pix=w.pix;
+    pix.coordinates(1:2,:)=[sqrt(sum(pix.coordinates(1:2,:).^2,1));zeros(1,pix.num_pixels)];
+    data=DnDBase.dnd(...
+        axes_block('nbins_all_dims',[1,1,1,1],'img_range',range_add_border(pix.pix_range)),...
+        proj);
+    data.npix = pix.num_pixels;    
+    w.data = data;
+    w.pix  = pix;
     % Rebin
     w=cut_sqw(w,proj,Qip_bins,[-Inf,Inf],Qz_bins,epsbins);
     % Save to the same tmpfile

@@ -17,9 +17,9 @@ function new_sqw = copy(obj, varargin)
 new_sqw = obj;
 for i = 1:numel(obj)
     if ~exclude_pix
-        new_sqw(i).data.pix = copy(obj(i).data.pix);
+        new_sqw(i).pix = copy(obj(i).pix);
     else
-        new_sqw(i).data.pix = PixelData();
+        new_sqw(i).pix = PixelData();
     end
 end
 end

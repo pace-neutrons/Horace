@@ -69,7 +69,8 @@ if isempty(name_b)
     name_b ='B';
 end
 if nargin<4 && isa(A,'serializable') && ismethod(A,'eq')
-    if A == B
+    [ok,custom_message] = eq(A,B);
+    if ok
         return
     end
     message = xunit.utils.comparisonMessage(custom_message, ...

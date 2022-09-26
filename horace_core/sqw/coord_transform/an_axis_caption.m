@@ -25,7 +25,7 @@ classdef an_axis_caption
             change = this.changes_aspect_ratio_;
         end
         function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
-                data_plot_titles(this,data)
+                data_plot_titles(obj,data)
             %Get titling and caption information for an sqw data structure
             % Input:
             % ------
@@ -45,7 +45,7 @@ classdef an_axis_caption
             %                  to the energy axis
             
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
-                this.caption_calc_func_(data);
+                obj.caption_calc_func_(data);
         end
     end
     

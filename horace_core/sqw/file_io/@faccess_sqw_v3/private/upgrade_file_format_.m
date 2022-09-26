@@ -35,15 +35,15 @@ if isempty(new_obj.sqw_holder_) % all file positions except instrument and sampl
 end
 
 %
+data = obj.get_data();
 if isempty(pix_range)
-    data = obj.get_data();
-    pix = data.pix;
+    pix = obj.get_pix();
     if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
         pix.recalc_pix_range();
     end
 else
-    data = obj.get_data('-nopix');
-    data.pix.set_range(pix_range);
+    pix = obj.get_pix();    
+    pix.set_range(pix_range);
 end
 new_obj.sqw_holder_.data = data;
 new_obj.pix_range_ = pix.pix_range;

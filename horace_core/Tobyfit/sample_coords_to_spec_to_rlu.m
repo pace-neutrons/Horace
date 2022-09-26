@@ -1,4 +1,4 @@
-function [ok, mess, sample, s_mat, spec_to_rlu, alatt, angdeg] =...
+function [sample, s_mat, spec_to_rlu, alatt, angdeg] =...
     sample_coords_to_spec_to_rlu (header)
 % Get the matrix to convert a coordinate in the sample coordinate frame to laboratory frame
 %
@@ -22,7 +22,7 @@ function [ok, mess, sample, s_mat, spec_to_rlu, alatt, angdeg] =...
 %   alatt       Lattice parameters (row vector length 3)
 %   angdeg      Lattice angles in degrees (row vector length 3)
 
-% Check sample descrption the same for all spe files in the sqw object
+% Check sample description the same for all spe files in the sqw object
 samples = header.samples;
 nrun=numel(samples);
 sample=samples{1};
@@ -30,16 +30,12 @@ alatt=sample.alatt;
 angdeg=sample.angdeg;
 for i=2:nrun
     if ~isequal(sample,samples{i})
-        ok=false;
         error('HORACE:sample_coords_to_spec_to_rlu:invalid_argument', ...
             'Sample description must be identical for all contributing spe files');
-        return
     end
     if ~all(alatt==samples{i}.alatt) || ~all(angdeg==samples{i}.angdeg)
-        ok=false;
         error('HORACE:sample_coords_to_spec_to_rlu:invalid_argument', ...
             'Lattice parameters must be identical for all contributing spe files');
-        return
     end
 end
 
@@ -65,5 +61,3 @@ for i=1:nrun
     s_mat(:,:,i)=spec_to_u\umat';  % use fact that inverse of umat is the same as transpose of umat
 end
 
-ok=true;
-mess='';

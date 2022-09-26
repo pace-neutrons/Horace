@@ -5,9 +5,6 @@ function [stream,fid,mess] = read_header_(file,varargin)
 % returns:
 % uint8 array of bytes -- binary contents of the file
 %
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
 %
 % Set the read/write permission that is required

@@ -73,30 +73,27 @@ classdef test_set_instr_and_sample < TestCase
             save(obj.ds.f1_1,tmpsqwfile);
             set_sample_horace(tmpsqwfile,obj.sam1);
             tmp=read_sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s1_ref.to_struct(),tmp.to_struct(), ...
-                'ignore_str',1);
-            assertTrue(ok,mess)
+            assertEqualToTol(f1_1_s1_ref,tmp,[5.e-8,5.e-8], ...
+                '-ignore_date', 'ignore_str',1);
 
             % Now add a longer sample - this should be appended to the end
             set_sample_horace(tmpsqwfile,obj.sam2);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s2_ref.to_struct(),tmp.to_struct(), ...
-                'ignore_str',1); 
-            assertTrue(ok,mess)
+            assertEqualToTol(f1_1_s2_ref,tmp,[5.e-8,5.e-8], ...
+                '-ignore_date','ignore_str',1); 
 
             % Now add a longer sample still - but shorter than the sum of sam1 and sam2: should overwrite
             set_sample_horace(tmpsqwfile,obj.sam3);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s3_ref.to_struct(),tmp.to_struct(), ...
-                'ignore_str',1);
-            assertTrue(ok,mess)
+            assertEqualToTol(f1_1_s3_ref,tmp,[5.e-8,5.e-8], ...
+                '-ignore_date','ignore_str',1);
 
             % Dummy sample, empty sample
             set_sample_horace(tmpsqwfile,[]);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(obj.ds.f1_1.to_struct(),tmp.to_struct(), ...
-                'ignore_str',1); 
-            assertTrue(ok,mess)
+            assertEqualToTol(obj.ds.f1_1,tmp,[5.e-8,5.e-8], ...
+                '-ignore_date','ignore_str',1); 
+
         end
 
     end

@@ -16,7 +16,7 @@ function [nodes_ind,edges_ind] = get_geometry(n_dims)
 % edges_ind  -- NDxN_edges array of indexes, defining the indexes of the
 %               edges of the appropriate shapes in ND, used to expand min/max
 %               shape representation into set of edges. N_edges here is
-%               the number of shape edges eaual to ND^2*ND/2.
+%               the number of shape edges equal to ND^2*ND/2.
 %               e.g, in 2D is will be the array [1,2;2,3;3,4;1,4]' where
 %               the numbers are the linear indexes of the nodes, defined
 %               by ind2sub (or sub2ind) procedure.
@@ -63,7 +63,7 @@ ind = zeros(2,2);
 i = 1:4;
 ind(i) = i;
 nodes = reshape(ind,4,1);
-% and convert node numbers into index respresentation (cellarray of node
+% and convert node numbers into index representation (cellarray of node
 % indexes)
 [ix,iy] = ind2sub(size(ind),nodes);
 nodes = arrayfun(@(x,y)([x,y]),ix,iy,'UniformOutput',false);

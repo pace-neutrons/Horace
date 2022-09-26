@@ -1,4 +1,4 @@
-function [exp_info,pos,runid_map] = get_header(obj,varargin)
+function [exp_info,pos] = get_header(obj,varargin)
 % Get full data header or headers for sqw file written in format v3
 %
 % If instrument and sample are present in the file (not the empty

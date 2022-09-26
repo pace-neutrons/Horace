@@ -227,7 +227,6 @@ classdef dnd_binfile_common < dnd_file_interface
             flds = fields_to_save@dnd_file_interface(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
-
         %
         function obj=init_from_structure(obj,obj_structure_from_saveobj)
             % init file accessors using structure, obtained for object
@@ -312,7 +311,9 @@ classdef dnd_binfile_common < dnd_file_interface
         [sqw_obj,varargout] = get_sqw(obj,varargin);
         % retrieve full dnd object from sqw file containing dnd or dnd and
         % sqw information
-        [dnd_obj,varargout] = get_dnd(obj,varargin);
+        function [dnd_obj,obj] = get_dnd(obj,varargin)
+            [dnd_obj,obj] = obj.get_data(varargin{:});
+        end
 
         function pix_range = get_pix_range(~)
             % get [2x4] array of min/max ranges of the pixels contributing
@@ -419,7 +420,7 @@ classdef dnd_binfile_common < dnd_file_interface
                 fclose(obj.file_id_);
             end
             obj.file_id_ = -1;
-        end
+        end       
         %
         function data_form = get_dnd_form(obj,varargin)
             % Return the structure of the data file header in the form
@@ -448,7 +449,7 @@ classdef dnd_binfile_common < dnd_file_interface
             %   data.title      Title of sqw data structure
             %   data.alatt      Lattice parameters for data field (Ang^-1)
             %   data.angdeg     Lattice angles for data field (degrees)
-            %   data.uoffset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+            %   data.offset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
             %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
             %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
             %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
@@ -473,6 +474,8 @@ classdef dnd_binfile_common < dnd_file_interface
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
+            %   data.img_range -- in old formats, belongs to dnd but is
+            %                  written only when pixels are written
             %
             argi = varargin;
             if strcmp(obj.data_type,'un') % we want full data if datatype is undefined
@@ -516,7 +519,7 @@ classdef dnd_binfile_common < dnd_file_interface
                     open_for_writing = regexp(permission, WRITE_MODE_REGEX, 'once');
                     is = ~isempty(open_for_writing);
                 else
-                error('HORACE:dnd_binfile_common:invalid_argument',...
+                    error('HORACE:dnd_binfile_common:invalid_argument',...
                         ['Invalid input for read_or_write. Must be ''read'' ', ...
                         'or ''write'', found ''%s'''], read_or_write);
                 end

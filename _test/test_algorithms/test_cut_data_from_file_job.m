@@ -27,8 +27,8 @@ classdef test_cut_data_from_file_job < TestCase
         %
         function test_bin_pixels_wrong_inputs(obj)
             dat = obj.test_sqw.data;
-            proj = dat.get_projection();
-            axes = dat;
+            proj = dat.proj;
+            axes = dat.axes;
             pix = obj.test_sqw.pix;
             npix0 = zeros(size(dat.npix));
             s0    = zeros(size(dat.npix));
@@ -44,8 +44,8 @@ classdef test_cut_data_from_file_job < TestCase
         %
         function test_bin_pixels_6inputs(obj)
             dat = obj.test_sqw.data;
-            proj = dat.get_projection();
-            axes = dat;
+            proj = dat.proj;
+            axes = dat.axes;
             pix = obj.test_sqw.pix;
             npix0 = zeros(size(dat.npix));
             s0    = zeros(size(dat.npix));
@@ -66,8 +66,8 @@ classdef test_cut_data_from_file_job < TestCase
         %
         function test_bin_pixels_4inputs(obj)
             dat = obj.test_sqw.data;
-            proj = dat.get_projection();
-            axes = dat;
+            proj = dat.proj;
+            axes = dat.axes;
             pix = obj.test_sqw.pix;
             npix0 = zeros(size(dat.npix));
             [npix,s,e,pix_ok,unique_runid,pix_indx] = ...
@@ -96,8 +96,8 @@ classdef test_cut_data_from_file_job < TestCase
 
         function test_bin_pixels_3inputs(obj)
             dat = obj.test_sqw.data;
-            proj = dat.get_projection();
-            axes = dat;
+            proj = dat.proj;
+            axes = dat.axes;
             pix = obj.test_sqw.pix;
             [npix,s,e,pix_ok,unique_runid,pix_indx] = ...
                 cut_data_from_file_job.bin_pixels(proj, axes,pix);

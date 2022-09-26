@@ -145,7 +145,7 @@ classdef test_cut_parameters < TestCase
         function test_cut_range_1D(obj)
             %
             sqw_samp = obj.sample_files{1};
-            range = sqw_samp.data.get_cut_range();
+            range = sqw_samp.data.axes.get_cut_range();
             sqw_res = cut(sqw_samp,range{:});
 
             assertEqualToTol(sqw_samp,sqw_res,'tol',[1.e-8,1.e-8]);

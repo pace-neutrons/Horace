@@ -55,7 +55,7 @@ classdef test_binary_ops < TestCase
         end
 
         function test_SQW_error_if_both_objects_are_sqw_with_no_pixel_data(obj)
-            obj.sqw_obj.data.pix = PixelData();
+            obj.sqw_obj.pix = PixelData();
 
             f = @()  obj.sqw_obj - obj.sqw_obj;
             assertExceptionThrown(f, 'SQW:binary_op_manager_single');

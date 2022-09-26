@@ -7,7 +7,7 @@ function  obj= get_sqw_footer_(obj,varargin)
 %
 [ok,mess,init_for_upgrade] = parse_char_options(varargin,{'-upgrade'});
 if ~ok
-    error('INIT_SQW_STRUCTURE:invalid_argument',mess);
+    error('HORACE:faccess_sqw_v3:invalid_argument',mess);
 end
 
 obj = get_sqw_file_footer(obj);
@@ -82,8 +82,8 @@ if isfield(fd_struct,'urange_pos_')
     fd_struct.img_db_range_pos_ = fd_struct.urange_pos_;
     fd_struct = rmfield(fd_struct,'urange_pos_');
 elseif isfield(fd_struct,'img_range_pos_') % intermediate format
-    fd_struct.img_db_range_pos_ = fd_struct.img_range_pos_;    
-    fd_struct = rmfield(fd_struct,'img_range_pos_');    
+    fd_struct.img_db_range_pos_ = fd_struct.img_range_pos_;
+    fd_struct = rmfield(fd_struct,'img_range_pos_');
 end
 
 % special and calculated fields
@@ -98,7 +98,7 @@ obj.data_type_ = char(obj.data_type_);
 % caclulate number of pixels from pixels block position and its size
 npixels_  = (obj.instrument_head_pos_-obj.pix_pos_)/(9*4);
 if npixels_ ~= obj.npixels
-    error('FACCESS_SQW_V3:runtime_error',...
+    error('HORACE:faccess_sqw_v3:runtime_error',...
         'number of pixels stored in the records %d not equal to the calculated pixels size %d ',...
         obj.npixels,npixels_);
 end
@@ -108,7 +108,7 @@ end
 function test_error(fid,error_header)
 [mess,res] = ferror(fid);
 if res ~= 0
-    error('SQW_BINFILE_v3:io_error',...
+    error('HORACE:faccess_sqw_v3:io_error',...
         error_header,mess);
 end
 
