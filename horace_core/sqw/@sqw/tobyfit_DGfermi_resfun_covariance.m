@@ -82,11 +82,11 @@ for iw = 1:numel(win)
         [~,~,irun,idet] = parse_pixel_indicies (wtmp,indx,iw);
     end
     npix = npix_arr(iw);
-    
+
     % Simple pointers to items in lookup
     kf = lookup.kf{iw};
     dt = lookup.dt{iw};
-    
+
     % Compute variances
     var_mod = (10^-6 * moderator_table.func_eval(iw, irun, @pulse_width)).^2;
     cov_aperture = aperture_table.func_eval(iw, irun, @covariance);
@@ -94,7 +94,7 @@ for iw = 1:numel(win)
     var_chop = (10^-6 * fermi_table.func_eval(iw, irun, @pulse_width)).^2;
     cov_detector = detector_table.func_eval(iw, @covariance, idet, kf);
     var_tbin = dt.^2 / 12;
-    
+
     % Fill covariance matrix
     cov_x = zeros(11,11,npix);
     cov_x(1,1,:) = var_mod;
@@ -103,14 +103,15 @@ for iw = 1:numel(win)
     cov_x(5:7,5:7,:) = repmat(cov_sample,[1,1,npix]);
     cov_x(8:10,8:10,:) = cov_detector;
     cov_x(11,11,:) = var_tbin;
-    
+
     % Compute wavevector-energy covariance matrix in different dimensions
     dq_mat = lookup.dq_mat{iw};
     spec_to_rlu = lookup.spec_to_rlu{iw};
-    
+
+
     cov_hkle{iw} = transform_matrix (cov_x, dq_mat);
     cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(wtmp.data.u_to_rlu));
-    
+
     rlu_to_spec = invert_matrix (spec_to_rlu);
     rlu_to_spec4(1:3,1:3,:) = rlu_to_spec(:,:,irun);
     rlu_to_spec4(4,4,:) = 1;

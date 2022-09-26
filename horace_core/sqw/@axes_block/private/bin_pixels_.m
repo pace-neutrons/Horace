@@ -78,7 +78,7 @@ else
 end
 
 bin_array_size  = obj.nbins_all_dims; % arrays of this size will be allocated too
-ndims           = obj.n_dims;
+ndims           = obj.dimensions;
 data_range      = obj.img_range;
 
 pax = obj.pax;

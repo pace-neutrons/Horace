@@ -9,10 +9,10 @@ function [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,
 % ------
 %   win         sqw object or array of objects
 %
-%   caller      Stucture that contains ionformation from the caller routine. Fields
+%   caller      Structure that contains information from the caller routine. Fields
 %                   reset_state     Reset internal state to stored value in
 %                                  state_in (logical scalar)
-%                   ind             Indicies into lookup tables. The number of elements
+%                   ind             Indices into lookup tables. The number of elements
 %                                  of ind must match the number of sqw objects in win
 %
 %   state_in    Cell array of internal state of this function for function evaluation.
@@ -192,9 +192,9 @@ for i=1:numel(ind)
     dq_mat=lookup.dq_mat{iw};
 
     % Run and detector for each pixel
-    irun = win(i).data.pix.run_idx';   % column vector
-    idet = win(i).data.pix.detector_idx';   % column vector
-    npix = win(i).data.pix.num_pixels;
+    irun = win(i).pix.run_idx';   % column vector
+    idet = win(i).pix.detector_idx';   % column vector
+    npix = win(i).pix.num_pixels;
     max_irun = max(irun);
     if max_irun>win(i).main_header.nfiles
         rmp = win(i).runid_map;
@@ -207,8 +207,7 @@ for i=1:numel(ind)
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
 
         % Update s_mat and spec_to_rlu because crystal orientation will have changed
-        [ok,mess,~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
-        if ~ok, error(mess), end
+        [~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
 
         % Recompute Q because crystal orientation will have changed (don't need to update qw{4})
         qw(1:3) = calculate_q (ki(irun), kf, detdcn(:,idet), spec_to_rlu(:,:,irun));
@@ -285,7 +284,7 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         end
     end
-    wout(i).data.pix.signal=stmp(:)'/mc_points;
-    wout(i).data.pix.variance=zeros(1,numel(stmp));
+    wout(i).pix.signal=stmp(:)'/mc_points;
+    wout(i).pix.variance=zeros(1,numel(stmp));
     wout(i)=recompute_bin_data(wout(i));
 end

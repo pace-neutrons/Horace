@@ -58,60 +58,9 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
         function [pix_comb,pix_out_pos]=get_pix_comb_info(obj)
             %
             infiles = obj.test_souce_files;
+            data_sum = get_pix_comb_info_tester(infiles);
 
-            [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
-                accumulate_headers_job.read_input_headers(infiles);
-
-            [header_combined,nspe] = Experiment.combine_experiments(header,true,false);
-            %headers_array(i).filename=fullfile(headers{i}.filepath,headers{i}.filename)
-            %[header_combined,nspe] = sqw_header.header_combine(header,true,false);
-            nfiles = sum(nspe);
-
-            img_db_range=datahdr{1}.img_range;
-            for i=2:nfiles
-                img_db_range=[min(img_db_range(1,:),datahdr{i}.img_range(1,:));max(img_db_range(2,:),datahdr{i}.img_range(2,:))];
-            end
-            [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
-            [s_accum,e_accum] = normalize_signal(s_accum,e_accum,npix_accum);
-            %
-
-            main_header_combined = struct();
-            main_header_combined.filename='';
-            main_header_combined.filepath='';
-            main_header_combined.title='';
-            main_header_combined.nfiles=nfiles;
-
-            % fill in data_sqw_dnd. Should be done in constructor, but too many
-            % inputs.
-            sqw_data = data_sqw_dnd(datahdr{1});
-            sqw_data.filename=main_header_combined.filename;
-            sqw_data.filepath=main_header_combined.filepath;
-            sqw_data.title=main_header_combined.title;
-            sqw_data.img_range=img_db_range;
-
-            sqw_data.s=s_accum;
-            sqw_data.e=e_accum;
-            sqw_data.npix=uint64(npix_accum);
-
-
-            %run_label = 0:nfiles-1;
-            run_label = header_combined.expdata.get_run_ids();
-            pix_comb = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
-            pix_comb.pix_range = img_db_range;
-            sqw_data.pix = pix_comb;
-            [fp,fn,fe] = fileparts(obj.test_targ_file);
-            main_header_combined.filename = [fn,fe];
-            main_header_combined.filepath = [fp,filesep];
-
-
-            data_sum= struct('main_header',main_header_combined,...
-                'experiment_info',[],'detpar',det);
-            data_sum.data = sqw_data;
-            data_sum.experiment_info = header_combined;
-            % TODO: this should go after runid_map sits within Experiment
-            % only
-            data_sum.runid_map = header_combined.runid_map;
-
+            pix_comb = data_sum.pix;
 
             ds = sqw(data_sum);
             wrtr = sqw_formats_factory.instance().get_pref_access('sqw');

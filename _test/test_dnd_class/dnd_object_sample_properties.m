@@ -1,4 +1,4 @@
-function [sample_properties,dependent_properties]=dnd_object_sample_properties()
+function [sample_properties,dependent_properties,const_prop ]=dnd_object_sample_properties(box_size)
 % Function returns current set of sample properties, which may be set on
 % dnd object and dependent properties, available on dnd object as read-only
 % properties
@@ -9,15 +9,23 @@ function [sample_properties,dependent_properties]=dnd_object_sample_properties()
 sample_properties  = containers.Map({'filename','filepath','title','alatt'},...
     {'aaa','bbb','title',[1,2,3]});
 sample_properties('angdeg') = [90,89,90];
-sample_properties('uoffset')=[1,0,0,0];
-sample_properties('u_to_rlu')=eye(3);
-sample_properties('ulen') = [1,2,3,1];
+sample_properties('offset')=[1,0,0,0];
+%sample_properties('u_to_rlu')=eye(3);     | TODO?
+%sample_properties('ulen') = [1,2,3,1];    |
 sample_properties('label') = {'aaa','bbbb','cccc','e'};
-sample_properties('s') = ones(3,3);
-sample_properties('e') = ones(3,3);
-sample_properties('npix') = ones(3,3);
-sample_properties('img_range') =[-1,-2,-3,-4;2,3,4,5];
-sample_properties('nbins_all_dims') = [10,20,30,40];
-sample_properties('dax') = [1,2,3,4];
+if isempty(box_size)
+    val =0;
+else
+    val  = ones(box_size);
+end
+bs = [box_size,ones(1,4-numel(box_size))];
+sample_properties('s') = val;
+sample_properties('e') = val;
+sample_properties('npix') = val;
+sample_properties('axes') = axes_block('nbins_all_dims',bs);
+sample_properties('proj') = ortho_proj('alatt',4);
 
-dependent_properties = {'iint','iax','p','pax'};
+sample_properties('dax') = 1:numel(box_size);
+
+dependent_properties = {'iint','iax','p','pax','img_range','nbins'};
+const_prop = {'border_size'};

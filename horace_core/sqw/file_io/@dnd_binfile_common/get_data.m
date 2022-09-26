@@ -6,7 +6,6 @@ function [data_str,obj] = get_data (obj,varargin)
 %
 %   >> data = obj.get_data()
 %   >> data = obj.get_data(opt)
-%   >> data = obj.get_data(opt, 'pixel_page_size', 256e6)
 %
 % Input:
 % ------
@@ -18,12 +17,6 @@ function [data_str,obj] = get_data (obj,varargin)
 %                  '-head'
 %                  '-verbatim'
 %
-% Keyword Arguments:
-% ------------------
-%   pixel_page_size    The maximum amount of memory to allocate to holding
-%                      pixel data. This argument is passed to the PixelData
-%                      constructor's 'mem_alloc' argument.
-%                      The value should have units of bytes.
 %
 % Output:
 % -------
@@ -90,8 +83,9 @@ function [data_str,obj] = get_data (obj,varargin)
 %
 
 % Initialise output arguments
-[ok,mess,header_only,verbatim,hverbatim,~]=...
-    parse_char_options(varargin,{'-head','-verbatim','-hverbatim'});
+[ok,mess,header_only,verbatim,hverbatim,noclass,noupgrade]=...
+    parse_char_options(varargin, ...
+    {'-head','-verbatim','-hverbatim','-noclass','-noupgrade'});
 if ~ok
     error('HORACE:dnd_binfile_common:invalid_argument',...
         'get_data::Error: %s',mess);
@@ -150,9 +144,19 @@ end
 if obj.convert_to_double
     data_str = obj.do_convert_to_double(data_str);
 end
-data_str = axes_block.convert_old_struct_into_nbins(data_str);
+%data_str = axes_block.convert_old_struct_into_nbins(data_str);
 %
 if ~header_only
     data_str = obj.get_se_npix(data_str);
 end
+
+if header_only || noclass
+    data_str.img_range = axes_block.calc_img_db_range(data_str );
+    return;
+end
 %
+proj = ortho_proj.get_from_old_data(data_str);
+ax   = axes_block.get_from_old_data(data_str);
+
+data_str = DnDBase.dnd(ax,proj,data_str.s,data_str.e,data_str.npix);
+obj.sqw_holder_ = data_str;

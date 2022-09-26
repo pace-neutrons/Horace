@@ -25,18 +25,21 @@ expdata     = repmat(IX_experiment(), 1,numel(headers));
 instruments = repmat({IX_null_inst()},  1,numel(headers));
 samples     = repmat({IX_null_sample()},1,numel(headers));
 
+hdr = headers{1};
+alatt = hdr.alatt;
+angdeg =hdr.angdeg;
 % convert old headers, restored differently from sqw and mat files into the
 % same format - there appear to be cases where old-style header structs and
 % Experiments mix - this converts to old-style before we start, though not
 % not convinced it is needed or correct
-headers = normalize_old_headers(headers);
+headers = normalize_old_headers(headers,alatt,angdeg);
 
 % Now operate on the assumed old-style header structs, either received or
 % converted
 for i=1:numel(headers)
     % Name  i'th header locally
     hdr = headers{i};
-    [expdata(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(hdr);    
+    [expdata(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(hdr);
 
     % Local name the instrument (not liking plural instruments -
     % should be the single instrument from the old-syle header structure
@@ -96,7 +99,6 @@ for i=1:numel(headers)
         end
     end
     samples{i} = sampl;
-
     % Construct the experiment data from the rest of the header
 
 end
@@ -109,11 +111,11 @@ obj.samples = samples;
 % this also calculates and sets up consistent runid_map
 obj.expdata = expdata;
 obj.do_check_combo_arg_ = true;
-            obj = obj.check_combo_arg();            
+obj = obj.check_combo_arg();
 end % function build_from_old_headers
 
 %-------------------------------------------------------------------------
-function headers = normalize_old_headers(headers)
+function headers = normalize_old_headers(headers,alatt,angdeg)
 %
 % Headers may come from
 % (1) sqw object on file written in the old style (currently the file
@@ -148,6 +150,8 @@ for i=1:numel(headers)
         % error condition) and keep instrument as instruments
         hdr.instruments = hdr.instrument;
         hdr = rmfield(hdr,'instrument');
+    else
+        hdr.instruments = IX_null_inst();
     end
 
     % repeat for sample as with instrument above, same comments
@@ -159,6 +163,8 @@ for i=1:numel(headers)
         end
         hdr.samples = hdr.sample;
         hdr = rmfield(hdr,'sample');
+    else
+        hdr.samples = IX_samp('',alatt,angdeg);
     end
 
     % Repack the header struct into the cell array

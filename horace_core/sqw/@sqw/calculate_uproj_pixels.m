@@ -1,5 +1,4 @@
-function uproj=calculate_uproj_pixels(win,opt)
-%DODO: Use generic projection!!!!
+function img_coord = calculate_uproj_pixels(win,step)
 % Calculate coordinates in projection axes for the pixels in an sqw dataset
 %
 %   >> qw=calculate_uproj_pixels(win)
@@ -8,17 +7,15 @@ function uproj=calculate_uproj_pixels(win,opt)
 % Input:
 % ------
 %   win     Input sqw object
-%   opt     Option for units of the output
-%           'step'      in units of the step size/integration range for each axis
+%   step    Option for units of the output
+%           If present, define projections in units of the step size
+%           provided.
 %           Default: units of projection axes un-normalised by step size
 %
 % Output:
 % -------
-%   u       Components of pixels in the dataset along the projection axes
-%           Arrays are packaged as cell array of column vectors for convenience
-%           with fitting routines etc.
-%               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
-
+% img_coord  4xnpix array of components of pixels in the dataset along
+%            the projection axes
 
 % Original author: T.G.Perring
 
@@ -28,48 +25,22 @@ if numel(win)~=1
         'Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
-step=false;
-if exist('opt','var')
-    if ischar(opt) && strncmpi(opt,'step',numel(opt))
-        step = true;
+do_step=false;
+if exist('step','var')
+    if isnumeric(step) && numel(step) == 4
+        do_step = true;
+        step = reshape(step,4,1);
     else
         error('HORACE:calculate_uproj_pixels:invalid_argument',...
-        'Invalid optional argument - the only permitted option is ''step''')
+            'Invalid optional argument - the only permitted option is 4-element vector of steps')
     end
 end
 
-header_ave=header_average(win);
+img_coord = win.data.proj.transform_pix_to_img(win.pix.coordinates);
 
-upix_offset = header_ave.uoffset;
-upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
-
-uproj_to_rlu = win.data.u_to_rlu(1:3,1:3);
-uproj_offset = win.data.uoffset;
-
-iax = win.data.iax;
-iint = win.data.iint;
-pax = win.data.pax;
-p = win.data.p;
-
-% Get bin centres and step sizes
-ustep = zeros(1,4);
-for i=1:numel(pax)
-    ustep(pax(i)) = (p{i}(end)-p{i}(1))/(numel(p{i})-1);
+if do_step
+    % Get bin centres and step sizes
+    %img_range = win.data.axes.img_range;
+    %img_coord = (img_coord-img_range(1,:)')./step;
+    img_coord = img_coord./step;
 end
-for i=1:numel(iax)
-    ustep(iax(i)) = abs(iint(2,i)-iint(1,i));    % taks abs to ensure always >=0
-end
-
-% Get pixels in appropriate units along projection axes
-if step
-    uproj_to_rlu = repmat(ustep(1:3),3,1).*uproj_to_rlu;
-end
-u = (uproj_to_rlu\upix_to_rlu)*win.data.pix.q_coordinates -...
-    uproj_to_rlu\(uproj_offset(1:3)-upix_offset(1:3));
-en = (win.data.pix.dE - (uproj_offset(4)-upix_offset(4)));
-if step
-    en = en/ustep(4);
-end
-
-% package as cell array of column vectors
-uproj = {u(1,:)', u(2,:)', u(3,:)', en'};

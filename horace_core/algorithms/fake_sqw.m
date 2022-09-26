@@ -193,7 +193,7 @@ if isempty(img_db_range)
         img_db_range = [min(pix_range_l(1,:),img_db_range(1,:));max(pix_range_l(2,:),img_db_range(2,:))];
     end
     img_db_range=range_add_border(img_db_range,...
-        data_sqw_dnd.border_size);     % add a border to account for Matlab matrix multiplication bug
+        SQWDnDBase.border_size);     % add a border to account for Matlab matrix multiplication bug
 end
 
 % Construct data structure with spe file information

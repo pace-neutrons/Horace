@@ -12,11 +12,11 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 % Input:
 % ------
 %   w                   Data source (sqw file name or sqw object)
-%   rlu                 Set of Bragg peak indicies in (n x 3) matrix:
+%   rlu                 Set of Bragg peak indices in (n x 3) matrix:
 %                           h1, k1, l1
 %                           h2, k2, l2
 %                           :   :   :
-%                       These are the indicies of the Bragg peaks whose
+%                       These are the indices of the Bragg peaks whose
 %                       actual positions will be found by this function
 %                       e.g. [1,0,0; 0,1,0; 1,1,0]
 %
@@ -92,12 +92,11 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Check input arguments
 if ischar(w)    % assume a file name
-    file_type_ok=is_sqw_type_file(sqw,w);
+    file_type_ok=is_sqw_type_file(w);
     if ~isscalar(file_type_ok) || ~file_type_ok
         error('File must be sqw type')
     end

@@ -8,7 +8,6 @@ function [header_ave, ebins_all_same]=header_average(obj)
 if nargout>1
     [header_ave, ebins_all_same] = obj.experiment_info.header_average();
 else
-    
     header_ave = obj.experiment_info.header_average();
     ebins_all_same = [];
 end

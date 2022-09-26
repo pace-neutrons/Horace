@@ -42,23 +42,28 @@ classdef test_unary_ops < TestCase
         end
         
         function test_all_functions_are_defined_in_0d(obj)
-            dnd_obj = d0d();
+            ab = axes_block([-0.1,0.1],[-2,2],[0,1],[-2,2]);                                                
+            dnd_obj = d0d(ab,ortho_proj());
             obj.assert_allfunctions_defined(dnd_obj);
         end
         function test_all_functions_are_defined_in_1d(obj)
-            dnd_obj = d1d();
+            ab = axes_block([-0.1,0.1],[-2,2],[0,1],[-2,0.05,2]);                                    
+            dnd_obj = d1d(ab,ortho_proj());
             obj.assert_allfunctions_defined(dnd_obj);
         end
         function test_all_functions_are_defined_in_2d(obj)
-            dnd_obj = d2d();
+            ab = axes_block([-0.1,0.01,0.1],[-2,2],[0,1],[-2,0.05,2]);                        
+            dnd_obj = d2d(ab,ortho_proj());
             obj.assert_allfunctions_defined(dnd_obj);
         end
         function test_all_functions_are_defined_in_3d(obj)
-            dnd_obj = d3d();
+            ab = axes_block([-0.1,0.01,0.1],[-2,2],[0,0.1,1],[-2,0.05,2]);            
+            dnd_obj = d3d(ab,ortho_proj());
             obj.assert_allfunctions_defined(dnd_obj);
         end
         function test_all_functions_are_defined_in_4d(obj)
-            dnd_obj = d4d();
+            ab = axes_block([-0.1,0.01,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
+            dnd_obj = d4d(ab,ortho_proj());
             obj.assert_allfunctions_defined(dnd_obj);
         end
         
@@ -66,15 +71,14 @@ classdef test_unary_ops < TestCase
             
             % For each unary operator, perform the operation on some random data
             % generated with the valid range for that function input
-            num_rows = 29;
-            num_cols = 7;
             for i = 1:2:numel(obj.unary_ops)
                 unary_op = obj.unary_ops{i};
                 data_range = obj.unary_ops{i+1};
                 
                 test_obj = copy(dnd_obj);
-                test_obj.s = get_random_data_in_range(num_rows, num_cols, data_range);
-                test_obj.e = get_random_data_in_range(num_rows, num_cols, data_range);
+                sz = dnd_obj.axes.dims_as_ssize();
+                test_obj.s = test_unary_ops.get_rnd_data_in_range(sz, data_range);
+                test_obj.e = test_unary_ops.get_rnd_data_in_range(sz, data_range);
                 
                 % exception will be thrown if method not implemented
                 result = unary_op(test_obj);
@@ -86,10 +90,9 @@ classdef test_unary_ops < TestCase
         end
         
         function test_unary_op_updates_image_signal_and_error(~)
-            dnd_obj = d2d();
-            dnd_obj.s = [2, 10245]; % simple dataset for ease of testing
-            dnd_obj.e = [1.5, 1021];
-            dnd_obj.npix = [1,1];
+            ax = axes_block('nbins_all_dims',[2,1,1,1]);
+            pr = ortho_proj();
+            dnd_obj = d1d(ax,pr,[2, 10245],[1.5, 1021],[1,1]);
             
             % arbitrary unary op for test
             result = log10(dnd_obj);
@@ -101,6 +104,12 @@ classdef test_unary_ops < TestCase
             
             assertEqualToTol(result.s, expected_signal);
             assertEqualToTol(result.e, expected_var);
+        end
+        
+    end
+    methods(Static)
+        function data=get_rnd_data_in_range(size_vec, data_range)
+            data = data_range(1) + (data_range(2) - data_range(1)).*rand(size_vec);            
         end
         
     end

@@ -123,7 +123,7 @@ for i=1:3
 end
 
 %Coordinates of detector pixels, in the frame discussed above
-coords=@() win.data.pix.q_coordinates; % MP: emulate a pointer / lazy data copy
+coords=@() win.pix.q_coordinates; % MP: emulate a pointer / lazy data copy
 
 
 %Note that we allow the inclusion of an offset from the origin of the
@@ -159,8 +159,8 @@ coords_new=bsxfun(@plus, coords_new, vec3); % MP
 % Clear existing pages range not to extend new range with existing.
 % Take care if this method is extended to file-based data -- needs careful
 % thinking
-wout.data.pix.set_range(PixelData.EMPTY_RANGE_);
-wout.data.pix.q_coordinates=coords_new;
+wout.pix.set_range(PixelData.EMPTY_RANGE_);
+wout.pix.q_coordinates=coords_new;
 % real pix range, calculated at the assignment of new coordinates to the
 % pixels coordinates
 clear 'coords_new';
@@ -170,8 +170,8 @@ clear 'coords_new';
 %
 % Get image range:
 % image range
-existing_range = wout.data.img_db_range;
-proj = win.data.get_projection();
+existing_range = wout.data.img_range;
+proj = win.data.proj;
 
 % expand img_box into whole box and transform image range into pix range
 exp_range= expand_box(existing_range(1,1:3),existing_range(2,1:3));
@@ -222,9 +222,16 @@ set(hor_config,'log_level',-1);
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin
-wout.data.img_range = all_sym_range ;
+ax = wout.data.axes;
+proj = wout.data.proj;
+%
+ax.do_check_combo_arg  = false;
+ax.img_range = all_sym_range;
+ax.nbins_all_dims = ones(1,4);
+ax.do_check_combo_arg = true;
+ax = ax.check_combo_arg();
+dat = DnDBase.dnd(ax,proj,0,0,sum(wout.data.npix(:)));
+wout.data = dat ;
 
-wout.data.nbins_all_dims = ones(1,4);
-wout.data.npix = sum(wout.data.npix(:));
 %
 wout=cut(wout,proj,new_range_arg{:});

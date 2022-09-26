@@ -79,9 +79,6 @@ function weight = disp2sqw(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-
 % Parse input arguments
 if nargin==7
     expand_qe=false;    % set of distinct q points
@@ -105,7 +102,8 @@ elseif nargin==4
     pars=varargin{3};
     fwhh=varargin{4};
 else
-    error('Check number of input arguments')
+    error('HORACE:disp2sqw:invalid_argument', ...
+        'Check number of input arguments')
 end
 
 % Evaluate dispersion relation(s)

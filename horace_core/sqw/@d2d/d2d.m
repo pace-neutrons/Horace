@@ -7,27 +7,43 @@ classdef d2d < DnDBase
     %   >> w = d2d(filename)       % Create a D2D object from a file
     %   >> w = d2d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Constant, Access = protected)
-        NUM_DIMS = 2;
+    properties (Dependent,Access = protected)
+        NUM_DIMS;
     end
 
     methods
         function obj = d2d(varargin)
             obj = obj@DnDBase(varargin{:});
-            if nargin==0
-                obj.nbins_all_dims = [2,2,1,1];
+            if nargin == 0
+                obj.axes.single_bin_defines_iax = [false,false,true,true];
+                obj.axes.dax= [1,2];
+                obj.s_ = 0;
+                obj.e_ = 0;
+                obj.npix_ = 0;
             end
+
         end
+        dat = IX_dataset_2d(obj);
+
 
         wout=combine_horace_2d(w1,w2,varargin);
         wout=symmetrise_horace_2d(win,varargin);
         wout=rebin_horace_2d(win,varargin);
 
         [speedup,midpoint]=compare_sym_axes(win,v1,v2,v3);
+
         varargout = cut(varargin);
         [R,trans] = calculate_transformation_matrix(win,v1,v2,v3);
 
         varargout = get(this, index);
+        function nd = get.NUM_DIMS(~)
+            nd =2;
+        end
+        function [nd,sz] = dimensions(obj)
+            nd = 2;
+            sz = obj.axes_.data_nbins;
+        end
+
     end
 
     methods(Access = private)

@@ -95,10 +95,12 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(numel(det.group),58880)
 
             data = to.get_data();
-            assertEqual(data.pix.num_pixels,1164180)
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
+
+            pix = to.get_pix();
+            assertEqual(pix.num_pixels,1164180)
 
         end
         function obj = test_read_v1(obj)
@@ -125,10 +127,11 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(numel(det.group),36864)
 
             data = to.get_data();
-            assertEqual(data.pix.num_pixels,179024)
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix),size(data.e))
+            pix = to.get_pix();
+            assertEqual(pix.num_pixels,179024)
 
             exp_info = to.get_header('-all');
             assertTrue(isa(exp_info,'Experiment'));
@@ -160,16 +163,17 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(data_h.filename,to.filename)
             assertEqual(data_h.filepath,to.filepath)
 
-            data_dnd = to.get_data('-ver','-nopix');
-            assertTrue(isa(data_dnd,'data_sqw_dnd'));
+            data_dnd = to.get_data('-ver');
+            assertTrue(isa(data_dnd,'DnDBase'));
             assertEqual(data_dnd.filename,'ei140.sqw');
 
             data = to.get_data('-ver');
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
-            assertTrue(isa(data.pix, 'PixelData'));
-            assertEqual(data.pix.file_path, sample);
-            assertEqual(data.pix.num_pixels, 8031);
+            pix = to.get_pix();
+            assertTrue(isa(pix, 'PixelData'));
+            assertEqual(pix.file_path, sample);
+            assertEqual(pix.num_pixels, 8031);
         end
 
         function obj = test_get_sqw(obj)
@@ -416,9 +420,5 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(ok,mess)
 
         end
-
-
-
     end
 end
-

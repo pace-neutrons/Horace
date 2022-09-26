@@ -99,7 +99,7 @@ function varargout = resolution_plot (w, varargin)
 if ~isscalar(w) || dimensions(w)~=2
     error('HORACE:resolution_plot:invalid_argument',...
         'Can only plot resolution function for a single two dimensional sqw object')
-elseif w.data.pix.num_pixels==0
+elseif w.pix.num_pixels==0
     error('HORACE:resolution_plot:invalid_argument',...
         'No pixels in the sqw object - cannot compute a resolution function')
 end
@@ -191,10 +191,10 @@ if ~present.noplot  % plotting is required
         if ~ok
             error(mess);
         end
-        figure(fig)
+        figure(fig);
     else
         % New plot
-        plot(w)
+        plot(w);
     end
 end
 

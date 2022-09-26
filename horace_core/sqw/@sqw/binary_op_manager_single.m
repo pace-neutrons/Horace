@@ -107,10 +107,10 @@ function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
         flip = exist('flip', 'var') && flip;
         wout = copy(w1);
         if ~isscalar(w2)
-            wout.data.pix = wout.data.pix.do_binary_op(...
+            wout.pix = wout.pix.do_binary_op(...
                 w2, binary_op, 'flip', flip, 'npix', w1.data.npix);
         else
-            wout.data.pix = wout.data.pix.do_binary_op(...
+            wout.pix = wout.pix.do_binary_op(...
                 w2, binary_op, 'flip', flip);
         end
 
@@ -149,7 +149,7 @@ function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
         end
 
         wout = copy(w1);
-        wout.data.pix = w1.data.pix.do_binary_op(w2.data.pix, binary_op, 'flip', flip);
+        wout.pix = w1.pix.do_binary_op(w2.pix, binary_op, 'flip', flip);
         wout = recompute_bin_data(wout);
     else
         error('SQW:binary_op_manager_single', ...
@@ -196,7 +196,7 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
             operand = w2;
         end
         
-        wout.data.pix = wout.data.pix.do_binary_op( ...
+        wout.pix = wout.pix.do_binary_op( ...
             operand, binary_op, 'flip', flip, 'npix', wout.data.npix);
         wout = recompute_bin_data(wout);
     else

@@ -10,16 +10,16 @@ function proj = get_projection(obj,header_av)
 %
 alatt=obj.alatt;
 angdeg=obj.angdeg;
-if exist('header_av','var')
+if exist('header_av','var') && isfield(header_av,'u_to_rlu')
     bmat_inv_ext  =  header_av.u_to_rlu;
 else
     bmat_inv_ext   = [];
     bmat =     bmatrix(alatt,angdeg);
 end
 
-proj=ortho_proj('alatt',alatt,'angdeg',angdeg,'label',obj.label);
+proj = obj.proj;
+offset = proj.offset';
 %
-offset = obj.uoffset(:);
 if isempty(bmat_inv_ext)
     shift = (bmat\offset(1:3))';
     shift = [shift,offset(4)];
@@ -37,10 +37,8 @@ if  all(abs(img_range_guess(:)-obj.img_db_range(:))<=abs(obj.border_size)) || ..
         proj = proj.set_from_data_mat(obj.u_to_rlu(1:3,1:3),obj.ulen(1:3));
     end
 else % the input is the cut
-
     proj = proj.set_from_data_mat(obj.u_to_rlu(1:3,1:3),obj.ulen(1:3));
 end
-proj.offset = obj.uoffset;
 
 %--------------------------------------------------------------------------
 % TODO: this is compatibility function to support alignment.

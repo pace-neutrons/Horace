@@ -34,16 +34,16 @@ if isempty(obj.sqw_holder_)
     nf = new_obj.num_contrib_files();
     % make pseudo-sqw  with instrument and sample
     new_obj.sqw_holder_ = make_pseudo_sqw(nf);
-    if isempty(pix_range)
-        data = obj.get_data();
-    else
-        data = obj.get_data('-nopix');
-        data.pix.set_range(pix_range);
+    data = obj.get_data();
+    pix = obj.get_pix();
+    if ~isempty(pix_range)
+        pix.set_range(pix_range);
     end
     new_obj.sqw_holder_.data = data;
-    pix = data.pix;
+    new_obj.sqw_holder_.pix = pix;
+
 else
-    pix = obj.sqw_holder_.data.pix;
+    pix = obj.sqw_holder_.pix;
     if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
         pix.recalc_pix_range();
     end

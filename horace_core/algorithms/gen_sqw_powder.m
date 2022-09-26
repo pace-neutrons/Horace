@@ -5,7 +5,7 @@ function gen_sqw_powder(spe_file, par_file, sqw_file, efix, emode)
 %       This was created rapidly as a fix-up during an experiment. A polished version is
 %       marked for addition at a later date.  Use on your own risk
 %
-% Look at horace_core/../_test/test_combine_pow.m and horace_core/../_test/test_gen_sqw_powder.m 
+% Look at horace_core/../_test/test_combine_pow.m and horace_core/../_test/test_gen_sqw_powder.m
 % for samples of acceptable usage.
 %
 %   >> gen_sqw_cylinder(spe_file, par_file, sqw_file, efix, emode)
@@ -28,11 +28,8 @@ function gen_sqw_powder(spe_file, par_file, sqw_file, efix, emode)
 %  unexpected behaviour. The symmetrisation routines may not work, but the only
 %  symmetrisation that is meaningful is to add +ve and -ve Qz, so this can be
 %  done by hand. Many other functions in Horace will not be meaningful.
-
-
 % Original author: T.G.Perring  2 August 2013: quick fix for LET
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 alatt=[2*pi,2*pi,2*pi];
@@ -98,38 +95,44 @@ eps_max=max(pix_range(2,4,:));
 % Choose suitable rebinning for the final sqw file
 nQbin_def=100;
 nepsbin_def=100;
-head_full=head_sqw(tmp_file{1},'-full');
+ldr = sqw_formats_factory.instance().get_loader(tmp_file{1});
+detpar = ldr.get_detpar();
+hdr    = ldr.get_header();
+ldr.delete();
 
-ndet=numel(head_full.detpar.group);
+ndet=numel(detpar.group);
 nqbin=min(max(1,round(sqrt(ndet)/2)),nQbin_def);     % A reasonable number of bins along each Q axis
 dQ=round_to_vals((Q_max-Q_min)/nqbin);
 small=1e-10;
 Q_bins=[dQ*(floor((Q_min-small)/dQ)+0.5),dQ,dQ*(ceil((Q_max+small)/dQ)-0.5)];
 
-if nfiles==1 && (numel(head_full.header.en)-1)<=200  % one spe file and 150 energy bins or less
+
+if nfiles==1 && (numel(hdr.expdata(1).en)-1)<=200  % one spe file and 150 energy bins or less
     %epsbins=0;           % Use intrinsic energy bins
-    epsbins = min(head_full.header.en(2:end)-head_full.header.en(1:end-1));
+    epsbins = min(hdr.expdata(1).en(2:end)-hdr.expdata(1).en(1:end-1));
 else
     deps=round_to_vals((eps_max-eps_min)/nepsbin_def);
     epsbins=[eps_min-deps/2,deps,eps_max+deps/2];
 end
 
 % Compute |Q| for each tmp file, and save all the tmp files onto the same grid
-proj.u=[1,0,0];
-proj.v=[0,1,0];
-proj.type='rrr';
-proj.label={'|Q|','dummy','dummy','E'};
+proj = ortho_proj([1,0,0],[0,1,0],'type','rrr', ...
+    'label',{'|Q|','dummy','dummy','E'},'alatt', ...
+    head{1}.alatt,'angdeg',head{1}.angdeg);
 
 for i=1:nfiles
     % Read in
-    w=sqw(tmp_file{i});
+    w=read_sqw(tmp_file{i});
     % Compute new coordinates
-    data=w.data;
-    data.pix.q_coordinates=[sqrt(sum(data.pix.q_coordinates.^2,1));zeros(2,data.pix.num_pixels)];
-    data.img_range=range_add_border(data.pix.pix_range);
-    data.nbins_all_dims = [1,1,1,1];
-    data.ulabel={'|Q|','dummy','dummy','E'};    
+    pix = w.pix;
+    q_de_range = [Q_min-small,-eps,-eps,eps_min;Q_max+small,eps,eps,eps_max];
+    data=DnDBase.dnd(...
+        axes_block('nbins_all_dims',[1,1,1,1],'img_range',range_add_border(q_de_range)),...
+        proj);
+    data.npix = pix.num_pixels;
+    pix.q_coordinates=[sqrt(sum(pix.q_coordinates.^2,1));zeros(2,pix.num_pixels)];
     w.data=data;
+    w.pix = pix;
     % Rebin
     w=cut_sqw(w,proj,Q_bins,[-Inf,Inf],[-Inf,Inf],epsbins);
     % Save to the same tmpfile
@@ -162,19 +165,19 @@ end
 % Delete temporary files if requested
 % -----------------------------------
 if get(hor_config,'delete_tmp')
-if ~isempty(tmp_file)   % will be empty if only one spe file
-    delete_error=false;
-    for i=1:numel(tmp_file)
-        try
-            delete(tmp_file{i})
-        catch
-            if delete_error==false
-                delete_error=true;
-                disp('One or more temporary sqw files not deleted')
+    if ~isempty(tmp_file)   % will be empty if only one spe file
+        delete_error=false;
+        for i=1:numel(tmp_file)
+            try
+                delete(tmp_file{i})
+            catch
+                if delete_error==false
+                    delete_error=true;
+                    disp('One or more temporary sqw files not deleted')
+                end
             end
         end
     end
-end
 end
 
 

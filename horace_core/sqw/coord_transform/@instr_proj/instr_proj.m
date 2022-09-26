@@ -65,7 +65,7 @@ classdef instr_proj<aProjection
             % emode   -- the instrument operational mode
             %
             proj = proj@aProjection();
-            proj.label = {'Q_x','Q_y','Q_z','dE'};
+            proj.label = {'Q_\zeta','Q_\xi','Q_\eta','E'};
             if nargin>0 % initialize defaults, which describe unit transformation from
                 proj = proj.init(varargin{:});
             end
@@ -175,12 +175,14 @@ classdef instr_proj<aProjection
             % Convert pixels into the coordinate system, defined by the
             % projection and bin them into the coordinate system, defined
             % by the axes block, specified as input.
+            %
+            % See #838 for possible optimization of this
             [pix,det0,axes]  = obj.convert_rundata_to_pix(run_data,axes);
             [npix,s,e,pix_ok,unique_runid] = ...
                 bin_pixels@aProjection(obj,axes,pix,varargin{:});
         end
         %
-        function ax_bl = get_proj_axes_block(~,ranges,bin_numbers)
+        function ax_bl = get_proj_axes_block(obj,ranges,bin_numbers)
             % return the axes block, corresponding to this projection class.
             %
             % According to its operations, instrument projection generate
@@ -190,11 +192,15 @@ classdef instr_proj<aProjection
             % set up range and number of bins for the selected axes block
             ax_bl.img_range = ranges;
             ax_bl.nbins_all_dims = bin_numbers;
+            % TODO: Do we want to have axes block here beeing always 4D or
+            % let the shape to be defined by input number of bins?
+            ax_bl.single_bin_defines_iax = true(4,1); % here we assume that
+            % object may be less then 4-dimensions
             % other parameters
             ax_bl.ulen  = [1,1,1,1];
             % TODO, delete this, mutate axes_block
             ax_bl.axis_caption=an_axis_caption();
-            ax_bl.label = {'Q_\zeta','Q_\xi','Q_\eta','E'};
+            ax_bl.label = obj.label;
 
         end
         %

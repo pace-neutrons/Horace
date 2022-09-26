@@ -18,18 +18,16 @@ function vout = replicate_array(v, npix)
 
 % Original author: T.G.Perring
 
-if numel(npix) == numel(v)
-    % Get the bin index for each pixel
-    nend = cumsum(npix(:));
-    nbeg = nend - npix(:) + 1; % nbeg(i)=nend(i)+1 if npix(i)==0, but that's OK below
-    nbin = numel(npix);
-    npixtot = nend(end);
-    vout = zeros(npixtot, 1);
-    for i = 1:nbin
-        vout(nbeg(i):nend(i)) = v(i); % if npix(i)=0, this assignment does nothing
+if numel(npix)==numel(v)
+    if ~isempty(npix)
+        repl = arrayfun(@(x,y)ones(1,x)*y,npix(:),v(:),'UniformOutput',false);
+        vout = [repl{:}]';
+    else
+        vout=zeros(0,1);
     end
 else
-    error('SQW:replicate_array', ...
-        ['Number of elements in v must be equal to number of elements in ', ...
-        'npix. Found ''%i'' and ''%i'''], numel(v), numel(npix));
+    error('HERBERT:replicate_array:invalid_argument',...
+        ['Number of elements in input array 1 (%d) '''...
+        'different from number of elements in input array 2 (%d)'],...
+        numel(npix),numel(v));
 end

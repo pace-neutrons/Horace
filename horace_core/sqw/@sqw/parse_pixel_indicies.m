@@ -71,10 +71,10 @@ if nargin==1
     if nout>0
         if nw==1
             if iscell(win)
-                pix = win{1}.data.pix;
+                pix = win{1}.pix;
                 runid_map = win{1}.runid_map;
             else
-                pix = win.data.pix;
+                pix = win.pix;
                 runid_map = win.runid_map;
             end
             if nout>=1, run_idx = pix.run_idx'; end   % column vector
@@ -88,9 +88,9 @@ if nargin==1
             if nout>=3, ien  = cell(size(win)); end
             for i = 1:nw
                 if iscell(win)
-                    pix = win{i}.data.pix;
+                    pix = win{i}.pix;
                 else
-                    pix = win(i).data.pix;
+                    pix = win(i).pix;
                 end
                 if nout>=1
                     run_idx = pix.run_idx';
@@ -131,7 +131,7 @@ if exist('iw','var')
     if numel(iw)~=numel(win)
         mess = 'Number of indicies in index argument ''iw'' must equal the number of sqw objects';
         return
-    elseif any(iw)<1
+    elseif any(iw<1)
         mess = 'Indicies in index argument ''iw'' must be greater or equal to zero';
         return
     end
@@ -186,7 +186,7 @@ for i=1:nw
     end
     indx_tmp = indx_internal{iw_internal(i)};
     if size(indx_tmp,2)==1
-        if ~(max(indx_tmp)<=wtmp.data.pix.num_pixels && min(indx_tmp)>=0)
+        if ~(max(indx_tmp)<=wtmp.pix.num_pixels && min(indx_tmp)>=0)
             mess = 'One or more pixel indicies outside range of sqw object';
             return
         end
@@ -222,10 +222,10 @@ if nout>0
         indx_tmp = indx_internal{iw_internal(1)};
         if size(indx_tmp,2)==1
             if iscell(win)
-                pix = win{1}.data.pix;
+                pix = win{1}.pix;
                 runid_map = win{1}.runid_map;
             else
-                pix = win.data.pix;
+                pix = win.pix;
                 runid_map = win.runid_map;
             end
             if nout>=1, irun = pix.run_idx(indx_tmp)'; end   % column vector
@@ -245,10 +245,10 @@ if nout>0
             indx_tmp = indx_internal{iw_internal(i)};
             if size(indx_tmp,2)==1
                 if iscell(win)
-                    pix = win{i}.data.pix;
+                    pix = win{i}.pix;
                     runid_map = win{i}.runid_map;
                 else
-                    pix = win(i).data.pix;
+                    pix = win(i).pix;
                     runid_map = win(i).runid_map;
                 end
                 if nout>=1

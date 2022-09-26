@@ -13,7 +13,7 @@ methods
         obj.npixels_ = size(data, 2);
     end
     %
-    function data = get_pix(obj, varargin)
+    function data = get_raw_pix(obj, varargin)
         if nargin > 2
             [pix_lo, pix_hi] = varargin{:};
         else
@@ -25,7 +25,7 @@ methods
         catch ME
             switch ME.identifier
             case 'MATLAB:badsubscript'
-                error('FAKEFACCESS:get_pix', 'End of fake file reached');
+                error('FAKEFACCESS:get_raw_pix', 'End of fake file reached');
             otherwise
                 rethrow(ME);
             end
@@ -38,7 +38,7 @@ methods
         catch ME
             switch ME.identifier
             case 'MATLAB:badsubscript'
-                error('FAKEFACCESS:get_pix', 'Pixel indices out of bounds');
+                error('FAKEFACCESS:get_raw_pix', 'Pixel indices out of bounds');
             otherwise
                 rethrow(ME);
             end

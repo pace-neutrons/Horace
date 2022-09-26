@@ -187,7 +187,11 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,4];
             data.iint=[1;30];
             data.p={1:10;1:20;1:40};
-            do = data_sqw_dnd(data);
+            ax = axes_block.get_from_old_data(data);
+            proj = ortho_proj.get_from_old_data(data);
+            
+            do = data_sqw_dnd(ax,proj);
+            
 
             proj1=do.get_projection();
             opt = ortho_projTester(proj1);
@@ -196,6 +200,23 @@ classdef test_ortho_proj_construction<TestCase
             assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]],...
                 'absolute',1.e-4)
             assertElementsAlmostEqual(data.ulen(1:3),ulen','absolute',1.e-4);
+        end
+        function test_get_projection_from_other_aligned_data(~)
+            skipTest('Demonstrates issue #846')
+            data = struct();
+            data.alatt = [3.1580 3.1752 3.1247];
+            data.angdeg = [90.0013 89.9985 90.0003];
+            data.u_to_rlu = [0.3541,-0.3465,-0.0921,0;...                
+                             0.3586, 0.3445, 0.0823,0;...
+                             0.0069,-0.1217, 0.4821,0;...
+                             0     , 0     , 0     ,1];
+            data.label = {'h','k','l','en'};
+            data.ulen = ones(4,1);
+            proj = ortho_proj.get_from_old_data(data);
+            u_to_rlu_rec = proj.u_to_rlu;
+            assertElementsAlmostEqual(data.u_to_rlu,u_to_rlu_rec,...
+                'absolute',1.e-4)
+
         end
         %
         function test_get_projection_from_aligned_sqw_data(~)
@@ -215,7 +236,10 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,3,4];
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
-            do = data_sqw_dnd(data);
+            ax = axes_block.get_from_old_data(data);
+            proj = ortho_proj.get_from_old_data(data);
+            
+            do = data_sqw_dnd(ax,proj);
 
             proj1=do.get_projection();
             opt = ortho_projTester(proj1);
@@ -240,7 +264,9 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,3,4];
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
-            do = data_sqw_dnd(data);
+            ax = axes_block.get_from_old_data(data);
+            proj = ortho_proj.get_from_old_data(data);
+            do = data_sqw_dnd(ax,proj);
 
             proj = ortho_proj('alatt',data.alatt,'angdeg',data.angdeg,...
                 'label',{'a','b','c','d'},'type','aaa');

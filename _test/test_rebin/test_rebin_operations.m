@@ -9,6 +9,7 @@ classdef test_rebin_operations < TestCase
         amp=10;
         testdir;
         this_folder;
+        data_dir;
 
         % Tolerance to use when comparing single floats
         FLOAT_TOL = 4e-6;
@@ -18,6 +19,8 @@ classdef test_rebin_operations < TestCase
         function this=test_rebin_operations(name)
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
+            hp = horace_paths();
+            this.data_dir = hp.test_common;
         end
 
         function this=prepare_test_data(this)
@@ -35,31 +38,31 @@ classdef test_rebin_operations < TestCase
             % Three-dimensional data sets
             w3d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[0,1.4,100]);
             w3d_sqw=sqw_eval(w3d_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-            errs=w3d_sqw.data.pix.signal;
-            w3d_sqw.data.pix.variance=errs;
+            errs=w3d_sqw.pix.signal;
+            w3d_sqw.pix.variance=errs;
             w3d_sqw=cut(w3d_sqw,[-1,0.025,1],[-1,0.025,1],[0,1.4,100]);
             w3d_d3d=d3d(w3d_sqw);
 
             % Two-dimensional data sets
             w2d_qe_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[0,1.4,100]);
             w2d_qe_sqw=sqw_eval(w2d_qe_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-            errs=w2d_qe_sqw.data.pix.signal;
-            w2d_qe_sqw.data.pix.variance=errs;
+            errs=w2d_qe_sqw.pix.signal;
+            w2d_qe_sqw.pix.variance=errs;
             w2d_qe_sqw=cut(w2d_qe_sqw,[-1,0.025,1],[0,1.4,100]);
             w2d_qe_d2d=d2d(w2d_qe_sqw);
 
             w2d_qq_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[30,40]);
             w2d_qq_sqw=sqw_eval(w2d_qq_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-            errs=w2d_qq_sqw.data.pix.signal;
-            w2d_qq_sqw.data.pix.variance=errs;
+            errs=w2d_qq_sqw.pix.signal;
+            w2d_qq_sqw.pix.variance=errs;
             w2d_qq_sqw=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,1]);
             w2d_qq_d2d=d2d(w2d_qq_sqw);
 
             % One-dimensional data sets
             w1d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[30,40]);
             w1d_sqw=sqw_eval(w1d_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-            errs=w1d_sqw.data.pix.signal;
-            w1d_sqw.data.pix.variance=errs;
+            errs=w1d_sqw.pix.signal;
+            w1d_sqw.pix.variance=errs;
             w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
             w1d_d1d=d1d(w1d_sqw);
 
@@ -85,9 +88,9 @@ classdef test_rebin_operations < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_rebin_sqw_steps(this)
             % sqw rebinning
-            w2d_qe_sqw=sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw'));
+            w2d_qe_sqw=sqw(fullfile(this.data_dir,'w2d_qe_sqw.sqw'));
 
-            w2d_qe_sqw_reb=rebin_sqw(w2d_qe_sqw,[-0.5,0.05,1],[10,0.7,80]);
+            w2d_qe_sqw_reb=rebin(w2d_qe_sqw,[-0.5,0.05,1],[10,0.7,80]);
 
             % Cut the input arg, and we should get something identical
             proj.u=[1,1,0]; proj.v=[-1,1,0]; proj.type='rrr';
@@ -100,19 +103,19 @@ classdef test_rebin_operations < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_rebin_sqw_template(this)
             % sqw rebinning
-            w2d_qq_sqw=sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw'));
-            w2d_qq_small_sqw=sqw(fullfile(this.testdir,'w2d_qq_small_sqw.sqw'));
+            w2d_qq_sqw=sqw(fullfile(this.data_dir,'w2d_qq_sqw.sqw'));
+            w2d_qq_small_sqw=sqw(fullfile(this.data_dir,'w2d_qq_small_sqw.sqw'));
 
-            w2d_qq_small_sqw_1=rebin_sqw(w2d_qq_small_sqw,[0,0.04,0.4],[0,0.04,0.4]);
-            skipTest('DND rebinning disabled unil #798 is fixed')            
-            w2d_qq_sqw_reb=rebin_sqw(w2d_qq_sqw,w2d_qq_small_sqw_1);
+            w2d_qq_small_sqw_1=rebin(w2d_qq_small_sqw,[0,0.04,0.4],[0,0.04,0.4]);
+            skipTest('DND rebinning disabled unil #798 is fixed')
+            w2d_qq_sqw_reb=rebin(w2d_qq_sqw,w2d_qq_small_sqw_1);
 
             % Compare output with a direct simulation
             w2d_qq_sqw_reb_check=sqw_eval(w2d_qq_sqw_reb,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
 
             % Fixup involving rigging the error arrays from a simulation:
             w2d_qq_sqw_reb_check.data.e=w2d_qq_sqw_reb.data.e;
-            w2d_qq_sqw_reb_check.data.pix.variance=w2d_qq_sqw_reb.data.pix.variance;
+            w2d_qq_sqw_reb_check.pix.variance=w2d_qq_sqw_reb.pix.variance;
 
             [ok,mess]=equal_to_tol(w2d_qq_sqw_reb_check,w2d_qq_sqw_reb,-this.FLOAT_TOL,'ignore_str', 1);
             assertTrue(ok,['rebin sqw using template object fails: ',mess])
@@ -122,8 +125,8 @@ classdef test_rebin_operations < TestCase
         function this = test_rebin_dnd_steps(this)
             skipTest('DND rebinning disabled unil #798 is fixed')
             % dnd rebinning
-            w2d_qe_sqw=sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw'));
-            w2d_qe_d2d=read_dnd(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
+            w2d_qe_sqw=sqw(fullfile(this.data_dir,'w2d_qe_sqw.sqw'));
+            w2d_qe_d2d=read_dnd(fullfile(this.data_dir,'w2d_qe_d2d.sqw'));
 
             w2d_qe_d2d_reb=rebin_horace_2d(w2d_qe_d2d,[-1.025,0.05,1.025],[-2.8,2.8,100+3.6]);
 
@@ -151,8 +154,8 @@ classdef test_rebin_operations < TestCase
             skipTest('Needs fit_sqw to be implemented.')
 
             % Special case of d1d rebin
-            w1d_sqw=read_sqw(fullfile(this.testdir,'w1d_sqw.sqw'));
-            w1d_d1d=read_dnd(fullfile(this.testdir,'w1d_d1d.sqw'));
+            w1d_sqw=read_sqw(fullfile(this.data_dir,'w1d_sqw.sqw'));
+            w1d_d1d=read_dnd(fullfile(this.data_dir,'w1d_d1d.sqw'));
 
             reb_ax=[0.05,0.0125,0.033];
 

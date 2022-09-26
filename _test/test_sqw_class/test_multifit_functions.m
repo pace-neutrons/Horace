@@ -42,7 +42,7 @@ classdef test_multifit_functions < TestCase
             ds = kk.simulate();
 
             sig = ds.data.s;
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(2),numel(sig)+1);
             assertEqual(pix.num_pixels + numel(sig),pix.signal(1));
 
@@ -62,7 +62,7 @@ classdef test_multifit_functions < TestCase
             ds = kk.simulate();
 
             sig = ds.data.s;
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(2),2);
             assertEqual(2*pix.num_pixels,pix.signal(1));
 
@@ -83,7 +83,7 @@ classdef test_multifit_functions < TestCase
             ds = kk.simulate();
 
             sig = ds.data.s;
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(2),numel(sig)+1);
             assertEqual(pix.num_pixels+numel(sig),pix.signal(1));
 

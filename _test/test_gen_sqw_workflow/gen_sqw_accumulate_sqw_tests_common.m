@@ -312,7 +312,6 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.proj.u=[1,0,0.1]; obj.proj.v=[0,0,1];
 
 
-
             % Check cuts from gen_sqw output with spe files in a different
             % order are the same
             [ok,mess,dummy_w1,w1b]=is_cut_equal(sqw_file_123456,sqw_file_145623,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
@@ -385,7 +384,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
             % check all pixels are there nothing have been lost at
             % symmetrisation
-            assertEqual(w_inm.data.pix.num_pixels,w_mem_sym.data.pix.num_pixels)
+            assertEqual(w_inm.pix.num_pixels,w_mem_sym.pix.num_pixels)
 
             gen_sqw (obj.spe_file, '', sqw_file_sym,...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
@@ -540,9 +539,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % new file have been reduced. Add it to the file list
             gen_sqw_accumulate_sqw_tests_common.rename_file_list(new_names{1},'.nxspe');
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
-            dat = ldr.get_data('-nopix');
+            dat = ldr.get_data();
             clear ldr;
-            img_db_range1 = dat.img_db_range;
+            img_db_range1 = dat.img_range;
 
             skipTest('something dodgy in accumulation Disabled according to #748')
             % add new file to the list of the files
@@ -552,7 +551,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertTrue(all(pix_range_f14(2,:)<=pix_range_f145(2,:)));
 
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
-            dat = ldr.get_data('-nopix');
+            dat = ldr.get_data();
             clear ldr;
             img_db_range2 = dat.img_db_range;
             assertEqual(img_db_range1,img_db_range2);
@@ -566,9 +565,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
             %
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
-            dat = ldr.get_data('-nopix');
+            dat = ldr.get_data();
             clear ldr;
-            img_db_range3 = dat.img_db_range;
+            img_db_range3 = dat.img_range;
             assertEqual(img_db_range1,img_db_range3);
 
             % img_db_range wider then pix_range because of energies estimate
@@ -628,10 +627,10 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 emode, alatt, angdeg, u, v,...
                 psi([1,4,5,6]), omega([1,4,5,6]), dpsi([1,4,5,6]), gl([1,4,5,6]), gs([1,4,5,6]));
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_1456);
-            dat = ldr.get_data('-nopix');
+            dat = ldr.get_data();
             pix_range = ldr.get_pix_range();
             clear ldr;
-            img_db_range1 = dat.img_db_range;
+            img_db_range1 = dat.img_range;
             assertEqual(pix_range1456,pix_range);
             assertElementsAlmostEqual(pix_range,img_db_range1,'relative',1.e-4);
 
@@ -643,17 +642,17 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 accumulate_sqw (spe_accum, '', sqw_file_accum,efix,...
                 emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
-            dat = ldr.get_data('-nopix');
+            dat = ldr.get_data();
             pix_range = ldr.get_pix_range();
             assertEqual(acc_pix_range1456,pix_range);
             clear ldr;
-            img_db_range2 = dat.img_db_range;
+            img_db_range2 = dat.img_range;
             % img_db_range in second case is wider then in the first, as
             % additional ranges were added from missing files
             assertTrue(all(img_db_range1(1,:)>=img_db_range2(1,:)));
             assertTrue(all(img_db_range1(2,:)<=img_db_range2(2,:)));
             % but pixel ranges are actual pixel ranges which are the same
-            assertEqual(pix_range1456,acc_pix_range1456);
+            assertEqualToTol(pix_range1456,acc_pix_range1456,[2.e-7,2.e-7]);
 
             proj_o = struct('u',u,'v',v);
             [ok,mess,w2_1456]=is_cut_equal(sqw_file_1456,sqw_file_accum,...
@@ -723,7 +722,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 omega, dpsi, gl, gs,...
                 'replicate'); %grid_size1,pix_range1,
 
-            assertEqual(pix_range1,pix_range2);
+            assertEqualToTol(pix_range1,pix_range2,[2.e-7,2.e-7]);
             % Estimated ranges the pixels rebinned onto are different but
             % actual pix ranges are the same as the data files are the same.
             % This is why the cut have to be made within the specified

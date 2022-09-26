@@ -118,25 +118,25 @@ elseif isa(w1, 'double')
             mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
                 'with stack size matching the object array size.'];
             error([upper(thisClassname),':binary_op_manager'], mess);
-    end
+        end
     else
         size_stack1 = [1,1];    % want the scalar to apply to each object in w2
         size_root1 = [1,1];
     end
-    else
+else
     % Error state: w1 is a matlab intrinsic class but not a double
     % (e.g.  logical, character, cell array)
     error([upper(thisClassname),':binary_op_manager'], ...
         ['Invalid first argument to binary operation - ' ...
         'it must be an object, or a Matlab double.'])
-    end
+end
 
 
 if isobject(w2)
     % w2 is not an intrinsic matlab class
     if ~isobject(w1)
         outputClassname = class(w2);
-end
+    end
     size_stack2 = size(w2);
     size_root2 = [1,1];
 
@@ -150,18 +150,18 @@ elseif isa(w2, 'double')
                 'with stack size matching the object array size.'];
             error([upper(thisClassname),':binary_op_manager'], mess);
         end
-            else
+    else
         size_stack2 = [1,1];    % want the scalar to apply to each object in w1
         size_root2 = [1,1];
-            end
+    end
 
-        else
+else
     % Error state: w2 is a matlab intrinsic class but not a double
     % (e.g.  logical, character, cell array)
     error([upper(thisClassname),':binary_op_manager'], ...
         ['Invalid second argument to binary operation - ' ...
         'it must be an object, or a Matlab double.'])
-        end
+end
 
 
 % Perform binary operation
@@ -223,4 +223,4 @@ else
         'Both arrays must have an equal number of elements or the ' ...
         'number of elements in one of the arrays must be 1.\n' ...
         'Arrays have number of elements ''%i'' & ''%i''.'], nobj1, nobj2);
-    end
+end

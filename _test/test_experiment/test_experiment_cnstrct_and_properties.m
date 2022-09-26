@@ -32,7 +32,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertEqual(exper.n_runs,3)
 
             assertFalse(exper.runid_recalculated)
-            assertEqual(exper.runid_map,containers.Map([10,20,30],[1,2,3]))
+            assertEqual(exper.runid_map.keys,{10,20,30});
+            assertEqual(exper.runid_map.values,{1,2,3});
             exp = exper.expdata;
             id = exp.get_run_ids();
             assertEqual(id,[10,20,30]);
@@ -96,7 +97,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertEqual(numel(info),2)
             assertEqual(info(1).run_id,1)
             assertEqual(info(2).run_id,2)
-            assertEqual(expt.runid_map,containers.Map(1:2,1:2))
+            assertEqual(expt.runid_map.keys,{1,2});
+            assertEqual(expt.runid_map.values,{1,2});
 
         end
 
@@ -118,7 +120,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertEqual(numel(info),2)
             assertEqual(info(1).run_id,1)
             assertEqual(info(2).run_id,2)
-            assertEqual(expt.runid_map,containers.Map(1:2,1:2))
+            assertEqual(expt.runid_map.keys,{1,2});
+            assertEqual(expt.runid_map.values,{1,2});
 
             save(tmpfile, 'expt');
             clear('expt');
@@ -133,7 +136,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertEqual(numel(info),2)
             assertEqual(info(1).run_id,1)
             assertEqual(info(2).run_id,2)
-            assertEqual(expt.runid_map,containers.Map(1:2,1:2))
+            assertEqual(expt.runid_map.keys,{1,2});
+            assertEqual(expt.runid_map.values,{1,2});
         end
 
         function test_load_save_default_object_creates_default_object(~)

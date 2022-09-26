@@ -130,7 +130,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             bos = bob.calc_sqw(grid_size,img_range);
             assertElementsAlmostEqual(bos.data.img_range,img_range,'relative',1.e-6);
 
-            pix_range =[min(bos.data.pix.coordinates,[],2)'; max(bos.data.pix.coordinates,[],2)'];
+            pix_range =[min(bos.pix.coordinates,[],2)'; max(bos.pix.coordinates,[],2)'];
             assertElementsAlmostEqual(bos.data.img_range,pix_range,'relative',1.e-6);
         end
         %
@@ -229,11 +229,11 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertEqual(grid_mex,grid_nom);
             assertEqual(pix_range_mex,pix_range_nom);
 
-            assertElementsAlmostEqual(sort(sq4_mex.data.pix.data'),...
-                sort(sq4_nom.data.pix.data'));
+            assertElementsAlmostEqual(sort(sq4_mex.pix.data'),...
+                sort(sq4_nom.pix.data'));
             % Binning here is substantially different. TODO: decrease the
             % differebce
-            assertEqual(sq4_nom.data.pix.pix_range,sq4_mex.data.pix.pix_range);
+            assertEqual(sq4_nom.pix.pix_range,sq4_mex.pix.pix_range);
         end
     end
 end
