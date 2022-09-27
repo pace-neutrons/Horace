@@ -145,8 +145,14 @@ classdef ClusterSlurm < ClusterWrapper
 
             [n_nodes, cores_per_node] = obj.get_remote_info();
 
-            % For now assume all MPI applications are wanting to not be threaded
-            target_threads = 1;
+            par = parallel_config();
+
+            if par.is_auto_par_threads
+                % If user not specified threads to use assume MPI applications are not wanting to be threaded
+                target_threads = 1;
+            else
+                target_threads = par.par_threads;
+            end
 
             req_nodes = ceil(n_workers / cores_per_node);
             if req_nodes > n_nodes
@@ -161,7 +167,6 @@ classdef ClusterSlurm < ClusterWrapper
                       obj.job_id, obj.MAX_JOB_LENGTH)
             end
 
-            par = parallel_config();
             comm = par.slurm_commands;
 
             if any(comm.isKey({'-J', '--job-name', '-n', '--ntasks', '--ntasks-per-node', '--mpi', '--export'}))
@@ -185,7 +190,7 @@ classdef ClusterSlurm < ClusterWrapper
 
             obj.start_workers(target_threads, wcs, ...
                               'prefix_command', slurm_str, ...
-                              'target_threads', 1);
+                              'target_threads', target_threads);
 
 
             % parse queue and extract new job ID
