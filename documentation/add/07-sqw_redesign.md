@@ -168,8 +168,6 @@ Image pixel data is generated from the `PixelData` via one or more projections.
 - value range
 - unit vectors
 - units
-- matrix mapping these axes to the pixel data
-- requires a well-defined mapping from image pixels to source data pixel
 
 
 The **DnD class** (current implementation of the image) consists of generic projection transformation and the methods, necessary to implement generic cut procedure.:
