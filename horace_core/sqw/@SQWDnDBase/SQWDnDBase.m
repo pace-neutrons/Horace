@@ -26,6 +26,7 @@ classdef (Abstract) SQWDnDBase < serializable
         w                 = sigvar_set(win, sigvar_obj);
         sz                = sigvar_size(w);
         %------------------------------------------------------------------
+        wout = cut(obj, varargin); % take cut from a sqw or sqw/dnd object
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -76,6 +77,17 @@ classdef (Abstract) SQWDnDBase < serializable
             [alatt,angdeg,cor_mat]=parse_change_crystal_arguments_(alatt0,angdeg0,exper_info,varargin{:});
         end
 
+    end
+    methods(Static,Access=protected)
+
+        function [proj, pbin, opt] = process_and_validate_cut_inputs(data,...
+                return_cut, varargin)
+            % interface to private cut parameters parser/validator
+            % checking and parsing cut inputs in any acceptable form
+            ndims = data.dimensions;
+            [proj, pbin, opt]= cut_parse_inputs_(data,ndims, return_cut, varargin{:});
+        end
+        
     end
 
     methods (Abstract, Access = protected)

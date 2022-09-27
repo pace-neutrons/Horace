@@ -102,6 +102,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
+        wout = cut(obj, varargin); % take cut from the dnd object
+        %
         [wout,mask_array] = mask(win, mask_array);
         %------------------------------------------------------------------
         [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
@@ -125,7 +127,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % smaller then the dimensionality of the current object
         obj = rebin(obj,varargin);
         %
-        wout = cut_dnd_main (data_source, ndims, varargin);
+
         [val, n] = data_bin_limits (din);
 
         save_xye(obj,varargin)  % save data in xye format
@@ -367,6 +369,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
 
+        wout = cut_dnd_main (data_source, ndims, varargin);
         %------------------------------------------------------------------
         wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate
         %                              % function on dnd object

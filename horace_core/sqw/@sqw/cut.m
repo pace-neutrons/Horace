@@ -153,8 +153,8 @@ if dnd_type
 end
 
 return_cut = nargout > 0;
-[targ_proj, pbin, opt] = obj.process_and_validate_cut_inputs(...
-    return_cut, varargin{:});
+[targ_proj, pbin, opt] = SQWDndBase.process_and_validate_cut_inputs(...
+    obj.data,return_cut, varargin{:});
 % Set up new projection properties, related to lattice. This together with
 % projection inputs defines pixels-to-image transformation.
 header_av = header_average(obj);

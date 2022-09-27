@@ -1,5 +1,5 @@
-function [proj, pbin,opt,args] = ...
-    cut_sqw_parse_inputs_(obj,ndims_in, return_cut, varargin)
+function [proj, pbin,opt] = ...
+    cut_parse_inputs_(obj,ndims_in, return_cut, varargin)
 % Take cut parameters in any possible form (see below)
 % and return the standard form of the parameters.
 %
@@ -117,7 +117,7 @@ end
 % For reasons of backwards compatibility with the syntax that allows a character string
 % to be the output filename without the '-save' option being given, assume that if
 % the last element of par is a character string then it is a file name
-if numel(par)>0 && is_string(par{end})
+if numel(par)>0 && (is_string(par{end}) && par{end}(1)~='-')
     outfile = par{end};
     par = par(1:end-1);
 else
@@ -173,12 +173,12 @@ if numel(par)>=npbin_expected
             'Binning arguments must all be numeric, but arguments: %s are not',...
             evalc('disp(find(~pbin_ok))'));
     end
-    args = par(npbin_expected+1:end);
-    if ~isempty(args)
-        args = evalc('disp(args)');
+    extras = par(npbin_expected+1:end);
+    if ~isempty(extras)
+        extras = evalc('disp(extras)');
         error('HORACE:cut:invalid_argument',...
             'Unrecognised additional input(s): "%s" were provided to cut',...
-            args);
+            extras);
     end
 else
     if ~proj_given          % must refer to plot axes (in the order of the display list)

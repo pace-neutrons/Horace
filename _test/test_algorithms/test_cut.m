@@ -243,7 +243,6 @@ classdef test_cut < TestCase & common_state_holder
             v_axis_lims = [-0.1, 0.024, 0.1];
             w_axis_lims = [-0.1, 0.1];
             en_axis_lims = [105, 1, 114];
-            skipTest('Test is skipped until DND cut is refactored. Horace Ticket #796')
             res = cut(dnd_obj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
             assertTrue(isa(res, 'd3d'));
 
