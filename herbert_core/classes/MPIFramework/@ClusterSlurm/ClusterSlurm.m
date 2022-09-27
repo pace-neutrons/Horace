@@ -155,8 +155,14 @@ classdef ClusterSlurm < ClusterWrapper
                 target_threads = par.par_threads;
             end
 
-            % For now assume all MPI applications are wanting to not be threaded
-            target_threads = 1;
+            par = parallel_config();
+
+            if par.is_auto_par_threads
+                % If user not specified threads to use assume MPI applications are not wanting to be threaded
+                target_threads = 1;
+            else
+                target_threads = par.par_threads;
+            end
 
             req_nodes = ceil(n_workers / cores_per_node);
             if req_nodes > n_nodes

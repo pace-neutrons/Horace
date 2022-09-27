@@ -123,6 +123,11 @@ classdef parallel_config<config_base
         accumulating_process_num;
         parallel_workers_number;
 
+        % Threading using auto-calculated threads used in Slurm because
+        % remote machine probably doesn't have same number of cores as
+        % local machine
+        is_auto_par_threads;
+
         % Number of threads to use.
         threads;
 
@@ -309,6 +314,11 @@ classdef parallel_config<config_base
 
         function conf = get.cluster_config(obj)
             conf = obj.get_or_restore_field('cluster_config');
+        end
+
+        function tf = get.is_auto_par_threads(obj)
+            n_threads = get_or_restore_field(obj,'par_threads');
+            tf = n_threads < 1;
         end
 
         function n_workers = get.parallel_workers_number(obj)
