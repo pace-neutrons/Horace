@@ -26,49 +26,6 @@ function wout = cut(obj, varargin)
 %                  or Data structure containing the projection class fields,
 %                  (names and its values)
 %                  (type >> help ortho_proj   for details)
-%     ---------------------------------------------------------------------
-%     Required fields:
-%       u           [1x3] Vector of first axis (r.l.u.) defining projection axes
-%       v           [1x3] Vector of second axis (r.l.u.) defining projection axes
-%
-%     Optional fields:
-%       w           [1x3] Vector of third axis (r.l.u.) - only needed if the third
-%                   character of argument 'type' is 'p'. Will otherwise be ignored.
-%
-%       nonorthogonal Indicate if non-orthogonal axes are permitted
-%                   If false (default): construct orthogonal axes u1,u2,u3 from u,v
-%                   by defining: u1 || u; u2 in plane of u and v but perpendicular
-%                   to u with positive component along v; u3 || u x v
-%
-%                   If true: use u,v (and w, if given) as non-orthogonal projection
-%                   axes: u1 || u, u2 || v, u3 || w if given, or u3 || u x v if not.
-%
-%       type        [1x3] Character string defining normalization. Each character
-%                   indicates how u1, u2, u3 are normalized, as follows:
-%                   - if 'a': projection axis unit length is one inverse Angstrom
-%                   - if 'r': then if ui=(h,k,l) in r.l.u., is normalized so
-%                             max(abs(h,k,l))=1
-%                   - if 'p': if orthogonal projection axes:
-%                                   |u1|=|u|, (u x u2)=(u x v), (u x u3)=(u x w)
-%                               i.e. the projections of u,v,w along u1,u2,u3 match
-%                               the lengths of u1,u2,u3
-%
-%                             if non-orthogonal axes:
-%                                   u1=u;  u2=v;  u3=w
-%                   Default:
-%                         'ppr'  if w not given
-%                         'ppp'  if w is given
-%
-%         uoffset   Row or column vector of offset of origin of projection axes (rlu)
-%
-%       label       Short labels for u1,u2,u3,u4 as cell array
-%                   e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
-%                       *OR*
-%       lab1        Short label for u1 axis (e.g. 'Q_h' or 'Q_{kk}')
-%       lab2        Short label for u2 axis
-%       lab3        Short label for u3 axis
-%       lab4        Short label for u4 axis (e.g. 'E' or 'En')
-%     ---------------------------------------------------------------------
 %
 %   p1_bin          Binning along first Q axis
 %   p2_bin          Binning along second Q axis
@@ -145,10 +102,8 @@ log_level = hc.log_level;
 
 dnd_type = obj.pix.num_pixels == 0;
 if dnd_type
-    % Input has no pixels, delegate to cut_dnd
-    % TODO: refactor so cut_dnd_main sits on DnDBase class
-    ndims_source = numel(obj.data.pax);
-    wout = cut_dnd_main(obj, ndims_source, varargin{:});
+    % Input has no pixels, delegate to cut_dnd as the result is dnd
+    wout = cut(obj.data,varargin{:});
     return
 end
 
@@ -161,7 +116,7 @@ header_av = header_average(obj);
 targ_proj.alatt  = header_av.alatt;
 targ_proj.angdeg = header_av.angdeg;
 % TODO: this is compartibility function. It will change when alginment matrix
-% is attached to pixels. In fact, it redefines b-matrix (and partially U-matix 
+% is attached to pixels. In fact, it redefines b-matrix (and partially U-matix
 % used for alignment), which is the function of lattice
 targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 

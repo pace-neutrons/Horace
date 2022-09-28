@@ -17,7 +17,7 @@ classdef test_cut_inputs < TestCase
             function out= checker()
                 th = sqw_tester();                
                 out = th.process_and_validate_cut_inputs_public(...
-                obj.sample_d2d_obj,true, [1,0.1,-1],[0,1,10]);
+                obj.sample_d2d_obj,true, [-1,0.1,1],[0,1,10],[0,1]);
             end
 
             ex = assertExceptionThrown(@checker,...

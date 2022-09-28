@@ -124,7 +124,7 @@ classdef axes_block < serializable
         range = get_cut_range(obj,varargin);
         % find the coordinates along each of the axes of the smallest cuboid
         % that contains bins with non-zero values of contributing pixels.
-        [val, n] = data_bin_limits (din);
+        [val, n] = data_bin_limits (obj);
         %
         function obj = axes_block(varargin)
             % constructor
