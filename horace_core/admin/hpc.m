@@ -78,7 +78,7 @@ if exist('val', 'var')
 else
     ocp = opt_config_manager();
     % load configuration, assumed optimal for calculated type of the computer.
-    ocp = ocp.load_configuration(varargin{:});
+    ocp = ocp.load_configuration();
     config = ocp.optimal_config;
     hpc_opt = config.hpc_config;
 
