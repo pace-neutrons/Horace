@@ -11,11 +11,11 @@ function [hpc_cli,hpc_opt] = hpc(val)
 % it should be ok to run in on isiscompute.
 %
 % Usage:
-%    >> hpc on    -- enable hpc computing extensions
-%    >> hpc off   -- disable hpc computing extensions
-%    >> hpc reset -- Set hpc values to the value recommended by this function
-%    >> hpc       -- print current hpc computing extensions value and the values,
-%                    recommended by this function (very crude estimate)
+%    >> hpc('on'|true|1)                 -- enable hpc computing extensions
+%    >> hpc('off'|false|0)               -- disable hpc computing extensions
+%    >> hpc('reset'|'set'|'recommended') -- Set hpc values to the value recommended by this function
+%    >> hpc                              -- print current hpc computing extensions value and the values,
+%                                           recommended by this function (very crude estimate)
 %
 % If provided with output arguments, two structures, defining configurations:
 % namely
