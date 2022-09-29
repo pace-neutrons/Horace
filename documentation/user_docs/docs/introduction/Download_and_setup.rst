@@ -18,7 +18,7 @@
    However, if you require Horace to run on older versions of Matlab,
    and encounter problems, please open a ticket on
    `GitHub <https://github.com/pace-neutrons/Horace/issues>`__
-   or write e-mail to `Horace support team <mailto:HoraceHelp@stfc.ac.uk>`__ 
+   or write e-mail to `Horace support team <mailto:HoraceHelp@stfc.ac.uk>`__
    and we will try to help you.
 
 **********
@@ -29,19 +29,14 @@ Horace releases for supported operating systems are available to download on
 `GitHub here <https://github.com/pace-neutrons/Horace/releases>`__.
 These packages contain pre-compiled `mex` libraries for each OS.
 
-The released and packaged *Horace distribution* contains both 
-`Horace <https://github.com/pace-neutrons/Horace>`__
-and its support Herbert `library <https://github.com/pace-neutrons/Herbert>`__
-of low-level graphics and data manipulation routines.
-If you need to run the latest development version you need to download these
-two programs separately (see below).
-
-
 ***************************
  Installation Instructions
 ***************************
 
-To install Horace you should ideally have the administrative rights. To 
+Standard Matlab install
+-----------------------
+
+To install Horace you should ideally have the administrative rights. To
 install Horace:
 
 1. Extract the release archive to your preferred location.
@@ -49,7 +44,7 @@ install Horace:
 3. Run ``horace_install``.
    Under Unix, where Matlab GUI may not always run with root privileges
    go to the ``admin`` folder under the package folder and run Matlab
-   from the command line as: ``sudo matlab -nosplash -nodesktop -r horace_install``   
+   from the command line as: ``sudo matlab -nosplash -nodesktop -r horace_install``
 4. Now you can call ``horace_on`` from anywhere to start using Horace.
 
 Optional:
@@ -58,30 +53,49 @@ Optional:
    you can add ``horace_on`` to your start-up file:
    Launch Matlab from your home folder or GUI and type ``>> edit startup.m``.
    Then add ``horace_on();`` to the end of the file.
-   
-If you do not have administrative access, the installation would still be possible,
-and should work as described. You may encounter problems with parallel extensions
-and not be able to initialize Horace if Matlab is launched from a folder different from Matlab's
-`userpath <https://uk.mathworks.com/help/matlab/ref/userpath.html>`__ folder.
-See the `Troubleshooting`_ section below for details of the installation process in this situation.
 
-If you want to install the latest development version of Horace,
-you should first *clone* the `Horace <https://github.com/pace-neutrons/Horace>`__
-and `Herbert <https://github.com/pace-neutrons/Herbert>`__ ``git`` repositories.
-You can then use the ``horace_install`` script in the ``admin`` subfolder of the Horace repository,
-giving it the path to where `Horace` and `Herbert` were cloned.
-Horace should work after the install script is run but to improve performance of some common Horace operations,
-you may need to build the `mex` files yourself.
-Currently `mex` files for Windows are stored in the repository, but this may not always be the case in future.
-You will need to build `mex` files for other operating systems.
+If you do not have administrative access, the installation should still be possible, and should work as described. You
+may encounter problems with parallel extensions and may not be able to initialize Horace if Matlab is launched from a
+folder different from Matlab's `userpath <https://uk.mathworks.com/help/matlab/ref/userpath.html>`__ folder.  See the
+`Troubleshooting`_ section below for details of the installation process in this situation.
 
+Installing the latest version
+-----------------------------
+
+If you want to install the latest development version of Horace, you should first *clone* the `Horace
+<https://github.com/pace-neutrons/Horace>`__ ``git`` repository. You can then follow the ``horace_install`` procedure as
+described above, giving it the path to where `Horace` was cloned.
+
+Horace should work after the install script is run but to improve performance of some common Horace operations, you may
+need to build the `mex` files yourself.  Currently `mex` files for Windows are stored in the repository, but this may
+not always be the case in future.  You will need to build `mex` files for other operating systems.
+
+CMake install
+-------------
+
+If you have cloned the repository and have the ``CMake`` tool installed, the Horace package supports a CMake build, which also builds the relevant `mex` files and links against them. To install using CMake:
+1. From your console of choice, navigate to the Horace root folder and run:
+
+   ::
+
+      cmake --build build --config Release
+
+2. In a Matlab session add the ``\<Horace_dir\>\\build\\local_init\\`` folder to the `Matlab path<https://www.mathworks.com/help/matlab/ref/addpath.html>`__ and run ``horace_on`` as above.
+
+Optional:
+
+3. To have Horace available each time you start your Matlab session,
+   you can add ``horace_on`` to your start-up file:
+   a. Launch Matlab
+   b. Run ``edit startup.m``.
+   c. Then add ``horace_on();`` to the end of the file.
 
 **********************
  Horace Configuration
 **********************
 
 Horace uses configuration files to store its settings and to tune its behaviour and performance.
-Horace tries to guess the best performance for your machine, but you should check if the configuration 
+Horace tries to guess the best performance for your machine, but you should check if the configuration
 it selects is indeed optimal for you.
 
 You can access the settings using the ``hor_config`` class.
@@ -100,16 +114,16 @@ Descriptions for each option with suggestions for configuring are given below:
    hc =
 
    hor_config with properties:
-      % The buffer size for read/write IO operations in filebased algorithms. 
+      % The buffer size for read/write IO operations in filebased algorithms.
       % (in Horace pixel units)
       % Set it up to ~20M if you machine has 64Gb or RAM, 1M for 4Gb machine.
       mem_chunk_size: 1000000 % optimal value for 32Gb RAM machine
-      % 
-      % The number of OMP threads to use in `mex` routines. This should be equal to 
+      %
+      % The number of OMP threads to use in `mex` routines. This should be equal to
       % the number of physical cores on your machine.
       threads: 16
       % Ignore NaN data when making cuts (true or false)
-      ignore_nan: 1  % (default) 
+      ignore_nan: 1  % (default)
       % Ignore Inf data when making cuts (true or false)
       ignore_inf: 0  % (default)
       % The verbosity of informational log messages:
@@ -142,7 +156,7 @@ Use the usual Matlab syntax to set configuration values:
 
 If your have a large machine with multiple cores, fast hard drive connected to parallel file system and large memory,
 you may benefit from using Horace's parallel computing extensions.
-The memory necessary to make parallel extensions useful may be estimated as 32Gb per main session 
+The memory necessary to make parallel extensions useful may be estimated as 32Gb per main session
 and 16 per each parallel worker as minimum, so if you want to use 4 parallel processes productively,
 your machine should have 96Gb of RAM.
 
@@ -169,10 +183,9 @@ use the ``hpc_config`` class.
  Troubleshooting
 *****************
 
-If you used a `release archive <https://github.com/pace-neutrons/Horace/releases>`__,
-then both `Horace` and `Herbert` will be in the same folder (called ``<extracted_folder>`` below)
-with ``horace_install`` and this script can be called with no arguments
-(it will automatically detect the folders).
+If you used a `release archive <https://github.com/pace-neutrons/Horace/releases>`__, then `Horace` will be in a folder
+(called ``<extracted_folder>`` below) with ``horace_install`` and this script can be called with no arguments (it will
+automatically detect the folders).
 
 The ``horace_install`` installation script then modifies three files:
 
@@ -180,23 +193,21 @@ The ``horace_install`` installation script then modifies three files:
 - `herbert_on.m.template <https://github.com/pace-neutrons/Herbert/blob/master/admin/herbert_on.m.template>`__ and
 - `worker_v2.m.template <https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v2.m.template>`__
 
-by inserting the location of the `Horace` and `Herbert` folders into these files,
-and copies them to a folder (``<extracted_folder>/ISIS`` by default) which it adds to the Matlab path
-by modifying the global ``pathdef.m`` file. 
-This means that all Matlab session including independent parallel workers have access to this path from any location where Matlab has been started.
-Unfortunately, this requires administrative (root) privileges.
+by inserting the location of the `Horace` folders into these files, and copies them to a folder
+(``<extracted_folder>/ISIS`` by default) which it adds to the Matlab path by modifying the global ``pathdef.m`` file.
+This means that all Matlab session including independent parallel workers have access to this path from any location
+where Matlab has been started.  Unfortunately, this requires administrative (root) privileges.
 
-It is possible to install `Horace` without admin rights, in which case the ``horace_install`` script
-will create a ``pathdef.m`` file in the default `userpath` folder (as defined in the
-`Matlab documentation for search paths <https://uk.mathworks.com/help/matlab/matlab_env/what-is-the-matlab-search-path.html>`__).
-Some versions of Matlab, however, use different `userpath` folders if they are started as a parallel worker,
-which may lead the parallel extensions to fail because they cannot find the ``worker_v2.m`` file, but not to report any errors.
-In these cases, you should run Matlab from the `userpath` folder (e.g. the folder with the ``pathdef.m`` file).
+It is possible to install `Horace` without admin rights, in which case the ``horace_install`` script will create a
+``pathdef.m`` file in the default `userpath` folder (as defined in the `Matlab documentation for search paths
+<https://uk.mathworks.com/help/matlab/matlab_env/what-is-the-matlab-search-path.html>`__).  Some versions of Matlab,
+however, use different `userpath` folders if they are started as a parallel worker, which may lead the parallel
+extensions to fail because they cannot find the ``worker_v2.m`` file, but not to report any errors.  In these cases, you
+should run Matlab from the `userpath` folder (e.g. the folder with the ``pathdef.m`` file).
 
-If instead of using the release packages you've cloned the `Horace` and `Herbert` repositories,
-then you should still run ``horace_install`` which is located in the ``admin`` subfolder of the Horace repository folder.
-However, you should now give the exact path to the `Horace` and `Herbert` folders using
-the ``horace_root`` and ``herbert_root`` arguments:
+If instead of using the release packages you've cloned the `Horace` repository, then you should still run
+``horace_install`` which is located in the ``admin`` subfolder of the Horace repository folder.  However, you should now
+give the path to the `Horace` folders using the ``horace_root`` and ``herbert_root`` arguments:
 
 .. code-block:: matlab
 
