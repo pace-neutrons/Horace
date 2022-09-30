@@ -492,21 +492,14 @@ classdef parallel_config<config_base
         end
 
         function obj = set.slurm_commands(obj,val)
-            if isstring(val) || ischar(val)
-                val = strsplit(val, {' ', '\t', '='})
-            end
 
             if isempty(val)
                 map = containers.Map('KeyType', 'char', 'ValueType', 'char');
-
-            elseif iscellstr(val)
-                map = containers.Map(val(1:2:numel(val)), val(2:2:numel(val)));
-
             elseif isa(val, 'containers.Map')
                 map = val;
             else
-                error('HERBERT:parallel_config:invalid_argument', ...
-                      'slurm_commands must be string or cell array of strings')
+                [keys, vals] = parse_slurm_commands(val);
+                map = containers.Map(keys, vals);
             end
 
             config_store.instance().store_config(obj, 'slurm_commands', map);
@@ -630,6 +623,22 @@ classdef parallel_config<config_base
 
         end
 
+        function obj = update_slurm_commands(obj, val, append)
+            if exist('append', 'var') && append
+                map = obj.slurm_commands;
+            else
+                map = containers.Map('KeyType', 'char', 'ValueType', 'char');
+            end
+
+            [keys, vals] = parse_slurm_commands(val);
+
+            for i=1:numel(keys)
+                map(keys{i}) = vals{i}
+            end
+
+            obj.slurm_commands = map;
+        end
+
         function fields = get_storage_field_names(obj)
             % helper function returns the list of the name of the structure,
             % get_data_to_store returns
@@ -661,20 +670,20 @@ classdef parallel_config<config_base
         % Parse slurm commands into keys and values for building a map
         % or updating one
             if isstring(val) || ischar(val)
-                val = strsplit(val, {' ', '\t', '='});
+                val = strsplit(val, {' ', '\t', '='})
             end
 
             if isempty(val)
                 keys = {};
                 vals = {};
 
-            elseif iscellstr(val) || isstring(val)
+            elseif iscellstr(val)
                 keys = val(1:2:numel(val));
                 vals = val(2:2:numel(val));
 
             elseif iscell(val) && all(cellfun(@numel, val) == 2)
                 keys = cellfun(@(x) x{1}, val, 'UniformOutput', false);
-                vals = cellfun(@(x) x{2}, val, 'UniformOutput', false);
+                keys = cellfun(@(x) x{2}, val, 'UniformOutput', false);
 
                 % Removed due to potential ambiguity with key-val pairs and ease of constructing a map of these anyway
                 % elseif iscell(val) && numel(val) == 2
