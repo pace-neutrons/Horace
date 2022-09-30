@@ -303,7 +303,15 @@ classdef ClusterWrapper
 
         function [obj, task_id] = start_workers(obj, worker_control_string, ...
                                                 varargin)
-
+        % Start workers running in parallel and return appropriate task_id to calling function
+        % Should appropriately start workers for the Herbert, mpiexec_mpi and slurm_mpi modes
+        %
+        % Inputs:
+        %  prefix_command  -- Commands placed before the main matlab call
+        %  postfix_command -- Extra arguments and flags passed to the main matlab call
+        %  matlab_extra    -- Commands to be run before starting parallel worker
+        %  debug           -- Direct stdout of workers to host stdout
+        %  target_threads  -- Start matlab jobs running with this many threads
             par = parallel_config;
 
             p = inputParser();
