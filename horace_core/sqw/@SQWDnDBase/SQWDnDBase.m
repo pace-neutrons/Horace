@@ -35,9 +35,17 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
 
-    methods (Static)
-        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
-
+    methods (Static,Hidden) % should be protected but Matlab have some issues with calling this 
+        % from children
+        %
+        function [proj, pbin, opt] = process_and_validate_cut_inputs(data,...
+                return_cut, varargin)
+            % interface to private cut parameters parser/validator
+            % checking and parsing cut inputs in any acceptable form
+            ndims = data.dimensions;
+            [proj, pbin, opt]= cut_parse_inputs_(data,ndims, return_cut, varargin{:});
+        end
+        %
         function [alatt,angdeg,cor_mat]=parse_change_crystal_arguments(alatt0,angdeg0,exper_info,varargin)
             % process input parameters for change crystal routine and
             % return standard form of the arguments to use in change_crystal
@@ -80,13 +88,6 @@ classdef (Abstract) SQWDnDBase < serializable
     end
     methods(Static,Access=protected)
 
-        function [proj, pbin, opt] = process_and_validate_cut_inputs(data,...
-                return_cut, varargin)
-            % interface to private cut parameters parser/validator
-            % checking and parsing cut inputs in any acceptable form
-            ndims = data.dimensions;
-            [proj, pbin, opt]= cut_parse_inputs_(data,ndims, return_cut, varargin{:});
-        end
         
     end
 
@@ -146,6 +147,9 @@ classdef (Abstract) SQWDnDBase < serializable
             % paser for funceval function input parameters
             [func_handle, pars, opts] = parse_eval_args_(win, func_handle, ...
                 pars, varargin{:});
+        end
+        function [wout,log_info] = cut_single(obj, tag_proj, targ_axes, outfile,log_level)
+            [wout,log_info] = cut_single_(obj, tag_proj, targ_axes, outfile,log_level);            
         end
     end
 

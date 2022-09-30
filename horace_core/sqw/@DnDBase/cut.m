@@ -2,7 +2,7 @@ function wout = cut(obj, varargin)
 %%CUT Take a cut from an sqw object by integrating over one or more axes.
 %
 % Cut using existing projection axes:
-%   >> wout = cut (data_source, p1_bin, p2_bin...)  % (as many binning arguments
+%   >> wout = cut (obj, p1_bin, p2_bin...)  % (as many binning arguments
 %                                                % as there are plot axes)
 %
 % Cut with new projection axes:
@@ -100,27 +100,10 @@ end
 hc= hor_config;
 log_level = hc.log_level;
 
-dnd_type = obj.pix.num_pixels == 0;
-if dnd_type
-    % Input has no pixels, delegate to cut_dnd as the result is dnd
-    wout = cut(obj.data,varargin{:});
-    return
-end
 
 return_cut = nargout > 0;
-%
 [targ_proj, pbin, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
-    obj.data,return_cut, varargin{:});
-% Set up new projection properties, related to lattice. This together with
-% projection inputs defines pixels-to-image transformation.
-header_av = header_average(obj);
-targ_proj.alatt  = header_av.alatt;
-targ_proj.angdeg = header_av.angdeg;
-% TODO: this is compartibility function. It will change when alginment matrix
-% is attached to pixels. In fact, it redefines b-matrix (and partially U-matix
-% used for alignment), which is the function of lattice
-targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
-
+    obj,return_cut, varargin{:});
 %
 sz = size(pbin);
 % This loop enables multicuts
@@ -129,13 +112,13 @@ if return_cut
 end
 for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
-    [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pbin_tmp,header_av );
+    [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pbin_tmp );
 
     args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile,log_level};
     if return_cut
-        wout{cut_num} = cut_single_(args{:});
+        wout{cut_num} = cut_single(args{:});
     else
-        cut_single_(args{:});
+        cut_single(args{:});
     end
 end
 if return_cut
@@ -143,11 +126,9 @@ if return_cut
 end
 % End function
 
-function [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin,header_av)
+function [targ_ax_block,targ_proj] = define_target_axes_block(img_block, targ_proj, pbin)
 % define target axes from existing axes, inputs and the projections
 %
-img_block = w.data;
-%source_proj = img_block.get_projection(header_av);
 source_proj = img_block.proj;
 %--------------------------------------------------------------------------
 % Get the source binning ranges, transformed into target coordinate system.
@@ -159,20 +140,3 @@ source_binning = img_block.axes.get_binning_range(...
 targ_ax_block  = targ_proj.get_proj_axes_block(source_binning,pbin);
 targ_ax_block.filename = img_block.filename;
 targ_ax_block.filepath = img_block.filepath;
-
-function log_progress(data_source,hor_log_level,npix_total)
-if hor_log_level>=1
-    if ischar(data_source)
-        disp(['Number of points in input file: ',num2str(npixtot)])
-        disp(['         Fraction of file read: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
-        disp(['     Fraction of file retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
-    else
-        disp(['    Number of points in object: ',num2str(npixtot)])
-        disp(['  Fraction of object processed: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
-        disp(['   Fraction of object retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
-    end
-    disp(' ')
-    bigtoc('Total time in cut_sqw:',hor_log_level)
-    disp('--------------------------------------------------------------------------------')
-end
-

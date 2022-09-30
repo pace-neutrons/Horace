@@ -267,15 +267,22 @@ classdef axes_block < serializable
             % obj         -- initialized version of the axes block
             % Optional:
             %  char_cube -- the cube, describing the scale of the grid,
-            %              to construct the lattice on.
+            %               to construct the lattice on, defined by its
+            %               minimal and maxinal points (4x2 matrix) 
+            %  or         --   
+            %               char_size directly (4x1 vector), describing the
+            %               scales along each axis the lattice should have
             %
             % '-3D'     -- generate separate 3D grid nodes for q-axes and
             %              energy transfer binning grid as the energy axis
             %              instead of 4D lattice
             %
-            % -halo     -- request to build lattice in the
+            % '-halo'   -- request to build lattice in the
             %              specified range + single-cell sized
             %              step expanding the lattice
+            % '-centers'-- the requested lattice to return the bin centers
+            %              rather then nodes of the lattice cell.
+            %
             % Returns:
             % nodes     -- [4 x nBins] or [3 x nBins] array of points,
             %              (depending on state of '-3D' switch)  where
@@ -288,12 +295,13 @@ classdef axes_block < serializable
             %           -- 4-elements vector, containing numbers of axes
             %              nodes in each of 4 directions
             %
-            opt = {'-3D','-halo'};
-            [ok,mess,do_3D,build_halo,argi] = parse_char_options(varargin,opt);
+            opt = {'-3D','-halo','-centers'};
+            [ok,mess,do_3D,build_halo,bin_centers,argi] = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:axes_block:invalid_argument',mess)
             end
-            [nodes,dE_edges,npoints_in_axes] = calc_bin_nodes_(obj,do_3D,build_halo,argi{:});
+            [nodes,dE_edges,npoints_in_axes] = calc_bin_nodes_(obj,do_3D, ...
+                build_halo,bin_centers,argi{:});
         end
         %
         function range = get_binning_range(obj,cur_proj,new_proj)
@@ -331,7 +339,7 @@ classdef axes_block < serializable
             range  = get_binning_range_(obj,cur_proj,new_proj);
         end
         %------------------------------------------------------------------
-        % ACCESSORS
+        % ACCESSORS MODERN API
         %------------------------------------------------------------------
         function sz = get.dims_as_ssize(obj)
             % Return the extent along each dimension of the signal arrays.
@@ -438,8 +446,6 @@ classdef axes_block < serializable
             end
             obj.single_bin_defines_iax_ = logical(val(:)');
         end
-
-
         %------------------------------------------------------------------
         % historical and convenience getters for dependent properties
         % which do not have setters
@@ -450,7 +456,7 @@ classdef axes_block < serializable
         function ds = get.data_nbins(obj)
             ds= obj.nbins_all_dims_(obj.nbins_all_dims_>1);
         end
-
+%
         function ia = get.iax(obj)
             ia = find(obj.nbins_all_dims_==1 & obj.single_bin_defines_iax_);
         end
@@ -567,10 +573,7 @@ classdef axes_block < serializable
         % properly prepared
         obj = build_from_input_binning(cur_img_range_and_steps,pbin);
 
-        %Create bin boundaries for integration and plot axes from requested limits and step sizes
-        % (used by cut_dnd). TODO: remove #
-        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
-        %
+        %------------------------------------------------------------------
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class
