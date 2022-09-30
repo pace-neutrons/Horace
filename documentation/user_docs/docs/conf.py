@@ -21,9 +21,10 @@ import datetime
 # -- Project information -----------------------------------------------------
 project = 'Horace'
 copyright = f'2006-{datetime.date.today().year}, STFC RAL'
-authors = ['A. Buts','T.G. Perring','N. Battam','H. Saunders','M.D. Le','C. Marooney','J. Wilkins', 'R.A. Ewings', 'J. van Duijn', 'I. Bustinduy', 'G. Tucker', 'R. Fair']
+authors = ['A. Buts', 'T.G. Perring', 'N. Battam', 'H. Saunders', 'M.D. Le', 'C. Marooney',
+           'J. Wilkins', 'R.A. Ewings', 'J. van Duijn', 'I. Bustinduy', 'G. Tucker', 'R. Fair']
 
-author = ', '.join(sorted(authors,key=lambda x: x.split()[-1])) # Authors by surname
+author = ', '.join(sorted(authors, key=lambda x: x.split()[-1]))  # Authors by surname
 
 
 # -- General configuration ---------------------------------------------------
