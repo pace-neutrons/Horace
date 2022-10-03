@@ -29,8 +29,6 @@ classdef test_hpc_works < TestCase
 
             % Check HPC reset returns recommended features
             hpc('reset');
-            new_hpc_config.build_sqw_in_parallel = false;
-            new_hpc_config.parallel_multifit = false;
 
             new_config = pc.get_data_to_store();
             assertEqual(new_hpc_config,new_config);
