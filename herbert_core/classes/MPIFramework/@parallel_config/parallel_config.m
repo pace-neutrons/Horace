@@ -79,28 +79,26 @@ classdef parallel_config<config_base
         % The name of a cluster to use for messages exchange. . Currently
         % available are h[erbert], p[arpool] and [m]pi_cluster-s .
         % where:
-        %    [h]erbert --stands for Poor man MPI cluster, which runs on a single
-        %              node only and is actually not uses MPI, but launches
-        %              separate Matlab sessions using Java Launcher.
-        %              The sessions exchange information between each other using
+        %    [h]erbert -- Poor man's MPI cluster, which runs on a single
+        %              node only. Launches separate Matlab sessions using Java
+        %              Launcher, which exchange information using
         %              file-based messages (.mat files), so this cluster is
         %              not suitable for any tasks, demanding heavy interprocess
         %              communications.
-        %    [p]arpool --Uses Matlab parallel computing toolbox and it parallel
-        %              cluster configured as default to run parallel jobs.
+        %    [p]arpool -- Uses Matlab parallel computing toolbox's parallel
+        %              cluster (configured as default) to run parallel jobs.
         %              Refer to the parallel toolbox user's manual for the
         %              description of such clusters.
-        %    [m]piexec_mpi-- Deploys MPI libraries and mpiexec to run parallel jobs.
+        %    [m]piexec_mpi -- Uses C++ wrapped MPI libraries and mpiexec to run parallel jobs.
         %              On Windows these libraries are provided with Herbert and
         %              configured for running the parallel jobs on a working node,
         %              but a Linux machine needs these libraries installed and
         %              the cluster compiled using herbert_mex_mpi script
-        %              If the jobs are expected to run on more then
+        %              If the jobs are expected to run on more than
         %              one node, the nodes should be configured for MPI
         %              communications (running mpiexec).
-        %              Current cluster is build and tested using MPICH v3.
-        %    [s]lurm_mpi -- Deploys MPI program using Slurm job control
-        %              software
+        %              Current cluster is built and tested using MPICH v3.
+        %    [s]lurm_mpi -- Uses C++ wrapped MPI libraries and submits job to Slurm job queues
         %    none      -- not available. If worker can not be found on a
         %              path, no parallel cluster should be
         %              available. Parallel extensions will not work.
@@ -111,7 +109,7 @@ classdef parallel_config<config_base
         % For herbert cluster, the configuration name can only be 'local'
         % as herbert clusters runs on a single node only. A parpool
         % cluster accepts only 'default' configuration and actual configuration
-        % is set up as default on Dsitributed computing toolbox GUI.
+        % is set up as default on distributed computing toolbox GUI.
         % 'mpi_cluster' can accept 'local' configuration for jobs, running
         % locally or any configuration, defined in
         % herbert_core/admin/mpi_cluster_configs
