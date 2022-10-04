@@ -12,7 +12,7 @@ Certain operations in Horace are parallelised with an MPI algorithm. These can b
 
    hpc('on')
 
-In order to manually enable/disable different parallel components it is possible, these are managed through the ``hpc_config``.
+Alternatively different parallel components can be enabled/disabled separately through ``hpc_config``
 
 ::
 
@@ -34,10 +34,12 @@ In order to manually enable/disable different parallel components it is possible
                  config_folder: '/home/jacob/.matlab/mprogs_config'
 
 In particular, the parallel enabling options are:
+
 - ``parallel_multifit`` : Enable parallel fitting for ``multifit`` and ``tobyfit``
 - ``build_sqw_in_parallel`` : Enable building sqw objects in parallel, i.e. ``gen_sqw``, ``combine_sqw``
 
-The ``parallel_config`` contains most of the information to manage parallelism:
+The ``parallel_config`` contains most of the information to manage parallelism, though some is stored in ``hpc_config``
+(described above):
 
 ::
 
@@ -65,22 +67,27 @@ MPI Schemes
 Horace can be run in parallel with a number of different schemes, all controlled through the ``parallel_config``.
 
 The five currently implemented parallel schemes are:
+
 1. ``herbert`` (Poor-man's MPI) - Data messages are sent through files written to the hard drive and read by each
 process. This is the slowest MPI scheme, but also the one with the fewest requirements.
+
 2. ``parpool`` (Matlab Parallel Toolbox MPI) - Parpool uses Matlab's parallel toolbox parallelism to send messages and
 therefore requires the parallel toolbox to be used.
+
 3. ``mpiexec_mpi`` (C++ MPI) - Data messages are sent using C++ wrapping OpenMPI. This requires the MEX files to be
 built in order to be used.
-4. ``slurm_mpi`` (Slurm MPI) - Data messages are sent using C++ wrapping OpenMPI, but are submitted to a running slurm
+
+4. ``slurm_mpi`` (Slurm MPI) - Data messages are sent using C++ wrapping OpenMPI, but are submitted to a running Slurm
 instance by Horace upon starting the job. This requires the MEX files to be built in order to be used.
+
 5. ``dummy`` (Dummy MPI) - Dummy MPI is not MPI, but simply a dummy system for debugging and testing MPI algorithms on
 one process in serial.
 
 Managing parallel jobs
 ======================
 
-Running jobs in parallel is as simple as selecting the appropriate MPI scheme, setting the number of parallel workers
-and enabling the appropriate flags through the ``hpc_config`` and ``parallel_config``.
+Running jobs in parallel is as simple as selecting the appropriate MPI scheme, setting an appropriate
+``parallel_workers_number`` and enabling the appropriate flags through the ``hpc_config`` and ``parallel_config``.
 
 **N.B.** Be aware that for small jobs or some combinations of parameters, parallel calculation may, in fact, be slower
 than serial execution due to startup times and message sending. In future we hope to bring these times down and
@@ -89,18 +96,18 @@ efficiencies up.
 Slurm Jobs
 ==========
 
-When running on clusters, it is possible to automatically submit jobs to the slurm queue to be run in parallel across
-the cluster. This will attempt to request the number of nodes required to run the selected number of parallel workers
-and associated threads, however, if you are using a cluster which requires non-standard options such as billing accounts
-and or non-default queues specifying, it is possible to issue extra commands through the ``slurm_commands`` variable
-accessible via the ``parallel_config`` object. This is a ``containers.Map`` object, and will only store the latest set
-commands.
+When running on Slurm-managed clusters, it is possible to automatically submit jobs to the Slurm queue to be run in
+parallel across the cluster. This will attempt to request the number of nodes required to run the selected number of
+parallel workers and associated threads, however, if you are using a cluster which requires non-standard options such as
+billing accounts and or non-default queues specifying, it is possible to issue extra commands through the
+``slurm_commands`` variable accessible via the ``parallel_config`` object. This is a ``containers.Map`` object, and will
+only store the latest set commands.
 
 ::
 
    new_commands = containers.Map({'-A' '-p'}, {'account' 'partition'});
    pc = parallel_config();
-   pc.slurm_commands = [];                                       % Delete existing slurm commands
+   pc.slurm_commands = [];                                       % Delete existing Slurm commands
    pc.slurm_commands = new_commands;                             % Set new map
    pc.slurm_commands = '-A account -p=partition'                 % Set as char
    pc.slurm_commands = {'-A' 'account' '-p' 'partition'}         % Set as cellstr of commands (must be in pairs)

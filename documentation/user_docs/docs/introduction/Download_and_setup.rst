@@ -62,25 +62,52 @@ folder different from Matlab's `userpath <https://uk.mathworks.com/help/matlab/r
 Installing the latest version
 -----------------------------
 
-If you want to install the latest development version of Horace, you should first *clone* the `Horace
+If you want to install the latest development version of Horace, you should first ``git clone`` the `Horace
 <https://github.com/pace-neutrons/Horace>`__ ``git`` repository. You can then follow the ``horace_install`` procedure as
 described above, giving it the path to where `Horace` was cloned.
 
 Horace should work after the install script is run but to improve performance of some common Horace operations, you may
-need to build the `mex` files yourself.  Currently `mex` files for Windows are stored in the repository, but this may
-not always be the case in future.  You will need to build `mex` files for other operating systems.
+need to build the ``mex`` files yourself.  Currently ``mex`` files for Windows are stored in the repository, but this may
+not always be the case in future.  You will need to build ``mex`` files for other operating systems.
+
+**N.B.** In order to build ``mex`` files, it is necessary to have an up to date C++ compiler such as Visual Studio or
+the GNU Compiler Collection (GCC).
+
 
 CMake install
 -------------
 
-If you have cloned the repository and have the ``CMake`` tool installed, the Horace package supports a CMake build, which also builds the relevant `mex` files and links against them. To install using CMake:
-1. From your console of choice, navigate to the Horace root folder and run:
+If you have cloned the repository and have the ``CMake`` tool installed, the Horace package supports a CMake build (1a),
+which also builds the relevant `mex` files and links against them.
+
+Horace also ships with a number of install scripts in ``tools\build_config``. These can be used to automate
+installation (1b). **N.B.** These equate to installs using CMake wtih preconfigured options.
+
+To install using CMake:
+
+
+1a. From your console of choice, navigate to the Horace root folder and run:
 
    ::
 
       cmake --build build --config Release
 
-2. In a Matlab session add the ``\<Horace_dir\>\\build\\local_init\\`` folder to the `Matlab path<https://www.mathworks.com/help/matlab/ref/addpath.html>`__ and run ``horace_on`` as above.
+1b. From your console of choice navigate to ``tools\build_config`` and run:
+
+   Windows:
+
+
+   ::
+
+      build.ps1 -build
+
+   Linux:
+
+   ::
+
+      build.sh -build
+
+2. In a Matlab session add the ``<Horace_dir>\build\local_init\`` folder to the `Matlab path <https://www.mathworks.com/help/matlab/ref/addpath.html>`__ and run ``horace_on`` as above.
 
 Optional:
 
@@ -94,8 +121,8 @@ Optional:
  Horace Configuration
 **********************
 
-Horace uses configuration files to store its settings and to tune its behaviour and performance.
-Horace tries to guess the best performance for your machine, but you should check if the configuration
+Horace uses :ref:`configuration files <manual/Changing_Horace_settings:Changing Horace settings>` to store its settings and to tune its behaviour
+and performance.  Horace tries to guess the best performance for your machine, but you should check if the configuration
 it selects is indeed optimal for you.
 
 You can access the settings using the ``hor_config`` class.
@@ -154,11 +181,8 @@ Use the usual Matlab syntax to set configuration values:
  High Performance Computing Configuration
 ******************************************
 
-If your have a large machine with multiple cores, fast hard drive connected to parallel file system and large memory,
-you may benefit from using Horace's parallel computing extensions.
-The memory necessary to make parallel extensions useful may be estimated as 32Gb per main session
-and 16 per each parallel worker as minimum, so if you want to use 4 parallel processes productively,
-your machine should have 96Gb of RAM.
+If you have a large task and a machine with multiple cores, you may benefit from using Horace's parallel computing
+extensions (see :ref:`manual/Parallel:Running Horace in Parallel`).
 
 The ``hpc`` command can be used to enable/disable parallel computing options,
 as well as provide suggested settings for the current system.
@@ -179,18 +203,17 @@ use the ``hpc_config`` class.
    >> help hpc_config
 
 
-*****************
- Troubleshooting
-*****************
+***************
+Troubleshooting
+***************
 
 If you used a `release archive <https://github.com/pace-neutrons/Horace/releases>`__, then `Horace` will be in a folder
 (called ``<extracted_folder>`` below) with ``horace_install`` and this script can be called with no arguments (it will
 automatically detect the folders).
 
-The ``horace_install`` installation script then modifies three files:
+The ``horace_install`` installation script then modifies two files:
 
 - `horace_on.m.template <https://github.com/pace-neutrons/Horace/blob/master/admin/horace_on.m.template>`__,
-- `herbert_on.m.template <https://github.com/pace-neutrons/Herbert/blob/master/admin/herbert_on.m.template>`__ and
 - `worker_v2.m.template <https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v2.m.template>`__
 
 by inserting the location of the `Horace` folders into these files, and copies them to a folder

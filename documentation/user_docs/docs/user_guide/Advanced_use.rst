@@ -2,8 +2,8 @@
 Advanced use
 ############
 
-The following details more comprehensively the functions in the Horace suite. In the :ref:`Getting started
-<user_guide/Getting_started:Getting started>` section a brief tutorial was provided on the use of the essential Horace
+The following describes the functions in the Horace suite in more comprehensive detail. In the :ref:`Getting started
+<user_guide/Getting_started:Getting started>` section there is a brief tutorial on the use of the essential Horace
 functions. In addition there is also a :ref:`list of functions <manual/list_of_functions:list of functions>`, which
 details the syntax for every function.
 
@@ -46,11 +46,11 @@ In technical terms the function ``det`` is not a "method" of (i.e. function that
 
 Matlab allows you to create your own objects, and methods to go with them, and this is what has been done with
 Horace. The objects are named d0d, d1d, d2d, d3d, d4d, and sqw, which correspond to 0D datasets, 1D datasets,..., 4D
-datasets, and general datasets of any dimensionality with full detector pixel information retained. The methods that
-apply to these objects are contained within the directories ``C:\\mprogs\\Horace\\@d0d`` etc. Methods that apply to
-different objects can have the same name, and in the interests of keeping things relatively intuitive there are several
-examples of this within Horace, e.g. if you type ``plot(w)`` then the object ``w`` will be correctly plotted (unless it
-is a d0d or d4d object, of course!) because there is a ``plot`` method in all of the d1d, d2d, d3d, and sqw directories.
+datasets without pixel information, and general datasets of any dimensionality with full detector pixel information
+retained. The methods that apply to these objects are contained within the directories ``Horace\horace_core\sqw\@d0d``
+etc. Methods that apply to different objects can have the same name, and there are several examples of this within
+Horace, e.g. if you type ``plot(w)`` then the object ``w`` will be plotted because there is a ``plot`` method in all of
+the d1d, d2d, d3d, and sqw directories (**N.B.** 0D and 4D types are not plottable in Horace).
 
 Help
 ====
@@ -83,11 +83,11 @@ information is not available then an error is returned.
 Creating an object from scratch
 ===============================
 
-Suppose you wish to simulate the scattering over a particular region of reciprocal space, independent of any data you
-have collected. To do this you can create a dnd (where ``n`` is any number between 0 and 4) from scratch that matches your
-own specifications. Since the sqw object contains detector pixel information it should not be created from scratch
-except in certain circumstances, described later. The command structure to do this is quite straightforward, and we will
-illustrate it with an example where we create a d2d object.
+Suppose you wish to simulate the scattering over a particular region of reciprocal space, independent of any
+experimental data you have collected. To do this you can create a dnd (where ``n`` is any number between 0 and 4) from
+scratch that matches your own specifications. Since the sqw object contains detector pixel information it should not be
+created from scratch except in certain circumstances, described later. The command structure to do this is quite
+straightforward, and we will illustrate it with an example where we create a d2d object.
 
 ::
 
@@ -159,7 +159,7 @@ important ones now:
   the corresponding element of ``s`` is a number, and is zero if the corresponding element of ``s`` is NaN.
 
 If you wish to create an sqw object then there are only two possible inputs you can give to the ``sqw`` command. You
-must supply either a file name, where sqw data can be found, or you can supply a structure array that has all of the
+must supply either a file name where sqw data can be found, or you can supply a structure array that has all of the
 appropriate fields for an sqw object in it. That is to say if you typed:
 
 ::
@@ -179,9 +179,9 @@ The fields that should be present in the structure array associated with an sqw 
    data <1x1 struct>
 
 
-The ``main_header`` structure array contains information about the sqw dataset from which the sqw object was derived,
-specifically the filename, file directory, information about the title (if any) and the number of SPE files used to
-generate the SQW file. For example the main_header array might look like this:
+The ``main_header`` structure array contains information about the experimental sqw dataset from which the sqw object
+was derived, specifically the filename, file directory, information about the title (if any) and the number of SPE files
+used to generate the SQW file. For example the main_header array might look like this:
 
 ::
 
@@ -411,14 +411,6 @@ simply type
    dnd_out=dnd(sqw_obj);
 
 
-If you do not know the number of dimensions of the object ``sqw_obj``. If you do know the number of dimensions (e.g. 2)
-then you can type
-
-::
-
-   d2d_out=d2d(sqw_obj);
-
-
 One can also reformat a dnd object so that it is turned into an sqw object, although the pixel information will be
 empty. This is done by typing
 
@@ -506,21 +498,11 @@ To change the axes to log-scale, you use the commands ``logx``, ``logy`` and ``l
 use ``linx``\ ...etc. A full list of formatting options can be found `here
 <http://www.libisis.org/User_Manual#Plot_Commands>`__.
 
-Fitting
-=======
-
-You can also use Horace to fit your data. It can take quite a long time for the fit to converge, so it is therefore a
-good idea to provide a good initial guess of the fit parameters. You can work these out simulating and then comparing
-the result to the data by eye.
-
-For an introduction and overview of how to use the following fitting functions, please read :ref:`Fitting data
-<manual/Multifit:Multifit>`. For comprehensive help, please use the Matlab documentation for the various fitting
-functions that can be obtained by using the ``doc`` command, for example ``doc d1d/multifit`` (for fitting function like
-Gaussians to d1d objects) or ``doc sqw/multifit_sqw`` (fitting models for S(Q,w) to sqw objects).
-
-
 Simulating
 ==========
+
+Simulating data involves running a theoretical model a known set of parameters, in order to compare the model's results
+to those of the experimental data (or another model).
 
 There are two functions used for doing simulations - ``func_eval`` and ``sqw_eval``. The difference between these two
 functions is relatively minor, and relates to the format of the function that you wish to simulate.
@@ -548,6 +530,20 @@ co-ordinate system is (H,0,0) / (0,K,0) / (0,0,L).
 
 Further information concerning simulations can be found in the :ref:`Simulations <LoF_Fitting>` section of the list of functions.
 
+Fitting
+=======
+
+You can also use Horace to fit a theoretical model (akin to those used in simulation) to your data by modifying its
+parameters to find a minimal difference between the model and the data. Depending on the size of the data and complexity
+of the model it can take quite a long time for the fit to converge, so it is a good idea to provide a good initial guess
+for the fit parameters. You can work these out simulating and then comparing the result to the data by eye.
+
+For an introduction and overview of how to use the following fitting functions, please read :ref:`Fitting data
+<manual/Multifit:Multifit>`. For comprehensive help, please use the Matlab documentation for the various fitting
+functions that can be obtained by using the ``doc`` command, for example ``doc d1d/multifit`` (for fitting function like
+Gaussians to d1d objects) or ``doc sqw/multifit_sqw`` (fitting models for S(Q,w) to sqw objects).
+
+
 SQW generation and manipulation
 ===============================
 
@@ -564,10 +560,10 @@ This is the full syntax for the :ref:``gen_sqw`` command. At its most basic it c
 without the input arguments ``grid_size_in`` and ``urange_in``. The other input arguments take the form given `here
 <Generating_SQW_files:Generating SQW files>`.
 
-There are two additional circumstances in which you would not wish to use ``gen_sqw``. The first is if, for some reason,
-the ``gen_sqw`` command has failed (usually due to low-level problems between Matlab and your computer's operating
-system), and the second is if you wish to view data ''on the fly'' whilst the experiment is still running. In both
-circumstances a time saving is involved because you do not have to rewrite all of the intermediate TMP files.
+There are two circumstances in which you would not wish to use ``gen_sqw``. The first is if, for some reason, the
+``gen_sqw`` command has failed (usually due to low-level problems between Matlab and your computer's operating system),
+and the second is if you wish to view data ''on the fly'' whilst the experiment is still running. In both circumstances
+a time saving is involved because you do not have to rewrite all of the intermediate TMP files.
 
 If ``gen_sqw`` has failed after creating all of the necessary TMP files (i.e. one TMP file for every SPE file) then the
 command to use is
