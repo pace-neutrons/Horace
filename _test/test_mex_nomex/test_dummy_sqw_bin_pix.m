@@ -23,6 +23,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
             this.current_mex_state = hc.use_mex;
             this.current_thread_state = par.threads;
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state));
+            cleanup_obj2=onCleanup(@()set(parallel_config,'threads',this.current_thread_state));
 
             hc.use_mex = 1;
 
@@ -72,7 +73,6 @@ classdef test_dummy_sqw_bin_pix < TestCase
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_nomex=read_sqw(sqw_file_single);
-            n_det_out = sum
             assertTrue(~any(w_nomex.pix.detector_idx<1 | w_nomex.pix.detector_idx>36864), ...
                        'found detectors with ID-s outside the allowed range');
             assertTrue(~any(w_nomex.pix.energy_idx==0),'en bin id can not be equal to 0');
@@ -124,7 +124,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
 
             assertTrue(~any(w_mex.pix.detector_idx<1 | w_mex.pix.detector_idx>96), ...
                        'found detectors with ID-s outside the allowed range');
-            assertEqual(~any(w_mex.pix.energy_idx==0),'en bin id can not be equal to 0');
+            assertTrue(~any(w_mex.pix.energy_idx==0),'en bin id can not be equal to 0');
 
 
             hc.use_mex = 1;
