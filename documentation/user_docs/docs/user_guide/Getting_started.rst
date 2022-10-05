@@ -14,9 +14,8 @@ finally how to simulate and fit your data. To do this we will refer to the demon
 
 which relate to a real experiment to investigate spin excitations in Fe using the MAPS spectrometer at ISIS.
 
-Before starting you must first extract the data files from the supplied zip file. You should find SPE files with names
-MAP11014.SPE, MAP11016.SPE, ..., MAP11060.SPE, as well as a PAR file called demo_par.PAR and a PHX file called
-demo_phx.PHX.
+Before starting you must first run the ``setup_demo_data`` function from the ``demo`` folder which will take a few
+minutes to generate a number of ``.nxspe`` files which will be used during the demo.
 
 Creating an SQW file
 ====================

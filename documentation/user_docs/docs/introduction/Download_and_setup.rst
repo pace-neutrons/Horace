@@ -18,7 +18,7 @@
    However, if you require Horace to run on older versions of Matlab,
    and encounter problems, please open a ticket on
    `GitHub <https://github.com/pace-neutrons/Horace/issues>`__
-   or write e-mail to `Horace support team <mailto:HoraceHelp@stfc.ac.uk>`__
+   or write an e-mail to `Horace support team <mailto:HoraceHelp@stfc.ac.uk>`__
    and we will try to help you.
 
 **********
