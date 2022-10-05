@@ -49,7 +49,7 @@ else
     if nargin<4
         filename ='';
     else
-        filename = varargin{end};
+        filename = varargin{4};
     end
 end
 if ~(ischar(filename)|| isstring(filename))
