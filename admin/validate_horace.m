@@ -98,7 +98,7 @@ pths = horace_paths;
 test_path = pths.test;
 test_folders_full = fullfile(test_path, test_folders);
 
-hec = herbert_config();
+hec = hor_config();
 hoc = hor_config();
 hpc = hpc_config();
 % (Validation must always return Horace and Herbert to their initial states, regardless
@@ -192,10 +192,9 @@ if exit_on_completion
 end
 
 %=================================================================================================================
-function validate_horace_cleanup(cur_herbert_config, cur_horace_config, cur_hpc_config, test_folders)
+function validate_horace_cleanup(cur_horace_config, cur_hpc_config, test_folders)
 warn = warning('off',  'all'); % avoid warning on deleting non-existent path
 % Reset the configurations, and remove unit test folders from the path
-set(herbert_config, cur_herbert_config);
 set(hor_config, cur_horace_config);
 set(hpc_config, cur_hpc_config);
 

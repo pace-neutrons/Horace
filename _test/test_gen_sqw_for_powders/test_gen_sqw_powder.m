@@ -8,7 +8,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
     %
     % Author: T.G.Perring
     properties
-        %
+
         sqw_pow_file;
         sqw_pow_rings_file;
 
@@ -29,12 +29,11 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             sample_file = fullfile(rootpath, 'test_gen_sqw_powder_output.mat');
             obj = obj@TestCaseWithSave(name, sample_file);
 
-            % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
             pths = horace_paths;
             common_data_dir = pths.test_common;
-            % -----------------------------------------------------------------------------
-            hcfg=herbert_config();
+
+            hcfg=hor_config();
             current = hcfg.use_mex;
             clob = onCleanup(@()set(hcfg,'use_mex',current));
             hcfg.use_mex = false;
@@ -72,7 +71,6 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             loc_cleanup_obj = onCleanup(@()obj.rm_files(spe_pow_file, ...
                 pow_par_file, pow_phx_file));
 
-
             % Perform a powder average in Horace
             gen_sqw_powder(spe_file, par_file, obj.sqw_pow_file, efix, emode);
 
@@ -102,7 +100,6 @@ classdef test_gen_sqw_powder < TestCaseWithSave
         end
 
         function test_powder_cuts(obj)
-
             wpow = read_sqw(obj.sqw_pow_file);
 
             %cuts_list= containers.Map();
@@ -119,7 +116,6 @@ classdef test_gen_sqw_powder < TestCaseWithSave
         end
 
         function test_rings_cut(obj)
-
             wpowrings = read_sqw(obj.sqw_pow_rings_file);
 
             w2rings = cut_sqw(wpowrings, [0, 0.03, 7], 0, '-nopix');

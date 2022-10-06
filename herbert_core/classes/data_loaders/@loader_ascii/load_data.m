@@ -28,23 +28,23 @@ else
 end
 file_name  = obj.file_name;
 
-use_mex=config_store.instance().get_value('herbert_config','use_mex');
+use_mex=config_store.instance().get_value('hor_config','use_mex');
 if use_mex
     try
         [S,ERR,en] = get_ascii_file(file_name ,'spe');
     catch err
-        force_mex = get(herbert_config,'force_mex_if_use_mex');
+        force_mex = get(hor_config,'force_mex_if_use_mex');
         if ~force_mex
-            if get(herbert_config,'log_level')>-1
+            if get(hor_config,'log_level')>-1
                 warning('HERBERT:loader_ascii:runtime_error',' Cannot read data using C++ routines -- reverted to Matlab\n Reason: %s',err.message);
             end
-            set(herbert_config,'use_mex',false);  % don't use Herbert C++ routines from now on
             use_mex=false;
         else
             error('HERBERT:loader_ascii:runtime_error',' Cannot read data using C++ routines \n Reason: %s',err.message);
         end
     end
 end
+
 if ~use_mex
     [S,ERR,en] = get_spe_(file_name);
 end
@@ -80,4 +80,3 @@ elseif nargout == 4
     varargout{3}=obj.en_;
     varargout{4}=obj;
 end
-

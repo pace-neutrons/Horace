@@ -29,9 +29,7 @@ function write_npix_to_pix_blocks_(obj,fout,pix_out_position,pix_comb_info)
 % As the result -- writes combined pixels block to the ouput sqw file.
 
 
-log_level = config_store.instance().get_value('herbert_config','log_level');
-pmax = config_store.instance().get_value('hor_config','mem_chunk_size');
-
+[pmax, log_level] = config_store.instance().get_value('hor_config','mem_chunk_size','log_level');
 
 if isnumeric(fout)
     filename = fopen(fout);

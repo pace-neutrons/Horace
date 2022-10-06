@@ -1,7 +1,7 @@
 function test_object_lookup
 % Test object_lookup
 
-hc = herbert_config;
+hc = hor_config;
 log_level = hc.log_level;
 
 % Create a bunch of objects

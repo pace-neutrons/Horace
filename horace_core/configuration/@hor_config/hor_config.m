@@ -17,7 +17,7 @@ classdef hor_config < config_base
     % >>[val1,val2,...]=get(hor_config,'name1','name2',...)
     %
     %
-    %hor_config methods are:
+    % hor_config properties are:
     % -----------
     %   mem_chunk_size    - Maximum length of buffer array to accumulate pixels
     %                       from an input file.
@@ -37,6 +37,7 @@ classdef hor_config < config_base
     %   high_perf_config_info  - an interface, displaying high performance computing settings.
     %                       Use hpc_config class directly to modify these
     %                       settings.
+    %   init_tests          Enable the unit test functions
     %
     %
     properties(Dependent)
@@ -88,6 +89,15 @@ classdef hor_config < config_base
         % Here it provided for information only while changes to this
         % property should be made through hpc_config class setters directly.
         high_perf_config_info
+
+        % add unit test folders to search path (option for testing)
+        init_tests;
+    end
+
+    properties(Dependent,SetAccess=private)
+        % location of the folder with unit tests
+        unit_test_folder;
+
     end
 
     properties(Dependent,Hidden)
@@ -114,6 +124,10 @@ classdef hor_config < config_base
 
         use_mex_ = true;
         delete_tmp_ = true;
+
+        force_mex_if_use_mex_ = false;
+        log_level_ = 1;
+        init_tests_ = false;
     end
 
     properties(Constant, Access=private)
@@ -124,7 +138,10 @@ classdef hor_config < config_base
             'ignore_nan',...
             'ignore_inf', ...
             'use_mex',...
-            'delete_tmp'}
+            'delete_tmp', ...
+            'force_mex_if_use_mex', ...
+            'log_level', ...
+            'init_tests'}
     end
 
     methods
@@ -152,8 +169,8 @@ classdef hor_config < config_base
             use = get_or_restore_field(obj,'ignore_inf');
         end
 
-        function level = get.log_level(~)
-            level = config_store.instance().get_value('herbert_config','log_level');
+        function level = get.log_level(obj)
+            level = get_or_restore_field(obj,'log_level');
         end
 
         function level = get.horace_info_level(obj)
@@ -165,8 +182,8 @@ classdef hor_config < config_base
             use = get_or_restore_field(obj,'use_mex');
         end
 
-        function force = get.force_mex_if_use_mex(~)
-            force = config_store.instance().get_value('herbert_config','force_mex_if_use_mex');
+        function force = get.force_mex_if_use_mex(obj)
+            force = get_or_restore_field(obj,'force_mex_if_use_mex');
         end
 
         function delete = get.delete_tmp(obj)
@@ -178,6 +195,10 @@ classdef hor_config < config_base
             if isempty(work_dir)
                 work_dir = tmp_dir;
             end
+        end
+
+        function doinit = get.init_tests(this)
+            doinit = get_or_restore_field(this,'init_tests');
         end
 
         function is = wkdir_is_default(~)
@@ -228,13 +249,14 @@ classdef hor_config < config_base
         end
 
         function obj = set.log_level(obj,val)
-            hc = herbert_config;
-            hc.log_level = val;
+            if ~isnumeric(val)
+                error('HOR_CONFIG:set_log_level',' log level must be a number')
+            end
+            config_store.instance().store_config(obj,'log_level',val);
         end
 
         function obj = set.horace_info_level(obj,val)
-            hc = herbert_config;
-            hc.log_level = val;
+            obj.log_level = val;
         end
 
         function obj = set.use_mex(obj,val)
@@ -257,9 +279,17 @@ classdef hor_config < config_base
 
         end
 
+        function obj=set.init_tests(obj,val)
+            init = val > 0;
+            path = process_unit_test_path(init,'set_path');
+            if (init && ~isempty(path)) || ~init
+                config_store.instance().store_config(obj,'init_tests',init);
+            end
+        end
+
         function obj = set.force_mex_if_use_mex(obj,val)
             use = val>0;
-            config_store.instance().store_config('herbert_config','force_mex_if_use_mex',use);
+            config_store.instance().store_config(obj,'force_mex_if_use_mex',use);
         end
 
         function obj = set.delete_tmp(obj,val)
@@ -270,6 +300,25 @@ classdef hor_config < config_base
         function obj = set.working_directory(obj,val)
             hc = parallel_config;
             hc.working_directory = val;
+        end
+
+        function folder=get.unit_test_folder(obj)
+            % getter for dependent property unit_test_folder;
+            init = get_or_restore_field(obj,'init_tests');
+            if init
+                folder = process_unit_test_path(init);
+            else
+                folder =[];
+            end
+       end
+
+        function obj = set_unit_test_path(obj)
+            % add Herbert unit test path to Matlab search path
+            %
+            % (overwrite Matlab's version of unit tests functions which
+            % come with Matlab 2017b and have the interface different from
+            % the classical unit tests.
+            process_unit_test_path(true,'set_path');
         end
 
         %--------------------------------------------------------------------

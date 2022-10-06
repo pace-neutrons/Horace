@@ -467,7 +467,7 @@ classdef ClusterWrapper
             if force_display
                 display_log = true;
             else
-                hc = herbert_config;
+                hc = hor_config;
                 log_level = hc.log_level;
 
                 display_log = log_level > 0;

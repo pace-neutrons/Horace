@@ -153,7 +153,7 @@ classdef MPI_clusters_factory<handle
             %       parallel workers, communicating between each
             %       other using the method, chosen for the
             %       cluster.
-            log_level = config_store.instance().get_value('herbert_config','log_level');
+            log_level = config_store.instance().get_value('hor_config','log_level');
             cl      = obj.parallel_cluster;
             if isempty(cl)
                 error('HERBERT:MPI_clusters_factory:not_available',...

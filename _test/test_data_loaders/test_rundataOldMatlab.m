@@ -5,9 +5,9 @@ function  test_rundataOldMatlab()
 pths = horace_paths;
 
 
-log_level = get(herbert_config,'log_level');
-set(herbert_config,'log_level',-1,'-buffer');
-cleanupObj = onCleanup(@() set(herbert_config,'log_level',log_level,'-buffer'));
+log_level = get(hor_config,'log_level');
+set(hor_config,'log_level',-1,'-buffer');
+cleanupObj = onCleanup(@() set(hor_config,'log_level',log_level,'-buffer'));
 
 run=rundata(fullfile(pths.test_common,'MAP10001.spe'),fullfile(pths.test_common,'demo_par.PAR'));
 run.efix = 200;
