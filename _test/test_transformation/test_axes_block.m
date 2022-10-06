@@ -610,7 +610,7 @@ classdef test_axes_block < TestCase
             assertEqual(size(cube,2),16)
             assertEqual(zeros(4,1),cube(:,1))
             assertEqual(step,cube(:,16))
-            assertEqual(2*step,...
+            assertEqual(step,...
                 [dbr(2,1)-dbr(1,1);0.2;dbr(2,3)-dbr(1,3);1]);
         end
         %------------------------------------------------------------------
@@ -646,6 +646,7 @@ classdef test_axes_block < TestCase
             the_size = prod(nbins);
             assertEqual(size(nodes,2),the_size);
         end
+        %
         function test_get_bin_centers_2D_native(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
@@ -664,7 +665,6 @@ classdef test_axes_block < TestCase
             the_size = prod(sz);
             assertEqual(size(centers,2),the_size);
         end
-        
         %
         function test_worong_char_size_throw(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
@@ -675,6 +675,7 @@ classdef test_axes_block < TestCase
                 'HORACE:axes_block:invalid_argument');
            assertTrue(strncmp(ex.message,'characteristic size, if present',31));
         end        
+        %
         function test_worong_keyword_throw(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
@@ -683,8 +684,7 @@ classdef test_axes_block < TestCase
            ex = assertExceptionThrown(@()get_bin_nodes(ab,'-wrong',(dbr(2,:)-dbr(1,:))'/10),...
                 'HORACE:axes_block:invalid_argument');
            assertTrue(strncmp(ex.message,'characteristic size, if present',31));
-        end
-        
+        end        
         %
         function test_get_bin_nodes_2D_2d(~)
             dbr = [-1,-2,-3,0;1,2,3,10];

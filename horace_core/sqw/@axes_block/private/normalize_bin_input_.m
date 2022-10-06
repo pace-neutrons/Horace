@@ -9,7 +9,8 @@ function [npix,s,e,pix_cand,unique_runid,argi]=...
 % ------------
 % grid_size -- the size of the grid, the pixels will be rebinned on
 %
-% pix_coord -- [3,npix] or [4,npix] numeric array of the pixel coordinates
+% pix_coord -- [3,npix] or [4,npix] or [43] numeric array of the pixel
+%               coordinates. If 
 % mod       -- operation mode specifying what the following routine should
 %              process. The mode is defined by number of output arguments.
 %              Depending on the requested outputs, different inputs have
@@ -102,7 +103,7 @@ else
             'Calculating signal and error requests providing full pixel information, and this information is missing')
     end
     pix_cand  = varargin{4};
-    if ~isa(pix_cand,'PixelData')
+    if ~(isa(pix_cand,'PixelData') || isnumeric(pix_co)
         error('HORACE:axes_block:invalid_argument',...
             '7-th argument of the function have to be PixelData class. It is: %s',...
             class(pix_coord));

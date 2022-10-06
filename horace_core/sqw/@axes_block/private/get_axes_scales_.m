@@ -6,7 +6,7 @@ function  [cube_coord,step] = get_axes_scales_(obj)
 % The characteristic size allows to build a grid, which would contain at
 % least one point within the grid
 
-step = 0.5*((obj.img_range_(2,:)-obj.img_range_(1,:))./obj.nbins_all_dims_)';
+step = ((obj.img_range_(2,:)-obj.img_range_(1,:))./obj.nbins_all_dims_)';
 r0   = zeros(4,1);
 
 cube_coord = expand_box(r0,step);

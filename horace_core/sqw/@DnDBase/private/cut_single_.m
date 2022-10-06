@@ -24,7 +24,7 @@ function wout = cut_single_(w, tag_proj, targ_axes,return_cut, outfile,log_level
 
 % Interpolate image and accumulate interpolated data for cut
 [s, e, npix] = cut_interpolate_data_( ...
-    w, tag_proj,targ_axes,log_level);
+    w, tag_proj,targ_axes);
 
 
 % Compile the accumulated cut and projection data into a dnd object
@@ -45,34 +45,39 @@ if exist('outfile', 'var') && ~isempty(outfile)
     end
 end
 
-function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes,log_level)
-%%CUT_ACCUMULATE_DATA Accumulate image data for a cut
+function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
+%%CUT_INTERPOLATE_DATA Interpolate and accumulate image data for a cut
 %
 % Input:
 % ------
 % targ_proj  A 'projection' object, defining the projection of the cut.
 % targ_axes  A 'axes_block' object defining the ranges, binning and geometry
 %            of the target cut
-% keep_pixels A boolean defining whether pixel data should be retained. If this
-%            is false return variable 'pix_out' will be empty.
 %
 % Output:
 % -------
-% s            The image signal data.
-% e            The variance in the image signal data.
-% npix         Array defining how many pixels are contained in each image
-%              bin. size(npix) == size(s)
+% s          The image signal data.
+% e          The variance in the image signal data.
+% npix       Array defining how many pixels are contained in each image
+%            bin. size(npix) == size(s). As the data are interpolated, 
+%            the number of pixels may become fractional  
 
 obj.proj.targ_proj = targ_proj;
-source_cube = obj.axes.get_axes_scales();
-source_cube = obj.proj.from_this_to_targ_coord(source_cube);
-[targ_grid,~,interp_binning]  = targ_axes.get_bin_nodes('-centers',source_cube);
+targ_proj.targ_proj = obj.proj;
+
 s = obj.s.*obj.npix;
-e = obj.e.obj.npix.*obj.npix;
-targ_interp = obj.axes.interpolate_data({s,e,obj.npix},targ_grid);
+e = obj.e.*(obj.npix.^2);
+targ_intep = obj.axes.get_density({s,e,obj.npix});
+%
+% convert the source grid into target coordinate system
+targ_intep(1:4,:) = tag_proj.from_this_to_targ_coord(targ_intep(1:4,:));
+[~,si,ei,npixi] = targ_axes.bin_pixels(targ_intep);
+% obtain the cell volume of the target coordinate system to convert from 
+% density to signal/err etc.
+targ_cell_volume = targ_axes.get_grid_volume();
 
-
-
-
+s = si.*targ_cell_volume;
+e = ei.*tart_cell_volume;
+npix = npixi.*targ_cell_volume;
 
 [s, e] = normalize_signal(s, e, npix);

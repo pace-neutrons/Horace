@@ -1,5 +1,5 @@
-function [nodes,en_axis,npoints_in_axes] = calc_bin_nodes_(obj,do3D,halo, ...
-    bin_centers,varargin)
+function [nodes,en_axis,npoints_in_axes,grid_cell_volume] = ...
+    calc_bin_nodes_(obj,do3D,halo,interp_grid,varargin)
 % build 3D or 4D vectors, containing all nodes of the axes_block grid,
 % constructed over axes_block axes.
 %
@@ -10,9 +10,10 @@ function [nodes,en_axis,npoints_in_axes] = calc_bin_nodes_(obj,do3D,halo, ...
 %              axes points.
 % halo      -- if true, build one-cell width halo around the generated axes
 %              grid. Not building halo along energy axes in 3D mode
-% bin_centers
+% interp_grid
 %           -- return grid with points located in the grid bin centers
-%              rather then cell
+%              rather then cell + adjustments on the edges of the integrated
+%              dimensions to allow linear interpolation within the blocks
 %
 % Optional:
 % char_cube -- if present, the cube, describing the scale of the grid,
@@ -20,7 +21,8 @@ function [nodes,en_axis,npoints_in_axes] = calc_bin_nodes_(obj,do3D,halo, ...
 %              3x8 (4x16) array of 3-D or 4-D vectors arranged in
 %              columns and describing min/max points or all vertices of
 %              cube or hypercube, representing single cell of the grid,
-%              defined by the axes_block.
+%              defined by the axes_block, or the all points of the whole
+%              cube in 3D or 4D space.
 %
 % Output:
 % nodes  -- [3 x nnodes] or [4 x nnodes] aray of grid nodes depending
@@ -28,18 +30,28 @@ function [nodes,en_axis,npoints_in_axes] = calc_bin_nodes_(obj,do3D,halo, ...
 % en_axis-- 1D array of energy axis grid points.
 %
 % npoints_in_axes
-%           -- 4-elements vector, containing numbers of axes
-%              nodes in each of 4 directions
-%
+%        -- 4-elements vector, containing numbers of axes
+%           nodes in each of 4 directions
+% grid_cell_volume
+%        -- 4D-volume of the interpolation grid cell if all
+%           cells are equal or nodes size array of cell volumes
+%           if the cells have different size.
 
 char_size = parse_inputs(nargin,varargin{:});
 axes = cell(4,1);
 %
 if isempty(char_size)
-    axes(obj.pax) = obj.p(:);    
+    axes(obj.pax) = obj.p(:);
     iint_ax = num2cell(obj.iint,1);
     axes(obj.iax) = iint_ax(:);
     npoints_in_axes = obj.nbins_all_dims+1;
+    if halo
+        for i=1:4
+            step = abs(axes{i}(2)-axes{i}(1));
+            axes{i} = [axes{i}(1)-step,axes{i}(:)',axes{i}(end)+step];
+            npoints_in_axes(i)= npoints_in_axes(i)+2;
+        end
+    end
 else
     npoints_in_axes = zeros(1,4);
     range = obj.img_range;
@@ -69,13 +81,28 @@ else
         end
     end
 end
-if bin_centers
-    for i=1:4
-        axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
-        npoints_in_axes(i) = npoints_in_axes(i)-1;
-    end
+grid_cell_volume = 1;
+for i =1:4
+    grid_cell_volume = grid_cell_volume*...
+        (abs(axes{i}(2)-axes{i}(1)));
 end
 
+if interp_grid
+    % modify projection axis to be
+    % bin centers + half-step halo. Make integration axis consisting of single point in the
+    % centre of a bin
+    is_pax = ismember(1:4,obj.pax);
+    for i=1:4
+        if is_pax(i)
+            axes{i} = ([obj.img_range(1,i), ...
+                0.5*(axes{i}(1:end-1)+axes{i}(2:end)), ...
+                obj.img_range(2,i)]);
+        else
+            axes{i} = 0.5*(obj.img_range(1,i)+obj.img_range(2,i));
+        end
+        npoints_in_axes(i) = numel(axes{i});
+    end
+end
 
 en_axis  = axes{4};
 if do3D
