@@ -1,5 +1,5 @@
 function [nodes,en_axis,npoints_in_axes,grid_cell_volume] = ...
-    calc_bin_nodes_(obj,do3D,halo,interp_grid,varargin)
+    calc_bin_nodes_(obj,do3D,halo,interp_grid,centerpoints,varargin)
 % build 3D or 4D vectors, containing all nodes of the axes_block grid,
 % constructed over axes_block axes.
 %
@@ -87,18 +87,26 @@ for i =1:4
         (abs(axes{i}(2)-axes{i}(1)));
 end
 
-if interp_grid
+if interp_grid || centerpoints
     % modify projection axis to be
     % bin centers + half-step halo. Make integration axis consisting of single point in the
     % centre of a bin
     is_pax = ismember(1:4,obj.pax);
     for i=1:4
         if is_pax(i)
-            axes{i} = ([obj.img_range(1,i), ...
-                0.5*(axes{i}(1:end-1)+axes{i}(2:end)), ...
-                obj.img_range(2,i)]);
+            if centerpoints
+                axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
+            else
+                axes{i} = ([obj.img_range(1,i), ...
+                    0.5*(axes{i}(1:end-1)+axes{i}(2:end)), ...
+                    obj.img_range(2,i)]);
+            end
         else
-            axes{i} = 0.5*(obj.img_range(1,i)+obj.img_range(2,i));
+            if centerpoints
+                axes{i} = 0.5*(obj.img_range(1,i)+obj.img_range(2,i));
+            else
+                axes{i} = [obj.img_range(1,i),obj.img_range(2,i)];
+            end
         end
         npoints_in_axes(i) = numel(axes{i});
     end
@@ -125,7 +133,7 @@ function char_size = parse_inputs(ninputs,varargin)
 % cube, throw invalid_argument
 %
 char_size= [];
-if ninputs > 4
+if ninputs > 5
     if isnumeric(varargin{1})
         cube = varargin{1};
         cube_size = size(cube);

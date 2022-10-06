@@ -355,14 +355,14 @@ classdef axes_block < serializable
             %              cells are equal or nodes size array of cell volumes
             %              if the cells have different size.
             %
-            opt = {'-3D','-halo','-interpolation'};
-            [ok,mess,do_3D,build_halo,interp_grid,argi] = parse_char_options(varargin,opt);
+            opt = {'-3D','-halo','-interpolation','-center'};
+            [ok,mess,do_3D,build_halo,interp_grid,centerpoints,argi] = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:axes_block:invalid_argument',mess)
             end
             [nodes,dE_edges,nbin_size,grid_cell_volume] = ...
                 calc_bin_nodes_(obj,do_3D, ...
-                build_halo,interp_grid,argi{:});
+                build_halo,interp_grid,centerpoints,argi{:});
         end
         %
         function range = get_binning_range(obj,cur_proj,new_proj)

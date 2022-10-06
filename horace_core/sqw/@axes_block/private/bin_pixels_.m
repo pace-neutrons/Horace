@@ -63,7 +63,7 @@ function [npix,varargout] = bin_pixels_(obj,coord,nout,...
 %         pixels in PixelData. if num_outputs<6, output pix are sorted by
 %         npix bins.
 
-
+varargout = cell(1,nargout);
 if nargin>8
     options = {'-force_double'};
     % keep unused argi parameter to tell parce_char_options to ignore
@@ -145,11 +145,13 @@ end
 % Calculating signal and error
 %--------------------------------------------------------------------------
 if isa(pix_cand,'PixelData')
+    is_pix = true;
     ndata = 2;
     bin_values = cell(2,1);
     bin_values{1} = pix_cand.signal;
     bin_values{2} = pix_cand.variance;
 else % numeric array of values to accumulate
+    is_pix = false;
     ndata = size(pix_cand,1);
     bin_values = cell(ndata,1);
     for i=1:ndata
@@ -168,14 +170,15 @@ else
         varargout{i} = varargout{i}+accumarray(pix_indx,bin_values{i}(ok),n_bins);
     end
 end
-if nout<4
+if nout<4 || ~is_pix
     return;
 end
 %--------------------------------------------------------------------------
 % more than 4 outputs
 % Get unsorted pixels, contributed to the bins
 %--------------------------------------------------------------------------
-varargout{4}     = pix_cand.get_pixels(ok);
+% s,e,pix,unique_runid,pix_indx
+varargout{3}     = pix_cand.get_pixels(ok);
 if nout<5
     return;
 end

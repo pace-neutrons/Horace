@@ -57,9 +57,9 @@ classdef test_axes_block_interpolation < TestCase
             cp = 0.5*(ax(1:end-1)+ax(2:end));
             step = ax(2:end)-ax(1:end-1);
             data = sin(cp);
-            [int_points,int_data] = ab_base.get_density(data.*step);
+            [int_points,int_data] = ab_base.get_density(data);
 
-            dbr(:,4) = [0;5];
+            %dbr(:,4) = [0;5];
             bin1 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
 
@@ -76,6 +76,34 @@ classdef test_axes_block_interpolation < TestCase
             assertElementsAlmostEqual(0.5*si,data)
         end
 
+        function test_interp_1D_same_points_int_coeff(~)
+            dbr = [0,-2,-3,0;pi,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+            ab_base = axes_block(bin0{:});
+
+            ax = ab_base.p{1};
+            cp = 0.5*(ax(1:end-1)+ax(2:end));
+            data = cp;
+            [int_points,int_data] = ab_base.get_density(data);
+
+            %dbr(:,4) = [0;5];
+            bin1 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+
+            ab_interp = axes_block(bin1{:});
+
+            
+            [npix,si] = ab_interp.bin_pixels(int_points,[],[],[],int_data);
+            vol = ab_interp.get_bin_volume();
+
+            si = si*vol;
+
+            %assertEqual(sum(npix(:)),size(int_points,2))
+
+            assertElementsAlmostEqual(0.5*si,data)
+        end
+        
 
     end
 end

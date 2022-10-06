@@ -103,7 +103,8 @@ else
             'Calculating signal and error requests providing full pixel information, and this information is missing')
     end
     pix_cand  = varargin{4};
-    if ~(isa(pix_cand,'PixelData') || isnumeric(pix_co)
+    if ~(isa(pix_cand,'PixelData') || ...
+            (isnumeric(pix_cand) && size(pix_cand,2) == size(pix_coord,2)))
         error('HORACE:axes_block:invalid_argument',...
             '7-th argument of the function have to be PixelData class. It is: %s',...
             class(pix_coord));
