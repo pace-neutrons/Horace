@@ -14,6 +14,7 @@ classdef test_serializable_class < TestCase
             [~,nerr] = check_herbert_mex();
             obj.use_mex = (nerr == 0);
         end
+
         function test_right_inderdep_prop_pass(~)
             tob = serializableTesterWithInterdepProp(10,1,0, ...
                 'Prop_class2_2',20);
@@ -21,8 +22,9 @@ classdef test_serializable_class < TestCase
             assertEqual(tob.Prop_class2_2,20)
             assertEqual(tob.Prop_class2_3,0)
         end
+
         %------------------------------------------------------------------
-        %
+
         function test_eq_operator_level1_ne(~)
             tc1 = serializableTester2(1,1:20,3);
             tc2 = serializableTester2(1,2,3);
@@ -32,7 +34,7 @@ classdef test_serializable_class < TestCase
             iseq = tc1.eq(tc2);
             assertFalse(iseq);
         end
-        %
+
         function test_eq_operator_level2(~)
             tc1 = serializableTester2(1,2,serializableTester1());
             tc2 = serializableTester2(1,2,serializableTester1());
@@ -42,7 +44,7 @@ classdef test_serializable_class < TestCase
             iseq = tc1.eq(tc2);
             assertTrue(iseq);
         end
-        %
+
         function test_eq_operator_level1_with_mess(~)
             tc1 = serializableTester2(1,1:20,3);
             tc2 = serializableTester2(1,1:20,3);
@@ -51,7 +53,7 @@ classdef test_serializable_class < TestCase
             assertTrue(iseq);
             assertTrue(isempty(mess));
         end
-        %
+
         function test_eq_operator_level1(~)
             tc1 = serializableTester2(1,2,3);
             tc2 = serializableTester2(1,2,3);
@@ -61,7 +63,9 @@ classdef test_serializable_class < TestCase
             iseq = tc1.eq(tc2);
             assertTrue(iseq);
         end
+
         %------------------------------------------------------------------
+
         function test_wrong_inderdep_prop_fail_differently(~)
             tob = serializableTesterWithInterdepProp(0,1,0);
             function test_set_throws()
@@ -81,7 +85,7 @@ classdef test_serializable_class < TestCase
         end
 
         function test_ser_serializeble_obj_array_class2(~)
-            conf = herbert_config;
+            conf = hor_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = false;
@@ -116,7 +120,7 @@ classdef test_serializable_class < TestCase
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
             end
 
-            conf = herbert_config;
+            conf = hor_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = true;
@@ -144,7 +148,7 @@ classdef test_serializable_class < TestCase
         end
 
         function test_ser_serializeble_obj_array_class1_obj_class2(obj)
-            conf = herbert_config;
+            conf = hor_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = false;
@@ -177,7 +181,7 @@ classdef test_serializable_class < TestCase
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
             end
 
-            conf = herbert_config;
+            conf = hor_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = true;
@@ -205,7 +209,7 @@ classdef test_serializable_class < TestCase
         end
 
         function test_ser_serializeble_obj_array_class1(~)
-            conf = herbert_config;
+            conf = hor_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = false;
@@ -235,7 +239,7 @@ classdef test_serializable_class < TestCase
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
             end
 
-            conf = herbert_config;
+            conf = hor_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = true;
@@ -260,7 +264,7 @@ classdef test_serializable_class < TestCase
         end
 
         function test_ser_serializeble_obj(~)
-            conf = herbert_config;
+            conf = hor_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = false;
@@ -287,7 +291,7 @@ classdef test_serializable_class < TestCase
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
             end
-            conf = herbert_config;
+            conf = hor_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = true;
@@ -314,7 +318,7 @@ classdef test_serializable_class < TestCase
 
         function test_ser_serializeble_obj_level0(~)
 
-            conf = herbert_config;
+            conf = hor_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = false;
@@ -341,7 +345,7 @@ classdef test_serializable_class < TestCase
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
             end
 
-            conf = herbert_config;
+            conf = hor_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = true;
@@ -543,6 +547,7 @@ classdef test_serializable_class < TestCase
         end
 
         %------------------------------------------------------------------
+
         function test_pos_constructor_char_pos_sets_key(~)
             [tc,rem] = serializableTester2(11,20,'Prop_class2_3','aaa',...
                 'Prop_class2_2',30,'blabla');

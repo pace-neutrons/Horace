@@ -8,7 +8,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
     %
     % Author: T.G.Perring
     properties
-        %
+
         sqw_pow_file;
         sqw_pow_rings_file;
 
@@ -29,17 +29,15 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             sample_file = fullfile(rootpath, 'test_gen_sqw_powder_output.mat');
             obj = obj@TestCaseWithSave(name, sample_file);
 
-            % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
             pths = horace_paths;
             common_data_dir = pths.test_common;
-            % -----------------------------------------------------------------------------
-            hcfg=herbert_config();
+
+            hcfg=hor_config();
             current = hcfg.use_mex;
             clob = onCleanup(@()set(hcfg,'use_mex',current));
             hcfg.use_mex = false;
 
-            % =====================================================================================================================
             % Create sqw file:
             en = 0:1:90;
             par_file = fullfile(common_data_dir, 'map_4to1_dec09.par');
@@ -69,11 +67,10 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             pow_par_file = fullfile(tmp, 'test_pow_rings.par');
             pow_phx_file = fullfile(tmp, 'test_pow_rings.phx');
             obj.sqw_pow_rings_file = fullfile(tmp, 'test_pow_rings.sqw');
-            %
+
             loc_cleanup_obj = onCleanup(@()obj.rm_files(spe_pow_file, ...
                 pow_par_file, pow_phx_file));
 
-            %--------------------------------------------------------------------------------------------------
             % Perform a powder average in Horace
             gen_sqw_powder(spe_file, par_file, obj.sqw_pow_file, efix, emode);
 
@@ -100,8 +97,8 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             % is
             obj.save();
         end
+
         function test_powder_cuts(obj)
-            %--------------------------------------------------------------------------------------------------
             wpow = read_sqw(obj.sqw_pow_file);
 
             %cuts_list= containers.Map();
@@ -116,8 +113,8 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             obj.assertEqualToTolWithSave(w1,'ignore_str',true,'tol',[1.e-7,1.e-5])
             obj.assertEqualToTolWithSave(w2,'ignore_str',true,'tol',[1.e-7,1.e-5])
         end
+
         function test_rings_cut(obj)
-            %--------------------------------------------------------------------------------------------------
             wpowrings = read_sqw(obj.sqw_pow_rings_file);
 
             w2rings = cut_sqw(wpowrings, [0, 0.03, 7], 0, '-nopix');
@@ -130,13 +127,14 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             plot(w2rings);
             lz 0 0.5
             dd(w1rings);
-            %--------------------------------------------------------------------------------------------------
+
             obj.assertEqualToTolWithSave(w2rings,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
             obj.assertEqualToTolWithSave(w1rings,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
 
         end
+
         function delete(obj)
             obj.cleanup_obj = [];
         end
@@ -149,9 +147,9 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             %Usage:
             %>>rm_files(file1,file2,file3,...)
             % where file(N) if present --- the files to remove
-            %
+
             for i = 1:numel(varargin)
-                if exist(varargin{i}, 'file')
+                if is_file(varargin{i})
                     delete(varargin{i});
                 end
             end

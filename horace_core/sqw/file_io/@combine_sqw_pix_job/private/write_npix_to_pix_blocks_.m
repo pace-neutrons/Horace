@@ -29,9 +29,7 @@ function write_npix_to_pix_blocks_(obj,fout,pix_out_position,pix_comb_info)
 % As the result -- writes combined pixels block to the ouput sqw file.
 
 
-log_level = config_store.instance().get_value('herbert_config','log_level');
-pmax = config_store.instance().get_value('hor_config','mem_chunk_size');
-
+[pmax, log_level] = config_store.instance().get_value('hor_config','mem_chunk_size','log_level');
 
 if isnumeric(fout)
     filename = fopen(fout);
@@ -79,12 +77,12 @@ mess_completion(pix_comb_info.num_pixels,5,1);   % initialise completion message
 pix_buf_size=pmax;
 pos_pixstart = pix_comb_info.pos_pixstart;
 while ibin_end<nbin
-    
+
     % Refill buffer with next section of npix arrays from the input files
     ibin_start = ibin_end+1;
     [npix_per_bins,npix_in_bins,ibin_end]=obj.get_npix_section(ibin_start,nbin);
     npix_per_bins = npix_per_bins';
-    
+
     % Get the largest bin index such that the pixel information can be put in buffer
     % (We hold data for many bins in a buffer, as there is an overhead from reading each bin from each file separately;
     % only read when the bin index fills as much of the buffer as possible, or if reaches the end of the array of buffered npix)
@@ -94,27 +92,27 @@ while ibin_end<nbin
         if (log_level>1)
             t_all=tic;
         end
-        
+
         [npix_per_bin2_read,npix_processed,npix_per_bins,npix_in_bins] = ...
             obj.nbin_for_pixels(npix_per_bins,npix_in_bins,npix_processed,pix_buf_size);
-        
+
         if (log_level>1)
             tr = tic;
         end
         [pix_section,pos_pixstart]=...
             obj.read_pix_for_nbins_block(pos_pixstart,npix_per_bin2_read);
-        
+
         if (log_level>1)
             t_read=toc(tr);
             disp(['   ***time to read subcells from files: ',num2str(t_read),' speed: ',num2str(npix_processed*4*9/t_read/(1024*1024)),'MB/sec'])
         end
-        
+
         %
         if (log_level>1)
             t_w = tic;
         end
         n_pix_written =obj.write_pixels(pix_section,n_pix_written);
-        
+
         if (log_level>1)
             t_write = toc(t_w);
             t_total=toc(t_all);
@@ -124,7 +122,7 @@ while ibin_end<nbin
             disp(['   ***time to write pixels: ',num2str(t_write),' speed: ',num2str(npix_processed*4*9/t_write/(1024*1024)),'MB/sec'])
             disp(['   ***IO time to total time ratio: ',num2str(100*t_io/t_total),'%'])
         end
-        
+
         mess_completion(n_pix_written)
     end
 end
@@ -138,4 +136,3 @@ if (log_level>1)
     disp(['***   IO time to total time ratio: ',num2str(100*t_io_total/t_all_total),'%'])
     disp(['*** Size of the generated file is: ',num2str(file_size),'MB'])
 end
-

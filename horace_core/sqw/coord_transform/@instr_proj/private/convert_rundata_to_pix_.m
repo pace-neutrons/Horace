@@ -12,7 +12,7 @@ if nargin == 2 % axes_block is missing and we are calculating only pix range
     calc_all_pixels = false;
 else
     calc_all_pixels  = true;
-    hor_log_level  = config_store.instance().get_value('herbert_config','log_level');
+    hor_log_level  = get(hor_config,'log_level');
     if hor_log_level>-1
         bigtic;
     end
@@ -20,7 +20,7 @@ end
 
 qspec = run_data.qpsecs_cache;
 if isempty(qspec)
-    qspec_provided = false;        
+    qspec_provided = false;
 else
     qspec_provided = true;
 end
@@ -48,7 +48,7 @@ end
 
 % caclulate pixels in standard form:
 % -----------------
-if qspec_provided 
+if qspec_provided
     detdcn = [];
 else% calculate detectors directions, which are always cached now.
     % And compared with the stored detectors each time, to recalculate if

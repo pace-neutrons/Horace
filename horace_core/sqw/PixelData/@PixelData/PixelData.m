@@ -380,7 +380,7 @@ classdef PixelData < handle
                 % input is a file accessor
                 obj = obj.init_from_file_accessor_(arg);
                 if any(any(obj.pix_range == obj.EMPTY_RANGE_)) && upgrade
-                    if config_store.instance().get_value('herbert_config','log_level')>0
+                    if get(hor_config, 'log_level') > 0
                         fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
                             arg.filename);
                     end
@@ -390,8 +390,8 @@ classdef PixelData < handle
 
             end
             % Input sets underlying data
-            if exist('mem_alloc', 'var') 
-                if isempty(mem_alloc) 
+            if exist('mem_alloc', 'var')
+                if isempty(mem_alloc)
                     if isa(arg,'single'); byte_per_wd= 4;
                     else;                 byte_per_wd = 8;
                     end

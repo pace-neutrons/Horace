@@ -1,11 +1,11 @@
 function gen_sqw_cylinder(spe_file, par_file, sqw_file, efix, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
-% 
+%
 % *** TEST ROUTINE
 %       This was created rapidly as a fix-up during an experiment. A polished version is
 %       marked for addition at a later date. Use on your own risk
 %
-% Look at horace_core/../_test/test_combine_cyl.m and horace_core/../_test/test_gen_sqw_cylinder.m 
+% Look at horace_core/../_test/test_combine_cyl.m and horace_core/../_test/test_gen_sqw_cylinder.m
 % for samples of acceptable usage
 %
 %   >> gen_sqw_cylinder(spe_file, par_file, sqw_file, efix, emode, clatt, omega, gl, gs)
@@ -102,9 +102,10 @@ end
 % Always use the Matlab ASCII loader: reading with mex can give
 % slightly different answers due to floating point errors. This
 % can result in inconsistent binning and cause this test to fail
-her_conf = herbert_config();
-original_herbert_conf = her_conf.get_data_to_store();
-her_conf.use_mex = false;
+hor_conf = hor_config();
+original_hor_conf = hor_conf.get_data_to_store();
+clob = onCleanup(@() set(hor_config, original_hor_conf));
+hor_conf.use_mex = false;
 
 % Process files
 grid=[1,1,1,1];     % need to force to be one bin for the algorithm to work
@@ -113,7 +114,6 @@ for i=1:numel(spe_file)
         alatt, angdeg, u, v, psi, omega(i), dpsi, gl(i), gs(i), grid);
 end
 
-set(herbert_config, original_herbert_conf);
 
 % The special part: replace u1 with sqrt(u1^2+u2^2) and set u2=0 - this allows for cylindrical symmetry
 % -----------------------------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ Qz_bins=[dQz*(floor((Qz_min-small)/dQz)+0.5),dQz,dQz*(ceil((Qz_max+small)/dQz)-0
 
 if nfiles==1 && (numel(hdr.en)-1)<=50  % one spe file and 50 energy bins or less
     %epsbins=0;           % Use intrinsic energy bins
-    epsbins = min(hdr.en(2:end)-hdr.en(1:end-1));    
+    epsbins = min(hdr.en(2:end)-hdr.en(1:end-1));
 else
     deps=round_to_vals((eps_max-eps_min)/nepsbin_def);
     epsbins=[eps_min-deps/2,deps,eps_max+deps/2];
@@ -178,7 +178,7 @@ for i=1:nfiles
     data=DnDBase.dnd(...
         axes_block('nbins_all_dims',[1,1,1,1],'img_range',range_add_border(pix.pix_range)),...
         proj);
-    data.npix = pix.num_pixels;    
+    data.npix = pix.num_pixels;
     w.data = data;
     w.pix  = pix;
     % Rebin
@@ -248,4 +248,3 @@ else
     ok=false;
     mess='must be a scalar or a vector with same number of elements as spe files';
 end
-

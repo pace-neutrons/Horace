@@ -41,7 +41,7 @@ end
 
 filename=strtrim(filename);
 
-use_mex = get(herbert_config,'use_mex');
+use_mex = get(hor_config,'use_mex');
 if use_mex
     try     %using C routine
         phx=get_ascii_file(filename,'phx');
@@ -52,7 +52,7 @@ if use_mex
             phx=[phx(1,:);phx(3:7,:)];
         end
     catch   %using matlab routine
-        force_mex = get(herbert_config,'force_mex_if_use_mex');
+        force_mex = get(hor_config,'force_mex_if_use_mex');
         if ~force_mex
             warning('A_LOADER:get_phx','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
             use_mex = false;
@@ -79,9 +79,6 @@ elseif ~(numel(group)==ndet && min(group)>0)
     error('A_LOADER:io_error','The detector group numbers must be unique integers >= 1, or all the same (when they will be set to 1:ndet');
 end
 
-
-
-
 function phx= get_phx_matlab(file_tmp)
 % Read file (use matlab)
 
@@ -93,7 +90,7 @@ end
 
 % Get number of detectors
 ndet=fscanf(fid,'%d\n',1);
-if get(herbert_config,'log_level')>0
+if get(hor_config,'log_level')>0
     disp(['Loading .phx file with ' num2str(ndet) ' detectors : ' file_tmp]);
 end
 if ndet<0
@@ -116,5 +113,3 @@ phx=[phx(1,:);phx(3:7,:)];
 %     phx.azim=arr(4,:);
 %     phx.dphi=arr(5,:);
 %     phx.danght=arr(6,:);
-
-

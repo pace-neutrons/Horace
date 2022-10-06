@@ -13,7 +13,7 @@ function [ser,nbytes] = deserialise(a,pos)
 if nargin<2
     pos = 1;
 end
-[use_mex,fm] = config_store.instance().get_value('herbert_config',...
+[use_mex,fm] = config_store.instance().get_value('hor_config',...
     'use_mex','force_mex_if_use_mex');
 
 if use_mex

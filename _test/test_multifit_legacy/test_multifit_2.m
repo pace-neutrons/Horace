@@ -161,7 +161,7 @@ if ~ok, assertTrue(false,mess), end
 % Compare with saved output
 % ======================================================================================================================
 if ~save_output
-    if get(herbert_config,'log_level')>-1
+    if get(hor_config,'log_level')>-1
         disp('====================================')
         disp('    Comparing with saved output')
         disp('====================================')
@@ -170,7 +170,7 @@ if ~save_output
     %
     warning('off','MATLAB:unknownObjectNowStruct');
     clob = onCleanup(@()(warning('on','MATLAB:unknownObjectNowStruct')));
-    
+
     old=load(output_file);
     nam=fieldnames(old);
     tol=1.0e-8;
@@ -187,13 +187,13 @@ if ~save_output
         if ~ok
             assertTrue(false,['[',nam{i},']',mess])
         else
-            if get(herbert_config,'log_level')>-1
+            if get(hor_config,'log_level')>-1
                 disp (['[',nam{i},']',': ok'])
             end
         end
     end
     % Success announcement
-    if get(herbert_config,'log_level')>-1
+    if get(hor_config,'log_level')>-1
         banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
     end
 end
@@ -206,7 +206,7 @@ if save_output
     disp('===========================')
     disp('    Save output')
     disp('===========================')
-    
+
     output_file=fullfile(tmp_dir,results_filename);
     save(output_file,...
         'ws1_ref','fs1_ref','ws1a','fs1a','ws1b','fs1b',...
@@ -219,9 +219,8 @@ if save_output
         'wm7_ref','fm7_ref','wm7a','fm7a','wm7b','fm7b',...
         'wm8_ref','fm8_ref','wm8','fm8',...
         'wm9_ref','fm9_ref','wm9','fm9');
-    
+
     disp(' ')
     disp(['Output saved to ',output_file])
     disp(' ')
 end
-

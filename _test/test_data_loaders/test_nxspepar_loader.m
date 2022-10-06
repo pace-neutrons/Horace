@@ -1,9 +1,10 @@
-classdef test_nxspepar_loader< TestCase
+classdef test_nxspepar_loader < TestCase
     properties
         test_data_path;
     end
+
     methods
-        %
+
         function this=test_nxspepar_loader(name)
             if nargin<1
                 name = 'test_nxspepar_loader';
@@ -24,7 +25,7 @@ classdef test_nxspepar_loader< TestCase
             assertExceptionThrown(@()load_par(pl),...
                 'HERBERT:nxspepar_loader:invalid_argument');
         end
-        %
+
         function test_constructors(this)
             par_file = fullfile(this.test_data_path,'MAP11014.nxspe');
             al1=nxspepar_loader(par_file);
@@ -46,10 +47,10 @@ classdef test_nxspepar_loader< TestCase
 
             assertEqual(par,al2.det_par);
         end
-        %
+
         function test_set_par_file(this)
             par_file = fullfile(this.test_data_path,'MAP11014v2.nxspe');
-            %
+
             al=nxspepar_loader();
             al.par_file_name = par_file;
 
@@ -68,7 +69,7 @@ classdef test_nxspepar_loader< TestCase
             f = @()al.load_par('arg1','arg2');
             assertExceptionThrown(f,'HERBERT:nxspepar_loader:invalid_argument');
 
-            if get(herbert_config,'log_level')>-1
+            if get(hor_config,'log_level')>-1
                 par_file = fullfile(this.test_data_path,'MAP11014v2.nxspe');
                 % deprecated option '-hor'
                 par=al.load_par(par_file,'-hor');
@@ -79,6 +80,7 @@ classdef test_nxspepar_loader< TestCase
             end
 
         end
+
         function test_to_from_struct_det_in_mem(obj)
             par_file = fullfile(obj.test_data_path,'MAP11014v2.nxspe');
             al = nxspepar_loader(par_file);
@@ -105,7 +107,6 @@ classdef test_nxspepar_loader< TestCase
             assertEqual(al,al_rec)
         end
 
-        %
         function test_load_nxspe_par(this)
             al=nxspepar_loader();
             par_file = fullfile(this.test_data_path,'MAP11014v2.nxspe');
@@ -131,7 +132,7 @@ classdef test_nxspepar_loader< TestCase
             [~,fname,fext] = fileparts(al.par_file_name);
             assertEqual([fname,fext],'MAP11014v2.nxspe');
         end
-        %
+
         function test_par_fron_cache_in_correct_format(this)
             al=nxspepar_loader();
             par_file = fullfile(this.test_data_path,'MAP11014v2.nxspe');
@@ -147,7 +148,6 @@ classdef test_nxspepar_loader< TestCase
             assertEqual([6,28160],size(par));
         end
 
-        %
         function test_get_par_info(this)
 
             par_file = fullfile(this.test_data_path,'MAP11014v2.nxspe');
@@ -187,6 +187,7 @@ classdef test_nxspepar_loader< TestCase
             assertTrue(isempty(al.n_det_in_par));
             assertTrue(isempty(al.par_file_name));
         end
+
         function test_par_file_defines(this)
             al=nxspepar_loader();
             assertTrue(isempty(al.loader_define()));
@@ -205,8 +206,9 @@ classdef test_nxspepar_loader< TestCase
             al.par_file_name = '';
             assertEqual({'det_par','n_det_in_par'},al.loader_define());
         end
+
         function test_init_using_nxspepar(this)
-            %
+
             par_file = fullfile(this.test_data_path,'MAP11014v2.nxspe');
 
             [ndet,nxspe_version,nexus_dir,NXspeInfo]=...
@@ -231,7 +233,7 @@ classdef test_nxspepar_loader< TestCase
         end
 
         function test_init_using_nxspepar2(this)
-            %
+
             par_file = fullfile(this.test_data_path,'MAP11014v2.nxspe');
 
             al=nxspepar_loader(par_file);

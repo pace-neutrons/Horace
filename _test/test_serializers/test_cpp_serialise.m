@@ -13,22 +13,22 @@ classdef test_cpp_serialise < TestCase
                 name  = 'test_cpp_serialise';
             end
             this = this@TestCase(name);
-            this.warned = get(herbert_config, 'log_level') > 0;
-            this.old_mex = get(herbert_config, 'use_mex');
+            this.warned = get(hor_config, 'log_level') > 0;
+            this.old_mex = get(hor_config, 'use_mex');
             [~,nerr] = check_herbert_mex();
             this.use_mex = nerr == 0;
         end
 
         function setUp(this)
-            set(herbert_config, 'use_mex', true);
+            set(hor_config, 'use_mex', true);
         end
 
         function tearDown(this)
-            set(herbert_config, 'use_mex', this.old_mex);
+            set(hor_config, 'use_mex', this.old_mex);
         end
 
-
         %------------------------------------------------------------------
+
         function test_ser_sample(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');

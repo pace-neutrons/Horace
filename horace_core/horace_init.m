@@ -68,6 +68,17 @@ if hc.is_default
     check_mex = true;
 end
 
+if hc.init_tests % this is developer version
+    % set unit tests to the Matlab search path, to overwrite the unit tests
+    % routines, added to Matlab after Matlab 2017b, as new routines have
+    % signatures which are different from the standard unit tests routines.
+    hc.set_unit_test_path();
+
+    % add path to folders, which responsible for administrative operations
+    addpath_message(1,fullfile(root_path,'admin'))
+    addpath(fullfile(root_path,'_test','common_functions'));
+end
+
 hpcc = hpc_config;
 if hc.is_default || hpcc.is_default
     warning([' Found Horace is not configured. ',...
@@ -78,12 +89,6 @@ if hc.is_default || hpcc.is_default
     % load and apply configuration, assumed to be optimal for this kind of the machine.
     conf_c = opt_config_manager();
     conf_c.load_configuration('-set_config','-change_only_default','-force_save');
-else % if Herbert was initialized before Horace, it has not init the tests
-    % path-s, related to Horace.
-    her = herbert_config;
-    if her.init_tests % re-init tests here again, to add the path-s necessary for Horace tests
-        her.init_tests = true;
-    end
 end
 
 if check_mex
@@ -91,12 +96,6 @@ if check_mex
     hc.use_mex = n_mex_errors < 1;
 end
 
-hec = herbert_config;
-if hec.init_tests
-    % add path to folders, which responsible for administrative operations
-    addpath_message(1,fullfile(root_path,'admin'))
-    addpath(fullfile(root_path,'_test','common_functions'));
-end
 % Beta version: Suppress warning occurring when old instrument is stored in
 % an sqw file and is automatically converted into MAPS
 warning('off','SQW_FILE:old_version')

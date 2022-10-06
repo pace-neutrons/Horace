@@ -130,9 +130,7 @@ function [wout,wsym] = cut_sqw_sym_main (data_source, varargin)
 %   wsym            Array of data objects, one for each symmetry related cut
 
 
-hor_log_level = config_store.instance().get_value('herbert_config','log_level');
-
-
+hor_log_level = get(hor_config,'log_level');
 
 % Parse input arguments
 % ---------------------
@@ -259,4 +257,3 @@ for i=1:numel(sym)
     end
 end
 sym_out = sym(keep);
-

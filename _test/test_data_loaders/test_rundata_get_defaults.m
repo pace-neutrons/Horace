@@ -1,28 +1,29 @@
 classdef test_rundata_get_defaults< TestCase
-    %
-
     properties
         log_level;
     end
+
     methods
-        %
-        function this=test_rundata_get_defaults(name)
-            this = this@TestCase(name);
+
+        function obj=test_rundata_get_defaults(name)
+            obj = obj@TestCase(name);
         end
-        function this=setUp(this)
-            hc = herbert_config;
-            this.log_level = hc.log_level';
+
+        function obj=setUp(obj)
+            hc = hor_config;
+            obj.log_level = hc.log_level';
             hc.saveable = false;
             hc.log_level = -1;
         end
-        function this=tearDown(this)
-            hc = herbert_config;
+
+        function obj=tearDown(obj)
+            hc = hor_config;
             hc.saveable = false;
-            this.log_level = this.log_level;
+            obj.log_level = obj.log_level;
         end
 
         % TESTS:
-        function this=test_get_all_defaults(this)
+        function obj=test_get_all_defaults(obj)
             rd=rundata();
 
             def_fields = rd.fields_with_defaults();
@@ -43,7 +44,7 @@ classdef test_rundata_get_defaults< TestCase
             assertEqual([0,1,0],def_values{7});
         end
 
-        function this=test_wrong_defaults_throw(this)
+        function obj=test_wrong_defaults_throw(obj)
             rd=rundata();
 
             f = @()get_defaults(rd,'missing_default_parameter');
@@ -60,7 +61,7 @@ classdef test_rundata_get_defaults< TestCase
 
         end
 
-        function this=test_correct_defaults(this)
+        function obj=test_correct_defaults(obj)
             rd=rundata();
             rd.lattice=oriented_lattice();
 
@@ -71,7 +72,8 @@ classdef test_rundata_get_defaults< TestCase
             assertEqual(0,def{1})
             assertEqual(0,def{2})
         end
-        function this=test_correct_deforder(this)
+
+        function obj=test_correct_deforder(obj)
             rd=rundata();
             rd.lattice = oriented_lattice();
 
@@ -81,7 +83,5 @@ classdef test_rundata_get_defaults< TestCase
             assertEqual([1,0,0],def{2})
             assertEqual(0,def{3})
         end
-
-
     end
 end

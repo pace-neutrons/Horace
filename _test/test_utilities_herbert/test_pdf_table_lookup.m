@@ -1,7 +1,7 @@
 function test_pdf_table_lookup
 % Test pdf_table_lookup works as expected
 
-hc = herbert_config;
+hc = hor_config;
 log_level = hc.log_level;
 
 %--------------------------------------------------------------------------

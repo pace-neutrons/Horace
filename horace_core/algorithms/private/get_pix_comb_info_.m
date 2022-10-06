@@ -32,12 +32,9 @@ function  [data_sum,img_range,job_disp]=get_pix_comb_info_(infiles, ...
 % drop_subzone_headers
 %          -- currently depricated. Will be removed in the future
 %
-if isempty(job_disp)
-    combine_in_parallel = false;
-else
-    combine_in_parallel = true;
-end
-hor_log_level=config_store.instance().get_value('herbert_config','log_level');
+
+combine_in_parallel = ~isempty(job_disp);
+hor_log_level = get(hor_config,'log_level');
 
 
 % Check that the input files all exist and give warning if the output files overwrite the input files.
@@ -49,11 +46,10 @@ end
 
 % Check input files exist
 nfiles=length(infiles);
-for i=1:nfiles
-    if exist(infiles{i},'file')~=2
-        error('HORACE:write_nsqw_to_sqw:invalid_argument',...
-            'Can not find file: %s',infiles{i})
-    end
+if ~all(cellfun(@is_file, infiles))
+    exst = cellfun(@is_file, infiles);
+    error('HORACE:write_nsqw_to_sqw:invalid_argument',...
+          'Can not find files: %s ',infiles{exst})
 end
 
 % *** Check output file can be opened

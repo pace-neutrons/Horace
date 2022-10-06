@@ -22,7 +22,7 @@ if nargout < 1
         'set_file_to_update has to return its value in output object')
 end
 
-log_level = config_store.instance().get_value('herbert_config','log_level');
+log_level = get(hor_config,'log_level');
 
 old_ldr = [];
 if nargin>1
@@ -31,7 +31,7 @@ if nargin>1
         error('HORACE:dnd_binfile_common:invalid_argument',...
             'set_file_to_update: new filename to save needs to be a string')
     end
-    if exist(new_filename,'file')
+    if is_file(new_filename)
         file_exist = true;
         try
             old_ldr = sqw_formats_factory.instance().get_loader(new_filename,'-upgrade');
@@ -109,7 +109,7 @@ obj.file_closer_ = onCleanup(@()obj.fclose());
 %-------------------------------------------------------------------------
 
 if file_exist
-    obj.upgrade_headers_ = false;    
+    obj.upgrade_headers_ = false;
     if upgrading_this
         this_pos = old_ldr.get_pos_info();
         upgrade_map = const_blocks_map(this_pos);
@@ -159,5 +159,3 @@ upgrade_map_obj = const_blocks_map(other_pos);
 if ~ok && log_level>1
     fprintf('*** %s\n',mess);
 end
-
-

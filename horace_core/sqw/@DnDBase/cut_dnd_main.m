@@ -6,8 +6,8 @@ function wout = cut_dnd_main (data_source, ndims, varargin)
 %   >> w = cut_dnd_main (..., '-save')   % Save cut to file (prompts for file)
 %   >> w = cut_dnd_main (...,  filename) % save cut to named file
 %
-%   >> cut_dnd_main (...)                % save cut to file; no output workspace 
-% 
+%   >> cut_dnd_main (...)                % save cut to file; no output workspace
+%
 % Input:
 % ------
 %   data_source     Data source: dnd object or filename of a file with
@@ -16,14 +16,14 @@ function wout = cut_dnd_main (data_source, ndims, varargin)
 %
 %   p1_bin          Binning along first plot axis
 %   p2_bin          Binning along second plot axis
-%                           
+%
 %                   For each binning entry:
 %           - [] or ''          Plot axis: use bin boundaries of input data
 %           - [pstep]           Plot axis: Step size pstep must be 0 or
 %                              the current bin size (no other rebinning
 %                              is permitted)
 %           - [plo, phi]        Integration axis: range of integration.
-%                              Those bin centres that lie inside this range 
+%                              Those bin centres that lie inside this range
 %                              are included.
 %           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres.
 %                              The step size pstep must be 0 or the current
@@ -37,7 +37,7 @@ function wout = cut_dnd_main (data_source, ndims, varargin)
 % Original author: T.G.Perring
 %
 
-hor_log_level = config_store.instance.get_value('herbert_config','log_level');
+hor_log_level = get(hor_config,'log_level');
 
 % Parse input arguments
 % ---------------------
@@ -101,7 +101,7 @@ if numel(pbin)~=ndims
     error('Number of binning arguments must match dimension of dnd data being cut')
 end
 
-        
+
 % Open output file if required
 if save_to_file
     if isempty(outfile)
@@ -279,4 +279,3 @@ end
 if nargout~=0
     wout= DnDBase.make_dnd(data_out);
 end
-
