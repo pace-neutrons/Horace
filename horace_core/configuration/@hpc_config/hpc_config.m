@@ -104,6 +104,7 @@ classdef hpc_config < config_base
         % storing/reading job data
         remote_folder;
 
+        % number of workers to deploy in parallel jobs
         parallel_workers_number;
 
         % what parallel framework to use for parallel  tasks. Available

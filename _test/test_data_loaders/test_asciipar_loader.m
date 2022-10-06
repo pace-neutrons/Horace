@@ -118,8 +118,7 @@ classdef test_asciipar_loader < TestCase
             par_file = fullfile(obj.test_data_path,'wrong_demo_par_7Col.PAR');
 
             f = @()al.load_par(par_file);
-            use_mex=get(hor_config,'use_mex');
-            force_mex_if_use_mex=get(hor_config,'force_mex_if_use_mex');
+            [use_mex, force_mex_if_use_mex] =get(hor_config,'use_mex','force_mex_if_use_mex');
             set(hor_config,'use_mex',true,'force_mex_if_use_mex',true,'-buffer');
             % should throw; par file has 7 columns
             assertExceptionThrown(f,'ASCIIPAR_LOADER:load_par');

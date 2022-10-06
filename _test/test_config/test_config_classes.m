@@ -154,16 +154,20 @@ classdef test_config_classes < TestCase
             clob = onCleanup(@()set(pc,old_config));
             pc.saveable = false;
 
-            % Delete existing slurm commands
+            % Sets for comparison
             new_commands = containers.Map({'-A' '-p'}, {'account' 'partition'});
-            pc.slurm_commands = new_commands;
-            pc.slurm_commands = [];
-            assertTrue(isempty(pc.slurm_commands))
+            new_commands_app = containers.Map({'-p' '-q'}, {'new_part' 'queue'});
+            new_commands_app_check = containers.Map({'-A' '-p' '-q'}, {'account' 'new_part' 'queue'});
 
-            % Set new map
+            %% Destructive
+            % Set as map
             pc.slurm_commands = new_commands;
             assertEqual(pc.slurm_commands.keys(), new_commands.keys());
             assertEqual(pc.slurm_commands.values(), new_commands.values());
+
+            % Set empty (check clearing works)
+            pc.slurm_commands = [];
+            assertTrue(isempty(pc.slurm_commands))
 
             % Set as char
             pc.slurm_commands = [];
@@ -196,19 +200,25 @@ classdef test_config_classes < TestCase
             assertEqual(pc.slurm_commands.keys(), new_commands.keys());
             assertEqual(pc.slurm_commands.values(), new_commands.values());
 
+            %% Non-destructive
+            % Set through update_slurm_commands as map
+            pc.slurm_commands = new_commands;
+            pc.update_slurm_commands(new_commands_app, true);
+            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
+            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
+
+            % Set through update_slurm_commands as char
+            pc.slurm_commands = new_commands;
+            pc.update_slurm_commands('-q queue -p=new_part', true);
+            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
+            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
+
             % Set through Map interface
-            pc.slurm_commands = [];
-            pc.slurm_commands('-A') = 'account';
-            pc.slurm_commands('-p') = 'partition';
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
-            % Set through update_slurm_commands
-            pc.slurm_commands = [];
-            pc.update_slurm_commands('-A account -p=partition', true);
-            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands.values());
-
+            pc.slurm_commands = new_commands;
+            pc.slurm_commands('-q') = 'queue';
+            pc.slurm_commands('-p') = 'new_part';
+            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
+            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
         end
 
     end

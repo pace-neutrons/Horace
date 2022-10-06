@@ -25,7 +25,7 @@ ww3norm = ww3/c3.transmission();
 ww4norm = ww4/c4.transmission();
 ww5norm = ww5/c5.transmission();
 
-%--------------------------------------------------------------------------
+%------------------------------------
 % Test the lookup table for rand_ind
 % -----------------------------------
 

@@ -133,7 +133,6 @@ classdef ClusterHerbert < ClusterWrapper
             res_mess = cell(1,numel(obj.tasks_handles_));
             is_failed = false(1,numel(obj.tasks_handles_));
             is_running = true(1,numel(obj.tasks_handles_));
-            n_fail = 0;
 
             for i=1:numel(obj.tasks_handles_)
                 [running,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});

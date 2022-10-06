@@ -53,13 +53,15 @@ function [hpc_cli,hpc_opt] = hpc(val)
 hpc_cli = hpc_config();
 hpc_options_names = hpc_cli.hpc_options;
 
-if nargin>0
-    val = varargin{1};
-
+if exist('val', 'var')
     switch lower(val)
-      case 'on'
+      case {'on', 1}
         hpc_cli.build_sqw_in_parallel = true;
-      case 'off'
+        hpc_cli.parallel_multifit = true;
+      case {'off', 0}
+        hpc_cli.build_sqw_in_parallel = false;
+        hpc_cli.parallel_multifit = false;
+      case {'set', 'reset', 'recommended'}
         ocp = opt_config_manager();
         % load configuration, assumed optimal for calculated type of the computer.
         ocp = ocp.load_configuration();
@@ -70,9 +72,8 @@ if nargin>0
         for i=1:numel(flds)
             hpc_cli.(flds{i}) = hpc_opt.(flds{i});
         end
-        hpc_cli.build_sqw_in_parallel = false;
       otherwise
-        fprintf('Unknown hpc option ''%s'', Use ''on'' or ''off'' only\n',varargin{1});
+        fprintf('Unknown hpc option (%s), Use ''on'', ''off'' or ''reset'' only\n', val);
     end
 else
 

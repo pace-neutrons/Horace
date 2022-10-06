@@ -217,6 +217,10 @@ classdef parallel_config<config_base
     end
 
     properties(Constant,Access=private)
+        % store/restore is_compiled_ property after worker, as worker
+        % usually identifies is_compiled_ property themselves.
+        % storing/restoring it after the main property, allows to redefine
+        % hidden is_compiled_ property independently
         saved_properties_list_={'worker', ...
                                 'is_compiled_',...
                                 'parallel_cluster', ...
