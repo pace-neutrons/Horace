@@ -155,7 +155,10 @@ else % numeric array of values to accumulate
     ndata = size(pix_cand,1);
     bin_values = cell(ndata,1);
     for i=1:ndata
-        bin_values{i} = pix_cand(i,:);
+        bin_values{i} = pix_cand{i};
+    end
+    if ndata>=3
+        varargout{3}= zeros(size(s));
     end
 end
 varargout{1}= s;

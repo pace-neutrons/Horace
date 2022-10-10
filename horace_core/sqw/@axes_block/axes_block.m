@@ -219,6 +219,33 @@ classdef axes_block < serializable
             end
             [interp_points,density] = calculate_density_(obj,datasets);
         end
+        function [s,e,npix] = interpolate_data(obj,ref_nodes,density,grid_cell_size)
+            % interpolate density data for signal, error and number of
+            % pixels provided as input density and defined on the nodes of the 
+            % references axes block onto the grid, defined by this axes block.
+            %
+            % Inputs:
+            % ref_nodes -- 4D array of the nodes of the reference lattice,
+            %              produced by get_density routine of the reference
+            %              axes block and projected into coordinate system 
+            %              of this axes block.
+            % density   -- 3-elemens cellarray containing arrays of
+            %              signal, error and npix densities,
+            %              produced by get_density routine of the reference
+            %              axes block.
+            % grid_cell_size
+            %           -- 4D array of the scales of the reference lattice,
+            %              projected onto this lattice.
+            % Returns:
+            % s,e,npix  -- interpolated arrays of signal, error and number
+            %              of pixels calculated in the centers of the
+            %              cells of this lattice.
+            if ~exist('grid_cell_size','var')
+                grid_cell_size = [];
+            end
+            [s,e,npix] = interpolate_data_(obj,nargout,ref_nodes, ...
+                density,grid_cell_size);
+        end
         %
         function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
@@ -294,7 +321,7 @@ classdef axes_block < serializable
             % to bins. If it is not requested, pix_ok are returned unsorted.
             %
 
-            if numel(varargin) == 4 && isnumeric(varargin{4})
+            if numel(varargin) == 4 && iscell(varargin{4})
                 mode = 4;
             else
                 mode = nargout;
@@ -355,14 +382,18 @@ classdef axes_block < serializable
             %              cells are equal or nodes size array of cell volumes
             %              if the cells have different size.
             %
-            opt = {'-3D','-halo','-interpolation','-center'};
-            [ok,mess,do_3D,build_halo,interp_grid,centerpoints,argi] = parse_char_options(varargin,opt);
+            opt = {'-3D','-halo','-interpolation','-extrapolation'};
+            [ok,mess,do_3D,build_halo,interp_grid,extrap_grid,argi] = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:axes_block:invalid_argument',mess)
             end
+            if extrap_grid && interp_grid
+                error('Horace:axes_block:invalid_argument',...
+                    '"-interpolation" and "-extrapolation" keys can not be used together')
+            end
             [nodes,dE_edges,nbin_size,grid_cell_volume] = ...
                 calc_bin_nodes_(obj,do_3D, ...
-                build_halo,interp_grid,centerpoints,argi{:});
+                build_halo,interp_grid,extrap_grid,argi{:});
         end
         %
         function range = get_binning_range(obj,cur_proj,new_proj)
