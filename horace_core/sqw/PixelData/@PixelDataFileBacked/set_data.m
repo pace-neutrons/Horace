@@ -22,35 +22,19 @@ NO_INPUT_INDICES = -1;
 
 [field_indices, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin{:});
 
+base_pg_size = obj.base_page_size;
 
-if obj.is_filebacked()
-    base_pg_size = obj.base_page_size;
-
-    if abs_pix_indices == NO_INPUT_INDICES
-        first_required_page = 1;
-    else
-        first_required_page = ceil(min(abs_pix_indices)/base_pg_size);
-    end
-    obj.move_to_page(first_required_page);
-
-    set_page_data(obj, field_indices, data, abs_pix_indices);
-    while obj.has_more()
-        obj.advance();
-        set_page_data(obj, field_indices, data, abs_pix_indices);
-    end
+if abs_pix_indices == NO_INPUT_INDICES
+    first_required_page = 1;
 else
-    if abs_pix_indices == NO_INPUT_INDICES
-        if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && ...
-                ischar(pix_fields) && strcmp(pix_fields,'all')
-            obj.raw_data_   = data; % all arguments have been already verified,
-            %            no point of using data_ setter
-            obj.num_pixels_ = size(data,2);
-        else
-            obj.data_(field_indices, 1:end) = data;
-        end
-    else
-        obj.data_(field_indices, abs_pix_indices) = data;
-    end
+    first_required_page = ceil(min(abs_pix_indices)/base_pg_size);
+end
+obj.move_to_page(first_required_page);
+
+set_page_data(obj, field_indices, data, abs_pix_indices);
+while obj.has_more()
+    obj.advance();
+    set_page_data(obj, field_indices, data, abs_pix_indices);
 end
 
 end  % function

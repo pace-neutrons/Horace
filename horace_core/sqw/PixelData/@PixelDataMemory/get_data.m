@@ -30,58 +30,17 @@ NO_INPUT_INDICES = -1;
 [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, varargin{:});
 field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
-if obj.is_filebacked()
-
-    base_pg_size = obj.base_page_size;
-    if abs_pix_indices == -1
-        first_required_page = 1;
-        data_out = zeros(numel(pix_fields), obj.num_pixels);
-    else
-        first_required_page = ceil(min(abs_pix_indices)/base_pg_size);
-        data_out = zeros(numel(pix_fields), numel(abs_pix_indices));
-    end
-
-    obj.move_to_page(first_required_page);
-
-    data_out = assign_page_values(...
-            obj, data_out, abs_pix_indices, field_indices, base_pg_size);
-    while obj.has_more()
-        obj.advance();
-        data_out = assign_page_values(...
-                obj, data_out, abs_pix_indices, field_indices, base_pg_size);
-    end
-
+if abs_pix_indices == NO_INPUT_INDICES
+    % No pixel indices given, return them all
+    data_out = obj.data(field_indices, :);
 else
-
-    if abs_pix_indices == NO_INPUT_INDICES
-        % No pixel indices given, return them all
-        data_out = obj.data(field_indices, :);
-    else
-        data_out = obj.data(field_indices, abs_pix_indices);
-    end
-
+    data_out = obj.data(field_indices, abs_pix_indices);
 end
 
 end  % function
 
 
 % -----------------------------------------------------------------------------
-function data_out = assign_page_values(...
-        obj, data_out, abs_pix_indices, field_indices, base_pg_size ...
-    )
-    NO_INPUT_INDICES = -1;
-
-    start_idx = (obj.page_number_ - 1)*base_pg_size + 1;
-    end_idx = min(obj.page_number_*base_pg_size, obj.num_pixels);
-    if abs_pix_indices == NO_INPUT_INDICES
-        data_out(:, start_idx:end_idx) = obj.data(field_indices, 1:end);
-    else
-        [pg_idxs, global_idxs] = ...
-            get_pg_idx_from_absolute_(obj, abs_pix_indices, obj.page_number_);
-        data_out(:, global_idxs) = obj.data(field_indices, pg_idxs);
-    end
-end
-
 
 function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
     NO_INPUT_INDICES = -1;

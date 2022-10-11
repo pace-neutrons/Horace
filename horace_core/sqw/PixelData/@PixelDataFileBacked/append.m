@@ -24,6 +24,7 @@ end
 if isempty(pix)
     return;
 end
+
 if pix.num_pixels > pix_out.base_page_size
     error('PIXELDATA:append', ...
         ['Cannot append more pixels than allowed in a single page.\n ' ...
@@ -55,7 +56,7 @@ elseif pix_out.page_size < pix_out.base_page_size
     pix_out.set_page_dirty_(true);
     if num_to_allocate_to_pg ~= pix.num_pixels
         pix_out.write_dirty_page_();
-        
+
         pix_out.data_ = pix.data(:, (num_to_allocate_to_pg + 1):end);
         %
         pix_out.reset_changed_coord_range('coordinates');
@@ -67,7 +68,7 @@ elseif pix_out.page_size < pix_out.base_page_size
         pix_out.set_page_dirty_(true);
     end
     pix_out.set_range(glob_range);
-    
+
 elseif pix_out.page_size == pix_out.base_page_size
     glob_range = pix_out.pix_range;
     if ~pix_out.is_filebacked()
