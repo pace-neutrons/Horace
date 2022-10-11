@@ -30,26 +30,14 @@ if ~exist('keep_precision','var')
 end
 validate_ranges(abs_indices_starts, block_sizes);
 
-if obj.is_filebacked()
-    if any(obj.page_dirty_)
-        % At least some pixels sit in temporary files
-        abs_indices = get_ind_from_ranges(abs_indices_starts, block_sizes);
-        pix_out = obj.get_pixels(abs_indices);
-        return
-    else
-        skip_arg_validation = true;  % no point validating inputs again in faccess
-        raw_pix = obj.f_accessor_.get_pix_in_ranges( ...
-            abs_indices_starts, block_sizes, skip_arg_validation,keep_precision);
-    end
+% All pixels in memory
+indices = get_ind_from_ranges(abs_indices_starts, block_sizes);
+if keep_precision
+    raw_pix = obj.data(:, indices);
 else
-    % All pixels in memory
-    indices = get_ind_from_ranges(abs_indices_starts, block_sizes);
-    if keep_precision
-        raw_pix = obj.data(:, indices);
-    else
-        raw_pix  = double(obj.data(:, indices));
-    end
+    raw_pix  = double(obj.data(:, indices));
 end
+
 if recalculate_pix_range
     pix_out = PixelData(raw_pix);
 else
