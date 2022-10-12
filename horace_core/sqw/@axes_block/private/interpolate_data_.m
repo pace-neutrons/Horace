@@ -4,6 +4,7 @@ function varargout = interpolate_data_(obj,nout,ref_nodes,density,grid_cell_size
 % nodes onto the grid, defined by this block
 %
 % Inputs:
+% nout      -- number of elements in cellarry of densities
 % ref_nodes -- 4D array of the nodes of the reference lattice,
 %              produced by get_density routine of the reference
 %              axes block and projected into coordinate system of this axes
@@ -24,10 +25,11 @@ for i= 1:nargout
     varargout{i} = [];
 end
 %
-gridX = ref_nodes{1};
-gridY = ref_nodes{2};
-gridZ = ref_nodes{3};
-gridE = ref_nodes{4};
+ref_grid_size = size(density{1});
+ref_gridX = reshape(ref_nodes(1,:),ref_grid_size );
+ref_gridY = reshape(ref_nodes(2,:),ref_grid_size );
+ref_gridZ = reshape(ref_nodes(3,:),ref_grid_size );
+ref_gridE = reshape(ref_nodes(4,:),ref_grid_size );
 
 if ~isempty(grid_cell_size)
     [~,this_cell_size] = obj.get_axes_scales();
@@ -38,20 +40,20 @@ if ~isempty(grid_cell_size)
     % at least one interpolation point within a reference cell
     do_expand = cell_ratio > 1;
     this_cell_size(do_expand) = this_cell_size(do_expand)./ceil(cell_ratio(do_expand));
-    [nodes,~,~,int_cell_volume] = obj.get_bin_nodes('-extrap',this_cell_size);
+    [nodes,~,~,int_cell_volume] = obj.get_bin_nodes('-density_integr',this_cell_size);
 else
-    [nodes,~,~,int_cell_volume] = obj.get_bin_nodes('-extrap');
+    [nodes,~,~,int_cell_volume] = obj.get_bin_nodes('-density_integr');
 end
 
 
 for i = 1:nout
-    interp_ds = interpn(gridX,gridY,gridZ,gridE,density{i},...
+    interp_ds = interpn(ref_gridX,ref_gridY,ref_gridZ,ref_gridE,density{i},...
         nodes(1,:),nodes(2,:),nodes(3,:),nodes(4,:), 'linear',0);
     varargout{i} = interp_ds.*int_cell_volume;
 end
 %
 %[npix,s,e,npix_interp] = bin_pixels(obj,coord_transf,varargin)
-[~,varargout{1},varargout{2},varargout{3}] = obj.bin_pixels(nodes,[],[],[],varargout(1:nout));
+[npix,varargout{1},varargout{2},varargout{3}] = obj.bin_pixels(nodes,[],[],[],varargout(1:nout));
 % for i=1:nout
 %     varargout{i} = varargout{i}./npix;
 % end

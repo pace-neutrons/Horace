@@ -1,5 +1,5 @@
 function [nodes,en_axis,npoints_in_axes,grid_cell_volume] = ...
-    calc_bin_nodes_(obj,do3D,halo,interp_grid,extrap_grid,varargin)
+    calc_bin_nodes_(obj,do3D,halo,data_to_density,density_integr_grid,varargin)
 % build 3D or 4D vectors, containing all nodes of the axes_block grid,
 % constructed over axes_block axes.
 %
@@ -10,10 +10,10 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_volume] = ...
 %              axes points.
 % halo      -- if true, build one-cell width halo around the generated axes
 %              grid. Not building halo along energy axes in 3D mode
-% interp_grid
-%           -- return grid with points located in the grid bin centers
-%              rather then cell + adjustments on the edges of the integrated
-%              dimensions to allow linear interpolation within the blocks
+% dens_interp_grid
+%           -- return grid used for density interpolation with points
+%              located on the grid cell edges + edges of integrated
+%              dimensions
 %
 % Optional:
 % char_cube -- if present, the cube, describing the scale of the grid,
@@ -42,10 +42,10 @@ axes = cell(4,1);
 %
 if isempty(char_size)
     axes(obj.pax) = obj.p(:);
-    iint_ax = num2cell(obj.iint,1);
+    iint_ax = num2cell(obj.iint',2);
     axes(obj.iax) = iint_ax(:);
     npoints_in_axes = obj.nbins_all_dims+1;
-    if halo && ~(interp_grid || extrap_grid)
+    if halo && ~(data_to_density || density_integr_grid)
         for i=1:4
             step = abs(axes{i}(2)-axes{i}(1));
             axes{i} = [axes{i}(1)-step,axes{i}(:)',axes{i}(end)+step];
@@ -69,7 +69,7 @@ else
                 npoints_in_axes(i) = obj.nbins_all_dims(4)+1;
                 axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
             else
-                if halo && ~(interp_grid || extrap_grid)
+                if halo && ~(data_to_density || density_integr_grid)
                     npoints_in_axes(i) = dNR(i)+3;
                     axes{i} = linspace(range(1,i)-steps(i),...
                         range(2,i)+steps(i),npoints_in_axes(i));
@@ -87,39 +87,24 @@ for i =1:4
         (abs(axes{i}(2)-axes{i}(1)));
 end
 
-is_pax = false(4,1);
-is_pax(obj.pax) = true;
-if interp_grid || extrap_grid
-    % modify axes to be basis of the interpolation or extrapolation grid.
-    % for interpolation, add half-bin width at the beginning and to the end
-    % of a projection axis and use centerpoints for the bin centers.
-    % For integration axis use leftmost and rightmost edges of the
-    % integrated dimension
-    %
-    % for extrapolation, modify projection axis to be bin centers of the
-    % grid and  Make integration axis consisting of single point in the
-    % centre of an integrated dimension
+if data_to_density || density_integr_grid
+    is_pax = false(4,1);
+    is_pax(obj.pax) = true;
+
+    % modify axes to be basis of the interpolation or extrapolation density
+    % grid.
     for i=1:4
         if is_pax(i)
-            if interp_grid
-                steps  = axes{i}(2:end)-axes{i}(1:end-1);
-                cp     = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
-                if halo
-                    axes{i}= [cp(1)-0.5*steps(1),cp,cp(end)+0.5*steps(end)];
-                else
-                    axes{i}= cp;
-                end
-            else
-                axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
-            end
-        else
-            if interp_grid
-                axes{i} = [obj.img_range(1,i),obj.img_range(2,i)];
-            else % extrapolation grid
+            axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
+        else % integration axis
+            if density_integr_grid
                 if numel(axes{i})>2
                     grid_cell_volume = grid_cell_volume*(numel(axes{i})-1);
                 end
                 axes{i} = 0.5*(obj.img_range(1,i)+obj.img_range(2,i));
+            else  % may be necessary if cell size is provided, not for
+                %  default range which is already defined by this formula
+                axes{i} = [obj.img_range(1,i),obj.img_range(2,i)];
             end
         end
         npoints_in_axes(i) = numel(axes{i});

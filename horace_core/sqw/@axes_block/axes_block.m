@@ -361,11 +361,12 @@ classdef axes_block < serializable
             % '-halo'   -- request to build lattice in the
             %              specified range + single-cell sized
             %              step expanding the lattice
-            % '-interpolation'
-            %           -- the lattice to return the bin centers
-            %              rather then nodes of the lattice cell + adjusmpent
-            %              for integrated dimensions to allow build
-            %              interpolatin over density
+            % '-data_to_density'
+            %           -- the lattice to return defines the grid, used 
+            %              for conversion of normal data (defined at bin
+            %              centers) into density data (defined at bin edges)
+            %              + specific treatment of integrated dimensions
+            %              (data on two bin edges)
             %
             % Returns:
             % nodes     -- [4 x nBins] or [3 x nBins] array of points,
@@ -382,18 +383,18 @@ classdef axes_block < serializable
             %              cells are equal or nodes size array of cell volumes
             %              if the cells have different size.
             %
-            opt = {'-3D','-halo','-interpolation','-extrapolation'};
-            [ok,mess,do_3D,build_halo,interp_grid,extrap_grid,argi] = parse_char_options(varargin,opt);
+            opt = {'-3D','-halo','-data_to_density','-density_integr'};
+            [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,argi] = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:axes_block:invalid_argument',mess)
             end
-            if extrap_grid && interp_grid
+            if density_inegr_grid && data_to_density
                 error('Horace:axes_block:invalid_argument',...
                     '"-interpolation" and "-extrapolation" keys can not be used together')
             end
             [nodes,dE_edges,nbin_size,grid_cell_volume] = ...
                 calc_bin_nodes_(obj,do_3D, ...
-                build_halo,interp_grid,extrap_grid,argi{:});
+                build_halo,data_to_density,density_inegr_grid,argi{:});
         end
         %
         function range = get_binning_range(obj,cur_proj,new_proj)
