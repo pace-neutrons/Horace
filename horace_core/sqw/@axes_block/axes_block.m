@@ -77,8 +77,8 @@ classdef axes_block < serializable
         % axis. By default, single nbins_all_dims direction is
         % integration direction.
         % If the index is false in a direction, where more then one bin
-        % is defined, the bining parameters in this direction are treated
-        % as bin edges rather then bin centers.
+        % is defined, the binning parameters in this direction are treated
+        % as bin edges rather then bin centres.
         single_bin_defines_iax;
     end
 
@@ -187,32 +187,26 @@ classdef axes_block < serializable
         end
         %
         function [interp_points,density,cell_sizes] = get_density(obj,datasets)
-            % Convert input datasets into the density data, defined on
-            % centerpoints of the axes_block grid.
+            % Convert input datasets defined on centerpoints of this grid
+            % into the density data, defined on edges of the grid.
+            %
             % Inputs:
-            % datasets -- cellarray of input datasets to interpolate on
+            % datasets -- cellarray of input datasets to calculate density
+            %             from.
             %             The size and dimensions of the datasets should
             %             be equal to the dimensions of the axes block
             %             returned by data_nbins property, i.e.:
             %             all(size(dataset{i}) == obj.data_nbins;
-            %             datasets contain bin values (not bin density, to
-            %             obtain bin density one needs to divide the bin
-            %             value on the bin volume)
+            %             datasets contain bin values.
             % Returns:
             % intep_pints
-            %          -- 4D [4xnAxesCenterPoints] array of axes positions
+            %          -- 2D [4,nAxesEdgesPoints] array of axes positions
             %              where the density is defined
             % density
-            %          -- array of density points and density data,
-            %             calculated in the density points positions.
-            %             The array have the form:
-            %             [nDatasets,nAxesCenterPoints]
-            %             where nDatasets is the number of elements in
-            %             datasets cellarray and nAxesCenterpoints is the
-            %             number of points the interpolated dataset is
-            %             calculated in. The reasonable number of
-            %             these points is selected by the algorithm. It is
-            %             production of the
+            %          -- cellarray of density points calculated in the 
+            %             density points positions.
+            %             Number of cells in the output array is equal to
+            %             the number of input datasets
             %
             if ~iscell(datasets)
                 datasets = {datasets};
@@ -228,7 +222,7 @@ classdef axes_block < serializable
             % ref_nodes -- 4D array of the nodes of the reference lattice,
             %              produced by get_density routine of the reference
             %              axes block.
-            % density   -- 3-elemens cellarray containing arrays of
+            % density   -- 3-elements cellarray containing arrays of
             %              signal, error and npix densities,
             %              produced by get_density routine of the reference
             %              axes block.
@@ -239,21 +233,21 @@ classdef axes_block < serializable
             %              cell sizes as these nodes
             % proj      -- the projection object defining the transformation
             %              from this coordinate system to the system,
-            %              where the reference nodes are defined 
+            %              where the reference nodes are defined
             %              If missing or empty, assume that this coordinate
             %              system and reference coordinate system are the
             %              same
             % Returns:
             % s,e,npix  -- interpolated arrays of signal, error and number
-            %              of pixels calculated in the centers of the
+            %              of pixels calculated in the centres of the
             %              cells of this lattice.
             if nargin < 5
-                proj = [];                
+                proj = [];
             else
                 proj = varargin{2};
             end
             if nargin < 4
-                grid_cell_size = [];                
+                grid_cell_size = [];
             else
                 grid_cell_size = varargin{1};
             end
@@ -320,7 +314,7 @@ classdef axes_block < serializable
             %            grid bin.
             % pix     -- pixel array or PixelData object (the output format is
             %            the same as for pix_candidates) if input is PixelData
-            %        or  accumulated 3rd row of inrerpolated data if input
+            %        or  accumulated 3rd row of interpolated data if input
             %            is 3xnpix array of interpolated data.
             % unique_runid-array
             %         -- of unique run-id-s for pixels, contributed
@@ -363,7 +357,7 @@ classdef axes_block < serializable
             % Optional:
             %  char_cube -- the cube, describing the scale of the grid,
             %               to construct the lattice on, defined by its
-            %               minimal and maxinal points (4x2 matrix)
+            %               minimal and maximal points (4x2 matrix)
             %  or         --
             %               char_size directly (4x1 vector), describing the
             %               scales along each axis the lattice should have

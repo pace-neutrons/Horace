@@ -10,7 +10,7 @@ function varargout = interpolate_data_(obj,nout,ref_nodes,density, ...
 %              produced by get_density routine of the reference
 %              axes block and projected into coordinate system of this axes
 %              block
-% density   -- 3-elemens cellarray containing arrays of
+% density   -- 3-elements cellarray containing arrays of
 %              signal, error and npix densities,
 %              produced by get_density routine of the reference
 %              axes block.
@@ -27,7 +27,7 @@ function varargout = interpolate_data_(obj,nout,ref_nodes,density, ...
 %              same
 % Returns:
 % s,e,npix  -- interpolated arrays of signal, error and number
-%              of pixels calculated in the centers of the
+%              of pixels calculated in the centres of the
 %              cells of this lattice.
 
 for i= 1:nargout
@@ -61,7 +61,7 @@ if ~isempty(ref_grid_cell_size)
     else
         inodes = nodes;
     end
-else % usually debug mode. Original grid coinside with interpolation grid
+else % usually debug mode. Original grid coincide with interpolation grid
     [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-density_integr');
     inodes = nodes;
 end
