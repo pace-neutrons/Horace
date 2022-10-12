@@ -1,23 +1,73 @@
 classdef test_axes_block_interpolation < TestCase
-    % Series of tests for bins_in_1Drange method of axes_block class
-
+    % Series of tests for data interpolation/extrapolation in the axes_block class
     properties
-        out_dir=tmp_dir();
-        working_dir
     end
 
     methods
         function obj=test_axes_block_interpolation(varargin)
             if nargin<1
-                name = 'test_axes_block_binIn1D';
+                name = 'test_axes_block_interpolation';
             else
                 name = varargin{1};
             end
             obj = obj@TestCase(name);
-            obj.working_dir = fileparts(mfilename("fullpath"));
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
+        function test_interp_2D_proj_rotated(~)
+            dbr = [-2,-2,-3,0;2,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+            ab_base = axes_block(bin0{:});
+
+            ax = ab_base.p{1};
+            ay = ab_base.p{2};
+            ax = 0.5*(ax(1:end-1)+ax(2:end));
+            ay = 0.5*(ay(1:end-1)+ay(2:end));
+            r  = sqrt(ax.^2 + ay'.^2);
+
+            data = exp(-(r-0.5).^2/0.1);
+
+            [int_points,int_data,cell_size] = ab_base.get_density(data);
+
+
+            ab_interp = axes_block(bin0{:});
+            % define source and target coordinate systems
+            source_proj = ortho_proj([1,0,0],[0,1,0]);
+            targ_proj = ortho_proj([1/sqrt(2),1/sqrt(2),0],[1/sqrt(2),-1/sqrt(2),0]);
+            targ_proj.targ_proj = source_proj;
+            si = ab_interp.interpolate_data(int_points,int_data,cell_size,targ_proj );
+
+
+            assertElementsAlmostEqual(si,data,'absolute',0.2)
+        end
+        function test_interp_2D_same_points_projected(~)
+            dbr = [0,-2,-pi/2,0;pi,2,pi/2,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+            ab_base = axes_block(bin0{:});
+
+            ax = ab_base.p{1};
+            ay = ab_base.p{2};
+            sdat= 1+sin(0.5*(ax(1:end-1)+ax(2:end)));
+            cdat =1+cos(0.5*(ay(1:end-1)+ay(2:end)));
+            data = sdat'.*cdat;
+
+            [int_points,int_data,cell_size] = ab_base.get_density(data);
+
+
+            ab_interp = axes_block(bin0{:});
+            % define source and target coordinate systems
+            source_proj = ortho_proj([1,0,0],[0,1,0]);
+            targ_proj = ortho_proj([1,0,0],[0,1,0]);
+            targ_proj.targ_proj = source_proj;
+            si = ab_interp.interpolate_data(int_points,int_data,cell_size,targ_proj );
+
+
+            assertElementsAlmostEqual(si,data,'absolute',1e-2)
+        end
+        
+        
         function test_interp_2D_same_points_interpolation(~)
             dbr = [0,-2,-pi/2,0;pi,2,pi/2,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
@@ -44,12 +94,11 @@ classdef test_axes_block_interpolation < TestCase
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab_base = axes_block(bin0{:});
-            [~,cell_sizes] = ab_base.get_axes_scales();
 
             ax = ab_base.p{1};
             cp = 0.5*(ax(1:end-1)+ax(2:end));
             data = ones(size(cp));
-            [int_points,int_data] = ab_base.get_density(data);
+            [int_points,int_data,cell_sizes] = ab_base.get_density(data);
 
             % define bins to give exactly the same range as for ab_base
             nb = ab_base.nbins_all_dims;
@@ -78,18 +127,17 @@ classdef test_axes_block_interpolation < TestCase
             ax = ab_base.p{1};
             cp = 0.5*(ax(1:end-1)+ax(2:end));
             data = ones(size(cp));
-            [int_points,int_data] = ab_base.get_density(data);
+            [int_points,int_data,cell_sizes] = ab_base.get_density(data);
 
             bin1 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),0.2,dbr(2,3)];[dbr(1,4),dbr(2,4)]};
 
             ab_interp = axes_block(bin1{:});
 
-            [~,cell_sizes] = ab_base.get_axes_scales();
             si = ab_interp.interpolate_data(int_points,int_data,cell_sizes);
 
-            assertEqualToTol(sum(si)-1,sum(data),1.e-12);
-            assertElementsAlmostEqual(si,2*data(1:numel(si))')
+            assertEqualToTol(sum(si)+0.333333333333,sum(data),1.e-12);
+            assertElementsAlmostEqual(si(2:end-1),2*data(2:numel(si)-1)')
         end
         %
         function test_interp_1D_same_points_interpolation(~)

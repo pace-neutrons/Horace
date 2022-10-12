@@ -1,4 +1,4 @@
-function [nodes,en_axis,npoints_in_axes,grid_cell_volume] = ...
+function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
     calc_bin_nodes_(obj,do3D,halo,data_to_density,density_integr_grid,varargin)
 % build 3D or 4D vectors, containing all nodes of the axes_block grid,
 % constructed over axes_block axes.
@@ -32,10 +32,9 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_volume] = ...
 % npoints_in_axes
 %        -- 4-elements vector, containing numbers of axes
 %           nodes in each of 4 directions
-% grid_cell_volume
-%        -- 4D-volume of the interpolation grid cell if all
-%           cells are equal or nodes size array of cell volumes
-%           if the cells have different size.
+% grid_cell_size
+%        -- 4-element vector of characteristic sizes of the grid cell in
+%           4 dimensions
 
 char_size = parse_inputs(nargin,varargin{:});
 axes = cell(4,1);
@@ -81,10 +80,9 @@ else
         end
     end
 end
-grid_cell_volume = 1;
+grid_cell_size = zeros(4,1);
 for i =1:4
-    grid_cell_volume = grid_cell_volume*...
-        (abs(axes{i}(2)-axes{i}(1)));
+    grid_cell_size(i) = min(axes{i}(2:end)-axes{i}(1:end-1));
 end
 
 if data_to_density || density_integr_grid
@@ -99,7 +97,7 @@ if data_to_density || density_integr_grid
         else % integration axis
             if density_integr_grid
                 if numel(axes{i})>2
-                    grid_cell_volume = grid_cell_volume*(numel(axes{i})-1);
+                    grid_cell_size(i) = obj.img_range(2,i)-obj.img_range(1,i);
                 end
                 axes{i} = 0.5*(obj.img_range(1,i)+obj.img_range(2,i));
             else  % may be necessary if cell size is provided, not for

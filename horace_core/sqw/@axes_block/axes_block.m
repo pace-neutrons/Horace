@@ -186,7 +186,7 @@ classdef axes_block < serializable
             volume = prod(step);
         end
         %
-        function [interp_points,density] = get_density(obj,datasets)
+        function [interp_points,density,cell_sizes] = get_density(obj,datasets)
             % Convert input datasets into the density data, defined on
             % centerpoints of the axes_block grid.
             % Inputs:
@@ -217,34 +217,48 @@ classdef axes_block < serializable
             if ~iscell(datasets)
                 datasets = {datasets};
             end
-            [interp_points,density] = calculate_density_(obj,datasets);
+            [interp_points,density,cell_sizes] = calculate_density_(obj,datasets);
         end
-        function [s,e,npix] = interpolate_data(obj,ref_nodes,density,grid_cell_size)
+        function [s,e,npix] = interpolate_data(obj,ref_nodes,density,varargin)
             % interpolate density data for signal, error and number of
-            % pixels provided as input density and defined on the nodes of the 
+            % pixels provided as input density and defined on the nodes of the
             % references axes block onto the grid, defined by this axes block.
             %
             % Inputs:
             % ref_nodes -- 4D array of the nodes of the reference lattice,
             %              produced by get_density routine of the reference
-            %              axes block and projected into coordinate system 
-            %              of this axes block.
+            %              axes block.
             % density   -- 3-elemens cellarray containing arrays of
             %              signal, error and npix densities,
             %              produced by get_density routine of the reference
             %              axes block.
+            % Optional:
             % grid_cell_size
-            %           -- 4D array of the scales of the reference lattice,
-            %              projected onto this lattice.
+            %           -- 4D array of the scales of the reference lattice
+            %              if missing or empty, assume ref_nodes have the same
+            %              cell sizes as these nodes
+            % proj      -- the projection object defining the transformation
+            %              from this coordinate system to the system,
+            %              where the reference nodes are defined 
+            %              If missing or empty, assume that this coordinate
+            %              system and reference coordinate system are the
+            %              same
             % Returns:
             % s,e,npix  -- interpolated arrays of signal, error and number
             %              of pixels calculated in the centers of the
             %              cells of this lattice.
-            if ~exist('grid_cell_size','var')
-                grid_cell_size = [];
+            if nargin < 5
+                proj = [];                
+            else
+                proj = varargin{2};
+            end
+            if nargin < 4
+                grid_cell_size = [];                
+            else
+                grid_cell_size = varargin{1};
             end
             [s,e,npix] = interpolate_data_(obj,nargout,ref_nodes, ...
-                density,grid_cell_size);
+                density,grid_cell_size,proj);
         end
         %
         function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,coord_transf,varargin)
@@ -335,7 +349,7 @@ classdef axes_block < serializable
                 npix,s,e,pix_cand,unique_runid,argi{:});
         end
         %
-        function [nodes,dE_edges,nbin_size,grid_cell_volume] = ...
+        function [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 get_bin_nodes(obj,varargin)
             % build 3D or 4D vectors, containing all nodes of the axes_block grid,
             % constructed over axes_block axes points.
@@ -362,7 +376,7 @@ classdef axes_block < serializable
             %              specified range + single-cell sized
             %              step expanding the lattice
             % '-data_to_density'
-            %           -- the lattice to return defines the grid, used 
+            %           -- the lattice to return defines the grid, used
             %              for conversion of normal data (defined at bin
             %              centers) into density data (defined at bin edges)
             %              + specific treatment of integrated dimensions
@@ -378,10 +392,9 @@ classdef axes_block < serializable
             %              energy transfer grid, empty if not
             % nbin_size -- 4-elements vector, containing numbers of axes
             %              nodes in each of 4 directions
-            % grid_cell_volume
-            %           -- 4D-volume of the interpolation grid cell if all
-            %              cells are equal or nodes size array of cell volumes
-            %              if the cells have different size.
+            % grid_cell_size
+            %        -- 4-element vector of characteristic sizes of the grid cell in
+            %           4 dimensions
             %
             opt = {'-3D','-halo','-data_to_density','-density_integr'};
             [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,argi] = parse_char_options(varargin,opt);
@@ -392,7 +405,7 @@ classdef axes_block < serializable
                 error('Horace:axes_block:invalid_argument',...
                     '"-interpolation" and "-extrapolation" keys can not be used together')
             end
-            [nodes,dE_edges,nbin_size,grid_cell_volume] = ...
+            [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 calc_bin_nodes_(obj,do_3D, ...
                 build_halo,data_to_density,density_inegr_grid,argi{:});
         end

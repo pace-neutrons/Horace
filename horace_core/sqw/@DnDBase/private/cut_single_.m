@@ -62,22 +62,13 @@ function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 %            bin. size(npix) == size(s). As the data are interpolated, 
 %            the number of pixels may become fractional  
 
-obj.proj.targ_proj = targ_proj;
+%obj.proj.targ_proj = targ_proj;
 targ_proj.targ_proj = obj.proj;
 
 s = obj.s.*obj.npix;
 e = obj.e.*(obj.npix.^2);
-targ_intep = obj.axes.get_density({s,e,obj.npix});
-%
-% convert the source grid into target coordinate system
-targ_intep(1:4,:) = tag_proj.from_this_to_targ_coord(targ_intep(1:4,:));
-[~,si,ei,npixi] = targ_axes.bin_pixels(targ_intep);
-% obtain the cell volume of the target coordinate system to convert from 
-% density to signal/err etc.
-targ_cell_volume = targ_axes.get_grid_volume();
+[source_nodes,densities,cell_sizes] = obj.axes.get_density({s,e,obj.npix});
 
-s = si.*targ_cell_volume;
-e = ei.*tart_cell_volume;
-npix = npixi.*targ_cell_volume;
+[s,e,npix] = targ_axes.interpolate_data(source_nodes,densities,cell_sizes,targ_proj);
 
 [s, e] = normalize_signal(s, e, npix);

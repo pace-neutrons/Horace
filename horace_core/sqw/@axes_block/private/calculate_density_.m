@@ -1,16 +1,17 @@
-function [dens_nodes,densities] = calculate_density_(obj,in_data)
+function [dens_nodes,densities,base_cell_size] = calculate_density_(obj,in_data)
 % Convert input datasets into the density data, defined on
 % centerpoints of the axes_block grid.
 
-
-[data_nodes,~,npoints_in_base,base_cell_volume] = ...
+% build data grid
+[data_nodes,~,npoints_in_base,base_cell_size] = ...
     obj.get_bin_nodes('-data_to_density');
 gridCX = reshape(data_nodes(1,:),npoints_in_base);
 gridCY = reshape(data_nodes(2,:),npoints_in_base);
 gridCZ = reshape(data_nodes(3,:),npoints_in_base);
 gridCE = reshape(data_nodes(4,:),npoints_in_base);
-
-
+%
+base_cell_volume = prod(base_cell_size);
+% build density grid
 [dens_nodes,~,n_ref_points] = obj.get_bin_nodes();
 
 % provide the coefficient for the future integration over interpolated grid
@@ -27,7 +28,7 @@ for i = 1:numel(in_data)
     % contributing to integral. How to account for them?
     if any(edges(:))
         % reasonable operation would be linear extrapolation on half-cell
-        % out of range but no ready interpolator is available for this
+        % out of range but no ready extrapolator is available for this
         % function in Matlab. Use spline for extrapolation.
         interp_dss = interpn(gridCX,gridCY,gridCZ,gridCE,ref_ds,...
             dens_nodes(1,edges(:)),dens_nodes(2,edges(:)),dens_nodes(3,edges(:)),dens_nodes(4,edges(:)), 'spline');
@@ -35,6 +36,8 @@ for i = 1:numel(in_data)
         %                                     values by half accounting
         %                                     to half volume at edges
         %                                     in the integration formulas
+        % without this, integral over edges may cause additional values on
+        % edges
         out_range = densities{i} < 0;
         if any(out_range)
             densities{i}(out_range) = 0;
@@ -44,6 +47,7 @@ for i = 1:numel(in_data)
     end
 
 end
+
 function ref_ds = convert_data_to_density(obj,in_data,cell_volume,n_ref_points)
 % convert data into density and  assign density
 % points to the edges of integrated dimensions assuming bin center of
