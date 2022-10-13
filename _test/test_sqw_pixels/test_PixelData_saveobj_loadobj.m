@@ -8,7 +8,7 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
     methods (Access = private)
         
         function [pix_data,pix_range] = get_random_pix_data_(~, rows)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, rows);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, rows);
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
             pix_data = PixelData(data);
             

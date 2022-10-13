@@ -98,7 +98,7 @@ classdef axes_block < serializable
         label_  = {'Q_h','Q_k','Q_l','En'}; %Labels of the projection axes [1x4 cell array of character strings]
         ulen_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
         img_range_      = ... % 2x4 vector of min/max values in 4-dimensions
-            PixelData.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
+            PixelDataBase.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
 
         nbins_all_dims_ = [1,1,1,1];    % number of bins in each dimension
         single_bin_defines_iax_ = true(1,4); % true if single nbin direction represents integration axis

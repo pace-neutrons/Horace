@@ -102,7 +102,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
 
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             shuffled_data = obj.shuffle_pixel_bin_rows(PixelData(data), npix).data;
 
             npix_in_page = 11;
@@ -127,7 +127,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
 
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             shuffled_data = obj.shuffle_pixel_bin_rows(PixelData(data), npix).data;
 
             npix_in_page = 11;
@@ -195,7 +195,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             % of those bins, there will be a mismatch.
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             edited_data = data;
 
             fraction = 0.5;
@@ -318,7 +318,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         %
         function pix = get_pix_with_fake_faccess(data, npix_in_page)
             faccess = FakeFAccess(data);
-            bytes_in_pixel = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+            bytes_in_pixel = PixelDataBase.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
             pix = PixelData(faccess, npix_in_page*bytes_in_pixel);
         end
 

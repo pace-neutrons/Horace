@@ -1,7 +1,7 @@
 classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_holder
 
     properties
-        BYTES_PER_PIX = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        BYTES_PER_PIX = PixelDataBase.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
         SIGNAL_IDX = 8;
         VARIANCE_IDX = 9;
 
@@ -205,7 +205,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
             set(hor_config, 'use_mex', false);
 
             npix = [1, 2, 3, 0, 5, 6, 0, 0, 9, 10, 0];
-            pix = PixelData(ones(PixelData.DEFAULT_NUM_PIX_FIELDS, sum(npix)));
+            pix = PixelData(ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, sum(npix)));
 
             [s, e] = pix.compute_bin_data(npix);
 
@@ -220,7 +220,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
             set(hor_config, 'use_mex', true);
 
             npix = [1, 2, 3, 0, 5, 6, 0, 0, 9, 10, 0];
-            pix = PixelData(ones(PixelData.DEFAULT_NUM_PIX_FIELDS, sum(npix)));
+            pix = PixelData(ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, sum(npix)));
 
             [s, e] = pix.compute_bin_data(npix);
 

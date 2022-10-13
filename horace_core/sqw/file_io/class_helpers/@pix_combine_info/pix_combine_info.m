@@ -78,7 +78,7 @@ classdef pix_combine_info < serializable
         %
         filenum_ = [];
         % Global range of all pixels, intended for combining
-        pix_range_ = PixelData.EMPTY_RANGE_;
+        pix_range_ = PixelDataBase.EMPTY_RANGE_;
 
     end
     properties(Constant,Access=protected)

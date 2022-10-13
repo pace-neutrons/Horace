@@ -149,7 +149,7 @@ function [pix_range,job_disp,jd_initialized]= parse_additional_input(argi)
 % parse input to extract pixel range and initialized job dispatcher if any
 % of them provided as input arguments
 %
-pix_range = PixelData.EMPTY_RANGE_;
+pix_range = PixelDataBase.EMPTY_RANGE_;
 job_disp = [];
 jd_initialized = false;
 %

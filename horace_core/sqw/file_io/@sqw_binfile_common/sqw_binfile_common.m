@@ -238,7 +238,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % get [2x4] array of min/max ranges of the pixels contributing
             % into an object. Empty for DND object
             %
-            pix_range = PixelData.EMPTY_RANGE_;
+            pix_range = PixelDataBase.EMPTY_RANGE_;
         end
 
         % read pixels information

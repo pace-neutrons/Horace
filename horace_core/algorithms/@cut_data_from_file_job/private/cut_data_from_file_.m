@@ -73,7 +73,7 @@ end
 s = zeros(nbin_as_size);
 e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
-img_range_step = PixelData.EMPTY_RANGE_;
+img_range_step = PixelDataBase.EMPTY_RANGE_;
 
 % *** T.G.Perring 26 Sep 2018:*********************
 % Catch case of nstart and nend being empty - this corresponds to no data in the boxes that

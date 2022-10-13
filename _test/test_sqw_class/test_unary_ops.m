@@ -46,7 +46,7 @@ methods
             data_range = unary_ops{i+1};
 
             data = get_random_data_in_range( ...
-                PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
+                PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
 
             sqw_obj = sqw();
             sqw_obj.pix = PixelData(data);
@@ -91,7 +91,7 @@ methods
     function test_unary_op_updates_image_signal_and_error(~)
         num_pix = 23; % create small, single bin dataset for test
         data = get_random_data_in_range( ...
-            PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
+            PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
         sqw_obj.pix = PixelData(data);
@@ -115,7 +115,7 @@ methods
     function test_unary_op_updates_pixel_signal_and_variance(obj)
         num_pix = 23; % create small, single bin dataset for test
         data = get_random_data_in_range( ...
-            PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
+            PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
         sqw_obj.pix = PixelData(data);

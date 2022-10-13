@@ -74,7 +74,7 @@ classdef test_pix_combine_info < TestCase
             assertEqual(pc.run_label,'nochange');
             assertFalse(pc.change_fileno)
             assertFalse(pc.relabel_with_fnum)
-            assertEqual(pc.pix_range,PixelData.EMPTY_RANGE_);
+            assertEqual(pc.pix_range,PixelDataBase.EMPTY_RANGE_);
 
         end
 
@@ -92,7 +92,7 @@ classdef test_pix_combine_info < TestCase
             assertEqual(pc.run_label,'nochange');
             assertFalse(pc.change_fileno)
             assertFalse(pc.relabel_with_fnum)
-            assertEqual(pc.pix_range,PixelData.EMPTY_RANGE_);
+            assertEqual(pc.pix_range,PixelDataBase.EMPTY_RANGE_);
 
         end
 
@@ -111,7 +111,7 @@ classdef test_pix_combine_info < TestCase
             assertFalse(pc.change_fileno);
             assertFalse(pc.relabel_with_fnum);
 
-            assertEqual(pc.pix_range,PixelData.EMPTY_RANGE_);
+            assertEqual(pc.pix_range,PixelDataBase.EMPTY_RANGE_);
 
         end
     end

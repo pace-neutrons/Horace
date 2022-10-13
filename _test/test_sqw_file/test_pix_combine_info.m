@@ -65,7 +65,7 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
         function test_pix_range(obj)
             tester = pix_combine_info(obj.test_souce_files);
 
-            assertEqual(tester.pix_range,PixelData.EMPTY_RANGE_);
+            assertEqual(tester.pix_range,PixelDataBase.EMPTY_RANGE_);
 
             tester = tester.recalc_pix_range();
 
