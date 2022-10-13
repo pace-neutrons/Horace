@@ -104,56 +104,10 @@ classdef PixelDataMemory < PixelDataBase
         obj = recalc_pix_range(obj);
         set_data(obj, fields, data, abs_pix_indices);
 
-        function obj = PixelData(arg, mem_alloc,upgrade)
-            % Construct a PixelData object from the given data. Default
+        function obj = PixelDataMemory(varargin)
+            % Construct a PixelDataMemory object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
-            %
-            %   >> obj = PixelData(ones(9, 200))
-            %
-            %   >> obj = PixelData(200)  % initialise 200 pixels with underlying data set to zero
-            %
-            %   >> obj = PixelData(file_path)  % initialise pixel data from an sqw file
-            %
-            %   >> obj = PixelData(faccess_reader)  % initialise pixel data from an sqw file reader
-            %
-            %   >> obj = PixelData(faccess_reader, mem_alloc)  % set maximum memory allocation
-            %
-            %>> obj = PixelData(__,false) -- not upgrade class averages
-            %         (pix_range) for old file format, if these averages
-            %         are not stored in the file. Default -- true. Pixel
-            %         averages are calculated on construction
-            %
-            % Input:
-            % ------
-            %   arg    A 9 x n matrix, where each row corresponds to a pixel and
-            %          the columns correspond to the following:
-            %             col 1: u1
-            %             col 2: u2
-            %             col 3: u3
-            %             col 4: dE
-            %             col 5: run_idx
-            %             col 6: detector_idx
-            %             col 7: energy_idx
-            %             col 8: signal
-            %             col 9: variance
-            %
-            %  arg    An integer specifying the desired number of pixels. The underlying
-            %         data will be filled with zeros.
-            %
-            %  arg    A path to an SQW file.
-            %
-            %  arg    An instance of an sqw_binfile_common file reader.
-            %
-            %  mem_alloc    The maximum amount of memory allocated to hold pixel
-            %               data in bytes. If pixels cannot all be held in memory
-            %               at one time, they will be loaded from the file
-            %               (specified by 'arg') when they are required. This
-            %               argument does nothing if the class is constructed with
-            %               in-memory data. (Optional)
-            %
-
-            obj = PixelData(arg, mem_alloc,upgrade);
         end
 
         function data=saveobj(obj)
@@ -217,21 +171,11 @@ classdef PixelDataMemory < PixelDataBase
         end
 
         % --- Getters / Setters ---
-        function pixel_data = get.data(obj)
-            pixel_data = obj.data_;
-        end
-
-        function set.data(obj, pixel_data)
-            % This setter provides rules for public facing edits to the cached data
-            obj.data_ = pixel_data;
-            obj.reset_changed_coord_range('coordinates');
-        end
-
-        function data = get.data_(obj)
+        function data = get_raw_data(obj)
             data = obj.raw_data_;
         end
 
-        function set.data_(obj, pixel_data)
+        function set_raw_data(obj, pixel_data)
             % This setter provides rules for internally setting cached data
             %  This is the only method that should ever touch obj.raw_data_
 
@@ -248,135 +192,18 @@ classdef PixelDataMemory < PixelDataBase
                 error('HORACE:PixelData:invalid_argument', msg, class(pixel_data));
             end
             obj.raw_data_ = pixel_data;
-            %obj.num_pixels_ = size(pixel_data,2); % breaks filebased
-            %PixelData
+            obj.num_pixels_ = size(pixel_data,2); % breaks filebased
         end
 
-        function u1 = get.u1(obj)
-            u1 = obj.data(obj.FIELD_INDEX_MAP_('u1'), :);
+        function prp = get_prop(obj, fld)
+            prp = obj.data(obj.FIELD_INDEX_MAP_(fld), :);
         end
 
-        function set.u1(obj, u1)
-            obj.data(obj.FIELD_INDEX_MAP_('u1'), :) = u1;
-            obj.reset_changed_coord_range('u1');
-        end
-
-        function u2 = get.u2(obj)
-            u2 = obj.data(obj.FIELD_INDEX_MAP_('u2'), :);
-        end
-
-        function set.u2(obj, u2)
-            obj.data(obj.FIELD_INDEX_MAP_('u2'), :) = u2;
-            obj.reset_changed_coord_range('u2');
-        end
-
-        function u3 = get.u3(obj)
-            u3 = obj.data(obj.FIELD_INDEX_MAP_('u3'), :);
-        end
-
-        function set.u3(obj, u3)
-            obj.data(obj.FIELD_INDEX_MAP_('u3'), :) = u3;
-            obj.reset_changed_coord_range('u3');
-        end
-
-        function dE = get.dE(obj)
-            dE = obj.data(obj.FIELD_INDEX_MAP_('dE'), :);
-        end
-
-        function set.dE(obj, dE)
-            obj.data(obj.FIELD_INDEX_MAP_('dE'), :) = dE;
-            obj.reset_changed_coord_range('dE');
-        end
-
-        function coord_data = get.coordinates(obj)
-            coord_data = obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :);
-        end
-
-        function set.coordinates(obj, coordinates)
-            obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
-            obj.reset_changed_coord_range('coordinates');
-        end
-
-        function coord_data = get.q_coordinates(obj)
-            coord_data = obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :);
-        end
-
-        function set.q_coordinates(obj, q_coordinates)
-            obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :) = q_coordinates;
-            obj.reset_changed_coord_range('q_coordinates');
-        end
-
-        function run_index = get.run_idx(obj)
-            run_index = obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :);
-        end
-
-        function set.run_idx(obj, iruns)
-            obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :) = iruns;
-        end
-
-        function detector_index = get.detector_idx(obj)
-            detector_index = obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :);
-        end
-
-        function set.detector_idx(obj, detector_indices)
-            obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
-        end
-
-        function detector_index = get.energy_idx(obj)
-            detector_index = obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :);
-        end
-
-        function set.energy_idx(obj, energies)
-            obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
-        end
-
-        function signal = get.signal(obj)
-            signal = obj.data(obj.FIELD_INDEX_MAP_('signal'), :);
-        end
-
-        function set.signal(obj, signal)
-            obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
-        end
-
-        function variance = get.variance(obj)
-            variance = obj.data(obj.FIELD_INDEX_MAP_('variance'), :);
-        end
-
-        function set.variance(obj, variance)
-            obj.data(obj.FIELD_INDEX_MAP_('variance'), :) = variance;
-        end
-
-        function num_pix = get.num_pixels(obj)
-            num_pix = obj.num_pixels_;
-        end
-
-        function file_path = get.file_path(obj)
-            file_path = obj.file_path_;
-        end
-
-        function set.file_path(obj,val)
-            if ~(ischar(val)||isstring(val))
-                error('HORACE:PixelData:invalid_argument',...
-                      'filename for PixelData have to be char string');
+        function set_prop(obj, fld, val)
+            obj.data(obj.FIELD_INDEX_MAP_(fld), :) = val;
+            if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
+                obj.reset_changed_coord_range(fld);
             end
-            obj.file_path_ = val;
-        end
-
-        function page_size = get.page_size(obj)
-            % The number of pixels that are held in the current page.
-            page_size = obj.num_pixels;
-        end
-
-        function pix_position = get.pix_position_(obj)
-            pix_position = 1;
-        end
-
-        function page_size = get.base_page_size(obj)
-            page_size = calculate_page_size_(obj,obj.page_memory_size_);
-        end
-
-        function range = get.pix_range(obj)
-            range  = obj.pix_range_;
         end
 
         function set_range(obj,pix_range)
@@ -401,10 +228,6 @@ classdef PixelDataMemory < PixelDataBase
             obj.pix_range_ = pix_range;
         end
 
-        function np = get.n_pages(obj)
-            np = 1;
-        end
-
     end
 
     methods (Access=private)
@@ -416,12 +239,16 @@ classdef PixelDataMemory < PixelDataBase
             % Sets up the property page_range defining the range of block
             % of pixels chaned at current iteration.
             %
-            obj = obj.load_current_page_if_data_empty_();
             if isempty(obj.raw_data_)
                 obj.pix_range_   = PixelDataBase.EMPTY_RANGE_;
                 obj.page_range = PixelDataBase.EMPTY_RANGE_;
                 return
             end
+
+            if field_name == "all"
+                field_name = "coordinates"
+            end
+
             ind = obj.FIELD_INDEX_MAP_(field_name);
 
             range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
