@@ -2,9 +2,9 @@ classdef PixelDataFileBacked < PixelDataBase
 
     properties (Access=private)
         f_accessor_;  % instance of faccess object to access pixel data from file
-        file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
         tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
         page_number_ = 1;  % the index of the currently loaded page
+        file_path_ = '';  % the path to the file backing this object
     end
 
     properties (Constant)
@@ -27,59 +27,19 @@ classdef PixelDataFileBacked < PixelDataBase
         n_pages;
     end
 
+    properties(Dependent, Access=protected)
+        % points to raw_data_ but with a layer of validation for setting correct array sizes
+        data_;
+        % the pixel index in the file of the first pixel in the cache
+        pix_position_;
+    end
+
     methods
-        function obj = PixelDataFileBacked(arg, mem_alloc,upgrade)
-            % Construct a PixelData object from the given data. Default
+        function obj = PixelDataFileBacked()
+            % Construct a File-backed PixelData object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
-            %
-            %   >> obj = PixelData(ones(9, 200))
-            %
-            %   >> obj = PixelData(200)  % initialise 200 pixels with underlying data set to zero
-            %
-            %   >> obj = PixelData(file_path)  % initialise pixel data from an sqw file
-            %
-            %   >> obj = PixelData(faccess_reader)  % initialise pixel data from an sqw file reader
-            %
-            %   >> obj = PixelData(faccess_reader, mem_alloc)  % set maximum memory allocation
-            %
-            %>> obj = PixelData(__,false) -- not upgrade class averages
-            %         (pix_range) for old file format, if these averages
-            %         are not stored in the file. Default -- true. Pixel
-            %         averages are calculated on construction
-            %
-            % Input:
-            % ------
-            %   arg    A 9 x n matrix, where each row corresponds to a pixel and
-            %          the columns correspond to the following:
-            %             col 1: u1
-            %             col 2: u2
-            %             col 3: u3
-            %             col 4: dE
-            %             col 5: run_idx
-            %             col 6: detector_idx
-            %             col 7: energy_idx
-            %             col 8: signal
-            %             col 9: variance
-            %
-            %  arg    An integer specifying the desired number of pixels. The underlying
-            %         data will be filled with zeros.
-            %
-            %  arg    A path to an SQW file.
-            %
-            %  arg    An instance of an sqw_binfile_common file reader.
-            %
-            %  mem_alloc    The maximum amount of memory allocated to hold pixel
-            %               data in bytes. If pixels cannot all be held in memory
-            %               at one time, they will be loaded from the file
-            %               (specified by 'arg') when they are required. This
-            %               argument does nothing if the class is constructed with
-            %               in-memory data. (Optional)
-            %
-
-            obj = PixelData(arg, mem_alloc,upgrade);
         end
-
 
         % --- Operator overrides ---
         function delete(obj)
@@ -159,7 +119,6 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
 
         end
-
 
         function obj = load_current_page_if_data_empty_(obj)
             % Check if there's any data in the current page and load a page if not
