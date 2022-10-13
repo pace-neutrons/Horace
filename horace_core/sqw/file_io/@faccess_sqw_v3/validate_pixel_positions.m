@@ -7,7 +7,7 @@ function obj = validate_pixel_positions(obj)
 % throw an FACCESS error.
 %
 BYTES_IN_FLOAT = 4;
-PIX_COLS = PixelData.DEFAULT_NUM_PIX_FIELDS;
+PIX_COLS = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
 
 pix_end = obj.eof_pix_pos_;  % position in file we should be in
 fseek(obj.file_id_,0,'eof');

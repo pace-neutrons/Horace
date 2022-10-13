@@ -262,8 +262,8 @@ classdef PixelDataFileBacked < PixelDataBase
             %
             obj = obj.load_current_page_if_data_empty_();
             if isempty(obj.raw_data_)
-                obj.pix_range_   = PixelData.EMPTY_RANGE_;
-                obj.page_range = PixelData.EMPTY_RANGE_;
+                obj.pix_range_   = PixelDataBase.EMPTY_RANGE_;
+                obj.page_range = PixelDataBase.EMPTY_RANGE_;
                 return
             end
             ind = obj.FIELD_INDEX_MAP_(field_name);

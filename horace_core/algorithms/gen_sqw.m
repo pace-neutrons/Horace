@@ -576,7 +576,7 @@ multiheaders = false;
 ic = 1;
 img_db_range_sqw = [];
 grid_size_sqw = [];
-pix_range = PixelData.EMPTY_RANGE_;
+pix_range = PixelDataBase.EMPTY_RANGE_;
 
 run_ids = zeros(1,numel(files_to_check));
 for i=1:numel(files_to_check)

@@ -59,14 +59,14 @@ classdef field_pix < field_var_array
             if obj.old_matlab_
                 npix = double(npix);
             end
-            numel = npix*PixelData.DEFAULT_NUM_PIX_FIELDS;
+            numel = npix*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
             length = numel*obj.elem_byte_size;
             start = 8;
             if numel ==0
                 val = [];
             else
                 val = typecast(bytes(pos+start:pos+start+length-1),obj.precision);
-                val = reshape(val,[PixelData.DEFAULT_NUM_PIX_FIELDS,npix]);
+                val = reshape(val,[PixelDataBase.DEFAULT_NUM_PIX_FIELDS,npix]);
             end
             length = double(length +start);
         end
@@ -83,7 +83,7 @@ classdef field_pix < field_var_array
                 err = true;
                 return;
             end
-            nelem = fread(fid,1,'*uint64')*PixelData.DEFAULT_NUM_PIX_FIELDS;
+            nelem = fread(fid,1,'*uint64')*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
             [~,res] = ferror(fid);
             if res ~=0
                 err = true;

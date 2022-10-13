@@ -100,7 +100,7 @@ classdef test_mushroom_sqw < TestCaseWithSave
             sqo = read_sqw(sqw_file);
             
             assertTrue(isprop(sqo.pix,'pix_range'))
-            assertFalse(any(any(sqo.pix.pix_range == PixelData.EMPTY_RANGE_)));
+            assertFalse(any(any(sqo.pix.pix_range == PixelDataBase.EMPTY_RANGE_)));
             %
             % Make some cuts: ---------------
             u=[0,0,1]; v=[0,1,0];

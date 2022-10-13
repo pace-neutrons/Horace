@@ -1,7 +1,7 @@
 classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
     properties
-        BYTES_PER_PIX = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        BYTES_PER_PIX = PixelDataBase.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
         SIGNAL_IDX = 8;
         VARIANCE_IDX = 9;
 
@@ -193,16 +193,16 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         end
 
         function test_error_two_PixelData_with_different_num_pixels(~)
-            pix1 = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10));
-            pix2 = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11));
+            pix1 = PixelData(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10));
+            pix2 = PixelData(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11));
             f = @() pix1.do_binary_op(pix2, @plus);
             assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
         end
 
         function test_minus_two_in_memory_PixelData_objects(obj)
-            data1 = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+            data1 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix1 = PixelData(data1);
-            data2 = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+            data2 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix2 = PixelData(data2);
 
             pix_diff = pix1.do_binary_op(pix2, @minus);
@@ -260,7 +260,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         end
 
         function test_plus_with_signal_array_and_npix_1_page(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix = PixelData(data);
 
             npix = [1, 3, 0; 1, 1, 2; 0, 1, 1];

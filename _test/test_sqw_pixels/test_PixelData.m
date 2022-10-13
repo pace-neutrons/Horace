@@ -5,7 +5,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         SMALL_PG_SIZE = 1e6;  % 1Mb
         ALL_IN_MEM_PG_SIZE = 1e12;
         
-        raw_pix_data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
+        raw_pix_data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
         raw_pix_range;
         tst_source_sqw_file_path = '../common_data/sqw_1d_1.sqw';
         tst_sqw_file_full_path = '';
@@ -22,7 +22,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
     
     properties (Constant)
         NUM_BYTES_IN_VALUE = sqw_binfile_common.FILE_PIX_SIZE;
-        NUM_COLS_IN_PIX_BLOCK = PixelData.DEFAULT_NUM_PIX_FIELDS;
+        NUM_COLS_IN_PIX_BLOCK = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         BYTES_IN_PIXEL = sqw_binfile_common.FILE_PIX_SIZE;
         RUN_IDX = 5;
         SIGNAL_IDX = 8;
@@ -32,7 +32,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
     methods (Access = private)
         
         function [pix_data,pix_range] = get_random_pix_data_(~, rows)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, rows);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, rows);
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
             pix_data = PixelData(data);
             
@@ -304,7 +304,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_num_pix_returns_the_number_of_elements_in_the_data(obj)
-            assertEqual(obj.pixel_data_obj.num_pixels*PixelData.DEFAULT_NUM_PIX_FIELDS,...
+            assertEqual(obj.pixel_data_obj.num_pixels*PixelDataBase.DEFAULT_NUM_PIX_FIELDS,...
                 numel(obj.pixel_data_obj.data));
         end
         
@@ -1172,7 +1172,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_error_when_setting_mem_alloc_lt_one_pixel(~)
-            pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+            pix_size = PixelDataBase.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
             
             f = @() PixelData(rand(9, 10), pix_size - 1);
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
@@ -1186,7 +1186,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_move_to_page_loads_given_page_into_memory(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             
             npix_in_page = 9;
             [pix,pix_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -1204,7 +1204,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_move_to_page_throws_if_arg_exceeds_number_of_pages(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -1215,7 +1215,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_move_to_page_throws_if_arg_less_than_1(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -1229,7 +1229,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_move_to_page_throws_if_arg_is_non_scalar(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -1240,7 +1240,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_move_to_page_throws_if_arg_is_not_an_int(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -1252,7 +1252,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_pixels_retrieves_data_at_absolute_index(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             
             start_idx = 9;
@@ -1268,7 +1268,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_pixels_retrieves_correct_data_at_page_boundary(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 10;
             
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -1299,7 +1299,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_pixels_gets_all_data_if_full_range_requested(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -1314,7 +1314,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_pixels_reorders_output_according_to_indices(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             [pix,ref_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1334,7 +1334,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_pixels_throws_if_range_out_of_bounds(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1345,7 +1345,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_pixels_throws_if_an_idx_lt_1_with_paged_pix(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1369,7 +1369,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_paged_pix_get_pixels_can_be_called_with_a_logical(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1385,7 +1385,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_pixels_throws_if_logical_1_index_out_of_range(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1397,7 +1397,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_pixels_ignores_out_of_range_logical_0_indices(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1413,7 +1413,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_in_mem_pix_get_pixels_can_be_called_with_a_logical(obj)
             num_pix = 30;
-            in_data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            in_data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             pix = PixelData(in_data);
             
             logical_array = logical(randi([0, 1], [1, 10]));
@@ -1428,7 +1428,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_pixels_can_handle_repeated_indices(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1457,7 +1457,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_pg_size_reports_size_of_partially_filled_pg_after_advance(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1472,7 +1472,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_get_data_returns_data_across_pages_by_absolute_index(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1486,7 +1486,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_data_retrieves_correct_data_at_page_boundary(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 10;
             
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -1504,7 +1504,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_paged_pix_get_data_returns_full_data_range_if_no_idx_arg(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1517,7 +1517,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_paged_pix_get_data_can_be_called_with_a_logical(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1532,7 +1532,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_data_throws_if_logical_1_index_out_of_range(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1544,7 +1544,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_data_ignores_out_of_range_logical_0_indices(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1559,7 +1559,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_in_mem_pix_get_data_can_be_called_with_a_logical(obj)
             num_pix = 30;
-            pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix));
+            pix = PixelData(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix));
             
             logical_array = logical(randi([0, 1], [1, 10]));
             sig_var = pix.get_data({'signal', 'variance'}, logical_array);
@@ -1570,7 +1570,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_data_can_handle_repeated_indices(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1584,7 +1584,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_data_reorders_output_according_to_indices(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             [pix,pix_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1607,7 +1607,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_data_throws_if_range_out_of_bounds(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1618,7 +1618,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_data_throws_if_an_idx_lt_1_with_paged_pix(obj)
             num_pix = 30;
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
@@ -1643,7 +1643,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_base_page_size_is_DEFAULT_PAGE_SIZE_by_default(~)
             pix = PixelData();
             bytes_in_pixel = sqw_binfile_common.FILE_PIX_SIZE;
-            expected_num_pix = floor(PixelData.DEFAULT_PAGE_SIZE/bytes_in_pixel);
+            expected_num_pix = floor(PixelDataBase.DEFAULT_PAGE_SIZE/bytes_in_pixel);
             assertEqual(pix.base_page_size, expected_num_pix);
         end
         
@@ -1802,7 +1802,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
         function test_set_data_sets_fields_with_given_values_pix_filebacked(obj)
             num_pix = 30;
-            data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_per_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_per_page);
 
@@ -1857,7 +1857,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
         function test_set_data_sets_all_if_abs_pix_indices_not_given_filebacked(obj)
             num_pix = 30;
-            data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            data = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_per_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_per_page);
 
