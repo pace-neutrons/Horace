@@ -92,8 +92,8 @@ proj = sqw_struc.data.proj;
 header_av = exp_info.header_average();
 sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 
-if ~opts.nopix && obj.npixels > 0
-    sqw_struc.pix = PixelData(obj, opts.pixel_page_size,~opts.noupgrade);
+if ~opts.nopix && obj.npixels>0
+    sqw_struc.pix = PixelDataBase.create(obj, opts.pixel_page_size,~opts.noupgrade);
 end
 
 sqw_struc.experiment_info = exp_info;

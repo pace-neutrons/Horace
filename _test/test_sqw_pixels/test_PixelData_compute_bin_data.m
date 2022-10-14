@@ -1,7 +1,7 @@
 classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_holder
 
     properties
-        BYTES_PER_PIX = PixelDataBase.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        BYTES_PER_PIX = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         SIGNAL_IDX = 8;
         VARIANCE_IDX = 9;
 
@@ -46,7 +46,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
             num_pix_pages = 6;
             page_size = floor(sqw_test_obj.pix.num_pixels/num_pix_pages)*obj.BYTES_PER_PIX;
             obj.pix_in_memory_base = sqw_test_obj.pix;
-            obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, page_size);
+            obj.pix_with_pages_base = PixelDataBase.create(obj.test_sqw_file_path, page_size);
 
             % Load 2D SQW file
             sqw_2d_test_object = sqw(obj.test_sqw_2d_file_path);
@@ -56,7 +56,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
 
             num_pix = sqw_2d_test_object.pix.num_pixels;
             page_size_2d = floor(num_pix/num_pix_pages)*obj.BYTES_PER_PIX;
-            obj.pix_with_pages_2d = PixelData(obj.test_sqw_2d_file_path, page_size_2d);
+            obj.pix_with_pages_2d = PixelDataBase.create(obj.test_sqw_2d_file_path, page_size_2d);
 
             obj.use_mex = get(hor_config, 'use_mex');
             obj.threads = get(parallel_config, 'threads');
@@ -117,7 +117,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
 
             file_info = dir(obj.test_sqw_file_path);
             pg_size = file_info.bytes/5;
-            pix = PixelData(obj.test_sqw_file_path, pg_size);
+            pix = PixelDataBase.create(obj.test_sqw_file_path, pg_size);
             [s, e] = pix.compute_bin_data(obj.ref_npix_data);
 
             assertEqual(s, obj.ref_s_data, '', obj.FLOAT_TOLERANCE);
@@ -184,7 +184,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
         function test_mex_rets_empty_arrays_if_num_pix_is_zero(~)
             set(hor_config, 'use_mex', false);
 
-            p = PixelData();
+            p = PixelDataBase.create();
             [s, e] = p.compute_bin_data([]);
 
             assertTrue(isempty(s));
@@ -194,7 +194,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
         function test_nomex_empty_arrays_if_npix_is_zero(~)
             set(hor_config, 'use_mex', false);
 
-            p = PixelData();
+            p = PixelDataBase.create();
             [s, e] = p.compute_bin_data([]);
 
             assertTrue(isempty(s));
@@ -205,7 +205,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
             set(hor_config, 'use_mex', false);
 
             npix = [1, 2, 3, 0, 5, 6, 0, 0, 9, 10, 0];
-            pix = PixelData(ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, sum(npix)));
+            pix = PixelDataBase.create(ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, sum(npix)));
 
             [s, e] = pix.compute_bin_data(npix);
 
@@ -220,7 +220,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
             set(hor_config, 'use_mex', true);
 
             npix = [1, 2, 3, 0, 5, 6, 0, 0, 9, 10, 0];
-            pix = PixelData(ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, sum(npix)));
+            pix = PixelDataBase.create(ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, sum(npix)));
 
             [s, e] = pix.compute_bin_data(npix);
 

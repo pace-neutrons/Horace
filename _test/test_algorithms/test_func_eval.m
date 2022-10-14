@@ -262,7 +262,7 @@ classdef test_func_eval < TestCase & common_state_holder
 
         function test_npix_all_ones_if_all_flag_given_and_no_pixels(obj)
             sqw_in = obj.sqw_2d_obj;
-            sqw_in.pix = PixelData();
+            sqw_in.pix = PixelDataBase.create();
             sqw_out = func_eval( ...
                 sqw_in, obj.quadratic, obj.quadratic_params, '-all' ...
                 );

@@ -176,7 +176,7 @@ classdef test_main_mex < TestCase
             cleanup_obj2=onCleanup(@()set(parallel_config,'threads',n_threads));
 
             test_sqw = sqw();
-            pix=PixelData(ones(9,40000));
+            pix=PixelDataBase.create(ones(9,40000));
             xs = 0.1:1:10;
             xp = 0.1:0.5:10;
             [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
@@ -232,7 +232,7 @@ classdef test_main_mex < TestCase
             pix(3,:) = uz(:);
             pix(4,:) = et(:);
             pix(7,:) = 1:size(pix,2);
-            pix = PixelData(pix);
+            pix = PixelDataBase.create(pix);
             npix = 4*ones(10,10,10,10);
             ix = ceil(pix.u1);
             iy = ceil(pix.u2);
@@ -258,7 +258,7 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
             assertElementsAlmostEqual(pix1.data, pix2.data);
 
-            pix0 = PixelData(single(pix.data));
+            pix0 = PixelDataBase.create(single(pix.data));
             ix0  = int64(ix);
             pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
             assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
@@ -356,7 +356,7 @@ classdef test_main_mex < TestCase
             end
             vv(4,:)=repmat(en,1,obj.nDet);
 
-            pix = PixelData(vv);
+            pix = PixelDataBase.create(vv);
         end
     end
 end

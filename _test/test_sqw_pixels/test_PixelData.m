@@ -34,7 +34,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function [pix_data,pix_range] = get_random_pix_data_(~, rows)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, rows);
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
-            pix_data = PixelData(data);
+            pix_data = PixelDataBase.create(data);
             
         end
         function ref_range = get_ref_range(~,data)
@@ -60,36 +60,36 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             obj.tst_sqw_file_full_path = test_sqw_file_full_path;
             
             % Construct an object from raw data
-            obj.pixel_data_obj = PixelData(obj.raw_pix_data);
+            obj.pixel_data_obj = PixelDataBase.create(obj.raw_pix_data);
             % Construct an object from a file
-            obj.pix_data_from_file = PixelData(obj.tst_sqw_file_full_path);
+            obj.pix_data_from_file = PixelDataBase.create(obj.tst_sqw_file_full_path);
             % Construct an object from a file accessor
             f_accessor = sqw_formats_factory.instance().get_loader(obj.tst_sqw_file_full_path);
-            obj.pix_data_from_faccess = PixelData(f_accessor);
+            obj.pix_data_from_faccess = PixelDataBase.create(f_accessor);
             % Construct an object from file accessor with small page size
-            obj.pix_data_small_page = PixelData(f_accessor, obj.SMALL_PG_SIZE);
+            obj.pix_data_small_page = PixelDataBase.create(f_accessor, obj.SMALL_PG_SIZE);
         end
                 
         % --- Tests for in-memory operations ---
         function test_default_construction_sets_empty_pixel_data(~)
-            pix_data = PixelData();
+            pix_data = PixelDataBase.create();
             num_cols = 9;
             assertEqual(pix_data.data, zeros(num_cols, 0));
             assertEqual(pix_data.pix_range,[inf,inf,inf,inf;-inf,-inf,-inf,-inf])
         end
         
         function test_PIXELDATA_raised_on_construction_with_data_with_lt_9_cols(~)
-            f = @() PixelData(ones(3, 3));
+            f = @() PixelDataBase.create(ones(3, 3));
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_PIXELDATA_raised_on_construction_with_data_with_gt_9_cols(~)
-            f = @() PixelData(ones(10, 3));
+            f = @() PixelDataBase.create(ones(10, 3));
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_coordinates_returns_empty_array_if_pixel_data_empty(~)
-            pix_data = PixelData();
+            pix_data = PixelDataBase.create();
             assertTrue(isempty(pix_data.coordinates));
             assertEqual(pix_data.pix_range,[inf,inf,inf,inf;-inf,-inf,-inf,-inf])
         end
@@ -209,7 +209,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(~)
-            f = @(x) PixelData(zeros(x, 10));
+            f = @(x) PixelDataBase.create(zeros(x, 10));
             for i = [-10, -5, 0, 5]
                 assertExceptionThrown(@() f(i), 'HORACE:PixelData:invalid_argument');
             end
@@ -260,23 +260,23 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_default_PixelData_object_is_empty(~)
-            pix_data_obj = PixelData();
+            pix_data_obj = PixelDataBase.create();
             assertTrue(isempty(pix_data_obj));
         end
         
         function test_error_if_constructed_with_struct(~)
             s = struct();
-            f = @() PixelData(s);
+            f = @() PixelDataBase.create(s);
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_PIXELDATA_error_if_constructed_with_cell_array(~)
             s = {'a', 1};
-            f = @() PixelData(s);
+            f = @() PixelDataBase.create(s);
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         function test_PixelData_set_data_all(~)
-            pix_data_obj = PixelData();
+            pix_data_obj = PixelDataBase.create();
             data = zeros(9,1);
             pix_data_obj.set_data('all',data)
             assertEqual(pix_data_obj.num_pixels,1);
@@ -284,7 +284,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             
         end
         function test_PixelData_set_data_all_wrong_size(~)
-            pix_data_obj = PixelData();
+            pix_data_obj = PixelDataBase.create();
             data = zeros(4,1);
             f = @()set_data(pix_data_obj,'all',data);
             
@@ -293,7 +293,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_PIXELDATA_error_if_data_set_with_non_numeric_type(~)
-            pix_data_obj = PixelData();
+            pix_data_obj = PixelDataBase.create();
             
             function set_data(data)
                 pix_data_obj.data = data;
@@ -309,7 +309,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_can_construct_from_another_PixelData_object(obj)
-            pixel_data_obj_copy = PixelData(obj.pixel_data_obj);
+            pixel_data_obj_copy = PixelDataBase.create(obj.pixel_data_obj);
             assertEqual(pixel_data_obj_copy.data, obj.pixel_data_obj.data);
         end
         
@@ -358,7 +358,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_data_obj1 = obj.get_random_pix_data_(10);
             pix_data_obj2 = obj.get_random_pix_data_(5);
             
-            combined_pix = PixelData.cat(pix_data_obj1, pix_data_obj2);
+            combined_pix = PixelDataBase.cat(pix_data_obj1, pix_data_obj2);
             
             assertEqual(combined_pix.num_pixels, 15);
             assertEqual(combined_pix.data, ...
@@ -367,7 +367,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_get_pixels_returns_PixelData_obj_with_given_pix_indices(~)
             data = rand(9, 10);
-            pix = PixelData(data);
+            pix = PixelDataBase.create(data);
             sub_pix = pix.get_pixels([3, 5, 7]);
             assertTrue(isa(pix, 'PixelData'));
             assertEqual(sub_pix.data, data(:, [3, 5, 7]));
@@ -381,20 +381,20 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_load_obj_returns_equivalent_object(~)
-            pix = PixelData.loadobj(PixelData(ones(9, 10)));
+            pix = PixelDataBase.loadobj(PixelDataBase.create(ones(9, 10)));
             assertEqual(pix.data, ones(9, 10));
         end
         
         function test_construction_with_int_fills_underlying_data_with_zeros(~)
             npix = 20;
-            pix = PixelData(npix);
+            pix = PixelDataBase.create(npix);
             assertEqual(pix.num_pixels, npix);
             assertEqual(pix.data, zeros(9, npix));
             assertEqual(pix.variance, zeros(1, npix));
         end
         
         function test_construction_with_float_raises_PIXELDATA_error(~)
-            f = @() PixelData(1.2);
+            f = @() PixelDataBase.create(1.2);
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
@@ -417,7 +417,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_error_on_construction_with_non_existent_file(~)
             file_path = 'not-a-file';
-            f = @() PixelData(file_path);
+            f = @() PixelDataBase.create(file_path);
             assertExceptionThrown(f, 'HORACE:file_io:runtime_error');
         end
         
@@ -460,7 +460,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_data_values_are_not_effected_by_changes_in_copies(~)
             n_rows = 5;
-            p1 = PixelData(ones(9, n_rows));
+            p1 = PixelDataBase.create(ones(9, n_rows));
             p2 = copy(p1);
             p2.u1 = zeros(1, n_rows);
             assertEqual(p2.u1, zeros(1, n_rows));
@@ -491,7 +491,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_has_more_rets_false_if_all_data_created_in_memory(~)
             data = rand(9, 30);
-            pix = PixelData(data);
+            pix = PixelDataBase.create(data);
             assertFalse(pix.has_more());
         end
         
@@ -515,7 +515,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_advance_does_nothing_if_PixelData_not_file_backed(~)
             data = rand(9, 10);
-            pix = PixelData(data);
+            pix = PixelDataBase.create(data);
             pix.advance();
             assertEqual(pix.data, data);
         end
@@ -540,12 +540,12 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_empty_PixelData_object_has_page_size_zero(~)
-            pix = PixelData();
+            pix = PixelDataBase.create();
             assertEqual(pix.page_size, 0);
         end
         
         function test_constructing_from_PixelData_with_valid_file_inits_faccess(obj)
-            new_pix = PixelData(obj.pix_data_small_page);
+            new_pix = PixelDataBase.create(obj.pix_data_small_page);
             assertEqual(new_pix.file_path, obj.tst_sqw_file_full_path);
             assertEqual(new_pix.num_pixels, obj.pix_data_small_page.num_pixels);
             assertEqual(new_pix.signal, obj.pix_data_small_page.signal);
@@ -574,7 +574,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_instance_has_page_size_after_construction(~)
             data = rand(9, 10);
             faccess = FakeFAccess(data);
-            pix = PixelData(faccess);
+            pix = PixelDataBase.create(faccess);
             assertEqual(pix.page_size, 10);
         end
         
@@ -582,7 +582,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             data = rand(9, 10);
             faccess = FakeFAccess(data);
             for i = 1:numel(obj.pix_fields)
-                pix = PixelData(faccess);
+                pix = PixelDataBase.create(faccess);
                 pix.(obj.pix_fields{i}) = 1;
                 assertEqual(pix.page_size, 10);
             end
@@ -702,7 +702,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             faccess = FakeFAccess(data);
             faccess = faccess.set_npixels(uint64(npix));
             
-            pix = PixelData(faccess);
+            pix = PixelDataBase.create(faccess);
             assertEqual(class(pix.num_pixels), 'double');
         end
         
@@ -715,7 +715,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_copy_on_same_page_as_original_when_more_than_1_page(obj)
-            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e6);
+            pix_original = PixelDataBase.create(obj.tst_sqw_file_full_path, 1e6);
             pix_original.signal = 1;
             pix_original.advance();
             
@@ -734,7 +734,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_copy_on_same_pg_as_original_when_more_than_1_pg_no_advance(obj)
-            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e6);
+            pix_original = PixelDataBase.create(obj.tst_sqw_file_full_path, 1e6);
             pix_original.signal = 1;
             
             pix_copy = copy(pix_original);
@@ -748,7 +748,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_changes_to_original_persistent_in_copy_if_1_page_in_file(obj)
-            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e9);
+            pix_original = PixelDataBase.create(obj.tst_sqw_file_full_path, 1e9);
             pix_original.signal = 1;
             pix_original.advance();
             
@@ -769,7 +769,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_changes_to_orig_persistent_in_copy_if_1_pg_in_file_no_adv(obj)
-            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e9);
+            pix_original = PixelDataBase.create(obj.tst_sqw_file_full_path, 1e9);
             pix_original.signal = 1;
             
             pix_copy = copy(pix_original);
@@ -831,7 +831,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_changes_to_original_kept_in_copy_after_advance(obj)
-            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e2);
+            pix_original = PixelDataBase.create(obj.tst_sqw_file_full_path, 1e2);
             pix_original.signal = 1;
             
             pix_copy = copy(pix_original);
@@ -938,10 +938,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_cannot_append_more_pixels_than_can_fit_in_page(obj)
             npix_in_page = 5;
             mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
-            pix = PixelData(zeros(9, 0), mem_alloc);
+            pix = PixelDataBase.create(zeros(9, 0), mem_alloc);
             
             data = ones(obj.NUM_COLS_IN_PIX_BLOCK, 11);
-            pix_to_append = PixelData(data);
+            pix_to_append = PixelDataBase.create(data);
             
             f = @() pix.append(pix_to_append);
             assertExceptionThrown(f, 'PIXELDATA:append');
@@ -950,10 +950,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_you_can_append_to_empty_PixelData_object(obj)
             npix_in_page = 11;
             mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
-            pix = PixelData(zeros(9, 0), mem_alloc);
+            pix = PixelDataBase.create(zeros(9, 0), mem_alloc);
             
             data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
-            pix_to_append = PixelData(data);
+            pix_to_append = PixelDataBase.create(data);
             
             pix.append(pix_to_append);
             assertEqual(pix.data, data);
@@ -965,12 +965,12 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             nexisting_pix = 5;
             mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
             existing_data = rand(9, nexisting_pix);
-            pix = PixelData(existing_data, mem_alloc);
+            pix = PixelDataBase.create(existing_data, mem_alloc);
             minmax = obj.get_ref_range(existing_data);
             assertEqual(pix.pix_range,minmax);
             
             data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
-            pix_to_append = PixelData(data);
+            pix_to_append = PixelDataBase.create(data);
             assertEqual(pix_to_append.pix_range,ones(2,4));
             minmax(2,:) = ones(1,4);
             
@@ -994,11 +994,11 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             nexisting_pix = 11;
             mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
             existing_data = rand(9, nexisting_pix);
-            pix = PixelData(existing_data, mem_alloc);
+            pix = PixelDataBase.create(existing_data, mem_alloc);
             minmax = pix.pix_range;
             
             appended_data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
-            pix_to_append = PixelData(appended_data);
+            pix_to_append = PixelDataBase.create(appended_data);
             minmax(2,:) = ones(1,4);
             pix.append(pix_to_append);
             
@@ -1017,7 +1017,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
             original_data = rand(9, num_pix);
             
-            pix = PixelData(original_data(:, 1:npix_in_page), mem_alloc);
+            pix = PixelDataBase.create(original_data(:, 1:npix_in_page), mem_alloc);
             minmax = obj.get_ref_range(original_data);
             assertEqual(pix.data, original_data(:, 1:npix_in_page));
             pix.signal = ones(1, npix_in_page);
@@ -1025,7 +1025,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             for i = 2:ceil(num_pix/npix_in_page)
                 start_idx = (i - 1)*npix_in_page + 1;
                 end_idx = min(start_idx + npix_in_page - 1, num_pix);
-                pix.append(PixelData(original_data(:, start_idx:end_idx)));
+                pix.append(PixelDataBase.create(original_data(:, start_idx:end_idx)));
                 assertEqual(pix.data, original_data(:, start_idx:end_idx));
             end
             assertEqual(pix.pix_range, minmax)
@@ -1045,7 +1045,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             data_to_append = rand(9, 8);
             new_range = obj.get_ref_range(data_to_append);
             
-            pix_to_append = PixelData(data_to_append);
+            pix_to_append = PixelDataBase.create(data_to_append);
             tot_range = [min(new_range(1,:),pix_range(1,:));...
                 max(new_range(2,:),pix_range(2,:))];
             pix.append(pix_to_append);
@@ -1068,7 +1068,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_error_if_append_called_with_non_PixelData_object(~)
-            pix = PixelData(rand(9, 1));
+            pix = PixelDataBase.create(rand(9, 1));
             f = @() pix.append(rand(9, 1));
             assertExceptionThrown(f, 'PIXELDATA:append');
         end
@@ -1076,7 +1076,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_error_if_appending_pix_with_multiple_pages(obj)
             npix_in_page = 11;
             mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
-            pix = PixelData(rand(9, 5), mem_alloc);
+            pix = PixelDataBase.create(rand(9, 5), mem_alloc);
             
             pix_to_append = obj.get_pix_with_fake_faccess(rand(9, 23), npix_in_page);
             f = @() pix.append(pix_to_append);
@@ -1087,7 +1087,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             data = rand(9, 30);
             npix_in_page = 11;
             [pix,pix_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            pix_to_append = PixelData(rand(9, 5));
+            pix_to_append = PixelDataBase.create(rand(9, 5));
             
             pix_out = pix.append(pix_to_append);
             assertElementsAlmostEqual(pix.pix_range,pix_range,'relative',4.e-8);
@@ -1100,10 +1100,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         %
         function test_append_returns_editied_pix_if_nargout_eq_1(obj)
             % test for filebased pix_range. Has a problem
-            pix = PixelData(obj.tst_sqw_file_full_path);
+            pix = PixelDataBase.create(obj.tst_sqw_file_full_path);
             range1 = pix.pix_range;
             npix_to_append = 5;
-            pix_to_append = PixelData(rand(9, npix_to_append));
+            pix_to_append = PixelDataBase.create(rand(9, npix_to_append));
             range2 =  pix_to_append.pix_range;
             ref_range = [min(range1(1,:),range2(1,:));...
                 max(range1(2,:),range2(2,:))];
@@ -1120,9 +1120,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         
         function test_calling_append_with_empty_pixel_data_does_nothing(~)
-            pix = PixelData(rand(9, 5));
+            pix = PixelDataBase.create(rand(9, 5));
             range = pix.pix_range;
-            pix_to_append = PixelData();
+            pix_to_append = PixelDataBase.create();
             appended_pix = pix.append(pix_to_append);
             assertEqual(appended_pix.data, pix.data);
             assertEqual(range,pix.pix_range);
@@ -1130,10 +1130,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_copied_pix_that_has_been_appended_to_has_correct_num_pix(~)
             data = rand(9, 30);
-            pix = PixelData(data);
+            pix = PixelDataBase.create(data);
             range1 = pix.pix_range;
             num_appended_pix = 5;
-            pix_to_append = PixelData(rand(9, num_appended_pix));
+            pix_to_append = PixelDataBase.create(rand(9, num_appended_pix));
             range2 = pix_to_append.pix_range;
             ref_range = [ ...
                 min(range1(1,:),range2(1,:));...
@@ -1153,10 +1153,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_has_more_is_true_after_appending_page_to_non_file_backed(~)
             num_pix = 10;
             mem_alloc = (num_pix + 1)*sqw_binfile_common.FILE_PIX_SIZE;
-            pix = PixelData(rand(9, 10), mem_alloc);
+            pix = PixelDataBase.create(rand(9, 10), mem_alloc);
             range1 = pix.pix_range;
             
-            pix_to_append = PixelData(rand(9, 5));
+            pix_to_append = PixelDataBase.create(rand(9, 5));
             range2 = pix_to_append.pix_range;
             ref_range = [min(range1(1,:),range2(1,:));...
                 max(range1(2,:),range2(2,:))];
@@ -1172,15 +1172,15 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_error_when_setting_mem_alloc_lt_one_pixel(~)
-            pix_size = PixelDataBase.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+            pix_size = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
             
-            f = @() PixelData(rand(9, 10), pix_size - 1);
+            f = @() PixelDataBase.create(rand(9, 10), pix_size - 1);
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_PIXELDATA_raised_if_mem_alloc_argument_is_not_scalar(~)
             mem_alloc = 200e6*ones(1, 2);
-            f = @() PixelData(zeros(9, 1), mem_alloc);
+            f = @() PixelDataBase.create(zeros(9, 1), mem_alloc);
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
@@ -1327,7 +1327,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_get_pixels_throws_invalid_arg_if_indices_not_vector(~)
-            pix = PixelData();
+            pix = PixelDataBase.create();
             f = @() pix.get_pixels(ones(2, 2));
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
@@ -1355,13 +1355,13 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_get_pixels_throws_if_an_idx_lt_1_with_in_memory_pix(~)
-            in_mem_pix = PixelData(5);
+            in_mem_pix = PixelDataBase.create(5);
             f = @() in_mem_pix.get_pixels(-1:3);
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         function test_get_pixels_throws_if_indices_not_positive_int(~)
-            pix = PixelData();
+            pix = PixelDataBase.create();
             idx_array = 1:0.1:5;
             f = @() pix.get_pixels(idx_array);
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
@@ -1414,7 +1414,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_in_mem_pix_get_pixels_can_be_called_with_a_logical(obj)
             num_pix = 30;
             in_data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            pix = PixelData(in_data);
+            pix = PixelDataBase.create(in_data);
             
             logical_array = logical(randi([0, 1], [1, 10]));
             pix_out = pix.get_pixels(logical_array);
@@ -1443,7 +1443,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_get_pixels_on_file_backed_can_handle_repeated_indices(obj)
-            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
+            pix = PixelDataBase.create(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
             num_pix = pix.num_pixels;
             data = concatenate_pixel_pages(pix);
             
@@ -1559,7 +1559,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         function test_in_mem_pix_get_data_can_be_called_with_a_logical(obj)
             num_pix = 30;
-            pix = PixelData(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix));
+            pix = PixelDataBase.create(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix));
             
             logical_array = logical(randi([0, 1], [1, 10]));
             sig_var = pix.get_data({'signal', 'variance'}, logical_array);
@@ -1600,7 +1600,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_get_data_throws_invalid_arg_if_indices_not_vector(~)
-            pix = PixelData();
+            pix = PixelDataBase.create();
             f = @() pix.get_data('signal', ones(2, 2));
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
@@ -1628,27 +1628,27 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
         
         function test_get_data_throws_if_an_idx_lt_1_with_in_memory_pix(~)
-            in_mem_pix = PixelData(5);
+            in_mem_pix = PixelDataBase.create(5);
             f = @() in_mem_pix.get_data('signal', -1:3);
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         function test_get_data_throws_if_indices_not_positive_int(~)
-            pix = PixelData();
+            pix = PixelDataBase.create();
             idx_array = 1:0.1:5;
             f = @() pix.get_data('signal', idx_array);
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         function test_base_page_size_is_DEFAULT_PAGE_SIZE_by_default(~)
-            pix = PixelData();
+            pix = PixelDataBase.create();
             bytes_in_pixel = sqw_binfile_common.FILE_PIX_SIZE;
             expected_num_pix = floor(PixelDataBase.DEFAULT_PAGE_SIZE/bytes_in_pixel);
             assertEqual(pix.base_page_size, expected_num_pix);
         end
         
         function test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages(obj)
-            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE/2);
+            pix = PixelDataBase.create(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE/2);
             pix.advance();  % pg 1 is clean
             % Set all signals in page 2 to 11
             pix.signal = 11;
@@ -1667,10 +1667,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             
             % Load the whole file into a PixelData object, set the corresponding
             % pixels to 11 and 12 as above
-            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
+            in_mem_pix = PixelDataBase.create(obj.tst_sqw_file_full_path);
             in_mem_pix.signal((pg_size + 1):(2*pg_size)) = 11;
             in_mem_pix.signal((3*pg_size + 1):(4*pg_size)) = 12;
-            expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+            expected_pix = PixelDataBase.create(in_mem_pix.data(:, pix_range));
             
             assertEqualToTol(new_pix, expected_pix);
         end
@@ -1678,7 +1678,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_get_pixels_can_load_clean_and_dirty_pix_out_of_order(obj)
             % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
             % relevant test explanation
-            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
+            pix = PixelDataBase.create(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
             pix.advance();
             pix.signal = 11;
             pix.advance();
@@ -1689,10 +1689,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_range = pix.num_pixels:-1:1;  % pix range in reverse order
             new_pix = pix.get_pixels(pix_range);
             
-            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
+            in_mem_pix = PixelDataBase.create(obj.tst_sqw_file_full_path);
             in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
             in_mem_pix.signal(2*pg_size + 1:3*pg_size) = 12;
-            expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+            expected_pix = PixelDataBase.create(in_mem_pix.data(:, pix_range));
             
             assertEqualToTol(new_pix, expected_pix);
         end
@@ -1700,7 +1700,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_get_pixels_can_load_clean_and_dirty_pix_with_duplicates(obj)
             % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
             % relevant test explanation
-            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
+            pix = PixelDataBase.create(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
             assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
             pix.advance();
             pix.signal = 11;
@@ -1711,9 +1711,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_range = repelem(1:3*pg_size, 3);
             new_pix = pix.get_pixels(pix_range);
             
-            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
+            in_mem_pix = PixelDataBase.create(obj.tst_sqw_file_full_path);
             in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
-            expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+            expected_pix = PixelDataBase.create(in_mem_pix.data(:, pix_range));
             
             assertEqualToTol(new_pix, expected_pix);
         end
@@ -1721,7 +1721,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_get_pixels_can_load_clean_and_dirty_pix_cached_page_dirty(obj)
             % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
             % relevant test explanation
-            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
+            pix = PixelDataBase.create(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
             assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
             pix.advance();
             pix.signal = 11;
@@ -1734,9 +1734,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_range = repelem(1:3*pg_size, 3);
             new_pix = pix.get_pixels(pix_range);
             
-            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
+            in_mem_pix = PixelDataBase.create(obj.tst_sqw_file_full_path);
             in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
-            expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+            expected_pix = PixelDataBase.create(in_mem_pix.data(:, pix_range));
             
             assertEqualToTol(new_pix, expected_pix);
         end
@@ -1744,17 +1744,17 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_get_pixels_correct_if_all_pages_dirty(~)
             data = rand(9, 45);
             mem_alloc = 8*9*15;
-            pix = PixelData(zeros(9, 0), mem_alloc);
+            pix = PixelDataBase.create(zeros(9, 0), mem_alloc);
             for i = 1:3
                 a = (i - 1)*15 + 1;
                 b = i*15;
-                pix.append(PixelData(data(:, a:b)));
+                pix.append(PixelDataBase.create(data(:, a:b)));
             end
             
             pix_idx = [12:17, 28:33, 44];
             new_pix = pix.get_pixels(pix_idx);
             
-            expected_pix = PixelData(data(:, pix_idx));
+            expected_pix = PixelDataBase.create(data(:, pix_idx));
             assertEqualToTol(new_pix, expected_pix, 'reltol', 1e-5);
         end
         function test_calling_advance_with_nosave_discards_cached_changes(obj)
@@ -1771,7 +1771,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_set_data_sets_fields_with_given_values(~)
-            pix = PixelData(30);
+            pix = PixelDataBase.create(30);
             new_data = ones(3, 7);
             fields = {'run_idx', 'signal', 'variance'};
             idxs = [4, 3, 9, 24, 29, 10, 11];
@@ -1786,7 +1786,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_set_data_sets_single_fields_with_given_values(~)
-            pix = PixelData(30);
+            pix = PixelDataBase.create(30);
             new_data = ones(1, 7);
             field = 'run_idx';
             idxs = [4, 3, 9, 24, 29, 10, 11];
@@ -1821,7 +1821,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_set_data_errors_if_data_nrows_ne_to_num_fields(~)
-            pix = PixelData(30);
+            pix = PixelDataBase.create(30);
             fields = {'run_idx', 'signal', 'variance'};
             new_data = ones(numel(fields) + 1, 7);
             idxs = [4, 3, 9, 24, 29, 10, 11];
@@ -1830,7 +1830,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_set_data_errors_if_data_ncols_ne_to_num_indices(~)
-            pix = PixelData(30);
+            pix = PixelDataBase.create(30);
             fields = {'run_idx', 'signal', 'variance'};
             idxs = [4, 3, 9, 24, 29, 10, 11];
             new_data = ones(numel(fields), numel(idxs) - 1);
@@ -1839,7 +1839,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_set_data_sets_fields_with_given_values_with_logical_idxs(~)
-            pix = PixelData(30);
+            pix = PixelDataBase.create(30);
             new_data = ones(3, 7);
             fields = {'run_idx', 'signal', 'variance'};
             idxs = [4, 3, 9, 24, 29, 10, 11];
@@ -1870,7 +1870,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
         function test_set_data_sets_all_if_abs_pix_indices_not_given(~)
             num_pix = 30;
-            pix = PixelData(num_pix);
+            pix = PixelDataBase.create(num_pix);
             new_data = ones(3, num_pix);
             fields = {'run_idx', 'signal', 'variance'};
             pix.set_data(fields, new_data);
@@ -1884,7 +1884,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             % give it a real file path to trick code into thinking it exists
             faccess = faccess.set_filepath(obj.tst_sqw_file_full_path);
             mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
-            pix = PixelData(faccess, mem_alloc);
+            pix = PixelDataBase.create(faccess, mem_alloc);
         end
         
         function do_pixel_data_loop_with_f(obj, func, data)
@@ -1894,7 +1894,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             
             pix_in_page = 11;
             mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
-            pix = PixelData(faccess, mem_alloc);
+            pix = PixelDataBase.create(faccess, mem_alloc);
             
             func(pix, 0)
             iter = 1;

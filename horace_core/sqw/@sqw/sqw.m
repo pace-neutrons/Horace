@@ -43,7 +43,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % holder for image data, e.g. appropriate dnd object
         data_;
         % holder for pix data
-        pix_ = PixelData()      % Object containing data for each pixe
+        pix_ = PixelDataBase.create()      % Object containing data for each pixe
     end
     properties(Access=private)
         main_header_ = main_header_cl();
@@ -228,9 +228,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             if isa(val,'PixelData') || isa(val,'pix_combine_info')
                 obj.pix_ = val;
             elseif isempty(val)
-                obj.pix_ = PixelData();
+                obj.pix_ = PixelDataBase.create();
             else
-                obj.pix_ = PixelData(val);
+                obj.pix_ = PixelDataBase.create(val);
             end
         end
         %

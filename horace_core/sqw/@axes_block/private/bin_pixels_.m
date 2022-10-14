@@ -103,7 +103,7 @@ if isempty(coord)
         if iscell(pix_cand)
             pix_ok = zeros(size(s));
         else
-            pix_ok = PixelData();
+            pix_ok = PixelDataBase.create();
         end
         return;
     end
@@ -150,22 +150,22 @@ end
 %--------------------------------------------------------------------------
 is_pix = isa(pix_cand,'PixelData');
 if is_pix
-    ndata = 2;    
+    ndata = 2;
 else % cell with data array
-    ndata = numel(pix_cand);    
+    ndata = numel(pix_cand);
 end
-  
+
 out = cell(1,ndata);
 out{1} = s;
 out{2} = e;
 if is_pix
     bin_values = {pix_cand.signal;pix_cand.variance};
 else % cellarray of arrays to accumulate
-    bin_values = pix_cand;    
+    bin_values = pix_cand;
     if ndata>=3 % Output changes type and meaning. Nasty.
         % Needs something better in a future
         pix_ok = zeros(size(s));
-        out{3} = pix_ok;        
+        out{3} = pix_ok;
     end
 end
 if ndims == 0
@@ -209,14 +209,14 @@ pix = pix_ok;
 if ndims > 0
     if nout ==6
         if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
-            pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
+            pix = PixelDataBase.create(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
         end
     else % sort will make pix double if requested  TODO: this should be moved to get_pixels
         pix = sort_pix(pix,pix_indx,npix1,varargin{:}); % when PixelData is separated into file accessor and memory accessor
     end
 elseif ndims == 0
     if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
-        pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
+        pix = PixelDataBase.create(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
     end
     if nout == 6
         pix_indx = ones(pix.num_pixels,1);

@@ -38,7 +38,7 @@ if any(obj.page_dirty_)
     % At least some pixels sit in temporary files
 
     % Allocate output array
-    pix_out = PixelData(numel(abs_pix_indices));
+    pix_out = PixelDataBase.create(numel(abs_pix_indices));
 
     % Logical index into abs_pix_indices of all pixels on dirty pages
     % This is used to track the positions of assigned pixels. We can use
@@ -66,7 +66,7 @@ if any(obj.page_dirty_)
     end
 
 else
-    pix_out = PixelData(read_clean_pix(obj, abs_pix_indices));
+    pix_out = PixelDataBase.create(read_clean_pix(obj, abs_pix_indices));
 end
 
 % -----------------------------------------------------------------------------

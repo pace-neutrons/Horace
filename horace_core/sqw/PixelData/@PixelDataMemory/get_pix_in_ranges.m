@@ -39,9 +39,9 @@ else
 end
 
 if recalculate_pix_range
-    pix_out = PixelData(raw_pix);
+    pix_out = PixelDataBase.create(raw_pix);
 else
-    pix_out = PixelData();
+    pix_out = PixelDataBase.create();
     set_data(pix_out,'all',raw_pix);
 end
 

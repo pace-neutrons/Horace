@@ -107,7 +107,7 @@ data_out.data = DnDBase.dnd(targ_axes,proj,s,e,npix);
 if keep_pix
     data_out.pix = pix_out;
 else
-    data_out.pix = PixelData();
+    data_out.pix = PixelDataBase.create();
 end
 
 
