@@ -21,7 +21,7 @@ classdef test_test_sqw_utils < TestCase & common_pix_class_state_holder
             
             faccess = FakeFAccess(data);
             mem_alloc = npix_in_page*NUM_BYTES_IN_VALUE*NUM_COLS_IN_PIX_BLOCK;
-            pix = PixelData(faccess, mem_alloc);
+            pix = PixelDataBase.create(faccess, mem_alloc);
             
             pix.advance();
             

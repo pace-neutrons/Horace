@@ -194,11 +194,11 @@ wout.data.npix = reshape (accumarray (ibin,1,[prod(sz),1]), sz);
 clear ibin      % clear a large work array
 
 % Get the full pix array
-pix = PixelData(npixtot_all);
+pix = PixelDataBase.create(npixtot_all);
 for i=1:nw
     pix.data(:,nbeg(i):nend(i)) = varargin{i}.data.pix.data;
 end
-wout.data.pix = PixelData(pix.data(:,ix_all));
+wout.data.pix = PixelDataBase.create(pix.data(:,ix_all));
 
 % Recompute the signal and error arrays
 wout=recompute_bin_data(wout);

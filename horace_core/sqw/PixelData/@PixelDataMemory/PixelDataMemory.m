@@ -9,11 +9,11 @@ classdef PixelDataMemory < PixelDataBase
     %   Construct this class with an 9 x N array, a file path to an SQW object or
     %   an instance of sqw_binfile_common.
     %
-    %   >> pix_data = PixelData(data);
-    %   >> pix_data = PixelData('/path/to/sqw.sqw');
-    %   >> pix_data = PixelData('/path/to/sqw.sqw', mem_alloc);
-    %   >> pix_data = PixelData(faccess_obj);
-    %   >> pix_data = PixelData(faccess_obj, mem_alloc);
+    %   >> pix_data = PixelDataBase.create(data);
+    %   >> pix_data = PixelDataBase.create('/path/to/sqw.sqw');
+    %   >> pix_data = PixelDataBase.create('/path/to/sqw.sqw', mem_alloc);
+    %   >> pix_data = PixelDataBase.create(faccess_obj);
+    %   >> pix_data = PixelDataBase.create(faccess_obj, mem_alloc);
     %
     %   Constructing via a file or sqw_binfile_common will create a file-backed
     %   data object. No pixel data will be loaded from the file on construction.
@@ -33,29 +33,29 @@ classdef PixelDataMemory < PixelDataBase
     %
     % Usage:
     %
-    %   >> pix_data = PixelData(data)
+    %   >> pix_data = PixelDataBase.create(data)
     %   >> signal = pix_data.signal;
     %
     %  or equivalently:
     %
-    %   >> pix_data = PixelData();
+    %   >> pix_data = PixelDataBase.create();
     %   >> pix_data.data = data;
     %   >> signal = pix_data.get_data('signal');
     %
     %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
     %
-    %   >> pix_data = PixelData(data);
+    %   >> pix_data = PixelDataBase.create(data);
     %   >> signal = pix_data.get_data({'run_idx', 'energy_idx'}, 1:10);
     %
     %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
     %
-    %   >> pix_data = PixelData(data);
+    %   >> pix_data = PixelDataBase.create(data);
     %   >> pixel_subset = pix_data.get_pixels([1, 4, 10])
     %
     %  To sum the signal of a file-backed object where the page size is less than
     %  amount of data in the file:
     %
-    %   >> pix = PixelData('my_data.sqw')
+    %   >> pix = PixelDataBase.create('my_data.sqw')
     %   >> signal_sum = 0;
     %   >> while pix.has_more()
     %   >>     signal_sum = signal_sum + pix.signal;
@@ -82,6 +82,9 @@ classdef PixelDataMemory < PixelDataBase
     %   page_size      - The number of pixels in the currently loaded page.
     %
 
+    properties
+        page_memory_size_ = inf;
+    end
 
     properties (Constant)
         is_filebacked = false;
@@ -96,7 +99,7 @@ classdef PixelDataMemory < PixelDataBase
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         pix_out = get_data(obj, fields, abs_pix_indices);
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
-            recalculate_pix_ranges,keep_precision);
+                                    recalculate_pix_ranges,keep_precision);
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
         [page_num, total_number_of_pages] = move_to_page(obj, page_number, varargin);
@@ -108,31 +111,21 @@ classdef PixelDataMemory < PixelDataBase
             % Construct a PixelDataMemory object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
+            %
+            % Transform filebacked to memory backed
+
+            obj = obj@PixelDataBase();
         end
 
         function data=saveobj(obj)
             data = struct(obj);
 
             if numel(obj)>1
-                data = struct('version',PixelData.version,...
+                data = struct('version',PixelDataBase.version,...
                     'array_data',data);
             else
                 data.version = obj.version;
             end
-        end
-
-        function is_empty = isempty(obj)
-            % Return true if the PixelData object holds no pixel data
-            is_empty = obj.num_pixels == 0;
-        end
-
-        function pix_copy = copy(obj)
-            % Make an independent copy of this object
-            %  This method simply constructs a new PixelData instance by calling
-            %  the constructor with the input object as an argument. Because of
-            %  this, any properties that need to be explicitly copied must be
-            %  copied within this classes "copy-constructor".
-            pix_copy = PixelData(obj);
         end
 
         % --- Data management ---
@@ -196,11 +189,11 @@ classdef PixelDataMemory < PixelDataBase
         end
 
         function prp = get_prop(obj, fld)
-            prp = obj.data(obj.FIELD_INDEX_MAP_(fld), :);
+            prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
         end
 
         function set_prop(obj, fld, val)
-            obj.data(obj.FIELD_INDEX_MAP_(fld), :) = val;
+            obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
             if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
                 obj.reset_changed_coord_range(fld);
             end
@@ -230,7 +223,7 @@ classdef PixelDataMemory < PixelDataBase
 
     end
 
-    methods (Access=private)
+    methods (Access = ?PixelDataBase)
 
         function reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
@@ -241,7 +234,6 @@ classdef PixelDataMemory < PixelDataBase
             %
             if isempty(obj.raw_data_)
                 obj.pix_range_   = PixelDataBase.EMPTY_RANGE_;
-                obj.page_range = PixelDataBase.EMPTY_RANGE_;
                 return
             end
 
@@ -253,7 +245,6 @@ classdef PixelDataMemory < PixelDataBase
 
             range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
             obj.pix_range_(:,ind) = range;
-            obj.page_range(:,ind) = range;
         end
     end
 

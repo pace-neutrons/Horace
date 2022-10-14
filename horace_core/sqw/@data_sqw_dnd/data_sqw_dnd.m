@@ -23,7 +23,7 @@ classdef data_sqw_dnd < DnDBase
         fields_to_save_here_ = {'pix'};
     end
     properties(Access=protected)
-        pix_ = PixelData()      % Object containing data for each pixel
+        pix_ = PixelDataBase.create()      % Object containing data for each pixel
     end
     %
     methods
@@ -216,7 +216,7 @@ classdef data_sqw_dnd < DnDBase
             if isa(val,'PixelData') || isa(val,'pix_combine_info')
                 obj.pix_ = val;
             else
-                obj.pix_ = PixelData(val);
+                obj.pix_ = PixelDataBase.create(val);
             end
         end
 

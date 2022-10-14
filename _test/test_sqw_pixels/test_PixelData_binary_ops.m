@@ -1,7 +1,7 @@
 classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
     properties
-        BYTES_PER_PIX = PixelDataBase.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        BYTES_PER_PIX = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         SIGNAL_IDX = 8;
         VARIANCE_IDX = 9;
 
@@ -35,7 +35,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
             page_size = floor(sqw_test_obj.pix.num_pixels/6)*obj.BYTES_PER_PIX;
             obj.pix_in_memory_base = sqw_test_obj.pix;
-            obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, page_size);
+            obj.pix_with_pages_base = PixelDataBase.create(obj.test_sqw_file_path, page_size);
         end
 
         function setUp(obj)
@@ -193,17 +193,17 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         end
 
         function test_error_two_PixelData_with_different_num_pixels(~)
-            pix1 = PixelData(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10));
-            pix2 = PixelData(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11));
+            pix1 = PixelDataBase.create(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10));
+            pix2 = PixelDataBase.create(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11));
             f = @() pix1.do_binary_op(pix2, @plus);
             assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
         end
 
         function test_minus_two_in_memory_PixelData_objects(obj)
             data1 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix1 = PixelData(data1);
+            pix1 = PixelDataBase.create(data1);
             data2 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix2 = PixelData(data2);
+            pix2 = PixelDataBase.create(data2);
 
             pix_diff = pix1.do_binary_op(pix2, @minus);
 
@@ -261,7 +261,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
         function test_plus_with_signal_array_and_npix_1_page(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix = PixelData(data);
+            pix = PixelDataBase.create(data);
 
             npix = [1, 3, 0; 1, 1, 2; 0, 1, 1];
             sig_array = npix*rand(3);
@@ -276,7 +276,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
         function test_PIXELDATA_error_on_where_npix_ne_num_pixels(~)
             num_pixels = 11;
-            pix = PixelData(num_pixels);
+            pix = PixelDataBase.create(num_pixels);
             npix = [3, 4, 3];
             sig = [0.5, 0.6, 0.7];
 
@@ -286,7 +286,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
         function test_PIXELDATA_error_on_with_dnd_of_wrong_size(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
-            pix = PixelData(zeros(9, 2));
+            pix = PixelDataBase.create(zeros(9, 2));
             f = @() pix.do_binary_op(dnd_obj, @plus);
             assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
         end
@@ -294,7 +294,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         function test_with_1d_dnd_returns_correct_pix_with_single_page(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
             npix = dnd_obj.npix;
-            pix = PixelData(ones(9, sum(npix)));
+            pix = PixelDataBase.create(ones(9, sum(npix)));
 
             new_pix = pix.do_binary_op(dnd_obj, @plus, 'flip', false, ...
                 'npix', npix);
@@ -315,7 +315,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             npix = dnd_obj.npix;
             svar = sigvar(dnd_obj.s, dnd_obj.e);
 
-            pix = PixelData(ones(9, sum(dnd_obj.npix)));
+            pix = PixelDataBase.create(ones(9, sum(dnd_obj.npix)));
 
             new_pix = pix.do_binary_op(svar, @plus, 'flip', false, ...
                 'npix', npix);
@@ -336,7 +336,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             npix = dnd_obj.npix;
 
             pix_per_page = floor(sum(npix)/6);
-            pix = PixelData(obj.test_sqw_file_path, pix_per_page*obj.BYTES_PER_PIX);
+            pix = PixelDataBase.create(obj.test_sqw_file_path, pix_per_page*obj.BYTES_PER_PIX);
 
             new_pix = pix.do_binary_op(dnd_obj, @plus, 'flip', false, ...
                 'npix', npix);
@@ -360,7 +360,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
             pix_per_page = floor(sum(npix)/6);
             mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
-            pix = PixelData(obj.test_sqw_file_path, mem_alloc);
+            pix = PixelDataBase.create(obj.test_sqw_file_path, mem_alloc);
 
             new_pix = pix.do_binary_op(svar, @plus, 'flip', false, ...
                 'npix', npix);
@@ -381,7 +381,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             dnd_obj = read_dnd(obj.test_sqw_file_path);
             svar = sigvar(dnd_obj.s, dnd_obj.e);
 
-            pix = PixelData(ones(9, sum(dnd_obj.npix) + 1));
+            pix = PixelDataBase.create(ones(9, sum(dnd_obj.npix) + 1));
 
             f = @() pix.do_binary_op(svar, @plus, 'flip', false, ...
                 'npix', dnd_obj.npix);
@@ -395,7 +395,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
             pix_per_page = floor(sum(npix(:)/6));
             mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
-            pix = PixelData(obj.test_sqw_2d_file_path, mem_alloc);
+            pix = PixelDataBase.create(obj.test_sqw_2d_file_path, mem_alloc);
 
             new_pix = pix.do_binary_op(svar, @plus, 'flip', false, ...
                 'npix', npix);
@@ -417,7 +417,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
             pix_per_page = floor(sum(npix(:)/6));
             mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
-            pix = PixelData(obj.test_sqw_2d_file_path, mem_alloc);
+            pix = PixelDataBase.create(obj.test_sqw_2d_file_path, mem_alloc);
 
             new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false, ...
                 'npix', npix);
@@ -444,7 +444,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
             faccess = FakeFAccess(data);
             pix_size = obj.BYTES_PER_PIX;
-            pix = PixelData(faccess, npix_in_page*pix_size);
+            pix = PixelDataBase.create(faccess, npix_in_page*pix_size);
         end
 
     end

@@ -80,7 +80,7 @@ img_range_step = PixelDataBase.EMPTY_RANGE_;
 % interect with the cut. As of 26 Sep 2018 the rest of the code does not work if nstart is empty
 % but even if it did, catching this case here avoids a lot of unecessary working later on
 if isempty(nstart)
-    pix = PixelData();
+    pix = PixelDataBase.create();
     npix_retain = 0;
     npix_read = 0;
     return
@@ -111,10 +111,10 @@ if keep_pix
         % pix is pix_combine info class
         pix = init_pix_combine_info(nsteps,numel(s));
     else
-        pix = PixelData();   % changed 17/11/08 from pix = [];
+        pix = PixelDataBase.create();   % changed 17/11/08 from pix = [];
     end
 else
-    pix = PixelData();   % pix is a return argument, so must give it a value
+    pix = PixelDataBase.create();   % pix is a return argument, so must give it a value
 end
 
 t_read  = [0,0];
@@ -133,7 +133,7 @@ is_deployed_mpi = mpi_obj.is_deployed;
 %
 if ~pix_tmpfile_ok && keep_pix
     pix_retained = cell(1,nsteps);
-    pix_retained(1, :) = {PixelData()};
+    pix_retained(1, :) = {PixelDataBase.create()};
     pix_ix_retained=cell(1,nsteps);
 else
     pix_retained  = {};
@@ -148,7 +148,7 @@ try
     for i=1:nsteps
         if hor_log_level>=1;    bigtic(1);    end
         % -- read
-        pix_data=PixelData(read_data_block_(fid,noffset,range,block_ind_from(i),block_ind_to(i),ndatpix));
+        pix_data=PixelDataBase.create(read_data_block_(fid,noffset,range,block_ind_from(i),block_ind_to(i),ndatpix));
         %
         if hor_log_level>=1;  t_read = t_read + bigtoc(1); bigtic(2);   end
         if hor_log_level>=0
@@ -207,7 +207,7 @@ if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
 
     clear pix_data ok ix_add; % clear big arrays
     if pix_tmpfile_ok % this time pix is pix_combine_info class. del_npix_retain not used
-        pix_data = PixelData(); ok=[]; ix_add=[];
+        pix_data = PixelDataBase.create(); ok=[]; ix_add=[];
         pix = accumulate_pix_to_file_(pix,true,pix_data,ok,ix_add,npix,pmax,0);
     else
         if ~isempty(pix_retained)

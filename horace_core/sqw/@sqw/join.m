@@ -142,7 +142,7 @@ wout.data.s   =zeros(sz);
 wout.data.e   =zeros(sz);
 wout.data.npix=zeros(sz);
 % build a new PixelData object from the contributing files data
-wout.pix = PixelData.cat(cellfun(@(x) x, pix(run_contributes)));
+wout.pix = PixelDataBase.cat(cellfun(@(x) x, pix(run_contributes)));
 for i=1:nfiles
     if run_contributes(i)
         wout.data.s   = wout.data.s   + (data{i}.s).*(data{i}.npix);

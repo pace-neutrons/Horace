@@ -41,7 +41,7 @@ if numel(mask_array) == obj.num_pixels && all(mask_array)
     pix_out = obj;
     return;
 elseif numel(mask_array) == obj.num_pixels && ~any(mask_array)
-    pix_out = PixelData();
+    pix_out = PixelDataBase.create();
     return;
 end
 

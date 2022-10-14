@@ -24,6 +24,6 @@ ds = ldr.get_data('-nopix');
 if isstruct(ds)
     ds = data_sqw_dnd(ds);
 else
-    ds.pix = PixelData();
+    ds.pix = PixelDataBase.create();
 end
 obj.data = ds;

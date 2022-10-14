@@ -10,7 +10,7 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
         function [pix_data,pix_range] = get_random_pix_data_(~, rows)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, rows);
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
-            pix_data = PixelData(data);
+            pix_data = PixelDataBase.create(data);
             
         end
         function ref_range = get_ref_range(~,data)
@@ -28,9 +28,9 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
         end
         function test_load_save_modern_format_array(obj)
             data = obj.get_random_pix_data_(100);
-            pix1 = PixelData(data);
+            pix1 = PixelDataBase.create(data);
             data = obj.get_random_pix_data_(120);
-            pix2 = PixelData(data);
+            pix2 = PixelDataBase.create(data);
             pix = [pix1,pix2];
             
             test_file = fullfile(tmp_dir,'test_load_save_pix.mat');
@@ -45,7 +45,7 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
         
         function test_load_save_modern_format(obj)
             data = obj.get_random_pix_data_(100);
-            pix1 = PixelData(data);
+            pix1 = PixelDataBase.create(data);
             test_file = fullfile(tmp_dir,'test_load_save_pix.mat');
             clob = onCleanup(@()delete(test_file));
             save(test_file,'pix1');
@@ -71,18 +71,18 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
         %
         function test_from_saveobj_loadobj_array(obj)
             data = obj.get_random_pix_data_(100);
-            pix1 = PixelData(data);
+            pix1 = PixelDataBase.create(data);
             data = obj.get_random_pix_data_(200);
-            pix2 = PixelData(data);
+            pix2 = PixelDataBase.create(data);
             data = obj.get_random_pix_data_(150);
-            pix3 = PixelData(data);
+            pix3 = PixelDataBase.create(data);
             data = obj.get_random_pix_data_(120);
-            pix4 = PixelData(data);
+            pix4 = PixelDataBase.create(data);
             pix = [pix1,pix2;pix3,pix4];
             
             pic_strc = saveobj(pix);
             
-            rec_pix = PixelData.loadobj(pic_strc);
+            rec_pix = PixelDataBase.loadobj(pic_strc);
             
             assertEqual(pix(1),rec_pix(1));
             assertEqual(pix(2),rec_pix(2));
@@ -92,18 +92,18 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
         %
         function test_to_struct_from_struct_array(obj)
             data = obj.get_random_pix_data_(100);
-            pix1 = PixelData(data);
+            pix1 = PixelDataBase.create(data);
             data = obj.get_random_pix_data_(200);
-            pix2 = PixelData(data);
+            pix2 = PixelDataBase.create(data);
             data = obj.get_random_pix_data_(150);
-            pix3 = PixelData(data);
+            pix3 = PixelDataBase.create(data);
             data = obj.get_random_pix_data_(120);
-            pix4 = PixelData(data);
+            pix4 = PixelDataBase.create(data);
             pix = [pix1,pix2;pix3,pix4];
             
             pic_strc = struct(pix);
             
-            rec_pix = PixelData(pic_strc);
+            rec_pix = PixelDataBase.create(pic_strc);
             
             assertEqual(pix(1),rec_pix(1));
             assertEqual(pix(2),rec_pix(2));
@@ -112,25 +112,25 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
         end
         function test_saveobj_loadobj(obj)
             [data,pix_range] = obj.get_random_pix_data_(100);
-            pix = PixelData(data);
+            pix = PixelDataBase.create(data);
             assertEqual(pix.num_pixels,100);
             assertEqual(pix.pix_range,pix_range);
             
             pic_strc = saveobj(pix);
-            rec_pix = PixelData.loadobj(pic_strc);
+            rec_pix = PixelDataBase.loadobj(pic_strc);
             
             assertEqual(pix,rec_pix);
         end
         
         function test_to_struct_from_struct(obj)
             [data,pix_range] = obj.get_random_pix_data_(100);
-            pix = PixelData(data);
+            pix = PixelDataBase.create(data);
             assertEqual(pix.num_pixels,100);
             assertEqual(pix.pix_range,pix_range);
             
             pic_strc = struct(pix);
             
-            rec_pix = PixelData(pic_strc);
+            rec_pix = PixelDataBase.create(pic_strc);
             
             assertEqual(pix,rec_pix);
         end

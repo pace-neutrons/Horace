@@ -35,7 +35,7 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 abs_pix_indices = parse_args(obj, abs_pix_indices);
 
 raw_pix = obj.data(:, abs_pix_indices);
-pix_out = PixelData(raw_pix);
+pix_out = PixelDataBase.create(raw_pix);
 
 end
 

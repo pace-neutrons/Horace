@@ -39,7 +39,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertTrue((sqw_obj.experiment_info.samples.n_runs==0));
             assertTrue(isempty(sqw_obj.experiment_info.samples{1}));
             assertEqual(sqw_obj.detpar, struct([]));
-            assertEqual(sqw_obj.pix, PixelData());
+            assertEqual(sqw_obj.pix, PixelDataBase.create());
             assertEqual(numel(sqw_obj.data.pax), 0);
         end
 

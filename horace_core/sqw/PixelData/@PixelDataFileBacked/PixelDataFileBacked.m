@@ -5,6 +5,7 @@ classdef PixelDataFileBacked < PixelDataBase
         tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
         page_number_ = 1;  % the index of the currently loaded page
         file_path_ = '';  % the path to the file backing this object
+        page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
     end
 
     properties (Constant)
@@ -18,18 +19,15 @@ classdef PixelDataFileBacked < PixelDataBase
         % coordinate setters to calculate and set-up correct global pixels
         % range in conjunction with set_range method at the end of the loop.
         page_range;
+        page_memory_size_;  % the maximum amount of memory a page can use
     end
 
     properties (Dependent)
         file_path;  % The file that the pixel data has been read from, empty if no file
-        page_size;  % The number of pixels in the current page
-        base_page_size;  % The number of pixels that can fit in one page of data
         n_pages;
     end
 
     properties(Dependent, Access=protected)
-        % points to raw_data_ but with a layer of validation for setting correct array sizes
-        data_;
         % the pixel index in the file of the first pixel in the cache
         pix_position_;
     end
@@ -39,6 +37,43 @@ classdef PixelDataFileBacked < PixelDataBase
             % Construct a File-backed PixelData object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
+        end
+
+        function data = get_raw_data(obj)
+            data = obj.raw_data_;
+        end
+
+        function set_raw_data(obj, pixel_Data)
+            % This setter provides rules for internally setting cached data
+            %  This is the only method that should ever touch obj.raw_data_
+
+            % The need for multiple layers of getters/setters for the raw data
+            % should be removed when the public facing getters/setters are removed.
+            if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
+                msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
+                    'have length %i, found ''%i''.'];
+                error('HORACE:PixelData:invalid_argument', msg, obj.PIXEL_BLOCK_COLS_, ...
+                    size(pixel_data, 1));
+            elseif ~isnumeric(pixel_data)
+                msg = ['Cannot set pixel data, invalid type. Data must have a '...
+                    'numeric type, found ''%s''.'];
+                error('HORACE:PixelData:invalid_argument', msg, class(pixel_data));
+            end
+            obj.raw_data_ = pixel_data;
+        end
+
+        function prp = get_prop(obj, fld)
+            obj = obj.load_current_page_if_data_empty_();
+            prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
+        end
+
+        function set_prop(obj, fld, val)
+            obj = obj.load_current_page_if_data_empty_();
+            obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
+            if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
+                obj.reset_changed_coord_range(fld);
+            end
+            obj.set_page_dirty_(true);
         end
 
         % --- Operator overrides ---
@@ -60,7 +95,7 @@ classdef PixelDataFileBacked < PixelDataBase
         %
         %    >> has_more = pix.has_more();
         %
-            has_more = obj.curr_position_  <= obj.num_pixels;
+            has_more = obj.curr_position_ <= obj.num_pixels;
         end
 
         function [current_page_num, total_num_pages] = advance(obj, varargin)
@@ -103,22 +138,12 @@ classdef PixelDataFileBacked < PixelDataBase
             move_file
         end
 
+        function pix_position = get.pix_position_(obj)
+            pix_position = (obj.page_number_ - 1)*obj.base_page_size + 1;
+        end
     end
 
     methods (Access = private)
-        function obj = init_from_file_accessor_(obj, f_accessor)
-        % Initialise a PixelData object from a file accessor
-            obj.f_accessor_ = f_accessor;
-            obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
-                                      obj.f_accessor_.filename);
-            obj.page_number_ = 1;
-            obj.num_pixels_ = double(obj.f_accessor_.npixels);
-
-            obj.data();
-            obj.pix_range_ = f_accessor.get_pix_range();
-            obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
-
-        end
 
         function obj = load_current_page_if_data_empty_(obj)
             % Check if there's any data in the current page and load a page if not
@@ -196,13 +221,6 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.dirty_page_edited_ = is_dirty;
         end
 
-        function page_size = calculate_page_size_(obj, mem_alloc)
-            % Calculate number of pixels that fit in the given memory allocation
-            num_bytes_in_pixel = sqw_binfile_common.FILE_PIX_SIZE;
-            page_size = floor(mem_alloc/num_bytes_in_pixel);
-            page_size = max(page_size, size(obj.raw_data_, 2));
-        end
-
         function is = cache_is_empty_(obj)
             % Return true if no pixels are currently held in memory
             is = isempty(obj.data_);
@@ -210,6 +228,23 @@ classdef PixelDataFileBacked < PixelDataBase
 
         function num_pages = get_num_pages_(obj)
             num_pages = max(ceil(obj.num_pixels/obj.base_page_size), 1);
+        end
+
+    end
+
+    methods (Access = ?PixelDataBase)
+        function obj = init_from_file_accessor_(obj, f_accessor)
+        % Initialise a PixelData object from a file accessor
+            obj.f_accessor_ = f_accessor;
+            obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
+                                      obj.f_accessor_.filename);
+            obj.page_number_ = 1;
+            obj.num_pixels_ = double(obj.f_accessor_.npixels);
+
+            obj.data();
+            obj.pix_range_ = f_accessor.get_pix_range();
+            obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
+
         end
 
         function reset_changed_coord_range(obj,field_name)
@@ -225,6 +260,11 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.page_range = PixelDataBase.EMPTY_RANGE_;
                 return
             end
+
+            if field_name == "all"
+                field_name = "coordinates"
+            end
+
             ind = obj.FIELD_INDEX_MAP_(field_name);
 
             loc_range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
@@ -234,8 +274,6 @@ classdef PixelDataFileBacked < PixelDataBase
                      max(obj.pix_range_(2,ind),loc_range(2,:))];
             obj.pix_range_(:,ind) = range;
         end
-    end
-
     end
 
 end
