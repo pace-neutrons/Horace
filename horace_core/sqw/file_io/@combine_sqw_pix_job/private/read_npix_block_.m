@@ -23,7 +23,7 @@ nfiles = numel(fid);
 npix_section = int64(zeros(nbin_buf_size,nfiles));
 
 for i=1:nfiles
-    status=fseek(fid(i),pos_npixstart(i)+8*(ibin_start-1),'bof'); % location of npix for bin number ibin_start
+    status=do_fseek(fid(i),pos_npixstart(i)+8*(ibin_start-1),'bof'); % location of npix for bin number ibin_start
     % (recall written as int64)
     if status<0
         filename = fopen(fid);

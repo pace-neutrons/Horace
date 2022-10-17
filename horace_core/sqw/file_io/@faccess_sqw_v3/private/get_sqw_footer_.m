@@ -54,7 +54,7 @@ function obj = get_sqw_file_footer(obj)
 
 % Read data from file:
 
-fseek(obj.file_id_,-4,'eof');  % move to the end of the file minus 4 bytes
+do_fseek(obj.file_id_,-4,'eof');  % move to the end of the file minus 4 bytes
 test_error(obj.file_id_,'Unable to move to the position of the sqw_v3 file descriptor size. ErrorMessave: %s')
 %
 
@@ -62,12 +62,12 @@ foot_sz = fread(obj.file_id_,1,'int32');
 test_error(obj.file_id_,'Unable to read the location of the sqw_v3 file descriptor. ErrorMessave: %s')
 eof_pos  = ftell(obj.file_id_);
 
-fseek(obj.file_id_,-foot_sz-4,'eof');   % move to start of the block of data (8-byte position + n-byte string + 4-byte string length)
+do_fseek(obj.file_id_,-foot_sz-4,'eof');   % move to start of the block of data (8-byte position + n-byte string + 4-byte string length)
 test_error(obj.file_id_,'Unable to move to the location of the sqw_v3 file descriptor. ErrorMessave: %s')
 %
 
 pos_info_location = ftell(obj.file_id_);
-%fseek(obj.file_id_,pos_info_location,'bof');  % move to the start of the
+%do_fseek(obj.file_id_,pos_info_location,'bof');  % move to the start of the
 %descriptor (which should already be there)
 %test_error(obj.file_id_,'Unable to move to the start of the sqw_v3 file descriptor');
 

@@ -33,7 +33,7 @@ if isnumeric(file)
         return
     end
     fid=file;  % copy fid
-    fseek(fid,0,'bof');  % set the file position indicator to the start of the file
+    do_fseek(fid,0,'bof');  % set the file position indicator to the start of the file
 else
     fid=fopen(file,permission_req);
     if fid<0

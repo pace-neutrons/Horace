@@ -39,7 +39,7 @@ else
     filename = fout;
     fout = fopen(filename,'wb+');
 end
-fseek(fout,pix_out_position,'bof');
+do_fseek(fout,pix_out_position,'bof');
 check_error_report_fail_(fout,...
     ['Unable to move to the start of the pixel record in THE target file ',...
     filename ,' starting matlab-combine']);

@@ -8,7 +8,7 @@ head_form = obj.app_header_form_;
 
 % write sqw header
 bytes = obj.sqw_serializer_.serialize(head,head_form);
-fseek(obj.file_id_,0,'bof');
+do_fseek(obj.file_id_,0,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the file');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the sqw file header');

@@ -18,7 +18,7 @@ if isempty(varargin)
 else
     data_str = varargin{1};
 end
-fseek(obj.file_id_,obj.s_pos_,'bof');
+do_fseek(obj.file_id_,obj.s_pos_,'bof');
 check_error_report_fail_(obj,...
     'DND_BINFILE_COMMON::get_data: Can not move to the signal start position');
 

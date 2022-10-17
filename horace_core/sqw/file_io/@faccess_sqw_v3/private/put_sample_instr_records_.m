@@ -66,9 +66,9 @@ if setting_instr
     %
     start = obj.instrument_head_pos_;
     if old_matlab % some MATLAB problems with moving to correct eof
-        fseek(obj.file_id_,double(start),'bof');
+        do_fseek(obj.file_id_,double(start),'bof');
     else
-        fseek(obj.file_id_,start,'bof');
+        do_fseek(obj.file_id_,start,'bof');
     end
     
     check_error_report_fail_(obj,'can not move to the instrument(s) start position');
@@ -94,9 +94,9 @@ if setting_sample
     
     %
     if old_matlab % some MATLAB problems with moving to correct eof
-        fseek(obj.file_id_,double(obj.sample_head_pos_),'bof');
+        do_fseek(obj.file_id_,double(obj.sample_head_pos_),'bof');
     else
-        fseek(obj.file_id_,obj.sample_head_pos_,'bof');
+        do_fseek(obj.file_id_,obj.sample_head_pos_,'bof');
     end
     check_error_report_fail_(obj,'can not move to the sample(s) start position');
     fwrite(obj.file_id_,bytes,'uint8');

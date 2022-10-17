@@ -10,7 +10,7 @@ if ~ok
     error('HORACE:sqw_binfile_common:invalid_argument',mess);
 end
 
-fseek(obj.file_id_,obj.main_header_pos_,'bof');
+do_fseek(obj.file_id_,obj.main_header_pos_,'bof');
 check_and_throw_error(obj,'Error moving to main data header position');
 
 template_m_header = obj.get_main_header_form();
@@ -22,7 +22,7 @@ end
 obj.main_head_pos_info_ = main_h_pos;
 
 %
-fseek(obj.file_id_,main_h_pos.nfiles_pos_,'bof');
+do_fseek(obj.file_id_,main_h_pos.nfiles_pos_,'bof');
 check_and_throw_error(obj,'Error moving to the  number of contributing files position');
 
 n_files = fread(obj.file_id_,1,'int32');
@@ -115,7 +115,7 @@ else
     else
         obj.img_db_range_pos_=data_pos.img_db_range_pos_;
         obj.pix_pos_=data_pos.pix_pos_+8;
-        fseek(obj.file_id_,data_pos.pix_pos_,'bof');
+        do_fseek(obj.file_id_,data_pos.pix_pos_,'bof');
         check_and_throw_error(obj,'unable to move to npix position in file');
         obj.npixels_ = fread(obj.file_id_,1,'*uint64');
         check_and_throw_error(obj,'unable to read npix field');

@@ -62,7 +62,7 @@ obj=obj.put_pix(argi{:});
 
 %
 if ~update
-    fseek(obj.file_id_,0,'eof');
+    do_fseek(obj.file_id_,0,'eof');
     obj.real_eof_pos_ = ftell(obj.file_id_);
 end
 

@@ -58,7 +58,7 @@ classdef field_p_size < field_const_array_dependent & iVirt_field
             val  = zeros(1,n_cells);
             sz = 4;
             for i=1:n_cells
-                fseek(fid,pos,'bof');
+                do_fseek(fid,pos,'bof');
                 [~,res] = ferror(fid);
                 if res ~=0
                     err = true;

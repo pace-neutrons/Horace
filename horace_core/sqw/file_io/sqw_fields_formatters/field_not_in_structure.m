@@ -80,7 +80,7 @@ classdef field_not_in_structure < iVirt_field
         function  [sz,obj,err] = size_from_file(obj,fid,pos)
             err = false;
             sz = obj.n_prec_;
-            fseek(fid,pos,'bof');
+            do_fseek(fid,pos,'bof');
             [~,res] = ferror(fid);
             if res ~=0
                 err = true;

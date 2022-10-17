@@ -199,28 +199,6 @@ classdef PixelDataMemory < PixelDataBase
             end
         end
 
-        function set_range(obj,pix_range)
-            % Function allows to set the pixels range (min/max values of
-            % pixels coordinates)
-            %
-            % Use with caution!!! As this is performance function,
-            % no checks that the set range is the
-            % correct range for pixels, holded by the class are
-            % performed, while subsequent algorithms may rely on pix range
-            % to be correct. A out-of memory assignment can occur during
-            % rebinning if the range is smaller, then the actual range.
-            %
-            % Necessary to set up the pixel range when filebased
-            % pixels are modified by algorithm and correct range
-            % calculations are expensive
-            %
-            if any(size(pix_range) ~= [2,4])
-                error('HORACE:PixelData:InvalidArgument',...
-                    'pixel_range should be [2x4] array');
-            end
-            obj.pix_range_ = pix_range;
-        end
-
     end
 
     methods (Access = ?PixelDataBase)

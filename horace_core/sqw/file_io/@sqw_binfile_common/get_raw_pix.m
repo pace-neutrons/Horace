@@ -17,4 +17,5 @@ if nothing_to_do
     pix = zeros(9,0);
     return
 end
+
 pix  = get_pix_(obj,npix_lo,npix_hi);

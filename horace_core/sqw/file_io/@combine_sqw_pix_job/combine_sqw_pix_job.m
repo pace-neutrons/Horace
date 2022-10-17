@@ -313,7 +313,7 @@ classdef combine_sqw_pix_job < JobExecutor
 
             fid = obj.fid_(n_file);
 
-            fseek(fid,pos_pixstart,'bof');
+            do_fseek(fid,pos_pixstart,'bof');
             [pix_buffer,count_out] = fread(fid,[9,npix2read],'*float32');
             if count_out ~=9*npix2read
                 error('HORACE:combine_sqw_pix_job:runtime_error',...

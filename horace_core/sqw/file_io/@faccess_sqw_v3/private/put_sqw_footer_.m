@@ -26,9 +26,9 @@ bytes = [bytes,byte_sz];
 
 pos = obj.position_info_pos_;
 if old_matlab % some MATLAB problems with moving to correct eof
-    fseek(obj.file_id_,double(pos),'bof');
+    do_fseek(obj.file_id_,double(pos),'bof');
 else
-    fseek(obj.file_id_,pos,'bof');
+    do_fseek(obj.file_id_,pos,'bof');
 end
 check_error_report_fail_(obj,'can not move to the positions block start');
 fwrite(obj.file_id_,bytes,'uint8');
@@ -41,7 +41,7 @@ obj.real_eof_pos_ = ftell(obj.file_id_);
 % it is now, we need to store the location of the information record at the
 % end of the existing file too.
 %
-fseek(obj.file_id_,0,'eof');
+do_fseek(obj.file_id_,0,'eof');
 check_error_report_fail_(obj,'Can not seek to the end of the file');
 eof_ = ftell(obj.file_id_);
 
@@ -53,7 +53,7 @@ if eof_ > obj.real_eof_pos_
         % used in a future.
 
         pos = obj.real_eof_pos_+add_block-4;
-        fseek(obj.file_id_,pos,'bof');
+        do_fseek(obj.file_id_,pos,'bof');
         check_error_report_fail_(obj,'Can not seek to the extended file end');
 
         ext_size = uint32(sz+add_block);

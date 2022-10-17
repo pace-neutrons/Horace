@@ -55,7 +55,7 @@ else
     pos = obj.data_pos_;
 end
 
-fseek(obj.file_id_,pos,'bof');
+do_fseek(obj.file_id_,pos,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the metadata record');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the dnd object metadata');

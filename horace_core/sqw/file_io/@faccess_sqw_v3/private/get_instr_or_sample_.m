@@ -117,9 +117,9 @@ if data_size == 0
 end
 %
 if  old_matlab % some MATLAB problems with moving to correct eof
-    fseek(obj.file_id_,double(obj.(data_start_name)),'bof');
+    do_fseek(obj.file_id_,double(obj.(data_start_name)),'bof');
 else
-    fseek(obj.file_id_,obj.(data_start_name),'bof');
+    do_fseek(obj.file_id_,obj.(data_start_name),'bof');
 end
 [mess,res] = ferror(obj.file_id_);
 if res ~=0; error('HORACE:faccess_sqw_v3:io_error',...
@@ -181,9 +181,9 @@ if descriptor_sz == 0 % nothing was written despite format supports it
     return
 end
 if  old_matlab % some MATLAB problems with moving to correct eof
-    fseek(obj.file_id_,double(ihead_pos),'bof');
+    do_fseek(obj.file_id_,double(ihead_pos),'bof');
 else
-    fseek(obj.file_id_,ihead_pos,'bof');
+    do_fseek(obj.file_id_,ihead_pos,'bof');
 end
 [mess,res] = ferror(obj.file_id_);
 if res ~=0; error('HORACE:get_instr_or_sample:io_error',...

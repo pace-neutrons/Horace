@@ -68,7 +68,7 @@ while ntry<=ntry_max
                 status_ok = 0;
                 message = ['Unrecoverable read error - cannot reopen file (attempt ',num2str(ntry_max),')'];
             end
-            fseek(fid,pos_initial,'bof');
+            do_fseek(fid,pos_initial,'bof');
         end
         if nargin==1
             [data,count_out] = fread(fid);
@@ -92,7 +92,7 @@ while ntry<=ntry_max
                 pause(0.1);
                 pos_present = ftell(fid);
                 if pos_present>0    % able to determine where in file is at present
-                    fseek(fid,(pos_initial-pos_present),'cof');
+                    do_fseek(fid,(pos_initial-pos_present),'cof');
                 else
                     status_ok = 0;
                     message = ['Cannot determine location in file during read error recovery '...
@@ -112,7 +112,7 @@ while ntry<=ntry_max
             pause(0.1);
             ferror(fid,'clear');
             % try to go to location
-            fseek(fid,pos_initial,'bof');
+            do_fseek(fid,pos_initial,'bof');
             [f_message2,f_errnum2] = ferror(fid);
             if f_errnum2~=0
                 if ~exist('data','var'), data=[]; end
@@ -129,7 +129,7 @@ while ntry<=ntry_max
         ferror(fid,'clear');
         check_ifVersion_supportsSize(prod(count_in));
         % try to go to location
-        fseek(fid,pos_initial,'bof');
+        do_fseek(fid,pos_initial,'bof');
         [f_message2,f_errnum2] = ferror(fid);
         if f_errnum2~=0
             if ~exist('data','var'), data=[]; end

@@ -96,7 +96,7 @@ head_pix_format = rmfield(head_pix_format,'pix_block');
 data = obj.sqw_holder_.data;
 bytes = obj.sqw_serializer_.serialize(data ,head_pix_format);
 %--------------------------------------------------------------------------
-fseek(obj.file_id_,start_pos ,'bof');
+do_fseek(obj.file_id_,start_pos ,'bof');
 check_error_report_fail_(obj,'Error moving to the start of the pixels info');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the pixels information');
@@ -110,7 +110,7 @@ if nopix
     if reserve
         block_size= config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
         
-        fseek(obj.file_id_,obj.pix_pos_ ,'bof');
+        do_fseek(obj.file_id_,obj.pix_pos_ ,'bof');
         if block_size >= npix
             res_data = single(zeros(9,npix));
             fwrite(obj.file_id_,res_data,'float32');
@@ -129,7 +129,7 @@ if nopix
         clear res_data;
         
     else %TODO: Copied from prototype. Does this make any sense?
-        fseek(obj.file_id_,obj.eof_pix_pos_ ,'bof');
+        do_fseek(obj.file_id_,obj.eof_pix_pos_ ,'bof');
         ferror(obj.file_id_, 'clear'); % clear error in case if pixels have never been written
     end
     return;
@@ -150,7 +150,7 @@ else % write pixels directly
     % could have no pixels because none contributed to the given data range.
     block_size = config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
     
-    fseek(obj.file_id_, obj.pix_pos_ , 'bof');
+    do_fseek(obj.file_id_, obj.pix_pos_ , 'bof');
     check_error_report_fail_(obj, 'Error moving to the start of the pixels record');
     
     npix_to_write = obj.npixels;

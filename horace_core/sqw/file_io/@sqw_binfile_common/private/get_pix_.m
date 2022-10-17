@@ -42,7 +42,7 @@ end
 
 stride = (npix_lo-1)*9*4;
 size = npix_hi-npix_lo+1;
-fseek(obj.file_id_,obj.pix_pos_+stride,'bof');
+do_fseek(obj.file_id_,obj.pix_pos_+stride,'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
     error('HORACE:sqw_binfile_common:io_error',...

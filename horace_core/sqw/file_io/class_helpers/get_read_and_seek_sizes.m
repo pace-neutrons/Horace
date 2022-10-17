@@ -15,7 +15,7 @@ function [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices)
 %   >> data = cell(1, numel(read_sizes));
 %   >> fid = fopen('mybinary_file', 'r');
 %   >> for i = 1:numel(read_sizes)
-%          fseek(fid, seek_sizes(i), 'cof');
+%          do_fseek(fid, seek_sizes(i), 'cof');
 %          data{i} = fread(fid, read_sizes(i));
 %      end
 %
