@@ -68,7 +68,7 @@ switch combine_algorithm
     obj = obj.reopen_to_write();
     if ~isempty(mess)
         fout = obj.file_id_;
-        fseek(fout,pix_out_position,'bof');
+        do_fseek(fout,pix_out_position,'bof');
         check_error_report_fail_(obj,...
                                  ['Unable to move to the start of the pixel record in target file ',...
                                   obj.filename,' after mex-combine failed']);

@@ -83,7 +83,7 @@ classdef field_cellarray_of_axis < field_const_array_dependent
             pos0 = pos;
             %
             for i=1:n_cells
-                fseek(fid,pos,'bof');
+                do_fseek(fid,pos,'bof');
                 [~,res] = ferror(fid);
                 if res ~=0
                     err = true;

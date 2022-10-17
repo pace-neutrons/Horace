@@ -77,7 +77,7 @@ classdef field_pix < field_var_array
         %
         function  [sz,obj,err] = size_from_file(obj,fid,pos)
             err = false;
-            fseek(fid,pos,'bof');
+            do_fseek(fid,pos,'bof');
             [~,res] = ferror(fid);
             if res ~=0
                 err = true;

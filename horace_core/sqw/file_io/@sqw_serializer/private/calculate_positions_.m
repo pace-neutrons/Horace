@@ -161,7 +161,7 @@ function [sz,err] = get_size(obj,input,pos)
 
 err = false;
 if obj.input_is_file_  %file stream
-    fseek(input,pos,'bof');
+    do_fseek(input,pos,'bof');
     [~,res] = ferror(input);
     if res ~= 0
         sz = inf;

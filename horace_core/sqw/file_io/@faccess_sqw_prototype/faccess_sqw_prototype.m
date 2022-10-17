@@ -57,7 +57,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
         end
         function obj=init_from_sqw_file(obj,varargin)
             % initialize the structure of faccess class using sqw file as input
-            fseek(obj.file_id_,0,'bof');
+            do_fseek(obj.file_id_,0,'bof');
             [mess,res] = ferror(obj.file_id_);
             if res ~= 0
                 error('SQW_FILE_IO:io_error',...
@@ -116,8 +116,8 @@ classdef faccess_sqw_prototype < sqw_binfile_common
 
             if header.version == 0 && strcmp(header.name,'horace')
                 if header.uncertain
-                    fseek(fid,0,'bof');
-                    header = horace_binfile_interface.get_file_header(fid,4098+22);
+                    do_fseek(fid,0,'bof');
+                    header = dnd_file_interface.get_file_header(fid,4098+22);
                 end
             end
 

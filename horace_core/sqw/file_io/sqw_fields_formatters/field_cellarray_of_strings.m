@@ -60,7 +60,7 @@ classdef field_cellarray_of_strings < sqw_field_format_interface
             % binary file
             err = false;
             %
-            fseek(fid,pos,'bof');
+            do_fseek(fid,pos,'bof');
             [~,res] = ferror(fid);
             if res ~=0
                 err = true;

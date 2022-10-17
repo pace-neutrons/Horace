@@ -35,7 +35,7 @@ if ischar(obj.num_contrib_files)
 end
 sz = obj.data_pos_-obj.detpar_pos_;
 
-fseek(obj.file_id_,obj.detpar_pos_,'bof');
+do_fseek(obj.file_id_,obj.detpar_pos_,'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
     error('SQW_FILE_INTERFACE:runtime_error',...

@@ -45,7 +45,7 @@ if update
 else
     start_pos = obj.detpar_pos_;
 end
-fseek(obj.file_id_,start_pos ,'bof');
+do_fseek(obj.file_id_,start_pos ,'bof');
 check_error_report_fail_(obj,'Error moving to the start of the detectors record');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the detectors information');

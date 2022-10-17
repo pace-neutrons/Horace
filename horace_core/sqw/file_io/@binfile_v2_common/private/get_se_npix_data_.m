@@ -18,7 +18,7 @@ if isempty(varargin)
 else
     data_str = varargin{1};
 end
-fseek(obj.file_id_,obj.s_pos_,'bof');
+do_fseek(obj.file_id_,obj.s_pos_,'bof');
 check_error_report_fail_(obj,...
     'HORACE:binfile_v2_common:runtime_error: Can not move to the signal start position');
 

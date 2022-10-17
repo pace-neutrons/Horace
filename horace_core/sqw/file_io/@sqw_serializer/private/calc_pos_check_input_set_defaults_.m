@@ -59,9 +59,9 @@ if obj.input_is_stuct_
 elseif obj.input_is_file_
     % input is a file and we look at calculating its size
     cur_fp = ftell(input);
-    fseek(input,0,'eof');
+    do_fseek(input,0,'eof');
     obj.eof_pos_ = ftell(input);
-    fseek(input,cur_fp,'bof');
+    do_fseek(input,cur_fp,'bof');
 else  % bytes
     obj.eof_pos_ = numel(input)+1;
 end

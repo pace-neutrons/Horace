@@ -15,7 +15,7 @@ classdef test_faccess_sqw_v2< TestCase
         function sz = fl_size(filename)
             fh = fopen(filename,'rb');
             p0 = ftell(fh);
-            fseek(fh,0,'eof');
+            do_fseek(fh,0,'eof');
             p1 = ftell(fh);
             sz = p1-p0;
             fclose(fh);

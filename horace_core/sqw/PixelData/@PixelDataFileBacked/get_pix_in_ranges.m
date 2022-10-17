@@ -38,6 +38,8 @@ if any(obj.page_dirty_)
     return
 else
     skip_arg_validation = true;  % no point validating inputs again in faccess
+    obj
+    obj.f_accessor_
     raw_pix = obj.f_accessor_.get_pix_in_ranges( ...
         abs_indices_starts, block_sizes, skip_arg_validation,keep_precision);
 end

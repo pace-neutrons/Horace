@@ -50,7 +50,7 @@ end
 sz = obj.header_pos_(1)-obj.main_header_pos_;
 
 %
-fseek(obj.file_id_,obj.main_header_pos_,'bof');
+do_fseek(obj.file_id_,obj.main_header_pos_,'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
     error('HORACE:sqw_binfile_common:runtime_error',...

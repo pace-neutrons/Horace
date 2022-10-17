@@ -14,7 +14,7 @@ for i=1:nfields
     
     sz  = sz +  8 + nf;
     pos = pos + 8 + nf;
-    fseek(fid,pos,'bof');
+    do_fseek(fid,pos,'bof');
     [~,res] = ferror(fid);
     if res ~=0; err = true; return; end
     

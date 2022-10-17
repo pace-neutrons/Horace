@@ -12,7 +12,7 @@ function obj = init_dnd_structure_field_by_field_(obj,varargin)
 % all necessary checks have been done in common_init_logic
 pos = obj.data_pos_;
 %
-fseek(obj.file_id_,pos,'bof');
+do_fseek(obj.file_id_,pos,'bof');
 check_and_throw_error(obj,'error moving to data start position');
 
 

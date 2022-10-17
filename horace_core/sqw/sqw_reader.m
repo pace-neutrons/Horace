@@ -201,7 +201,7 @@ classdef sqw_reader<handle
             %
             
             pix_pos =  self.pix_start_pos_ + (pix_number-1)*self.pix_bloc_size_;
-            fseek(self.fid_,pix_pos,'bof');
+            do_fseek(self.fid_,pix_pos,'bof');
             [pix_buffer,count,ok,mess] = fread_catch(self.fid_,[9,num_pix_to_read],'*float32');
             if ~all(ok);
                 error('SQW_READER:read_pix','Error %s while reading file %s',mess,self.full_file_name_);
@@ -287,7 +287,7 @@ classdef sqw_reader<handle
             end
             tot_num_bins_to_read= num_last_bin-first_bin+1;
             
-            status=fseek(self.fid_,self.nbin_start_pos_+8*(first_bin-1),'bof');
+            status=do_fseek(self.fid_,self.nbin_start_pos_+8*(first_bin-1),'bof');
             if status<0
                 error('SQW_READER:read_pix','Unable to find location of npix data in %s',self.full_file_name_);
             end

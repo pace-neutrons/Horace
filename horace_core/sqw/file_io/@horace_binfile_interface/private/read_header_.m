@@ -10,7 +10,7 @@ function [stream,fid,mess] = read_header_(file_name,buf_size,varargin)
 % '-update'   -- if provided, read file in update mode.
 %
 % returns:
-% stream      -- buf_size uint8 array of bytes of size buf_size containing 
+% stream      -- buf_size uint8 array of bytes of size buf_size containing
 %                binary file header contents
 % fid         -- Matlab identifier of the opened file with binary data
 % mess        -- empty if opening and initial read of the file was
@@ -41,7 +41,7 @@ if isnumeric(file_name)
         return
     end
     fid=file_name;  % copy fid
-    fseek(fid,0,'bof');  % set the file position indicator to the start of the file
+    do_fseek(fid,0,'bof');  % set the file position indicator to the start of the file
 else
     fid=fopen(file_name,permission_req);
     if fid<0
@@ -61,5 +61,3 @@ if res ~= 0
     error('HORACE:horace_binfile_interface:io_error',...
         'IO error reading first %d bytes of the file: Reason %s',buf_size,mess)
 end
-
-

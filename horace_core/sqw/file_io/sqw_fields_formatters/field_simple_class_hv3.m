@@ -59,7 +59,7 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
             % 8 -- size of the shape array
             % (shape array elements) x 8
             % elements of the array itself
-            fseek(fid,pos,'bof');
+            do_fseek(fid,pos,'bof');
             [mess,res] = ferror(fid);
             if res ~=0; error('FIELD_SIMPLE_CLASS:io_error',...
                     'Error moving to start of a class header %s',mess); end
