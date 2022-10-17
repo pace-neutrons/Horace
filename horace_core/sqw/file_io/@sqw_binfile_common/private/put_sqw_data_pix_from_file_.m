@@ -46,7 +46,7 @@ function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher)
 % size of buffer to hold pixel information, the log level and if use mex to
 % build the result
 
-combine_algorithm = config_store.instance().get_value('hpc_config','combine_sqw_using');
+combine_algorithm = get(hpc_config,'combine_sqw_using');
 
 pix_out_position = obj.pix_pos_;
 
@@ -57,7 +57,7 @@ switch combine_algorithm
     obj = obj.fclose();
     n_bins = pix_comb_info.nbins;
     % Check run_label:
-    relabel_with_fnum=pix_comb_info.relabel_with_fnum;
+    relabel_with_fnum = pix_comb_info.relabel_with_fnum;
     change_fileno  = pix_comb_info.change_fileno;
 
     [mess,infiles] = combine_files_using_mex(fout_name,n_bins,pix_out_pos,...
@@ -66,14 +66,15 @@ switch combine_algorithm
                                              change_fileno,relabel_with_fnum);
 
     obj = obj.reopen_to_write();
-    if isempty(mess)
-        return
-    else  % Mex combining failed, try Matlab
+    if ~isempty(mess)
         fout = obj.file_id_;
         fseek(fout,pix_out_position,'bof');
         check_error_report_fail_(obj,...
                                  ['Unable to move to the start of the pixel record in target file ',...
                                   obj.filename,' after mex-combine failed']);
+
+        je = combine_sqw_pix_job();
+        je.write_npix_to_pix_blocks(fout,pix_out_position,pix_comb_info);
     end
 
   case 'mpi_code'
@@ -82,23 +83,22 @@ switch combine_algorithm
     if pool_exist
         % reuse existing parallel pool
         jd = jobDispatcher;
-        pool_exist  = true;
-        if jd.is_initialized
+        pool_exist  = jd.is_initialized;
+        if pool_exist
             n_workers = jd.cluster.n_workers;
         else
-            n_workers  = config_store.instance().get_value('hpc_config','parallel_workers_number');
-            pool_exist  = false;
+            n_workers  = get(hpc_config,'parallel_workers_number');
         end
     else
         fn = obj.filename;
 
-        if numel(fn) > 8;
+        if numel(fn) > 8
             fn = fn(1:8);
         end
 
         job_name = ['combine_sqw_',fn];
         jd = JobDispatcher(job_name);
-        n_workers  = config_store.instance().get_value('hpc_config','parallel_workers_number');
+        n_workers = get(hpc_config,'parallel_workers_number');
     end
 
     fout_name = fullfile(obj.filepath,obj.filename);
@@ -129,12 +129,14 @@ switch combine_algorithm
         obj = obj.reopen_to_write();
     end
 
-  otherwise
+  case 'matlab'
+
     fout = obj.file_id_;
-    je =combine_sqw_pix_job();
+    je = combine_sqw_pix_job();
     je.write_npix_to_pix_blocks(fout,pix_out_position,pix_comb_info);
 end
 
+end
 
 function  [mess,infiles] = combine_files_using_mex(fout_name,n_bin,pix_out_position,...
     infiles,npixstart, pixstart,runlabel,change_fileno,relabel_with_fnum)
@@ -214,4 +216,6 @@ if log_level > 0
 end
 if log_level>1
     fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
+end
+
 end

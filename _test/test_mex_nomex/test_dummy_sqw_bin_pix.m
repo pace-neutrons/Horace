@@ -82,7 +82,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
             % different. Compare the whole image instead
             w_mex = d4d(w_mex);
             w_nomex = d4d(w_nomex);
-            assertEqualToTol(w_mex, w_nomex, [0, 1e-8])
+            assertEqualToTol(w_mex, w_nomex, 'tol', [0, 1e-8])
         end
 
         function test_bin_c_multithread(this)
@@ -145,7 +145,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
             %skipTest("New dnd: d2d not yet implemented");
             w_mex = d4d(w_mex);
             w_mex_thr = d4d(w_mex_thr);
-            assertEqualToTol(w_mex, w_mex_thr, [0, 1.e-8]);
+            assertEqualToTol(w_mex, w_mex_thr, 'tol', [0, 1.e-8]);
             %%}
         end
     end
