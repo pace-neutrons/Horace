@@ -16,7 +16,7 @@ else
     pix_out = obj;
 end
 
-if ~isa(pix, 'PixelData')
+if ~isa(pix, 'PixelDataBase')
     error('PIXELDATA:append', ...
         'Input object must be of class ''PixelData''. Found ''%s''', ...
         class(pix));

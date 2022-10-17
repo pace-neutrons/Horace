@@ -44,7 +44,7 @@ classdef field_pix < field_var_array
         function sz = size_of_field(obj,val)
             % calculate length of pixel field
             
-            if isa(val,'PixelData')
+            if isa(val, 'PixelDataBase')
                 nel = val.num_pixels*val.DEFAULT_NUM_PIX_FIELDS;
             else
                 nel = numel(val);

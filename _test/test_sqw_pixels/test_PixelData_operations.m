@@ -140,7 +140,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix = PixelDataBase.create(data);
             mask_array = zeros(1, pix.num_pixels);
             pix_out = pix.mask(mask_array);
-            assertTrue(isa(pix_out, 'PixelData'));
+            assertTrue(isa(pix_out, 'PixelDataBase'));
             assertTrue(isempty(pix_out));
             assertEqual(pix_out.pix_range,PixelDataBase.EMPTY_RANGE_);
         end

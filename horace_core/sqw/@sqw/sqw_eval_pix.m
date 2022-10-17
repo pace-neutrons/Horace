@@ -17,7 +17,8 @@ function obj = sqw_eval_pix(obj, sqwfunc, ave_pix, pars, outfilecell, i)
 %
 %==================================================================================================
 
-if obj.pix.is_filebacked
+%pix_file_backed = obj.pix.base_page_size < obj.pix.num_pixels
+if obj.pix.base_page_size < obj.pix.num_pixels % obj.pix.is_filebacked
     outfile = outfilecell{i};
     if ave_pix
         obj = do_sqw_eval_average_filebacked_( ...

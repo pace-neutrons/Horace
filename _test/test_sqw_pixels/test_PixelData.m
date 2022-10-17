@@ -369,7 +369,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             data = rand(9, 10);
             pix = PixelDataBase.create(data);
             sub_pix = pix.get_pixels([3, 5, 7]);
-            assertTrue(isa(pix, 'PixelData'));
+            assertTrue(isa(pix, 'PixelDataBase'));
             assertEqual(sub_pix.data, data(:, [3, 5, 7]));
         end
         
