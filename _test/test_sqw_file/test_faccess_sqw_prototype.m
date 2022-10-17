@@ -104,7 +104,7 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
 
             pix = to.get_pix();
-            assertTrue(isa(pix, 'PixelData'));
+            assertTrue(isa(pix, 'PixelDataBase'));
             assertEqual(pix.num_pixels,16)
 
         end
@@ -128,7 +128,7 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
             pix = to.get_pix();
-            assertTrue(isa(pix, 'PixelData'));
+            assertTrue(isa(pix, 'PixelDataBase'));
             assertEqual(pix.file_path, obj.sample_file);
             assertEqual(pix.num_pixels, 16);
         end

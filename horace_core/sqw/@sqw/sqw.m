@@ -225,7 +225,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             pix  = obj.pix_;
         end
         function obj = set.pix(obj,val)
-            if isa(val,'PixelData') || isa(val,'pix_combine_info')
+            if isa(val, 'PixelDataBase') || isa(val,'pix_combine_info')
                 obj.pix_ = val;
             elseif isempty(val)
                 obj.pix_ = PixelDataBase.create();

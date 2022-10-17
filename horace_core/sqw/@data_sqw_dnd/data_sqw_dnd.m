@@ -212,7 +212,7 @@ classdef data_sqw_dnd < DnDBase
             pix = obj.pix_;
         end
         function obj = set.pix(obj,val)
-            if isa(val,'PixelData') || isa(val,'pix_combine_info')
+            if isa(val, 'PixelDataBase') || isa(val,'pix_combine_info')
                 obj.pix_ = val;
             else
                 obj.pix_ = PixelDataBase.create(val);
@@ -231,7 +231,7 @@ classdef data_sqw_dnd < DnDBase
         end
         %
         function npix= get.num_pixels(obj)
-            if isa(obj.pix,'PixelData')
+            if isa(obj.pix, 'PixelDataBase')
                 npix = obj.pix.num_pixels;
             else
                 npix  = [];

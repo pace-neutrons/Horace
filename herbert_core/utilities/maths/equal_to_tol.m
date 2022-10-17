@@ -389,7 +389,7 @@ elseif isobject(a) && isobject(b)
             '%s and %s: Sizes of arrays of objects being compared are not equal',...
             name_a,name_b);
     end
-    if ismethod(a,'eq') && ~isa(a,'PixelData')
+    if ismethod(a,'eq') && ~isa(a, 'PixelDataBase')
         try
             opt.name_a = name_a;
             opt.name_b = name_b;

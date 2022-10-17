@@ -65,7 +65,7 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
             assertEqual(numel(ds),4);
             ds = ds(1);
             pix = ds.pix;
-            assertTrue(isa(pix,'PixelData'))
+            assertTrue(isa(pix, 'PixelDataBase'))
             assertEqual(pix.num_pixels,9363)
         end
         %

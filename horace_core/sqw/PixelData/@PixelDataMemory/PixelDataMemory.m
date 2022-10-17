@@ -102,7 +102,6 @@ classdef PixelDataMemory < PixelDataBase
                                     recalculate_pix_ranges,keep_precision);
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
-        [page_num, total_number_of_pages] = move_to_page(obj, page_number, varargin);
         pix_out = noisify(obj, varargin);
         obj = recalc_pix_range(obj);
         set_data(obj, fields, data, abs_pix_indices);
@@ -136,6 +135,27 @@ classdef PixelDataMemory < PixelDataBase
             %    >> has_more = pix.has_more();
             %
             has_more = false;
+        end
+
+        function [page_number,total_num_pages] = move_to_page(obj, page_number, varargin)
+            % Set the object to point at the given page number
+            %   This function does nothing if the object is not file-backed or is
+            %   already on the given page
+            %
+            % Inputs:
+            % page_number -- page number to move to
+            %
+            % Returns:
+            % page_number -- the page this routine moved to
+            % total_num_pages -- total number of pages, present in the file
+            %
+            total_num_pages = 1;
+            if page_number ~= 1
+                error('HORACE:PIXELDATA:move_to_page', ...
+                      'Cannot advance to page %i only %i pages of data found.', ...
+                      page_number, 1);
+            end
+
         end
 
         function [current_page_num, total_num_pages] = advance(obj, varargin)
@@ -174,16 +194,7 @@ classdef PixelDataMemory < PixelDataBase
 
             % The need for multiple layers of getters/setters for the raw data
             % should be removed when the public facing getters/setters are removed.
-            if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
-                msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
-                    'have length %i, found ''%i''.'];
-                error('HORACE:PixelData:invalid_argument', msg, obj.PIXEL_BLOCK_COLS_, ...
-                    size(pixel_data, 1));
-            elseif ~isnumeric(pixel_data)
-                msg = ['Cannot set pixel data, invalid type. Data must have a '...
-                    'numeric type, found ''%s''.'];
-                error('HORACE:PixelData:invalid_argument', msg, class(pixel_data));
-            end
+            validateattributes(pixel_data, {'numeric'}, {'nrows', obj.PIXEL_BLOCK_COLS_})
             obj.raw_data_ = pixel_data;
             obj.num_pixels_ = size(pixel_data,2); % breaks filebased
         end
