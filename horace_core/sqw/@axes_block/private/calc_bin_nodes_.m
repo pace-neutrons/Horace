@@ -96,10 +96,11 @@ if data_to_density || density_integr_grid
             axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
         else % integration axis
             if density_integr_grid
-                if numel(axes{i})>2
+                if numel(axes{i})==2
                     grid_cell_size(i) = obj.img_range(2,i)-obj.img_range(1,i);
                 end
-                axes{i} = 0.5*(obj.img_range(1,i)+obj.img_range(2,i));
+                axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
+
             else  % may be necessary if cell size is provided, not for
                 %  default range which is already defined by this formula
                 axes{i} = [obj.img_range(1,i),obj.img_range(2,i)];

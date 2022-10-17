@@ -1,4 +1,5 @@
-function wout = cut_single_(w, tag_proj, targ_axes,return_cut, outfile,log_level)
+function varargout = cut_single_(w, tag_proj, targ_axes,return_cut, ...
+    outfile,proj_given,log_level)
 %%CUT_SINGLE Perform a cut on a single sqw object
 %
 % Input:
@@ -10,6 +11,7 @@ function wout = cut_single_(w, tag_proj, targ_axes,return_cut, outfile,log_level
 % return_cut  if false, save output cut into the file  (name provided)
 % outfile     The output file to write the cut to, empty if cut is not to be
 %             written to file (char).
+% proj_given  if true, user provided projection and 
 % log_level   verbosity of the cut progress report. Taken from
 %             hor_config.log_level and propagated through the parameters to
 %             avoid subsequent calls to hor_config.
@@ -20,6 +22,12 @@ function wout = cut_single_(w, tag_proj, targ_axes,return_cut, outfile,log_level
 %            else it will be DnD object.
 %            This output argument can be omitted if `outfile` is specified.
 %
+if ~return_cut
+    if ~ischar(outfile) || isempty(outfile)
+        error('HORACE:cut_dnd:invalid_argument',...
+            'saving to output file requested but no output file name is provided')
+    end
+end
 
 
 % Interpolate image and accumulate interpolated data for cut
@@ -28,11 +36,13 @@ function wout = cut_single_(w, tag_proj, targ_axes,return_cut, outfile,log_level
 
 
 % Compile the accumulated cut and projection data into a dnd object
-wout = DnDBase.dnd(targ_axes,proj,s,e,npix);
+wout = DnDBase.dnd(targ_axes,tag_proj,s,e,npix);
 
 
 % Write result to file if necessary
-if exist('outfile', 'var') && ~isempty(outfile)
+if return_cut
+    varargout{1} = wout;
+else
     if log_level >= 0
         disp(['*** Writing cut to output file ', outfile, '...']);
     end

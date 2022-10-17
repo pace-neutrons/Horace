@@ -5,7 +5,7 @@ function varargout = interpolate_data_(obj,nout,ref_nodes,density, ...
 % nodes onto the grid, defined by this block
 %
 % Inputs:
-% nout      -- number of elements in cellarry of densities
+% nout      -- number of elements in cellarray of densities
 % ref_nodes -- 4D array of the nodes of the reference lattice,
 %              produced by get_density routine of the reference
 %              axes block and projected into coordinate system of this axes
@@ -51,26 +51,48 @@ if ~isempty(ref_grid_cell_size)
 
     cell_ratio =  trans_cell_size./ref_grid_cell_size;
     % decrease the interpolation cell size to be commensurate with
-    % this grid but to be smaller then the reference grid to have
+    % this grid but to be smaller than the reference grid to have
     % at least one interpolation point within each reference cell
     do_expand = cell_ratio > 1;
-    this_cell_size(do_expand) = this_cell_size(do_expand)./ceil(cell_ratio(do_expand));
-    [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-density_integr',this_cell_size);
+    cell_ratio = round(cell_ratio);
+    eq_one = cell_ratio == 1;
+    shrunk_to_one = do_expand & eq_one;
+    cell_ratio(shrunk_to_one) = 2;
+
+    % ensure correct commensurate grid has been build
+    com_cell_size= this_cell_size;
+    min_npix=0; max_npix=1; count = 0;
+    while(min_npix ~= max_npix && count<4)
+
+        com_cell_size(do_expand) = this_cell_size(do_expand)./cell_ratio(do_expand);
+        [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-density_integr',com_cell_size);
+        npix = obj.bin_pixels(nodes);
+
+        min_npix=min(npix(:)); max_npix=max(npix(:)); count = count+1;
+        cell_ratio(do_expand ) = cell_ratio(do_expand)+1;
+    end
+    if min_npix ~= max_npix
+        warning('HORACE:runtime_error', ...
+            ['Problem generating the interpolation grid commensurate with the cut grid.', ...
+            ' The image artefacts will appear on the cut.', ...
+            ' Contact the deveopers team to address the issue.'])
+    end
+
     if ~isempty(proj)
         inodes = proj.from_this_to_targ_coord(nodes);
     else
         inodes = nodes;
     end
-else % usually debug mode. Original grid coincide with interpolation grid
+else % usually debug mode. Original grid coincides with interpolation grid
     [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-density_integr');
     inodes = nodes;
 end
 int_cell_volume = prod(int_cell_size);
 
-
 for i = 1:nout
     interp_ds = interpn(ref_gridX,ref_gridY,ref_gridZ,ref_gridE,density{i},...
         inodes(1,:),inodes(2,:),inodes(3,:),inodes(4,:), 'linear',0);
+
     varargout{i} = interp_ds.*int_cell_volume;
 end
 %

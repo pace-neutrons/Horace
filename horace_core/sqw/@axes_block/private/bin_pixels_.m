@@ -150,9 +150,9 @@ if isa(pix_cand,'PixelData')
     bin_values = cell(2,1);
     bin_values{1} = pix_cand.signal;
     bin_values{2} = pix_cand.variance;
-else % numeric array of values to accumulate
+else % cellarray of arrays to accumulate
     is_pix = false;
-    ndata = size(pix_cand,1);
+    ndata = numel(pix_cand);
     bin_values = cell(ndata,1);
     for i=1:ndata
         bin_values{i} = pix_cand{i};

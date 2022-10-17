@@ -32,13 +32,13 @@ classdef test_dnd_cut< TestCaseWithSave
         
         % tests
         function test_2D_to2D_cut(obj)
-            w2 = cut(obj.d2d_obj,[-0.58,0.02,-0.42],[-0.6,0.02,-0.42]);
+            w2 = cut(obj.d2d_obj,[-0.6,0.02,-0.4],[-0.59,0.02,-0.47]);
             assertEqualToTolWithSave(obj,w2);
         end
         
         function test_2D_to1D_cut(obj)
-            w1 = cut(obj.d2d_obj,[-0.60,0.02,-0.4],[-0.55,-0.45]);
-            assertEqualToTolWithSave(obj,w1);
+            w1 = cut(obj.d2d_obj,[-0.60,0.02,-0.4],[-0.54,-0.44]);
+            assertEqualToTolWithSave(obj,w1,'ignore_str',true,'tol',[1.e-6,1.e-6]);
         end
         
     end

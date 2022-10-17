@@ -203,10 +203,13 @@ classdef axes_block < serializable
             %          -- 2D [4,nAxesEdgesPoints] array of axes positions
             %              where the density is defined
             % density
-            %          -- cellarray of density points calculated in the 
+            %          -- cellarray of density points calculated in the
             %             density points positions.
             %             Number of cells in the output array is equal to
             %             the number of input datasets
+            % cell_sizes
+            %          -- 4-elements vector containing the sizes of the
+            %             cell (to be extended on heterogheneous cell)
             %
             if ~iscell(datasets)
                 datasets = {datasets};

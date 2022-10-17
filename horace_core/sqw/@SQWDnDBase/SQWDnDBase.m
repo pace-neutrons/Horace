@@ -35,7 +35,7 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
 
-    methods (Static,Hidden) % should be protected but Matlab have some issues with calling this 
+    methods (Static,Hidden) % should be protected but Matlab have some issues with calling this
         % from children
         %
         function [proj, pbin, opt] = process_and_validate_cut_inputs(data,...
@@ -88,7 +88,7 @@ classdef (Abstract) SQWDnDBase < serializable
     end
     methods(Static,Access=protected)
 
-        
+
     end
 
     methods (Abstract, Access = protected)
@@ -149,7 +149,7 @@ classdef (Abstract) SQWDnDBase < serializable
                 pars, varargin{:});
         end
         function [wout,log_info] = cut_single(obj, tag_proj, targ_axes, outfile,log_level)
-            [wout,log_info] = cut_single_(obj, tag_proj, targ_axes, outfile,log_level);            
+            [wout,log_info] = cut_single_(obj, tag_proj, targ_axes, outfile,log_level);
         end
     end
 

@@ -140,7 +140,7 @@ else
     proj = obj.proj;
     proj_given=false;
 end
-
+opt.proj_given = proj_given;
 
 % Do checks on remaining input arguments
 % --------------------------------------

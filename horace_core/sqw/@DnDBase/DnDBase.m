@@ -440,6 +440,19 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 obj = check_combo_arg(obj);
             end
         end
+
+        function varargout = cut_single(obj, tag_proj, targ_axes, outfile, ...
+                proj_given,log_level)
+            % do single cut from a dnd object
+            if nargout > 0
+                return_cut = true;
+            else
+                return_cut = false;
+            end
+            varargout{1} = cut_single_(obj, tag_proj, targ_axes,...
+                return_cut,outfile,proj_given,log_level);
+        end
+
     end
 end
 

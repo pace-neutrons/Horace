@@ -38,8 +38,12 @@ classdef test_axes_block_interpolation < TestCase
             targ_proj.targ_proj = source_proj;
             si = ab_interp.interpolate_data(int_points,int_data,cell_size,targ_proj );
 
-
-            assertElementsAlmostEqual(si,data,'absolute',0.2)
+            assertElementsAlmostEqual(si,data,'absolute',0.06)
+            % These are the tests for different definition of boundary
+            % points
+            %cs = size(si);
+            %assertElementsAlmostEqual(si(1:cs(1)-1,1:cs(2)-1), ...
+            %    data(1:cs(1)-1,1:cs(2)-1),'absolute',0.06)
         end
         function test_interp_2D_same_points_projected(~)
             dbr = [0,-2,-pi/2,0;pi,2,pi/2,10];
@@ -63,11 +67,15 @@ classdef test_axes_block_interpolation < TestCase
             targ_proj.targ_proj = source_proj;
             si = ab_interp.interpolate_data(int_points,int_data,cell_size,targ_proj );
 
-
-            assertElementsAlmostEqual(si,data,'absolute',1e-2)
+            cs = size(si);
+            assertElementsAlmostEqual(si(2:cs(1)-1,2:cs(2)-1), ...
+                data(2:cs(1)-1,2:cs(2)-1),'absolute',1e-2)
+            % These are the tests for different definition of boundary
+            % points
+            %assertElementsAlmostEqual(si,data,'absolute',1e-2)
         end
-        
-        
+
+
         function test_interp_2D_same_points_interpolation(~)
             dbr = [0,-2,-pi/2,0;pi,2,pi/2,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
@@ -86,8 +94,12 @@ classdef test_axes_block_interpolation < TestCase
             ab_interp = axes_block(bin0{:});
             si = ab_interp.interpolate_data(int_points,int_data);
 
-
             assertElementsAlmostEqual(si,data,'absolute',1e-2)
+            % These are the tests for different definition of boundary
+            % points
+            %cs = size(si);
+            %assertElementsAlmostEqual(si(1:cs(1)-1,1:cs(2)-1), ...
+                %    data(1:cs(1)-1,1:cs(2)-1),'absolute',1e-2)
         end
         function test_interp_1D_frac_points_int_coeff(~)
             dbr = [0,-2,-3,0;pi,2,3,10];
@@ -111,32 +123,35 @@ classdef test_axes_block_interpolation < TestCase
             % integrated signal increase proportinal to the
             % integration cell increase
             [~,icell_sizes] = ab_interp.get_axes_scales();
-            mult = icell_sizes(2)/cell_sizes(2);
+            mult = icell_sizes(2)/cell_sizes(2)/2;
 
             assertEqualToTol(sum(si),sum(data),1.e-8);
-            assertElementsAlmostEqual(si,mult*data(1:numel(si))')
+
+            assertElementsAlmostEqual(si,mult*data(1:numel(si))');
+            % These are the tests for different definition of boundary
+            % points
+            %assertElementsAlmostEqual(si(2:end-1),mult*data(2:numel(si)-1)');
         end
 
         %
         function test_interp_1D_half_points_int_coeff(~)
             dbr = [0,-2,-3,0;pi,2,3,10];
-            bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
-                [dbr(1,3),0.1,dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab_base = axes_block(bin0{:});
+            ab_base = axes_block('img_range',dbr,'nbins_all_dims',[1,1,60,1]);
 
             ax = ab_base.p{1};
             cp = 0.5*(ax(1:end-1)+ax(2:end));
             data = ones(size(cp));
             [int_points,int_data,cell_sizes] = ab_base.get_density(data);
 
-            bin1 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
-                [dbr(1,3),0.2,dbr(2,3)];[dbr(1,4),dbr(2,4)]};
 
-            ab_interp = axes_block(bin1{:});
+            ab_interp = axes_block('img_range',dbr,'nbins_all_dims',[1,1,30,1]);
 
             si = ab_interp.interpolate_data(int_points,int_data,cell_sizes);
 
-            assertEqualToTol(sum(si)+0.333333333333,sum(data),1.e-12);
+            assertEqualToTol(sum(si),sum(data),1.e-12);
+            assertElementsAlmostEqual(si,2*data(1:numel(si))')
+            % These are the tests for different definition of boundary
+            % points
             assertElementsAlmostEqual(si(2:end-1),2*data(2:numel(si)-1)')
         end
         %
@@ -162,10 +177,10 @@ classdef test_axes_block_interpolation < TestCase
             si = ab_interp.interpolate_data(int_points,int_data);
 
 
-            assertElementsAlmostEqual(si,data','absolute',3e-3)
+            assertElementsAlmostEqual(si,data')
+            % These are the tests for different definition of boundary
+            % points
+            %assertElementsAlmostEqual(si(1:end-1),data(1:end-1)')
         end
-
-
-
     end
 end
