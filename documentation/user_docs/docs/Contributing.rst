@@ -26,9 +26,9 @@ Contributing reports
 
 If you find error in the code or documentation it is possible to report the issue to the development team to be
 handled. This can be done through either the `Horace Help <mailto:HoraceHelp@stfc.ac.uk>`__ email address, or more
-directly through `opening a GitHub issue <https://github.com/pace-neutrons/Horace/issues>`__
+directly through `opening a GitHub issue <https://github.com/pace-neutrons/Horace/issues>`__:
 
-1. Click the green button on the top right which reads "New issue"
+1. Click the green button on the top right which reads "New issue".
 2. Enter the details of your issue in the "Title" and "Comment" sections, please describe the full extent of your issue
    including, if possible, description of the error, along with any (reasonably sized) inputs or scripts used which raised
    the issue.
