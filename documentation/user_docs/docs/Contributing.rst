@@ -25,7 +25,7 @@ documentation <https://pace-neutrons.github.io/Horace/unstable/>`__.
 Contributing reports
 ====================
 
-If you find error in the code or documentation it is possible to report the issue to the development team to be
+If you find an error in the code or documentation it is possible to report the issue to the development team to be
 handled. This can be done through either the `Horace Help <mailto:HoraceHelp@stfc.ac.uk>`__ email address, or more
 directly through `opening a GitHub issue <https://github.com/pace-neutrons/Horace/issues>`__:
 
