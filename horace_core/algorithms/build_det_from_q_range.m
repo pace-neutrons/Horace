@@ -22,7 +22,7 @@ function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,lattice,
 %
 % Optional (Not implemented)
 %  filename  -- if present, defines the name of the par file to save
-%               detector information. If absent, detector infornation is
+%               detector information. If absent, detector information is
 %               returned in outputs.
 %
 % Outputs:

@@ -15,6 +15,9 @@
   ./build.ps1 -test
   # Runs all Horace tests
 .EXAMPLE
+  ./build.ps1 -benchmark
+  # Runs all Horace benchmarks
+.EXAMPLE
   ./build.ps1 -package
   # Packages Horace
 .EXAMPLE
@@ -31,6 +34,8 @@ param (
   [switch][Alias("b")]$build,
   # Run all Horace tests.
   [switch][Alias("t")]$test,
+  # Run all Horace benchmarks.
+  [switch][Alias("k")]$benchmark,
   # Package Horace into a .zip file.
   [switch][Alias("p")]$package,
   # Print the versions of libraries being used e.g. Matlab.
@@ -180,6 +185,15 @@ function Invoke-Test {
   }
 }
 
+function Invoke-Benchmark {
+  param([string]$build_dir, [string]$build_config)
+  Write-Output "`nRunning CMake benchmark step..."
+  Write-And-Invoke "cmake --build ""$build_dir"" --config ""$build_config"" --target benchmark_all"
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
+}
+
 function Invoke-Package {
   param([string]$build_dir)
   Write-Output "`nRunning package step..."
@@ -224,6 +238,10 @@ if ($build) {
 
 if ($test) {
   Invoke-Test -build_dir "$build_dir" -build_config "$build_config"
+}
+
+if ($benchmark) {
+  Invoke-Benchmark -build_dir "$build_dir" -build_config "$build_config"
 }
 
 if ($package) {

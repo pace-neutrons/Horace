@@ -96,7 +96,7 @@ if save_data
     sqw_file_full = fullfile(tmp_dir,sqw_file);
 
     % Create sqw file for single spe file
-    fake_sqw (en0, par_file, sqw_file_full, efix, emode, alatt, angdeg, u, v, psi0, omega, dpsi, gl, gs);
+    dummy_sqw (en0, par_file, sqw_file_full, efix, emode, alatt, angdeg, u, v, psi0, omega, dpsi, gl, gs);
 
     % Create cut
     proj = projaxes([1,1,0],[0,0,1]);

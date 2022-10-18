@@ -1,5 +1,5 @@
 classdef d3d < DnDBase
-    %D3D Create an 2-dimensional DnD object
+    %D3D Create an 3-dimensional DnD object
     %
     % Syntax:
     %   >> w = d3d()               % Create a default, empty, D3D object

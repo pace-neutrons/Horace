@@ -36,7 +36,7 @@ try
         if exist(file_list{i},'file')
             continue;
         end
-        fake_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
+        dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                          u, v, psi(i), omega, dpsi, gl, gs);
 
         w=read_sqw(sqw_file_single);
@@ -55,7 +55,7 @@ try
 catch err
     set(hor_config,'log_level',hil);
     delete(sqw_file_single);
-    fprintf('Error producing fake_sqw data: %s Reason: %s\n',err.identifier,err.message);
+    fprintf('Error producing dummy_sqw data: %s Reason: %s\n',err.identifier,err.message);
     disp('Problem generating data for Horace demo - check that 4to1_124.PAR file is present in current (demo) directory');
 end
 

@@ -6,7 +6,7 @@ function fake_data(indir,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi_min,p
 %
 % ********************************************************************************
 %    DEPRECATED FUNCTION:
-%       Please replace this call to fake_data with one to fake_sqw which is
+%       Please replace this call to fake_data with one to dummy_sqw which is
 %       much more flexible. Note that the argument list is a bit different.
 % ********************************************************************************
 %
@@ -41,7 +41,7 @@ function fake_data(indir,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi_min,p
 % This is done to ensure faster execution of the, and not to fill up your
 % hard disk with fake data.
 
-disp(' *** DEPRECATED FUNCTION: Please replace this call to fake_data with one to fake_sqw')
+disp(' *** DEPRECATED FUNCTION: Please replace this call to fake_data with one to dummy_sqw')
 
 % Check input arguments
 if ~isempty(indir)
@@ -62,5 +62,5 @@ else
     error('Must have psi_min < psi_max and range of psi must be less than 360 degrees')
 end
 
-% Make call to fake_sqw
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+% Make call to dummy_sqw
+dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);

@@ -9,6 +9,9 @@ classdef horace_paths
         admin
         test
         low_level
+        bm
+        bm_common
+        bm_common_func
     end
 
     methods
@@ -16,6 +19,7 @@ classdef horace_paths
         function herbert_path = get.herbert(obj)
             global herbert_path
             if ~exist('herbert_path', 'var') || isempty(herbert_path)
+
                 herbert_path = obj.get_folder('herbert_init');
             end
         end
@@ -23,6 +27,7 @@ classdef horace_paths
         function horace_path = get.horace(obj)
             global horace_path
             if ~exist('horace_path', 'var') || isempty(horace_path)
+
                 horace_path = obj.get_folder('horace_init');
             end
         end
@@ -68,6 +73,28 @@ classdef horace_paths
                 warning('HORACE:paths:bad_path', 'Cannot find test/common_functions, possibly failed setup')
             end
         end
+
+        function path = get.bm(obj)
+            path = fullfile(obj.root, '_benchmarking');
+            if ~is_folder(path)
+                warning('HORACE:paths:bad_path', 'Cannot find benchmarking path, possible failed setup')
+            end
+        end
+
+        function path = get.bm_common(obj)
+            path = fullfile(obj.bm, 'common_data');
+            if ~is_folder(path)
+                warning('HORACE:paths:bad_path', 'Cannot find benchmarking/common_data, possibly failed setup')
+            end
+        end
+
+        function path = get.bm_common_func(obj)
+            path = fullfile(obj.bm, 'common_functions');
+            if ~is_folder(path)
+                warning('HORACE:paths:bad_path', 'Cannot find benchmarking/common_functions, possibly failed setup')
+            end
+        end
+
     end
 
     methods(Static)

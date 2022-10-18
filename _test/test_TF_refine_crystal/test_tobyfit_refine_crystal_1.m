@@ -123,7 +123,7 @@ if save_data
         disp(' ')
         disp(['Creating file for orientation ',num2str(i),' of ',num2str(numel(psi))])
 
-        wtmp = fake_sqw (en, par_file,'', efix, emode, alatt, angdeg,...
+        wtmp = dummy_sqw (en, par_file,'', efix, emode, alatt, angdeg,...
             u, v, psi(i), omega, dpsi, gl, gs, [10,10,10,10], pix_range);
 
         % Tobyfit simulation to account for resolution
