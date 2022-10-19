@@ -24,6 +24,7 @@ and somebody will come back and try to help you answering your question.
    Citing
    Developers
 
+   Contributing
    API_Reference
 
    General_disclaimer
