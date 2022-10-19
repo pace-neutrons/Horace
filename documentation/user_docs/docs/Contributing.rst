@@ -5,7 +5,7 @@ Contributing to Horace
 Contributing documentation
 ==========================
 
-If you wish to contribute directly to the documentation, please follow the 5 step process below:
+If you wish to contribute directly to the documentation, please follow the 6 step process below:
 
 1. If you notice a mistake or a place which could be improved, click the ``Click here to edit`` or the ``Click here to
    add new page`` button at the bottom of the page. This will take you to the GitHub edit page (requires `GitHub account
@@ -14,12 +14,12 @@ If you wish to contribute directly to the documentation, please follow the 5 ste
    <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`__). **N.B.** It is possible to click the
    ``Preview`` tab at the top to see an approximate render of your changes.
 3. Select the ``Create a new branch for this commit`` option at the bottom of the page, with comments describing your
-   changes as appropriate in the "Add an optional extended description" box above and click the ``Propose changes``
-   button. **N.B.** For new pages, please note in the description a suggestion for the appropriate place the new page
-   should be added, e.g. "Add to User Manual".
-4. In the ``labels`` tab on the right-hand panel select ``documentation`` and ``DO_NOT_CI`` labels. This makes it
+   changes as appropriate in the "Add an optional extended description" box above. **N.B.** For new pages, please note
+   in the description a suggestion for the appropriate place the new page should be added, e.g. "Add to User Manual".
+4. Click the ``Propose changes`` button, which will take you to the "Open Pull Request" page.
+5. In the ``labels`` tab on the right-hand panel select ``documentation`` and ``DO_NOT_CI`` labels. This makes it
    possible for the development team to track the changes more easily.
-5. Click ``Create pull request``. This will submit the changes to the development team for review.
+6. Click ``Create pull request``. This will submit the changes to the development team for review.
 
 Following your submission, the corrections will be reviewed by the development team. After the review, if your changes
 are accepted, you should receive an email from GitHub upon their merging. It is possible to see the latest (subject to
