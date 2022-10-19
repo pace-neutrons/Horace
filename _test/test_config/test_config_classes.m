@@ -194,10 +194,22 @@ classdef test_config_classes< TestCase
             assertEqual(pc.slurm_commands.keys(), new_commands.keys());
             assertEqual(pc.slurm_commands.values(), new_commands.values());
 
-            %% Non-destructive
             % Using update_slurm_commands omitting append
+            pc.slurm_commands = [];
+            pc.update_slurm_commands(new_commands);
+            assertEqual(pc.slurm_commands.keys(), new_commands.keys());
+            assertEqual(pc.slurm_commands.values(), new_commands.values());
+
+            %% Non-destructive
+            % Set through update_slurm_commands as map
             pc.slurm_commands = new_commands;
-            pc.update_slurm_commands(new_commands_app);
+            pc.update_slurm_commands(new_commands_app, true);
+            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
+            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
+
+            % Set through update_slurm_commands as char
+            pc.slurm_commands = new_commands;
+            pc.update_slurm_commands('-q queue -p=new_part', true);
             assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
             assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
 
@@ -207,13 +219,6 @@ classdef test_config_classes< TestCase
             pc.slurm_commands('-p') = 'new_part';
             assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
             assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
-
-            % Set through update_slurm_commands
-            pc.slurm_commands = new_commands;
-            pc.update_slurm_commands('-q queue -p=new_part', true);
-            assertEqual(pc.slurm_commands.keys(), new_commands_app_check.keys());
-            assertEqual(pc.slurm_commands.values(), new_commands_app_check.values());
-
         end
 
     end
