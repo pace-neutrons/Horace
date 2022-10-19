@@ -11,7 +11,9 @@ function varargout = cut_single_(w, tag_proj, targ_axes,return_cut, ...
 % return_cut  if false, save output cut into the file  (name provided)
 % outfile     The output file to write the cut to, empty if cut is not to be
 %             written to file (char).
-% proj_given  if true, user provided projection and 
+% proj_given  if true, user provided projection and cut_interpolate algorithm
+%             should be used, if false, rebinning/integration algorithm
+%             should be ivoked
 % log_level   verbosity of the cut progress report. Taken from
 %             hor_config.log_level and propagated through the parameters to
 %             avoid subsequent calls to hor_config.
@@ -30,9 +32,15 @@ if ~return_cut
 end
 
 
-% Interpolate image and accumulate interpolated data for cut
-[s, e, npix] = cut_interpolate_data_( ...
-    w, tag_proj,targ_axes);
+proj_given = true;
+if proj_given
+    % Interpolate image and accumulate interpolated data for cut
+    [s, e, npix] = cut_interpolate_data_( ...
+        w, tag_proj,targ_axes);%
+else
+    [s, e, npix,targ_axes] = cut_integrate_data_( ...
+        w, targ_axes);
+end
 
 
 % Compile the accumulated cut and projection data into a dnd object
@@ -54,6 +62,21 @@ else
             outfile, ME.identifier, ME.message);
     end
 end
+%
+function [s, e, npix] =  cut_integrate_data_(obj, targ_axes)
+%CUT_INTEGRATE_DATA returns cut data integrated over aligned bin ranges
+%
+
+targ_axes = obj.axes.realign_axes(targ_axes);
+[ind,int_ind] = obj.axes.get_subindexes(targ_axes);
+for i=1:numel(ind)
+    s = obj.s(ind{:})*obj.npix(ind{:});
+    e = obj.e(ind{:})*obj.npix(ind{:});
+    npix = obj.npix(ind{:});
+    if int_ind(i)
+    end
+end
+
 
 function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 %%CUT_INTERPOLATE_DATA Interpolate and accumulate image data for a cut
@@ -69,8 +92,8 @@ function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 % s          The image signal data.
 % e          The variance in the image signal data.
 % npix       Array defining how many pixels are contained in each image
-%            bin. size(npix) == size(s). As the data are interpolated, 
-%            the number of pixels may become fractional  
+%            bin. size(npix) == size(s). As the data are interpolated,
+%            the number of pixels may become fractional
 
 %obj.proj.targ_proj = targ_proj;
 targ_proj.targ_proj = obj.proj;

@@ -16,16 +16,16 @@ classdef (Abstract=true) serializable
     % one property and one method, namely protected property "do_check_combo_arg_"
     % and "check_combo_arg" method are defined on this public interface.
     %
-    % By default,do_check_combo_arg_ is set to ture and the method does
+    % By default,do_check_combo_arg_ is set to true and the method does
     % nothing. Overload the check_combo_arg to throw if interdependent
     % properties are inconsistent and throw invalid argument if they are
     % not.
     % The serializable code sets do_check_combo_arg_ to false before
-    % setting the properties, checks combo properties at the end and sets
-    % it to true. do_check_combo_arg_ is set to true after this.
+    % setting the properties and checks interdependent properties after
+    % all properties were set. do_check_combo_arg_ is set to true after this.
     %
-    % To work correctly, all interdependent porperties in the child code
-    % must contan the following code block
+    % To work correctly, all interdependent properties in the child code
+    % must contain the following code block
     % if obj.do_check_combo_arg_
     %    obj=check_combo_arg(obj);
     % end
@@ -33,16 +33,16 @@ classdef (Abstract=true) serializable
     properties(Dependent,Hidden)
         % this is property for developers who wants to change number of
         % interdependent properties one after another and do not want to
-        % overload the class. Use with caushion, as you may get invalid
-        % object if the property us used incorrectly.
+        % overload the class. Use with caution, as you may get invalid
+        % object if the property is used incorrectly.
         % It is also necessary to use when building and checking validity
         % of serializable object from other serializable objects. In this
         % case, set_do_check_combo_arg have to be overloaded appropriately.
         do_check_combo_arg;
     end
     properties(Access=protected)
-        % Check interdependend properties and throw exception if
-        % deserialized object validation shows that object is invalid
+        % Check interdependent properties and throw exception if
+        % de-serialized object validation shows that object is invalid
         % Set it to "false" when changing
         do_check_combo_arg_ = true;
     end
@@ -59,7 +59,7 @@ classdef (Abstract=true) serializable
         % the object can be properly restored from these values.
         flds = saveableFields(obj);
     end
-    % To support old class versions, generic static loadob has to be
+    % To support old class versions, generic static loadobj has to be
     % overloaded by the children class (e.g. ChildClass) by uncommenting
     % and appropriately modifying the following code:
     %     methods(Static)
@@ -222,9 +222,9 @@ classdef (Abstract=true) serializable
         % Developer property. Intended for creating algorithms, which
         % change bunch of interdependent properties one after another
         % without overloading the class.
-        % Set this property to false at the begining, change interdependent
+        % Set this property to false at the beginning, change interdependent
         % properties, run check_combo_arg after setting all interdependent
-        % properties to its valies so if check_combo_arg trows the error,
+        % properties to its values so if check_combo_arg throws the error,
         % the interdependent properties are inconsistent and the object is
         % invalid.
         function do = get.do_check_combo_arg(obj)
@@ -235,7 +235,7 @@ classdef (Abstract=true) serializable
             obj = set_do_check_combo_arg(obj,val);
         end
         function [is,mess] = eq(obj,other_obj,varargin)
-            % the generic eqality operator, allowing comparison of
+            % the generic equality operator, allowing comparison of
             % serializable objects
             %
             % Inputs:
@@ -364,13 +364,6 @@ classdef (Abstract=true) serializable
             % ObjConstructor(positional_par1,positional_par2,positional_par3,...
             % positional_par...,key1,val1,key2,val2,...keyN,valN);
             %
-            % All positional parameters should have the type defined in the validators
-            % list. If the validator list is shorter then positional_arg_names list or
-            % empty, the remaining positional argument values assumed to be numeric.
-            %
-            % First argument, which type not corresponds to the type, defined by the
-            % validator list, assumed to be belonging to key-value pair.
-            %
             % Everything not identified as Key-Value pair where the keys,
             % belong to the property names returned by saveableFields function
             % is returned in remains cellarray
@@ -385,7 +378,7 @@ classdef (Abstract=true) serializable
             % EXAMPLE:
             % if class have the properties {'a1'=1(numeric), 'a2'='blabla'(char),
             % 'a3'=sqw() 'a4=[1,1,1] (numeric), and these properties are independent
-            % properties redutned by saveableFields() function as list {'a1','a2','a3','a4'}
+            % properties returned by saveableFields() function as list {'a1','a2','a3','a4'}
             % Then the list of input parametersЖ
             % set_positional_and_key_val_arguments(1,'blabla',an_sqw_obj,'blabla','a4',[1,0,0])
             % sets up the three first arguments as positional parameters, for properties

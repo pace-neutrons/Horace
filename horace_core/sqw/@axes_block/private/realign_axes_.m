@@ -1,0 +1,88 @@
+function ax_block_al = realign_axes_(obj,ax_block)
+% align input axes block to have the same or commensurate
+% bin sizes as this axes block and integration ranges equal to
+% ranges of this axes block
+hc = hor_config;
+log_level = hc.log_level;
+ax_pax = false(1,4);
+ax_pax(ax_block.pax) = true;
+this_pax = false(1,4);
+this_pax(obj.pax) = true;
+
+this_range = obj.img_range;
+ax_range   = ax_block.img_range;
+ax_nbins   = ax_block.nbins_all_dims;
+this_nbins = obj.nbins_all_dims;
+for i=1:4
+    if ax_pax(i) % pax requested
+        if this_pax(i)
+            [ax_nbins(i),ax_range(:,i)] = ...
+                realign_pax(i,this_range(:,i),this_nbins(i),ax_range(:,i),ax_nbins(i),log_level);
+        else % but was iax in this direction, so only iax possible
+            ax_nbins(i) = 1;
+            ax_range(:,i) = this_range(:,i);
+        end
+    else  %iax requested
+        ax_nbins(i) = 1;
+        ax_range(:,i) = this_range(:,i);
+    end
+end
+ax_block_al = axes_block('img_range',ax_range,'nbins_all_dims',ax_nbins);
+
+function [nbins,req_range] = realign_pax(i,origin_range,origin_nbins,req_range,req_nbins,log_level)
+% build commensurate range and binning parameters for two overapping axes
+% ranges
+% Input:
+% origin_range -- range of existing data
+% origin_bins  -- number of bins this range is divided into
+% req_range    -- the suggested range one wants to obtain. The resulting
+%                 range to be made commensurate with the exisring range
+% req_nbins    -- requested number of bins the range needs to be divided
+%                 into.
+if req_range(1) >=origin_range(2) % maximum provided is smaller then minimum requested
+    % can not proceed
+    error('HORACE:realign_aexs:invalid_argument', ...
+        [' Existing maximal range: %g in direction %d is smaller then requested minimal range: %g.\n ',...
+        ' Existing and requested cuts do not overlap'],...
+        origin_range(2),i,req_range(1));
+end
+base_step = (origin_range(2)-origin_range(1))/(origin_nbins+1);
+if req_range(2)<origin_range(1)+base_step
+    % requested interval is too narrow.  Expand it
+    req_range(2)=origin_range(1)+base_step;
+    if log_level > 0
+        fprintf(2,'New integration interval in direction %i has been expanded to [%g,%g] to cover at least one existing bin.',...
+            i,req_range(1),req_range(2))
+    end
+end
+% new step should be either equal to the old step or to be whole muiltiple
+% of the old step
+req_step0 = (req_range(2)-req_range(1))/(req_nbins+1);
+
+
+% make requested step to be close to the base step or be multiples of it
+fudge = round(base_step/req_step0);
+if fudge<1
+    req_step = base_step;
+else
+    req_step = base_step*fudge;
+end
+if log_level > 0
+    if abs(fudge*req_step0-base_step) > 1.e-4
+        fprintf(2,'The requested step in direction %d is not commensurate with the existing axis step %g. Changing it to: %g',...
+            i,base_step,req_step)
+    end
+end
+% existing p-axis
+bin_edges = linspace(origin_range(1),origin_range(2),origin_nbins+1);
+bin_centers=0.5*(bin_edges(1:end-1)+bin_edges(2:end));
+
+% realign bin centers
+new_center1 = req_range(1)+0.5*req_step;
+if new_center1<origin_range(1)
+    % requested range 
+    new_center1=origin_range(1);
+end
+center_indexes = round(new_center1-bin_centers)/base_step;
+ind = find(center_indexes == 0,1);
+new_center1 = bin_centers(ind);

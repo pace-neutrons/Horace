@@ -114,7 +114,7 @@ for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
     [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pbin_tmp );
 
-    args = {obj, targ_proj, targ_ax_block, opt.outfile,proj_given,log_level};
+    args = {obj, targ_proj, targ_ax_block, opt.outfile,opt.proj_given,log_level};
     if return_cut
         wout{cut_num} = cut_single(args{:});
     else

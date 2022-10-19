@@ -132,7 +132,26 @@ classdef test_axes_block_interpolation < TestCase
             % points
             %assertElementsAlmostEqual(si(2:end-1),mult*data(2:numel(si)-1)');
         end
+        function test_interp_1D_peak_averaging(~)
+            dbr = [0,-2,-3,0;8,2,3,10];
+            ab_base = axes_block('img_range',dbr,'nbins_all_dims',[8,1,1,1]);
 
+            ax = ab_base.p{1};
+            cp = 0.5*(ax(1:end-1)+ax(2:end));
+            data = zeros(size(cp));
+            n_center = floor(size(data,2)/2);
+            data(n_center) = 10;
+            [int_points,int_data,cell_sizes] = ab_base.get_density(data);
+
+
+            ab_interp = axes_block('img_range',dbr,'nbins_all_dims',[8,1,1,1]);
+
+            si = ab_interp.interpolate_data(int_points,int_data,cell_sizes);
+
+            assertEqualToTol(sum(si),sum(data),1.e-12);
+            sample= [0,0,1.25,7.5,1.25,0,0,0];
+            assertElementsAlmostEqual(si,sample')
+        end
         %
         function test_interp_1D_half_points_int_coeff(~)
             dbr = [0,-2,-3,0;pi,2,3,10];
@@ -152,7 +171,7 @@ classdef test_axes_block_interpolation < TestCase
             assertElementsAlmostEqual(si,2*data(1:numel(si))')
             % These are the tests for different definition of boundary
             % points
-            assertElementsAlmostEqual(si(2:end-1),2*data(2:numel(si)-1)')
+            %assertElementsAlmostEqual(si(2:end-1),2*data(2:numel(si)-1)')
         end
         %
         function test_interp_1D_same_points_interpolation(~)
