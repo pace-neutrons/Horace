@@ -11,14 +11,16 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import datetime
+
+
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
-
 project = 'Horace'
-copyright = '2006-2021, STFC RAL'
+copyright = f'2006-{datetime.date.today().year}, STFC RAL'
 authors = ['A. Buts','T.G. Perring','N. Battam','H. Saunders','M.D. Le','C. Marooney','J. Wilkins', 'R.A. Ewings', 'J. van Duijn', 'I. Bustinduy', 'G. Tucker', 'R. Fair']
 
 author = ', '.join(sorted(authors,key=lambda x: x.split()[-1])) # Authors by surname
