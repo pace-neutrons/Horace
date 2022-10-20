@@ -26,7 +26,7 @@ The following figure should then appear:
 
 In particular note the white messages area in the bottom left corner. In this box (or similar in pop-ups) a message is displayed whenever you perform an operation. If the operation worked the the message will be "Success!". Otherwise a message explaining what was wrong will be displayed.
 
-There are three main tabs which one can toggle between.
+There are three main tabs that one can toggle between.
 
 Generate SQW file tab
 *********************
