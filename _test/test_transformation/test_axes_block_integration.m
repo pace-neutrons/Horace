@@ -14,6 +14,29 @@ classdef test_axes_block_integration < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
+        function test_ab_indexes_1D_coase(~)
+            dbr0 = [ 0,10;-2,2;-3,3;0,10]';
+            dbr1 = [ 0,10;-2,2;-3,3;0,10]';
+            bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),dbr0(2,2)];[dbr0(1,3),dbr0(2,3)];[dbr0(1,4),dbr0(2,4)]};
+            bin1 = {[dbr1(1,1),0.2,dbr1(2,1)];[dbr1(1,2),dbr1(2,2)];[dbr1(1,3),dbr1(2,3)];[dbr1(1,4),dbr1(2,4)]};
+
+            ab_base = axes_block(bin0{:});
+            ab_sample = axes_block(bin1{:});
+
+            ab_r = ab_base.realign_axes(ab_sample);
+            assertEqual(ab_r,ab_sample);
+
+
+            data = ones(ab_base.dims_as_ssize);
+
+            reb_data = ab_base.rebin_data({data},ab_r);
+
+            assertEqual(sum(data),sum(reb_data{1}));
+
+            assertEqual(reb_data{1},2*ones(ab_r.dims_as_ssize))
+
+
+        end
         function test_ab_alignment_iax_aligned(~)
             ws = warning('off','HORACE:realign_axes:invalid_argument');
             clOb = onCleanup(@()warning(ws));
@@ -39,7 +62,7 @@ classdef test_axes_block_integration < TestCase
             assertElementsAlmostEqual(ab_r.img_range(:,4),[-2;6]);
             assertEqual(ab_r.nbins_all_dims(4),2);
         end
-        
+
         function test_non_overlapping_ranges_throw(~)
             dbr0 = [-1,1;-2,2;-3,3;-1,11]';
             dbr1 = [ 2,3;-2,2;-5,5; 0,10]';

@@ -185,6 +185,13 @@ classdef axes_block < serializable
             [~,step] = obj.get_axes_scales();
             volume = prod(step);
         end
+        function data_out = rebin_data(obj,data_in,other_ax)
+            % Rebin data,defined on this axes grid into other axes grid
+            %
+            % The other axes grid has to be aligned with this axes block
+            % according to realigh_axes method of this axes block
+            data_out = rebin_data_(obj,data_in,other_ax);
+        end
         function ax_block_al = realign_axes(obj,ax_block)
             % align input axes block to have the same or commensurate
             % bin sizes as this axes block and the integration ranges equal 
