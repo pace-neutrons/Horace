@@ -247,7 +247,7 @@ Combine multiple experiment [data files](http://horace.isis.rl.ac.uk/Input_file_
 - Projection -- aggregate pixel data onto an M-dimensional surface (M &le; N). This should support projections onto planes and spherical shells (TBI) and spiral slices (TBI) as well as reorientations.
 - Symmetrization -- enhance signal-to-noise utilizing symmetries within the data
 
-The operations are performed on the pixel data and the image recalculated from that. If the pixel-data is not available (a `dnd` object) the operations are performed directly on the image with higher speed but with reduced accuracy or, if the correct accuracy may be achieved, with higly reduced functionality. The correct accuracy can be achieved for axis aligned cuts only.
+The operations are performed on the pixel data and the image recalculated from that. If the pixel-data is not available (a `dnd` object) the operations are performed directly on the image with higher speed but with reduced accuracy or, if the correct accuracy may be achieved, with highly reduced functionality. The correct accuracy can be achieved for axis aligned cuts only.
 
 The data manipulations are implemented through the `ProjectionManager` class and instances of `IProjection`.
 
