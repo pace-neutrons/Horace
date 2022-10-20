@@ -1,0 +1,80 @@
+classdef test_axes_block_integration < TestCase
+    % Series of tests for data interpolation/extrapolation in the axes_block class
+    properties
+    end
+
+    methods
+        function obj=test_axes_block_integration(varargin)
+            if nargin<1
+                name = 'test_axes_block_integration';
+            else
+                name = varargin{1};
+            end
+            obj = obj@TestCase(name);
+        end
+        %------------------------------------------------------------------
+        %------------------------------------------------------------------
+        function test_ab_alignment_iax_aligned(~)
+            ws = warning('off','HORACE:realign_axes:invalid_argument');
+            clOb = onCleanup(@()warning(ws));
+            dbr0 = [-1,1;-2,2;-3,3;0,10]';
+            dbr1 = [ 0,1;-1,1; -0.25,0.25; 0,1]';
+            bin0 = {[dbr0(1,1),dbr0(2,1)];[dbr0(1,2),dbr0(2,2)];[dbr0(1,3),0.2,dbr0(2,3)];[dbr0(1,4),4,dbr0(2,4)]};
+            bin1 = {[dbr1(1,1),dbr1(2,1)];[dbr1(1,2),0.2,dbr1(2,2)];[dbr1(1,3),0.05,dbr1(2,3)];[dbr1(1,4),0.5,dbr1(2,4)]};
+
+            ab_base = axes_block(bin0{:});
+            ab_sample = axes_block(bin1{:});
+
+            ab_r = ab_base.realign_axes(ab_sample);
+
+            assertElementsAlmostEqual(ab_r.img_range(:,1),ab_base.img_range(:,1));
+            assertEqual(ab_r.nbins_all_dims(1),1);
+
+            assertElementsAlmostEqual(ab_r.img_range(:,2),ab_base.img_range(:,2));
+            assertEqual(ab_r.nbins_all_dims(2),1);
+
+            assertElementsAlmostEqual(ab_r.img_range(:,3),[-0.3;0.3]);
+            assertEqual(ab_r.nbins_all_dims(3),3);
+
+            assertElementsAlmostEqual(ab_r.img_range(:,4),[-2;6]);
+            assertEqual(ab_r.nbins_all_dims(4),2);
+        end
+        
+        function test_non_overlapping_ranges_throw(~)
+            dbr0 = [-1,1;-2,2;-3,3;-1,11]';
+            dbr1 = [ 2,3;-2,2;-5,5; 0,10]';
+            bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),0.1,dbr0(2,2)];[dbr0(1,3),0.1,dbr0(2,3)];[dbr0(1,4),1,dbr0(2,4)]};
+            bin1 = {[dbr1(1,1),0.1,dbr1(2,1)];[dbr1(1,2),0.2,dbr1(2,2)];[dbr1(1,3),0.05,dbr1(2,3)];[dbr1(1,4),2,dbr1(2,4)]};
+
+            ab_base = axes_block(bin0{:});
+            ab_sample = axes_block(bin1{:});
+
+            assertExceptionThrown(@()realign_axes(ab_base,ab_sample),...
+                'HORACE:realign_axes:invalid_argument');
+        end
+        %
+        function test_ab_alignment_pax_selected(~)
+            dbr0 = [-1,1;-2,2;-3,3;-1,11]';
+            dbr1 = [ 0,1;-2,2;-5,5; 0,10]';
+            bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),0.1,dbr0(2,2)];[dbr0(1,3),0.1,dbr0(2,3)];[dbr0(1,4),1,dbr0(2,4)]};
+            bin1 = {[dbr1(1,1),0.1,dbr1(2,1)];[dbr1(1,2),0.2,dbr1(2,2)];[dbr1(1,3),0.05,dbr1(2,3)];[dbr1(1,4),2,dbr1(2,4)]};
+
+            ab_base = axes_block(bin0{:});
+            ab_sample = axes_block(bin1{:});
+
+            ab_r = ab_base.realign_axes(ab_sample);
+
+            assertElementsAlmostEqual(ab_r.img_range(:,1),ab_sample.img_range(:,1));
+            assertEqual(ab_r.nbins_all_dims(1),ab_sample.nbins_all_dims(1));
+
+            assertElementsAlmostEqual(ab_r.img_range(:,2),ab_sample.img_range(:,2));
+            assertEqual(ab_r.nbins_all_dims(2),ab_sample.nbins_all_dims(2));
+
+            assertElementsAlmostEqual(ab_r.img_range(:,3),ab_base.img_range(:,3));
+            assertEqual(ab_r.nbins_all_dims(3),ab_base.nbins_all_dims(3));
+
+            assertElementsAlmostEqual(ab_r.img_range(:,4),ab_sample.img_range(:,4));
+            assertEqual(ab_r.nbins_all_dims(4),ab_sample.nbins_all_dims(4));
+        end
+    end
+end

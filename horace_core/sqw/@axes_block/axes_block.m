@@ -186,9 +186,10 @@ classdef axes_block < serializable
             volume = prod(step);
         end
         function ax_block_al = realign_axes(obj,ax_block)
-            % align input axes block to have the same or commensurate 
-            % bin sizes as this axes block and integration ranges equal to
-            % ranges of this axes block
+            % align input axes block to have the same or commensurate
+            % bin sizes as this axes block and the integration ranges equal 
+            % or smaller than the ranges of this axes block but
+            % commensurate with this lattice
             ax_block_al = realign_axes_(obj,ax_block);
         end
         %
