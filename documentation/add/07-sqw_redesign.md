@@ -15,7 +15,7 @@ The object provides an interface to the Horace file which can be interchanged wi
 
 The `sqw` object contains two information blocks, describing experiment from different sides and under different approximations:
 
-- `dnd-object` which is the part of the `SQW` object contains processed neutron image data, expressed in the system of coordinates, which has a physical meaning. Very often its `hkl-dE` coordinate system, but it is possible to define other coordinate system of interest too.
+- `dnd-object` which is the part of the `SQW` object contains processed neutron image data, expressed in the system of coordinates, requested by the neutron physicist doing experiment. Very often its `hkl-dE` coordinate system, but it is possible to define other coordinate system of interest too.
 - `sqw-object` itself, in addition to the image data, contains the records of all neutron events occurred in the experiments and expressed (currently) in Crystal Cartesian coordinate system, the informations about all experimental runs the neutron events have been obtained from, information about the instrument and sample used in experiment, the instrument states during experiment and the information about detector pixel array, used to collect neutron events. This information is sufficient to calculate resolution function of the instrument. The neutron events are held in the `PixelData` class, and arranged in such a way, that selection of a part of the `dnd-object` neutron image allows the effective selection of the appropriate part of the `PixelData` contributed into this part of image.
 
 
@@ -24,7 +24,7 @@ In addition, the extra information and raw data contained on the `sqw` object al
 
 ## Main Classes:
 
-The class diagram describing the relationship between main Horace classes is provided on the Fig.1:
+The class diagram describing the relationship between main Horace classes is provided on Fig.1:
 
 ![Fig.1. Class Overview](../diagrams/sqw-dnd.png)
 
@@ -34,15 +34,15 @@ The class diagram describing the relationship between main Horace classes is pro
 
 Abstract base class for the `sqw` and `dnd` objects, describing the interface common for both `sqw` and `dnd` objects.
 
-May include code of the methods with work identically on both `sqw` and `dnd` objects. .
+May include code of the methods with work identically on both `sqw` and `dnd` objects.
 
-Currently it also include common methods, in particular the large number of unary and binary operations which are implemented as calls to operations managers which will be defined in the implementing classes.
+Currently it also include common methods, in particular the large number of unary and binary operations which are implemented as calls to the operations managers defined in the children classes and implementing the particular behaviour, different for `sqw` and `dnd` objects.
 
 ### SQW
 
-The `sqw` object provides the public API to the all relevant experimental data. Main data manipulations are performed on the `PixelData` and `Image` (`dnd` object, within the `sqw` object) is recalculated accordingly.
+The `sqw` object provides the public API to the all relevant experimental data. Main data manipulations are performed on the `PixelData` property `pix` and the `Image` stored in property `data` and containing `dnd` object corresponding to the `sqw` object is recalculated accordingly to the pixel operations.
 
-This class includes the full experiment data including the raw pixel data and details of the instrument and detectors. As the `PixelData` containing all information about neutron events is normally very large dataset `sqw` object for some purpoese may be used without `PixelData`. Alternatively, when `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` can be performed on separate data chunks loaded and processed in memory, leaving the main `PixelData` arrays filebased.
+This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally a very large dataset `sqw` object in number of operations may be used leaving the `PixelData` untouched. Alternatively, when `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` can be performed on separate data chunks loaded and processed in memory, leaving the main `PixelData` arrays filebased.
 The structure of generic `sqw` object is presented on Fig.2:
 
 ![Fig.2. SQW Class Overview](../diagrams/sqw.png)
@@ -146,10 +146,10 @@ The same `get_data(name)` method can be used to provide access to the "standard"
 (3): existing binary data format must be extended to include additional "number of columns" field (&ge;9) information and the file read/write routines updated to read from an array of `n` columns.
 
 
-### Image (`SQWDnDBase` class in more details)
+### Image (`DnDBase` class in more details)
 
 Represents the n-dimensional array of image pixel data with associated axis information. 
-Image pixel data is generated from the `PixelData` via one or more projections.
+Image pixel data is generated from the `PixelData` via one or more projections. The class diagramm for the image class is presented on Fig.4 above.
 
 |  | Description | Notes |
 |-----|---------|---|
@@ -161,16 +161,17 @@ Image pixel data is generated from the `PixelData` via one or more projections.
 
 
 
+
 **Notes**
 (1): if the image data is updated, e.g. after a slice or projection, the backing pixel data must be updated/reordered
 (2): `pix_signal` represents the array of pixel signal data from which this image data was derived, `pix_variance` the array of pixel variance.
-(3): The `axes_block` classes describes image axes
+(3): The `axes_block` classes describes image axes, namely
 - value range
 - unit vectors
 - units
 
 
-The **DnD class** (current implementation of the image) consists of generic projection transformation and the methods, necessary to implement generic cut procedure.:
+The **DnD class** (current implementation of the image) contains a transformation defined by an instance of a generic projection and the methods, necessary to implement generic cut procedure.:
 
 The Image block ( **DnD class**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
 
@@ -200,7 +201,7 @@ Other important methods, necessary for the analysis of different cuts from an sq
 |-----|---------|---|
 | *from_cur_to_targ_coord* | Transforms the pixels of the current image coordinate system into other coordinate system the requested cut is presented in. | |
 | *get_nrange* | return ranges of indexes of pixels which may contribute into current cut | |
-| *bin_pixels* | transform input pixels into the coordinate system, defined by the target projection and calculate the contribution from these pixels into the areas, defined by the target **axes_block**. (namely calculate number of pixels (*npix*) contributing into each cell of the **axes_block** and sum pixels signal and error data into *s* and *err* accumulator arrays)| |
+| *bin_pixels* | transform input pixels into the coordinate system defined by the target projection, and calculate the contribution from these pixels into the areas defined by the target **axes_block**. (namely calculate number of pixels (*npix*) contributing into each cell of the **axes_block** and sum pixels signal and error data into *s* and *err* accumulator arrays)| |
 
 The children of **aProjection** class (e.g. **ortho_proj** class, defining orthogonal projection), need to define the abstract methods and may redefine these methods for particular pairs of projections to optimize the performance of cuts.
 
@@ -209,7 +210,7 @@ The children of **aProjection** class (e.g. **ortho_proj** class, defining ortho
 
 **axes_block** should be overloaded for every coordinate system defined by a projection, with possibility to overload plot methods for the convenience of the plotting in the particular coordinate system.
 
-Operations using projections and cut operations in particular result in the creation of a new `sqw/dnd` object and are performed to the Image Pixels using data from the backing `PixelData`.
+Operations using projections, and cut operations in particular, result in the creation of a new `sqw/dnd` object. They are performed to the Image Pixels using data from the original `PixelData` class. Similar operations are possible on images (`DnD` objects) themselves, but as these objects do not contain all necessary information, the cuts from `DnD` objects are only quantitative estimates for the cuts, obtained using full experiment information available from `sqw` objects.
 
 **Questions**
 
@@ -246,7 +247,7 @@ Combine multiple experiment [data files](http://horace.isis.rl.ac.uk/Input_file_
 - Projection -- aggregate pixel data onto an M-dimensional surface (M &le; N). This should support projections onto planes and spherical shells (TBI) and spiral slices (TBI) as well as reorientations.
 - Symmetrization -- enhance signal-to-noise utilizing symmetries within the data
 
-The operations are performed on the pixel data and the image recalculated from that. If the pixel-data is not available (a `dnd` object) the operations are performed directly on the image with reduced functionality but higher speed.
+The operations are performed on the pixel data and the image recalculated from that. If the pixel-data is not available (a `dnd` object) the operations are performed directly on the image with higher speed but with reduced accuracy or, if the correct accuracy may be achieved, with higly reduced functionality. The correct accuracy can be achieved for axis aligned cuts only.
 
 The data manipulations are implemented through the `ProjectionManager` class and instances of `IProjection`.
 
