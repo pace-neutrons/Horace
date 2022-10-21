@@ -60,7 +60,7 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %                    the sequence of keywords means true). If provided,
 %                    ignore file creation date stored in main header.
 %
-%  	The reorder and fraction options are available because the order of the
+%       The reorder and fraction options are available because the order of the
 %   pixels within the pix array for a given bin is unimportant. Reordering
 %   takes time, however, so the option to test on a few bins is given.
 
@@ -74,6 +74,7 @@ end
 % Check that corresponding objects in the array have the same type
 base_message = 'Objects being compared are not the same type';
 for i = 1:numel(w1)
+    class(w1(i)),class(w2(i))
     if ~strcmp(class(w1(i)),class(w2(i)))
         elmtstr = '';
         if numel(w1) > 1
@@ -115,4 +116,3 @@ for i = 1:numel(w1)
         return
     end
 end
-
