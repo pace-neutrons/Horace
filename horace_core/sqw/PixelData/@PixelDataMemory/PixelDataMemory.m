@@ -84,10 +84,12 @@ classdef PixelDataMemory < PixelDataBase
 
     properties
         page_memory_size_ = inf;
+        file_path_ = '';
     end
 
     properties (Constant)
         is_filebacked = false;
+        n_pages = 1;
     end
 
     methods
@@ -106,14 +108,57 @@ classdef PixelDataMemory < PixelDataBase
         obj = recalc_pix_range(obj);
         set_data(obj, fields, data, abs_pix_indices);
 
-        function obj = PixelDataMemory(varargin)
+        function obj = PixelDataMemory(init, mem_alloc, upgrade)
             % Construct a PixelDataMemory object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
             %
             % Transform filebacked to memory backed
 
-            obj = obj@PixelDataBase();
+            obj.object_id_ = randi([10, 99999], 1, 1);
+            if exist('init', 'var')
+                if isstruct(init)
+                    obj = obj.loadobj(init);
+                elseif ischar(init) || isstring(init)
+                    if ~is_file(init)
+                        error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                              'Cannot find file to load (%s)', init)
+                    end
+
+                    init = sqw_formats_factory.instance().get_loader(init);
+                    obj = obj.init_from_file_accessor_(init);
+
+                elseif isa(init, 'sqw_file_interface')
+                    obj = obj.init_from_file_accessor_(init);
+
+                elseif isa(init, 'PixelDataMemory')
+                    obj.num_pixels_ = size(init.data, 2);
+                    obj.data_ = init.data;
+                    obj.reset_changed_coord_range('coordinates')
+
+                elseif isscalar(init) && isnumeric(init) && floor(init) == init
+                    % input is an integer
+                    obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, init);
+                    obj.num_pixels_ = init;
+                    obj.pix_range_ = zeros(2,4);
+                    obj.page_range = zeros(2,4);
+
+                elseif isa(init, 'PixelDataFileBacked')
+                    init.move_to_first_page();
+                    obj.data_ = init.data;
+                    while init.has_more()
+                        init.advance();
+                        obj.data_ = horzcat(obj.data, init.data);
+                    end
+
+                    obj.reset_changed_coord_range('coordinates');
+                    obj.num_pixels_ = obj.num_pixels;
+                else
+                    error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                          'Cannot construct from class (%s)', class(init))
+                end
+            end
+
         end
 
         function data=saveobj(obj)
@@ -135,6 +180,15 @@ classdef PixelDataMemory < PixelDataBase
             %    >> has_more = pix.has_more();
             %
             has_more = false;
+        end
+
+        function empty = cache_is_empty_(obj)
+            % Returns true if there are subsequent pixels stored in the file that
+            % are not held in the current page
+            %
+            %    >> has_more = pix.has_more();
+            %
+            empty = false;
         end
 
         function [page_number,total_num_pages] = move_to_page(obj, page_number, varargin)
@@ -213,6 +267,13 @@ classdef PixelDataMemory < PixelDataBase
     end
 
     methods (Access = ?PixelDataBase)
+        function obj = init_from_file_accessor_(obj, f_accessor)
+        % Initialise a PixelData object from a file accessor
+            obj.num_pixels_ = double(f_accessor.npixels);
+            obj.pix_range_ = f_accessor.get_pix_range();
+            obj.data_ = f_accessor.get_raw_pix();
+
+        end
 
         function reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
