@@ -59,6 +59,17 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         wout = smooth(win, varargin)  % smooth sqw object or array of sqw
         %                             % objects containing no pixels
+        function [val, n] = data_bin_limits (obj)
+            % Get limits of the data in an n-dimensional dataset, that is,
+            % find the coordinates along each of the axes of the smallest
+            % cuboid that contains bins with non-zero values of
+            % contributing pixels.
+            %
+            % Syntax:
+            %   >> [val, n] = data_bin_limits (din)
+            %
+            [val,n] = obj.data.data_bin_limits();
+        end
         % sigvar block
         %------------------------------------------------------------------
         wout = sigvar(w);

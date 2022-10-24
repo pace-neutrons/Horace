@@ -93,8 +93,19 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     end
 
     methods
-        % function signatures
-        %
+        % function signatures:
+        %------------------------------------------------------------------
+        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
+        %                             % of the bins of an n-dimensional sqw
+        %                             % or dnd dataset
+        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
+        %                             % centres of the bins of an n-dimensional
+        %                             % sqw or dnd dataset.
+        [val, n] = data_bin_limits (obj); % Get limits of the data in an
+        %                             % n-dimensional dataset, that is,find the
+        %                             % coordinates along each of the axes
+        %                             % of the smallest cuboid that contains
+        %                             % bins with non-zero values of contributing pixels.
         % sigvar block
         %------------------------------------------------------------------
         sob = sigvar(w);
@@ -105,13 +116,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         wout = cut(obj, varargin); % take cut from the dnd object
         %
         [wout,mask_array] = mask(win, mask_array);
-        %------------------------------------------------------------------
-        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
-        %                             % of the bins of an n-dimensional sqw
-        %                             % or dnd dataset
-        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
-        %                             % centres of the bins of an n-dimensional
-        %                             % sqw or dnd dataset.
+
         %------------------------------------------------------------------
         [wout_disp, wout_weight] = dispersion(win, dispreln, varargin);
         wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % calculate

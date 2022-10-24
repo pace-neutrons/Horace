@@ -1,5 +1,5 @@
 classdef test_axes_block_integration < TestCase
-    % Series of tests for data interpolation/extrapolation in the axes_block class
+    % Series of tests for data rebinning data using the axes_block class
     properties
     end
 
@@ -14,6 +14,35 @@ classdef test_axes_block_integration < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
+        function test_4d_to2D_partial_region(~)
+            ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
+            clOb = onCleanup(@()warning(ws));
+            
+            dbr0 = [ -1,1;-2,2;-3,3;0,10]';
+            dbr1 = [  0,1;-2,0;-2,2;2,8]';
+            bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),0.2,dbr0(2,2)];
+                [dbr0(1,3),0.15,dbr0(2,3)];[dbr0(1,4),0.5,dbr0(2,4)]};
+            bin1 = {[dbr1(1,1),0.2,dbr1(2,1)];[dbr1(1,2),dbr1(2,2)];
+                [dbr1(1,3),0.2,dbr1(2,3)];[dbr1(1,4),dbr1(2,4)]};
+
+            ab_base = axes_block(bin0{:});
+            ab_sample = axes_block(bin1{:});
+
+            ab_r = ab_base.realign_bin_edges(ab_sample);
+            assertElementsAlmostEqual(ab_r.img_range,[-0.15,1.05;-2.1,0.1; ...
+                -2.175,2.175;1.75,8.25]');
+
+
+            data = ones(ab_base.dims_as_ssize);
+
+            reb_data = ab_base.rebin_data({data},ab_r);
+
+            %assertEqual(2*sum(data(1:numel(reb_data{1}))),sum(reb_data{1}));
+
+            assertEqual(reb_data{1},286*ones(ab_r.dims_as_ssize))
+
+
+        end
         function test_ab_indexes_1D_double_bin_partial_region(~)
             dbr0 = [ 0,10;-2,2;-3,3;0,10]';
             dbr1 = [ 0,5;-2,2;-3,3;0,10]';
@@ -35,7 +64,7 @@ classdef test_axes_block_integration < TestCase
 
             assertEqual(reb_data{1},2*ones(ab_r.dims_as_ssize))
         end
-        
+
         function test_ab_indexes_1D_same_bin_partial_region(~)
             dbr0 = [ 0,10;-2,2;-3,3;0,10]';
             dbr1 = [ 0,5;-2,2;-3,3;0,10]';
@@ -97,6 +126,9 @@ classdef test_axes_block_integration < TestCase
         end
         %
         function test_ab_alignment_pax_selected(~)
+            ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
+            clOb = onCleanup(@()warning(ws));
+            
             dbr0 = [-1,1;-2,2;-3,3;-1,11]';
             dbr1 = [ 0,1;-2,2;-5,5; 0,10]';
             bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),0.1,dbr0(2,2)];[dbr0(1,3),0.1,dbr0(2,3)];[dbr0(1,4),1,dbr0(2,4)]};

@@ -11,6 +11,11 @@ classdef (Abstract) SQWDnDBase < serializable
         %                             % DnD object always returns false.
         [nd,sz] = dimensions(win);    % Return size and shape of the image
         %                             % arrays in sqw or dnd object
+        [val, n] = data_bin_limits (din) % Get limits of the data in an n-dimensional
+        %                             % dataset, that is, find the
+        %                             % coordinates along each of the axes
+        %                             % of the smallest cuboid that contains
+        %                             % bins with non-zero values of contributing pixels.
         %------------------------------------------------------------------
         save_xye(obj,varargin);       % save xye data into file
         s=xye(w, null_value);         % return a strucute, containing xye data

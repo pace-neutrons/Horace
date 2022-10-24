@@ -99,7 +99,7 @@ else
     req_step = base_step*fudge;
 end
 if log_level > 0
-    if abs(fudge*base_step-req_step) > 1.e-4
+    if abs(fudge*base_step-req_step0) > 1.e-4
         warning('HORACE:realign_bin_edges:invalid_argument', ...
             'The requested step in direction %d (%g) is not commensurate with the existing axis step %g. Changing it to: %g',...
             i,req_step0,base_step,req_step)
