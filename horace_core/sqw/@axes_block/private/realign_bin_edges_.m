@@ -1,4 +1,4 @@
-function ax_block_al = realign_axes_(obj,ax_block)
+function ax_block_al = realign_bin_edges_(obj,ax_block)
 % align input axes block to have the same or commensurate
 % bin sizes as this axes block and the integration ranges equal
 % or smaller than the ranges of this axes block but
@@ -24,8 +24,8 @@ for i=1:4
             ax_nbins(i) = 1;
             ax_range(:,i) = this_range(:,i);
             if log_level>0
-                warning('HORACE:realign_axes:invalid_argument', ...
-                    ['projection axis is requested in direction %d, ',...
+                warning('HORACE:realign_bin_edges:invalid_argument', ...
+                    ['projection axis is requested in direction N%d, ',...
                     'but original axis there is integration. ',...
                     'Can not rebin integraion axis on dnd object.', ...
                     ' Doing integration axis in this direction'],...
@@ -51,7 +51,7 @@ function [nbins,req_range] = realign_pax(i,origin_range,origin_nbins,req_range,r
 %                 into.
 if req_range(1) >=origin_range(2) % maximum provided is smaller then minimum requested
     % can not proceed
-    error('HORACE:realign_axes:invalid_argument', ...
+    error('HORACE:realign_bin_edges:invalid_argument', ...
         [' Existing maximal range: %g in direction %d is smaller then requested minimal range: %g.\n ',...
         ' Existing and requested cuts do not overlap'],...
         origin_range(2),i,req_range(1));
@@ -61,7 +61,7 @@ if req_range(2)-req_range(1) < base_step
     % requested interval is too narrow.  Expand it
     req_range(2)=req_range(1)+ base_step;
     if log_level > 0
-        warning('HORACE:realign_axes:invalid_argument', ...
+        warning('HORACE:realign_bin_edges:invalid_argument', ...
             'New integration interval in direction %i has been expanded to [%g,%g] to cover at least one existing bin.',...
             i,req_range(1),req_range(2))
     end
@@ -83,33 +83,31 @@ else
 end
 if log_level > 0
     if abs(fudge*base_step-req_step) > 1.e-4
-        warning('HORACE:realign_axes:invalid_argument', ...
+        warning('HORACE:realign_bin_edges:invalid_argument', ...
             'The requested step in direction %d (%g) is not commensurate with the existing axis step %g. Changing it to: %g',...
             i,req_step0,base_step,req_step)
     end
 end
 % existing p-axis
 bin_edges = linspace(origin_range(1),origin_range(2),origin_nbins+1);
-bin_centers=0.5*(bin_edges(1:end-1)+bin_edges(2:end));
-first_center = min(bin_centers);
+first_edge = origin_range(1);
 
 % realign bin centers
-new_center1 = req_range(1)+0.5*req_step0;
-if new_center1<first_center
+new_edge_1 = req_range(1);
+if new_edge_1<first_edge
     % requested range
-    new_center1 = first_center;
+    new_edge_1 = first_edge;
 end
-center_indexes = round((bin_centers-new_center1)/base_step);
-ind = find(center_indexes == 0,1);
-new_center1 = bin_centers(ind);
-req_range(1) = new_center1-0.5*req_step;
+ind = find(bin_edges <= new_edge_1,1,'last');
+new_edge_1 = bin_edges(ind);
+req_range(1) = new_edge_1;
 nbins = floor((req_range(2)-req_range(1))/req_step);
 test_range = req_range(1)+nbins*req_step;
 if test_range<req_range(2)
     nbins = nbins+1;
     req_range(2) = req_range(1)+nbins*req_step;
 else
-    req_range(2) = test_range;
+    req_range(2) = test_range; % assign to avoid round-off errors even if they are (almost) equal
 end
 
 

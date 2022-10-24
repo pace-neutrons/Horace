@@ -131,7 +131,7 @@ function char_size = parse_inputs(ninputs,varargin)
 % cube, throw invalid_argument
 %
 char_size= [];
-if ninputs > 5
+if ninputs > 6
     if isnumeric(varargin{1})
         cube = varargin{1};
         cube_size = size(cube);

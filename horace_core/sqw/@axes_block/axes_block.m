@@ -192,12 +192,12 @@ classdef axes_block < serializable
             % according to realigh_axes method of this axes block
             data_out = rebin_data_(obj,data_in,other_ax);
         end
-        function ax_block_al = realign_axes(obj,ax_block)
+        function ax_block_al = realign_bin_edges(obj,ax_block)
             % align input axes block to have the same or commensurate
             % bin sizes as this axes block and the integration ranges equal 
             % or smaller than the ranges of this axes block but
-            % commensurate with this lattice
-            ax_block_al = realign_axes_(obj,ax_block);
+            % commensurate with this axis block bin edges
+            ax_block_al = realign_bin_edges_(obj,ax_block);
         end
         %
         function [interp_points,density,cell_sizes] = get_density(obj,datasets)
