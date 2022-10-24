@@ -34,10 +34,27 @@ for i=1:4
         end
     else  %iax requested
         ax_nbins(i) = 1;
-        ax_range(:,i) = this_range(:,i);
+        ax_range(:,i) = find_proper_iax_range(this_range(:,i),this_nbins(i),ax_range(:,i));
     end
 end
-ax_block_al = axes_block('img_range',ax_range,'nbins_all_dims',ax_nbins);
+ax_block_al = axes_block(obj);
+ax_block_al.img_range=ax_range;
+ax_block_al.nbins_all_dims = ax_nbins;
+
+function iax_requested = find_proper_iax_range(in_range,nbins,iax_requested)
+% find integration range, which covers minimal axes range
+
+if iax_requested(1)<in_range(1)
+    iax_requested(1) = in_range(1);
+end
+if iax_requested(2)>in_range(2)
+    iax_requested(2) = in_range(2);
+end
+bin_edges = linspace(in_range(1),in_range(2),nbins+1);
+min_ind = find(bin_edges <= iax_requested(1),1,'last');
+max_ind = find(bin_edges >= iax_requested(2),1,'first');
+iax_requested(1) = bin_edges(min_ind);
+iax_requested(2) = bin_edges(max_ind);
 
 function [nbins,req_range] = realign_pax(i,origin_range,origin_nbins,req_range,req_nbins,log_level)
 % build commensurate range and binning parameters for two overapping axes
@@ -103,7 +120,7 @@ new_edge_1 = bin_edges(ind);
 req_range(1) = new_edge_1;
 nbins = floor((req_range(2)-req_range(1))/req_step);
 test_range = req_range(1)+nbins*req_step;
-if test_range<req_range(2)
+if (test_range-req_range(2))<-2.e-8 % single precision round_off?
     nbins = nbins+1;
     req_range(2) = req_range(1)+nbins*req_step;
 else

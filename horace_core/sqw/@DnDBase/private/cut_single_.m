@@ -63,21 +63,18 @@ else
     end
 end
 %
-function [s, e, npix] =  cut_integrate_data_(obj, targ_axes)
+function [s, e, npix,realigned_axes] =  cut_integrate_data_(obj, target_axes)
 %CUT_INTEGRATE_DATA returns cut data integrated over aligned bin ranges
 %
 
-targ_axes = obj.axes.realign_axes(targ_axes);
-targ_size = targ_axes.data_nbins;
-ind_new = obj.axes.get_subindexes(targ_axes);
+realigned_axes = obj.axes.realign_bin_edges(target_axes);
 npix = obj.npix;
 s = obj.s.*npix;
 e = obj.e.*npix.^2;
-s = reshape(accumarray(ind_new,s(:)),targ_size);
-e = reshape(accumarray(ind_new,e(:)),targ_size);
-npix = reshape(accumarray(ind_new,npix(:)),targ_size);
+data_out = obj.axes.rebin_data({s,e,npix},realigned_axes);
 
-[s, e] = normalize_signal(s, e, npix);
+npix = data_out{3};
+[s, e] = normalize_signal(data_out{1}, data_out{2}, npix);
 
 
 function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)

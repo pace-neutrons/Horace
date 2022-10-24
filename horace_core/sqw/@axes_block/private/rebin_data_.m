@@ -8,4 +8,4 @@ function data_out = rebin_data_(obj,data_in,other_ax)
 data_nodes = obj.get_bin_nodes('-density_integr');
 data_out = cell(numel(data_in),1);
 %
-[npix,data_out{1},data_out{2},data_out{3}] = other_ax.bin_pixels(data_nodes,[],[],[],data_in);
+[~,data_out{1},data_out{2},data_out{3}] = other_ax.bin_pixels(data_nodes,[],[],[],data_in);
