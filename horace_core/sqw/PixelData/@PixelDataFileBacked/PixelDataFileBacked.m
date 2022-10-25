@@ -38,6 +38,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % Construct a File-backed PixelData object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
+
             if ~exist('upgrade', 'var')
                 upgrade = true;
             end
@@ -48,6 +49,9 @@ classdef PixelDataFileBacked < PixelDataBase
             if exist('init', 'var')
                 if isstruct(init)
                     obj = obj.loadobj(init);
+                elseif isa(init, 'PixelDataFileBacked')
+                    obj = obj.init_from_file_accessor_(init.f_accessor_);
+
                 elseif ischar(init) || isstring(init)
                     if ~is_file(init)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -62,7 +66,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
                 else
                     error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                          'Cannot construct from class (%s)', class(init))
+                          'Cannot construct PixelDataFileBacked from class (%s)', class(init))
                 end
             end
 

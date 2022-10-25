@@ -6,6 +6,7 @@ function args = parse_sqw_args_(~,varargin)
 % args.sqw_obj   % SQW class instance
 % args.data_struct % generic struct, presumed to represent SQW
 % args.pixel_page_size % size of PixelData page in bytes
+
 parser = inputParser();
 parser.KeepUnmatched = true;  % ignore unmatched parameters
 parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || ...
@@ -13,19 +14,20 @@ parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || ...
     isa(x,'dnd_file_interface') || ...
     isstruct(x)));
 parser.addParameter('pixel_page_size', PixelDataBase.DEFAULT_PAGE_SIZE, ...
-    @PixelDataBase.validate_mem_alloc);
+                    @PixelDataBase.validate_mem_alloc);
+parser.addParameter('file_backed', [], @islognumscalar)
 parser.parse(varargin{:});
 
 input = parser.Results.input;
-args = struct('sqw_obj', [], 'filename', [], 'data_struct', [], 'pixel_page_size', []);
-
-args.pixel_page_size = parser.Results.pixel_page_size;
+args = struct('sqw_obj', [], 'filename', [], 'data_struct', [], ...
+              'pixel_page_size', parser.Results.pixel_page_size, ...
+              'file_backed', parser.Results.file_backed);
 
 if isa(input, 'SQWDnDBase')
     if isa(input, 'DnDBase')
         args.data_struct = struct('data',input);
     else
-        args.sqw_obj = input;        
+        args.sqw_obj = input;
     end
 elseif is_string(parser.Results.input)
     args.filename = input;
@@ -35,4 +37,3 @@ else
     % create struct holding default instance
     args.data_struct = make_sqw(0);
 end
-

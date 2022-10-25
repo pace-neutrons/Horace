@@ -141,7 +141,11 @@ classdef PixelDataMemory < PixelDataBase
                     obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, init);
                     obj.num_pixels_ = init;
                     obj.pix_range_ = zeros(2,4);
-                    obj.page_range = zeros(2,4);
+
+                elseif isnumeric(init)
+                    obj.data_ = init;
+                    obj.num_pixels_ = size(init, 2);
+                    obj.reset_changed_coord_range('coordinates')
 
                 elseif isa(init, 'PixelDataFileBacked')
                     init.move_to_first_page();
@@ -154,12 +158,13 @@ classdef PixelDataMemory < PixelDataBase
                     obj.reset_changed_coord_range('coordinates');
                     obj.num_pixels_ = obj.num_pixels;
                 else
-                    error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                          'Cannot construct from class (%s)', class(init))
+                    error('HORACE:PixelDataMemory:invalid_argument', ...
+                          'Cannot construct PixelDataMemory from class (%s)', class(init))
                 end
             end
 
         end
+
 
         function data=saveobj(obj)
             data = struct(obj);
