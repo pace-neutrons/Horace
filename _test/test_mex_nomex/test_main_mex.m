@@ -53,7 +53,7 @@ classdef test_main_mex < TestCase
                 skipTest('Can not use and test mex code to accumulate_cut');
             end
 
-            [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
+            [data,pix]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
 
             hc = hor_config;
             hc.saveable = false;
@@ -63,11 +63,11 @@ classdef test_main_mex < TestCase
             hc.threads = 1;
             hc.use_mex= true;
             [npix_1,s_1,e_1,pix_ok_1,unique_runid_1] = ...
-                cut_data_from_file_job.bin_pixels(proj,data,data.pix);
+                cut_data_from_file_job.bin_pixels(data.proj,data.axes,pix);
 
             hc.threads = 8;
             [npix_8,s_8,e_8,pix_ok_8,unique_runid_8] = ...
-                cut_data_from_file_job.bin_pixels(proj,data,data.pix);
+                cut_data_from_file_job.bin_pixels(data.proj,data.axes,pix);
 
 
             assertEqual(npix_1,npix_8)
@@ -75,6 +75,7 @@ classdef test_main_mex < TestCase
             assertEqual(e_1,e_8)
             assertEqual(pix_ok_1,pix_ok_8)
             assertEqual(unique_runid_1,unique_runid_8)
+            skipTest('Only pixel sorting is currently mexed')
         end
 
 
@@ -86,7 +87,7 @@ classdef test_main_mex < TestCase
 
 
 
-            [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
+            [data,pix]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
             %[v,sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,0,0);
 
             hc = hor_config;
@@ -97,12 +98,12 @@ classdef test_main_mex < TestCase
             %check matlab-part
             hc.use_mex = false;
             [npix_m,s_m,e_m,pix_ok_m,unique_runid_m] = ...
-                cut_data_from_file_job.bin_pixels(proj,data,data.pix);
+                cut_data_from_file_job.bin_pixels(data.proj,data.axes,pix);
 
             %check C-part
             hc.use_mex = true;
             [npix_c,s_c,e_c,pix_ok_c,unique_runid_c] = ...
-                cut_data_from_file_job.bin_pixels(proj,data,data.pix);
+                cut_data_from_file_job.bin_pixels(data.proj,data.axes,pix);
 
 
             % verify results against each other.
@@ -185,8 +186,10 @@ classdef test_main_mex < TestCase
             [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
             pix.coordinates = [ux(:)';uy(:)';uz(:)';et(:)'];
             npix = 4*ones(10,10,10,10);
+            ab = axes_block('nbins_all_dims',[10,10,10,10],'img_range',[0,0,0,0;2,2,2,2]);
+            test_sqw.data = DnDBase.dnd(ab,ortho_proj);
             test_sqw.data.npix = npix;
-            test_sqw.data.pix  = pix;
+            test_sqw.pix  = pix;
             set(hor_config,'use_mex',false);
             new_sqw = recompute_bin_data_tester(test_sqw);
             s = new_sqw.data.s;
@@ -322,7 +325,7 @@ classdef test_main_mex < TestCase
 
 
         end
-        function [data,proj]=gen_fake_accum_cut_data(this,u,v)
+        function [data,pix]=gen_fake_accum_cut_data(this,u,v)
             % build fake data to test accumulate cut
 
             nPixels = this.nDet*this.nEn;
@@ -335,16 +338,9 @@ classdef test_main_mex < TestCase
             E0=min(en);
             E1=max(en);
             Es=2;
-            proj = ortho_proj(u,v);
-            data = data_sqw_dnd([3,4,5,90,90,90],proj,[0,1,L1],[0,1,L2],[0,0.1,L3],[E0,Es,E1]);
-            proj.alatt = data.alatt;
-            proj.angdeg = data.angdeg;
-            % clear npix as we will cut data to fill it in
-            if sum(data.npix(:))>0
-                data.s    = zeros(size(data.s));
-                data.e    = zeros(size(data.s));
-                data.npix = zeros(size(data.s));
-            end
+            proj = ortho_proj(u,v,'alatt',[3,4,5],'angdeg',[90,90,90]);
+            ab = axes_block([0,1,L1],[0,1,L2],[0,0.1,L3],[E0,Es,E1]);
+            data = DnDBase.dnd(ab,proj);
 
             vv=ones(9,nPixels);
             for i=1:3
@@ -357,9 +353,7 @@ classdef test_main_mex < TestCase
             end
             vv(4,:)=repmat(en,1,this.nDet);
 
-            data.pix = PixelData(vv);
-            [type,data] = data.check_sqw_data('a');
-            assertEqual(type,'b+','Invalid test data type generated, type ''b+'' expected')
+            pix = PixelData(vv);
         end
     end
 end

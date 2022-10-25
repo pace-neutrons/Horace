@@ -92,7 +92,7 @@ if ~mfclass.legacy(varargin{:})
         mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGdisk_resconv_init, []);
     else
-        error('No resolution fuinction model implemented for this instrument')
+        error('No resolution function model implemented for this instrument')
     end
     
     % Construct

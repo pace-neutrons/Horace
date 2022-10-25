@@ -1,67 +1,140 @@
 classdef (Abstract) SQWDnDBase < serializable
     %SQWDnDBase Abstract SQW/DnD object base class
+    %
     %   Abstract class defining common API and atrributes of the SQW and
     %   DnD objects
-    properties (Access = protected)
-        % base_property
-        data_ = data_sqw_dnd();
+    methods (Abstract)
+        %------------------------------------------------------------------
+        % various useful operations and methods. Both internal and
+        % producing useful result
+        pixels = has_pixels(win);     % Check if sqw or dnd object has pixels.
+        %                             % DnD object always returns false.
+        [nd,sz] = dimensions(win);    % Return size and shape of the image
+        %                             % arrays in sqw or dnd object
+        %------------------------------------------------------------------
+        save_xye(obj,varargin);       % save xye data into file
+        s=xye(w, null_value);         % return a strucute, containing xye data
+        %
+        wout = smooth(win, varargin); % Run smooth operation over DnD
+        %                             % objects or sqw objects without pixels
+        [wout,mask_array] = mask(win, mask_array); % mask image data and
+        %                             % corresponding pixels if available
+        %------------------------------------------------------------------
+        % sigvar block
+        wout              = sigvar(w); % Create sigvar object from sqw or dnd object
+        [s,var,mask_null] = sigvar_get (w); %
+        w                 = sigvar_set(win, sigvar_obj);
+        sz                = sigvar_size(w);
+        %------------------------------------------------------------------
+    end
+    properties(Constant)
+        % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
+        % exceeds real pix_range (or input pix_range) by this value.
+        border_size = -4*eps
     end
 
-    methods (Abstract)
-        pixels = has_pixels(win);
-    end
 
     methods (Static)
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
+
+        function [alatt,angdeg,cor_mat]=parse_change_crystal_arguments(alatt0,angdeg0,exper_info,varargin)
+            % process input parameters for change crystal routine and
+            % return standard form of the arguments to use in change_crystal
+            % Most commonly:
+            %   >> [alatt,angdeg,cor_mat] = change_crystal (alatt0,angdeg0,exper_info,rlu_corr)
+            %                               change lattice parameters and orientation
+            %
+            %  where
+            % alat0   -- initial lattice parametes stored in the sqw file
+            % angdeg0 -- initial lattice angles stored in the sqw file
+            % exper_info -- Experiment class, describing the experiment,
+            %             stored in sqw file
+            %             May be empty for dnd objects
+            %   rlu_corr    Matrix to convert notional rlu in the current crystal lattice to
+            %              the rlu in the the new crystal lattice together with any re-orientation
+            %              of the crystal. The matrix is defined by the matrix:
+            %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
+            %               This matrix can be obtained from refining the lattice and
+            %              orientation with the function refine_crystal (type
+            %              >> help refine_crystal  for more details).
+
+            %
+            % OR
+            %   >> [alatt,angdeg,cor_mat] = change_crystal (__,alatt)
+            %                               change just length of lattice vectors
+            %   >> [alatt,angdeg,cor_mat] = change_crystal (__, alatt, angdeg)
+            %                               change all lattice parameters
+            %   >> [alatt,angdeg,cor_mat] = change_crystal (__, alatt, angdeg, rotmat)
+            %                               change lattice parameters and orientation
+            %   >> [alatt,angdeg,cor_mat] = change_crystal (__, alatt, angdeg, u, v)   %
+            %                               change lattice parameters and redefine u, v
+            %                               (works on sqw objects only)
+            % where:
+            % alatt -- corrected lattice parameters
+            % angdeg -- corrected lattice angles
+
+            [alatt,angdeg,cor_mat]=parse_change_crystal_arguments_(alatt0,angdeg0,exper_info,varargin{:});
+        end
+
     end
 
     methods (Abstract, Access = protected)
         wout = unary_op_manager(w, operation_handle);
         wout = binary_op_manager_single(w1,w2,binary_op);
-        wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars, outfile, i);
+        wout = sqw_eval_pix(wout, sqwfunc, ave_pix, pars, outfile, i);
+        %
+        [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
+        %                              % binning of an sqw or dnd object
     end
 
     methods  % Public
-        [s,var,mask_null] = sigvar_get (w);
-
-        wout = mask(win, mask_array);
-        wout = mask_pixels(win, mask_array);
         [sel,ok,mess] = mask_points(win, varargin);
-        wout = mask_random_fraction_pixels(win,npix);
-        wout = mask_random_pixels(win,npix);
         varargout = change_crystal (varargin);
-        
+
         cl = save(w, varargin);
 
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
         wout = IX_dataset_1d(w);
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
-        [nd, sz] = dimensions(w);
-        [ok,mess,nd_ref] = dimensions_match(w, nd_ref);
-        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
+        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
+        %                             % of the bins of an n-dimensional sqw
+        %                             % or dnd dataset
+        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
+        %                             % centres of the bins of an n-dimensional
+        %                             % sqw or dnd dataset.
+
+        % rebin an object to the other object with the dimensionality
+        % smaller then the dimensionality of the current object
+        obj = rebin(obj,varargin);
+        %------------------------------------------------------------------
+        [wout_disp, wout_weight] = dispersion(win, dispreln, pars) % Calculate
+        %                             % dispersion relation for dataset or
+        %                             % array of datasets.
         wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);
+        wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % build dispersion relation
+        %                             % on image of sqw or dnd object
+        %------------------------------------------------------------------
         wout = func_eval(win, func_handle, pars, varargin);
         wout = sqw_eval(win, sqwfunc, pars, varargin);
-
+        %------------------------------------------------------------------
         varargout = multifit_func (varargin);
         varargout = multifit_sqw (varargin);
         varargout = multifit_sqw_sqw (varargin);
-
-        wout = smooth(win, varargin);
-        wout = smooth_units(win, varargin);
-        %dat = struct(obj);        %
-        function save_xye(obj,varargin)
-            %TODO remove this doing Ticket #730
-            save_xye_(obj,varargin{:});
-        end
     end
 
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
-        wout = recompute_bin_data(w);
-        wout = sqw_eval_nopix_(win, sqwfunc, all_bins, pars);
+
+        wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
+        %                             % on an image stored in an sqw object
+        function [func_handle, pars, opts] = parse_eval_args(win, ...
+                func_handle, pars, varargin)
+            % paser for funceval function input parameters
+            [func_handle, pars, opts] = parse_eval_args_(win, func_handle, ...
+                pars, varargin{:});
+        end
     end
 
     methods (Access = private)
@@ -69,12 +142,5 @@ classdef (Abstract) SQWDnDBase < serializable
         [ok,mess,adjust,present]=adjust_aspect_option(args_in);
         dout = smooth_dnd(din, xunit, varargin);
     end
-
-    methods (Static, Access = private)
-        c = smooth_func_gaussian(width);
-        c = smooth_func_hat(width);
-        c = smooth_func_resolution(width);
-    end
-
 end
 

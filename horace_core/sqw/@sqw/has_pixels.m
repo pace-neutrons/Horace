@@ -1,4 +1,4 @@
-function pixels = has_pixels(w)
+function has = has_pixels(w)
 % Determine if the SQW object has pixeldata
 %
 %   >> sqw_type = has_pixels(w)
@@ -9,6 +9,6 @@ function pixels = has_pixels(w)
 %
 % Output:
 % -------
-%   pixels    =true or =false (array)
+%   has    =true or =false (array)
 
-pixels = arrayfun(@(x) x.data.pix.num_pixels > 0, w);
+has = arrayfun(@(x) x.pix.num_pixels > 0, w);

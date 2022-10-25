@@ -9,7 +9,8 @@ function [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,s
 % ------
 %   win         sqw object or array of objects
 %
-%   caller      Structure that contains information from the caller routine. Fields
+%   caller      Structure that contains information from the caller routine.
+%               Contains fields:
 %                   reset_state     Reset internal state to stored value in
 %                                  state_in (logical scalar)
 %                   ind             Indices into lookup tables. The number of elements
@@ -17,12 +18,12 @@ function [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,s
 %
 %   state_in    Cell array of internal state of this function for function evaluation.
 %               If an element is not empty. then the internal state can be reset to this
-%              stored state; if empty, then a default state must be used.
+%               stored state; if empty, then a default state must be used.
 %               The number of elements must match numel(win); state_in must be a cell
-%              array even if there is only a single input dataset.
+%               array even if there is only a single input dataset.
 %
 %   store_in    Stored information that could be used in the function evaluation,
-%              for example lookup tables that accumulate.
+%               for example lookup tables that accumulate.
 %
 %   sqwfunc     Handle to function that calculates S(Q,w)
 %               Most commonly used form is:
@@ -37,18 +38,18 @@ function [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,s
 %               More general form is:
 %                   weight = sqwfunc (qh,qk,ql,en,p,c1,c2,..)
 %                 where
-%                   p           Typically a vector of parameters that we might want
+%                   p          Typically a vector of parameters that we might want
 %                              to fit in a least-squares algorithm
-%                   c1,c2,...   Other constant parameters e.g. file name for look-up
+%                   c1,c2,...  Other constant parameters e.g. file name for look-up
 %                              table
 %
-%   pars        Arguments needed by the function. Most commonly, a vector of parameter
+%   pars       Arguments needed by the function. Most commonly, a vector of parameter
 %              values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
 %              set of parameters is required by the function, then
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
-%   lookup      A structure containing lookup tables and pre-calculated matrices etc.
+%   lookup     A structure containing lookup tables and pre-calculated matrices etc.
 %              For details, see the help for function tobyfit_DGdisk_resconv_init
 %
 %   mc_contributions    Structure indicating which components contribute to the resolution
@@ -80,10 +81,10 @@ function [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,s
 %
 %   state_out   Cell array of internal state of this function for future evaluation.
 %               The number of elements must match numel(win); state_in must be a cell
-%              array even if there is only a single input dataset.
+%               array even if there is only a single input dataset.
 %
 %   store_out   Updated stored values. Must always be returned, but can be
-%              set to [] if not used.
+%               set to [] if not used.
 %
 % NOTE: Contributions to resolution are
 %   yvec(1,...):   t_sh     deviation in arrival time at pulse shaping chopper
@@ -195,11 +196,11 @@ for i=1:numel(ind)
     dq_mat=lookup.dq_mat{iw};
 
     % Run and detector for each pixel
-    run_idx = win(i).data.pix.run_idx';   % column vector
+    run_idx = win(i).pix.run_idx';   % column vector
     runid_map = win(i).experiment_info.runid_map;
     irun = arrayfun(@(idx)runid_map(idx),run_idx);
-    idet = win(i).data.pix.detector_idx';   % column vector
-    npix = win(i).data.pix.num_pixels;
+    idet = win(i).pix.detector_idx';   % column vector
+    npix = win(i).pix.num_pixels;
 
     % Catch case of refining crystal orientation or moderator parameters
     if refine_crystal
@@ -207,8 +208,7 @@ for i=1:numel(ind)
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
 
         % Update s_mat and spec_to_rlu because crystal orientation will have changed
-        [ok,mess,~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
-        if ~ok, error(mess), end
+        [~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
 
         % Recompute Q because crystal orientation will have changed (dont need to update qw{4})
         qw(1:3) = calculate_q (ki(irun), kf, detdcn(:,idet), spec_to_rlu(:,:,irun));
@@ -284,7 +284,7 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         end
     end
-    wout(i).data.pix.signal = stmp(:)'/mc_points;
-    wout(i).data.pix.variance = zeros(1,numel(stmp));
+    wout(i).pix.signal = stmp(:)'/mc_points;
+    wout(i).pix.variance = zeros(1,numel(stmp));
     wout(i)=recompute_bin_data(wout(i));
 end

@@ -4,7 +4,7 @@ hs = head_sqw(obj.sqw_file);
 if horace_version('-num') < 306
     urng = hs.urange;
 else
-    urng = hs.img_db_range;
+    urng = hs.img_range;
 end
 urng = range_add_border(urng,-1.e-4)';
 

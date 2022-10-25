@@ -26,3 +26,4 @@ and may not be needed in the new documentation.
    manual/Script_for_making_simulations
    manual/Script_for_planning_an_experiment
    manual/s_new
+   new_page

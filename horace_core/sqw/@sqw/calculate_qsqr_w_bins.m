@@ -26,7 +26,8 @@ function qsqr_w = calculate_qsqr_w_bins (win,optstr)
 %              the value of the corresponding coordinate is taken as zero.
 
 if numel(win)~=1
-    error('Only a single sqw object is valid - cannot take an array of sqw objects')
+    error('HORACE:sqw:invalid_argument', ...
+        'Only a single sqw can be input for this function - cannot take an array of sqw objects')
 end
 
 % Get b-matrix, B, that gives crystal Cartesian coords Vcryst(i) = B(i,j) Vrlu(j)

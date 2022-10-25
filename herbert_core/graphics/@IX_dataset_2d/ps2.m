@@ -25,9 +25,6 @@ function [fig_handle, axes_handle, plot_handle] = ps2(w,varargin)
 
 
 % Check input arguments (must allow for the two cases of one or two plotting input arguments)
-if ~isa(w,'IX_dataset_2d')
-    error('First argument must be a 2D data object class IX_dataset_2d')
-end
 
 opt=struct('newplot',false);
 [args,ok,mess,nw,lims,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});

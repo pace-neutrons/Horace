@@ -71,7 +71,7 @@ argi = cellfun(@(x)shorten_kw(x,short_par),varargin,'UniformOutput',false);
 
 
 pm = inputParser;
-val_obj = @(x)(isa(x,'sqw')&&numel(x)==1&&~x.data.pix.is_filebacked());
+val_obj = @(x)(isa(x,'sqw')&&numel(x)==1&&~x.pix.is_filebacked());
 pm.addRequired('obj',val_obj)
 pm.addParameter('col',[],@(x)(isnumeric(x)&&numel(x)==2&&x(1)<x(2)))
 pm.addParameter('ax',[],@(x)(isnumeric(x)&&numel(x)==4&&x(1)<x(2)&&x(3)<x(4)))

@@ -1,4 +1,4 @@
-classdef IX_dataset
+classdef IX_dataset < data_plot_interface
     % Abstract parent class for IX_datasets_Nd;
     properties(Dependent)
         %title:  dataset title (will be plotted on a grapth)

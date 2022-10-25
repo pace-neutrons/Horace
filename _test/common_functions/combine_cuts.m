@@ -5,8 +5,6 @@ function wtot=combine_cuts(w)
 %
 % Assumes that combining is valid - no checks performed.
 %
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
-%
 
 
 nw=numel(w);

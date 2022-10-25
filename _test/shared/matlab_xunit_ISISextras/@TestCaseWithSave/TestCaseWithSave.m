@@ -343,7 +343,6 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                 end
             end
         end
-
         %------------------------------------------------------------------
         function val = get.test_results_file(this)
             % Retrieve the name of the file, where the test results will be
@@ -530,34 +529,23 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             this.remove_paths (this.paths_to_remove_)
         end
 
-        function data = getReferenceData(this, var_name)
+        function data = getReferenceDataset(this, test_name,var_name)
+            % Retrieve the variable, stored in test class for comparison
+            % with its current value
+            %
             % Wrapper to assertion methods to enable test or save functionality
             %
-            %   >> getReferenceData(this, var_name)
+            %   >>data= getReferenceData(this, var_name)
             %
             % Input:
             % ------
-            %   var         Variable to test or save
-            %   var_name    Name under which the variable will be saved
+            %  test_name    Name of the test function, the reference
+            %               variable belongs to
+            %   var_name    Name of variable to retrieve from cache
+            % Output:
+            %   data        Stored dataset retrieved for comparison with
+            %               its current value
 
-            % Get the name of the test method. Determine this as the highest
-            % method of the class in the call stack that begins with 'test'
-            % ignoring character case
-            % (The test method may itself call functions in which the assertion
-            % test is performed, which is why we need to search the stack to get
-            % the test name)
-
-            class_name = class(this);
-            call_struct = dbstack(1);
-            for i=numel(call_struct):-1:2
-                cont=regexp(call_struct(i).name,'\.','split');
-                test_name = cont{end};
-
-                if strcmp(cont{1},class_name) && ~strcmp(cont{end},class_name) &&...
-                        strncmpi(cont{end},'test',4)
-                    break
-                end
-            end
 
             data = this.get_ref_dataset_(var_name, test_name);
         end
@@ -686,12 +674,14 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             if ~this.save_output
                 stored_reference = this.get_ref_dataset_(var_name, test_name);
                 if isa(stored_reference,'sqw') && ...
-                    (isa(stored_reference(1).main_header,'main_header_cl') && ...
-                    ~stored_reference(1).main_header.creation_date_defined)
+                        (isa(stored_reference(1).main_header,'main_header_cl') && ...
+                        ~stored_reference(1).main_header.creation_date_defined)
                     % ignore creation date if comparing sqw objects (usually
                     % old and new sqw objects are stored)
-                    stored_reference.main_header.creation_date = datetime('now');
-                    var.main_header.creation_date = stored_reference.main_header.creation_date;
+                    for i=1:numel(stored_reference)
+                        stored_reference(i).main_header.creation_date = datetime('now');
+                        var(i).main_header.creation_date = stored_reference(i).main_header.creation_date;
+                    end
                 end
                 funcHandle(var, stored_reference, varargin{:})
             else

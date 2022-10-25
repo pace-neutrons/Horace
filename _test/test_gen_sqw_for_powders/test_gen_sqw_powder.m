@@ -110,9 +110,9 @@ classdef test_gen_sqw_powder < TestCaseWithSave
 
             % Visual inspection
             % Plot the powder averaged sqw data
-            plot(w2)
+            plot(w2);
             lz 0 0.5
-            dd(w1)
+            dd(w1);
             obj.assertEqualToTolWithSave(w1,'ignore_str',true,'tol',[1.e-7,1.e-5])
             obj.assertEqualToTolWithSave(w2,'ignore_str',true,'tol',[1.e-7,1.e-5])
         end
@@ -127,9 +127,9 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             % Plot the same slice and cut from the sqw file created using the rings map
             % Slightly different - as expected, because of the summing of a ring of pixels
             % onto a single pixel in the rings map.
-            plot(w2rings)
+            plot(w2rings);
             lz 0 0.5
-            dd(w1rings)
+            dd(w1rings);
             %--------------------------------------------------------------------------------------------------
             obj.assertEqualToTolWithSave(w2rings,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])

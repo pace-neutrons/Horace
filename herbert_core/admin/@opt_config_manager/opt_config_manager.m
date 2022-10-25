@@ -16,6 +16,8 @@ classdef opt_config_manager
         % calculated automatically but can be set up manually for the class
         % testing purposes.
         this_pc_type;
+        % return the memory identified as this pc have
+        this_pc_memory;
         % return list of known pc types, one may know an optimal
         % configurations for.
         known_pc_types;
@@ -34,8 +36,14 @@ classdef opt_config_manager
         % The configuration, considered optimal for this particular pc type
         optimal_config;
     end
-    
-    
+    properties(Constant)
+        % transformation constant between mem_chunk_size in hor_config
+        % and this chunk size in bytes. Located here as this class may be
+        % invoked before full package is initialized
+        DEFAULT_PIX_SIZE = 36;
+    end
+
+
     properties(Access=private)
         test_mode_ = false;
         config_info_folder_;
@@ -47,6 +55,8 @@ classdef opt_config_manager
         % Structure, containing all default configurations known to the
         % developers and read from the all config file
         all_known_configurations_ = [];
+        %
+        this_pc_memory_ = 8*1024*1024*1024; %default PC memory is 8Gb
     end
     properties(Access=private)
         % the configurations, which may be optimized for a particular pc so
@@ -62,14 +72,14 @@ classdef opt_config_manager
         % parallel worker.
         mem_size_per_worker_ = 16;
     end
-    
+
     methods
         function obj = opt_config_manager()
             % The constructor of the class, which selects a default
             % configuration, presumably optimal for this type of the
             % computer.
             obj.config_info_folder_ = fileparts(mfilename('fullpath'));
-            obj.this_pc_type_ = find_comp_type_(obj);
+            [obj.this_pc_type_,~,obj.this_pc_memory_] = find_comp_type_(obj);
             % The manager violates the separation between Horace and
             % Herbert as located in Herbert but needs to know about Horace.
             % To avoid the issue, of knowing about Horace, here
@@ -87,6 +97,10 @@ classdef opt_config_manager
             %    more and we do not need to do anything. This class will
             %    configure Horace only, using list of all configurations
             %    known to the class.
+        end
+        %
+        function mem = get.this_pc_memory(obj)
+            mem = obj.this_pc_memory_;
         end
         %
         function types = get.known_pc_types(obj)
@@ -126,7 +140,7 @@ classdef opt_config_manager
                     pc_type = obj.known_pc_types_{val};
                 else
                     print_help(obj);
-                    error('OPT_CONFIG_MANAGER:invalid_argument',...
+                    error('HERBERT:opt_config_manager:invalid_argument',...
                         'Known pc type should be a number from the list above and the input is: %d',val);
                 end
             elseif ischar(val)
@@ -135,12 +149,12 @@ classdef opt_config_manager
                     pc_type  = obj.known_pc_types_{is_it};
                 else
                     print_help(obj);
-                    error('OPT_CONFIG_MANAGER:invalid_argument',...
+                    error('HERBERT:opt_config_manager:invalid_argument',...
                         'Known pc type should be a string from the list above and the input is: %s',val);
                 end
             else
                 print_help(obj);
-                error('OPT_CONFIG_MANAGER:invalid_argument',...
+                error('HERBERT:opt_config_manager:invalid_argument',...
                     'The pc type may be either the name of the pc type from the list above or the type number in this list');
             end
             obj.this_pc_type_ = pc_type;
@@ -158,11 +172,18 @@ classdef opt_config_manager
         end
         function conf = get.known_configurations(obj)
             % return the list of the configurations, defined to the class
-            conf  = obj.known_configs_;
+            conf  = obj.all_known_configurations_;
+        end
+        function obj = set_known_configurations(obj,configs)
+            % function allows to set configurations, known to the class. 
+            % It does not offer any protection to input data, so shoule be
+            % used in tests only in conjunction with
+            % get.known_configurations accessor
+            obj.all_known_configurations_ = configs;
         end
         %------------------------------------------------------------------
         function save_configurations(obj,varargin)
-            % assuming the current Horace/Herbert configurations are the 
+            % assuming the current Horace/Herbert configurations are the
             % optimal one, save it in configuration file for further usage.
             % as default configuration for the selected type of computer.
             %
@@ -197,7 +218,7 @@ classdef opt_config_manager
                 {'-set_config','-change_only_default','-force_save'});
             if ~ok; error('OPT_CONFIG_MANAGER:invalid_argument',mess);
             end
-            
+
             obj = load_configuration_(obj,set_config,set_def_only,force_save);
             opt_config = obj.optimal_config;
         end
@@ -219,7 +240,7 @@ classdef opt_config_manager
             %
             [pc_type,nproc,mem_size] = find_comp_type_(obj);
         end
-        
+
     end
     methods(Access=private)
         function print_help(obj)
@@ -231,7 +252,7 @@ classdef opt_config_manager
                     fprintf('    :%d  : %s\n',i,types{i});
                 end
             end
-            
+
         end
     end
 end

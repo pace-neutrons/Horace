@@ -35,14 +35,14 @@ if iscell(source)
     for i = 1:numel(source)
         source_i = get_data_source(source{i});
         if numel(source_i) > 1
-            error('HORACE:func_eval:too_many_elements', ...
+            error('HORACE:func_eval:invalid_argument', ...
                 'Inputs within cell array must not have more than 1 element.');
         end
         if isempty(obj_type)
             obj_type = class(source_i);
         else
             if ~isa(source_i,obj_type)
-                error('HORACE:func_eval:input_type_error', ...
+                error('HORACE:func_eval:invalid_argument', ...
                     'First input object is the obj of class: "%s", and obj N:%d is the obj of class: "%s". Must be the same',...
                     obj_type,i,class(source_i));
 

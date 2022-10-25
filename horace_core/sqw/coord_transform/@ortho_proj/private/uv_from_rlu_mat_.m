@@ -1,4 +1,4 @@
-function [u,v,w,type]=uv_from_rlu_mat_(obj,u_rot_mat,ulen)
+function [u,v,w,type,nonortho]=uv_from_rlu_mat_(obj,u_rot_mat,ulen)
 % Extract initial u/v vectors, defining the plane in hkl from
 % lattice parameters and the matrix converting vectors in
 % crystal Cartesian coordinate system into rlu.
@@ -23,7 +23,7 @@ function [u,v,w,type]=uv_from_rlu_mat_(obj,u_rot_mat,ulen)
 %u_rot_mat(:,i) = ubinv(:,i)*ulen(i);
 
 
-ulen_inv = 1./ulen;
+ulen_inv = 1./ulen(:)';
 ubinv = u_rot_mat.*repmat(ulen_inv,3,1);
 ubmat = inv(ubinv); % correctly recovered ubmatrix; ulen matrix extracted
 b_mat = bmatrix(obj.alatt,obj.angdeg); % converts hkl to Crystal Cartesian
@@ -64,11 +64,26 @@ for i=1:3
             end
             lt{i} = 'p';
         end
-        
+
     end
 end
 if lt{3} ~= 'p'
     w = [];
 end
 type = [lt{:}];
+
+% get_proj_and_pbin(w) T.G.Perring   30 September 2018
+% Extracted from it on 19/07/2022; Caution: ticket #827
+uu = u_rot_mat(:, 1)';
+vv = u_rot_mat(:, 2)';
+ww = u_rot_mat(:, 3)';
+ux = b_mat * uu';
+vx = b_mat * vv';
+nx = cross(ux, vx);  nx = nx/norm(nx);
+wx = b_mat * ww'  ;  wx = wx/norm(wx);
+if abs(cross(nx, wx)) > 1e-10
+    nonortho = true;
+else
+    nonortho = false;
+end
 

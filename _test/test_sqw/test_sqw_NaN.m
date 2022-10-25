@@ -33,7 +33,7 @@ msk=[1,2,10,11,12,21,32];
 % Create spe file
 [spe_path,spe_name]=fileparts(spe_file);
 spe_name = fullfile(spe_path,[spe_name,'.nxspe']);
-spe_data = fake_spe (ndet,ebins,'mask',msk);
+spe_data = dummy_spe (ndet,ebins,'mask',msk);
 rd = rundata('',par_file);
 rd.S=spe_data.S;
 rd.ERR=spe_data.ERR;
@@ -48,10 +48,8 @@ gen_sqw (spe_name, '', sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, d
 
 % Check that the masked detectors are correctly eliminated when create sqw file
 w=sqw(sqw_file);
-idet=[unique(w.data.pix.detector_idx),msk];     % list of detectors including those masked
-if ~isequal(sort(idet),1:ndet)
-    assertTrue(false,'Problem with handling masked detectors in creation of sqw file')
-end
+idet=[unique(w.pix.detector_idx),msk];     % list of detectors including those masked
+assertEqual(sort(idet),1:ndet,'Problem with handling masked detectors in creation of sqw file')
 
 % Check sqw->spe converter
 spe_ref=spe(spe_data); %read_spe(spe_file);

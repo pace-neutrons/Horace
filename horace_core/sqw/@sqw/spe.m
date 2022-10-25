@@ -27,12 +27,12 @@ function d=spe(w)
 %               en         Column vector of energy bin boundaries
 
 if ~has_pixels(w)
-    error('HORACE:sqw/spe:invalid_argument', ...
+    error('HORACE:sqw:invalid_argument', ...
         'Input sqw object does not have sqw type (i.e. does not contain pixel information')
 end
 
 if iscell(w.experiment_info)
-    error('HORACE:sqw/spe:invalid_argument', ...
+    error('HORACE:sqw:invalid_argument', ...
         'sqw object has contributions from more than one spe file')
 end
 
@@ -53,7 +53,7 @@ else
 end
 ndet0=numel(w.detpar.group);% number of detectors
 
-tmp=w.data.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
+tmp=w.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
 tmp=sortrows(tmp,[1,2]);    % order by detector group number, then energy
 group=unique(tmp(:,1));    % unique detector group numbers in the data in numerical increasing order
 
@@ -63,7 +63,7 @@ if size(tmp,1)~=ne*numel(group)
 end
 
 % Get the indexing of detector group in the detector information
-[lia,ind]=ismember(group,w.detpar.group);
+[~,ind]=ismember(group,w.detpar.group);
 
 signal=NaN(ne,ndet0);
 err=zeros(ne,ndet0);

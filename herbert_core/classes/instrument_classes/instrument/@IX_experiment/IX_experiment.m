@@ -15,16 +15,16 @@ classdef IX_experiment < serializable
 
     properties
         efix = []
-        emode=[]
+        emode=1
 
-        cu=[];
-        cv=[];
-        psi=[];
-        omega=[];
-        dpsi=[];
-        gl=[];
-        gs=[];
-        uoffset=[];
+        cu=[1,0,0];
+        cv=[0,1,0];
+        psi=0;
+        omega=0;
+        dpsi=0;
+        gl=0;
+        gs=0;
+        uoffset=[0,0,0,0];
         u_to_rlu=[];
         ulen=[];
         ulabel=[];
@@ -130,22 +130,6 @@ classdef IX_experiment < serializable
             old_hdr.angdeg = angdeg;
             old_hdr.instrument = struct();
             old_hdr.sample = struct();
-        end
-        %------------------------------------------------------------------
-        function is = isempty(obj)
-            is = false(size(obj));
-            flds = IX_experiment.fields_to_save_;
-            for i=1:numel(obj)
-                obj_i_empty = true;
-                for j=1:numel(IX_experiment.fields_to_save_)
-                    fld_val = obj(i).(flds{j});
-                    if ~(isempty(fld_val) || (isnumeric(fld_val)&&isnan(fld_val)))
-                        obj_i_empty= false;
-                        break;
-                    end
-                end
-                is(i) = obj_i_empty;
-            end
         end
         function obj = IX_experiment(varargin)
             if nargin==0

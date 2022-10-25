@@ -46,9 +46,11 @@ npix = zeros(sz1);
 % Get bins that may contain pixels that contribute to the cut.
 % The bins selected are those that sit within (or intersect) the bounds of the
 % cut. See the relevant projection function for more details.
-header_av = header_average(obj); % here is necessary to support current alignment algorithm.
-sproj = obj.data.get_projection(header_av);
-[bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,obj.data,targ_axes,targ_proj);
+%header_av = header_average(obj); % here is necessary to support current alignment algorithm.
+%sproj = obj.data.get_projection(header_av);
+sproj = obj.data.proj;
+saxes = obj.data.axes;
+[bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,saxes,targ_axes,targ_proj);
 if isempty(bloc_starts)
     if log_level >= 1
         report_cut_type(obj,false,keep_pixels,'no_pixels');
@@ -58,7 +60,7 @@ if isempty(bloc_starts)
     unique_runid = [];
     return
 end
-if obj.data.pix.is_filebacked()
+if obj.pix.is_filebacked()
     hc = hor_config;
     chunk_size = hc.mem_chunk_size;
     % Get indices in order to split the candidate bin ranges into chunks whose sums
@@ -104,7 +106,7 @@ if num_chunks == 1
     block_chunk = block_chunks{1};
     pix_start = block_chunk{1};
     block_sizes = block_chunk{2};
-    candidate_pix = obj.data.pix.get_pix_in_ranges( ...
+    candidate_pix = obj.pix.get_pix_in_ranges( ...
         pix_start, block_sizes, false,keep_precision);
     if log_level >= 1
         fprintf(['*** Got data for %d pixels -- ' ...
@@ -138,7 +140,7 @@ else
         chunk = block_chunks{iter};
         pix_start = chunk{1};
         block_sizes = chunk{2};
-        candidate_pix = obj.data.pix.get_pix_in_ranges( ...
+        candidate_pix = obj.pix.get_pix_in_ranges( ...
             pix_start, block_sizes, false,keep_precision);
 
         if log_level >= 1

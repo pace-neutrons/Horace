@@ -34,15 +34,15 @@ function dump_profile(prof, filename)
     percent = arrayfun(@(x) 100*x.SelfTime/maxTime, m, 'UniformOutput', false);
     [m.SelfPercentageTime] = percent{:};
 
-    dataStr = evalc('struct2table(m)');
+%     dataStr = evalc('struct2table(m)');
+    writetable(struct2table(m),filename);
 
-    % Remove HTML, braces and header
-    dataStr = regexprep(dataStr, '<.*?>', '');
-    dataStr = regexprep(dataStr, '[{}]', ' ');
-    dataStr = dataStr(24:end);
-
-    fh = fopen(filename, 'w');
-    fwrite(fh, dataStr);
-    fclose(fh);
-
+%     % Remove HTML, braces and header
+%     dataStr = regexprep(dataStr, '<.*?>', '');
+%     dataStr = regexprep(dataStr, '[{}]', ' ');
+%     dataStr = dataStr(24:end);
+%
+%     fh = fopen(filename, 'w');
+%     fwrite(fh, dataStr);
+%     fclose(fh);
 end

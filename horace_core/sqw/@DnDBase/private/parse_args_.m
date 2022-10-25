@@ -6,71 +6,75 @@ function args = parse_args_(obj, varargin)
 % - args.dnd_obj   % DnD class instance
 % - args.sqw_obj   % SQW class instance
 % - args.data_struct % generic struct, presumed to represent DnD
-persistent parser
 
-if ~isempty(varargin) && ((isvector(varargin{1}) && isnumeric(varargin{1})) || ...
-        isa(varargin{1},'oriented_lattice'))
-    % attempting to parse the numeric projection form of the input always
-    % seems to cause the parser to think a parameter is involved, so
-    % detecting this separately and passing it to the processing  function
-    % whole, to produce a data_sqw_dnd
-    input_data = varargin;
-
-    input_data = data_sqw_dnd(input_data{:});
-else
-    if isempty(parser)
-        parser = inputParser();
-
-        parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase')   || ... %sqw/dnd
-            isa(x, 'data_sqw_dnd') || ... % data_sqw_dnd
-            is_string(x)           || ... % filename
-            (iscellstr(x)||isstring(x))&&~any(cellfun(@(a)isempty(a),x))   || ... % multiple files
-            isstruct(x)));                % struct of data_sqw_dnd type
-        parser.KeepUnmatched = true;
-    end
-    parser.parse(varargin{:});
-
-    input_data = parser.Results.input;
-end
-if is_string(input_data)
-    array_numel = 1;
-    array_size  = [1,1];
-else
-    array_numel = numel(input_data);
-    array_size  = size(input_data) ;
-end
-
+input_data = varargin;
 args = struct(...
-    'array_numel',array_numel , ...
-    'array_size',   array_size, ...
+    'array_numel',          1, ...
+    'array_size',        [1,1], ...
     'dnd_obj',              [], ...
     'sqw_obj',              [], ...
-    'filename',             [], ...
-    'data_struct',          [], ...
-    'data_sqw_dnd',         []);
+    'set_of_fields',        [], ...
+    'data_struct',          [] ...
+    );
 
-
-if isa(input_data, 'SQWDnDBase')
-    if isa(input_data, class(obj))
-        args.dnd_obj = input_data;
-
-    elseif isa(input_data, 'sqw')
-        args.sqw_obj = input_data;
+if isempty(input_data)
+    % create struct holding default instance contents
+    args.data_struct.axes =   axes_block(obj.NUM_DIMS);
+    args.data_struct.proj =   ortho_proj();
+    sz = args.data_struct.axes.dims_as_ssize;
+    args.data_struct = init_arrays_(args.data_struct,sz);
+elseif isa(input_data{1}, 'SQWDnDBase')
+    args.array_numel = numel(input_data{1});
+    args.array_size = size(input_data{1});
+    if isa(input_data{1}, class(obj))
+        if args.array_numel ==1
+            args.dnd_obj = input_data{1};
+        else
+            args.dnd_obj = input_data;
+        end
+    elseif isa(input_data{1}, 'sqw')
+        if args.array_numel ==1
+            args.sqw_obj = input_data{1};
+            if ~isa(args.sqw_obj.data,class(obj))
+                error(['HORACE:', class(obj),':invalid_argument'], ...
+                    'The source sqw object contains invalid shape dnd object')
+            end
+        else
+            cl_name = class(obj);
+            is_valid = arrayfun(@(x)isa(x.data,cl_name),input_data{1});
+            if ~all(is_valid)
+                error(['HORACE:', class(obj),':invalid_argument'], ...
+                    'The source sqw object contains different shapes dnd object(s)')
+            end
+            args.sqw_obj = input_data{1};
+        end
+    elseif input_data{1}.dimensions() >= obj.dimensions
+           args.dnd_obj = input_data{1};
     else
-        error([upper(class(obj)), ':' class(obj)], ...
-            [upper(class(obj)) ' cannot be constructed from an instance of this object "' class(input_data) '"']);
+        error(['HORACE:', class(obj),':invalid_argument'], ...
+            'Class %s cannot be constructed from an instance of object %s',...
+            upper(class(obj)),class(input_data{1}));
     end
-elseif isa(input_data, 'data_sqw_dnd')
-    args.data_sqw_dnd = input_data;
-elseif is_string(input_data)
-    args.filename = {input_data};
-elseif iscellstr(input_data)||isstring(input_data) % cellarray of filenames
-    args.filename = input_data;
-elseif isstruct(input_data) && ~isempty(input_data)
-    args.data_struct = input_data;
-else
-    % create struct holding default instance
-    args.data_struct = data_sqw_dnd(obj.NUM_DIMS);
-end
 
+elseif iscellstr(input_data)||isstring(input_data)
+    error(['HORACE:', class(obj),':invalid_argument'],...
+        '%s object can not be constructed from string. Use read_dnd (or read/load) operation to get it from file', ...
+        class(obj))
+elseif isstruct(input_data{1}) && ~isempty(input_data{1})
+    args.data_struct = input_data;
+elseif numel(input_data) > 1
+    if numel(input_data) == 2 && isa(input_data{1},'axes_block') && isa(input_data{2},'aProjection')
+        sz = input_data{1}.dims_as_ssize;
+        strc = init_arrays_(struct(),sz);
+        args.set_of_fields = [varargin(:);struct2cell(strc)];
+    elseif numel(input_data) >= 5
+        args.set_of_fields = input_data;
+    else
+        error(['HORACE:', class(obj),':invalid_argument'], ...
+            'Unrecognized number or type of the input arguments')
+    end
+
+else
+    error(['HORACE:', class(obj),':invalid_argument'], ...
+        'unknown input for %s constructor',class(obj));
 end

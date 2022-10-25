@@ -16,9 +16,9 @@ classdef test_cut < TestCase & common_state_holder
         FLOAT_TOL = 1e-5;
 
         sqw_file = '../test_sym_op/test_cut_sqw_sym.sqw';
-        ref_file = 'test_cut_ref_sqw.sqw'
+        ref_cut_file = 'test_cut_ref_sqw.sqw'
         ref_params = { ...
-            ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa'), ...
+            ortho_proj([1, -1 ,0], [1, 1, 0]/sqrt(2), 'offset', [1, 1, 0], 'type', 'paa'), ...
             [-0.1, 0.025, 0.1], ...
             [-0.1, 0.025, 0.1], ...
             [-0.1, 0.1], ...
@@ -52,9 +52,9 @@ classdef test_cut < TestCase & common_state_holder
             %
             if save_reference
                 fprintf('*** Rebuilding and overwriting reference cut file %s\n',...
-                    obj.ref_file);
+                    obj.ref_cut_file);
                 sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
-                save(sqw_cut,obj.ref_file);
+                save(sqw_cut,obj.ref_cut_file);
             end
         end
         %
@@ -72,7 +72,7 @@ classdef test_cut < TestCase & common_state_holder
 
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
 
-            ref_sqw = sqw(obj.ref_file);
+            ref_sqw = read_sqw(obj.ref_cut_file);
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
                 'ignore_str', true,'-ignore_date');
         end
@@ -84,9 +84,9 @@ classdef test_cut < TestCase & common_state_holder
             sqw_cut = cut(sqw_obj,ref_par{:});
             %
             % offset is currently expressed in hkl
-            assertElementsAlmostEqual(sqw_cut.data.uoffset,obj.ref_params{1}.uoffset);
+            assertElementsAlmostEqual(sqw_cut.data.offset,obj.ref_params{1}.offset);
 
-            ref_sqw = read_sqw(obj.ref_file);
+            ref_sqw = read_sqw(obj.ref_cut_file);
 
             assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');
@@ -96,7 +96,7 @@ classdef test_cut < TestCase & common_state_holder
         function test_take_a_cut_with_nopix_argument(obj)
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
 
-            ref_sqw = d3d(obj.ref_file);
+            ref_sqw = read_dnd(obj.ref_cut_file);
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
         end
 
@@ -137,12 +137,12 @@ classdef test_cut < TestCase & common_state_holder
             runid = unique(ret_sqw.pix.run_idx);
             assertEqual(runid,ret_sqw.experiment_info.expdata.get_run_ids());
 
-            loaded_cut = sqw(outfile);
+            loaded_cut = read_sqw(outfile);
             % bug #797 requesting investigation
             loaded_cut.experiment_info.instruments = ret_sqw.experiment_info.instruments;
 
             assertEqualToTol(ret_sqw, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')                        
+            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
         %
         function test_cut_from_an_sqw_file_to_another_sqw_file_combined_mex(obj)
@@ -156,8 +156,8 @@ classdef test_cut < TestCase & common_state_holder
             hpc.combine_sqw_using = 'mex';
             %
             ref_obj= copy(obj.sqw_4d); % it has been read in constructor
-            %ref_obj.data.pix.signal = 1:ref_obj.data.pix.num_pixels;
-            %ref_obj.data.pix.data = single(ref_obj.data.pix.data);
+            %ref_obj.pix.signal = 1:ref_obj.pix.num_pixels;
+            %ref_obj.pix.data = single(ref_obj.pix.data);
             ref_tfile = fullfile(obj.working_dir, 'mex_combine_source_from_file_to_file.sqw');
             rf_cleanup = onCleanup(@()delete(ref_tfile ));
             save(ref_obj,ref_tfile);
@@ -175,10 +175,10 @@ classdef test_cut < TestCase & common_state_holder
             ref_cut = cut(ref_obj,ref_par{:});
             % bug #797 requesting investigation
             loaded_cut.experiment_info.instruments = ref_cut.experiment_info.instruments;
-            
+
 
             assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')            
+            skipTest('Instrument is not stored/restored properly. Horace ticket #797')
         end
 
 
@@ -208,7 +208,7 @@ classdef test_cut < TestCase & common_state_holder
 
 
             assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')            
+            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
 
 
@@ -218,26 +218,26 @@ classdef test_cut < TestCase & common_state_holder
             conf.mem_chunk_size = 4000;
             cleanup = onCleanup(@() set(hor_config, old_conf));
 
-            sqw_obj = sqw(obj.sqw_file);
+            sqw_obj = read_sqw(obj.sqw_file);
 
             outfile = fullfile(tmp_dir, 'test_cut_from_obj_to_file.sqw');
 
             cut(sqw_obj, obj.ref_params{:}, outfile);
             cleanup = onCleanup(@() clean_up_file(outfile));
 
-            loaded_sqw = sqw(outfile);
-            ref_sqw = sqw(obj.ref_file);
+            loaded_cut = read_sqw(outfile);
+            ref_cut = read_sqw(obj.ref_cut_file);
 
             % bug #797 requesting investigation
-            loaded_sqw.experiment_info.instruments = ref_sqw.experiment_info.instruments;
+            loaded_cut.experiment_info.instruments = ref_cut.experiment_info.instruments;
 
-            assertEqualToTol(loaded_sqw, ref_sqw, obj.FLOAT_TOL, ...
+            assertEqualToTol(loaded_cut, ref_cut, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');
             skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
 
         function test_you_can_take_a_cut_from_a_dnd_object(obj)
-            dnd_obj = d4d(obj.sqw_file);
+            dnd_obj = read_dnd(obj.sqw_file);
 
             u_axis_lims = [-0.1, 0.024, 0.1];
             v_axis_lims = [-0.1, 0.024, 0.1];
@@ -338,22 +338,22 @@ classdef test_cut < TestCase & common_state_holder
 
         function test_you_can_take_an_out_of_memory_cut_with_tmp_files_with_mex(obj)
             skipTest('mex cutting is disabled for the time being')
-            pix_pg_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
+            mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup_config = set_temporary_config_options( ...
                 hor_config, ...
-                'pixel_page_size', pix_pg_size, ...
+                'mem_chunk_size', mem_chunk_size, ...
                 'use_mex', true ...
                 );
 
             cut(obj.sqw_file, obj.ref_params{:}, outfile);
             cleanup_tmp_file = onCleanup(@() clean_up_file(outfile));
 
-            ref_sqw = sqw(obj.ref_file);
+            ref_sqw = sqw(obj.ref_cut_file);
             output_sqw = sqw(outfile);
             %HACK: reference stored in binary file and one obtained from
-            %cut contains different representaion of empty instruments
-            % these representations have to be alighned
+            %cut contains different representation of empty instruments
+            % these representations have to be aligned
 
             ref_sqw.experiment_info.samples = output_sqw.experiment_info.samples;
             ref_sqw.experiment_info.instruments = output_sqw.experiment_info.instruments;
@@ -362,24 +362,24 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_you_can_take_an_out_of_memory_cut_with_tmp_files_no_mex(obj)
-            pix_pg_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
+            mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             hc = hor_config;
             cleanup_config_handle = set_temporary_config_options( ...
                 hc, ...
-                'pixel_page_size', pix_pg_size, ...
+                'mem_chunk_size', mem_chunk_size, ...
                 'use_mex', false ...
                 );
 
             cut(obj.sqw_file, obj.ref_params{:}, outfile);
             cleanup_tmp_file = onCleanup(@() clean_up_file(outfile));
 
-            ref_sqw = sqw(obj.ref_file);
+            ref_sqw = sqw(obj.ref_cut_file);
             output_sqw = sqw(outfile);
             %
             contrubuted_keys = output_sqw.runid_map.keys;
             contrib_ind  = [contrubuted_keys{:}];
-            real_contr_ind = unique(ref_sqw.data.pix.run_idx);
+            real_contr_ind = unique(ref_sqw.pix.run_idx);
             assertTrue(all(ismember(contrib_ind,real_contr_ind)));
 
             contr_headers = output_sqw.experiment_info.get_subobj(contrib_ind);
@@ -411,11 +411,10 @@ classdef test_cut < TestCase & common_state_holder
             assertTrue(logical(exist(outfile, 'file')));
             ldr = sqw_formats_factory.instance().get_loader(outfile);
             output_obj = ldr.get_dnd();
-            ref_object = d3d(obj.ref_file);
+            ref_object = read_dnd(obj.ref_cut_file);
 
             assertEqualToTol(output_obj, ref_object, ...
                 'ignore_str', true,'abstol',2.e-7);
         end
     end
-
 end

@@ -5,7 +5,7 @@ function sqw_obj = do_sqw_eval_average_filebacked_(sqw_obj, sqwfunc, pars, outfi
 %
 %==============================================================================
 
-pix = sqw_obj.data.pix;
+pix = sqw_obj.pix;
 npix = sqw_obj.data.npix;
 
 % Split npix array up, this allows us to pass the npix chunks into
@@ -41,12 +41,14 @@ end % of function do_sqw_eval_average_filebacked
 
 %------------------------------------------------------------------------------
 function qw_pix = get_qw_pixels_(sqw_obj, pix)
-    sqw_obj.data.pix = pix;
+    sqw_obj.pix = pix;
     qw_pix = calculate_qw_pixels(sqw_obj);
 end
 
 %------------------------------------------------------------------------------
 function qw_ave = average_qw_pix_(sqw_obj, pix, npix)
+    ab = axes_block('nbins_all_dims',[numel(npix),1,1,1],'img_range',sqw_obj.data.img_range);
+    sqw_obj.data = d1d(ab,sqw_obj.data.proj);    
     sqw_obj.data.npix = npix;
     qw_ave = average_bin_data(sqw_obj, pix);
     qw_ave = cellfun(@(x) x(:), qw_ave, 'UniformOutput', false);

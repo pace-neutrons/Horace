@@ -22,7 +22,7 @@ methods
 
         hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
 
-        obj.dnd_2d = d2d(obj.test_dnd_file_path);
+        obj.dnd_2d = read_horace(obj.test_dnd_file_path);
     end
 
     function delete(obj)
@@ -43,8 +43,9 @@ methods
 
     function test_different_d2d_objects_are_not_equal(obj)
         %class_fields = properties(obj.dnd_2d);
-        class_prop=dnd_object_sample_properties();
+        class_prop=dnd_object_sample_properties([10,2]);
         class_fields = class_prop.keys;
+        class_prop('dax') = [2,1];
         %
         for idx = 1:numel(class_fields)
             dnd_copy = obj.dnd_2d;

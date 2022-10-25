@@ -41,8 +41,8 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
             obj.ref_e_data = sqw_test_obj.data.e;
             
             num_pix_pages = 6;
-            page_size = floor(sqw_test_obj.data.pix.num_pixels/num_pix_pages)*obj.BYTES_PER_PIX;
-            obj.pix_in_memory_base = sqw_test_obj.data.pix;
+            page_size = floor(sqw_test_obj.pix.num_pixels/num_pix_pages)*obj.BYTES_PER_PIX;
+            obj.pix_in_memory_base = sqw_test_obj.pix;
             obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, page_size);
             
             % Load 2D SQW file
@@ -51,7 +51,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
             obj.ref_s_data_2d = sqw_2d_test_object.data.s;
             obj.ref_e_data_2d = sqw_2d_test_object.data.e;
             
-            num_pix = sqw_2d_test_object.data.pix.num_pixels;
+            num_pix = sqw_2d_test_object.pix.num_pixels;
             page_size_2d = floor(num_pix/num_pix_pages)*obj.BYTES_PER_PIX;
             obj.pix_with_pages_2d = PixelData(obj.test_sqw_2d_file_path, page_size_2d);
         end

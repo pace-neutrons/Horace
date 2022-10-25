@@ -19,7 +19,7 @@ classdef test_cut_parameters < TestCase
             det_file = fullfile(obj.det_dir,'common_data','96dets.par');
             params = {1:10,det_file,'',11,1,[2.8,2.8,2.8],[90,90,90],...
                 [1,0,0],[0,1,0],10, 0, 0, 0, 0};
-            sqw_4d_samp = fake_sqw(params{:},[10,20,40,80],[0,-0.5,-0.1,0;1.5,0,0.1,10]);
+            sqw_4d_samp = dummy_sqw(params{:},[10,20,40,80],[0,-0.5,-0.1,0;1.5,0,0.1,10]);
             sqw_4d_samp  = sqw_4d_samp{1};
             obj.sample_files{1} = cut_sqw(sqw_4d_samp,...
                 struct('u',[1,0,0],'v',[0,1,0]),...
@@ -145,7 +145,7 @@ classdef test_cut_parameters < TestCase
         function test_cut_range_1D(obj)
             %
             sqw_samp = obj.sample_files{1};
-            range = sqw_samp.data.get_cut_range();
+            range = sqw_samp.data.axes.get_cut_range();
             sqw_res = cut(sqw_samp,range{:});
 
             assertEqualToTol(sqw_samp,sqw_res,'tol',[1.e-8,1.e-8]);

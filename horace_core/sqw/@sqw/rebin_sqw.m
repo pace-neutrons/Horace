@@ -33,7 +33,7 @@ end
 
 if nargin==2
     if isa(win,'sqw') && (isa(varargin{1},'SQWDnDBase') && varargin{1}.dimensions() < 4)
-            route=1;%rebinning using the boundaries of a template object (more tests required)
+            route=1;% rebinning using the boundaries of a template object (more tests required)
     elseif isvector(varargin{1})
         route=2;
     else
@@ -60,7 +60,7 @@ else
     error('Horace error: check the format of input arguments');
 end
 
-% Turn off horace_info output, but save for automatic cleanup on exit or cntl-C (TGP 30/11/13)
+% Turn off horace_info output, but save for automatic clean-up on exit or cntl-C (TGP 30/11/13)
 info_level = get(hor_config,'log_level');
 cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
 set(hor_config,'log_level',-1);
@@ -106,7 +106,7 @@ switch route
             crossprod1=cross(v11,v12); crossprod2=cross(v21,v22);
             crossprod=cross(crossprod1,crossprod2);
             %
-            %NB - realise crossprod will be zero if one of the vectors is
+            %NB - realise cross-prod will be zero if one of the vectors is
             %made of zeros (i.e. one of the axes is energy)
             energy_axis=false;
             if (u1(4,win.data.pax(1))==1 || u1(4,win.data.pax(2))==1) && ...
@@ -265,7 +265,7 @@ switch route
             else
                 %it is more complicated. Probably best thing to do is to
                 %work out the extent of the q co-ords direct from the pix
-                %array. The Matlab funciton "qr" will be quite useful here.
+                %array. The Matlab function "qr" will be quite useful here.
                 set1=[v11 v12 v13]; set2=[v21 v22 v23];
                 coords=win.data.pix.q_coordinates;  %we can do this because energy is not an axis
 %                 [Q1,R1]=qr(set1');

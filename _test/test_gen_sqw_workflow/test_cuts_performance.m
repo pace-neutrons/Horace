@@ -82,7 +82,7 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             assertEqualToTol(cut1n,cut1m,'tol',1.e-8);
             assertEqualToTol(cut2n,cut2m,'tol',1.e-8);
             assertEqualToTol(cut3n,cut3m,'tol',1.e-8);
-            assertEqualToTol(cut4n,cut4m,'tol',1.e-8);
+            assertEqualToTol(cut4n,cut4m,'-ignore_date','tol',1.e-8);
             
         end
         function [perf_nom,perf_mex]=test_large_cut_nopix_nomex_mex(obj)

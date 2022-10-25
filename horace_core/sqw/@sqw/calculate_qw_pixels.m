@@ -1,4 +1,5 @@
 function qw=calculate_qw_pixels(win)
+% TODO: fix ubmatrix #825
 % Calculate qh,qk,ql,en for the pixels in an sqw dataset
 %
 %   >> qw=calculate_qw_pixels(win)
@@ -19,7 +20,8 @@ function qw=calculate_qw_pixels(win)
 % This could be generalised later - but with repercussions in many routines
 
 if numel(win)~=1
-    error('Only a single sqw object is valid - cannot take an array of sqw objects')
+    error('HORACE:sqw:invalid_argument', ...
+        'Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
 header_ave = header_average(win);
@@ -29,16 +31,16 @@ u = header_ave.u_to_rlu(1:3,1:3);
 
 % Assume that the first three axes are Q, and the 4th axis is energy
 if ~all(u==eye(3))   % not identity matrix, so need to perform matrix transformation
-    urlu=u*win.data.pix.q_coordinates;
+    urlu=u*win.pix.q_coordinates;
     qh=urlu(1,:)';
     qk=urlu(2,:)';
     ql=urlu(3,:)';
 else
-    qh=win.data.pix.u1';
-    qk=win.data.pix.u2';
-    ql=win.data.pix.u3';
+    qh=win.pix.u1';
+    qk=win.pix.u2';
+    ql=win.pix.u3';
 end
-en=win.data.pix.dE';
+en=win.pix.dE';
 
 if ~u0(1)==0, qh=qh+u0(1); end
 if ~u0(2)==0, qk=qk+u0(2); end

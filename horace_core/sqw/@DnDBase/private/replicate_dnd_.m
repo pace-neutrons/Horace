@@ -74,6 +74,7 @@ else
         dout.s=repmat(ipermute(din.s,permute_axes),size_repmat);
         dout.e=repmat(ipermute(din.e,permute_axes),size_repmat);
         dout.npix=repmat(ipermute(din.npix,permute_axes),size_repmat);
+
     end
 end
 

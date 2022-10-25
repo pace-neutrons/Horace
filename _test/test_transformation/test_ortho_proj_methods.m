@@ -216,7 +216,7 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(numel(bl_start),numel(bl_size));
 
             sz1 = ab1.dims_as_ssize();
-            nd = ab1.n_dims;
+            nd = ab1.dimensions;
             assertEqual(nd,2)
             assertEqual(numel(bl_start),1);
             assertEqual(bl_start,2*sz1(2)+1);
@@ -271,7 +271,7 @@ classdef test_ortho_proj_methods<TestCase
             [bl_start,bl_size] = proj1.get_nrange(npix,ab0,ab1,proj1);
             assertEqual(numel(bl_start),numel(bl_size));
 
-            nd = ab1.n_dims;
+            nd = ab1.dimensions;
             sz1 = ab1.dims_as_ssize();
             assertEqual(nd,2)
             assertEqual(bl_start(1),6-1);
@@ -360,7 +360,7 @@ classdef test_ortho_proj_methods<TestCase
             cur_mex = hc.use_mex;
             hc.use_mex = 0;
             clob = onCleanup(@()set(hor_config,'use_mex',cur_mex));
-            [w, grid_size, pix_range]=fake_sqw (this.fake_sqw_par{:});
+            [w, grid_size, pix_range]=dummy_sqw (this.fake_sqw_par{:});
             w = dnd(w{1});
             %w = w{1};
             %wc = cut_dnd(w,0.01,0.01,[-0.1,0.1],2);

@@ -136,13 +136,13 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             %
             obj.position_info_pos_= obj.instr_sample_end_pos_;
             %
-            data = obj.extract_correct_subobj('data');
-            obj.pix_range_ = data.pix.pix_range;
-            num_pix = data.pix.num_pixels;
+            pix = obj.extract_correct_subobj('pix');
+            obj.pix_range_ = pix.pix_range;
+            num_pix = pix.num_pixels;
             
             if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && num_pix > 0
-                data.pix.recalc_pix_range();
-                obj.pix_range_ = data.pix.pix_range;
+                pix = pix.recalc_pix_range();
+                obj.pix_range_ = pix.pix_range;
             end
             obj = init_sqw_footer(obj);
         end

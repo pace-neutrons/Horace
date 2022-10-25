@@ -45,7 +45,7 @@ classdef test_eval < TestCase
             assertEqual(sig(1), numel(sig));
             assertEqual(sig(2), 1);
 
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(1), numel(sig));
             assertEqual(pix.signal(2), numel(sig));
 
@@ -65,7 +65,7 @@ classdef test_eval < TestCase
             assertFalse(failed, err_message);
 
             sig = ds.data.s;
-            pix = ds.data.pix;
+            pix = ds.pix;
 
             assertEqual(sig(1), numel(sig));
             assertEqual(sig(1), pix.signal(1));
@@ -85,7 +85,7 @@ classdef test_eval < TestCase
             end
             assertFalse(failed,err_message);
 
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(2), 1);
             assertEqual(size(pix.data, 2), pix.signal(1));
         end
@@ -94,7 +94,7 @@ classdef test_eval < TestCase
             %
             err_message = '';
             sqw_nopix = copy(obj.sqw_obj);
-            sqw_nopix.data.pix = PixelData();
+            sqw_nopix.pix = PixelData();
             try
                 ds = sqw_eval(obj.sqw_obj, ...
                     @test_eval.sqw_eval_tester, []);

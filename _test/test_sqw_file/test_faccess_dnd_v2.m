@@ -105,7 +105,8 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
             
             
             data = to.get_data();
-            data = data_sqw_dnd(data);
+            assertTrue(isa(data,'DnDBase'));
+            %data = data_sqw_dnd(data);
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertFalse(isfield(data,'img_db_range'));
@@ -185,7 +186,7 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
             rec_dnd = tn.get_sqw('-ver');
             tn.delete();
             
-            assertEqual(struct(tob_dnd),struct(rec_dnd));
+            assertEqualToTol(tob_dnd,rec_dnd);
             
         end
         %

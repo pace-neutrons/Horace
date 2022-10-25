@@ -30,8 +30,6 @@ addpath(fullfile(horace_path,'admin'));
 addpath_message (1,horace_path,'sqw');
 addpath_message (1,horace_path,'algorithms');
 
-% Add support package
-addpath_message (1,horace_path,'herbert');
 
 % DLL and configuration setup
 addpath_message (2,horace_path,'DLL');

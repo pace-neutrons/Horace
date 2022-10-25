@@ -14,7 +14,7 @@ if isempty(w)
     disp(' ')
 else
     if numel(w)==1
-        sqw_display_single_(w)
+        sqw_display_single(w)
     else
         sz = size(w);
         str = '[';

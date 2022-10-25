@@ -97,7 +97,7 @@ classdef ortho_proj<aProjection
     properties(Hidden)
         % Developers option. Use old (v3 and below) subalgorithm in
         % ortho-ortho transformation to identify cells which may contribute
-        % to a cut. Correct value is selected from performance analysis
+        % to a cut. Correct value is choosen on basis of performance analysis
         use_old_cut_sub_alg=true;
     end
 
@@ -214,11 +214,13 @@ classdef ortho_proj<aProjection
             % build correct projection from input u_to_rlu and ulen matrices
             % stored in sqw object ver < 4
             %
-            [ur,vr,wr,tpe]=obj.uv_from_data_rot(u_rot(1:3,1:3),ulen(1:3));
+            [ur,vr,wr,tpe,nonortho]=obj.uv_from_data_rot(u_rot(1:3,1:3),ulen(1:3));
+
             obj.u_ = ur;
             obj.v_ = vr;
             obj.w_ = wr;
-            obj.type = tpe;
+            obj.nonorthogonal_ = nonortho;
+            obj = check_and_set_type_(obj,tpe);
             if obj.do_check_combo_arg_
                 obj = check_combo_arg_(obj);
             end
@@ -235,8 +237,8 @@ classdef ortho_proj<aProjection
         % TODO: remove when new SQW object is fully implemented
         %
         function mat = get.u_to_rlu(obj)
-            [~, mat] = obj.uv_to_rot();
-            mat = [mat,[0;0;0];[0,0,0,1]];
+            %
+            mat = get_u_to_rlu_mat(obj);
         end
         function off = get.uoffset(obj)
             off = obj.offset';
@@ -321,7 +323,7 @@ classdef ortho_proj<aProjection
                     obj,pix_origin,varargin{:});
             end
         end
-        %
+        %------------------------------------------------------------------
         function  flds = saveableFields(obj)
             flds = saveableFields@aProjection(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
@@ -343,18 +345,30 @@ classdef ortho_proj<aProjection
             % TODO: temporarty method, which define the values to be
             % extracted from projection to convert to old style data_sqw_dnd
             % class. New data_sqw_dnd class will contain the whole projection
-
-
             lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
         end
 
+        function proj = get_from_old_data(data_struct,header_av)
+            % construct ortho_proj from old style data structure
+            % normally stored in binary
+            % Horace files versions 3 and lower.
+            if nargin == 1
+                header_av = [];
+            end
+            proj = build_from_old_data_struct_(data_struct,header_av);
+        end
     end
     methods(Access = protected)
-        function is = check_validity(obj)
-            % overload this property to verify validity of interdependent
-            % properties
-            is = obj.isvalid_;
+        function  mat = get_u_to_rlu_mat(obj)
+            % overloadavble accessor for getting value for ub matrix
+            % property
+            [~, mat] = obj.uv_to_rot();
+
+            mat = [mat,[0;0;0];[0,0,0,1]];
+
         end
+
+
         %------------------------------------------------------------------
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...
@@ -482,7 +496,7 @@ classdef ortho_proj<aProjection
             [rlu_to_ustep, u_rot, ulen] = projaxes_to_rlu_(proj,ustep);
         end
         %
-        function [u,v,w,type]=uv_from_data_rot(obj,u_rot_mat,ulen)
+        function [u,v,w,type,nonortho]=uv_from_data_rot(obj,u_rot_mat,ulen)
             % Extract initial u/v vectors, defining the plane in hkl from
             % lattice parameters and the matrix converting vectors
             % used by data_sqw_dnd class.
@@ -509,7 +523,7 @@ classdef ortho_proj<aProjection
             %          Expressed in degree
 
 
-            [u,v,w,type] = uv_from_rlu_mat_(obj,u_rot_mat,ulen);
+            [u,v,w,type,nonortho] = uv_from_rlu_mat_(obj,u_rot_mat,ulen);
         end
 
     end

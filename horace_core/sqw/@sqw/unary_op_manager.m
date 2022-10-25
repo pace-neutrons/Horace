@@ -62,7 +62,7 @@ function w = unary_op_manager (w1, unary_op)
 w = w1;
 for i=1:numel(w1)
     if has_pixels(w1(i))
-        w(i).data.pix = w(i).data.pix.do_unary_op(unary_op);
+        w(i).pix = w(i).pix.do_unary_op(unary_op);
         w(i) = recompute_bin_data(w(i));
     else
         result = unary_op(sigvar(w1(i)));

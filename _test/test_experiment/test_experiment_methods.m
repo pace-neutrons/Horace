@@ -59,7 +59,8 @@ classdef test_experiment_methods < TestCase
             exp.expdata = expd;
 
             assertEqual(rec_exp.expdata,exp.expdata);
-            assertEqual(rec_exp.runid_map,exp.runid_map);
+            assertEqual(rec_exp.runid_map.keys,exp.runid_map.keys);
+            assertEqual(rec_exp.runid_map.values,exp.runid_map.values);
 
             % these properties are only partially recovered from headers
             % sin
@@ -85,7 +86,8 @@ classdef test_experiment_methods < TestCase
             assertTrue(isa(rec_exp,'Experiment'));
 
             assertEqual(rec_exp.expdata,exp.expdata(2));
-            assertEqual(rec_exp.runid_map,containers.Map(20,1));
+            assertEqual(rec_exp.runid_map.keys,{20});
+            assertEqual(rec_exp.runid_map.values,{1});
 
             % these properties are only partially recovered from headers
             assertEqual(rec_exp.samples{1},IX_samp('',[1.1,2.2,3.2],[90,91,92]));
@@ -103,8 +105,9 @@ classdef test_experiment_methods < TestCase
             rec_exp = Experiment.build_from_binfile_headers(hdrs_cell);
             assertFalse(rec_exp.runid_recalculated);
             assertTrue(isa(rec_exp,'Experiment'));
-            assertEqual(rec_exp.expdata,exp.expdata);
-            assertEqual(exp.runid_map,rec_exp.runid_map);
+            assertEqualToTol(rec_exp.expdata,exp.expdata);
+            assertEqual(exp.runid_map.keys,rec_exp.runid_map.keys);
+            assertEqual(exp.runid_map.values,rec_exp.runid_map.values);
 
             % these properties are only partially recovered from headers
             % sin
@@ -122,7 +125,8 @@ classdef test_experiment_methods < TestCase
             exp = obj.sample_exper;
             exp.runid_map = containers.Map([20,30,40],[1,3,2]);
 
-            assertEqual(exp.runid_map,containers.Map([20,30,40],[1,3,2]));
+            assertEqual(exp.runid_map.keys,{20,30,40});
+            assertEqual(exp.runid_map.values,{1,3,2});
             runid_s = exp.expdata.get_run_ids();
             assertEqual(runid_s,[20,40,30]);
 
@@ -132,7 +136,8 @@ classdef test_experiment_methods < TestCase
             exp = obj.sample_exper;
             exp.runid_map = [20,30,40];
 
-            assertEqual(exp.runid_map,containers.Map([20,30,40],[1,2,3]));
+            assertEqual(exp.runid_map.keys, {20,30,40})
+            assertEqual(exp.runid_map.values, {1,2,3});
             runid_s = exp.expdata.get_run_ids();
             assertEqual(runid_s,[20,30,40]);
 
@@ -145,7 +150,8 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj([2,3]);
             assertTrue(part.runid_recalculated);
 
-            assertEqual(part.runid_map,containers.Map([2,3],[1,2]))
+            assertEqual(part.runid_map.keys,{2,3})
+            assertEqual(part.runid_map.values,{1,2});
 
             assertEqual(part.n_runs,2);
             assertTrue(isa(part.instruments{1},'IX_inst_DGdisk'));
@@ -174,7 +180,8 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj([20,30]);
 
             assertFalse(part.runid_recalculated);
-            assertEqual(part.runid_map,containers.Map([20,30],[1,2]))
+            assertEqual(part.runid_map.keys,{20,30});
+            assertEqual(part.runid_map.values,{1,2});
 
             assertEqual(part.n_runs,2);
             assertTrue(isa(part.instruments{1},'IX_inst_DGfermi'));
@@ -194,7 +201,8 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj(2:3);
             assertTrue(part.runid_recalculated);
 
-            assertEqual(part.runid_map,containers.Map([2,3],[1,2]))
+            assertEqual(part.runid_map.keys,{2,3})
+            assertEqual(part.runid_map.values,{1,2})
 
             assertEqual(part.n_runs,2);
             assertTrue(isa(part.instruments{1},'IX_inst_DGdisk'));
@@ -212,7 +220,8 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj(2:3,'-ind');
             assertFalse(part.runid_recalculated)
 
-            assertEqual(part.runid_map,containers.Map([20,30],[1,2]))
+            assertEqual(part.runid_map.keys,{20,30})
+            assertEqual(part.runid_map.values,{1,2})
 
             assertEqual(part.n_runs,2);
             assertTrue(isa(part.instruments{1},'IX_inst_DGdisk'));

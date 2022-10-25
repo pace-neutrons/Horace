@@ -4,10 +4,6 @@ classdef test_IX_dataset_3d <  TestCase
     %
     
     
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
-    
     properties
     end
     
@@ -20,8 +16,23 @@ classdef test_IX_dataset_3d <  TestCase
             end
             this = this@TestCase(name);
         end
+        function test_d3d_to_IX_dataset3D(~ )
+            ax = axes_block([0,1],[0,0.1,1],[0,0.1,1],[5,1,10]);
+            proj = ortho_proj();
+            d3d_obj = d3d(ax,proj);
+            d3d_obj.s = ones(11,11,6);
+            d3d_obj.e = 2*ones(11,11,6);            
+            d3d_obj.npix = 2*ones(11,11,6);                        
+
+            ds = d3d_obj.IX_dataset_3d();
+
+            assertEqual(ds.signal,d3d_obj.s);
+            assertEqual(ds.error,sqrt(d3d_obj.e));            
+
+        end
         
-        function test_properties(obj)
+        
+        function test_properties(~)
             id = IX_dataset_3d();
             id.title = 'my title';
             assertEqual(id.title,{'my title'});

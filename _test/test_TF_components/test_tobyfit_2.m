@@ -156,7 +156,11 @@ kk = kk.set_options('listing',nlist);
 [fe_tf_1,par_fe_tf_1]=kk.fit;
 
 fback = kk.simulate(par_fe_tf_1,'back');
-acolor k b r m g; dm(fe); pl(fe_tf_1); lx -1 1; ly 0 0.4
+acolor k b r m g; 
+dm(fe);
+pl(fe_tf_1);
+lx -1 1;
+ly 0 0.4
 pl(fback)
 
 

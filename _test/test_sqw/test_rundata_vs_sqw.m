@@ -52,7 +52,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
                 this.clob_ = onCleanup(@()this.rm_sqw(fn));
 
                 if ~exist(this.sqw_file_single,'file')
-                    fake_sqw(this.en, this.par_file, this.sqw_file_single, this.efix,...
+                    dummy_sqw(this.en, this.par_file, this.sqw_file_single, this.efix,...
                         this.emode, this.alatt, this.angdeg,...
                         this.u, this.v, this.psi, this.omega, this.dpsi, this.gl, this.gs,...
                         [10,5,5,5]);
@@ -60,7 +60,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
                 this.sqw_obj = read_sqw(this.sqw_file_single);
 
             else
-                this.sqw_obj = fake_sqw(this.en, this.par_file, '', this.efix,...
+                this.sqw_obj = dummy_sqw(this.en, this.par_file, '', this.efix,...
                     this.emode, this.alatt, this.angdeg,...
                     this.u, this.v, this.psi, this.omega, this.dpsi, this.gl, this.gs,...
                     [10,5,5,5]);
@@ -130,7 +130,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             bos = bob.calc_sqw(grid_size,img_range);
             assertElementsAlmostEqual(bos.data.img_range,img_range,'relative',1.e-6);
 
-            pix_range =[min(bos.data.pix.coordinates,[],2)'; max(bos.data.pix.coordinates,[],2)'];
+            pix_range =[min(bos.pix.coordinates,[],2)'; max(bos.pix.coordinates,[],2)'];
             assertElementsAlmostEqual(bos.data.img_range,pix_range,'relative',1.e-6);
         end
         %
@@ -229,11 +229,11 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertEqual(grid_mex,grid_nom);
             assertEqual(pix_range_mex,pix_range_nom);
 
-            assertElementsAlmostEqual(sort(sq4_mex.data.pix.data'),...
-                sort(sq4_nom.data.pix.data'));
+            assertElementsAlmostEqual(sort(sq4_mex.pix.data'),...
+                sort(sq4_nom.pix.data'));
             % Binning here is substantially different. TODO: decrease the
             % differebce
-            assertEqual(sq4_nom.data.pix.pix_range,sq4_mex.data.pix.pix_range);
+            assertEqual(sq4_nom.pix.pix_range,sq4_mex.pix.pix_range);
         end
     end
 end

@@ -100,7 +100,7 @@ classdef test_run_inspector< TestCase
             for i=1:numel(w_spl)
                 keys = w_spl(i).runid_map.keys;
                 assertEqual(numel(keys),1);
-                id = unique(w_spl(i).data.pix.run_idx);
+                id = unique(w_spl(i).pix.run_idx);
                 assertEqual(keys{1},id);
                 assertEqual(w_spl(i).experiment_info.expdata.run_id,id);
                 n_split_pix  = n_split_pix +w_spl(i).npixels;
