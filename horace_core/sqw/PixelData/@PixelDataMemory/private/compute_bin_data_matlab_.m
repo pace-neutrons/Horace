@@ -13,14 +13,13 @@ npix_shape = size(npix);
 
 % First argument in accumarray must be a column vector, because pixel signal
 % (and variance) is always a row vector
-accum_indices = make_column(repelem(1:numel(npix), npix));
-increment_size = [obj.num_pixels, 1];
+accum_indices = repelem(1:numel(npix), npix(:))';
 
 % We need to set the increment size in the accumarray call or it will
 % ignore trailing zeros on the npix chunk. Meaning the increment will be a
 % different length to the chunk of the image we're updating
-img_signal_sum = accumarray(accum_indices, obj.signal, increment_size);
-img_variance_sum = accumarray(accum_indices, obj.variance, increment_size);
+img_signal_sum = accumarray(accum_indices, obj.signal, [numel(npix), 1]);
+img_variance_sum = accumarray(accum_indices, obj.variance, [numel(npix), 1]);
 
 img_signal_sum = reshape(img_signal_sum, npix_shape);
 img_variance_sum = reshape(img_variance_sum, npix_shape);

@@ -21,7 +21,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %           % and the sqw file creation date.
         experiment_info
         detpar
-        %
+
         data; % The information about the N-D neutron image, containing
         %       combined and bin-averaged information about the
         %       neutron experiment.
@@ -29,8 +29,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         pix % access to pixel information, if any such information is
         %     stored within an object. May also return pix_combine_info or
         %     filebased pixels. (TODO -- this should be modified)
-        %;
     end
+
     properties(Hidden,Dependent)
         % obsolete property, duplicating detpar. Do not use
         detpar_x
@@ -39,19 +39,24 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % from Experiment class. Conversion to old header is not performed
         header;
     end
-    properties(Access = protected)
+
+    properties(Access=protected)
         % holder for image data, e.g. appropriate dnd object
         data_;
         % holder for pix data
         pix_ = PixelDataBase.create()      % Object containing data for each pixe
     end
-    properties(Access=protected)
+
+    properties(Access=private)
         main_header_ = main_header_cl();
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
-    %======================================================================
-    % Various sqw methods
+
+    properties(Constant,Access=protected)
+        fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
+    end
+
     methods
         has = has_pixels(w);          % returns true if a sqw object has pixels
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
@@ -70,24 +75,27 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         % sigvar block
         %------------------------------------------------------------------
+
         wout = sigvar(w);
         [s,var,mask_null] = sigvar_get (w);
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
+
         %------------------------------------------------------------------
         wout = cut(obj, varargin); % take cut from the sqw object.
-        %
+
         function wout = cut_dnd(obj,varargin)
             % legacy entrance to cut for dnd objects
             wout = cut(obj.data,varargin{:});
         end
+
         function wout = cut_sqw(obj,varargin)
             % legacy entrance to cut for sqw object
             wout = cut(obj, varargin{:});
         end
-        %
+
         [wout,mask_array] = mask(win, mask_array);
-        %
+
         wout = mask_pixels(win, mask_array);
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
@@ -96,6 +104,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
 
+
+        % TOBYFIT interface
+        %------------------------------------------------------------------
+        %TODO: Something in this interface looks dodgy. Should it be just
+        %      TOBYFIT interface, or should it go out of here?
+        varargout = tobyfit (varargin);
+        [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
+            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
+        [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
+            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
 
         %------------------------------------------------------------------
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
@@ -109,7 +129,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
         wtot=combine_cuts(w);
         wout=recompute_bin_data_tester(sqw_obj);
-        %
+
         % return the header, common for all runs (average?)
         [header_ave, ebins_all_same]=header_average(header);
         [alatt,angdeg,ok,mess] = lattice_parameters(win);
@@ -119,11 +139,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         [d, mess] = make_sqw_from_data(varargin);
         varargout = head(obj,vararin);
-        %
+
         [ok,mess,nd_ref,matching]=dimensions_match(w,nd_ref)
         d=spe(w);
         status = adjust_aspect(w);
-        %
+
         wout = replicate (win,wref);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
@@ -142,14 +162,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
 
-            if nargin==0 % various serializers need empty constructor
+            if nargin > 0 % various serializers need empty constructor
+                obj = obj.init(varargin{:});
+            else
                 obj.data_ = d0d();
-                return;
             end
-            obj = obj.init(varargin{:});
 
         end
-        %
+
         function obj = init(obj,varargin)
             % the content of the non-empty constructor, also used to
             % initialize empty instance of the object
@@ -164,14 +184,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
                 % ii) filename - init from a file
             elseif ~isempty(args.filename)
-                obj = obj.init_from_file_(args.filename, args.pixel_page_size);
+                obj = obj.init_from_file_(args.filename, args.pixel_page_size, args.file_backed);
 
                 % iii) struct or data loader - a struct, pass to the struct
                 % loader
             elseif ~isempty(args.data_struct)
                 if isa(args.data_struct,'horace_binfile_interface')
                     args.data_struct = obj.get_loader_struct_(...
-                        args.data_struct,args.pixel_page_size);
+                        args.data_struct, args.pixel_page_size, args.file_backed);
                     obj = from_bare_struct(obj,args.data_struct);
                 elseif isfield(args.data_struct,'data')
                     if isfield(args.data_struct.data,'version')
@@ -186,11 +206,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
             end
         end
-        %------------------------------------------------------------------
+
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
         end
+
         function obj = set.data(obj, d)
             if isa(d,'DnDBase')
                 obj.data_ = d;
@@ -202,10 +223,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     class(d))
             end
         end
-        %
+
         function pix = get.pix(obj)
             pix  = obj.pix_;
         end
+
         function obj = set.pix(obj,val)
             if isa(val, 'PixelDataBase') || isa(val,'pix_combine_info')
                 obj.pix_ = val;
@@ -215,54 +237,99 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 obj.pix_ = PixelDataBase.create(val);
             end
         end
-        %
+
+        function hdr = get.header(obj)
+            % return old (legacy) header(s) providing short experiment info
+            %
+            if isempty(obj.experiment_info_)
+                hdr = IX_experiment().to_bare_struct();
+                hdr.alatt = [];
+                hdr.angdeg = [];
+            else
+                hdr = obj.experiment_info_.convert_to_old_headers();
+                hdr = [hdr{:}];
+                hdr = rmfield(hdr,{'instrument','sample'});
+            end
+        end
+
         function val = get.detpar(obj)
             val = obj.detpar_;
         end
+
         function obj = set.detpar(obj,val)
             %TODO: implement checks for validity
             obj.detpar_ = val;
         end
-        %
+
         function val = get.main_header(obj)
             val = obj.main_header_;
         end
+
         function obj = set.main_header(obj,val)
             if isempty(val)
                 obj.main_header_  = main_header_cl();
-                return;
-            end
-            if isa(val,'main_header_cl')
+            elseif isa(val,'main_header_cl')
                 obj.main_header_ = val;
             elseif isstruct(val)
                 obj.main_header_ = main_header_cl(val);
             else
-                error('HORACE:sqw:invald_argument',...
+                error('HORACE:sqw:invalid_argument',...
                     'main_header property accepts only inputs with main_header_cl instance class or structure, convertible into this class. You provided %s', ...
                     class(val));
             end
         end
-        %
+
         function val = get.experiment_info(obj)
             val = obj.experiment_info_;
         end
+
         function obj = set.experiment_info(obj,val)
             if isempty(val)
                 obj.experiment_info_ = Experiment();
-                return;
-            elseif ~isa(val,'Experiment')
+            elseif isa(val,'Experiment')
+                obj.experiment_info_ = val;
+            else
                 error('HORACE:sqw:invalid_argument',...
                     'Experiment info can be only instance of Experiment class, actually it is %s',...
                     class(val));
             end
-            obj.experiment_info_ = val;
         end
-        %------------------------------------------------------------------
-        % READ Only Accessors
+
+        function val = get.detpar_x(obj)
+            % obsolete interface
+            val = obj.detpar_;
+        end
+
+        function obj = set.detpar_x(obj,val)
+            % obsolete interface
+            obj.detpar_ = val;
+        end
+
+        function  save_xye(obj,varargin)
+            save_xye(obj.data,varargin{:});
+        end
+
+        function  s=xye(w, varargin)
+            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
+            s = w.data.xye(varargin{:});
+        end
+
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
         end
-        %
+
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 4;
+        end
+
+        function flds = saveableFields(~)
+            flds = sqw.fields_to_save_;
+        end
+
         function map = get.runid_map(obj)
             if isempty(obj.experiment_info)
                 map = [];
@@ -270,10 +337,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 map = obj.experiment_info.runid_map;
             end
         end
+
         function [nd,sz] = dimensions(obj)
             % return size and shape of the image arrays
             [nd,sz] = obj(1).data_.dimensions();
         end
+
+        function str = saveobj(obj)
+            if ~obj.main_header_.creation_date_defined
+                % support old files, which do not have creation date defined
+                obj.main_header_.creation_date = datetime('now');
+            end
+            str = saveobj@serializable(obj);
+        end
+
         function is = dnd_type(obj)
             is = isempty(obj.pix_);
         end
@@ -353,7 +430,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = binary_op_manager_single(w1, w2, binary_op);
         wout = recompute_bin_data(w);
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
-        %                              % binning of an sqw or dnd object
+                                            % binning of an sqw or dnd object
 
 
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
@@ -365,20 +442,36 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
         end
     end
-    %======================================================================
-    methods(Static, Access = private)
+
+    %----------------------------------------------------------------------
+
+    methods(Static, Access=private)
         % Signatures of private class functions declared in files
         sqw_struct = make_sqw(ndims);
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
+
+        function ld_str = get_loader_struct_(ldr, pixel_page_size, file_backed)
+            % load sqw structure, using file loader
+            ld_str = struct();
+
+            [ld_str.main_header, ld_str.experiment_info, ld_str.detpar,...
+                ld_str.data,ld_str.pix] = ...
+                ldr.get_sqw('-legacy','-noupgrade', ...
+                            'pixel_page_size', pixel_page_size, 'file_backed', file_backed);
+        end
+
+
     end
-    %======================================================================
-    methods(Access = private)
+
+    %----------------------------------------------------------------------
+
+    methods(Access=private)
         % process various inputs for the constructor and return some
         % standard output used in sqw construction
         args = parse_sqw_args_(obj,varargin)
 
-        function obj = init_from_file_(obj, in_filename, pixel_page_size)
+        function obj = init_from_file_(obj, in_filename, pixel_page_size, file_backed)
             % Parse SQW from file
             %
             % An error is raised if the data file is identified not a SQW object
@@ -388,17 +481,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     'Data file: %s does not contain valid sqw-type object',...
                     in_filename);
             end
-            lds = obj.get_loader_struct_(ldr,pixel_page_size);
+            lds = obj.get_loader_struct_(ldr,pixel_page_size, file_backed);
             obj = from_bare_struct(obj,lds);
         end
-        function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
-            % load sqw structure, using file loader
-            ld_str = struct();
 
-            [ld_str.main_header, ld_str.experiment_info, ld_str.detpar,...
-                ld_str.data,ld_str.pix] = ...
-                ldr.get_sqw('-legacy','-noupgrade', 'pixel_page_size', pixel_page_size);
-        end
         function obj = init_from_loader_struct_(obj, data_struct)
             % initialize object contents using structure, obtained from
             % file loader

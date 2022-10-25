@@ -15,7 +15,7 @@ classdef test_pix_combine_info < TestCase
             obj = obj@TestCase(name);
 
         end
-        %
+
         function test_serialize_deserialize(~)
             files = {'file_a','file_b','file_c'};
             nbins = 10000;
@@ -30,6 +30,7 @@ classdef test_pix_combine_info < TestCase
 
             assertEqual(pc,pcr);
         end
+
         function test_wrong_constructor_inconsistent_positions(~)
             files = {'file_a','file_b','file_c'};
             nbins = 10000;

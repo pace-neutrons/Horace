@@ -26,11 +26,10 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
     methods(Static)
         function rm_sqw(filename)
-            if exist(filename,'file')
+            if is_file(filename)
                 delete(filename);
             end
         end
-
     end
 
     methods
@@ -52,7 +51,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
                 fn =obj.sqw_file_single;
                 obj.clob_ = onCleanup(@()obj.rm_sqw(fn));
 
-                if ~exist(obj.sqw_file_single,'file')
+                if ~is_file(obj.sqw_file_single)
                     dummy_sqw(obj.en, obj.par_file, obj.sqw_file_single, obj.efix,...
                         obj.emode, obj.alatt, obj.angdeg,...
                         obj.u, obj.v, obj.psi, obj.omega, obj.dpsi, obj.gl, obj.gs,...
@@ -146,10 +145,8 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             fa = rundatah.deserialize(by);
             [~,fa] = fa.get_par;
             assertTrue(isa(fa,'rundatah'));
-            [ok,mess]=equal_to_tol(rd.S,fa.S);
-            assertTrue(ok,mess);
-            [ok,mess]=equal_to_tol(rd.det_par,fa.det_par,1.e-4);
-            assertTrue(ok,mess);
+            assertEqualToTol(rd.S,fa.S);
+            assertEqualToTol(rd.det_par,fa.det_par,'tol', [1.e-4, 0]);
             rd = rd.unload();
             fa = fa.unload();
             assertEqual(rd,fa);
@@ -159,7 +156,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             % function used in test_serialize_deserialize_rundatah_with_op
             % test to ensure that imput parameters of the serialized function
             % are not picked up from the same variables subspace;
-            sqw_build  = rundata_to_test.calc_sqw(grid_size,img_db_range);
+            sqw_build = rundata_to_test.calc_sqw(grid_size,img_db_range);
         end
 
         function  test_serialize_deserialize_rundatah_with_op(obj)

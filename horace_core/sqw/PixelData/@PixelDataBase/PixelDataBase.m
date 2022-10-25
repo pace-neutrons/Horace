@@ -92,7 +92,7 @@ classdef (Abstract) PixelDataBase < handle
     properties (Constant)
         DATA_POINT_SIZE = 8;  % num bytes in a double
         DEFAULT_NUM_PIX_FIELDS = 9;
-        DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
+        DEFAULT_PAGE_SIZE = get(hor_config, 'mem_chunk_size');
     end
 
     properties (Constant,Hidden)
@@ -162,7 +162,7 @@ classdef (Abstract) PixelDataBase < handle
     end
 
     methods (Static)
-        function obj = create(init, mem_alloc,upgrade)
+        function obj = create(init, mem_alloc, upgrade, file_backed)
             % Factory to construct a PixelData object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
@@ -216,6 +216,14 @@ classdef (Abstract) PixelDataBase < handle
                 return
             end
 
+            if ~exist('file_backed', 'var')
+                file_backed = [];
+            end
+
+            if ~exist('mem_alloc', 'var')
+                mem_alloc = get(hor_config, 'mem_chunk_size');
+            end
+
             if ~exist('upgrade', 'var')
                 upgrade = true;
             end
@@ -239,30 +247,35 @@ classdef (Abstract) PixelDataBase < handle
                 obj = PixelDataBase.loadobj(init);
 
             elseif isa(init, 'PixelDataMemory')
-                obj = PixelDataMemory();
-                obj.num_pixels_ = size(init.data, 2);
-                obj.data_ = init.data;
-                obj.reset_changed_coord_range('coordinates')
+                if isempty(file_backed) || ~file_backed
+                    obj = PixelDataMemory(init);
+                else
+                    obj = PixelDataFileBacked(init);
+                end
 
-            elseif isa(init, 'PixelDataFileBacked')
                 % if the file exists we can create a file-backed instance
-                obj = PixelDataFileBacked(init.file_path, init.page_memory_size_);
-%                 obj.page_number_ = init.page_number_;
-%                 obj.page_dirty_ = init.page_dirty_;
-%                 obj.dirty_page_edited_ = init.dirty_page_edited_;
-%                 has_tmp_files = init.tmp_io_handler_.copy_folder(obj.object_id_);
-%                 if any(has_tmp_files)
-%                     obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_, has_tmp_files);
-%                 end
-%                 obj.page_memory_size_ = init.page_memory_size_;
+            elseif isa(init, 'PixelDataFileBacked')
+                if isempty(file_backed) || file_backed
+                    obj = PixelDataFileBacked(init);
+                else
+                    obj = PixelDataMemory(init);
+                end
 
             elseif numel(init) == 1 && isnumeric(init) && floor(init) == init
                 % input is an integer
-                obj = PixelDataMemory();
-                obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, init);
-                obj.num_pixels_ = init;
-                obj.pix_range_ = zeros(2,4);
-                obj.page_range = zeros(2,4);
+                if isempty(file_backed) || ~file_backed
+                    obj = PixelDataMemory(init);
+                else
+                    obj = PixelDataFileBacked(init);
+                end
+
+            elseif isnumeric(init)
+                % Input is data array
+                if isempty(file_backed) || ~file_backed
+                    obj = PixelDataMemory(init);
+                else
+                    obj = PixelDataFileBacked(init);
+                end
 
                 % File-backed construction
             elseif ischar(init)
@@ -272,7 +285,7 @@ classdef (Abstract) PixelDataBase < handle
                           'Cannot find file to load (%s)', init)
                 end
                 init = sqw_formats_factory.instance().get_loader(init);
-                if init.npixels*9 < get(hor_config, 'mem_chunk_size')
+                if (isempty(file_backed) && init.npixels*9 < mem_alloc) || (~isempty(file_backed) && ~file_backed)
                     obj = PixelDataMemory(init);
                 else
                     obj = PixelDataFileBacked(init);
@@ -280,38 +293,11 @@ classdef (Abstract) PixelDataBase < handle
 
             elseif isa(init, 'sqw_file_interface')
                 % input is a file accessor
-                if init.npixels*9 < get(hor_config, 'mem_chunk_size')
+                if (isempty(file_backed) && init.npixels*9 < mem_alloc) || (~isempty(file_backed) && ~file_backed)
                     obj = PixelDataMemory(init);
                 else
                     obj = PixelDataFileBacked(init);
                 end
-
-            elseif isnumeric(init)
-                % Else, assume init is data
-                obj = PixelDataMemory();
-                obj.data_ = init;
-                obj.num_pixels_ = size(init, 2);
-
-%                 % Input sets underlying data
-%                 if exist('mem_alloc', 'var')
-%                     if isempty(mem_alloc)
-%                         if isa(init,'single')
-%                             byte_per_wd = 4;
-%                         else
-%                             byte_per_wd = 8;
-%                         end
-%                         mem_alloc = numel(init)*byte_per_wd;
-%                         obj.page_memory_size_ = mem_alloc;
-%                     elseif obj.calculate_page_size_(mem_alloc) < size(init, 2)
-%                         error('HORACE:PixelData:invalid_initument', ...
-%                               ['The size of the input array cannot exceed the given ' ...
-%                                'memory_allocation.']);
-%                     else
-%                         obj.validate_mem_alloc(mem_alloc);
-%                         obj.page_memory_size_ = mem_alloc;
-%
-%                     end
-%                 end
             else
                 error('HORACE:PixelDataBase:invalid_argument', ...
                       'Cannot create a PixelData object from class (%s)', ...
