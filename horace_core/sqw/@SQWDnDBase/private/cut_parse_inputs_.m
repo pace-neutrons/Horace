@@ -189,7 +189,15 @@ else
             'Must give binning arguments for all four dimensions if new projection axes');
     end
 end
-if ~proj_given % it may be fewer parameters then actual dimensions and
+if proj_given 
+    % check if the projection have no lattice defined and define the
+    % lattice for cut
+    default_proj = ortho_proj;
+    if all(default_proj.alatt == proj.alatt) && all(default_proj.angdeg == proj.angdeg)
+        proj.alatt = obj.proj.alatt;
+        proj.angdeg = obj.proj.angdeg;
+    end
+else % it may be fewer parameters then actual dimensions and
     % if no projection is given, we would like to append missing binning
     % parameters with their default values.
     pbin_tmp = pbin;

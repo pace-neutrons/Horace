@@ -251,7 +251,7 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(bl_size_r,bl_size_o)
 
         end
-        
+
         %
         function test_binning_range_half_sampe_proj2D(~)
             proj1 = ortho_proj([1,0,0],[0,1,0]);
@@ -305,7 +305,7 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(bl_start,1);
             assertEqual(bl_end,numel(npix));
         end
-        
+
         %
         function test_binning_range_the_same_1D(~)
             proj1 = ortho_proj([1,0,0],[0,1,0]);
@@ -355,15 +355,25 @@ classdef test_ortho_proj_methods<TestCase
         %------------------------------------------------------------------
         %
         function test_cut_dnd(this)
-            skipTest('waits for cut_dnd being refactored, ticket #796')
+            ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
+            clob0 = onCleanup(@()warning(ws));
             hc = hor_config();
             cur_mex = hc.use_mex;
             hc.use_mex = 0;
             clob = onCleanup(@()set(hor_config,'use_mex',cur_mex));
             [w, grid_size, pix_range]=fake_sqw (this.fake_sqw_par{:});
             w = dnd(w{1});
-            w = w{1};
-            wc = cut_dnd(w,0.01,0.01,[-0.1,0.1],2);
+            w.s = ones(size(w.s));
+            w.e = ones(size(w.s));            
+            w.npix = ones(size(w.s));                        
+            wc = cut(w,0.01,0.01,[-3.0,-0.2],2);
+            [~,warn_id]=lastwarn;
+            assertEqual(warn_id,'HORACE:realign_bin_edges:invalid_argument')
+            assertTrue(isa(wc,'d3d'));
+            assertElementsAlmostEqual(wc.img_range,w.img_range)
+            assertElementsAlmostEqual(wc.img_range,pix_range)
+
+            assertEqual(sum(w.npix(:)),sum(wc.npix(:)));
         end
         %------------------------------------------------------------------
         %
@@ -581,6 +591,8 @@ classdef test_ortho_proj_methods<TestCase
             pix_rec = proj.transform_img_to_pix(pix_transf);
             assertEqual(pix_rec,pix);
         end
+    end
+    methods(Access = protected)
         %
         function transform_to_img_and_back_reverts_proj_ortho_with_offset(~)
             pix = ones(4,5);

@@ -637,7 +637,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nodes,en,nbins] = ab.get_bin_nodes('-centers',(dbr(2,:)-dbr(1,:))'/10);
+            [nodes,en,nbins] = ab.get_bin_nodes('-density_integr',(dbr(2,:)-dbr(1,:))'/10);
             assertEqual(size(nodes,1),4);
 
 
@@ -653,7 +653,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [centers,en,ncenters] = ab.get_bin_nodes('-centers');
+            [centers,en,ncenters] = ab.get_bin_nodes('-density_integr');
             assertEqual(size(centers,1),4);
 
             ndd = ab.nbins_all_dims;
@@ -671,7 +671,7 @@ classdef test_axes_block < TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
-           ex = assertExceptionThrown(@()get_bin_nodes(ab,'-center',(dbr(2,:)-dbr(1,:))/10),...
+           ex = assertExceptionThrown(@()get_bin_nodes(ab,'-density_integr',(dbr(2,:)-dbr(1,:))/10),...
                 'HORACE:axes_block:invalid_argument');
            assertTrue(strncmp(ex.message,'characteristic size, if present',31));
         end        

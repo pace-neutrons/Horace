@@ -10,10 +10,14 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %              axes points.
 % halo      -- if true, build one-cell width halo around the generated axes
 %              grid. Not building halo along energy axes in 3D mode
-% dens_interp_grid
-%           -- return grid used for density interpolation with points
+% data_to_density
+%           -- if true, return grid used to define density, namely with points
 %              located on the grid cell edges + edges of integrated
-%              dimensions
+%              dimensions.
+% density_integr_grid
+%           -- if true, return grid used for integration by summation in
+%              centerpoints, namely, points are in the center of cells and
+%              integration dimensions
 %
 % Optional:
 % char_cube -- if present, the cube, describing the scale of the grid,
@@ -36,7 +40,8 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %        -- 4-element vector of characteristic sizes of the grid cell in
 %           4 dimensions
 
-char_size = parse_inputs(nargin,varargin{:});
+noptions = 5; % number of positional arguments always present as inputs (excluding varargin)
+char_size = parse_inputs(noptions,nargin,varargin{:});
 axes = cell(4,1);
 %
 if isempty(char_size)
@@ -125,13 +130,13 @@ else
     nodes = [Xn(:)';Yn(:)';Zn(:)';En(:)'];
 end
 
-function char_size = parse_inputs(ninputs,varargin)
+function char_size = parse_inputs(noptions,ninputs,varargin)
 % process inputs to extract char size in the form of 4D cube. If the input
 % numeric array do not satisty the request for beeing 4D characteristic
 % cube, throw invalid_argument
 %
 char_size= [];
-if ninputs > 6
+if ninputs > noptions
     if isnumeric(varargin{1})
         cube = varargin{1};
         cube_size = size(cube);

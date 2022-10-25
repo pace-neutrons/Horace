@@ -95,7 +95,35 @@ for i = 1:nout
 
     varargout{i} = interp_ds.*int_cell_volume;
 end
+nsig = sum(varargout{nout}(:));
+if nsig == 0
+    min_base = min(ref_nodes,[],2);
+    max_base = max(ref_nodes,[],2);
+    min_cut  = min(inodes,[],2);
+    max_cut  = max(inodes,[],2);
+    mess = format_warning(min_base,max_base,min_cut,max_cut);
+    warning('HORACE:runtime_error', mess);
+end
 %
 %[npix,s,e,npix_interp] = bin_pixels(obj,coord_transf,varargin)
 [~,varargout{1},varargout{2},varargout{3}] = obj.bin_pixels(nodes,[],[],[],varargout(1:nout));
+
 %
+function mess = format_warning(min_base,max_base,min_cut,max_cut)
+min_s_str = sprintf('[%g,%g,%g,%g]',min_base);
+min_c_str = sprintf('[%g,%g,%g,%g]',min_cut);
+lmin = numel(min_s_str);
+lmax = numel(min_c_str);
+if lmin<lmax
+    u_pad = repmat(' ',1,lmax-lmin);
+    l_pad = '';
+else
+    u_pad = '';
+    l_pad = repmat(' ',1,lmin-lmax);
+end
+mess = sprintf([ ...
+    '\ndata range: Min = %s;%s  Max = [%g,%g,%g,%g]\n', ...
+    ' cut range: Min = %s;%s  Max = [%g,%g,%g,%g]\n', ...
+    ' Cut contains no data\n'], ...
+    min_s_str,u_pad,max_base,min_c_str,l_pad,max_cut);
+

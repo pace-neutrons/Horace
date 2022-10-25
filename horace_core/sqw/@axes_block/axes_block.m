@@ -194,7 +194,7 @@ classdef axes_block < serializable
         end
         function ax_block_al = realign_bin_edges(obj,ax_block)
             % align input axes block to have the same or commensurate
-            % bin sizes as this axes block and the integration ranges equal 
+            % bin sizes as this axes block and the integration ranges equal
             % or smaller than the ranges of this axes block but
             % commensurate with this axis block bin edges
             ax_block_al = realign_bin_edges_(obj,ax_block);
@@ -387,12 +387,14 @@ classdef axes_block < serializable
             %              specified range + single-cell sized
             %              step expanding the lattice
             % '-data_to_density'
-            %           -- the lattice to return defines the grid, used
-            %              for conversion of normal data (defined at bin
-            %              centers) into density data (defined at bin edges)
-            %              + specific treatment of integrated dimensions
-            %              (data on two bin edges)
-            %
+            %           -- if provided, returns grid used to define density,
+            %              namely with points located on the grid cell edges +
+            %              edges of integrated  dimensions.
+            % '-density_integr'
+            %           -- if provided, returns grid used for integration 
+            %              by summation in centerpoints, namely, points 
+            %              are in the center of cells and integration
+            %              dimensions
             % Returns:
             % nodes     -- [4 x nBins] or [3 x nBins] array of points,
             %              (depending on state of '-3D' switch)  where

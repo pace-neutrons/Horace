@@ -1,4 +1,4 @@
-function varargout = cut_dnd(varargin)
+function varargout = cut_dnd(file,varargin)
 % Take a cut from a dnd object or file containing d0d,d1d...or d4d data
 %
 %   >> w=cut_dnd (file, arg1, arg2, ...)
@@ -17,14 +17,5 @@ function varargout = cut_dnd(varargin)
 %
 % See also: cut_sqw, cut_horace
 
-
-% Original author: T.G.Perring
-%
-
-
-[varargout,mess] = horace_function_call_method (nargout, @cut, '$dnd', varargin{:});
-if ~isempty(mess)
-    error('HORACE:cut_dnd:invalid_argument', ...
-        mess)
+if ~iscell(file)
 end
-

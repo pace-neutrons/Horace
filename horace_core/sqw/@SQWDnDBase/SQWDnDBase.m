@@ -32,6 +32,8 @@ classdef (Abstract) SQWDnDBase < serializable
         sz                = sigvar_size(w);
         %------------------------------------------------------------------
         wout = cut(obj, varargin); % take cut from a sqw or sqw/dnd object
+        wout = cut_dnd(obj,varargin) % legacy entrance for cut for dnd objects
+        wout = cut_sqw(obj,varargin) % legacy entrance for cut for sqw objects
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw

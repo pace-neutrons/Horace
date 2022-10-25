@@ -207,18 +207,6 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             assertTrue(ok,['Memory based and file based cuts are different: ',mess])
 
         end
-        function test_cut_dnd_with_proj_fails_on_file_and_memory(obj)
-
-            proj2.u=[-1,1,0];
-            proj2.v=[1,1,0];
-
-            assertExceptionThrown(@()cut_dnd(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]), ...
-                'HORACE:cut_dnd:invalid_argument');
-
-            skipTest('Does not work and fixe needs cut_dnd to be refactored as proper method similar to cut_sqw.  Ticket #796')
-            assertExceptionThrown(@()cut_dnd(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]), ...
-                'HORACE:cut_dnd:invalid_argument');
-        end
         %
         function test_cut_sqw_and_cut_from_sqw_file_and_memory_based(obj)
             hc = hor_config;

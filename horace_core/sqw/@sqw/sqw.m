@@ -79,6 +79,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %------------------------------------------------------------------
         wout = cut(obj, varargin); % take cut from the sqw object.
         %
+        function wout = cut_dnd(obj,varargin)
+            % legacy entrance to cut for dnd objects
+            wout = cut(obj.data,varargin{:});
+        end        
+        function wout = cut_sqw(obj,varargin)
+            % legacy entrance to cut for sqw object            
+            wout = cut(obj, varargin{:});
+        end
+        %
         [wout,mask_array] = mask(win, mask_array);
         %
         wout = mask_pixels(win, mask_array);

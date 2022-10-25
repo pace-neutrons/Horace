@@ -101,7 +101,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
         %                             % centres of the bins of an n-dimensional
         %                             % sqw or dnd dataset.
-        [val, n] = data_bin_limits (obj); % Get limits of the data in an
+        [val, n] = data_bin_limits(obj); % Get limits of the data in an
         %                             % n-dimensional dataset, that is,find the
         %                             % coordinates along each of the axes
         %                             % of the smallest cuboid that contains
@@ -114,6 +114,16 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         sz = sigvar_size(w);
         %------------------------------------------------------------------
         wout = cut(obj, varargin); % take cut from the dnd object
+        function wout = cut_dnd(obj,varargin)
+            % legacy entrance to cut 
+            wout = obj.cut(varargin{:});
+        end
+        function wout = cut_sqw(obj,varargin)
+            % throw on cut_sqw on dnd object
+            error('HORACE:DnDBase:invalid_argument', ...
+                'Can not run cut_sqw on dnd object');
+        end
+        %------------------------------------------------------------------        
         %
         [wout,mask_array] = mask(win, mask_array);
 
@@ -132,9 +142,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % smaller then the dimensionality of the current object
         obj = rebin(obj,varargin);
         %
-
-        [val, n] = data_bin_limits (din);
-
         save_xye(obj,varargin)  % save data in xye format
         s=xye(w, null_value);   % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
         % smooth dnd object or array of dnd objects

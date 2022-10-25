@@ -17,7 +17,7 @@ classdef test_axes_block_integration < TestCase
         function test_4d_to2D_partial_region(~)
             ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
             clOb = onCleanup(@()warning(ws));
-            
+
             dbr0 = [ -1,1;-2,2;-3,3;0,10]';
             dbr1 = [  0,1;-2,0;-2,2;2,8]';
             bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),0.2,dbr0(2,2)];
@@ -38,9 +38,7 @@ classdef test_axes_block_integration < TestCase
             reb_data = ab_base.rebin_data({data},ab_r);
 
             %assertEqual(2*sum(data(1:numel(reb_data{1}))),sum(reb_data{1}));
-
             assertEqual(reb_data{1},286*ones(ab_r.dims_as_ssize))
-
 
         end
         function test_ab_indexes_1D_double_bin_partial_region(~)
@@ -128,7 +126,7 @@ classdef test_axes_block_integration < TestCase
         function test_ab_alignment_pax_selected(~)
             ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
             clOb = onCleanup(@()warning(ws));
-            
+
             dbr0 = [-1,1;-2,2;-3,3;-1,11]';
             dbr1 = [ 0,1;-2,2;-5,5; 0,10]';
             bin0 = {[dbr0(1,1),0.1,dbr0(2,1)];[dbr0(1,2),0.1,dbr0(2,2)];[dbr0(1,3),0.1,dbr0(2,3)];[dbr0(1,4),1,dbr0(2,4)]};
