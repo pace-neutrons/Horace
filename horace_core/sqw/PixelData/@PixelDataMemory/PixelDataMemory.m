@@ -84,10 +84,13 @@ classdef PixelDataMemory < PixelDataBase
 
     properties
         page_memory_size_ = inf;
-        file_path_ = '';
     end
 
-    properties (Constant)
+    properties(Dependent)
+        file_path;
+    end
+
+    properties(Constant)
         is_filebacked = false;
         n_pages = 1;
     end
@@ -105,10 +108,25 @@ classdef PixelDataMemory < PixelDataBase
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
-        obj = recalc_pix_range(obj);
         set_data(obj, fields, data, abs_pix_indices);
 
-        function obj = PixelDataMemory(init, mem_alloc, upgrade)
+        function obj = recalc_pix_range(obj)
+            % Recalculate pixels range in the situations, where the
+            % range for some reason appeared to be missing (i.e. loading pixels from
+            % old style files) or changed through private interface (for efficiency)
+            % and the internal integrity of the object has been violated.
+            %
+            % returns obj for compatibility with recalc_pix_range method of
+            % combine_pixel_info class, which may be used instead of PixelData
+            % for the same purpose.
+            % recalc_pix_range is a normal Matlab value object (not a handle object),
+            % returning its changes in LHS
+
+            obj.reset_changed_coord_range('coordinates');
+
+        end
+
+        function obj = PixelDataMemory(init, ~, ~)
             % Construct a PixelDataMemory object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
@@ -134,7 +152,7 @@ classdef PixelDataMemory < PixelDataBase
                 elseif isa(init, 'PixelDataMemory')
                     obj.num_pixels_ = size(init.data, 2);
                     obj.data_ = init.data;
-                    obj.reset_changed_coord_range('coordinates')
+                    obj.reset_changed_coord_range('coordinates');
 
                 elseif isscalar(init) && isnumeric(init) && floor(init) == init
                     % input is an integer
@@ -145,7 +163,7 @@ classdef PixelDataMemory < PixelDataBase
                 elseif isnumeric(init)
                     obj.data_ = init;
                     obj.num_pixels_ = size(init, 2);
-                    obj.reset_changed_coord_range('coordinates')
+                    obj.reset_changed_coord_range('coordinates');
 
                 elseif isa(init, 'PixelDataFileBacked')
                     init.move_to_first_page();
@@ -178,7 +196,7 @@ classdef PixelDataMemory < PixelDataBase
         end
 
         % --- Data management ---
-        function has_more = has_more(obj)
+        function has_more = has_more(~)
             % Returns true if there are subsequent pixels stored in the file that
             % are not held in the current page
             %
@@ -187,7 +205,7 @@ classdef PixelDataMemory < PixelDataBase
             has_more = false;
         end
 
-        function empty = cache_is_empty_(obj)
+        function empty = cache_is_empty_(~)
             % Returns true if there are subsequent pixels stored in the file that
             % are not held in the current page
             %
@@ -196,7 +214,7 @@ classdef PixelDataMemory < PixelDataBase
             empty = false;
         end
 
-        function [page_number,total_num_pages] = move_to_page(obj, page_number, varargin)
+        function [page_number,total_num_pages] = move_to_page(~, page_number, varargin)
             % Set the object to point at the given page number
             %   This function does nothing if the object is not file-backed or is
             %   already on the given page
@@ -217,7 +235,7 @@ classdef PixelDataMemory < PixelDataBase
 
         end
 
-        function [current_page_num, total_num_pages] = advance(obj, varargin)
+        function [current_page_num, total_num_pages] = advance(~, varargin)
             % Load the next page of pixel data from the file backing the object
             %
             % This function will throw a PIXELDATA:advance error if attempting to
@@ -269,6 +287,14 @@ classdef PixelDataMemory < PixelDataBase
             end
         end
 
+        function obj = set.file_path(obj, val)
+            obj.file_path_ = val;
+        end
+
+        function val = get.file_path(obj)
+            val = obj.file_path_;
+        end
+
     end
 
     methods (Access = ?PixelDataBase)
@@ -293,7 +319,7 @@ classdef PixelDataMemory < PixelDataBase
             end
 
             if field_name == "all"
-                field_name = "coordinates"
+                field_name = "coordinates";
             end
 
             ind = obj.FIELD_INDEX_MAP_(field_name);

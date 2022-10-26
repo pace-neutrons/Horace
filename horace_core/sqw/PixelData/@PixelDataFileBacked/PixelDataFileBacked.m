@@ -4,7 +4,6 @@ classdef PixelDataFileBacked < PixelDataBase
         f_accessor_;  % instance of faccess object to access pixel data from file
         tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
         page_number_ = 1;  % the index of the currently loaded page
-        file_path_ = '';  % the path to the file backing this object
         page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
         dirty_page_edited_ = false;  % array mapping from page_number to whether that page is dirty
     end
@@ -202,7 +201,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = load_current_page_if_data_empty_(obj)
             % Check if there's any data in the current page and load a page if not
             %   This function does nothing if pixels are not file-backed.
-            if obj.cache_is_empty_() && obj.is_filebacked
+            if obj.cache_is_empty_()
                 obj = obj.load_page_(obj.page_number_);
             end
         end
@@ -311,7 +310,7 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
             if field_name == "all"
-                field_name = "coordinates"
+                field_name = "coordinates";
             end
 
             ind = obj.FIELD_INDEX_MAP_(field_name);

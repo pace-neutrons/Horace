@@ -1,6 +1,6 @@
 function [sel,ok,mess] = mask_points (win, varargin)
 % TODO: Does not look like this function should be here
-% 
+%
 % Determine the points to keep on the basis of ranges and mask array.
 %
 %   >> sel = mask_points (win, 'keep', xkeep, 'remove', xremove, 'mask', mask)
@@ -16,7 +16,7 @@ function [sel,ok,mess] = mask_points (win, varargin)
 %   xkeep   Ranges of display axes to retain for fitting. A range is specified by an array
 %           of numbers which define a hypercube.
 %           For example in case of two dimensions:
-%               [xlo, xhi, ylo, yhi]  
+%               [xlo, xhi, ylo, yhi]
 %           or in the case of n-dimensions:
 %               [x1_lo, x1_hi, x2_lo, x2_hi,..., xn_lo, xn_hi]
 %
@@ -40,7 +40,7 @@ function [sel,ok,mess] = mask_points (win, varargin)
 % -------
 %   sel     Mask array of same shape as data_. true for bins to keep, false to discard.
 %
-% 
+%
 %  Advanced use: in addition the following two arguments, if present, suppress failure or the
 %  display of informational messges. Instead, the messages are returned to be used as desired.
 %
@@ -59,36 +59,51 @@ arglist = struct('keep',[],'remove',[],'mask',[]);
 % Parse parameters:
 [args,options] = parse_arguments(varargin,arglist);
 
-if numel(args)~=0
-    error('Check number of arguments')
+if ~isempty(args)
+    error('HERBERT:mask_points:invalid_argument', 'Check number of arguments')
 end
 
-if nargout>1
-    return_with_errors=true;
+return_with_errors = nargout > 1;
+
+if return_with_errors
     sel=[];
     ok=false;
     mess='';
-else
-    return_with_errors=false;
 end
 
 % Check input parameters
 ndim=length(win.data.pax);
+
 if ~isempty(options.keep)
     xkeep=options.keep;
-    if ~isnumeric(xkeep) || size(xkeep,2)/2~=ndim || length(size(xkeep))~=2
-        mess=(['''keep'' must provide a numeric array of size r x 2n, where n=number of dimensions (n=',num2str(ndim),')']);
-        if return_with_errors, return, else error(mess), end
+
+    try
+        validateattributes(xkeep, {'numeric'}, {'size', [NaN, ndim*2]}, 'mask_points', 'keep')
+    catch ME
+        if return_with_errors
+            mess = ME.message;
+            return
+        else
+            rethrow(ME)
+        end
     end
+
 else
     xkeep=[];
 end
 
 if ~isempty(options.remove)
     xremove=options.remove;
-    if ~isnumeric(xremove) || size(xremove,2)/2~=ndim || length(size(xremove))~=2
-        mess=(['''remove'' must provide a numeric array of size r x 2n, where n=number of dimensions (n=',num2str(ndim),')']);
-        if return_with_errors, return, else error(mess), end
+
+    try
+        validateattributes(xremove, {'numeric'}, {'size', [NaN, ndim*2]}, 'mask_points', 'remove')
+    catch ME
+        if return_with_errors
+            mess = ME.message;
+            return
+        else
+            rethrow(ME)
+        end
     end
 else
     xremove=[];
@@ -96,9 +111,17 @@ end
 
 if ~isempty(options.mask)
     mask=options.mask;
-    if ~(isnumeric(mask) || islogical(mask)) || numel(mask)~=numel(win.data.s)
-        mess='''mask'' must provide a numeric or logical array with same number of elements as the data';
-        if return_with_errors, return, else error(mess), end
+
+    try
+        validateattributes(mask, {'numeric', 'logical'}, {'numel', numel(win.data.s)}, ...
+                           'mask_points', 'mask')
+    catch ME
+        if return_with_errors
+            mess = ME.message;
+            return
+        else
+            rethrow(ME)
+        end
     end
 else
     mask=[];
@@ -134,27 +157,30 @@ else
     nr=0;
 end
 
-% Find indicies of sub-sections of the data array of points to keep and remove
-for idim=1:ndim
-    pcent=0.5*(win.data.p{idim}(1:end-1)+win.data.p{idim}(2:end));
-    for ik=1:nk
-        % find indicies of points to keep for each range along the given axis
-        ind=find(pcent>=xkeep_lo(ik,1,idim) & pcent<=xkeep_hi(ik,1,idim));
-        if ~isempty(ind)
-            iklo(ik,idim)=ind(1);
-            ikhi(ik,idim)=ind(end);
-        else
-            keep_volume(ik)=false;
+% Find indices of sub-sections of the data array of points to keep and remove
+if nk > 0 || nr > 0
+    for idim=1:ndim
+        % Find bin centres (pcent=centre of p)
+        pcent=0.5*(win.data.p{idim}(1:end-1)+win.data.p{idim}(2:end));
+        for ik=1:nk
+            % find indices of points to keep for each range along the given axis
+            ind=find(pcent>=xkeep_lo(ik,1,idim) & pcent<=xkeep_hi(ik,1,idim));
+            if ~isempty(ind)
+                iklo(ik,idim)=ind(1);
+                ikhi(ik,idim)=ind(end);
+            else
+                keep_volume(ik)=false;
+            end
         end
-    end
-    for ir=1:nr
-        % find indicies of points to remove for each range along the given axis
-        ind=find(pcent>=xremove_lo(ir,1,idim) & pcent<=xremove_hi(ir,1,idim));
-        if ~isempty(ind)
-            irlo(ir,idim)=ind(1);
-            irhi(ir,idim)=ind(end);
-        else
-            remove_volume(ir)=false;
+        for ir=1:nr
+            % find indices of points to remove for each range along the given axis
+            ind=find(pcent>=xremove_lo(ir,1,idim) & pcent<=xremove_hi(ir,1,idim));
+            if ~isempty(ind)
+                irlo(ir,idim)=ind(1);
+                irhi(ir,idim)=ind(end);
+            else
+                remove_volume(ir)=false;
+            end
         end
     end
 end
@@ -221,4 +247,3 @@ xout=zeros(size(xin));
 for i=1:numel(dax)
     xout(:,:,dax(i))=xin(:,:,i);
 end
-
