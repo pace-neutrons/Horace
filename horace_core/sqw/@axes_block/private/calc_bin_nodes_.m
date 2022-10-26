@@ -49,7 +49,7 @@ if isempty(char_size)
     iint_ax = num2cell(obj.iint',2);
     axes(obj.iax) = iint_ax(:);
     npoints_in_axes = obj.nbins_all_dims+1;
-    if halo && ~(data_to_density || density_integr_grid)
+    if halo
         for i=1:4
             step = abs(axes{i}(2)-axes{i}(1));
             axes{i} = [axes{i}(1)-step,axes{i}(:)',axes{i}(end)+step];
@@ -73,7 +73,7 @@ else
                 npoints_in_axes(i) = obj.nbins_all_dims(4)+1;
                 axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
             else
-                if halo && ~(data_to_density || density_integr_grid)
+                if halo
                     npoints_in_axes(i) = dNR(i)+3;
                     axes{i} = linspace(range(1,i)-steps(i),...
                         range(2,i)+steps(i),npoints_in_axes(i));
