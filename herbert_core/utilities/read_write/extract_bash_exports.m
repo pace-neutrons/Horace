@@ -31,9 +31,9 @@ if ~any(sets_vars)
     return;
 end
 env_var_set_str = contents(sets_vars);
-[key,val] = cellfun(@(str)parse_env_export(str),env_var_set_str,'UniformOutput',false);
+[key,val] = cellfun(@parse_env_export,env_var_set_str,'UniformOutput',false);
 % exclude variables, set up somewhere else
-nonempty_val = cellfun(@(v)(~isempty(v)),val,'UniformOutput',true);
+nonempty_val = ~cellfun(@isempty,val,'UniformOutput',true);
 key = key(nonempty_val);
 val = val(nonempty_val);
 set_vars_map =  containers.Map(key,val);

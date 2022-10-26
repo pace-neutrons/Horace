@@ -14,13 +14,14 @@ classdef config_store < handle
         % the name of the folder where the configuration is stored;
         config_folder_name
     end
+
     properties(Access=private)
         config_folder_;
         config_storage_;
         saveable_;
         config_folder_name_ = 'mprogs_config';
     end
-    %
+
     methods(Static)
         function obj = instance(varargin)
             % Get instance of unique config_store implementation.
@@ -48,6 +49,7 @@ classdef config_store < handle
                 obj = unique_store_;
             end
         end
+
         function set_config_folder(config_folder_name)
             % set the location for a folder with configuration to a location
             % provided as input.
@@ -67,6 +69,7 @@ classdef config_store < handle
         end
 
     end
+
     methods
         function store_config(this,config_class,varargin)
             % store configuration in memory and on file if requested.
@@ -84,7 +87,7 @@ classdef config_store < handle
             end
             store_internal(this,config_class,force_save,other_options{:});
         end
-        %
+
         function  [val,varargout] = get_config_field(this,class_to_restore,varargin)
             % return the values of the requested field(s) from the
             % specified configuration file
@@ -120,7 +123,7 @@ classdef config_store < handle
                 error('CONFIG_STORE:runtime_error',...
                     ' some output values are not set by this function call');
             end
-            %
+
             if isfield(config_data,varargin{1})
                 val=config_data.(varargin{1});
             else
@@ -141,7 +144,7 @@ classdef config_store < handle
             end
 
         end
-        %
+
         function config_cont = get_all_configs(obj)
             % return all config info, currently loaded in memory
             config_cont = obj.config_storage_;
@@ -155,7 +158,7 @@ classdef config_store < handle
             end
             config_cont.config_folder = obj.config_folder;
         end
-        %
+
         function set_all_configs(obj,config_struct)
             % set up config info, previously retrieved by get_all_configs
             % function into memory as current configuration
@@ -180,6 +183,7 @@ classdef config_store < handle
                 end
             end
         end
+
         %------------------------------------------------------------------
         % Two methods responsible for the class to be configured savable
         % savable property is not stored to HDD and is the property
@@ -207,7 +211,7 @@ classdef config_store < handle
                 this.saveable_(class_name)=is;
             end
         end
-        %
+
         function set_saveable(this,class_instance,is_it)
             % set or clear the property, which defines if the changes in
             % the class configuration are stored on hdd
@@ -221,20 +225,19 @@ classdef config_store < handle
             % made savable and false otherwise.
             %
 
-            if is_it > 0
-                is_saveable=true;
-            else
-                is_saveable=false;
-            end
+            is_saveable= is_it > 0;
+
             if is_string(class_instance)
-                class_name  = class_instance;
+                class_name = class_instance;
             else
                 class_name = class_instance.class_name;
             end
 
             this.saveable_(class_name)=is_saveable;
         end
+
         %------------------------------------------------------------------
+
         function   [config_val,varargout] = get_value(this,class_name,value_name,varargin)
             % return specific config property value or list of values
             % from a config class, with specific class name
@@ -254,8 +257,8 @@ classdef config_store < handle
             end
 
         end
-        %
-        function   config_data=get_config(this,class_to_restore)
+
+        function config_data=get_config(this,class_to_restore)
             % return configuration from memory or load it from a file if such
             % configuration exist on file and not in memory
             %
@@ -301,20 +304,18 @@ classdef config_store < handle
                 % its previous value
             end
         end
-        %
+
         function has = has_config(this,class_name)
             % method checks if the class with given name has given
             % configuration stored in file.
             % In other words, has a configuration been ever been changed from
             % defaults.
             conf_file = fullfile(this.config_folder,[class_name,'.mat']);
-            if is_file(conf_file)
-                has = true;
-            else
-                has = false;
-            end
+            has = is_file(conf_file);
         end
+
         %------------------------------------------------------------------
+
         function clear_config(this,class_instance,varargin)
             % clear configuration from memory
             %
@@ -328,7 +329,7 @@ classdef config_store < handle
             end
             clear_particular_config(this,class_instance,clear_file);
         end
-        %
+
         function clear_all(this,varargin)
             % clear all configurations, stored in memory.
             % if option -file exist, it also deletes all files related to
@@ -344,7 +345,7 @@ classdef config_store < handle
             end
             config_store.instance('clear');
         end
-        %
+
         function isit=is_configured(this,class_instance,varargin)
             % method checks if the class class_instance is
             % stored within the config_store
@@ -360,15 +361,17 @@ classdef config_store < handle
             %
             isit = check_isconfigured(this,class_instance,check_mem_only);
         end
+
         %------------------------------------------------------------------
+
         function path=get.config_folder(obj)
             path=obj.config_folder_;
         end
-        %
+
         function fn=get.config_folder_name(obj)
             fn = obj.config_folder_name_;
         end
-        %
+
         function set_config_path(obj,new_path,varargin)
             % set new config store path.
             % usage:
@@ -392,11 +395,11 @@ classdef config_store < handle
                 obj.build_and_set_config_folder_(new_path);
             end
         end
-        %
+
         function storage = get.config_classes(this)
             storage = fieldnames(this.config_storage_);
         end
-        %
+
         function obj = save_config(obj,class_name,data_to_save)
             % save config class intormaion the appropriate config file
             if ~exist('data_to_save','var')
@@ -411,6 +414,7 @@ classdef config_store < handle
         end
 
     end
+
     methods(Access=private)
         % Guard the constructor against external invocation.  We only want
         % to allow a single instance of this class.  See description in
@@ -429,7 +433,7 @@ classdef config_store < handle
 
             newStore=build_and_set_config_folder_(newStore,new_path);
         end
-        %
+
         function obj=build_and_set_config_folder_(obj,new_path)
             % construct the name of the config folder and set it up
             % as config folder at the path specified.
@@ -445,19 +449,22 @@ classdef config_store < handle
             %    new_path = '';
             %end
             [is_virtual,type]=is_idaaas();
+            [is_jenk,build_name,workspace] = is_jenkins();
+
             if is_virtual
                 obj.config_folder_name_ = ['mprogs_config_',type];
             end
-            [is_jenk,build_name,workspace] = is_jenkins();
+
             if is_jenk                % remove all possible folder paths of the build name
-                % to be able to create valid file name.
+                                      % to be able to create valid file name.
                 [~,build_name] = fileparts(build_name);
                 obj.config_folder_name_ = ['mprogs_config_',build_name];
             end
+
             if ~isempty(new_path)
                 [file_path,fn] = fileparts(new_path);
                 if contains(fn,'mprogs_config') % use new path config folder
-                    %                              name provided as input
+                                                 % name provided as input
                     obj.config_folder_name_ = fn;
                     use_external_path = true;
                 else

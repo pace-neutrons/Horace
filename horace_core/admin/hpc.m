@@ -76,6 +76,7 @@ if exist('val', 'var')
         fprintf('Unknown hpc option (%s), Use ''on'', ''off'' or ''reset'' only\n', val);
     end
 else
+
     ocp = opt_config_manager();
     % load configuration, assumed optimal for calculated type of the computer.
     ocp = ocp.load_configuration();

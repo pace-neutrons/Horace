@@ -46,64 +46,76 @@ function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher)
 % size of buffer to hold pixel information, the log level and if use mex to
 % build the result
 
-combine_algorithm = config_store.instance().get_value('hpc_config','combine_sqw_using');
+combine_algorithm = get(hpc_config,'combine_sqw_using');
 
 pix_out_position = obj.pix_pos_;
-if strcmp(combine_algorithm,'mex_code')
+
+switch combine_algorithm
+  case 'mex_code'
     fout_name = fullfile(obj.filepath,obj.filename);
     pix_out_pos = obj.pix_position;
     obj = obj.fclose();
     n_bins = pix_comb_info.nbins;
     % Check run_label:
-    relabel_with_fnum=pix_comb_info.relabel_with_fnum;
+    relabel_with_fnum = pix_comb_info.relabel_with_fnum;
     change_fileno  = pix_comb_info.change_fileno;
-    
+
     [mess,infiles] = combine_files_using_mex(fout_name,n_bins,pix_out_pos,...
-        pix_comb_info.infiles,pix_comb_info.pos_npixstart, pix_comb_info.pos_pixstart,pix_comb_info.run_label,...
-        change_fileno,relabel_with_fnum);
-    
+                                             pix_comb_info.infiles,pix_comb_info.pos_npixstart, ...
+                                             pix_comb_info.pos_pixstart,pix_comb_info.run_label,...
+                                             change_fileno,relabel_with_fnum);
+
     obj = obj.reopen_to_write();
-    if isempty(mess)
-        return
-    else  % Mex combining have failed, try Matlab
+    if ~isempty(mess)
         fout = obj.file_id_;
         fseek(fout,pix_out_position,'bof');
         check_error_report_fail_(obj,...
-            ['Unable to move to the start of the pixel record in target file ',...
-            obj.filename,' after mex-combine failed']);
+                                 ['Unable to move to the start of the pixel record in target file ',...
+                                  obj.filename,' after mex-combine failed']);
+
+        je = combine_sqw_pix_job();
+        je.write_npix_to_pix_blocks(fout,pix_out_position,pix_comb_info);
     end
-elseif strcmp(combine_algorithm,'mpi_code')
-    %
-    pool_exist = false;
-    if exist('jobDispatcher','var') && ~isempty(jobDispatcher)
+
+  case 'mpi_code'
+
+    pool_exist = exist('jobDispatcher','var') && ~isempty(jobDispatcher);
+    if pool_exist
         % reuse existing parallel pool
         jd = jobDispatcher;
-        pool_exist  = true;
-        if jd.is_initialized
+        pool_exist  = jd.is_initialized;
+        if pool_exist
             n_workers = jd.cluster.n_workers;
         else
-            n_workers  = config_store.instance().get_value('hpc_config','parallel_workers_number');
-            pool_exist  = false;
+            n_workers  = get(hpc_config,'parallel_workers_number');
         end
     else
         fn = obj.filename;
-        if numel(fn) > 8; fn = fn(1:8); end
+
+        if numel(fn) > 8
+            fn = fn(1:8);
+        end
+
         job_name = ['combine_sqw_',fn];
         jd = JobDispatcher(job_name);
-        n_workers  = config_store.instance().get_value('hpc_config','parallel_workers_number');
+        n_workers = get(hpc_config,'parallel_workers_number');
     end
+
     fout_name = fullfile(obj.filepath,obj.filename);
     pix_out_pos = obj.pix_position;
     obj = obj.fclose();
+
     [common_par,loop_par] = ...
         combine_sqw_pix_job.pack_job_pars(pix_comb_info,fout_name,pix_out_pos,n_workers);
+
     if pool_exist
         [outputs,n_failed,~,jd] = jd.restart_job('combine_sqw_pix_job',...
-            common_par,loop_par,true,false);
+                                                 common_par,loop_par,true,false);
     else
         [outputs,n_failed,~,jd] = jd.start_job('combine_sqw_pix_job',...
-            common_par,loop_par,true,n_workers,false);
+                                               common_par,loop_par,true,n_workers,false);
     end
+
     if n_failed > 0
         jd.display_fail_job_results(outputs,n_failed,n_workers,'WRITE_NSQW_TO_SQW:runtime_error');
     else
@@ -113,28 +125,27 @@ elseif strcmp(combine_algorithm,'mpi_code')
                 ' Number of pixels sent by parallel workers sum(outputs(2:end)) not equal to the number of pixels, written to hdd outputs{1}');
             disp(pix_num_exchanged);
         end
-        
+
         obj = obj.reopen_to_write();
     end
-else % MATLAB
+
+  case 'matlab'
+
     fout = obj.file_id_;
-    je =combine_sqw_pix_job();
+    je = combine_sqw_pix_job();
     je.write_npix_to_pix_blocks(fout,pix_out_position,pix_comb_info);
 end
 
+end
 
-
-%
 function  [mess,infiles] = combine_files_using_mex(fout_name,n_bin,pix_out_position,...
     infiles,npixstart, pixstart,runlabel,change_fileno,relabel_with_fnum)
 % prepare input data for mex-combining and attempt to combine input data
 % using mex.
 nfiles = numel(infiles);
-if isnumeric(infiles)
-    close_files = true;
-else
-    close_files = false;
-end
+
+close_files = isnumeric(infiles);
+
 in_params=cell(nfiles,1);
 for i=1:nfiles
     if close_files
@@ -143,22 +154,24 @@ for i=1:nfiles
     else
         filename = infiles{i};
     end
-    if change_fileno
-        if relabel_with_fnum
-            file_id = i;   % set the run index to the file index
-        else
-            file_id = runlabel(i);  % set the run index to specified value
-        end
+
+    if change_fileno && relabel_with_fnum
+        file_id = i;   % set the run index to the file index
+    elseif change_fileno
+        file_id = runlabel(i);  % set the run index to specified value
     else
         file_id = 0;
     end
+
     in_params{i} = struct('file_name',filename,...
-        'npix_start_pos',npixstart(i),'pix_start_pos',pixstart(i),'file_id',file_id);
+                          'npix_start_pos',npixstart(i),...
+                          'pix_start_pos',pixstart(i),...
+                          'file_id',file_id);
 end
 
 out_param = struct('file_name',fout_name ,...
     'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
-%
+
 log_level = ...
     config_store.instance().get_value('herbert_config','log_level');
 out_buf_size = ...
@@ -181,17 +194,22 @@ out_buf_size = ...
 %                 read operations
 % multithreaded_combining - use multiple threads to read files
 program_param = [n_bin,1,out_buf_size,log_level,change_fileno,relabel_with_fnum,100,buf_size,multithreaded_combining];
-t_start=tic;
+
+if log_level > 0
+    t_start=tic;
+end
+if log_level>1
+    fprintf(' Combining Task started at  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
+end
+
 try
-    if log_level>1
-        fprintf(' Combining Task started at  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
-    end
     combine_sqw(in_params,out_param ,program_param);
     mess = '';
 catch ME
     mess = [ME.identifier,'::',ME.message];
     disp(['Error using C to combine files: ',mess,'; Reverted to Matlab'])
 end
+
 if log_level > 0
     te=toc(t_start);
     disp([' Task completed in ',num2str(te),' seconds'])
@@ -200,3 +218,4 @@ if log_level>1
     fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
 end
 
+end

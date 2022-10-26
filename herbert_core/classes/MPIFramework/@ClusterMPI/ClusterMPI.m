@@ -7,7 +7,7 @@ classdef ClusterMPI < ClusterWrapper
 
         % the string containing Java handle to running mpiexec process
         mpiexec_handle_ = [];
-        %
+
     end
     properties(Access = private)
         % the folder, containing mpiexec cluster configurations (host files)
@@ -42,7 +42,7 @@ classdef ClusterMPI < ClusterWrapper
                 '**** mpiexec MPI job configured,  Starting MPI job  with %d workers ****\n';
             obj.started_info_message_  = ...
                 '**** mpiexec MPI job submitted                                     ****\n';
-            %
+
             % The default name of the messages framework, used for communications
             % between the nodes of the parallel job
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
@@ -51,15 +51,18 @@ classdef ClusterMPI < ClusterWrapper
             root = fileparts(which('herbert_init'));
             obj.config_folder_ = fullfile(root,'admin','mpi_cluster_configs');
             obj.starting_cluster_name_ = class(obj);
+
             if nargin < 2
                 return;
             end
+
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
+
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
-        %
+
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initiate the cluster wrapper and start running
             % the cluster job by executing mpiexec with appropriate
@@ -82,46 +85,18 @@ classdef ClusterMPI < ClusterWrapper
             end
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
 
-            %
             mpiexec = obj.get_mpiexec();
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
 
             % build generic worker init string without lab parameters
-            cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
-            worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
-            task_info = [mpiexec_str(:)',...
-                {obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},...
-                {'-batch'},{worker_init}];
-            % this not used by java launcher bug may be used if we
-            % decide to run parallel worker from script
-            %obj.common_env_var_('HERBERT_PARALLEL_WORKER')= strjoin(task_info,' ');
-            % encoded information about the location of exchange folder
-            % and the parameters of the proceses pool.
-            obj.common_env_var_('WORKER_CONTROL_STRING') = cs;
-            %
-            % prepate and start java process
-            if ispc()
-                runtime = java.lang.ProcessBuilder('cmd.exe');
-            else
-                runtime = java.lang.ProcessBuilder('/bin/sh');
-            end
-            env = runtime.environment();
-            obj.set_env(env);
-            % TODO:
-            % this command does not currently transfer all necessary
-            % enviromental variables to the remote. The procedure
-            % to provide variables to transfer is MPI version specific
-            % for MPICH it is the option of MPIEXEC: -envlist <list>
-            % If mpiexec is used on a cluster, thos or similar option
-            % for other mpi implementation should be implemented
-            runtime = runtime.command(task_info);
-            obj.mpiexec_handle_ = runtime.start();
+            wcs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            [obj, obj.mpiexec_handle_] = obj.start_workers(wcs, mpiexec_str);
 
             % check if job control API reported failure
             obj.check_failed();
 
         end
-        %
+
         function obj=finalize_all(obj)
             obj = finalize_all@ClusterWrapper(obj);
             if ~isempty(obj.mpiexec_handle_)
@@ -129,7 +104,7 @@ classdef ClusterMPI < ClusterWrapper
                 obj.mpiexec_handle_ = [];
             end
         end
-        %
+
         function config = get_cluster_configs_available(obj)
             % The function returns the list of the availible clusters
             % to run using correspondent parallel framework.
@@ -142,7 +117,6 @@ classdef ClusterMPI < ClusterWrapper
             config = find_and_return_host_files_(obj);
         end
 
-        %
         function check_availability(obj)
             % verify the availability of the compiled Herbert MPI
             % communicaton library and the possibility to use the MPI cluster
@@ -154,36 +128,14 @@ classdef ClusterMPI < ClusterWrapper
             check_availability@ClusterWrapper(obj);
             check_mpi_mpiexec_can_be_enabled_(obj);
         end
-        %
+
         function is = is_job_initiated(obj)
             % returns true, if the cluster wrapper is mpiexec job
             is = ~isempty(obj.mpiexec_handle_);
         end
-        %------------------------------------------------------------------
     end
-    methods(Static)
-        function mpi_exec = get_mpiexec()
-            mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
-            if ~isempty(mpi_exec)
-                if is_file(mpi_exec) % found external mpiexec
-                    return
-                else
-                    warning('HERBERT:ClusterMPI:invalid_argument',...
-                        'External mpiexec %s selected but is not available',mpi_exec);
-                end
-            end
 
-            % Get current horace root dir
-            pths = horace_paths;
-            external_dll_dir = fullfile(pths.horace, 'DLL', 'external');
-
-            if ispc()
-                mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
-            else
-                mpi_exec = fullfile(external_dll_dir, 'mpiexec');
-            end
-        end
-    end
+    %------------------------------------------------------------------
 
     methods(Access = protected)
         function [running,failed,paused,mess] = get_state_from_job_control(obj)
@@ -200,4 +152,5 @@ classdef ClusterMPI < ClusterWrapper
             end
         end
     end
+
 end

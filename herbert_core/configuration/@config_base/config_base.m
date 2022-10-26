@@ -34,7 +34,7 @@ classdef config_base
     %       config_store.instance().store_config(this,'stored_poperty',val);
     %end
     %
-    %   
+
     properties(Dependent)
         % property defines the name of the derived storage class. The
         % storage knows the stored configuration under this name.
@@ -51,13 +51,14 @@ classdef config_base
         config_folder;
 
     end
+
     properties(Access=protected)
         % the name of the derived class with provides information to store
         class_name_ ;
         is_saveable_ = true;
         returns_defaults_=false;
     end
-    %
+
     methods(Abstract)
         fields = get_storage_field_names(class_instance)
         % helper function returns the list of the public properties,
@@ -69,7 +70,7 @@ classdef config_base
         %function fields = get_storage_field_names(class_instance)
         %   fields  = {stored_poperty};
         %end
-        
+
         value = get_internal_field(this,field_name)
         % method gets internal field value bypassing standard get/set
         % methods interface
@@ -95,14 +96,17 @@ classdef config_base
                 error('CONFIG_BASE:constructor','first config_base variable has to be a string, providing the derived class name');
             end
         end
-        %
+
         function name=get.class_name(this)
             name = this.class_name_;
         end
+
         function folder = get.config_folder(~)
             folder = config_store.instance.config_folder;
         end
+
         %-----------------------------------------------------------------
+
         function is = get_saveable_default(this)
             % this method returns the default saveable state the
             % particular object
@@ -110,38 +114,40 @@ classdef config_base
             %
             is = this.is_saveable_;
         end
+
         function is=get.saveable(this)
             is = config_store.instance.get_saveable(this);
         end
-        %
+
         function this=set.saveable(this,val)
             config_store.instance.set_saveable(this,val);
         end
+
         %------------------------------------------------------------------
+
         function is = get.returns_defaults(this)
             is = this.returns_defaults_;
         end
-        %
+
         function this=set.returns_defaults(this,val)
-            if val > 0
-                this.returns_defaults_=true;
-            else
-                this.returns_defaults_=false;
-            end
+            this.returns_defaults_ = val > 0;
         end
+
         function isit = is_default(this)
             % check if a configuration has been changed by user or
             % still has its default values
             cn = this.class_name;
             isit = ~config_store.instance.has_config(cn);
         end
+
         %------------------------------------------------------------------
+
         function value =get_or_restore_field(this,field_name)
             % method to restore value from config_store if available or
             % take default value from the class defaults if not
-            
+
             % the method is used as the part of a standard derived class getter.
-            
+
             if this.returns_defaults
                 value = get_internal_field(this,field_name);
             else
@@ -151,6 +157,7 @@ classdef config_base
                 value = config_store.instance.get_config_field(this,field_name);
             end
         end
+
         function data=get_defaults(this)
             % method returns the structure with default class data,
             fields = this.get_storage_field_names();
@@ -159,8 +166,7 @@ classdef config_base
                 data.(fields{i}) = get_internal_field(this,fields{i});
             end
         end
-        
-        %
+
         function data=get_data_to_store(this)
             % method returns the structure with the data, expected to be stored
             % in configuration
@@ -170,7 +176,7 @@ classdef config_base
                 data.(fields{i}) = this.(fields{i});
             end
         end
-        %
+
         function class_instance = set_stored_data(class_instance,data)
             % Method executes class setters for the config class_instance
             % using data structure provided as second argument
@@ -187,11 +193,8 @@ classdef config_base
                 field_name = fields{i};
                 class_instance.(field_name) = data.(field_name);
             end
-            
+
         end
     end
- 
+
 end
-
-
-

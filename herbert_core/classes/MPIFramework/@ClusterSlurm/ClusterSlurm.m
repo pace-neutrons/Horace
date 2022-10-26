@@ -3,9 +3,11 @@ classdef ClusterSlurm < ClusterWrapper
     % MPI interface controlled by Slurm job manager.
     %
     %----------------------------------------------------------------------
+
     properties(Access = public)
         slurm_job_id
     end
+
     properties(Access = protected)
         % The Slurm Job identifier
         slurm_job_id_ = [];
@@ -22,6 +24,11 @@ classdef ClusterSlurm < ClusterWrapper
         % verbosity of ClusterSlurm specific outputs
         log_level = 0;
     end
+
+    properties(Constant)
+        MAX_JOB_LENGTH = 50;
+    end
+
     properties(Constant, Access = private)
         %------------------------------------------------------------------
         % sacct state description list:
@@ -42,7 +49,7 @@ classdef ClusterSlurm < ClusterWrapper
         % Expected outputs can be:
         % RUNNING, RESIZING, SUSPENDED, PENDING, COMPLETED, CANCELLED, FAILED,
         % TIMEOUT, PREEMPTED, BOOT_FAIL, DEADLINE or NODE_FAIL
-        %
+
         sacct_state_abbr_ =  {'RU','RE','SU','PE','CO','CA','FA','TI','PR','BO','DE','NO','PD'}
         sjob_long_description_ = containers.Map(ClusterSlurm.sacct_state_abbr_ ,...
             {'Job currently has an allocation and running.',...
@@ -63,7 +70,6 @@ classdef ClusterSlurm < ClusterWrapper
             {'running','paused','paused','paused','finished','failed','failed','failed',...
             'failed','failed','failed','failed','failed'})
     end
-
 
     methods
         function obj = ClusterSlurm(n_workers,mess_exchange_framework,...
@@ -106,17 +112,18 @@ classdef ClusterSlurm < ClusterWrapper
             % initiate parameters necessary for job queue parsing
             obj=obj.init_queue_parser();
             obj.starting_cluster_name_ = class(obj);
+
             if nargin < 2
                 return;
             end
+
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
 
-
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
-        %
+
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initiate the cluster wrapper and start running
             % the cluster job.
@@ -136,45 +143,61 @@ classdef ClusterSlurm < ClusterWrapper
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             obj.log_level = log_level;
 
+            [n_nodes, cores_per_node] = obj.get_remote_info();
 
-            slurm_str = {'srun ',['-N',num2str(n_workers)],' --mpi=pmi2 '};
-            %
-            % May change for compiled Horace
-            obj.common_env_var_('HERBERT_PARALLEL_WORKER') =...
-                sprintf('-batch %s',obj.worker_name_);
+            par = parallel_config();
+
+            if par.is_auto_par_threads
+                % If user not specified threads to use assume MPI applications are not wanting to be threaded
+                target_threads = 1;
+            else
+                target_threads = par.par_threads;
+            end
+
+            req_nodes = ceil(n_workers / cores_per_node);
+            if req_nodes > n_nodes
+                error('HERBERT:ClusterSlurm:runtime_error', ...
+                      'Can not execute srun command for %d workers, requires %d nodes, only %d available',...
+                    n_workers, req_nodes, n_nodes);
+            elseif req_nodes * target_threads > n_nodes
+                warning('HERBERT:ClusterSlurm:runtime_error', ...
+                        'Requested nodes with threading may oversubscribe nodes causing slowdown')
+            end
+
+            if numel(obj.job_id) > obj.MAX_JOB_LENGTH
+                error('HERBERT:ClusterSlurm:runtime_error', ...
+                      'Cannot start job %s, job id too long (max %d)', ...
+                      obj.job_id, obj.MAX_JOB_LENGTH)
+            end
+
+            comm = par.slurm_commands;
+
+            if any(comm.isKey({'-J', '--job-name', '-n', '--ntasks', '--ntasks-per-node', '--mpi', '--export'}))
+                warning('Keys present in slurm_commands which will be over-ridden')
+            end
+
+            w = warning('off', 'MATLAB:Containers:Map:NoKeyToRemove')
+            comm.remove({'-J', '-n'});
+            warning(w)
+            comm('--job-name') = obj.job_id;
+            comm('-ntasks') = num2str(n_workers);
+            comm('--ntasks-per-node') = cores_per_node;
+            comm('--mpi') = 'pmi2';
+            comm('--export') = 'ALL';
+
+            slurm_str = [{'srun'}, cellfun(@(a,b) [a '=' b], comm.keys(), comm.values(), 'UniformOutput', false)];
+
             % build worker init string describing the data exchange
             % location
-            obj.common_env_var_('WORKER_CONTROL_STRING') =...
-                obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
-            %
-            % set up job variables on local environment (Does not
-            % currently used as ISIS implementation does not transfer
-            % environmental variables to cluster)
-            obj.set_env();
+            wcs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
 
-            % modify executor script values to export it to remote Slurm
-            % session
-            pths = horace_paths;
-            run_source = fullfile(pths.herbert,'admin','srun_runner.sh');
-            [fp,fon] = fileparts(mess_exchange_framework.mess_exchange_folder);
-            % the enviromental variables are transferred and stored and set
-            % in the shel script
-            runner= obj.create_runparam_script(run_source,...
-                fullfile(fp,[fon,'.sh']));
-            obj.runner_script_name_  = runner;
+            obj.start_workers(target_threads, wcs, ...
+                              'prefix_command', slurm_str, ...
+                              'target_threads', target_threads);
 
-            queue0_rows = obj.get_queue_info();
 
-            run_str = [slurm_str{:},runner,' &'];
-            %run_str = [slurm_str{:},runner];
-            [failed,mess]=system(run_str);
-            if failed
-                error('HERBERT:ClusterSlurm:runtime_error',...
-                    ' Can not execute srun command for %d workers, Error: %s',...
-                    n_workers,mess);
-            end
             % parse queue and extract new job ID
-            obj = extract_job_id(obj,queue0_rows);
+            obj = obj.extract_job_id();
             obj.starting_cluster_name_ = sprintf('SlurmJobID%d',obj.slurm_job_id);
 
             % check if job control API reported failure
@@ -182,7 +205,7 @@ classdef ClusterSlurm < ClusterWrapper
             obj.check_failed();
 
         end
-        %
+
         function obj=finalize_all(obj)
             % complete parallel job execution
 
@@ -201,7 +224,7 @@ classdef ClusterSlurm < ClusterWrapper
                 end
             end
         end
-        %
+
         function config = get_cluster_configs_available(~)
             % The function returns the list of the available clusters
             % to run using correspondent parallel framework.
@@ -213,7 +236,7 @@ classdef ClusterSlurm < ClusterWrapper
             %
             config = {'srun','sbatch'};
         end
-        %
+
         function check_availability(obj)
             % verify the availability of Slurm cluster management
             % and the possibility to use the Slurm cluster
@@ -238,17 +261,16 @@ classdef ClusterSlurm < ClusterWrapper
         function id = get.slurm_job_id(obj)
             id = obj.slurm_job_id_;
         end
-        %
+
         function is = is_job_initiated(obj)
             % returns true, if the cluster wrapper is responsible for a job
             is = ~isempty(obj.slurm_job_id_);
         end
-        %
+
     end
-    methods(Static)
-    end
+
     methods(Access = protected)
-        %
+
         function [running,failed,paused,mess]=get_state_from_job_control(obj)
             % check if the job is still on the cluster and running and
             % return the job state and the information about this state
@@ -257,6 +279,7 @@ classdef ClusterSlurm < ClusterWrapper
             % Debugging operation. Seems not all states are described in
             % manual
             states = obj.sjob_reaction_.keys;
+
             if ~ismember(sacct_state,states)
                 if obj.log_level>-1
                     fprintf(2,'*** SLURM control returned unknown state: %s,\n',...
@@ -276,33 +299,29 @@ classdef ClusterSlurm < ClusterWrapper
                 control_state = obj.sjob_reaction_(sacct_state);
                 description = obj.sjob_long_description_(sacct_state);
             end
+
+            running = false;
+            failed = false;
+            paused = false;
+
             switch(control_state)
                 case 'running'
                     running = true;
-                    failed  = false;
-                    paused  = false;
                     mess    = 'running';
                 case 'failed'
-                    running = false;
-                    failed  = true;
-                    paused  = false;
-                    mess = FailedMessage(description );
+                    failed = true;
+                    mess = FailedMessage(description);
                 case 'finished'
-                    running = false;
-                    failed  = false;
-                    paused  = false;
                     mess = CompletedMessage(description);
                 case 'paused'
-                    running = false;
-                    failed  = false;
-                    paused  = true;
+                    paused = true;
                     mess = LogMessage(0,0,0,description);
                 otherwise % Never happens
                     error('HERBERT:ClusterSlurn:runtime_error',...
                         'Undefined sacct control state %s',description);
             end
         end
-        %
+
         function [sacct_state,full_state] = query_control_state(obj,debug_state)
             % retrieve the state of the job issuing Slurm sacct
             % query command and parsing the results
@@ -311,7 +330,7 @@ classdef ClusterSlurm < ClusterWrapper
             %
             [sacct_state,full_state] = query_control_state_(obj,debug_state);
         end
-        %
+
         function queue_rows = get_queue_info(obj,varargin)
             % Auxiliary function to return existing jobs queue list
             opt = {'-full_header'};
@@ -322,7 +341,7 @@ classdef ClusterSlurm < ClusterWrapper
             queue_rows = get_queue_info_(obj,full_header);
 
         end
-        %
+
         function queue_text = get_queue_text_from_system(obj,full_header)
             % retrieve queue information from the system
             % Input keys:
@@ -334,7 +353,7 @@ classdef ClusterSlurm < ClusterWrapper
             %                 (squeue command output)
             queue_text = get_queue_text_from_system_(obj,full_header);
         end
-        %
+
         function obj=init_queue_parser(obj)
             % initialize parameters, needed for job queue management
 
@@ -347,43 +366,59 @@ classdef ClusterSlurm < ClusterWrapper
             end
             obj.user_name_ = strtrim(uname);
         end
-        %
-        function  obj = extract_job_id(obj,old_queue_rows)
+
+        function  obj = extract_job_id(obj)
             % Retrieve job queue logs from the system
             % and extract new job ID from the log
             %
             % Inputs:
-            % old_queue_rows -- the cellarray of rows, which contains the
-            %                   job logs, obtained before new job was
-            %                   submitted
             % Returns:
             % cluster object with slurm_job_id property set.
-            obj = extract_job_id_(obj,old_queue_rows);
+
+            ind = [];
+            fail_c = 0;
+            while isempty(ind)
+                queue_rows = obj.get_queue_info();
+                ind = find(contains(queue_rows, obj.job_id));
+                if isempty(ind)
+                    fail_c = fail_c + 1;
+                    if fail_c > 10
+                        error('HERBERT:ClusterSlurm:runtime_error',...
+                              'Can not find job %s in Slurm queue',obj.job_id)
+                    end
+                    pause(obj.time_to_wait_for_job_running_);
+                end
+            end
+
+            job_comp = strsplit(strtrim(queue_rows{ind}));
+            obj.slurm_job_id_ = str2double(job_comp{1});
+
         end
-        %
-        function bash_target = create_runparam_script(obj,bash_source,bash_target)
-            % modify executor script to set up enviromental variables necessary
-            % to provide remote parallel job startup information
-            %
-            [~,cont,var_pos] = extract_bash_exports(bash_source);
-            cont = modify_contents(cont,var_pos,obj.common_env_var_);
-            fh = fopen(bash_target,'w');
-            if fh<1
-                error('HERBERT:ClusterSlurm:io_error',...
-                    'Can not open file %s to modify for job submission',...
-                    bash_source);
+
+    end
+
+    methods(Static)
+        function [n_nodes, cores_per_node] = get_remote_info(partition)
+        % Retrieve info about remote nodes.
+
+            if exist('partition', 'var')
+                partition = ['-p ', partition];
+            elseif obj.slurm_commands.isKey('--partition')
+                partition = ['-p ', obj.slurm_commands('--partition')];
+            elseif obj.slurm_commands.isKey('-p')
+                partition = ['-p ', obj.slurm_commands('-p')];
+            else
+                partition = '';
             end
-            clOb = onCleanup(@()fclose(fh));
-            for i=1:numel(cont)
-                fprintf(fh,'%s\n',cont{i});
+
+            [status, result] = system(['sinfo ' partition ' -h -o"%%20P %%6D %%4c"']);
+            if status ~= 0
+                error('HERBERT:get_remote_info:runtime_error', ...
+                      'Could not get info on remote nodes')
             end
-            clear clOb;
-            [fail,mess] = system(['chmod a+x ',bash_target]);
-            if fail
-                error('HERBERT:ClusterSlurm:runtime_error',...
-                    'Can not set up executable mode for file %s. Readon: %s',...
-                    bash_target,mess);
-            end
+            result = splitlines(result);
+            [partition, n_nodes, cores_per_node] = strsplit(result{1});
+
         end
     end
 

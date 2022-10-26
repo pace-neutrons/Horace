@@ -121,26 +121,23 @@ if ~opt.accumulate
             'Invalid option ''time'' unless also have option ''accumulate'' and/or a date-time vector following')
     end
 end
+
 if present.transform_sqw
     for i=1:numel(opt.transform_sqw)
-        [ok,mess] = check_transf_input(opt.transform_sqw);
-        if ~ok
-        error('HORACE:gen_sqw:invalid_argument', ...
-                ['transform_sqw param N',...
-                num2str(i),' Error: ',mess])
-        end
+        check_transf_input(opt.transform_sqw, i);
     end
-    if numel(opt.transform_sqw)>1
-        if numel(opt.transform_sqw) ~= numel(psi)
-        error('HORACE:gen_sqw:invalid_argument', ...
-                ['When more then one sqw file transformation is provided', ...
-                ' number of transformations should be equal to number of spe ',...
-                'files to transform\n.',...
-                ' In fact have %d files and %d transformations defined.'],...
-                numel(opt.transform_sqw),numel(psi))
-        end
+
+    if numel(opt.transform_sqw)>1 && ...
+       numel(opt.transform_sqw) ~= numel(psi)
+            error('HORACE:gen_sqw:invalid_argument', ...
+                  ['When more then one sqw file transformation is provided', ...
+                   ' number of transformations should be equal to number of spe ',...
+                   'files to transform\n.',...
+                   ' In fact have %d files and %d transformations defined.'],...
+                  numel(opt.transform_sqw),numel(psi))
     end
 end
+
 if nargout>3
     varargout{1} = [];
 end
@@ -183,8 +180,8 @@ end
 
 
 % Check file names are valid, and their existence or otherwise
-if opt.replicate,  require_spe_unique=false; else; require_spe_unique=true; end
-if opt.accumulate, require_spe_exist=false;  else; require_spe_exist=true;  end
+require_spe_unique = ~opt.replicate;
+require_spe_exist = ~opt.accumulate;
 require_sqw_exist=false;
 
 [spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
@@ -227,8 +224,8 @@ if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
 
 % Check optional arguments (grid, pix_db_range, instrument, sample) for size, type and validity
 grid_default=[];
-instrument_default=IX_null_inst();  % 
-sample_default = IX_null_sample();  % default empty sample will be replaced by 
+instrument_default=IX_null_inst();  %
+sample_default = IX_null_sample();  % default empty sample will be replaced by
 %                                   % IX_samp containing lattice at setting
 %                                   % it to rundatah
 [ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
@@ -456,18 +453,18 @@ else
     if keep_par_cl_running
         varargout{1} = parallel_job_dispatcher;
     end
+
     if use_partial_tmp
         delete_tmp = false;
     end
+
     if accumulate_old_sqw
-        %
+
         if use_partial_tmp  % if necessary, add already generated and present tmp files
             tmp_file = {all_tmp_files{ind_tmp_files_present},tmp_file{:}}';
-            if numel(tmp_file) == n_all_spe_files % final step in combining tmp files, all tmp files will be generated
-                delete_tmp = true;
-            else
-                delete_tmp = false;
-            end
+
+            delete_tmp = numel(tmp_file) == n_all_spe_files; % final step in combining tmp files, all tmp files will be generated;
+
         end
         pix_range = [min(pix_range(1,:),pix_range_present(1,:));...
             max(pix_range(2,:),pix_range_present(2,:))];
@@ -520,7 +517,9 @@ end
 if nargout==0
     clear tmp_file grid_size pix_range
 end
-%
+
+end
+
 function delete_tmp_files(file_list,hor_log_level)
 delete_error=false;
 for i=1:numel(file_list)
@@ -528,7 +527,7 @@ for i=1:numel(file_list)
     try
         delete(file_list{i})
     catch
-        if delete_error==false
+        if ~delete_error
             delete_error=true;
             if hor_log_level>-1
                 disp('One or more temporary sqw files not deleted')
@@ -538,30 +537,23 @@ for i=1:numel(file_list)
     warning(ws);
 end
 
-
-
-function  [ok,mess]=check_transf_input(input)
-if ~isa(input,'function_handle')
-    mess = ' expecting function handle as value for transform_sqw';
-    ok = false;
-else
-    ok = true;
-    mess = [];
 end
 
+function check_transf_input(input, i)
+if ~isa(input,'function_handle')
+    error('HORACE:gen_sqw:invalid_argument', ...
+          'transform_sqw param N %d \n Error: expecting function handle as value for transform_sqw', i)
+end
+
+end
 
 function is = empty_or_missing(fname)
-if isempty(fname)
-    is  = true;
-else
-    if exist(fname,'file') == 2
-        is = false;
-    else
-        is  = true;
-    end
+is = isempty(fname) || ~is_file(fname);
+
 end
 
 %------------------------------------------------------------------------------------------------
+
 function [header_sqw,grid_size_sqw,img_db_range_sqw,pix_range,tmp_present,update_runid] = get_tmp_file_headers(tmp_file_names)
 % get sqw header for prospective sqw file from range of tmp files
 %
@@ -675,6 +667,9 @@ if numel(unique_id)== numel(run_ids)
 else
     update_runid = true;
 end
+
+end
+
 %-------------------------------------------------------------------------
 function  [pix_db_range,pix_range] = find_pix_range(run_files,efix,emode,ief,indx,log_level)
 % Calculate ranges of all runfiles provided including missing files
@@ -683,9 +678,9 @@ function  [pix_db_range,pix_range] = find_pix_range(run_files,efix,emode,ief,ind
 % runfiles -- list of all runfiles to process. Some may not exist
 % efix     -- array of all incident energies
 % emode    -- array of data processing modes (direct/indirect elastic)
-% ief      -- array of logical indexes where true indicates than runfile
+% ief      -- array of logical indexes where true indicates that runfile
 %             exist and false -- not
-% indx     -- indexes of existing runfiles in array of all runfiles
+% indx     -- indices of existing runfiles in array of all runfiles
 %Output:
 % pix_db_range -- q-dE range of all input data, to rebin pixels on
 % pix_range    -- actual q-dE range of the pixel coordinates
@@ -698,14 +693,14 @@ if log_level>-1
     disp(['Calculating limits of data for ',num2str(n_all_spe_files),' spe files...'])
 end
 
-
 bigtic
 pix_range = rundata_find_pix_range(run_files(ief));
 
 % process missing files
 if ~all(ief)
     % Get estimate of energy bounds for those spe data that do not actually exist
-    eps_lo=NaN(n_all_spe_files,1); eps_hi=NaN(n_all_spe_files,1);
+    eps_lo=NaN(n_all_spe_files,1);
+    eps_hi=NaN(n_all_spe_files,1);
     for i=1:nindx
         en=run_files{indx(i)}.en;
         en_cent=0.5*(en(2:end)+en(1:end-1));
@@ -726,12 +721,15 @@ if ~all(ief)
     pix_range=[min(pix_range(1,:),pix_range_est(1,:));...
         max(pix_range(2,:),pix_range_est(2,:))];
 end
+
 % Add a border
 pix_db_range=range_add_border(pix_range,...
     SQWDnDBase.border_size);
 
 if log_level>-1
     bigtoc('Time to compute limits:',log_level);
+end
+
 end
 
 function report_nothing_to_do(spe_only,spe_exist)
@@ -745,18 +743,19 @@ else
     disp('  currently exist. No work to do.')
 end
 disp('--------------------------------------------------------------------------------')
+
+end
+
 %---------------------------------------------------------------------------------------
+
 function  [grid_size,pix_range,update_runids,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
     pix_db_range,grid_size_in,gen_tmp_files_only,keep_parallel_pool_running)
-%
     % if further operations are necessary to perform with generated tmp files,
     % keep parallel pool running to save time on restarting it.
 
-log_level = ...
-    config_store.instance().get_value('herbert_config','log_level');
-[use_separate_matlab,num_matlab_sessions] = ...
-    config_store.instance().get_value('hpc_config',...
-    'build_sqw_in_parallel','parallel_workers_number');
+log_level = config_store.instance().get_value('herbert_config','log_level');
+use_separate_matlab = config_store.instance().get_value('hpc_config','build_sqw_in_parallel');
+num_matlab_sessions = config_store.instance().get_value('parallel_config','parallel_workers_number');
 
 % build names for tmp files to generate
 spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
@@ -764,9 +763,8 @@ spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
 tmp_file=gen_tmp_filenames(spe_file,sqw_file);
 tmp_generated = tmp_file;
 if gen_tmp_files_only
-    %
     [f_valid_exist,pix_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,pix_db_range,grid_size_in)),...
-        tmp_file,'UniformOutput',false);
+                                         tmp_file,'UniformOutput',false);
     f_valid_exist = [f_valid_exist{:}];
     if any(f_valid_exist)
         if log_level >0
@@ -797,8 +795,6 @@ end
 
 nt=bigtic();
 %write_banner=true;
-
-
 
 if use_separate_matlab
     %
@@ -847,7 +843,7 @@ else
         grid_size_in,pix_db_range,true);
     %---------------------------------------------------------------------
 end
-%
+
 if isempty(pix_range)
     pix_range = pix_range1;
 else
@@ -855,6 +851,7 @@ else
         max([pix_range(2,:);pix_range1(2,:)])];
 
 end
+
 if log_level>-1
     disp('--------------------------------------------------------------------------------')
     bigtoc(nt,'Time to create all temporary sqw files:',log_level);
@@ -862,11 +859,14 @@ if log_level>-1
     disp('--------------------------------------------------------------------------------')
 end
 
-function  verify_pix_range_est(pix_range,pix_range_est,log_level)
+end
+
+function verify_pix_range_est(pix_range,pix_range_est,log_level)
+
 if isempty(pix_range_est)
     pix_range_est = pix_range;
 end
-if any(any(abs(pix_range-pix_range_est)>1.e-4)) && log_level>0
+if any(abs(pix_range-pix_range_est)>1.e-4, 'all') && log_level>0
     args = arrayfun(@(x)x,[pix_range_est(1,:),pix_range_est(2,:),...
         pix_range(1,:),pix_range(2,:)],'UniformOutput',false);
     warning('gen_sqw:runtime_logic',...
@@ -877,7 +877,9 @@ if any(any(abs(pix_range-pix_range_est)>1.e-4)) && log_level>0
         args{:},...
         'Estimated range is used for binning pixels so all pixels outside the range are lost');
 end
-%
+
+end
+
 function [present_and_valid,img_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
 % TODO:
 % write check for grid_size_in which has to be equal to grid_size of head.
@@ -888,12 +890,12 @@ if ~is_file(tmp_file)
     img_range = [];
     return;
 end
+
 tol = 4*eps(single(pix_db_range)); % double of difference between single and double precision
-%
+
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
 img_range = ldr.read_img_range();
-if any(abs(img_range-pix_db_range)>tol)
-    present_and_valid   = false;
-else
-    present_and_valid   = true;
+
+present_and_valid = ~any(abs(img_range-pix_db_range)>tol)
+
 end

@@ -9,9 +9,9 @@ if full_header
     query = sprintf('squeue --user=%s ',obj.user_name_);
 
 else
-    query = sprintf('squeue --noheader --user=%s ',obj.user_name_);    
+    query = sprintf('squeue --noheader --user=%s ',obj.user_name_);
 end
-query = [query,'--format="%.18i %.9P %.8j %.8u %.2t"'];
+query = [query,'--format="%.18i %.9P %.', num2str(obj.MAX_JOB_LENGTH), 'j %.8u %.2t"'];
 
 [fail,queue_text] = system(query);
 if fail

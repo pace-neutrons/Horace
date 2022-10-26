@@ -13,7 +13,5 @@ function queue_rows = get_queue_info_(obj,full_header)
 
 queue_list = obj.get_queue_text_from_system(full_header);
 queue_rows = splitlines(queue_list);
-non_empty = cellfun(@(rw)(~isempty(rw)),...
-    queue_rows,'UniformOutput',true);
-queue_rows  = queue_rows(non_empty);
-%
+non_empty = ~cellfun(@isempty, queue_rows);
+queue_rows = queue_rows(non_empty);
