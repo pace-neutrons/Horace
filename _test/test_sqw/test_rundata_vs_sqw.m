@@ -201,9 +201,6 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             ref_range = [0.0576   -6.6475   -6.6475    2.5000;...
                 3.8615    6.6475    6.6475  147.5000];
             assertElementsAlmostEqual(pix_range,ref_range,'relative',3.e-4);
-            sq4.main_header
-            sq4.data
-            obj.getReferenceDataset('test_rundata_sqw', 'sq4')
             assertEqualToTolWithSave(obj,sq4,'ignore_str',true,'tol',1.e-7);
 
             rdr = rundatah(sq4);
@@ -231,8 +228,8 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertEqual(grid_mex,grid_nom);
             assertEqual(pix_range_mex,pix_range_nom);
 
-            assertElementsAlmostEqual(sort(sq4_mex.pix.data'),...
-                sort(sq4_nom.pix.data'));
+            assertElementsAlmostEqual(sort(sq4_mex.pix.data),...
+                sort(sq4_nom.pix.data));
             % Binning here is substantially different. TODO: decrease the
             % differebce
             assertEqual(sq4_nom.pix.pix_range,sq4_mex.pix.pix_range);

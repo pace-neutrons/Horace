@@ -5,7 +5,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
         ALL_IN_MEM_PG_SIZE = 1e12;
 
-        test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
+        test_sqw_file_path;
         sqw_2d;
         sqw_2d_paged;
     end
@@ -13,19 +13,21 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
     methods
 
         function obj = test_pixels_equal(~)
-            obj = obj@TestCase('test_equal_to_tol');
-
+            obj = obj@TestCase('test_pixels_equal');
 
             hc = hor_config();
             obj.old_config = hc.get_data_to_store();
+
+            pths = horace_paths;
+            obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
 
             % sqw_2d_1.sqw has ~1.8 MB of pixels, a 400 kB page size gives us 5
             % pages of pixel data
             pixel_page_size = 400e3;
             obj.sqw_2d_paged = sqw(obj.test_sqw_file_path, 'pixel_page_size', ...
-                pixel_page_size);
+                pixel_page_size, 'file_backed', true);
             pix = obj.sqw_2d_paged.pix;
-            assertTrue(pix.num_pixels > pix.page_size);
+            assertTrue(pix.is_filebacked);
 
             obj.sqw_2d = sqw(obj.test_sqw_file_path);
         end
@@ -33,18 +35,19 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
         function delete(obj)
             set(hor_config, obj.old_config);
         end
+
         function setUp(~)
             hc = hor_config();
             hc.saveable = false;
             hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
         end
+
         function tearDown(obj)
             hc = hor_config();
             obj.old_config = hc.get_data_to_store();
             hc.saveable = true;
             set(hc,obj.old_config);
         end
-
 
         function test_the_same_sqw_objects_are_equal(obj)
             sqw_copy = obj.sqw_2d;
@@ -105,7 +108,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data, npix_in_page);
 
             % Replace sqw objects' npix and pix arrays
-            original_sqw.data.do_check_combo_arg = false;            
+            original_sqw.data.do_check_combo_arg = false;
             original_sqw.data.npix = npix;
             original_sqw.pix = pix;
             shuffled_sqw = copy(original_sqw);
@@ -211,14 +214,8 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
         function test_equal_to_tol_true_for_eq_sqw_reorder_false_with_fraction(obj)
             sqw_copy = copy(obj.sqw_2d_paged);
-            assertTrue( ...
-                equal_to_tol( ...
-                obj.sqw_2d_paged, ...
-                sqw_copy, ...
-                'fraction', 0.5, ...
-                'reorder', false ...
-                ) ...
-                );
+            assertEqualToTol(obj.sqw_2d_paged, sqw_copy, 'fraction', 0.5, ...
+                'reorder', false);
         end
 
         function test_equal_to_tol_can_be_called_with_negative_tol_for_rel_tol(obj)

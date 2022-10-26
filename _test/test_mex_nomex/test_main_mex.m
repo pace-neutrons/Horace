@@ -291,7 +291,7 @@ classdef test_main_mex < TestCase
             % test sorting parameters and matlab sorting
             t1=tic();
             pix1 = sort_pix(pix0,ix0,npix,'-force_mex','-keep_type');
-            t2=toc(t1)
+            t2=toc(t1);
             pix1 = sort_pix(pix,ix,npix,'-force_mex','-keep_type');
             t3=toc(t2);
             pix1 = sort_pix(pix0,ix0,npix,'-nomex','-keep_type');

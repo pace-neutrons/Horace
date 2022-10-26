@@ -446,7 +446,7 @@ try
     parse(p, opt);
 catch ME
     ok = false;
-    mess = ME.message
+    mess = ME.message;
 end
 
 opt_out = p.Results;

@@ -109,12 +109,11 @@ classdef test_combine_pow < TestCaseWithSave
             gen_sqw_powder(this.spe_file_2, this.par_file, sqw_file_2, this.efix, emode);
 
             w2_2=cut_sqw(sqw_file_2,[0,0.05,8],0,'-nopix');
-
             w1_2=cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
 
-            this.assertEqualToTolWithSave(w2_2,'ignore_str',true, ...
-                'tol',[1.e-7,1.e-5]);
             this.assertEqualToTolWithSave(w1_2,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5]);
+            this.assertEqualToTolWithSave(w2_2,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5]);
 
             %--------------------------------------------------------------------------------------------------

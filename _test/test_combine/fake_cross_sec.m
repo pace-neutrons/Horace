@@ -14,7 +14,7 @@ Qmag=sqrt(h1.^2 + k1.^2);
 
 omega0 = delta + stiffness.*Qmag;
 
-Bose= en./ (1-exp(-11.602.*en./temp));%Bose factor from Tobyfit. 
+Bose= en./ (1-exp(-11.602.*en./temp));%Bose factor from Tobyfit.
 
 %Use damped SHO model to give intensity:
 sf = amp.* (Bose .* (4.*gam.*omega0)./(pi.*((en-omega0).^2 + 4.*(gam.*en).^2)));

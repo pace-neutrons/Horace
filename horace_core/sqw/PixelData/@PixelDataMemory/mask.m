@@ -33,9 +33,9 @@ function pix_out = mask(obj, mask_array, varargin)
 if nargout ~= 1
     error('PIXELDATA:mask', ['Bad number of output arguments.\n''mask'' must be ' ...
         'called with exactly one output argument.']);
-else
-    [mask_array, npix] = validate_input_args(obj, mask_array, varargin{:});
 end
+
+[mask_array, npix] = validate_input_args(obj, mask_array, varargin{:});
 
 if numel(mask_array) == obj.num_pixels && all(mask_array)
     pix_out = obj;
@@ -52,7 +52,7 @@ if numel(mask_array) == obj.num_pixels
 elseif ~isempty(npix)
 
     full_mask_array = repelem(mask_array, npix);
-    pix_out = obj.get_pixels(mask_array);
+    pix_out = obj.get_pixels(full_mask_array);
 
 end
 

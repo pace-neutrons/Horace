@@ -81,12 +81,13 @@ classdef (Abstract) PixelDataBase < handle
     %                    of the return value is not guaranteed.
     %   page_size      - The number of pixels in the currently loaded page.
     %
-    properties
+    properties(Hidden)
         PIXEL_BLOCK_COLS_ = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         num_pixels_ = 0;  % the number of pixels in the object
         raw_data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
         pix_range_ = PixelDataBase.EMPTY_RANGE_; % range of pixels in Crystal Cartesian coordinate system
         object_id_;  % random unique identifier for this object, used for tmp file names
+        file_path_ = '';
     end
 
     properties (Constant)
@@ -100,6 +101,11 @@ classdef (Abstract) PixelDataBase < handle
         EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];
         % the version of the class to store/restore data in Matlab files
         version = 1;
+    end
+
+    properties(Dependent, Hidden)
+        % points to raw_data_ but with a layer of validation for setting correct array sizes
+        data_;
     end
 
     properties(Constant,Access=protected)
@@ -152,11 +158,7 @@ classdef (Abstract) PixelDataBase < handle
         % future, the code using this attribute will change too. So, the usage
         % of this attribute is discouraged as the structure of the return
         % value is not guaranteed in a future.
-    end
 
-    properties(Dependent)
-        % points to raw_data_ but with a layer of validation for setting correct array sizes
-        data_;
         base_page_size;  % The number of pixels that can fit in one page of data
         page_size;  % The number of pixels in the current page
     end
@@ -250,7 +252,7 @@ classdef (Abstract) PixelDataBase < handle
                 if isempty(file_backed) || ~file_backed
                     obj = PixelDataMemory(init);
                 else
-                    obj = PixelDataFileBacked(init);
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 end
 
                 % if the file exists we can create a file-backed instance
@@ -258,7 +260,7 @@ classdef (Abstract) PixelDataBase < handle
                 if isempty(file_backed) || file_backed
                     obj = PixelDataFileBacked(init);
                 else
-                    obj = PixelDataMemory(init);
+                    obj = PixelDataMemory(init, mem_alloc);
                 end
 
             elseif numel(init) == 1 && isnumeric(init) && floor(init) == init
@@ -266,7 +268,7 @@ classdef (Abstract) PixelDataBase < handle
                 if isempty(file_backed) || ~file_backed
                     obj = PixelDataMemory(init);
                 else
-                    obj = PixelDataFileBacked(init);
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 end
 
             elseif isnumeric(init)
@@ -274,7 +276,7 @@ classdef (Abstract) PixelDataBase < handle
                 if isempty(file_backed) || ~file_backed
                     obj = PixelDataMemory(init);
                 else
-                    obj = PixelDataFileBacked(init);
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 end
 
                 % File-backed construction
@@ -288,7 +290,7 @@ classdef (Abstract) PixelDataBase < handle
                 if (isempty(file_backed) && init.npixels*9 < mem_alloc) || (~isempty(file_backed) && ~file_backed)
                     obj = PixelDataMemory(init);
                 else
-                    obj = PixelDataFileBacked(init);
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 end
 
             elseif isa(init, 'sqw_file_interface')
@@ -296,7 +298,7 @@ classdef (Abstract) PixelDataBase < handle
                 if (isempty(file_backed) && init.npixels*9 < mem_alloc) || (~isempty(file_backed) && ~file_backed)
                     obj = PixelDataMemory(init);
                 else
-                    obj = PixelDataFileBacked(init);
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 end
             else
                 error('HORACE:PixelDataBase:invalid_argument', ...

@@ -55,9 +55,11 @@ n_inputs = numel(loaders);
 if force_sqw
     is_not_sqw = ~cellfun(@(x) x.sqw_type, loaders);
     if any(is_not_sqw)
+        bad_files = cellfun(@(x) fullfile(x.filepath,x.filename), ...
+                            loaders(is_not_sqw), 'UniformOutput', false);
         error('HORACE:read_horace:invalid_argument',...
-              'File %s contains dnd information but only sqw file requested',...
-              fullfile(loaders{is_not_sqw}.filepath,loaders{is_not_sqw}.filename));
+              'File %s contains dnd information but only sqw file requested.',...
+              strjoin(bad_files, ', '));
     end
 end
 
