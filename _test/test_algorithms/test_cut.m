@@ -82,12 +82,12 @@ classdef test_cut < TestCase & common_state_holder
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
         end
 
-        function test_SQW_error_raised_taking_cut_of_array_of_sqw(obj)
+        function test_taking_cut_of_array_of_sqw(obj)
             sqw_obj1 = sqw(obj.sqw_file);
             sqw_obj2 = sqw(obj.sqw_file);
 
-            f = @() cut([sqw_obj1, sqw_obj2], obj.ref_params{:});
-            assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
+            out_sqw = cut([sqw_obj1, sqw_obj2], obj.ref_params{:});
+            assertEqual(out_sqw(1),out_sqw(2))
         end
 
         function test_take_a_cut_integrating_over_more_than_1_axis(obj)

@@ -241,16 +241,17 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
                 d1_d_s=cut_sqw(w,[0.5,0,1.2],[170,180]);
             end
 
+            % access to object throws DnDBase invalid_argument
             assertExceptionThrown(@() call_cut_sqw(obj.d2d_arr(2)), ...
-                'HORACE:cut_sqw:invalid_argument');
+                'HORACE:DnDBase:invalid_argument');
+            % access to file thwos cut:invalid argument
             assertExceptionThrown(@() call_cut_sqw(obj.d2d_name{2}), ...
-                'HORACE:cut_sqw:invalid_argument');
+                'HORACE:cut:invalid_argument');
         end
         %
         function test_cut_dnd_file_and_memory_based(obj)
             % Cut of dnd objects or files
             % ---------------------------
-            skipTest("Cut dnd is broken. Ticket #796")
             d1_d=cut(obj.d2d_arr(2),[0.5,0,1.2],[170,180]);
             d1_d_h=cut(obj.d2d_arr(2),[0.5,0,1.2],[170,180]);
             d1_f_h=cut(obj.d2d_name{2},[0.5,0,1.2],[170,180]);
@@ -259,17 +260,10 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             d1_f_d=cut_dnd(obj.d2d_name{2},[0.5,0,1.2],[170,180]);
 
 
-            [ok,mess] = equal_to_tol(d1_d,d1_d_h);
-            assertTrue(ok,['Error in functionality: ',mess])
-
-            [ok,mess] = equal_to_tol(d1_d,d1_d_d);
-            assertTrue(ok,['Error in functionality: ',mess])
-
-            [ok,mess] = equal_to_tol(d1_d,d1_f_h,'ignore_str',1);
-            assertTrue(ok,['Error in functionality: ',mess])
-
-            [ok,mess] = equal_to_tol(d1_d,d1_f_d,'ignore_str',1);
-            assertTrue(ok,['Error in functionality: ',mess])
+            assertEqualToTol(d1_d,d1_d_h)
+            assertEqualToTol(d1_d,d1_d_d)
+            assertEqualToTol(d1_d,d1_f_h,'ignore_str',true)
+            assertEqualToTol(d1_d,d1_f_d,'ignore_str',true)
 
         end
         %
