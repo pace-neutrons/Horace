@@ -1,5 +1,8 @@
-function wout = cut_horace(varargin)
+function varargout = cut_horace(source,varargin)
 % Take a cut from a file or files containing sqw, or d0d,d1d...or d4d data
+%
+% legacy interface to cut operation on dnd-type objects or files containing
+% such objects or cellarray of such objects
 %
 %   >> wout=cut_horace (file, arg1, arg2, ...)
 %
@@ -22,6 +25,21 @@ function wout = cut_horace(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+if nargout == 1
+    varargout{1} = cut(source,varargin{:});
+else
+    if iscell(source) && numel(source)>=nargout
+        wout = cut(source(1:nargout),'-cell',varargin{:});
+    else
+        wout = cut(source,'-cell',varargin{:});
+    end
+    if nargout == 1
+        varargout{1} =pack_output_(wout,false);
+    else
+        for i=1:nargout
+            varargout{i} =wout{i};
+        end
+    end
+end
 
-wout = cut(varargin{:});
+

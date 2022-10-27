@@ -66,11 +66,13 @@ end
 function [s, e, npix,realigned_axes] =  cut_integrate_data_(obj, target_axes)
 %CUT_INTEGRATE_DATA returns cut data integrated over aligned bin ranges
 %
-
+% check bin ranges and ensure they are realigned
 realigned_axes = obj.axes.realign_bin_edges(target_axes);
+% convert datasets in the form, suitable for summation
 npix = obj.npix;
 s = obj.s.*npix;
 e = obj.e.*npix.^2;
+% rebin data over realigned regions
 data_out = obj.axes.rebin_data({s,e,npix},realigned_axes);
 
 npix = data_out{3};
