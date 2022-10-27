@@ -15,28 +15,28 @@ classdef test_cut_inputs < TestCase
         end
         function test_invalid_bining_throws(obj)
             function out= checker()
-                th = sqw_tester();                
+                th = sqw_tester();
                 out = th.process_and_validate_cut_inputs_public(...
-                obj.sample_d2d_obj,true, [-1,0.1,1],[0,1,10],[0,1]);
+                    obj.sample_d2d_obj,true, [-1,0.1,1],[0,1,10],[0,1]);
             end
 
             ex = assertExceptionThrown(@checker,...
                 'HORACE:cut:invalid_argument');
             assertTrue(strncmp(ex.message,'Unrecognised additional input(s): ',34));
         end
-        
+
         function test_extra_arg_throws(obj)
             function out= checker()
-                th = sqw_tester();                
+                th = sqw_tester();
                 out = th.process_and_validate_cut_inputs_public(...
-                obj.sample_d2d_obj,true, [-1,0.1,1],[0,1,10],'-extra');
+                    obj.sample_d2d_obj,true, [-1,0.1,1],[0,1,10],'-extra');
             end
 
             ex = assertExceptionThrown(@checker,...
                 'HORACE:cut:invalid_argument');
             assertTrue(strncmp(ex.message,'Unrecognised additional input(s): ',34));
         end
-        
+
 
         function test_d2d_binning(obj)
             th = sqw_tester();
@@ -54,10 +54,11 @@ classdef test_cut_inputs < TestCase
             assertEqual(bins{4},[0,1,10])
 
             assertTrue(isstruct(opt));
-            assertEqual(numel(fieldnames(opt)),3);
+            assertEqual(numel(fieldnames(opt)),4);
             assertTrue(opt.keep_pix);
             assertFalse(opt.parallel);
             assertTrue(isempty(opt.outfile));
+            assertFalse(opt.proj_given);
         end
     end
 end

@@ -93,9 +93,8 @@ function wout = cut(obj, varargin)
 %
 
 if numel(obj) > 1
-    error('HORACE:cut:invalid_argument', ...
-        ['You cannot take a cut from an array, or cell array, of sqw or ' ...
-        'dnd objects.\nConsider cutting the objects in a loop.']);
+    wout = cut(num2cell(obj),varargin{:});
+    return;
 end
 hc= hor_config;
 log_level = hc.log_level;
