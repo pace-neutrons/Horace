@@ -1,5 +1,5 @@
 function varargout = cut(source, varargin)
-%%CUT Take a cut from arbitrary data source or cellarray of data sources
+%%CUT Take a cut from the given data source or cell array of valid data sources
 %
 % Inputs:
 % -------
