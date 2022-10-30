@@ -1,5 +1,5 @@
 function out = pack_output_(out_to_convert,cell_output,same_type)
-% convert bunch of the input parameters in the form reququested by
+% convert bunch of the input parameters in the form requested by
 % output parameters
 % Inputs:
 % out_to_convert -- cellarray of parameters to convert to the requested

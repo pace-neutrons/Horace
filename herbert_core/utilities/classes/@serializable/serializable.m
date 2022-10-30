@@ -379,7 +379,7 @@ classdef (Abstract=true) serializable
             % if class have the properties {'a1'=1(numeric), 'a2'='blabla'(char),
             % 'a3'=sqw() 'a4=[1,1,1] (numeric), and these properties are independent
             % properties returned by saveableFields() function as list {'a1','a2','a3','a4'}
-            % Then the list of input parametersЖ
+            % Then the list of input parameters
             % set_positional_and_key_val_arguments(1,'blabla',an_sqw_obj,'blabla','a4',[1,0,0])
             % sets up the three first arguments as positional parameters, for properties
             % a1,a2 and a3 and a4 is set as key-value pair. 'blabla' is returned in
