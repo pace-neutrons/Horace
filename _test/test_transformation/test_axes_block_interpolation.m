@@ -1,5 +1,7 @@
 classdef test_axes_block_interpolation < TestCase
     % Series of tests for data interpolation/extrapolation in the axes_block class
+    %
+    % The basic operations for cut_dnd with projection.
     properties
     end
 
@@ -39,7 +41,7 @@ classdef test_axes_block_interpolation < TestCase
             si = ab_interp.interpolate_data(int_points,int_data,cell_size,targ_proj );
 
             assertElementsAlmostEqual(si,data,'absolute',0.06)
-            % These are the tests for different definition of boundary
+            % Below are the tests for different definition of boundary
             % points
             %cs = size(si);
             %assertElementsAlmostEqual(si(1:cs(1)-1,1:cs(2)-1), ...
@@ -70,7 +72,7 @@ classdef test_axes_block_interpolation < TestCase
             cs = size(si);
             assertElementsAlmostEqual(si(2:cs(1)-1,2:cs(2)-1), ...
                 data(2:cs(1)-1,2:cs(2)-1),'absolute',1e-2)
-            % These are the tests for different definition of boundary
+            % Below are the tests for different definition of boundary
             % points
             %assertElementsAlmostEqual(si,data,'absolute',1e-2)
         end
@@ -95,7 +97,7 @@ classdef test_axes_block_interpolation < TestCase
             si = ab_interp.interpolate_data(int_points,int_data);
 
             assertElementsAlmostEqual(si,data,'absolute',1e-2)
-            % These are the tests for different definition of boundary
+            % Below are the tests for different definition of boundary
             % points
             %cs = size(si);
             %assertElementsAlmostEqual(si(1:cs(1)-1,1:cs(2)-1), ...
@@ -128,7 +130,7 @@ classdef test_axes_block_interpolation < TestCase
             assertEqualToTol(sum(si),sum(data),1.e-8);
 
             assertElementsAlmostEqual(si,mult*data(1:numel(si))');
-            % These are the tests for different definition of boundary
+            % Below are the tests for different definition of boundary
             % points
             %assertElementsAlmostEqual(si(2:end-1),mult*data(2:numel(si)-1)');
         end
@@ -169,7 +171,7 @@ classdef test_axes_block_interpolation < TestCase
 
             assertEqualToTol(sum(si),sum(data),1.e-12);
             assertElementsAlmostEqual(si,2*data(1:numel(si))')
-            % These are the tests for different definition of boundary
+            % Below are the tests for different definition of boundary
             % points
             %assertElementsAlmostEqual(si(2:end-1),2*data(2:numel(si)-1)')
         end
@@ -183,8 +185,10 @@ classdef test_axes_block_interpolation < TestCase
             ax = ab_base.p{1};
             cp = 0.5*(ax(1:end-1)+ax(2:end));
 
-            % add 1 as algorithm does not allow negative values even
-            % anywhere in between interpolation/integration
+            % add 1 as some versions of algorithm (not currently implemented)
+            % does not allow negative values for intermediate values
+            % anywhere in between interpolation/integration.
+            % But test is generic
             data = 1+sin(cp);
             [int_points,int_data] = ab_base.get_density(data);
 
@@ -197,7 +201,7 @@ classdef test_axes_block_interpolation < TestCase
 
 
             assertElementsAlmostEqual(si,data')
-            % These are the tests for different definition of boundary
+            % Below are the tests for different definition of boundary
             % points
             %assertElementsAlmostEqual(si(1:end-1),data(1:end-1)')
         end

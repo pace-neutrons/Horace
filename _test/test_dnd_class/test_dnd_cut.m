@@ -1,6 +1,8 @@
 classdef test_dnd_cut< TestCaseWithSave
     %
-    % Validate fast sqw reader used in combining sqw
+    % Check various dnd cuts comparing them with the reference cuts stored
+    % earlier
+    %
     
     
     properties
@@ -13,11 +15,8 @@ classdef test_dnd_cut< TestCaseWithSave
         %The above can now be read into the test routine directly.
         function obj=test_dnd_cut(varargin)
             test_ref_data = fullfile(fileparts(mfilename('fullpath')),'test_dnd_cut.mat');
-            if nargin == 0
-                argi = {test_ref_data};
-            else
-                argi = {varargin{1},test_ref_data};
-            end
+
+            argi = [varargin,test_ref_data];
 
             obj = obj@TestCaseWithSave(argi{:});            
             hp = horace_paths();

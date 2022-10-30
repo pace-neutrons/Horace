@@ -1,5 +1,8 @@
 classdef test_axes_block_integration < TestCase
-    % Series of tests for data rebinning data using the axes_block class
+    % Series of tests for data rebinning using the axes_block class
+    %
+    % The Horave V4.xxx basis for the legacy dnd cut operations
+    % implemented in Horace v3.xxx
     properties
     end
 

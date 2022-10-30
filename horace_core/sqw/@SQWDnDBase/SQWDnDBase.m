@@ -94,8 +94,6 @@ classdef (Abstract) SQWDnDBase < serializable
 
     end
     methods(Static,Access=protected)
-
-
     end
 
     methods (Abstract, Access = protected)

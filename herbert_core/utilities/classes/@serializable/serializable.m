@@ -16,16 +16,18 @@ classdef (Abstract=true) serializable
     % one property and one method, namely protected property "do_check_combo_arg_"
     % and "check_combo_arg" method are defined on this public interface.
     %
-    % By default,do_check_combo_arg_ is set to true and the method does
-    % nothing. Overload the check_combo_arg to throw if interdependent
-    % properties are inconsistent and throw invalid argument if they are
-    % not.
+    % By default, "do_check_combo_arg_" is set to true and the "check_combo_arg" 
+    % method does nothing. Overload the "check_combo_arg" to throw if 
+    % interdependent properties are inconsistent and throw invalid argument
+    % exception when this happens.
+    %
     % The serializable code sets do_check_combo_arg_ to false before
     % setting the properties and checks interdependent properties after
     % all properties were set. do_check_combo_arg_ is set to true after this.
     %
-    % To work correctly, all interdependent properties in the child code
-    % must contain the following code block
+    % To work correctly, all interdependent properties setters in the child 
+    % code must contain the check for validity of interdependent properties 
+    % implemented as the following code block:
     % if obj.do_check_combo_arg_
     %    obj=check_combo_arg(obj);
     % end

@@ -402,8 +402,7 @@ classdef test_cut < TestCase & common_state_holder
             indata = {dnd_multicut_tester(),dnd_multicut_tester()};
             cuts = cut_dnd(indata,'-cell', obj.ref_params{:});
             assertEqual(numel(cuts),2)
-            assertEqual(cuts{1},indata{1});
-            assertEqual(cuts{2},indata{2});
+            assertEqual(cuts,indata);
         end
 
         function test_cut_dnd_multiple_obj_array(obj)
@@ -430,8 +429,7 @@ classdef test_cut < TestCase & common_state_holder
             indata = {sqw_multicut_tester(),sqw_multicut_tester()};
             cuts = cut_horace(indata,'-cell', obj.ref_params{:});
             assertEqual(numel(cuts),2)
-            assertEqual(cuts{1},indata{1});
-            assertEqual(cuts{2},indata{2});
+            assertEqual(cuts,indata);
         end
 
         function test_cut_hor_multiple_obj_array(obj)
@@ -462,8 +460,7 @@ classdef test_cut < TestCase & common_state_holder
             indata = {sqw_multicut_tester(),sqw_multicut_tester()};
             cuts = cut_sqw(indata,'-cell', obj.ref_params{:});
             assertEqual(numel(cuts),2)
-            assertEqual(cuts{1},indata{1});
-            assertEqual(cuts{2},indata{2});
+            assertEqual(cuts,indata);
         end
 
         function test_cut_sqw_multiple_obj_array(obj)
@@ -490,8 +487,7 @@ classdef test_cut < TestCase & common_state_holder
             indata = {sqw_multicut_tester(),sqw_multicut_tester()};
             cuts = cut(indata,'-cell', obj.ref_params{:});
             assertEqual(numel(cuts),2)
-            assertEqual(cuts{1},indata{1});
-            assertEqual(cuts{2},indata{2});
+            assertEqual(cuts,indata);
         end
 
         function test_fake_cut_multiple_obj_array(obj)
@@ -508,7 +504,6 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(cuts{1},indata{1});
             assertEqual(cuts{2},indata{2});
         end
-
         function test_fake_cut_multiple_obj(obj)
             indata = {sqw_multicut_tester(),dnd_multicut_tester()};
             [cut1,cut2] = cut(indata, obj.ref_params{:});
@@ -516,6 +511,7 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(cut2,indata{2});
         end
         %------------------------------------------------------------------
+
         function test_take_a_cut_from_multiple_sqw_files(obj)
             conf = hor_config();
             old_conf = conf.get_data_to_store();
@@ -554,5 +550,11 @@ classdef test_cut < TestCase & common_state_holder
             ex = assertExceptionThrown(@()cut_sqw(obj.dnd_file, obj.ref_params{:}), ...
                 'HORACE:cut:invalid_argument');
         end
+        function test_cut_no_output_no_file_throw(obj)
+
+            assertExceptionThrown(@()cut(obj.dnd_file,obj.ref_params{:}),...
+                'HORACE:cut:invalid_argument');
+        end
+        function test_
     end
 end
