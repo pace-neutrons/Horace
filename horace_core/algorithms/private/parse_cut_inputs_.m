@@ -16,6 +16,8 @@ function [nin,nout,fn_present,filenames,argi]= parse_cut_inputs_(nin,nout,vararg
 % filenames -- number of files to save cuts into 
 % argi      -- other cut arguments stripped from the filenames
 
+% unlike convention, nargout needs '-' here because files for cut are
+% identified as strings or character arrays
 is_nout = strcmpi(varargin,'-nargout');
 if any(is_nout)
     nou = find(is_nout);
@@ -34,8 +36,8 @@ end
 
 % check if names of the files to save cut results are present, stored
 % in cellarray and defined for all cuts to write to.
-is_filename = cellfun(@(x)(iscell(x)&&(ischar(x{1})||isstring(x{1}))|| ...
-    ((ischar(x)||isstring(x))&&~strncmp(x,'-',1))),argi);
+is_filename = cellfun(@(x)(iscell(x)&&(isfilename_(x{1}))|| ...
+    isfilename_(x)),argi);
 fn_present = any(is_filename);
 if ~fn_present
     if nout == 0
@@ -46,16 +48,17 @@ if ~fn_present
 else
     filenames = argi(is_filename);
     argi = argi(~is_filename);
-    if ischar(filenames)||isstring(filenames)
+    if iscell(filenames{1})
+        filenames = filenames{1};
+    end
+    if numel(filenames) == 1
         if nin>1
-            [fb,fn,fext] = fileparts(filenames);
+            [fb,fn,fext] = fileparts(filenames{1});
             filenames = cell(nin,1);
             for i=1:nin
                 f_name = sprintf('%s_cutN%d%s',fn,i,fext);
                 filenames{i} = fullfile(fb,f_name);
             end
-        else
-            filenames = {filenames};
         end
     else % cell;
         if numel(filenames) < nin
@@ -68,8 +71,11 @@ end
 if nout>1
     if nout>nin
         error('HORACE:cut:invalid_argument', ...
-            'Number of input cut sources (%d) is smaller then number of requested outputs (%d)',...
+            'Number of input cut sources (%d) is smaller than the number of requested outputs (%d)',...
             nin,nout);
     end
     nin = nout;
 end
+
+function is = isfilename_(x)
+is = (ischar(x)||isstring(x))&&~strncmp(x,'-',1);

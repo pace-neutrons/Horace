@@ -171,14 +171,13 @@ if numel(par)>=npbin_expected
     if ~all(pbin_ok)
         error('HORACE:cut:invalid_argument',...
             'Binning arguments must all be numeric, but arguments: %s are not',...
-            evalc('disp(find(~pbin_ok))'));
+            disp2str(find(~pbin_ok)));
     end
     extras = par(npbin_expected+1:end);
     if ~isempty(extras)
-        extras = evalc('disp(extras)');
         error('HORACE:cut:invalid_argument',...
             'Unrecognised additional input(s): "%s" were provided to cut',...
-            extras);
+            disp2str(extras));
     end
 else
     if ~proj_given          % must refer to plot axes (in the order of the display list)
