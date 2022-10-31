@@ -144,8 +144,9 @@ classdef ClusterSlurm < ClusterWrapper
             obj.log_level = log_level;
 
             par = parallel_config();
+            comm = par.slurm_commands;
             
-            [n_nodes, cores_per_node] = obj.get_remote_info(par);
+            [n_nodes, cores_per_node] = obj.get_remote_info(comm);
 
             if par.is_auto_par_threads
                 % If user not specified threads to use assume MPI applications are not wanting to be threaded
@@ -170,7 +171,6 @@ classdef ClusterSlurm < ClusterWrapper
                       obj.job_id, obj.MAX_JOB_LENGTH)
             end
 
-            comm = par.slurm_commands;
 
             if any(comm.isKey({'-J', '--job-name', '-n', '--ntasks', '--ntasks-per-node', '--mpi', '--export'}))
                 warning('Keys present in slurm_commands which will be over-ridden')
