@@ -88,6 +88,8 @@ classdef PixelDataMemory < PixelDataBase
 
     properties(Dependent)
         file_path;
+        page_size;  % The number of pixels in the current page
+        page_range;
     end
 
     properties(Constant)
@@ -173,6 +175,7 @@ classdef PixelDataMemory < PixelDataBase
                         obj.data_ = horzcat(obj.data, init.data);
                     end
 
+                    obj.file_path = init.file_path;
                     obj.reset_changed_coord_range('coordinates');
                     obj.num_pixels_ = obj.num_pixels;
                 else
@@ -281,18 +284,32 @@ classdef PixelDataMemory < PixelDataBase
         end
 
         function set_prop(obj, fld, val)
+            if ~isscalar(val)
+                validateattributes(val, {'numeric'}, {'size', [numel(obj.FIELD_INDEX_MAP_(fld)), obj.page_size]})
+            else
+                validateattributes(val, {'numeric'}, {'scalar'})
+            end
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
             if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
                 obj.reset_changed_coord_range(fld);
             end
         end
 
-        function obj = set.file_path(obj, val)
+        function page_size = get.page_size(obj)
+            % The number of pixels that are held in the current page.
+            page_size = obj.num_pixels;
+        end
+
+        function set.file_path(obj, val)
             obj.file_path_ = val;
         end
 
         function val = get.file_path(obj)
             val = obj.file_path_;
+        end
+
+        function val = get.page_range(obj)
+            val = obj.pix_range;
         end
 
     end
@@ -303,7 +320,7 @@ classdef PixelDataMemory < PixelDataBase
             obj.num_pixels_ = double(f_accessor.npixels);
             obj.pix_range_ = f_accessor.get_pix_range();
             obj.data_ = f_accessor.get_raw_pix();
-
+            obj.file_path = fullfile(f_accessor.filepath, f_accessor.filename);
         end
 
         function reset_changed_coord_range(obj,field_name)
@@ -312,7 +329,7 @@ classdef PixelDataMemory < PixelDataBase
             %
             % Sets up the property page_range defining the range of block
             % of pixels chaned at current iteration.
-            %
+
             if isempty(obj.raw_data_)
                 obj.pix_range_   = PixelDataBase.EMPTY_RANGE_;
                 return

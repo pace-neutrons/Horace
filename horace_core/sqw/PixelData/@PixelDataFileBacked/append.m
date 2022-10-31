@@ -17,26 +17,27 @@ else
 end
 
 if ~isa(pix, 'PixelDataBase')
-    error('PIXELDATA:append', ...
-        'Input object must be of class ''PixelData''. Found ''%s''', ...
+    error('PIXELDATA:append:invalid_argument', ...
+        'Input object must be subclass of ''PixelDataBase''. Found ''%s''', ...
         class(pix));
 end
+
 if isempty(pix)
     return;
 end
-
+pix.num_pixels, pix_out.base_page_size
 if pix.num_pixels > pix_out.base_page_size
-    error('PIXELDATA:append', ...
+    error('PIXELDATA:append:invalid_argument', ...
         ['Cannot append more pixels than allowed in a single page.\n ' ...
         'Found ''%i'' pixels, ''%i'' allowed.'], pix.num_pixels, ...
         pix_out.base_page_size);
-elseif pix.get_num_pages_() > 1
-    error('PIXELDATA:append', ...
+elseif pix.n_pages > 1
+    error('PIXELDATA:append:invalid_argument', ...
         ['Cannot append pixels from a PixelData object with more than one page.\n ' ...
-        'Found ''%i'' pages.'], pix.get_num_pages_());
+        'Found ''%i'' pages.'], pix.n_pages);
 end
 
-if ~(pix_out.get_num_pages_() == pix_out.page_number_)
+if ~(pix_out.n_pages == pix_out.page_number_)
     if pix_out.page_is_dirty_(pix_out.page_number_) && pix_out.dirty_page_edited_
         pix_out.write_dirty_page_();
     end
@@ -47,6 +48,7 @@ if isempty(pix_out)
     pix_out.data_ = pix.data;
     pix_out.set_page_dirty_(true);
     pix_out.reset_changed_coord_range('coordinates');
+
 elseif pix_out.page_size < pix_out.base_page_size
     num_to_allocate_to_pg = min(pix_out.base_page_size - pix_out.page_size, ...
         pix.num_pixels);

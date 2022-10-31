@@ -42,8 +42,8 @@ end  % function
 function [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin)
     NO_INPUT_INDICES = -1;
 
-    validateattributes(pix_fields, {'cell', 'char', 'string'}, {'nonempty'});
-    validateattributes(data, {'numeric'}, {});
+    validateattributes(pix_fields, {'cell', 'char', 'string'}, {'nonempty'}, 'pix_fields');
+    validateattributes(data, {'numeric'}, {}, 'data');
 
     parser = inputParser();
     parser.addOptional( ...

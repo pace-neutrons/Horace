@@ -6,24 +6,20 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         VARIANCE_IDX = 9;
         ALL_IN_MEM_PG_SIZE = 1e12;
         FLOAT_TOLERANCE = 4.75e-4;
-
     end
 
     methods
 
         function obj = test_PixelData_operations(~)
             obj = obj@TestCase('test_PixelData_operations');
-
         end
 
         function test_do_unary_op_returns_correct_output_with_cosine_gt_1_page(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 50);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            % TODO: as pixels are loaded as single, tests are broken:
 
             pix = pix.do_unary_op(@cos);
-
             % Loop back through and validate values
             pix.move_to_first_page();
             iter = 0;
@@ -49,7 +45,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                     obj.FLOAT_TOLERANCE);
 
                 if pix.has_more()
-                    pix = pix.advance();
+                    pix.advance();
                     iter = iter + 1;
                 else
                     break;
@@ -102,9 +98,9 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             % data all held in memory
             num_pix = 7;
             npix_in_page = 3;
-            for i = 1:numel(unary_ops)/2
-                unary_op = unary_ops{2*i - 1};
-                data_range = unary_ops{2*i};
+            for i = 1:2:numel(unary_ops)
+                unary_op = unary_ops{i};
+                data_range = unary_ops{i+1};
 
                 data = get_random_data_in_range( ...
                     PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
@@ -354,6 +350,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page - 1);
+
             f = @() pix1.equal_to_tol(pix2);
             assertExceptionThrown(f, 'HORACE:PixelData:equal_to_tol');
         end
@@ -379,7 +376,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         % -- Helpers --
         function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
             faccess = FakeFAccess(data);
-            pix = PixelDataBase.create(faccess, npix_in_page*obj.BYTES_PER_PIX);
+            pix = PixelDataFileBacked(faccess, npix_in_page*obj.BYTES_PER_PIX);
         end
 
     end
