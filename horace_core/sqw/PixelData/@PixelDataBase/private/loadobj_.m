@@ -11,47 +11,49 @@ function obj = loadobj_(S)
 %   obj     An instance of PixelData object or array of objects
 %
 if isstruct(S)
-    obj = PixelDataBase.create();
+
     if isfield(S,'version')
         % load PixelData objects, written when saveobj method was
         % written
-        if S.version == 1
+        switch S.version
+          case 1
             if isfield(S,'array_data') % multidimensional array of pixel data
                 S = S.array_data;
-                obj = repmat(obj,size(S));                                
+                obj = arrayfun(@(x) PixelDataBase.create(), S);
                 for i=1:numel(S)
-                    if i>1 % cloning handle object as repmat makes the handles
-                        %    identical
-                        obj(i) = PixelDataBase.create();
-                    end
                     obj(i).set_data('all',S(i).data);
                     obj(i).set_range(S(i).pix_range);
-                    obj(i).file_path_ = S(i).file_path;
+                    obj(i).file_path = S(i).file_path;
                 end
-            else % Single object
+            elseif isfield(S, 'data') % Single object
+                obj = PixelDataBase.create();
                 obj.set_data('all',S.data);
                 obj.set_range(S.pix_range);
-                obj.file_path_ = S.file_path;
+                obj.file_path = S.file_path;
+            else
+                error('HORACE:PixelData:invalid_argument',...
+                      'Unknown PixelData input structure, missing data or array_data');
             end
-        else
+
+          otherwise
             error('HORACE:PixelData:invalid_argument',...
-                'Unknown PixelData input structire version');
+                  'Unknown PixelData input structure version (%d)', S.version);
         end
+
     else % previous version(s), written without version info
         if isfield(S,'data_')
-            for i=1:numel(S)
-                set_data(obj(i),'all',S(i).data_);
-                obj(i).reset_changed_coord_range('coordinates');
-            end
+            obj = arrayfun(@(x) PixelDataBase.create(x.data_), S);
+
         elseif isfield(S,'raw_data_')
+            obj = arrayfun(@(x) PixelDataBase.create(x.raw_data_), S);
             for i=1:numel(S)
-                obj(i).set_data('all',S(i).raw_data_);
                 if isfield(S(i),'pix_range_')
                     obj(i).set_range(S(i).pix_range_);
                 else
-                    obj(i).reset_changed_coord_range('coordinates');                    
+                    obj(i).reset_changed_coord_range('coordinates');
                 end
-                obj(i).file_path_ = S(i).file_path_;
+
+                obj(i).file_path = S(i).file_path_;
             end
         else
             error('HORACE:PixelData:invalid_argument',...

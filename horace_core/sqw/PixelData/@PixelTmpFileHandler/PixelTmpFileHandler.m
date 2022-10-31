@@ -135,7 +135,7 @@ methods
         % has_tmp_file    Logical array of which pages have tmp files
         %
         has_tmp_file = false;
-        if ~is_foldeer(obj.tmp_dir_path_)
+        if ~is_folder(obj.tmp_dir_path_)
             return;
         end
 

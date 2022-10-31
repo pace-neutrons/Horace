@@ -23,8 +23,10 @@ classdef PixelDataFileBacked < PixelDataBase
     end
 
     properties (Dependent)
+        page_memory_size;
         file_path;  % The file that the pixel data has been read from, empty if no file
         n_pages;
+        page_size;  % The number of pixels in the current page
     end
 
     properties(Dependent, Access=protected)
@@ -38,8 +40,18 @@ classdef PixelDataFileBacked < PixelDataBase
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
 
+            if ~exist('init', 'var') || isempty(init)
+                init = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);
+            end
+
             if ~exist('upgrade', 'var')
                 upgrade = true;
+            end
+
+            if exist('mem_alloc', 'var') && ~isempty(mem_alloc)
+                obj.page_memory_size = mem_alloc;
+            elseif isa(init, 'PixelDataFileBacked')
+                obj.page_memory_size = init.page_memory_size_;
             end
 
             obj.object_id_ = randi([10, 99999], 1, 1);
@@ -49,8 +61,19 @@ classdef PixelDataFileBacked < PixelDataBase
                 if isstruct(init)
                     obj = obj.loadobj(init);
                 elseif isa(init, 'PixelDataFileBacked')
-                    obj = obj.init_from_file_accessor_(init.f_accessor_);
-
+                    if ~isempty(init.f_accessor_)
+                        obj = obj.init_from_file_accessor_(init.f_accessor_);
+                    else
+                        obj.data_ = init.data;
+                        obj.num_pixels_ = init.num_pixels;
+                    end
+                    obj.page_number_ = init.page_number_;
+                    obj.page_dirty_ = init.page_dirty_;
+                    obj.dirty_page_edited_ = init.dirty_page_edited_;
+                    has_tmp_files = init.tmp_io_handler_.copy_folder(obj.object_id_);
+                    if any(has_tmp_files)
+                        obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_, has_tmp_files);
+                    end
                 elseif ischar(init) || isstring(init)
                     if ~is_file(init)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -63,23 +86,37 @@ classdef PixelDataFileBacked < PixelDataBase
                 elseif isa(init, 'sqw_file_interface')
                     obj = obj.init_from_file_accessor_(init);
 
+                elseif isnumeric(init)
+                    if obj.base_page_size < size(init, 2)
+                        error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                              'Cannot create file-backed with data larger than a page')
+                    end
+                    obj.set_raw_data(init);
+                    obj.data_ = init;
+                    obj.num_pixels_ = size(init, 2);
+                    if ~obj.cache_is_empty_()
+                        obj.set_page_dirty_(true);
+                        obj.write_dirty_page_();
+                        obj.reset_changed_coord_range('coordinates');
+                    end
                 else
                     error('HORACE:PixelDataFileBacked:invalid_argument', ...
                           'Cannot construct PixelDataFileBacked from class (%s)', class(init))
                 end
-            end
 
-            if any(obj.pix_range == obj.EMPTY_RANGE_, 'all') && upgrade
-                if get(herbert_config, 'log_level') > 0
-                    fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
-                            init.filename);
+                if any(obj.pix_range == obj.EMPTY_RANGE_, 'all') && upgrade
+                    if get(herbert_config, 'log_level') > 0
+                        fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
+                                init.filename);
+                    end
+                    obj.recalc_pix_range();
                 end
-                obj.recalc_pix_range();
+
+            else
+                obj.page_dirty_ = true;
+
             end
 
-            if exist('mem_alloc', 'var') && ~isempty(mem_alloc)
-                obj.page_memory_size_ = mem_alloc;
-            end
         end
 
         function data = get_raw_data(obj)
@@ -111,6 +148,11 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function set_prop(obj, fld, val)
+            if ~isscalar(val)
+                validateattributes(val, {'numeric'}, {'size', [numel(obj.FIELD_INDEX_MAP_(fld)), obj.page_size]})
+            else
+                validateattributes(val, {'numeric'}, {'scalar'})
+            end
             obj = obj.load_current_page_if_data_empty_();
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
             if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
@@ -138,7 +180,7 @@ classdef PixelDataFileBacked < PixelDataBase
         %
         %    >> has_more = pix.has_more();
         %
-            has_more = obj.pix_position_ + obj.base_page_size  <= obj.num_pixels;
+            has_more = obj.pix_position_ + obj.base_page_size <= obj.num_pixels;
         end
 
         function [current_page_num, total_num_pages] = advance(obj, varargin)
@@ -194,6 +236,33 @@ classdef PixelDataFileBacked < PixelDataBase
             np = max(ceil(obj.num_pixels_*sqw_binfile_common.FILE_PIX_SIZE/obj.page_memory_size_),1);
         end
 
+        function page_size = get.page_size(obj)
+            % The number of pixels that are held in the current page.
+            if obj.num_pixels > 0 && obj.cache_is_empty_()
+                % No pixels currently loaded, show the number that will be loaded
+                % when a getter is called
+                base_pg_size = obj.base_page_size;
+                if base_pg_size*obj.page_number_ > obj.num_pixels
+                    % In this case we're on the final page and there are fewer
+                    % leftover pixels than would be in a full-size page
+                    page_size = obj.num_pixels - base_pg_size*(obj.page_number_ - 1);
+                else
+                    page_size = min(base_pg_size, obj.num_pixels);
+                end
+            else
+                page_size = size(obj.data_, 2);
+            end
+        end
+
+        function set.page_memory_size(obj, val)
+            validateattributes(val, {'numeric'}, {'scalar', 'nonnan', ...
+                 '>', PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS})
+            obj.page_memory_size_ = round(val);
+        end
+
+        function page_size = get.page_memory_size(obj)
+            page_size = obj.page_memory_size_;
+        end
     end
 
     methods (Access = private)
@@ -201,7 +270,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = load_current_page_if_data_empty_(obj)
             % Check if there's any data in the current page and load a page if not
             %   This function does nothing if pixels are not file-backed.
-            if obj.cache_is_empty_()
+            if obj.cache_is_empty_() && ~isempty(obj)
                 obj = obj.load_page_(obj.page_number_);
             end
         end
@@ -230,8 +299,8 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             % Get the index of the final pixel to read given the maximum page size
             pix_idx_end = min(pix_idx_start + obj.base_page_size - 1, obj.num_pixels);
-
             obj.data_ = obj.f_accessor_.get_raw_pix(pix_idx_start, pix_idx_end);
+
         end
 
         function obj = load_dirty_page_(obj, page_number)
@@ -250,8 +319,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
         function is = page_is_dirty_(obj, page_number)
             % Return true if the given page is dirty
-            is = ~(page_number > numel(obj.page_dirty_));
-            is = is && obj.page_dirty_(page_number);
+            is = page_number <= numel(obj.page_dirty_) && obj.page_dirty_(page_number);
         end
 
         function obj = set_page_dirty_(obj, is_dirty, page_number)
@@ -263,7 +331,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % is_dirty     Logical specifying if the page is dirty
             % page_number  The page number to mark as dirty (default is current page)
             %
-            if nargin == 2
+            if ~exist('page_number', 'var')
                 page_number = obj.page_number_;
             end
             obj.page_dirty_(page_number) = is_dirty;
@@ -273,7 +341,6 @@ classdef PixelDataFileBacked < PixelDataBase
         function num_pages = get_num_pages_(obj)
             num_pages = max(ceil(obj.num_pixels/obj.base_page_size), 1);
         end
-
     end
 
     methods (Access = ?PixelDataBase)

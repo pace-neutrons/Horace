@@ -63,14 +63,14 @@ function pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array)
 %
 obj.move_to_first_page();
 
-pix_out = PixelDataBase.create();
+pix_out = PixelDataFileBacked();
 end_idx = 0;
 while true
     start_idx = end_idx + 1;
     end_idx = start_idx + obj.page_size - 1;
     mask_array_chunk = mask_array(start_idx:end_idx);
 
-    pix_out.append(PixelDataBase.create(obj.data(:, mask_array_chunk)));
+    pix_out.append(PixelDataMemory(obj.data(:, mask_array_chunk)));
 
     if obj.has_more()
         obj = obj.advance();
@@ -89,7 +89,7 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
 % The mask_array and npix array should have equal dimensions.
 %
 obj.move_to_first_page();
-pix_out = PixelDataBase.create();
+pix_out = PixelDataFileBacked();
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 page_number = 1;
@@ -98,7 +98,7 @@ while true
     idx = idxs(:, page_number);
 
     mask_array_chunk = repelem(mask_array(idx(1):idx(2)), npix_for_page);
-    pix_out.append(PixelDataBase.create(obj.data(:, mask_array_chunk)));
+    pix_out.append(PixelDataMemory(obj.data(:, mask_array_chunk)));
 
     if obj.has_more()
         obj.advance();

@@ -25,7 +25,7 @@ if isempty(pix)
     return;
 end
 
-pix.move_to_first_page()
+pix.move_to_first_page();
 while true
 
     pix_out.data_ = horzcat(pix_out.data, pix.data);

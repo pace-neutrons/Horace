@@ -90,7 +90,7 @@ classdef (Abstract) PixelDataBase < handle
         file_path_ = '';
     end
 
-    properties (Constant)
+    properties (Constant, Hidden)
         DATA_POINT_SIZE = 8;  % num bytes in a double
         DEFAULT_NUM_PIX_FIELDS = 9;
         DEFAULT_PAGE_SIZE = get(hor_config, 'mem_chunk_size');
@@ -124,7 +124,7 @@ classdef (Abstract) PixelDataBase < handle
         % structure
         % Does not properly support filebased data. The decision is not to
         % save filebased data into mat files
-        fields_to_save_ = {'data','num_pixels','pix_range'};
+        fields_to_save_ = {'data','num_pixels','pix_range','file_path'};
     end
 
     properties (Dependent)
@@ -160,7 +160,6 @@ classdef (Abstract) PixelDataBase < handle
         % value is not guaranteed in a future.
 
         base_page_size;  % The number of pixels that can fit in one page of data
-        page_size;  % The number of pixels in the current page
     end
 
     methods (Static)
@@ -258,9 +257,9 @@ classdef (Abstract) PixelDataBase < handle
                 % if the file exists we can create a file-backed instance
             elseif isa(init, 'PixelDataFileBacked')
                 if isempty(file_backed) || file_backed
-                    obj = PixelDataFileBacked(init);
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 else
-                    obj = PixelDataMemory(init, mem_alloc);
+                    obj = PixelDataMemory(init);
                 end
 
             elseif numel(init) == 1 && isnumeric(init) && floor(init) == init
@@ -308,7 +307,7 @@ classdef (Abstract) PixelDataBase < handle
             end
 
             if upgrade
-                obj.reset_changed_coord_range('coordinates')
+                arrayfun(@(x) x.reset_changed_coord_range('coordinates'), obj);
             end
 
         end
@@ -508,6 +507,13 @@ classdef (Abstract) PixelDataBase < handle
             obj.set_prop("variance", val);
         end
 
+        function range = get.pix_range(obj)
+            range = obj.pix_range_;
+        end
+
+        function obj = set.pix_range(obj, pix_range)
+            set_range(obj, pix_range);
+        end
     end
 
     methods
@@ -539,7 +545,7 @@ classdef (Abstract) PixelDataBase < handle
             %  the constructor with the input object as an argument. Because of
             %  this, any properties that need to be explicitly copied must be
             %  copied within this class' "copy-constructor".
-            pix_copy = PixelDataBase.create(obj);
+            pix_copy = PixelDataBase.create(obj, obj.page_memory_size_, false, obj.is_filebacked);
         end
 
         function is_empty = isempty(obj)
@@ -551,33 +557,11 @@ classdef (Abstract) PixelDataBase < handle
             num_pix = obj.num_pixels_;
         end
 
-        function range = get.pix_range(obj)
-            range  = obj.pix_range_;
-        end
-
         function page_size = calculate_page_size_(obj, mem_alloc)
             % Calculate number of pixels that fit in the given memory allocation
             num_bytes_in_pixel = sqw_binfile_common.FILE_PIX_SIZE;
             page_size = floor(mem_alloc/num_bytes_in_pixel);
             page_size = max(page_size, size(obj.raw_data_, 2));
-        end
-
-        function page_size = get.page_size(obj)
-            % The number of pixels that are held in the current page.
-            if obj.num_pixels > 0 && obj.cache_is_empty_()
-                % No pixels currently loaded, show the number that will be loaded
-                % when a getter is called
-                base_pg_size = obj.base_page_size;
-                if base_pg_size*obj.page_number_ > obj.num_pixels
-                    % In this case we're on the final page and there are fewer
-                    % leftover pixels than would be in a full-size page
-                    page_size = obj.num_pixels - base_pg_size*(obj.page_number_ - 1);
-                else
-                    page_size = min(base_pg_size, obj.num_pixels);
-                end
-            else
-                page_size = size(obj.data_, 2);
-            end
         end
 
         function page_size = get.base_page_size(obj)

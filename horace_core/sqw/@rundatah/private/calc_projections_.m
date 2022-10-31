@@ -129,7 +129,7 @@ if ~use_mex
         end
         sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
         run_id = ones(1,numel(detector_idx))*obj.run_id;
-        pix = PixelData([ucoords;run_id;detector_idx;energy_idx;sig_var]);
+        pix = PixelDataBase.create([ucoords;run_id;detector_idx;energy_idx;sig_var]);
         pix_range=pix.pix_range;
     end
 end
