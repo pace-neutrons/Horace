@@ -42,26 +42,26 @@ Currently it also include common methods, in particular the large number of unar
 
 The `sqw` object provides the public API to the all relevant experimental data. Main data manipulations are performed on the `PixelData` property `pix` and the `Image` stored in property `data` and containing `dnd` object corresponding to the `sqw` object is recalculated accordingly to the pixel operations.
 
-This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally a very large dataset `sqw` object in number of operations may be used leaving the `PixelData` untouched. Alternatively, when `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` can be performed on separate data chunks loaded and processed in memory, leaving the main `PixelData` arrays filebased.
-The structure of generic `sqw` object is presented on Fig.2:
+This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally very large dataset, `sqw` object in number of operations may be used leaving the `PixelData` untouched. Alternatively, when `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` can be performed on separate data chunks loaded and processed in memory, leaving the main `PixelData` arrays filebased.
+The structure of a generic `sqw` object is presented in Fig.2:
 
 ![Fig.2. SQW Class Overview](../diagrams/sqw.png)
 
 ### DnDBase, DnD
 
-The `DnD` object exist as part of  `sqw` object but also can exist as "cut-down `sqw`" object containing only multidimensional `Image` data expressed in the coordinate system of interest. The "Image" exists in 0 to 4 dimensional forms, with each particular number of dimensions class defining the abstract base class. The `PixelData`, `main_header` and `Experiment` information is NOT included, and any data manipulation operations are performed directly on the `Image` data.
+The `DnD` object exists as part of  `sqw` object but also can exist as a separate "cut-down `sqw`" object containing only multidimensional `Image` data expressed in the coordinate system of interest. The "Image" exists in 0 to 4 dimensional forms, with each particular number of dimensions class defining the particular dimensions of the abstract base class `DnDBase` and resulting in the particular dimensionality `DnD` class (`d0d-d4d` subclasses). The `PixelData`, `main_header` and `Experiment` information are NOT included in `DnD` object so any data manipulation operations are performed directly on the `Image` data.
 
-Extraction from the whole inheritance diagram for the `DnD` objects is presented on the Fig.3:
+An extract from the whole inheritance diagram for the `DnD` objects is presented on the Fig.3:
 
 ![Fig.3. DnD Class inheritance diagram](../diagrams/DND-inheritance.png)
 
 The diagram also shows `data_sqw_dnd` object inheriting from `DnDBase` and containing arbitrary number of dimensions unlike other `DnD` objects which define their specific number of dimensions.  This object left for IO compatibility with previous versions of Horace code and is not used in Horace for any other purpose except IO restoring old data.
 
-The `DnDBase` base class is an abstract class holding the common data and common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing appropriate algorithms. The structure of `DnDBase` class together with its children, defining specific number of dimensions is presented on Fig.4:
+The `DnDBase` base class is an abstract class holding the common data and common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing appropriate algorithms. The structure of `DnDBase` class together with its children, defining specific number of dimensions is presented in Fig.4:
 
 ![Fig.4. DND Class Overview](../diagrams/dnd.png)
 
-The diagram shows that any `DnD` object contains *signal*, *error* and *npix* (*npix* describes the number of pixels (neutron events) contributed to the appropriate area of the image and related to the image scaling) arrays of appropriate dimensions and two additional properties, namely *proj* and *axes*. *Proj* field contains the instance of `aProjection` class, which defines the transformation from the coordinate system of `PixelData` class to the `Image` (`DnD` object) coordinate system. For example, in the most common case of `Image` coordinate system being `hkl-dE` coordinate system and `PixelData` class coordinate system being Crystal Cartesian coordinate system the transformation is the matrix multiplication of the `PixelData` coordinates by `UB` matrix of Bussing and Levy [^1].
+The diagram shows that any `DnD` object contains *signal*, *error* and *npix* arrays of appropriate dimensions plus  two additional properties, namely *proj* and *axes*. *npix* describes the number of pixels (neutron events) contributed to each area of the image according to the image axes scaling (described by `axes_block` below). *proj* field contains the instance of `aProjection` class, which defines the transformation from the coordinate system of `PixelData` class to the `Image` (`DnD` object) coordinate system. For example, in the most common case of `Image` coordinate system being `hkl-dE` coordinate system and `PixelData` class coordinate system being Crystal Cartesian coordinate system the transformation is the matrix multiplication of the `PixelData` coordinates by `UB` matrix of Bussing and Levy [^1].
 
 The `axes_block` class is closely related to the appropriate `aProjection` class and defines the coordinate system of the image, its binning axes and units along the axes scales.
 
@@ -69,11 +69,11 @@ In more details the `aProjection` class and `axes_block` classes are described b
 
 ### Plotting interface
 
-The 1D-3D`sqw` and `dnd` Horace objects can be plotted with the appropriate dimensions plots. There are large number of plotting functions so it is reasonable to extract these functions into separate plotting interface. `sqw`, `dnd` and Herbert `IX_dataset` object inherit `data_plot_interface` and implement particular plotting functions specific to particular n-dimensional objects. The inheritance diagram of this plotting interface is presented on the Fig.5:
+The 1D-3D`sqw` and `dnd` Horace objects can be plotted with the appropriate dimensions plots. There is a large number of plotting functions so it is reasonable to extract these functions into a separate plotting interface. `sqw`, `dnd` and Herbert `IX_dataset` objects inherit `data_plot_interface` and implement particular plotting functions specific to the particular n-dimensional objects. The inheritance diagram of this plotting interface is presented in the Fig.5:
 
 ![Fig.5. Plot Interface](../diagrams/sqw-dnd_plot_interface.png)
 
-The top level interface class defines all plotting function as abstract (or rather throwing **not-implemented** exception), while actual 1D-3D objects implement their appropriate plotting functions (e.g. 1D objects -- 1D plotting, 2D objects -- 2D plotting etc.). The upper level objects add some wrapping to the plot, but mainly delegate plotting to the lower level objects (One can define objects level as the function of their complexity so the objects hierarchy looks `sqw`->`dnd`->`IX_dataset` following the decrease in the amount of information every object contains). The actual plotting functionality is implemented on Herbert `IX_dataset` objects.
+The top level interface class defines all plotting functions as abstract (or rather throwing **not-implemented** exception), while actual 1D-3D objects implement their appropriate plotting functions (e.g. 1D objects -- 1D plotting, 2D objects -- 2D plotting etc.). The upper level objects add some wrapping to the plot, but mainly delegate plotting to the lower level objects (One can define objects level as the function of their complexity so the objects hierarchy looks `sqw`->`dnd`->`IX_dataset` following the decrease in the amount of information every object contains). The actual plotting functionality is implemented on Herbert `IX_dataset` objects.
 
 
 ### Main Header
@@ -90,10 +90,10 @@ This data should all be available from the Mantid `.nxspe` file, however it is l
 **Notes**
 (1): the format of this datafile is TBD. To ease the eventual integration with Mantid a Nexus/HDF5 file or some other structured data that maps easily into the HDF5 format should be used.
 
-####  Instrument specification (`IX_instr`)
+####  Instrument specification (`IX_inst`)
 The instrument class contains the information about the components that make up the instrument pre-sample, including the choppers, moderators and incident beams.
 
-The object contains a structured set of components that will be unique to each site.
+The specific subclasses contain a structured set of components that will be unique to each neutron facility
 
 #### Detector information (`IX_detector_array`)
 The detector information class contains information about individual detector elements and their geometry. The data in this object will change when calibrations are performed or elements replaced or serviced as part of regular maintenance tasks. 
@@ -148,8 +148,8 @@ The same `get_data(name)` method can be used to provide access to the "standard"
 
 ### Image (`DnDBase` class in more details)
 
-Represents the n-dimensional array of image pixel data with associated axis information. 
-Image pixel data is generated from the `PixelData` via one or more projections. The class diagramm for the image class is presented on Fig.4 above.
+`DnDBase` class contains the n-dimensional arrays of image pixel data transformed into selected coordinate system with associated axis information related to this coordinate system. 
+Image pixel data is generated from the `PixelData` via one or more projections. The class diagram for the image class is presented on Fig.4 above.
 
 |  | Description | Notes |
 |-----|---------|---|
