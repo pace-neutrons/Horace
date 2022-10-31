@@ -44,9 +44,12 @@ ax_block_al.nbins_all_dims = ax_nbins;
 function iax_requested = find_proper_iax_range(in_range,nbins,iax_requested)
 % find integration range, which covers minimal axes range
 
-iax_requested(1) = min(in_range(1),iax_requested(1));
-iax_requested(2) = max(in_range(2),iax_requested(2));
-%
+%iax_requested(1) = max(in_range(1),iax_requested(1));
+%iax_requested(2) = min(in_range(2),iax_requested(2));
+if iax_requested(1)<in_range(1); iax_requested(1) = in_range(1);
+end
+if iax_requested(2)>in_range(2); iax_requested(2) = in_range(2);
+end
 bin_edges = linspace(in_range(1),in_range(2),nbins+1);
 min_ind = find(bin_edges <= iax_requested(1),1,'last');
 max_ind = find(bin_edges >= iax_requested(2),1,'first');
@@ -89,14 +92,14 @@ end
 
 
 % make requested step to be close to the base step or be multiples of it
-step_scale_factor = round(req_step0/base_step);
-if step_scale_factor<1 % => req_step0/base_step < 0.5
+step_scaling_factor = round(req_step0/base_step);
+if step_scaling_factor<1
     req_step = base_step;
 else
-    req_step = base_step*step_scale_factor;
+    req_step = base_step*step_scaling_factor;
 end
 if log_level > 0
-    if abs(step_scale_factor*base_step-req_step0) > 1.e-4
+    if abs(step_scaling_factor*base_step-req_step) > 1.e-4
         warning('HORACE:realign_bin_edges:invalid_argument', ...
             'The requested step in direction %d (%g) is not commensurate with the existing axis step %g. Changing it to: %g',...
             i,req_step0,base_step,req_step)
@@ -117,7 +120,7 @@ new_edge_1 = bin_edges(ind);
 req_range(1) = new_edge_1;
 nbins = floor((req_range(2)-req_range(1))/req_step);
 test_range = req_range(1)+nbins*req_step;
-if (test_range-req_range(2))<-2.e-8 % single precision round_off?
+if  test_range-req_range(2) < -2.e-8 % single precision round-off?
     nbins = nbins+1;
     req_range(2) = req_range(1)+nbins*req_step;
 else
