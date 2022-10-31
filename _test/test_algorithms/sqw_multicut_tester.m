@@ -8,7 +8,7 @@ classdef sqw_multicut_tester < sqw
     methods
         function obj = sqw_multicut_tester(varargin)
             obj = obj@sqw(varargin{:});
-            obj.main_header.creation_date_defined = true;
+            obj.main_header.creation_date_defined_privately = true;
         end
 
         function  wout = cut(obj, varargin)
