@@ -8,7 +8,7 @@ function [dens_nodes,densities,base_cell_size] = calculate_density_(obj,in_data)
 %             The size and dimensions of the datasets should
 %             be equal to the dimensions of the axes block
 %             returned by data_nbins property, i.e.:
-%             all(size(dataset{i}) == obj.data_nbins;
+%             all(size(dataset{i}) == obj.data_nbins);
 %             datasets contain bin values.
 % Returns:
 % dens_nodes
@@ -46,18 +46,17 @@ for i = 1:numel(in_data)
     densities{i} = interpn(gridCX,gridCY,gridCZ,gridCE,ref_ds,...
         dens_nodes(1,:),dens_nodes(2,:),dens_nodes(3,:),dens_nodes(4,:),'linear');
 
-    edges = isnan(densities{i});
+    edgs = isnan(densities{i});
     % for integrated datasets the method generates additional points
     % contributing to integral. How to account for them?
-    if any(edges(:))
+    if any(edgs(:))
         % reasonable operation would be linear extrapolation on half-cell
-        % out of range using nearest divided by two to conserve integral
-        % over the boundary cells.
-
+        % out of range using nearest points divided by two to conserve integral
+        % over the boundary cells, but we currently go other way:
         gint = griddedInterpolant(gridCX,gridCY,gridCZ,gridCE,ref_ds,'linear','nearest');
-        interp_dss = gint(dens_nodes(1,edges(:)),dens_nodes(2,edges(:)),dens_nodes(3,edges(:)),dens_nodes(4,edges(:)));
+        interp_dss = gint(dens_nodes(1,edgs(:)),dens_nodes(2,edgs(:)),dens_nodes(3,edgs(:)),dens_nodes(4,edgs(:)));
 
-        densities{i}(edges) = interp_dss(:); % if integrating, multiply edge
+        densities{i}(edgs) = interp_dss(:); % if integrating, multiply edge
         %                                     values by half accounting
         %                                     to half volume at edges
         %                                     in the integration formulas

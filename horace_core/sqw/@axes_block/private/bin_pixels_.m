@@ -159,12 +159,9 @@ out = cell(1,ndata);
 out{1} = s;
 out{2} = e;
 if is_pix
-    bin_values{1} = {pix_cand.signal;pix_cand.variance};
+    bin_values = {pix_cand.signal;pix_cand.variance};
 else % cellarray of arrays to accumulate
-    bin_values = cell(ndata,1);
-    for i=1:ndata
-        bin_values{i} = pix_cand{i};
-    end
+    bin_values = pix_cand;    
     if ndata>=3 % Output changes type and meaning. Nasty.
         % Needs something better in a future
         pix_ok = zeros(size(s));
