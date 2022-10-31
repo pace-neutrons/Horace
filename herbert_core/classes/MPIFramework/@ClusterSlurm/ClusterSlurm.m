@@ -395,10 +395,7 @@ classdef ClusterSlurm < ClusterWrapper
 
         end
 
-    end
-
-    methods(Static)
-        function [n_nodes, cores_per_node] = get_remote_info(partition)
+        function [n_nodes, cores_per_node] = get_remote_info(obj, partition)
         % Retrieve info about remote nodes.
 
             if exist('partition', 'var')
