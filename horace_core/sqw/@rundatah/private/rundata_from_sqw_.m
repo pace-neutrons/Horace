@@ -48,8 +48,9 @@ err(:,ind)=sqrt(reshape(tmp(:,4),ne,numel(group)));
 
 
 lattice = oriented_lattice('angular_units','rad');
-lattice.alatt = exp_inf.samples{1}.alatt;
-lattice.angdeg = exp_inf.samples{1}.angdeg;
+s1 = exp_inf.samples{1};
+lattice.alatt = s1.alatt;
+lattice.angdeg = s1.angdeg;
 % header keeps angular units in radians
 lattice.u      = exp_inf.expdata(1).cu;
 lattice.v      = exp_inf.expdata(1).cv;

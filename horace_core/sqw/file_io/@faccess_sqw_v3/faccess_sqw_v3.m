@@ -146,10 +146,11 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % get instrument and sample data in the form they would be written
             % on hdd.
             instr = exp_info.instruments; % get_unique_instruments();
-            sampl = exp_info.get_unique_samples();
+            sampl = exp_info.samples; % get_unique_samples();
             instr_str = instr.to_struct();
+            sampl_str = sampl.to_struct();
             %instr_str = cellfun(@(x)(x.to_struct()),instr,'UniformOutput',false);
-            sampl_str = cellfun(@(x)(x.to_struct()),sampl,'UniformOutput',false);            
+            %sampl_str = cellfun(@(x)(x.to_struct()),sampl,'UniformOutput',false);            
         end
         
         

@@ -345,7 +345,11 @@ classdef rundata < serializable
                 lat.angular_units = 'deg';
                 if isa(obj.sample_,'IX_null_sample')
                     if is_defined(lat,'alatt') && is_defined(lat,'angdeg')
-                        obj.sample_ = IX_samp('',lat.alatt,lat.angdeg);
+                        obj.sample_ = IX_null_sample();
+                        % TODO better setup of null sample using
+                        % constructor arguments
+                        obj.sample_.alatt = lat.alatt;
+                        obj.sample_.angdeg  = lat.angdeg;
                     end
                 else
                     if is_defined(lat,'alatt')

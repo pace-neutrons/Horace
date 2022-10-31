@@ -92,7 +92,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 [instrument, instrument], ...
                 [sample, sample],info);
 
-            assertEqual(expt.samples, {sample, sample});
+            assertEqual({expt.samples{1}, expt.samples{2}}, {sample, sample});
             assertEqual({expt.instruments{1}, expt.instruments{2}}, {instrument, instrument});
             assertEqual(expt.detector_arrays, [detector_array, detector_array]);
             info = expt.expdata;
@@ -128,8 +128,10 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             clear('expt');
 
             load(tmpfile, 'expt');
-            assertEqual(expt.samples{1}.name, 'sample1')
-            assertEqual(expt.samples{2}.name, 'sample2')
+            s1 = expt.samples{1};
+            s2 = expt.samples{2};
+            assertEqual(s1.name, 'sample1')
+            assertEqual(s2.name, 'sample2')
             assertTrue(isa(expt.instruments{1}, 'IX_inst_DGfermi'));
             assertTrue(isa(expt.instruments{2}, 'IX_inst_DGdisk'));
             assertEqual(expt.detector_arrays, IX_detector_array);
@@ -182,7 +184,9 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             expt.samples = {samples};
 
             assertEqual(expt.samples{1}, samples);
-            assertEqual(expt.samples,    {samples});
+            uoc = unique_objects_container('type','{}','baseclass','IX_samp');
+            uoc = uoc.add(samples);
+            assertEqual(expt.samples,  uoc);
         end
 
         function test_samples_setter_raises_error_for_invalid_value(~)

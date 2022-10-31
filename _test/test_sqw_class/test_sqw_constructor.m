@@ -36,6 +36,8 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             
             assertTrue((sqw_obj.experiment_info.instruments.n_total()==1));
             assertTrue(isa(sqw_obj.experiment_info.instruments{1},'IX_null_inst'));
+            assertTrue((sqw_obj.experiment_info.samples.n_total()==1));
+            assertTrue(isa(sqw_obj.experiment_info.samples{1},'IX_null_sample'));
             assertEqual(sqw_obj.detpar, struct([]));
             assertEqual(sqw_obj.data.pix, PixelData());
             assertEqual(numel(sqw_obj.data.pax), 0);
@@ -49,7 +51,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertEqual(sqw_obj.main_header.nfiles, 14)
             assertEqual(numel(sqw_obj.experiment_info.expdata), 14)
             assertEqual(n_runs(sqw_obj.experiment_info.instruments), 14)
-            assertEqual(numel(sqw_obj.experiment_info.samples), 14)
+            assertEqual(n_runs(sqw_obj.experiment_info.samples), 14)
             assertEqual(numel(sqw_obj.detpar.group), 36864);
             assertEqual(numel(sqw_obj.data.pax), 1);
             assertEqual(sqw_obj.data.pix.num_pixels, 100337);

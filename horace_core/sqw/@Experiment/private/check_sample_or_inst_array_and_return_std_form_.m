@@ -21,7 +21,9 @@ std_form = sample_or_instrument;
 if isempty(sample_or_instrument)
     is = true;
     if strcmp(class_base,'IX_samp')
-        std_form = {IX_null_sample()};
+        %std_form = {IX_null_sample()};
+        std_form = unique_objects_container('type','{}','baseclass','IX_samp'); 
+        std_form = std_form.add(IX_null_sample());
     else
         std_form = unique_objects_container('type','{}','baseclass','IX_inst'); %{IX_null_inst()};
         std_form = std_form.add(IX_null_inst());
@@ -38,6 +40,9 @@ if isa(sample_or_instrument,'unique_objects_container')
     	error('HORACE:check_sample_or_inst_array_and_return_std_form:invalid_argument',...
     	'unique_objects_container is empty');
     end 
+    % std_form has been set to sample_or_instrument above and so will not
+    % be set here again - but the output from this if-block is an unchanged
+    % std_form==sample_or_instrument
 elseif iscell(sample_or_instrument)
     is = cellfun(@(x)isa(x,class_base),sample_or_instrument);
     is = all(is);
@@ -45,8 +50,10 @@ elseif iscell(sample_or_instrument)
         std_form = {}; % will throw anyway
     else
         if isa(sample_or_instrument{1},'IX_samp')
-            % temporarily leave cell(IX_samp) as-is until its duplicates
-            % are also removed
+            std_form = unique_objects_container('type','{}','baseclass',class_base);
+            for i = 1:numel(sample_or_instrument)
+                std_form = std_form.add(sample_or_instrument{i});
+            end
         elseif isa(sample_or_instrument{1},'IX_inst')
             std_form = unique_objects_container('type','{}','baseclass',class_base);
             for i = 1:numel(sample_or_instrument)
@@ -59,12 +66,19 @@ elseif iscell(sample_or_instrument)
 elseif isa(sample_or_instrument,class_base)
     is = true;
     if strcmp(class_base,'IX_samp')
-        if numel(sample_or_instrument) == 1&& obj.n_runs>1 % replicate sample or instrument
-            % to have the sample per each run.
-            % TODO: it will be compressed container avoiding this.
-            sample_or_instrument = repmat(sample_or_instrument,1,obj.n_runs);
-        end
-        std_form = num2cell(sample_or_instrument);
+            std_form = unique_objects_container('type','{}','baseclass',class_base);
+            if numel(sample_or_instrument)==1
+                for i=1:max(1,obj.n_runs)
+                    std_form = std_form.add(sample_or_instrument);
+                end
+            elseif numel(sample_or_instrument)==obj.n_runs
+                for i=1:obj.n_runs
+                    std_form = std_form.add(sample_or_instrument(i));
+                end
+            else
+                error('HORACE:check_sample_or_inst...:invalid_argument',...
+                      'number of samples must be 1 or  number of runs');
+            end
     elseif strcmp(class_base,'IX_inst')
         std_form = unique_objects_container('type','{}','baseclass',class_base);
         if numel(sample_or_instrument)==1

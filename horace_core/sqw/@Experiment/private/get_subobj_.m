@@ -59,7 +59,7 @@ else
     end
 end
 info{2} = obj.instruments_.get_subset(head_num);
-info{3} = obj.samples_(head_num);
+info{3} = obj.samples_.get_subset(head_num);
 info{4} = obj.expdata_(head_num);
 
 subexper  = Experiment(info{:});

@@ -15,7 +15,7 @@ else
                     tmp.instruments{i}=val;
                 end
             elseif strcmp(field,'sample')
-                for i=1:numel(tmp.samples)
+                for i=1:n_runs(tmp.samples)
                     tmp.samples{i}=val;
                 end
             else
@@ -29,7 +29,7 @@ else
                     tmp.instruments{i}=val(i);
                 end
             elseif strcmp(field,'sample')
-                for i=1:numel(tmp.samples)
+                for i=1:n_runs(tmp.samples)
                     tmp.samples{i}=val(i);
                 end
             else

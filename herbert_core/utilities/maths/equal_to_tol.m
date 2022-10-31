@@ -395,9 +395,6 @@ elseif isobject(a) && isobject(b)
             opt.name_b = name_b;
             opt = [fieldnames(opt),struct2cell(opt)]';
             opt = opt(:);
-            if isa(a,'unique_objects_container')
-                disp('');
-            end
             [is,mess] = eq(a,b,opt{:});
         catch ME
             if strcmp(ME.identifier,'MATLAB:TooManyInputs') ||...
@@ -452,9 +449,6 @@ elseif isobject(a) && isobject(b)
 
         % If we get here, we need the "right" names
         fieldsA = fieldnames(Sa);
-        if isa(Sa,'IX_fermi_chopper')
-            disp('');
-        end
         for j=1:numel(fieldsA)
             equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), opt,...
                 [name_a_ind,'.',fieldsA{j}], [name_b_ind,'.',fieldsA{j}]);

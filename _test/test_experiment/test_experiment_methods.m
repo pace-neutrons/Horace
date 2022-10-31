@@ -151,8 +151,10 @@ classdef test_experiment_methods < TestCase
             assertTrue(isa(part.instruments{1},'IX_inst_DGdisk'));
             assertTrue(isa(part.instruments{2},'IX_inst_DGdisk'));
 
-            assertEqual(part.samples{1}.name,'sample2')
-            assertEqual(part.samples{2}.name,'sample3')
+            s1 = part.samples{1};
+            s2 = part.samples{2};
+            assertEqual(s1.name,'sample2')
+            assertEqual(s2.name,'sample3')
 
             indo = part.expdata;
             assertEqual(indo(1).filename,'a2')
@@ -180,8 +182,10 @@ classdef test_experiment_methods < TestCase
             assertTrue(isa(part.instruments{1},'IX_inst_DGfermi'));
             assertTrue(isa(part.instruments{2},'IX_inst_DGdisk'));
 
-            assertEqual(part.samples{1}.name,'sample1')
-            assertEqual(part.samples{2}.name,'sample3')
+            s1 = part.samples{1};
+            s2 = part.samples{2};
+            assertEqual(s1.name,'sample1')
+            assertEqual(s2.name,'sample3')
 
             indo = part.expdata;
             assertEqual(indo(1).filename,'a1')
@@ -200,8 +204,10 @@ classdef test_experiment_methods < TestCase
             assertTrue(isa(part.instruments{1},'IX_inst_DGdisk'));
             assertTrue(isa(part.instruments{2},'IX_inst_DGdisk'));
 
-            assertEqual(part.samples{1}.name,'sample2')
-            assertEqual(part.samples{2}.name,'sample3')
+            s1 = part.samples{1};
+            s2 = part.samples{2};
+            assertEqual(s1.name,'sample2')
+            assertEqual(s2.name,'sample3')
 
             assertEqual(part.expdata(1).filename,'a2')
             assertEqual(part.expdata(2).filename,'a3')
@@ -218,8 +224,10 @@ classdef test_experiment_methods < TestCase
             assertTrue(isa(part.instruments{1},'IX_inst_DGdisk'));
             assertTrue(isa(part.instruments{2},'IX_inst_DGdisk'));
 
-            assertEqual(part.samples{1}.name,'sample2')
-            assertEqual(part.samples{2}.name,'sample3')
+            s1 = part.samples{1};
+            s2 = part.samples{2};
+            assertEqual(s1.name,'sample2')
+            assertEqual(s2.name,'sample3')
 
             assertEqual(part.expdata(1).filename,'a2')
             assertEqual(part.expdata(2).filename,'a3')

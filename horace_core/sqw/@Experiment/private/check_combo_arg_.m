@@ -18,10 +18,10 @@ if n_runs(obj.instruments_) ~= nruns
         'Number of instruments: %d is not equal to number of runs: %d; ',...
         n_runs(obj.instruments_),nruns);
 end
-if numel(obj.samples_) ~= nruns
+if n_runs(obj.samples_) ~= nruns
     mess = sprintf(...
         '%s\n Number of samples %d is not equal to number of runs: %d; ',...
-        mess,numel(obj.samples_),nruns);
+        mess,n_runs(obj.samples_),nruns);
 end
 if isempty(obj.runid_map_)
     mess = sprintf('%s\n runid_map is not defined',mess);
