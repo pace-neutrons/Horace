@@ -176,12 +176,12 @@ classdef ClusterSlurm < ClusterWrapper
                 warning('Keys present in slurm_commands which will be over-ridden')
             end
 
-            w = warning('off', 'MATLAB:Containers:Map:NoKeyToRemove')
+            w = warning('off', 'MATLAB:Containers:Map:NoKeyToRemove');
             comm.remove({'-J', '-n'});
-            warning(w)
+            warning(w);
             comm('--job-name') = obj.job_id;
-            comm('-ntasks') = num2str(n_workers);
-            comm('--ntasks-per-node') = cores_per_node;
+            comm('--ntasks') = num2str(n_workers);
+            comm('--ntasks-per-node') = num2str(cores_per_node);
             comm('--mpi') = 'pmi2';
             comm('--export') = 'ALL';
 
@@ -191,7 +191,7 @@ classdef ClusterSlurm < ClusterWrapper
             % location
             wcs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
 
-            obj.start_workers(target_threads, wcs, ...
+            obj.start_workers(wcs, ...
                               'prefix_command', slurm_str, ...
                               'target_threads', target_threads);
 
@@ -414,7 +414,9 @@ classdef ClusterSlurm < ClusterWrapper
                       'Could not get info on remote nodes')
             end
             result = splitlines(result);
-            [partition, n_nodes, cores_per_node] = strsplit(result{1});
+            parse = strsplit(result{1});
+            n_nodes = str2num(parse{2});
+            cores_per_node = str2num(parse{3});
 
         end
     end
