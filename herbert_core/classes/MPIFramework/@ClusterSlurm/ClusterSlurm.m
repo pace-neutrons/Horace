@@ -143,9 +143,9 @@ classdef ClusterSlurm < ClusterWrapper
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             obj.log_level = log_level;
 
-            [n_nodes, cores_per_node] = obj.get_remote_info();
-
             par = parallel_config();
+            
+            [n_nodes, cores_per_node] = obj.get_remote_info(par);
 
             if par.is_auto_par_threads
                 % If user not specified threads to use assume MPI applications are not wanting to be threaded
@@ -395,14 +395,14 @@ classdef ClusterSlurm < ClusterWrapper
 
         end
 
-        function [n_nodes, cores_per_node] = get_remote_info(obj, partition)
+        function [n_nodes, cores_per_node] = get_remote_info(obj, params, partition)
         % Retrieve info about remote nodes.
 
             if exist('partition', 'var')
                 partition = ['-p ', partition];
-            elseif obj.slurm_commands.isKey('--partition')
+            elseif params.isKey('--partition')
                 partition = ['-p ', obj.slurm_commands('--partition')];
-            elseif obj.slurm_commands.isKey('-p')
+            elseif params.isKey('-p')
                 partition = ['-p ', obj.slurm_commands('-p')];
             else
                 partition = '';
