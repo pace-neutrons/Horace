@@ -1,17 +1,18 @@
 function wout = cut(obj, varargin)
-%%CUT Take a cut from an sqw object by integrating over one or more axes.
+%%CUT Take a cut from a dnd object by integrating over one or more axes.
+% or by interpolating density data if projection is provided.
 %
 % Cut using existing projection axes:
-%   >> wout = cut (obj, p1_bin, p2_bin...)  % (as many binning arguments
-%                                                % as there are plot axes)
-%
+%  >> wout = cut (obj, p1_bin, p2_bin...)  % (as many binning arguments
+%                                             % as there are plot axes)
+% Or
 % Cut with new projection axes:
-%   >> wout = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
+%  >> wout = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
+% NOTE:
+% This options causes dnd data running average with half-bin window
 %
-%   >> wout = cut (..., '-nopix')      % output cut is dnd structure (i.e. no
-%                                   % pixel information is retained)
 %
-%   >> wout = cut (...,  filename)     % save cut to named file
+%  >> wout = cut (...,  filename)   % save cut to named file
 %
 % Write directly to file without creating an output object (useful if the
 % output is a large dataset in order to avoid out-of-memory errors)

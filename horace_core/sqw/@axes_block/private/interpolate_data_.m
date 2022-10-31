@@ -95,7 +95,8 @@ for i = 1:nout
 
     varargout{i} = interp_ds.*int_cell_volume;
 end
-nsig = sum(varargout{nout}(:));
+nsig = sum(varargout{nout}(:)); % total number of contributing pixels or 
+% whatever replaces them in tests is 0
 if nsig == 0
     min_base = min(ref_nodes,[],2);
     max_base = max(ref_nodes,[],2);

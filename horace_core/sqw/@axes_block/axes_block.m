@@ -391,8 +391,8 @@ classdef axes_block < serializable
             %              namely with points located on the grid cell edges +
             %              edges of integrated  dimensions.
             % '-density_integr'
-            %           -- if provided, returns grid used for integration 
-            %              by summation in centerpoints, namely, points 
+            %           -- if provided, returns grid used for integration
+            %              by summation in centerpoints, namely, points
             %              are in the center of cells and integration
             %              dimensions
             % Returns:
@@ -458,7 +458,7 @@ classdef axes_block < serializable
             range  = get_binning_range_(obj,cur_proj,new_proj);
         end
         %------------------------------------------------------------------
-        % ACCESSORS MODERN API
+        % ACCESSORS to modern API
         %------------------------------------------------------------------
         function sz = get.dims_as_ssize(obj)
             % Return the extent along each dimension of the signal arrays.
@@ -502,7 +502,9 @@ classdef axes_block < serializable
             end
             obj.filepath_ = fp;
         end
-        %
+        %------------------------------------------------------------------
+        % MUTATORS/ACCESSORS to methods in modern API
+        %------------------------------------------------------------------
         function lab=get.label(obj)
             lab = obj.label_;
         end
@@ -566,7 +568,7 @@ classdef axes_block < serializable
             obj.single_bin_defines_iax_ = logical(val(:)');
         end
         %------------------------------------------------------------------
-        % historical and convenience getters for dependent properties
+        % LEGACY API: historical and convenience getters for dependent properties
         % which do not have setters
         %------------------------------------------------------------------
         function ndim = get.dimensions(obj)
@@ -596,26 +598,27 @@ classdef axes_block < serializable
         function lab = get.ulabel(obj)
             lab  = obj.label_;
         end
-        %
+        %------------------------------------------------------------------
+        % Serializable interface
         %------------------------------------------------------------------
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
+            % and nxsqw/sqw data format. Each new version would presumably
+            % read the older version, so version substitution is based on
+            % this number
             ver = 4;
         end
         %
         function flds = saveableFields(~)
-            % get independent fields, which fully define the state of a
+            % get independent fields, which fully define the state of the
             % serializable object.
             flds = axes_block.fields_to_save_;
         end
         %
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
-            % obtained serializable object. Return the result of the check
-            %
+            % obtained serializable object. Throw
+            % 'HORACE:axes_block:invalid_argument' if object is invalid.
             obj = check_combo_arg_(obj);
         end
         %
@@ -671,7 +674,7 @@ classdef axes_block < serializable
             end
         end
     end
-    %
+    %----------------------------------------------------------------------
     methods(Static)
         function ax = get_from_old_data(input)
             % supports getting axes block from the data, stored in binary

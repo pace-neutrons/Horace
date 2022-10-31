@@ -48,13 +48,14 @@ function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels_(obj,coord,nout,..
 % s,e  -- if num_outputs >=3, contains accumulated signal and errors from
 %         the pixels, contributing into the grid. num_outputs >=3 requests
 %         pix_cand parameter to be present and not empty.
-% pix  -- if num_outputs >=4, returns input pix_cand contributed to
+% pix_ok
+%      -- if num_outputs >=4, returns input pix_cand contributed to
 %         the the cut and sorted by grid cell or left unsorted,
 %         depending on requested pix_indx output.
 % unique_runid
 %      -- if num_outputs >=5, array, containing the unique runids from the
 %         pixels, contributed to the cut. If input unique_runid was not
-%         empty, output unique_runid is combined with input unique_runid
+%         empty, output unique_runid is combined with the input unique_runid
 %         and contains no duplicates.
 % pix_indx
 %      -- in num_outputs ==6, contains indexes of the grid cells,
@@ -63,12 +64,11 @@ function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels_(obj,coord,nout,..
 %         pixels in PixelData. if num_outputs<6, output pix are sorted by
 %         npix bins.
 
-%varargout = cell(1,nargout);
 pix_ok = [];
 pix_indx = [];
 if nargin>8
     options = {'-force_double'};
-    % keep unused argi parameter to tell parce_char_options to ignore
+    % keep unused argi parameter to tell parse_char_options to ignore
     % unknown options
     [ok,mess,force_double,argi]=parse_char_options(varargin,options);
     if ~ok
@@ -148,7 +148,8 @@ end
 % more then 1 output
 % Calculating signal and error
 %--------------------------------------------------------------------------
-if isa(pix_cand,'PixelData')
+is_pix = isa(pix_cand,'PixelData');
+if is_pix
     ndata = 2;    
 else % cell with data array
     ndata = numel(pix_cand);    
@@ -157,20 +158,15 @@ end
 out = cell(1,ndata);
 out{1} = s;
 out{2} = e;
-if isa(pix_cand,'PixelData')
-    is_pix = true;
-
-    bin_values = cell(2,1);
-    bin_values{1} = pix_cand.signal;
-    bin_values{2} = pix_cand.variance;
+if is_pix
+    bin_values{1} = {pix_cand.signal;pix_cand.variance};
 else % cellarray of arrays to accumulate
-    is_pix = false;
-
     bin_values = cell(ndata,1);
     for i=1:ndata
         bin_values{i} = pix_cand{i};
     end
-    if ndata>=3
+    if ndata>=3 % Output changes type and meaning. Nasty.
+        % Needs something better in a future
         pix_ok = zeros(size(s));
         out{3} = pix_ok;        
     end
