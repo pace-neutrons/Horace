@@ -1,58 +1,84 @@
+
 # SQW
 
 ## Overview
 
-This document describes the role of the SQW object within the Horace framework, data it holds and operations it supports *without focusing on any implementation details*. 
+This document describes the role of the SQW object within the Horace framework, data it holds and operations it supports *without focusing on any implementation details*.
 
 Where specific fields are cited they are the key data that represent that information.
 
 ### What is the purpose?
 
-The SQW object holds neutron scattering experiment data and provides methods that manipulate, slice and project the data and generate model fits using third-party functions.
+The `sqw` object holds major neutron scattering experiment data and provides methods that manipulate, slice and project the data and generate model fits using third-party functions.
 
 The object provides an interface to the Horace file which can be interchanged with external applications and a public API.
 
-The SQW object exists in two distinct forms: 
+The `sqw` object contains two information blocks, describing experiment from different sides and under different approximations:
 
-- "SQW" which contains all experimental data and the detector pixel array,
-- "DND" which contains only processed neutron image data
+- `dnd-object` which is the part of the `SQW` object contains processed neutron image data, expressed in the system of coordinates, requested by the neutron physicist doing experiment. Very often its `hkl-dE` coordinate system, but it is possible to define other coordinate system of interest too.
+- `sqw-object` itself, in addition to the image data, contains the records of all neutron events occurred in the experiments and expressed (currently) in Crystal Cartesian coordinate system, the informations about all experimental runs the neutron events have been obtained from, information about the instrument and sample used in experiment, the instrument states during experiment and the information about detector pixel array, used to collect neutron events. This information is sufficient to calculate resolution function of the instrument. The neutron events are held in the `PixelData` class, and arranged in such a way, that selection of a part of the `dnd-object` neutron image allows the effective selection of the appropriate part of the `PixelData` contributed into this part of image.
 
-The two objects are treated by Horace as 'first class citizens'. The objects share a common API where that is appropriate. In an SQW object, operations are performed on the pixel array data and the current image data recalculated from this. For DND objects the operations are performed directly on the image data. 
-In addition, the extra information and raw data contained on the SQW object allows a scattering model to be fitted.
 
-## Main Classes
+The two objects are treated by Horace as 'first class citizens'. The objects share a common API where that is appropriate. In an sqw object, operations are performed on the pixel array data and the `dnd` image data recalculated from this. For `dnd` objects the operations are performed directly on the image data.
+In addition, the extra information and raw data contained on the `sqw` object allows a scattering model to be fitted.
 
-![Class Overview](../diagrams/sqw-dnd.png)
+## Main Classes:
+
+The class diagram describing the relationship between main Horace classes is provided on Fig.1:
+
+![Fig.1. Class Overview](../diagrams/sqw-dnd.png)
 
 
 
 ### SQWDnDBase
 
-Abstract base class for the SQW and DND objects.
+Abstract base class for the `sqw` and `dnd` objects, describing the interface common for both `sqw` and `dnd` objects.
 
-This includes the image data and main header information, available in both the `SQW` and `DnD` classes.
+May include code of the methods with work identically on both `sqw` and `dnd` objects.
 
-This class will also include common methods, in particular the large number of unary and binary operations which are implemented as calls to operations managers which will be defined in the implementing classes.
+Currently it also include common methods, in particular the large number of unary and binary operations which are implemented as calls to the operations managers defined in the children classes and implementing the particular behaviour, different for `sqw` and `dnd` objects.
 
 ### SQW
 
-The `SQW` object is the providing the public API to data. Data manipulations are performed on the `PixelData` and `Image` is recalculated.
+The `sqw` object provides the public API to the all relevant experimental data. Main data manipulations are performed on the `PixelData` property `pix` and the `Image` stored in property `data` and containing `dnd` object corresponding to the `sqw` object is recalculated accordingly to the pixel operations.
 
-This class includes the full experiment data including the raw pixel data and details of the instrument and detectors.
+This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally very large dataset, `sqw` object in number of operations may be used leaving the `PixelData` untouched. Alternatively, when `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` can be performed on separate data chunks loaded and processed in memory, leaving the main `PixelData` arrays filebased.
+The structure of a generic `sqw` object is presented in Fig.2:
 
-![SQW Class Overview](../diagrams/sqw.png)
+![Fig.2. SQW Class Overview](../diagrams/sqw.png)
 
 ### DnDBase, DnD
 
-The `DnD` object is a "cut-down SQW" object containing only `Image` data. This exists in n-dimensional forms, with each class extending an abstract base class. The `PixelData`, `IX_Instr`and `IX_DetectorArray` information is NOT included, and any data manipulation operations are performed directly on the `Image` data.
+The `DnD` object exists as part of  `sqw` object but also can exist as a separate "cut-down `sqw`" object containing only multidimensional `Image` data expressed in the coordinate system of interest. The "Image" exists in 0 to 4 dimensional forms, with each particular number of dimensions class defining the particular dimensions of the abstract base class `DnDBase` and resulting in the particular dimensionality `DnD` class (`d0d-d4d` subclasses). The `PixelData`, `main_header` and `Experiment` information are NOT included in `DnD` object so any data manipulation operations are performed directly on the `Image` data.
 
-The `DnDBase` base class is an abstract class holding the common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing.
+An extract from the whole inheritance diagram for the `DnD` objects is presented on the Fig.3:
 
-![DND Class Overview](../diagrams/dnd.png)
+![Fig.3. DnD Class inheritance diagram](../diagrams/DND-inheritance.png)
+
+The diagram also shows `data_sqw_dnd` object inheriting from `DnDBase` and containing arbitrary number of dimensions unlike other `DnD` objects which define their specific number of dimensions.  This object left for IO compatibility with previous versions of Horace code and is not used in Horace for any other purpose except IO restoring old data.
+
+The `DnDBase` base class is an abstract class holding the common data and common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing appropriate algorithms. The structure of `DnDBase` class together with its children, defining specific number of dimensions is presented in Fig.4:
+
+![Fig.4. DND Class Overview](../diagrams/dnd.png)
+
+The diagram shows that any `DnD` object contains *signal*, *error* and *npix* arrays of appropriate dimensions plus  two additional properties, namely *proj* and *axes*. *npix* describes the number of pixels (neutron events) contributed to each area of the image according to the image axes scaling (described by `axes_block` below). *proj* field contains the instance of `aProjection` class, which defines the transformation from the coordinate system of `PixelData` class to the `Image` (`DnD` object) coordinate system. For example, in the most common case of `Image` coordinate system being `hkl-dE` coordinate system and `PixelData` class coordinate system being Crystal Cartesian coordinate system the transformation is the matrix multiplication of the `PixelData` coordinates by `UB` matrix of Bussing and Levy [^1].
+
+The `axes_block` class is closely related to the appropriate `aProjection` class and defines the coordinate system of the image, its binning axes and units along the axes scales.
+
+In more details the `aProjection` class and `axes_block` classes are described below.
+
+### Plotting interface
+
+The 1D-3D`sqw` and `dnd` Horace objects can be plotted with the appropriate dimensions plots. There is a large number of plotting functions so it is reasonable to extract these functions into a separate plotting interface. `sqw`, `dnd` and Herbert `IX_dataset` objects inherit `data_plot_interface` and implement particular plotting functions specific to the particular n-dimensional objects. The inheritance diagram of this plotting interface is presented in the Fig.5:
+
+![Fig.5. Plot Interface](../diagrams/sqw-dnd_plot_interface.png)
+
+The top level interface class defines all plotting functions as abstract (or rather throwing **not-implemented** exception), while actual 1D-3D objects implement their appropriate plotting functions (e.g. 1D objects -- 1D plotting, 2D objects -- 2D plotting etc.). The upper level objects add some wrapping to the plot, but mainly delegate plotting to the lower level objects (One can define objects level as the function of their complexity so the objects hierarchy looks `sqw`->`dnd`->`IX_dataset` following the decrease in the amount of information every object contains). The actual plotting functionality is implemented on Herbert `IX_dataset` objects.
+
 
 ### Main Header
 
-The `MainHeader` object contains high-level metadata for the `SQW` or `DND` object. The dataset title and file location.
+The `MainHeader` object contains high-level metadata for the `sqw` objects. It contains the dataset title, file location the date when the dataset was initially created and the number experimental runs contributed into the dataset.
 
 
 ### Experiment
@@ -64,10 +90,10 @@ This data should all be available from the Mantid `.nxspe` file, however it is l
 **Notes**
 (1): the format of this datafile is TBD. To ease the eventual integration with Mantid a Nexus/HDF5 file or some other structured data that maps easily into the HDF5 format should be used.
 
-####  Instrument specification (`IX_instr`)
-The instrument class contains the information about the components that make up the instrument pre-sample, including the choppers, moderators and incident beams. 
+####  Instrument specification (`IX_inst`)
+The instrument class contains the information about the components that make up the instrument pre-sample, including the choppers, moderators and incident beams.
 
-The object contains a structured set of components that will be unique to each site.
+The specific subclasses contain a structured set of components that will be unique to each neutron facility
 
 #### Detector information (`IX_detector_array`)
 The detector information class contains information about individual detector elements and their geometry. The data in this object will change when calibrations are performed or elements replaced or serviced as part of regular maintenance tasks. 
@@ -120,38 +146,34 @@ The same `get_data(name)` method can be used to provide access to the "standard"
 (3): existing binary data format must be extended to include additional "number of columns" field (&ge;9) information and the file read/write routines updated to read from an array of `n` columns.
 
 
-### Image
+### Image (`DnDBase` class in more details)
 
-Represents the n-dimensional array of image pixel data with associated axis information. 
-Image pixel data is generated from the `PixelData` via one or more projections.
+`DnDBase` class contains the n-dimensional arrays of image pixel data transformed into selected coordinate system with associated axis information related to this coordinate system. 
+Image pixel data is generated from the `PixelData` via one or more projections. The class diagram for the image class is presented on Fig.4 above.
 
 |  | Description | Notes |
 |-----|---------|---|
 | signal[] | Mean intensity, calculated as `Sum(pix_signal(k))/npix(k)` | (1), (2) |
 | err[] | Average error, calculated as  `sqrt(Sum(pix_variance(k)/npix(k)))` |(1), (2) |
 | npix[] | Number of detector pixels contributing to each image pixel ||
-| uoffset[] | Offset of pixel projection axes origin | (3) |
-| u_to_rlu \[\]\[\] | Matrix of pixel projection in hkle | (3) |
-| ulen[] | Length of pixel projection axes Ang^-1 or meV | (3), (4) |
+| proj | The instance of `aProjection` class, describing the transformation from Crystal Cartesian to Image coordinate system | |
+| axes | The instance of `axes_block` class, defining the shape and size of *signal* *err* and *npix* arrays and the units along their axes |(3) |
 
-The `Axis` classes describes image axes
-- value range
-- unit vectors
-- units
-- matrix mapping these axes to the pixel data
-- requires a well-defined mapping from image pixels to source data pixel
+
 
 
 **Notes**
 (1): if the image data is updated, e.g. after a slice or projection, the backing pixel data must be updated/reordered
 (2): `pix_signal` represents the array of pixel signal data from which this image data was derived, `pix_variance` the array of pixel variance.
-(3): uoffset and ulen are 4x1 vectors and u_to_rlue is a 4x4 matrix, with the four coordinates are always assumed to be (u1, u2, u3, dE) in that order.
-(4): u1, u2, u3 have units of Ang^-1, dE has units of meV.
+(3): The `axes_block` classes describes image axes, namely
+- value range
+- unit vectors
+- units
 
-### data_sqw_dnd class
-The replacement for **data_sqw_dnd** class (current implementation of the image) is based on generic projection transformation and the methods, necessary to implement generic cut procedure.:
 
-Suggested Image block ( **data_sqw_dnd**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
+The **DnD class** (current implementation of the image) contains a transformation defined by an instance of a generic projection and the methods, necessary to implement generic cut procedure.:
+
+The Image block ( **DnD class**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
 
 The cut algorithm takes existing **sqw** object containing existing **projection** and **axes_block** classes. retrieves target **projection** and **axes_block** classes from the input binning parameters of the cut, and calculates *npix*, *signal* and *error* from the pixel information, present in the source **sqw** object or from  *npix*, *signal* and *error* of the source object if the pixel information is not present in the source object.
 
@@ -179,7 +201,7 @@ Other important methods, necessary for the analysis of different cuts from an sq
 |-----|---------|---|
 | *from_cur_to_targ_coord* | Transforms the pixels of the current image coordinate system into other coordinate system the requested cut is presented in. | |
 | *get_nrange* | return ranges of indexes of pixels which may contribute into current cut | |
-| *bin_pixels* | transform input pixels into the coordinate system, defined by the target projection and calculate the contribution from these pixels into the areas, defined by the target **axes_block**. (namely calculate number of pixels (*npix*) contributing into each cell of the **axes_block** and summ pixels signal and error data into *s* and *err* accumulator arrays)| |
+| *bin_pixels* | transform input pixels into the coordinate system defined by the target projection, and calculate the contribution from these pixels into the areas defined by the target **axes_block**. (namely calculate number of pixels (*npix*) contributing into each cell of the **axes_block** and sum pixels signal and error data into *s* and *err* accumulator arrays)| |
 
 The children of **aProjection** class (e.g. **ortho_proj** class, defining orthogonal projection), need to define the abstract methods and may redefine these methods for particular pairs of projections to optimize the performance of cuts.
 
@@ -188,7 +210,7 @@ The children of **aProjection** class (e.g. **ortho_proj** class, defining ortho
 
 **axes_block** should be overloaded for every coordinate system defined by a projection, with possibility to overload plot methods for the convenience of the plotting in the particular coordinate system.
 
-Operations using projections and cut operations in particular result in the creation of a new SQW/DND object and are performed to the Image Pixels using data from the backing `PixelData`.
+Operations using projections, and cut operations in particular, result in the creation of a new `sqw/dnd` object. They are performed to the Image Pixels using data from the original `PixelData` class. Similar operations are possible on images (`DnD` objects) themselves, but as these objects do not contain all necessary information, the cuts from `DnD` objects are only quantitative estimates for the cuts, obtained using full experiment information available from `sqw` objects.
 
 **Questions**
 
@@ -225,11 +247,11 @@ Combine multiple experiment [data files](http://horace.isis.rl.ac.uk/Input_file_
 - Projection -- aggregate pixel data onto an M-dimensional surface (M &le; N). This should support projections onto planes and spherical shells (TBI) and spiral slices (TBI) as well as reorientations.
 - Symmetrization -- enhance signal-to-noise utilizing symmetries within the data
 
-The operations are performed on the pixel data and the image recalculated from that. If the pixel-data is not available (a DND object) the operations are performed directly on the image with reduced functionality but higher speed.
+The operations are performed on the pixel data and the image recalculated from that. If the pixel-data is not available (a `dnd` object) the operations are performed directly on the image with higher speed but with reduced accuracy or, if the correct accuracy may be achieved, with highly reduced functionality. The correct accuracy can be achieved for axis aligned cuts only.
 
 The data manipulations are implemented through the `ProjectionManager` class and instances of `IProjection`.
 
-Note: future extensions may add support for projections for which `M > N`. These would require the creation of a generalized higher-dimension DnD object.
+Note: future extensions may add support for projections for which `M > N`. These would require the creation of a generalized higher-dimension `dnd` object.
 
 #### Model Fitting
 
@@ -617,3 +639,5 @@ The `shape` and `ps` attributes can be replaced with an instance of a new `Shape
 | SQW | Horace data object including experiment, pixel and image data |
 |`.nxsqw` | Horace NeXus/HDF5 data file format (TBD) |
 
+
+[^1]: Busing, W. R and Levy, H. A; Angle calculations for 3- and 4-circle X-ray and neutron diffractometers; Acta Crystallographica N4 1976 pp.457-464.
