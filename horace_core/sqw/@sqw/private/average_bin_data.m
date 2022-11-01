@@ -10,7 +10,7 @@ function [vals_av, vals_var, vals_devsqr] = average_bin_data(w, vals)
 %
 %   vals    array, or cell array of arrays, each with npixtot elements, to be
 %          averaged over the bins of w. That is, the first w.data.npix(1) values
-%          are averaged to give one element, the next w.data.npix(2) averaged for
+%          are averaged to give one element, the next`w.data.npix(2) averaged for
 %          the second element etc.
 %
 % Output:

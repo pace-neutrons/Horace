@@ -29,9 +29,12 @@ function wout=signal(w,name)
 
 
 if nargin~=2
-    error('Check number of parameters')
+    error('HORACE:sqw:invalid_argument', ...
+        'this function requests two input arguments')
 elseif isempty(name)||~ischar(name)||size(name,1)~=1
-    error('Check type of arguments')
+    error('HORACE:sqw:invalid_argument', ...
+        'Second argument of this function should be char string selected from input list. Its type is %s',...
+        class(name));
 end
 
 % Get new signal array
@@ -43,4 +46,4 @@ end
 wout=w;
 wout.data.s=svals;
 wout.data.e=svar;
-wout.data.pix = PixelData([wout.data.pix.data(1:7,:);spix';sdevsqr']);
+wout.pix = PixelData([wout.pix.data(1:7,:);spix';sdevsqr']);

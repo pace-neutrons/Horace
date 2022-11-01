@@ -103,7 +103,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         sz = sigvar_size(w);
         %------------------------------------------------------------------
         function obj=signal(obj,varargin)
-            % Set the intensity of an sqw object to the values for the named argument
             error('HORACE:DnDBase:runtime_error',...
                 'Call to signal function is possible for sqw objects only')
         end
