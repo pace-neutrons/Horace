@@ -263,7 +263,7 @@ We have chosen the simpler model here so it can fit into a Matlab anonymous func
 .. code-block:: matlab
 
    % Make cut
-   proj = projaxes([1,1,0], [-1,1,0], 'type', 'rrr');
+   proj = ortho_proj([1,1,0], [-1,1,0], 'type', 'rrr');
    w1 = cut_sqw('fe_cut.sqw', proj, 0.05, [-1.05,-0.95], [-0.1,0.1], [80, 100])
    
    % Define the instrument and sample information on the cut
@@ -315,7 +315,7 @@ Finally, Horace can also plot a resolution ellipsoid over a *2D* plot
 
 .. code-block:: matlab
 
-   proj = projaxes([1,1,0], [-1,1,0], 'type', 'rrr');
+   proj = ortho_proj([1,1,0], [-1,1,0], 'type', 'rrr');
    w1 = cut_sqw('fe_cut.sqw', proj, 0.05, [-1.1,-0.9], [-0.1, 0.1], [50,5,120]);
    xdir = [1,0,0]; ydir = [0,1,0]; ei = 401; freq = 600; chop_type = 's';
    w1 = set_sample(w1, IX_sample(xdir, ydir, 'cuboid', [0.03,0.03,0.03]));
