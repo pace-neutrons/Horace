@@ -288,17 +288,14 @@ for i=1:nWorkers
     loop_data{i} = struct('w', {cell(numel(w),1)}, 'xye', xye, 'S', S, 'Store', Store);
 end
 
+if ~all(cellfun(@(x) isa(x, 'SQWDnDBase') || isa(x, 'IX_dataset'), w) | xye)
+    error('HERBERT:split_data:invalid_argument', ...
+          'Unrecognised type: %s, data must be of type struct, SQWDnDBase or IX_dataset.', class(w{i}))
+end
+
+
 for i=1:numel(w)
-    if xye(i)
-        [data, md] = split_xye(w{i}, nWorkers);
-    elseif isa(w{i}, 'SQWDnDBase')
-        [data, md] = split_sqw(w{i}, 'nWorkers', nWorkers, 'split_bins', split_bins);
-    elseif isa(w{i}, 'IX_dataset')
-        [data, md] = split_dataset(w{i}, nWorkers);
-    else
-        error('HERBERT:split_data:invalid_argument', ...
-            'Unrecognised type: %s, data must be of type struct, SQWDnDBase or IX_dataset.', class(w{i}))
-    end
+    [data, md] = distribute(w{i}, nWorkers);
 
     for j = 1:numel(md)
         merge_data(i,j).nelem = md(j).nelem;
@@ -332,58 +329,4 @@ if exist('tobyfit', 'var')
         end
     end
 end
-end
-
-function [data, merge_data] = split_xye(w, nWorkers)
-n = numel(w.y);
-nPer = repmat(floor(n / nWorkers), nWorkers, 1);
-nPer(1:mod(n, nWorkers)) = nPer(1:mod(n, nWorkers)) + 1;
-points = [0; cumsum(nPer)];
-tmp = cellfun(@(x)(mat2cell(x, 1, nPer)), w.x(:), 'UniformOutput', false);
-
-data = struct('x', [], 'y', [], 'e', [], 'nomerge', repmat({true}, nWorkers, 1));
-merge_data = struct('nomerge', true, 'nelem', num2cell(nPer));
-
-for i=1:nWorkers
-    tmp2 = cellfun(@(x) x(i), tmp, 'UniformOutput', false);
-    data(i).x = tmp2{1};
-    data(i).y = w.y(points(i)+1:points(i+1));
-    data(i).e = w.e(points(i)+1:points(i+1));
-    merge_data(i).range = [points(i)+1,points(i+1)];
-    merge_data(i).pix_range = merge_data(i).range;
-end
-
-end
-
-function [data, merge_data] = split_dataset(w, nWorkers)
-cls = class(w);
-dims = str2double(cls(12));
-n = numel(w.x);
-nPer = repmat(floor(n / nWorkers), nWorkers, 1);
-nPer(1:mod(n, nWorkers)) = nPer(1:mod(n, nWorkers)) + 1;
-points = [0; cumsum(nPer)];
-
-data(1:nWorkers) = w; % struct('w', cell(nWorkers,1));
-merge_data = struct('nomerge', true, 'nelem', num2cell(nPer));
-
-for i = 1:nWorkers
-    data(i).x = w.x(points(i)+1:points(i+1));
-    data(i).signal = w.signal(points(i)+1:points(i+1));
-    data(i).error = w.error(points(i)+1:points(i+1));
-    merge_data(i).range = [points(i)+1,points(i+1)];
-    merge_data(i).pix_range = merge_data(i).range;
-end
-
-if dims > 1
-    for i = 1:nWorkers
-        data(i).y = w.y(points(i)+1:points(i+1));
-    end
-end
-if dims > 2
-    for i = 1:nWorkers
-        data(i).z = w.z(points(i)+1:points(i+1));
-    end
-end
-
-
 end
