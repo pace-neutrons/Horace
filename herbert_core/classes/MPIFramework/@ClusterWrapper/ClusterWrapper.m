@@ -313,7 +313,6 @@ classdef ClusterWrapper
         %  debug           -- Direct stdout of workers to host stdout
         %  target_threads  -- Start matlab jobs running with this many threads
             par = parallel_config;
-
             p = inputParser();
             addOptional(p, 'prefix_command' , {}, @iscellstr);
             addOptional(p, 'postfix_command', {}, @iscellstr);
@@ -330,7 +329,7 @@ classdef ClusterWrapper
             obj.common_env_var_('WORKER_CONTROL_STRING') = worker_control_string;
 
             task_info = obj.generate_run_string(target_threads, ...
-                                                prefix_command, postfix_command, matlab_extra)
+                                                prefix_command, postfix_command, matlab_extra);
 
             if ispc()
                 runtime = java.lang.ProcessBuilder('cmd.exe');
