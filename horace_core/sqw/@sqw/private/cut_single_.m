@@ -1,4 +1,4 @@
-function [wout,log_info] = cut_single(w, tag_proj, targ_axes, keep_pix, outfile,log_level)
+function [wout,log_info] = cut_single_(w, tag_proj, targ_axes, keep_pix, outfile,log_level)
 %%CUT_SINGLE Perform a cut on a single sqw object
 %
 % Input:
@@ -24,7 +24,6 @@ function [wout,log_info] = cut_single(w, tag_proj, targ_axes, keep_pix, outfile,
 
 % Rework of legacy function cut_sqw_main_single
 
-DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 return_cut = nargout > 0;
 
 % Accumulate image and pixel data for cut

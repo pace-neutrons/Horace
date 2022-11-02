@@ -210,7 +210,7 @@ Reading and writing to file
 
 One way of storing datasets that you've created is to save your Matlab workspace, however this may not always be the most efficient thing to do -- for example your Matlab workspace may contain lots of objects that you do not wish to save.
 
-Horace allows you to write single objects into a binary file quite straightforwardly. Suppose you wish to save the d2d object we just created, ``w_2d``, in a file called ``my_saved_d2d``. All you have to do is type:
+Horace allows you to write single objects into a binary file straightforwardly. Suppose you wish to save the d2d object we just created, ``w_2d``, in a file called ``my_saved_d2d``. All you have to do is type:
 
 ::
 

@@ -93,8 +93,19 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     end
 
     methods
-        % function signatures
-        %
+        % function signatures:
+        %------------------------------------------------------------------
+        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
+        %                             % of the bins of an n-dimensional sqw
+        %                             % or dnd dataset
+        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
+        %                             % centres of the bins of an n-dimensional
+        %                             % sqw or dnd dataset.
+        [val, n] = data_bin_limits(obj); % Get limits of the data in an
+        %                             % n-dimensional dataset, that is,find the
+        %                             % coordinates along each of the axes
+        %                             % of the smallest cuboid that contains
+        %                             % bins with non-zero values of contributing pixels.
         % sigvar block
         %------------------------------------------------------------------
         sob = sigvar(w);
@@ -106,15 +117,20 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             error('HORACE:DnDBase:runtime_error',...
                 'Call to signal function is possible for sqw objects only')
         end
-
+        wout = cut(obj, varargin); % take cut from the dnd object
+        function wout = cut_dnd(obj,varargin)
+            % legacy entrance to cut 
+            wout = obj.cut(varargin{:});
+        end
+        function wout = cut_sqw(obj,varargin)
+            % throw on cut_sqw on dnd object
+            error('HORACE:DnDBase:invalid_argument', ...
+                'Can not run cut_sqw on dnd object');
+        end
+        %------------------------------------------------------------------        
+        %
         [wout,mask_array] = mask(win, mask_array);
-        %------------------------------------------------------------------
-        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
-        %                             % of the bins of an n-dimensional sqw
-        %                             % or dnd dataset
-        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
-        %                             % centres of the bins of an n-dimensional
-        %                             % sqw or dnd dataset.
+
         %------------------------------------------------------------------
         [wout_disp, wout_weight] = dispersion(win, dispreln, varargin);
         wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % calculate
@@ -130,9 +146,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % smaller then the dimensionality of the current object
         obj = rebin(obj,varargin);
         %
-        wout = cut_dnd_main (data_source, ndims, varargin);
-        [val, n] = data_bin_limits (din);
-
         save_xye(obj,varargin)  % save data in xye format
         s=xye(w, null_value);   % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
         % smooth dnd object or array of dnd objects
@@ -372,6 +385,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
 
+        wout = cut_dnd_main (data_source, ndims, varargin);
         %------------------------------------------------------------------
         wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate
         %                              % function on dnd object
@@ -442,6 +456,19 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 obj = check_combo_arg(obj);
             end
         end
+
+        function varargout = cut_single(obj, tag_proj, targ_axes, outfile, ...
+                proj_given,log_level)
+            % do single cut from a dnd object
+            if nargout > 0
+                return_cut = true;
+            else
+                return_cut = false;
+            end
+            varargout{1} = cut_single_(obj, tag_proj, targ_axes,...
+                return_cut,outfile,proj_given,log_level);
+        end
+
     end
 end
 

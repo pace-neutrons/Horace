@@ -47,7 +47,7 @@ classdef aProjection < serializable
         % Internal properties, used by algorithms and better not to be
         % exposed to users
         %
-        targ_proj    % the target projection, used by cut to transform from
+        targ_proj;   % the target projection, used by cut to transform from
         %              source to target coordinate system
         %
         %------------------------------------------------------------------
@@ -66,7 +66,7 @@ classdef aProjection < serializable
         % direction. The majority of physical cases use do_3D_transformation
         % true, though testing or the projection used to identify position
         % of q-dE point in q-dE space may set this property to false.
-        do_3D_transformation
+        do_3D_transformation;
     end
 
     properties(Constant, Access=private)

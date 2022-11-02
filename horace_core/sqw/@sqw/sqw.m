@@ -59,6 +59,17 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         wout = smooth(win, varargin)  % smooth sqw object or array of sqw
         %                             % objects containing no pixels
+        function [val, n] = data_bin_limits (obj)
+            % Get limits of the data in an n-dimensional dataset, that is,
+            % find the coordinates along each of the axes of the smallest
+            % cuboid that contains bins with non-zero values of
+            % contributing pixels.
+            %
+            % Syntax:
+            %   >> [val, n] = data_bin_limits (din)
+            %
+            [val,n] = obj.data.data_bin_limits();
+        end
         % sigvar block
         %------------------------------------------------------------------
         wout = sigvar(w);
@@ -68,6 +79,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %------------------------------------------------------------------
         wout=signal(w,name)  % Set the intensity of an sqw object to the
         %                    % values for the named argument
+        [wout,mask_array] = mask(win, mask_array);
+        wout = cut(obj, varargin); % take cut from the sqw object.
+        %
+        function wout = cut_dnd(obj,varargin)
+            % legacy entrance to cut for dnd objects
+            wout = cut(obj.data,varargin{:});
+        end        
+        function wout = cut_sqw(obj,varargin)
+            % legacy entrance to cut for sqw object            
+            wout = cut(obj, varargin{:});
+        end
+        %
         [wout,mask_array] = mask(win, mask_array);
         %
         wout = mask_pixels(win, mask_array);
@@ -362,14 +385,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % to allow loadob to recover new structure from an old structure.
             %
             obj = set_from_old_struct_(obj,S);
-        end
-
-        function [proj, pbin, opt,args] = process_and_validate_cut_inputs(obj,...
-                return_cut, varargin)
-            % interface to private cut parameters parser/validator
-            % checking and parsing cut inputs in any acceptable form
-            ndims = obj.data.dimensions;
-            [proj, pbin, opt,args]= cut_sqw_parse_inputs_(obj.data,ndims, return_cut, varargin{:});
         end
     end
     %----------------------------------------------------------------------

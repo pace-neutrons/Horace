@@ -11,6 +11,11 @@ classdef (Abstract) SQWDnDBase < serializable
         %                             % DnD object always returns false.
         [nd,sz] = dimensions(win);    % Return size and shape of the image
         %                             % arrays in sqw or dnd object
+        [val, n] = data_bin_limits (din) % Get limits of the data in an n-dimensional
+        %                             % dataset, that is, find the
+        %                             % coordinates along each of the axes
+        %                             % of the smallest cuboid that contains
+        %                             % bins with non-zero values of contributing pixels.
         %------------------------------------------------------------------
         save_xye(obj,varargin);       % save xye data into file
         s=xye(w, null_value);         % return a strucute, containing xye data
@@ -28,6 +33,9 @@ classdef (Abstract) SQWDnDBase < serializable
         %------------------------------------------------------------------
         wout=signal(w,name)  % Set the intensity of an sqw object to the
         %                    % values for the named argument
+        wout = cut(obj, varargin); % take cut from a sqw or sqw/dnd object
+        wout = cut_dnd(obj,varargin) % legacy entrance for cut for dnd objects
+        wout = cut_sqw(obj,varargin) % legacy entrance for cut for sqw objects
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -36,9 +44,17 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
 
-    methods (Static)
-        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
-
+    methods (Static,Hidden) % should be protected but Matlab have some issues with calling this
+        % from children
+        %
+        function [proj, pbin, opt] = process_and_validate_cut_inputs(data,...
+                return_cut, varargin)
+            % interface to private cut parameters parser/validator
+            % checking and parsing cut inputs in any acceptable form
+            ndims = data.dimensions;
+            [proj, pbin, opt]= cut_parse_inputs_(data,ndims, return_cut, varargin{:});
+        end
+        %
         function [alatt,angdeg,cor_mat]=parse_change_crystal_arguments(alatt0,angdeg0,exper_info,varargin)
             % process input parameters for change crystal routine and
             % return standard form of the arguments to use in change_crystal
@@ -136,6 +152,9 @@ classdef (Abstract) SQWDnDBase < serializable
             % paser for funceval function input parameters
             [func_handle, pars, opts] = parse_eval_args_(win, func_handle, ...
                 pars, varargin{:});
+        end
+        function [wout,log_info] = cut_single(obj, tag_proj, targ_axes, outfile,log_level)
+            [wout,log_info] = cut_single_(obj, tag_proj, targ_axes, outfile,log_level);
         end
     end
 

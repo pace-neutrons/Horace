@@ -106,7 +106,7 @@ classdef test_symm < TestCase
             w2d_qe_d2d = read_dnd(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
             w2d_qq_d2d = read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
 
-            skipTest('Symmetrize DND is disabled until DND is refactored #796')
+            skipTest('Symmetrize DND is disabled until DND is refactored #878')
             w2_1 = symmetrise_horace_2d(w2d_qe_d2d,[0,NaN]);
             w2_2 = symmetrise_horace_2d(w2d_qq_d2d,[-0.005,NaN]);
 
@@ -147,7 +147,7 @@ classdef test_symm < TestCase
         % ------------------------------------------------------------------------------------------------
         function this=test_random_symax(this)
             w2d_qq_small_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_small_d2d.sqw'));
-            skipTest('Symmetrize DND is disabled until DND is refactored #796')
+            skipTest('Symmetrize DND is disabled until DND is refactored #878')
             % Random symm axis (ensure shoelace algorithm is actually tested)
             disp(' ')
             disp('symmetrise_horace_2d: long operation --- wait for <2 min');
@@ -168,7 +168,7 @@ classdef test_symm < TestCase
         function this=test_d1d_sym(this)
             w1d_sqw=read_sqw(fullfile(this.testdir,'w1d_sqw.sqw'));
             w1d_d1d=read_dnd(fullfile(this.testdir,'w1d_d1d.sqw'));
-            skipTest('Symmetrize DND is disabled until DND is refactored #796')
+            skipTest('Symmetrize DND is disabled until DND is refactored #878')
             % d1d symmetrisation (a whole lot easier)
             w1_1=symmetrise_horace_1d(w1d_d1d,0.25);
             w1_1s=symmetrise_sqw(w1d_sqw,[0,0,1],[-1,1,0],[0.25,0.25,0]);

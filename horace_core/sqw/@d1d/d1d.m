@@ -24,7 +24,6 @@ classdef d1d < DnDBase
         end
         dat = IX_dataset_1d(obj);
 
-        wout = cut (varargin);
         wout = combine_horace_1d(w1,w2,varargin);
         wout = rebin_horace_1d(win, varargin);
         wout = symmetrise_horace_1d(win, varargin);

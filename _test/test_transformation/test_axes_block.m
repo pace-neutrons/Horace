@@ -75,6 +75,7 @@ classdef test_axes_block < TestCase
             assertEqual(size(e),szs);
 
         end
+        %
         function test_correct_binning_and_indx_2D_accumulated(~)
             dbr = [0,0.1,0,0.5;1,1.9,3,9.5];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
@@ -630,6 +631,61 @@ classdef test_axes_block < TestCase
             assertEqual(size(nodes,2),the_size);
         end
         %
+        function test_get_bin_centers_2D_4d(~)
+            dbr = [-1,-2,-3,0;1,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab = axes_block(bin0{:});
+
+            [nodes,en,nbins] = ab.get_bin_nodes('-density_integr',(dbr(2,:)-dbr(1,:))'/10);
+            assertEqual(size(nodes,1),4);
+
+
+            assertEqual(numel(en),nbins(end));
+
+            the_size = prod(nbins);
+            assertEqual(size(nodes,2),the_size);
+        end
+        %
+        function test_get_bin_centers_2D_native(~)
+            dbr = [-1,-2,-3,0;1,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab = axes_block(bin0{:});
+
+            [centers,en,ncenters] = ab.get_bin_nodes('-density_integr');
+            assertEqual(size(centers,1),4);
+
+            ndd = ab.nbins_all_dims;
+            assertEqual(ndd,ncenters);
+            sz = ab.dims_as_ssize();
+
+            assertEqual(numel(en),sz(end));
+
+            the_size = prod(sz);
+            assertEqual(size(centers,2),the_size);
+        end
+        %
+        function test_worong_char_size_throw(~)
+            dbr = [-1,-2,-3,0;1,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab = axes_block(bin0{:});
+           ex = assertExceptionThrown(@()get_bin_nodes(ab,'-density_integr',(dbr(2,:)-dbr(1,:))/10),...
+                'HORACE:axes_block:invalid_argument');
+           assertTrue(strncmp(ex.message,'characteristic size, if present',31));
+        end        
+        %
+        function test_worong_keyword_throw(~)
+            dbr = [-1,-2,-3,0;1,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab = axes_block(bin0{:});
+           ex = assertExceptionThrown(@()get_bin_nodes(ab,'-wrong',(dbr(2,:)-dbr(1,:))'/10),...
+                'HORACE:axes_block:invalid_argument');
+           assertTrue(strncmp(ex.message,'characteristic size, if present',31));
+        end        
+        %
         function test_get_bin_nodes_2D_2d(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
@@ -666,7 +722,7 @@ classdef test_axes_block < TestCase
             assertEqual(size(nodes,2),the_size);
         end
         %
-        function test_get_bin_nodes_2D_2d_ext_block(~)
+        function test_get_bin_nodes_2D_2d_char_size(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
@@ -676,18 +732,20 @@ classdef test_axes_block < TestCase
             r0 = [-1;-2;-3;0];
             r1 = r0+new_step;
             char_block =[r0,r1];
-            nodes = ab.get_bin_nodes(char_block);
+            [nodes,en,nbins] = ab.get_bin_nodes(char_block);
+            assertEqual(numel(en),nbins(4));
             assertEqual(size(nodes,1),4);
             node_range = [min(nodes,[],2)';max(nodes,[],2)'];
             assertEqual(ab.img_range,node_range);
 
             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
-            nns = [84,3,3,221];
+            nns = [42,2,2,111];
+            assertEqual(nns,nbins);
             the_size = prod(nns);
             assertEqual(size(nodes,2),the_size);
         end
         %
-        function test_get_bin_nodes_2D_4d_ext_block(~)
+        function test_get_bin_nodes_2D_4d_char_size(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
@@ -697,14 +755,15 @@ classdef test_axes_block < TestCase
             r0 = [-1;-2;-3;0];
             r1 = r0+new_step;
             char_block =[r0,r1];
-            [nodes3D,dEgrid] = ab.get_bin_nodes(char_block,'-3D');
+            [nodes3D,dEgrid,npoints_in_axes] = ab.get_bin_nodes(char_block,'-3D');
             assertEqual(size(nodes3D,1),3);
             node_range = [min(nodes3D,[],2)';max(nodes3D,[],2)'];
             assertEqual(ab.img_range(:,1:3),node_range);
 
             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
 
-            nns = [84,80,81,12];
+            nns = [42,40,41,12];
+            assertEqual(nns,npoints_in_axes);
             q_size = prod(nns(1:3));
             assertEqual(numel(dEgrid),nns(4))
             assertEqual(size(nodes3D,2),q_size);
@@ -861,7 +920,7 @@ classdef test_axes_block < TestCase
             assertEqual(ab.dimensions(),2)
             
         end
-        
+        %
         function test_bin_edges_provided_4D(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
@@ -872,7 +931,7 @@ classdef test_axes_block < TestCase
             assertEqual(ab.dimensions(),4)
 
         end
-        
+        %
         function test_axes_block_0D_explicit(~)
             ab = axes_block(0);
             assertEqual(ab.dimensions,0);
@@ -880,7 +939,7 @@ classdef test_axes_block < TestCase
             iiax = true(1,4);
             assertEqual(ab.single_bin_defines_iax,iiax)
         end
-
+        %
         function test_axes_block_1D_explicit(~)
             ab = axes_block(1);
             assertEqual(ab.dimensions,1);
@@ -889,7 +948,7 @@ classdef test_axes_block < TestCase
             iiax(1) = false;
             assertEqual(ab.single_bin_defines_iax,iiax)
         end
-
+        %
         function test_axes_block_2D_explicit(~)
             ab = axes_block(2);
             assertEqual(ab.dimensions,2);
@@ -899,7 +958,7 @@ classdef test_axes_block < TestCase
             iiax(4) = true;
             assertEqual(ab.single_bin_defines_iax,iiax)
         end
-
+        %
         function test_axes_block_3D_explicit(~)
             ab = axes_block(3);
             assertEqual(ab.dimensions,3);
@@ -908,14 +967,14 @@ classdef test_axes_block < TestCase
             iiax(4) = true;
             assertEqual(ab.single_bin_defines_iax,iiax)
         end
-
+        %
         function test_axes_block_4D_explicit(~)
             ab = axes_block(4);
             assertEqual(ab.dimensions,4);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             assertEqual(ab.single_bin_defines_iax,false(1,4))
         end
-
+        %
         function test_axes_scales_4D(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...

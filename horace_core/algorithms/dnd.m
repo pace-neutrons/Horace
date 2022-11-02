@@ -1,10 +1,10 @@
-function wout = dnd (win,varargin)
+function varargout = dnd (win,varargin)
 % Convert input sqw or dnd object, array of sqw/dnd  objects or cellarray
 % of sqw/dnd objects
 % into corresponding d0d, d1d,...d4d object(s)
 %
 %   >> wout = dnd (win)
-%   >> wout = dnd (win,''-cell_return')
+%   >> wout = dnd (win,''-cell_output')
 %
 %  If the inputs are convertable to the same shape of dnd objects (e.g. all
 %  d1d or all d3d), the function returns the array of extracted objects
@@ -17,7 +17,7 @@ function wout = dnd (win,varargin)
 %==========================================================================
 % TODO: make input the filenames list?
 %
-[ok,mess,cell_return]  = parse_char_options(varargin,{'-cell_return'});
+[ok,mess,cell_return]  = parse_char_options(varargin,{'-cell_output'});
 if ~ok
     error('HORACE:dnd:invalid_argument',mess);
 end
@@ -58,7 +58,11 @@ for i=1:numel(win)
         same_type(i) = true;
     end
 end
-if ~cell_return && all(same_type)
-    wout = [wout{:}];
+if nargout == 1
+    varargout{1} = pack_output_(wout,cell_return,same_type);
+else
+    for i=1:nargout
+        varargout{i} =wout{i};
+    end
 end
 
