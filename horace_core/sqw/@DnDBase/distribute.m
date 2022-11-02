@@ -1,12 +1,12 @@
 function [obj, merge_data] = distribute(dnd_in, varargin)
-% Function to split an sqw/dnd object between multiple processes.
+% Function to split an dnd object between multiple processes.
 % Attempts to split objects equally with respect to number of pixels per process.
 %
 % [obj, merge_data] = split_sqw(sqw, 'nWorkers', 1, 'split_bins', true)
 %
 % Input
 % ---------
-%   sqw         sqw/DnD object to be split amongst processors
+%   sqw         DnD object to be split amongst processors
 %
 %   nWorkers    number of processes to divide final object between
 %
@@ -15,7 +15,7 @@ function [obj, merge_data] = distribute(dnd_in, varargin)
 % Output
 % ---------
 %
-%   obj         split sqw/DnD object as list of SQW/DnD subobjects each holding a smaller section of the pixels [nWorkers 1]
+%   obj         split DnD object as list of DnD subobjects each holding a smaller section of the pixels [nWorkers 1]
 %
 %   merge_data  list of structs containing relevant data to the splitting [nWorkers 1]
 %                  nelem      - Number of pixels in first/last bins for merging
@@ -26,8 +26,8 @@ function [obj, merge_data] = distribute(dnd_in, varargin)
 
     ip = inputParser();
 
-    addParameter(ip, 'nWorkers', 1, @(x)(validateattributes(x, {'numeric'}, {'positive', 'integer', 'scalar'})));
-    addParameter(ip, 'split_bins', true, @islognumscalar)
+    addOptional(ip, 'nWorkers', 1, @(x)(validateattributes(x, {'numeric'}, {'positive', 'integer', 'scalar'})));
+    addOptional(ip, 'split_bins', true, @islognumscalar) % Ignored as dnd can't split bins
     ip.parse(varargin{:})
 
     nWorkers = ip.Results.nWorkers;
@@ -45,10 +45,16 @@ function [obj, merge_data] = distribute(dnd_in, varargin)
 
     obj = repmat(dnd_in,nworkers,1);
     for i=1:nWorkers
-        obj(i) = dnd_in;
+        obj(i).data.do_check_combo_arg = false;
+
         obj(i).s = dnd_in.s(points(i)+1:points(i+1));
         obj(i).e = dnd_in.e(points(i)+1:points(i+1));
         obj(i).npix = dnd_in.npix(points(i)+1:points(i+1));
+        obj(i).axes = axes_block('nbins_all_dims', [numel(npix{i}), 1, 1, 1]);
+
+        obj(i).data.do_check_combo_arg = true;
+        obj(i).data.check_combo_arg();
+
         merge_data(i).nelem = sum(logical(obj(i).npix));
         merge_data(i).nomerge = true;
         merge_data(i).range = [points(i)+1, points(i+1)];
