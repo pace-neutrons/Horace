@@ -12,7 +12,11 @@ end
 ch_cube = cur_axes_block.get_axes_scales();
 % and convert it into the target coordinate system assuming cube originates
 % from the centre of coordinates of the target coordinate system.
-trans_chcube = source_proj.from_this_to_targ_coord(ch_cube);
+%
+% TODO: investigate, if this is the best solution:
+% Make it half of real size to ensure at least one current grid cell point
+% appears in every grid cell of the target grid
+trans_chcube = 0.5*source_proj.from_this_to_targ_coord(ch_cube);
 
 % get all nodes belonging to target axes block, doing the
 % binning with the bin size, slightly smaller then the current

@@ -1,5 +1,5 @@
-function [proj, pbin,opt,args] = ...
-    cut_sqw_parse_inputs_(obj,ndims_in, return_cut, varargin)
+function [proj, pbin,opt] = ...
+    cut_parse_inputs_(obj,ndims_in, return_cut, varargin)
 % Take cut parameters in any possible form (see below)
 % and return the standard form of the parameters.
 %
@@ -117,7 +117,7 @@ end
 % For reasons of backwards compatibility with the syntax that allows a character string
 % to be the output filename without the '-save' option being given, assume that if
 % the last element of par is a character string then it is a file name
-if numel(par)>0 && is_string(par{end})
+if numel(par)>0 && (is_string(par{end}) && par{end}(1)~='-')
     outfile = par{end};
     par = par(1:end-1);
 else
@@ -140,7 +140,7 @@ else
     proj = obj.proj;
     proj_given=false;
 end
-
+opt.proj_given = proj_given;
 
 % Do checks on remaining input arguments
 % --------------------------------------
@@ -171,14 +171,13 @@ if numel(par)>=npbin_expected
     if ~all(pbin_ok)
         error('HORACE:cut:invalid_argument',...
             'Binning arguments must all be numeric, but arguments: %s are not',...
-            evalc('disp(find(~pbin_ok))'));
+            disp2str(find(~pbin_ok)));
     end
-    args = par(npbin_expected+1:end);
-    if ~isempty(args)
-        args = evalc('disp(args)');
+    extras = par(npbin_expected+1:end);
+    if ~isempty(extras)
         error('HORACE:cut:invalid_argument',...
             'Unrecognised additional input(s): "%s" were provided to cut',...
-            args);
+            disp2str(extras));
     end
 else
     if ~proj_given          % must refer to plot axes (in the order of the display list)
@@ -189,7 +188,15 @@ else
             'Must give binning arguments for all four dimensions if new projection axes');
     end
 end
-if ~proj_given % it may be fewer parameters then actual dimensions and
+if proj_given 
+    % check if the projection have no lattice defined and define the
+    % lattice for cut
+    default_proj = ortho_proj;
+    if all(default_proj.alatt == proj.alatt) && all(default_proj.angdeg == proj.angdeg)
+        proj.alatt = obj.proj.alatt;
+        proj.angdeg = obj.proj.angdeg;
+    end
+else % it may be fewer parameters then actual dimensions and
     % if no projection is given, we would like to append missing binning
     % parameters with their default values.
     pbin_tmp = pbin;

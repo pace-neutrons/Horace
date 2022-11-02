@@ -1,36 +1,33 @@
-function wout = cut_sqw(source, varargin)
-%%CUT_SQW Take a cut from an SQW object or file.
+function varargout = cut_sqw(source, varargin)
+%CUT_SQW Take a cut from an SQW object or file.
+%
+% legacy interface to cut operation on sqw objects or files containing
+% such objects or cellarray of such objects
 %
 % Input:
 % ------
-% source     An `sqw` object or .sqw file to take a cut from.
+% source     An `sqw` object or .sqw file to take a cut from or cellarry of
+%            such objects
 %
 % For more info on arguments see help for sqw/cut.
 %
 
 % In cut_sqw we enforce that input must be SQW file or sqw object
-if ~isa(source, 'sqw')
-    if is_string(source)
-        [~, ~, file_ext] = fileparts(source);
-        if ~strcmpi(file_ext, 'sqw')
-            ldr = sqw_formats_factory.instance().get_loader(source);
-            if ~ldr.sqw_type
-                error('HORACE:cut_sqw:invalid_argument', ...
-                    'Cannot perform cut_sqw, ''%s'' is not a valid SQW file.', ...
-                    source);
-            end
-            source = ldr;
-        end
+
+if nargout == 1
+    varargout{1} = cut(source,'-sqw_only',varargin{:});
+else
+    if iscell(source) && numel(source)>=nargout
+        wout = cut(source(1:nargout),'-sqw_only','-cell',varargin{:});
     else
-        error('HORACE:cut_sqw:invalid_argument', ...
-            'Cannot perform cut_sqw, expected sqw type, found ''%s''.', ...
-            class(source));
+        wout = cut(source,'-sqw_only','-cell',varargin{:});
+    end
+    if nargout == 1
+        varargout{1} =pack_output_(wout,false);
+    else
+        for i=1:nargout
+            varargout{i} =wout{i};
+        end
     end
 end
-if nargout>0
-    wout = cut(source, varargin{:});
-else
-    cut(source, varargin{:});
-end
-
 

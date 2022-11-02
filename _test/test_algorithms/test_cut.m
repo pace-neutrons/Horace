@@ -16,6 +16,7 @@ classdef test_cut < TestCase & common_state_holder
         FLOAT_TOL = 1e-5;
 
         sqw_file = '../test_sym_op/test_cut_sqw_sym.sqw';
+        dnd_file = '../common_data/w1d_d1d.sqw';
         ref_cut_file = 'test_cut_ref_sqw.sqw'
         ref_params = { ...
             ortho_proj([1, -1 ,0], [1, 1, 0]/sqrt(2), 'offset', [1, 1, 0], 'type', 'paa'), ...
@@ -58,25 +59,6 @@ classdef test_cut < TestCase & common_state_holder
             end
         end
         %
-        function test_take_a_cut_from_an_sqw_file_single_chunk(obj)
-            % Really large file V2 on disk to ensure that ranges are
-            % calculated using filebased algorithm rather than all data
-            % loaded in memory.
-            %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
-            %sqw_cut = cut(v2large_file, obj.ref_params{:});
-
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 8000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
-
-            sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
-
-            ref_sqw = read_sqw(obj.ref_cut_file);
-            assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
-                'ignore_str', true,'-ignore_date');
-        end
-        %
         function test_take_a_cut_from_an_sqw_object(obj)
             %sqw_obj = read_sqw(obj.sqw_file);
             sqw_obj = obj.sqw_4d; % it have just been read in constructor
@@ -100,12 +82,12 @@ classdef test_cut < TestCase & common_state_holder
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
         end
 
-        function test_SQW_error_raised_taking_cut_of_array_of_sqw(obj)
+        function test_taking_cut_of_array_of_sqw(obj)
             sqw_obj1 = sqw(obj.sqw_file);
             sqw_obj2 = sqw(obj.sqw_file);
 
-            f = @() cut([sqw_obj1, sqw_obj2], obj.ref_params{:});
-            assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
+            out_sqw = cut([sqw_obj1, sqw_obj2], obj.ref_params{:});
+            assertEqual(out_sqw(1),out_sqw(2))
         end
 
         function test_take_a_cut_integrating_over_more_than_1_axis(obj)
@@ -243,7 +225,6 @@ classdef test_cut < TestCase & common_state_holder
             v_axis_lims = [-0.1, 0.024, 0.1];
             w_axis_lims = [-0.1, 0.1];
             en_axis_lims = [105, 1, 114];
-            skipTest('Test is skipped until DND cut is refactored. Horace Ticket #796')
             res = cut(dnd_obj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
             assertTrue(isa(res, 'd3d'));
 
@@ -253,7 +234,7 @@ classdef test_cut < TestCase & common_state_holder
             % u_axis_lims has 9 steps - you can justify this to yourself by
             % evaluating `numel(u_axis_lims(1):u_axis_lims(2):u_axis_lims(3))`.
             % For similar reasons, v and en have 9 and 10 dims respectively.
-            expected_img_size = [9, 9, 10];
+            expected_img_size = [11,11, 10];
             assertEqual(size(res.s), expected_img_size);
         end
 
@@ -415,6 +396,240 @@ classdef test_cut < TestCase & common_state_holder
 
             assertEqualToTol(output_obj, ref_object, ...
                 'ignore_str', true,'abstol',2.e-7);
+        end
+        %-------------------------------------------------------------------
+        function test_cut_dnd_multiple_obj_same_type_cell(obj)
+            indata = {dnd_multicut_tester(),dnd_multicut_tester()};
+            cuts = cut_dnd(indata,'-cell', obj.ref_params{:});
+            assertEqual(numel(cuts),2)
+            assertEqual(cuts',indata);
+        end
+
+        function test_cut_dnd_multiple_obj_array(obj)
+            indata = {dnd_multicut_tester(),dnd_multicut_tester()};
+            cuts = cut_dnd(indata, obj.ref_params{:});
+            assertEqual(numel(cuts),2)
+            assertEqual(cuts(1),indata{1});
+            assertEqual(cuts(2),indata{2});
+        end
+
+        function test_cut_dnd_multiple_obj(obj)
+            indata = {dnd_multicut_tester(),dnd_multicut_tester()};
+            [cut1,cut2] = cut_dnd(indata, obj.ref_params{:});
+            assertEqual(cut1,indata{1});
+            assertEqual(cut2,indata{2});
+        end
+        function test_cut_dnd_wrapper(obj)
+            indata = dnd_multicut_tester();
+            cut1 = cut_dnd(indata, obj.ref_params{:});
+            assertEqual(cut1,indata);
+        end
+        %-------------------------------------------------------------------
+        function test_cut_hor_multiple_obj_same_type_cell(obj)
+            indata = {sqw_multicut_tester(),sqw_multicut_tester()};
+            cuts = cut_horace(indata,'-cell', obj.ref_params{:});
+            assertEqual(numel(cuts),2)
+            assertEqual(cuts',indata);
+        end
+
+        function test_cut_hor_multiple_obj_array(obj)
+            indata = {sqw_multicut_tester(),sqw_multicut_tester()};
+            cuts = cut_horace(indata, obj.ref_params{:});
+            assertEqual(numel(cuts),2)
+            assertEqual(cuts(1),indata{1});
+            assertEqual(cuts(2),indata{2});
+        end
+        function test_cut_hor_multiple_obj(obj)
+            indata = {sqw_multicut_tester(),sqw_multicut_tester()};
+            [cut1,cut2] = cut_horace(indata, obj.ref_params{:});
+            assertEqual(cut1,indata{1});
+            assertEqual(cut2,indata{2});
+        end
+        function test_cut_hor_wrapper_dnd(obj)
+            indata = dnd_multicut_tester();
+            cut1 = cut_horace(indata, obj.ref_params{:});
+            assertEqual(cut1,indata);
+        end
+        function test_cut_horace_wrapper_sqw(obj)
+            indata = sqw_multicut_tester();
+            cut1 = cut_horace(indata, obj.ref_params{:});
+            assertEqual(cut1,indata);
+        end
+        %-------------------------------------------------------------------
+        function test_cut_sqw_multiple_obj_same_type_cell(obj)
+            indata = {sqw_multicut_tester(),sqw_multicut_tester()};
+            cuts = cut_sqw(indata,'-cell', obj.ref_params{:});
+            assertEqual(numel(cuts),2)
+            assertEqual(cuts',indata);
+        end
+
+        function test_cut_sqw_multiple_obj_array(obj)
+            indata = {sqw_multicut_tester(),sqw_multicut_tester()};
+            cuts = cut_sqw(indata, obj.ref_params{:});
+            assertEqual(numel(cuts),2)
+            assertEqual(cuts(1),indata{1});
+            assertEqual(cuts(2),indata{2});
+        end
+
+        function test_cut_sqw_multiple_obj(obj)
+            indata = {sqw_multicut_tester(),sqw_multicut_tester()};
+            [cut1,cut2] = cut_sqw(indata, obj.ref_params{:});
+            assertEqual(cut1,indata{1});
+            assertEqual(cut2,indata{2});
+        end
+        function test_cut_sqw_wrapper(obj)
+            indata = sqw_multicut_tester();
+            cut1 = cut_sqw(indata, obj.ref_params{:});
+            assertEqual(cut1,indata);
+        end
+        %-------------------------------------------------------------------
+        function test_fake_cut_multiple_obj_same_type_cell(obj)
+            indata = {sqw_multicut_tester(),sqw_multicut_tester()};
+            cuts = cut(indata,'-cell', obj.ref_params{:});
+            assertEqual(numel(cuts),2)
+            assertEqual(cuts,indata');
+        end
+
+        function test_fake_cut_multiple_obj_array(obj)
+            indata = {sqw_multicut_tester(),sqw_multicut_tester()};
+            cuts = cut(indata, obj.ref_params{:});
+            assertEqual(numel(cuts),2)
+            assertEqual(cuts(1),indata{1});
+            assertEqual(cuts(2),indata{2});
+        end
+
+        function test_fake_cut_multiple_obj_cell(obj)
+            indata = {sqw_multicut_tester(),dnd_multicut_tester()};
+            cuts = cut(indata, obj.ref_params{:});
+            assertEqual(cuts{1},indata{1});
+            assertEqual(cuts{2},indata{2});
+        end
+        function test_fake_cut_multiple_obj(obj)
+            indata = {sqw_multicut_tester(),dnd_multicut_tester()};
+            [cut1,cut2] = cut(indata, obj.ref_params{:});
+            assertEqual(cut1,indata{1});
+            assertEqual(cut2,indata{2});
+        end
+        %------------------------------------------------------------------
+
+        function test_take_a_cut_from_multiple_sqw_files(obj)
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 8000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
+
+            files = {obj.sqw_file,obj.sqw_file};
+            [sqw_cut1,sqw_cut2] = cut(files, obj.ref_params{:});
+            assertEqualToTol(sqw_cut1,sqw_cut2,'-ignore_date');
+        end
+        %
+        function test_take_a_cut_from_an_sqw_file_single_chunk(obj)
+            % Really large file V2 on disk to ensure that ranges are
+            % calculated using filebased algorithm rather than all data
+            % loaded in memory.
+            %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
+            %sqw_cut = cut(v2large_file, obj.ref_params{:});
+
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 8000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
+
+            sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
+
+            ref_sqw = read_sqw(obj.ref_cut_file);
+            assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
+                'ignore_str', true,'-ignore_date');
+        end
+        function test_take_cut_dnd_from_sqw_file_throws(obj)
+            ex = assertExceptionThrown(@()cut_dnd(obj.sqw_file, obj.ref_params{:}), ...
+                'HORACE:cut:invalid_argument');
+        end
+
+        function test_take_cut_sqw_from_dnd_file_throws(obj)
+            ex = assertExceptionThrown(@()cut_sqw(obj.dnd_file, obj.ref_params{:}), ...
+                'HORACE:cut:invalid_argument');
+        end
+        function test_cut_no_output_no_file_throw(obj)
+
+            assertExceptionThrown(@()cut(obj.dnd_file,obj.ref_params{:}),...
+                'HORACE:cut:invalid_argument');
+        end
+        function test_cut_2inputs_2files_as_cell(obj)
+            files = {'file_name1.sqw','file_name2.sqw'};
+            inputs = obj.ref_params;
+            inputs{end+1} = files;
+            [nin,nout,is_file,files,argi] = ...
+                dnd_multicut_tester.cut_inputs_tester(2,0,inputs{:});
+            assertEqual(nin,2)
+            assertEqual(nout,0)
+            assertTrue(is_file)
+            assertEqual(numel(files),2)
+            assertEqual(files{1},'file_name1.sqw')
+            assertEqual(files{2},'file_name2.sqw')
+            assertEqual(obj.ref_params,argi);
+        end
+
+
+        function test_cut_2inputs_2files_as_params(obj)
+            inputs = [obj.ref_params(:);{'file_name1.sqw';'file_name2.sqw'}]';
+            [nin,nout,is_file,files,argi] = ...
+                dnd_multicut_tester.cut_inputs_tester(2,0,inputs{:});
+            assertEqual(nin,2)
+            assertEqual(nout,0)
+            assertTrue(is_file)
+            assertEqual(numel(files),2)
+            assertEqual(files{1},'file_name1.sqw')
+            assertEqual(files{2},'file_name2.sqw')
+            assertEqual(obj.ref_params,argi);
+        end
+
+        function test_cut_2inputs_1file_expanded(obj)
+            inputs = [obj.ref_params(:);'some_file_name.sqw']';
+            [nin,nout,is_file,files,argi] = ...
+                dnd_multicut_tester.cut_inputs_tester(2,0,inputs{:});
+            assertEqual(nin,2)
+            assertEqual(nout,0)
+            assertTrue(is_file)
+            assertEqual(numel(files),2)
+            assertEqual(files{1},'some_file_name_cutN1.sqw')
+            assertEqual(files{2},'some_file_name_cutN2.sqw')
+            assertEqual(obj.ref_params,argi);
+        end
+
+        function test_cut_inputs_one_file_identified(obj)
+            inputs = [obj.ref_params(:);'some_file_name.sqw']';
+            [nin,nout,is_file,files,argi] = ...
+                dnd_multicut_tester.cut_inputs_tester(1,0,inputs{:});
+            assertEqual(nin,1)
+            assertEqual(nout,0)
+            assertTrue(is_file)
+            assertEqual(files{1},'some_file_name.sqw')
+            assertEqual(obj.ref_params,argi);
+        end
+        function test_too_many_inputs_ignored(obj)
+            [nin,nout,is_file,files,params]= ...
+                dnd_multicut_tester.cut_inputs_tester(4,3,obj.ref_params{:});
+            assertEqual(nin,3)
+            assertEqual(nout,3)
+            assertFalse(is_file);
+            assertTrue(isempty(files));
+            assertEqual(obj.ref_params,params);
+        end
+        function test_not_enough_outs_throw(obj)
+            err = assertExceptionThrown(@()(dnd_multicut_tester.cut_inputs_tester(2,3,obj.ref_params{:})),...
+                'HORACE:cut:invalid_argument');
+            assertEqual(err.message,'Number of input cut sources (2) is smaller than the number of requested outputs (3)');
+        end
+        function test_not_enough_files_throw(obj)
+            inputs = [obj.ref_params(:);{'file_name1.sqw';'file_name2.sqw'}]';
+            err = assertExceptionThrown(@()(dnd_multicut_tester.cut_inputs_tester(3,0,inputs{:})),...
+                'HORACE:cut:invalid_argument');
+            assertTrue(strncmp(err.message,'Multiple cuts',12));
+        end
+        function test_zero_nargout_input_without_file_throw(obj)
+            assertExceptionThrown(@()(dnd_multicut_tester.cut_inputs_tester(1,0,obj.ref_params{:})),...
+                'HORACE:cut:invalid_argument');
         end
     end
 end
