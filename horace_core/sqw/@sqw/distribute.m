@@ -26,8 +26,8 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
 
     ip = inputParser();
 
-    addParameter(ip, 'nWorkers', 1, @(x)(validateattributes(x, {'numeric'}, {'positive', 'integer', 'scalar'})));
-    addParameter(ip, 'split_bins', true, @islognumscalar)
+    addOptional(ip, 'nWorkers', 1, @(x)(validateattributes(x, {'numeric'}, {'positive', 'integer', 'scalar'})));
+    addOptional(ip, 'split_bins', true, @islognumscalar)
     ip.parse(varargin{:})
 
     nWorkers = ip.Results.nWorkers;
@@ -45,10 +45,10 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
     %                sum(cellfun(@sum, split_npix(num_pixels, sqw_in.data.npix)))
     %            end
 
-    merge_data = arrayfun(@(x) struct(), 1:nWorkers);
+    merge_data = arrayfun(@(x) struct('nelem', [], 'nomerge', true, 'pix_range', [-inf, -inf]), 1:nWorkers);
 
-    nPer = floor(sqw_in.data.num_pixels / nWorkers);
-    overflow = mod(sqw_in.data.num_pixels, nWorkers);
+    nPer = floor(sqw_in.npixels / nWorkers);
+    overflow = mod(sqw_in.npixels, nWorkers);
     num_pixels = repmat(nPer, 1, nWorkers);
     num_pixels(1:overflow) = num_pixels(1:overflow)+1;
 
@@ -77,24 +77,23 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
             points(i+1) = points(i)+num_pixels(i);
             prev = curr;
         end
-
-        nomerge = true(nWorkers, 1);
-
-        obj = repmat(sqw(),nworkers,1);
-        for i=1:nWorkers
-            obj(i) = copy(sqw_in);
-            obj(i).data.npix = npix{i};
-            obj(i).pix = get_pix_in_ranges(sqw_in.pix, points(i)+1, num_pixels(i));
-
-            obj(i).data.num_pixels = num_pixels(i);
-            [obj(i).data.s, obj(i).data.e] = obj(i).pix.compute_bin_data(obj(i).data.npix);
-
-            merge_data(i).nomerge = nomerge(i);
-            merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
-            merge_data(i).pix_range = [points(i)+1, points(i)+num_pixels(i)];
-        end
     end
 
+    obj = repmat(copy(sqw_in),nWorkers,1);
+    for i=1:nWorkers
+        obj(i).pix = get_pix_in_ranges(sqw_in.pix, points(i)+1, num_pixels(i));
+        obj(i).data.do_check_combo_arg = false;
+        obj(i).data.npix = npix{i};
+        [obj(i).data.s, obj(i).data.e] = obj(i).pix.compute_bin_data(obj(i).data.npix);
+
+        obj(i).data.axes = axes_block('img_range', obj(i).pix.pix_range, ...
+                                      'nbins_all_dims', [numel(npix{i}), 1, 1, 1]);
+
+        obj(i).data.do_check_combo_arg = true;
+        obj(i).data.check_combo_arg();
+        merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
+        merge_data(i).pix_range = [points(i)+1, points(i)+num_pixels(i)];
+    end
 end
 
 function [npix, merge_data] = split_npix(num_pixels, old_npix, merge_data)
@@ -126,7 +125,9 @@ function [npix, merge_data] = split_npix(num_pixels, old_npix, merge_data)
     prev_ind = 0;
 
     rem = cumpix(1);
-    merge_data(:).nomerge = false(nWorkers, 1);
+    for i = 1:nWorkers
+        merge_data(i).nomerge = false;
+    end
 
     for i=1:nWorkers-1
         % Catch all-in-one
@@ -161,7 +162,6 @@ function [npix, merge_data] = split_npix(num_pixels, old_npix, merge_data)
         merge_data(i+1).nomerge = rem == 0;
         merge_data(i).range = [prev_ind+1, ind];
 
-        range
         % Skip split bin
         prev_ind = ind+1;
     end
