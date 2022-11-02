@@ -70,8 +70,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>API Reference</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/API_Reference.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -132,45 +132,6 @@ DnD objects</p>
 <span class="sig-name descname"><span class="pre">border_size</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'-4*eps'</span></em><a class="headerlink" href="#sqw.@SQWDnDBase.SQWDnDBase.border_size" title="Permalink to this definition"></a></dt>
 <dd><p>the size of the border, used in gen_sqw. The img_db_range in gen_sqw
 exceeds real pix_range (or input pix_range) by this value.</p>
-</dd></dl>
-
-<dl class="mat staticmethod">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.SQWDnDBase.parse_change_crystal_arguments">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">parse_change_crystal_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">alatt0</span></em>, <em class="sig-param"><span class="pre">angdeg0</span></em>, <em class="sig-param"><span class="pre">exper_info</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.SQWDnDBase.parse_change_crystal_arguments" title="Permalink to this definition"></a></dt>
-<dd><p>process input parameters for change crystal routine and
-return standard form of the arguments to use in change_crystal
-Most commonly:</p>
-<blockquote>
-<div><blockquote>
-<div><dl class="simple">
-<dt>&gt;&gt; [alatt,angdeg,cor_mat] = change_crystal (alatt0,angdeg0,exper_info,rlu_corr)</dt><dd><p>change lattice parameters and orientation</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>where</p>
-</div></blockquote>
-<p>alat0   – initial lattice parametes stored in the sqw file
-angdeg0 – initial lattice angles stored in the sqw file
-exper_info – Experiment class, describing the experiment,</p>
-<blockquote>
-<div><blockquote>
-<div><p>stored in sqw file
-May be empty for dnd objects</p>
-</div></blockquote>
-<dl>
-<dt>rlu_corr    Matrix to convert notional rlu in the current crystal lattice to</dt><dd><p>the rlu in the the new crystal lattice together with any re-orientation
-of the crystal. The matrix is defined by the matrix:</p>
-<blockquote>
-<div><blockquote>
-<div><p>qhkl(i) = rlu_corr(i,j) * qhkl_0(j)</p>
-</div></blockquote>
-<p>This matrix can be obtained from refining the lattice and</p>
-</div></blockquote>
-<p>orientation with the function refine_crystal (type
-&gt;&gt; help refine_crystal  for more details).</p>
-</dd>
-</dl>
-</div></blockquote>
 </dd></dl>
 
 </dd></dl>
@@ -3156,7 +3117,7 @@ abs_pix_indices  The indices to set data on. If not specified all indices are</p
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2022, STFC RAL.
-      <span class="lastupdated">Last updated on Nov 1, 2022, 3:34:19 PM.
+      <span class="lastupdated">Last updated on Nov 2, 2022, 4:06:27 PM.
       </span></p>
   </div>
 
