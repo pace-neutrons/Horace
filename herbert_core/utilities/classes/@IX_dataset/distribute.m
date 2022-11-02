@@ -1,4 +1,29 @@
-function [data, merge_data] = distribute(obj, nWorkers)
+function [data, merge_data] = distribute(obj, nWorkers, ~)
+% Function to split an IX_dataset object between multiple processes.
+% Attempts to split objects equally with respect to number of pixels per process.
+%
+% [obj, merge_data] = split_sqw(sqw, 'nWorkers', 1, 'split_bins', true)
+%
+% Input
+% ---------
+%   sqw         IX_Dataset object to be split amongst processors
+%
+%   nWorkers    number of processes to divide final object between
+%
+%   split_bins  whether bins are allowed to be split (in the case of sqw objects)
+%
+% Output
+% ---------
+%
+%   obj         split IX_Dataset object as list of IX_Dataset subobjects each holding a smaller section of the pixels [nWorkers 1]
+%
+%   merge_data  list of structs containing relevant data to the splitting [nWorkers 1]
+%                  nelem      - Number of pixels in first/last bins for merging
+%                  nomerge    - Whether bins are split and remerging is necessary
+%                  range      - Range in bins from  original IX_Dataset object contained in subobject
+%                  pix_range  - Range in pixels from original IX_Dataset object contained in subobject
+%
+
 cls = class(obj);
 dims = str2double(cls(12));
 n = numel(obj.x);
