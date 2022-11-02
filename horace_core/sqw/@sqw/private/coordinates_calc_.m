@@ -1,4 +1,4 @@
-function [ok,mess,xvals,xpix,xvar,xdevsqr]=coordinates_calc_(w,xlist)
+function [xvals,xpix,xvar,xdevsqr]=coordinates_calc_(w,xlist)
 % Get the average values of one or more coordinates in each bin of an sqw object
 %
 %   >> xvals = coordinates_calc (w, xlist)
@@ -46,7 +46,8 @@ function [ok,mess,xvals,xpix,xvar,xdevsqr]=coordinates_calc_(w,xlist)
 
 % Get list of coordinates to average
 % ------------------------------------
-xname={'d1','d2','d3','d4','h','k','l','E','Q'};
+ax_name = {'d1','d2','d3','d4'};
+xname=[ax_name(:);{'h';'k';'l';'E';'Q'}];
 
 
 if ~iscellstr(xlist)
@@ -64,11 +65,15 @@ end
 
 % Check consistency of coordinate name(s) with dimensions of sqw object
 nd=dimensions(w);
-noff=1;     % start of a bunch of names associated with plot axes
-if any(logical(ind(noff+nd:noff+3)))
-    xvals=[]; xpix=[]; xvar=[]; xdevsqr=[]; ok=false;
-    mess=['Coordinate name incompatible with dimensionality of sqw object (=',num2str(nd),')'];
-    return
+is_dax = ismember(ax_name,xlist);     % start of a bunch of names associated with plot axes
+if any(is_dax)
+    dax_num = find(is_dax);    
+    if max(dax_num)>nd
+        invalid = dax_num>nd;
+        error('HORACE:sqw:invalid_argument', ...    
+        'Some coordinate names %s request axes numbers higher then the dimensionality of sqw object (=%d)',...
+        disp2str(ax_name(dax_num(invalid))),nd);
+    end
 end
 
 
@@ -78,48 +83,47 @@ end
 % (Evaluate only those requested - keeps calculations down on what could be a long function call)
 
 % Convenient structure of logicals with fields matching the valid coordinate names
-present=cell2struct(num2cell(logical(ind)),xname,2);
-ind=cell2struct(num2cell(ind),xname,2);
+ind=cell2struct(num2cell(ind),xname,1);
 
 xpix=cell(1,numel(xlist));
 
-header_ave=header_average(w.header);   % get average header
-npixtot=w.data.pix.num_pixels;
-if present.h||present.k||present.l||present.Q
+header_ave=w.header_average();   % get average header
+npixtot=w.pix.num_pixels;
+if ind.h||ind.k||ind.l||ind.Q
     % Matrix and translation to convert from pixel coords to hkl
     uhkl=header_ave.u_to_rlu(1:3,1:3)*w.pix.q_coordinates+repmat(header_ave.uoffset(1:3),[1,npixtot]);
-    if present.Q
+    if ind.Q
         % Get |Q|
         B=bmatrix(header_ave.alatt, header_ave.angdeg);
         qcryst=B*uhkl;
         Q=sqrt(sum(qcryst.^2,1));
     end
-    if present.h, xpix{ind.h}=uhkl(1,:)'; end   % column vector
-    if present.k, xpix{ind.k}=uhkl(2,:)'; end   % column vector
-    if present.l, xpix{ind.l}=uhkl(3,:)'; end   % column vector
-    if present.Q, xpix{ind.Q}=Q'; end       % column vector
+    if ind.h, xpix{ind.h}=uhkl(1,:)'; end   % column vector
+    if ind.k, xpix{ind.k}=uhkl(2,:)'; end   % column vector
+    if ind.l, xpix{ind.l}=uhkl(3,:)'; end   % column vector
+    if ind.Q, xpix{ind.Q}=Q'; end       % column vector
     clear uhkl      % clear possibly large array
 end
 
-if present.d1||present.d2||present.d3||present.d4
+if ind.d1||ind.d2||ind.d3||ind.d4
     % Matrix and translation to convert from pixel coords to projection coordinates
     u_to_rlu = w.data.proj.u_to_rlu;
-    U=inv(u_to_rlu(1:3,1:3))*header_ave.u_to_rlu(1:3,1:3);
-    T=inv(u_to_rlu (1:3,1:3))*(w.data.uoffset(1:3)-header_ave.uoffset(1:3));
+    U=(u_to_rlu(1:3,1:3))\header_ave.u_to_rlu(1:3,1:3);
+    T=(u_to_rlu (1:3,1:3))\(w.data.proj.offset(1:3)'-header_ave.uoffset(1:3));
     uproj=U*w.pix.q_coordinates-repmat(T,[1,npixtot]);        % pixel Q coordinates now in projection axes
     uproj=[uproj;w.pix.dE+header_ave.uoffset(4)];    % now append energy data
 
     % Get display axes
     pax=w.data.pax;
     dax=w.data.dax;
-    if present.d1, xpix{ind.d1}=uproj(pax(dax(1)),:)'; end  % column vector
-    if present.d2, xpix{ind.d2}=uproj(pax(dax(2)),:)'; end  % column vector
-    if present.d3, xpix{ind.d3}=uproj(pax(dax(3)),:)'; end  % column vector
-    if present.d4, xpix{ind.d4}=uproj(pax(dax(4)),:)'; end  % column vector
+    if ind.d1, xpix{ind.d1}=uproj(pax(dax(1)),:)'; end  % column vector
+    if ind.d2, xpix{ind.d2}=uproj(pax(dax(2)),:)'; end  % column vector
+    if ind.d3, xpix{ind.d3}=uproj(pax(dax(3)),:)'; end  % column vector
+    if ind.d4, xpix{ind.d4}=uproj(pax(dax(4)),:)'; end  % column vector
     clear uproj     % clear possibly large array
 end
 
-if present.E
+if ind.E
     xpix{ind.E}=w.pix.dE'+header_ave.uoffset(4);
 end
 
@@ -133,6 +137,3 @@ if ~cell_output
     xpix=xpix{1};
     xdevsqr=xdevsqr{1};
 end
-
-ok=true;
-mess='';

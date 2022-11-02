@@ -38,10 +38,7 @@ elseif isempty(name)||~ischar(name)||size(name,1)~=1
 end
 
 % Get new signal array
-[ok,mess,svals,spix,svar,sdevsqr]=coordinates_calc_(w,name);
-if ~ok
-    error(mess)
-end
+[svals,spix,svar,sdevsqr]=coordinates_calc_(w,name);
 
 wout=w;
 wout.data.s=svals;

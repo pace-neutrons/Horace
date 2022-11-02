@@ -21,32 +21,46 @@ classdef test_sqw_signal < TestCaseWithSave
             obj.save();
         end
         function test_w2E_option(obj)
-            w2modE = signal(obj.sqw_2d,'E');
+            w1modE = signal(obj.sqw_2d,'E');
 
-            assertEqualWithSave(obj,w2modE);
+            assertEqualToTolWithSave(obj,w1modE,'ignore_str',true, ...
+                'tol',[1.e-9,1.e-9]);
+            
         end
 
         function test_w2Q_option(obj)
-            w2modQ = signal(obj.sqw_2d,'Q');
+            w1modQ = signal(obj.sqw_2d,'Q');
 
-            assertEqualWithSave(obj,w2modQ);
+            assertEqualToTolWithSave(obj,w1modQ,'ignore_str',true, ...
+                'tol',[1.e-9,1.e-9]);
+            
         end
 
         function test_w2l_option(obj)
             w2modL = signal(obj.sqw_2d,'l');
 
-            assertEqualWithSave(obj,w2modL);
+            assertEqualToTolWithSave(obj,w2modL,'ignore_str',true, ...
+                'tol',[1.e-9,1.e-9]);
+
         end
         function test_w2d2_option(obj)
             w2modD2 = signal(obj.sqw_2d,'d2');
 
-            assertEqualWithSave(obj,w2modD2);
+            assertEqualToTolWithSave(obj,w2modD2,'ignore_str',true, ...
+                'tol',[1.e-9,1.e-9]);
+            
+        end
+
+        function test_w1d2_throws(obj)
+            assertExceptionThrown(@()signal(obj.sqw_1d,'d2'),...
+                'HORACE:sqw:invalid_argument');
         end
 
         function test_w1d1_option(obj)
             w1modP1 = signal(obj.sqw_1d,'d1');
 
-            assertEqualWithSave(obj,w1modP1);
+            assertEqualToTolWithSave(obj,w1modP1,'ignore_str',true, ...
+                'tol',[1.e-9,1.e-9]);
         end
 
     end
