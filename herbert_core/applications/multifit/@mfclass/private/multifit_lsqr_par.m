@@ -295,7 +295,7 @@ end
 
 
 for i=1:numel(w)
-    [data, md] = distribute(w{i}, nWorkers);
+    [data, md] = distribute(w{i}, nWorkers, split_bins);
 
     for j = 1:numel(md)
         merge_data(i,j).nelem = md(j).nelem;
