@@ -1,4 +1,81 @@
 classdef PixelDataFileBacked < PixelDataBase
+    % PixelDataFileBacked Provides an interface for access to file-backed pixel data
+    %
+    %   This class provides getters and setters for each data column in an SQW
+    %   pixel array. You can access the data using the attributes listed below,
+    %   using the get_data() method (to retrieve column data) or using the
+    %   get_pixels() method (retrieve row data).
+    %
+    %   Construct this class with an 9 x N array, a file path to an SQW object or
+    %   an instance of sqw_binfile_common.
+    %
+    %   >> pix_data = PixelDataFileBacked(data);
+    %   >> pix_data = PixelDataFileBacked('/path/to/sqw.sqw');
+    %   >> pix_data = PixelDataFileBacked(faccess_obj);
+    %
+    %   No pixel data will be loaded from the file on construction.
+    %   Data will be loaded when a getter is called e.g. pix_data.signal. Data will
+    %   be loaded in pages such that the data held in memory will not exceed `mem_chunk_size`
+    %
+    %   The file-backed operations work by loading "pages" of data into memory as
+    %   required. If editing pixels, to avoid losing changes, if a page has been
+    %   edited and the next page is then loaded, the "dirty" page will be written
+    %   to a tmp file. This class's getters will then retrieve data from the tmp
+    %   file if that data is requested from the "dirty" page. Note that "dirty"
+    %   pages are written to tmp files as floats, but stored in memory as double.
+    %   This means data is truncated when moving pages, hence pixel data should not
+    %   be relied upon being accurate to double precision.
+    %
+    % Usage:
+    %
+    %   >> pix_data = PixelDataFileBacked(data)
+    %   >> signal = pix_data.signal;
+    %
+    %  or equivalently:
+    %
+    %   >> pix_data = PixelDataFileBacked();
+    %   >> pix_data.data = data;
+    %   >> signal = pix_data.get_data('signal');
+    %
+    %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
+    %
+    %   >> pix_data = PixelDataFileBacked(data);
+    %   >> signal = pix_data.get_data({'run_idx', 'energy_idx'}, 1:10);
+    %
+    %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
+    %
+    %   >> pix_data = PixelDataFileBacked(data);
+    %   >> pixel_subset = pix_data.get_pixels([1, 4, 10])
+    %
+    %  To sum the signal of a file-backed object where the page size is less than
+    %  amount of data in the file:
+    %
+    %   >> pix = PixelDataFileBacked('my_data.sqw')
+    %   >> signal_sum = 0;
+    %   >> while pix.has_more()
+    %   >>     signal_sum = signal_sum + pix.signal;
+    %   >>     pix.advance();
+    %   >> end
+    %
+    % Properties:
+    %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
+    %                    Cartesian coordinates in projection axes, units are per Angstrom (1 x n arrays)
+    %   dE             - The energy transfer value for each pixel in meV (1 x n array)
+    %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
+    %   q_coordinates  - The spacial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
+    %   run_idx        - The run index the pixel originated from (1 x n array)
+    %   detector_idx   - The detector group number in the detector listing for the pixels (1 x n array)
+    %   energy_idx     - The energy bin numbers (1 x n array)
+    %   signal         - The signal array (1 x n array).
+    %   variance       - The variance on the signal array (variance i.e. error bar squared) (1 x n array)
+    %
+    %   num_pixels     - The number of pixels in the data block.
+    %   pix_range      - [2x4] array of the range of pixels coordinates in Crystal Cartesian coordinate system.
+    %
+    %   data           - The raw pixel data - usage of this attribute is discouraged, the structure
+    %                    of the return value is not guaranteed.
+    %   page_size      - The number of pixels in the currently loaded page.
+    %
 
     properties (Access=private)
         f_accessor_;  % instance of faccess object to access pixel data from file

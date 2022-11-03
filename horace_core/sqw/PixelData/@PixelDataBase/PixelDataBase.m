@@ -1,26 +1,23 @@
 classdef (Abstract) PixelDataBase < handle
-    % PixelData Provides an interface for access to pixel data
+    % PixelDataBase provides an abstract base-class interface for pixel data objects
     %
     %   This class provides getters and setters for each data column in an SQW
-    %   pixel array. You can access the data using the attributes listed below,
-    %   using the get_data() method (to retrieve column data) or using the
-    %   get_pixels() method (retrieve row data).
+    %   pixel array. Along with a creation mechanism for constructing the PixelData
+    %   subclasses
     %
     %   Construct this class with an 9 x N array, a file path to an SQW object or
     %   an instance of sqw_binfile_common.
     %
+    %   >> pix_data = PixelDataBase.create(init, mem_alloc, upgrade, file_backed)
     %   >> pix_data = PixelDataBase.create(data);
     %   >> pix_data = PixelDataBase.create('/path/to/sqw.sqw');
-    %   >> pix_data = PixelDataBase.create('/path/to/sqw.sqw', mem_alloc);
     %   >> pix_data = PixelDataBase.create(faccess_obj);
-    %   >> pix_data = PixelDataBase.create(faccess_obj, mem_alloc);
     %
-    %   Constructing via a file or sqw_binfile_common will create a file-backed
-    %   data object. No pixel data will be loaded from the file on construction.
-    %   Data will be loaded when a getter is called e.g. pix_data.signal. Data will
-    %   be loaded in pages such that the data held in memory will not exceed the
-    %   size (in bytes) specified by private attribute page_memory_size_ - this can
-    %   be set on construction (see mem_alloc above).
+    %   Constructing an object using PixelDataBase.create will create either a
+    %   PixelDataMemory or PixelDataFileBacked depending on whether the resulting
+    %   object would fit into `mem_chunk_size`. It is possible, though inadvisable
+    %   To override this via the `mem_alloc` argument, or force the desired type by
+    %   calling the appropriate object constructor or passing file_backed (true|false).
     %
     %   The file-backed operations work by loading "pages" of data into memory as
     %   required. If editing pixels, to avoid losing changes, if a page has been
@@ -30,37 +27,6 @@ classdef (Abstract) PixelDataBase < handle
     %   pages are written to tmp files as floats, but stored in memory as double.
     %   This means data is truncated when moving pages, hence pixel data should not
     %   be relied upon being accurate to double precision.
-    %
-    % Usage:
-    %
-    %   >> pix_data = PixelDataBase.create(data)
-    %   >> signal = pix_data.signal;
-    %
-    %  or equivalently:
-    %
-    %   >> pix_data = PixelDataBase.create();
-    %   >> pix_data.data = data;
-    %   >> signal = pix_data.get_data('signal');
-    %
-    %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
-    %
-    %   >> pix_data = PixelDataBase.create(data);
-    %   >> signal = pix_data.get_data({'run_idx', 'energy_idx'}, 1:10);
-    %
-    %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
-    %
-    %   >> pix_data = PixelDataBase.create(data);
-    %   >> pixel_subset = pix_data.get_pixels([1, 4, 10])
-    %
-    %  To sum the signal of a file-backed object where the page size is less than
-    %  amount of data in the file:
-    %
-    %   >> pix = PixelDataBase.create('my_data.sqw')
-    %   >> signal_sum = 0;
-    %   >> while pix.has_more()
-    %   >>     signal_sum = signal_sum + pix.signal;
-    %   >>     pix.advance();
-    %   >> end
     %
     % Properties:
     %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
