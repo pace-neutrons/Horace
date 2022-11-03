@@ -15,12 +15,15 @@ if fout<=0
 end
 
 pix_out_position = pix_comb_info.pix_out_pos;
-do_fseek(fout,pix_out_position,'bof');
-check_error_report_fail_(fout,...
-    sprintf(['Unable to move to the start of the pixel'...
-    ' record to write the target file %s '...
-    'to start writing combined pixels'],...
-    filename));
+try
+    do_fseek(fout,pix_out_position,'bof');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error', ...
+                     ['Unable to move to the start of the pixel'...
+                      ' record to write the target file '...
+                      'to start writing combined pixels'])
+    exc.addCause(ME)
+end
 
 obj.fout_ = fout;
 
@@ -29,4 +32,3 @@ if obj.reader_id_shift_ == 1
         obj.mess_framework.numLabs-obj.reader_id_shift_,...
         obj.common_data_.nbin);
 end
-

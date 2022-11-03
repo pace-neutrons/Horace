@@ -104,9 +104,13 @@ if ischar(obj.num_dim)
         'get_data: method called on un-initialized loader')
 end
 
-do_fseek(obj.file_id_,obj.data_pos_,'bof');
-check_error_report_fail_(obj,...
-    'get_data: Can not move to the start of the main data block');
+try
+    do_fseek(obj.file_id_,obj.data_pos_,'bof');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                     'Can not move to the start of the main data block');
+    throw(exc.addCause(ME))
+end
 
 sz = obj.s_pos_ - obj.data_pos_+1;
 bytes = fread(obj.file_id_,sz,'*uint8');

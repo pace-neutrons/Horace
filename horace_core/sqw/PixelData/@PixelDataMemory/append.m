@@ -17,10 +17,11 @@ else
 end
 
 if ~isa(pix, 'PixelDataBase')
-    error('PIXELDATA:append', ...
-        'Input object must be of class ''PixelData''. Found ''%s''', ...
+    error('PIXELDATA:append:invalid_argument', ...
+        'Input object must be subclass of ''PixelDataBase''. Found ''%s''', ...
         class(pix));
 end
+
 if isempty(pix)
     return;
 end

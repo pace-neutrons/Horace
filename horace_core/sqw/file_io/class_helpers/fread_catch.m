@@ -40,7 +40,7 @@ persistent old_matlab;
 if isempty(old_matlab)
     old_matlab  = verLessThan('matlab','8.1');
 end
-    
+
 
 if old_matlab
     count_in = double(count_in);
@@ -81,7 +81,7 @@ while ntry<=ntry_max
         elseif nargin==5
             [data,count_out] = fread(fid,count_in,precision,skip,machineformat);
         end
-        
+
         % catch any other error reading (may have in fact gone to the catch part of this try..catch, but just in case)
         [f_message,f_errnum] = ferror(fid);
         if f_errnum==0
@@ -112,37 +112,37 @@ while ntry<=ntry_max
             pause(0.1);
             ferror(fid,'clear');
             % try to go to location
-            do_fseek(fid,pos_initial,'bof');
-            [f_message2,f_errnum2] = ferror(fid);
-            if f_errnum2~=0
+            try
+                do_fseek(fid,pos_initial,'bof');
+            catch ME
                 if ~exist('data','var'), data=[]; end
                 if ~exist('count_out','var'), count_out=[]; end
                 status_ok = 0;
-                message = ['Unrecoverable read error (attempt ',num2str(ntry),') [',f_message2,'  ',num2str(f_errnum2),']'];
+                message = sprintf('Unrecoverable read error (attempt %d) [%s]', ntry, ME.message);
                 disp(message)
                 return
             end
         end
-        
+
     catch Err
         disp(['Error reading from file: Fatal error in fread (attempt ',num2str(ntry),') - trying to recover [',Err.message,']'])
         ferror(fid,'clear');
         check_ifVersion_supportsSize(prod(count_in));
         % try to go to location
-        do_fseek(fid,pos_initial,'bof');
-        [f_message2,f_errnum2] = ferror(fid);
-        if f_errnum2~=0
+        try
+            do_fseek(fid,pos_initial,'bof');
+        catch ME
             if ~exist('data','var'), data=[]; end
             if ~exist('count_out','var'), count_out=[]; end
             status_ok = 0;
-            message = ['Unrecoverable read error (attempt ',num2str(ntry),') [',f_message2,'  ',num2str(f_errnum2),']'];
+            message = sprintf('Unrecoverable read error (attempt %d) [%s]', ntry, ME.message);
             disp(message)
             return
         end
-        
+
     end
     ntry = ntry + 1;
-    
+
 end
 
 if ~exist('data','var'), data=[]; end
@@ -169,4 +169,3 @@ if(str2double(version_field{1})>=7)
 else
     error(' The array you are trying to read is bigger then 2^32-2 but Matlab version lower then 7.5 does not support such arrays')
 end
-

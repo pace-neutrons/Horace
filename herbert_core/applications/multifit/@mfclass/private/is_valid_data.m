@@ -1,10 +1,10 @@
-function wout = is_valid_data (class_name, varargin)
+function [ok, mess, wout] = is_valid_data (class_name, varargin)
 % Check nature and validity of data type(s) to be fitted, and repackage in a standard form.
 %
-%   >> wout = is_valid_data (class_name)                % No data sets
-%   >> wout = is_valid_data (class_name, [])            % No data sets
-%   >> wout = is_valid_data (class_name, x, y, e)
-%   >> wout = is_valid_data (class_name, w1, w2, ...)
+%   >> [ok, mess, wout] = is_valid_data (class_name)                % No data sets
+%   >> [ok, mess, wout] = is_valid_data (class_name, [])            % No data sets
+%   >> [ok, mess, wout] = is_valid_data (class_name, x, y, e)
+%   >> [ok, mess, wout] = is_valid_data (class_name, w1, w2, ...)
 %
 % Input:
 % ------
@@ -56,71 +56,101 @@ function wout = is_valid_data (class_name, varargin)
 %
 % Output:
 % -------
+%   ok              Status flag: =true if each element of argument w satisfies one of
+%                  the above formats; =false otherwise (the elements of w do not need
+%                  to all have the same format)
+%
+%   mess            Error message: ='' if OK, contains error message if not OK.
+%
 %   wout            Cell array of datasets (row) that contain repackaged data:
 %                  every entry is either
 %                   - an x-y-e triple with wout{i}.x a cell array of arrays,
 %                     one for each x-coordinate,
 %                   - a scalar object
 %
+%                   If not ok, wout=cell(1,0)
 
 
 % Original author: T.G.Perring
+%
+% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 narg=numel(varargin);
 if narg==0 || (narg==1 && isnumeric(varargin{1}) && isempty(varargin{1}))
     % No input or a single, empty, item
+    ok=true;
+    mess='';
     wout=cell(1,0);
-
-elseif ~isempty(class_name)
-    % Specific class required
-    if ~all(cellfun(@(x)isa(x,class_name),varargin))
-        error('HERBERT:mfclass:invalid_argument', 'Data set(s) must all be object(s) of class ''%s''', class_name)
-    end
-
-    wout=cell(1,narg);
-    for i=1:narg
-        try
-            wout{i} = is_object_xye(varargin{i});
-        catch ME
-            BE = MException('HERBERT:mfclass:invalid_argument', 'Unable to load dataset %d', i);
-            BE = BE.addCause(ME);
-            throw(BE)
-        end
-    end
-    wout = horzcat(wout{:});
-
-elseif narg==3 && all(cellfun(@isnumeric, varargin))
-    % Check for possibility that there are three arguments x,y,e
-    wout = is_cell_xye(varargin);
-
 else
-    % General case
-    wout=cell(1,narg);
-    for i=1:narg
-        try
-            if iscell(varargin{i})
-                wout{i} = is_cell_xye(varargin{i});
-            elseif isstruct(varargin{i})
-                wout{i} = is_struct_xye(varargin{i});
-            elseif isobject(varargin{i})
-                wout{i} = is_object_xye(varargin{i});
-            else
-                error('HERBERT:mfclass:invalid_argument', 'Unrecognised dataset format');
+    if isempty(class_name)
+        % Generic data types allowed
+        if narg==3 && isnumeric(varargin{2}) && isnumeric(varargin{3})
+            % Check for possibility that there are three arguments x,y,e
+            [ok,mess,wout] = is_cell_xye(varargin);
+        else
+            % General case
+            wout=cell(1,narg);
+            for i=1:narg
+                if iscell(varargin{i})
+                    [ok,mess,wout{i}] = is_cell_xye (varargin{i});
+                    if ~ok
+                        mess=['Cell array data: ',mess];
+                        break
+                    end
+                elseif isstruct(varargin{i})
+                    [ok,mess,wout{i}] = is_struct_xye (varargin{i});
+                    if ~ok
+                        mess=['Structure data: ',mess];
+                        break
+                    end
+                elseif isobject(varargin{i})
+                    [ok,mess,wout{i}] = is_object_xye (varargin{i});
+                    if ~ok
+                        mess=['Object array data: ',mess];
+                        break
+                    end
+                else
+                    ok=false;
+                    mess='Unrecognised dataset format';
+                    break
+                end
             end
-        catch ME
-            BE = MException('HERBERT:mfclass:invalid_argument', 'Unable to load dataset %d', i);
-            BE = BE.addCause(ME);
-            throw(BE)
+            if ok
+                wout=horzcat(wout{:});
+            else
+                if narg>1, mess=['Data argument ',num2str(i),': ',mess]; end
+            end
+        end
+    else
+        % Specific class required
+        if all(cellfun(@(x)isa(x,class_name),varargin))
+            wout=cell(1,narg);
+            for i=1:narg
+                [ok,mess,wout{i}] = is_object_xye (varargin{i});
+                if ~ok
+                    mess=['Object array data: ',mess];
+                    break
+                end
+            end
+            if ok
+                wout=horzcat(wout{:});
+            else
+                if narg>1, mess=['Data argument ',num2str(i),': ',mess]; end
+            end
+        else
+            ok=false;
+            mess=['Data set(s) must all be object(s) of class ''',class_name,''''];
         end
     end
-
-    wout=horzcat(wout{:});
+    if ~ok
+        wout=cell(1,0);
+    end
 end
 
-end
 
-function wout = is_cell_xye(w)
+%--------------------------------------------------------------------------------------------------
+function [ok,mess,wout] = is_cell_xye(w)
 % Determine if an argument is a cell array with valid fields x, y, e
 %
 %   >> [ok,mess,wout] = is_cell_xye (w)
@@ -134,39 +164,48 @@ function wout = is_cell_xye(w)
 %
 % Output:
 % -------
+%   ok      Status flag: =true if each element of argument w satisfies one of
+%          the above formats; =false otherwise (the elements of w do not need
+%          to all have the same format)
+%
+%   mess    Error message: ='' if OK, contains error message if not OK.
+%
 %   wout    Cell array (row) of stuctures each with fields x,y,e
 %          where wout{i}.x is a cell array of arrays, one element for each x
 %          coordinate.
 %           If not ok, then still a row cell array with one structure in each
 %          element
 
-if ~isempty(w) && all(cellfun(@iscell,w)) && all(cellfun(@numel,w) == 3)
+if numel(w)>0 && all(make_column(cellfun(@iscell,w))) && all(make_column(cellfun(@numel,w))==3)
     % w is non-empty and all elements of w are cell arrays length 3
+    ok = true;
+    mess = '';
     wout=cell(1,numel(w));
     for i=1:numel(w)
-        tmp.x=w{i}{1};
-        tmp.y=w{i}{2};
-        tmp.e=w{i}{3};
-        wout(i) = is_struct_xye (tmp);
+        tmp.x=w{i}{1}; tmp.y=w{i}{2}; tmp.e=w{i}{3};
+        [ok,mess,wout(i)] = is_struct_xye (tmp);
+        if ~ok, return, end
     end
-
+    
 elseif numel(w)==3
     % Three elements, not all cell arrays
-    tmp.x=w{1};
-    tmp.y=w{2};
-    tmp.e=w{3};
-    wout = is_struct_xye (tmp);
-
+    tmp.x=w{1}; tmp.y=w{2}; tmp.e=w{3};
+    [ok,mess,wout] = is_struct_xye (tmp);
+    if ~ok, return, end
+    
 else
-    error('HERBERT:mfclass:invalid_argument', 'Data must have form {x,y,e} or {{x1,y1,e1}, {x2,y2,e2},...}')
+    ok=false;
+    mess='Data must have form {x,y,e} or {{x1,y1,e1}, {x2,y2,e2},...}';
+    wout=w(:)';
+    
 end
 
-end
 
-function wout = is_struct_xye (w)
+%--------------------------------------------------------------------------------------------------
+function [ok,mess,wout] = is_struct_xye (w)
 % Determine if an argument is structure array with valid fields x,y,e
 %
-%   >> wout = is_struct_xye (w)
+%   >> [ok,mess,wout] = is_struct_xye (w)
 %
 % Input:
 % ------
@@ -195,67 +234,98 @@ function wout = is_struct_xye (w)
 %
 % Output:
 % -------
+%   ok      Status flag: =true if each element of argument w satisfies one of
+%          the above formats; =false otherwise (the elements of w do not need
+%          to all have the same format)
+%
+%   mess    Error message: ='' if OK, contains error message if not OK.
+%
 %   wout    Cell array (row) of stuctures each with fields x,y,e
 %          where wout{i}.x is a cell array of arrays, one element for each x
 %          coordinate.
 %           If not ok, then still a row cell array with one structure in each
 %          element
 
+ok=false;
 wout=num2cell(w(:)');
 
 % Catch case of empty structure
-assert(~isempty(w), 'HERBERT:mfclass:invalid_argument', 'Provided empty structure');
+if numel(w)==0
+    mess='empty structure';
+    return
+end
 
 % General case
 for i=1:numel(w)
-
-    szy=size(w(i).y);
-
-    assert(all(isfield(w(i),{'x','y','e'})), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'does not have fields ''x'',''y'' and ''e''']);
-    assert(isnumeric(w(i).y) && isnumeric(w(i).e), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'signal and error arrays are not numeric']);
-    assert(~isempty(w(i).y) && ~isempty(w(i).e), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'signal and/or error array is empty']);
-    assert(isequal(szy,size(w(i).e)), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'signal and error arrays are not same size']);
-
+    if ~all(isfield(w(i),{'x','y','e'}))
+        mess=[message_opening(w,i),'does not have fields ''x'',''y'' and ''e'''];
+        return
+    end
+    if ~(isnumeric(w(i).y) && isnumeric(w(i).e))
+        mess=[message_opening(w,i),'signal and error arrays are not numeric'];
+        return
+    elseif isempty(w(i).y) || isempty(w(i).e)
+        mess=[message_opening(w,i),'signal and/or error array is empty'];
+        return
+    else
+        szy=size(w(i).y);
+        if ~isequal(szy,size(w(i).e))
+            mess=[message_opening(w,i),'signal and error arrays are not same size'];
+            return
+        end
+    end
     if isnumeric(w(i).x) && isnumeric(w(i).y) && isnumeric(w(i).e)
-        assert(~isempty(w(i).x), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'x-coordinate array is empty']);
-
-        szx=size(w(i).x);
-
-        if ~isequal(szx,szy)
-            if numel(szy) == 2 && szy(2) == 1    % y array is a column vector, so strip the redundant outer dimension
-                szy=szy(1);
+        if isempty(w(i).x)
+            mess=[message_opening(w,i),'x-coordinate array is empty'];
+            return
+        end
+        sz=size(w(i).x);
+        if ~isequal(sz,szy)
+            if numel(szy)==2 && szy(2)==1, szy=szy(1); end   % y array is a column vector, so strip the redundant outer dimension
+            if ~isequal(sz(1:end-1),szy)
+                mess=[message_opening(w,i),'signal and error array sizes do not match coordinate array size'];
+                return
             end
-
-            assert(isequal(szx(1:end-1),szy), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'signal and error array sizes do not match coordinate array size']);
-
             %----------------
             % This new code (TGPerring, 20/8/2020)
             wout{i}.x=num2cell(w(i).x,1:numel(szy));    % separate the dimensions into cells
             % replaced:
-            %ndim=szx(end);
+            %ndim=sz(end);
             %wout{i}.x=num2cell(w(i).x,1:ndim-1); % separate the dimensions into cells
             %----------------
         else
             wout{i}.x={w(i).x};     % make a cell array with a single element
         end
     elseif iscell(w(i).x)
-        assert(~isempty(w(i).x), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'cell array of x-coordinates is empty']);
-        assert(isequal(szx,szy), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'signal and error array sizes do not match coordinate array(s) size']);
-
-        szx=size(w(i).x{1});
-
-        for j=1:numel(w(i).x)
-            assert(isnumeric(w(i).x{j}), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'cell array of x-coordinate array(s) not all numeric']);
-            assert(isequal(szx,size(w(i).x{j})), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'cell array of x-coordinates array(s) not all same size']);
-            assert(~isempty(w(i).x{j}), 'HERBERT:mfclass:invalid_argument', [message_opening(w,i),'cell array of x-coordinates array(s) has at least one empty array']);
+        if isempty(w(i).x)
+            mess=[message_opening(w,i),'cell array of x-coordinates is empty'];
+            return
         end
-
+        sz=size(w(i).x{1});
+        for j=1:numel(w(i).x)
+            if ~isnumeric(w(i).x{j})
+                mess=[message_opening(w,i),'cell array of x-coordinate array(s) not all numeric'];
+                return
+            elseif ~isequal(sz,size(w(i).x{j}))
+                mess=[message_opening(w,i),'cell array of x-coordinates array(s) not all same size'];
+                return
+            elseif isempty(w(i).x{j})
+                mess=[message_opening(w,i),'cell array of x-coordinates array(s) has at least one empty array'];
+                return
+            end
+        end
+        if ~isequal(sz,szy)
+            mess=[message_opening(w,i),'signal and error array sizes do not match coordinate array(s) size'];
+            return
+        end
     else
-        error('HERBERT:mfclass:invalid_argument', [message_opening(w,i),'x-coordinate must be a numeric array or cell array of numeric arrays']);
+        mess=[message_opening(w,i),'x-coordinate must be a numeric array or cell array of numeric arrays'];
+        return
     end
 end
+ok=true;
+mess='';
 
-end
 
 function str = message_opening(w,i)
 % Create opening part of error message
@@ -265,13 +335,12 @@ else
     str='';
 end
 
-end
 
 %--------------------------------------------------------------------------------------------------
-function wout = is_object_xye (w)
+function [ok,mess,wout] = is_object_xye (w)
 % Determine if argument is an object array with valid methods for fitting
 %
-%   >> wout = is_object_xye (w)
+%   >> [ok,mess,wout] = is_object_xye (w)
 %
 % Input:
 % ------
@@ -279,6 +348,12 @@ function wout = is_object_xye (w)
 %
 % Output:
 % -------
+%   ok      Status flag: =true if each element of argument w satisfies one of
+%          the above formats; =false otherwise (the elements of w do not need
+%          to all have the same format)
+%
+%   mess    Error message: ='' if OK, contains error message if not OK.
+%
 %   wout    Cell array (row) of stuctures each with fields x,y,e
 %          where wout{i}.x is a cell array of arrays, one element for each x
 %          coordinate.
@@ -288,16 +363,21 @@ function wout = is_object_xye (w)
 wout=num2cell(w(:)');
 
 % Catch case of empty structure
-if isempty(w)
-    error('HERBERT:mfclass:invalid_argument', 'Provided empty structure')
+if numel(w)==0
+    ok=false;
+    mess='empty object';
+    return
 end
 
 % General case
 meth=methods(w);
 methreq={'sigvar_get';'plus';'mask';'sigvar_getx';'mask_points'};
 status=ismember(methreq,meth);
-if ~all(status(1:3)) && any(status(4:5))
-    error('HERBERT:mfclass:invalid_argument', 'Data object must have methods ''sigvar_get'',''plus'',''mask'' and either ''sigvar_getx'' or ''mask_points''');
+if all(status(1:3)) && any(status(4:5))
+    ok=true;
+    mess='';
+else
+    ok=false;
+    mess='Data object must have methods ''sigvar_get'',''plus'',''mask'' and either ''sigvar_getx'' or ''mask_points''';
 end
 
-end

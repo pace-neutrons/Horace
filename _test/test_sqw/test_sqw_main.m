@@ -18,7 +18,9 @@ classdef test_sqw_main < TestCase & common_state_holder
         end
 
         function test_read_sqw(obj)
-            test_data = fullfile(obj.tests_dir, 'test_change_crystal', 'wref.sqw');
+            pths = horace_paths();
+
+            test_data = fullfile(pths.test, 'test_change_crystal', 'wref.sqw');
             out_dnd_file = fullfile(obj.out_dir, 'test_sqw_main_test_read_sqw_dnd.sqw');
             cleanup_obj = onCleanup(@()delete(out_dnd_file));
 
@@ -40,6 +42,26 @@ classdef test_sqw_main < TestCase & common_state_holder
             test_dnd.filepath = [targ_path, filesep];
 
             assertEqualToTol(loaded_dnd, test_dnd,1.e-12, 'ignore_str', true);
+        end
+
+        function test_setting_pix_page_size_in_constructor_pages_pixels(obj)
+            % hide warnings when setting pixel page size very small
+
+            pths = horace_paths();
+            fpath = fullfile(pths.test_common, 'sqw_1d_2.sqw');
+
+            % set page size accepting half of the pixels
+            page_size_bytes = 4324/2*sqw_binfile_common.FILE_PIX_SIZE;
+            sqw_obj = sqw(fpath, 'pixel_page_size', page_size_bytes);
+            sqw_pix_pg_size = sqw_obj.pix.page_size;
+
+            % check we're actually paging pixels
+            assertTrue(sqw_obj.pix.num_pixels > sqw_pix_pg_size);
+
+            % check the page size is what we set it to
+            pix_size = sqw_binfile_common.FILE_PIX_SIZE;
+            expected_pg_size = floor(page_size_bytes/pix_size);
+            assertEqual(sqw_pix_pg_size, expected_pg_size);
         end
 
         function test_pixels_not_paged_if_pixel_page_size_arg_not_given(obj)

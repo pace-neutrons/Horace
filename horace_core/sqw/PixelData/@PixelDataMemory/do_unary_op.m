@@ -17,3 +17,5 @@ end
 pg_result = unary_op(sigvar(pix_out.signal, pix_out.variance));
 pix_out.signal = pg_result.s;
 pix_out.variance = pg_result.e;
+
+end

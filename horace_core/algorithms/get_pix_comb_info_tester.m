@@ -4,4 +4,6 @@ function [data_sum,img_range,job_disp]=get_pix_comb_info_tester(infiles)
 %
 pix_range = PixelDataBase.EMPTY_RANGE_;
 [data_sum,img_range,job_disp]=get_pix_comb_info_(infiles,pix_range,[], ...
-    false,true,false);
+                                                 false,true,false);
+
+end

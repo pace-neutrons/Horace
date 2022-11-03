@@ -16,8 +16,8 @@ function [mean_signal, mean_variance] = compute_bin_data(obj, npix)
 % mean_variance   The average variance for each plot axis bin.
 %                 size(mean_variance) = size(npix)
 %
-use_mex = config_store.instance().get_value('hor_config','use_mex');
-log_level = config_store.instance().get_value('herbert_config','log_level');
+use_mex = get(hor_config,'use_mex');
+log_level = get(herbert_config,'log_level');
 
 if use_mex
     try
@@ -37,4 +37,6 @@ end
 
 if ~use_mex
     [mean_signal, mean_variance] = compute_bin_data_matlab_(obj, npix);
+end
+
 end

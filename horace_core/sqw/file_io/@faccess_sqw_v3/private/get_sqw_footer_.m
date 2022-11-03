@@ -52,16 +52,25 @@ function obj = get_sqw_file_footer(obj)
 
 % Read data from file:
 
-do_fseek(obj.file_id_,-4,'eof');  % move to the end of the file minus 4 bytes
-test_error(obj.file_id_,'Unable to move to the position of the sqw_v3 file descriptor size. ErrorMessave: %s')
-%
+try
+    do_fseek(obj.file_id_,-4,'eof');  % move to the end of the file minus 4 bytes
+catch ME
+    exc = MException('HORACE:faccess_sqw_v3:io_error',...
+                     'Unable to move to the position of the sqw_v3 file descriptor size.');
+    throw(exc.addCause(ME))
+end
 
 foot_sz = fread(obj.file_id_,1,'int32');
 test_error(obj.file_id_,'Unable to read the location of the sqw_v3 file descriptor. ErrorMessave: %s')
 eof_pos  = ftell(obj.file_id_);
 
-do_fseek(obj.file_id_,-foot_sz-4,'eof');   % move to start of the block of data (8-byte position + n-byte string + 4-byte string length)
-test_error(obj.file_id_,'Unable to move to the location of the sqw_v3 file descriptor. ErrorMessave: %s')
+try
+    do_fseek(obj.file_id_,-foot_sz-4,'eof');   % move to start of the block of data (8-byte position + n-byte string + 4-byte string length)
+catch ME
+    exc = MException('HORACE:faccess_sqw_v3:io_error',...
+                     'Unable to move to the position of the sqw_v3 file descriptor size.');
+    throw(exc.addCause(ME))
+end
 %
 
 pos_info_location = ftell(obj.file_id_);
@@ -102,13 +111,9 @@ if npixels_ ~= obj.npixels
 end
 
 
-
 function test_error(fid,error_header)
 [mess,res] = ferror(fid);
 if res ~= 0
     error('HORACE:faccess_sqw_v3:io_error',...
         error_header,mess);
 end
-
-
-

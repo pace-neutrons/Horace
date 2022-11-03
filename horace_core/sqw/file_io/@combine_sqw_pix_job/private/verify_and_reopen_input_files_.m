@@ -50,12 +50,14 @@ else
                 'Unable to open all input files concurrently: %s',mess);
         end
     end
-    
+
     for i = 1:nfiles
-        do_fseek(fid(i),pix_comb_info.pos_pixstart(i),'bof'); % Move directly to location of start of pixel data
-        check_error_report_fail_(fid(i),...                % to ensure this is possible
-            sprintf('Unable to move to the start of the pixel record for the  input file N%d after mex-combine failed',...
-            i));
+        try
+            do_fseek(fid(i),pix_comb_info.pos_pixstart(i),'bof'); % Move directly to location of start of pixel data
+        catch ME
+            exc = MException('COMBINE_SQW_PIX_JOB:io_error', ...
+                             sprintf('Unable to move to the start of the pixel record for the input file N%d after mex-combine failed',i));
+            throw(exc.addCause(ME))
+        end
     end
 end
-

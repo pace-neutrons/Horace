@@ -5,11 +5,11 @@ classdef field_cellarray_of_strings < sqw_field_format_interface
     %
     % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
-    
+
     properties(Access=private)
     end
-    
-    
+
+
     methods
         function obj=field_cellarray_of_strings(varargin)
             %
@@ -60,26 +60,24 @@ classdef field_cellarray_of_strings < sqw_field_format_interface
             % binary file
             err = false;
             %
-            do_fseek(fid,pos,'bof');
-            [~,res] = ferror(fid);
-            if res ~=0
+            try
+                do_fseek(fid,pos,'bof');
+            catch
                 err = true;
                 return;
             end
-            
+
             sizes = fread(fid,2,'int32');
             [~,res] = ferror(fid);
             if res ~=0
                 err = true;
                 return;
             end
-            
+
             n_elements = prod(sizes);
             sz = n_elements+8;
         end
-        
+
     end
-    
+
 end
-
-

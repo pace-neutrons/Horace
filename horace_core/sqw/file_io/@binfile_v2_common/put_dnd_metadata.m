@@ -55,10 +55,12 @@ else
     pos = obj.data_pos_;
 end
 
-do_fseek(obj.file_id_,pos,'bof');
-check_error_report_fail_(obj,'Error moving to the beginning of the metadata record');
+try
+    do_fseek(obj.file_id_,pos,'bof');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                     'Error moving to the beginning of the metadata record');
+    throw(exc.addCause(ME))
+end
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the dnd object metadata');
-
-
-

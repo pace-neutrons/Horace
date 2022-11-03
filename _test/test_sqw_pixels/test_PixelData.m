@@ -710,6 +710,25 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(class(obj.pix_data_small_page.num_pixels), 'double');
         end
 
+       function test_copy_on_same_page_as_original_when_more_than_1_page(obj)
+            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e6);
+            pix_original.signal = 1;
+            pix_original.advance();
+
+            pix_copy = copy(pix_original);
+
+            assertEqual(pix_copy.data, pix_original.data);
+            while pix_original.has_more()
+                pix_original.advance();
+                pix_copy.advance();
+                assertEqual(pix_copy.data, pix_original.data);
+            end
+
+            pix_copy.move_to_first_page();
+            pix_original.move_to_first_page();
+            assertEqual(pix_copy.data, pix_original.data);
+       end
+
         function test_copy_on_same_pg_as_original_when_more_than_1_pg_no_advance(obj)
             pix_original = PixelDataFileBacked(obj.tst_sqw_file_full_path, 1e6);
             pix_original.signal = 1;

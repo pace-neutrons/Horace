@@ -25,12 +25,18 @@ bytes = [bytes,byte_sz];
 
 
 pos = obj.position_info_pos_;
-if old_matlab % some MATLAB problems with moving to correct eof
-    do_fseek(obj.file_id_,double(pos),'bof');
-else
-    do_fseek(obj.file_id_,pos,'bof');
+try
+    if old_matlab % some MATLAB problems with moving to correct eof
+        do_fseek(obj.file_id_,double(pos),'bof');
+    else
+        do_fseek(obj.file_id_,pos,'bof');
+    end
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                     'Can not move to the positions block start');
+    throw(exc.addCause(ME))
 end
-check_error_report_fail_(obj,'can not move to the positions block start');
+
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Can not write the positions block');
 
@@ -41,23 +47,32 @@ obj.real_eof_pos_ = ftell(obj.file_id_);
 % it is now, we need to store the location of the information record at the
 % end of the existing file too.
 %
-do_fseek(obj.file_id_,0,'eof');
-check_error_report_fail_(obj,'Can not seek to the end of the file');
+try
+    do_fseek(obj.file_id_,0,'eof');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                     'Can not seek to the end of the file');
+    throw(exc.addCause(ME))
+end
 eof_ = ftell(obj.file_id_);
 
 if eof_ > obj.real_eof_pos_
     add_block = eof_ - obj.real_eof_pos_;
     if add_block>0
         if add_block<4; add_block=4; end %its not striclty necessary, as real footer
-        % size not used any more but done in case if real_eof_pos_ is
-        % used in a future.
+                                         % size not used any more but done in case if real_eof_pos_ is
+                                         % used in a future.
 
         pos = obj.real_eof_pos_+add_block-4;
-        do_fseek(obj.file_id_,pos,'bof');
-        check_error_report_fail_(obj,'Can not seek to the extended file end');
+        try
+            do_fseek(obj.file_id_,pos,'bof');
+        catch ME
+            exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                             'Can not seek to the extended file end');
+            throw(exc.addCause(ME))
+        end
 
         ext_size = uint32(sz+add_block);
         fwrite(obj.file_id_,ext_size ,'uint32');
     end
 end
-

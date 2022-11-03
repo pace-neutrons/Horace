@@ -33,7 +33,6 @@ if isa(header,'is_holder')
     setting_instr  = header.setting_instr;
     if setting_instr && ~setting_sample % existing instrument should be retrieved for not to be overwritten
         sampl  = obj.get_sample('-all');
-        sampl  = sampl.unique_objects;
         sampl_str = cellfun(@(x)(x.to_struct),sampl,'UniformOutput',false);
         setting_sample = true;
     end
@@ -66,13 +65,19 @@ if setting_instr
     end
     %
     start = obj.instrument_head_pos_;
-    if old_matlab % some MATLAB problems with moving to correct eof
-        do_fseek(obj.file_id_,double(start),'bof');
-    else
-        do_fseek(obj.file_id_,start,'bof');
+
+    try
+        if old_matlab % some MATLAB problems with moving to correct eof
+            do_fseek(obj.file_id_,double(start),'bof');
+        else
+            do_fseek(obj.file_id_,start,'bof');
+        end
+    catch ME
+        exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                         'Can not move to the instrument(s) start position');
+        throw(exc.addCause(ME))
     end
 
-    check_error_report_fail_(obj,'can not move to the instrument(s) start position');
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,'error writing serialized instrument(s)');
 end
@@ -94,15 +99,20 @@ if setting_sample
     end
 
     %
-    if old_matlab % some MATLAB problems with moving to correct eof
-        do_fseek(obj.file_id_,double(obj.sample_head_pos_),'bof');
-    else
-        do_fseek(obj.file_id_,obj.sample_head_pos_,'bof');
+    try
+        if old_matlab % some MATLAB problems with moving to correct eof
+            do_fseek(obj.file_id_,double(obj.sample_head_pos_),'bof');
+        else
+            do_fseek(obj.file_id_,obj.sample_head_pos_,'bof');
+        end
+    catch ME
+        exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                         'can not move to the sample(s) start position');
+        throw(exc.addCause(ME))
     end
-    check_error_report_fail_(obj,'can not move to the sample(s) start position');
+
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,'error writing  serialized sample(s)');
     %
     obj.real_eof_pos_ = ftell(obj.file_id_);
 end
-

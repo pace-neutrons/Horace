@@ -1,6 +1,6 @@
 function status = do_fseek(fid, offset, origin)
-%%DO_SEEK Call do_fseek with the given arguments, throw an error if something goes wrong
-% See help for 'do_fseek' for argument descriptions
+%%DO_FSEEK Call fseek with the given arguments, throw an error if something goes wrong
+% See help for 'fseek' for argument descriptions
 %
 try
     status = fseek(fid, offset, origin);
@@ -9,7 +9,8 @@ catch ME
 end
 if status ~= 0
     [mess, ~] = ferror(fid);
-    error('SQW_BINFILE_COMMON:get_pix_at_indices', ...
-          'Cannot move to requested position in file:\n  %s', ...
-          mess);
+    filename = fopen(fileID);
+    error('HORACE:utilities:do_fseek', ...
+          'Cannot move to requested position in file (%s):\n  %s', ...
+          filename, mess);
 end
