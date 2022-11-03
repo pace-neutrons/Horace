@@ -11,7 +11,7 @@ classdef sqw_reader<handle
     properties(Dependent)
         filename % short name of the file, this reader reads
         nbins    % number of bins, this file contains
-        % debugging 
+        % debugging
         bin_buf_min
         bin_buf_max
         pix_buf_min
@@ -34,15 +34,15 @@ classdef sqw_reader<handle
         nbin_sum_buffer_=0;
         num_first_bin_=1;  % number of first bin in the buffer
         num_buf_bins_ =0; %  size of nbin_buffer_
-        
+
         % buffer containing pixels
         pix_buffer_=[];
         pix_buf_size_ = 0;
-        
+
         pix_in_buf_start_=1;
         pix_in_buf_end_ =0;
-        
-        
+
+
         num_processed_bins_=0;
         num_processed_pix_ =0;
     end
@@ -52,7 +52,7 @@ classdef sqw_reader<handle
         pix_bloc_size_ = 9*4; % each pixel occupy this number of bytes
         old_matlab_ = verLessThan('matlab','7.12');
     end
-    
+
     methods
         function self=sqw_reader(fname,npix_start_pos,n_bin,pix_start_pos,file_id)
             % sqw reader constructor requests
@@ -82,21 +82,21 @@ classdef sqw_reader<handle
             else
                 error('SQW_READER:constructor',' Input should be open file handle or the name of existing file')
             end
-            
+
             self.nbin_start_pos_ = npix_start_pos;
             self.num_bins_       = n_bin;
             self.pix_start_pos_  = pix_start_pos;
             self.file_id_        = file_id;
-            
+
             self.num_first_bin_    = 1; % number first bin currently in the buffer
             self.num_buf_bins_     = 0; % number of bins in the buffer
             self.pix_in_buf_start_= 1; % number of first pix currently in the buffer
             self.pix_in_buf_end_  = 0; % number of last pix in the buffer
-            
+
             % make pix_buf size proportional to optimal data read unit
             % (real size will be 9 times bigger, as a pixel has 9 fields)
             self.pix_buf_size_   =  sqw_reader.buf_size_;
-            
+
         end
         %
         % debugging functions
@@ -104,16 +104,16 @@ classdef sqw_reader<handle
             bm  = self.num_first_bin_;
         end
         function bm = get.bin_buf_max(self)
-            bm  = self.num_first_bin_+self.num_buf_bins_;            
+            bm  = self.num_first_bin_+self.num_buf_bins_;
         end
         function bm = get.pix_buf_min(self)
             bm =self.pix_in_buf_start_;
         end
         function bm = get.pix_buf_max(self)
-            bm =self.pix_in_buf_end_;            
+            bm =self.pix_in_buf_end_;
         end
-        
-        
+
+
         function [pix_num,npix] = get_npix_for_bin(self,bin_number)
             % get number of pixels, stored in the bin
             % with the bin number provided
@@ -125,7 +125,7 @@ classdef sqw_reader<handle
             if bin_number > self.num_bins_ || bin_number<1
                 error('SQW_READER:get_npix_for_bin','The file %s does not have bin N %d',self.full_file_name_,bin_number);
             end
-            
+
             n_buf_bin  = bin_number - self.num_first_bin_+1;
             if n_buf_bin > self.num_buf_bins_
                 self.read_all_bin_info(bin_number);
@@ -138,7 +138,7 @@ classdef sqw_reader<handle
             npix     = self.nbin_buffer_(n_buf_bin);
             pix_num  = self.num_processed_pix_+self.nbin_sum_buffer_(n_buf_bin)+1;
             %
-            
+
         end
         %
         function pix_info = get_pix_for_bin(self,bin_number)
@@ -165,9 +165,9 @@ classdef sqw_reader<handle
             end
             %
             pix_info = self.pix_buffer_(:,pix_num_in_buf:pix_num_in_buf+npix-1);
-            
+
         end
-        
+
         function fn = get.filename(self)
             [~,name,fext] = fileparts(self.full_file_name_);
             fn = [name,fext];
@@ -182,7 +182,7 @@ classdef sqw_reader<handle
             fclose(self.fid_);
         end
     end
-    
+
     methods(Access= private)
         function read_pixels_(self,bin_number,pix_number)
             % read pixels information, located in the bin with the number requested
@@ -190,16 +190,16 @@ classdef sqw_reader<handle
             % read either all pixels in the buffer or at least the number
             % specified
             %
-            
+
             % check if we have loaded enough bin information to read enough
             % pixels and return enough pixels to fill-in buffer. Expand or
             % shrink if nexessary
-            
+
             % if we are here, nbin buffer is intact and pixel buffer is
             % invalidated
             num_pix_to_read = self.check_binInfo_loaded_(bin_number);
             %
-            
+
             pix_pos =  self.pix_start_pos_ + (pix_number-1)*self.pix_bloc_size_;
             do_fseek(self.fid_,pix_pos,'bof');
             [pix_buffer,count,ok,mess] = fread_catch(self.fid_,[9,num_pix_to_read],'*float32');
@@ -212,7 +212,7 @@ classdef sqw_reader<handle
                 pix_buffer(5,:) = self.file_id_;
             end
             self.pix_buffer_ = pix_buffer;
-            
+
         end
         function num_pix_to_read=check_binInfo_loaded_(self,bin_number)
             % verify bin information loaded to memory and identify sufficient number
@@ -221,7 +221,7 @@ classdef sqw_reader<handle
             % read additional bin information if not enough bins have been
             % processed
             %
-            
+
             % pix info in bin buffer
             cache_bin_num = bin_number-self.num_first_bin_+1; % already guaranteed to be in bin buffer
             npix_start   = self.nbin_sum_buffer_(cache_bin_num)+1;
@@ -232,7 +232,7 @@ classdef sqw_reader<handle
                 if isempty(last_loc_pix_number)% so many pixels in a cell, that the first exceeds the buffer
                     num_pix_to_read = self.nbin_buffer_(cache_bin_num);
                 else
-                    num_pix_to_read = self.nbin_sum_buffer_(last_loc_pix_number)+self.nbin_buffer_(last_loc_pix_number)-npix_start+1;                    
+                    num_pix_to_read = self.nbin_sum_buffer_(last_loc_pix_number)+self.nbin_buffer_(last_loc_pix_number)-npix_start+1;
                 end
 
                 % let's do nothing otherwise for the time being
@@ -247,7 +247,7 @@ classdef sqw_reader<handle
                 %        last_loc_pix_number = find(self.nbin_sum_buffer_ <= self.buf_size_+pix_buf_position,1,'last');
                 %    end
             end
-            
+
         end
         function read_all_bin_info(self,nbin2read)
             %
@@ -262,7 +262,7 @@ classdef sqw_reader<handle
                 num_last_bin = self.num_processed_bins_;
             end
             n_strides = floor((nbin2read-num_last_bin)/self.buf_size_);
-            
+
             for stride = 1:n_strides
                 num_last_bin = read_bin_info_(self,1,'accumulate');
             end
@@ -276,21 +276,24 @@ classdef sqw_reader<handle
             %
             % nbin2read -- the bin within a block to read into the buffer
             %
-            
+
             % number of bins to read into buffer:
-            
-            first_bin =self.num_processed_bins_+1;                       
+
+            first_bin =self.num_processed_bins_+1;
             num_last_bin = first_bin+self.buf_size_+num_loc_bin-2;
-            
+
             if num_last_bin > self.num_bins_
                 num_last_bin = self.num_bins_;
             end
             tot_num_bins_to_read= num_last_bin-first_bin+1;
-            
-            status=do_fseek(self.fid_,self.nbin_start_pos_+8*(first_bin-1),'bof');
-            if status<0
-                error('SQW_READER:read_pix','Unable to find location of npix data in %s',self.full_file_name_);
+
+            try
+                do_fseek(self.fid_,self.nbin_start_pos_+8*(first_bin-1),'bof');
+            catch ME
+                exc = MException('SQW_READER:read_pix','Unable to find location of npix data in %s',self.full_file_name_);
+                throw(exc.addCause(ME))
             end
+
             [nbin_selection,count,ok,mess] = fread_catch(self.fid_,tot_num_bins_to_read,'*int64');
             if ~all(ok);
                 error('SQW_READER:read_pix','error reading n_bin array: %s',mess);
@@ -310,7 +313,5 @@ classdef sqw_reader<handle
             end
         end
     end % methods
-    
+
 end
-
-

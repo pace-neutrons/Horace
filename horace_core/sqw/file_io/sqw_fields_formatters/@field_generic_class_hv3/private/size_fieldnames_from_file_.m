@@ -11,12 +11,14 @@ for i=1:nfields
     nf = fread(fid,1,'float64');
     [~,res] = ferror(fid);
     if res ~=0; err = true; return; end
-    
+
     sz  = sz +  8 + nf;
     pos = pos + 8 + nf;
-    do_fseek(fid,pos,'bof');
-    [~,res] = ferror(fid);
-    if res ~=0; err = true; return; end
-    
-end
+    try
+        do_fseek(fid,pos,'bof');
+    catch
+        err = true;
+        return;
+    end
 
+end

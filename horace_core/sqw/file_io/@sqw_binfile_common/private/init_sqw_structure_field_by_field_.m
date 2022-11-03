@@ -10,8 +10,13 @@ if ~ok
     error('HORACE:sqw_binfile_common:invalid_argument',mess);
 end
 
-do_fseek(obj.file_id_,obj.main_header_pos_,'bof');
-check_and_throw_error(obj,'Error moving to main data header position');
+try
+    do_fseek(obj.file_id_,obj.main_header_pos_,'bof');
+catch ME
+    exc = MException('HORACE:sqw_binfile_common:io_error',...
+                     'Error moving to main data header position')
+    throw(exc.addCause(ME))
+end
 
 template_m_header = obj.get_main_header_form();
 [main_h_pos,pos,io_error] = obj.sqw_serializer_.calculate_positions(template_m_header,obj.file_id_,obj.main_header_pos_);
@@ -21,9 +26,15 @@ if io_error
 end
 obj.main_head_pos_info_ = main_h_pos;
 
-%
-do_fseek(obj.file_id_,main_h_pos.nfiles_pos_,'bof');
-check_and_throw_error(obj,'Error moving to the  number of contributing files position');
+try
+    do_fseek(obj.file_id_,main_h_pos.nfiles_pos_,'bof');
+catch ME
+    exc = MException('HORACE:sqw_binfile_common:io_error',...
+                     'Error moving to the  number of contributing files position');
+    throw(exc.addCause(ME))
+end
+
+
 
 n_files = fread(obj.file_id_,1,'int32');
 check_and_throw_error(obj,'Error reading number of contributing files field');
@@ -115,8 +126,14 @@ else
     else
         obj.img_db_range_pos_=data_pos.img_db_range_pos_;
         obj.pix_pos_=data_pos.pix_pos_+8;
-        do_fseek(obj.file_id_,data_pos.pix_pos_,'bof');
-        check_and_throw_error(obj,'unable to move to npix position in file');
+
+        try
+            do_fseek(obj.file_id_,data_pos.pix_pos_,'bof');
+        catch ME
+            exc = MException('HORACE:sqw_binfile_common:io_error',...
+                             'unable to move to npix position in file');
+            throw(exc.addCause(ME))
+        end
         obj.npixels_ = fread(obj.file_id_,1,'*uint64');
         check_and_throw_error(obj,'unable to read npix field');
     end
@@ -144,4 +161,3 @@ if res ~= 0
     error('HORACE:sqw_binfile_common:io_error',...
         '%s: Reason: %s',mess_pos,mess)
 end
-

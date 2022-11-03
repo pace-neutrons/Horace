@@ -18,9 +18,15 @@ if isempty(varargin)
 else
     data_str = varargin{1};
 end
+
+try
 do_fseek(obj.file_id_,obj.s_pos_,'bof');
-check_error_report_fail_(obj,...
-    'DND_BINFILE_COMMON::get_data: Can not move to the signal start position');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                     'Can not move to the signal start position');
+    throw(exc.addCause(ME))
+end
+
 
 numl = prod(obj.dnd_dimensions);
 if obj.convert_to_double
@@ -40,4 +46,3 @@ if obj.num_dim>1
     data_str.e = reshape(data_str.e,obj.dnd_dimensions);
     data_str.npix = reshape(data_str.npix,obj.dnd_dimensions);
 end
-

@@ -1,4 +1,4 @@
-classdef test_replicate < TestCase
+classdef test_replicate< TestCase
     %
     % Validate sqw object replication
     %

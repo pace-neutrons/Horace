@@ -74,14 +74,15 @@ if n_header == obj.num_contrib_files
 else
     sz = obj.header_pos_(n_header+1) - obj.header_pos_(n_header);
 end
-%
-do_fseek(obj.file_id_,obj.header_pos_(n_header),'bof');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('HORACE:sqw_binfile_common:runtime_error',...
-        'get_single_header: can not move at the start of header N%d, reason: %s',n_header,mess);
+
+try
+    do_fseek(obj.file_id_,obj.header_pos_(n_header),'bof');
+catch ME
+    exc = MException('HORACE:sqw_binfile_common:runtime_error',...
+                     'get_single_header: can not move at the start of header N%d',n_header);
+    throw(exc.addCause(ME))
 end
-%
+
 bytes = fread(obj.file_id_,sz,'*uint8');
 [mess,res] = ferror(obj.file_id_);
 if res ~=0

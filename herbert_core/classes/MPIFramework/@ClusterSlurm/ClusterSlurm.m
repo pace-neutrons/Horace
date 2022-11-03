@@ -145,7 +145,7 @@ classdef ClusterSlurm < ClusterWrapper
 
             par = parallel_config();
             comm = par.slurm_commands;
-
+            
             [n_nodes, cores_per_node] = obj.get_remote_info(comm);
 
             if par.is_auto_par_threads

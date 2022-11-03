@@ -49,11 +49,12 @@ classdef faccess_sqw_prototype < sqw_binfile_common
         end
         function obj=init_from_sqw_file(obj,varargin)
             % initialize the structure of faccess class using sqw file as input
-            do_fseek(obj.file_id_,0,'bof');
-            [mess,res] = ferror(obj.file_id_);
-            if res ~= 0
-                error('SQW_FILE_IO:io_error',...
-                    'FACCESS_SQW_PROTOTYOE::init_from_sqw_file: IO error locating number of contributing files field: Reason %s',mess)
+            try
+                do_fseek(obj.file_id_,0,'bof');
+            catch ME
+                exc = MException('SQW_FILE_IO:io_error',...
+                                 'FACCESS_SQW_PROTOTYPE:init_from_sqw_file: IO error locating number of contributing files field')
+                throw(exc.addCause(ME))
             end
             obj.main_header_pos_ = 0;
 
@@ -281,5 +282,3 @@ classdef faccess_sqw_prototype < sqw_binfile_common
     end
 
 end
-
-

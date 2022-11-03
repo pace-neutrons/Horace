@@ -20,14 +20,25 @@ if nargin < 4
     s_pos = obj.s_pos_;
 end
 
-do_fseek(obj.file_id_, s_pos, 'bof');
-check_error_report_fail_(obj, 'Error moving to the beginning of the signal record');
+try
+    do_fseek(obj.file_id_, s_pos, 'bof');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                     'Error moving to the beginning of the signal record');
+    throw(exc.addCause(ME))
+end
+
 
 fwrite(obj.file_id_, single(s), 'float32');
 check_error_report_fail_(obj, 'Error writing signal record');
 
-do_fseek(obj.file_id_, obj.e_pos_, 'bof');
-check_error_report_fail_(obj, 'Error moving to the beginning of the error record');
+try
+    do_fseek(obj.file_id_, obj.e_pos_, 'bof');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                     'Error moving to the beginning of the error record');
+    throw(exc.addCause(ME))
+end
 
 fwrite(obj.file_id_, single(e), 'float32');
 check_error_report_fail_(obj, 'Error writing error record');

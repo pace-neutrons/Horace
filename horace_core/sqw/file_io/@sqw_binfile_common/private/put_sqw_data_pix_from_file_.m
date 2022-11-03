@@ -68,10 +68,14 @@ switch combine_algorithm
     obj = obj.reopen_to_write();
     if ~isempty(mess)
         fout = obj.file_id_;
-        do_fseek(fout,pix_out_position,'bof');
-        check_error_report_fail_(obj,...
-                                 ['Unable to move to the start of the pixel record in target file ',...
-                                  obj.filename,' after mex-combine failed']);
+        try
+            do_fseek(fout,pix_out_position,'bof');
+        catch ME
+            exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                             ['Unable to move to the start of the pixel record in target file ', ...
+                              ' after mex-combine failed']);
+            throw(exc.addCause(ME))
+        end
 
         je = combine_sqw_pix_job();
         je.write_npix_to_pix_blocks(fout,pix_out_position,pix_comb_info);

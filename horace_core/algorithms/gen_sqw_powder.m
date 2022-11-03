@@ -43,7 +43,8 @@ if ~iscell(spe_file)
 end
 
 nfiles=numel(spe_file);
-efix = make_array(efix,nfiles);
+[efix,ok,mess]=make_array(efix,nfiles);
+if ~ok, error(['efix ',mess]), end
 
 
 % Create temporary files, all on a 1x1x1x1 grid
@@ -129,7 +130,6 @@ for i=1:nfiles
         axes_block('nbins_all_dims',[1,1,1,1],'img_range',range_add_border(q_de_range)),...
         proj);
     data.npix = pix.num_pixels;
-
     pix.q_coordinates=[sqrt(sum(pix.q_coordinates.^2,1));zeros(2,pix.num_pixels)];
     w.data=data;
     w.pix = pix;
@@ -187,17 +187,20 @@ if nargout==0
     clear tmp_file grid_size img_db_range
 end
 
-end
-
 %==================================================================================================
 function [val_out,ok,mess]=make_array(val,n)
 % Make a vector length n if scalar, or check length is n if not
 if isscalar(val)
     val_out=val*ones(1,n);
+    ok=true;
+    mess='';
 elseif numel(val)==n
     val_out=val;
+    ok=true;
+    mess='';
 else
-    error('HORACE:gen_sqw_powder:invalid_argument', 'input must be a scalar or a vector with same number of elements as spe files');
+    val_out=val;
+    ok=false;
+    mess='must be a scalar or a vector with same number of elements as spe files';
 end
 
-end

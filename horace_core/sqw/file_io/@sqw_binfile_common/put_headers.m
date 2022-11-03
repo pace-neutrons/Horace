@@ -104,8 +104,14 @@ for i=1:n_files2_process
         end
     end
     start_pos  = pos_list(i);
-    do_fseek(obj.file_id_,start_pos ,'bof');
-    check_error_report_fail_(obj,sprintf('Error moving to the start of the header N%d',i));
+
+    try
+        do_fseek(obj.file_id_,start_pos ,'bof');
+    catch ME
+        exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                         sprintf('Error moving to the start of the header N%d',i));
+        throw(exc.addCause(ME))
+    end
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,sprintf('Error writing data for the header N%d',i));
 end
