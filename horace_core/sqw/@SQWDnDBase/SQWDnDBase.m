@@ -31,11 +31,11 @@ classdef (Abstract) SQWDnDBase < serializable
         w                 = sigvar_set(win, sigvar_obj);
         sz                = sigvar_size(w);
         %------------------------------------------------------------------
-        wout = signal(w,name)  % Set the intensity of an sqw object to the
+        wout = signal(w,name); % Set the intensity of an sqw object to the
                                % values for the named argument
-        wout = cut(obj, varargin); % take cut from a sqw or sqw/dnd object
-        wout = cut_dnd(obj,varargin) % legacy entrance for cut for dnd objects
-        wout = cut_sqw(obj,varargin) % legacy entrance for cut for sqw objects
+        wout = cut(obj, varargin);    % take cut from a sqw or sqw/dnd object
+        wout = cut_dnd(obj,varargin); % legacy entrance for cut for dnd objects
+        wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw

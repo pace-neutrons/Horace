@@ -22,10 +22,6 @@ function [xvals,xpix,xvar,xdevsqr]=coordinates_calc_(w,xlist)
 %
 % Output:
 % -------
-%   ok      true if all OK; false if invalid coordinate name given
-%
-%   mess    empty if all OK, error message otherwise
-%
 %   xvals   Cell array of xvalues corresponding to the names in xlist, with
 %          the size of each entry being that of the signal array.
 %           If input was a single name as a character string, then xvals is
@@ -39,8 +35,8 @@ function [xvals,xpix,xvar,xdevsqr]=coordinates_calc_(w,xlist)
 %
 %   xdevsqr Cell array of corresponding squared-deviation for each pixel
 %          (column vectors)
-
-
+%
+%
 % Original author: T.G.Perring
 %
 
@@ -91,19 +87,22 @@ if ind.h||ind.k||ind.l||ind.Q
     this_proj = w.data.proj;
     hkl_proj = ortho_proj([1,0,0],[0,1,0], ...
         'alatt',this_proj.alatt,'angdeg',this_proj.angdeg);
-    % TODO: this is compartibility function. It will change when alginment matrix
-    % is attached to pixels. In fact, it redefines b-matrix (and partially U-matix
-    % used for alignment), which is the function of lattice. See ticket #885
+    % TODO: The method below is for compartibility with current alignment
+    % implementation. It should change and disappear when alginment matrix
+    % is attached to pixels. In fact, it redefines b-matrix, which is the
+    % function of lattice and partially U-matix used for alignment)
+    % See ticket #885 to fix the alignment.
     hkl_proj = hkl_proj.set_ub_inv_compat(header_ave.u_to_rlu(1:3,1:3));
 
 
     % Matrix and translation to convert from pixel coords to hkl
     % Example of the code to use dealing with #825
     % uhkl=header_ave.u_to_rlu(1:3,1:3)*w.pix.q_coordinates+repmat(header_ave.uoffset(1:3),[1,npixtot]);
-    uhkl = hkl_proj.transform_pix_to_img(w.pix.q_coordinates);    
+    uhkl = hkl_proj.transform_pix_to_img(w.pix.q_coordinates);
     if ind.Q
         % Get |Q| -- We would use pix coordinates directly, but the pix
-        % coordinates may be invalid due to alignment. See #885 to resolve
+        % coordinates may be invalid due to misalignment. 
+        % See #885 to resolve alignment.
         % Example of the code to use dealing with #825
         %B=bmatrix(header_ave.alatt, header_ave.angdeg);
         %qcryst=B*uhkl;
@@ -123,8 +122,8 @@ if ind.d1||ind.d2||ind.d3||ind.d4
     %     u_to_rlu = w.data.proj.u_to_rlu;
     %     U=u_to_rlu(1:3,1:3)\header_ave.u_to_rlu(1:3,1:3);
     %     T=u_to_rlu (1:3,1:3)\(w.data.proj.offset(1:3)'-header_ave.uoffset(1:3));
-    %     uproj=U*w.pix.q_coordinates-repmat(T,[1,npixtot]);        % pixel Q coordinates now in projection axes
-    %     uproj=[uproj;w.pix.dE+header_ave.uoffset(4)];    % now append energy data
+    %     uproj=U*w.pix.q_coordinates-repmat(T,[1,npixtot]);  % pixel Q coordinates now in projection axes
+    %     uproj=[uproj;w.pix.dE+header_ave.uoffset(4)];       % now append energy data
     % Generic projection alternative
     uproj = w.data.proj.transform_pix_to_img(w.pix.coordinates);
 

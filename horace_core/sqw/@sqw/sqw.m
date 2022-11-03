@@ -75,8 +75,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
-        wout=signal(w,name)  % Set the intensity of an sqw object to the
-        %                    % values for the named argument
+        wout = signal(w,name);  % Set the intensity of an sqw object to the
+        %                       % values for the named argument
         wout = cut(obj, varargin); % take cut from the sqw object.
         %
         function wout = cut_dnd(obj,varargin)
