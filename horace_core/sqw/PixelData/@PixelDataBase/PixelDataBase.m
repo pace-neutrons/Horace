@@ -511,7 +511,7 @@ classdef (Abstract) PixelDataBase < handle
             range = obj.pix_range_;
         end
 
-        function obj = set.pix_range(obj, pix_range)
+        function set.pix_range(obj, pix_range)
             set_range(obj, pix_range);
         end
     end

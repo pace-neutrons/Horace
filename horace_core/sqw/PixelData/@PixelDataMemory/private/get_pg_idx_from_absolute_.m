@@ -1,4 +1,4 @@
-function [page_idx, global_idx] = get_pg_idx_from_absolute_(obj, abs_indices, page_number)
+function [page_idx, global_idx] = get_pg_idx_from_absolute_(~, abs_indices, ~)
 % Extract the indices from abs_indices that lie within the bounds of the
 % given page and the corresponding page indices.
 %
@@ -25,5 +25,7 @@ function [page_idx, global_idx] = get_pg_idx_from_absolute_(obj, abs_indices, pa
 %  global_idx  The absolute indices that exist within the given page. This
 %              will be a subset of `abs_indices`.
 %
-page_indx = 1;
+page_idx = 1;
 global_idx = abs_indices;
+
+end

@@ -7,8 +7,8 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
         FLOAT_TOLERANCE = 4.75e-4;
 
-        test_sqw_file_path = '../common_data/sqw_1d_1.sqw';
-        test_sqw_2d_file_path = '../common_data/sqw_2d_1.sqw';
+        test_sqw_file_path;
+        test_sqw_2d_file_path;
         ref_raw_pix_data = [];
 
         pix_in_memory_base;
@@ -29,6 +29,10 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             end
             obj = obj@TestCase(name);
 
+            pths = horace_paths();
+            obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_1d_1.sqw');
+            obj.test_sqw_2d_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
+
             % Load a 1D SQW file
             sqw_test_obj = sqw(obj.test_sqw_file_path);
             obj.ref_raw_pix_data = sqw_test_obj.pix.data;
@@ -36,6 +40,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             page_size = floor(sqw_test_obj.pix.num_pixels/6)*obj.BYTES_PER_PIX;
             obj.pix_in_memory_base = sqw_test_obj.pix;
             obj.pix_with_pages_base = PixelDataBase.create(obj.test_sqw_file_path, page_size);
+            obj.pix_with_pages_base
         end
 
         function setUp(obj)
@@ -265,7 +270,6 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
             npix = [1, 3, 0; 1, 1, 2; 0, 1, 1];
             sig_array = npix*rand(3);
-
             new_pix = pix.do_binary_op(sig_array, @plus, 'npix', npix);
 
             expected_pix = data;

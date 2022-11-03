@@ -54,7 +54,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pths = horace_paths;
             source_sqw_file = fullfile(pths.test_common, 'sqw_1d_1.sqw');
 
-            [~,fn] = fileparts(source_sqw_file);
             test_sqw_file_full_path = fullfile(tmp_dir, 'sqw_1d_1.sqw');
             copyfile(source_sqw_file,test_sqw_file_full_path);
 
@@ -716,7 +715,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_original.signal = 1;
 
             pix_copy = copy(pix_original);
-
             assertEqual(pix_copy.data, pix_original.data);
             while pix_original.has_more()
                 pix_original.advance();
@@ -728,21 +726,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_changes_to_original_persistent_in_copy_if_1_page_in_file(obj)
             pix_original = PixelDataFileBacked(obj.tst_sqw_file_full_path, 1e9);
             pix_original.signal = 1;
-            pix_original.advance();
 
             pix_copy = copy(pix_original);
 
-            assertEqual(pix_copy.data, pix_original.data);
-            while pix_original.has_more()
-                % we shouldn't enter here, but we should check the same API for
-                % data with > 1 page works for single page
-                pix_original.advance();
-                pix_copy.advance();
-                assertEqual(pix_copy.data, pix_original.data);
-            end
-
-            pix_copy.move_to_first_page();
-            pix_original.move_to_first_page();
             assertEqual(pix_copy.data, pix_original.data);
         end
 
@@ -1067,7 +1053,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             [pix,pix_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix_to_append = PixelDataFileBacked(rand(9, 5));
 
-            pix_out = pix.append(pix_to_append);
+            [~] = pix.append(pix_to_append);
             assertElementsAlmostEqual(pix.pix_range,pix_range,'relative',4.e-8);
 
             assertEqual(pix.num_pixels, size(data, 2));
@@ -1332,7 +1318,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_get_pixels_throws_if_an_idx_lt_1_with_in_memory_pix(~)
-            in_mem_pix = PixelData<e,pry(5);
+            in_mem_pix = PixelDataMemory(5);
             f = @() in_mem_pix.get_pixels(-1:3);
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
@@ -1803,7 +1789,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             new_data = ones(numel(fields) + 1, 7);
             idxs = [4, 3, 9, 24, 29, 10, 11];
             f = @() pix.set_data(fields, new_data, idxs);
-            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
 
         function test_set_data_errors_if_data_ncols_ne_to_num_indices(~)
@@ -1812,7 +1798,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             idxs = [4, 3, 9, 24, 29, 10, 11];
             new_data = ones(numel(fields), numel(idxs) - 1);
             f = @() pix.set_data(fields, new_data, idxs);
-            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
 
         function test_set_data_sets_fields_with_given_values_with_logical_idxs(~)
