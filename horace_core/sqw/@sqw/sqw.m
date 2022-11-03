@@ -1,5 +1,4 @@
 classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & sqw_plot_interface
-
     %SQW Create an sqw object
     %
     % Syntax:
@@ -27,9 +26,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %       neutron experiment.
         %
         pix % access to pixel information, if any such information is
-        %     stored within an object. May also return pix_combine_info or
-        %     filebased pixels. (TODO -- this should be modified)
-        %;
+        %     stored within the object. May also provide pix_combine_info
+        %     or filebased pixels.
     end
     properties(Hidden,Dependent)
         % obsolete property, duplicating detpar. Do not use
@@ -55,7 +53,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     methods
-        has = has_pixels(w);          % returns true if a sqw object has pixels
+        has = has_pixels(w);          % returns true if a sqw object has non-zero number of pixels
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         wout = smooth(win, varargin)  % smooth sqw object or array of sqw
         %                             % objects containing no pixels
@@ -79,29 +77,24 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %------------------------------------------------------------------
         wout=signal(w,name)  % Set the intensity of an sqw object to the
         %                    % values for the named argument
-        [wout,mask_array] = mask(win, mask_array);
         wout = cut(obj, varargin); % take cut from the sqw object.
         %
         function wout = cut_dnd(obj,varargin)
             % legacy entrance to cut for dnd objects
             wout = cut(obj.data,varargin{:});
-        end        
+        end
         function wout = cut_sqw(obj,varargin)
-            % legacy entrance to cut for sqw object            
+            % legacy entrance to cut for sqw object
             wout = cut(obj, varargin{:});
         end
         %
         [wout,mask_array] = mask(win, mask_array);
-        %
         wout = mask_pixels(win, mask_array);
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
-
-
         %[sel,ok,mess] = mask_points (win, varargin);
+
         varargout = multifit (varargin);
-
-
         % TOBYFIT intreface
         %------------------------------------------------------------------
         %TODO: Something in this interface looks dodgy. Should it be just
@@ -146,23 +139,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = noisify(w,varargin);
 
         %------------------------------------------------------------------
-        % ACCESSORS TO OBJECT PROPERTIES
-        function dtp = my_detpar(obj)
-            dtp = obj.detpar_x;
-        end
-
-        function obj = change_detpar(obj,dtp)
-            obj.detpar_x = dtp;
-        end
-
-        %function hdr = my_header(obj)
-        %    hdr = obj.experiment_info;
-        %end
-
-        function obj = change_header(obj,hdr)
-            obj.experiment_info = hdr;
-        end
-
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
 
@@ -210,6 +186,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
             end
         end
+        %------------------------------------------------------------------
+        % ACCESSORS TO OBJECT PROPERTIES To remove?
+        function dtp = my_detpar(obj)
+            dtp = obj.detpar_x;
+        end
+
+        function obj = change_detpar(obj,dtp)
+            obj.detpar_x = dtp;
+        end
+        function obj = change_header(obj,hdr)
+            obj.experiment_info = hdr;
+        end
+        %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
@@ -291,7 +280,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
             obj.experiment_info_ = val;
         end
-
+        %------------------------------------------------------------------
         function val = get.detpar_x(obj)
             % obsolete interface
             val = obj.detpar_;
@@ -300,6 +289,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % obsolete interface
             obj.detpar_ = val;
         end
+        %------------------------------------------------------------------
         function  save_xye(obj,varargin)
             save_xye(obj.data,varargin{:});
         end
@@ -309,17 +299,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
-        end
-
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
-            ver = 4;
-        end
-        function flds = saveableFields(~)
-            flds = sqw.fields_to_save_;
         end
         function map = get.runid_map(obj)
             if isempty(obj.experiment_info)
@@ -332,15 +311,28 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % return size and shape of the image arrays
             [nd,sz] = obj(1).data_.dimensions();
         end
+        function is = dnd_type(obj)
+            is = isempty(obj.pix_);
+        end
+
+        %------------------------------------------------------------------
+        % SERIALIZABLE INTERFACE
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 4;
+        end
+        function flds = saveableFields(~)
+            flds = sqw.fields_to_save_;
+        end
         function str = saveobj(obj)
             if ~obj.main_header_.creation_date_defined
                 % support old files, which do not have creation date defined
                 obj.main_header_.creation_date = datetime('now');
             end
             str = saveobj@serializable(obj);
-        end
-        function is = dnd_type(obj)
-            is = isempty(obj.pix_);
         end
     end
 

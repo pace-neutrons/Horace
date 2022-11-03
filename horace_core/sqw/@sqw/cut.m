@@ -1,5 +1,6 @@
 function wout = cut(obj, varargin)
-%%CUT Take a cut from an sqw object by integrating over one or more axes.
+%%CUT Take a cut from an sqw object by transforming data into new coordinate
+% system and then rebinning data or integrating them over one or more axes.
 %
 % Cut using existing projection axes:
 %   >> wout = cut (data_source, p1_bin, p2_bin...)  % (as many binning arguments
@@ -8,8 +9,8 @@ function wout = cut(obj, varargin)
 % Cut with new projection axes:
 %   >> wout = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
 %
-%   >> wout = cut (..., '-nopix')      % output cut is dnd structure (i.e. no
-%                                   % pixel information is retained)
+%   >> wout = cut (..., '-nopix')   % output cut is dnd class (i.e. only
+%                                   % image information is retained)
 %
 %   >> wout = cut (...,  filename)     % save cut to named file
 %
@@ -117,7 +118,7 @@ targ_proj.alatt  = header_av.alatt;
 targ_proj.angdeg = header_av.angdeg;
 % TODO: this is compartibility function. It will change when alginment matrix
 % is attached to pixels. In fact, it redefines b-matrix (and partially U-matix
-% used for alignment), which is the function of lattice
+% used for alignment), which is the function of lattice. See ticket #885
 targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 
 %
@@ -146,12 +147,11 @@ function [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin
 % define target axes from existing axes, inputs and the projections
 %
 img_block = w.data;
-%source_proj = img_block.get_projection(header_av);
 source_proj = img_block.proj;
 %--------------------------------------------------------------------------
 % Get the source binning ranges, transformed into target coordinate system.
 % It is actually axes_block method, so source projection is provided as
-% input of this method. Left in this form unil data_sqw_dnd is a axes_block
+% input of this method.
 source_binning = img_block.axes.get_binning_range(...
     source_proj,targ_proj);
 %

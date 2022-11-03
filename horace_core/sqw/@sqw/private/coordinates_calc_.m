@@ -67,12 +67,12 @@ end
 nd=dimensions(w);
 is_dax = ismember(ax_name,xlist);     % start of a bunch of names associated with plot axes
 if any(is_dax)
-    dax_num = find(is_dax);    
+    dax_num = find(is_dax);
     if max(dax_num)>nd
         invalid = dax_num>nd;
-        error('HORACE:sqw:invalid_argument', ...    
-        'Some coordinate names %s request axes numbers higher then the dimensionality of sqw object (=%d)',...
-        disp2str(ax_name(dax_num(invalid))),nd);
+        error('HORACE:sqw:invalid_argument', ...
+            'Some coordinate names %s request axes numbers higher then the dimensionality of sqw object (=%d)',...
+            disp2str(ax_name(dax_num(invalid))),nd);
     end
 end
 
@@ -86,16 +86,28 @@ end
 ind=cell2struct(num2cell(ind),xname,1);
 
 xpix=cell(1,numel(xlist));
-
-header_ave=w.header_average();   % get average header
-npixtot=w.pix.num_pixels;
 if ind.h||ind.k||ind.l||ind.Q
+    header_ave=w.header_average();   % get average header
+    this_proj = w.data.proj;
+    hkl_proj = ortho_proj([1,0,0],[0,1,0], ...
+        'alatt',this_proj.alatt,'angdeg',this_proj.angdeg);
+    % TODO: this is compartibility function. It will change when alginment matrix
+    % is attached to pixels. In fact, it redefines b-matrix (and partially U-matix
+    % used for alignment), which is the function of lattice. See ticket #885
+    hkl_proj = hkl_proj.set_ub_inv_compat(header_ave.u_to_rlu(1:3,1:3));
+
+
     % Matrix and translation to convert from pixel coords to hkl
-    uhkl=header_ave.u_to_rlu(1:3,1:3)*w.pix.q_coordinates+repmat(header_ave.uoffset(1:3),[1,npixtot]);
+    % Example of the code to use dealing with #825
+    % uhkl=header_ave.u_to_rlu(1:3,1:3)*w.pix.q_coordinates+repmat(header_ave.uoffset(1:3),[1,npixtot]);
+    uhkl = hkl_proj.transform_pix_to_img(w.pix.q_coordinates);    
     if ind.Q
-        % Get |Q|
-        B=bmatrix(header_ave.alatt, header_ave.angdeg);
-        qcryst=B*uhkl;
+        % Get |Q| -- We would use pix coordinates directly, but the pix
+        % coordinates may be invalid due to alignment. See #885 to resolve
+        % Example of the code to use dealing with #825
+        %B=bmatrix(header_ave.alatt, header_ave.angdeg);
+        %qcryst=B*uhkl;
+        qcryst = hkl_proj.transform_img_to_pix(uhkl);
         Q=sqrt(sum(qcryst.^2,1));
     end
     if ind.h, xpix{ind.h}=uhkl(1,:)'; end   % column vector
@@ -107,11 +119,14 @@ end
 
 if ind.d1||ind.d2||ind.d3||ind.d4
     % Matrix and translation to convert from pixel coords to projection coordinates
-    u_to_rlu = w.data.proj.u_to_rlu;
-    U=(u_to_rlu(1:3,1:3))\header_ave.u_to_rlu(1:3,1:3);
-    T=(u_to_rlu (1:3,1:3))\(w.data.proj.offset(1:3)'-header_ave.uoffset(1:3));
-    uproj=U*w.pix.q_coordinates-repmat(T,[1,npixtot]);        % pixel Q coordinates now in projection axes
-    uproj=[uproj;w.pix.dE+header_ave.uoffset(4)];    % now append energy data
+    % This is the code to use as example while dealing with ticket #825
+    %     u_to_rlu = w.data.proj.u_to_rlu;
+    %     U=u_to_rlu(1:3,1:3)\header_ave.u_to_rlu(1:3,1:3);
+    %     T=u_to_rlu (1:3,1:3)\(w.data.proj.offset(1:3)'-header_ave.uoffset(1:3));
+    %     uproj=U*w.pix.q_coordinates-repmat(T,[1,npixtot]);        % pixel Q coordinates now in projection axes
+    %     uproj=[uproj;w.pix.dE+header_ave.uoffset(4)];    % now append energy data
+    % Generic projection alternative
+    uproj = w.data.proj.transform_pix_to_img(w.pix.coordinates);
 
     % Get display axes
     pax=w.data.pax;
@@ -124,7 +139,8 @@ if ind.d1||ind.d2||ind.d3||ind.d4
 end
 
 if ind.E
-    xpix{ind.E}=w.pix.dE'+header_ave.uoffset(4);
+    off = w.data.proj.offset(4);
+    xpix{ind.E}=w.pix.dE'+off;
 end
 
 % Compute average, and spread if

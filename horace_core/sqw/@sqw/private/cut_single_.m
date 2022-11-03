@@ -78,7 +78,8 @@ if keep_pix
         wout.main_header.creation_date = datetime('now');
     end
 else
-    wout = data_out.data; % Should it be sqw without pixels?
+    wout = data_out.data; % Should it be sqw without pixels? We may want to 
+    % do it it the result is an array of sqw cuts, some empty
 end
 
 % Write result to file if necessary

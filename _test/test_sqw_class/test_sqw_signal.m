@@ -32,7 +32,7 @@ classdef test_sqw_signal < TestCaseWithSave
             w1modQ = signal(obj.sqw_2d,'Q');
 
             assertEqualToTolWithSave(obj,w1modQ,'ignore_str',true, ...
-                'tol',[1.e-9,1.e-9]);
+                'tol',[3.e-7,3.e-7]);
             
         end
 

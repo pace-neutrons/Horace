@@ -119,7 +119,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         wout = cut(obj, varargin); % take cut from the dnd object
         function wout = cut_dnd(obj,varargin)
-            % legacy entrance to cut 
+            % legacy entrance to cut
             wout = obj.cut(varargin{:});
         end
         function wout = cut_sqw(obj,varargin)
@@ -127,7 +127,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             error('HORACE:DnDBase:invalid_argument', ...
                 'Can not run cut_sqw on dnd object');
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         %
         [wout,mask_array] = mask(win, mask_array);
 
