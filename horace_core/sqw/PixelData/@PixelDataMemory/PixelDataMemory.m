@@ -1,5 +1,5 @@
 classdef PixelDataMemory < PixelDataBase
-    % PixelData Provides an interface for access to pixel data
+    % PixelDataMemory Provides an interface for access to memory-backed pixel data
     %
     %   This class provides getters and setters for each data column in an SQW
     %   pixel array. You can access the data using the attributes listed below,
@@ -9,58 +9,30 @@ classdef PixelDataMemory < PixelDataBase
     %   Construct this class with an 9 x N array, a file path to an SQW object or
     %   an instance of sqw_binfile_common.
     %
-    %   >> pix_data = PixelDataBase.create(data);
-    %   >> pix_data = PixelDataBase.create('/path/to/sqw.sqw');
-    %   >> pix_data = PixelDataBase.create('/path/to/sqw.sqw', mem_alloc);
-    %   >> pix_data = PixelDataBase.create(faccess_obj);
-    %   >> pix_data = PixelDataBase.create(faccess_obj, mem_alloc);
-    %
-    %   Constructing via a file or sqw_binfile_common will create a file-backed
-    %   data object. No pixel data will be loaded from the file on construction.
-    %   Data will be loaded when a getter is called e.g. pix_data.signal. Data will
-    %   be loaded in pages such that the data held in memory will not exceed the
-    %   size (in bytes) specified by private attribute page_memory_size_ - this can
-    %   be set on construction (see mem_alloc above).
-    %
-    %   The file-backed operations work by loading "pages" of data into memory as
-    %   required. If editing pixels, to avoid losing changes, if a page has been
-    %   edited and the next page is then loaded, the "dirty" page will be written
-    %   to a tmp file. This class's getters will then retrieve data from the tmp
-    %   file if that data is requested from the "dirty" page. Note that "dirty"
-    %   pages are written to tmp files as floats, but stored in memory as double.
-    %   This means data is truncated when moving pages, hence pixel data should not
-    %   be relied upon being accurate to double precision.
+    %   >> pix_data = PixelDataMemory(data);
+    %   >> pix_data = PixelDataMemory('/path/to/sqw.sqw');
+    %   >> pix_data = PixelDataMemory(faccess_obj);
     %
     % Usage:
     %
-    %   >> pix_data = PixelDataBase.create(data)
+    %   >> pix_data = PixelDataMemory(data)
     %   >> signal = pix_data.signal;
     %
     %  or equivalently:
     %
-    %   >> pix_data = PixelDataBase.create();
+    %   >> pix_data = PixelDataMemory();
     %   >> pix_data.data = data;
     %   >> signal = pix_data.get_data('signal');
     %
     %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
     %
-    %   >> pix_data = PixelDataBase.create(data);
+    %   >> pix_data = PixelDataMemory(data);
     %   >> signal = pix_data.get_data({'run_idx', 'energy_idx'}, 1:10);
     %
     %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
     %
-    %   >> pix_data = PixelDataBase.create(data);
+    %   >> pix_data = PixelDataMemory(data);
     %   >> pixel_subset = pix_data.get_pixels([1, 4, 10])
-    %
-    %  To sum the signal of a file-backed object where the page size is less than
-    %  amount of data in the file:
-    %
-    %   >> pix = PixelDataBase.create('my_data.sqw')
-    %   >> signal_sum = 0;
-    %   >> while pix.has_more()
-    %   >>     signal_sum = signal_sum + pix.signal;
-    %   >>     pix.advance();
-    %   >> end
     %
     % Properties:
     %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
