@@ -63,17 +63,17 @@ classdef PixelDataFileBacked < PixelDataBase
                 elseif isa(init, 'PixelDataFileBacked')
                     if ~isempty(init.f_accessor_)
                         obj = obj.init_from_file_accessor_(init.f_accessor_);
-                    else
-                        obj.data_ = init.data;
-                        obj.num_pixels_ = init.num_pixels;
                     end
-                    obj.page_number_ = init.page_number_;
+
+                    obj.data_ = init.data;
+                    obj.num_pixels_ = init.num_pixels;
                     obj.page_dirty_ = init.page_dirty_;
                     obj.dirty_page_edited_ = init.dirty_page_edited_;
                     has_tmp_files = init.tmp_io_handler_.copy_folder(obj.object_id_);
                     if any(has_tmp_files)
                         obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_, has_tmp_files);
                     end
+                    obj.move_to_page(init.page_number_);
                 elseif ischar(init) || isstring(init)
                     if ~is_file(init)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -169,7 +169,7 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
 
-        function saveobj(obj)
+        function saveobj(~)
             error('HORACE:PixelData:runtime_error',...
                   'Can not save filebacked PixelData object');
         end
@@ -205,18 +205,7 @@ classdef PixelDataFileBacked < PixelDataBase
         % walk through to complete the algorithm
         %
 
-            try
-                [current_page_num,total_num_pages]=obj.move_to_page(obj.page_number_ + 1, varargin{:});
-            catch ME
-                switch ME.identifier
-                  case 'HORACE:PixelData:runtime_error'
-                    error('HORACE:PixelData:runtime_error', ...
-                          'Attempting to advance past final page of data in %s', ...
-                          obj.file_path);
-                  otherwise
-                    rethrow(ME);
-                end
-            end
+            [current_page_num,total_num_pages]=obj.move_to_page(obj.page_number_ + 1, varargin{:});
         end
 
         function path = get.file_path(obj)

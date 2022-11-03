@@ -25,7 +25,6 @@ function data_out = get_data(obj, pix_fields, varargin)
 %                    possible to achieve the same effect using the `num_pixels`
 %                    property.
 %
-NO_INPUT_INDICES = -1;
 
 [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, varargin{:});
 field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
