@@ -74,7 +74,7 @@ elseif nargi>= 4 % Either binning parameters (first 4) or default serializable
     if numel(argi)>0
         names = obj.saveableFields();
         [obj,remains] = obj.set_positional_and_key_val_arguments(...
-            names,argi{:});
+            names,false,argi{:});
         if ~isempty(remains)
             out = cellfun(@any_to_char,remains,'UniformOutput',false);
             error('HORACE:axes_block:invalid_argument',...
@@ -84,7 +84,7 @@ elseif nargi>= 4 % Either binning parameters (first 4) or default serializable
 elseif nargi<4 && nargi>1
     names = obj.saveableFields();
     [obj,remains] = obj.set_positional_and_key_val_arguments(...
-        names,varargin{:});
+        names,false,varargin{:});
 else
     error('HORACE:axes_block:invalid_argument',...
         'Unrecognised number: %d of input arguments',nargi);

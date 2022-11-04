@@ -16,8 +16,8 @@ classdef (Abstract=true) serializable
     % one property and one method, namely protected property "do_check_combo_arg_"
     % and "check_combo_arg" method are defined on this public interface.
     %
-    % By default, "do_check_combo_arg_" is set to true and the "check_combo_arg" 
-    % method does nothing. Overload the "check_combo_arg" to throw if 
+    % By default, "do_check_combo_arg_" is set to true and the "check_combo_arg"
+    % method does nothing. Overload the "check_combo_arg" to throw if
     % interdependent properties are inconsistent and throw invalid argument
     % exception when this happens.
     %
@@ -25,8 +25,8 @@ classdef (Abstract=true) serializable
     % setting the properties and checks interdependent properties after
     % all properties were set. do_check_combo_arg_ is set to true after this.
     %
-    % To work correctly, all interdependent properties setters in the child 
-    % code must contain the check for validity of interdependent properties 
+    % To work correctly, all interdependent properties setters in the child
+    % code must contain the check for validity of interdependent properties
     % implemented as the following code block:
     % if obj.do_check_combo_arg_
     %    obj=check_combo_arg(obj);
@@ -359,7 +359,7 @@ classdef (Abstract=true) serializable
             end
         end
         function [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                positinal_param_names_list,varargin)
+                positinal_param_names_list,old_keyval_compat,varargin)
             % Utility method, to use in a serializable class constructor,
             % allowing to specify the constructor parameters in the form:
             %
@@ -375,6 +375,10 @@ classdef (Abstract=true) serializable
             %            -- list of positional parameter
             %               names, the target properties should be
             %               associated with
+            % old_keyval_compat
+            %            -- if set to true, keys in varargin may have form
+            %               '-keyN' in addition to 'keyN'. Deprecation
+            %                warning is issued for this kind of names.
             % varargin   -- cellarray of the constructor inputs, in the
             %               form, described above
             % EXAMPLE:
@@ -389,7 +393,7 @@ classdef (Abstract=true) serializable
             %
             [obj,remains] = ...
                 set_positional_and_key_val_arguments_(obj,...
-                positinal_param_names_list,varargin{:});
+                positinal_param_names_list,old_keyval_compat,varargin{:});
         end
     end
 end

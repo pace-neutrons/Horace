@@ -179,7 +179,7 @@ classdef IX_experiment < serializable
                 % key-value pairs. The accurate validation should occur on
                 % setters.
                 [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                    flds,varargin{:});
+                    flds,false,varargin{:});
                 if ~isempty(remains)
                     error('HERBERT:IX_experiment:invalid_argument',...
                         'Non-recognized extra-arguments provided as input for constructor for IX_experiemt')

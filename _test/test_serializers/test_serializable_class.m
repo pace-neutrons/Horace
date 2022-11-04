@@ -563,6 +563,20 @@ classdef test_serializable_class < TestCase
                 'Prop_class2_2',20,'blabla'),'HERBERT:serializable:invalid_argument');
         end
 
+        function test_deprecated_keys_provided(~)
+            ws = warning('off','HORACE:serializable:deprecated');
+            clOb = onCleanup(@()warning(ws));
+            tc = serializableTesterWithInterdepProp( ...
+                'Prop_class2_1',2,'-Prop_class2_2',10,'-Prop_class2_3',[1,2,3]);
+
+            [~,lw] = lastwarn();
+            assertEqual(lw,'HORACE:serializable:deprecated');
+            assertEqual(tc.Prop_class2_1,2);
+            assertEqual(tc.Prop_class2_2,10);            
+            assertEqual(tc.Prop_class2_3,[1,2,3]);                        
+
+        end
+
         function test_val_keyval_constructor_returns_keyval_remaining(~)
             [tc,rem] = serializableTester2(11,'Prop_class2_1',10,...
                 'blabla','Prop_class2_2',20);

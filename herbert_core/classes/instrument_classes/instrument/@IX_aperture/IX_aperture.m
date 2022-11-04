@@ -164,30 +164,12 @@ classdef IX_aperture < serializable
     end
     
     
-    %======================================================================
-    % Methods for fast construction of structure with independent properties
-    methods (Static, Access = private)
-        function names = propNamesIndep_
-            % Determine the independent property names and cache the result.
-            % Code is boilerplate
-            persistent names_store
-            if isempty(names_store)
-                names_store = fieldnamesIndep(eval(mfilename('class')));
-                % here we rely on agreement that private independent
-                % properties have the same names as public properties but
-                % have added suffix '_' at the end
-                names_store = cellfun(@(x)x(1:end-1),...
-                    names_store,'UniformOutput',false);
-            end
-            names = names_store;
-        end
-    end
-    
+    %======================================================================    
     methods
-        function flds = saveableFields(obj)
+        function flds = saveableFields(~)
             % Return cellarray of independent properties of the class
             %
-            flds = obj.propNamesIndep_;
+            flds = {'name','distance','width','height'};
         end
         function ver  = classVersion(~)
             % return current class version as it is stored on hdd

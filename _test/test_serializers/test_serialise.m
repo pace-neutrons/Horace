@@ -23,7 +23,7 @@ classdef test_serialise < TestCase
 
         function this = tearDown(this)
             hbc = herbert_config;
-            hbc.use_mex = this.use_mex;;
+            hbc.use_mex = this.use_mex;
         end
 
         %------------------------------------------------------------------

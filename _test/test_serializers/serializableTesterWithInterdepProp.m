@@ -21,7 +21,7 @@ classdef serializableTesterWithInterdepProp < serializable
             positional_arg_names = obj.saveableFields();
             [obj,remains] = ...
                 set_positional_and_key_val_arguments(obj,...
-                positional_arg_names,varargin{:});
+                positional_arg_names,true,varargin{:});
         end
 
         function val = get.Prop_class2_1(obj)

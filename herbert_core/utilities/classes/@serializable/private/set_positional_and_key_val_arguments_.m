@@ -1,5 +1,5 @@
 function  [obj,remains] = set_positional_and_key_val_arguments_(obj,...
-    positional_arg_names,varargin)
+    positional_arg_names,suport_dashed_keys,varargin)
 % Utility function, to use in a serializable class constructor,
 % allowing to specify the constructor parameters in the form:
 %
@@ -22,6 +22,10 @@ function  [obj,remains] = set_positional_and_key_val_arguments_(obj,...
 %            -- list of positional parameter
 %               names, the target properties should be
 %               associated with
+% suport_dashed_keys
+%            -- if set to true, keys in varargin may have form
+%               '-keyN' in addition to 'keyN'. Deprecation warning is
+%               issued for this kind of key names
 % EXAMPLE:
 % if class have the properties {'a1'=1(numeric), 'a2'='blabla'(char),
 % 'a3'=sqw() 'a4=[1,1,1] (numeric), and these properties are independent
@@ -39,12 +43,11 @@ if nargin == 1
     return;
 end
 obj.do_check_combo_arg_ = false;
-[obj,remains,key_num,val_num,is_positional] = parse_keyval_argi(obj,positional_arg_names,varargin{:});
+[obj,remains,key_num,val_num,is_positional,argi] = parse_keyval_argi(obj,positional_arg_names,suport_dashed_keys,varargin{:});
 
 
 % process positional arguments
 if any(is_positional)
-    argi = varargin;
     pos_arg_val = argi(is_positional);
     pos_arg_names = positional_arg_names(1:numel(pos_arg_val));
     % Extract and set up positional arguments, which should always come
@@ -56,7 +59,7 @@ if any(is_positional)
     end
 end
 for i=1:numel(key_num)
-    obj.(varargin{key_num(i)}) = varargin{val_num(i)};
+    obj.(argi{key_num(i)}) = argi{val_num(i)};
 end
 % enable check for the combo properties
 obj.do_check_combo_arg_ = true;
@@ -64,12 +67,32 @@ obj=obj.check_combo_arg();
 
 
 
-function [obj,remains,key_pos,val_pos,is_positional] = parse_keyval_argi( ...
-    obj,arg_names,varargin)
+function [obj,remains,key_pos,val_pos,is_positional,argi] = parse_keyval_argi( ...
+    obj,arg_names,support_dash_option,varargin)
 % find keys, corresponding to key arguments and set up object to the values
 % which follow the keys in the cellarray of input arguments
 %
+if support_dash_option
+    is_dashed_key = cellfun(@(arg)(ischar(arg)&&strncmp(arg,'-',1)&&ismember(arg(2:end),arg_names)),varargin);
+    if any(is_dashed_key)
+        deprecation_fields = varargin(is_dashed_key);
+        warning('HORACE:serializable:deprecated',...
+            ['Number of class %s constructor key-value inputs have been provided with "-" prefix\n', ...
+            'These properties are: %s\n', ...
+            'This syntax is deprecated. Provide these keys without "-" prefix in keys'], ...
+            class(obj),disp2str(deprecation_fields));
+    else
+        support_dash_option = false;
+    end
+end
 is_key = cellfun(@(arg)(ischar(arg)&&ismember(arg,arg_names)),varargin);
+if support_dash_option
+    argi = cellfun(@remove_dash,varargin,num2cell(is_dashed_key), ...
+        'UniformOutput',false);
+    is_key = is_key|is_dashed_key;
+else
+    argi = varargin;
+end
 is_positional = ~is_key;
 if ~any(is_key)
     key_pos = [];
@@ -94,3 +117,7 @@ remains = varargin(~is_key & ~is_positional);
 
 
 
+function val=remove_dash(val,is_dashed)
+if is_dashed
+    val = val(2:end);
+end

@@ -16,7 +16,7 @@ classdef serializableTester2 < serializable
             positional_arg_names = obj.saveableFields();
             [obj,remains] = ...
                 set_positional_and_key_val_arguments(obj,...
-                positional_arg_names,varargin{:});
+                positional_arg_names,false,varargin{:});
         end
     end
 

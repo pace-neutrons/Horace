@@ -60,7 +60,7 @@ classdef IX_samp  < serializable
             % 'name','alatt','angdeg'
             fields = obj.saveableFields();
             [obj,remains] = set_positional_and_key_val_arguments(obj,fields,...
-                varargin{:});
+                false,varargin{:});
         end
 
         % SERIALIZABLE interface
