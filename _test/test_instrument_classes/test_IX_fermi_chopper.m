@@ -7,12 +7,19 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
         f162
         f100
         f50
+        home_folder
     end
     
     methods
         %--------------------------------------------------------------------------
-        function self = test_IX_fermi_chopper (name)
-            self@TestCaseWithSave(name);
+        function obj = test_IX_fermi_chopper (name)
+            home_folder = fileparts(mfilename('fullpath'));
+            if nargin == 0
+                name = 'test_IX_fermi_chopper';
+            end
+            file = fullfile(home_folder,'test_IX_fermi_chopper_output.mat');
+            obj@TestCaseWithSave(name,file);
+            obj.home_folder = home_folder;
             
             % Make some Fermi choppers
             f=IX_fermi_chopper(10,600,0.049,1.3,0.0028);
@@ -25,14 +32,14 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
             f50 = f;  f50.energy = 50;   % gamma = 2.86
             
             % A chopper
-            self.f500 = f500;
-            self.f200 = f200;
-            self.f163 = f163;
-            self.f162 = f162;
-            self.f100 = f100;
-            self.f50  = f50;
+            obj.f500 = f500;
+            obj.f200 = f200;
+            obj.f163 = f163;
+            obj.f162 = f162;
+            obj.f100 = f100;
+            obj.f50  = f50;
             
-            self.save()
+            obj.save()
         end
         
         %--------------------------------------------------------------------------
@@ -71,13 +78,13 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
             
             [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (wsamp,w200,3,'rebin','chi');
             
-            assert(ok);
+            assert(ok,mess);
         end
         
         %--------------------------------------------------------------------------
         % Test of the default object
         %--------------------------------------------------------------------------
-        function test_default_pulse_shape (self)
+        function test_default_pulse_shape (~)
             % Delta function pulse, even though energy = 0
             f = IX_fermi_chopper ();
             [y,t] = pulse_shape(f);
@@ -85,7 +92,7 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
             assertEqual (y, Inf)
         end
         
-        function test_default_pulse_range (self)
+        function test_default_pulse_range (~)
             % Delta function pulse, even though energy = 0
             f = IX_fermi_chopper ();
             [tlo, thi] = pulse_range(f);
@@ -93,11 +100,34 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
             assertEqual (thi, 0)
         end
         
-        function test_default_partial_transmission (self)
+        function test_default_partial_transmission (~)
             % Delta function pulse, even though energy = 0
             f = IX_fermi_chopper ();
             T = partial_transmission (f, [-eps,0,eps]);
             assertEqual (T, [0,0,1])
+        end
+
+        function test_prev_versions(obj)
+            % Scalar example
+            fc = obj.f500;
+            sample_files_location = obj.home_folder;
+            if obj.save_output
+                % run test_IX_apperture with -save option to obtain reference
+                % files when changed to new class version
+                save_variables=true;
+                ver = fc.classVersion();
+                verstr = ['ver',num2str(ver)];
+                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location,fc);
+                assertTrue(ok,mess)
+                
+            else
+                save_variables=false;
+                
+                verstr= 'ver1';
+                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location ,fc);
+                assertTrue(ok,mess)
+            end
+            
         end
         
         %--------------------------------------------------------------------------
