@@ -43,26 +43,36 @@ function [obj, merge_data] = distribute(dnd_in, varargin)
 
     points = [0, cumsum(num_pixels)];
 
-    obj = repmat(dnd_in,nworkers,1);
+    obj = repmat(d1d(),nWorkers,1);
     for i=1:nWorkers
-        obj(i).data.do_check_combo_arg = false;
 
+        obj(i).do_check_combo_arg = false;
+        npix{i} = dnd_in.npix(points(i)+1:points(i+1));
+
+        obj(i) = d1d(axes_block('nbins_all_dims', [numel(npix{i}),1,1,1]), ...
+                          dnd_in.proj);
+        obj(i).do_check_combo_arg = false;
+        obj(i).npix = npix{i};
         obj(i).s = dnd_in.s(points(i)+1:points(i+1));
         obj(i).e = dnd_in.e(points(i)+1:points(i+1));
-        obj(i).npix = dnd_in.npix(points(i)+1:points(i+1));
-        obj(i).axes = axes_block('nbins_all_dims', [numel(npix{i}), 1, 1, 1]);
+        obj(i).do_check_combo_arg = true;
+        obj(i).check_combo_arg();
 
-        obj(i).data.do_check_combo_arg = true;
-        obj(i).data.check_combo_arg();
+%
+%         obj(i).npix = dnd_in.npix(points(i)+1:points(i+1));
+%         obj(i).axes = axes_block('nbins_all_dims', [num_pixels(i), 1, 1, 1]);
+%
+%         obj(i).do_check_combo_arg = true;
+%         obj(i).check_combo_arg();
 
         merge_data(i).nelem = sum(logical(obj(i).npix));
         merge_data(i).nomerge = true;
         merge_data(i).range = [points(i)+1, points(i+1)];
         if i > 1
             merge_data(i).pix_range = [merge_data(i-1).pix_range(2)+1, ...
-                                       merge_data(i-1).pix_range(2)+1+obj(i).npix];
+                                       merge_data(i-1).pix_range(2)+1+num_pixels(i)];
         else
-            merge_data(i).pix_range = [1, obj(i).npix+1];
+            merge_data(i).pix_range = [1, num_pixels(i)+1];
         end
     end
 
