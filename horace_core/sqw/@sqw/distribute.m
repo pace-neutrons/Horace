@@ -82,13 +82,12 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
     obj = repmat(copy(sqw_in),nWorkers,1);
     for i=1:nWorkers
         obj(i).pix = get_pix_in_ranges(sqw_in.pix, points(i)+1, num_pixels(i));
+        obj(i).data = d1d(axes_block('img_range', obj(i).pix.pix_range, ...
+                                     'nbins_all_dims', [numel(npix{i}),1,1,1]), ...
+                          sqw_in.data.proj);
         obj(i).data.do_check_combo_arg = false;
         obj(i).data.npix = npix{i};
         [obj(i).data.s, obj(i).data.e] = obj(i).pix.compute_bin_data(obj(i).data.npix);
-
-        obj(i).data.axes = axes_block('img_range', obj(i).pix.pix_range, ...
-                                      'nbins_all_dims', [numel(npix{i}), 1, 1, 1]);
-
         obj(i).data.do_check_combo_arg = true;
         obj(i).data.check_combo_arg();
         merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
