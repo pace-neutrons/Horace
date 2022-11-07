@@ -84,9 +84,6 @@ classdef IX_doubledisk_chopper < serializable
             elseif nargin>0
                 pos_params = obj.saveableFields();
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
-                    warning('HERBERT:IX_doubledisk_chopper:deprecated',...
-                        ['The form of double-disk chopper with its name to be first argument is deprecated.\n', ...
-                        'Put the name of the chopper as the last argument or use key-value pair: "name","Chopper_Name"']);
                     argi = varargin(2:end);
                     obj.name = varargin{1};
                 else
@@ -276,7 +273,6 @@ classdef IX_doubledisk_chopper < serializable
             end
 
         end
-
         function obj = check_combo_arg(obj,do_recompute_pdf)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check

@@ -108,8 +108,14 @@ classdef IX_fermi_chopper < serializable
 
             elseif nargin>0
                 pos_params = obj.saveableFields();
+                if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
+                    argi = varargin(2:end);
+                    obj.name = varargin{1};
+                else
+                    argi = varargin;
+                end                
                 [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                    pos_params,true,varargin{:});
+                    pos_params,true,argi{:});
                 if ~isempty(remains)
                     error('HERBERT:IX_fermi_chopper:invalid_argument', ...
                         'Unrecognized extra parameters provided as input to IX_fermi_chopper constructor: %s',...
@@ -374,7 +380,7 @@ classdef IX_fermi_chopper < serializable
             end
             flds = {'distance','frequency','radius','curvature','slit_width',...
                 'slit_spacing','width','height','energy',...
-                'phase','jitter', 'name'};
+                'phase','jitter','name'};
             if mandatory
                 flds = flds(1:5);
             end

@@ -16,7 +16,7 @@ classdef test_IX_divergence_profile < TestCaseWithSave
             end
             file = fullfile(home_folder,'test_IX_divergence_profile_output.mat');
             obj@TestCaseWithSave(name,file);
-            obj.home_folder = home_folder;            
+            obj.home_folder = home_folder;
 
 
             obj.ang = -0.5:0.1:0.5;
@@ -41,11 +41,11 @@ classdef test_IX_divergence_profile < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_3 (self)
             ws = warning('off','HERBERT:IX_divergence_profile:deprecated');
-            clOb = onCleanup(@()warning(ws));            
+            clOb = onCleanup(@()warning(ws));
             div = IX_divergence_profile ('in-pile',self.ang, self.y);
-            [~,mess_id] = lastwarn();
-            assertEqual(mess_id,'HERBERT:IX_divergence_profile:deprecated');
-            
+%             [~,mess_id] = lastwarn();
+%             assertEqual(mess_id,'HERBERT:IX_divergence_profile:deprecated');
+
             div1= IX_divergence_profile (self.ang, self.y,'in-pile');
             assertEqual(div,div1);
 
@@ -65,7 +65,7 @@ classdef test_IX_divergence_profile < TestCaseWithSave
             angles = 6:25;
             profile = 1:0.02:1.38;
             profile(1)=0;
-            profile(end)=0;            
+            profile(end)=0;
             div = IX_divergence_profile (angles , profile);
             sample_files_location = obj.home_folder;
             if obj.save_output
@@ -84,7 +84,7 @@ classdef test_IX_divergence_profile < TestCaseWithSave
 
                 verstr= 'ver0';
                 check_matfile_IO(verstr, save_variables, sample_files_location ,div);
-                
+
             end
 
         end

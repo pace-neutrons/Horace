@@ -46,9 +46,9 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
             ws = warning('off','HERBERT:IX_doubledisk_chopper:deprecated');
             clOb = onCleanup(@()warning(ws));
             chop = IX_doubledisk_chopper ('Chopper_1',12,120,0.7,0.02,0.05);
-
-            [~,mess_id] = lastwarn();
-            assertEqual(mess_id,'HERBERT:IX_doubledisk_chopper:deprecated');
+% 
+%             [~,mess_id] = lastwarn();
+%             assertEqual(mess_id,'HERBERT:IX_doubledisk_chopper:deprecated');
 
             chop1 = IX_doubledisk_chopper (12,120,0.7,0.02,0.05,0,0,'Chopper_1');
             assertEqual(chop,chop1)

@@ -5,25 +5,34 @@ classdef test_IX_moderator < TestCaseWithSave
         mikp
         mtable
         mdelta
+
+        home_folder;        
     end
     
     methods
         %--------------------------------------------------------------------------
-        function self = test_IX_moderator (name)
-            self@TestCaseWithSave(name);
+        function obj = test_IX_moderator (name)
+            home_folder = fileparts(mfilename('fullpath'));
+            if nargin == 0
+                name = 'test_IX_moderator';
+            end
+            file = fullfile(home_folder,'test_IX_moderator_output.mat');
+            obj@TestCaseWithSave(name,file);
+            obj.home_folder = home_folder;            
+            
             
             % Make some moderators
-            self.mik = IX_moderator(15,30,'ikcarp',[5,25,0.13]);
-            self.mikp = IX_moderator(12,23,'ikcarp_param',[0.05,25,200],'-energy',120);
+            obj.mik = IX_moderator(15,30,'ikcarp',[5,25,0.13]);
+            obj.mikp = IX_moderator(12,23,'ikcarp_param',[0.05,25,200],'energy',120);
             tri = pdf_table ([0,10,20], [0,1,0]);  % triangular distribution
-            self.mtable = IX_moderator(115,300,'table',tri);
-            self.mdelta = IX_moderator(125,10,'delta_function',[]);
+            obj.mtable = IX_moderator(115,300,'table',tri);
+            obj.mdelta = IX_moderator(125,10,'delta_function',[]);
 
-            self.save()
+            obj.save()
         end
         
         %--------------------------------------------------------------------------
-        function test_pulse_shape_default (self)
+        function test_pulse_shape_default (~)
             mdefault = IX_moderator();
             mdelta_zero_distAndAngle = IX_moderator(0,0,'delta_function',[]);
             assertEqual (mdefault, mdelta_zero_distAndAngle);
@@ -75,7 +84,7 @@ classdef test_IX_moderator < TestCaseWithSave
             
             % Check random sampling and 
             [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (wsamp,w,3,'rebin','chi'); 
-            assert(ok);
+            assert(ok,mess);
         end
         
         %--------------------------------------------------------------------------
@@ -96,7 +105,7 @@ classdef test_IX_moderator < TestCaseWithSave
             
             % Check random sampling
             [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (wsamp,w,3,'rebin','chi'); 
-            assert(ok);
+            assert(ok,mess);
         end
         
         %--------------------------------------------------------------------------
@@ -117,7 +126,7 @@ classdef test_IX_moderator < TestCaseWithSave
             
             % Check random sampling and 
             [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (wsamp,w,3,'rebin','chi'); 
-            assert(ok);
+            assert(ok,mess);
         end
         
         %--------------------------------------------------------------------------
@@ -194,9 +203,33 @@ classdef test_IX_moderator < TestCaseWithSave
             assertEqual (tmax, 0)
             assertEqual (tlo, 0)
             assertEqual (thi, 0)
+        end       
+        %--------------------------------------------------------------------------
+        function test_prev_versions(obj)
+            % Scalar example
+            moderator = IX_moderator(12,23,'ikcarp',[5,25,0.13]);
+            sample_files_location = obj.home_folder;
+            if obj.save_output
+                % run test_IX_apperture with -save option to obtain reference
+                % files when changed to new class version
+                save_variables=true;
+                ver = moderator.classVersion();
+                verstr = ['ver',num2str(ver)];
+                check_matfile_IO(verstr, save_variables, sample_files_location,moderator);
+
+            else
+                save_variables=false;
+
+                verstr= 'ver1';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,moderator);
+
+                verstr= 'ver0';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,moderator);
+                
+            end
+
         end
         
-        %--------------------------------------------------------------------------
     end
 end
 

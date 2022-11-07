@@ -54,9 +54,6 @@ classdef IX_divergence_profile < serializable
             elseif nargin>0
                 pos_params = obj.saveableFields();
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
-                    warning('HERBERT:IX_divergence_profile:deprecated',...
-                        ['The form of IX_divergence_profile with its name to be first argument is deprecated.\n', ...
-                        'Put the name of the divirgence profiles as the last argument or use key-value pair: "name","profile_name"']);
                     argi = varargin(2:end);
                     obj.name = varargin{1};
                 else
