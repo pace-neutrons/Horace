@@ -204,11 +204,13 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
 
         % Structure containing the data to reference in tests or to store
         ref_data
+        % True if calculated data is to be saved in a temporary file
+        save_output
     end
 
     properties (SetAccess=protected)
         % True if calculated data is to be saved in a temporary file
-        save_output = false;
+        save_output_ = false;
     end
 
     properties(Access=protected)
@@ -358,8 +360,13 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Set up reference dataset from outside source.
             this.ref_data_ = val;
         end
-
-
+        %
+        function val = get.save_output(obj)
+            val = obj.save_output_;
+        end
+        function set.save_output(obj,val)
+            obj.save_output_ = logical(val);
+        end
         %------------------------------------------------------------------
         function this=add_to_files_cleanList (this, varargin)
             % Add names of files to be deleted once the test case is run

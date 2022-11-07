@@ -84,15 +84,13 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
                 save_variables=true;
                 ver = dd_chop.classVersion();
                 verstr = ['ver',num2str(ver)];
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location,dd_chop);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_files_location,dd_chop);
 
             else
                 save_variables=false;
 
                 verstr= 'ver1';
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location ,dd_chop);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_files_location ,dd_chop);
             end
 
         end

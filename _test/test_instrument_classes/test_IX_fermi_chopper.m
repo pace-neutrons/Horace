@@ -117,15 +117,13 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
                 save_variables=true;
                 ver = fc.classVersion();
                 verstr = ['ver',num2str(ver)];
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location,fc);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_files_location,fc);
                 
             else
                 save_variables=false;
                 
                 verstr= 'ver1';
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location ,fc);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_files_location ,fc);
             end
             
         end

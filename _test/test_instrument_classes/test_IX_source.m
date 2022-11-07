@@ -64,15 +64,13 @@ classdef test_IX_source < TestCaseWithSave
                 ver = srs.classVersion();
                 %ver = 1;
                 verstr = ['ver',num2str(ver)];
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location ,srs);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_files_location ,srs);
                 
             else
                 save_variables=false;
                 
                 verstr= 'ver1';
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location ,srs);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_files_location ,srs);
             end
         end
         
