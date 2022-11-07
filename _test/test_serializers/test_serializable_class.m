@@ -14,6 +14,23 @@ classdef test_serializable_class < TestCase
             [~,nerr] = check_herbert_mex();
             obj.use_mex = (nerr == 0);
         end
+        function test_partial_match_works(~)
+            tob = serializableTesterWithInterdepProp(0.5,1,2, ...
+                'partial_match_1',20,'partial_match_3',11);            
+
+            assertEqual(tob.Prop_class2_1,0.5)
+            assertEqual(tob.Prop_class2_2,1)
+            assertEqual(tob.Prop_class2_3,2)
+            assertEqual(tob.partial_match_1_blue,20)
+            assertTrue(isempty(tob.partial_match_2_green))
+            assertEqual(tob.partial_match_3_yellow,11)            
+        end
+        
+        function test_partial_match_multi_throw(~)
+            assertExceptionThrown(@()serializableTesterWithInterdepProp(10,1,0, ...
+                'partial_match',20,'partial_match',11),...
+                'HERBERT:serializable:invalid_argument');            
+        end
         function test_right_inderdep_prop_pass(~)
             tob = serializableTesterWithInterdepProp(10,1,0, ...
                 'Prop_class2_2',20);
