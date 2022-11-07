@@ -31,7 +31,7 @@ classdef IX_fermi_chopper < serializable
         % that all interdependent properties are set
         mandatory_field_set_ = false(1,5);
         %
-        pdf_ = pdf_table();     % This is effectively a cached dependent variable
+        pdf_    % This is effectively a cached dependent variable
     end
 
     properties (Dependent)
@@ -149,7 +149,7 @@ classdef IX_fermi_chopper < serializable
         end
 
         function obj=set.radius(obj,val)
-            obj = check_and_set_radius_(obj,val);            
+            obj = check_and_set_radius_(obj,val);
         end
 
         function obj=set.curvature(obj,val)
@@ -353,7 +353,8 @@ classdef IX_fermi_chopper < serializable
             if ~all(obj.mandatory_field_set_)
                 mandatory_field_names = obj.saveableFields('mandatory');
                 error('HERBERT:IX_fermi_chopper:invalid_argument', ...
-                    'Must give all of distance, frequency, radius, curvature and slit_width\n. Properties: %s have not been set', ...
+                    'Must give all mandatory properties namely: %s\n. Properties: %s have not been set', ...
+                    disp2str(mandatory_field_names),...
                     disp2str(mandatory_field_names(~obj.mandatory_field_set_)));
             end
 
@@ -361,14 +362,11 @@ classdef IX_fermi_chopper < serializable
                 obj.pdf_ = recompute_pdf_(obj);   % recompute the lookup table
             end
         end
-
-
-    end
-
-    methods
         function flds = saveableFields(~,mandatory)
             % Return cellarray of independent properties of the class
             %
+            % If "mandatory" key is provided, return the subset of values
+            % necessary for non-empty class to be defined
             if nargin>1
                 mandatory = true;
             else
@@ -408,11 +406,10 @@ classdef IX_fermi_chopper < serializable
         end
     end
 
-
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
+            % overloaded loadobj method, calling generic method of
             % saveable class necessary for loading old class versions
             % which are converted into structure when recovered as class is
             % not available any more

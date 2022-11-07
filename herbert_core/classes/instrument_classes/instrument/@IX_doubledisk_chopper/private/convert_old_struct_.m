@@ -6,7 +6,6 @@ if isfield(inputs(1),'class_version_') && inputs(1).class_version_ == 1
     if isfield(inputs,'pdf_')
         inputs = rmfield(inputs,'pdf_');        
     end
-    
     old_fld_names = fieldnames(inputs(1));
     % use the fact that the old field names are the new field
     % names with _ attached at the end

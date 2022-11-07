@@ -72,27 +72,20 @@ function [obj,remains,key_pos,val_pos,is_positional,argi] = parse_keyval_argi( .
 % find keys, corresponding to key arguments and set up object to the values
 % which follow the keys in the cellarray of input arguments
 %
+[is_key,deprecated_fields,argi] = is_char_key_member(arg_names,support_dash_option,varargin{:});
 if support_dash_option
-    is_dashed_key = cellfun(@(arg)(ischar(arg)&&strncmp(arg,'-',1)&&ismember(arg(2:end),arg_names)),varargin);
-    if any(is_dashed_key)
-        deprecation_fields = varargin(is_dashed_key);
+    if ~isempty(deprecated_fields)
         warning('HORACE:serializable:deprecated',...
-            ['Number of class %s constructor key-value inputs have been provided with "-" prefix\n', ...
+            ['Some class %s constructor key-value inputs have been provided with "-" prefix\n', ...
             'These properties are: %s\n', ...
-            'This syntax is deprecated. Provide these keys without "-" prefix in keys'], ...
-            class(obj),disp2str(deprecation_fields));
-    else
-        support_dash_option = false;
+            'This syntax is deprecated. Provide these keys without "-" prefix in the beginning'], ...
+            class(obj),disp2str(deprecated_fields));
     end
-end
-is_key = cellfun(@(arg)(ischar(arg)&&ismember(arg,arg_names)),varargin);
-if support_dash_option
-    argi = cellfun(@remove_dash,varargin,num2cell(is_dashed_key), ...
-        'UniformOutput',false);
-    is_key = is_key|is_dashed_key;
 else
     argi = varargin;
 end
+
+
 is_positional = ~is_key;
 if ~any(is_key)
     key_pos = [];
@@ -115,9 +108,43 @@ end
 is_key(val_pos) = true;
 remains = varargin(~is_key & ~is_positional);
 
-
-
-function val=remove_dash(val,is_dashed)
-if is_dashed
-    val = val(2:end);
+function [is,deprecated_fields,argi] = is_char_key_member(key_list,support_dash,varargin)
+% identify character keys belonging to the provided cellarray within the list of
+% the inputs parameters
+%
+is = false(1,numel(varargin));
+deprecated_fields = {};
+if support_dash
+    is_deprecated = false(1,numel(varargin));
 end
+
+argi = varargin;
+for i=1:numel(varargin)
+    par = varargin{i};
+    if ~(ischar(par)||isstring(par))
+        continue;
+    end
+    if support_dash
+        is_key = cellfun(@(x)(strncmp(par,x,numel(par))),key_list);
+        is_depr_key = cellfun(@(x)strncmp(par,['-',x],numel(par)),key_list);
+        if any(is_depr_key)
+            is_deprecated(i) = true;
+        end
+        is_key = is_key|is_depr_key;
+    else
+        is_key = cellfun(@(x)strncmp(par,x,numel(par)),key_list);
+    end
+    found = sum(is_key);
+    if found>1
+        error('HERBERT:serializable:invalid_argument',...
+            ' Input key N%d (%s) can non-uniquely define more then one possible propeties: [%s].\n Can not interpret this key',...
+            i,par,disp2str(key_list(is_key)));
+    elseif found == 1
+        is(i) = true;
+        argi{i}= key_list{is_key};
+        if support_dash && any(is_deprecated)
+            deprecated_fields = varargin(is_deprecated);
+        end
+    end
+end
+
