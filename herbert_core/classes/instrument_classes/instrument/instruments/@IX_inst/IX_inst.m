@@ -37,7 +37,7 @@ classdef IX_inst < serializable
             % Create instrument base information
             %
             %   >> instrument = IX_inst (name)
-            %   >> instrument = IX_inst (name, source)
+            %   >> instrument = IX_inst (source,name)
             %
             %   name        Name of instrument (character string)
             %   source      Neutron source
@@ -47,15 +47,21 @@ classdef IX_inst < serializable
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_inst.loadobj(varargin{1});
-
             elseif nargin>0
-                namelist = {'name', 'source'};
-                [S, present] = parse_args_namelist (namelist, varargin{:});
-                if present.name
-                    obj.name_ = S.name;
+                pos_params = obj.saveableFields();
+                % process legacy name string at the beginning of the constructor
+                if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
+                    argi = varargin(2:end);
+                    obj.name = varargin{1};
+                else
+                    argi = varargin;
                 end
-                if present.source
-                    obj.source_ = S.source;
+                [obj,remains] = set_positional_and_key_val_arguments(obj,...
+                    pos_params,true,argi{:});
+                if ~isempty(remains)
+                    error('HERBERT:IX_inst:invalid_argument', ...
+                        'Unrecognized extra parameters provided as input to IX_sample constructor: %s',...
+                        disp2str(remains));
                 end
             end
         end
@@ -63,11 +69,11 @@ classdef IX_inst < serializable
         % SERIALIZABLE interface
         %------------------------------------------------------------------
         function ver = classVersion(~)
-            ver = 0; % dummy value for abstract base class
+            ver = 1;
         end
 
         function flds = saveableFields(~)
-            flds = {'name','source'};
+            flds = {'source','name'};
         end
 
         % other methods
@@ -81,33 +87,26 @@ classdef IX_inst < serializable
         % There is a synchronisation that must be maintained as the checks
         % in both places must be identical.
 
-        function obj=set.name_(obj,val)
+
+        %------------------------------------------------------------------
+        % Set methods for dependent properties
+        function obj=set.name(obj,val)
             if ~is_string(val)
                 error('The source name must be a character string')
             end
             obj.name_ = val;
         end
 
-        function obj=set.source_(obj,val)
+        function obj=set.source(obj,val)
             if isa(val,'IX_source') && isscalar(val)
                 obj.source_ = val;
             elseif is_string(val)
-                obj.source_ = IX_source('-name',val);
+                obj.source_ = IX_source('name',val);
             elseif isempty(val)
                 obj.source_ = IX_source();
             else
                 error('The source name must be a character string or an IX_source object')
             end
-        end
-
-        %------------------------------------------------------------------
-        % Set methods for dependent properties
-        function obj=set.name(obj,val)
-            obj.name_ = val;
-        end
-
-        function obj=set.source(obj,val)
-            obj.source_ = val;
         end
 
         %------------------------------------------------------------------
@@ -121,6 +120,27 @@ classdef IX_inst < serializable
         end
 
         %------------------------------------------------------------------
+    end
+    methods(Access=protected)
+        %------------------------------------------------------------------
+        function obj = from_old_struct(obj,inputs)
+            % restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % By default, this function interfaces the default from_struct
+            % function, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
+            inputs = convert_old_struct_(obj,inputs);
+            % optimization here is possible to not to use the public
+            % interface. But is it necessary? its the question
+            obj = from_old_struct@serializable(obj,inputs);
+
+        end
     end
 
 

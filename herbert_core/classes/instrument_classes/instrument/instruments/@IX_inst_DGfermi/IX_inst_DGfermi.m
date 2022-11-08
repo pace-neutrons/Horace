@@ -1,20 +1,21 @@
 classdef IX_inst_DGfermi < IX_inst
     % Instrument with Fermi monochromating chopper
-    
+
     properties (Access=private)
-        class_version_ = 1;
         moderator_ = IX_moderator
         aperture_ = IX_aperture
         fermi_chopper_ = IX_fermi_chopper
+        % instrument component fields set indicators for object to be valid
+        mandatory_inst_fields_ = false(1,3);
     end
-    
+
     properties (Dependent)
         moderator       % Moderator (object of class IX_moderator)
         aperture        % Aperture (object of class IX_aperture)
         fermi_chopper   % Monochromating chopper (object of class IX_fermi_chopper)
         energy          % Incident neutron energy (meV)
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -28,8 +29,8 @@ classdef IX_inst_DGfermi < IX_inst
             %   obj = IX_inst_DGfermi (..., energy)
             %
             %  one or both of:
-            %   obj = IX_inst_DGfermi (..., '-name', name)
-            %   obj = IX_inst_DGfermi (..., '-source', source)
+            %   obj = IX_inst_DGfermi (..., 'name', name)
+            %   obj = IX_inst_DGfermi (..., 'source', source)
             %
             %   moderator       Moderator (IX_moderator object)
             %   aperture        Aperture defining moderator area (IX_aperture object)
@@ -37,135 +38,104 @@ classdef IX_inst_DGfermi < IX_inst
             %   energy          Neutron energy (meV)
             %   name            Name of instrument (e.g. 'LET')
             %   source          Source: name (e.g. 'ISIS') or IX_source object
-            
+
             % General case
-            % make DGfermi not empty by default
-            obj.name_ = '_';
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_inst_DGfermi.loadobj(varargin{1});
-                
+
             elseif nargin>0
-                namelist = {'moderator','aperture','fermi_chopper','energy',...
-                    'name','source'};
-                [S, present] = parse_args_namelist (namelist, varargin{:});
-                
-                % Superclass properties TODO: call superclass to set them
-                if present.name
-                    obj.name_ = S.name;
-                end
-                if present.source
-                    obj.source_ = S.source;
-                end
-                
-                % Set monochromating components
-                if present.moderator && present.fermi_chopper
-                    obj.moderator_ = S.moderator;
-                    obj.fermi_chopper_ = S.fermi_chopper;
-                    if present.energy
-                        obj.moderator_.energy = S.energy;
-                        obj.fermi_chopper_.energy = S.energy;
-                    end
+                accept_params = {'moderator','aperture','fermi_chopper','energy',...
+                    'source','name'};
+                % legacy interface processing name at the beginning of the
+                % constructor.
+                if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},accept_params)
+                    argi = varargin(2:end);
+                    obj.name = varargin{1};
                 else
-                    error('HERBERT:IX_inst_DGfermi:invalid_argument',...
-                        'Must give both moderator and fermi chopper')
+                    argi = varargin;
                 end
-                
-                % Set aperture
-                if present.aperture
-                    obj.aperture_ = S.aperture;
-                else
-                    error('HERBERT:IX_inst_DGfermi:invalid_argument',...
-                        'Must give the beam defining aperture after the moderator');
+                [obj,remains] = set_positional_and_key_val_arguments(obj,...
+                    accept_params,true,argi{:});
+                if ~isempty(remains)
+                    error('HERBERT:IX_inst_DGfermi:invalid_argument', ...
+                        'Unrecognized extra parameters provided as input to IX_inst_DGfermi constructor: %s',...
+                        disp2str(remains));
                 end
-                
             end
         end
-        
-        % SERIALIZABLE interface
-        %-----------------------------------------------------------
-        function ver = classVersion(~)
-            ver = 2;
-        end
-        
-        function flds = saveableFields(obj)
-            baseflds = saveableFields@IX_inst(obj);
-            flds = { baseflds{:},'moderator','aperture', 'fermi_chopper', 'energy'};
-        end
-        %------------------------------------------------------------------
-        % Set methods for independent properties
-        %
-        % Devolve any checks on interdependencies to the constructor (where
-        % we refer only to the independent properties) and in the set
-        % functions for the dependent properties.
-        %
-        % There is a synchronisation that must be maintained as the checks
-        % in both places must be identical.
-        
-        function obj=set.moderator_(obj,val)
-            if isa(val,'IX_moderator') && isscalar(val)
-                obj.moderator_ = val;
-            else
-                error('The moderator must be an IX_moderator object')
-            end
-        end
-        
-        function obj=set.aperture_(obj,val)
-            if isa(val,'IX_aperture') && isscalar(val)
-                obj.aperture_ = val;
-            else
-                error('The aperture must be an IX_aperture object')
-            end
-        end
-        
-        function obj=set.fermi_chopper_(obj,val)
-            if isa(val,'IX_fermi_chopper') && isscalar(val)
-                obj.fermi_chopper_ = val;
-            else
-                error('The Fermi chopper must be an IX_fermi_chopper object')
-            end
-        end
-        
+
         function obj=set.energy(obj,val)
             obj.moderator_.energy = val;
             obj.fermi_chopper_.energy = val;
         end
-        
+
         %------------------------------------------------------------------
         % Set methods for dependent properties
         function obj=set.moderator(obj,val)
-            obj.moderator_ = val;
+            if isa(val,'IX_moderator') && isscalar(val)
+                obj.moderator_ = val;
+                obj.mandatory_inst_fields_(1)=true;
+            else
+                error('HERBERT:IX_inst_DGfermi:invalid_argument', ...
+                    'The moderator must be an IX_moderator object. It is: %s', ...
+                    class(val))
+            end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+
         end
-        
+
         function obj=set.aperture(obj,val)
-            obj.aperture_ = val;
+            if isa(val,'IX_aperture') && isscalar(val)
+                obj.aperture_ = val;
+                obj.mandatory_inst_fields_(2)=true;
+            else
+                error('HERBERT:IX_inst_DGfermi:invalid_argument', ...
+                    'The aperture must be an IX_aperture object It is: %s', ...
+                    class(val))
+            end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+
         end
-        
+
         function obj=set.fermi_chopper(obj,val)
-            obj.fermi_chopper_ = val;
+            if isa(val,'IX_fermi_chopper') && isscalar(val)
+                obj.fermi_chopper_ = val;
+                obj.mandatory_inst_fields_(3)=true;
+            else
+                error('HERBERT:IX_inst_DGfermi:invalid_argument', ...
+                    'The Fermi chopper must be an IX_fermi_chopper object It is: %s', ...
+                    class(val))
+            end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
-        
+
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function val=get.moderator(obj)
             val = obj.moderator_;
         end
-        
+
         function val=get.aperture(obj)
             val = obj.aperture_;
         end
-        
+
         function val=get.fermi_chopper(obj)
             val = obj.fermi_chopper_;
         end
-        
+
         function val=get.energy(obj)
             val = obj.moderator_.energy;
         end
-        
         %------------------------------------------------------------------
     end
-    
+
     methods(Access=protected)
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
@@ -184,16 +154,45 @@ classdef IX_inst_DGfermi < IX_inst
             % optimization here is possible to not to use the public
             % interface. But is it necessary? its the question
             obj = from_old_struct@serializable(obj,inputs);
-            
+
         end
     end
-    
-    
+    methods
+        % SERIALIZABLE interface
+        %-----------------------------------------------------------
+        function ver = classVersion(~)
+            ver = 2;
+        end
+
+        function flds = saveableFields(obj)
+            baseflds = saveableFields@IX_inst(obj);
+            flds = [ baseflds(2),'moderator','aperture', 'fermi_chopper', baseflds(1)];
+        end
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check
+            %
+            % Throw if the properties are inconsistent and return without
+            % problem it they are not, after recomputing dependent variables
+            %  if requested.
+
+            if ~all(obj.mandatory_inst_fields_)
+                mand_fields = {'moderator','aperture','fermi_chopper'};
+                error('HERBERT:IX_inst_DGfermi:invalid_argument', ...
+                    ['Mandatory fields (%s), defining IX_inst_DGfermi class have not been set.\n',...
+                    'missing properties are: %s'],...
+                    disp2str(mand_fields ),disp2str(mand_fields (~obj.mandatory_inst_fields_)))
+            end
+        end
+
+    end
+
+
     %======================================================================
     % Custom loadobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-    
+
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -212,7 +211,7 @@ classdef IX_inst_DGfermi < IX_inst
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
             %       	or structure array)
-            
+
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
@@ -220,8 +219,8 @@ classdef IX_inst_DGfermi < IX_inst
             obj = loadobj@serializable(S,obj);
         end
         %------------------------------------------------------------------
-        
+
     end
     %======================================================================
-    
+
 end

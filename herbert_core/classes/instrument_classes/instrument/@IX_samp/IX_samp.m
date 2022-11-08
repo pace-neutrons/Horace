@@ -73,7 +73,7 @@ classdef IX_samp  < serializable
         % SERIALIZABLE interface
         %------------------------------------------------------------------
         function vers = classVersion(~)
-            vers = 0; % base class function, dummy value
+            vers = 0; % base class function
         end
 
         function flds = saveableFields(~)
