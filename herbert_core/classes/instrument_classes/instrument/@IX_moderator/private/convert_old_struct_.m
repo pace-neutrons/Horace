@@ -1,5 +1,5 @@
 function inputs = convert_old_struct_(~,inputs)
-%
+% convert old moderator structure into modern format
 if isfield(inputs(1),'class_version_') && inputs(1).class_version_ == 1
     % remove _ from version 1 old fields
     inputs = rmfield(inputs,'class_version_');

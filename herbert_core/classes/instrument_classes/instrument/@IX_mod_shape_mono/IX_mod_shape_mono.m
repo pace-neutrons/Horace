@@ -100,24 +100,12 @@ classdef IX_mod_shape_mono
         % must be identical.
         
         function obj=set.moderator_(obj,val)
-            if ~isscalar(val) || ~isa(val,'IX_moderator')
-                error('Moderator must be scalar IX_moderator object')
-            end
-            obj.moderator_ = val;
         end
         
         function obj=set.shaping_chopper_(obj,val)
-            if ~isscalar(val)
-                error('Moderator shaping chopper must be scalar')
-            end
-            obj.shaping_chopper_ = val;
         end
         
         function obj=set.mono_chopper_(obj,val)
-            if ~isscalar(val)
-                error('Monochromating chopper must be scalar')
-            end
-            obj.mono_chopper_ = val;
         end
         
         %------------------------------------------------------------------
@@ -127,21 +115,34 @@ classdef IX_mod_shape_mono
         % for the non-dependent properties. However, any interdependencies with
         % other properties must be checked here.
         function obj=set.moderator(obj,val)
+            if ~isscalar(val) || ~isa(val,'IX_moderator')
+                error('Moderator must be scalar IX_moderator object')
+            end
             obj.moderator_ = val;
+            
+
             obj.shaped_mod_ = obj.recompute_shaped_mod_();
             obj.t_m_offset_ = obj.t_m_offset_calibrate_();
             [obj.t_chop_cov_, obj.t_chop_av_] = obj.moments_ ();
         end
         
         function obj=set.shaping_chopper(obj,val)
+            if ~isscalar(val)
+                error('Moderator shaping chopper must be scalar')
+            end
             obj.shaping_chopper_ = val;
+            
             obj.shaped_mod_ = obj.recompute_shaped_mod_();
             obj.t_m_offset_ = obj.t_m_offset_calibrate_();
             [obj.t_chop_cov_, obj.t_chop_av_] = obj.moments_ ();
         end
         
         function obj=set.mono_chopper(obj,val)
+            if ~isscalar(val)
+                error('Monochromating chopper must be scalar')
+            end
             obj.mono_chopper_ = val;
+            
             obj.shaped_mod_ = obj.recompute_shaped_mod_();
             obj.t_m_offset_ = obj.t_m_offset_calibrate_();
             [obj.t_chop_cov_, obj.t_chop_av_] = obj.moments_ ();
