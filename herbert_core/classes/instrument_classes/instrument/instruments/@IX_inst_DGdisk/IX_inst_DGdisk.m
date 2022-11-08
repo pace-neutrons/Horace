@@ -54,8 +54,12 @@ classdef IX_inst_DGdisk < IX_inst
                 obj = IX_inst_DGdisk.loadobj(varargin{1});
 
             elseif nargin>0
+                % define parameters accepted by constructor as keys and also the
+                % order of the positional parameters, if the parameters are
+                % provided without their names                
                 accept_params = {'moderator','shaping_chopper','mono_chopper',...
-                    'horiz_div','vert_div','energy','source','name','mod_shape_mono'};
+                    'horiz_div','vert_div','energy','name','source',...
+                    'valid_from','valid_to','mod_shape_mono'};
                 % legacy interface processing name at the beginning of the
                 % constructor.
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},accept_params)
@@ -211,8 +215,8 @@ classdef IX_inst_DGdisk < IX_inst
 
         function flds = saveableFields(obj)
             baseflds = saveableFields@IX_inst(obj);
-            flds = [ baseflds(1), 'mod_shape_mono',...
-                'horiz_div','vert_div', baseflds(2)];
+            flds = ['mod_shape_mono',...
+                'horiz_div','vert_div', baseflds];
         end
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the

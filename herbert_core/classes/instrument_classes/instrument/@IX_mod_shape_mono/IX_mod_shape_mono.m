@@ -57,6 +57,9 @@ classdef IX_mod_shape_mono < serializable
                 obj = IX_mod_shape_mono.loadobj(varargin{1});
 
             elseif nargin>=3
+                % define parameters accepted by constructor as keys and also the
+                % order of the positional parameters, if the parameters are
+                % provided without their names
                 flds = obj.saveableFields();
                 flds = [flds(:);'energy']';
                 [obj,remains] = set_positional_and_key_val_arguments(obj,...
@@ -70,8 +73,8 @@ classdef IX_mod_shape_mono < serializable
             elseif nargin~=0
                 flds = obj.saveableFields();
                 error('HERBERT:IX_mod_shape_mono:invalid_argument', ...
-                    'IX_mod_shape_mono constructor requests at least 3 positional arguments, namely: %s', ...
-                    disp2str(flds));
+                    'IX_mod_shape_mono constructor requests at least 3 positional arguments, namely: %s.\n You provided: %s', ...
+                    disp2str(flds),disp2str(varargin));
             end
         end
 

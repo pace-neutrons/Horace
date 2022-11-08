@@ -52,6 +52,9 @@ classdef IX_divergence_profile < serializable
                 obj = IX_divergence_profile.loadobj(varargin{1});
 
             elseif nargin>0
+                % define parameters accepted by constructor as keys and also the
+                % order of the positional parameters, if the parameters are
+                % provided without their names
                 pos_params = obj.saveableFields();
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                     argi = varargin(2:end);

@@ -2,13 +2,13 @@ classdef IX_source < serializable
     % Neutron source information
     % Basic information about the source, such as name, target_name and
     % operating frequency
-    
+
     properties (Access=private)
         name_ = '';         % Name of the source e.g. 'ISIS'
         target_name_ = '';  % Name of target e.g. 'TS1'
         frequency_ = 0;     % Operating frequency (Hz)
     end
-    
+
     properties (Dependent)
         name            % Name of the source e.g. 'ISIS'
         target_name     % Name of target e.g. 'TS1'
@@ -17,7 +17,7 @@ classdef IX_source < serializable
     properties(Constant,Access=protected)
         fieldsToSave_ = {'name','target_name','frequency'}
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -38,29 +38,28 @@ classdef IX_source < serializable
             % after leading positional arguments if they are preceded by the
             % argument name (including abbreviations) with a preceding hyphen e.g.
             %
-            %   >> obj = IX_source ('ISIS','-freq',50)
-            
+            %   >> obj = IX_source ('ISIS','freq',50)
+
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_source.loadobj(varargin{1});
-                
+
             elseif nargin>0
-                namelist = {'name','target_name','frequency'};
-                [S, present] = parse_args_namelist...
-                    ({namelist,{'char','char'}}, varargin{:});
-                if present.name
-                    obj.name = S.name;
-                end
-                if present.target_name
-                    obj.target_name = S.target_name;
-                end
-                if present.frequency
-                    obj.frequency = S.frequency;
+                % define parameters accepted by constructor as keys and also the
+                % order of the positional parameters, if the parameters are
+                % provided without their names
+                accept_params = obj.saveableFields();
+                [obj,remains] = set_positional_and_key_val_arguments(obj,...
+                    accept_params,true,varargin{:});
+                if ~isempty(remains)
+                    error('HERBERT:IX_source:invalid_argument', ...
+                        'Unrecognized extra parameters provided as input to IX_source constructor: %s',...
+                        disp2str(remains));
                 end
             end
         end
         %
-        
+
         %------------------------------------------------------------------
         % Set methods for independent properties
         %
@@ -70,7 +69,7 @@ classdef IX_source < serializable
         %
         % There is a synchronisation that must be maintained as the checks
         % in both places must be identical.
-        
+
         function obj=set.name(obj,val)
             if isempty(val)
                 val = '';
@@ -82,18 +81,18 @@ classdef IX_source < serializable
                     'The source name must be a character string')
             end
         end
-        
+
         function obj=set.target_name(obj,val)
             if isempty(val)
                 val = '';
             end
-            
+
             if ~is_string(val)
                 error('The target name must be a character string')
             end
             obj.target_name_ = val;
         end
-        
+
         function obj=set.frequency(obj,val)
             if isempty(val)
                 val = 0;
@@ -109,11 +108,11 @@ classdef IX_source < serializable
         function val=get.name(obj)
             val = obj.name_;
         end
-        
+
         function val=get.target_name(obj)
             val = obj.target_name_;
         end
-        
+
         function val=get.frequency(obj)
             val = obj.frequency_;
         end
@@ -126,7 +125,7 @@ classdef IX_source < serializable
             % return current class version as it is stored on hdd
             ver = 2;
         end
-        
+
     end
     methods(Sealed)
         function is = isempty(obj)
@@ -147,7 +146,7 @@ classdef IX_source < serializable
                 end
             end
         end
-        
+
     end
     %======================================================================
     methods (Static)
@@ -156,7 +155,7 @@ classdef IX_source < serializable
             % saveable class
             obj =IX_source();
             obj = loadobj@serializable(S,obj);
-            
+
         end
         %------------------------------------------------------------------
     end
@@ -177,9 +176,9 @@ classdef IX_source < serializable
             inputs = convert_old_struct_(obj,inputs);
             %
             obj = from_old_struct@serializable(obj,inputs);
-            
+
         end
     end
-    
+
     %======================================================================
 end

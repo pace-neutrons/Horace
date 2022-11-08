@@ -6,12 +6,18 @@ classdef IX_inst < serializable
     properties (Access=protected)
         name_ = '';             % Name of instrument (e.g. 'LET')
         source_ = IX_source;    % Source (name, or class of type IX_source)
-
+        valid_from_ = datetime(1900,01,01);
+        valid_to_ = [];
+        validity_date_set_ = false(1,2);
     end
 
     properties (Dependent)
         name ;          % Name of instrument (e.g. 'LET')
         source; % Source (name, or class of type IX_source)
+        % the date, instrument become valid
+        valid_from;
+        % the date, instrument stops beeing
+        valid_to;
     end
 
     methods(Static)
@@ -48,6 +54,9 @@ classdef IX_inst < serializable
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_inst.loadobj(varargin{1});
             elseif nargin>0
+                % define parameters accepted by constructor as keys and also the
+                % order of the positional parameters, if the parameters are
+                % provided without their names
                 pos_params = obj.saveableFields();
                 % process legacy name string at the beginning of the constructor
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
@@ -64,16 +73,6 @@ classdef IX_inst < serializable
                         disp2str(remains));
                 end
             end
-        end
-
-        % SERIALIZABLE interface
-        %------------------------------------------------------------------
-        function ver = classVersion(~)
-            ver = 1;
-        end
-
-        function flds = saveableFields(~)
-            flds = {'source','name'};
         end
 
         % other methods
@@ -108,6 +107,21 @@ classdef IX_inst < serializable
                 error('The source name must be a character string or an IX_source object')
             end
         end
+        function obj = set.valid_from(obj,val)
+            if ~isa(val,'datetime')
+                val = datetime(val);
+            end
+            obj.valid_from_ = val;
+            obj.validity_date_set_(1) = true;
+        end
+        function obj = set.valid_to(obj,val)
+            if ~isa(val,'datetime')
+                val = datetime(val);
+            end
+            obj.valid_to_ = val;
+            obj.validity_date_set_(2) = true;
+        end
+
 
         %------------------------------------------------------------------
         % Get methods for dependent properties
@@ -118,7 +132,16 @@ classdef IX_inst < serializable
         function val=get.source(obj)
             val = obj.source_;
         end
-
+        function val = get.valid_from(obj)
+            val = obj.valid_from_;
+        end
+        function val = get.valid_to(obj)
+            if obj.validity_date_set_(2)
+                val = obj.valid_to_;
+            else
+                val = datetime("now");
+            end
+        end
         %------------------------------------------------------------------
     end
     methods(Access=protected)
@@ -140,6 +163,23 @@ classdef IX_inst < serializable
             % interface. But is it necessary? its the question
             obj = from_old_struct@serializable(obj,inputs);
 
+        end
+    end
+    methods
+        % SERIALIZABLE interface
+        %------------------------------------------------------------------
+        function ver = classVersion(~)
+            ver = 1;
+        end
+
+        function flds = saveableFields(obj)
+            flds = {'source','name'};
+            if obj.validity_date_set_(1)
+                flds = [flds(:),'valid_from'];
+            end
+            if obj.validity_date_set_(2)
+                flds = [flds(:),'valid_to'];
+            end
         end
     end
 

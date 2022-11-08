@@ -45,8 +45,11 @@ classdef IX_inst_DGfermi < IX_inst
                 obj = IX_inst_DGfermi.loadobj(varargin{1});
 
             elseif nargin>0
+                % define parameters accepted by constructor as keys and also the
+                % order of the positional parameters, if the parameters are
+                % provided without their names                
                 accept_params = {'moderator','aperture','fermi_chopper','energy',...
-                    'source','name'};
+                    'name','source','valid_from','valid_to'};
                 % legacy interface processing name at the beginning of the
                 % constructor.
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},accept_params)
@@ -166,7 +169,7 @@ classdef IX_inst_DGfermi < IX_inst
 
         function flds = saveableFields(obj)
             baseflds = saveableFields@IX_inst(obj);
-            flds = [ baseflds(2),'moderator','aperture', 'fermi_chopper', baseflds(1)];
+            flds = ['moderator','aperture', 'fermi_chopper', baseflds];
         end
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the

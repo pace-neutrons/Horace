@@ -106,13 +106,18 @@ classdef IX_fermi_chopper < serializable
                 obj.pdf_ = recompute_pdf_(obj);
 
             elseif nargin>0
+                % define parameters accepted by constructor as keys and also the
+                % order of the positional parameters, if the parameters are
+                % provided without their names
                 pos_params = obj.saveableFields();
+                % process deprecated interface with "name" property to be
+                % first among the input arguments
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                     argi = varargin(2:end);
                     obj.name = varargin{1};
                 else
                     argi = varargin;
-                end                
+                end
                 [obj,remains] = set_positional_and_key_val_arguments(obj,...
                     pos_params,true,argi{:});
                 if ~isempty(remains)

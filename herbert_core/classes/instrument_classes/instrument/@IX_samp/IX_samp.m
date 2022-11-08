@@ -56,8 +56,9 @@ classdef IX_samp  < serializable
             [obj,remains] = init(obj,varargin{:});
         end
         function  [obj,remains] = init(obj,varargin)
-            % initialize serializable object using constructor fields
-            % 'name','alatt','angdeg'
+            % define parameters accepted by constructor as keys and also the
+            % order of the positional parameters, if the parameters are
+            % provided without their names
             fields = obj.saveableFields();
             if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                 argi = varargin(2:end);
