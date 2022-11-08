@@ -73,6 +73,24 @@ classdef test_cut < TestCase & common_state_holder
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
 
             ref_sqw = read_sqw(obj.ref_cut_file);
+  
+            % ref_sqw coming from file differs from sqw_cut in that the
+            % instrument names are '' rather than '_'. This previously did
+            % not matter as the assertequalToTol below had ignore_str==T.
+            % However as the instruments are now in a
+            % unique_objects_container, the name has now also changed the
+            % object hash. To prevent the name polluting the comparison
+            % like this, both sqw objects are now renamed with all
+            % instruments named ''. The containers and their hashes are
+            % then reconstructed befor the asserted comparison.
+            cut_instr = sqw_cut.experiment_info.instruments;
+            cut_instr = cut_instr.rename_all_blank();
+            sqw_cut.experiment_info.instruments = cut_instr;
+            
+            ref_instr = ref_sqw.experiment_info.instruments;
+            ref_instr = ref_instr.rename_all_blank();
+            ref_sqw.experiment_info.instruments = ref_instr;
+
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
                 'ignore_str', true,'-ignore_date');
         end
@@ -87,6 +105,23 @@ classdef test_cut < TestCase & common_state_holder
             assertElementsAlmostEqual(sqw_cut.data.offset,obj.ref_params{1}.offset);
 
             ref_sqw = read_sqw(obj.ref_cut_file);
+			
+			% ref_sqw coming from file differs from sqw_cut in that the
+            % instrument names are '' rather than '_'. This previously did
+            % not matter as the assertequalToTol below had ignore_str==T.
+            % However as the instruments are now in a
+            % unique_objects_container, the name has now also changed the
+            % object hash. To prevent the name polluting the comparison
+            % like this, both sqw objects are now renamed with all
+            % instruments named ''. The containers and their hashes are
+            % then reconstructed befor the asserted comparison.
+            cut_instr = sqw_cut.experiment_info.instruments;
+            cut_instr = cut_instr.rename_all_blank();
+            sqw_cut.experiment_info.instruments = cut_instr;
+            
+            ref_instr = ref_sqw.experiment_info.instruments;
+            ref_instr = ref_instr.rename_all_blank();
+            ref_sqw.experiment_info.instruments = ref_instr;
 
             assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');

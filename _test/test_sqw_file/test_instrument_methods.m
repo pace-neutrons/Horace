@@ -109,8 +109,9 @@ classdef test_instrument_methods <  TestCase %WithSave
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
             assertEqual(numel(inst),1) % all instruments for this file are the same
+            inst = inst{1}; % unpack the single instrument in the cellarray
             hdr = wtmp.experiment_info;
-            assertEqual(hdr.instruments(186),inst);
+            assertEqual(hdr.instruments{186},inst); % compare the last instrument in the header with the single instrument
             
             %---------------------------------------------------------------------
             % NOT IMPLEMENTED or implemented wrongly. Does not accept array
@@ -145,7 +146,8 @@ classdef test_instrument_methods <  TestCase %WithSave
             
             wtmp_new = set_mod_pulse(wtmp,pulse_model,pp);
             hdr = wtmp_new.experiment_info;
-            assertEqual(hdr.instruments{10}.moderator.pp(1),100/sqrt(ei(10)))
+            inst = hdr.instruments{10};
+            assertEqual(inst.moderator.pp(1),100/sqrt(ei(10)))
             
             % Set the incident energies in the file - produces an error as
             % the instrument is empty
@@ -162,12 +164,12 @@ classdef test_instrument_methods <  TestCase %WithSave
             
             inst = ldr1.get_instrument('-all');
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
-            
-            assertEqual(numel(inst),186) % all instruments for this file are the same
+            inst = inst{1};
+            assertEqual(n_runs(inst),186);
             hdr = wtmp_new.experiment_info;
-            assertEqual(hdr.instruments(186),inst(186));
-            assertEqual(hdr.instruments(10),inst(10));
-            assertEqual(hdr.instruments(1),inst(1));
+            assertEqual(hdr.instruments{186},inst{186});
+            assertEqual(hdr.instruments{10},inst{10});
+            assertEqual(hdr.instruments{1},inst{1});
         end
         
     end

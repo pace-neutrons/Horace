@@ -69,10 +69,20 @@ function [inst_class,all_inst] = get_inst_class_single (header)
 if ~iscell(header), header = {header}; end  % for convenience, turn into a cell array
 
 %is_inst = cellfun(@(x)(isa(x.instrument,'IX_inst')), header);
-is_inst =cellfun( @(x)(isa(x, 'IX_inst')), header{1}.instruments);
+if iscell(header{1}.instruments)
+    is_inst =cellfun( @(x)(isa(x, 'IX_inst')), header{1}.instruments);
+elseif isa(header{1}.instruments,'unique_objects_container')
+    is_inst = header{1}.instruments.check_type('IX_inst');
+end
 if all(is_inst)
     all_inst = true;
-    inst_classes = cellfun(@(x)(class(x)), header{1}.instruments, 'UniformOutput', false);
+    if iscell(header{1}.instruments)
+        inst_classes = cellfun(@(x)(class(x)), header{1}.instruments, 'UniformOutput', false);
+    elseif isa(header{1}.instruments,'unique_objects_container')
+        inst_classes = cellfun(@(x)(class(x)), header{1}.instruments.stored_objects, 'UniformOutput', false);
+        inst_duplicates = header{1}.instruments.n_duplicates;
+        inst_classes = inst_classes( inst_duplicates>0 );
+    end
     if all(strcmp(inst_classes{1},inst_classes))
         inst_class = inst_classes{1};
     else

@@ -87,13 +87,16 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % changes - these are filepaths
             tol = [1e-10,1e-8];
             assertEqualToTolWithSave (obj, fitpar_1, 'tol', tol, 'ignore_str', 1)
-            ref_ds = obj.getReferenceDataset('test_fit_multidimensional_dataset','wsim_1'); % Bug #797
-            wsim_1.experiment_info.instruments = ref_ds.experiment_info.instruments();
-            assertEqualToTolWithSave (obj, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
-            ref_ds = obj.getReferenceDataset('test_fit_multidimensional_dataset','wfit_1');  % Bug #797
-            wfit_1.experiment_info.instruments = ref_ds.experiment_info.instruments();
             
+            ref_ds = obj.getReferenceDataset('test_fit_multidimensional_dataset','wsim_1'); % Bug #797
+            wsim_1.experiment_info.instruments = ref_ds.experiment_info.instruments;
+            wsim_1.experiment_info.instruments = wsim_1.experiment_info.instruments.rename_all_blank();
+            assertEqualToTolWithSave (obj, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            
+            ref_ds = obj.getReferenceDataset('test_fit_multidimensional_dataset','wfit_1');  % Bug #797
+            wfit_1.experiment_info.instruments = ref_ds.experiment_info.instruments;
             assertEqualToTolWithSave (obj, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            
             skipTest('This is known bug #797. Instrument is not stored/restored properly');
         end
 

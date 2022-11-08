@@ -22,7 +22,7 @@ classdef test_IX_experiment <  TestCase
             exp.run_id = 10;
             exp.en = 1:10;
 
-            oh = exp.convert_to_binfile_header([1,2,3],[90,90,90]);
+            oh = exp.convert_to_binfile_header('-alatt_angdeg',[1,2,3],[90,90,90]);
             oh.filename = 'aa';
 
             [exp_rec,alatt,angdeg] = IX_experiment.build_from_binfile_header(oh);
@@ -53,7 +53,7 @@ classdef test_IX_experiment <  TestCase
             exp.run_id = 10;
             exp.en = 1:10;
 
-            oh = exp.convert_to_binfile_header([1,2,3],[90,90,90]);
+            oh = exp.convert_to_binfile_header('-alatt_angdeg',[1,2,3],[90,90,90]);
 
             [exp_rec,alatt,angdeg] = IX_experiment.build_from_binfile_header(oh);
 
@@ -75,7 +75,7 @@ classdef test_IX_experiment <  TestCase
             exp.run_id = 10;
             exp.en = 1:10;
 
-            oh = exp.convert_to_binfile_header([1,2,3],[90,90,90]);
+            oh = exp.convert_to_binfile_header('-alatt_angdeg',[1,2,3],[90,90,90]);
 
             [exp_rec,alatt,angdeg] = IX_experiment.build_from_binfile_header(oh);
 

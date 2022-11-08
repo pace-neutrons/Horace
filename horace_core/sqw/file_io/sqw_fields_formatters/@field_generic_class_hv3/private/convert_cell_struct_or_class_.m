@@ -15,7 +15,11 @@ elseif isa(val,'function_handle')
     return;
 else % structure or custom class
     try
+        if isa(val,'serializable')
+            val1 = to_struct(val(1));
+        else
         val1 = structIndep(val(1));
+        end
     catch ME
         if ~strcmpi(ME.identifier,'MATLAB:UndefinedFunction')
             throw(ME);
