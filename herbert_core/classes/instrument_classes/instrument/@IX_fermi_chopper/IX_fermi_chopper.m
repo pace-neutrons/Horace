@@ -64,8 +64,7 @@ classdef IX_fermi_chopper < serializable
             %   >> chop = IX_fermi_chopper (...,slit_spacing,width,height,energy);
             %   >> chop = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase);
             %   >> chop = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase,jitter);
-            %
-            %   >> chop = IX_fermi_chopper (name,...)
+            %   >> chop = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase,jitter,name);
             %
             % Required:
             %   distance        Distance from sample (m) (+ve if upstream of sample, against the usual convention)
@@ -87,7 +86,7 @@ classdef IX_fermi_chopper < serializable
             %
             % Note: any number of the arguments can given in arbitrary order
             % after leading positional arguments if they are preceded by the
-            % argument name (including abbrevioations) with a preceding hyphen e.g.
+            % argument name (including abbrevioations) e.g.:
             %
             %   >> chop = IX_fermi_chopper (distance,frequency,radius,curvatue,...
             %               slit_width,'energy',120,'name','Chopper_1')
@@ -339,10 +338,6 @@ classdef IX_fermi_chopper < serializable
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
             %
-            % Overload to obtain information about the validity of
-            % interdependent properties and information about issues with
-            % interdependent properties
-
             % Throw if the properties are inconsistent and return without
             % problem it they are not, after recomputing pdf table if
             % requested.

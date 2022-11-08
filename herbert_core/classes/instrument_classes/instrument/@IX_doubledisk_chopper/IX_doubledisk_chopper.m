@@ -43,8 +43,7 @@ classdef IX_doubledisk_chopper < serializable
             %   >> chop = IX_doubledisk_chopper (...,aperture_width);
             %   >> chop = IX_doubledisk_chopper (...,aperture_width,aperture_height);
             %   >> chop = IX_doubledisk_chopper (...,aperture_width,aperture_height,jitter);
-            %
-            %   >> chop = IX_doubledisk_chopper (name,...)
+            %   >> chop = IX_doubledisk_chopper (...,aperture_width,aperture_height,jitter,name);            
             %
             % Required:
             %   distance        Distance from sample (m) (+ve if upstream of sample, against the usual convention)
@@ -62,7 +61,7 @@ classdef IX_doubledisk_chopper < serializable
             %
             % Note: any number of the arguments can given in arbitrary order
             % after leading positional arguments if they are preceded by the
-            % argument name (including abbrevioations) with a preceding hyphen e.g.
+            % argument name (including abbrevioations) e.g.:
             %
             %   >> chop = IX_doubledisk_chopper (distance,frequency,radius,slot_width,...
             %               'jitter',3.5,'name','Chopper_1')

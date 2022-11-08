@@ -33,7 +33,7 @@ classdef test_IX_sample < TestCaseWithSave
         end
         function test_to_from_struct(~)
             sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4],...
-                '-hall_symbol', 'hsymbol');            
+                'hall_symbol', 'hsymbol');            
             sample.alatt = [1,2,3];
             sample.angdeg = [91,89,91];
             str = sample.to_struct();
@@ -44,47 +44,47 @@ classdef test_IX_sample < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_error_if_required_args_missing(name)
+        function test_IX_sample_constructor_error_if_required_args_missing(~)
             f = @()IX_sample([1,0,0],[0,1,0],'cuboid');
             assertExceptionThrown(f, 'HERBERT:IX_sample:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_error_if_invalid_shape(name)
+        function test_IX_sample_constructor_error_if_invalid_shape(~)
             f = @()IX_sample([1,0,0],[0,1,0],'banana',[2,3,4]);
             assertExceptionThrown(f, 'HERBERT:IX_sample:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_accepts_and_sets_hall_symbol(name)
-            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+        function test_IX_sample_constructor_accepts_and_sets_hall_symbol(~)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'hsymbol');
             assertEqual(sample.hall_symbol, 'hsymbol');
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_accepts_and_sets_temperature(name)
-            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-temperature', 1234.5);
+        function test_IX_sample_constructor_accepts_and_sets_temperature(~)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'temperature', 1234.5);
             assertEqual(sample.temperature, 1234.5);
         end
-        function test_IX_sample_constructor_errors_for_non_numeric_temperature(name)
-            f = @()IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-temperature', 'string');
+        function test_IX_sample_constructor_errors_for_non_numeric_temperature(~)
+            f = @()IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'temperature', 'string');
             assertExceptionThrown(f, 'HERBERT:IX_sample:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_accepts_and_sets_name(name)
-            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-name', 'test name');
+        function test_IX_sample_constructor_accepts_and_sets_name(~)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'name', 'test name');
             assertEqual(sample.name, 'test name');
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_accepts_and_sets_mosaic_eta(name)
+        function test_IX_sample_constructor_accepts_and_sets_mosaic_eta(~)
             eta = IX_mosaic(1234);
-            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-eta', eta);
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'eta', eta);
             assertEqual(sample.eta, eta);
         end
-        function test_IX_sample_constructorsets_sets_numeric_eta_as_mosaic(name)
-            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-eta', 4134);
+        function test_IX_sample_constructorsets_sets_numeric_eta_as_mosaic(~)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'eta', 4134);
             assertEqual(sample.eta, IX_mosaic(4134));
         end
 
@@ -96,7 +96,7 @@ classdef test_IX_sample < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_identical_samples_are_equal(obj)
+        function test_identical_samples_are_equal(~)
             samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4]);
             samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4]);
 
@@ -104,7 +104,7 @@ classdef test_IX_sample < TestCaseWithSave
             assertFalse(samp1 ~= samp2)
         end
 
-        function test_different_samples_are_not_equal(obj)
+        function test_different_samples_are_not_equal(~)
             samp1 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
             samp2 = IX_sample ([1,1,0],[0,0,1],'cuboid',[22,23,24]);
 
@@ -112,25 +112,25 @@ classdef test_IX_sample < TestCaseWithSave
             assertTrue(samp1 ~= samp2)
         end
 
-        function test_identical_samples_with_matching_hall_symbol_are_equal(obj)
-            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
-            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+        function test_identical_samples_with_matching_hall_symbol_are_equal(~)
+            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'hsymbol');
+            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'hsymbol');
 
             assertTrue(samp1 == samp2);
             assertFalse(samp1 ~= samp2)
         end
 
-        function test_matching_samples_with_missing_hall_symbol_are_not_equal(obj)
+        function test_matching_samples_with_missing_hall_symbol_are_not_equal(~)
             samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4]);
-            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'hsymbol');
 
             assertFalse(samp1 == samp2);
             assertTrue(samp1 ~= samp2)
         end
 
-        function test_matching_samples_with_different_hall_symbols_are_not_equal(obj)
-            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'other');
-            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+        function test_matching_samples_with_different_hall_symbols_are_not_equal(~)
+            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'other');
+            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'hsymbol');
 
             assertFalse(samp1 == samp2);
             assertTrue(samp1 ~= samp2)

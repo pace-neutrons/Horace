@@ -16,13 +16,9 @@ classdef IX_sample < IX_samp
         ygeom_ = [0,1,0];
         shape_ = 'point';
         ps_ = [];
+        mandatory_field_set_ = false(1,4);
         eta_ = IX_mosaic();
         temperature_ = 0;
-
-        valid_ = true;
-        %TODO: this is wrong. Refactor constructor. Temporary disable
-        % checks of interdependent properties in constructor
-        in_construction_ = false;
     end
 
     properties(Dependent,Hidden)
@@ -92,9 +88,9 @@ classdef IX_sample < IX_samp
             %
             % Note: any number of the arguments can given in arbitrary order
             % after leading positional arguments if they are preceded by the
-            % argument name (including abbrevioations) with a preceding hyphen e.g.
+            % argument name (including abbrevioations) e.g:.
             %
-            %   sample = IX_sample (xgeom,ygeom,shape,ps,'-name','FeSi','-temp',273.16)
+            %   sample = IX_sample (xgeom,ygeom,shape,ps,'name','FeSi','temp',273.16)
 
 
             % Use the non-dependent property set functions to force a check of type,
@@ -102,7 +98,6 @@ classdef IX_sample < IX_samp
             if nargin==0
                 return
             end
-            obj.in_construction_ = true;
             if nargin == 2
                 obj.alatt = varargin{1};
                 obj.angdeg = varargin{2};
@@ -111,64 +106,34 @@ classdef IX_sample < IX_samp
                 obj = IX_sample.loadobj(varargin{1});
 
             elseif nargin>0
-                namelist = {'name','single_crystal','xgeom','ygeom',...
-                    'shape','ps','eta','temperature','hall_symbol'};
-                [S, present] = parse_args_namelist ({namelist,{'char','logical'}}, varargin{:});
-                is_present = struct2cell(present);
-                is_present = [is_present{:}];
-
-                % Superclass properties: TODO: call superclass to set them
-                if present.name
-                    obj.name = S.name;
-                    if sum(is_present)<2 % setting only name
-                        obj.in_construction_ = false;
-                        return;
-                    end
-                end
-
-                if present.single_crystal
-                    obj.single_crystal = S.single_crystal;
-                end
-                if present.xgeom && present.ygeom && present.shape && present.ps
-                    obj.xgeom = S.xgeom;
-                    obj.ygeom = S.ygeom;
-                    obj.shape = S.shape;
-                    obj.ps = S.ps;
+                pos_params = obj.saveableFields();
+                % legacy interface to sample constructor (incomplete,
+                % lattice missing):
+                %namelist = {'name','single_crystal','xgeom','ygeom',...
+                %    'shape','ps','eta','temperature','hall_symbol'};
+                % new serializable parameters:
+                %pos_params = [baseflds(1:2), {'hall_symbol', 'single_crystal', ...
+                %    'xy_geom','shape', 'ps', 'eta', 'temperature',baseflds{end}}];
+                % rearrange serializable par to support old interface
+                pos_params = [{'xgeom'},{'ygeom'},pos_params(6:end-1),...
+                    pos_params(3:4),pos_params(1:2),pos_params(end)];
+                % process legacy name string at the beginning of the constructor
+                if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
+                    argi = varargin(2:end);
+                    obj.name = varargin{1};
                 else
-                    error('HERBERT:IX_sample:invalid_argument',...
-                        'Must give all arguments that define geometry and sample shape')
+                    argi = varargin;
                 end
-                if present.eta
-                    obj.eta = S.eta;
+                [obj,remains] = set_positional_and_key_val_arguments(obj,...
+                    pos_params,true,argi{:});
+                if ~isempty(remains)
+                    error('HERBERT:IX_sample:invalid_argument', ...
+                        'Unrecognized extra parameters provided as input to IX_sample constructor: %s',...
+                        disp2str(remains));
                 end
-                if present.temperature
-                    obj.temperature = S.temperature;
-                end
-                if present.hall_symbol
-                    obj.hall_symbol = S.hall_symbol;
-                end
-
-                [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
-                if ~ok, error(mess), end
-                if numel(obj.ps_)~=obj.n_ps_(obj.shape_)
-                    error('HERBERT:IX_sample:invalid_argument',...
-                        'The number of shape parameters is not correct for the sample type')
-                end
-                obj.in_construction_ = false;
             end
         end
 
-        % SERIALIZABLE interface
-        %------------------------------------------------------------------
-        function ver = classVersion(~)
-            ver = 3;
-        end
-
-        function flds = saveableFields(obj)
-            baseflds = saveableFields@IX_samp(obj);
-            flds = [baseflds, {'hall_symbol', 'single_crystal', ...
-                'xy_geom','shape', 'ps', 'eta', 'temperature'}];
-        end
         %------------------------------------------------------------------
         % Set methods for dependent properties
         function obj=set.eta(obj,val)
@@ -206,38 +171,38 @@ classdef IX_sample < IX_samp
         function obj=set.xgeom(obj,val)
             if isnumeric(val) && numel(val)==3 && ~all(val==0)
                 obj.xgeom_=val(:)';
+                obj.mandatory_field_set_(1) = true;
             else
                 error('HERBERT:IX_sample:invalid_argument',...
                     '''xgeom'' must be a three-vector')
             end
-            if ~obj.in_construction_
-                [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
-                if ~ok, error(mess), end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
             end
         end
         function obj=set.ygeom(obj,val)
             if isnumeric(val) && numel(val)==3 && ~all(val==0)
                 obj.ygeom_=val(:)';
+                obj.mandatory_field_set_(2) = true;
             else
                 error('HERBERT:IX_sample:invalid_argument',...
                     '''ygeom'' must be a three-vector')
             end
-            if ~obj.in_construction_
-                [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
-                if ~ok, error('HERBERT:IX_sample:invalid_argument',mess)
-                end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
             end
         end
         function obj = set.xy_geom(obj,val)
             if isnumeric(val) && all(size(val)==[2,3]) && ~any(all(val'==0))
                 obj.xgeom_=val(1,:);
                 obj.ygeom_=val(2,:);
+                obj.mandatory_field_set_(1:2) = true;
             else
                 error('HERBERT:IX_sample:invalid_argument',...
                     '''xy_geom'' must be a 2x3 matrix, combining two non-zero 3-vectors as strings')
             end
-            [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
-            if ~ok, error('HERBERT:IX_sample:invalid_argument',mess)
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
             end
         end
         function xy = get.xy_geom(obj)
@@ -258,6 +223,7 @@ classdef IX_sample < IX_samp
                 [ok,mess,fullname] = obj.shapes_.valid(val);
                 if ok
                     obj.shape_=fullname;
+                    obj.mandatory_field_set_(3) = true;
                 else
                     error('HERBERT:IX_sample:invalid_argument',...
                         ['Sample shape: ',mess])
@@ -266,14 +232,10 @@ classdef IX_sample < IX_samp
                 error('HERBERT:IX_sample:invalid_argument',...
                     'Sample shape must be a non-empty character string')
             end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
 
-            % Have to set the shape parameters to an invalid quantity if sample shape changes
-            %             val_old = obj.shape_;
-            %             obj.shape_=val;
-            %             if ~strcmp(obj.shape,val_old)
-            %                 obj.ps_ = NaN;
-            %                 obj.valid_ = false;
-            %             end
         end
 
         function obj=set.ps(obj,val)
@@ -283,17 +245,16 @@ classdef IX_sample < IX_samp
                 else
                     obj.ps_=val(:)';    % make a row vector
                 end
+                obj.mandatory_field_set_(4) = true;
             else
                 error('HERBERT:IX_sample:invalid_argument',...
                     'Sample parameters must be a numeric vector')
             end
             % Must check the numnber of parameters is consistent with the sample shape
-            if numel(obj.ps_)==obj.n_ps_(obj.shape_)
-                obj.valid_=true;
-            else
-                error('HERBERT:IX_sample:invalid_argument',...
-                    'The number of shape parameters is inconsistent with the shape type')
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
             end
+
         end
 
         %------------------------------------------------------------------
@@ -332,6 +293,62 @@ classdef IX_sample < IX_samp
         end
 
         %------------------------------------------------------------------
+    end
+    methods
+        % SERIALIZABLE interface
+        %------------------------------------------------------------------
+        function ver = classVersion(~)
+            ver = 3;
+        end
+
+        function flds = saveableFields(obj,mandatory)
+            % If "mandatory" key is provided, return the subset of values
+            % necessary for non-empty class to be defined
+            if nargin>1
+                mandatory = true;
+            else
+                mandatory = false;
+            end
+            if mandatory
+                flds = {'xgeom','ygeom','shape','ps'};
+            else
+                baseflds = saveableFields@IX_samp(obj);
+                flds = [baseflds(1:2), {'hall_symbol', 'single_crystal', ...
+                    'xy_geom','shape', 'ps', 'eta', 'temperature',baseflds{end}}];
+
+            end
+        end
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check
+            %
+            % Throw if the properties are inconsistent and return without
+            % problem it they are not, after recomputing dependent variables
+            %  if requested.
+
+            if any(obj.mandatory_field_set_)
+                if ~all(obj.mandatory_field_set_)
+                    mandatory_field_names = obj.saveableFields('mandatory');
+                    error('HERBERT:IX_sample:invalid_argument', ...
+                        'If any of the mandatory properties (%s) is set, all mandatory properties must be set\n. Properties: %s have not been set', ...
+                        disp2str(mandatory_field_names),...
+                        disp2str(mandatory_field_names(~obj.mandatory_field_set_)));
+                end
+            end
+            %
+            if ~(isempty(obj.xgeom_) || isempty(obj.ygeom_))
+                if norm(cross(obj.xgeom_,obj.ygeom_))/(norm(obj.xgeom_)*norm(obj.ygeom_)) < 1e-5
+                    error('HERBERT:IX_sample:invalid_argument',...
+                        '"xgeom=%s" and "ygeom=%s" vectors are colinear, or almost colinear', ...
+                        disp2str(obj.xgeom_),disp2str(obj.ygeom_));
+                end
+            end
+            %
+            if numel(obj.ps_)~=obj.n_ps_(obj.shape_)
+                error('HERBERT:IX_sample:invalid_argument',...
+                    'The number of shape parameters is not correct for the sample type')
+            end
+        end
     end
 
     methods(Access=protected)
@@ -385,18 +402,4 @@ classdef IX_sample < IX_samp
 
     end
     %======================================================================
-end
-
-%------------------------------------------------------------------
-% Utility functions to check dependent properties
-function [ok,mess] = check_xygeom (x,y)
-% assume x, y are each either three-vectors or empty
-ok = true;
-mess = '';
-if ~(isempty(x) || isempty(y))
-    if norm(cross(x,y))/(norm(x)*norm(y)) < 1e-5
-        ok = false;
-        mess='''xgeom'' and ''ygeom'' are colinear, or almost colinear';
-    end
-end
 end

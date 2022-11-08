@@ -60,8 +60,7 @@ classdef IX_moderator < serializable
             %   >> moderator = IX_moderator (...,width,height,thickness)
             %   >> moderator = IX_moderator (...,width,height,thickness,temperature)
             %   >> moderator = IX_moderator (...,width,height,thickness,temperature,energy)
-            %
-            %   >> moderator = IX_moderator (name,...)
+            %   >> moderator = IX_moderator (...,width,height,thickness,temperature,energy,name)
             %
             % Required:
             %   distance        Distance from sample (m) (+ve, against the usual convention)
@@ -83,7 +82,7 @@ classdef IX_moderator < serializable
             %
             % Note: any number of the arguments can given in arbitrary order
             % after leading positional arguments if they are preceded by the
-            % argument name (including abbrevioations) with a preceding hyphen e.g.
+            % argument name (including abbrevioations).
             %
             %   >> moderator = IX_moderator (distance,angle,pulse_model,pp,...
             %               'energy',120,'temp',100)

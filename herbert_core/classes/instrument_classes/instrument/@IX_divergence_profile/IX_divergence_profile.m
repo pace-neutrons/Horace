@@ -37,7 +37,7 @@ classdef IX_divergence_profile < serializable
             %
             % Note: any number of the arguments can given in arbitrary order
             % after leading positional arguments if they are preceded by the
-            % argument name (including abbreviations) with a preceding hyphen e.g.
+            % argument name (including abbreviations) e.g.:
             %
             %   div = IX_divergence_profile (angles,'name','in-pile', 'profile', y)
 
