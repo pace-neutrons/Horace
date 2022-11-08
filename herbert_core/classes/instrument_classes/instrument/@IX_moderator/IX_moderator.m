@@ -302,7 +302,7 @@ classdef IX_moderator < serializable
             % overloaded loadobj method, calling generic method of
             % saveable class necessary for loading old class versions
             % which are converted into structure when recovered as class is
-            % not available any more
+            % not available
             obj = IX_moderator();
             obj = loadobj@serializable(S,obj);
         end
