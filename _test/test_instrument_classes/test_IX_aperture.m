@@ -76,7 +76,7 @@ classdef test_IX_aperture < TestCaseWithSave
                 assertTrue(ok,mess)
             end
             
-        end
+        end        
         %
         function test_single_aperture_load_prev_versions(obj)
             % Scalar example

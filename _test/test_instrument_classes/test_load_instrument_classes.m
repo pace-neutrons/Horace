@@ -35,54 +35,6 @@ else
 end
 
 
-%--------------------------------------------------------------------------
-% Fermi chopper
-%---------------
-% Scalar example
-fermi = IX_fermi_chopper(12,600,0.049,1.3,0.0228);
-
-% 2x2 array example
-fermi_arr = [IX_fermi_chopper(12,610,0.049,1.3,0.0228),IX_fermi_chopper(12,620,0.049,1.3,0.0228);...
-    IX_fermi_chopper(12,630,0.049,1.3,0.0228),IX_fermi_chopper(12,640,0.049,1.3,0.0228)];
-
-% Test/save:
-ok = matfile_IO (ver_str, save_variables, fermi, fermi_arr);
-assertTrue(ok,'Problems saving/reading fermi chopper(s)')
-
-
-%--------------------------------------------------------------------------
-% Aperture
-%---------------
-% Scalar example
-ap = IX_aperture ('Ap0', 11, 0.2, 0.25);
-
-% 2x2 array example
-ap_arr = [IX_aperture('Ap0', 11, 0.2, 0.25), IX_aperture('Ap1', 121, 0.22, 0.225);...
-    IX_aperture('Ap3', 311, 0.23, 0.325), IX_aperture('Ap4', 114, 0.24, 0.245)];
-
-% Test/save:
-ok = matfile_IO (ver_str, save_variables, ap, ap_arr);
-assertTrue(ok,'Problems saving/reading aperture(s)')
-
-
-%--------------------------------------------------------------------------
-% Divergence
-%---------------
-% Scalar example
-ang = @(x0,n)(x0 + (1:n));
-val = @(n)([0, ones(1,n-2) + 0.02*(1:n-2), 0]);  % version 0 requires end points to be zero
-div = IX_divergence_profile (ang(5,20),val(20));
-
-% 2x2 array example
-div_arr = [IX_divergence_profile(ang(5,25),val(25)), IX_divergence_profile(ang(10,30),val(30));...
-    IX_divergence_profile(ang(15,40),val(40)), IX_divergence_profile(ang(20,200),val(200))];
-
-% Test/save:
-ok = matfile_IO (ver_str, save_variables, div, div_arr);
-assertTrue(ok,'Problems saving/reading divergence(s)')
-
-
-
 
 %--------------------------------------------------------------------------
 % Moderator

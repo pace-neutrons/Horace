@@ -43,8 +43,8 @@ classdef test_IX_divergence_profile < TestCaseWithSave
             ws = warning('off','HERBERT:IX_divergence_profile:deprecated');
             clOb = onCleanup(@()warning(ws));
             div = IX_divergence_profile ('in-pile',self.ang, self.y);
-%             [~,mess_id] = lastwarn();
-%             assertEqual(mess_id,'HERBERT:IX_divergence_profile:deprecated');
+            %             [~,mess_id] = lastwarn();
+            %             assertEqual(mess_id,'HERBERT:IX_divergence_profile:deprecated');
 
             div1= IX_divergence_profile (self.ang, self.y,'in-pile');
             assertEqual(div,div1);
@@ -59,14 +59,48 @@ classdef test_IX_divergence_profile < TestCaseWithSave
             assertExceptionThrown(@()IX_divergence_profile (self.ang, ytmp,'in-pile'),...
                 'HERBERT:IX_divergence_profile:invalid_argument');
         end
+        function test_prev_versions_array(obj)
+            angl = @(x0,n)(x0 + (1:n));
+            val = @(n)([0, ones(1,n-2) + 0.02*(1:n-2), 0]);  % version 0 requires end points to be zero
+
+
+            % 2x2 array example
+            div_arr = [IX_divergence_profile(angl(5,25),val(25)), IX_divergence_profile(angl(10,30),val(30));...
+                IX_divergence_profile(angl(15,40),val(40)), IX_divergence_profile(angl(20,200),val(200))];
+
+
+            sample_files_location = obj.home_folder;
+            if obj.save_output
+                % run test_IX_apperture with -save option to obtain reference
+                % files when changed to new class version
+                save_variables=true;
+                ver = div_arr.classVersion();
+                verstr = ['ver',num2str(ver)];
+                check_matfile_IO(verstr, save_variables, sample_files_location,div_arr);
+
+            else
+                save_variables=false;
+
+                verstr= 'ver1';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,div_arr);
+
+                verstr= 'ver0';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,div_arr);
+
+            end
+
+        end
         %--------------------------------------------------------------------------
         function test_prev_versions(obj)
+            %--------------------------------------------------------------------------
+            % Divergence
+            %---------------
             % Scalar example
-            angles = 6:25;
-            profile = 1:0.02:1.38;
-            profile(1)=0;
-            profile(end)=0;
-            div = IX_divergence_profile (angles , profile);
+            angl = @(x0,n)(x0 + (1:n));
+            val = @(n)([0, ones(1,n-2) + 0.02*(1:n-2), 0]);  % version 0 requires end points to be zero
+            div = IX_divergence_profile (angl(5,20),val(20));
+
+            % Scalar example
             sample_files_location = obj.home_folder;
             if obj.save_output
                 % run test_IX_apperture with -save option to obtain reference
