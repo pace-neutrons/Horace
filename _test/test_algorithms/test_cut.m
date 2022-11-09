@@ -59,6 +59,24 @@ classdef test_cut < TestCase & common_state_holder
             end
         end
         %
+        function test_take_a_cut_from_an_sqw_file_single_chunk(obj)
+            % Really large file V2 on disk to ensure that ranges are
+            % calculated using filebased algorithm rather than all data
+            % loaded in memory.
+            %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
+            %sqw_cut = cut(v2large_file, obj.ref_params{:});
+
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 8000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
+
+            sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
+
+            ref_sqw = read_sqw(obj.ref_cut_file);
+            assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
+                'ignore_str', true,'-ignore_date');
+        end
         function test_take_a_cut_from_an_sqw_object(obj)
             %sqw_obj = read_sqw(obj.sqw_file);
             sqw_obj = obj.sqw_4d; % it have just been read in constructor
@@ -540,25 +558,7 @@ classdef test_cut < TestCase & common_state_holder
             assertEqualToTol(sqw_cut1,sqw_cut2,'-ignore_date');
         end
         %
-        function test_take_a_cut_from_an_sqw_file_single_chunk(obj)
-            % Really large file V2 on disk to ensure that ranges are
-            % calculated using filebased algorithm rather than all data
-            % loaded in memory.
-            %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
-            %sqw_cut = cut(v2large_file, obj.ref_params{:});
-
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 8000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
-
-            sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
-
-            ref_sqw = read_sqw(obj.ref_cut_file);
-            assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
-                'ignore_str', true,'-ignore_date');
-        end
-        function test_take_cut_dnd_from_sqw_file_throws(obj)
+         function test_take_cut_dnd_from_sqw_file_throws(obj)
             ex = assertExceptionThrown(@()cut_dnd(obj.sqw_file, obj.ref_params{:}), ...
                 'HORACE:cut:invalid_argument');
         end
