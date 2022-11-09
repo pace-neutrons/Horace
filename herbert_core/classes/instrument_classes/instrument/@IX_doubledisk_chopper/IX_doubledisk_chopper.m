@@ -26,6 +26,10 @@ classdef IX_doubledisk_chopper < serializable
         frequency
         radius
         slot_width
+        % beware that value of aperture_width is equal to value in
+        % aperture_width_ only when aperture_width_defined_ == true. Otherwise
+        % it is equal to slot_width. Use public aperture_width value in
+        % all internal class calculations.
         aperture_width
         aperture_height
         jitter
@@ -43,7 +47,7 @@ classdef IX_doubledisk_chopper < serializable
             %   >> chop = IX_doubledisk_chopper (...,aperture_width);
             %   >> chop = IX_doubledisk_chopper (...,aperture_width,aperture_height);
             %   >> chop = IX_doubledisk_chopper (...,aperture_width,aperture_height,jitter);
-            %   >> chop = IX_doubledisk_chopper (...,aperture_width,aperture_height,jitter,name);            
+            %   >> chop = IX_doubledisk_chopper (...,aperture_width,aperture_height,jitter,name);
             %
             % Required:
             %   distance        Distance from sample (m) (+ve if upstream of sample, against the usual convention)
@@ -81,15 +85,23 @@ classdef IX_doubledisk_chopper < serializable
                 obj.pdf_ = recompute_pdf_(obj);
 
             elseif nargin>0
+                % define parameters accepted by constructor as keys and also the
+                % order of the positional parameters, if the parameters are
+                % provided without their names
                 pos_params = obj.saveableFields();
+                % process deprecated interface where the "name" property is
+                % first among the input arguments
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                     argi = varargin(2:end);
                     obj.name = varargin{1};
                 else
                     argi = varargin;
                 end
-                [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                    pos_params,true,argi{:});
+                % set positional parameters and key-value pairs and check their
+                % consistency using public setters interface. check_compo_arg
+                % after all settings have been done.
+                [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
+                    true,argi{:});                
                 if ~isempty(remains)
                     error('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
                         'Unrecognized extra parameters provided as input to IX_doubledisk_chopper constructor: %s',...
@@ -124,13 +136,8 @@ classdef IX_doubledisk_chopper < serializable
 
         function obj=set.frequency(obj,val)
             val_old = obj.frequency_;
-            if isscalar(val) && isnumeric(val) && val>=0
-                obj.frequency_=val;
-                obj.mandatory_field_set_(2) =true;
-            else
-                error('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
-                    'Frequency must be a numeric scalar greater or equal to zero')
-            end
+            obj = check_and_set_positive_scalar_(obj,'frequency_',val);
+            obj.mandatory_field_set_(2) =true;
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.frequency_~=val_old;  % recompute the lookup table
@@ -140,13 +147,8 @@ classdef IX_doubledisk_chopper < serializable
 
         function obj=set.radius(obj,val)
             val_old = obj.radius_;
-            if isscalar(val) && isnumeric(val) && val>=0
-                obj.radius_=val;
-                obj.mandatory_field_set_(3) =true;
-            else
-                error('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
-                    'Disk chopper radius must be a numeric scalar greater or equal to zero')
-            end
+            obj = check_and_set_positive_scalar_(obj,'radius_',val);
+            obj.mandatory_field_set_(3) =true;
 
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
@@ -157,13 +159,8 @@ classdef IX_doubledisk_chopper < serializable
 
         function obj=set.slot_width(obj,val)
             val_old = obj.slot_width_;
-            if isscalar(val) && isnumeric(val) && val>=0
-                obj.slot_width_=val;
-                obj.mandatory_field_set_(4) =true;
-            else
-                error('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
-                    'Slot width must be a numeric scalar greater or equal to zero')
-            end
+            obj = check_and_set_positive_scalar_(obj,'slot_width_',val);
+            obj.mandatory_field_set_(4) =true;
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.slot_width_~=val_old;
@@ -173,13 +170,9 @@ classdef IX_doubledisk_chopper < serializable
 
         function obj=set.aperture_width(obj,val)
             val_old = obj.aperture_width_;
-            if isscalar(val) && isnumeric(val)
-                obj.aperture_width_defined_=true;
-                obj.aperture_width_=val;
-            else
-                error('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
-                    'Chopper aperture width must be a numeric scalar greater or equal to the slit width')
-            end
+            obj = check_and_set_positive_scalar_(obj,'aperture_width_',val);
+            obj.aperture_width_defined_=true;
+
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.aperture_width_~=val_old;
@@ -188,22 +181,12 @@ classdef IX_doubledisk_chopper < serializable
         end
 
         function obj=set.aperture_height(obj,val)
-            if isscalar(val) && isnumeric(val) && val>=0
-                obj.aperture_height_=val;
-            else
-                error('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
-                    'Chopper aperture height must be a numeric scalar greater or equal to zero')
-            end
+            obj = check_and_set_positive_scalar_(obj,'aperture_height_',val);
         end
 
         function obj=set.jitter(obj,val)
             val_old = obj.jitter_;
-            if isscalar(val) && isnumeric(val) && val>=0
-                obj.jitter_=val;
-            else
-                error('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
-                    'Timing jitter must be a numeric scalar greater or equal to zero')
-            end
+            obj = check_and_set_positive_scalar_(obj,'jitter_',val);
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
 
@@ -290,7 +273,16 @@ classdef IX_doubledisk_chopper < serializable
                     disp2str(mandatory_field_names), ...
                     disp2str(mandatory_field_names(~obj.mandatory_field_set_)));
             end
-
+            %
+            if obj.aperture_width_defined_
+                if obj.aperture_width_<obj.slot_width
+                    warning('HERBERT:IX_doubledisk_chopper:invalid_argument', ...
+                        'aperture_width=%g have been set smaller than the slot_width=%g. This is inorrect so will use slot_width as aperture_width',...
+                        obj.aperture_width_,obj.slod_width)
+                    obj.aperture_width = obj.slot_width;
+                    do_recompute_pdf= true;
+                end
+            end
 
             if ~exist('do_recompute_pdf','var')
                 do_recompute_pdf = true;

@@ -106,23 +106,24 @@ classdef IX_sample < IX_samp
                 obj = IX_sample.loadobj(varargin{1});
 
             elseif nargin>0
-                pos_params = obj.saveableFields();
-                % legacy interface to sample constructor (incomplete,
-                % lattice missing):
-                %namelist = {'name','single_crystal','xgeom','ygeom',...
-                %    'shape','ps','eta','temperature','hall_symbol'};
-                % new serializable parameters:
-                %pos_params = [baseflds(1:2), {'hall_symbol', 'single_crystal', ...
-                %    'xy_geom','shape', 'ps', 'eta', 'temperature',baseflds{end}}];
-                % rearrange serializable par to support old interface
-                pos_params = [{'xgeom'},{'ygeom'},pos_params(6:end-1),...
-                    pos_params(3:4),pos_params(1:2),pos_params(end)];
-                % process legacy name string at the beginning of the constructor
-                if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
+                % "name" processed separately in the interface
+                % distinguisher
+                interface1_par = {'single_crystal','xgeom','ygeom',...
+                    'shape','ps','eta','temperature','hall_symbol'};  
+                interface2_par = {'xgeom','ygeom',...
+                    'shape','ps','eta','temperature','hall_symbol'};
+                base_par =IX_samp.fields_to_save_;
+                % process deprecated interface where the value of "name" 
+                % property is first among the input arguments
+                arg1 = varargin{1};
+                if ischar(arg1)&&~strncmp(arg1,'-',1)&&...
+                    ~strcmp(arg1,'name')&&~ismember(arg1 ,interface1_par)
                     argi = varargin(2:end);
-                    obj.name = varargin{1};
+                    obj.name = arg1;
+                    pos_params = [interface1_par(:);base_par(:)]';
                 else
                     argi = varargin;
+                    pos_params = [interface2_par(:);base_par(:)]';                    
                 end
                 [obj,remains] = set_positional_and_key_val_arguments(obj,...
                     pos_params,true,argi{:});

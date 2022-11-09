@@ -110,7 +110,7 @@ classdef IX_fermi_chopper < serializable
                 % order of the positional parameters, if the parameters are
                 % provided without their names
                 pos_params = obj.saveableFields();
-                % process deprecated interface with "name" property to be
+                % process deprecated interface where the "name" property is
                 % first among the input arguments
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                     argi = varargin(2:end);
@@ -118,8 +118,11 @@ classdef IX_fermi_chopper < serializable
                 else
                     argi = varargin;
                 end
-                [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                    pos_params,true,argi{:});
+                % set positional parameters and key-value pairs and check their
+                % consistency using public setters interface. check_compo_arg
+                % after all settings have been done.
+                [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
+                    true,argi{:});
                 if ~isempty(remains)
                     error('HERBERT:IX_fermi_chopper:invalid_argument', ...
                         'Unrecognized extra parameters provided as input to IX_fermi_chopper constructor: %s',...

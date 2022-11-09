@@ -46,9 +46,9 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
             ws = warning('off','HERBERT:IX_doubledisk_chopper:deprecated');
             clOb = onCleanup(@()warning(ws));
             chop = IX_doubledisk_chopper ('Chopper_1',12,120,0.7,0.02,0.05);
-% 
-%             [~,mess_id] = lastwarn();
-%             assertEqual(mess_id,'HERBERT:IX_doubledisk_chopper:deprecated');
+            %
+            %             [~,mess_id] = lastwarn();
+            %             assertEqual(mess_id,'HERBERT:IX_doubledisk_chopper:deprecated');
 
             chop1 = IX_doubledisk_chopper (12,120,0.7,0.02,0.05,0,0,'Chopper_1');
             assertEqual(chop,chop1)
@@ -74,25 +74,56 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
 
         end
         %--------------------------------------------------------------------------
-        function test_prev_versions(obj)
-            % Scalar example
-            dd_chop = IX_doubledisk_chopper (12,120,0.7,0.02,0.05);
+        function test_prev_versions_array(obj)
+
+            % 2x2 array example
+            disk_arr = [IX_doubledisk_chopper(12,120,0.5,0.01,0.02),...
+                IX_doubledisk_chopper(12,120,0.5,0.01,0.04,3);...
+                IX_doubledisk_chopper(15,120,0.5,0.01),...
+                IX_doubledisk_chopper(122,120,0.5,0.01,0.03)];
+
+
             sample_files_location = obj.home_folder;
             if obj.save_output
                 % run test_IX_apperture with -save option to obtain reference
                 % files when changed to new class version
                 save_variables=true;
-                ver = dd_chop.classVersion();
+                ver = disk_arr.classVersion();
                 verstr = ['ver',num2str(ver)];
-                check_matfile_IO(verstr, save_variables, sample_files_location,dd_chop);
+                check_matfile_IO(verstr, save_variables, sample_files_location,disk_arr);
 
             else
                 save_variables=false;
+                verstr= 'ver0';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,disk_arr);
+
 
                 verstr= 'ver1';
-                check_matfile_IO(verstr, save_variables, sample_files_location ,dd_chop);
+                check_matfile_IO(verstr, save_variables, sample_files_location ,disk_arr);
             end
+        end
 
+        function test_prev_versions(obj)
+            % Scalar example
+            disk = IX_doubledisk_chopper(12,120,0.5,0.01);
+            %dd_chop = IX_doubledisk_chopper (12,120,0.7,0.02,0.05);
+            sample_files_location = obj.home_folder;
+            if obj.save_output
+                % run test_IX_apperture with -save option to obtain reference
+                % files when changed to new class version
+                save_variables=true;
+                ver = disk.classVersion();
+                verstr = ['ver',num2str(ver)];
+                check_matfile_IO(verstr, save_variables, sample_files_location,disk);
+
+            else
+                save_variables=false;
+                verstr= 'ver0';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,disk);
+
+                verstr= 'ver1';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,disk);
+            end
         end
 
     end

@@ -58,15 +58,20 @@ classdef IX_inst < serializable
                 % order of the positional parameters, if the parameters are
                 % provided without their names
                 pos_params = obj.saveableFields();
-                % process legacy name string at the beginning of the constructor
+                % process deprecated interface where the "name" property is
+                % first among the input arguments
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                     argi = varargin(2:end);
                     obj.name = varargin{1};
                 else
                     argi = varargin;
                 end
-                [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                    pos_params,true,argi{:});
+                % set positional parameters and key-value pairs and check their
+                % consistency using public setters interface. check_compo_arg
+                % after all settings have been done.
+                [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
+                    true,argi{:});
+
                 if ~isempty(remains)
                     error('HERBERT:IX_inst:invalid_argument', ...
                         'Unrecognized extra parameters provided as input to IX_sample constructor: %s',...

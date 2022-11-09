@@ -8,10 +8,11 @@ classdef IX_samp  < serializable
         angdeg_;
     end
 
-    properties (Access=private)
+    properties (Constant,Access=protected)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % require checks against the other properties
+        fields_to_save_ =  {'alatt', 'angdeg','name'};
     end
 
     properties
@@ -59,15 +60,19 @@ classdef IX_samp  < serializable
             % define parameters accepted by constructor as keys and also the
             % order of the positional parameters, if the parameters are
             % provided without their names
-            fields = obj.saveableFields();
+            pos_params = obj.saveableFields();
+            % process deprecated interface where the "name" property is
+            % first among the input arguments
             if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                 argi = varargin(2:end);
                 obj.name = varargin{1};
             else
                 argi = varargin;
             end
-
-            [obj,remains] = set_positional_and_key_val_arguments(obj,fields,...
+            % set positional parameters and key-value pairs and check their
+            % consistency using public setters interface. check_compo_arg
+            % after all settings have been done.
+            [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
                 false,argi{:});
         end
 
@@ -78,7 +83,7 @@ classdef IX_samp  < serializable
         end
 
         function flds = saveableFields(~)
-            flds = {'alatt', 'angdeg','name'};
+            flds =IX_samp.fields_to_save_;
         end
 
         %------------------------------------------------------------------

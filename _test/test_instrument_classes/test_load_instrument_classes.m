@@ -82,19 +82,6 @@ ok = matfile_IO (ver_str, save_variables, div, div_arr);
 assertTrue(ok,'Problems saving/reading divergence(s)')
 
 
-%--------------------------------------------------------------------------
-% Double disk chopper
-%--------------------
-% Scalar example
-disk = IX_doubledisk_chopper(12,120,0.5,0.01);
-
-% 2x2 array example
-disk_arr = [IX_doubledisk_chopper(12,120,0.5,0.01,0.02), IX_doubledisk_chopper(12,120,0.5,0.01,0.04,3);...
-    IX_doubledisk_chopper(15,120,0.5,0.01), IX_doubledisk_chopper(122,120,0.5,0.01,0.03)];
-
-% Test/save:
-ok = matfile_IO (ver_str, save_variables, disk, disk_arr);
-assertTrue(ok,'Problems saving/reading disk chopper(s)')
 
 
 %--------------------------------------------------------------------------
@@ -111,20 +98,6 @@ moderator_arr = [IX_moderator(15,30,'ikcarp',[5,25,0.13]), IX_moderator(12,23,'i
 ok = matfile_IO (ver_str, save_variables, moderator, moderator_arr);
 assertTrue(ok,'Problems saving/reading moderator(s)')
 
-
-%--------------------------------------------------------------------------
-% Sample
-%--------------------
-% Scalar example
-sample = IX_sample('Fe',true,[1,1,0],[0,1,3],'cuboid',[0.020,0.024,0.028]);
-
-% 1x2 array example
-sample_arr = [IX_sample('',false,[1,1,1],[0,1,1],'cuboid',[0.005,0.005,0.0005]),...
-    IX_sample('FeSi',true,[1,1,0],[0,1,3],'cuboid',[0.020,0.024,0.028],0.5,120)];
-
-% Test/save:
-ok = matfile_IO (ver_str, save_variables, sample, sample_arr);
-assertTrue(ok,'Problems saving/reading sample(s) ')
 
 
 
