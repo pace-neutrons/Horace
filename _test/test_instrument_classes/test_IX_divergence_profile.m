@@ -59,6 +59,7 @@ classdef test_IX_divergence_profile < TestCaseWithSave
             assertExceptionThrown(@()IX_divergence_profile (self.ang, ytmp,'in-pile'),...
                 'HERBERT:IX_divergence_profile:invalid_argument');
         end
+        %--------------------------------------------------------------------------
         function test_prev_versions_array(obj)
             angl = @(x0,n)(x0 + (1:n));
             val = @(n)([0, ones(1,n-2) + 0.02*(1:n-2), 0]);  % version 0 requires end points to be zero
@@ -90,7 +91,6 @@ classdef test_IX_divergence_profile < TestCaseWithSave
             end
 
         end
-        %--------------------------------------------------------------------------
         function test_prev_versions(obj)
             %--------------------------------------------------------------------------
             % Divergence

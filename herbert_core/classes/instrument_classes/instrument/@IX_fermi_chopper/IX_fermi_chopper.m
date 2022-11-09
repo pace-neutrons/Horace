@@ -110,8 +110,8 @@ classdef IX_fermi_chopper < serializable
                 % order of the positional parameters, if the parameters are
                 % provided without their names
                 pos_params = obj.saveableFields();
-                % process deprecated interface where the "name" property is
-                % first among the input arguments
+                % process deprecated interface where the "name" property
+                % value is first among the input arguments.
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                     argi = varargin(2:end);
                     obj.name = varargin{1};
