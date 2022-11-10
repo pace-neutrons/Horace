@@ -8,15 +8,16 @@ classdef IX_inst < serializable
         source_ = IX_source;    % Source (name, or class of type IX_source)
         valid_from_ = datetime(1900,01,01);
         valid_to_ = [];
+        % indicator for presence of a correct validity interval
         validity_date_set_ = false(1,2);
     end
 
     properties (Dependent)
         name ;          % Name of instrument (e.g. 'LET')
         source; % Source (name, or class of type IX_source)
-        % the date, instrument become valid
+        % the date, instrument with these settings become valid
         valid_from;
-        % the date, instrument stops beeing
+        % the date, instrument with these settings stops beeing valid
         valid_to;
     end
 
@@ -58,8 +59,8 @@ classdef IX_inst < serializable
                 % order of the positional parameters, if the parameters are
                 % provided without their names
                 pos_params = obj.saveableFields();
-                % process deprecated interface where the "name" property is
-                % first among the input arguments
+                % process deprecated interface where the "name" property
+                % value is first among the input arguments
                 if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
                     argi = varargin(2:end);
                     obj.name = varargin{1};
@@ -217,20 +218,27 @@ classdef IX_inst < serializable
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-            %{
-            if isobject(S)
-                obj = S;
-            else
-                obj = arrayfun(@(x)loadobj_private_(x), S);
-            end
-            %}
             obj = IX_inst();
+            %hack to recover creation date whatever it was previously set
+            % or not
+            default_from = obj.valid_from_;
+            default_to = obj.valid_to_;
+            obj.validity_date_set_ = true(1,2); % with this true, the code
+            % will try to recover validity dates but do nothing if not
+            % found these dates within the stored data.
+            %
             obj = loadobj@serializable(S,obj);
-
+            % check if validity dates were actually set and unset validity
+            % indicator if they were not.
+            if isequal(default_from,obj.valid_from_)
+                obj.validity_date_set_(1) = false;
+            end
+            if isequal(default_to,obj.valid_to_)
+                obj.validity_date_set_(2) = false;
+            end
         end
         %------------------------------------------------------------------
 
     end
     %======================================================================
-
 end

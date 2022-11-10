@@ -132,7 +132,6 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
                 verstr= 'ver1';
                 check_matfile_IO(verstr, save_variables, sample_files_location ,mod_sm);
             end
-
         end
         
     end

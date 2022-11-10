@@ -206,15 +206,13 @@ classdef test_IX_moderator < TestCaseWithSave
         end
         %--------------------------------------------------------------------------
         function test_prev_versions_array(obj)
-
-
             % 2x2 array example
             moderator_arr = [IX_moderator(15,30,'ikcarp',[5,25,0.13]), IX_moderator(12,23,'ikcarp',[5,25,0.13]);...
                 IX_moderator(115,300,'ikcarp',[15,25,0.13]), IX_moderator(125,10,'ikcarp',[5,25,0.13])];
 
             sample_files_location = obj.home_folder;
             if obj.save_output
-                % run test_IX_apperture with -save option to obtain reference
+                % run test_IX_moderator with -save option to obtain reference
                 % files when changed to new class version
                 save_variables=true;
                 ver = moderator_arr.classVersion();
@@ -232,7 +230,6 @@ classdef test_IX_moderator < TestCaseWithSave
                 verstr= 'ver0';
                 check_matfile_IO(verstr, save_variables, sample_files_location, ...
                     moderator_arr);
-
             end
         end
 
@@ -241,10 +238,9 @@ classdef test_IX_moderator < TestCaseWithSave
             % Scalar example
             moderator = IX_moderator(12,23,'ikcarp',[5,25,0.13]);
 
-
             sample_files_location = obj.home_folder;
             if obj.save_output
-                % run test_IX_apperture with -save option to obtain reference
+                % run test_IX_moderator with -save option to obtain reference
                 % files when changed to new class version
                 save_variables=true;
                 ver = moderator.classVersion();
