@@ -49,6 +49,7 @@ classdef test_IX_inst < TestCaseWithSave
         function test_create_DGfermi (self)
             % Test creation of Fermi instrument
             instru = IX_inst_DGfermi (self.mod_DGfermi, self.ap_DGfermi, self.chop_DGfermi);
+            instru.name='_'; % for compartibility with old classes where empty name was defined this way            
             assertEqualWithSave (self,instru,'',[1.e-12,1.e-9]);
         end
         
@@ -94,6 +95,7 @@ classdef test_IX_inst < TestCaseWithSave
             % Test creation of disk chopper instrument
             instru = IX_inst_DGdisk (self.mod_DGdisk, self.shape_DGdisk, self.mono_DGdisk,...
                 self.hdiv_DGdisk, self.vdiv_DGdisk);
+            instru.name='_'; % for compartibility with old classes where empty name was defined this way
             assertEqualWithSave (self,instru,'',[0,1.e-9]);
         end
         

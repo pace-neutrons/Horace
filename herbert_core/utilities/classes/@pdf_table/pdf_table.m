@@ -262,6 +262,9 @@ classdef pdf_table < serializable
             % the modern structure, this method needs the specific overloading
             % to allow loadobj to recover new structure from an old structure.
             inputs = convert_old_struct_(obj,inputs);
+            if isfield(inputs,'x')&&isempty(inputs.x)
+                return
+            end
             % optimization here is possible to not to use the public
             % interface. But is it necessary? its the question
             obj = from_old_struct@serializable(obj,inputs);

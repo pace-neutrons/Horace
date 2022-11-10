@@ -119,8 +119,8 @@ classdef IX_fermi_chopper < serializable
                     argi = varargin;
                 end
                 % set positional parameters and key-value pairs and check their
-                % consistency using public setters interface. check_compo_arg
-                % after all settings have been done.
+                % consistency using public setters interface. Run
+                % check_compo_arg after all settings have been done.
                 [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
                     true,argi{:});
                 if ~isempty(remains)

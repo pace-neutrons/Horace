@@ -180,10 +180,10 @@ classdef IX_inst < serializable
 
         function flds = saveableFields(obj)
             flds = {'source','name'};
-            if obj.validity_date_set_(1)
+            if obj(1).validity_date_set_(1)
                 flds = [flds(:),'valid_from'];
             end
-            if obj.validity_date_set_(2)
+            if obj(1).validity_date_set_(2)
                 flds = [flds(:),'valid_to'];
             end
         end
