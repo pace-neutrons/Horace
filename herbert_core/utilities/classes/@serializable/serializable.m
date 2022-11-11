@@ -56,9 +56,10 @@ classdef (Abstract=true) serializable
         % the older version, so version substitution is based on this
         % number
         ver  = classVersion(obj);
-        % get fields, which fully define the state of a serializable object,
-        % so when the field values are stored on disk
-        % the object can be properly restored from these values.
+        % Return cellarray of public property names, which fully define
+        % the state of a serializable object, so when the field values are
+        % provided, the object can be fully restored from these values.
+        %
         flds = saveableFields(obj);
     end
     % To support old class versions, generic static loadobj has to be
@@ -331,6 +332,10 @@ classdef (Abstract=true) serializable
     end
     methods(Access=protected)
         function obj = set_do_check_combo_arg(obj,val)
+            % overloadable setters for checking interdependent properties.
+            % May be overloaded by children for example to change the check
+            % in compositing properties which values are in turn
+            % serializable
             obj.do_check_combo_arg_ = logical(val);
         end
         %------------------------------------------------------------------

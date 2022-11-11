@@ -379,9 +379,9 @@ classdef IX_fermi_chopper < serializable
             end
             if obj.slit_width_>obj.slit_spacing_
                 error('HERBERT:IX_fermi_chopper:invalid_argument', ...
-                    'Slit width= %g  and must be less than or equal to the slit spacing= %g',obj.slit_width_)
+                    'Slit width= %g  and must be less than or equal to the slit spacing= %g', ...
+                    obj.slit_width_)
             end
-
 
             if ~all(obj.mandatory_field_set_)
                 mandatory_field_names = obj.saveableFields('mandatory');

@@ -306,7 +306,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_you_can_take_an_out_of_memory_cut_with_tmp_files_with_mex(obj)
-            skipTest('Ticker #896 mex cutting is disabled for the time being')
+            skipTest('Ticket #896: mex cutting is disabled for the time being')
             mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup_config = set_temporary_config_options( ...
