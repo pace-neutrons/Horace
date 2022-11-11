@@ -1,11 +1,9 @@
-function [ok,mess,val_out,S,V] = check_mosaic_matrix (val)
+function [val_out,S,V] = check_mosaic_matrix (val)
 % Check argument is valid scalar, vector, or 3x3 matrix that describes the
 % covariance of the mosaic about three orthonormal axes.
 % Actually, the arguments are FWHH not standard deviations, (FWHH^2 not
 % covariances in the case of a matrix)
 
-ok = true;
-mess = '';
 if isnumeric(val)
     if isscalar(val) && val>=0
         val_out = val;
@@ -25,22 +23,18 @@ if isnumeric(val)
             if all(S>=0)
                 return
             else
-                ok = false;
-                mess = 'The mosaic matrix must be positive definite';
-                val_out = []; S = []; V = [];
+                error('HERBERT:IX_mosaic:invalid_argument',...
+                    'The mosaic matrix must be positive definite');
             end
         else
-            ok = false;
-            mess = 'The mosaic matrix must be symmetric';
-            val_out = []; S = []; V = [];
+            error('HERBERT:IX_mosaic:invalid_argument',...
+                'The mosaic matrix must be symmetric');
         end
     else
-        ok = false;
-        mess = 'The mosaic must be a positive scalar, positive 3-vector, or a 3x3 positive definite matrix';
-        val_out = []; S = []; V = [];
+        error('HERBERT:IX_mosaic:invalid_argument',...
+            'The mosaic must be a positive scalar, positive 3-vector, or a 3x3 positive definite matrix');
     end
 else
-    ok = false;
-    mess = 'The mosaic must be a positive scalar, positive 3-vector, or a 3x3 positive definite matrix';
-    val_out = []; S = []; V = [];
+    error('HERBERT:IX_mosaic:invalid_argument',...
+        'The mosaic must be a positive scalar, positive 3-vector, or a 3x3 positive definite matrix');
 end

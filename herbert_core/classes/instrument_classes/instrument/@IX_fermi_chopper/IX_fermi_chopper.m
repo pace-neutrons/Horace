@@ -340,8 +340,32 @@ classdef IX_fermi_chopper < serializable
 
             pdf = self.pdf_;
         end
-
+    end
+    methods
+        % SERIALIZABLE INTERFACE
         %------------------------------------------------------------------
+        function ver = classVersion(~)
+            ver = 2;
+        end
+
+        function flds = saveableFields(~,mandatory)
+            % Return cellarray of independent properties of the class
+            %
+            % If "mandatory" key is provided, return the subset of values
+            % necessary for non-empty class to be defined
+            if nargin>1
+                mandatory = true;
+            else
+                mandatory = false;
+            end
+            flds = {'distance','frequency','radius','curvature','slit_width',...
+                'slit_spacing','width','height','energy',...
+                'phase','jitter','name'};
+            if mandatory
+                flds = flds(1:5);
+            end
+        end
+
         function obj = check_combo_arg(obj,do_recompute_pdf)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
@@ -370,27 +394,6 @@ classdef IX_fermi_chopper < serializable
             if do_recompute_pdf
                 obj.pdf_ = recompute_pdf_(obj);   % recompute the lookup table
             end
-        end
-        function flds = saveableFields(~,mandatory)
-            % Return cellarray of independent properties of the class
-            %
-            % If "mandatory" key is provided, return the subset of values
-            % necessary for non-empty class to be defined
-            if nargin>1
-                mandatory = true;
-            else
-                mandatory = false;
-            end
-            flds = {'distance','frequency','radius','curvature','slit_width',...
-                'slit_spacing','width','height','energy',...
-                'phase','jitter','name'};
-            if mandatory
-                flds = flds(1:5);
-            end
-        end
-
-        function ver = classVersion(~)
-            ver = 2;
         end
     end
     methods(Access=protected)
@@ -426,8 +429,6 @@ classdef IX_fermi_chopper < serializable
             obj = loadobj@serializable(S,obj);
         end
         %------------------------------------------------------------------
-
     end
     %======================================================================
-
 end
