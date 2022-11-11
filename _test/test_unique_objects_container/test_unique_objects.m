@@ -96,7 +96,10 @@ classdef test_unique_objects < TestCase
         %----------------------------------------------------------------
         function test_add_different_types(~)
             disp('Test: test_add_different_types');
-            disp('NB This test WILL emit a warning');
+            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+            clOb = onCleanup(@()warning(ws));
+            
+
             mi1 = merlin_instrument(180, 600, 'g'); 
             sm1 = IX_null_sample();
             uoc = unique_objects_container('type','{}');
@@ -108,8 +111,12 @@ classdef test_unique_objects < TestCase
             assertEqual( sm1, uoc.get(2) );
             voc = unique_objects_container('type','{}','baseclass','IX_inst');
             [voc,nuix] = voc.add(mi1);
+           
             assertTrue( nuix>0 );
             [voc,nuix] = voc.add(sm1);
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
+            
             assertFalse( nuix>0 );
             assertEqual( numel(voc.stored_objects), 1);
             assertEqual( numel(voc.idx), 1);
@@ -142,8 +149,10 @@ classdef test_unique_objects < TestCase
         end
         %----------------------------------------------------------------
         function test_constructor_arguments(~)
-            disp('Test: test_constructor_arguments');
-            disp('NB This test WILL emit warningS');
+            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+            clOb = onCleanup(@()warning(ws));
+            
+            
             f = @() unique_objects_container();
             assertExceptionThrown(f, 'HORACE:unique_objects_container:invalid_argument',...
                                      'constructor must specify minimum arguments');
@@ -155,7 +164,10 @@ classdef test_unique_objects < TestCase
             assertEqual( numel(uoc.stored_objects), 2);
             uoc = unique_objects_container('type','{}','baseclass','IX_inst');
             uoc = uoc.add(mi1);
+            
             uoc = uoc.add(sm1);
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')            
             assertEqual( numel(uoc.stored_objects), 1);
             %{
             Turns out that hashes are not portable between all Matlab
@@ -167,6 +179,9 @@ classdef test_unique_objects < TestCase
             assertEqual( u1, uoc.stored_hashes(1,:) );
             %}
             uoc = unique_objects_container('type','{}','baseclass','IX_inst','convert_to_stream',@hlp_serialise);
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
+            
             uoc = uoc.add(mi1);
             uoc = uoc.add(sm1);
             assertEqual( numel(uoc.stored_objects), 1);
@@ -179,6 +194,9 @@ classdef test_unique_objects < TestCase
             assertEqual( u1, uoc.stored_hashes(1,:) );
             %}
             uoc = unique_objects_container('type','{}','convert_to_stream',@hlp_serialise,'baseclass','IX_inst');
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
+            
             uoc = uoc.add(mi1);
             uoc = uoc.add(sm1);
             assertEqual( numel(uoc.stored_objects), 1);
@@ -194,9 +212,11 @@ classdef test_unique_objects < TestCase
         end
         
         function test_subscripting(~)
+            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+            clOb = onCleanup(@()warning(ws));
             % repeats test_constructor_arguments using subscripting
             disp('Test: test_constructor_arguments');
-            disp('NB This test WILL emit warningS');
+
             f = @() unique_objects_container();
             assertExceptionThrown(f, 'HORACE:unique_objects_container:invalid_argument','mymessage');
             mi1 = merlin_instrument(180, 600, 'g'); 
@@ -208,6 +228,8 @@ classdef test_unique_objects < TestCase
             uoc = unique_objects_container('type','{}','baseclass','IX_inst');
             uoc{1} = mi1;
             uoc{2} = sm1;
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
             assertEqual( numel(uoc.stored_objects), 1);
             %{
             Turns out that hashes are not portable between all Matlab
@@ -277,9 +299,12 @@ classdef test_unique_objects < TestCase
             assertEqual( numel(uoc.stored_objects),2);            
             assertEqual( uoc.n_duplicates(1),1);
             uoc{3} = IX_null_inst();
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
+            
             assertEqual( numel(uoc.stored_objects),2);            
             assertEqual( uoc.n_duplicates(1),0);         
-            uoc
+
         end
     end
 end
