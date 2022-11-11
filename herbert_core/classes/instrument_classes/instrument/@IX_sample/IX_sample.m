@@ -109,21 +109,24 @@ classdef IX_sample < IX_samp
                 % "name" processed separately in the interface
                 % distinguisher
                 interface1_par = {'single_crystal','xgeom','ygeom',...
-                    'shape','ps','eta','temperature','hall_symbol'};  
+                    'shape','ps','eta','temperature','hall_symbol'};
                 interface2_par = {'xgeom','ygeom',...
                     'shape','ps','eta','temperature','hall_symbol'};
                 base_par =IX_samp.fields_to_save_;
-                % process deprecated interface where the value of "name" 
+                % process deprecated interface where the value of "name"
                 % property is first among the input arguments
                 arg1 = varargin{1};
                 if ischar(arg1)&&~strncmp(arg1,'-',1)&&...
-                    ~strcmp(arg1,'name')&&~ismember(arg1 ,interface1_par)
+                        ~strcmp(arg1,'name')&&~ismember(arg1 ,interface1_par)
                     argi = varargin(2:end);
                     obj.name = arg1;
                     pos_params = [interface1_par(:);base_par(:)]';
+                elseif islogical(arg1)
+                    pos_params = [interface1_par(:);base_par(:)]';
+                    argi = varargin;
                 else
                     argi = varargin;
-                    pos_params = [interface2_par(:);base_par(:)]';                    
+                    pos_params = [interface2_par(:);base_par(:)]';
                 end
                 [obj,remains] = set_positional_and_key_val_arguments(obj,...
                     pos_params,true,argi{:});
