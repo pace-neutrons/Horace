@@ -52,9 +52,9 @@ sproj = obj.data.proj;
 saxes = obj.data.axes;
 [bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,saxes,targ_axes,targ_proj);
 if isempty(bloc_starts)
-    if log_level >= 1
-        report_cut_type(obj,false,keep_pixels,'no_pixels');
-    end
+
+    report_cut_type(obj,log_level-1,false,keep_pixels,'no_pixels');
+
     % No pixels in range, we can return early
     pix_out = PixelData();
     unique_runid = [];
@@ -98,9 +98,9 @@ else
     keep_precision = true;
 end
 %
-if log_level >= 1
-    pixel_contrib_name = report_cut_type(obj,use_tmp_files,keep_pixels);
-end
+
+pixel_contrib_name = report_cut_type(obj,log_level,use_tmp_files,keep_pixels);
+
 
 if num_chunks == 1
     block_chunk = block_chunks{1};
@@ -214,7 +214,7 @@ tmp_file_names = gen_unique_file_paths(nfiles, 'horace_cut', wk_dir);
 pci = pix_combine_info(tmp_file_names, nbins);
 end
 %
-function pixel_contrib_name= report_cut_type(obj,use_tmp_files,keep_pixels,no_pixels)
+function pixel_contrib_name= report_cut_type(obj,log_level,use_tmp_files,keep_pixels,no_pixels)
 % Routine prints the information about the cut type and how it would be
 % done to inform user about the intended cut and expected results.
 %
@@ -238,7 +238,8 @@ else
     pix_state = 'dropped';
     pixel_contrib_name ='included';
 end
-if nargin == 4  % no pixels contributed in the cut
+
+if nargin == 4  && log_level > 1 % no pixels contributed in the cut
     if use_tmp_files
         fprintf('*** Cutting sqw object %s; returning result %s --> ignored as cut contains no pixels\n',...
             obj_type,target);
