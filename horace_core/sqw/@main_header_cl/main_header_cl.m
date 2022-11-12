@@ -89,30 +89,24 @@ classdef main_header_cl < serializable
             switch nargin
                 case 0
                     return;
-
                 case 1
                     arg = varargin{1};
 
                     if isa(arg,'main_header')
                         obj = arg;
-
                     elseif isstruct(arg)
                         obj = serializable.from_struct(arg,obj);
                         if isfield(arg,'filename_with_cdate')
                             obj.filename_with_cdate = arg.filename_with_cdate;
                         end
-
                     elseif ischar(arg)
                         obj.filename = arg;
-
                     else
                         error('HORACE:main_header:invalid_argument',...
                             'Can not construct main header from parameter %s',...
                             evalc('disp(arg))'))
                     end
-
                 otherwise
-
                     param_names_list = obj.saveableFields();
                     [obj,remains] = obj.set_positional_and_key_val_arguments(...
                         param_names_list(1:4),false,varargin{:});

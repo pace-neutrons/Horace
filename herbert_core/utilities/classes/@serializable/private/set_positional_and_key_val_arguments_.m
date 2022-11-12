@@ -43,7 +43,8 @@ if nargin == 1
     return;
 end
 obj.do_check_combo_arg_ = false;
-[obj,remains,key_num,val_num,is_positional,argi] = parse_keyval_argi(obj,positional_arg_names,suport_dashed_keys,varargin{:});
+[obj,remains,key_num,val_num,is_positional,argi] = parse_keyval_argi(obj, ...
+    positional_arg_names,suport_dashed_keys,varargin{:});
 
 
 % process positional arguments
@@ -72,7 +73,7 @@ function [obj,remains,key_pos,val_pos,is_positional,argi] = parse_keyval_argi( .
 % find keys, corresponding to key arguments and set up object to the values
 % which follow the keys in the cellarray of input arguments
 %
-[is_key,deprecated_fields,argi] = is_char_key_member(arg_names,support_dash_option,varargin{:});
+[is_key,deprecated_fields,argi] = is_char_key_member(obj,arg_names,support_dash_option,varargin{:});
 if support_dash_option
     if ~isempty(deprecated_fields)
         warning('HORACE:serializable:deprecated',...
@@ -81,8 +82,6 @@ if support_dash_option
             'This syntax is deprecated. Provide these keys without "-" prefix in the beginning'], ...
             class(obj),disp2str(deprecated_fields));
     end
-else
-    argi = varargin;
 end
 
 
@@ -108,7 +107,7 @@ end
 is_key(val_pos) = true;
 remains = varargin(~is_key & ~is_positional);
 
-function [is,deprecated_fields,argi] = is_char_key_member(key_list,support_dash,varargin)
+function [is,deprecated_fields,argi] = is_char_key_member(obj,key_list,support_dash,varargin)
 % identify character keys belonging to the provided cellarray within the list of
 % the inputs parameters
 %
@@ -117,22 +116,43 @@ deprecated_fields = {};
 if support_dash
     is_deprecated = false(1,numel(varargin));
 end
+in_pos_parameters = true;
 
 argi = varargin;
 for i=1:numel(varargin)
-    par = varargin{i};
-    if ~(ischar(par)||isstring(par))
+    comp_base = 4; % define minimal number of letters in abbreviation plus 1
+    par = varargin{i}; 
+    if ~(ischar(par)||isstring(par)) % key can only be char, this is value
         continue;
     end
+    if in_pos_parameters
+        % character parameter may be a key for some property or character value
+        % for a char positional parameter
+        if i>numel(key_list)
+            in_pos_parameters = false;
+        else
+            % key has char value, so we assume that this is value, not a
+            % key, unless the key preceeded with '-'
+            if ischar(obj.(key_list{i})) || isstring(obj.(key_list{i}))
+                if strncmp(par,'-',1)
+                    par = extractAfter(par,1);
+                else % let it can be still the key but need full
+                    % coincidence with some key name
+                    comp_base = inf;
+                end
+            end
+        end
+    end
+    %
     if support_dash
-        is_key = cellfun(@(x)compare_par(par,x),key_list);
-        is_depr_key = cellfun(@(x)strncmp(par,['-',x],numel(par)),key_list);
+        is_key = cellfun(@(x)compare_par(par,x,comp_base),key_list);
+        is_depr_key = cellfun(@(x)compare_par(par,['-',x],comp_base+1),key_list);
         if any(is_depr_key)
             is_deprecated(i) = true;
         end
         is_key = is_key|is_depr_key;
     else
-        is_key = cellfun(@(x)compare_par(par,x),key_list);
+        is_key = cellfun(@(x)compare_par(par,x,comp_base),key_list);
     end
     found = sum(is_key);
     if found>1
@@ -145,11 +165,18 @@ for i=1:numel(varargin)
         if support_dash && any(is_deprecated)
             deprecated_fields = varargin(is_deprecated);
         end
+        in_pos_parameters = false;
     end
 end
 
-function eq = compare_par(par,key)
-if numel(par) <= 2 % let's prohibit keyword abbreviateion to less then 3 symbols.
+function eq = compare_par(par,key,min_comp)
+% let's prohibit keyword abbreviateion to less then specified number of symbols.
+if isinf(min_comp)
+    comp_base  = numel(key);
+else
+    comp_base  = min(min_comp,numel(key));
+end
+if numel(par) < comp_base
     eq = false;
     return;
 end
