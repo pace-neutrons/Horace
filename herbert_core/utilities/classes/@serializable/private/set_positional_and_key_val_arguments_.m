@@ -125,14 +125,14 @@ for i=1:numel(varargin)
         continue;
     end
     if support_dash
-        is_key = cellfun(@(x)(strncmp(par,x,numel(par))),key_list);
+        is_key = cellfun(@(x)compare_par(par,x),key_list);
         is_depr_key = cellfun(@(x)strncmp(par,['-',x],numel(par)),key_list);
         if any(is_depr_key)
             is_deprecated(i) = true;
         end
         is_key = is_key|is_depr_key;
     else
-        is_key = cellfun(@(x)strncmp(par,x,numel(par)),key_list);
+        is_key = cellfun(@(x)compare_par(par,x),key_list);
     end
     found = sum(is_key);
     if found>1
@@ -148,3 +148,9 @@ for i=1:numel(varargin)
     end
 end
 
+function eq = compare_par(par,key)
+if numel(par) <= 2 % let's prohibit keyword abbreviateion to less then 3 symbols.
+    eq = false;
+    return;
+end
+eq = strncmp(par,key,numel(par));
