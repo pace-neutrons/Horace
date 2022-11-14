@@ -197,8 +197,21 @@ for i=1:numel(ind)
 
     % Run and detector for each pixel
     run_idx = win(i).pix.run_idx';   % column vector
-    runid_map = win(i).experiment_info.runid_map;
-    irun = arrayfun(@(idx)runid_map(idx),run_idx);
+    max_irun = max(run_idx);
+    if max_irun>win(i).main_header.nfiles
+        rmp = win(i).runid_map;
+        runid_array = rmp.keys;  runid_array = [runid_array{:}];
+        runid_val   = rmp.values;runid_val   = [runid_val{:}];
+        max_id = max(runid_array);
+        min_id = min(runid_array)-1;        
+        lookup_ind = inf(max_id-min_id+1,1);     
+        lookup_ind(runid_array-min_id) = runid_val;
+        irun   = lookup_ind(run_idx-min_id);
+        %irun = arrayfun(@(idx)runid_map(idx),run_idx);        
+    end
+    
+
+
     idet = win(i).pix.detector_idx';   % column vector
     npix = win(i).pix.num_pixels;
 

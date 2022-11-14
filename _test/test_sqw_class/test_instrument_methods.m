@@ -85,6 +85,7 @@ classdef test_instrument_methods < TestCaseWithSave
             wnew_fe = set_instrument(self.w_fe, self.inst_1);
             
             pp = [100, 200, 0.7];
+            skipTest('set_mod_pulse is currently disabled. Ticket #899')            
             wnew_fe = set_mod_pulse(wnew_fe, 'ikcarp', pp);
             
             [~, pp] = get_mod_pulse(wnew_fe);
@@ -99,6 +100,7 @@ classdef test_instrument_methods < TestCaseWithSave
             % Set mod pars individually and test enquiry
             wnew_fe = set_instrument(self.w_fe,self.inst_1);
             
+            skipTest('set_mod_pulse is currently disabled. Ticket #899')
             pp = [100, 200, 0.7];
             pp = repmat(pp, 120, 1);
             pp(100, :) = [100, 386, 0.7];  % so pp(2) average is 201.55

@@ -12,7 +12,8 @@ classdef test_ortho < TestCase
         end
         function test_ortho_throws_on_zero(~)        
             u = [0,0,0];
-            assertExceptionThrown(@()ortho_vec(u),'HERBERT:ortho_vec:invalid_argument')
+            assertExceptionThrown(@()ortho_vec(u), ...
+                'HERBERT:ortho_vec:invalid_argument');
         end
         
         function test_ortho_1m22(~)        
