@@ -207,7 +207,9 @@ for i=1:numel(ind)
         lookup_ind = inf(max_id-min_id+1,1);     
         lookup_ind(runid_array-min_id) = runid_val;
         irun   = lookup_ind(run_idx-min_id);
-        %irun = arrayfun(@(idx)runid_map(idx),run_idx);        
+        %irun = arrayfun(@(idx)runid_map(idx),run_idx);  
+    else
+        irun = run_idx;
     end
     
 
