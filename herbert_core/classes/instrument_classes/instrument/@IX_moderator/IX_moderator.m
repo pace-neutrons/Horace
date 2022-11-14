@@ -126,6 +126,20 @@ classdef IX_moderator < serializable
             end
         end
         %------------------------------------------------------------------
+        function obj=set_mod_pulse(obj,pulse_model,pmp)
+            old_check = obj.do_check_combo_arg_;
+            old_pm = obj.pulse_model;
+            old_pp = obj.pp;
+            obj.do_check_combo_arg_ = false;            
+            obj.pulse_model = pulse_model;
+            obj.pp  = pmp;
+            obj.do_check_combo_arg_ = old_check;
+            if obj.do_check_combo_arg_ 
+                recompute_pdf = ~(isequal(old_pm,obj.pulse_model)&&isequal(old_pp,obj.pp));
+                obj = obj.check_combo_arg(recompute_pdf);
+            end
+        end
+        %------------------------------------------------------------------
         % Set methods for dependent properties
         %
         % The checks on type, size etc. are performed in the set methods
@@ -158,8 +172,7 @@ classdef IX_moderator < serializable
                 error('IX_moderator:invalid_argument',...
                     'Moderator face angle must be a numeric scalar')
             end
-        end
-
+        end        
         function obj=set.pulse_model(obj,val)
             obj = check_and_set_pulse_model_(obj,val);
         end
@@ -245,6 +258,9 @@ classdef IX_moderator < serializable
         function val=get.energy(obj)
             val=obj.energy_;
         end
+    end
+    methods
+        % SERIALIZABLE INTERFACE
         %------------------------------------------------------------------
         function ver = classVersion(~)
             ver = 2;

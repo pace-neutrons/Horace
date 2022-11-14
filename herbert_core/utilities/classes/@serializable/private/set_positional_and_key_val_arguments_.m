@@ -34,7 +34,7 @@ function  [obj,remains] = set_positional_and_key_val_arguments_(obj,...
 % Then the list of input parameters
 % set_positional_and_key_val_arguments(1,'blabla',an_sqw_obj,'blabla','a4',[1,0,0],'cccc','a3',[1,1,0])
 % sets up the three first argument as positional parameters, for properties
-% a1,a2 and a3, a4 are set as postional arguments and 'a3' and 'a4' are
+% a1,a2 and a3, a4 are set as positional arguments and 'a3' and 'a4' are
 % reset as key-value pair after this. `cccc` is returned in remains
 %
 
@@ -49,6 +49,11 @@ obj.do_check_combo_arg_ = false;
 
 % process positional arguments
 if any(is_positional)
+    if sum(is_positional)> numel(positional_arg_names)
+        error('HERBERT:serializable:invalid_argument',...
+            'More positional arguments identified (%d) then properties values required (%d). Some keys have identified as property values',...
+            sum(is_positional),numel(positional_arg_names))
+    end
     pos_arg_val = argi(is_positional);
     pos_arg_names = positional_arg_names(1:numel(pos_arg_val));
     % Extract and set up positional arguments, which should always come
@@ -119,58 +124,72 @@ end
 in_pos_parameters = true;
 
 argi = varargin;
+prev_input_is_key = false;
 for i=1:numel(varargin)
-    comp_base = 4; % define minimal number of letters in abbreviation plus 1
-    par = varargin{i}; 
+    min_comp_base = 4; % define minimal number of letters in abbreviation plus 1
+    par = varargin{i};
+    if in_pos_parameters % check if we have not exceeded the range of positional parameters
+        in_pos_parameters = i<=numel(key_list);
+    end
     if ~(ischar(par)||isstring(par)) % key can only be char, this is value
+        prev_input_is_key = false;
+        continue;
+    end
+    if prev_input_is_key
+        prev_input_is_key = false;
         continue;
     end
     if in_pos_parameters
         % character parameter may be a key for some property or character value
         % for a char positional parameter
-        if i>numel(key_list)
-            in_pos_parameters = false;
-        else
-            % key has char value, so we assume that this is value, not a
-            % key, unless the key preceeded with '-'
-            if ischar(obj.(key_list{i})) || isstring(obj.(key_list{i}))
-                if strncmp(par,'-',1)
-                    par = extractAfter(par,1);
-                else % let it can be still the key but need full
-                    % coincidence with some key name
-                    comp_base = inf;
-                end
+
+        % if char value starts with '-' its probablyt a key
+        if ischar(obj.(key_list{i})) || isstring(obj.(key_list{i}))
+            if strncmp(par,'-',1)
+                par = extractAfter(par,1);
+            else % if it not starts with '-' and can be still the key so we
+                %  need full comparison with some key name
+                min_comp_base = inf;
             end
         end
+
     end
     %
     if support_dash
-        is_key = cellfun(@(x)compare_par(par,x,comp_base),key_list);
-        is_depr_key = cellfun(@(x)compare_par(par,['-',x],comp_base+1),key_list);
+        is_key = cellfun(@(x)compare_par(par,x,min_comp_base),key_list);
+        is_depr_key = cellfun(@(x)compare_par(par,['-',x],min_comp_base+1),key_list);
         if any(is_depr_key)
             is_deprecated(i) = true;
         end
         is_key = is_key|is_depr_key;
     else
-        is_key = cellfun(@(x)compare_par(par,x,comp_base),key_list);
+        is_key = cellfun(@(x)compare_par(par,x,min_comp_base),key_list);
     end
     found = sum(is_key);
     if found>1
         error('HERBERT:serializable:invalid_argument',...
-            ' Input key N%d (%s) can non-uniquely define more then one possible propeties: [%s].\n Can not interpret this key',...
+            ' Input key N%d (%s) can non-uniquely define more then one possible properties: [%s].\n Can not interpret this key',...
             i,par,disp2str(key_list(is_key)));
     elseif found == 1
+        if prev_input_is_key
+            error('HERBERT:serializable:invalid_argument',...
+                'Two input parameters in a row (N%d and N%d) are identified as keys: (%s and %s). Something is wrong',...
+                i-1,i,argi{i-1},key_list{is_key})
+        end
+        prev_input_is_key = true;
+        in_pos_parameters = false; % first key indicates that positional parameters have been finished
         is(i) = true;
         argi{i}= key_list{is_key};
         if support_dash && any(is_deprecated)
             deprecated_fields = varargin(is_deprecated);
         end
-        in_pos_parameters = false;
+    else
+        prev_input_is_key = false;
     end
 end
 
 function eq = compare_par(par,key,min_comp)
-% let's prohibit keyword abbreviateion to less then specified number of symbols.
+% let's prohibit keyword abbreviation to less then specified number of symbols.
 if isinf(min_comp)
     comp_base  = numel(key);
 else

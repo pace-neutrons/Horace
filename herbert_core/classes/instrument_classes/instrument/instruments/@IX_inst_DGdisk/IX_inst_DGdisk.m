@@ -13,7 +13,7 @@ classdef IX_inst_DGdisk < IX_inst
 
     properties (Dependent)
         mod_shape_mono  % Moderator-shaping chopper-monochromating chopper combination
-        moderator       % Moderator (object of class IX_moderator)
+
         shaping_chopper % Moderator shaping chopper (object of class IX_doubledisk_chopper)
         mono_chopper    % Monochromating chopper (object of class IX_doubledisk_chopper)
         horiz_div       % Horizontal divergence lookup (object of class IX_divergence profile)
@@ -56,7 +56,7 @@ classdef IX_inst_DGdisk < IX_inst
             elseif nargin>0
                 % define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
-                % provided without their names                
+                % provided without their names
                 accept_params = {'moderator','shaping_chopper','mono_chopper',...
                     'horiz_div','vert_div','energy','name','source',...
                     'valid_from','valid_to','mod_shape_mono'};
@@ -120,17 +120,8 @@ classdef IX_inst_DGdisk < IX_inst
 
         end
         %------------------------------------------------------------------
-        function obj=set.moderator(obj,val)
-            obj.mod_shape_mono_.do_check_combo_arg = false;
-            obj.mod_shape_mono_.moderator = val;
-            obj.mandatory_mod_fields_(1) =true;
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
-
-        end
         function obj=set.shaping_chopper(obj,val)
-            obj.mod_shape_mono_.do_check_combo_arg = false;            
+            obj.mod_shape_mono_.do_check_combo_arg = false;
             obj.mod_shape_mono_.shaping_chopper = val;
             obj.mandatory_mod_fields_(2) =true;
             if obj.do_check_combo_arg_
@@ -139,7 +130,7 @@ classdef IX_inst_DGdisk < IX_inst
 
         end
         function obj=set.mono_chopper(obj,val)
-            obj.mod_shape_mono_.do_check_combo_arg = false;            
+            obj.mod_shape_mono_.do_check_combo_arg = false;
             obj.mod_shape_mono_.mono_chopper = val;
             obj.mandatory_mod_fields_(3) =true;
             if obj.do_check_combo_arg_
@@ -158,9 +149,6 @@ classdef IX_inst_DGdisk < IX_inst
             val = obj.mod_shape_mono_;
         end
 
-        function val=get.moderator(obj)
-            val = obj.mod_shape_mono_.moderator;
-        end
 
         function val=get.shaping_chopper(obj)
             val = obj.mod_shape_mono_.shaping_chopper;
@@ -186,6 +174,20 @@ classdef IX_inst_DGdisk < IX_inst
     end
 
     methods(Access=protected)
+        function val = get_moderator(obj)
+            % overloadable moderator getter
+            val = obj.mod_shape_mono_.moderator;
+        end
+        function obj = set_moderator(obj,val)
+            % overloadable moderator setter
+            obj.mod_shape_mono_.do_check_combo_arg = false;
+            obj.mod_shape_mono_.moderator = val;
+            obj.mandatory_mod_fields_(1) =true;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the
@@ -203,7 +205,6 @@ classdef IX_inst_DGdisk < IX_inst
             % optimization here is possible to not to use the public
             % interface. But is it necessary? its the question
             obj = from_old_struct@serializable(obj,inputs);
-
         end
     end
     methods
@@ -242,7 +243,7 @@ classdef IX_inst_DGdisk < IX_inst
             % verify the validity of mono_shape_mono moderator
             mcm = obj.mod_shape_mono;
             mcm.do_check_combo_arg = true;
-            obj.mod_shape_mono_ = mcm.check_combo_arg();            
+            obj.mod_shape_mono_ = mcm.check_combo_arg();
         end
     end
     %======================================================================

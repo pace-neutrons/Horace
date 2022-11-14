@@ -16,20 +16,20 @@ classdef test_serializable_class < TestCase
         end
         function test_partial_match_works(~)
             tob = serializableTesterWithInterdepProp(0.5,1,2, ...
-                'partial_match_1',20,'partial_match_3',11);            
+                'partial_match_1',20,'partial_match_3',11);
 
             assertEqual(tob.Prop_class2_1,0.5)
             assertEqual(tob.Prop_class2_2,1)
             assertEqual(tob.Prop_class2_3,2)
             assertEqual(tob.partial_match_1_blue,20)
             assertTrue(isempty(tob.partial_match_2_green))
-            assertEqual(tob.partial_match_3_yellow,11)            
+            assertEqual(tob.partial_match_3_yellow,11)
         end
-        
+
         function test_partial_match_multi_throw(~)
             assertExceptionThrown(@()serializableTesterWithInterdepProp(10,1,0, ...
                 'partial_match',20,'partial_match',11),...
-                'HERBERT:serializable:invalid_argument');            
+                'HERBERT:serializable:invalid_argument');
         end
         function test_right_inderdep_prop_pass(~)
             tob = serializableTesterWithInterdepProp(10,1,0, ...
@@ -575,9 +575,12 @@ classdef test_serializable_class < TestCase
                 'Prop_class2_2'),'HERBERT:serializable:invalid_argument');
         end
 
-        function test_keyval_constructor_nokey_throws(~)
-            assertExceptionThrown(@()serializableTester2('Prop_class2_1',...
-                'Prop_class2_2',20,'blabla'),'HERBERT:serializable:invalid_argument');
+        function test_keyval_constructor_nokey_return_remains(~)
+            [st,remains] = serializableTester2('Prop_class2_1',10,...
+                'Prop_class2_2',20,'blabla');
+            assertEqual(st.Prop_class2_1,10);
+            assertEqual(st.Prop_class2_2,20);
+            assertEqual(remains,{'blabla'});
         end
 
         function test_deprecated_keys_provided(~)
@@ -589,8 +592,8 @@ classdef test_serializable_class < TestCase
             [~,lw] = lastwarn();
             assertEqual(lw,'HORACE:serializable:deprecated');
             assertEqual(tc.Prop_class2_1,2);
-            assertEqual(tc.Prop_class2_2,10);            
-            assertEqual(tc.Prop_class2_3,[1,2,3]);                        
+            assertEqual(tc.Prop_class2_2,10);
+            assertEqual(tc.Prop_class2_3,[1,2,3]);
 
         end
 
@@ -640,6 +643,79 @@ classdef test_serializable_class < TestCase
             assertEqual(tc.Prop_class2_1,10)
             assertEqual(tc.Prop_class2_2,20)
             assertTrue(isempty(rem));
+        end
+        %------------------------------------------------------------------
+        %------------------------------------------------------------------
+        function test_key_val_constructor_mix_dash(~)
+            tc = serializable_tester4setKeyValConstructor(true,'a','prop3','a','prop2','b');
+            assertEqual(tc.prop1_char,'a')
+            assertEqual(tc.prop2_char,'b')
+            assertEqual(tc.prop3_char,'a')
+        end
+
+        function test_key_val_constructor_m_keys_dash(~)
+            ws = warning('off','HORACE:serializable:deprecated');
+            clOb = onCleanup(@()warning(ws));
+
+            tc = serializable_tester4setKeyValConstructor(true,'-prop3_char','a','-prop2_char','b','-prop1','c');
+            [~,wi] = lastwarn;
+            assertEqual(wi,'HORACE:serializable:deprecated')
+            assertEqual(tc.prop1_char,'c')
+            assertEqual(tc.prop2_char,'b')
+            assertEqual(tc.prop3_char,'a')
+        end
+
+        function test_key_val_constructor_keys_dash(~)
+            tc = serializable_tester4setKeyValConstructor(true,'prop3_char','a','prop2_char','b','prop1','c');
+            assertEqual(tc.prop1_char,'c')
+            assertEqual(tc.prop2_char,'b')
+            assertEqual(tc.prop3_char,'a')
+        end
+
+        function test_key_val_constructor_mix_no_dash(~)
+            tc = serializable_tester4setKeyValConstructor(false,'a','prop3','a','prop2','b');
+            assertEqual(tc.prop1_char,'a')
+            assertEqual(tc.prop2_char,'b')
+            assertEqual(tc.prop3_char,'a')
+        end
+        function test_two_keys_in_a_row_throw(~)
+            ME=assertExceptionThrown( ...
+                @()serializable_tester4setKeyValConstructor(false,'b','prop3_char','c','prop2_char'), ...
+                'HERBERT:serializable:invalid_argument');
+            assertTrue(strncmp(ME.message,'should be even number of key-value pairs',29))
+        end
+
+        function test_key_val_constructor_m_keys_no_dash_throw(~)
+            % throws as this form does not support dash at the beginning so
+            % second property with dash outsied of positional parameters is not recognized
+            ws = warning('off','HORACE:serializable:deprecated');
+            clOb = onCleanup(@()warning(ws));
+            ME=assertExceptionThrown( ...
+                @()serializable_tester4setKeyValConstructor(false,'-prop3','a','-prop2','b','-prop1','c'), ...
+                'HERBERT:serializable_class_tests:invalid_argument');
+            assertEqual(ME.message, ...
+                'unrecognized property provided as input: {''-prop2''}    {''b''}    {''-prop1''}    {''c''}')
+        end
+
+
+        function test_key_val_constructor_keys_no_dash(~)
+            tc = serializable_tester4setKeyValConstructor(false,'prop3_char','a','prop2_char','b','prop1','c');
+            assertEqual(tc.prop1_char,'c')
+            assertEqual(tc.prop2_char,'b')
+            assertEqual(tc.prop3_char,'a')
+        end
+        function test_key_val_constructor_keys_no_dash_throws(~)
+            ME=assertExceptionThrown( ...
+                @()serializable_tester4setKeyValConstructor(false,'prop3','a','prop2','b','prop1','c'),...
+                'HERBERT:serializable:invalid_argument');
+            assertTrue(strncmp(ME.message,'More positional arguments',25))
+        end
+
+        function test_key_val_constructor_values_no_dash(~)
+            tc = serializable_tester4setKeyValConstructor(false,'a','b','c');
+            assertEqual(tc.prop1_char,'a')
+            assertEqual(tc.prop2_char,'b')
+            assertEqual(tc.prop3_char,'c')
         end
     end
 end

@@ -48,6 +48,9 @@ classdef IX_source < serializable
                 % define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
                 % provided without their names
+                if nargin == 1 && isnumeric(varargin{1})
+                    obj.frequency = varargin{1};
+                else
                 accept_params = obj.saveableFields();
                 [obj,remains] = set_positional_and_key_val_arguments(obj,...
                     accept_params,true,varargin{:});
@@ -55,6 +58,7 @@ classdef IX_source < serializable
                     error('HERBERT:IX_source:invalid_argument', ...
                         'Unrecognized extra parameters provided as input to IX_source constructor: %s',...
                         disp2str(remains));
+                end
                 end
             end
         end

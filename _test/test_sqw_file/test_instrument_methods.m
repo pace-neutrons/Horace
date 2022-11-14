@@ -138,11 +138,12 @@ classdef test_instrument_methods <  TestCase %WithSave
             % file contains empty instrument and sample.
             wtmp=read_sqw(obj.test_file_);
             f = @()set_mod_pulse(wtmp,pulse_model,pp);
-            assertExceptionThrown(f,'HORACE:set_mod_pulse:invalid_instrument');
+            assertExceptionThrown(f,'HERBERT:IX_moderator:invalid_argument');
             % set up proper instrument:
             inst = maps_instrument(100,400,'S');
             wtmp= set_instrument(wtmp,inst);
             
+            skipTest('Setting moderator pulse modesl is currently disabled #899')
             wtmp_new = set_mod_pulse(wtmp,pulse_model,pp);
             hdr = wtmp_new.experiment_info;
             assertEqual(hdr.instruments{10}.moderator.pp(1),100/sqrt(ei(10)))

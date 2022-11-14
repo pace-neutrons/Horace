@@ -5,7 +5,8 @@ classdef IX_inst < serializable
 
     properties (Access=protected)
         name_ = '';             % Name of instrument (e.g. 'LET')
-        source_ = IX_source;    % Source (name, or class of type IX_source)
+        source_ = IX_source;    % Source (name, or class of type IX_source)        
+        %
         valid_from_ = datetime(1900,01,01);
         valid_to_ = [];
         % indicator for presence of a correct validity interval
@@ -15,6 +16,7 @@ classdef IX_inst < serializable
     properties (Dependent)
         name ;          % Name of instrument (e.g. 'LET')
         source; % Source (name, or class of type IX_source)
+        moderator       % Moderator (object of class IX_moderator)
         % the date, instrument with these settings become valid
         valid_from;
         % the date, instrument with these settings stops beeing valid
@@ -127,7 +129,13 @@ classdef IX_inst < serializable
             obj.valid_to_ = val;
             obj.validity_date_set_(2) = true;
         end
-
+        %------------------------------------------------------------------
+        function obj = set_mod_pulse(obj,pulse_model,pm_par)
+            % set moderator pulse model
+            mod = get_moderator(obj);
+            mod = mod.set_mod_pulse(pulse_model,pm_par);
+            obj = obj.set_moderator(mod);
+        end
 
         %------------------------------------------------------------------
         % Get methods for dependent properties
@@ -148,9 +156,25 @@ classdef IX_inst < serializable
                 val = datetime("now");
             end
         end
+        function val=get.moderator(obj)
+            val = get_moderator(obj);
+        end
+        function obj = set.moderator(obj,val)
+            obj = set_moderator(obj,val);
+        end
         %------------------------------------------------------------------
     end
     methods(Access=protected)
+        function val = get_moderator(~)
+            % overloadable moderator getter
+            val = [];
+        end
+        function obj = set_moderator(~,~)
+            % overloadable moderator setter
+            error('HERBERT:IX_inst:runtime_error',...
+                'You can not set moderator on IX_inst abstraction')
+        end
+        
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the

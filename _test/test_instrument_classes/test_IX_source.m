@@ -16,7 +16,7 @@ classdef test_IX_source < TestCaseWithSave
         
         %--------------------------------------------------------------------------
         function test_simple_source(self)
-            ap = IX_source('ISIS','freq',50);
+            ap = IX_source('ISIS','-freq',50);
             assertEqualWithSave (self,ap);
         end
         function test_empty_source(self)
@@ -53,7 +53,7 @@ classdef test_IX_source < TestCaseWithSave
         %
         function test_single_source_load_prev_versions(obj)
             % Scalar example
-            srs = IX_source('freq',30);
+            srs = IX_source('-freq',30);
             sample_files_location = obj.home_folder;
             if obj.save_output
                 % run test_IX_apperture with -save option to obtain reference
