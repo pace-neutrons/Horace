@@ -365,10 +365,7 @@ classdef ortho_proj<aProjection
             [~, mat] = obj.uv_to_rot();
 
             mat = [mat,[0;0;0];[0,0,0,1]];
-
         end
-
-
         %------------------------------------------------------------------
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...
@@ -521,8 +518,6 @@ classdef ortho_proj<aProjection
             %          describing lattice cell size. (In A-units)
             % angdeg-- vector 3 angles describing the angles between lattice cell.
             %          Expressed in degree
-
-
             [u,v,w,type,nonortho] = uv_from_rlu_mat_(obj,u_rot_mat,ulen);
         end
 

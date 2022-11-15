@@ -13,7 +13,7 @@ if any(has_pixels(win))
 end
 
 % return cellarray of corresponding dnd objects
-wout_dnd = dnd(win,'-cell_return');
+wout_dnd = dnd(win,'-cell');
 wout = copy(win);
 
 for i=1:numel(win)

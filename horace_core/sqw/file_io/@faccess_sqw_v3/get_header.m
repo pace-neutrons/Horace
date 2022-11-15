@@ -56,7 +56,25 @@ if ~isempty(main_sampl)
         if iscell(main_sampl)
             main_sampl = main_sampl{1};
         end
+        if isa(main_sampl,'unique_objects_container')
+            if main_sampl.n_runs()==1
+                tmp_sampl = unique_objects_container('type','{}','baseclass','IX_samp');
+                tmp_sampl = tmp_sampl.add(main_sampl{1});
+                for i=2:n_runs
+                    tmp_sampl = tmp_sampl.add(main_sampl{1});
+                end
+                main_sampl = tmp_sampl;
+            elseif main_sampl.n_runs()==n_runs
+                % container is fine, leave as is for assignment to exp_info
+                % below
+            else
+                error('HORACE:get_header:invalid argument',...
+                      ['samples for file is neither a single sample ', ...
+                       'nor containes a sample for each run']);
+            end
+        else
         main_sampl = repmat({main_sampl},1,exp_info.n_runs);
+    end
     end
     footer_sample_present = true;
 else
@@ -74,12 +92,14 @@ end
 if footer_sample_present % set up its lattice
     for i=1:n_runs
         bas_sample= exp_info.samples{i};
-        if isempty(main_sampl{i}.alatt)
-            main_sampl{i}.alatt = bas_sample.alatt;
+        main_si = main_sampl{i};
+        if isempty(main_si.alatt)
+            main_si.alatt = bas_sample.alatt;
         end
-        if isempty(main_sampl{i}.angdeg)
-            main_sampl{i}.angdeg = bas_sample.angdeg;
+        if isempty(main_si.angdeg)
+            main_si.angdeg = bas_sample.angdeg;
         end
+        main_sampl{i} = main_si;
     end
     exp_info.samples = main_sampl;
 else % basic sample have already been built from lattice stored in header
@@ -91,7 +111,29 @@ if ~any(isempty(instr)) % all instruments are valid instruments
         if iscell(instr)
             instr = instr{1};
         end
+        if isa(instr,'unique_objects_container')
+            % equivalent to repmat in the else clause below
+            if instr.n_runs()==1
+                % initial temp container as exp info currently not allowing
+                % setting of instruments to empty container nor to
+                % container with wrong number of runs, so assemble tmp
+                % container with correct properties before assigning
+                tmp_instr = unique_objects_container('type','{}','baseclass','IX_inst');
+                tmp_instr = tmp_instr.add(instr{1});
+                for i=2:n_runs
+                    tmp_instr = tmp_instr.add(instr{1}); %exp_info.instruments.add(instr{i});
+                end
+                exp_info.instruments = tmp_instr;
+            elseif instr.n_runs()==n_runs
+                exp_info.instruments = instr;
+            else
+                error('HORACE:get_header:invalid argument', ...
+                      ['instruments from file is neither a single instrument, ' ...
+                       'nor contains an instrument for each run']);
+            end
+        else
         exp_info.instruments  = repmat({instr},1,n_runs);
+        end
     else
         if ~iscell(instr)
             instr = num2cell(instr);

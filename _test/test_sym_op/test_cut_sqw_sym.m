@@ -101,7 +101,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         function test_cut_sym_with_nopix (this)
             % Test symmetrisation, without keeping pixels
             skipTest("cut_sym needs modification to work with new cut #805")            
-            skipTest("New dnd (d2d) not supported yet #796");
             % Turn off output, but return to input value when exit or cntl-c
             finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
             set(hor_config,'log_level',-1);  % turn off output
@@ -115,7 +114,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         function test_multicut_1 (this)
             % Test multicut capability for cuts that are adjacent
             % Note that the last cut has no pixels retained - a good test too!
-            skipTest("New dnd (d2d) not supported yet #796");            
+            skipTest("New dnd (d2d) not supported yet #878");            
             % Turn off output, but return to input value when exit or cntl-c
             finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
             set(hor_config,'log_level',-1);  % turn off output
@@ -143,7 +142,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             % Test multicut capability for cuts that are adjacent
             % Last couple of cuts have no pixels read or are even outside the range
             % of the input data
-            skipTest("New dnd (d2d) not supported yet #796");            
             % Turn off output, but return to input value when exit or cntl-c
             finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
             set(hor_config,'log_level',-1);  % turn off output
@@ -167,8 +165,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         
         %------------------------------------------------------------------------
         function test_multicut_3 (this)
-            % Test multicut capability for cuts that overlap adjacent cuts
-            skipTest("New dnd (d2d) not supported yet #796");            
+            % Test multicut capability for cuts that overlap adjacent cuts        
             % Turn off output, but return to input value when exit or cntl-c
             finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
             set(hor_config,'log_level',-1);  % turn off output
@@ -211,13 +208,13 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             
             w2 = cut_sqw (this.data_source, this.proj, this.bin,...
                 this.width, this.width, this.ebins, '-pix');
+            w2.experiment_info.instruments = w2.experiment_info.instruments.rename_all_blank();
             this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
         end
         
         %------------------------------------------------------------------------
         function test_cut_with_nopix (this)
             % Test a simple cut without keeping pixels
-            skipTest("New dnd (d2d) not supported yet #796");            
             % Turn off output, but return to input value when exit or cntl-c
             finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
             set(hor_config,'log_level',-1);  % turn off output

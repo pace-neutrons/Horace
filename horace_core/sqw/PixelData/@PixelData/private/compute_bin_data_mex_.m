@@ -14,8 +14,8 @@ if nargin < 3
 % TODO, drop internal page size, revert everything to configuration
 %     [n_threads,buf_size] = config_store.instance().get_value(...
 %         'hor_config','threads','mem_chunk_size');
-     [n_threads] = config_store.instance().get_value(...
-         'hor_config','threads');
+    n_threads = config_store.instance().get_value(...
+        'parallel_config','threads');
 
 end
 
@@ -25,6 +25,7 @@ obj.move_to_first_page();
 signal_sum = zeros(1, numel(npix));
 variance_sum = zeros(1, numel(npix));
 page_number = 1;
+
 % Loop over pages of data
 while true
     npix_for_page = npix_chunks{page_number};
@@ -42,6 +43,7 @@ while true
         break
     end
 end
+
 signal_sum = reshape(signal_sum, size(npix));
 variance_sum = reshape(variance_sum, size(npix));
 

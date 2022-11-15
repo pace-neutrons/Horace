@@ -8,10 +8,8 @@ if testing
 else
     % requesting 4 fields with field "State" (field N3) requested. Others
     % are useful for debugging purposes
-    query = [sprintf('sacct --noheader  -j %d ',obj.slurm_job_id),...
-        '--format=JobID,JobName%50,State,ExitCode'];
+    query = sprintf('sacct --noheader -j %d --format=JobID,JobName%%50,State,ExitCode',obj.slurm_job_id);
 end
-
 
 if testing
     full_state = obj.(query);
@@ -23,12 +21,14 @@ else
             obj.slurm_job_id,full_state);
     end
 end
+
 res = strsplit(strtrim(full_state));
-if numel(res)>1
+
+if numel(res) > 1
     % the state stored in field N3 out of 4 requested
-    sacct_state  = res{3};
+    sacct_state = res{3};
 else % should not ever happen. Only invalid jobID may lead to this.
-    sacct_state   = '__';
+    sacct_state = '__';
 end
 
-sacct_state  = sacct_state  (1:2);
+sacct_state = sacct_state(1:2);

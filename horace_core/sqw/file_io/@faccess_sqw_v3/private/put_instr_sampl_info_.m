@@ -73,7 +73,9 @@ else
         end
     end
 end
-if iscell(the_obj)
+if isa(the_obj, 'unique_objects_container')
+    the_obj = the_obj.non_unique_objects_apply_func(@(x)(x.to_struct));
+elseif iscell(the_obj)
     the_obj = cellfun(@(x)(x.to_struct),the_obj,'UniformOutput',false);
 else
     the_obj = arrayfun(@(x)(x.to_struct),the_obj,'UniformOutput',false);

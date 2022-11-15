@@ -22,8 +22,8 @@ classdef cut_sqw_tester < sqw
             % method to expose protected cut parameters parser for unit
             % tests.
             %
-            [proj, pbin, opt] = obj.process_and_validate_cut_inputs(...
-                return_cut, varargin{:});
+            [proj, pbin, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
+                obj.data,return_cut, varargin{:});
         end
     end
 end

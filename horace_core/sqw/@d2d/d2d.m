@@ -32,7 +32,6 @@ classdef d2d < DnDBase
 
         [speedup,midpoint]=compare_sym_axes(win,v1,v2,v3);
 
-        varargout = cut(varargin);
         [R,trans] = calculate_transformation_matrix(win,v1,v2,v3);
 
         varargout = get(this, index);

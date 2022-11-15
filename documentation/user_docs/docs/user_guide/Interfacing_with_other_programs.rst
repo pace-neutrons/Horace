@@ -442,7 +442,7 @@ and the data file is `here <https://github.com/pace-neutrons/pace-python-demo/bl
 .. code-block:: matlab
 
    % Create a cut of the data
-   proj = projaxes([1, 0, 0], [0, 1, 0], 'type', 'rrr')
+   proj = ortho_proj([1, 0, 0], [0, 1, 0], 'type', 'rrr')
    w1 = cut_sqw('pcsmo_cut1.sqw', proj, [-1, 0.05, 1], [-1, 0.05, 1], [-10, 10], [10, 20])
 
    % Defines the sample and instrument parameters
@@ -578,7 +578,7 @@ For simplicity we have passed the sample temperature as a fit variable but it sh
 .. code-block:: matlab
 
    % Make a cut of the data
-   proj = projaxes([1,1,0], [-1,1,0], 'type', 'rrr');
+   proj = ortho_proj([1,1,0], [-1,1,0], 'type', 'rrr');
    w_fe = cut_sqw('fe_cut.sqw', proj, [-3,0.05,3], [-1.05,-0.95], [-0.05,0.05], [70, 90]);
 
    % Define starting parameters

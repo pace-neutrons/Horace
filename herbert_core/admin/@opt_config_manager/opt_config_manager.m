@@ -36,13 +36,13 @@ classdef opt_config_manager
         % The configuration, considered optimal for this particular pc type
         optimal_config;
     end
+
     properties(Constant)
         % transformation constant between mem_chunk_size in hor_config
         % and this chunk size in bytes. Located here as this class may be
         % invoked before full package is initialized
         DEFAULT_PIX_SIZE = 36;
     end
-
 
     properties(Access=private)
         test_mode_ = false;
@@ -58,6 +58,7 @@ classdef opt_config_manager
         %
         this_pc_memory_ = 8*1024*1024*1024; %default PC memory is 8Gb
     end
+
     properties(Access=private)
         % the configurations, which may be optimized for a particular pc so
         % should be stored
@@ -98,36 +99,38 @@ classdef opt_config_manager
             %    configure Horace only, using list of all configurations
             %    known to the class.
         end
-        %
+
         function mem = get.this_pc_memory(obj)
             mem = obj.this_pc_memory_;
         end
-        %
+
         function types = get.known_pc_types(obj)
             types = obj.known_pc_types_;
         end
-        %
+
         function fn = get.config_filename(obj)
             fn = obj.config_filename_;
         end
-        %
+
         function fldr=get.config_info_folder(obj)
             fldr = obj.config_info_folder_;
         end
+
         function obj=set.config_info_folder(obj,val)
             % set folder containing config information.
             %
             % should be used for testing purposes only.
             obj.config_info_folder_ = val;
         end
-        %
+
         function pc_type = get.this_pc_type(obj)
             pc_type = obj.this_pc_type_;
         end
+
         function config = get.optimal_config(obj)
             config = obj.current_config_;
         end
-        %
+
         function obj = set.this_pc_type(obj,val)
             % explicitly setting pc type for testing or debugging purposes.
             %
@@ -163,25 +166,28 @@ classdef opt_config_manager
                 obj = set_pc_specific_config_(obj,pc_type);
             end
         end
-        %
+
         function num = get.pc_config_num(obj)
             % return the number of the configuration in the list of all
             % known configurations
             cur_type = obj.this_pc_type;
             num = find(ismember(obj.known_pc_types_,cur_type),1);
         end
+
         function conf = get.known_configurations(obj)
             % return the list of the configurations, defined to the class
             conf  = obj.all_known_configurations_;
         end
         function obj = set_known_configurations(obj,configs)
-            % function allows to set configurations, known to the class. 
+            % function allows to set configurations, known to the class.
             % It does not offer any protection to input data, so shoule be
             % used in tests only in conjunction with
             % get.known_configurations accessor
             obj.all_known_configurations_ = configs;
         end
+
         %------------------------------------------------------------------
+
         function save_configurations(obj,varargin)
             % assuming the current Horace/Herbert configurations are the
             % optimal one, save it in configuration file for further usage.
@@ -195,6 +201,7 @@ classdef opt_config_manager
             %         of the computer;
             save_configurations_(obj,varargin{:});
         end
+
         function [obj,opt_config] = load_configuration(obj,varargin)
             % method loads the previous configuration, which
             % stored as optimal for this computer.
@@ -222,6 +229,7 @@ classdef opt_config_manager
             obj = load_configuration_(obj,set_config,set_def_only,force_save);
             opt_config = obj.optimal_config;
         end
+
         function [pc_type,nproc,mem_size] = find_comp_type(obj)
             % analyze pc parameters (memory, number of processors etc.)
             % and return pc type.
@@ -242,6 +250,7 @@ classdef opt_config_manager
         end
 
     end
+
     methods(Access=private)
         function print_help(obj)
             ll = get(herbert_config,'log_level');
@@ -256,4 +265,3 @@ classdef opt_config_manager
         end
     end
 end
-

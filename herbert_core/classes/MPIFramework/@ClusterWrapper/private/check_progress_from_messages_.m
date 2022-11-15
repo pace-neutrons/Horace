@@ -19,33 +19,37 @@ end
 tag        = mess.tag;
 completed  = check_completed(tag);
 failed     = check_failed(tag);
-%
+
+end
+
 function mess = get_messages_from_framework(obj)
 me = obj.mess_exchange_;
 % check all messages send from all nodes
-[mess_names,tid_from] =me.probe_all('all');
+[mess_names,tid_from] = me.probe_all('all');
 if isempty(mess_names)
     mess = ''; %obj.status_changed_ = false;
     return;
 else
     mess_arr = cell(1,numel(mess_names));
-    tid_from_1_received =0;
+    tid_from_1_received = 0;
     for i=1:numel(mess_names)
         [ok,err,messl] = me.receive_message(tid_from(i),mess_names{i},'-synch');
-        
+
         if ok ~= MESS_CODES.ok
             error('HERBERT:ClusterWrapper:runtime_error',...
                 'Error %s receiving existing message: %s from job %s',...
                 err,mess_names{i},obj.job_id);
         end
+
         mess_arr{i} = messl;
+
         if tid_from(i) ~=1 % display messages received from other nodes.
-            % its probably status messages, indicating different
+            % it's probably status messages, indicating different
             % problems.
             disp('*****************************************************************');
-            fprintf('***** Task: %s initialization/completeon error.\n',me.job_id);
+            fprintf('***** Task: %s initialization/completion error.\n',me.job_id);
             disp('*****************************************************************');
-            
+
             if isa(messl,'FailedMessage') || isa(messl,'CancelledMessage')
                 disp(messl.fail_text);
                 if ~isempty(messl.exception)
@@ -61,13 +65,14 @@ else
             tid_from_1_received=i;
         end
     end
+
     if tid_from_1_received>0 % we already got message from node 1.
         % It should contain all necessary information abut issues if any
         mess = mess_arr{tid_from_1_received};
     else  % something wrong. The nodes have not transmitted info to headnode but reported directly to user
         % form the failed message
         mess = FailedMessage('No status messages from Node 1, but other nodes sent reports directly to user node');
-        %
+
         all_pl = cell(1,numel(mess_arr)+1);
         all_pl{1} = mess.payload;
         for i=1:numel(mess_arr)
@@ -76,16 +81,16 @@ else
         mess.payload = all_pl;
     end
 end
-%
+
+end
+
 function failed = check_failed(tag)
 persistent fin_id;
 if isempty(fin_id)
     fin_id = MESS_NAMES.mess_id({'failed','cancelled'});
 end
-if any(tag==fin_id)
-    failed = true;
-else
-    failed = false;
+failed = any(tag==fin_id);
+
 end
 
 function completed = check_completed(tag)
@@ -93,8 +98,6 @@ persistent fin_id;
 if isempty(fin_id)
     fin_id = MESS_NAMES.mess_id({'failed','cancelled','completed'});
 end
-if any(tag==fin_id)
-    completed = true;
-else
-    completed = false;
+completed = any(tag==fin_id);
+
 end

@@ -41,11 +41,14 @@ function [pix_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
 % Check input parameters
 % -------------------------
 [ne,ndet]=size(obj.S);
+
 if ~exist('proj_mode','var')
     proj_mode = 2;
 end
+
 %   qspec       4xn_detectors array of qx,qy,qz,eps
 qspec = obj.qpsecs_cache; % if provided, used instead of detchn for calculations
+qspec_provided = ~isempty(qspec);
 
 if proj_mode<0 || proj_mode >2
     warning('HORACE:calc_projections', ...
@@ -54,15 +57,15 @@ if proj_mode<0 || proj_mode >2
     proj_mode = 2;
 end
 
-
 % Create matrix to convert from spectrometer axes to coordinates along crystal Cartesian projection axes
 spec_to_cc = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel
-[use_mex,nThreads]=config_store.instance().get_value( ...
-    'hor_config','use_mex','threads');
+nThreads = config_store.instance().get_value('parallel_config', 'threads');
+use_mex = config_store.instance().get_value('hor_config','use_mex');
+
 if use_mex
-    if ~isempty(qspec) % why is this? % See ticket #838 to address this. 
+    if qspec_provided % why is this? % See ticket #838 to address this.
         use_mex = false;
     else
         try
@@ -87,48 +90,46 @@ if use_mex
         end
     end
 end
+
 if ~use_mex
-    if isempty(qspec) %   qspec 4xn_detectors array of qx,qy,qz,eps
+    if qspec_provided %   qspec 4xn_detectors array of qx,qy,qz,eps
+        ucoords = [spec_to_cc*qspec(1:3,:);qspec(4,:)];
+    else
         qspec_provided = false;
         if isempty(detdcn)
             detdcn = calc_detdcn(obj.det_par);
         end
         [qspec,en]=obj.calc_qspec(detdcn);
         ucoords = [spec_to_cc*qspec;en];
-    else
-        ucoords = [spec_to_cc*qspec(1:3,:);qspec(4,:)];
-        qspec_provided = true;
+
     end
 
     % Return without filling the pixel array if pix_range only is requested
-    if proj_mode == 0
-        pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
-        pix= [];
-        return;
-    elseif proj_mode == 1
-        pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
+    switch proj_mode
+      case 0
+        pix_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
+        pix = [];
+      case 1
+        pix_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
         pix = ucoords;
-        return
-    end
-    %Else: proj_mode==2
-
-    % Fill in pixel data object
-    if ~qspec_provided
-        det = obj.det_par;
-        if isfield(det,'group')
-            detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+      case 2
+        % Fill in pixel data object
+        if ~qspec_provided
+            det = obj.det_par;
+            if isfield(det,'group')
+                detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+            else
+                group = 1:ndet;
+                detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
+            end
+            energy_idx=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
         else
-            group = 1:ndet;
-            detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
+            detector_idx = ones(1,ne*ndet);
+            energy_idx = ones(1,ne*ndet);
         end
-        energy_idx=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
-    else
-        detector_idx = ones(1,ne*ndet);
-        energy_idx = ones(1,ne*ndet);
+        sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
+        run_id = ones(1,numel(detector_idx))*obj.run_id;
+        pix = PixelData([ucoords;run_id;detector_idx;energy_idx;sig_var]);
+        pix_range=pix.pix_range;
     end
-    sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
-    run_id = ones(1,numel(detector_idx))*obj.run_id;
-    pix = PixelData([ucoords;run_id;detector_idx;energy_idx;sig_var]);
-    pix_range=pix.pix_range;
 end
-

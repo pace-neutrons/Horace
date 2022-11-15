@@ -16,22 +16,25 @@ function mem=horace_memory(chunk_size,threads)
 %       >> set(hor_config,'mem_chunk_size',chunk_size,'threads',threads);
 %       >> [mem.chunk_size,mem.threads]=get(hor_config,'mem_chunk_size','threads');
 
+if nargin ~= 0 && nargin ~= 2
+    error('HORACE:horace_memory:invalid_argument', 'Incorrect number of arguments')
+end
 
 disp('*** Deprecated function: horace_memory                                       ***')
 disp('*** Please set or get the info level directly from the Horace configuration: ***')
-disp('***   >> set(hor_config,''mem_chunk_size'',chunk_size,''threads'',threads)       ***')
-disp('***   >> [mem.chunk_size,mem.threads]=get(hor_config,''mem_chunk_size'',''threads'')')
+disp('***   >> set(hor_config,''mem_chunk_size'',chunk_size)                       ***')
+disp('***   >> set(parallel_config,''threads'',threads)                            ***')
+disp('***   >> mem.chunk_size = get(hor_config,''mem_chunk_size'')                 ***')
+disp('***   >> mem.threads    = get(parallel_config,''threads'')                   ***')
 
 if nargin==2
-    try
-        set(hor_config,'mem_chunk_size',chunk_size,'threads',threads);
-    catch ME
-        error(ME.message)
-    end
-elseif nargin~=0
-    error('Incorrect number of arguments')
+    set(hor_config,'mem_chunk_size',chunk_size);
+    set(parallel_config,'threads',threads);
 end
 
-if nargout>0 || nargin==0
-    [mem.chunk_size,mem.threads]=get(hor_config,'mem_chunk_size','threads');
+if nargout > 0
+    mem.chunk_size = get(hor_config,'mem_chunk_size');
+    mem.threads    = get(parallel_config,'threads');
+end
+
 end
