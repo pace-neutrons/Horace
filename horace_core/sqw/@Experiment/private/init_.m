@@ -16,7 +16,6 @@ if narg  == 1
     elseif isstruct(S)
         if isfield(S,'efix') && isfield(S,'emode')
             obj = build_from_old_headers_(obj,{S});
-
         elseif isempty(fieldnames(S))
             obj = Experiment(); % empty object
         else
@@ -32,6 +31,10 @@ else
     % define the order of possible positional parameters
     positinal_param_names_list = {'detector_arrays','instruments','samples',...
         'expdata'};
+    % switch expdata to first position to set the number of runs for
+    % subsequent initialization of instruments etc
+    positinal_param_names_list = {positinal_param_names_list{4} positinal_param_names_list{1:3}};
+    argi = {argi{4} argi{1:3}};
     % define validators, which specify if the positional
     % parameter is indeed on its appropriate place.
     [obj,remains] = set_positional_and_key_val_arguments(obj,...

@@ -91,7 +91,8 @@ classdef test_instrument_methods < TestCaseWithSave
             [~, pp] = get_mod_pulse(wnew_fe);
             
             hdr = wnew_fe.experiment_info;
-            mod3 = hdr.instruments{3}.moderator;
+            instr = hdr.instruments{3};
+            mod3 = instr.moderator;
             assertEqualToTol(mod3.pp, pp, 'reltol', 1e-13);
         end
         
@@ -107,11 +108,13 @@ classdef test_instrument_methods < TestCaseWithSave
             wnew_fe = set_mod_pulse(wnew_fe, 'ikcarp', pp);
             
             hdr = wnew_fe.experiment_info;
-            mod3 = hdr.instruments{3}.moderator;
+            instr = hdr.instruments{3};
+            mod3 = instr.moderator;
             assertEqual(mod3.pp, [100, 200, 0.7]);
             
             hdr = wnew_fe.experiment_info;
-            mod100 = hdr.instruments{100}.moderator;
+            instr = hdr.instruments{100};
+            mod100 = instr.moderator;
             assertEqual(mod100.pp, [100,386, 0.7]);
             
             [~,pp_av] = get_mod_pulse(wnew_fe);

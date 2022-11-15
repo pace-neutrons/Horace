@@ -98,7 +98,7 @@ for i=1:nobj
             end
         end
     else
-        tmp.instruments(1)=set_mod_pulse_single_inst(tmp.instruments(1),pulse_model,pp);
+        tmp.instruments{1}=set_mod_pulse_single_inst(tmp.instruments{1},pulse_model,pp);
     end
     % Write back out
     if source_is_file

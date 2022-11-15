@@ -88,8 +88,8 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             tol = [1e-10,1e-8];
             assertEqualToTolWithSave (obj, fitpar_1, 'tol', tol, 'ignore_str', 1)
             assertEqualToTolWithSave (obj, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
-            
             assertEqualToTolWithSave (obj, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            
         end
 
         function this = test_fit_two_datasets(this)

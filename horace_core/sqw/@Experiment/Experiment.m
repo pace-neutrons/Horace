@@ -1,10 +1,12 @@
 classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
 
-    properties(Access=protected)
-        instruments_ = {IX_null_inst()};
+    properties(Access=private)
+    	% the vanilla constructor will give instruments_ one IX_null_inst
+    	% if no other instrument input is provided - see constructor
+        instruments_ = unique_objects_container('type','{}','baseclass','IX_inst'); %{}; %IX_inst.empty;
         detector_arrays_ = []
-        samples_ = {IX_null_sample()}; % IX_samp.empty;
+        samples_ = unique_objects_container('type','{}','baseclass','IX_samp'); %{IX_null_sample()}; % IX_samp.empty;
         expdata_ = [];
         %
         runid_map_ = [];   % the property defines the relationship between
@@ -91,6 +93,12 @@ classdef Experiment < serializable
             %
             % Each argument can be a single object or array of objects.
             if nargin == 0
+            	% add one null instrument if using the vanilla constructor
+            	% to satisfy the requirements of subsequent initialisation
+                inst = IX_null_inst();
+                obj.instruments = obj.instruments.add(inst);
+                samp = IX_null_sample();
+                obj.samples = obj.samples.add(samp);
                 return;
             end
             obj = init_(obj,varargin{:});
@@ -136,7 +144,7 @@ classdef Experiment < serializable
         function obj=set.instruments(obj, val)
             [is,std_form] = check_si_input(obj,val,'IX_inst');
             if is
-                obj.instruments_ = std_form(:)';
+                obj.instruments_ = std_form; %(:)';
             else
                 error('HORACE:Experiment:invalid_argument', ...
                     'instruments must be a cellarray or array of IX_inst objects . In fact it is %s',...
@@ -153,7 +161,7 @@ classdef Experiment < serializable
         function obj=set.samples(obj, val)
             [is,std_form] = check_si_input(obj,val,'IX_samp');
             if is
-                obj.samples_ = std_form(:)';
+                obj.samples_ = std_form; %(:)';
             else
                 error('HORACE:Experiment:invalid_argument', ...
                     'Samples must be a cellarray or array of IX_samp objects . In fact it is %s',...
@@ -179,7 +187,7 @@ classdef Experiment < serializable
             if ~isa(val,'IX_experiment')
                 error('HORACE:Experiment:invalid_argument', ...
                     'Sample must be one or an array of IX_experiment objects or empty. Actually it is: %s',...
-                    class(v))
+                    class(val))
             end
             obj.expdata_ = val(:)';
             obj = build_runid_map_(obj);
@@ -342,12 +350,14 @@ classdef Experiment < serializable
             % compatibility fields with old binary file formats
             % TODO: needs proper implementation
             instr = obj.instruments_;
+            error("should not be using this any more");
         end
         %
         function samp = get_unique_samples(obj)
             % compatibility fields with old binary file formats
             % TODO: needs proper implementation
             samp = obj.samples_;
+            error('should not be using this any more');
         end
         %
         function head = get.header(obj)
@@ -376,36 +386,26 @@ classdef Experiment < serializable
             if ~ok
                 error('HORACE:Experiment:invalid_argument',mess);
             end
+            
             if ~isempty(remains)
                 header_num = remains{:};
             else
                 header_num = [];
             end
-            samp = obj.get_unique_samples();
-            if iscell(samp) && numel(samp) == obj.n_runs
-                different_samples = true;
-            else
-                different_samples = false;
-                if iscell(samp)
-                    samp = samp{1};
-                end
-            end
+            
             if ~isempty(header_num)
+                inst = obj.instruments{header_num};
+                samp = obj.samples{header_num};
                 oldhdrs = obj.expdata_(header_num).convert_to_binfile_header( ...
-                    samp.alatt,samp.angdeg,nomangle);
+                    '-inst_samp',inst,samp,nomangle);
             else
                 nruns = obj.n_runs;
                 oldhdrs = cell(nruns,1);
                 for i=1:nruns
-                    if different_samples
-                        alatt = samp{i}.alatt;
-                        angdeg = samp{i}.angdeg;
-                    else
-                        alatt = samp.alatt;
-                        angdeg = samp.angdeg;
-                    end
                     oldhdrs{i} = obj.expdata_(i).convert_to_binfile_header( ...
-                        alatt,angdeg,nomangle);
+                        '-inst_samp',                ...
+                         obj.instruments{i}, ...
+                         obj.samples{i},     nomangle);
                 end
             end
         end
@@ -535,10 +535,13 @@ classdef Experiment < serializable
                 nspe(i) = exp_cellarray{i}.n_runs;
             end
             n_tot = sum(nspe);
-            instr  = cell(1,n_tot);
-            sampl  = cell(1,n_tot);
+            instr  = unique_objects_container('type','{}', 'baseclass','IX_inst'); %cell(1,n_tot);
+            sampl  = unique_objects_container('type','{}', 'baseclass','IX_samp'); %cell(1,n_tot);
+            %warning('stop here so you can check that instr and sampl should no longer be set as cells');
             expinfo= repmat(IX_experiment(),1,n_tot);
             ic = 1;
+            %TODO: combine instruments using unique_objects_container
+            %      rather than doing a complete unpack and repack
             for i=1:n_contrib
                 for j=1:exp_cellarray{i}.n_runs
                     instr{ic}  = exp_cellarray{i}.instruments{j};
