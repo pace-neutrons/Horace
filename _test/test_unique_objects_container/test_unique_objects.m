@@ -43,7 +43,7 @@ classdef test_unique_objects < TestCase
 
             % test that there are only 2 uniquely different instruments in
             % the container
-            assertEqual( numel(uoc.stored_objects), 2);
+            assertEqual( numel(uoc.unique_objects), 2);
 
             % test that there are 2 correspondingly different hashes in the
             % container for these instruments
@@ -86,7 +86,7 @@ classdef test_unique_objects < TestCase
             assertEqual( nuix, 4);
             [uoc,nuix] = uoc.add(mi2);
             assertEqual( nuix, 5);
-            assertEqual( numel(uoc.stored_objects), 2);
+            assertEqual( numel(uoc.unique_objects), 2);
             assertEqual( numel(uoc.idx), 5);
             assertEqual( obj.mi1, uoc.get(3) );
             assertEqual( mi2, uoc.get(5) );
@@ -101,7 +101,7 @@ classdef test_unique_objects < TestCase
             uoc = unique_objects_container('type','{}');
             uoc = uoc.add(obj.mi1);
             uoc = uoc.add(obj.nul_sm1);
-            assertEqual( numel(uoc.stored_objects), 2);
+            assertEqual( numel(uoc.unique_objects), 2);
             assertEqual( numel(uoc.idx), 2);
             assertEqual( obj.mi1, uoc.get(1) );
             assertEqual( obj.nul_sm1, uoc.get(2) );
@@ -114,7 +114,7 @@ classdef test_unique_objects < TestCase
             assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
 
             assertFalse( nuix>0 );
-            assertEqual( numel(voc.stored_objects), 1);
+            assertEqual( numel(voc.unique_objects), 1);
             assertEqual( numel(voc.idx), 1);
         end
         %----------------------------------------------------------------
@@ -148,7 +148,7 @@ classdef test_unique_objects < TestCase
             uoc = unique_objects_container('type','{}');
             uoc = uoc.add(obj.mi1);
             uoc = uoc.add(obj.nul_sm1);
-            assertEqual( numel(uoc.stored_objects), 2);
+            assertEqual( numel(uoc.unique_objects), 2);
         end
         function test_constructor_arguments_with_type(obj)
             ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
@@ -160,7 +160,7 @@ classdef test_unique_objects < TestCase
             uoc = uoc.add(obj.nul_sm1);
             [~,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-            assertEqual( numel(uoc.stored_objects), 1);
+            assertEqual( numel(uoc.unique_objects), 1);
             %{
             Turns out that hashes are not portable between all Matlab
             versions and platforms, so suppressing this bit.
@@ -179,7 +179,7 @@ classdef test_unique_objects < TestCase
 
             uoc = uoc.add(obj.mi1);
             uoc = uoc.add(obj.nul_sm1);
-            assertEqual( numel(uoc.stored_objects), 1);
+            assertEqual( numel(uoc.unique_objects), 1);
             [~,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
 
@@ -198,7 +198,7 @@ classdef test_unique_objects < TestCase
             uoc = unique_objects_container('type','{}');
             uoc{1} = obj.mi1;
             uoc{2} = obj.nul_sm1;
-            assertEqual( numel(uoc.stored_objects), 2);
+            assertEqual( numel(uoc.unique_objects), 2);
         end
         function test_subscripting_type(obj)
             ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
@@ -209,7 +209,7 @@ classdef test_unique_objects < TestCase
             uoc{2} = obj.nul_sm1;
             [~,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-            assertEqual( numel(uoc.stored_objects), 1);
+            assertEqual( numel(uoc.unique_objects), 1);
             %{
             Turns out that hashes are not portable between all Matlab
             versions and platforms, so suppressing this bit.
@@ -229,7 +229,7 @@ classdef test_unique_objects < TestCase
             uoc{2} = obj.nul_sm1;
             [~,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-            assertEqual( numel(uoc.stored_objects), 1);
+            assertEqual( numel(uoc.unique_objects), 1);
             %{
             Turns out that hashes are not portable between all Matlab
             versions and platforms, so suppressing this bit.            

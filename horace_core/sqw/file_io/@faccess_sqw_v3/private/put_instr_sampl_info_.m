@@ -74,7 +74,7 @@ else
     end
 end
 if isa(the_obj, 'unique_objects_container')
-    contents = the_obj.stored_objects;
+    contents = the_obj.unique_objects;
     the_obj = cellfun(@(x)x.to_struct,contents);
 elseif iscell(the_obj)
     the_obj = cellfun(@(x)(x.to_struct),the_obj,'UniformOutput',false);
