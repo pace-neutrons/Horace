@@ -143,9 +143,10 @@ classdef ClusterSlurm < ClusterWrapper
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             obj.log_level = log_level;
 
-            [n_nodes, cores_per_node] = obj.get_remote_info();
-
             par = parallel_config();
+            comm = par.slurm_commands;
+            
+            [n_nodes, cores_per_node] = obj.get_remote_info(comm);
 
             if par.is_auto_par_threads
                 % If user not specified threads to use assume MPI applications are not wanting to be threaded
@@ -170,18 +171,17 @@ classdef ClusterSlurm < ClusterWrapper
                       obj.job_id, obj.MAX_JOB_LENGTH)
             end
 
-            comm = par.slurm_commands;
 
             if any(comm.isKey({'-J', '--job-name', '-n', '--ntasks', '--ntasks-per-node', '--mpi', '--export'}))
                 warning('Keys present in slurm_commands which will be over-ridden')
             end
 
-            w = warning('off', 'MATLAB:Containers:Map:NoKeyToRemove')
+            w = warning('off', 'MATLAB:Containers:Map:NoKeyToRemove');
             comm.remove({'-J', '-n'});
-            warning(w)
+            warning(w);
             comm('--job-name') = obj.job_id;
-            comm('-ntasks') = num2str(n_workers);
-            comm('--ntasks-per-node') = cores_per_node;
+            comm('--ntasks') = num2str(n_workers);
+            comm('--ntasks-per-node') = num2str(cores_per_node);
             comm('--mpi') = 'pmi2';
             comm('--export') = 'ALL';
 
@@ -191,7 +191,7 @@ classdef ClusterSlurm < ClusterWrapper
             % location
             wcs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
 
-            obj.start_workers(target_threads, wcs, ...
+            obj.start_workers(wcs, ...
                               'prefix_command', slurm_str, ...
                               'target_threads', target_threads);
 
@@ -395,17 +395,14 @@ classdef ClusterSlurm < ClusterWrapper
 
         end
 
-    end
-
-    methods(Static)
-        function [n_nodes, cores_per_node] = get_remote_info(partition)
+        function [n_nodes, cores_per_node] = get_remote_info(obj, params, partition)
         % Retrieve info about remote nodes.
 
             if exist('partition', 'var')
                 partition = ['-p ', partition];
-            elseif obj.slurm_commands.isKey('--partition')
+            elseif params.isKey('--partition')
                 partition = ['-p ', obj.slurm_commands('--partition')];
-            elseif obj.slurm_commands.isKey('-p')
+            elseif params.isKey('-p')
                 partition = ['-p ', obj.slurm_commands('-p')];
             else
                 partition = '';
@@ -417,7 +414,9 @@ classdef ClusterSlurm < ClusterWrapper
                       'Could not get info on remote nodes')
             end
             result = splitlines(result);
-            [partition, n_nodes, cores_per_node] = strsplit(result{1});
+            parse = strsplit(result{1});
+            n_nodes = str2num(parse{2});
+            cores_per_node = str2num(parse{3});
 
         end
     end

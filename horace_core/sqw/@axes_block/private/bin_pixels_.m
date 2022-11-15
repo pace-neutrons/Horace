@@ -1,5 +1,6 @@
-function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_outputs,...
+function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels_(obj,coord,nout,...
     npix,s,e,pix_cand,unique_runid,varargin)
+% s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
 % calculate pixels grid statistics.
 %
@@ -31,9 +32,9 @@ function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_output
 %         e arrays are taken from this data. Some outputs may request sorting
 %         pix_cand according to the grid.
 % unique_runid
-%      -- The unuqueue indexes, contributing into the cut. Empty on first
+%      -- The unique indexes, contributing into the cut. Empty on first
 %         call.
-% Varargin may contain the following parameters:
+% varargin may contain the following parameters:
 % '-force_double'
 %              -- if provided, the routine changes type of pixels
 %                 it gets on input, into double. if not, output
@@ -47,13 +48,14 @@ function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_output
 % s,e  -- if num_outputs >=3, contains accumulated signal and errors from
 %         the pixels, contributing into the grid. num_outputs >=3 requests
 %         pix_cand parameter to be present and not empty.
-% pix  -- if num_outputs >=4, returns input pix_cand contributed to 
-%         the the cut and sorted by grid cell or left unsorted, 
+% pix_ok
+%      -- if num_outputs >=4, returns input pix_cand contributed to
+%         the the cut and sorted by grid cell or left unsorted,
 %         depending on requested pix_indx output.
 % unique_runid
 %      -- if num_outputs >=5, array, containing the unique runids from the
 %         pixels, contributed to the cut. If input unique_runid was not
-%         empty, output unique_runid is combined with input unique_runid
+%         empty, output unique_runid is combined with the input unique_runid
 %         and contains no duplicates.
 % pix_indx
 %      -- in num_outputs ==6, contains indexes of the grid cells,
@@ -62,12 +64,11 @@ function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_output
 %         pixels in PixelData. if num_outputs<6, output pix are sorted by
 %         npix bins.
 
-
-pix = [];
+pix_ok = [];
 pix_indx = [];
 if nargin>8
     options = {'-force_double'};
-    % keep unused argi parameter to tell parce_char_options to ignore
+    % keep unused argi parameter to tell parse_char_options to ignore
     % unknown options
     [ok,mess,force_double,argi]=parse_char_options(varargin,options);
     if ~ok
@@ -97,9 +98,13 @@ end
 ok = all(coord>=r1 & coord<=r2,1); % collapse first dimension, all along it should be ok for pixel be ok
 coord = coord(:,ok);
 if isempty(coord)
-    if num_outputs>3 % no further calculations are necessary, so all 
+    if nout>3 % no further calculations are necessary, so all
         % following outputs are processed.
-        pix = PixelData();
+        if iscell(pix_cand)
+            pix_ok = zeros(size(s));
+        else
+            pix_ok = PixelData();
+        end
         return;
     end
 end
@@ -132,41 +137,66 @@ else
         n_bins = [n_bins,1];
     end
     % mex code, if deployed below, needs pixels collected during this
-    % particular accomulation.
+    % particular accumulation.
     npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
     npix = npix + npix1;
 end
-if num_outputs<3
+if nout<3
     return;
 end
 %--------------------------------------------------------------------------
-% moree then 1 output
-% Calclulating signal and error
+% more then 1 output
+% Calculating signal and error
 %--------------------------------------------------------------------------
-sig = pix_cand.signal;
-var = pix_cand.variance;
+is_pix = isa(pix_cand,'PixelData');
+if is_pix
+    ndata = 2;    
+else % cell with data array
+    ndata = numel(pix_cand);    
+end
+  
+out = cell(1,ndata);
+out{1} = s;
+out{2} = e;
+if is_pix
+    bin_values = {pix_cand.signal;pix_cand.variance};
+else % cellarray of arrays to accumulate
+    bin_values = pix_cand;    
+    if ndata>=3 % Output changes type and meaning. Nasty.
+        % Needs something better in a future
+        pix_ok = zeros(size(s));
+        out{3} = pix_ok;        
+    end
+end
 if ndims == 0
-    s = s + sum(sig(ok));
-    e = e + sum(var(ok));
+    for i=1:ndata
+        out{i} = out{i}+sum(bin_values{i});
+    end
 else
-    s = s + accumarray(pix_indx, sig(ok), n_bins);
-    e = e + accumarray(pix_indx, var(ok), n_bins);
+    for i=1:ndata
+        out{i} = out{i}+accumarray(pix_indx,bin_values{i}(ok),n_bins);
+    end
 end
-if num_outputs<4
+s = out{1};
+e = out{2};
+if nout<4 || ~is_pix
+    if ndata>=3; pix_ok = out{3}; % redefine pix_ok to be npix accumulated
+    end
     return;
 end
 %--------------------------------------------------------------------------
-% more than 4 outputs
+% more than 4 outputs requested
 % Get unsorted pixels, contributed to the bins
 %--------------------------------------------------------------------------
-pix          = pix_cand.get_pixels(ok);
-if num_outputs<5
+% s,e,pix_ok,unique_runid,pix_indx
+pix_ok    = pix_cand.get_pixels(ok);
+if nout<5
     return;
 end
 %--------------------------------------------------------------------------
 % find unique indexes,
 % more then 5 outputs apparently requested to obtain sorted pixels
-loc_unique = unique(pix.run_idx);
+loc_unique = unique(pix_ok.run_idx);
 unique_runid = unique([unique_runid,loc_unique]);
 clear ok;
 %-------------------------------------------------------------------------
@@ -175,9 +205,9 @@ if ndims > 1 % convert to 1D indexes
     stride = cumprod(n_bins);
     pix_indx =(pix_indx-1)*[1,stride(1:end-1)]'+1;
 end
-
+pix = pix_ok;
 if ndims > 0
-    if num_outputs ==6
+    if nout ==6
         if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
             pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
         end
@@ -188,7 +218,8 @@ elseif ndims == 0
     if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
         pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
     end
-    if num_outputs == 6
+    if nout == 6
         pix_indx = ones(pix.num_pixels,1);
     end
 end
+pix_ok = pix;

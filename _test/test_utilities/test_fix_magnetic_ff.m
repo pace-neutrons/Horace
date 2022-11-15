@@ -102,7 +102,6 @@ classdef test_fix_magnetic_ff< TestCase
 
         end
         function test_dnd_vs_sqw(this)
-            skipTest("New dnd object gives brace indexing problem");
             fsqw = this.sample_sqw;
             %
             mff = MagneticIons('Ni0');
@@ -115,20 +114,7 @@ classdef test_fix_magnetic_ff< TestCase
 
             cut1= cut_dnd(fdnd_with_mag,[],[],[-0.1,0.1],[-10,10]);
             cut2= cut_dnd(fdnd_cut,[],[],[-0.1,0.1],[-10,10]);
-            assertElementsAlmostEqual(cut1.s,cut2.s,'absolute',0.06);
-            assertElementsAlmostEqual(cut1.e,cut2.e,'absolute',0.01);
-
-            fdnd_cut_s = struct(fdnd_cut);
-            fdnd_mag_s = struct(fdnd_with_mag);
-            fdnd_cut_s.s = [];
-            fdnd_mag_s.s=[];
-            fdnd_cut_s.e = [];
-            fdnd_mag_s.e=[];
-            fdnd_cut_s.npix = [];
-            fdnd_mag_s.npix=[];
-
-            assertEqual(fdnd_cut_s,fdnd_mag_s);
-
+            assertEqualToTol(cut1,cut2,'tol',[0.01,0.01])
 
         end
 

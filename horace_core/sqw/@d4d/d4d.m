@@ -21,7 +21,6 @@ classdef d4d < DnDBase
     end
 
     methods
-        wout = cut (varargin);
         function obj = d4d(varargin)
             obj = obj@DnDBase(varargin{:});
             if nargin == 0

@@ -2,7 +2,7 @@ function sacct_state = check_pending_state_(obj,sacct_state)
 % the partially completed function, which checks state from squeue & sinfo
 % and decides if treat pending state as failed.
 
-query = sprintf('squeue -j %d --noheader --format="%.2t %.6D %R"',obj.slurm_job_id);
+query = sprintf('squeue -j %d --noheader --format="%%.2t %%.6D %%R"',obj.slurm_job_id);
 reply = ask_system(obj,query);
 
 if isempty(reply)
@@ -49,7 +49,7 @@ else
     if fail
         error('HERBERT:ClusterSlurm:runtime_error',...
             'Can not execute sacct query for job %d state Error: %s',...
-            obj.slurn_job_id,full_state);
+            obj.slurm_job_id,full_state);
     end
     reply  = strtrim(full_state);
 end

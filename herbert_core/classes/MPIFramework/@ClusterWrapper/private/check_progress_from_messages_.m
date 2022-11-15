@@ -89,7 +89,7 @@ persistent fin_id;
 if isempty(fin_id)
     fin_id = MESS_NAMES.mess_id({'failed','cancelled'});
 end
-failed = any(tag==fin_id)
+failed = any(tag==fin_id);
 
 end
 
@@ -98,6 +98,6 @@ persistent fin_id;
 if isempty(fin_id)
     fin_id = MESS_NAMES.mess_id({'failed','cancelled','completed'});
 end
-completed = any(tag==fin_id)
+completed = any(tag==fin_id);
 
 end
