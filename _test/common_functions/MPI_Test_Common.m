@@ -50,6 +50,12 @@ classdef MPI_Test_Common < TestCase
                 pc.worker = 'worker_4tests_idaaas';
                 obj.worker = 'worker_4tests_idaaas';
             end
+            if is_jenkins
+                warning(' Setting parallel worker to special value: %s',...                
+                    which('worker_v2'));           
+                pc.worker = 'worker_v2';
+                obj.worker = 'worker_v2';                
+            end
             
             obj.old_parallel_config_ = opc;
             obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,opc));
