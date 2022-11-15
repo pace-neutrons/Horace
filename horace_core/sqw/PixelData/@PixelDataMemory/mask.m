@@ -1,4 +1,4 @@
-function pix_out = mask(obj, mask_array, varargin)
+function pix_out = mask(obj, mask_array, npix)
 % MASK remove the pixels specified by the input logical array
 %
 % You must specify exactly one return argument when calling this function.
@@ -35,7 +35,7 @@ if nargout ~= 1
         'called with exactly one output argument.']);
 end
 
-[mask_array, npix] = validate_input_args(obj, mask_array, varargin{:});
+[mask_array, npix] = validate_input_args(obj, mask_array, npix);
 
 if numel(mask_array) == obj.num_pixels && all(mask_array)
     pix_out = obj;
@@ -59,25 +59,15 @@ end
 end
 
 
-function [mask_array, npix] = validate_input_args(obj, mask_array, varargin)
+function [mask_array, npix] = validate_input_args(obj, mask_array, npix)
 parser = inputParser();
 parser.addRequired('obj');
 parser.addRequired('mask_array');
 parser.addOptional('npix', []);
-parser.parse(obj, mask_array, varargin{:});
+parser.parse(obj, mask_array, npix);
 
 mask_array = parser.Results.mask_array;
 npix = parser.Results.npix;
-persistent sum_all;
-if isempty(sum_all)
-    % versions lower then 2018b do not accept 'all' option
-    try
-        sum_all = @(x)sum(x,'all');
-        s = sum_all(1:10);
-    catch
-        sum_all = @(x)sum(reshape(x,[1,numel(x)]));
-    end
-end
 
 if numel(mask_array) ~= obj.num_pixels && isempty(npix)
     error('PIXELDATA:mask', ...
@@ -91,7 +81,7 @@ elseif ~isempty(npix)
         error('PIXELDATA:mask', ...
             ['Number of elements in mask_array and npix must be equal.' ...
             '\nFound %i and %i elements'], numel(mask_array), numel(npix));
-    elseif sum_all(npix) ~= obj.num_pixels
+    elseif sum(npix, 'all') ~= obj.num_pixels
         error('PIXELDATA:mask', ...
             ['The sum of npix must be equal to number of pixels.\n' ...
             'Found sum(npix) = %i, %i pixels required.'], ...
@@ -102,6 +92,7 @@ end
 if ~isvector(mask_array)
     mask_array = mask_array(:);
 end
+
 if ~isa(mask_array, 'logical')
     mask_array = logical(mask_array);
 end
