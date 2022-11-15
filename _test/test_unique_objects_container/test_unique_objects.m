@@ -47,10 +47,8 @@ classdef test_unique_objects < TestCase
 
             % test that there are 2 correspondingly different hashes in the
             % container for these instruments
-            assertEqual( size(uoc.stored_hashes,1), 2);
+            assertEqual( numel(uoc.stored_hashes), 2);
 
-            % test that each hash has has 16 uint8's in it
-            assertEqual( size(uoc.stored_hashes,2), 16);
 
             % test that the first 3 instruments in the container are the
             % same as instrument li
@@ -73,8 +71,7 @@ classdef test_unique_objects < TestCase
 
         %----------------------------------------------------------------
         function test_add_similar_non_unique_objects(obj)
-            disp('Test: test_add_similar_non_unique_objects');
-
+            %disp('Test: test_add_similar_non_unique_objects');
 
             mi2 = merlin_instrument(190, 700, 'g');
             assertFalse( isequal(obj.mi1,mi2) );
@@ -96,7 +93,7 @@ classdef test_unique_objects < TestCase
         end
         %----------------------------------------------------------------
         function test_add_different_types(obj)
-            disp('Test: test_add_different_types');
+            %disp('Test: test_add_different_types');
             ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
             clOb = onCleanup(@()warning(ws));
 

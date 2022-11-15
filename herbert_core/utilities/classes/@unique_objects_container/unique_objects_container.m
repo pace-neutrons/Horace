@@ -9,7 +9,7 @@ classdef unique_objects_container < serializable
 
     properties (Access=private)
         stored_objects_={}; % the actual unique objects - initialised in constructor by type
-        stored_hashes_ = [];  % their hashes are stored
+        stored_hashes_ = {};  % their hashes are stored
         idx_ = [];   % array of unique indices for each non-unique object added
         % defaults to this undocumented java
         convert_to_stream_f_ = @getByteStreamFromArray; %function handle
@@ -211,14 +211,14 @@ classdef unique_objects_container < serializable
             %convert_to_stream_f_ = @getByteStreamFromArray;
             Engine.update(self.convert_to_stream_f_(obj));
             hash = typecast(Engine.digest,'uint8');
-            hash = hash';
+            hash = char(hash');
         end
 
         function newself = rehashify_all(self)
             newself = self;
-            newself.stored_hashes_ = zeros(numel(self.stored_objects_),16);
+            newself.stored_hashes_ =cell(1,self.n_unique);
             for i=1:numel(self.stored_objects_)
-                newself.stored_hashes_(i,:) = self.hashify(self.stored_objects{i});
+                newself.stored_hashes_{i} = self.hashify(self.stored_objects{i});
             end
         end
     end
@@ -246,7 +246,7 @@ classdef unique_objects_container < serializable
                 % hash, is 1 (single item) so no need to return it.
                 % Argout(3), the index in self.stored_hashes_, is the index
                 % we need.
-                [~,~,ix] = intersect(hash, self.stored_hashes_, 'rows');
+                ix = find(ismember(self.stored_hashes_,hash));
             end
         end
     end
@@ -327,7 +327,7 @@ classdef unique_objects_container < serializable
             % store the object in the stored objects
             % take the index of the last stored object as the object index
             if isempty(ix) % means obj not in container and should be added
-                self.stored_hashes_ = cat(1, self.stored_hashes_, hash);
+                self.stored_hashes_ = [self.stored_hashes_(:),hash];
                 if iscell(self.stored_objects_)
                     self.stored_objects_ = cat(1, self.stored_objects_, {obj});
                 else
@@ -374,7 +374,7 @@ classdef unique_objects_container < serializable
             % check if you're trying to replace an object with an identical
             % one. If so silently return.
             objhash = self.hashify(obj);
-            curhash = self.stored_hashes_(self.idx_(nuix),:);
+            curhash = self.stored_hashes_{self.idx_(nuix)};
             if isequal(objhash, curhash)
                 return;
             end
@@ -403,7 +403,7 @@ classdef unique_objects_container < serializable
                     else
                         self.stored_objects(oldix) = obj;
                     end
-                    self.stored_hashes_(oldix,:) = hash;
+                    self.stored_hashes_{oldix} = hash;
                     self.n_duplicates_(oldix) = self.n_duplicates_(oldix)+1;
                 else
                     if iscell(self.stored_objects_)
@@ -411,7 +411,7 @@ classdef unique_objects_container < serializable
                     else
                         self.stored_objects_ = cat(1, self.stored_objects_, (obj));
                     end
-                    self.stored_hashes_ = cat(1, self.stored_hashes_, hash);
+                    self.stored_hashes_ = [self.stored_hashes_(:),hash];
                     self.idx_(nuix) = numel(self.stored_objects_);
                     self.n_duplicates_ = [self.n_duplicates_(:)', 1];
                 end
@@ -431,7 +431,7 @@ classdef unique_objects_container < serializable
                     else
                         lastobj = self.stored_objects_(end);
                     end
-                    lasthash = self.stored_hashes_(end,:);
+                    lasthash = self.stored_hashes_{end};
                     lastidx = numel(self.stored_objects_);
 
                     if oldix<lastidx
@@ -442,7 +442,7 @@ classdef unique_objects_container < serializable
                         else
                             self.stored_objects(oldix) = lastobj;
                         end
-                        self.stored_hashes_(oldix,:) = lasthash;
+                        self.stored_hashes_{oldix} = lasthash;
                         self.n_duplicates_(oldix) = self.n_duplicates_(lastidx);
 
                         % reference all non-unique objects equivalent to the
@@ -459,7 +459,7 @@ classdef unique_objects_container < serializable
 
                     % reduce the size of the unique object arrays
                     self.stored_objects_(end)=[];
-                    self.stored_hashes_(end,:) = [];
+                    self.stored_hashes_(end) = [];
                     self.n_duplicates_(end) = [];
 
                     % do the replacement
