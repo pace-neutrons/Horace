@@ -70,7 +70,7 @@ if ~isempty(main_sampl)
             else
                 error('HORACE:get_header:invalid argument',...
                       ['samples for file is neither a single sample ', ...
-                       'nor containes a sample for each run']);
+                       'nor contains a sample for each run']);
             end
         else
         main_sampl = repmat({main_sampl},1,exp_info.n_runs);

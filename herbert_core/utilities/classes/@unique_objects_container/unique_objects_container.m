@@ -327,7 +327,7 @@ classdef unique_objects_container < serializable
             % store the object in the stored objects
             % take the index of the last stored object as the object index
             if isempty(ix) % means obj not in container and should be added
-                self.stored_hashes_ = [self.stored_hashes_(:),hash];
+                self.stored_hashes_ = [self.stored_hashes_(:)',hash];
                 if iscell(self.stored_objects_)
                     self.stored_objects_ = cat(1, self.stored_objects_, {obj});
                 else

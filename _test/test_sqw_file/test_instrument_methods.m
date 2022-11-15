@@ -166,7 +166,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             inst = ldr1.get_instrument('-all');
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             inst = inst{1};
-            assertEqual(n_runs(inst),186);
+            assertEqual(inst.n_runs,186);
             hdr = wtmp_new.experiment_info;
             assertEqual(hdr.instruments{186},inst{186});
             assertEqual(hdr.instruments{10},inst{10});

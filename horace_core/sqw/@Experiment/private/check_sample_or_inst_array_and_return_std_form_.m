@@ -36,7 +36,7 @@ if isa(sample_or_instrument,'unique_objects_container')
         %std_form = unique_objects_container('type','{}','baseclass',class_base);
         error('HORACE:check_sample_or_inst_array_and_return_std_form:invalid_argument',...
         'unique_objects_container of wrong type');
-    elseif n_runs(sample_or_instrument)<1
+    elseif sample_or_instrument.n_runs<1
     	error('HORACE:check_sample_or_inst_array_and_return_std_form:invalid_argument',...
     	'unique_objects_container is empty');
     end 
@@ -60,7 +60,7 @@ elseif iscell(sample_or_instrument)
                 std_form = std_form.add(sample_or_instrument{i});
             end
         else
-            error('HORACE:check_sample_or_inst...:invalid_argument','must be inst or sample');
+            error('HORACE:check_sample_or_inst:invalid_argument','must be inst or sample');
         end
     end
 elseif isa(sample_or_instrument,class_base)
@@ -76,7 +76,7 @@ elseif isa(sample_or_instrument,class_base)
                     std_form = std_form.add(sample_or_instrument(i));
                 end
             else
-                error('HORACE:check_sample_or_inst...:invalid_argument',...
+                error('HORACE:check_sample_or_inst:invalid_argument',...
                       'number of samples must be 1 or  number of runs');
             end
     elseif strcmp(class_base,'IX_inst')
@@ -90,11 +90,11 @@ elseif isa(sample_or_instrument,class_base)
                 std_form = std_form.add(sample_or_instrument(i));
             end
         else
-            error('HORACE:check_sample_or_inst...:invalid_argument',...
+            error('HORACE:check_sample_or_inst:invalid_argument',...
                   'number of instruments must be 1 or  number of runs');
         end
     else
-        error('HORACE:check_sample_or_inst...:invalid_argument',...
+        error('HORACE:check_sample_or_inst:invalid_argument',...
               'must be inst or sample (singleton)');
     end
 else
