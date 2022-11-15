@@ -32,7 +32,7 @@ function output = obj2struct_private(input, public)
 
 if isstruct(input) || isobject(input)
     if isa(input,'serializable')
-        output = to_struct(input);
+        output = to_bare_struct(input);
     elseif numel(input)<=1  % include empty structure or object
         output = obj2struct_private_single(input,public);   % keep it simple for scalar case
     else
@@ -60,7 +60,7 @@ function output = obj2struct_private_single(input,public)
 
 if isobject(input)
   if isa(input,'serializable')
-      output = to_stuct(input);
+      output = to_bare_stuct(input);
       return;
   else
     if public
