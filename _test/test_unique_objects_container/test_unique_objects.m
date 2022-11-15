@@ -274,8 +274,6 @@ classdef test_unique_objects < TestCase
             assertEqual( uoc.n_runs,3);
             assertEqual( uoc.n_duplicates,[1,2]);
             uoc{3} = IX_null_inst();
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
 
             assertEqual(uoc.n_runs,3);            
             assertEqual(uoc.n_unique,1);
