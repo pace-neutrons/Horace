@@ -3,6 +3,8 @@ function pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
 %%GET_PIX_IN_RANGES read pixels in the specified ranges
 % Ranges are inclusive.
 %
+%  E.g. for 3 sets of pixels (1-6, 12, 25-27)
+%
 %   >> pix = get_pix_in_ranges([1, 12, 25], [6, 12, 27])
 %
 % Input:
