@@ -87,7 +87,7 @@ classdef test_cut < TestCase & common_state_holder
             sqw_obj2 = sqw(obj.sqw_file);
 
             out_sqw = cut([sqw_obj1, sqw_obj2], obj.ref_params{:});
-            assertEqual(out_sqw(1),out_sqw(2))
+            assertEqualToTol(out_sqw(1),out_sqw(2),'-ignore_date');
         end
 
         function test_take_a_cut_integrating_over_more_than_1_axis(obj)
