@@ -212,9 +212,9 @@ if isempty(inst)
             'The instrument has not been defined for all contributing raw data files')
     end
 end
-if strcmp(inst,'IX_inst_DGfermi')
+if isa(inst,'IX_inst_DGfermi')
     resfun_model = @tobyfit_DGfermi_resfun_covariance;
-elseif strcmp(inst,'IX_inst_DGdisk')
+elseif isa(inst,'IX_inst_DGdisk')
     resfun_model = @tobyfit_DGdisk_resfun_covariance;
 else
     error('HORACE:resolution_plot:invalid_argument',...

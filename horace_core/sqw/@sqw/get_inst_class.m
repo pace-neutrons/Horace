@@ -33,7 +33,7 @@ if numel(main_inst)>1
 end
 inst_type = class(main_inst{1});
 for i=2:numel(obj)
-    other_inst = obj(i).experiment_info.instrument.unique_objects;
+    other_inst = obj(i).experiment_info.instruments.unique_objects;
     if numel(other_inst)>1
         error('HORACE:tobyfit:not_implemented',...
             'Tobyfit does not currently works with multiple different instruments')
