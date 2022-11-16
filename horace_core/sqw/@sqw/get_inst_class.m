@@ -22,7 +22,7 @@ function [inst, all_inst] = get_inst_class (obj)
 % Check data
 % Get instrument information
 main_inst = obj(1).experiment_info.instruments.unique_objects;
-if isempty(main_inst)
+if isempty(main_inst) || isa(main_inst{1},'IX_null_inst')
     inst = [];
     all_inst = false;
     return;
@@ -34,7 +34,7 @@ end
 inst_type = class(main_inst{1});
 for i=2:numel(obj)
     other_inst = obj(i).experiment_info.instrument.unique_objects;
-    if numel(main_inst)>1
+    if numel(other_inst)>1
         error('HORACE:tobyfit:not_implemented',...
             'Tobyfit does not currently works with multiple different instruments')
     end

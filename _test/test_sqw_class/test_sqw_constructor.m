@@ -34,10 +34,10 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertEqual(sqw_obj.main_header, main_header_cl());
             assertTrue(isa(sqw_obj.experiment_info, 'Experiment'));
 
-            assertTrue((sqw_obj.experiment_info.instruments.n_total()==1));
-            assertTrue(isa(sqw_obj.experiment_info.instruments{1},'IX_null_inst'));
-            assertTrue((sqw_obj.experiment_info.samples.n_total()==1));
-            assertTrue(isa(sqw_obj.experiment_info.samples{1},'IX_null_sample'));
+            assertTrue((sqw_obj.experiment_info.instruments.n_runs==0));
+            assertTrue(isempty(sqw_obj.experiment_info.instruments{1}));
+            assertTrue((sqw_obj.experiment_info.samples.n_runs==0));
+            assertTrue(isempty(sqw_obj.experiment_info.samples{1}));
             assertEqual(sqw_obj.detpar, struct([]));
             assertEqual(sqw_obj.pix, PixelData());
             assertEqual(numel(sqw_obj.data.pax), 0);

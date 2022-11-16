@@ -95,10 +95,6 @@ classdef Experiment < serializable
             if nargin == 0
             	% add one null instrument if using the vanilla constructor
             	% to satisfy the requirements of subsequent initialisation
-                inst = IX_null_inst();
-                obj.instruments = obj.instruments.add(inst);
-                samp = IX_null_sample();
-                obj.samples = obj.samples.add(samp);
                 return;
             end
             obj = init_(obj,varargin{:});

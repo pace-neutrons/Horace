@@ -66,7 +66,7 @@ classdef unique_objects_container < serializable
                 self = self.check_combo_arg();
             end
         end
-%
+        %
         function x = get.stored_hashes(self)
             x = self.stored_hashes_;
         end
@@ -98,7 +98,7 @@ classdef unique_objects_container < serializable
                 x = '[]';
             end
         end
-%
+        %
         function x = get.baseclass(self)
             x = self.baseclass_;
         end
@@ -111,7 +111,7 @@ classdef unique_objects_container < serializable
                 self = self.check_combo_arg();
             end
         end
-%
+        %
         function x = get.convert_to_stream_f(self)
             x = self.convert_to_stream_f_;
         end
@@ -122,7 +122,7 @@ classdef unique_objects_container < serializable
             end
             self.convert_to_stream_f_ = val;
         end
-%
+        %
         function x = get.n_duplicates(self)
             x = self.n_duplicates_;
         end
@@ -282,7 +282,7 @@ classdef unique_objects_container < serializable
         function n = get.n_unique(self)
             n = numel(self.unique_objects_);
         end
-        
+
 
         function sset = get_subset(self,indices)
             sset = unique_objects_container('type',self.container_type,'baseclass',self.baseclass);
@@ -513,14 +513,22 @@ classdef unique_objects_container < serializable
                 case '()'
                     if ~iscell(self.unique_objects_)
                         b = idxstr(1).subs{:};
-                        varargout{1} = self.unique_objects_(self.idx_(b));
+                        if isempty(self.unique_objects_)
+                            varargout{1} = self.unique_objects_;
+                        else
+                            varargout{1} = self.unique_objects_(self.idx_(b));
+                        end
                     else
                         error('HERBERT:unique_objects_container:invalid_argument','parentheses for cell storage');
                     end
                 case '{}'
                     if iscell(self.unique_objects_)
                         b = idxstr(1).subs{:};
-                        varargout{1} = self.unique_objects_{self.idx_(b)};
+                        if isempty(self.unique_objects_)
+                            varargout{1} = self.unique_objects_;
+                        else
+                            varargout{1} = self.unique_objects_{self.idx_(b)};
+                        end
                     else
                         error('HERBERT:unique_objects_container:invalid_argument','braces for array storage');
                     end

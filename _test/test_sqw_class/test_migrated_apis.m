@@ -313,7 +313,7 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
 
             updated = s.set_instrument(expected_inst);
             %assertTrue(all(cellfun(@(x) equal_to_tol(x, expected_inst), updated.experiment_info.instruments)));
-            for i=1:n_total(updated.experiment_info.instruments)
+            for i=1:updated.experiment_info.instruments.n_runs
                 instr = updated.experiment_info.instruments{i};
                 assertTrue( equal_to_tol( instr, expected_inst) );
             end
