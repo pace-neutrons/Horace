@@ -22,10 +22,10 @@ if isempty(sample_or_instrument)
     is = true;
     if strcmp(class_base,'IX_samp')
         %std_form = {IX_null_sample()};
-        std_form = unique_objects_container('type','{}','baseclass','IX_samp'); 
+        std_form = unique_objects_container('baseclass','IX_samp'); 
         std_form = std_form.add(IX_null_sample());
     else
-        std_form = unique_objects_container('type','{}','baseclass','IX_inst'); %{IX_null_inst()};
+        std_form = unique_objects_container('baseclass','IX_inst'); %{IX_null_inst()};
         std_form = std_form.add(IX_null_inst());
     end
     return;
@@ -33,7 +33,7 @@ end
 if isa(sample_or_instrument,'unique_objects_container')
     is = strcmp(class_base, sample_or_instrument.baseclass);
     if ~is
-        %std_form = unique_objects_container('type','{}','baseclass',class_base);
+        %std_form = unique_objects_container('baseclass',class_base);
         error('HORACE:check_sample_or_inst_array_and_return_std_form:invalid_argument',...
         'unique_objects_container of wrong type');
     elseif sample_or_instrument.n_runs<1
@@ -50,12 +50,12 @@ elseif iscell(sample_or_instrument)
         std_form = {}; % will throw anyway
     else
         if isa(sample_or_instrument{1},'IX_samp')
-            std_form = unique_objects_container('type','{}','baseclass',class_base);
+            std_form = unique_objects_container('baseclass',class_base);
             for i = 1:numel(sample_or_instrument)
                 std_form = std_form.add(sample_or_instrument{i});
             end
         elseif isa(sample_or_instrument{1},'IX_inst')
-            std_form = unique_objects_container('type','{}','baseclass',class_base);
+            std_form = unique_objects_container('baseclass',class_base);
             for i = 1:numel(sample_or_instrument)
                 std_form = std_form.add(sample_or_instrument{i});
             end
@@ -66,7 +66,7 @@ elseif iscell(sample_or_instrument)
 elseif isa(sample_or_instrument,class_base)
     is = true;
     if strcmp(class_base,'IX_samp')
-            std_form = unique_objects_container('type','{}','baseclass',class_base);
+            std_form = unique_objects_container('baseclass',class_base);
             if numel(sample_or_instrument)==1
                 for i=1:max(1,obj.n_runs)
                     std_form = std_form.add(sample_or_instrument);
@@ -80,7 +80,7 @@ elseif isa(sample_or_instrument,class_base)
                       'number of samples must be 1 or  number of runs');
             end
     elseif strcmp(class_base,'IX_inst')
-        std_form = unique_objects_container('type','{}','baseclass',class_base);
+        std_form = unique_objects_container('baseclass',class_base);
         if numel(sample_or_instrument)==1
             for i=1:max(1,obj.n_runs)
                 std_form = std_form.add(sample_or_instrument);

@@ -47,7 +47,8 @@ classdef test_instrument_methods < TestCaseWithSave
             % Set instruments individually
             inst_arr = repmat(self.inst_1, 120, 1);
             inst_arr(100) = self.inst_2;
-            
+
+            skipTest('set_instrument is currently disabled. Ticket #899')                        
             wnew_fe = set_instrument(self.w_fe, inst_arr);
             
             hdr = wnew_fe.experiment_info;

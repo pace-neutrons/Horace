@@ -58,7 +58,7 @@ if ~isempty(main_sampl)
         end
         if isa(main_sampl,'unique_objects_container')
             if main_sampl.n_runs()==1
-                tmp_sampl = unique_objects_container('type','{}','baseclass','IX_samp');
+                tmp_sampl = unique_objects_container('baseclass','IX_samp');
                 tmp_sampl = tmp_sampl.add(main_sampl{1});
                 for i=2:n_runs
                     tmp_sampl = tmp_sampl.add(main_sampl{1});
@@ -68,7 +68,7 @@ if ~isempty(main_sampl)
                 % container is fine, leave as is for assignment to exp_info
                 % below
             else
-                error('HORACE:get_header:invalid argument',...
+                error('HORACE:get_header:invalid_argument',...
                       ['samples for file is neither a single sample ', ...
                        'nor contains a sample for each run']);
             end
@@ -118,7 +118,7 @@ if ~any(isempty(instr)) % all instruments are valid instruments
                 % setting of instruments to empty container nor to
                 % container with wrong number of runs, so assemble tmp
                 % container with correct properties before assigning
-                tmp_instr = unique_objects_container('type','{}','baseclass','IX_inst');
+                tmp_instr = unique_objects_container('baseclass','IX_inst');
                 tmp_instr = tmp_instr.add(instr{1});
                 for i=2:n_runs
                     tmp_instr = tmp_instr.add(instr{1}); %exp_info.instruments.add(instr{i});
@@ -127,7 +127,7 @@ if ~any(isempty(instr)) % all instruments are valid instruments
             elseif instr.n_runs()==n_runs
                 exp_info.instruments = instr;
             else
-                error('HORACE:get_header:invalid argument', ...
+                error('HORACE:get_header:invalid_argument', ...
                       ['instruments from file is neither a single instrument, ' ...
                        'nor contains an instrument for each run']);
             end
