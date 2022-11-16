@@ -57,6 +57,7 @@
 <li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Advanced Multifit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parallel-fitting">Parallel fitting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#multifit-methods-requirements">Multifit methods requirements</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#fit-functions">Fit functions</a></li>
 </ul>
@@ -64,6 +65,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">Running Horace in Parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
@@ -105,52 +107,108 @@
              
   <section id="advanced-multifit">
 <h1>Advanced Multifit<a class="headerlink" href="#advanced-multifit" title="Permalink to this heading"></a></h1>
-<p>This document describes how to set up an object to work with Multifit specifications</p>
+<section id="parallel-fitting">
+<h2>Parallel fitting<a class="headerlink" href="#parallel-fitting" title="Permalink to this heading"></a></h2>
+<p>It is possible to use <code class="docutils literal notranslate"><span class="pre">multifit</span></code> and its derivatives (<code class="docutils literal notranslate"><span class="pre">tobyfit</span></code>, <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">multifit_sqw_sqw</span></code>) in parallel
+(see <a class="reference internal" href="Parallel.html#running-horace-in-parallel"><span class="std std-ref">Running Horace in Parallel</span></a> for more info) by either enabling HPC options through</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hpc</span><span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>or by setting <code class="docutils literal notranslate"><span class="pre">parallel_multifit</span></code> directly in the <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code> (see <a class="reference internal" href="Changing_Horace_settings.html#hpc-config"><span class="std std-ref">Changing Horace settings</span></a>)</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hpc_config</span><span class="p">;</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hc</span><span class="p">.</span><span class="n">parallel_multifit</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Parallel multifit decomposes the objects passed in into slices which are distributed between the processors. E.g. if we
+are fitting three <code class="docutils literal notranslate"><span class="pre">IX_dataset</span></code> objects with 100 points between two processors, each processor will receive 50
+points from each <code class="docutils literal notranslate"><span class="pre">IX_dataset</span></code>.</p>
+<p>This decomposition is performed differently for each of the three classes of fittable objects for each they are divided
+into <code class="docutils literal notranslate"><span class="pre">N_items/N_procs</span></code>:</p>
+<ul class="simple">
+<li><p>For sqw objects, the items are pixels</p></li>
+<li><p>For dnd objects, the items are whole bins.</p></li>
+<li><p>For IX_dataset objects, the items are points.</p></li>
+</ul>
+<p>If the fitting is run with the <code class="docutils literal notranslate"><span class="pre">-ave</span></code> option, then the decomposition will not split bins, but will distribute whole
+bins only.</p>
+</section>
 <section id="multifit-methods-requirements">
 <h2>Multifit methods requirements<a class="headerlink" href="#multifit-methods-requirements" title="Permalink to this heading"></a></h2>
-<p>In many cases, the most convenient thing to do is extract the x,y,e arrays from an object and pass those to multifit. This can be done by using a method defined on the object to extract an x,y,e triple:</p>
+<p>This section describes how to set up an object to work with Multifit specifications</p>
+<p>In many cases, the most convenient thing to do is extract the x,y,e arrays from an object and pass those to
+multifit. This can be done by using a method defined on the object to extract an x,y,e triple:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[</span><span class="n">wout</span><span class="p">,</span><span class="w"> </span><span class="n">fitdata</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="w"> </span><span class="p">(</span><span class="n">xye</span><span class="p">(</span><span class="n">w</span><span class="p">),</span><span class="w"> </span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="n">pin</span><span class="p">,</span><span class="k">...</span><span class="c">)</span><span class="w"></span>
 </pre></div>
 </div>
-<p>where the method xye must return a structure of the form required by multifit, namely a structure with fields ‘x’,’y’ and ‘e’ ,where ‘x’ is a cell array {x1,x2,…} containing the coordinates of the points along the first, second… axes, and ‘e’ contains the standard deviations. A convenient way to do this is to use the methods sigvar_get and sigvar_getx if they have been written to allow the object itself to be passed to multifit (see below).</p>
-<p>If multifit is being used to fit functions to objects rather than x-y-e triples, then there are some methods that need to be defined. You might want to fit the objects if their internal structure is more complex, for example if the fitting function depends on fields other than just the x values and parameters being passed to the fit function. Another case is when the masking of points from fitting requires manipulation of fields other than simply removing x-y-e values. [An example is the case of the sqw objects used in Horace. Here the calculation of the intensity at a data point depends on the information of the individual pixels that contribute to that data point. Masking requires that the pixel information of masked bins is removed from the sqw object.]</p>
+<p>where the method xye must return a structure of the form required by multifit, namely a structure with fields <code class="docutils literal notranslate"><span class="pre">x</span></code>,
+<code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">e</span></code> ,where <code class="docutils literal notranslate"><span class="pre">x</span></code> is a cell array <code class="docutils literal notranslate"><span class="pre">{x1,x2,...}</span></code> containing vectors of coordinates of the points along the
+first, second, …  axes, and <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">e</span></code> are vectors of the signal standard deviations repeactively. A convenient
+way to do this is to use the methods sigvar_get and sigvar_getx if they have been written to allow the object itself to
+be passed to multifit (see below).</p>
+<p>If multifit is being used to fit functions to objects rather than x-y-e triples, then there are some methods that need
+to be defined. You might want to fit the objects if their internal structure is more complex, for example if the fitting
+function depends on fields other than just the x values and parameters being passed to the fit function. Another case is
+when the masking of points from fitting requires manipulation of fields other than simply removing x-y-e values. [An
+example is the case of the sqw objects used in Horace. Here the calculation of the intensity at a data point depends on
+the information of the individual pixels that contribute to that data point. Masking requires that the pixel information
+of masked bins is removed from the sqw object.]</p>
 <p>The methods required for fitting objects with multifit are as follows:</p>
 <section id="fit-functions">
 <h3>Fit functions<a class="headerlink" href="#fit-functions" title="Permalink to this heading"></a></h3>
-<p>The global function, and background function(s) if given, can be methods of the class or simply functions, with input argument form as described in detail in multifit help. The general format is:</p>
+<p>The global function, and background function(s) if given, can be methods of the class or simply functions, with input
+argument form as described in detail in multifit help. The general format is:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">wcalc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_function</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span><span class="p">,</span><span class="k">...</span><span class="c">)</span><span class="w"></span>
 </pre></div>
 </div>
-<p>If multifit is defined as a method of the class, then one can use the capability of nesting functions within the method to accept different fit function syntax. This is done, for example, for sqw objects when the fit functions to multifit, and equivalently multifit_func, are just a 1D/2D…4D Gaussian (according to the dimensionality of the sqw object).</p>
+<p>If multifit is defined as a method of the class, then one can use the capability of nesting functions within the method
+to accept different fit function syntax. This is done, for example, for sqw objects when the fit functions to multifit,
+and equivalently multifit_func, are just a 1D/2D…4D Gaussian (according to the dimensionality of the sqw object).</p>
 <section id="utility-methods">
 <h4>Utility methods<a class="headerlink" href="#utility-methods" title="Permalink to this heading"></a></h4>
 <p>These are required to enable multifit to work with objects</p>
 <section id="wout-mask-win-msk">
-<h5>wout = mask (win, msk)<a class="headerlink" href="#wout-mask-win-msk" title="Permalink to this heading"></a></h5>
-<p>A method that masks data points from further calculation. The output object must be a valid instance of the class in which the masked values have been removed in whatever sense the class requires.</p>
+<h5>wout = mask(win, msk)<a class="headerlink" href="#wout-mask-win-msk" title="Permalink to this heading"></a></h5>
+<p>A method that masks data points from further calculation. The output object must be a valid instance of the class in
+which the masked values have been removed in whatever sense the class requires.</p>
 </section>
 <section id="y-var-msk-sigvar-get-win">
 <h5>[y,var,msk] = sigvar_get(win)<a class="headerlink" href="#y-var-msk-sigvar-get-win" title="Permalink to this heading"></a></h5>
-<p>A method that returns the intensity and variance arrays from the objects, along with a mask array that indicates which elements are to be retained (where elements of msk are true, the corresponding elements of y and var are retained). The output arrays y and var must have the same size and shape; msk must have the same number of elements (but can be a different shape). The array msk must be understood by the method ‘mask’ defined below.</p>
+<p>A method that returns the intensity and variance arrays from the objects, along with a mask array that indicates which
+elements are to be retained (where elements of msk are true, the corresponding elements of y and var are retained). The
+output arrays y and var must have the same size and shape; msk must have the same number of elements (but can be a
+different shape). The array msk must be understood by the method ‘mask’ defined below.</p>
 </section>
 <section id="wsum-w1-w2">
 <h5>wsum = w1 + w2<a class="headerlink" href="#wsum-w1-w2" title="Permalink to this heading"></a></h5>
-<p>If a background function is provided, addition of objects must be defined as (requires overloading of the addition operator with a method named plus.m)</p>
+<p>If a background function is provided, addition of objects must be defined (requires overloading of the addition
+operator with a method named plus.m).</p>
 </section>
-<section id="optional-x-sigvar-getx-win">
-<h5><strong>optional</strong> x = sigvar_getx(win)<a class="headerlink" href="#optional-x-sigvar-getx-win" title="Permalink to this heading"></a></h5>
+<section id="x-sigvar-getx-win-optional">
+<h5>x = sigvar_getx(win) [optional]<a class="headerlink" href="#x-sigvar-getx-win-optional" title="Permalink to this heading"></a></h5>
 <p>Get the corresponding x values to the y, var, msk arrays that are returned by sigvar_get.</p>
-<dl class="simple">
-<dt>-if one dimensional i.e. single x coordinate per point:</dt><dd><p>x must be a single array, the same size as y and var</p>
-</dd>
-<dt>-if n-dimensional i.e. n x-values per point:</dt><dd><p>x must be a cell array of arrays, one per x dimension, each the same size as y and var as returned by sigvar_get.</p>
-</dd>
-</dl>
-<p>This method replaces the need to have the method ‘mask_points’ described below, as  ‘sigvar_getx’ will enable the masking function built in to multifit to be used. However, if mask_points exists, then it will have priority over the use of sigvar_getx.</p>
+<ul>
+<li><p>If one dimensional i.e. single x coordinate per point:</p>
+<blockquote>
+<div><p>x must be a single array, the same size as y and var</p>
+</div></blockquote>
+</li>
+<li><p>If n-dimensional i.e. n x-values per point:</p>
+<blockquote>
+<div><p>x must be a cell array of arrays, one per x dimension, each the same size as y and var as returned by sigvar_get.</p>
+</div></blockquote>
+</li>
+</ul>
+<p>This method replaces the need to have the method ‘mask_points’ described below, as ‘sigvar_getx’ will enable the masking
+function built in to multifit to be used. However, if mask_points exists, then it will have priority over the use of
+sigvar_getx.</p>
 </section>
-<section id="optional-msk-ok-mess-mask-points-win-keep-xkeep-remove-xremove-mask-msk-in">
-<h5><strong>optional</strong> [msk, ok, mess] = mask_points (win, ‘keep’, xkeep, ‘remove’, xremove, ‘mask’, msk_in)<a class="headerlink" href="#optional-msk-ok-mess-mask-points-win-keep-xkeep-remove-xremove-mask-msk-in" title="Permalink to this heading"></a></h5>
-<p>Create a mask array given ranges of x-coordinates to keep &amp;/or remove &amp;/or mask array. The elements of a mask array are true for those data points which are to be retained. Must output a logical flag ok, with message string if ok==false rather than terminate. (Can have it terminate if ok and mess are not given as return arguments; it is the advanced syntax that is required within multifit).</p>
+<section id="msk-ok-mess-mask-points-win-keep-xkeep-remove-xremove-mask-msk-in-optional">
+<h5>[msk, ok, mess] = mask_points(win, ‘keep’, xkeep, ‘remove’, xremove, ‘mask’, msk_in) [optional]<a class="headerlink" href="#msk-ok-mess-mask-points-win-keep-xkeep-remove-xremove-mask-msk-in-optional" title="Permalink to this heading"></a></h5>
+<p>Create a mask array given ranges of x-coordinates to keep, remove or mask from the array. The elements of a mask array are
+<code class="docutils literal notranslate"><span class="pre">true</span></code> for those data points which are to be retained.</p>
+<p>Function must output a logical flag <code class="docutils literal notranslate"><span class="pre">ok</span></code>, with message string if <code class="docutils literal notranslate"><span class="pre">ok==false</span></code> rather than terminate.</p>
+<p>(It is possible to have the function terminate if <code class="docutils literal notranslate"><span class="pre">ok</span></code> and <code class="docutils literal notranslate"><span class="pre">mess</span></code> are not given as return arguments; it is the
+advanced syntax that is required within multifit).</p>
 </section>
 </section>
 </section>
@@ -169,7 +227,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2022, STFC RAL.
-      <span class="lastupdated">Last updated on Nov 15, 2022, 10:31:02 AM.
+      <span class="lastupdated">Last updated on Nov 16, 2022, 1:44:40 PM.
       </span></p>
   </div>
 

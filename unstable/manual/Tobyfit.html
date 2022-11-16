@@ -20,7 +20,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="List of functions" href="List_of_functions.html" />
+    <link rel="next" title="Running Horace in Parallel" href="Parallel.html" />
     <link rel="prev" title="Advanced Multifit" href="Advanced_Multifit.html" /> 
 </head>
 
@@ -66,6 +66,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">Running Horace in Parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
@@ -109,44 +110,66 @@
 <h1>Tobyfit<a class="headerlink" href="#tobyfit" title="Permalink to this heading"></a></h1>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
-<p>The purpose of Tobyfit is to enable you to fit to Horace datasets taking into account the broadening of the data arising from the resolution of the instrument. Even if the excitations in your sample were infinitely long-lives you would have non-zero broadening in energy and wave vector arising from numerous contributions. The spread of energies arise from:</p>
+<p>The purpose of Tobyfit is to enable you to fit to Horace datasets taking into account the broadening of the data arising
+from the resolution of the instrument. Even if the excitations in your sample were infinitely long-lives you would have
+non-zero broadening in energy and wave vector arising from numerous contributions. The spread of energies arise from:</p>
 <ul class="simple">
 <li><p>the non-zero width in the moderator pulse;</p></li>
 <li><p>the non-zero pulse width from the Fermi or disk choppers;</p></li>
-<li><p>the different flight-times for the neutrons due to different distances that neutrons travel depending on the point of emission from the moderator, point of scattering ion the sampel and point of absorption in the detector.</p></li>
+<li><p>the different flight-times for the neutrons due to different distances that neutrons travel depending on the point of
+emission from the moderator, point of scattering ion the sampel and point of absorption in the detector.</p></li>
 </ul>
 <p>The spread of wavevector arises from:
 - spread of angle of the incident neutrons at the sample from the non-zero width of the moderator;
 - the non-zero size of the sample;
 - a spread of scattering angles into a given detector element because of the non-zero size of the detector element.</p>
-<p>Resolution effects can be quite considerable. Not only do they result in an increase in the energy width of peaks (thereby giving an illusory shorter lifetime of the excitations), they can also shift the positions of peaks depending on, for example, the curvature of dispersion relation within the resolution function. This can result in incorrect values of exchange constants being extracted from the data is resolution is ignored.</p>
-<p>Tobyfit uses the multifit fitting interface to enable you fit your data to a model for S(Q,w) together with background functions. By default the S(Q,w) model can be global to all of the datasets you pass to Tobyfit i.e. a single model that applies with the same parameter values to all datasets, with independent background functions for each of the datasets. Alternatively, you can specify that the S(Q,w) model is local i.e. the parameters vary independently for each dataset, but you can constrain parameters to be bound between the S(Q,w) models so that, for example, they all share common magnetic exchange constants but the intensities and intrinsic lifetimes can vary independently for each cut.</p>
-<p>Tobyfit therefore appears to operate just like <a class="reference internal" href="Multifit.html#multifit-sqw"><span class="std std-ref">multifit_sqw</span></a>, with the same set of capabilities of controlling parameter setting, binding etc that all other <a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">multifit variants</span></a> have. The difference is that Tobyfit uses instrument information in the sqw objects to convolute the S(Q,w) model(s) with the instrument resolution function using a Monte Carlo multi-dimensional integration, and provides some additional methods to control how the convolution is carried out. Note that the background functions are *not* convoluted with the resolution function - the assumption is that they are simply empirical functions such as linear background models and so resolution function convolution makes little sense.</p>
-<p>This also means that instrument information must be included in the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. At present, this is done using the <code class="docutils literal notranslate"><span class="pre">&lt;inst&gt;_instrument</span></code> functions which are defined for the three ISIS spectrometers LET, MAPS and MERLIN. In future, this information will be included when the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file is constructed by <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> if the input files contain suitable information.</p>
+<p>Resolution effects can be quite considerable. Not only do they result in an increase in the energy width of peaks
+(thereby giving an illusory shorter lifetime of the excitations), they can also shift the positions of peaks depending
+on, for example, the curvature of dispersion relation within the resolution function. This can result in incorrect
+values of exchange constants being extracted from the data is resolution is ignored.</p>
+<p>Tobyfit uses the multifit fitting interface to enable you fit your data to a model for S(<strong>Q</strong>,w) together with background
+functions. By default the S(<strong>Q</strong>,w) model can be global to all of the datasets you pass to Tobyfit i.e. a single model that
+applies with the same parameter values to all datasets, with independent background functions for each of the
+datasets. Alternatively, you can specify that the S(<strong>Q</strong>,w) model is local i.e. the parameters vary independently for each
+dataset, but you can constrain parameters to be bound between the S(<strong>Q</strong>,w) models so that, for example, they all share
+common magnetic exchange constants but the intensities and intrinsic lifetimes can vary independently for each cut.</p>
+<p>Tobyfit therefore appears to operate just like <a class="reference internal" href="Multifit.html#multifit-sqw"><span class="std std-ref">multifit_sqw</span></a>, with the same set of
+capabilities of controlling parameter setting, binding etc that all other <a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">multifit variants</span></a> have. The difference is that Tobyfit uses instrument information in the sqw objects to
+convolute the S(<strong>Q</strong>,w) model(s) with the instrument resolution function using a Monte Carlo multi-dimensional integration,
+and provides some additional methods to control how the convolution is carried out. Note that the background functions
+are *not* convoluted with the resolution function - the assumption is that they are simply empirical functions such as
+linear background models and so resolution function convolution makes little sense.</p>
+<p>This also means that instrument information must be included in the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. At present, this is done using the
+<code class="docutils literal notranslate"><span class="pre">&lt;inst&gt;_instrument</span></code> functions which are defined for the three ISIS spectrometers LET, MAPS and MERLIN. In future, this
+information will be included when the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file is constructed by <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> if the input files contain suitable
+information.</p>
 </section>
 <section id="performing-resolution-convolution">
 <h2>Performing resolution convolution<a class="headerlink" href="#performing-resolution-convolution" title="Permalink to this heading"></a></h2>
 <section id="setting-the-sample-and-instrument-information">
 <h3>Setting the sample and instrument information<a class="headerlink" href="#setting-the-sample-and-instrument-information" title="Permalink to this heading"></a></h3>
-<p>The first thing you need to do is provide the sample and instrument information to your datasets. You can do this by creating a sample object. There is an object class called <code class="docutils literal notranslate"><span class="pre">IX_sample</span></code> which does this; type <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">IX_sample</span></code> for more information. An example invocation is :</p>
+<p>The first thing you need to do is provide the sample and instrument information to your datasets. You can do this by
+creating a sample object. There is an object class called <code class="docutils literal notranslate"><span class="pre">IX_sample</span></code> which does this; type <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">IX_sample</span></code> for more
+information. An example invocation is :</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_sample</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">IX_sample</span><span class="p">(</span><span class="nb">true</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;cuboid&#39;</span><span class="p">,[</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.04</span><span class="p">])</span><span class="w"></span>
 </pre></div>
 </div>
-<p>Next you must create an instrument description. Horace provides functions for the ISIS chopper spectrometers that do this. For example, for the MAPS spectrometer you can use</p>
+<p>Next you must create an instrument description. Horace provides functions for the ISIS chopper spectrometers that do
+this. For example, for the MAPS spectrometer you can use</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">instru</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">maps_instrument</span><span class="w"> </span><span class="p">(</span><span class="n">ei</span><span class="p">,</span><span class="w"> </span><span class="n">frequency</span><span class="p">,</span><span class="w"> </span><span class="n">chopper_type</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <p>where</p>
-<dl class="simple">
-<dt>ei</dt><dd><p>incident energy (meV)</p>
-</dd>
-<dt>frequency</dt><dd><p>frequency of the Fermi chopper</p>
-</dd>
-<dt>chopper_type</dt><dd><p>character that indicates the chopper type (in the case of MAPS this is ‘A’ , ‘B’ or ‘S’ for the sloppy chopper)</p>
-</dd>
-</dl>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ei</span></code> : incident energy (meV)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">frequency</span></code> : frequency of the Fermi chopper</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chopper_type</span></code> : character that indicates the chopper type (in the case of MAPS this is ‘A’ , ‘B’ or ‘S’ for the sloppy chopper)</p></li>
+</ul>
 <p>The functions for the other spectrometers are <code class="docutils literal notranslate"><span class="pre">merlin_instrument</span></code>, <code class="docutils literal notranslate"><span class="pre">mari_instrument</span></code>, and <code class="docutils literal notranslate"><span class="pre">let_instrument</span></code>.</p>
-<p>Now you need to associate this information with the cuts you wish to fit with Tobyfit. Tobyfit will only fit sqw objects, because the information of each individual detector-energy bin is needed to perform the resolution convolution. This information is removed when you create cuts of type d1d, d2d, etc. If you have already created the cuts then you do the following:</p>
+<p>Now you need to associate this information with the cuts you wish to fit with Tobyfit. Tobyfit will only fit sqw
+objects, because the information of each individual detector-energy bin is needed to perform the resolution
+convolution. This information is removed when you create cuts of type d1d, d2d, etc. If you have already created the
+cuts then you do the following:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_cuts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_sample</span><span class="w"> </span><span class="p">(</span><span class="n">my_cuts</span><span class="p">,</span><span class="w"> </span><span class="n">my_sample</span><span class="p">)</span><span class="w"></span>
 <span class="n">my_cuts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_instrument</span><span class="w"> </span><span class="p">(</span><span class="n">my_cuts</span><span class="p">,</span><span class="w"> </span><span class="n">instru</span><span class="p">)</span><span class="w"></span>
 </pre></div>
@@ -161,16 +184,22 @@
 </section>
 <section id="fitting-data">
 <h3>Fitting data<a class="headerlink" href="#fitting-data" title="Permalink to this heading"></a></h3>
-<p>Once you have set the sample and instrument you can start fitting your data. To start, you need to create a fitting object, which in the following example we’ll give the name <code class="docutils literal notranslate"><span class="pre">tf</span></code>:</p>
+<p>Once you have set the sample and instrument you can start fitting your data. To start, you need to create a fitting
+object, which in the following example we’ll give the name <code class="docutils literal notranslate"><span class="pre">tf</span></code>:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="w"> </span><span class="p">(</span><span class="n">my_cuts</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
-<p>Now you have created this object, the procedure is just the same as for the various other flavours of <code class="docutils literal notranslate"><span class="pre">multifit</span></code>, and specifically the form of the fitting functions is the same as <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>. You can follow the link to <a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">multifit</span></a> for the general information about how to create a fit, and <a class="reference internal" href="Multifit.html#multifit-sqw"><span class="std std-ref">multifit_sqw</span></a> for the form of the function that models S(Q,w). For complete documentation use the Matlab help by typing <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/tobyfit</span></code> and navigate the links to the various methods for setting functions, parameters, fixed/free parameters and bindings between parameters.</p>
-<p>In addition to all of the methods for setting up and performing a fit, there are a few that are specific to Tobyfit (and which are documented in full in the Matlab documentation at <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/tobyfit</span></code>). The most important are outlined below. There is also the possibility to refine the crystal orientation and the moderator lineshape.</p>
+<p>Now you have created this object, the procedure is just the same as for the various other flavours of <code class="docutils literal notranslate"><span class="pre">multifit</span></code>, and
+specifically the form of the fitting functions is the same as <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>. You can follow the link to
+<a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">multifit</span></a> for the general information about how to create a fit, and <a class="reference internal" href="Multifit.html#multifit-sqw"><span class="std std-ref">multifit_sqw</span></a> for the form of the function that models S(<strong>Q</strong>,w). For complete documentation use the
+Matlab help by typing <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/tobyfit</span></code> and navigate the links to the various methods for setting functions,
+parameters, fixed/free parameters and bindings between parameters.</p>
+<p>In addition to all of the methods for setting up and performing a fit, there are a few that are specific to Tobyfit (and
+which are documented in full in the Matlab documentation at <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/tobyfit</span></code>). The most important are outlined
+below. There is also the possibility to refine the crystal orientation and the moderator lineshape.</p>
 <section id="controlling-number-of-monte-carlo-points">
 <h4>Controlling number of Monte Carlo points<a class="headerlink" href="#controlling-number-of-monte-carlo-points" title="Permalink to this heading"></a></h4>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"></span>
-<span class="o">\</span><span class="n">t</span><span class="p">:</span><span class="w"></span>
 <span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">set_mc_points</span><span class="w"> </span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
@@ -184,8 +213,7 @@
 <h4>Controlling which contributions to include in the resolution function<a class="headerlink" href="#controlling-which-contributions-to-include-in-the-resolution-function" title="Permalink to this heading"></a></h4>
 <p>There are a number of contributions to the resolution function. As an example:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"></span>
-<span class="o">\</span><span class="n">t</span><span class="p">:</span><span class="w"></span>
-<span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">set_mc_contributions</span><span class="w"> </span><span class="p">(</span><span class="s">&#39;nomoderator&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="c">% excludes the contribution from the moderator</span><span class="w"></span>
+<span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">set_mc_contributions</span><span class="w"> </span><span class="p">(</span><span class="s">&#39;nomoderator&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">% excludes the contribution from the moderator</span><span class="w"></span>
 </pre></div>
 </div>
 <p>To control the other contributions navigate the Matlab help <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/tobyfit</span></code>. To enquire of the current values:</p>
@@ -202,14 +230,14 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="Advanced_Multifit.html" class="btn btn-neutral float-left" title="Advanced Multifit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="List_of_functions.html" class="btn btn-neutral float-right" title="List of functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Parallel.html" class="btn btn-neutral float-right" title="Running Horace in Parallel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2022, STFC RAL.
-      <span class="lastupdated">Last updated on Nov 15, 2022, 10:31:02 AM.
+      <span class="lastupdated">Last updated on Nov 16, 2022, 1:44:40 PM.
       </span></p>
   </div>
 

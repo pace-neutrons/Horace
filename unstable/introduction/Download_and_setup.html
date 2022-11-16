@@ -46,7 +46,12 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Download and setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#system-requirements">System Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#download">Download</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#installation-instructions">Installation Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation-instructions">Installation Instructions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#standard-matlab-install">Standard Matlab install</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installing-the-latest-version">Installing the latest version</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cmake-install">CMake install</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#horace-configuration">Horace Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#high-performance-computing-configuration">High Performance Computing Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
@@ -104,7 +109,7 @@ Horace is not tested on releases of Matlab older than R2018b.
 However, if you require Horace to run on older versions of Matlab,
 and encounter problems, please open a ticket on
 <a class="reference external" href="https://github.com/pace-neutrons/Horace/issues">GitHub</a>
-or write e-mail to <a class="reference external" href="mailto:HoraceHelp&#37;&#52;&#48;stfc&#46;ac&#46;uk">Horace support team</a>
+or write an e-mail to <a class="reference external" href="mailto:HoraceHelp&#37;&#52;&#48;stfc&#46;ac&#46;uk">Horace support team</a>
 and we will try to help you.</p></li>
 </ul>
 </section>
@@ -113,15 +118,11 @@ and we will try to help you.</p></li>
 <p>Horace releases for supported operating systems are available to download on
 <a class="reference external" href="https://github.com/pace-neutrons/Horace/releases">GitHub here</a>.
 These packages contain pre-compiled <cite>mex</cite> libraries for each OS.</p>
-<p>The released and packaged <em>Horace distribution</em> contains both
-<a class="reference external" href="https://github.com/pace-neutrons/Horace">Horace</a>
-and its support Herbert <a class="reference external" href="https://github.com/pace-neutrons/Herbert">library</a>
-of low-level graphics and data manipulation routines.
-If you need to run the latest development version you need to download these
-two programs separately (see below).</p>
 </section>
 <section id="installation-instructions">
 <h2>Installation Instructions<a class="headerlink" href="#installation-instructions" title="Permalink to this heading"></a></h2>
+<section id="standard-matlab-install">
+<h3>Standard Matlab install<a class="headerlink" href="#standard-matlab-install" title="Permalink to this heading"></a></h3>
 <p>To install Horace you should ideally have the administrative rights. To
 install Horace:</p>
 <ol class="arabic simple">
@@ -140,25 +141,62 @@ you can add <code class="docutils literal notranslate"><span class="pre">horace_
 Launch Matlab from your home folder or GUI and type <code class="docutils literal notranslate"><span class="pre">&gt;&gt;</span> <span class="pre">edit</span> <span class="pre">startup.m</span></code>.
 Then add <code class="docutils literal notranslate"><span class="pre">horace_on();</span></code> to the end of the file.</p></li>
 </ol>
-<p>If you do not have administrative access, the installation would still be possible,
-and should work as described. You may encounter problems with parallel extensions
-and not be able to initialize Horace if Matlab is launched from a folder different from Matlab’s
-<a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/userpath.html">userpath</a> folder.
-See the <a class="reference internal" href="#troubleshooting">Troubleshooting</a> section below for details of the installation process in this situation.</p>
-<p>If you want to install the latest development version of Horace,
-you should first <em>clone</em> the <a class="reference external" href="https://github.com/pace-neutrons/Horace">Horace</a>
-and <a class="reference external" href="https://github.com/pace-neutrons/Herbert">Herbert</a> <code class="docutils literal notranslate"><span class="pre">git</span></code> repositories.
-You can then use the <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> script in the <code class="docutils literal notranslate"><span class="pre">admin</span></code> subfolder of the Horace repository,
-giving it the path to where <cite>Horace</cite> and <cite>Herbert</cite> were cloned.
-Horace should work after the install script is run but to improve performance of some common Horace operations,
-you may need to build the <cite>mex</cite> files yourself.
-Currently <cite>mex</cite> files for Windows are stored in the repository, but this may not always be the case in future.
-You will need to build <cite>mex</cite> files for other operating systems.</p>
+<p>If you do not have administrative access, the installation should still be possible, and should work as described. You
+may encounter problems with parallel extensions and may not be able to initialize Horace if Matlab is launched from a
+folder different from Matlab’s <a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/userpath.html">userpath</a> folder.  See the
+<a class="reference internal" href="#troubleshooting">Troubleshooting</a> section below for details of the installation process in this situation.</p>
+</section>
+<section id="installing-the-latest-version">
+<h3>Installing the latest version<a class="headerlink" href="#installing-the-latest-version" title="Permalink to this heading"></a></h3>
+<p>If you want to install the latest development version of Horace, you should first <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> the <a class="reference external" href="https://github.com/pace-neutrons/Horace">Horace</a> <code class="docutils literal notranslate"><span class="pre">git</span></code> repository. You can then follow the <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> procedure as
+described above, giving it the path to where <cite>Horace</cite> was cloned.</p>
+<p>Horace should work after the install script is run but to improve performance of some common Horace operations, you may
+need to build the <code class="docutils literal notranslate"><span class="pre">mex</span></code> files yourself.  Currently <code class="docutils literal notranslate"><span class="pre">mex</span></code> files for Windows are stored in the repository, but this may
+not always be the case in future.  You will need to build <code class="docutils literal notranslate"><span class="pre">mex</span></code> files for other operating systems.</p>
+<p><strong>N.B.</strong> In order to build <code class="docutils literal notranslate"><span class="pre">mex</span></code> files, it is necessary to have an up to date C++ compiler such as Visual Studio or
+the GNU Compiler Collection (GCC).</p>
+</section>
+<section id="cmake-install">
+<h3>CMake install<a class="headerlink" href="#cmake-install" title="Permalink to this heading"></a></h3>
+<p>If you have cloned the repository and have the <code class="docutils literal notranslate"><span class="pre">CMake</span></code> tool installed, the Horace package supports a CMake build (1a),
+which also builds the relevant <cite>mex</cite> files and links against them.</p>
+<p>Horace also ships with a number of install scripts in <code class="docutils literal notranslate"><span class="pre">tools\build_config</span></code>. These can be used to automate
+installation (1b). <strong>N.B.</strong> These equate to installs using CMake wtih preconfigured options.</p>
+<p>To install using CMake:</p>
+<p>1a. From your console of choice, navigate to the Horace root folder and run:</p>
+<blockquote>
+<div><div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span><span class="w"> </span><span class="o">--</span><span class="n">build</span><span class="w"> </span><span class="n">build</span><span class="w"> </span><span class="o">--</span><span class="n">config</span><span class="w"> </span><span class="n">Release</span><span class="w"></span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>1b. From your console of choice navigate to <code class="docutils literal notranslate"><span class="pre">tools\build_config</span></code> and run:</p>
+<blockquote>
+<div><p>Windows:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">build</span><span class="p">.</span><span class="n">ps1</span><span class="w"> </span><span class="o">-</span><span class="n">build</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Linux:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">build</span><span class="p">.</span><span class="n">sh</span><span class="w"> </span><span class="o">-</span><span class="n">build</span><span class="w"></span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>In a Matlab session add the <code class="docutils literal notranslate"><span class="pre">&lt;Horace_dir&gt;\build\local_init\</span></code> folder to the <a class="reference external" href="https://www.mathworks.com/help/matlab/ref/addpath.html">Matlab path</a> and run <code class="docutils literal notranslate"><span class="pre">horace_on</span></code> as above.</p></li>
+</ol>
+<p>Optional:</p>
+<ol class="arabic simple" start="3">
+<li><p>To have Horace available each time you start your Matlab session,
+you can add <code class="docutils literal notranslate"><span class="pre">horace_on</span></code> to your start-up file:
+a. Launch Matlab
+b. Run <code class="docutils literal notranslate"><span class="pre">edit</span> <span class="pre">startup.m</span></code>.
+c. Then add <code class="docutils literal notranslate"><span class="pre">horace_on();</span></code> to the end of the file.</p></li>
+</ol>
+</section>
 </section>
 <section id="horace-configuration">
 <h2>Horace Configuration<a class="headerlink" href="#horace-configuration" title="Permalink to this heading"></a></h2>
-<p>Horace uses configuration files to store its settings and to tune its behaviour and performance.
-Horace tries to guess the best performance for your machine, but you should check if the configuration
+<p>Horace uses <a class="reference internal" href="../manual/Changing_Horace_settings.html#changing-horace-settings"><span class="std std-ref">configuration files</span></a> to store its settings and to tune its behaviour
+and performance.  Horace tries to guess the best performance for your machine, but you should check if the configuration
 it selects is indeed optimal for you.</p>
 <p>You can access the settings using the <code class="docutils literal notranslate"><span class="pre">hor_config</span></code> class.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hor_config</span><span class="w"></span>
@@ -209,11 +247,8 @@ Descriptions for each option with suggestions for configuring are given below:</
 </section>
 <section id="high-performance-computing-configuration">
 <h2>High Performance Computing Configuration<a class="headerlink" href="#high-performance-computing-configuration" title="Permalink to this heading"></a></h2>
-<p>If your have a large machine with multiple cores, fast hard drive connected to parallel file system and large memory,
-you may benefit from using Horace’s parallel computing extensions.
-The memory necessary to make parallel extensions useful may be estimated as 32Gb per main session
-and 16 per each parallel worker as minimum, so if you want to use 4 parallel processes productively,
-your machine should have 96Gb of RAM.</p>
+<p>If you have a large task and a machine with multiple cores, you may benefit from using Horace’s parallel computing
+extensions (see <a class="reference internal" href="../manual/Parallel.html#running-horace-in-parallel"><span class="std std-ref">Running Horace in Parallel</span></a>).</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">hpc</span></code> command can be used to enable/disable parallel computing options,
 as well as provide suggested settings for the current system.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hpc</span><span class="p">;</span><span class="w">     </span><span class="c">% display the suggested configuration based on the current system</span><span class="w"></span>
@@ -230,31 +265,26 @@ use the <code class="docutils literal notranslate"><span class="pre">hpc_config<
 </section>
 <section id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading"></a></h2>
-<p>If you used a <a class="reference external" href="https://github.com/pace-neutrons/Horace/releases">release archive</a>,
-then both <cite>Horace</cite> and <cite>Herbert</cite> will be in the same folder (called <code class="docutils literal notranslate"><span class="pre">&lt;extracted_folder&gt;</span></code> below)
-with <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> and this script can be called with no arguments
-(it will automatically detect the folders).</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> installation script then modifies three files:</p>
+<p>If you used a <a class="reference external" href="https://github.com/pace-neutrons/Horace/releases">release archive</a>, then <cite>Horace</cite> will be in a folder
+(called <code class="docutils literal notranslate"><span class="pre">&lt;extracted_folder&gt;</span></code> below) with <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> and this script can be called with no arguments (it will
+automatically detect the folders).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> installation script then modifies two files:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/horace_on.m.template">horace_on.m.template</a>,</p></li>
-<li><p><a class="reference external" href="https://github.com/pace-neutrons/Herbert/blob/master/admin/herbert_on.m.template">herbert_on.m.template</a> and</p></li>
 <li><p><a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v2.m.template">worker_v2.m.template</a></p></li>
 </ul>
-<p>by inserting the location of the <cite>Horace</cite> and <cite>Herbert</cite> folders into these files,
-and copies them to a folder (<code class="docutils literal notranslate"><span class="pre">&lt;extracted_folder&gt;/ISIS</span></code> by default) which it adds to the Matlab path
-by modifying the global <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file.
-This means that all Matlab session including independent parallel workers have access to this path from any location where Matlab has been started.
-Unfortunately, this requires administrative (root) privileges.</p>
-<p>It is possible to install <cite>Horace</cite> without admin rights, in which case the <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> script
-will create a <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file in the default <cite>userpath</cite> folder (as defined in the
-<a class="reference external" href="https://uk.mathworks.com/help/matlab/matlab_env/what-is-the-matlab-search-path.html">Matlab documentation for search paths</a>).
-Some versions of Matlab, however, use different <cite>userpath</cite> folders if they are started as a parallel worker,
-which may lead the parallel extensions to fail because they cannot find the <code class="docutils literal notranslate"><span class="pre">worker_v2.m</span></code> file, but not to report any errors.
-In these cases, you should run Matlab from the <cite>userpath</cite> folder (e.g. the folder with the <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file).</p>
-<p>If instead of using the release packages you’ve cloned the <cite>Horace</cite> and <cite>Herbert</cite> repositories,
-then you should still run <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> which is located in the <code class="docutils literal notranslate"><span class="pre">admin</span></code> subfolder of the Horace repository folder.
-However, you should now give the exact path to the <cite>Horace</cite> and <cite>Herbert</cite> folders using
-the <code class="docutils literal notranslate"><span class="pre">horace_root</span></code> and <code class="docutils literal notranslate"><span class="pre">herbert_root</span></code> arguments:</p>
+<p>by inserting the location of the <cite>Horace</cite> folders into these files, and copies them to a folder
+(<code class="docutils literal notranslate"><span class="pre">&lt;extracted_folder&gt;/ISIS</span></code> by default) which it adds to the Matlab path by modifying the global <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file.
+This means that all Matlab session including independent parallel workers have access to this path from any location
+where Matlab has been started.  Unfortunately, this requires administrative (root) privileges.</p>
+<p>It is possible to install <cite>Horace</cite> without admin rights, in which case the <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> script will create a
+<code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file in the default <cite>userpath</cite> folder (as defined in the <a class="reference external" href="https://uk.mathworks.com/help/matlab/matlab_env/what-is-the-matlab-search-path.html">Matlab documentation for search paths</a>).  Some versions of Matlab,
+however, use different <cite>userpath</cite> folders if they are started as a parallel worker, which may lead the parallel
+extensions to fail because they cannot find the <code class="docutils literal notranslate"><span class="pre">worker_v2.m</span></code> file, but not to report any errors.  In these cases, you
+should run Matlab from the <cite>userpath</cite> folder (e.g. the folder with the <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file).</p>
+<p>If instead of using the release packages you’ve cloned the <cite>Horace</cite> repository, then you should still run
+<code class="docutils literal notranslate"><span class="pre">horace_install</span></code> which is located in the <code class="docutils literal notranslate"><span class="pre">admin</span></code> subfolder of the Horace repository folder.  However, you should now
+give the path to the <cite>Horace</cite> folders using the <code class="docutils literal notranslate"><span class="pre">horace_root</span></code> and <code class="docutils literal notranslate"><span class="pre">herbert_root</span></code> arguments:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="p">(</span><span class="s">&#39;horace_folder/admin&#39;</span><span class="p">);</span><span class="w"></span>
 <span class="n">horace_install</span><span class="p">(</span><span class="s">&#39;herbert_root&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;path/to/herbert&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="w"></span>
 <span class="w">               </span><span class="s">&#39;horace_root&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;path/to/horace&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="w"></span>
@@ -276,7 +306,7 @@ the <code class="docutils literal notranslate"><span class="pre">horace_root</sp
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2022, STFC RAL.
-      <span class="lastupdated">Last updated on Nov 15, 2022, 10:31:02 AM.
+      <span class="lastupdated">Last updated on Nov 16, 2022, 1:44:40 PM.
       </span></p>
   </div>
 
