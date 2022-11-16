@@ -37,17 +37,14 @@ classdef unique_objects_container < serializable
         %string representation of the function, used to produce hashes from
         % the object. Needed for simple saveobj/loadob into not-Matlab binary
         % files
-        conv_function_string
-        % property which defines the way, objects stored in internal
-        % container (cellarray or array)
-        container_type;
+        conv_func_string
     end
 
     methods % Dependent props get functions
-        function val = get.conv_function_string(obj)
+        function val = get.conv_func_string(obj)
             val = func2str(obj.convert_to_stream_f_);
         end
-        function obj = set.conv_function_string(obj,val)
+        function obj = set.conv_func_string(obj,val)
             if ~(ischar(val)||isstring(val))
                 error('HERBERT:unique_obj_container:invalid_argument',...
                     'convert_to_stream_f_string must be a string convertable to function. It is %s',...
@@ -61,7 +58,6 @@ classdef unique_objects_container < serializable
         end
         function self = set.unique_objects(self, val)
             self.unique_objects_ = val;
-            self = self.rehashify_all();
             if self.do_check_combo_arg_
                 self = self.check_combo_arg();
             end
@@ -90,14 +86,6 @@ classdef unique_objects_container < serializable
                 self = self.check_combo_arg();
             end
         end
-
-        function x = get.container_type(self)
-            if iscell(self.unique_objects_)
-                x = '{}';
-            else
-                x = '[]';
-            end
-        end
         %
         function x = get.baseclass(self)
             x = self.baseclass_;
@@ -121,6 +109,9 @@ classdef unique_objects_container < serializable
                     'this method accepts function handles for serializing obhects only')
             end
             self.convert_to_stream_f_ = val;
+            if self.do_check_combo_arg_
+                self = self.check_combo_arg();
+            end
         end
         %
         function x = get.n_duplicates(self)
@@ -135,7 +126,7 @@ classdef unique_objects_container < serializable
             'unique_objects',...
             'idx',           ...
             'baseclass',     ...
-            'conv_function_string'};
+            'conv_func_string'};
     end
     % SERIALIZABLE interface
     %------------------------------------------------------------------
@@ -189,7 +180,7 @@ classdef unique_objects_container < serializable
     %------------------------------------------------------------------
     methods
         function newself = rename_all_blank(self)
-            newself = unique_objects_container('type',self.container_type,'baseclass',self.baseclass);
+            newself = unique_objects_container('baseclass',self.baseclass);
             for i=1:numel(self.idx)
                 item = self.get(i);
                 if isprop(item,'name')
@@ -214,11 +205,10 @@ classdef unique_objects_container < serializable
             hash = char(hash');
         end
 
-        function newself = rehashify_all(self)
-            newself = self;
-            newself.stored_hashes_ =cell(1,self.n_unique);
+        function self = rehashify_all(self)
+            self.stored_hashes_ =cell(1,self.n_unique);
             for i=1:numel(self.unique_objects_)
-                newself.stored_hashes_{i} = self.hashify(self.unique_objects{i});
+                self.stored_hashes_{i} = self.hashify(self.unique_objects{i});
             end
         end
     end
@@ -264,15 +254,9 @@ classdef unique_objects_container < serializable
             flds = [flds(:);'convert_to_stream_f']; % convert_to_stream
             % function is not present in saveable properties but may be present
             % as input too.
-            %---
-            % strange opportunity to define the type of the internal
-            % container. Who would need this. Your select the type
-            % according to the optimal performance (cell probably vould be
-            % optimal)
-            [self,argi] = check_and_set_container_type_(self,varargin{:});
             % standard serializable constructor
             self = self.set_positional_and_key_val_arguments(...
-                flds,false,argi{:});
+                flds,false,varargin{:});
         end
 
 
@@ -285,7 +269,7 @@ classdef unique_objects_container < serializable
 
 
         function sset = get_subset(self,indices)
-            sset = unique_objects_container('type',self.container_type,'baseclass',self.baseclass);
+            sset = unique_objects_container('baseclass',self.baseclass);
             for i = indices
                 item = self.get(i);
                 [sset,~] = sset.add(item);
@@ -328,11 +312,8 @@ classdef unique_objects_container < serializable
             % take the index of the last stored object as the object index
             if isempty(ix) % means obj not in container and should be added
                 self.stored_hashes_ = [self.stored_hashes_(:)',hash];
-                if iscell(self.unique_objects_)
-                    self.unique_objects_ = cat(1, self.unique_objects_, {obj});
-                else
-                    self.unique_objects_ = cat(1, self.unique_objects_, (obj));
-                end
+                self.unique_objects_ = cat(1, self.unique_objects_, {obj});
+
                 ix = numel(self.unique_objects_);
                 self.n_duplicates_ = [self.n_duplicates_(:)', 1];
             else
@@ -398,19 +379,12 @@ classdef unique_objects_container < serializable
             % take the index of the last stored object as the object index
             if isempty(ix) % means obj not in container and should be added
                 if no_more_duplicates
-                    if iscell(self.unique_objects_)
-                        self.unique_objects{oldix} = obj;
-                    else
-                        self.unique_objects(oldix) = obj;
-                    end
+                    self.unique_objects{oldix} = obj;
                     self.stored_hashes_{oldix} = hash;
                     self.n_duplicates_(oldix) = self.n_duplicates_(oldix)+1;
                 else
-                    if iscell(self.unique_objects_)
-                        self.unique_objects_ = cat(1, self.unique_objects_, {obj});
-                    else
-                        self.unique_objects_ = cat(1, self.unique_objects_, (obj));
-                    end
+                    self.unique_objects_ = cat(1, self.unique_objects_, {obj});
+
                     self.stored_hashes_ = [self.stored_hashes_(:),hash];
                     self.idx_(nuix) = numel(self.unique_objects_);
                     self.n_duplicates_ = [self.n_duplicates_(:)', 1];
@@ -426,22 +400,14 @@ classdef unique_objects_container < serializable
 
                     % collect the final unique object currently in the
                     % container
-                    if iscell(self.unique_objects_)
-                        lastobj = self.unique_objects_{end};
-                    else
-                        lastobj = self.unique_objects_(end);
-                    end
+                    lastobj = self.unique_objects_{end};
                     lasthash = self.stored_hashes_{end};
                     lastidx = numel(self.unique_objects_);
 
                     if oldix<lastidx
                         % oldix is the location where there are no more
                         % duplicates, put the last object here
-                        if iscell(self.unique_objects_)
-                            self.unique_objects{oldix} = lastobj;
-                        else
-                            self.unique_objects(oldix) = lastobj;
-                        end
+                        self.unique_objects{oldix} = lastobj;
                         self.stored_hashes_{oldix} = lasthash;
                         self.n_duplicates_(oldix) = self.n_duplicates_(lastidx);
 
@@ -485,11 +451,7 @@ classdef unique_objects_container < serializable
             % - obj : the unique object store for this index
             %
             ix = self.idx_(nuix);
-            if iscell(self.unique_objects_)
-                obj = self.unique_objects{ix};
-            else
-                obj = self.unique_objects(ix);
-            end
+            obj = self.unique_objects{ix};
             % alternative implementation would use subsref for '()' case, but this
             % requires additional code to deal with '.' when calling
             % methods.
@@ -510,18 +472,7 @@ classdef unique_objects_container < serializable
 
         function varargout = subsref(self,idxstr)
             switch idxstr(1).type
-                case '()'
-                    if ~iscell(self.unique_objects_)
-                        b = idxstr(1).subs{:};
-                        if isempty(self.unique_objects_)
-                            varargout{1} = self.unique_objects_;
-                        else
-                            varargout{1} = self.unique_objects_(self.idx_(b));
-                        end
-                    else
-                        error('HERBERT:unique_objects_container:invalid_argument','parentheses for cell storage');
-                    end
-                case '{}'
+                case {'()','{}'}
                     if iscell(self.unique_objects_)
                         b = idxstr(1).subs{:};
                         if isempty(self.unique_objects_)
@@ -530,7 +481,8 @@ classdef unique_objects_container < serializable
                             varargout{1} = self.unique_objects_{self.idx_(b)};
                         end
                     else
-                        error('HERBERT:unique_objects_container:invalid_argument','braces for array storage');
+                        error('HERBERT:unique_objects_container:invalid_argument', ...
+                            'braces for array storage');
                     end
                 case '.'
                     [varargout{1:nargout}] = builtin('subsref',self,idxstr);
@@ -551,12 +503,7 @@ classdef unique_objects_container < serializable
                     error('HERBERT:unique_objects_container:invalid_argument', ...
                         'index outside legal range');
                 elseif nuix == numel(self.idx_)+1
-                    if strcmp(idxstr(1).type, self.container_type)
-                        self = self.add(val);
-                    else
-                        error('HERBERT:unique_objects_container:invalid_argument', ...
-                            'bracket type for indexing does not match container');
-                    end
+                    self = self.add(val);
                     return;
                 end
             end
@@ -568,20 +515,8 @@ classdef unique_objects_container < serializable
             % container; the duplication allows checking for incorrect
             % bracket use
             switch idxstr(1).type
-                case '()'
-                    if ~iscell(self.unique_objects_)
-                        self = self.replace(val,nuix);
-                    else
-                        error('HERBERT:unique_objects_container:invalid_argument', ...
-                            'parentheses for cell replacement');
-                    end
-                case '{}'
-                    if iscell(self.unique_objects_)
-                        self = self.replace(val,nuix);
-                    else
-                        error('HERBERT:unique_objects_container:invalid_argument', ...
-                            'braces for array replacement');
-                    end
+                case {'()','{}'}
+                    self = self.replace(val,nuix);
                 case '.'
                     self = builtin('subsasgn',self,idxstr,varargin{:});
             end
@@ -596,11 +531,7 @@ classdef unique_objects_container < serializable
 
             for i=1:numel(self.idx_)
                 uix = self.idx_(i);
-                if iscell(self.unique_objects_)
-                    fld = self.unique_objects_{uix}.(field);
-                else
-                    fld = self.unique_objects_(uix).(field);
-                end
+                fld = self.unique_objects_{uix}.(field);
                 disp([num2str(i) '; uix=' num2str(uix)]);
                 disp(fld);
             end
@@ -615,7 +546,7 @@ classdef unique_objects_container < serializable
             % This reordering provides a standard order when comparing.
             % This is only used for tests and so its efficiency is not
             % important.
-            newself = unique_objects_container('type',self.container_type,'baseclass',self.baseclass);%,'convert_to_stream_f',self.convert_to_stream_f');
+            newself = unique_objects_container('baseclass',self.baseclass);%,'convert_to_stream_f',self.convert_to_stream_f');
             % It is unclear why specifying convert_to_stream_f in the
             % constructor causes a failure but it works if specified next.
             newself.convert_to_stream_f = self.convert_to_stream_f;

@@ -4,9 +4,9 @@ classdef Experiment < serializable
     properties(Access=private)
     	% the vanilla constructor will give instruments_ one IX_null_inst
     	% if no other instrument input is provided - see constructor
-        instruments_ = unique_objects_container('type','{}','baseclass','IX_inst'); %{}; %IX_inst.empty;
+        instruments_ = unique_objects_container('baseclass','IX_inst'); %{}; %IX_inst.empty;
         detector_arrays_ = []
-        samples_ = unique_objects_container('type','{}','baseclass','IX_samp'); %{IX_null_sample()}; % IX_samp.empty;
+        samples_ = unique_objects_container('baseclass','IX_samp'); %{IX_null_sample()}; % IX_samp.empty;
         expdata_ = [];
         %
         runid_map_ = [];   % the property defines the relationship between
@@ -338,8 +338,11 @@ classdef Experiment < serializable
                 avh = avh.to_bare_struct();
             end
             sampl = obj.samples_{1};
-            avh.alatt = sampl.alatt;
-            avh.angdeg = sampl.angdeg;
+            if isempty(sampl)
+            else
+                avh.alatt = sampl.alatt;
+                avh.angdeg = sampl.angdeg;
+            end
         end
         %
         function instr = get_unique_instruments(obj)
@@ -531,8 +534,8 @@ classdef Experiment < serializable
                 nspe(i) = exp_cellarray{i}.n_runs;
             end
             n_tot = sum(nspe);
-            instr  = unique_objects_container('type','{}', 'baseclass','IX_inst'); %cell(1,n_tot);
-            sampl  = unique_objects_container('type','{}', 'baseclass','IX_samp'); %cell(1,n_tot);
+            instr  = unique_objects_container('baseclass','IX_inst'); %cell(1,n_tot);
+            sampl  = unique_objects_container('baseclass','IX_samp'); %cell(1,n_tot);
             %warning('stop here so you can check that instr and sampl should no longer be set as cells');
             expinfo= repmat(IX_experiment(),1,n_tot);
             ic = 1;
