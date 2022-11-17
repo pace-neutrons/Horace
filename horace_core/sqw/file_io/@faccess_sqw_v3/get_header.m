@@ -48,13 +48,10 @@ if ~(isa(main_sampl,'IX_null_sample') || ...
         )
     if isa(main_sampl,'unique_objects_container') && main_sampl.n_runs > 1
         % nsampl needs to be equal to number of runs
-        if numel(main_sampl) ~= exp_info.n_runs
+        if main_sampl.n_runs ~= exp_info.n_runs
             error('HORACE:file_io:runtime_error',...
                 'Multiple sample in footer contains %d runs and number of runs stored in header=%d',...
                 numel(main_sampl),exp_info.n_runs)
-        end
-        if ~iscell(main_sampl)
-            main_sampl = num2cell(main_sampl);
         end
     else % we need to propagate the sample(s), stored in the footer to all headers
         if iscell(main_sampl)
