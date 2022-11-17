@@ -90,7 +90,7 @@ classdef test_experiment_methods < TestCase
             assertEqual(rec_exp.runid_map.values,{1});
 
             % these properties are only partially recovered from headers
-            assertEqual(rec_exp.samples{1},IX_null_sample('',[1.1,2.2,3.2],[90,91,92]));
+            assertEqual(rec_exp.samples{1},IX_samp('',[1.1,2.2,3.2],[90,91,92]));
             % instrument is not recovered from headers
             assertEqual(rec_exp.instruments{1},IX_null_inst());
         end
