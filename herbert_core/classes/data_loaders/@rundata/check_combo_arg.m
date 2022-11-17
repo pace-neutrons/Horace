@@ -10,9 +10,6 @@ if ~isempty(obj.lattice)
     lat = obj.lattice;
     obj.isvalid_ = lat.isvalid;
     obj.reason_for_invalid_ = lat.reason_for_invalid;
-    if ~obj.isvalid_
-        return;
-    end
     % TODO: sample and lattice should be the same object
     lat.do_check_combo_arg = obj.do_check_combo_arg_;
     lat.angular_units = 'deg';
@@ -31,7 +28,11 @@ if ~isempty(obj.lattice)
             obj.sample_.angdeg = lat.angdeg;
         end
     end
+    if ~obj.isvalid_
+        return;
+    end    
 end
+
 
 % Check efix
 [obj.isvalid_,obj.reason_for_invalid_] = check_efix_correct(obj);
