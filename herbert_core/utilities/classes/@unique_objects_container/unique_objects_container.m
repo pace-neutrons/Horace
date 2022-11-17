@@ -41,12 +41,14 @@ classdef unique_objects_container < serializable
         % the object. Needed for simple saveobj/loadob into not-Matlab binary
         % files
         conv_func_string;
+        % handle to the function, used for conversion of objects into
+        % bytestream if default serialization is not available. May be set
+        % up directly through function handle or through ist string
+        % representation above
+        convert_to_stream_f;
         % property containing list of stored hashes for unique objects for
         % comparison with other objects
         stored_hashes;
-        % handle to tje function, used for conversion of objects into
-        % bytestream if default serialization is not available
-        convert_to_stream_f;
     end
 
     methods % Dependent props set/get functions
@@ -66,6 +68,9 @@ classdef unique_objects_container < serializable
             x = self.unique_objects_;
         end
         function self = set.unique_objects(self, val)
+            if ~iscell(val)
+                val = {val};
+            end
             self.unique_objects_ = val;
             if self.do_check_combo_arg_
                 self = self.check_combo_arg();
@@ -133,9 +138,9 @@ classdef unique_objects_container < serializable
     %------------------------------------------------------------------
     properties(Constant,Access=private)
         fields_to_save_ = {
+            'baseclass',     ...
             'unique_objects',...
             'idx',           ...
-            'baseclass',     ...
             'conv_func_string'};
     end
     % SERIALIZABLE interface
@@ -238,10 +243,10 @@ classdef unique_objects_container < serializable
             %
             Engine = java.security.MessageDigest.getInstance('MD5');
             if isa(obj,'serializable') && ~self.non_default_f_conversion_set_
-                % use default serializer, set up for serializable objects
+                % use default serializer, build up by us for serializable objects
                 Engine.update(obj.serialize());
             else
-                %convert_to_stream_f_ = @getByteStreamFromArray;                
+                %convert_to_stream_f_ = @getByteStreamFromArray;
                 Engine.update(self.convert_to_stream_f_(obj));
             end
             hash = typecast(Engine.digest,'uint8');
@@ -325,50 +330,42 @@ classdef unique_objects_container < serializable
             % - obj : the object to be added. This may duplicate an object
             %         in the container, but it will be noted as a duplicate
             %         and will be given its own index, which it returns
+            %    or   cellarray or array of objects to add
             % Output:
             % - self : the changed container (as this is a value class)
             % - nuix : the non-unique index for this object
+            %     or   array of such indexes if multiple objects were
+            %          added
             %
             % it may be a duplicate but it is still the n'th object you
             % added to the container. The number of additions to the
             % container is implicit in the size of idx_.
 
-            % check that obj is of the appropriate base class
-            if ~isempty(self.baseclass_)
-                if ~isa(obj, self.baseclass_)
-                    warning('HERBERT:unique_objects_container:invalid_argument', ...
-                        'not correct base class; object was not added');
-                    nuix = 0;
-                    return;
+            % process addition of multiple objects at once.
+            if numel(obj)>1 || iscell(obj)
+                nobj = numel(obj);
+                nuix = zeros(1,nobj);
+                if iscell(obj)
+                    for i = 1:nobj
+                        [self,nuix(i)]=self.add(obj{i});
+                    end
+                else
+                    for i = 1:nobj
+                        [self,nuix(i)]=self.add(obj(i));
+                    end
+
                 end
+                return;
             end
-
-            % Find if the object is already in the container. ix is
-            % returned as the index to the object in the container.
-            % hash is returned as the hash of the object. If ix is empty
-            % then the object is not in the container.
-            [ix,hash] = self.find_in_container(obj);
-
-            % If the object is not in the container.
-            % store the hash in the stored hashes
-            % store the object in the stored objects
-            % take the index of the last stored object as the object index
-            if isempty(ix) % means obj not in container and should be added
-                self.stored_hashes_ = [self.stored_hashes_(:);hash]';
-                self.unique_objects_ = [self.unique_objects_(:); {obj}]';
-
-                ix = numel(self.unique_objects_);
-                self.n_duplicates_ = [self.n_duplicates_(:); 1]';
-            else
-                self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
+            % check that obj is of the appropriate base class
+            if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
+                warning('HERBERT:unique_objects_container:invalid_argument', ...
+                    'not correct base class; object was not added');
+                nuix = 0;
+                return;
             end
+            [self,nuix] = add_single_(self,obj);
 
-            % add index ix to the array of indices
-            % know the non-unique object index - the number of times you
-            % added an object to the container - say k. idx_(k) is the
-            % index of the unique object in the container.
-            self.idx_ = [self.idx_(:)', ix]; % alternative syntax: cat(2,self.idx_,ix);
-            nuix = numel(self.idx_);
         end % add()
 
         function self = replace(self,obj,nuix)

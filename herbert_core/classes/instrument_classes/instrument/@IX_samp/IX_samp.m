@@ -8,13 +8,6 @@ classdef IX_samp  < serializable
         angdeg_;
     end
 
-    properties (Constant,Access=protected)
-        % Stored properties - but kept private and accessible only through
-        % public dependent properties because validity checks of setters
-        % require checks against the other properties
-        fields_to_save_ =  {'alatt', 'angdeg','name'};
-    end
-
     properties
         %
     end
@@ -76,15 +69,6 @@ classdef IX_samp  < serializable
                 false,argi{:});
         end
 
-        % SERIALIZABLE interface
-        %------------------------------------------------------------------
-        function vers = classVersion(~)
-            vers = 0; % base class function
-        end
-
-        function flds = saveableFields(~)
-            flds =IX_samp.fields_to_save_;
-        end
 
         %------------------------------------------------------------------
         % Set methods
@@ -110,8 +94,8 @@ classdef IX_samp  < serializable
             end
         end
 
-        function n=get.name(obj)
-            n = obj.name_;
+        function name=get.name(obj)
+            name = get_name(obj);
         end
 
         function obj=set.alatt(obj,val)
@@ -133,11 +117,13 @@ classdef IX_samp  < serializable
                     'Sample alatt must be a 1 or 3 compoment numeric vector')
             end
         end
-
         function alat=get.alatt(obj)
-            alat = obj.alatt_;
+            alat = get_lattice(obj);
         end
-
+        %
+        function ang=get.angdeg(obj)
+            ang = get_angles(obj);
+        end
         function obj=set.angdeg(obj,val)
             if isempty(val)
                 obj.angdeg_ = [];
@@ -159,9 +145,34 @@ classdef IX_samp  < serializable
 
             obj.angdeg_=val(:)';
         end
-
-        function ang=get.angdeg(obj)
+    end
+    methods(Access = protected)
+        function alat = get_lattice(obj)
+            alat = obj.alatt_;
+        end
+        function ang = get_angles(obj)
             ang = obj.angdeg_;
+        end
+        function name = get_name(obj)
+            name = obj.name_;
+        end
+    end
+    % SERIALIZABLE interface
+    %------------------------------------------------------------------
+    properties (Constant,Access=protected)
+        % Stored properties - but kept protected (to allow children access)
+        % and accessible only through
+        % public dependent properties because validity checks of setters
+        % require checks against the other properties
+        fields_to_save_ =  {'alatt', 'angdeg','name'};
+    end
+    methods
+        function vers = classVersion(~)
+            vers = 0; % base class function
+        end
+
+        function flds = saveableFields(~)
+            flds =IX_samp.fields_to_save_;
         end
     end
     %------------------------------------------------------------------

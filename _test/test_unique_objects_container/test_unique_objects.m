@@ -75,6 +75,7 @@ classdef test_unique_objects < TestCase
 
             mi2 = merlin_instrument(190, 700, 'g');
             assertFalse( isequal(obj.mi1,mi2) );
+            
             uoc = unique_objects_container();
             [uoc,nuix] = uoc.add(obj.mi1);
             assertEqual( nuix, 1);

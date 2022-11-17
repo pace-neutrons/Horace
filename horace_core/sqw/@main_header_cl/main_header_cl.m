@@ -66,16 +66,6 @@ classdef main_header_cl < serializable
         dt_format = 'yyyy-mm-ddTHH:MM:SS';
     end
 
-    properties(Constant,Access = protected)
-        % fields used with serializable interface. Keep order of fields
-        % unchanged, as setting creation_date sets also creation_date_defined_
-        % and creation_date_defined_privately sets/reads creation_date_defined_
-        % (contrary to usual convention, but necessary for supporting old
-        % mat and sqw files, which do not have these proerties stored within them)
-        fields_to_save_ = {'filename','filepath','title','nfiles',...
-            'creation_date','creation_date_defined_privately'};
-    end
-
     methods
         function obj = main_header_cl(varargin)
             % Construct an instance of main header class
@@ -250,9 +240,20 @@ classdef main_header_cl < serializable
             % creation date becomes "known";
             obj = set_filename_with_cdate_(obj,val);
         end
-
-        %------------------------------------------------------------------
-
+    end
+    %------------------------------------------------------------------    
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access = protected)
+        % fields used with serializable interface. Keep order of fields
+        % unchanged, as setting creation_date sets also creation_date_defined_
+        % and creation_date_defined_privately sets/reads creation_date_defined_
+        % (contrary to usual convention, but necessary for supporting old
+        % mat and sqw files, which do not have these proerties stored within them)
+        fields_to_save_ = {'filename','filepath','title','nfiles',...
+            'creation_date','creation_date_defined_privately'};
+    end
+    
+    methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
             % and nxsqw data format. Each new version would presumably read

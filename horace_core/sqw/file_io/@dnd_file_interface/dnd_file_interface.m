@@ -63,7 +63,7 @@ classdef dnd_file_interface
         convert_to_double_ = true;
 
         % internal sqw/dnd object holder used as source for subsequent
-        % write operations, when file accessor is initialized from an sqw
+        % write operations, when file accessor is initialized from this sqw
         % object
         sqw_holder_ = [];
     end
@@ -121,8 +121,16 @@ classdef dnd_file_interface
         convert_to_double
         %
     end
+    properties(Access=public,Hidden)
+        % get access to internal sqw object if any is defined for testing
+        % purposes
+        sqw_holder
+    end
     %----------------------------------------------------------------------
     methods
+        function sh = get.sqw_holder(obj)
+            sh = obj.sqw_holder_;
+        end
         %------------------------------------------------
         function fn  = get.filename(obj)
             % the name of the file, this object is associated with
