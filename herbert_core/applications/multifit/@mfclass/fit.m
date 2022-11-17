@@ -97,12 +97,19 @@ perform_fit = true;
 % stored values to avoid this final recalculation for the case of
 % obj.options_.selected==true.
 
+pm = get(hpc_config, 'parallel_multifit');
 selected = obj.options_.selected;
 if selected
     % All initiliasation is up to date, as evaluating over the same data as was fitted
     % Now compute output
-    wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        f_pass_caller, bf_pass_caller, pf, p_info, output_type);
+
+    if pm
+        wout = parallel_call(@multifit_func_eval, wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
+                             f_pass_caller, bf_pass_caller, pf, p_info, output_type);
+    else
+        wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
+                                   f_pass_caller, bf_pass_caller, pf, p_info, output_type);
+    end
     squeeze_xye = obj.options_.squeeze_xye;
     if ~opt.components
         data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
@@ -119,8 +126,13 @@ else
         wrap_functions_and_parameters (obj.wrapfun_, obj.w_, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
 
     % Now compute output
-    wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        f_pass_caller, bf_pass_caller, pf, p_info, output_type);
+    if pm
+        wout = parallel_call(@multifit_func_eval, obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
+                             f_pass_caller, bf_pass_caller, pf, p_info, output_type);
+    else
+        wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
+                                   f_pass_caller, bf_pass_caller, pf, p_info, output_type);
+    end
     squeeze_xye = false;
     msk_none = cellfun(@(x)true(size(x)),obj.msk_,'UniformOutput',false);   % no masking
     if ~opt.components
