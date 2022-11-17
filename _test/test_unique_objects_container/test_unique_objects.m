@@ -259,6 +259,18 @@ classdef test_unique_objects < TestCase
             assertEqual(ex.message,'non-positive index not allowed')
 
         end
+        function test_expand_to_nruns(obj)
+            uoc = unique_objects_container('baseclass','IX_inst');
+            uoc{1} = obj.mi1;
+            assertEqual(uoc.n_runs,1)
+            assertEqual(uoc.n_unique,1)
+
+            uoc = uoc.expand_runs(10);
+            assertEqual(uoc.n_runs,10);
+            assertEqual(uoc.n_unique,1);
+            assertEqual(uoc.n_duplicates,10);
+
+        end
         function test_instr_replacement_with_duplicates_round(obj)
             uoc = unique_objects_container('convert_to_stream_f',@hlp_serialise,'baseclass','IX_inst');
             uoc(1) = obj.mi1;
@@ -275,12 +287,12 @@ classdef test_unique_objects < TestCase
             assertEqual( uoc.n_duplicates,[1,2]);
             uoc(3) = IX_null_inst();
 
-            assertEqual(uoc.n_runs,3);            
+            assertEqual(uoc.n_runs,3);
             assertEqual(uoc.n_unique,1);
             assertEqual(uoc.n_duplicates,3);
 
         end
-        
+
         function test_instr_replacement_with_duplicates_curly(obj)
             uoc = unique_objects_container('convert_to_stream_f',@hlp_serialise,'baseclass','IX_inst');
             uoc{1} = obj.mi1;
@@ -297,10 +309,26 @@ classdef test_unique_objects < TestCase
             assertEqual( uoc.n_duplicates,[1,2]);
             uoc{3} = IX_null_inst();
 
-            assertEqual(uoc.n_runs,3);            
+            assertEqual(uoc.n_runs,3);
             assertEqual(uoc.n_unique,1);
             assertEqual(uoc.n_duplicates,3);
+        end
+        function test_serialization_with_objects(obj)
+            uoc = unique_objects_container('baseclass','IX_inst');
+            uoc{1} = obj.mi1;
+            uoc{2} = IX_null_inst();
+            uoc_str = uoc.to_struct();
 
+            uoc_rec = serializable.from_struct(uoc_str);
+            assertEqual(uoc,uoc_rec)
+        end
+
+        function test_serialization_empty(~)
+            uoc = unique_objects_container('baseclass','IX_inst');
+            uoc_str = uoc.to_struct();
+
+            uoc_rec = serializable.from_struct(uoc_str);
+            assertEqual(uoc,uoc_rec)
         end
     end
 end

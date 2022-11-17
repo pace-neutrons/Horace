@@ -7,18 +7,23 @@ classdef unique_objects_container < serializable
     % objects but keeps a non-unique index to this addition
     % - get an object from that unique index
 
-    properties (Access=private)
-        unique_objects_={}; % the actual unique objects - initialised in constructor by type
-        stored_hashes_ = {};  % their hashes are stored
-        idx_ = [];   % array of unique indices for each non-unique object added
-        % defaults to this undocumented java
-        convert_to_stream_f_ = @getByteStreamFromArray; %function handle
+    properties (Access=protected)
+        unique_objects_=cell(1,0); % the actual unique objects - initialised in constructor by type
+        stored_hashes_ = cell(1,0);  % their hashes are stored
+        idx_ = zeros(1,0);   % array of unique indices for each non-unique object added
         % for the stream converter used by hashify defaults to this
         % undocumented java function
 
         baseclass_ = ''; % if not empty, name of the baseclass suitable for isa calls
         % (default respecified in constructor inputParser)
-        n_duplicates_ = [];
+        n_duplicates_ = zeros(1,0);
+        % defaults to this undocumented java
+        convert_to_stream_f_ = @getByteStreamFromArray; %function handle
+    end
+    properties(Access = private)
+        % is set up to true if we decide not to use default stream conversion
+        % function
+        non_default_f_conversion_set_ = false;
     end
 
     properties (Dependent)
@@ -29,18 +34,22 @@ classdef unique_objects_container < serializable
         idx;
         unique_objects;
 
-        stored_hashes;
         n_duplicates;
-        convert_to_stream_f;
     end
     properties(Dependent,Hidden)
         %string representation of the function, used to produce hashes from
         % the object. Needed for simple saveobj/loadob into not-Matlab binary
         % files
-        conv_func_string
+        conv_func_string;
+        % property containing list of stored hashes for unique objects for
+        % comparison with other objects
+        stored_hashes;
+        % handle to tje function, used for conversion of objects into
+        % bytestream if default serialization is not available
+        convert_to_stream_f;
     end
 
-    methods % Dependent props get functions
+    methods % Dependent props set/get functions
         function val = get.conv_func_string(obj)
             val = func2str(obj.convert_to_stream_f_);
         end
@@ -81,7 +90,7 @@ classdef unique_objects_container < serializable
                     min(val))
             end
             self.idx_ = val(:)';
-            self.n_duplicates_ = accumarray(self.idx_',1);
+            self.n_duplicates_ = accumarray(self.idx_',1)';
             if self.do_check_combo_arg_
                 self = self.check_combo_arg();
             end
@@ -109,6 +118,7 @@ classdef unique_objects_container < serializable
                     'this method accepts function handles for serializing obhects only')
             end
             self.convert_to_stream_f_ = val;
+            self.non_default_f_conversion_set_  = true;
             if self.do_check_combo_arg_
                 self = self.check_combo_arg();
             end
@@ -139,10 +149,14 @@ classdef unique_objects_container < serializable
             ver = 1;
         end
         %
-        function flds = saveableFields(~)
+        function flds = saveableFields(obj)
             % get independent fields, which fully define the state of the
             % serializable object.
-            flds = unique_objects_container.fields_to_save_;
+            if obj.non_default_f_conversion_set_
+                flds = unique_objects_container.fields_to_save_;
+            else % do not store conversion function
+                flds = unique_objects_container.fields_to_save_(1:end-1);
+            end
         end
         function obj = check_combo_arg(obj)
             % runs after changing property or number of properties to check
@@ -152,6 +166,12 @@ classdef unique_objects_container < serializable
                 error('HERBERT:unique_objects_container:invalid_argument',...
                     'object indexes point outside of the stored objects. Max index=%d, number of stored objects %d',...
                     max_idx,numdl(obj.unique_objects_));
+            end
+            uni_ind = unique(obj.idx_);
+            if ~isempty(uni_ind) && ...
+                    (uni_ind(1) ~= 1 || numel(uni_ind) ~= obj.n_unique)
+                error('HERBERT:unique_objects_container:invalid_argument',...
+                    'Container contains the unique objects which are not referred to')
             end
             if ~isempty(obj.baseclass_)
                 if isempty(obj.unique_objects_)
@@ -173,12 +193,30 @@ classdef unique_objects_container < serializable
                         obj.baseclass,disp2str(non_type_ind),class(invalid_obj))
                 end
             end
+            obj = obj.rehashify_all();
         end
     end
 
     % OTHER
     %------------------------------------------------------------------
     methods
+        function obj = expand_runs(obj,n_runs)
+            % function expands container onto specified number of runs.
+            % only single object for single run have to be present in the
+            % container initially
+            if obj.n_unique>1 || obj.n_runs > 1
+                error('HERBERT:unique_objects_container:invalid_argument',...
+                    'The method works only on container containing single unique object and single run. This container contains %d objects and %d runs', ...
+                    obj.n_unique,obj.n_runs);
+            end
+            if ~isnumeric(n_runs) || n_runs<1 || ~isscalar(n_runs)
+                error('HERBERT:unique_objects_container:invalid_argument',...
+                    'n_runs can be numeric positive scalar. It is %s', ...
+                    class(n_runs))
+            end
+            obj.idx_ = ones(1,n_runs);
+            obj.n_duplicates_(1) = n_runs;
+        end
         function newself = rename_all_blank(self)
             newself = unique_objects_container('baseclass',self.baseclass);
             for i=1:numel(self.idx)
@@ -199,8 +237,13 @@ classdef unique_objects_container < serializable
             % - hash : the resulting has, a row vector of uint8's
             %
             Engine = java.security.MessageDigest.getInstance('MD5');
-            %convert_to_stream_f_ = @getByteStreamFromArray;
-            Engine.update(self.convert_to_stream_f_(obj));
+            if isa(obj,'serializable') && ~self.non_default_f_conversion_set_
+                % use default serializer, set up for serializable objects
+                Engine.update(obj.serialize());
+            else
+                %convert_to_stream_f_ = @getByteStreamFromArray;                
+                Engine.update(self.convert_to_stream_f_(obj));
+            end
             hash = typecast(Engine.digest,'uint8');
             hash = char(hash');
         end
@@ -311,11 +354,11 @@ classdef unique_objects_container < serializable
             % store the object in the stored objects
             % take the index of the last stored object as the object index
             if isempty(ix) % means obj not in container and should be added
-                self.stored_hashes_ = [self.stored_hashes_(:)',hash];
-                self.unique_objects_ = cat(1, self.unique_objects_, {obj});
+                self.stored_hashes_ = [self.stored_hashes_(:);hash]';
+                self.unique_objects_ = [self.unique_objects_(:); {obj}]';
 
                 ix = numel(self.unique_objects_);
-                self.n_duplicates_ = [self.n_duplicates_(:)', 1];
+                self.n_duplicates_ = [self.n_duplicates_(:); 1]';
             else
                 self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
             end
@@ -456,19 +499,6 @@ classdef unique_objects_container < serializable
             % requires additional code to deal with '.' when calling
             % methods.
         end
-
-        % CLASS view gives much more useful information than this crap
-        %         function out = disp(self)
-        %             out = sprintf(['Unique objects container with %i elements and ',...
-        %                 '%i indexed unique elements and %i stored unique elements'], ...
-        %                 numel(self.idx_), ...
-        %                 numel(unique(self.idx_)), ...
-        %                 numel(self.unique_objects_));
-        %
-        %             if nargout == 0
-        %                 disp(out);
-        %             end
-        %         end
 
         function varargout = subsref(self,idxstr)
             switch idxstr(1).type
