@@ -5,8 +5,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             expt = Experiment();
             assertEqual(expt.n_runs,0);
 
-            assertTrue(isa(expt.samples{1},'IX_null_sample'));
-            assertTrue(isa(expt.instruments{1},'IX_null_inst'));
+            assertTrue(isempty(expt.samples{1}));
+            assertTrue(isempty(expt.instruments{1}));
             assertTrue(isempty(expt.detector_arrays));
             assertTrue(isempty(expt.expdata));
         end
@@ -156,8 +156,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             clear('expt');
 
             load(tmpfile, 'expt');
-            assertTrue(isa(expt.instruments{1},'IX_null_inst'));
-            assertTrue( isa(expt.samples{1},'IX_null_sample'));
+            assertTrue(isempty(expt.instruments(1)));
+            assertTrue(isempty(expt.samples(1)));
             assertEqual(expt.detector_arrays, []);
         end
 
@@ -188,7 +188,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             expt.samples = {samples};
 
             assertEqual(expt.samples{1}, samples);
-            uoc = unique_objects_container('type','{}','baseclass','IX_samp');
+            uoc = unique_objects_container('baseclass','IX_samp');
             uoc = uoc.add(samples);
             assertEqual(expt.samples,  uoc);
         end

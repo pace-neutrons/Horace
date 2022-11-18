@@ -138,14 +138,9 @@ classdef Experiment < serializable
             val=obj.instruments_;
         end
         function obj=set.instruments(obj, val)
-            [is,std_form] = check_si_input(obj,val,'IX_inst');
-            if is
-                obj.instruments_ = std_form; %(:)';
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'instruments must be a cellarray or array of IX_inst objects . In fact it is %s',...
-                    class(val));
-            end
+            std_form = check_si_input(obj,val,'IX_inst');
+            obj.instruments_ = std_form; 
+
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -155,14 +150,9 @@ classdef Experiment < serializable
             val=obj.samples_;
         end
         function obj=set.samples(obj, val)
-            [is,std_form] = check_si_input(obj,val,'IX_samp');
-            if is
-                obj.samples_ = std_form; %(:)';
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'Samples must be a cellarray or array of IX_samp objects . In fact it is %s',...
-                    class(val));
-            end
+            std_form = check_si_input(obj,val,'IX_samp');
+            obj.samples_ = std_form;
+
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -338,8 +328,7 @@ classdef Experiment < serializable
                 avh = avh.to_bare_struct();
             end
             sampl = obj.samples_{1};
-            if isempty(sampl)
-            else
+            if ~isempty(sampl)
                 avh.alatt = sampl.alatt;
                 avh.angdeg = sampl.angdeg;
             end
@@ -347,16 +336,14 @@ classdef Experiment < serializable
         %
         function instr = get_unique_instruments(obj)
             % compatibility fields with old binary file formats
-            % TODO: needs proper implementation
-            instr = obj.instruments_;
-            error("should not be using this any more");
+            instr = obj.instruments_.unique_objects;
+
         end
         %
         function samp = get_unique_samples(obj)
             % compatibility fields with old binary file formats
-            % TODO: needs proper implementation
-            samp = obj.samples_;
-            error('should not be using this any more');
+
+            samp = obj.samples_.unique_objects;
         end
         %
         function head = get.header(obj)
@@ -478,7 +465,7 @@ classdef Experiment < serializable
         % copy non-empty contents to the contents of this class
         [obj,n_added] = check_and_copy_contents_(obj,other_cont,field_name);
         %
-        function [is,std_form] = check_si_input(obj,sample_or_instrument,class_base)
+        function std_form = check_si_input(~,sample_or_instrument,class_base)
             % The function is the common part of the checks to set sample
             % or instrument methods.
             %
@@ -491,12 +478,12 @@ classdef Experiment < serializable
             %                        depending on sample or instrument is
             %                        verified
             % Output:
-            % is       -- true, if sample_or_instrument input is convertible to
-            %             the standard form.
             % std_form -- the standard form of sample or instrument
             %             collection to store within the container
-            [is,std_form] = check_sample_or_inst_array_and_return_std_form_(...
-                obj,sample_or_instrument,class_base);
+            % Throws HORACE:Experiment:invalid_argument if the input can
+            % not be converted into the standard form
+            std_form = check_sample_or_inst_array_and_return_std_form_(...
+                sample_or_instrument,class_base);
         end
     end
     %

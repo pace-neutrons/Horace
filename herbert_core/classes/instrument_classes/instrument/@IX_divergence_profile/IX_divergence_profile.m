@@ -5,7 +5,7 @@ classdef IX_divergence_profile < serializable
         name_ = '';
         angles_ = [];
         profile_ = [];
-        pdf_ = pdf_table();     % This is effectively a cached dependent variable
+        pdf_  =  pdf_table(); % will be set to default pdf by empty constructor
         mandatory_field_set_ = false(1,2)
     end
 
@@ -80,25 +80,33 @@ classdef IX_divergence_profile < serializable
         %------------------------------------------------------------------
         % Set methods for dependent properties
         function obj = set.angles(obj,angles_in)
-            if ~(isnumeric(angles_in) && isvector(angles_in) && numel(angles_in)>=2 && all(diff(angles_in)>=0))
+            if isempty(angles_in)
+                obj.angles_=[];  % make a row vector
+                obj.mandatory_field_set_(1) = false;
+            elseif ~(isnumeric(angles_in) && isvector(angles_in) && numel(angles_in)>=2 && all(diff(angles_in)>=0))
                 error('HERBERT:IX_divergence_profile:invalid_argument', ...
-                    'Angle array must be a vector length at least two and monotonic increasing')
+                    'IX_divergence_profile: Angle array must be a vector length at least two and monotonically increasing')
+            else
+                obj.angles_=angles_in(:)';  % make a row vector
+                obj.mandatory_field_set_(1) = true;
             end
 
-            obj.angles_=angles_in(:)';  % make a row vector
-            obj.mandatory_field_set_(1) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg(true);
             end
 
         end
         function obj = set.profile(obj,profile_in)
-            if ~(isvector(profile_in) && all(isfinite(profile_in)) && all(profile_in>=0))
+            if isempty(profile_in)
+                obj.profile_=[];
+                obj.mandatory_field_set_(2) = false;
+            elseif ~(isvector(profile_in) && all(isfinite(profile_in)) && all(profile_in>=0))
                 error('HERBERT:IX_divergence_profile:invalid_argument', ...
-                    'The profile values must all be finite and greater or equal to zero')
+                    'IX_divergence_profile: The profile values must all be finite and greater or equal to zero')
+            else
+                obj.profile_=profile_in(:)';
+                obj.mandatory_field_set_(2) = true;
             end
-            obj.profile_=profile_in(:)';
-            obj.mandatory_field_set_(2) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg(true);
             end
@@ -106,7 +114,7 @@ classdef IX_divergence_profile < serializable
         function obj = set.name(obj,val)
             if ~(ischar(val)||isstring(val))
                 error('HERBERT:IX_divergence_profile:invalid_argument', ...
-                    'The profile values must all be finite and greater or equal to zero')
+                    'IX_divergence_profile: The profile values must all be finite and greater or equal to zero')
             end
             obj.name_ = val;
         end
@@ -151,7 +159,7 @@ classdef IX_divergence_profile < serializable
         function obj = check_combo_arg(obj,do_recompute_pdf)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
-            % 
+            %
             % Throw if the properties are inconsistent and return without
             % problem it they are not, after recomputing pdf table if
             % requested.
@@ -159,7 +167,7 @@ classdef IX_divergence_profile < serializable
                 do_recompute_pdf = true;
             end
 
-            if ~all(obj.mandatory_field_set_)
+            if any(obj.mandatory_field_set_) && ~all(obj.mandatory_field_set_)
                 mandatory_field_names = obj.saveableFields('mandatory');
                 error('HERBERT:IX_divirgence_profile:invalid_argument', ...
                     ' Must give all mandatory properties namely: %s.\n Properties: %s have not been set', ...
@@ -173,7 +181,7 @@ classdef IX_divergence_profile < serializable
                     numel(angles_in),numel(profile_in))
             end
 
-            if do_recompute_pdf
+            if any(obj.mandatory_field_set_) && do_recompute_pdf
                 % Compute the pdf
                 obj.pdf_ = pdf_table (obj.angles_, obj.profile_);
             end
