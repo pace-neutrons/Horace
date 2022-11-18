@@ -137,34 +137,53 @@ classdef mfclass_wrapfun
         % Constructor
         %------------------------------------------------------------------
         function obj = mfclass_wrapfun(varargin)
-            % Create mfclass_wrapfun object:
-            %
-            %   >> obj = mfclass_wrapfun
-            %   >> obj = mfclass_wrapfun (fun_wrap, p_wrap, bfun_wrap, bp_wrap)
-            %   >> obj = mfclass_wrapfun (fun_wrap, p_wrap, bfun_wrap, bp_wrap,...
-            %                               f_pass_caller, bf_pass_caller)
-            %   >> obj = mfclass_wrapfun (fun_wrap, p_wrap, bfun_wrap, bp_wrap,...
-            %                               f_pass_caller, bf_pass_caller,...
-            %                               func_init, bfunc_init)
-
-            if numel(varargin)>0
-                if numel(varargin)==4 || numel(varargin)==6 || numel(varargin)==8
-                    % Populate with public set routines to ensure checks are performed
-                    obj.fun_wrap = varargin{1};
-                    obj.p_wrap = varargin{2};
-                    obj.bfun_wrap = varargin{3};
-                    obj.bp_wrap = varargin{4};
-                    if numel(varargin)>=6
-                        obj.f_pass_caller = varargin{5};
-                        obj.bf_pass_caller = varargin{6};
-                    end
-                    if numel(varargin)>=8
-                        obj.func_init = varargin{7};
-                        obj.bfunc_init = varargin{8};
+        % Create mfclass_wrapfun object:
+        %
+        %   >> obj = mfclass_wrapfun
+        %   >> obj = mfclass_wrapfun (fun_wrap, p_wrap, bfun_wrap, bp_wrap)
+        %   >> obj = mfclass_wrapfun (fun_wrap, p_wrap, bfun_wrap, bp_wrap,...
+        %                               f_pass_caller, bf_pass_caller)
+        %   >> obj = mfclass_wrapfun (fun_wrap, p_wrap, bfun_wrap, bp_wrap,...
+        %                               f_pass_caller, bf_pass_caller,...
+        %                               func_init, bfunc_init)
+            switch numel(varargin)
+              case 0
+              case 1
+                if isstruct(varargin{1}) || isa(varargin{1}, 'mfclass_wrapfun')
+                    arg = varargin{1};
+                    flds = fieldnames(arg);
+                    for ifld = 1:numel(flds)
+                        fld = flds{ifld};
+                        obj.(fld) = arg.(fld);
                     end
                 else
-                    error ('Check number of input arguments')
+                    error('HERBERT:mfclass_wrapfun:invalid_argument', ...
+                          'Argument must be struct representing mfclass_wrapfun structure')
                 end
+              case 4
+                obj.fun_wrap = varargin{1};
+                obj.p_wrap = varargin{2};
+                obj.bfun_wrap = varargin{3};
+                obj.bp_wrap = varargin{4};
+              case 6
+                obj.fun_wrap = varargin{1};
+                obj.p_wrap = varargin{2};
+                obj.bfun_wrap = varargin{3};
+                obj.bp_wrap = varargin{4};
+                obj.f_pass_caller = varargin{5};
+                obj.bf_pass_caller = varargin{6};
+              case 8
+                obj.fun_wrap = varargin{1};
+                obj.p_wrap = varargin{2};
+                obj.bfun_wrap = varargin{3};
+                obj.bp_wrap = varargin{4};
+                obj.f_pass_caller = varargin{5};
+                obj.bf_pass_caller = varargin{6};
+                obj.func_init = varargin{7};
+                obj.bfunc_init = varargin{8};
+              otherwise
+                error('HERBERT:mfclass_wrapfun:invalid_argument', ...
+                      'Check number of input arguments')
             end
         end
 

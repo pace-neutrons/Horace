@@ -522,7 +522,7 @@ elseif iscell(a) && iscell(b)
     % ------------------------------
     % Check sizes of structure arrays are the same
     sz=size(a);
-    if ~isequal(sz,size(b))
+    if ~(isempty(a) && isempty(b)) && ~isequal(sz,size(b))
         error('HERBERT:equal_to_tol:inputs_mismatch',...
             '%s and %s: Sizes of cell arrays being compared are not equal',...
             name_a,name_b);

@@ -178,10 +178,12 @@ classdef mfclass_tobyfit < mfclass
         %------------------------------------------------------------------
         function obj = mfclass_tobyfit (varargin)
             obj@mfclass(varargin{:});
-            obj = obj.set_mc_contributions;
-            obj = obj.set_mc_points;
-            obj = obj.set_refine_crystal (false);
-            obj = obj.set_refine_moderator (false);
+            if ~isempty(varargin)
+                obj = obj.set_mc_contributions;
+                obj = obj.set_mc_points;
+                obj = obj.set_refine_crystal (false);
+                obj = obj.set_refine_moderator (false);
+            end
         end
 
         %------------------------------------------------------------------
@@ -202,6 +204,23 @@ classdef mfclass_tobyfit < mfclass
         function out = get.refine_moderator (obj)
             out = obj.refine_moderator_;
         end
+
+        function obj = set.mc_contributions (obj, mc)
+            obj.mc_contributions_ = mc;
+        end
+
+        function obj = set.mc_points (obj, mc)
+            obj.mc_points_ = mc;
+        end
+
+        function obj = set.refine_crystal (obj, ref)
+            obj.refine_crystal_ = ref;
+        end
+
+        function obj = set.refine_moderator (obj, ref)
+            obj.refine_moderator_ = ref;
+        end
+
 
         %------------------------------------------------------------------
         % Interfaces to extended superclass methods
@@ -229,4 +248,18 @@ classdef mfclass_tobyfit < mfclass
         [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj, xtal_opts)
         [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj, mod_opts)
     end
+
+
+    methods(Access=public)
+        function flds = saveableFields(obj)
+            flds = [saveableFields@mfclass(obj), ...
+                    "mc_contributions", ...
+                    "mc_points", ...
+                    "refine_crystal", ...
+                    "refine_moderator", ...
+                   ];
+        end
+
+    end
+
 end

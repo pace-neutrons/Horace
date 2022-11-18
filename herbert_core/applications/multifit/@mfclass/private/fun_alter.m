@@ -73,14 +73,14 @@ if isfore
     Sfun.pin_(indfun(clear)) = mfclass_plist();
     Sfun.np_(indfun(clear)) = 0;
     Sfun.free_(indfun(clear)) = {true(1,0)};
-    
+
 else
-    if numel(fun) == numel(Sfun.fun_)
+    if numel(fun) == numel(Sfun.bfun_)
         clear = ~cellfun(@(x,y)isequal(x,y),fun,Sfun.bfun_(indfun));
     else % replace all
         clear = true(size(fun));
     end
-    
+
     Sfun.bfun_(indfun) = fun;
     Sfun.bpin_(indfun(clear)) = mfclass_plist();
     Sfun.nbp_(indfun(clear)) = 0;
@@ -88,4 +88,3 @@ else
 end
 
 cleared = clear;
-

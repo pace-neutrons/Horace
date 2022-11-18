@@ -82,7 +82,7 @@ end
 Scon = obj.get_constraints_props_;
 
 clr = (clr_fun|clr_pin);
-if any(clr)
+if any(clr) && obj.do_check_combo_arg_
     if isfore
         Scon = constraints_replace (Scon, obj.np_, obj.nbp_,...
             ifun(clr), np(clr), [], []);
@@ -99,7 +99,7 @@ if present.bind
         isfore, ifun, bind);
     if ~ok, return, end
     if ~isempty(mess), disp(mess), end
-    
+
     % Now update the constraints themselves
     [Scon,ok,mess] = binding_add (Scon, Sfun.np_, Sfun.nbp_,...
         ipb, ifunb, ipf, ifunf, R);
@@ -109,4 +109,3 @@ end
 % -----------------
 obj = obj.set_fun_props_ (Sfun);
 obj = obj.set_constraints_props_ (Scon);
-

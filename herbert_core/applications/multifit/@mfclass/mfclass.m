@@ -1,4 +1,4 @@
-classdef mfclass
+classdef mfclass < serializable
     % -----------------------------------------------------------------------------
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
@@ -38,7 +38,6 @@ classdef mfclass
     % This procedure is required because we will generally want the method
     % multifit2 for objects of class sqw, d1d, d2d,... for example, and
     % multifit2 will generally need to operate differently for each class.
-
 
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
@@ -164,11 +163,30 @@ classdef mfclass
 
     end
 
+    properties(Constant, Access=private)
+        fields_to_save = {'data', ...
+                          'mask', ...
+                          'local_foreground', ...
+                          'local_background', ...
+                          'fun', ...
+                          'bfun', ...
+                          'pin_obj', ...
+                          'np', ...
+                          'bpin_obj', ...
+                          'nbp', ...
+                          'free', ...
+                          'bfree', ...
+                          'bind_obj', ...
+                          'wrapfun', ...
+                          'options'
+                         }
+    end
+
     properties (Dependent, Access=private)
         ndatatot_       % Total number of datasets (==numel(w_))
     end
 
-    properties (Dependent, Access=protected)
+    properties (Dependent, Access={?mfclass, ?serializable})
         % Properties that are exposed to child classes (i.e. subclasses)
 
         dataset_class   % data class
@@ -177,6 +195,7 @@ classdef mfclass
         bpin_obj        % bpin returned as array of mfclass_plist objects
         nbp             % number of parameters in each background function
         wrapfun         % function wrapping object
+        bind_obj        % Global binding object
     end
 
     properties (Dependent)
@@ -341,15 +360,16 @@ classdef mfclass
         options
 
     end
-    properties(Dependent,Hidden) % 
+
+    properties(Dependent,Hidden) %
         % Hide excessive interface to avoid confusion but keep it if
         % some external programs use it
         %
         % Foreground is local if true, or global if false
-        global_foreground 
+        global_foreground
         % Background is local if true, or global if false
         local_background
-        
+
     end
 
     methods
@@ -366,7 +386,7 @@ classdef mfclass
             %
             % Input:
             % -----
-            % OPtional data arguments (must all appear first):
+            % Optional data arguments (must all appear first):
             %   w1, w2, ...     Datasets or arrays of datasets
             %
             % Trailing optional arguments (can appear in any order):
@@ -378,21 +398,23 @@ classdef mfclass
             %                  the fitting function
             %
             % See also set_data mfclass_wrapfun
+
             [ok,mess,nopt,ind_dataset_class,ind_wrapfun] = strip_trailing_opts_(varargin{:});
-            if ok
-                obj = set_data(obj,varargin{1:end-nopt});
-                if ~isempty(ind_dataset_class)
-                    obj.dataset_class_ = varargin{ind_dataset_class};
-                end
-                if ~isempty(ind_wrapfun)
-                    obj.wrapfun_ = varargin{ind_wrapfun};
-                end
-            else
+            if ~ok
                 error('HERBERT:mf_class:invalid_argument',mess)
             end
+
+            obj = set_data(obj,varargin{1:end-nopt});
+
+            if ~isempty(ind_dataset_class)
+                obj.dataset_class_ = varargin{ind_dataset_class};
+            end
+
+            if ~isempty(ind_wrapfun)
+                obj.wrapfun_ = varargin{ind_wrapfun};
+            end
+
             obj = set_options(obj,'-default');
-            %--------------------------------------------------------------------------------------
-            %--------------------------------------------------------------------------------------
         end
 
         %------------------------------------------------------------------
@@ -445,6 +467,9 @@ classdef mfclass
             out = obj.wrapfun_;
         end
 
+        function out = get.bind_obj(obj)
+            out = obj.get_constraints_props_();
+        end
 
         %------------------------------------------------------------------
         % Set/get methods: public dependent properties
@@ -476,7 +501,7 @@ classdef mfclass
         %------------------------------------------------------------------
         % Get methods
         function out = get.data(obj)
-            if numel(obj.data_)==1
+            if isscalar(obj.data_)
                 out = obj.data_{1};     % cell array of length unity, so return actual data
             else
                 out = obj.data_;
@@ -484,7 +509,7 @@ classdef mfclass
         end
 
         function out = get.mask(obj)
-            if numel(obj.msk_)==1
+            if isscalar(obj.msk_)
                 out = obj.msk_{1};      % cell array of length unity, so return actual mask
             else
                 out = obj.msk_;
@@ -591,6 +616,92 @@ classdef mfclass
             out = obj.options_;
         end
 
+        % Exposed setters for serialisation
+        function obj = set.data(obj, data)
+            if obj.do_check_combo_arg_
+                error('HERBERT:mfclass:invalid_argument', 'Cannot set ''data'' directly')
+            end
+            data = make_cell(data);
+            obj.data_ = data;
+
+            [~, ~, w] = is_valid_data(obj.dataset_class, data{:});
+            obj.w_ = w;
+        end
+
+        function obj = set.mask(obj, mask)
+            if obj.do_check_combo_arg_
+                error('HERBERT:mfclass:invalid_argument', 'Cannot set ''mask'' directly')
+            end
+            obj.msk_ = make_cell(mask);
+        end
+
+        function obj = set.pin_obj(obj, pin)
+            if obj.do_check_combo_arg_
+                error('HERBERT:mfclass:invalid_argument', 'Cannot set ''pin_obj'' directly')
+            end
+            obj.pin_ = pin;
+        end
+
+        function obj = set.bpin_obj(obj, bpin)
+            if obj.do_check_combo_arg_
+                error('HERBERT:mfclass:invalid_argument', 'Cannot set ''bpin_obj'' directly')
+            end
+            obj.bpin_ = bpin;
+        end
+
+        function obj = set.bind_obj(obj, bind_obj)
+            if obj.do_check_combo_arg_
+                error('HERBERT:mfclass:invalid_argument', 'Cannot set ''bind_obj'' directly')
+            end
+
+            obj = obj.set_constraints_props_(bind_obj);
+        end
+
+        function obj = set.np(obj, np)
+            if obj.do_check_combo_arg_
+                error('HERBERT:mfclass:invalid_argument', 'Cannot set ''np'' directly')
+            end
+            obj.np_ = np;
+        end
+
+        function obj = set.nbp(obj, nbp)
+            if obj.do_check_combo_arg_
+                error('HERBERT:mfclass:invalid_argument', 'Cannot set ''nbp'' directly')
+            end
+            obj.nbp_ = nbp;
+        end
+
+        function obj = set.fun(obj, fun)
+            obj = obj.set_fun(fun);
+        end
+
+        function obj = set.bfun(obj, bfun)
+            obj = obj.set_bfun(bfun);
+        end
+
+        function obj = set.free(obj, free)
+            obj = obj.set_free(free);
+        end
+
+        function obj = set.bfree(obj, bfree)
+            obj = obj.set_bfree(bfree);
+        end
+
+        function obj = set.bind(obj, bind)
+            obj = obj.set_bind(bind);
+        end
+
+        function obj = set.bbind(obj, bbind)
+            obj = obj.set_bbind(bbind);
+        end
+
+        function obj = set.options(obj, options)
+            if obj.do_check_combo_arg_
+                error('HERBERT:mfclass:invalid_argument', 'Cannot set ''options'' directly')
+            end
+            obj.options_ = options;
+        end
+
     end
 
     methods (Access=private)
@@ -611,7 +722,7 @@ classdef mfclass
         [ok, mess, obj] = set_pin_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_pin_private_ (obj, isfore, args)
 
-        [ok, mess, obj] = set_free_private_ (obj, isfore, args)
+        obj = set_free_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_free_private_ (obj, isfore, args)
 
         [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
@@ -674,5 +785,15 @@ classdef mfclass
         end
     end
 
-end
+    methods(Access=public)
+        function ver = classVersion(obj)
+            ver = 1;
+        end
 
+        function flds = saveableFields(obj)
+            flds = obj.fields_to_save;
+        end
+
+    end
+
+end

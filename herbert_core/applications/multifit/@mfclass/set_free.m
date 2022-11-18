@@ -24,6 +24,6 @@ function obj = set_free (obj, varargin)
 
 % Process input
 isfore = true;
-[ok, mess, obj] = set_free_private_ (obj, isfore, varargin);
-if ~ok, error(mess), end
+obj = set_free_private_ (obj, isfore, varargin);
 
+end

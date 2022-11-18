@@ -1,4 +1,4 @@
-function [ok, mess, obj] = set_free_private_ (obj, isfore, args)
+function obj = set_free_private_(obj, isfore, args)
 % Set which foreground/background function parameters are free and which are fixed
 %
 %   >> [ok, mess, obj] = set_free_private_(obj, isfore, args)
@@ -25,12 +25,6 @@ else
     np = obj.nbp_;
 end
 
-% Trivial case of no input arguments; just return without doing anything
-if numel(args)==0
-    ok = true;
-    mess = '';
-    return
-end
 
 % % Check there are function(s)
 % % ---------------------------
@@ -42,25 +36,30 @@ end
 
 % Parse input arguments
 % ---------------------
-if numel(args)==1
+switch numel(args)
+    % Trivial case of no input arguments; just return without doing anything
+  case 0
+    return
+  case 1
     ifun = 'all';
     free=args{1};
-elseif numel(args)==2
+  case 2
     ifun = args{1};
     free = args{2};
-else
-    ok = false;
-    mess = 'Check number of input arguments';
-    return
+  otherwise
+    error('HERBERT:set_free:invalid_argument', ...
+          'Check number of input arguments');
 end
 
 % Now check validity of input
 % ---------------------------
 [ok,mess,ifun] = indicies_parse (ifun, nfun, 'Function');
-if ~ok, return, end
+if ~ok
+    error('HERBERT:set_free:invalid_argument', ...
+          mess);
+end
 
-[ok,mess,free] = free_parse (free, np(ifun));
-if ~ok, return, end
+free = free_parse (free, np(ifun));
 
 % All arguments are valid, so populate the output object
 % ------------------------------------------------------
@@ -70,4 +69,3 @@ Sfun = free_alter (obj.get_fun_props_, isfore, ifun, free);
 % Update the object
 % -----------------
 obj = obj.set_fun_props_ (Sfun);
-

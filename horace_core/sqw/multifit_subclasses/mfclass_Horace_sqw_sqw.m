@@ -385,11 +385,7 @@ classdef mfclass_Horace_sqw_sqw < mfclass
             % <#doc_end:>
             % -----------------------------------------------------------------------------
 
-            try
-                obj = set_fun@mfclass (obj, varargin{:});
-            catch ME
-                error(ME.message)
-            end
+            obj = set_fun@mfclass (obj, varargin{:});
         end
 
         function obj = set_bfun(obj,varargin)
@@ -620,11 +616,7 @@ classdef mfclass_Horace_sqw_sqw < mfclass
             % <#doc_end:>
             % -----------------------------------------------------------------------------
 
-            try
-                obj = set_bfun@mfclass (obj, varargin{:});
-            catch ME
-                error(ME.message)
-            end
+            obj = set_bfun@mfclass (obj, varargin{:});
         end
 
         function [data_out, calcdata] = simulate (obj, varargin)
@@ -825,4 +817,11 @@ classdef mfclass_Horace_sqw_sqw < mfclass
             [data_out, calcdata] = fit@mfclass (obj_tmp, varargin{:});
         end
     end
+
+    methods(Access=public)
+        function flds = saveableFields(obj)
+            flds = [mfclass@saveableFields() 'average'];
+        end
+    end
+
 end

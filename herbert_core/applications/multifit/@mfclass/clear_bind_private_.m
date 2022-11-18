@@ -23,11 +23,12 @@ end
 
 % Parse input arguments
 % ---------------------
-if numel(args)==0
+switch numel(args)
+  case 0
     ifun = 'all';
-elseif numel(args)==1
+  case 1
     ifun = args{1};
-else
+  otherwise
     ok = false;
     mess = 'Check number of input arguments';
     return
@@ -48,8 +49,8 @@ else
     ipb = sawtooth_iarray (obj.nbp_(ifun));
     ifunb = replicate_iarray (-ifun, obj.nbp_(ifun));
 end
+
 S_con = binding_clear (obj.get_constraints_props_, obj.np_, obj.nbp_, ipb, ifunb);
 
 % Update the object
 obj = obj.set_constraints_props_ (S_con);
-

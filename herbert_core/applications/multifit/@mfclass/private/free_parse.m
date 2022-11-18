@@ -1,4 +1,4 @@
-function [ok,mess,free]=free_parse(free_in,np)
+function free=free_parse(free_in,np)
 % Determine if an argument is a valid free and expand input argument to full argument
 %
 %   >> [ok,mess,free]=free_parse(free_in,np)
@@ -47,75 +47,48 @@ function [ok,mess,free]=free_parse(free_in,np)
 %     {[0,1,1,0],[0,0,1,0]}     % to have different free parameters
 %     {[0,1,1,0],[0,0,1]}       % if the functions have four and three parameters respectively
 
-
-ok=false;
-free={};
-
 if isempty(free_in)    % Empty argument; assume all parameters are free
-    free=cell(size(np));
-    for i=1:numel(np)
-        [~,~,free{i}]=free_parse_single([],np(i));
-    end
-    ok=true;
-    mess='';
-    
+
+    free = arrayfun(@(n) true(n, 1), np, 'UniformOutput', false);
+
 elseif iscell(free_in)
     if isscalar(free_in)   % the parameter list is assumed to apply for every function
-        [ok_tmp,mess,free_tmp]=free_parse_single(free_in{1},np(1));
-        if ~ok_tmp
-            mess=['Function index ',arraystr(size(np),1),': ',mess];
-            return
-        end
         if ~all(np(:)==np(1))
-            mess='A single free parameter list is only valid if all functions have same number of parameters';
-            return
+            error('HERBERT:free_parse:invalid_argument', ...
+                  'A single free parameter list is only valid if all functions have same number of parameters')
         end
-        free=cell(size(np));
-        for i=1:numel(np)
-            free{i}=free_tmp;
-        end
-        ok=true;
-        mess='';
+
+        free_tmp = free_parse_single(free_in{1},np(1));
+        free = repmat({free_tmp}, size(np));
+
     elseif numel(free_in)==numel(np)
-        free=cell(size(np));
-        for i=1:numel(np)
-            [ok,mess,free{i}]=free_parse_single(free_in{i},np(i));
-            if ~ok
-                free={};
-                mess=['Function index ',arraystr(size(np),i),': ',mess];
-                return
-            end
-        end
-        ok=true;
-        mess='';
+
+        free = cellfun(@free_parse_single, free_in, num2cell(np), ...
+                       'UniformOutput', false, 'ErrorHandler', @errorFunc);
+
     else
-        mess='Array of free parameters lists is not scalar or does not have same size as array of data sources';
-        return
+        error('HERBERT:free_parse:invalid_argument', ...
+              'Array of free parameters lists is not scalar or does not have same size as array of data sources')
     end
-    
+
 elseif isnumeric(free_in)||islogical(free_in)     % Assume applies to all functions
-    [ok_tmp,mess,free_tmp]=free_parse_single(free_in,np(1));
-    if ~ok_tmp
-        return
-    end
     if ~all(np(:)==np(1))
-        mess='A single free parameter list is only valid if all functions have same number of parameters';
-        return
+        error('HERBERT:free_parse:invalid_argument', ...
+              'A single free parameter list is only valid if all functions have same number of parameters')
     end
-    free=cell(size(np));
-    for i=1:numel(np)
-        free{i}=free_tmp;
-    end
-    ok=true;
-    mess='';
-    
+
+    free_tmp = free_parse_single(free_in,np(1));
+
+    free = repmat({free_tmp}, size(np));
+
 else
-    mess='Free parameter list must be empty, numeric or logical array or a cell array of numeric or logical arrays';
-    return
+    error('HERBERT:free_parse:invalid_argument', ...
+          'Free parameter list must be empty, numeric or logical array or a cell array of numeric or logical arrays')
 end
 
-%------------------------------------------------------------------------------
-function [ok,mess,free]=free_parse_single(free_in,np)
+end
+
+function free=free_parse_single(free_in,np)
 % Determine if an argument is a valid free and expand input argument to full argument
 %
 %   >> [ok,mess,free]=free_parse_single(free_in,np)
@@ -139,42 +112,23 @@ function [ok,mess,free]=free_parse_single(free_in,np)
 %
 % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
-
 if isempty(free_in)
-    ok=true;
     free=true(1,np);
-    mess='';
-elseif (isnumeric(free_in)||islogical(free_in))
-    if isvector(free_in) && numel(free_in)==np   % note: isvector(arg)==0 if isempty(arg)
-        if isnumeric(free_in) && all(free_in==1|free_in==0)
-            ok=true;
-            free=logical(free_in(:)');
-            mess='';
-        elseif islogical(free_in)
-            ok=true;
-            free=free_in(:)';
-            mess='';
-        else
-            ok=false;
-            free=true(0);
-            mess=message(np);
-        end
-    else
-        ok=false;
-        free=true(0);
-        mess=message(np);
-    end
-else
-    ok=false;
-    free=true(0);
-    mess=message(np);
+    return
 end
 
-%------------------------------------------------------------------------------
-function mess = message(np)
 if np>0
     mess='Free parameters argument must be a vector containing only ones and zeros and length matching number of parameters';
 else
     mess='Free parameters argument must be an empty numeric or logical vector as the parameter list is empty';
 end
 
+validateattributes(free_in, {'numeric', 'logical'}, {'vector', 'binary', 'numel', np});
+
+free = logical(free_in(:)');
+
+end
+
+function errorFunc(S, varargin)
+    error(S.identifier, ["Error handling argument (%d): %s"], S.index, S.message)
+end

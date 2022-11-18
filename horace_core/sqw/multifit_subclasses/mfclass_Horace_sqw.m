@@ -814,4 +814,11 @@ classdef mfclass_Horace_sqw < mfclass
             [data_out, calcdata] = fit@mfclass (obj_tmp, varargin{:});
         end
     end
+
+    methods(Access=public)
+        function flds = saveableFields(obj)
+            flds = [mfclass@saveableFields() 'average'];
+        end
+    end
+
 end
