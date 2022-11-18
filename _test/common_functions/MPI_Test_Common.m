@@ -56,6 +56,18 @@ classdef MPI_Test_Common < TestCase
                 pc.worker = 'worker_v2';
                 obj.worker = 'worker_v2';                
             end
+           ws = which(obj.worker);
+           if isempty(ws)
+                warning(' Setting parallel worker to special value: %s',...                
+                    which('worker_v2'));           
+                pc.worker = 'worker_v2';
+                obj.worker = 'worker_v2';                               
+                ws = which(obj.worker);                
+                if isempty(ws)
+                    error('HERBERT:MPI_Test_Common:runtime_error',...
+                        'Can not find a worker to test MPI')
+                end
+           end
             
             obj.old_parallel_config_ = opc;
             obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,opc));

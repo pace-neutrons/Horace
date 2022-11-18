@@ -60,7 +60,7 @@ end
 
 function version_str = read_from_version_file()
 try
-    horace_root = fileparts(fileparts(which('horace_init')));
+    horace_root = fileparts(fileparts(which('herbert_init')));
     version_file = fullfile(horace_root , 'VERSION');
     version_str = [strtrim(fileread(version_file)), '.dev'];
 catch
