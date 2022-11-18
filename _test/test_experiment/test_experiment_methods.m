@@ -37,7 +37,8 @@ classdef test_experiment_methods < TestCase
 
             exp.samples = sample;
 
-            assertEqual(exp.samples{3},sample);
+            assertEqual(exp.samples(3),sample);
+            skipTest('Ticket #906 -- need to check if this behaviour is desirable')
         end
         %
         function test_to_from_old_structure_nomangle(obj)

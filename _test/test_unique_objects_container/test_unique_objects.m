@@ -1,6 +1,7 @@
 classdef test_unique_objects < TestCase
     properties
         mi1;
+        li;
         nul_sm1;
     end
 
@@ -12,7 +13,10 @@ classdef test_unique_objects < TestCase
                 name  = 'test_unique_objects';
             end
             obj = obj@TestCase(name);
+            % create two different instruments from a couple of instrument
+            % creator functions
             obj.mi1 = merlin_instrument(180, 600, 'g');
+            obj.li  = let_instrument(5, 240, 80, 20, 1);
             obj.nul_sm1 = IX_null_sample();
 
         end
@@ -20,23 +24,20 @@ classdef test_unique_objects < TestCase
         %------------------------------------------------------------------
         function test_add_non_unique_objects(obj)
 
-            % create two different instruments from a couple of instrument
-            % creator functions
-            li = let_instrument(5, 240, 80, 20, 1);
 
             % make a unique_objects_container (empty)
             uoc = unique_objects_container();
 
             % add 3 identical instruments to the container
-            uoc = uoc.add(li);
-            uoc = uoc.add(li);
-            uoc = uoc.add(li);
+            uoc = uoc.add(obj.li);
+            uoc = uoc.add(obj.li);
+            uoc = uoc.add(obj.li);
             % add 2 more instruments, identical to each other but not the
             % first 3
             uoc = uoc.add(obj.mi1);
             uoc = uoc.add(obj.mi1);
             % add another instrument same as the first 3
-            uoc = uoc.add(li);
+            uoc = uoc.add(obj.li);
 
             % test that we put 6 instruments in the container
             assertEqual( numel(uoc.idx), 6);
@@ -55,7 +56,7 @@ classdef test_unique_objects < TestCase
             % also tests that the get method for retrieving the non-unique
             % objects is working
             for i=1:3
-                assertEqual( li, uoc.get(i) );
+                assertEqual(obj.li, uoc.get(i) );
             end
 
             % test that the next 2 instruments in the container are the
@@ -66,7 +67,47 @@ classdef test_unique_objects < TestCase
 
             % test that the last instrument in the container is also the
             % same as instrument li
-            assertEqual( li, uoc.get(6) );
+            assertEqual(obj.li, uoc.get(6) );
+        end
+        function test_remove_noncomplying_first_kept(obj)
+
+            uoc = unique_objects_container();
+            uoc(1) = obj.mi1;
+            uoc(2) = 'aaaaa';
+            uoc(3) = obj.mi1;
+            uoc(4) = 10;
+            uoc(5) = obj.li;
+            uoc(6) = 20;
+            uoc(7) = obj.li;
+            uoc(8) = 'aaaaa';
+
+            assertEqual(uoc.n_runs,8);
+            assertEqual(uoc.n_unique,5);
+
+            uoc.baseclass = 'IX_inst';
+            assertEqual(uoc.n_runs,4)
+            assertEqual(uoc.n_unique,2)
+            assertEqual(uoc.n_duplicates,[2,2])
+        end
+
+        function test_remove_noncomplying_first_removed(obj)
+
+            uoc = unique_objects_container();
+            uoc(1) = 'aaaaa';
+            uoc(2) = 'aaaaa';
+            uoc(3) = obj.mi1;
+            uoc(4) = 10;
+            uoc(5) = obj.li;
+            uoc(6) = 20;
+            uoc(7) = obj.li;
+
+            assertEqual(uoc.n_runs,7);
+            assertEqual(uoc.n_unique,5);
+
+            uoc.baseclass = 'IX_inst';
+            assertEqual(uoc.n_runs,3)
+            assertEqual(uoc.n_unique,2)
+            assertEqual(uoc.n_duplicates,[1,2])
         end
 
         %----------------------------------------------------------------
@@ -75,7 +116,7 @@ classdef test_unique_objects < TestCase
 
             mi2 = merlin_instrument(190, 700, 'g');
             assertFalse( isequal(obj.mi1,mi2) );
-            
+
             uoc = unique_objects_container();
             [uoc,nuix] = uoc.add(obj.mi1);
             assertEqual( nuix, 1);
@@ -133,12 +174,6 @@ classdef test_unique_objects < TestCase
             %{
             Turns out that hashes are not portable between all Matlab
             versions and platforms, so suppressing this bit.
-            v1 = uint8(...
-                [124   197    72   173   189    40   141    89   154   200    43   138   160    63   243   121] ...
-                );
-            u1 = uint8(...
-                [122    85    30   186    79    64   138   166   121   219   196   239    36   104   116    22]...
-                );
             assertEqual( u1, uoc.stored_hashes(1,:) );
             assertEqual( v1, voc.stored_hashes(1,:) );
             %}
@@ -165,10 +200,6 @@ classdef test_unique_objects < TestCase
             %{
             Turns out that hashes are not portable between all Matlab
             versions and platforms, so suppressing this bit.
-
-            u1 = uint8(...
-                [122    85    30   186    79    64   138   166   121   219   196   239    36   104   116    22]...
-                );
             assertEqual( u1, uoc.stored_hashes(1,:) );
             %}
         end
@@ -186,11 +217,6 @@ classdef test_unique_objects < TestCase
 
             %{
             Turns out that hashes are not portable between all Matlab
-            versions and platforms, so suppressing this bit.
-            u1 = uint8(...
-                [124   197    72   173   189    40   141    89   154   200    43   138   160    63   243   121] ...
-                );
-            assertEqual( u1, uoc.stored_hashes(1,:) );
             %}
         end
 
@@ -214,10 +240,6 @@ classdef test_unique_objects < TestCase
             %{
             Turns out that hashes are not portable between all Matlab
             versions and platforms, so suppressing this bit.
-            
-            u1 = uint8(...
-                [122    85    30   186    79    64   138   166   121   219   196   239    36   104   116    22]...
-                );
             assertEqual( u1, uoc.stored_hashes(1,:) );
             %}
         end
