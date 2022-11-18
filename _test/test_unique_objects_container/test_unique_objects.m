@@ -69,6 +69,47 @@ classdef test_unique_objects < TestCase
             % same as instrument li
             assertEqual(obj.li, uoc.get(6) );
         end
+        function test_replace_unique_different_number_throw(~)
+
+            uoc = unique_objects_container();
+            uoc(1) = 'aaaaa';
+            uoc(2) = 'bbbb';
+            uoc(3) = 'bbbb';
+            function thrower()
+                uoc.unique_objects = 'bbbb';
+            end
+            assertExceptionThrown(@()thrower, ...
+                'HERBERT:unique_objects_container:invalid_argument');
+
+        end
+        function test_replace_with_nonunique_same_number_throw(~)
+
+            uoc = unique_objects_container();
+            uoc(1) = 'aaaaa';
+            uoc(2) = 'bbbb';
+            uoc(3) = 'bbbb';
+            function thrower()
+                uoc.unique_objects = {'AA','AA'};
+            end
+            assertExceptionThrown(@()thrower, ...
+                'HERBERT:unique_objects_container:invalid_argument');
+
+        end
+
+        function test_replace_unique_same_number_works(~)
+
+            uoc = unique_objects_container();
+            uoc(1) = 'aaaaa';
+            uoc(2) = 'bbbb';
+            uoc(3) = 'bbbb';
+            uoc.unique_objects = {'dd','cc'};
+
+            assertEqual(uoc(1),'dd')
+            assertEqual(uoc(2),'cc')
+            assertEqual(uoc(3),'cc')
+        end
+
+
         function test_remove_noncomplying_first_kept(obj)
 
             uoc = unique_objects_container();

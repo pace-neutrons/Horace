@@ -263,7 +263,7 @@ classdef unique_objects_container < serializable
                 if with_checks
                     is = ismember(hash,self.stored_hashes_(1:i-1));
                     if is
-                        error('HORACE:unique_object_container:invalid_argument',...
+                        error('HERBERT:unique_objects_container:invalid_argument',...
                             'Non-unique objects are set as input to unique objects container')
                     end
                 end
