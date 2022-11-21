@@ -11,13 +11,15 @@ classdef unique_objects_container < serializable
         unique_objects_=cell(1,0); % the actual unique objects - initialised in constructor by type
         stored_hashes_ = cell(1,0);  % their hashes are stored
         idx_ = zeros(1,0);   % array of unique indices for each non-unique object added
-        % for the stream converter used by hashify defaults to this
-        % undocumented java function
 
         baseclass_ = ''; % if not empty, name of the baseclass suitable for isa calls
         % (default respecified in constructor inputParser)
         n_duplicates_ = zeros(1,0);
-        % defaults to this undocumented java function handle
+
+        % hashify  defaults to this undocumented java function handle 
+        % if you try to store objects non-children for serializable and 
+        % the function to convert objects to bytes has not been set
+        % explicitly
         convert_to_stream_f_ = @getByteStreamFromArray; 
     end
     properties(Access = private)
