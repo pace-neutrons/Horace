@@ -1,20 +1,19 @@
 function [inst, all_inst] = get_inst_class (obj)
 % Determine the instrument type in a collection of sqw objects
 %
-%   >> inst = get_inst_class (w)                % single sqw array
-%   >> inst = get_inst_class (w1, w2, ...)      % several sqw arrays
+%   >> inst = get_inst_class (obj)              % single sqw array
 %
 % Input:
 % ------
-%   w1,w2,...   sqw object or array of sqw objects, or cell array of objects
+%   obj,...   sqw object or array of sqw objects
 %
 % Output:
 % -------
-%   inst        Default instance of the instrument class common to all runs in
-%              all sqw objects
-%               If there is not a common instrument class, then is returned as []
+%   inst      Default instance of the instrument class common to all runs in
+%             all sqw objects
+%             If there is not a common instrument class, then is returned as []
 %
-%   all_inst    True if instruments were set for all headers in all sqw objects
+%  all_inst  True if instruments were set for all headers in all sqw objects
 
 
 

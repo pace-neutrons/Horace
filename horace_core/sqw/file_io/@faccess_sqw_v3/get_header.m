@@ -157,7 +157,7 @@ if ~(isa(instr,'IX_null_inst') || ...
         end
         exp_info.instruments = instr;
     end
-else % IX_Null_inst
+else % IX_null_inst
     % is already in the header
 end
 function sample = set_lattice(sample,source)

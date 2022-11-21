@@ -258,6 +258,6 @@ chop5=IX_doubledisk_chopper('chopper_5', xCh5toS, hz5, radius5_mm/1000, slot5_mm
 % -----------------------------------------------------------------------------
 % Build instrument
 % -----------------------------------------------------------------------------
-source = IX_source('ISIS',[],10);
+source = IX_source('ISIS','',10);
 instrument = IX_inst_DGdisk (moderator, chop1, chop5,...
     horiz_div, vert_div, ei, 'name', 'LET', 'source', source);

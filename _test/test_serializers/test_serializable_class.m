@@ -31,7 +31,7 @@ classdef test_serializable_class < TestCase
                 'partial_match',20,'partial_match',11),...
                 'HERBERT:serializable:invalid_argument');
         end
-        function test_right_inderdep_prop_pass(~)
+        function test_right_interdep_prop_pass(~)
             tob = serializableTesterWithInterdepProp(10,1,0, ...
                 'Prop_class2_2',20);
             assertEqual(tob.Prop_class2_1,10)

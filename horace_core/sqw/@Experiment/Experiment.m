@@ -112,6 +112,7 @@ classdef Experiment < serializable
         %Change fields in the experiment with correction related to aligned
         %crystal lattice parameters and orientation
         obj=change_crystal(obj,alatt,angdeg,rlu_corr)
+        
         % set moderator pulse on every instrument contributing to the
         % object
         function obj = set_mod_pulse(obj,pulse_model,pm_par)
@@ -480,7 +481,7 @@ classdef Experiment < serializable
             % Output:
             % std_form -- the standard form of sample or instrument
             %             collection to store within the container
-            % Throws HORACE:Experiment:invalid_argument if the input can
+            % Throws 'HORACE:Experiment:invalid_argument' if the input can
             % not be converted into the standard form
             std_form = check_sample_or_inst_array_and_return_std_form_(...
                 sample_or_instrument,class_base);

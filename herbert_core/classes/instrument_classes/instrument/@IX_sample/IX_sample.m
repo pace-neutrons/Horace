@@ -88,7 +88,7 @@ classdef IX_sample < IX_samp
             %
             % Note: any number of the arguments can given in arbitrary order
             % after leading positional arguments if they are preceded by the
-            % argument name (including abbrevioations) e.g:.
+            % argument name (including abbreviations) e.g:.
             %
             %   sample = IX_sample (xgeom,ygeom,shape,ps,'name','FeSi','temp',273.16)
 

@@ -17,11 +17,11 @@ classdef unique_objects_container < serializable
         baseclass_ = ''; % if not empty, name of the baseclass suitable for isa calls
         % (default respecified in constructor inputParser)
         n_duplicates_ = zeros(1,0);
-        % defaults to this undocumented java
-        convert_to_stream_f_ = @getByteStreamFromArray; %function handle
+        % defaults to this undocumented java function handle
+        convert_to_stream_f_ = @getByteStreamFromArray; 
     end
     properties(Access = private)
-        % is set up to true if we decide not to use default stream conversion
+        % is set to true if we decide not to use default stream conversion
         % function
         non_default_f_conversion_set_ = false;
     end
@@ -91,9 +91,9 @@ classdef unique_objects_container < serializable
                 error('HERBERT:unique_obj_container:invalid_argument',...
                     'idx may be only array of numeric values, identifying the object position in the container');
             end
-            if min(val)<0
+            if min(val)<=0
                 error('HERBERT:unique_obj_container:invalid_argument',...
-                    'idx are the indexes so they may be positive obly. Minimal index provided is %d', ...
+                    'idx are the indexes so they must be positive only. Minum of indexes provided is: %d', ...
                     min(val))
             end
             self.idx_ = val(:)';

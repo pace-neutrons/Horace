@@ -14,8 +14,8 @@ function std_form = check_sample_or_inst_array_and_return_std_form_(...
 % Output:
 % std_form -- the standard form of sample or instrument
 %             collection to store within the container
-% Throws invdlid_argument if the input can not be converted into the
-% standard forn
+% Throws 'HORACE:Experiment:invalid_argument' if the input can not be
+% converted into the standard forn
 
 if isa(sample_or_instrument,'unique_objects_container')
     is = strcmp(class_base, sample_or_instrument.baseclass);

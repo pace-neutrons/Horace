@@ -161,6 +161,6 @@ fermi_chopper=chopper_array(ind);
 % -----------------------------------------------------------------------------
 % Build instrument
 % -----------------------------------------------------------------------------
-source = IX_source('ISIS',[],50);
+source = IX_source('ISIS','',50);
 inst = IX_inst_DGfermi (moderator, aperture, fermi_chopper, ei,...
     'name', 'MERLIN', 'source', source);
