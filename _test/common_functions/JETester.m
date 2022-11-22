@@ -2,14 +2,15 @@ classdef JETester < JobExecutor
     % Class used to test job dispatcher functionality
     %
     %
-    
+
     properties(Access = private)
         is_finished_ = false;
     end
-    
+
     methods
         function je = JETester()
         end
+
         function obj=do_job(obj)
             % Test do_job method implementation for testing purposes
             %
@@ -26,9 +27,9 @@ classdef JETester < JobExecutor
             % this particular implementation writes files according to template,
             % provided in test_job_dispatcher.m file
             %aa= input('enter_something')
-            
+
             n_steps = obj.n_iterations_;
-            
+
             task_num = obj.labIndex;
             job_par = obj.common_data_;
             wd = pwd();
@@ -37,19 +38,21 @@ classdef JETester < JobExecutor
                 fprintf(obj.ext_log_fh,' **** working directory %s\n',wd);
                 fprintf(obj.ext_log_fh,' **** test file location %s\n',pp);
             end
-            
-            
-            disp('****************************************************');
-            disp(['labN: ',num2str(task_num),' generating n_files: ',num2str(n_steps)]);
-            
+
+%             disp('****************************************************');
+%             disp(['labN: ',num2str(task_num),' generating n_files: ',num2str(n_steps)]);
+
             obj=obj.write_files(job_par,task_num,n_steps);
         end
+
         function  obj=reduce_data(obj)
             obj.is_finished_ = true;
         end
+
         function ok = is_completed(obj)
             ok = obj.is_finished_;
         end
+
         function obj=write_files(obj,job_par,task_num,n_steps)
             % write test files
             %
@@ -64,34 +67,35 @@ classdef JETester < JobExecutor
                 fwrite(f,['file: ',file],'char');
                 fclose(f);
                 pause(0.1)
-                disp('****************************************************');
-                disp(['finished test job generating test file: ',filename]);
-                disp('****************************************************');
+
+%                 disp('****************************************************');
+%                 disp(['finished test job generating test file: ',filename]);
+%                 disp('****************************************************');
+
                 %fprintf(fh,'logging progress for step %d ',ji);
                 obj.log_progress(n_steps_done,n_steps,toc(t0),'');
-                disp(['log message about file',filename,' sent *']);
+%                 disp(['log message about file',filename,' sent *']);
                 %fprintf(fh,'completed\n');
                 if isfield(job_par,'fail_for_labsN')
                     labnums2fail = job_par.fail_for_labsN;
                     if any(obj.labIndex==labnums2fail)
-                        disp('****************************************************');
-                        fprintf('simulated failure for lab N %d\n',obj.labIndex);
-                        disp('****************************************************');
+%                         disp('****************************************************');
+%                         fprintf('simulated failure for lab N %d\n',obj.labIndex);
+%                         disp('****************************************************');
                         pause(0.1)
                         error('JETester:runtime_error',...
                             'simulated failure for lab N %d',obj.labIndex);
                     end
                 end
-                
+
             end
-            disp(['labN: ',num2str(task_num),' do_job completed successfully']);
-            disp('****************************************************');
+%             disp(['labN: ',num2str(task_num),' do_job completed successfully']);
+%             disp('****************************************************');
             if obj.return_results_
                 out_str = sprintf('Job %d generated %d files',task_num,n_steps);
                 obj.task_results_holder_ = out_str;
             end
         end
     end
-    
-end
 
+end
