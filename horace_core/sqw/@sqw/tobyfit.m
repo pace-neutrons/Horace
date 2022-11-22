@@ -31,9 +31,6 @@ function varargout = tobyfit (varargin)
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 
 if ~mfclass.legacy(varargin{:})
     % ------------------------------------------------------------------------------
@@ -55,11 +52,8 @@ if ~mfclass.legacy(varargin{:})
         nsqw = ind-1;
     end
     if nsqw>0
-        try
-            [inst, all_inst] = get_inst_class (varargin{1:nsqw});
-        catch ME
-            error(ME.message)
-        end
+
+        [inst, all_inst] = get_inst_class (varargin{1:nsqw});
         if isempty(inst)
             if all_inst
                 error('The instrument type must be the same for all datasets')
@@ -85,10 +79,10 @@ if ~mfclass.legacy(varargin{:})
     end
     
     % Initialise
-    if strcmp(inst,'IX_inst_DGfermi')
+    if isa(inst,'IX_inst_DGfermi')
         mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGfermi_resconv_init, []);
-    elseif strcmp(inst,'IX_inst_DGdisk')
+    elseif isa(inst,'IX_inst_DGdisk')
         mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
             true, false, @tobyfit_DGdisk_resconv_init, []);
     else

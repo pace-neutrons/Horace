@@ -8,32 +8,35 @@ classdef test_IX_sample < TestCaseWithSave
         s2
         s3
         slookup
+        home_folder;
     end
 
     methods
         %--------------------------------------------------------------------------
-        function self = test_IX_sample (name)
-            if nargin<1
+        function obj = test_IX_sample (name)
+            home_folder = fileparts(mfilename('fullpath'));
+            if nargin == 0
                 name = 'test_IX_sample';
             end
-            self@TestCaseWithSave(name);
+            file = fullfile(home_folder,'test_IX_sample_output.mat');
+            obj@TestCaseWithSave(name,file);
 
             % Make some samples and sample arrays
-            self.sam1 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
-            self.sam2 = IX_sample ([0,1,0],[0,0,1],'cuboid',[12,13,34]);
-            self.sam3 = IX_sample ([1,1,0],[0,0,1],'cuboid',[22,23,24]);
+            obj.sam1 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
+            obj.sam2 = IX_sample ([0,1,0],[0,0,1],'cuboid',[12,13,34]);
+            obj.sam3 = IX_sample ([1,1,0],[0,0,1],'cuboid',[22,23,24]);
 
-            self.s1 = [self.sam1, self.sam1, self.sam2, self.sam2, self.sam2];
-            self.s2 = [self.sam3, self.sam1, self.sam2, self.sam3, self.sam1];
-            self.s3 = [self.sam2, self.sam3, self.sam1, self.sam2, self.sam3];
+            obj.s1 = [obj.sam1, obj.sam1, obj.sam2, obj.sam2, obj.sam2];
+            obj.s2 = [obj.sam3, obj.sam1, obj.sam2, obj.sam3, obj.sam1];
+            obj.s3 = [obj.sam2, obj.sam3, obj.sam1, obj.sam2, obj.sam3];
 
-            self.slookup = object_lookup({self.s1, self.s2, self.s3});
+            obj.slookup = object_lookup({obj.s1, obj.s2, obj.s3});
 
-            self.save()
+            obj.save()
         end
         function test_to_from_struct(~)
             sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4],...
-                '-hall_symbol', 'hsymbol');            
+                'hall_symbol', 'hsymbol');
             sample.alatt = [1,2,3];
             sample.angdeg = [91,89,91];
             str = sample.to_struct();
@@ -44,47 +47,47 @@ classdef test_IX_sample < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_error_if_required_args_missing(name)
+        function test_IX_sample_constructor_error_if_required_args_missing(~)
             f = @()IX_sample([1,0,0],[0,1,0],'cuboid');
             assertExceptionThrown(f, 'HERBERT:IX_sample:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_error_if_invalid_shape(name)
+        function test_IX_sample_constructor_error_if_invalid_shape(~)
             f = @()IX_sample([1,0,0],[0,1,0],'banana',[2,3,4]);
             assertExceptionThrown(f, 'HERBERT:IX_sample:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_accepts_and_sets_hall_symbol(name)
-            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+        function test_IX_sample_constructor_accepts_and_sets_hall_symbol(~)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'hsymbol');
             assertEqual(sample.hall_symbol, 'hsymbol');
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_accepts_and_sets_temperature(name)
-            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-temperature', 1234.5);
+        function test_IX_sample_constructor_accepts_and_sets_temperature(~)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'temperature', 1234.5);
             assertEqual(sample.temperature, 1234.5);
         end
-        function test_IX_sample_constructor_errors_for_non_numeric_temperature(name)
-            f = @()IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-temperature', 'string');
+        function test_IX_sample_constructor_errors_for_non_numeric_temperature(~)
+            f = @()IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'temperature', 'string');
             assertExceptionThrown(f, 'HERBERT:IX_sample:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_accepts_and_sets_name(name)
-            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-name', 'test name');
+        function test_IX_sample_constructor_accepts_and_sets_name(~)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'name', 'test name');
             assertEqual(sample.name, 'test name');
         end
 
         %--------------------------------------------------------------------------
-        function test_IX_sample_constructor_accepts_and_sets_mosaic_eta(name)
+        function test_IX_sample_constructor_accepts_and_sets_mosaic_eta(~)
             eta = IX_mosaic(1234);
-            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-eta', eta);
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'eta', eta);
             assertEqual(sample.eta, eta);
         end
-        function test_IX_sample_constructorsets_sets_numeric_eta_as_mosaic(name)
-            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-eta', 4134);
+        function test_IX_sample_constructorsets_sets_numeric_eta_as_mosaic(~)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'eta', 4134);
             assertEqual(sample.eta, IX_mosaic(4134));
         end
 
@@ -96,7 +99,7 @@ classdef test_IX_sample < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_identical_samples_are_equal(obj)
+        function test_identical_samples_are_equal(~)
             samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4]);
             samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4]);
 
@@ -104,7 +107,7 @@ classdef test_IX_sample < TestCaseWithSave
             assertFalse(samp1 ~= samp2)
         end
 
-        function test_different_samples_are_not_equal(obj)
+        function test_different_samples_are_not_equal(~)
             samp1 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
             samp2 = IX_sample ([1,1,0],[0,0,1],'cuboid',[22,23,24]);
 
@@ -112,25 +115,25 @@ classdef test_IX_sample < TestCaseWithSave
             assertTrue(samp1 ~= samp2)
         end
 
-        function test_identical_samples_with_matching_hall_symbol_are_equal(obj)
-            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
-            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+        function test_identical_samples_with_matching_hall_symbol_are_equal(~)
+            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'hsymbol');
+            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'hsymbol');
 
             assertTrue(samp1 == samp2);
             assertFalse(samp1 ~= samp2)
         end
 
-        function test_matching_samples_with_missing_hall_symbol_are_not_equal(obj)
+        function test_matching_samples_with_missing_hall_symbol_are_not_equal(~)
             samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4]);
-            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'hsymbol');
 
             assertFalse(samp1 == samp2);
             assertTrue(samp1 ~= samp2)
         end
 
-        function test_matching_samples_with_different_hall_symbols_are_not_equal(obj)
-            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'other');
-            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-hall_symbol', 'hsymbol');
+        function test_matching_samples_with_different_hall_symbols_are_not_equal(~)
+            samp1 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'other');
+            samp2 = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'hall_symbol', 'hsymbol');
 
             assertFalse(samp1 == samp2);
             assertTrue(samp1 ~= samp2)
@@ -154,6 +157,54 @@ classdef test_IX_sample < TestCaseWithSave
 
             assertEqualToTol(std2, self.sam1.ps'/sqrt(12), 'reltol', 0.001);
             assertEqualToTol(std3, self.sam2.ps'/sqrt(12), 'tol', 0.01);
+        end
+        %--------------------------------------------------------------------------
+        function test_prev_versions_array(obj)
+            % 1x2 array example
+            sample_arr = [IX_sample('',false,[1,1,1],[0,1,1],'cuboid',[0.005,0.005,0.0005]),...
+                IX_sample('FeSi',true,[1,1,0],[0,1,3],'cuboid',[0.020,0.024,0.028],0.5,120)];
+
+            sample_files_location = obj.home_folder;
+            if obj.save_output
+                % run test_IX_apperture with -save option to obtain reference
+                % files when changed to new class version
+                save_variables=true;
+                ver = sample_arr(1).classVersion();
+                verstr = ['ver',num2str(ver)];
+                check_matfile_IO(verstr, save_variables, sample_files_location,sample_arr);
+
+            else
+                save_variables=false;
+                verstr= 'ver0';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,sample_arr);
+
+
+                verstr= 'ver1';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,sample_arr);
+            end
+        end
+
+        function test_prev_versions(obj)
+            % Scalar example
+            sample = IX_sample('Fe',true,[1,1,0],[0,1,3],'cuboid',[0.020,0.024,0.028]);
+
+            sample_files_location = obj.home_folder;
+            if obj.save_output
+                % run test_IX_apperture with -save option to obtain reference
+                % files when changed to new class version
+                save_variables=true;
+                ver = sample.classVersion();
+                verstr = ['ver',num2str(ver)];
+                check_matfile_IO(verstr, save_variables, sample_files_location,sample);
+
+            else
+                save_variables=false;
+                verstr= 'ver0';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,sample);
+
+                verstr= 'ver1';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,sample);
+            end
         end
 
     end

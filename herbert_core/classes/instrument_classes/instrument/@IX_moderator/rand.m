@@ -22,13 +22,8 @@ function X = rand (obj, varargin)
 
 
 if ~isscalar(obj)
-    error('IX_moderator:rand:invalid_argument',...
+    error('HERBERT:IX_moderator:invalid_argument',...
         'Method only takes a scalar object')
-end
-
-if ~obj.valid_
-    error('IX_moderator:rand:invalid_argument',...
-        'Moderator object is not valid')
 end
 
 X = rand (obj.pdf_, varargin{:});

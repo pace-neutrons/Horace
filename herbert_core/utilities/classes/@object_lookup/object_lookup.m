@@ -172,7 +172,8 @@ classdef object_lookup
                     obj.object_store = null.object_store_;
                 end
             else
-                error('HERBERT:object_lookup:invalid_argument', 'Replacement for property ''object_store'' must be scalar or have the same number of objects')
+                error('HERBERT:object_lookup:invalid_argument', ...
+                    'Replacement for property ''object_store'' must be scalar or have the same number of objects')
             end
         end
 

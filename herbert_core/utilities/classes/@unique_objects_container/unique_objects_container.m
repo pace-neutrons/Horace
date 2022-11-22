@@ -6,115 +6,220 @@ classdef unique_objects_container < serializable
     % - add new object to the container with add(...) - stores only unique
     % objects but keeps a non-unique index to this addition
     % - get an object from that unique index
-    
-    properties (Access=private)
-        stored_objects_; % the actual unique objects - initialised in constructor by type
-        stored_hashes_ = [];  % their hashes are stored
-        idx_ = [];   % array of unique indices for each non-unique object added
-        convert_to_stream_ = @getByteStreamFromArray; % function handle for the stream converter used by hashify
-                               % defaults to this undocumented java
-                               % function (default respecified in
-                               % constructor inputParser)
+
+    properties (Access=protected)
+        unique_objects_=cell(1,0); % the actual unique objects - initialised in constructor by type
+        stored_hashes_ = cell(1,0);  % their hashes are stored
+        idx_ = zeros(1,0);   % array of unique indices for each non-unique object added
+
         baseclass_ = ''; % if not empty, name of the baseclass suitable for isa calls
-                        % (default respecified in constructor inputParser)
-        n_duplicates_ = [];
+        % (default respecified in constructor inputParser)
+        n_duplicates_ = zeros(1,0);
+
+        % hashify  defaults to this undocumented java function handle 
+        % if you try to store objects non-children for serializable and 
+        % the function to convert objects to bytes has not been set
+        % explicitly
+        convert_to_stream_f_ = @getByteStreamFromArray; 
     end
-    
-    properties (Dependent) % defined only for debug reporting purposes
-        stored_objects;
-        stored_hashes;
-        idx;
-        type;
+    properties(Access = private)
+        % is set to true if we decide not to use default stream conversion
+        % function
+        non_default_f_conversion_set_ = false;
+    end
+
+    properties (Dependent)
+        n_runs;
+        n_unique;
+        %
         baseclass;
+        idx;
+        unique_objects;
+
         n_duplicates;
-        convert_to_stream;
     end
-    
-    methods % Dependent props get functions - defined only for reporting purposes
-        function x = get.stored_objects(self)
-            x = self.stored_objects_;
+    properties(Dependent,Hidden)
+        %string representation of the function, used to produce hashes from
+        % the object. Needed for simple saveobj/loadob into not-Matlab binary
+        % files
+        conv_func_string;
+        % handle to the function, used for conversion of objects into
+        % bytestream if default serialization is not available. May be set
+        % up directly through function handle or through ist string
+        % representation above
+        convert_to_stream_f;
+        % property containing list of stored hashes for unique objects for
+        % comparison with other objects
+        stored_hashes;
+    end
+    %----------------------------------------------------------------------
+    % Dependent properties set/get functions and subsrefs/subsassign
+    % methods
+    methods
+        function val = get.conv_func_string(obj)
+            val = func2str(obj.convert_to_stream_f_);
         end
-        function self = set.stored_objects(self, val)
-            self.stored_objects_ = val;
-            self = self.rehashify_all();
+        function obj = set.conv_func_string(obj,val)
+            if ~(ischar(val)||isstring(val))
+                error('HERBERT:unique_obj_container:invalid_argument',...
+                    'convert_to_stream_f_string must be a string convertable to function. It is %s',...
+                    class(val))
+            end
+            obj.convert_to_stream_f = str2func(val);
         end
-        
+        %
+        function x = get.unique_objects(self)
+            x = self.unique_objects_;
+        end
+        function self = set.unique_objects(self, val)
+            if ~iscell(val)
+                val = {val};
+            end
+            self.unique_objects_ = val;
+            if self.do_check_combo_arg_
+                self = self.check_combo_arg(true,true);
+            end
+        end
+        %
         function x = get.stored_hashes(self)
             x = self.stored_hashes_;
         end
-        function self = set.stored_hashes(self, val)
-            self.stored_hashes_= val;
-        end
-        
+        %
         function x = get.idx(self)
             x = self.idx_;
         end
         function self = set.idx(self,val)
-            self.idx_ = val;
-        end
-
-        function x = get.type(self)
-            if iscell(self.stored_objects_)
-                x = '{}';
-            else
-                x = '[]';
+            if ~isnumeric(val)
+                error('HERBERT:unique_obj_container:invalid_argument',...
+                    'idx may be only array of numeric values, identifying the object position in the container');
+            end
+            if min(val)<=0
+                error('HERBERT:unique_obj_container:invalid_argument',...
+                    'idx are the indexes so they must be positive only. Minum of indexes provided is: %d', ...
+                    min(val))
+            end
+            self.idx_ = val(:)';
+            self.n_duplicates_ = accumarray(self.idx_',1)';
+            if self.do_check_combo_arg_
+                self = self.check_combo_arg(false);
             end
         end
-
+        %
         function x = get.baseclass(self)
             x = self.baseclass_;
         end
         function self = set.baseclass(self,val)
+            if ~(ischar(val)||isstring(val))
+                val = class(val);
+            end
+            self = remove_noncomplying_members_(self,val);
             self.baseclass_ = val;
+
+            if self.do_check_combo_arg_
+                self = self.check_combo_arg(false);
+            end
         end
-        
-        function x = get.convert_to_stream(self)
-            x = self.convert_to_stream_;
+        %
+        function x = get.convert_to_stream_f(self)
+            x = self.convert_to_stream_f_;
         end
-        function self = set.convert_to_stream(self,val)
-            self.convert_to_stream_ = val;
+        function self = set.convert_to_stream_f(self,val)
+            if ~(isempty(val)|| isa(val,'function_handle'))
+                error('HERBERT:unique_objects_container:invalid_argument',...
+                    'this method accepts function handles for serializing obhects only')
+            end
+            self.convert_to_stream_f_ = val;
+            self.non_default_f_conversion_set_  = true;
+            if self.do_check_combo_arg_
+                self = self.check_combo_arg(true,false);
+            end
         end
-        
+        %
         function x = get.n_duplicates(self)
             x = self.n_duplicates_;
         end
-        function self = set.n_duplicates(self,val)
-            self.n_duplicates_ = val;
-        end
-    end
+        %-----------------------------------------------------------------
+        % Overloaded indexers
+        function varargout = subsref(self,idxstr)
+            % overloaded indexing for retrieving object from container
+            switch idxstr(1).type
+                case {'()','{}'}
+                    if iscell(self.unique_objects_)
+                        b = idxstr(1).subs{:};
+                        if isempty(self.unique_objects_)
+                            varargout{1} = self.unique_objects_;
+                        else
+                            varargout{1} = self.unique_objects_{self.idx_(b)};
+                        end
+                    else
+                        error('HERBERT:unique_objects_container:invalid_argument', ...
+                            'braces for array storage');
+                    end
+                case '.'
+                    [varargout{1:nargout}] = builtin('subsref',self,idxstr);
+            end % end switch
+        end % end function subsref
+        %
+        function self = subsasgn(self,idxstr,varargin)
+            % overloaded indexing for placing object to container
 
-    % SERIALIZABLE interface
-    %------------------------------------------------------------------
-    properties(Constant,Access=private)
-        fields_to_save_ = {'stored_objects',... %'stored_hashes', ...
-                           'idx',           ...
-                           'baseclass',     ...
-                           'convert_to_stream',...
-                           'n_duplicates'};
+            % initial processing for indexes out of bounds
+            % and add just after end
+            if ~strcmp(idxstr(1).type,'.')
+                val = varargin{1};
+                nuix = idxstr(1).subs{:};
+                if nuix < 1
+                    error('HERBERT:unique_objects_container:invalid_argument', ...
+                        'non-positive index not allowed');
+                elseif nuix > numel(self.idx_)+1
+                    error('HERBERT:unique_objects_container:invalid_argument', ...
+                        'index outside legal range');
+                elseif nuix == numel(self.idx_)+1
+                    self = self.add(val);
+                    return;
+                end
+            end
+
+            % Having eliminated the above options, the assignment position
+            % is within the existing data in the container. Use the replace
+            % method to put the new object in the container.
+            % the replacement method is the same for both types of
+            % container; the duplication allows checking for incorrect
+            % bracket use
+            switch idxstr(1).type
+                case {'()','{}'}
+                    self = self.replace(val,nuix);
+                case '.'
+                    self = builtin('subsasgn',self,idxstr,varargin{:});
+            end
+        end % subsasgn
+
     end
-    
+    %----------------------------------------------------------------------
+    % OTHER
+    %----------------------------------------------------------------------
     methods
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
-            ver = 1;
+        function obj = expand_runs(obj,n_runs)
+            % function expands container onto specified number of runs.
+            % only single unique object allowed to be present in the
+            % container initially
+            if ~isnumeric(n_runs) || n_runs<1 || ~isscalar(n_runs)
+                error('HERBERT:unique_objects_container:invalid_argument',...
+                    'n_runs can be numeric positive scalar only. It is %s', ...
+                    class(n_runs))
+            end
+            if obj.n_unique>1
+                error('HERBERT:unique_objects_container:invalid_argument',...
+                    'The method works only on container containing single unique object and single run. This container contains %d objects and %d runs', ...
+                    obj.n_unique,obj.n_runs);
+            end
+
+            obj.idx_ = ones(1,n_runs);
+            obj.n_duplicates_(1) = n_runs;
         end
         %
-        function flds = saveableFields(~)
-            % get independent fields, which fully define the state of the
-            % serializable object.
-            flds = unique_objects_container.fields_to_save_;
-        end
-    end
-
-    % OTHER
-    %------------------------------------------------------------------
-
-    methods 
         function newself = rename_all_blank(self)
-            newself = unique_objects_container('type',self.type,'baseclass',self.baseclass);
+            newself = unique_objects_container('baseclass',self.baseclass);
             for i=1:numel(self.idx)
                 item = self.get(i);
                 if isprop(item,'name')
@@ -123,6 +228,7 @@ classdef unique_objects_container < serializable
                 newself = newself.add(item);
             end
         end
+        %
         function hash = hashify(self,obj)
             % makes a hash from the argument object
             % which will be unique to any identical object
@@ -133,30 +239,50 @@ classdef unique_objects_container < serializable
             % - hash : the resulting has, a row vector of uint8's
             %
             Engine = java.security.MessageDigest.getInstance('MD5');
-            %convert_to_stream_ = @getByteStreamFromArray;
-            Engine.update(self.convert_to_stream_(obj));
+            if isa(obj,'serializable') && ~self.non_default_f_conversion_set_
+                % use default serializer, build up by us for serializable objects
+                Engine.update(obj.serialize());
+            else
+                %convert_to_stream_f_ = @getByteStreamFromArray;
+                Engine.update(self.convert_to_stream_f_(obj));
+            end
             hash = typecast(Engine.digest,'uint8');
-            hash = hash';
+            hash = char(hash');
         end
-        
-        function newself = rehashify_all(self)
-            newself = self;
-            newself.stored_hashes_ = zeros(numel(self.stored_objects_),16);
-            for i=1:numel(self.stored_objects_)
-                newself.stored_hashes(i,:) = self.hashify(self.stored_objects{i});
+
+        function self = rehashify_all(self,with_checks)
+            % recalculate hashes of all objects, stored in the container
+            %
+            % Inputs:
+            % with_checks -- if true, run check assuring that all hashes
+            %                are unique and throw otherwise
+            if nargin == 1
+                with_checks = false;
+            end
+            self.stored_hashes_ =cell(1,self.n_unique);
+            for i=1:self.n_unique
+                hash = self.hashify(self.unique_objects{i});
+                if with_checks
+                    is = ismember(hash,self.stored_hashes_(1:i-1));
+                    if is
+                        error('HERBERT:unique_objects_container:invalid_argument',...
+                            'Non-unique objects are set as input to unique objects container')
+                    end
+                end
+                self.stored_hashes_{i} = hash;
             end
         end
-    end    
-    
-    methods 
-        
+    end
+
+    methods
+
         function [ix, hash] = find_in_container(self,obj)
             %FIND_IN_CONTAINER Finds if obj is contained in self
             % Input:
             % - obj : the object which may or may not be uniquely contained
             %         in self
-            % Output: 
-            % - ix   : the index of the unique object in self.stored_objects_, 
+            % Output:
+            % - ix   : the index of the unique object in self.unique_objects_,
             %          if it is stored, otherwise empty []
             % - hash : the hash of the object from hashify
             %
@@ -164,127 +290,93 @@ classdef unique_objects_container < serializable
             if isempty(self.stored_hashes_)
                 ix = []; % object not stored as nothing is stored
             else
-                % get intersection of array stored_hashes_ with (single) array 
+                % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
-                % stored_hashes. Argout(1), the common data, is just the
-                % hash so no need to return it. Argout(2), the index in
-                % hash, is 1 (single item) so no need to return it.
-                % Argout(3), the index in self.stored_hashes_, is the index
-                % we need.
-                [~,~,ix] = intersect(hash, self.stored_hashes_, 'rows');
+                % stored_hashes.
+                ix = find(ismember(self.stored_hashes_,hash));
             end
         end
     end
-    
+
     methods
         function self = unique_objects_container(varargin)
             %UNIQUE_OBJECTS_CONTAINER create the container
             % Input:
             % - parameter: 'basecase' - charstring name of basecase of
             %                           contained objects
-            % - parameter: 'convert_to_stream' - function doing the stream
-            %                                    conversion for hashify
+            % - parameter: 'convert_to_stream_f' - function doing the stream
+            %                               conversion for hashify
 
-            p = inputParser;
-            addParameter(p,'type','{}',@ischar); % default type for vanilla constructor
-            addParameter(p,'baseclass','',@ischar);
-            check_function_handle = @(x) isa(x,'function_handle');
-            addParameter(p,'convert_to_stream',@getByteStreamFromArray,check_function_handle);
-            parse(p,varargin{:});
-            
-            
-            if strcmp(p.Results.type, '{}')
-                self.stored_objects_ = {};
-            else
-                self.stored_objects_ = [];
-            end
-            self.baseclass_ = p.Results.baseclass;
-            self.convert_to_stream_ = p.Results.convert_to_stream;
+            flds = self.saveableFields();
+            flds = [flds(:);'convert_to_stream_f']; % convert_to_stream
+            % function is not present in saveable properties but may be present
+            % as input too.
+            % standard serializable constructor
+            self = self.set_positional_and_key_val_arguments(...
+                flds,false,varargin{:});
         end
-        
-        function n = n_total(self)
-            n = numel(self.stored_objects_);
-        end
-        
-        function n = n_runs(self)
+
+
+        function n = get.n_runs(self)
             n = numel(self.idx_);
         end
-        
-        function istype = check_type(self, type)
-            N = numel(self.stored_objects_);
-            istype = true(1,N);
-            for i=1:numel(self.stored_objects_)
-                if iscell(self.stored_objects_)
-                    istype(i) = isa(self.stored_objects_{i},type);
-                else
-                    istype(i) = isa(self.stored_objects_(i),type);
-                end
-            end
+        function n = get.n_unique(self)
+            n = numel(self.unique_objects_);
         end
-        
+
+
         function sset = get_subset(self,indices)
-            sset = unique_objects_container('type',self.type,'baseclass',self.baseclass);
+            sset = unique_objects_container('baseclass',self.baseclass);
             for i = indices
                 item = self.get(i);
                 [sset,~] = sset.add(item);
             end
         end
-            
+
         function [self,nuix] = add(self,obj)
             %ADD adds an object to the container
             % Input:
             % - obj : the object to be added. This may duplicate an object
             %         in the container, but it will be noted as a duplicate
             %         and will be given its own index, which it returns
+            %    or   cellarray or array of objects to add
             % Output:
             % - self : the changed container (as this is a value class)
             % - nuix : the non-unique index for this object
+            %     or   array of such indexes if multiple objects were
+            %          added
             %
             % it may be a duplicate but it is still the n'th object you
             % added to the container. The number of additions to the
             % container is implicit in the size of idx_.
-            
-            % check that obj is of the appropriate base class
-            if ~isempty(self.baseclass_)
-                if ~isa(obj, self.baseclass_)
-                    warning('HERBERT:unique_objects_container:invalid_argument', ...
-                          'not correct base class; object was not added');
-                    nuix = 0;
-                    return;
-                end
-            end
-            
-            % Find if the object is already in the container. ix is
-            % returned as the index to the object in the container.
-            % hash is returned as the hash of the object. If ix is empty
-            % then the object is not in the container.
-            [ix,hash] = self.find_in_container(obj);
-            
-            % If the object is not in the container.
-            % store the hash in the stored hashes
-            % store the object in the stored objects
-            % take the index of the last stored object as the object index
-            if isempty(ix) % means obj not in container and should be added
-                self.stored_hashes_ = cat(1, self.stored_hashes_, hash);
-                if iscell(self.stored_objects_)
-                    self.stored_objects_ = cat(1, self.stored_objects_, {obj});
+
+            % process addition of multiple objects at once.
+            if ~ischar(obj) && (numel(obj)>1 || iscell(obj))
+                nobj = numel(obj);
+                nuix = zeros(1,nobj);
+                if iscell(obj)
+                    for i = 1:nobj
+                        [self,nuix(i)]=self.add(obj{i});
+                    end
                 else
-                    self.stored_objects_ = cat(1, self.stored_objects_, (obj));
+                    for i = 1:nobj
+                        [self,nuix(i)]=self.add(obj(i));
+                    end
+
                 end
-                ix = numel(self.stored_objects_);
-                self.n_duplicates_ = [self.n_duplicates_(:)', 1];
-            else
-                self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
+                return;
             end
-            
-            % add index ix to the array of indices
-            % know the non-unique object index - the number of times you
-            % added an object to the container - say k. idx_(k) is the
-            % index of the unique object in the container.
-            self.idx_ = [self.idx_(:)', ix]; % alternative syntax: cat(2,self.idx_,ix);
-            nuix = numel(self.idx_);    
+            % check that obj is of the appropriate base class
+            if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
+                warning('HERBERT:unique_objects_container:invalid_argument', ...
+                    'not correct base class; object was not added');
+                nuix = 0;
+                return;
+            end
+            [self,nuix] = add_single_(self,obj);
+
         end % add()
-        
+
         function self = replace(self,obj,nuix)
             %REPLACE replaces the object at non-unique index nuix in the container
             % Input:
@@ -299,120 +391,101 @@ classdef unique_objects_container < serializable
             % it may be a duplicate but it is still the n'th object you
             % added to the container. The number of additions to the
             % container is implicit in the size of idx_.
-            
+
             % check that obj is of the appropriate base class
-            if ~isempty(self.baseclass_)
-                if ~isa(obj, self.baseclass_)
-                    warning('HERBERT:unique_objects_container:invalid_argument', ...
-                          'not correct base class; object was not replaced');
-                    return;
-                end
+            if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
+                warning('HERBERT:unique_objects_container:invalid_argument', ...
+                    'not correct base class; object was not replaced');
+                return;
             end
-            
+
             % check if you're trying to replace an object with an identical
             % one. If so silently return.
             objhash = self.hashify(obj);
-            curhash = self.stored_hashes_(self.idx_(nuix),:);
+            curhash = self.stored_hashes_{self.idx_(nuix)};
             if isequal(objhash, curhash)
                 return;
             end
-            
+
             % reduce the number of duplicates of the item to be replaced by
             % 1.
             oldix = self.idx_(nuix);
             self.n_duplicates_(oldix) = self.n_duplicates_(oldix)-1;
-            no_more_duplicates = 0;
-            if self.n_duplicates_(oldix) == 0
-                no_more_duplicates = 1;
-            end
-            
+            % all existing objects with the hash specified were removed.
+            no_more_duplicates = self.n_duplicates_(oldix) == 0;
+
             % Find if the object is already in the container. ix is
             % returned as the index to the object in the container.
             % hash is returned as the hash of the object. If ix is empty
             % then the object is not in the container.
             [ix,hash] = self.find_in_container(obj);
-            
+
             % If the object is not in the container.
             % store the hash in the stored hashes
             % store the object in the stored objects
             % take the index of the last stored object as the object index
             if isempty(ix) % means obj not in container and should be added
                 if no_more_duplicates
-                    if iscell(self.stored_objects_)
-                        self.stored_objects{oldix} = obj;
-                    else
-                        self.stored_objects(oldix) = obj;
-                    end
-                    self.stored_hashes(oldix,:) = hash;
+                    self.unique_objects_{oldix} = obj;
+                    self.stored_hashes_{oldix} = hash;
                     self.n_duplicates_(oldix) = self.n_duplicates_(oldix)+1;
                 else
-                if iscell(self.stored_objects_)
-                    self.stored_objects_ = cat(1, self.stored_objects_, {obj});
-                else
-                    self.stored_objects_ = cat(1, self.stored_objects_, (obj));
+                    self.unique_objects_ = cat(1, self.unique_objects_, {obj});
+
+                    self.stored_hashes_ = [self.stored_hashes_(:),hash];
+                    self.idx_(nuix) = numel(self.unique_objects_);
+                    self.n_duplicates_ = [self.n_duplicates_(:)', 1];
                 end
-                    self.stored_hashes_ = cat(1, self.stored_hashes_, hash);
-                self.idx_(nuix) = numel(self.stored_objects_);
-                self.n_duplicates_ = [self.n_duplicates_(:)', 1];
-                end
-            % if it is in the container, then ix is the unique object index
-            % in stored_objects_ and is put into idx_ as the unique index
-            % for the new object
+                % if it is in the container, then ix is the unique object index
+                % in unique_objects_ and is put into idx_ as the unique index
+                % for the new object
             else
                 if no_more_duplicates
                     % need to remove the old object by replacing it with
-                    % the previous last object in stored_objects_
-                    
-                    
+                    % the previous last object in unique_objects_
+
+
                     % collect the final unique object currently in the
                     % container
-                    if iscell(self.stored_objects_)
-                        lastobj = self.stored_objects_{end};
-                    else
-                        lastobj = self.stored_objects_(end);
-                    end
-                    lasthash = self.stored_hashes(end,:);
-                    lastidx = numel(self.stored_objects_);
-                    
+                    lastobj = self.unique_objects_{end};
+                    lasthash = self.stored_hashes_{end};
+                    lastidx = numel(self.unique_objects_);
+
                     if oldix<lastidx
                         % oldix is the location where there are no more
                         % duplicates, put the last object here
-                        if iscell(self.stored_objects_)
-                            self.stored_objects{oldix} = lastobj;
-                        else
-                            self.stored_objects(oldix) = lastobj;
-                        end
-                        self.stored_hashes(oldix,:) = lasthash;
-                        self.n_duplicates(oldix) = self.n_duplicates(lastidx);
+                        self.unique_objects_{oldix} = lastobj;
+                        self.stored_hashes_{oldix} = lasthash;
+                        self.n_duplicates_(oldix) = self.n_duplicates_(lastidx);
 
                         % reference all non-unique objects equivalent to the
                         % last unique object as now referring to this oldix
-                        % location 
+                        % location
                         self.idx_(self.idx_==lastidx) = oldix;
                     end
-                    
+
                     % if the existing item was the last in stored, then
                     % make it the new location
                     if ix==lastidx
                         ix=oldix;
                     end
-                    
+
                     % reduce the size of the unique object arrays
-                    self.stored_objects_(end)=[];
-                    self.stored_hashes_(end,:) = [];
-                    self.n_duplicates(end) = [];
-                    
+                    self.unique_objects_(end)=[];
+                    self.stored_hashes_(end) = [];
+                    self.n_duplicates_(end) = [];
+
                     % do the replacement
                     self.idx_(nuix) = ix;
                     self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
-                    
+
                 else
                     self.idx_(nuix) = ix;
                     self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
                 end
             end
         end % replace()
-        
+
         function obj = get(self,nuix)
             % given the non-unique index nuix that you know about for your
             % object (it was returned when you added it to the container
@@ -425,108 +498,22 @@ classdef unique_objects_container < serializable
             % - obj : the unique object store for this index
             %
             ix = self.idx_(nuix);
-            if iscell(self.stored_objects_)
-                obj = self.stored_objects{ix};
-            else
-                obj = self.stored_objects(ix);
-            end
+            obj = self.unique_objects{ix};
             % alternative implementation would use subsref for '()' case, but this
             % requires additional code to deal with '.' when calling
             % methods.
         end
-        
-        function out = disp(self)
-            out = sprintf(['Unique objects container with %i elements and ',...
-                          '%i indexed unique elements and %i stored unique elements'], ...
-                           numel(self.idx_), ...
-                           numel(unique(self.idx_)), ...
-                           numel(self.stored_objects_));
-            
-            if nargout == 0
-                disp(out);
-            end
-        end
-        
-        function varargout = subsref(self,idxstr)
-            switch idxstr(1).type
-                case '()'
-                    if ~iscell(self.stored_objects_)
-                        b = idxstr(1).subs{:};
-                        varargout{1} = self.stored_objects_(self.idx_(b));
-                    else
-                        error('HERBERT:unique_objects_container:invalid_argument','parentheses for cell storage');
-                    end
-                case '{}'
-                    if iscell(self.stored_objects_)
-                        b = idxstr(1).subs{:};
-                        varargout{1} = self.stored_objects_{self.idx_(b)};
-                    else
-                        error('HERBERT:unique_objects_container:invalid_argument','braces for array storage');
-                    end
-                case '.'
-                    [varargout{1:nargout}] = builtin('subsref',self,idxstr);
-            end % end switch
-        end % end function subsref
-        
-        function self = subsasgn(self,idxstr,varargin)
-            
-            % initial processing for indexes out of bounds
-            % and add just after end
-            if ~strcmp(idxstr(1).type,'.')
-                val = varargin{1};
-                nuix = idxstr(1).subs{:};
-                if nuix < 1
-                    error('HERBERT:unique_objects_container:invalid_argument','non-positive index not allowed');
-                elseif nuix > numel(self.idx_)+1
-                    error('HERBERT:unique_objects_container:invalid_argument','index outside legal range');
-                elseif nuix == numel(self.idx_)+1
-                    if strcmp(idxstr(1).type, self.type)
-                    [self,~] = self.add(val);
-                    else
-                        error('bracket type for indexing does not match container');
-                    end
-                    return;
-                end
-            end
-            
-            % Having eliminated the above options, the assignment position
-            % is within the existing data in the container. Use the replace
-            % method to put the new object in the container. 
-            % the replacement method is the same for both types of
-            % container; the duplication allows checking for incorrect
-            % bracket use
-            switch idxstr(1).type
-                case '()'
-                    if ~iscell(self.stored_objects_)
-                        self = self.replace(val,nuix);
-                    else
-                        error('HERBERT:unique_objects_container:invalid_argument','parentheses for cell replacement');                    
-                    end
-                case '{}'
-                    if iscell(self.stored_objects_)
-                        self = self.replace(val,nuix);
-                    else
-                        error('HERBERT:unique_objects_container:invalid_argument','braces for array replacement');
-                    end
-                case '.'
-                    self = builtin('subsasgn',self,idxstr,varargin{:});
-            end
-        end % replace()
-        
+
         function list(self,field)
             %LIST - method for debugging use only
-            % lists the non-unique and unique indices for each object 
+            % lists the non-unique and unique indices for each object
             % together with a chosen field from each object to identify it.
             % This may well be 'name' but no restriction is placed on what
             % fields the objects may have, so this allows alternatives.
 
             for i=1:numel(self.idx_)
                 uix = self.idx_(i);
-                if iscell(self.stored_objects_)
-                    fld = self.stored_objects_{uix}.(field);
-                else
-                    fld = self.stored_objects_(uix).(field);
-                end
+                fld = self.unique_objects_{uix}.(field);
                 disp([num2str(i) '; uix=' num2str(uix)]);
                 disp(fld);
             end
@@ -534,55 +521,80 @@ classdef unique_objects_container < serializable
 
         function newself = reorder(self)
             % the internal order of unique_objects_container is not well
-            % defined. As long as idx and stored_objects between them
+            % defined. As long as idx and unique_objects between them
             % return the correct object, the internal order does not
             % matter.
             % However, in test comparisons, this can cause false failures.
             % This reordering provides a standard order when comparing.
             % This is only used for tests and so its efficiency is not
             % important.
-            newself = unique_objects_container('type',self.type,'baseclass',self.baseclass);%,'convert_to_stream',self.convert_to_stream');
-            % It is unclear why specifying convert_to_stream in the
+            newself = unique_objects_container('baseclass',self.baseclass);%,'convert_to_stream_f',self.convert_to_stream_f');
+            % It is unclear why specifying convert_to_stream_f in the
             % constructor causes a failure but it works if specified next.
-            newself.convert_to_stream = self.convert_to_stream;
+            newself.convert_to_stream_f = self.convert_to_stream_f;
             for i=1:self.n_runs
                 newself = newself.add(self.get(i));
-            end
-        end
-        
-        function mod_objs = non_unique_objects_apply_func(self, fhandl)
-            % this is the equivalent of arrayfunc or cellfunc for unique_objects_containers
-            % it applies the function handle fhandl to all non-unique elements of the container
-            % and puts the results into a cell or array as output. This means that the output
-            % may have duplicate unique elements.
-            N = numel(self.idx_);
-            if iscell(self.stored_objects_)
-                mod_objs = cell(1,N);
-                for i=1:N
-                    obj = fhandl( self.get(i) );
-                    mod_objs{i} = obj;
-                end
-            else
-                mod_objs = repmat(self.get(1),1,N);
-                for i=1:N
-                    obj = fhandl( self.get(i) );
-                    mod_objs(i) = obj;
-                end
             end
         end
 
 
     end % end methods (general)
-    
+    % SERIALIZABLE interface
+    %------------------------------------------------------------------
+    properties(Constant,Access=private)
+        fields_to_save_ = {
+            'baseclass',     ...
+            'unique_objects',...
+            'idx',           ...
+            'conv_func_string'};
+    end
+    methods
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 1;
+        end
+        %
+        function flds = saveableFields(obj)
+            % get independent fields, which fully define the state of the
+            % serializable object.
+            if obj.non_default_f_conversion_set_
+                flds = unique_objects_container.fields_to_save_;
+            else % do not store conversion function
+                flds = unique_objects_container.fields_to_save_(1:end-1);
+            end
+        end
+        function obj = check_combo_arg(obj,do_rehashify,with_checks)
+            % runs after changing property or number of properties to check
+            % the consistency of the changes against all other relevant
+            % properties
+            %
+            % Inputs:
+            % do_rehashify -- if true, run rehashify procedure. If not
+            %                 provided, assumed true
+            % with_checks  -- if true, each following hash is compared with
+            %                 the previous hashes and if coincedence found,
+            %                 throw the error. Necessary when replacing the
+            %                 unique_objects to check that new objects are
+            %                 indeed unique. The default is false.
+            if nargin == 1
+                do_rehashify = true;
+                with_checks  = false;
+            elseif nargin == 2
+                with_checks  = false;
+            end
+            obj = check_combo_arg_(obj,do_rehashify,with_checks);
+        end
+    end
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % save-able class
             obj = unique_objects_container();
             obj = loadobj@serializable(S,obj);
-            obj = obj.rehashify_all();
         end
     end % static methods
-    
-end % classdef unique_objects_container
 
+end % classdef unique_objects_container

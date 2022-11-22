@@ -157,7 +157,7 @@ function [pulse_model,pp,ok,mess,present]=get_mod_pulse_single(header)
 % Get array of moderator objects from the header
 present = false;
 if isa(header,'Experiment')
-    nrun=n_runs(header.instruments);
+    nrun=header.instruments.n_runs;
     moderator = repmat(IX_moderator,nrun,1);
 
     for i=1:nrun

@@ -195,10 +195,18 @@ for i=1:numel(ind)
     irun = win(i).pix.run_idx';   % column vector
     idet = win(i).pix.detector_idx';   % column vector
     npix = win(i).pix.num_pixels;
+    %HACK. TODO: do it properly (ticket #901)
     max_irun = max(irun);
     if max_irun>win(i).main_header.nfiles
         rmp = win(i).runid_map;
-        irun = arrayfun(@(id)rmp(id),irun);
+        runid_array = rmp.keys;  runid_array = [runid_array{:}];
+        runid_val   = rmp.values;runid_val   = [runid_val{:}];
+        max_id = max(runid_array);
+        min_id = min(runid_array)-1;
+        lookup_ind = inf(max_id-min_id+1,1);
+        lookup_ind(runid_array-min_id) = runid_val;
+        irun   = lookup_ind(irun-min_id);
+        %irun = arrayfun(@(id)rmp(id),irun);
     end
 
     % Catch case of refining crystal orientation

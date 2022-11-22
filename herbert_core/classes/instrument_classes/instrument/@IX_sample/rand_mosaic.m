@@ -9,12 +9,7 @@ UB = ubmatrix(mosaic.xaxis, mosaic.yaxis, B);
 UBinv = inv(UB);
 
 % Get random rotation vectors in the xaxis-yaxis frame
-func = mosaic.mosaic_pdf;
-if ~iscell(mosaic.parameters)
-    X = func(sz, mosaic.parameters);
-else
-    X = func(sz, mosaic.parameters{:});
-end
+X = mosaic.rand_rot_vect(sz);
 
 % Get matrix to turn nominal h,k,l into values for mosaic crystallites
 tmp = rotvec_to_rotmat (reshape(-X,[3,prod(sz)]));

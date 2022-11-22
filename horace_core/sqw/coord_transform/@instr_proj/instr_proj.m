@@ -90,11 +90,11 @@ classdef instr_proj<aProjection
             % define possible key-value parameters of the constructor,
             % using standard serializable contsturctor form.
             [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                input_fields_names,varargin{:});
+                input_fields_names,false,varargin{:});
             if ~isempty(remains)
                 error('HORACE:instr_proj:invalid_argument',...
                     'provided unrecognised input(s) for instr_proj initialization: %s',...
-                    evalc('disp(remains)'));
+                    disp2str(remains));
             end
         end
         %-----------------------------------------------------------------

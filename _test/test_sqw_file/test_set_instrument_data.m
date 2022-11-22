@@ -67,7 +67,7 @@ classdef test_set_instrument_data< TestCase
             pulse_model = 'ikcarp';
             pp=[100./sqrt(ei(:)),zeros(29,2)];  % one row per moderator
 
-
+            skipTest('set_mod_pulse method is currently disabled Ticket: #899')
             wtmp = set_mod_pulse(obj.w1,pulse_model,pp);
             if is_file(obj.data_inst)
                 delete(obj.data_inst);
@@ -100,7 +100,7 @@ classdef test_set_instrument_data< TestCase
             assertEqual(sam.shape,'cuboid');
             inst = hdr.instruments{1};
             assertTrue(isa(inst,'IX_inst'));
-            assertEqual(inst.name,'_');
+            assertEqual(inst.name,'');
             %% --------------------------------------------------------------------------------------------------
             % assertThrowsNothing!
         end

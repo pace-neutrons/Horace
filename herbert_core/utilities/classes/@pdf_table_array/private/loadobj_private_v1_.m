@@ -1,4 +1,4 @@
-function obj = loadobj_private_ (S)
+function obj = loadobj_private_v1_ (obj,S)
 % Instantiate a scalar object from a scalar structure of class properties
 %
 %   >> obj = loadobj_private_ (S)
@@ -23,22 +23,12 @@ function obj = loadobj_private_ (S)
 %
 % Generally a class-specific function
 
-obj = pdf_table_array();  % default instance of the object
-
-% Version history
 % ----------------
-%   1           Class defined by classdef construct.
 
 nams = fieldnames(S);
 
-ver = S.class_version_;
-if ver==1
-    % Assume the structure is of independent properties
-    for i=1:numel(nams)
-        nam = nams{i};
-        obj.(nam) = S.(nam);
-    end
-else
-    error('init_object_from_structure_:unrecognisedVersion',...
-        'Unrecognised class version number')
+% Assume the structure is of independent properties
+for i=1:numel(nams)
+    nam = nams{i};
+    obj.(nam) = S.(nam);
 end

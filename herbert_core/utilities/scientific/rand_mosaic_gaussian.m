@@ -24,8 +24,7 @@ function X = rand_mosaic_gaussian (sz, eta)
 %               sz = [1,1,10]   size(V) = [3,1,10]
 
 
-[ok,mess,~,eta_diag,V] = check_mosaic_matrix(eta);
-if ~ok, error(mess), end
+[~,eta_diag,V] = check_mosaic_matrix(eta);
 
 if isscalar(sz)
     sz = [sz,sz];

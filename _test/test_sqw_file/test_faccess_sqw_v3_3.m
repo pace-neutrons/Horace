@@ -238,7 +238,8 @@ classdef test_faccess_sqw_v3_3< TestCase
 
             tob=tob.init(tf);
             ver_obj =tob.get_sqw('-verbatim');
-            assertTrue(ver_obj.main_header.creation_date_defined);
+            assertTrue(ver_obj.main_header.creation_date_defined,...
+                'Creation date is still undefined');
             tob.delete();
             % newly stored object contains updated runid map which should
             % not be recalculated

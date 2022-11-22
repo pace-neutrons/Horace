@@ -24,7 +24,7 @@ function [sample, s_mat, spec_to_rlu, alatt, angdeg] =...
 
 % Check sample description the same for all spe files in the sqw object
 samples = header.samples;
-nrun=n_runs(samples);
+nrun=samples.n_runs;
 sample=samples{1};
 alatt=sample.alatt;
 angdeg=sample.angdeg;

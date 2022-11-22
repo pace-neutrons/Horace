@@ -4,9 +4,9 @@ classdef Experiment < serializable
     properties(Access=private)
     	% the vanilla constructor will give instruments_ one IX_null_inst
     	% if no other instrument input is provided - see constructor
-        instruments_ = unique_objects_container('type','{}','baseclass','IX_inst'); %{}; %IX_inst.empty;
+        instruments_ = unique_objects_container('baseclass','IX_inst'); %{}; %IX_inst.empty;
         detector_arrays_ = []
-        samples_ = unique_objects_container('type','{}','baseclass','IX_samp'); %{IX_null_sample()}; % IX_samp.empty;
+        samples_ = unique_objects_container('baseclass','IX_samp'); %{IX_null_sample()}; % IX_samp.empty;
         expdata_ = [];
         %
         runid_map_ = [];   % the property defines the relationship between
@@ -95,10 +95,6 @@ classdef Experiment < serializable
             if nargin == 0
             	% add one null instrument if using the vanilla constructor
             	% to satisfy the requirements of subsequent initialisation
-                inst = IX_null_inst();
-                obj.instruments = obj.instruments.add(inst);
-                samp = IX_null_sample();
-                obj.samples = obj.samples.add(samp);
                 return;
             end
             obj = init_(obj,varargin{:});
@@ -116,6 +112,13 @@ classdef Experiment < serializable
         %Change fields in the experiment with correction related to aligned
         %crystal lattice parameters and orientation
         obj=change_crystal(obj,alatt,angdeg,rlu_corr)
+        
+        % set moderator pulse on every instrument contributing to the
+        % object
+        function obj = set_mod_pulse(obj,pulse_model,pm_par)
+            error('HERBERT:Experiment:not_implemented', ...
+                'This method is not yet implemented Ticket #899')
+        end
         %------------------------------------------------------------------
         function val=get.detector_arrays(obj)
             val=obj.detector_arrays_;
@@ -136,14 +139,9 @@ classdef Experiment < serializable
             val=obj.instruments_;
         end
         function obj=set.instruments(obj, val)
-            [is,std_form] = check_si_input(obj,val,'IX_inst');
-            if is
-                obj.instruments_ = std_form; %(:)';
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'instruments must be a cellarray or array of IX_inst objects . In fact it is %s',...
-                    class(val));
-            end
+            std_form = check_si_input(obj,val,'IX_inst');
+            obj.instruments_ = std_form; 
+
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -153,14 +151,9 @@ classdef Experiment < serializable
             val=obj.samples_;
         end
         function obj=set.samples(obj, val)
-            [is,std_form] = check_si_input(obj,val,'IX_samp');
-            if is
-                obj.samples_ = std_form; %(:)';
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'Samples must be a cellarray or array of IX_samp objects . In fact it is %s',...
-                    class(val));
-            end
+            std_form = check_si_input(obj,val,'IX_samp');
+            obj.samples_ = std_form;
+
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -336,22 +329,22 @@ classdef Experiment < serializable
                 avh = avh.to_bare_struct();
             end
             sampl = obj.samples_{1};
-            avh.alatt = sampl.alatt;
-            avh.angdeg = sampl.angdeg;
+            if ~isempty(sampl)
+                avh.alatt = sampl.alatt;
+                avh.angdeg = sampl.angdeg;
+            end
         end
         %
         function instr = get_unique_instruments(obj)
             % compatibility fields with old binary file formats
-            % TODO: needs proper implementation
-            instr = obj.instruments_;
-            error("should not be using this any more");
+            instr = obj.instruments_.unique_objects;
+
         end
         %
         function samp = get_unique_samples(obj)
             % compatibility fields with old binary file formats
-            % TODO: needs proper implementation
-            samp = obj.samples_;
-            error('should not be using this any more');
+
+            samp = obj.samples_.unique_objects;
         end
         %
         function head = get.header(obj)
@@ -473,7 +466,7 @@ classdef Experiment < serializable
         % copy non-empty contents to the contents of this class
         [obj,n_added] = check_and_copy_contents_(obj,other_cont,field_name);
         %
-        function [is,std_form] = check_si_input(obj,sample_or_instrument,class_base)
+        function std_form = check_si_input(~,sample_or_instrument,class_base)
             % The function is the common part of the checks to set sample
             % or instrument methods.
             %
@@ -486,12 +479,12 @@ classdef Experiment < serializable
             %                        depending on sample or instrument is
             %                        verified
             % Output:
-            % is       -- true, if sample_or_instrument input is convertible to
-            %             the standard form.
             % std_form -- the standard form of sample or instrument
             %             collection to store within the container
-            [is,std_form] = check_sample_or_inst_array_and_return_std_form_(...
-                obj,sample_or_instrument,class_base);
+            % Throws 'HORACE:Experiment:invalid_argument' if the input can
+            % not be converted into the standard form
+            std_form = check_sample_or_inst_array_and_return_std_form_(...
+                sample_or_instrument,class_base);
         end
     end
     %
@@ -529,8 +522,8 @@ classdef Experiment < serializable
                 nspe(i) = exp_cellarray{i}.n_runs;
             end
             n_tot = sum(nspe);
-            instr  = unique_objects_container('type','{}', 'baseclass','IX_inst'); %cell(1,n_tot);
-            sampl  = unique_objects_container('type','{}', 'baseclass','IX_samp'); %cell(1,n_tot);
+            instr  = unique_objects_container('baseclass','IX_inst'); %cell(1,n_tot);
+            sampl  = unique_objects_container('baseclass','IX_samp'); %cell(1,n_tot);
             %warning('stop here so you can check that instr and sampl should no longer be set as cells');
             expinfo= repmat(IX_experiment(),1,n_tot);
             ic = 1;

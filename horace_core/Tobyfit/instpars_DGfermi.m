@@ -32,7 +32,7 @@ function [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
 
 % Get array of instruments
 instruments = header.instruments;
-nrun=n_runs(instruments);
+nrun=instruments.n_runs;
 inst=repmat({instruments{1}},[nrun,1]);
 for i=2:nrun
     inst{i}=instruments{i};

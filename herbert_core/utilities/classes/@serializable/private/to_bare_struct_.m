@@ -13,7 +13,7 @@ function struc = to_bare_struct_(obj,recursively)
 % Returns:
 % struc -- structure, containing information, fully defining the
 %          serializable class
-flds = saveableFields(obj);
+flds = saveableFields(obj(1));
 
 cell_dat = cell(numel(flds),numel(obj));
 for j=1:numel(obj)

@@ -182,7 +182,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 elseif ~isempty(args.set_of_fields)
                     keys = obj.saveableFields();
                     obj(i) = set_positional_and_key_val_arguments(obj,...
-                        keys,args.set_of_fields{:});
+                        keys,false,args.set_of_fields{:});
                     % copy label from projection to axes block in case it
                     % has been redefined on projection
                     is_proj = cellfun(@(x)isa(x,'aProjection'),args.set_of_fields);

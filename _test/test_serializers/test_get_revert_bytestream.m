@@ -42,13 +42,13 @@ classdef test_get_revert_bytestream< TestCase
             assertEqual(z,zc);
             %-----------------
 
-            t= IX_fermi_chopper();
+            t= IX_fermi_chopper(10,50,10,1,0.1);
             t.radius = 10;
             t.name = 'sloppy';
 
             bs = get_bytestream_from_obj(t);
             assertTrue(isa(bs(1),'uint8'));
-            assertEqual(numel(bs),5128);
+            assertEqual(numel(bs),3504);
 
 %            tc = get_obj_from_bytestream(bs);
 

@@ -33,6 +33,18 @@ classdef IX_null_sample < IX_samp
             ver = 2;
         end
     end
+    methods(Access = protected)
+        function alat = get_lattice(~)
+            alat = [];
+        end
+        function ang = get_angles(~)
+            ang = [];
+        end
+        function name = get_name(~)
+            name = '';
+        end
+    end
+
 
     methods(Access=protected)
         %------------------------------------------------------------------

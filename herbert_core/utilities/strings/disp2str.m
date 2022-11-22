@@ -10,5 +10,5 @@ function out_str = disp2str(in_obj)
 % in_obj  -- the input object to convert to string using internal Matlab
 %            'disp' function
 % out_str -- the string the object is converted to.
-
 out_str = strtrim(evalc('disp(in_obj)'));
+

@@ -39,8 +39,8 @@ if isa(header,'is_holder')
 elseif isa(header, 'Experiment')
     [instr_str,sampl_str] = obj.get_instr_sample_to_save(header);
 elseif isempty(header)
-    instr_str = struct();
-    sampl_str = struct();
+    instr_str = cell(1,0);
+    sampl_str = cell(1,0);
 else % should be header of an sqw file provided, possibly converted from an Experiment
     % extract instrument and sample from the headers block
     error('HORACE:faccess_sqw_v3:runtime_error',...

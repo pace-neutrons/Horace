@@ -21,9 +21,9 @@ function X = rand(self, varargin)
 %               dimensions in sz squeezed away
 
 
-if ~isscalar(self), error('Method only takes a scalar sample object'), end
-if ~self.valid_
-    error('Sample object is not valid')
+if ~isscalar(self)
+    error('HERBERT:IX_sample:invalid_argument', ...
+        'Method only takes a scalar sample object')
 end
 
 shapes= self.shapes_;
@@ -31,10 +31,11 @@ shape = self.shape_;
 
 if shapes.match('cuboid',shape)             % plate-like sample
     X = cuboid_random_points (self.ps_, varargin{:});
-    
+
 elseif shapes.match('point',shape)          % point sample
     X = point_random_points (self.ps_, varargin{:});
-    
+
 else
-    error('Unrecognised sample shape for computing random points')
+    error('HERBERT:IX_sample:invalid_argument', ...
+        'Unrecognised sample shape for computing random points')
 end

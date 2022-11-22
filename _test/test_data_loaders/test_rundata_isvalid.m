@@ -24,11 +24,7 @@ classdef test_rundata_isvalid<TestCase
             base_mess = 'ill defined Signal: size(Signal) ~= size(ERR)';
             assertTrue(strncmp(rd.reason_for_invalid,base_mess,numel(base_mess)));
             rd.ERR=ones(4,7);
-            base_mess = 'ill defined Signal: size(Signal) ~= size(ERR)';
             assertTrue(strncmp(base_mess,rd.reason_for_invalid,numel(base_mess)));
-
-            assertFalse(rd.isvalid);
-            assertEqual(rd.reason_for_invalid,'ill defined Signal: size(Signal) ~= size(ERR)');
 
             rd.ERR=zeros(3,5);
             assertFalse(rd.isvalid);
@@ -49,15 +45,11 @@ classdef test_rundata_isvalid<TestCase
 
             rd.S = ones(4,6);
             assertFalse(rd.isvalid)
-            rd=rd.check_combo_arg();
-            assertFalse(rd.isvalid);
             % S is ill-defined
             base_mess = 'ill defined Signal: size(Signal) ~= size(ERR)';
             assertTrue(strncmp(base_mess,rd.reason_for_invalid,numel(base_mess)));
 
             rd.ERR = ones(4,6);
-            assertFalse(rd.isvalid);
-            rd=rd.check_combo_arg();
             assertFalse(rd.isvalid);
             assertEqual(rd.reason_for_invalid,'load_par undefined')
 
@@ -161,8 +153,8 @@ classdef test_rundata_isvalid<TestCase
             % becessary to make lattice valid
             assertTrue(rd.lattice.isvalid);
             assertFalse(rd.isvalid);
-            assertTrue(strcmp(rd.reason_for_invalid, ...
-                'empty object assumed invalid'));
+            assertTrue(strncmp(rd.reason_for_invalid, ...
+                'Run is undefined',16));
 
             rd = rd.check_combo_arg();
             assertTrue(strncmp(rd.reason_for_invalid, ...
