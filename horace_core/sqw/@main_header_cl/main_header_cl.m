@@ -166,7 +166,7 @@ classdef main_header_cl < serializable
             % Retrieve file creation date either from stored value, or
             % from system file date.
             if obj.creation_date_defined_
-                dt = obj.creation_date_;
+                dt = obj.convert_datetime_from_str(obj.creation_date_);
             else % assume that creation date is unknown and
                 % will be set as creation date of the file later and
                 % explicitly.
