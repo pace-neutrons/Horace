@@ -50,9 +50,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
-    properties(Constant,Access=protected)
-        fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
-    end
 
     methods
         has = has_pixels(w);          % returns true if a sqw object has pixels
@@ -98,18 +95,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
 
-
-        % TOBYFIT intreface
-        %------------------------------------------------------------------
-        %TODO: Something in this interface looks dodgy. Should it be just
-        %      TOBYFIT interface, or should it go out of here?
-        varargout = tobyfit (varargin);
-        [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
-            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
-        [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
-            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
 
         %------------------------------------------------------------------
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
@@ -308,16 +293,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             npix = obj.pix_.num_pixels;
         end
 
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
-            ver = 4;
-        end
-        function flds = saveableFields(~)
-            flds = sqw.fields_to_save_;
-        end
         function map = get.runid_map(obj)
             if isempty(obj.experiment_info)
                 map = [];
@@ -329,27 +304,29 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % return size and shape of the image arrays
             [nd,sz] = obj(1).data_.dimensions();
         end
-        function str = saveobj(obj)
-            if ~obj.main_header_.creation_date_defined
-                % support old files, which do not have creation date defined
-                obj.main_header_.creation_date = datetime('now');
-            end
-            str = saveobj@serializable(obj);
-        end
         function is = dnd_type(obj)
             is = isempty(obj.pix_);
         end
     end
-
-    methods(Static)
-        function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
-            % saveable class
-            obj = sqw();
-            obj = loadobj@serializable(S,obj);
-        end
+    %----------------------------------------------------------------------
+    % TOBYFIT INTERFACE
+    methods
+        % set the moderator pulse model and its parameters. (TODO: should
+        % be class)
+        obj = set_mod_pulse(obj,pulse_model,pmp)
+        
+        %TODO: Something in this interface looks dodgy. Should it be just
+        %      TOBYFIT interface, or should it go out of here?
+        varargout = tobyfit (varargin);
+        [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
+            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
+        [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
+            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
+        
     end
-
+    %----------------------------------------------------------------------
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
@@ -364,25 +341,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function  [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
             [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
         end
-
-        function obj = from_old_struct(obj,S)
-            % restore object from the old structure, which describes the
-            % previous version(s) of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % Input:
-            % ------
-            %   S       An instance of this object or struct
-            % By default, this function interfaces the default from_bare_struct
-            % method, but when the old structure substantially differs from
-            % the modern structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
-            %
-            obj = set_from_old_struct_(obj,S);
-        end
     end
     %----------------------------------------------------------------------
     methods(Static, Access = private)
@@ -392,7 +350,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         header = make_sqw_header();
     end
     %----------------------------------------------------------------------
-    methods(Access = 'private')
+    methods(Access = private)
         % process various inputs for the constructor and return some
         % standard output used in sqw construction
         args = parse_sqw_args_(obj,varargin)
@@ -428,4 +386,61 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.pix = data_struct.pix;
         end
     end
+    %----------------------------------------------------------------------
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access=protected)
+        fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
+    end
+    
+    methods
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 4;
+        end
+        function flds = saveableFields(~)
+            flds = sqw.fields_to_save_;
+        end
+        function str = saveobj(obj)
+            if ~obj.main_header_.creation_date_defined
+                % support old files, which do not have creation date defined
+                obj.main_header_.creation_date = datetime('now');
+            end
+            str = saveobj@serializable(obj);
+        end                
+    end
+    methods(Access = protected)
+
+        function obj = from_old_struct(obj,S)
+            % restore object from the old structure, which describes the
+            % previous version(s) of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % Input:
+            % ------
+            %   S       An instance of this object or struct
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadob to recover new structure from an old structure.
+            %
+            obj = set_from_old_struct_(obj,S);
+        end
+    end
+    
+
+    methods(Static)
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = sqw();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
+    
 end

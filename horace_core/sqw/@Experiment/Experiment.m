@@ -115,10 +115,7 @@ classdef Experiment < serializable
         
         % set moderator pulse on every instrument contributing to the
         % object
-        function obj = set_mod_pulse(obj,pulse_model,pm_par)
-            error('HERBERT:Experiment:not_implemented', ...
-                'This method is not yet implemented Ticket #899')
-        end
+        obj = set_mod_pulse(obj,pulse_model,pm_par)
         %------------------------------------------------------------------
         function val=get.detector_arrays(obj)
             val=obj.detector_arrays_;
