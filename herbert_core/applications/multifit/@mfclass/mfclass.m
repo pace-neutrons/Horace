@@ -675,28 +675,28 @@ classdef mfclass < serializable
             if obj.do_check_combo_arg_
                 error('HERBERT:mfclass:invalid_argument', 'Cannot set ''fun'' directly')
             end
-            obj.fun_ = fun;
+            obj.fun_ = make_cell(fun);
         end
 
         function obj = set.bfun(obj, bfun)
             if obj.do_check_combo_arg_
                 error('HERBERT:mfclass:invalid_argument', 'Cannot set ''bfun'' directly')
             end
-            obj.bfun_ = bfun;
+            obj.bfun_ = make_cell(bfun);
         end
 
         function obj = set.free(obj, free)
             if obj.do_check_combo_arg_
                 error('HERBERT:mfclass:invalid_argument', 'Cannot set ''free'' directly')
             end
-            obj.free_ = free;
+            obj.free_ = make_cell(free);
         end
 
         function obj = set.bfree(obj, bfree)
             if obj.do_check_combo_arg_
                 error('HERBERT:mfclass:invalid_argument', 'Cannot set ''bfree'' directly')
             end
-            obj.bfree_ = bfree;
+            obj.bfree_ = make_cell(bfree);
         end
 
         function obj = set.options(obj, options)
