@@ -820,7 +820,7 @@ classdef mfclass_Horace_sqw_sqw < mfclass
 
     methods(Access=public)
         function flds = saveableFields(obj)
-            flds = [mfclass@saveableFields() 'average'];
+            flds = [saveableFields@mfclass() 'average'];
         end
     end
 
