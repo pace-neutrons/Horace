@@ -108,14 +108,23 @@ classdef Experiment < serializable
             end
             obj = init_(obj,varargin{:});
         end
+        %------------------------------------------------------------------        
         %
         %Change fields in the experiment with correction related to aligned
         %crystal lattice parameters and orientation
         obj=change_crystal(obj,alatt,angdeg,rlu_corr)
         
+        % add or reset instrument, related to the given experiment object
+        obj = set_instrument(obj,instrument)        
         % set moderator pulse on every instrument contributing to the
         % object
         obj = set_mod_pulse(obj,pulse_model,pm_par)
+        % Return array of incident energies from all contributing runs
+        en = get_efix(obj);
+        function emode = get_emode(obj)
+            % Return array of instrument modes provided in all contributing runs            
+            emode = arrayfun(@(x)x.emode,obj.expdata_,'UniformOutput',true);
+        end
         %------------------------------------------------------------------
         function val=get.detector_arrays(obj)
             val=obj.detector_arrays_;

@@ -322,9 +322,6 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             end
         end
 
-        %        function test_set_mod_pulse(obj)
-        %            % tested as part of test_instrument_methods
-        %        end
         function test_set_sample(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             sam1=IX_sample('test_sample_name', true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);

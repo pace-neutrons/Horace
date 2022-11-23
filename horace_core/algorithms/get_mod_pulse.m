@@ -1,4 +1,4 @@
-function [pulse_model,pp,ok,mess,p,present] = get_mod_pulse(obj,varargin)
+function [pulse_model,pp,ok,mess,p,present] = get_mod_pulse(varargin)
 % Get moderator pulse model name and mean pulse parameters for an array of sqw objects
 %
 %   >> [pulse_model,pp,ok,mess,p,present] = get_mod_pulse (win)
@@ -36,25 +36,35 @@ function [pulse_model,pp,ok,mess,p,present] = get_mod_pulse(obj,varargin)
 
 
 % Original author: T.G.Perring
+%
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
+
+% Parse input
+% -----------
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+if ~isempty(mess), error(mess); end
 
 
 % Perform operations
 % ------------------
 tol_default=5e-3;
-if numel(varargin)==1 && isnumeric(varargin{1}) && isscalar(varargin{1}) && varargin{1}>=0
-    tol=varargin{1};
+if numel(args)==1 && isnumeric(args{1}) && isscalar(args{1}) && args{1}>=0
+    tol=args{1};
 elseif numel(args)==0
     tol=tol_default;    % relative tolerance of spread of pulse shape parameters
 else
-    error('HORACE:sqw:invalid_argument', ...
-        'Optional fractional tolerance should be a non-negative scalar. It is: %s',...
-        disp2str(varargin{1}))
+    error('Check optional fractional tolerance is a non-negative scalar')
 end
 
+% Check that the data has the correct type
+if ~all(w.sqw_type(:))
+    error('moderator pulse parameters can only be retrived from sqw-type data')
+end
 
 % Get values
-nobj=numel(obj);     % number of sqw objects or files
+source_is_file=w.source_is_file;
+nobj=numel(w.data);     % number of sqw objects or files
 nfiles=w.nfiles;
 nend=cumsum(nfiles(:));
 nbeg=nend-nfiles(:)+1;
@@ -111,6 +121,11 @@ argout{4}=mess;
 argout{5}=p;
 argout{6}=present;
 
+
+% Package output arguments
+% ------------------------
+[varargout,mess]=horace_function_pack_output(w,argout{:});
+if ~isempty(mess), error(mess), end
 
 
 %------------------------------------------------------------------------------

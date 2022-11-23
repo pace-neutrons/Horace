@@ -45,7 +45,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % holder for pix data
         pix_ = PixelData()      % Object containing data for each pixe
     end
-    properties(Access=private)
+    properties(Access=protected)
         main_header_ = main_header_cl();
         experiment_info_ = Experiment();
         detpar_  = struct([]);
@@ -79,9 +79,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function wout = cut_dnd(obj,varargin)
             % legacy entrance to cut for dnd objects
             wout = cut(obj.data,varargin{:});
-        end        
+        end
         function wout = cut_sqw(obj,varargin)
-            % legacy entrance to cut for sqw object            
+            % legacy entrance to cut for sqw object
             wout = cut(obj, varargin{:});
         end
         %
@@ -312,11 +312,25 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     % TOBYFIT INTERFACE
     methods
         % set the moderator pulse model and its parameters. (TODO: should
-        % be class)
+        % be setting a class. Ticket #910)
         obj = set_mod_pulse(obj,pulse_model,pmp)
+        % Get moderator pulse model name and mean pulse parameters for
+        % an array of sqw objects
+        [pulse_model,pp,ok,mess,p,present] = get_mod_pulse(varargin)
         
-        %TODO: Something in this interface looks dodgy. Should it be just
-        %      TOBYFIT interface, or should it go out of here?
+        % add or reset instrument, related to this sqw object
+        obj = set_instrument (obj, instrument)
+        function inst = get_instruments(obj,varargin)
+            % retrieve object container with instruments
+            inst = obj.experiment_info.instruments;
+        end
+        % Return the mean fixed neutron energy and emode for an array of sqw objects.        
+        [efix,emode,ok,mess,en] = get_efix(obj,tol);        
+
+        %TODO: Special call on interface for different type of instruments 
+        %      from generic object, which may contain any instrument looks
+        %      dodgy. it should be resfun covariance here, if it is needs
+        %      to be here at all.
         varargout = tobyfit (varargin);
         [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
@@ -324,7 +338,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
-        
+
+    end
+    methods(Static)
+        function [efix,emode,ok,mess,en] = calc_efix_avrgs(efix_arr,emode_arr,tol)
+        % calculate specific (emode dependent) average of efix array            
+            [efix,emode,ok,mess,en] = calc_efix_avrgs_(efix_arr,emode_arr,tol);
+        end        
     end
     %----------------------------------------------------------------------
     methods(Access = protected)
@@ -339,6 +359,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = sqw_eval_pix(w, sqwfunc, ave_pix, pars, outfilecell, i);
 
         function  [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
+            % compare two sqw objects according to internal comparison
+            % algorithm
             [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
         end
     end
@@ -347,7 +369,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Signatures of private class functions declared in files
         sqw_struct = make_sqw(ndims);
         detpar_struct = make_sqw_detpar();
-        header = make_sqw_header();
+        header = make_sqw_header();        
     end
     %----------------------------------------------------------------------
     methods(Access = private)
@@ -391,7 +413,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     properties(Constant,Access=protected)
         fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
     end
-    
+
     methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
@@ -409,7 +431,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 obj.main_header_.creation_date = datetime('now');
             end
             str = saveobj@serializable(obj);
-        end                
+        end
     end
     methods(Access = protected)
 
@@ -432,7 +454,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj = set_from_old_struct_(obj,S);
         end
     end
-    
+
 
     methods(Static)
         function obj = loadobj(S)
@@ -442,5 +464,5 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj = loadobj@serializable(S,obj);
         end
     end
-    
+
 end

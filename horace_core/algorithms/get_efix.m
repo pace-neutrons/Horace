@@ -1,12 +1,13 @@
-function [efix,emode,ok,mess,en] = get_efix(obj,tol)
-% Return the mean fixed neutron energy and emode for an array of sqw objects.
+function [efix,emode,ok,mess,en] = get_efix(win,tol)
+% Return the mean fixed neutron energy and emode for cellarray array of sqw objects.
+% or sqw files
 %
 %   >> [efix,emode,ok,mess,en] = get_efix(win)
 %   >> [efix,emode,ok,mess,en] = get_efix(win,tol)
 %
 % Input:
 % ------
-%   win         Array of sqw objects of sqw type
+%   win         celarray of sqw objects or sqw files of sqw type
 %   tol         [Optional] acceptable relative spread w.r.t. average:
 %                   max(|max(efix)-efix_ave|,|min(efix)-efix_ave|) <= tol*efix_ave
 %
@@ -29,24 +30,42 @@ function [efix,emode,ok,mess,en] = get_efix(obj,tol)
 
 % Original author: T.G.Perring
 %
-
-% Parse input
-% -----------
-if exist('tol','var') 
-    if ~(isnumeric(tol) && isscalar(tol) && tol >=0)
-        error( ...
-            'Check optional fractional tolerance is a non-negative scalar')
-    end
-else
-    tol=5e-3;    % relative tolerance of spread of incident energies    
+if ~iscell(win)
+    win = {win};
 end
 
-% Perform operations
-% ------------------
+% Check that the data has the correct type
+if ~all(w.sqw_type(:))
 
-efix_arr  = arrayfun(@(x)x.experiment_info_.get_efix(),obj,'UniformOutput',false);
-efix_arr  = [efix_arr{:}];
-emode_arr = arrayfun(@(x)x.experiment_info_.get_emode(),obj,'UniformOutput',false);
+end
+
+nobj=numel(win);     % number of sqw objects or files
+efix_arr = cell(1,nobj);
+emode_arr = cell(1,nobj);
+for i=1:nobj
+    w = win{i};
+    if ischar(w)
+        ld = loaders_factory.instance().get_loader(w);
+        if ~ld.sqw_type
+            error( ...
+                'efix and emode can only be retrived from sqw-type data')
+        end
+        exper= ld.get_header('-all');
+        efix_arr{i} = exper.get_efix();
+        emode_arr{i} = exper.get_emode();
+        ld.delete();
+    else
+        if ~w.sqw_type
+            error(['' ...
+                'efix and emode can only be retrived from sqw-type data'])
+        end
+        efix_arr{i} = w.experiment_info.get_efix();
+        emode_arr{i} = w.experiment_info.get_emode();
+    end
+end
+efix_arr = [efix_arr{:}];
 emode_arr = [emode_arr{:}];
 
-[efix,emode,ok,mess,en] = obj.calc_efix_avrgs(efix_arr,emode_arr,tol);
+% calculate specific (emode dependent) average of efix array
+[efix,emode,ok,mess,en] = sqw.calc_efix_avrgs(efix_arr,emode_arr,tol);
+

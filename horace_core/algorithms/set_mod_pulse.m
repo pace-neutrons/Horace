@@ -34,7 +34,7 @@ end
 if nargout ~= 1
     if nargout~= numel(in_data)
         error('HORACE:algorithms:invalid_argument', ...
-            'You have requested %d outputs but have only %d input values for them',...
+            'You have requested %d outputs but defined only %d input values for them',...
             nargout,numel(in_data));
     end
 end
@@ -43,15 +43,94 @@ out = cell(1,numel(in_data));
 
 % Perform operations
 % ==================
+
+% arrange all inputs into cellarray of accessible objects
+obj_list = cell(1,numel(in_data));
 for i=1:numel(in_data)
     the_obj = in_data{i};
     if ischar(the_obj) || isstring(the_obj)
-        set_mod_pulse_on_file(the_obj,i,pulse_model,pm_par)
-        out{i} = the_obj;
+        obj_list{i} = sqw_formats_factory.instance().get_loader(the_obj);
+    elseif isa(the_obj,'sqw')
+        obj_list{i} = the_obj;
     else
-        out{i} = the_obj.set_mod_pulse(pulse_model,pm_par);
+        error('HORACE:algorithms:invalid_argument',...
+            'The object N%d in the list of input objects is neither sqw object nor sqw file. Its class is: %s', ...
+            i,class(the_obj));
     end
 end
+
+num_params = size(pm_par,1);
+
+if size(pm_par,1) == 1    
+    pm_par_split = cell(1,numel(in_data));    
+    for i=1:numel(in_data)
+        pm_par_split{i} = pm_par;
+    end
+else
+    pm_par_split_tot = cell(1,numel(in_data));
+    pm_par_split_uni = cell(1,numel(in_data));
+    
+    n_tot_runs =0;
+    n_unique_runs = 0;
+    for i=1:numel(in_data)
+        the_obj = obj_list{i};
+        if isa(the_obj,'sqw')
+            inst = the_obj.experiment_info.instruments();
+        elseif isa(the_obj,'sqw_file_interface')
+            inst = the_obj.get_instruments('-all');
+        else
+            error('HORACE:algorithms:invalid_argument', ...
+                'This method accepts the list of sqw objects and the class of object N%d in this list is %s (non-sqw type)', ...
+                i,class(the_obj));
+        end
+        in1 = n_tot_runs;
+        n_tot_runs    = n_tot_runs    + inst.n_runs;
+        if n_tot_runs <= num_params
+            pm_par_split_tot{i} = pm_par(in1+1:inst.n_runs,:);
+        end
+        in1 = n_unique_runs;
+        n_unique_runs = n_unique_runs + inst.n_unique;
+        if n_unique_runs <= n_unique_runs
+             pm_par_split_uni{i} = pm_par(in1+1:inst.n_unique,:);            
+        end
+    end
+    if num_params == n_tot_runs
+        pm_par_split  = pm_par_split_tot;
+    elseif num_params == n_unique_runs
+        pm_par_split  = pm_par_split_uni;
+    else
+        error('HORACE:sqw:invalid_argument',...
+            'Total number of moderator parameters (%d) not equal to 1 and to either to number of total runs (%d) nor the number of unique runs (%d)',...
+            num_params,n_tot_runs,n_unique_runs);
+    end
+end
+
+
+for i=1:numel(in_data)
+    the_obj = obj_list{i};
+    if isa(the_obj,'sqw')
+        % split input parameters according to the number of parameters and
+        % set this parameters on object in memory
+        the_obj = the_obj.set_mod_pulse(pulse_model,pm_par_split{i});        
+    elseif isa(the_obj,'sqw_file_interface')
+        % set input parameters on file        
+        Exper = the_obj.get_header('-all');
+        Exper = Exper.set_mod_pulse(pulse_model,pm_par_split{i});
+        the_obj = the_obj.put_header(Exper);
+    end
+    if isa(the_obj,'sqw')
+        out{i} = the_obj;    % it was an sqw and we return the modified sqw
+    else
+        out{i} = in_data{i};  % it was a filename and we return the filename
+    end
+end
+% explicitly close all file accessors if they were present
+for i=1:numel(in_data)
+    if isa(obj_list{i},'sqw_file_interface')
+        obj_list{i}.delete();
+    end
+end
+% format output parameters according to the output request
 if nargout == 1
     varargout{1} = out;
 else
@@ -59,28 +138,3 @@ else
         varargout{i} = out{i};
     end
 end
-
-
-function set_mod_pulse_on_file(file,n_file,pulse_model,pm_par)
-
-% Change moderator pulse
-ld  = sqw_formats_factory.instance().get_loader(file);
-if ~ld.sqw_type
-    error('HORACE:algorithms:invalid_argument', ...
-        'You can only set up moderator pulse on an sqw-type object. The argument N%d, file %s contains DnD-type object', ...
-        n_file,file)
-end
-
-inst_cont = ld.get_instrument();
-if isa(inst_cont,'unique_objects_container')
-    inst = inst_cont.unique_objects;
-    for i=1:numel(inst)
-        inst{i} = inst{i}.set_mod_pulse(pulse_model,pm_par);
-    end
-    inst_cont.unique_objects = inst;
-    inst = inst_cont;
-else
-    inst = inst_cont.set_mod_pulse(pulse_model,pm_par);
-end
-ld = ld.put_instruments(inst);
-ld.delete();
