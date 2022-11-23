@@ -102,14 +102,15 @@ selected = obj.options_.selected;
 if selected
     % All initiliasation is up to date, as evaluating over the same data as was fitted
     % Now compute output
-
     if pm
-        wout = parallel_call(@multifit_func_eval, wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-                             f_pass_caller, bf_pass_caller, pf, p_info, output_type);
+        wout = parallel_call(@multifit_func_eval, {wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
+                                                   f_pass_caller, bf_pass_caller, pf, p_info, output_type});
+
     else
         wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
                                    f_pass_caller, bf_pass_caller, pf, p_info, output_type);
     end
+
     squeeze_xye = obj.options_.squeeze_xye;
     if ~opt.components
         data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
@@ -127,8 +128,8 @@ else
 
     % Now compute output
     if pm
-        wout = parallel_call(@multifit_func_eval, obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-                             f_pass_caller, bf_pass_caller, pf, p_info, output_type);
+        wout = parallel_call(@multifit_func_eval, {obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
+                             f_pass_caller, bf_pass_caller, pf, p_info, output_type});
     else
         wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
                                    f_pass_caller, bf_pass_caller, pf, p_info, output_type);
