@@ -24,8 +24,8 @@ The reasoning behind a single file being better lies in several factors:
 
 - File system handling of multiple requests for opening can lead to slowdown as system looks up indices. These requests
   come for every request to open a new file, which will happen multiple times with a series of files.
-- Multiple files may not be sequential on disc leading to inefficient long seek times as multiple processors attempt to
-  request different areas.
+- Multiple files may not be sequential (in the right order) on disc leading to inefficient long seek times as multiple
+  processors attempt to request different areas.
 - Limitations on number of file-handles given by OS.
 - Cost of separation, recombination
 - Need to write approximately the same amount of data in total for sufficiently large S(**Q**, w) objects anyway, which
