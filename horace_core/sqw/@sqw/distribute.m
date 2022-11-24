@@ -1,6 +1,6 @@
 function [obj, merge_data] = distribute(sqw_in, varargin)
-% Function to split an sqw/dnd object between multiple processes.
-% Attempts to split objects equally with respect to number of pixels per process.
+% Function to split (for parallel distribution) an sqw/dnd object between multiple processes.
+% Attempts to split objects as close as possible to equal with respect to number of pixels per process.
 %
 % [obj, merge_data] = distribute(sqw_in, 'nWorkers', 1, 'split_bins', true)
 %
@@ -15,9 +15,11 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
 % Output
 % ---------
 %
-%   obj         split sqw/DnD object as list of SQW/DnD subobjects each holding a smaller section of the pixels [nWorkers 1]
+%   obj         resulting split sqw object as list of SQW subobjects each
+%               holding a smaller section of the pixels
 %
-%   merge_data  list of structs containing relevant data to the splitting [nWorkers 1]
+%   merge_data  vector of structs  [nWorkers x 1] containing data relevant to the
+%               re-merging of a split object
 %                  nelem      - Number of pixels in first/last bins for merging
 %                  nomerge    - Whether bins are split and remerging is necessary
 %                  range      - Range in bins from  original sqw/DnD object contained in subobject
@@ -33,18 +35,6 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
     nWorkers = ip.Results.nWorkers;
     split_bins = ip.Results.split_bins;
 
-    %      debugging
-    %            for nw=1:8
-    %                nPer = floor(sqw_in.data.num_pixels / nw);
-    %                num_pixels = repmat(nPer, 1, nw);
-    %                for i=1:mod(sqw_in.data.num_pixels, nw)
-    %                    num_pixels(i) = num_pixels(i)+1;
-    %                end
-    %                split_npix(num_pixels, sqw_in.data.npix)
-    %                cellfun(@sum, split_npix(num_pixels, sqw_in.data.npix))
-    %                sum(cellfun(@sum, split_npix(num_pixels, sqw_in.data.npix)))
-    %            end
-
     merge_data = arrayfun(@(x) struct('nelem', [], 'nomerge', true, 'pix_range', [-inf, -inf]), 1:nWorkers);
 
     nPer = floor(sqw_in.npixels / nWorkers);
@@ -52,12 +42,12 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
     num_pixels = repmat(nPer, 1, nWorkers);
     num_pixels(1:overflow) = num_pixels(1:overflow)+1;
 
+    points = [0, cumsum(num_pixels)];
+
     if split_bins
-        points = [0, cumsum(num_pixels)];
 
         [npix, merge_data] = split_npix(num_pixels, sqw_in.data.npix, merge_data);
     else
-        points = [0, cumsum(num_pixels)];
         prev = 0;
         npix = cell(nWorkers, 1);
 
@@ -90,7 +80,8 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
         [obj(i).data.s, obj(i).data.e] = obj(i).pix.compute_bin_data(obj(i).data.npix);
         obj(i).data.do_check_combo_arg = true;
         obj(i).data.check_combo_arg();
-        merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
+        merge_data(i).nelem = [obj(i).data.npix(1), ...
+                               obj(i).data.npix(end)]; % Pixels at split end-bins to recombine
         merge_data(i).pix_range = [points(i)+1, points(i)+num_pixels(i)];
     end
 end
