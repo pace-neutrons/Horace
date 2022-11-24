@@ -248,7 +248,7 @@ classdef PixelDataMemory < PixelDataBase
             % should be removed when the public facing getters/setters are removed.
             validateattributes(pixel_data, {'numeric'}, {'nrows', obj.PIXEL_BLOCK_COLS_})
             obj.raw_data_ = pixel_data;
-            obj.num_pixels_ = size(pixel_data,2); % breaks filebased
+            obj.num_pixels_ = size(pixel_data,2);
         end
 
         function prp = get_prop(obj, fld)
@@ -257,6 +257,9 @@ classdef PixelDataMemory < PixelDataBase
 
         function set_prop(obj, fld, val)
             if ~isscalar(val)
+                if isvector(val) && ~isrow(val)
+                    val = val';
+                end
                 validateattributes(val, {'numeric'}, {'size', [numel(obj.FIELD_INDEX_MAP_(fld)), obj.page_size]})
             else
                 validateattributes(val, {'numeric'}, {'scalar'})
