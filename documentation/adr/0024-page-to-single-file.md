@@ -12,11 +12,13 @@ Accepted
 ## Context
 
 When performing file-backed operations, the [current implementation](0018-algorithm-migration-to-paged-files.md) of
-`PixelData` uses multiple files to store the temporary files and subsequently rebuilds them upon completion of the
-operation. While this might be efficient for partial (applied to subsections of data) access patterns, this is not the
-case for either full-sequential (applied to whole data [unary/binary ops]) or random-access (applied with variable
-stride across broad sections of data [cut]). In the Horace code, all operations are performed in either of these two
-modes, as such it is disadvantageous to use multiple temporary files, and instead a single file may be better.
+`PixelData` uses multiple files to store the temporary files and subsequently rebuilds (concatenates) them into a new
+structure when the SQW object is to be saved. While this might be efficient for partial (applied to subsections of data)
+access patterns, this is not the case for either full-sequential (applied to whole data [unary/binary ops]); where
+opening and closing files carries a time-cost, and for parallel ensuring good load balancing may involve two processes
+operating on the same file simultaneously; or random-access (applied with variable stride across broad sections of data
+[cut]). In the Horace code, all operations are performed in either of these two modes, and as such it is disadvantageous to
+use multiple temporary files, and instead a single file may be better.
 
 The reasoning behind a single file being better lies in several factors:
 
