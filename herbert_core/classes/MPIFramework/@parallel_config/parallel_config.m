@@ -211,6 +211,9 @@ classdef parallel_config<config_base
         % the property used to store is_compiled value not allowing to set
         % is_compiled porerty directly
         is_compiled_;
+
+        % Redirect IO to host and other debug features
+        debug;
     end
 
     properties(Constant,Access=private)
@@ -229,7 +232,8 @@ classdef parallel_config<config_base
                                 'shared_folder_on_remote', ...
                                 'working_directory', ...
                                 'external_mpiexec', ...
-                                'slurm_commands'};
+                                'slurm_commands', ...
+                                'debug'};
     end
 
     %-------------------------------------------------------------------
@@ -263,6 +267,10 @@ classdef parallel_config<config_base
 
         % slurm will run on default cluster with standard args by default
         slurm_commands_ = containers.Map('KeyType', 'char', 'ValueType', 'char');
+
+        % Redirect IO to host
+        debug_ = false;
+
     end
 
     properties(Constant)
@@ -302,6 +310,10 @@ classdef parallel_config<config_base
             if ~isempty(which(wrkr)) || exist(wrkr, 'file')
                 frmw = obj.get_or_restore_field('parallel_cluster');
             end
+        end
+
+        function debug = get.debug(obj)
+            debug = get_or_restore_field(obj,'debug');
         end
 
         function conf = get.cluster_config(obj)
@@ -439,6 +451,11 @@ classdef parallel_config<config_base
             % Throws HERBERT:parallel_config:not_available
             % available on the current system.
             obj = check_and_set_cluster_(obj,cluster_name);
+        end
+
+        function obj = set.debug(obj,val)
+            debug = val>0;
+            config_store.instance().store_config(obj,'parallel_multifit',debug);
         end
 
         function obj = set.cluster_config(obj,val)
