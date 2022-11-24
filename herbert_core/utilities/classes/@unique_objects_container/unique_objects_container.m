@@ -430,7 +430,7 @@ classdef unique_objects_container < serializable
                     self.stored_hashes_{oldix} = hash;
                     self.n_duplicates_(oldix) = self.n_duplicates_(oldix)+1;
                 else
-                    self.unique_objects_ = cat(1, self.unique_objects_, {obj});
+                    self.unique_objects_ = [self.unique_objects_(:);{obj}]';
 
                     self.stored_hashes_ = [self.stored_hashes_(:);hash]';
                     self.idx_(nuix) = numel(self.unique_objects_);

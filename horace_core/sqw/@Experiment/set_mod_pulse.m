@@ -19,7 +19,7 @@ inst = obj.instruments;
 if inst.n_unique == size(pm_par,1)
     unique_inst = inst.unique_objects;
     for i=1:numel(unique_inst)
-        unique_inst{i} = unique_inst.set_mod_pulse(pulse_model,pm_par(i,:));
+        unique_inst{i} = unique_inst{i}.set_mod_pulse(pulse_model,pm_par(i,:));
     end
     inst.unique_objects = unique_inst;    
 elseif inst.n_runs == size(pm_par,1)

@@ -1,6 +1,6 @@
 function [efix,emode,ok,mess,en] = get_efix(win,tol)
-% Return the mean fixed neutron energy and emode for cellarray array of sqw objects.
-% or sqw files
+% Return the mean fixed neutron energy and emode for cellarray of arrays
+% containing sqw objects or sqw files
 %
 %   >> [efix,emode,ok,mess,en] = get_efix(win)
 %   >> [efix,emode,ok,mess,en] = get_efix(win,tol)
@@ -34,21 +34,19 @@ if ~iscell(win)
     win = {win};
 end
 
-% Check that the data has the correct type
-if ~all(w.sqw_type(:))
-
-end
 
 nobj=numel(win);     % number of sqw objects or files
 efix_arr = cell(1,nobj);
 emode_arr = cell(1,nobj);
 for i=1:nobj
     w = win{i};
-    if ischar(w)
+    if ischar(w)|| isstring(w)
         ld = loaders_factory.instance().get_loader(w);
         if ~ld.sqw_type
-            error( ...
-                'efix and emode can only be retrived from sqw-type data')
+            error('HORACE:algorithms:invalid_argument',...
+                ['efix and emode can only be retrived from sqw-type data.\n', ...
+                ' Object N%d, file name %s does not contain sqw information'], ...
+                i,w)
         end
         exper= ld.get_header('-all');
         efix_arr{i} = exper.get_efix();
@@ -56,8 +54,11 @@ for i=1:nobj
         ld.delete();
     else
         if ~w.sqw_type
-            error(['' ...
-                'efix and emode can only be retrived from sqw-type data'])
+            error('HORACE:algorithms:invalid_argument',...
+                ['efix and emode can only be retrived from sqw-type data.\n', ...
+                ' Object N%d, is obj of class: %s '], ...
+                i,class(w))
+
         end
         efix_arr{i} = w.experiment_info.get_efix();
         emode_arr{i} = w.experiment_info.get_emode();
@@ -67,5 +68,4 @@ efix_arr = [efix_arr{:}];
 emode_arr = [emode_arr{:}];
 
 % calculate specific (emode dependent) average of efix array
-[efix,emode,ok,mess,en] = sqw.calc_efix_avrgs(efix_arr,emode_arr,tol);
-
+[efix,emode,ok,mess,en] = Experiment.calc_efix_avrgs(efix_arr,emode_arr,tol);

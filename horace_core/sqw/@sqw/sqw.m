@@ -340,12 +340,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
 
     end
-    methods(Static)
-        function [efix,emode,ok,mess,en] = calc_efix_avrgs(efix_arr,emode_arr,tol)
-        % calculate specific (emode dependent) average of efix array            
-            [efix,emode,ok,mess,en] = calc_efix_avrgs_(efix_arr,emode_arr,tol);
-        end        
-    end
     %----------------------------------------------------------------------
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
@@ -454,7 +448,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj = set_from_old_struct_(obj,S);
         end
     end
-
 
     methods(Static)
         function obj = loadobj(S)
