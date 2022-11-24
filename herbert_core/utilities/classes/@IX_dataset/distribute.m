@@ -2,15 +2,13 @@ function [data, merge_data] = distribute(obj, nWorkers, ~)
 % Function to split an IX_dataset object between multiple processes.
 % Attempts to split objects equally with respect to number of pixels per process.
 %
-% [obj, merge_data] = split_sqw(sqw, 'nWorkers', 1, 'split_bins', true)
+% [obj, merge_data] = distribute(IX_dataset, 1)
 %
 % Input
 % ---------
 %   sqw         IX_Dataset object to be split amongst processors
 %
 %   nWorkers    number of processes to divide final object between
-%
-%   split_bins  whether bins are allowed to be split (in the case of sqw objects)
 %
 % Output
 % ---------

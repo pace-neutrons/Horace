@@ -2,11 +2,11 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
 % Function to split an sqw/dnd object between multiple processes.
 % Attempts to split objects equally with respect to number of pixels per process.
 %
-% [obj, merge_data] = split_sqw(sqw, 'nWorkers', 1, 'split_bins', true)
+% [obj, merge_data] = distribute(sqw_in, 'nWorkers', 1, 'split_bins', true)
 %
 % Input
 % ---------
-%   sqw         sqw/DnD object to be split amongst processors
+%   sqw_in      sqw/DnD object to be split amongst processors
 %
 %   nWorkers    number of processes to divide final object between
 %
