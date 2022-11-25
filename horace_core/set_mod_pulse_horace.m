@@ -1,4 +1,4 @@
-function varargout=set_mod_pulse_horace(varargin)
+function varargout=set_mod_pulse_horace(file,varargin)
 % Set the moderator pulse shape model and pulse parameters for an array of sqw objects.
 %
 %   >> wout = set_mod_pulse(file, pulse_model, pp)
@@ -33,7 +33,7 @@ function varargout=set_mod_pulse_horace(varargin)
 % Original author: T.G.Perring
 %
 
-out = set_mod_pulse(varargin);
+out = set_mod_pulse(file,varargin{:});
 for i=1:nargout
     varargout{i} = out{i};
 end

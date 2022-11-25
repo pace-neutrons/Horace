@@ -77,11 +77,16 @@ else
         if isa(the_obj,'sqw')
             inst = the_obj.experiment_info.instruments();
         elseif isa(the_obj,'sqw_file_interface')
-            inst = the_obj.get_instruments('-all');
+            inst = the_obj.get_instrument('-all');
         else
             error('HORACE:algorithms:invalid_argument', ...
                 'This method accepts the list of sqw objects and the class of object N%d in this list is %s (non-sqw type)', ...
                 i,class(the_obj));
+        end
+        if isa(inst,'IX_null_inst')
+            error('HORACE:algorithms:invalid_argument', ...
+                'This method accepts the list of sqw objects with instruments set and the object N%d in this list does not have instrument defined on it', ...
+                i)
         end
         in1 = n_tot_runs;
         n_tot_runs    = n_tot_runs    + inst.n_runs;
@@ -117,7 +122,7 @@ for i=1:numel(in_data)
         Exper = the_obj.get_header('-all');
         Exper = Exper.set_mod_pulse(pulse_model,pm_par_split{i});
         the_obj = the_obj.upgrade_file_format(); % also reopens file in update mode if format is already the latest one
-        the_obj.put_headers(Exper);
+        the_obj.put_instruments(Exper.instruments);
         the_obj.delete();
     end
     if isa(the_obj,'sqw')
