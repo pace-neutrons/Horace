@@ -103,11 +103,17 @@ if selected
     % All initiliasation is up to date, as evaluating over the same data as was fitted
     % Now compute output
     if pm
-        wout = parallel_call(@multifit_func_eval, {wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-                                                   f_pass_caller, bf_pass_caller, pf, p_info, output_type});
+        try
+            wout = parallel_call(@multifit_func_eval, ...
+                                 {wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap, ...
+                                  f_pass_caller, bf_pass_caller, pf, p_info, output_type});
+        catch % Fall back to serial
+            wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap, ...
+                                       f_pass_caller, bf_pass_caller, pf, p_info, output_type);
+        end
 
     else
-        wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
+        wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap, ...
                                    f_pass_caller, bf_pass_caller, pf, p_info, output_type);
     end
 
