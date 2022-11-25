@@ -279,7 +279,9 @@ classdef rundata < serializable
                 % check all interacting variables and verify if
                 % the object is valid and fully defined
                 obj = obj.check_combo_arg();
-
+                if obj.loader.can_load_instrument()
+                    obj.instrument = obj.loader.load_instrument();
+                end
             end
         end
         %
