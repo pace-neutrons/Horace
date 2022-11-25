@@ -254,7 +254,26 @@ classdef Experiment < serializable
             % compatibility fields with old binary file formats
             samp = obj.samples_.unique_objects;
         end
+        function obj = eval_and_set_instr_fun_with_energy(obj,istrfun,varargin)
+            % werid hack, which allows to evaluate instrument function with
+            % parameters fun_par and first parameter -- incident energy on
+            % instrument container
+            %
+            % Inputs:
+            % intrfun -- function handle evaluating to an instrument
+            %            first parameter of this function must be incident
+            %            energy
+            % funpar  -- other parameters of this function
+            %
+            % Returns:
+            % obj    -- experiment info object with instrument, modyfied by
+            %           evaluating instrfun on every run in the Experiment
+            % s
+            obj = eval_and_set_instr_fun_with_energy_(obj,istrfun,varargin{:});
+
+        end
     end
+    %----------------------------------------------------------------------    
     methods(Static)
         function [efix,emode,ok,mess,en] = calc_efix_avrgs(efix_arr,emode_arr,tol)
             % calculate specific (emode dependent) average of efix array
@@ -265,7 +284,6 @@ classdef Experiment < serializable
             [pulse_model,pm_par_avrg,ok,mess,p] =calc_mod_pulse_avrgs_(pm_par,pm_list,tol);
         end
     end
-
     %----------------------------------------------------------------------
     methods
         %

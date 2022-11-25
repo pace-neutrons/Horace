@@ -116,8 +116,6 @@ classdef test_instrument_methods <  TestCase %WithSave
             assertEqual(hdr.instruments{186},inst); % compare the last instrument in the header with the single instrument
 
             %---------------------------------------------------------------------
-            % NOT IMPLEMENTED or implemented wrongly. Does not accept array
-            % of parameters
             %             omg  = 400 + (1:186);
             %             %
             %             wtmp=set_instrument(wref,@create_test_instrument,'-efix',omg ,'s');

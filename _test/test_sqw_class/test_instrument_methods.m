@@ -35,14 +35,6 @@ classdef test_instrument_methods < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_set_instrument_updates_all_headers_to_single_value(self)
-            % Set all spe file to the same instrument
-            wnew_fe = set_instrument(self.w_fe, self.inst_1);
-            hdr = wnew_fe.experiment_info;
-            assertEqual(hdr.instruments{3}, self.inst_1);
-        end
-
-        %--------------------------------------------------------------------------
         function test_set_instrument_updates_headers_with_array_values(self)
             % Set instruments individually
             inst_arr = repmat(self.inst_1, 120, 1);
@@ -55,7 +47,61 @@ classdef test_instrument_methods < TestCaseWithSave
             assertEqual(hdr.instruments{100}, self.inst_2);
             assertEqual(hdr.instruments{101}, self.inst_1);
         end
+        function test_set_instr_with_array_and_substitution_function(self)
+            efix = 201:320;
+            omega = (501:620)';
+            w_fem = self.w_fe.set_efix(efix);
+            wnew_fe = set_instrument(w_fem, @create_test_instrument,'-efix',omega,'s');
+            hdr = wnew_fe.experiment_info;
+            tis = create_test_instrument(203,503,'s');
+            assertEqual(hdr.instruments{3}, tis);
 
+            tis = create_test_instrument(300,600,'s');            
+            assertEqual(hdr.instruments{100}, tis);            
+        end
+        
+        function test_set_instr_with_func_param_array(self)
+
+            efix = repmat(450,120,1);
+            omega = repmat(500,120,1);
+            efix(3) = 460;
+
+            wnew_fe = set_instrument(self.w_fe, @create_test_instrument,efix,omega,'s');
+            hdr = wnew_fe.experiment_info;
+            tis = create_test_instrument(450,500,'s');
+            assertEqual(hdr.instruments{100}, tis);
+
+            tis = create_test_instrument(460,500,'s');
+            assertEqual(hdr.instruments{3}, tis);
+        end
+        function test_set_instr_with_substitution_function(self)
+            efix = 201:320;
+            w_fem = self.w_fe.set_efix(efix);
+            wnew_fe = set_instrument(w_fem, @create_test_instrument,'-efix',500,'s');
+            hdr = wnew_fe.experiment_info;
+            tis = create_test_instrument(203,500,'s');
+            assertEqual(hdr.instruments{3}, tis);
+
+            tis = create_test_instrument(300,500,'s');            
+            assertEqual(hdr.instruments{100}, tis);            
+        end
+        
+
+
+        function test_set_instr_with_single_function(self)
+            wnew_fe = set_instrument(self.w_fe, @create_test_instrument,400,500,'s');
+            hdr = wnew_fe.experiment_info;
+            tis = create_test_instrument(400,500,'s');
+            assertEqual(hdr.instruments{3}, tis);
+        end
+
+        function test_set_instrument_updates_all_headers_to_single_value(self)
+            % Set all spe file to the same instrument
+            wnew_fe = set_instrument(self.w_fe, self.inst_1);
+            hdr = wnew_fe.experiment_info;
+            assertEqual(hdr.instruments{3}, self.inst_1);
+        end
+        %--------------------------------------------------------------------------
         %--------------------------------------------------------------------------
         function test_set_efix_updates_data_to_single_value(self)
             % Set efix
@@ -65,7 +111,52 @@ classdef test_instrument_methods < TestCaseWithSave
             hdr = wnew_fe.experiment_info;
             efix = hdr.expdata(45).efix;
             assertEqual(efix, efix_new)
+
+            [efix,emode,ok,mess,en] = get_efix(wnew_fe);
+            assertEqual(efix, 777)
+            assertEqual(emode,1);
+            assertTrue(ok);
+            assertEqual(mess,'')
+            assertTrue(isstruct(en));
+            assertEqual(en.relerr,0);
+
         end
+        function test_set_efix_updates_array_data_with_array_values(self)
+            % Set efix individually, and test enquiry routine
+            efix_new = 777 * ones(1, 240);
+            efix_new(100) = 777 + 120;  % so the average is 778
+
+            ws = [self.w_fe,self.w_fe];
+            wnew_fe = set_efix(ws, efix_new);
+
+            [efix,emode,ok,mess,en] = get_efix(wnew_fe);
+            assertEqual(efix, 777.5)
+            assertEqual(emode,1);
+            assertFalse(ok);
+            assertEqual(mess,...
+                'Spread of efix lies outside acceptable fraction of average of 0.005');
+            assertTrue(isstruct(en));
+            assertEqual(en.relerr,(777+120-efix)/efix);
+        end
+
+        function test_set_efix_updates_array_data_with_half_array_values(self)
+            % Set efix individually, and test enquiry routine
+            efix_new = 777 * ones(1, 120);
+            efix_new(100) = 777 + 120;  % so the average is 778
+
+            ws = [self.w_fe,self.w_fe];
+            wnew_fe = set_efix(ws, efix_new);
+
+            [efix,emode,ok,mess,en] = get_efix(wnew_fe);
+            assertEqual(efix, 778)
+            assertEqual(emode,1);
+            assertFalse(ok);
+            assertEqual(mess,...
+                'Spread of efix lies outside acceptable fraction of average of 0.005');
+            assertTrue(isstruct(en));
+            assertEqual(en.relerr,(777 + 120-efix)/efix);
+        end
+
 
         %--------------------------------------------------------------------------
         function test_set_efix_updates_all_data_with_array_values(self)
@@ -75,8 +166,13 @@ classdef test_instrument_methods < TestCaseWithSave
 
             wnew_fe = set_efix(self.w_fe, efix_new);
 
-            efix = get_efix(wnew_fe);
+            [efix,emode,ok,mess,en] = get_efix(wnew_fe);
             assertEqual(efix, 778)
+            assertEqual(emode,1);
+            assertFalse(ok);
+            assertEqual(mess,...
+                'Spread of efix lies outside acceptable fraction of average of 0.005');
+            assertTrue(isstruct(en));
         end
 
         %--------------------------------------------------------------------------
@@ -100,6 +196,10 @@ classdef test_instrument_methods < TestCaseWithSave
             mod3 = instr.moderator;
             assertEqualToTol(mod3.pp, pp, 'reltol', 1e-13);
 
+            [pulse_model, pp,ok,mess,p,present] = get_mod_pulse(wnew_fe);
+
+            assertEqual(pulse_model,'ikcarp')
+            assertEqualToTol(mod3.pp, pp, 'reltol', 1e-13);
             assertTrue(ok)
             assertEqual(mess,'')
             assertTrue(isstruct(p));
@@ -135,6 +235,8 @@ classdef test_instrument_methods < TestCaseWithSave
 
             w_tot = [wnew_fe,wnew_fe];
 
+            % data for two unique instruments. (will change if instruments
+            % are stored in a service)
             pp = [100, 200, 0.7;100,300,0.7];
 
             w_tot = set_mod_pulse(w_tot, 'ikcarp', pp);

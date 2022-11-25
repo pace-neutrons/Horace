@@ -298,11 +298,8 @@ end
 function status = substitution_arguments_present(subst_args,args)
 % Check if any argumnent are to be substituted
 
-narg=numel(args);
-isstr=false(narg,1);
-for i=1:narg
-    isstr(i)=is_string(args{i});
-end
+
+isstr = cellfun(@(x)is_string(x),args);
 strargs=args(isstr);
 
 status=false;

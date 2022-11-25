@@ -317,17 +317,17 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Get moderator pulse model name and mean pulse parameters for
         % an array of sqw objects
         [pulse_model,pp,ok,mess,p,present] = get_mod_pulse(varargin)
-        
+
         % add or reset instrument, related to this sqw object
-        obj = set_instrument (obj, instrument)
+        obj = set_instrument(obj, instrument,varargin)
         function inst = get_instruments(obj,varargin)
             % retrieve object container with instruments
             inst = obj.experiment_info.instruments;
         end
-        % Return the mean fixed neutron energy and emode for an array of sqw objects.        
-        [efix,emode,ok,mess,en] = get_efix(obj,tol);        
+        % Return the mean fixed neutron energy and emode for an array of sqw objects.
+        [efix,emode,ok,mess,en] = get_efix(obj,tol);
 
-        %TODO: Special call on interface for different type of instruments 
+        %TODO: Special call on interface for different type of instruments
         %      from generic object, which may contain any instrument looks
         %      dodgy. it should be resfun covariance here, if it is needs
         %      to be here at all.
@@ -363,7 +363,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Signatures of private class functions declared in files
         sqw_struct = make_sqw(ndims);
         detpar_struct = make_sqw_detpar();
-        header = make_sqw_header();        
+        header = make_sqw_header();
     end
     %----------------------------------------------------------------------
     methods(Access = private)

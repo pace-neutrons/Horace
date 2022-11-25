@@ -1,4 +1,4 @@
-function obj = set_instrument (obj,varargin)
+function obj = set_instrument (obj,instr_or_fun,varargin)
 % Change the instrument in an sqw object or array of objects
 %
 %   >> wout = set_instrument (w, instrument)
@@ -50,49 +50,44 @@ function obj = set_instrument (obj,varargin)
 % Original author: T.G.Perring
 %
 
-
+[ok,mess,substitute_efix,argi] = parse_char_options(varargin,{'-efix'});
+if ~ok
+    error('HORACE:sqw:invalid_argument',mess);
+end
 
 % Perform operations
 % ==================
-narg=numel(varargin);
-if narg==0
-    % No input arguments - nothing to do
-    return;
-end
-if narg == 1 && isa(varargin{1},'IX_inst')
+
+if isa(instr_or_fun,'IX_inst')
     % just set instrument provided as input
-    obj = set_instr(obj,varargin{1},[]);
+    obj = set_instr(obj,instr_or_fun);
     return
 end
-if ~isa(varargin{1},'function_handle')
+if ~isa(instr_or_fun,'function_handle')
     error('HORACE:sqw:invalid_argument',...
         ['Neither instrument (including IX_null_inst) nor function building instrument is provided as input for the method.\n', ...
         ' Setting instrument as a structure is not allowed any more'])
 end
-if ~isscalar(varargin{1})
+if ~isscalar(instr_or_fun)
     error('HORACE:sqw:invalid_argument',...
         'only one function handle allowed to define instrument')
 
 end
-instfunc = varargin{1};
-[ok,mess,instfunc_args]=check_function_args(varargin{2:end});
-if ~ok
-    error('HORACE:sqw:invalid_argument',...
-        'Problem with Instrument definition function: %s',mess);
-end
+instfunc = instr_or_fun;
+instfunc_args=check_function_args(argi{:});
 if size(instfunc_args,1)==0
     instrument=instfunc();  % call with no arguments
     if ~isa(instrument,'IX_inst')
         error('HORACE:sqw:invalid_argument',...
             'The instrument definition function does not return an object of class IX_inst')
     end
+    obj = set_instr(obj,instrument);
 else
     % If none of the arguments match substitution arguments we can
     % evaluate the instrument definition function now
-    subst_args=substitute_arguments();
     ninst=size(instfunc_args,1);
-    if substitution_arguments_present(subst_args,instfunc_args)
-        instrument = [];
+    if substitute_efix
+        obj = set_instr_func(obj,instfunc,instfunc_args);
     else
         instrument=instfunc(instfunc_args{1,:});
         if ~isa(instrument,'IX_inst')
@@ -105,38 +100,87 @@ else
                 instrument(i)=instfunc(instfunc_args{i,:});
             end
         end
-        instfunc = [];
+        obj = set_instr(obj,instrument);
     end
 end
-% here we  have instrument defined from function handle
-obj = set_instr(obj,instrument,instfunc,instfunc_args);
 
-function obj = set_instr(obj,instr,instfunc,instfunc_args)
-% Set instrument, derived on the
-if ~isempty(instr) && ~(numel(instr) ==1 || numel(instr) == obj.experiment_info.n_runs)
-    error('HORACE:sqw:invalid_argument',...
-        'An array of instruments was given but its length does not match the number of runs in (all) the sqw source(s) being altered')
+
+%--------------------------------------------------------------------------
+function obj = set_instr_func(obj,istrfunc,instfunc_args)
+%
+
+[set_single,~,n_runs_in_obj]=find_set_mode(obj,instfunc_args(:,1));
+n_inst_set = 0;
+for i=1:numel(obj)
+
+    if set_single
+        obj(i).experiment_info = ...
+            obj(i).experiment_info.eval_and_set_instr_fun_with_energy( ...
+            istrfunc,instfunc_args{:});
+    else
+        obj(i).experiment_info = ...
+            obj(i).experiment_info.eval_and_set_instr_fun_with_energy( ...
+            istrfunc,...
+            instfunc_args(n_inst_set+1:n_inst_set+n_runs_in_obj(i),:));
+
+        n_inst_set = n_inst_set+n_runs_in_obj(i);
+    end
 end
+
+%--------------------------------------------------------------------------
+function obj = set_instr(obj,instr)
 % Change the instrument
 % ---------------------
 
-for i=1:numel(obj)
-    if ~isempty(instfunc)
-        args=substitute_arguments(h,ifile,instfunc_args(1,:));
-        instrument=instfunc(args{:});
-        if ~isa(instrument,'IX_inst')
-            error('HORACE:sqw:invalid_output', ...
-                ['The instrument definition function does not return' ...
-                ' an object of class IX_inst'])
-        end
+[set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,instr);
 
+n_inst_set = 0;
+for i=1:numel(obj)
+    %
+    if set_single
+        obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr);
+    else
+        if set_per_obj
+            if isempty(instfunc)
+                obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr(i));
+            else
+                obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr);
+            end
+        else
+            obj(i).experiment_info = obj(i).experiment_info.set_instrument( ...
+                instr(n_inst_set+1:n_inst_set+n_runs_in_obj(i)));
+            n_inst_set = n_inst_set+n_runs_in_obj(i);
+        end
     end
-    obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr);
+end
+
+%--------------------------------------------------------------------------
+function  [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,val_to_set)
+if ~isempty(val_to_set)
+    n_val_to_set = numel(val_to_set);
+else
+    n_val_to_set = 1;
+end
+set_per_obj = true;
+if n_val_to_set  == 1
+    set_single = true;
+    n_runs_in_obj = 1;
+else
+    set_single = false;
+    n_runs_in_obj = arrayfun(@(x)x.experiment_info.n_runs,obj);
+    if n_val_to_set  == numel(obj)
+        set_per_obj = true;
+    elseif n_val_to_set == sum(n_runs_in_obj)
+        set_per_obj = false;
+    else
+        error('HORACE:sqw:invalid_argument',...
+            'An array of object to set was given but its length does not match the number of runs in (all) the sqw source(s) being altered')
+    end
 end
 
 
 %==============================================================================
-function [ok, mess, argout]=check_function_args(varargin)
+function argout=check_function_args(varargin)
 % Check arguments have one of the permitted forms below
 %
 %   >> [ok, mess, argout]=check_function_args(arg1,arg2,...)
@@ -169,9 +213,7 @@ function [ok, mess, argout]=check_function_args(varargin)
 % Returns arg=[] if not valid form
 
 narg=numel(varargin);
-ok=true;
-mess='';
-argout={};
+
 
 % Find out how many rows, and check consistency
 nr=zeros(1,narg);
@@ -181,17 +223,17 @@ for i=1:narg
         nr(i)=size(varargin{i},1);
         nc(i)=size(varargin{i},2);
     else
-        ok=false;
-        mess='Check arguments have valid array size';
-        return
+        error('HORACE:sqw:invalid_argument', ...
+            'Check arguments have valid array size');
+
     end
 end
 if all(nr==max(nr)|nr<=1)
     nrow=max(nr);
 else
-    ok=false;
-    mess='If any arguments have more than one row, all such arguments must be the same number of rows';
-    return
+    error('HORACE:sqw:invalid_argument', ...
+        'If any arguments have more than one row, all such arguments must be the same number of rows');
+
 end
 
 % Now create cell arrays of output arguments
@@ -220,51 +262,4 @@ else
     argout=varargin;
 end
 
-
-%==============================================================================
-function status = substitution_arguments_present(subst_args,args)
-% Check if any argumnent are to be substituted
-
-narg=numel(args);
-isstr=false(narg,1);
-for i=1:narg
-    isstr(i)=is_string(args{i});
-end
-strargs=args(isstr);
-
-status=false;
-for i=1:numel(subst_args)
-    if any(strcmpi(subst_args{i},strargs))
-        status=true;
-        return
-    end
-end
-
-%==============================================================================
-function argout = substitute_arguments(w,ifile,argin)
-% Substitue arguments with values from object
-%
-% Return cellstr with list of all substitution arguments:
-%   >> subst_args = substitute_arguments
-%
-% Argument list with substitutions made from sqw object or header fields of sqw file:
-%   >> argout = substitute_arguments(w,ifile,argin)
-
-% List of substitution keywords
-if nargin==0
-    argout={'-efix'};
-    return
-end
-
-% Substitute values
-argout=argin;
-for i=1:numel(argin)
-    if is_string(argin{i}) && strcmpi(argin{i},'-efix')
-        if ifile>1 || w.main_header.nfiles>1
-            argout{i}=w.experiment_info.expdata(ifile).efix;
-        else
-            argout{i}=w.experiment_info.efix;
-        end
-    end
-end
 

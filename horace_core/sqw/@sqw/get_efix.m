@@ -49,4 +49,4 @@ efix_arr  = [efix_arr{:}];
 emode_arr = arrayfun(@(x)x.experiment_info_.get_emode(),obj,'UniformOutput',false);
 emode_arr = [emode_arr{:}];
 
-[efix,emode,ok,mess,en] = obj.calc_efix_avrgs(efix_arr,emode_arr,tol);
+[efix,emode,ok,mess,en] = Experiment.calc_efix_avrgs(efix_arr,emode_arr,tol);
