@@ -145,17 +145,8 @@ classdef ClusterSlurm < ClusterWrapper
 
             par = parallel_config();
             comm = par.slurm_commands;
-
+            
             [n_nodes, cores_per_node] = obj.get_remote_info(comm);
-
-            if par.is_auto_par_threads
-                % If user not specified threads to use assume MPI applications are not wanting to be threaded
-                target_threads = 1;
-            else
-                target_threads = par.par_threads;
-            end
-
-            par = parallel_config();
 
             if par.is_auto_par_threads
                 % If user not specified threads to use assume MPI applications are not wanting to be threaded
@@ -174,10 +165,16 @@ classdef ClusterSlurm < ClusterWrapper
                         'Requested nodes with threading may oversubscribe nodes causing slowdown')
             end
 
+            if numel(obj.job_id) > obj.MAX_JOB_LENGTH
+                error('HERBERT:ClusterSlurm:runtime_error', ...
+                      'Cannot start job %s, job id too long (max %d)', ...
+                      obj.job_id, obj.MAX_JOB_LENGTH)
+            end
 
 
-            % For now assume all MPI applications are wanting to not be threaded
-            target_threads = 1;
+            if any(comm.isKey({'-J', '--job-name', '-n', '--ntasks', '--ntasks-per-node', '--mpi', '--export'}))
+                warning('Keys present in slurm_commands which will be over-ridden')
+            end
 
             w = warning('off', 'MATLAB:Containers:Map:NoKeyToRemove');
             comm.remove({'-J', '-n'});
@@ -420,31 +417,6 @@ classdef ClusterSlurm < ClusterWrapper
             parse = strsplit(result{1});
             n_nodes = str2num(parse{2});
             cores_per_node = str2num(parse{3});
-
-        end
-    end
-
-    methods(Static)
-        function [n_nodes, cores_per_node] = get_remote_info(partition)
-        % Retrieve info about remote nodes.
-
-            if exist('partition', 'var')
-                partition = ['-p ', partition];
-            elseif obj.slurm_commands.isKey('--partition')
-                partition = ['-p ', obj.slurm_commands('--partition')];
-            elseif obj.slurm_commands.isKey('-p')
-                partition = ['-p ', obj.slurm_commands('-p')];
-            else
-                partition = '';
-            end
-
-            [status, result] = system(['sinfo ' partition ' -h -o"%%20P %%6D %%4c"']);
-            if status ~= 0
-                error('HERBERT:get_remote_info:runtime_error', ...
-                      'Could not get info on remote nodes')
-            end
-            result = splitlines(result);
-            [partition, n_nodes, cores_per_node] = strsplit(result{1});
 
         end
     end
