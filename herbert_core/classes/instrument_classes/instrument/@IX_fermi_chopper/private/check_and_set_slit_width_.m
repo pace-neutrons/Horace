@@ -19,7 +19,7 @@ end
 
 if obj.do_check_combo_arg_
     if ~isempty(old_slit_spacing)
-        log_level = config_store.instance().get_config_field('herbert_config','log_level');
+        log_level = get(hor_config,'log_level');
         if log_level>1
             warning('HORACE:IX_fermi_chopper:invalid_argument',...
                 'slit spacing=%g was smaller then slit width=%g so changed to be equal to slit width',...
