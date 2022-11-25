@@ -40,7 +40,11 @@ else
         max_narg,obj.n_runs);
 end
 if eval_single_par
-    fun_par = varargin;
+    if arg_expanded_to_cell
+        fun_par = varargin{1};
+    else
+        fun_par = varargin;
+    end
 else
     if arg_expanded_to_cell
         fun_par = varargin{1};
@@ -72,7 +76,7 @@ run_data = obj.expdata;
 for i=1:obj.n_runs
     efix = run_data(i).efix;
     if eval_single_par
-        instr(i) = instrfun(efix,fun_par{:});
+        instr(i) = instrfun(efix,fun_par{1,:});
     else
         instr(i) = instrfun(efix,fun_par{i,:});
     end

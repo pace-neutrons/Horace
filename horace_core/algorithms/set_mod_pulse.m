@@ -61,15 +61,15 @@ end
 
 num_params = size(pm_par,1);
 
-if size(pm_par,1) == 1    
-    pm_par_split = cell(1,numel(in_data));    
+if size(pm_par,1) == 1
+    pm_par_split = cell(1,numel(in_data));
     for i=1:numel(in_data)
         pm_par_split{i} = pm_par;
     end
 else
     pm_par_split_tot = cell(1,numel(in_data));
     pm_par_split_uni = cell(1,numel(in_data));
-    
+
     n_tot_runs =0;
     n_unique_runs = 0;
     for i=1:numel(in_data)
@@ -91,7 +91,7 @@ else
         in1 = n_unique_runs;
         n_unique_runs = n_unique_runs + inst.n_unique;
         if n_unique_runs <= n_unique_runs
-             pm_par_split_uni{i} = pm_par(in1+1:inst.n_unique,:);            
+            pm_par_split_uni{i} = pm_par(in1+1:inst.n_unique,:);
         end
     end
     if num_params == n_tot_runs
@@ -111,12 +111,14 @@ for i=1:numel(in_data)
     if isa(the_obj,'sqw')
         % split input parameters according to the number of parameters and
         % set this parameters on object in memory
-        the_obj = the_obj.set_mod_pulse(pulse_model,pm_par_split{i});        
+        the_obj = the_obj.set_mod_pulse(pulse_model,pm_par_split{i});
     elseif isa(the_obj,'sqw_file_interface')
-        % set input parameters on file        
+        % set input parameters on file
         Exper = the_obj.get_header('-all');
         Exper = Exper.set_mod_pulse(pulse_model,pm_par_split{i});
-        the_obj = the_obj.put_header(Exper);
+        the_obj = the_obj.upgrade_file_format(); % also reopens file in update mode if format is already the latest one
+        the_obj.put_headers(Exper);
+        the_obj.delete();
     end
     if isa(the_obj,'sqw')
         out{i} = the_obj;    % it was an sqw and we return the modified sqw

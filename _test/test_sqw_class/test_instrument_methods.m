@@ -35,18 +35,6 @@ classdef test_instrument_methods < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_set_instrument_updates_headers_with_array_values(self)
-            % Set instruments individually
-            inst_arr = repmat(self.inst_1, 120, 1);
-            inst_arr(100) = self.inst_2;
-
-            wnew_fe = set_instrument(self.w_fe, inst_arr);
-
-            hdr = wnew_fe.experiment_info;
-            assertEqual(hdr.instruments{99}, self.inst_1);
-            assertEqual(hdr.instruments{100}, self.inst_2);
-            assertEqual(hdr.instruments{101}, self.inst_1);
-        end
         function test_set_instr_with_array_and_substitution_function(self)
             efix = 201:320;
             omega = (501:620)';
@@ -56,10 +44,10 @@ classdef test_instrument_methods < TestCaseWithSave
             tis = create_test_instrument(203,503,'s');
             assertEqual(hdr.instruments{3}, tis);
 
-            tis = create_test_instrument(300,600,'s');            
-            assertEqual(hdr.instruments{100}, tis);            
+            tis = create_test_instrument(300,600,'s');
+            assertEqual(hdr.instruments{100}, tis);
         end
-        
+
         function test_set_instr_with_func_param_array(self)
 
             efix = repmat(450,120,1);
@@ -82,11 +70,9 @@ classdef test_instrument_methods < TestCaseWithSave
             tis = create_test_instrument(203,500,'s');
             assertEqual(hdr.instruments{3}, tis);
 
-            tis = create_test_instrument(300,500,'s');            
-            assertEqual(hdr.instruments{100}, tis);            
+            tis = create_test_instrument(300,500,'s');
+            assertEqual(hdr.instruments{100}, tis);
         end
-        
-
 
         function test_set_instr_with_single_function(self)
             wnew_fe = set_instrument(self.w_fe, @create_test_instrument,400,500,'s');
@@ -94,6 +80,19 @@ classdef test_instrument_methods < TestCaseWithSave
             tis = create_test_instrument(400,500,'s');
             assertEqual(hdr.instruments{3}, tis);
         end
+
+        function test_set_instrument_updates_headers_with_array_values(self)
+            % Set instruments individually
+            inst_arr = repmat(self.inst_1, 120, 1);
+            inst_arr(100) = self.inst_2;
+
+            wnew_fe = set_instrument(self.w_fe, inst_arr);
+
+            hdr = wnew_fe.experiment_info;
+            assertEqual(hdr.instruments{99}, self.inst_1);
+            assertEqual(hdr.instruments{100}, self.inst_2);
+            assertEqual(hdr.instruments{101}, self.inst_1);
+        end        
 
         function test_set_instrument_updates_all_headers_to_single_value(self)
             % Set all spe file to the same instrument

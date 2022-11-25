@@ -1,4 +1,4 @@
-function varargout = set_instrument (varargin)
+function varargout = set_instrument (w,varargin)
 % Change the instrument in an sqw object or array of objects
 %
 %   >> wout = set_instrument (w, instrument)
@@ -55,75 +55,25 @@ function varargout = set_instrument (varargin)
 
 % Parse input
 % -----------
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
-if ~isempty(mess), error(mess); end
+if ~iscell(w)
+    w = {w};
+end
 
 
 % Perform operations
 % ==================
-narg=numel(args);
-if narg==0
-    % No input arguments - nothing to do
-    if w.source_is_file
-        argout={};
+nobj=numel(w);     % number of sqw objects or files
+out = cell(1,nobj);
+for i=1:nobj
+    win = w{i};
+    if ischar(win)||isstrung(win)
+        out{i} = win;
+        ldr = sqw_formats_factory.instance().get_loader(win);
+        exper = 
     else
-        argout{1}=w.data;
     end
-    
-elseif narg==1 || isa(args{1},'function_handle')
-    % Perform checks on input
-    % -----------------------
-    % Check instrument parameter arguments are valid
-    if isa(args{1},'IX_inst')
-        is_instfunc=false;
-        instrument=args{1};
-        ninst=numel(instrument);
-        
-    elseif isempty(args{1}) || isequal(args{1},struct())
-        is_instfunc=false;
-        instrument=struct();
-        ninst=numel(instrument);
-        
-    elseif isscalar(args{1}) && isa(args{1},'function_handle')
-        instfunc=args{1}; % single function handle
-        % Check instrument definition function arguments are OK and consistent
-        [ok,mess,instfunc_args]=check_function_args(args{2:end});
-        if ~ok
-            mess=['Instrument definition function: ',mess];
-            error(mess);
-        end
-        if size(instfunc_args,1)==0
-            is_instfunc=false;
-            instrument=instfunc();  % call with no arguments
-            if ~isa(instrument,'IX_inst')
-                error('The instrument definition function does not return an object of class IX_inst')
-            end
-            ninst=1;
-        else
-            % If none of the arguments match substitution arguments we can
-            % evaluate the instrument definition function now
-            subst_args=substitute_arguments();
-            ninst=size(instfunc_args,1);
-            if substitution_arguments_present(subst_args,instfunc_args)
-                is_instfunc=true;
-            else
-                is_instfunc=false;
-                instrument=instfunc(instfunc_args{1,:});
-                if ~isa(instrument,'IX_inst')
-                    error('The instrument definition function does not return an object of class IX_inst')
-                end
-                if ninst>1
-                    instrument=repmat(instrument,ninst,1);
-                    for i=2:ninst
-                        instrument(i)=instfunc(instfunc_args{i,:});
-                    end
-                end
-            end
-        end
-    else
-        error('Instrument must be an object of class IX_inst or function handle (or an empty argument to indicate ''no instrument'')')
-    end
-    
+end
+
     % Check that the data has the correct type
     if ~all(w.sqw_type(:))
         error('Instrument can only be set or changed in sqw-type data')
@@ -131,8 +81,7 @@ elseif narg==1 || isa(args{1},'function_handle')
     
     % Change the instrument
     % ---------------------
-    source_is_file=w.source_is_file;
-    nobj=numel(w.data);     % number of sqw objects or files
+
     
     % Set output argument if object input
     if source_is_file

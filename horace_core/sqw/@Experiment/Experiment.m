@@ -197,7 +197,9 @@ classdef Experiment < serializable
         obj=change_crystal(obj,alatt,angdeg,rlu_corr)
 
         % add or reset instrument, related to the given experiment object
-        obj = set_instrument(obj,instrument)
+        % array of instruments, or function, which defines the instrument
+        % with its possible parameters
+        obj = set_instrument(obj,instrument,varargin)
         % set moderator pulse on every instrument contributing to the
         % object
         obj = set_mod_pulse(obj,pulse_model,pm_par)
@@ -254,26 +256,8 @@ classdef Experiment < serializable
             % compatibility fields with old binary file formats
             samp = obj.samples_.unique_objects;
         end
-        function obj = eval_and_set_instr_fun_with_energy(obj,istrfun,varargin)
-            % werid hack, which allows to evaluate instrument function with
-            % parameters fun_par and first parameter -- incident energy on
-            % instrument container
-            %
-            % Inputs:
-            % intrfun -- function handle evaluating to an instrument
-            %            first parameter of this function must be incident
-            %            energy
-            % funpar  -- other parameters of this function
-            %
-            % Returns:
-            % obj    -- experiment info object with instrument, modyfied by
-            %           evaluating instrfun on every run in the Experiment
-            % s
-            obj = eval_and_set_instr_fun_with_energy_(obj,istrfun,varargin{:});
-
-        end
     end
-    %----------------------------------------------------------------------    
+    %----------------------------------------------------------------------
     methods(Static)
         function [efix,emode,ok,mess,en] = calc_efix_avrgs(efix_arr,emode_arr,tol)
             % calculate specific (emode dependent) average of efix array
@@ -424,6 +408,37 @@ classdef Experiment < serializable
             % stored on hdd.
             %
             obj = build_from_binfile_headers_(headers);
+        end
+        function [args,npar] = check_and_expand_function_args(varargin)
+            % Check arguments have one of the permitted forms below
+            %
+            %   >> argout=check_and_expand_function_args(arg1,arg2,...)
+            %
+            % Input:
+            % ------
+            %   arg1,arg2,...  Input arguments
+            %                  Each argument can be a 2D array with 0,1 or more rows
+            %                  If more than one row in an argument, then this gives the
+            %                  number of argument sets.
+            %
+            % Output:
+            % -------
+            %   argout         Cell array of arguments, each row a cell array
+            %                  with the input arguments
+            %
+            % Checks arguments have one of following forms:
+            %	- scalar, row vector (which can be numerical, logical,
+            %     structure, cell array or object), or character string
+            %
+            %   - Multiple arguments can be passed, one for each run that
+            %     constitutes the sqw object, by having one row per run
+            %   	i.e
+            %       	scalar      ---->   column vector (nrun elements)
+            %           row vector  ---->   2D array (nrun rows)
+            %        	string      ---->   cell array of strings
+            %
+            % Throws if not valid form
+            [args,npar] = check_and_expand_function_args_(varargin{:});
         end
 
         function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,drop_subzone_headers)

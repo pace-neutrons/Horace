@@ -50,11 +50,6 @@ function obj = set_instrument (obj,instr_or_fun,varargin)
 % Original author: T.G.Perring
 %
 
-[ok,mess,substitute_efix,argi] = parse_char_options(varargin,{'-efix'});
-if ~ok
-    error('HORACE:sqw:invalid_argument',mess);
-end
-
 % Perform operations
 % ==================
 
@@ -74,97 +69,72 @@ if ~isscalar(instr_or_fun)
 
 end
 instfunc = instr_or_fun;
-instfunc_args=check_function_args(argi{:});
-if size(instfunc_args,1)==0
-    instrument=instfunc();  % call with no arguments
-    if ~isa(instrument,'IX_inst')
-        error('HORACE:sqw:invalid_argument',...
-            'The instrument definition function does not return an object of class IX_inst')
-    end
-    obj = set_instr(obj,instrument);
-else
-    % If none of the arguments match substitution arguments we can
-    % evaluate the instrument definition function now
-    ninst=size(instfunc_args,1);
-    if substitute_efix
-        obj = set_instr_func(obj,instfunc,instfunc_args);
-    else
-        instrument=instfunc(instfunc_args{1,:});
-        if ~isa(instrument,'IX_inst')
-            error('HORACE:sqw:invalid_argument',...
-                'The instrument definition function does not return an object of class IX_inst')
-        end
-        if ninst>1
-            instrument=repmat(instrument,ninst,1);
-            for i=2:ninst
-                instrument(i)=instfunc(instfunc_args{i,:});
-            end
-        end
-        obj = set_instr(obj,instrument);
-    end
-end
+obj = set_instr(obj,instfunc,varargin{:});
 
 
 %--------------------------------------------------------------------------
-function obj = set_instr_func(obj,istrfunc,instfunc_args)
-%
-
-[set_single,~,n_runs_in_obj]=find_set_mode(obj,instfunc_args(:,1));
-n_inst_set = 0;
-for i=1:numel(obj)
-
-    if set_single
-        obj(i).experiment_info = ...
-            obj(i).experiment_info.eval_and_set_instr_fun_with_energy( ...
-            istrfunc,instfunc_args{:});
-    else
-        obj(i).experiment_info = ...
-            obj(i).experiment_info.eval_and_set_instr_fun_with_energy( ...
-            istrfunc,...
-            instfunc_args(n_inst_set+1:n_inst_set+n_runs_in_obj(i),:));
-
-        n_inst_set = n_inst_set+n_runs_in_obj(i);
-    end
-end
-
-%--------------------------------------------------------------------------
-function obj = set_instr(obj,instr)
+function obj = set_instr(obj,instr,varargin)
 % Change the instrument
 % ---------------------
 
-[set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,instr);
+if nargin > 2
+    [ok,mess,substitute_efix,argi] = parse_char_options(varargin,{'-efix'});
+    if ~ok
+        error('HORACE:sqw:invalid_argument',mess);
+    end
 
+    [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,argi{:});
+    if ~set_single
+        args_mat = Experiment.check_and_expand_function_args(argi{:});
+        n_col = size(args_mat,2);
+    end
+else
+    [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,instr);
+end
 n_inst_set = 0;
 for i=1:numel(obj)
-    %
     if set_single
-        obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr);
+        obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr,varargin{:});
     else
         if set_per_obj
-            if isempty(instfunc)
-                obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr(i));
-            else
-                obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr);
-            end
+            obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr(i),varargin{i,:});
         else
-            obj(i).experiment_info = obj(i).experiment_info.set_instrument( ...
-                instr(n_inst_set+1:n_inst_set+n_runs_in_obj(i)));
+            if nargin>2
+                if substitute_efix
+                    argi = cell(1,n_col+1);
+                    argi{1} = '-efix';
+                    ics = 1;
+                else
+                    argi = cell(1,n_col);
+                    ics = 0;
+                end
+                for j=1:n_col
+                    argi{j+ics} = [args_mat{n_inst_set+1:n_inst_set+n_runs_in_obj(i),j}]';
+                end
+
+                obj(i).experiment_info = obj(i).experiment_info.set_instrument( ...
+                    instr,argi{:});
+            else
+                obj(i).experiment_info = obj(i).experiment_info.set_instrument( ...
+                    instr(n_inst_set+1:n_inst_set+n_runs_in_obj(i)));
+            end
             n_inst_set = n_inst_set+n_runs_in_obj(i);
         end
     end
 end
 
 %--------------------------------------------------------------------------
-function  [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,val_to_set)
-if ~isempty(val_to_set)
-    n_val_to_set = numel(val_to_set);
+function  [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,varargin)
+if ~isempty(varargin)
+    length_s = cellfun(@find_length,varargin);
+    n_val_to_set = max(length_s);
 else
     n_val_to_set = 1;
 end
 set_per_obj = true;
 if n_val_to_set  == 1
     set_single = true;
-    n_runs_in_obj = 1;
+    n_runs_in_obj = [];
 else
     set_single = false;
     n_runs_in_obj = arrayfun(@(x)x.experiment_info.n_runs,obj);
@@ -178,88 +148,9 @@ else
     end
 end
 
-
-%==============================================================================
-function argout=check_function_args(varargin)
-% Check arguments have one of the permitted forms below
-%
-%   >> [ok, mess, argout]=check_function_args(arg1,arg2,...)
-%
-% Input:
-% ------
-%   arg1,arg2,...   Input arguments
-%                  Each argument can be a 2D array with 0,1 or more rows
-%                  If more than one row in an argument, then this gives the
-%                  number of argument sets.
-%
-% Output:
-% -------
-%   ok              =true all OK; =false otherwise
-%   mess            Error message if not OK; empty string if OK
-%   argout          Cell array of arguments, each row a cell array
-%                  with the input arguments
-%
-% Checks arguments have one of following forms:
-%	- scalar, row vector (which can be numerical, logical,
-%     structure, cell array or object), or character string
-%
-%   - Multiple arguments can be passed, one for each run that
-%     constitutes the sqw object, by having one row per run
-%   	i.e
-%       	scalar      ---->   column vector (nrun elements)
-%           row vector  ---->   2D array (nrun rows)
-%        	string      ---->   cell array of strings
-%
-% Returns arg=[] if not valid form
-
-narg=numel(varargin);
-
-
-% Find out how many rows, and check consistency
-nr=zeros(1,narg);
-nc=zeros(1,narg);
-for i=1:narg
-    if numel(size(varargin{i}))==2
-        nr(i)=size(varargin{i},1);
-        nc(i)=size(varargin{i},2);
-    else
-        error('HORACE:sqw:invalid_argument', ...
-            'Check arguments have valid array size');
-
-    end
-end
-if all(nr==max(nr)|nr<=1)
-    nrow=max(nr);
+function ml = find_length(x)
+if isnumeric(x)
+    ml = numel(x);
 else
-    error('HORACE:sqw:invalid_argument', ...
-        'If any arguments have more than one row, all such arguments must be the same number of rows');
-
+    ml = 1;
 end
-
-% Now create cell arrays of output arguments
-if nrow>1
-    argout=cell(nrow,narg);
-    for i=1:narg
-        if ~iscell(varargin{i})
-            if nr(i)==nrow
-                argout(:,i)=mat2cell(varargin{i},ones(1,nrow),size(varargin{i},2));
-            else
-                argout(:,i)=repmat(varargin(i),nrow,1);
-            end
-        else
-            if nr(i)==nrow
-                if nc(i)>1
-                    argout(:,i)=mat2cell(varargin{i},ones(1,nrow),size(varargin{i},2));
-                else
-                    argout(:,i)=varargin{i};
-                end
-            else
-                argout(:,i)=repmat(varargin(i),nrow,1);
-            end
-        end
-    end
-else
-    argout=varargin;
-end
-
-
