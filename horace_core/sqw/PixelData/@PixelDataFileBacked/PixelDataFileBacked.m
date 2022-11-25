@@ -81,8 +81,6 @@ classdef PixelDataFileBacked < PixelDataBase
         f_accessor_;  % instance of faccess object to access pixel data from file
         tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
         page_number_ = 1;  % the index of the currently loaded page
-        page_dirty_ = false;  % array mapping from page_number to whether that page is dirty
-        dirty_page_edited_ = false;  % array mapping from page_number to whether that page is dirty
     end
 
     properties (Constant)
@@ -144,8 +142,6 @@ classdef PixelDataFileBacked < PixelDataBase
 
                     obj.data_ = init.data;
                     obj.num_pixels_ = init.num_pixels;
-                    obj.page_dirty_ = init.page_dirty_;
-                    obj.dirty_page_edited_ = init.dirty_page_edited_;
                     has_tmp_files = init.tmp_io_handler_.copy_folder(obj.object_id_);
                     if any(has_tmp_files)
                         obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_, has_tmp_files);
@@ -172,8 +168,6 @@ classdef PixelDataFileBacked < PixelDataBase
                     obj.data_ = init;
                     obj.num_pixels_ = size(init, 2);
                     if ~obj.cache_is_empty_()
-                        obj.set_page_dirty_(true);
-                        obj.write_dirty_page_();
                         obj.reset_changed_coord_range('coordinates');
                     end
                 else
@@ -188,9 +182,6 @@ classdef PixelDataFileBacked < PixelDataBase
                     end
                     obj.recalc_pix_range();
                 end
-
-            else
-                obj.page_dirty_ = true;
 
             end
 
@@ -235,15 +226,12 @@ classdef PixelDataFileBacked < PixelDataBase
             if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
                 obj.reset_changed_coord_range(fld);
             end
-            obj.set_page_dirty_(true);
         end
 
         % --- Operator overrides ---
         function delete(obj)
         % Class destructor to delete any temporary files
-            if ~isempty(obj.tmp_io_handler_)
-                obj.tmp_io_handler_.delete_files();
-            end
+            obj.tmp_io_handler_.delete_files();
         end
 
         function saveobj(~)
@@ -322,8 +310,10 @@ classdef PixelDataFileBacked < PixelDataBase
 
         function set.page_memory_size(obj, val)
             validateattributes(val, {'numeric'}, {'scalar', 'nonnan', ...
-                 '>', PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS})
+                                                  '>', PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS})
             obj.page_memory_size_ = round(val);
+            % Keep synchronised
+            obj.tmp_io_handler_.page_size = obj.page_memory_size_;
         end
 
         function page_size = get.page_memory_size(obj)
@@ -343,16 +333,13 @@ classdef PixelDataFileBacked < PixelDataBase
 
         function obj = load_page_(obj, page_number)
             % Load the data for the given page index
-            if obj.page_is_dirty_(page_number) && obj.tmp_io_handler_.page_has_tmp_file(page_number)
-                % load page from tmp file
-                obj.load_dirty_page_(page_number);
+            if ~obj.tmp_io_handler_.has_tmp_files_
+                obj = obj.load_clean_page_(page_number)
             else
-                % load page from sqw file
-                obj.load_clean_page_(page_number);
-                obj.set_page_dirty_(false, page_number);
+                obj.data_ = obj.tmp_io_handler_.load_page(page_number, ...
+                                                          obj.PIXEL_BLOCK_COLS_);
             end
             obj.page_number_ = page_number;
-            obj.dirty_page_edited_ = false;
         end
 
         function obj = load_clean_page_(obj, page_number)
@@ -369,39 +356,9 @@ classdef PixelDataFileBacked < PixelDataBase
 
         end
 
-        function obj = load_dirty_page_(obj, page_number)
-            % Load a page of data from a tmp file
-            obj.data_ = obj.tmp_io_handler_.load_page(page_number, ...
-                obj.PIXEL_BLOCK_COLS_);
-        end
-
         function obj = write_dirty_page_(obj)
             % Write the current page's pixels to a tmp file
-            if isempty(obj.tmp_io_handler_)
-                obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
-            end
             obj.tmp_io_handler_ = obj.tmp_io_handler_.write_page(obj.page_number_, obj.data);
-        end
-
-        function is = page_is_dirty_(obj, page_number)
-            % Return true if the given page is dirty
-            is = page_number <= numel(obj.page_dirty_) && obj.page_dirty_(page_number);
-        end
-
-        function obj = set_page_dirty_(obj, is_dirty, page_number)
-            % Mark the given page as "dirty" i.e. the data in the cache does not
-            % match the data in the original SQW file
-            %
-            % Input
-            % -----
-            % is_dirty     Logical specifying if the page is dirty
-            % page_number  The page number to mark as dirty (default is current page)
-            %
-            if ~exist('page_number', 'var')
-                page_number = obj.page_number_;
-            end
-            obj.page_dirty_(page_number) = is_dirty;
-            obj.dirty_page_edited_ = is_dirty;
         end
 
         function num_pages = get_num_pages_(obj)
