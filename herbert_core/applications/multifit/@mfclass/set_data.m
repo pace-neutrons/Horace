@@ -66,31 +66,32 @@ function obj = set_data(obj,varargin)
 %
 % See also append_data remove_data replace_data
 
- 
-% Original author: T.G.Perring 
-% 
+
+% Original author: T.G.Perring
+%
 % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Find arguments and optional arguments
 keyval_def = struct('keep',[],'remove',[],'mask',[]);
-[args,keyval,present,~,ok,mess] = parse_arguments (varargin, keyval_def);
-if ~ok, error(mess), end
+[args,keyval,present,~] = parse_arguments (varargin, keyval_def);
+
 if isempty(args) && any(cellfun(@logical,struct2cell(present)))
     error('Syntax error: no input data was given but optional arguments were provided')
 end
 
 % Check input data
 class_name = obj.dataset_class_;
-[ok, mess, w] = is_valid_data (class_name, args{:});
-if ~ok, error(mess), end
+w = is_valid_data(class_name, args{:});
 
 % Check optional arguments
-[ok,mess,xkeep,xremove,msk] = mask_syntax_valid (numel(w), keyval.keep, keyval.remove, keyval.mask);
-if ~ok, error(mess), end
+[ok,mess,xkeep,xremove,msk] = mask_syntax_valid(numel(w), keyval.keep, keyval.remove, keyval.mask);
+if ~ok
+    error(mess)
+end
 
 % Create mask arrays
-[msk_out,ok,mess] = mask_data (w,[],xkeep,xremove,msk);
+[msk_out,ok,mess] = mask_data(w,[],xkeep,xremove,msk);
 if ok && ~isempty(mess)
     display_message(mess)
 elseif ~ok
@@ -113,4 +114,3 @@ Scon = constraints_init (Sfun.np_, Sfun.nbp_);
 
 obj = obj.set_fun_props_ (Sfun);
 obj = obj.set_constraints_props_ (Scon);
-
