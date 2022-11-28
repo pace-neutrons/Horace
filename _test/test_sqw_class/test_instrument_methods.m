@@ -33,7 +33,52 @@ classdef test_instrument_methods < TestCaseWithSave
 
             self.save()
         end
+        function test_set_obj_array_sample_array(obj)
+            samp = [IX_sample([1,0,0],[0,1,0],'cuboid',[2,3,4]),...
+                    IX_sample([0,1,0],[0,0,1],'cuboid',[12,13,34])];            
 
+            w_mod = [obj.w_fe,obj.w_rb];
+
+            w_mod = w_mod.set_sample(samp);
+
+            ref_samp1 = obj.w_fe.experiment_info.samples(1);
+            samp(1).alatt = ref_samp1 .alatt;
+            samp(1).angdeg = ref_samp1.angdeg;            
+            assertEqual(w_mod(1).experiment_info.samples(3),samp(1));
+
+            ref_samp2 = obj.w_rb.experiment_info.samples(1);            
+            samp(2).alatt = ref_samp2.alatt;
+            samp(2).angdeg = ref_samp2.angdeg;            
+            assertEqual(w_mod(2).experiment_info.samples(10),samp(2));
+        end
+        
+        function test_set_sample_array(obj)
+            samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
+            samp = repmat(samp,1,120);
+            samp2 = IX_sample ([0,1,0],[0,0,1],'cuboid',[12,13,34]);
+            samp(100) = samp2;
+            w_mod = obj.w_fe.set_sample(samp);
+
+            ref_samp = obj.w_fe.experiment_info.samples(1);
+            samp(3).alatt = ref_samp.alatt;
+            samp(3).angdeg = ref_samp.angdeg;            
+            assertEqual(w_mod.experiment_info.samples(3),samp(3));
+
+            samp2.alatt = ref_samp.alatt;
+            samp2.angdeg = ref_samp.angdeg;            
+            assertEqual(w_mod.experiment_info.samples(100),samp2);
+        end
+        
+        function test_set_sample(obj)
+            samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
+            w_mod = obj.w_fe.set_sample(samp);
+
+            ref_samp = obj.w_fe.experiment_info.samples(1);            
+            samp.alatt = ref_samp.alatt;
+            samp.angdeg = ref_samp.angdeg;            
+            assertEqual(w_mod.experiment_info.samples(100),samp);
+
+        end
         %--------------------------------------------------------------------------
         function test_set_instr_with_array_and_substitution_function(self)
             efix = 201:320;

@@ -124,33 +124,3 @@ for i=1:numel(obj)
 end
 
 %--------------------------------------------------------------------------
-function  [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,varargin)
-if ~isempty(varargin)
-    length_s = cellfun(@find_length,varargin);
-    n_val_to_set = max(length_s);
-else
-    n_val_to_set = 1;
-end
-set_per_obj = true;
-if n_val_to_set  == 1
-    set_single = true;
-    n_runs_in_obj = [];
-else
-    set_single = false;
-    n_runs_in_obj = arrayfun(@(x)x.experiment_info.n_runs,obj);
-    if n_val_to_set  == numel(obj)
-        set_per_obj = true;
-    elseif n_val_to_set == sum(n_runs_in_obj)
-        set_per_obj = false;
-    else
-        error('HORACE:sqw:invalid_argument',...
-            'An array of object to set was given but its length does not match the number of runs in (all) the sqw source(s) being altered')
-    end
-end
-
-function ml = find_length(x)
-if isnumeric(x)
-    ml = numel(x);
-else
-    ml = 1;
-end

@@ -401,15 +401,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.data = data_struct.data;
             obj.pix = data_struct.pix;
         end
-        %TODO: would be nice for clarity
-        %         function [set_single,set_per_obj,set_per_unique,split_values_cell]=find_set_mode(obj,allow_unique,values_to_set)
-        %             % given sigle sqw objects or array of sqw objects, analyze
-        %             % 1D vector of input values, and identify how these values
-        %             % should be split among objects or subobjects, stored within
-        %             % the expereiment info
-        %             [set_single,set_per_obj,set_per_unique,split_values_cell]=...
-        %                 find_set_mode_(obj,allow_unique,values_to_set);
-        %         end
+        function  [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,varargin)
+            % Helper function for various set component for Tobyfit methods
+            % Given array of values to set on array of objects, identify how these
+            % values should be distributed among objects
+            [set_single,set_per_obj,n_runs_in_obj]=find_set_mode_(obj,varargin{:});
+        end
     end
     %----------------------------------------------------------------------
     % SERIALIZABLE INTERFACE
