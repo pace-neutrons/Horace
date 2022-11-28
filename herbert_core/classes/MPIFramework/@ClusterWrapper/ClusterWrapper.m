@@ -168,17 +168,17 @@ classdef ClusterWrapper
         end
 
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
-        % The method to initiate the cluster wrapper
-        %
-        % Inputs:
-        % n_workers -- number of independent Matlab workers to execute
-        %              a job
-        % mess_exchange_framework -- a class-child of
-        %              iMessagesFramework, used  for communications
-        %              between cluster and the host Matlab session,
-        %              which started and controls the job.
-        %log_level     if present, the number, which describe the
-        %              verbosity of the cluster operations output;
+            % The method to initiate the cluster wrapper
+            %
+            % Inputs:
+            % n_workers -- number of independent Matlab workers to execute
+            %              a job
+            % mess_exchange_framework -- a class-child of
+            %              iMessagesFramework, used  for communications
+            %              between cluster and the host Matlab session,
+            %              which started and controls the job.
+            %log_level     if present, the number, which describe the
+            %              verbosity of the cluster operations output;
 
             if ~exist('log_level', 'var')
                 log_level = -1;
@@ -302,16 +302,16 @@ classdef ClusterWrapper
         end
 
         function [obj, task_id] = start_workers(obj, worker_control_string, ...
-                                                varargin)
-        % Start workers running in parallel and return appropriate task_id to calling function
-        % Should appropriately start workers for the Herbert, mpiexec_mpi and slurm_mpi modes
-        %
-        % Inputs:
-        %  prefix_command  -- Commands placed before the main matlab call
-        %  postfix_command -- Extra arguments and flags passed to the main matlab call
-        %  matlab_extra    -- Commands to be run before starting parallel worker
-        %  debug           -- Direct stdout of workers to host stdout
-        %  target_threads  -- Start matlab jobs running with this many threads
+                varargin)
+            % Start workers running in parallel and return appropriate task_id to calling function
+            % Should appropriately start workers for the Herbert, mpiexec_mpi and slurm_mpi modes
+            %
+            % Inputs:
+            %  prefix_command  -- Commands placed before the main matlab call
+            %  postfix_command -- Extra arguments and flags passed to the main matlab call
+            %  matlab_extra    -- Commands to be run before starting parallel worker
+            %  debug           -- Direct stdout of workers to host stdout
+            %  target_threads  -- Start matlab jobs running with this many threads
             par = parallel_config;
             p = inputParser();
             addOptional(p, 'prefix_command' , {}, @iscellstr);
@@ -324,6 +324,7 @@ classdef ClusterWrapper
             prefix_command = p.Results.prefix_command;
             postfix_command = p.Results.postfix_command;
             matlab_extra = p.Results.matlab_extra;
+            target_threads = p.Results.target_threads;
 
             obj.common_env_var_('WORKER_CONTROL_STRING') = worker_control_string;
 
@@ -349,7 +350,7 @@ classdef ClusterWrapper
         end
 
         function task_info = generate_run_string(obj, target_threads, ...
-                                                 prefix_command, postfix_command, matlab_extra)
+                prefix_command, postfix_command, matlab_extra)
             % Construct the string required for running a parallel Horace instance based on the required
             % threads, and any extra commands which need to be added (e.g. mpi starters)
 
@@ -787,7 +788,7 @@ classdef ClusterWrapper
 
     methods(Static)
         function mpi_exec = get_mpiexec()
-        % Get the appropriate mpiexec program for running MPI jobs
+            % Get the appropriate mpiexec program for running MPI jobs
             mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
             if ~isempty(mpi_exec)
                 if is_file(mpi_exec) % found external mpiexec
