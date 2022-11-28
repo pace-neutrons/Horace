@@ -199,6 +199,20 @@ classdef unique_objects_container < serializable
     % OTHER
     %----------------------------------------------------------------------
     methods
+        function [is,unique_ind] = contains(obj,value)
+            % check if the container has the objects of the class "value"
+            % if the value is char, or the the object equal value, if the
+            % value is the object of the kind, stored in container
+            % Inputs:
+            % value  -- the sample, to verify presence in the container
+            % Outputs:
+            % is      -- true if the sample is present in the container and
+            %            false -- otherwise. 
+            % unique_ind
+            %         -- if requested, the positions of the sample in the
+            %            unique objects container
+            [is,unique_ind] = contains_(obj,value,nargout);
+        end
         function obj = expand_runs(obj,n_runs)
             % function expands container onto specified number of runs.
             % only single unique object allowed to be present in the

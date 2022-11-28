@@ -22,6 +22,18 @@ if isa(instr_or_fun,'IX_inst')
         end
         obj.instruments = inst;
     end
+elseif isa(instr_or_fun,'unique_objects_container') && strcmp(instr_or_fun.baseclass,'IX_inst')
+    if instr_or_fun.n_runs ~= obj.n_runs
+        if instr_or_fun.n_runs == 1
+            instr_or_fun = instr_or_fun.expand_runs(obj.n_runs);
+        else
+            error('HORACE:Experiment:invalid_argument',...
+                'Attempt to set instrument as container with %d unique objects, but Experiment contains %d runs so only 1 unique or %d different insruments allowed in the container', ...
+                obj.n_runs,instr_or_fun.n_runs,obj.n_runs)
+        end
+    end
+    obj.instruments = instr_or_fun;
+
 elseif isa(instr_or_fun,"function_handle")
     if numel(varargin)==1 && iscell(varargin{1})
         argi = varargin{1};
@@ -52,7 +64,7 @@ elseif isa(instr_or_fun,"function_handle")
             if ninst == 1
                 instrument=istrfun(instfunc_args{:});
             else
-                instrument=istrfun(instfunc_args{1,:});                
+                instrument=istrfun(instfunc_args{1,:});
             end
             if ~isa(instrument,'IX_inst')
                 error('HORACE:sqw:invalid_argument',...
@@ -69,6 +81,6 @@ elseif isa(instr_or_fun,"function_handle")
     end
 else
     error('HORACE:Experiment:invalid_argument',...
-        'Only IX_inst or function handle which generates this instrument may be provided as input for this function. Actual input class is: %s', ...
+        'Only IX_inst or function handle which generates an instrument may be provided as input for this function.\nActual input class is: %s', ...
         class(instr_or_fun))
 end

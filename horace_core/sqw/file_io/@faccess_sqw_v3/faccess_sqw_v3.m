@@ -222,11 +222,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %>>inst = obj.get_instrument(number)
             % Returns instrument with number, specified
             %>>inst = obj.get_instrument('-all')
-            % returns array of instruments if they are different or
-            % single instrument if they are the same.
+            % returns unique_object_container containing instruments
             %
-            %TODO: change this to return always array or always cellarray
-            %      regardless of the internal structure
             [inst,obj] = get_instr_or_sample_(obj,'instrument',varargin{:});
         end
         %

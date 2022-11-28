@@ -7,7 +7,6 @@ classdef test_instrument_methods <  TestCase %WithSave
         test_folder
         sample_file
         test_file_
-
     end
 
     methods
@@ -157,8 +156,10 @@ classdef test_instrument_methods <  TestCase %WithSave
             assertExceptionThrown(f,'HORACE:algorithms:invalid_argument');
             n_files = wtmp.main_header.nfiles;
             inst_arr = repmat(inst,n_files,1);
+            inst = unique_objects_container('IX_inst');
+            inst = inst.add(inst_arr);
             % set up multiple instrument on file
-            set_instrument_horace(obj.test_file_,inst_arr);
+            set_instrument_horace(obj.test_file_,inst);
             % as we have proper instrument, setting moderator pulse should work
             set_mod_pulse_horace(obj.test_file_,pulse_model,pp);
 
@@ -173,8 +174,6 @@ classdef test_instrument_methods <  TestCase %WithSave
             assertEqual(hdr.instruments{10},inst{10});
             assertEqual(hdr.instruments{1},inst{1});
         end
-
     end
-
 end
 

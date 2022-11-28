@@ -124,7 +124,13 @@ if footer_sample_present % set up its lattice if the lattice is not present
     main_sampl.unique_objects = main_si;
     exp_info.samples = main_sampl;
 else % basic sample have already been built from lattice stored in header
-end  % so nothibng to do.
+     % so nothibng to do, if this is full sqw access. If not, may be
+     % varians
+     if ~isempty(obj.sqw_holder_) && main_sampl.contains('IX_null_samp')
+         warning('HORACE:faccess_sqw_v3:not_implemented',...
+             'setting sample from sqw object at get_header is not yet implemented');
+     end
+end  
 %
 
 if ~(isa(instr,'IX_null_inst') || ...
