@@ -122,18 +122,17 @@ cleanup_obj = onCleanup(@() ...
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
 
-set(hec,  'defaults');
 set(hoc,  'defaults');
 
 % Special unit tests settings.
-hec.init_tests = true; % initialise unit tests
+hoc.init_tests = true; % initialise unit tests
 hoc.use_mex = ~nomex;
 hoc.force_mex_if_use_mex = forcemex;
 
 if talkative
-    hec.log_level = 1; % force log level high.
+    hoc.log_level = 1; % force log level high.
 else
-    hec.log_level = -1; % turn off informational output
+    hoc.log_level = -1; % turn off informational output
 end
 if nodisp_skipped
     argi = {'-verbose','-nodisp_skipped'};
