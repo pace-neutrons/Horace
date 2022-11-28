@@ -16,12 +16,12 @@ if (ischar(template) && ~strcmp(obj.baseclass_,'char')) || ...   % compare again
         (isstring(template) && ~strcmp(obj.baseclass_,'string')) % check type
     belongs = cellfun(@(x)isa(x,template),obj.unique_objects_);
     is = any(belongs);
-    if nout > 1
-        unique_ind = find(belongs);
-    else
+    if nout == 1
         unique_ind = [];
+    else
+        unique_ind = find(belongs);
     end
-else % compare agains value
+else % compare against value
     the_hash = obj.hashify(template);
     if nout == 1
         is = ismember(the_hash,obj.stored_hashes_);
@@ -29,6 +29,10 @@ else % compare agains value
     else
         belongs = ismember(obj.stored_hashes_,the_hash);
         is = any(belongs);
-        unique_ind = find(belongs);
+        if is
+            unique_ind  = find(belongs);
+        else
+            unique_ind  = [];
+        end
     end
 end

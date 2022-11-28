@@ -29,6 +29,47 @@ classdef test_experiment_methods < TestCase
 
             obj.sample_exper= Experiment(IX_detector_array,instruments,samples,exp);
         end
+        function test_samples_sets_keeps_lattice_with_no_lattice(obj)
+            %
+            exp = obj.sample_exper;
+
+            sample = IX_sample();
+            sample.name = 'ugly_sample';
+            uoc = unique_objects_container('IX_samp');
+            uoc = uoc.add(sample);
+            uoc = uoc.replicate_runs(3);
+
+            exp.samples = uoc;
+
+            ts = exp.samples(3);
+            assertEqual(ts.alatt,[1.2,2.3,3.3]);
+            assertEqual(ts.angdeg,[89,92,91]);
+            assertEqual(ts.name,'ugly_sample');
+        end
+
+        function test_sample_sets_keeps_lattice_with_no_lattice(obj)
+            %
+            exp = obj.sample_exper;
+            sample = IX_sample([2,3,4],[91,90,89]);
+            sample.name = 'new_sample';
+
+            exp.samples = sample;
+
+            assertEqual(exp.samples(3),sample);
+
+            sample = IX_sample();
+            sample.name = 'ugly_sample';
+
+            exp.samples = sample;
+
+            ts = exp.samples(3);
+            assertEqual(ts.alatt,[2,3,4]);
+            assertEqual(ts.angdeg,[91,90,89]);
+            assertEqual(ts.name,'ugly_sample');
+        end
+
+
+
         function test_single_sample_sets_up_array(obj)
             %
             exp = obj.sample_exper;

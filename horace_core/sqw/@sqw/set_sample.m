@@ -1,4 +1,4 @@
-function varargout = set_sample (varargin)
+function obj = set_sample (obj,sample)
 % Change the sample in an sqw object or array of objects
 % in memory. It also sets the sample on-disk, deploying 
 % set_sample_horace algorithm.
@@ -30,11 +30,10 @@ function varargout = set_sample (varargin)
 
 % Parse input
 % -----------
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
-if ~isempty(mess), error(mess); end
 
 % Perform operations
 % ------------------
+
 narg=numel(args);
 if narg==0
     % Nothing to do

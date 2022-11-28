@@ -16,6 +16,7 @@ if ~isa(val,'IX_experiment')
 end
 obj.expdata_ = val(:)';
 obj = build_runid_map_(obj);
+obj.expdata_set_ = true;
 
 if obj.do_check_combo_arg_
     obj = check_combo_arg(obj);

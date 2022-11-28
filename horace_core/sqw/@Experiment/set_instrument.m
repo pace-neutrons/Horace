@@ -6,7 +6,7 @@ if isa(instr_or_fun,'IX_inst')
         obj.instruments.unique_objects = instr_or_fun;
         if obj.instruments.n_runs ~= obj.n_runs
             inst = obj.instruments;
-            inst = inst.expand_runs(obj.n_runs); % will work only for single unique instrument
+            inst = inst.replicate_runs(obj.n_runs); % will work only for single unique instrument
             obj.instruments = inst;
         end
     else
@@ -25,10 +25,10 @@ if isa(instr_or_fun,'IX_inst')
 elseif isa(instr_or_fun,'unique_objects_container') && strcmp(instr_or_fun.baseclass,'IX_inst')
     if instr_or_fun.n_runs ~= obj.n_runs
         if instr_or_fun.n_runs == 1
-            instr_or_fun = instr_or_fun.expand_runs(obj.n_runs);
+            instr_or_fun = instr_or_fun.replicate_runs(obj.n_runs);
         else
             error('HORACE:Experiment:invalid_argument',...
-                'Attempt to set instrument as container with %d unique objects, but Experiment contains %d runs so only 1 unique or %d different insruments allowed in the container', ...
+                'Attempt to set instrument as container with %d unique objects, but Experiment contains %d runs so only 1 unique or %d different instruments allowed in the container', ...
                 obj.n_runs,instr_or_fun.n_runs,obj.n_runs)
         end
     end

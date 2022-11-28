@@ -213,7 +213,7 @@ classdef unique_objects_container < serializable
             %            unique objects container
             [is,unique_ind] = contains_(obj,value,nargout);
         end
-        function obj = expand_runs(obj,n_runs)
+        function obj = replicate_runs(obj,n_runs)
             % function expands container onto specified number of runs.
             % only single unique object allowed to be present in the
             % container initially

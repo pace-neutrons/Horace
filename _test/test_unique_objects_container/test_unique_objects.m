@@ -360,7 +360,7 @@ classdef test_unique_objects < TestCase
             assertEqual(uoc.n_runs,1)
             assertEqual(uoc.n_unique,1)
 
-            uoc = uoc.expand_runs(10);
+            uoc = uoc.replicate_runs(10);
             assertEqual(uoc.n_runs,10);
             assertEqual(uoc.n_unique,1);
             assertEqual(uoc.n_duplicates,10);

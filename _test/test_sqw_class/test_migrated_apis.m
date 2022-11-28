@@ -313,7 +313,6 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             ap_1 = IX_aperture(-10,0.1,0.11);
             chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
-            skipTest('set_instrument is currently not functional Ticket #899')
             updated = s.set_instrument(expected_inst);
             %assertTrue(all(cellfun(@(x) equal_to_tol(x, expected_inst), updated.experiment_info.instruments)));
             for i=1:updated.experiment_info.instruments.n_runs
@@ -328,7 +327,6 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             sam1.alatt = [4.2275 4.2275 4.2275];
             sam1.angdeg = [90 90 90];
 
-            skipTest('set_sample is currently not functional Ticket #899')
             s_updated = s.set_sample(sam1);
 
             hdr = s_updated.experiment_info;
@@ -345,7 +343,7 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
         end
         function test_shift_pixels(obj)
             %TODO: test return values more
-            params = {}; % no paramters required by test shift_rln function
+            params = {}; % no parameters required by test shift_rln function
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
             wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, params);
             assertEqual(sqw_4d_obj.npixels,wout.npixels);

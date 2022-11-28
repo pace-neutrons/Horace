@@ -7,7 +7,15 @@ classdef Experiment < serializable
         instruments_ = unique_objects_container('baseclass','IX_inst');
         detector_arrays_ = []
         samples_ = unique_objects_container('baseclass','IX_samp');
+        samples_set_ = false; % Two prperties used to harmonize lattice
+        expdata_set_ = false; % which stored both in sample and in expdata
+        %holder to store old sample lattice if the new lattice is set
+        old_lattice_holder_ = [];
+        % NOTE: Not yet implemented
+        % if both sample and expdata are set, all conain lattice and
+        % lattices are different, expdata_ lattice takes priority
         expdata_ = [];
+
         %
         runid_map_ = [];   % the property defines the relationship between
         % the runid, contained in expdata and the position of the object
@@ -136,7 +144,10 @@ classdef Experiment < serializable
         end
         function obj=set.samples(obj, val)
             std_form = check_si_input(obj,val,'IX_samp');
+            %
+            [obj,std_form] = check_lattice_defined_(obj,std_form);
             obj.samples_ = std_form;
+            obj.samples_set_ = true;
 
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
@@ -208,7 +219,7 @@ classdef Experiment < serializable
         function emode = get_emode(obj)
             % Return array of instrument modes provided in all contributing runs
             emode = arrayfun(@(x)x.emode,obj.expdata_,'UniformOutput',true);
-        end
+        end        
         function obj = set_efix_emode(obj,efix,emode)
             % change efix and (optionally) emode in all experiment descriptions
             % if emode is absent or described by any character string,
@@ -255,6 +266,11 @@ classdef Experiment < serializable
         function samp = get_unique_samples(obj)
             % compatibility fields with old binary file formats
             samp = obj.samples_.unique_objects;
+        end
+        %
+        function obj = set_sample(obj,val)
+            % compartibility with sqw interface
+            obj.samples = val;
         end
     end
     %----------------------------------------------------------------------
