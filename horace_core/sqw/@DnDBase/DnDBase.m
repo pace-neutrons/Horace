@@ -467,4 +467,3 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
     end
 end
-
