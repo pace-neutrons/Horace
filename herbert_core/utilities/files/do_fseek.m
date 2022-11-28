@@ -9,7 +9,7 @@ catch ME
 end
 if status ~= 0
     [mess, ~] = ferror(fid);
-    filename = fopen(fileID);
+    filename = fopen(fid);
     error('HORACE:utilities:do_fseek', ...
           'Cannot move to requested position in file (%s):\n  %s', ...
           filename, mess);
