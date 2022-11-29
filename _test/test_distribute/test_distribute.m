@@ -23,34 +23,35 @@ classdef test_distribute < TestCaseWithSave
             obj.dnd_obj_2d = read_dnd(fullfile(pths.test_common, 'sqw_2d_2.sqw'));
             obj.dnd_obj_4d = read_dnd(fullfile(pths.test_common, 'sqw_4d.sqw'));
 
+            obj.save();
         end
 
         function obj = test_distribute_xye(obj)
             test_data = struct('x', {{[1:10]}}, 'y', [1:10], 'e', [1:10]);
             [split, md] = distribute(test_data, 2, false);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10)
         end
 
         function obj = test_distribute_IX_dataset_1d(obj)
             test_data = IX_dataset_1d(1:100);
             [split, md] = distribute(test_data, 2, false);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10)
         end
 
         function obj = test_distribute_IX_dataset_2d(obj)
             test_data = IX_dataset_2d(1:100,1:100);
             [split, md] = distribute(test_data, 2, false);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10)
         end
 
         function obj = test_distribute_IX_dataset_3d(obj)
             test_data = IX_dataset_3d(1:10,1:10,1:10);
             [split, md] = distribute(test_data, 2, false);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10)
         end
 
 
@@ -58,7 +59,7 @@ classdef test_distribute < TestCaseWithSave
             test_data = obj.dnd_obj_1d;
             [split, md] = distribute(test_data, 2, false);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10)
 
         end
 
@@ -66,7 +67,7 @@ classdef test_distribute < TestCaseWithSave
             test_data = obj.dnd_obj_2d;
             [split, md] = distribute(test_data, 2, false);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10)
 
         end
 
@@ -74,7 +75,7 @@ classdef test_distribute < TestCaseWithSave
             test_data = obj.dnd_obj_4d;
             [split, md] = distribute(test_data, 2, false);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10)
 
         end
 
@@ -82,7 +83,7 @@ classdef test_distribute < TestCaseWithSave
             test_data = obj.sqw_obj_1d;
             [split, md] = distribute(test_data, 2, true);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10, 'ignore_str', 1, '-ignore_date')
 
         end
 
@@ -90,7 +91,7 @@ classdef test_distribute < TestCaseWithSave
             test_data = obj.sqw_obj_1d;
             [split, md] = distribute(test_data, 2, false);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10, 'ignore_str', 1, '-ignore_date')
 
         end
 
@@ -98,7 +99,7 @@ classdef test_distribute < TestCaseWithSave
             test_data = obj.sqw_obj_2d;
             [split, md] = distribute(test_data, 2, true);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10, 'ignore_str', 1, '-ignore_date')
 
         end
 
@@ -106,7 +107,7 @@ classdef test_distribute < TestCaseWithSave
             test_data = obj.sqw_obj_2d;
             [split, md] = distribute(test_data, 2, false);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10, 'ignore_str', 1, '-ignore_date')
 
         end
 
@@ -114,7 +115,7 @@ classdef test_distribute < TestCaseWithSave
             test_data = obj.sqw_obj_4d;
             [split, md] = distribute(test_data, 2, true);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10, 'ignore_str', 1, '-ignore_date')
 
         end
 
@@ -122,7 +123,7 @@ classdef test_distribute < TestCaseWithSave
             test_data = obj.sqw_obj_4d;
             [split, md] = distribute(test_data, 2, false);
 
-            assertEqualToTolWithSave(obj, split, 'tol', 0)
+            assertEqualToTolWithSave(obj, split, 'tol', 1e-10, 'ignore_str', 1, '-ignore_date')
 
         end
 

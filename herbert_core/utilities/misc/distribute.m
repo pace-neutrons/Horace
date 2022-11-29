@@ -1,23 +1,23 @@
 function [data, merge_data] = distribute(w, nWorkers, ~)
-% Function to split an XYE struct object between multiple processes.
-% Attempts to split objects equally with respect to number of pixels per process.
+% Function to split (for parallel distribution) an XYE struct object between multiple processes.
+% Attempts to split objects as close as possible to equal with respect to number of data per process.
 %
-% [obj, merge_data] = split_sqw(sqw, 'nWorkers', 1, 'split_bins', true)
+% [obj, merge_data] = distribute(obj, 1)
 %
 % Input
 % ---------
-%   sqw         XYE Struct object to be split amongst processors
+%   obj         XYE Struct object to be split amongst processors
 %
 %   nWorkers    number of processes to divide final object between
-%
-%   split_bins  whether bins are allowed to be split (in the case of sqw objects)
 %
 % Output
 % ---------
 %
-%   obj         split XYE Struct object as list of XYE Struct subobjects each holding a smaller section of the pixels [nWorkers 1]
+%   obj         resulting split XYE Struct object as vector [nWorkers x 1]
+%               of XYE Struct subobjects each holding a section of the data
 %
-%   merge_data  list of structs containing relevant data to the splitting [nWorkers 1]
+%   merge_data  vector of structs  [nWorkers x 1] containing data relevant to the
+%               re-merging of a split object
 %                  nelem      - Number of pixels in first/last bins for merging
 %                  nomerge    - Whether bins are split and remerging is necessary
 %                  range      - Range in bins from  original XYE Struct object contained in subobject

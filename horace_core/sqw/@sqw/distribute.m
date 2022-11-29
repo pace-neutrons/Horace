@@ -37,8 +37,6 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
 
     merge_data = arrayfun(@(x) struct('nelem', [], 'nomerge', true, 'pix_range', [-inf, -inf]), 1:nWorkers);
 
-    merge_data = arrayfun(@(x) struct('nelem', [], 'nomerge', true, 'pix_range', [-inf, -inf]), 1:nWorkers);
-
     nPer = floor(sqw_in.npixels / nWorkers);
     overflow = mod(sqw_in.npixels, nWorkers);
     num_pixels = repmat(nPer, 1, nWorkers);
@@ -82,7 +80,8 @@ function [obj, merge_data] = distribute(sqw_in, varargin)
         [obj(i).data.s, obj(i).data.e] = obj(i).pix.compute_bin_data(obj(i).data.npix);
         obj(i).data.do_check_combo_arg = true;
         obj(i).data.check_combo_arg();
-        merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
+        merge_data(i).nelem = [obj(i).data.npix(1), ...
+                               obj(i).data.npix(end)]; % Pixels at split end-bins to recombine
         merge_data(i).pix_range = [points(i)+1, points(i)+num_pixels(i)];
     end
 end

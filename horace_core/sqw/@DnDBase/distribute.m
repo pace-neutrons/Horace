@@ -1,23 +1,25 @@
 function [obj, merge_data] = distribute(dnd_in, varargin)
-% Function to split an dnd object between multiple processes.
-% Attempts to split objects equally with respect to number of pixels per process.
+% Function to split (for parallel distribution) an dnd object between multiple processes.
+% Attempts to split objects as close as possible to equal with respect to number of pixels per process.
 %
-% [obj, merge_data] = split_sqw(sqw, 'nWorkers', 1, 'split_bins', true)
+% [obj, merge_data] = distribute(dnd_in, 'nWorkers', 1, 'split_bins', true)
 %
 % Input
 % ---------
-%   sqw         DnD object to be split amongst processors
+%   dnd_in      DnD object to be split amongst processors
 %
 %   nWorkers    number of processes to divide final object between
 %
-%   split_bins  whether bins are allowed to be split (in the case of sqw objects)
+%   split_bins  ignored -- provided for interface compatibility
 %
 % Output
 % ---------
 %
-%   obj         split DnD object as list of DnD subobjects each holding a smaller section of the pixels [nWorkers 1]
+%   obj         resulting split DnD object as vector [nWorkers x 1] of DnD subobjects each
+%               holding a section of the pixels
 %
-%   merge_data  list of structs containing relevant data to the splitting [nWorkers 1]
+%   merge_data  vector of structs  [nWorkers x 1] containing data relevant to the
+%               re-merging of a split object
 %                  nelem      - Number of pixels in first/last bins for merging
 %                  nomerge    - Whether bins are split and remerging is necessary
 %                  range      - Range in bins from  original sqw/DnD object contained in subobject
