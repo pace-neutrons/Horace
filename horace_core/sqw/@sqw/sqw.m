@@ -137,10 +137,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.detpar_x = dtp;
         end
 
-        %function hdr = my_header(obj)
-        %    hdr = obj.experiment_info;
-        %end
-
         function obj = change_header(obj,hdr)
             obj.experiment_info = hdr;
         end

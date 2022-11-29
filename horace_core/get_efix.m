@@ -30,6 +30,15 @@ function [efix,emode,ok,mess,en] = get_efix(win,tol)
 
 % Original author: T.G.Perring
 %
+if exist('tol','var')
+    if ~(isnumeric(tol) && isscalar(tol) && tol >=0)
+        error( ...
+            'Check optional fractional tolerance is a non-negative scalar')
+    end
+else
+    tol=5e-3;    % relative tolerance of spread of incident energies
+end
+
 if ~iscell(win)
     win = {win};
 end
@@ -41,7 +50,7 @@ emode_arr = cell(1,nobj);
 for i=1:nobj
     w = win{i};
     if ischar(w)|| isstring(w)
-        ld = loaders_factory.instance().get_loader(w);
+        ld = sqw_formats_factory.instance().get_loader(w);
         if ~ld.sqw_type
             error('HORACE:algorithms:invalid_argument',...
                 ['efix and emode can only be retrived from sqw-type data.\n', ...
@@ -52,16 +61,15 @@ for i=1:nobj
         efix_arr{i} = exper.get_efix();
         emode_arr{i} = exper.get_emode();
         ld.delete();
-    else
-        if ~w.sqw_type
-            error('HORACE:algorithms:invalid_argument',...
-                ['efix and emode can only be retrived from sqw-type data.\n', ...
-                ' Object N%d, is obj of class: %s '], ...
-                i,class(w))
-
-        end
+    elseif isa(w,'sqw')
         efix_arr{i} = w.experiment_info.get_efix();
         emode_arr{i} = w.experiment_info.get_emode();
+    else
+        error('HORACE:algorithms:invalid_argument',...
+            ['efix and emode can only be retrived from sqw-type data.\n', ...
+            ' Object N%d, is obj of class: %s '], ...
+            i,class(w))
+
     end
 end
 efix_arr = [efix_arr{:}];

@@ -2,13 +2,12 @@ function   obj = set_instrument(obj,instr_or_fun,varargin)
 % add or reset instrument, related to the given experiment class
 %
 if isa(instr_or_fun,'IX_inst')
-    if numel(instr_or_fun) == 1
-        obj.instruments.unique_objects = instr_or_fun;
-        if obj.instruments.n_runs ~= obj.n_runs
-            inst = obj.instruments;
-            inst = inst.replicate_runs(obj.n_runs); % will work only for single unique instrument
-            obj.instruments = inst;
-        end
+    if numel(instr_or_fun) == 1 %replace all instruments
+        % in the container with single input instrument
+        uoc = unique_objects_container('IX_inst');
+        uoc = uoc.add(instr_or_fun);
+        uoc = uoc.replicate_runs(obj.n_runs);
+        obj.instruments = uoc;
     else
         inst = obj.instruments;
         if numel(instr_or_fun) ~= inst.n_runs

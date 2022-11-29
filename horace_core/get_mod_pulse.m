@@ -70,7 +70,7 @@ for i=1:nobj
         ld = sqw_formats_factory.instance().get_loader(w);
         if ~ld.sqw_type
             error('HORACE:sqw:invalid_argument', ...
-                'moderator pulse parameters can only be retrived from sqw-type data. Object N%d, file %s is nof sqw-type object', ...
+                'moderator pulse parameters can only be retrived from sqw-type data. Object N%d, file: %s is nof sqw-type object', ...
                 i,w)
         end
         exper = ld.get_header('-all');
@@ -79,13 +79,13 @@ for i=1:nobj
         exper = w.experiment_info;
     else
         error('HORACE:sqw:invalid_argument', ...
-            'moderator pulse parameters can only be retrived from sqw-type data. Object N%d is of class %s', ...
+            'moderator pulse parameters can only be retrived from sqw-type data. Object N%d is of class: %s', ...
             i,class(w));
     end
     %
     [pm_list{i},pm_par{i},present] = exper.get_mod_pulse();
     if ~present
-        mess = sprintf('Object N%d does not have defined moderator',i);
+        mess = sprintf('Object N%d does not have moderator defined on it',i);
         ok = false;
         return;
     end
@@ -95,7 +95,7 @@ for i=1:nobj
         return;
     end
 end
-pm_arr = [pm_par{:}];
+pm_arr = cat(1,pm_par{:});
 [pulse_model,pm_par,ok,mess,p] =Experiment.calc_mod_pulse_avrgs(pm_arr,pm_list,tol);
 
 

@@ -1,4 +1,4 @@
-function varargout=get_mod_pulse_horace(varargin)
+function [pulse_model,pm_par,ok,mess,p,present] =get_mod_pulse_horace(win,varargin)
 % Get moderator pulse model name and mean pulse parameters in a file or set of Horace data files
 %
 %   >> [pulse_model,pp,ok,mess,p] = get_mod_pulse_horace (win)
@@ -36,15 +36,4 @@ function varargout=get_mod_pulse_horace(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-
-if nargin<1 ||nargin>2
-    error('Check number of input arguments')
-elseif nargout>6
-    error('Check the number of output arguments')
-end
-
-[varargout,mess] = horace_function_call_method (nargout, @get_mod_pulse, '$hor', varargin{:});
-if ~isempty(mess), error(mess), end
-
+[pulse_model,pm_par,ok,mess,p,present] = get_mod_pulse(win,varargin{:});

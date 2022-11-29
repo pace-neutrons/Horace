@@ -183,16 +183,16 @@ classdef test_instrument_methods < TestCaseWithSave
             assertEqual(en.relerr,(777+120-efix)/efix);
         end
 
-        function test_set_efix_updates_array_data_with_half_array_values(self)
+        function test_set_efix_updates_array_data_with_two_array_values(self)
             % Set efix individually, and test enquiry routine
-            efix_new = 777 * ones(1, 120);
-            efix_new(100) = 777 + 120;  % so the average is 778
+            efix_new = [777,777+120] ;
+
 
             ws = [self.w_fe,self.w_fe];
             wnew_fe = set_efix(ws, efix_new);
 
             [efix,emode,ok,mess,en] = get_efix(wnew_fe);
-            assertEqual(efix, 778)
+            assertEqual(efix, 837)
             assertEqual(emode,1);
             assertFalse(ok);
             assertEqual(mess,...

@@ -44,31 +44,25 @@ end
 % check what kind of efix array is provided and beeing set.
 % single for all objects, change each object or change all
 % objects
+[set_single,set_per_obj,n_runs_in_obj]=find_set_mode_(obj,efix);
+
 nefix=numel(efix);
-n_runs_in_obj = arrayfun(@(x)x.experiment_info.n_runs,obj);
-eq_nefix = n_runs_in_obj == nefix;
 split_emode = false;
-if all(eq_nefix)
-    split_runs = false;
-elseif nefix == sum(n_runs_in_obj) && nefix ~=1
-    split_runs = true;
+if nefix == sum(n_runs_in_obj) && nefix ~=1
     if ~isempty(emode)
         if numel(emode) ~= nefix
-            error('HORACE:sqw:invalid_argument',...
-                'Array of efix and emodes are provided, but the length of efix array (%d) is different from the length of emode array (%d)',...
+            if numel(emode)==1
+                emode = repmat(emode,1,nefix);
+            else
+                error('HORACE:sqw:invalid_argument',...
+                    'Array of efix and emodes are provided, but the length of efix array (%d) is different from the length of emode array (%d)',...
                 nefix,numel(emode))
+            end
         end
         split_emode = true;
     else % numel(emode) == 1;
         split_emode = false;
     end
-elseif nefix == 1
-    split_runs = false;
-else
-    error('HORACE:sqw:invalid_argument',...
-        ['An array of efix values was given but its length (%d) ',...
-        'does not match the number of runs either in every object (%d) or in all sqw objects together (%d)'],...
-        nefix,n_runs_in_obj(1),sum(n_runs_in_obj));
 end
 
 % Change efix and emode for each data source in a loop
@@ -76,7 +70,19 @@ n_runs_set = 0;
 for i=1:numel(obj)
     % Change the header
     exp_inf  = obj(i).experiment_info;
-    if split_runs
+    if set_single
+        if split_emode
+            exp_inf = set_efix_emode(exp_inf,efix,emode(i));
+        else
+            exp_inf = set_efix_emode(exp_inf,efix,emode);
+        end
+    elseif set_per_obj
+        if split_emode
+            exp_inf = set_efix_emode(exp_inf,efix(i),emode(i));
+        else
+            exp_inf = set_efix_emode(exp_inf,efix(i),emode);
+        end
+    else
         if split_emode
             exp_inf = set_efix_emode(exp_inf, ...
                 efix(n_runs_set+1:n_runs_set+n_runs_in_obj(i)), ...
@@ -86,9 +92,7 @@ for i=1:numel(obj)
                 efix(n_runs_set+1:n_runs_set+n_runs_in_obj(i)), ...
                 emode);
         end
-        n_runs_set = n_runs_set+n_runs_in_obj(i);        
-    else
-        exp_inf = set_efix_emode(exp_inf,efix,emode);
+        n_runs_set = n_runs_set+n_runs_in_obj(i);
     end
     obj(i).experiment_info = exp_inf;
 end

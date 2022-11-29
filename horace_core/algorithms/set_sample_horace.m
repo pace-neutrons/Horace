@@ -1,4 +1,4 @@
-function varargout=set_sample_horace(filename,sample,varargin)
+function varargout=set_sample_horace(filename,sample)
 % Change the sample in a file or set of files containing a Horace data object
 %
 %   >> set_sample_horace (file, sample)
@@ -15,7 +15,6 @@ function varargout=set_sample_horace(filename,sample,varargin)
 %              there is a single sample for the entire sqw data set
 %              If the sample is any empty object, then the sample is set
 %              to the default empty structure.
-%  varargin    if present, the arguments of the instrument definition function
 %
 % Ouptut:
 %  varargout   if present tries to load and returns the sqw objects from
@@ -26,12 +25,7 @@ function varargout=set_sample_horace(filename,sample,varargin)
 %
 
 
-if nargout > 0
-    out_list = set_instr_or_sample_horace_(filename,'-sample',sample,nargout,varargin{:});
-    for i=1:nargout
-        varargout{i}=out_list{i};
-    end
-else
-    set_instr_or_sample_horace_(filename,'-sample',sample,0,varargin{:});
+out = set_sample(filename,sample);
+for i=1:nargout
+    varargout{i} = out{i};
 end
-

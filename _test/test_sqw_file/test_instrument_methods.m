@@ -153,7 +153,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             % Set the incident energies in the file - produces an error as
             % the instrument is empty
             f = @()set_mod_pulse_horace(obj.test_file_,pulse_model,pp);
-            assertExceptionThrown(f,'HORACE:algorithms:invalid_argument');
+            assertExceptionThrown(f,'HORACE:IX_inst:runtime_error');
             n_files = wtmp.main_header.nfiles;
             inst_arr = repmat(inst,n_files,1);
             inst = unique_objects_container('IX_inst');

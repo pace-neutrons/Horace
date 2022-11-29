@@ -219,12 +219,14 @@ classdef Experiment < serializable
         function emode = get_emode(obj)
             % Return array of instrument modes provided in all contributing runs
             emode = arrayfun(@(x)x.emode,obj.expdata_,'UniformOutput',true);
-        end        
+        end
         function obj = set_efix_emode(obj,efix,emode)
             % change efix and (optionally) emode in all experiment descriptions
             % if emode is absent or described by any character string,
             % the emode is kept unchanged
             if nargin == 2
+                emode = '-keep_emode';
+            elseif isempty(emode)
                 emode = '-keep_emode';
             end
             obj = set_efix_emode_(obj,efix,emode);
@@ -256,6 +258,13 @@ classdef Experiment < serializable
                     break
                 end
             end
+        end
+        function [inst, all_inst] = get_inst_class (obj)
+            % Determine the instrument type in the collection of
+            % instruments
+            % TODO: see ticket #917 for modification/clarification
+            %            
+            [inst, all_inst] = get_inst_class_(obj);
         end
         %
         function instr = get_unique_instruments(obj)

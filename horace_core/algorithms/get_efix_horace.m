@@ -1,4 +1,4 @@
-function varargout=get_efix_horace(varargin)
+function [efix,emode,ok,mess,en]=get_efix_horace(win,varargin)
 % Return the mean fixed neutron energy and emode in a file or set of files containing Horace data
 %
 %   >> [efix,emode,ok,mess,en] = get_efix_horace(file)
@@ -31,15 +31,6 @@ function varargout=get_efix_horace(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
-
-if nargin<1 ||nargin>2
-    error('Check number of input arguments')
-elseif nargout>5
-    error('Check the number of output arguments')
-end
-
-[varargout,mess] = horace_function_call_method (nargout, @get_efix, '$hor', varargin{:});
-if ~isempty(mess), error(mess), end
+[efix,emode,ok,mess,en] = get_efix(win,varargin{:});
 

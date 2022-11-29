@@ -31,7 +31,7 @@ if ~iscell(in_data)
     in_data =  {in_data};
 end
 
-if nargout ~= 1
+if nargout > 1
     if nargout~= numel(in_data)
         error('HORACE:algorithms:invalid_argument', ...
             'You have requested %d outputs but defined only %d input values for them',...
@@ -45,7 +45,9 @@ out = cell(1,numel(in_data));
 % ==================
 
 % arrange all inputs into cellarray of accessible objects
-obj_list = cell(1,numel(in_data));
+
+n_obj = numel(in_data);
+obj_list = cell(1,n_obj);
 for i=1:numel(in_data)
     the_obj = in_data{i};
     if ischar(the_obj) || isstring(the_obj)
@@ -58,60 +60,28 @@ for i=1:numel(in_data)
             i,class(the_obj));
     end
 end
+[set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj_list,pm_par(:,1));
 
-num_params = size(pm_par,1);
-
-if size(pm_par,1) == 1
-    pm_par_split = cell(1,numel(in_data));
-    for i=1:numel(in_data)
+% split input parameters according to the split algorithm
+pm_par_split = cell(1,n_obj);
+if set_single
+    for i=1:n_obj
         pm_par_split{i} = pm_par;
     end
 else
-    pm_par_split_tot = cell(1,numel(in_data));
-    pm_par_split_uni = cell(1,numel(in_data));
-
     n_tot_runs =0;
-    n_unique_runs = 0;
-    for i=1:numel(in_data)
-        the_obj = obj_list{i};
-        if isa(the_obj,'sqw')
-            inst = the_obj.experiment_info.instruments();
-        elseif isa(the_obj,'sqw_file_interface')
-            inst = the_obj.get_instrument('-all');
+    for i=1:n_obj
+        if set_per_obj
+            pm_par_split{i} = pm_par(i,:);
         else
-            error('HORACE:algorithms:invalid_argument', ...
-                'This method accepts the list of sqw objects and the class of object N%d in this list is %s (non-sqw type)', ...
-                i,class(the_obj));
+            pm_par_split{i} = pm_par(n_tot_runs+1:n_tot_runs+n_runs_in_obj(i),:);
+            n_tot_runs    = n_tot_runs + n_runs_in_obj(i);
         end
-        if isa(inst,'IX_null_inst')
-            error('HORACE:algorithms:invalid_argument', ...
-                'This method accepts the list of sqw objects with instruments set and the object N%d in this list does not have instrument defined on it', ...
-                i)
-        end
-        in1 = n_tot_runs;
-        n_tot_runs    = n_tot_runs    + inst.n_runs;
-        if n_tot_runs <= num_params
-            pm_par_split_tot{i} = pm_par(in1+1:inst.n_runs,:);
-        end
-        in1 = n_unique_runs;
-        n_unique_runs = n_unique_runs + inst.n_unique;
-        if n_unique_runs <= n_unique_runs
-            pm_par_split_uni{i} = pm_par(in1+1:inst.n_unique,:);
-        end
-    end
-    if num_params == n_tot_runs
-        pm_par_split  = pm_par_split_tot;
-    elseif num_params == n_unique_runs
-        pm_par_split  = pm_par_split_uni;
-    else
-        error('HORACE:sqw:invalid_argument',...
-            'Total number of moderator parameters (%d) not equal to 1 and to either to number of total runs (%d) nor the number of unique runs (%d)',...
-            num_params,n_tot_runs,n_unique_runs);
     end
 end
 
 
-for i=1:numel(in_data)
+for i=1:n_obj
     the_obj = obj_list{i};
     if isa(the_obj,'sqw')
         % split input parameters according to the number of parameters and
