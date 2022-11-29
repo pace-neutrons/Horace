@@ -40,8 +40,8 @@ while ~done
     block_from_file2 = fread(fid2, block_size, '*uint8');
     
     if numel(block_from_file1) ~= numel(block_from_file2)
-        do_fseek(fid1, 0, 'eof');
-        do_fseek(fid2, 0, 'eof');
+        fseek(fid1, 0, 'eof');
+        fseek(fid2, 0, 'eof');
         message = sprintf('The two files are not the same size. File "%s" has %d bytes and file "%s" has %d bytes', ...
             filename1, ftell(fid1), filename2, ftell(fid2));
         if ~isempty(user_message)

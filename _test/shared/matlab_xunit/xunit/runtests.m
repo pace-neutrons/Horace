@@ -38,7 +38,7 @@ function [out,suite_out] = runtests(varargin)
 %
 %   out = runtests(...) returns a logical value that is true if all the
 %   tests passed.
-%
+% 
 %   -nodisp_skipped  the key disables printing of the detailed information
 %                    about skipped tests
 %
@@ -103,8 +103,8 @@ else
     else
         suite = TestSuite();
         for k = 1:numel(name_list)
-            if iscell(name_list{k})
-                nml = name_list{k};
+            if iscell(name_list{1})
+                nml = name_list{1};
                 suite.add(TestSuite.fromName(nml{2},nml{1}));
             else
                 suite.add(TestSuite.fromName(name_list{k}));
@@ -140,7 +140,7 @@ if verbose
 else
     monitor = TestRunDisplay(logfile_handle);
 end
-if display_fail_only %
+if display_fail_only % 
     monitor.disp_fail_only = true;
 end
 
