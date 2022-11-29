@@ -155,13 +155,20 @@ end
 % Check the moderator model is recognised by the pulse_shape method
 try
     dummy_mod=IX_moderator;
+    dummy_mod.do_check_combo_arg = false;
     dummy_mod.pulse_model=mod_opts.pulse_model;
     dummy_mod.pp=mod_opts.pin;
     dummy_mod.energy=10;    % because energy = 0 may be invalid, choose some reasonable value
+    dummy_mod.do_check_combo_arg = true;
+    %dummy_mod = dummy_mod.check_combo_arg(false); % moderator is undefined so
+    %                                           would not work
     dummy_val=pulse_shape(dummy_mod,0);    % evaluate at t=0 to test all is OK
-catch
+catch ME
     mod_opts=empty_struct(names);
-    ok=false; mess='The moderator pulse shape model for refinement is not recognised or the initial parameter value array is not valid'; return
+    ok=false;
+    mess=sprintf('The moderator pulse shape model for refinement is not recognised or the initial parameter value array is not valid. Error %s',...
+        ME.message); 
+    return
 end
 
 % OK if got to here
