@@ -31,12 +31,10 @@ if ~iscell(in_data)
     in_data =  {in_data};
 end
 
-if nargout > 1
-    if nargout~= numel(in_data)
-        error('HORACE:algorithms:invalid_argument', ...
-            'You have requested %d outputs but defined only %d input values for them',...
-            nargout,numel(in_data));
-    end
+if nargout > 1 && nargout~= numel(in_data)
+    error('HORACE:algorithms:invalid_argument', ...
+        'You have requested %d outputs but defined only %d input values for them',...
+        nargout,numel(in_data));
 end
 out = cell(1,numel(in_data));
 
@@ -62,7 +60,8 @@ for i=1:numel(in_data)
 end
 [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj_list,pm_par(:,1));
 
-% split input parameters according to the split algorithm
+% split input parameters according to the split algorithm and number of
+% input data
 pm_par_split = cell(1,n_obj);
 if set_single
     for i=1:n_obj
@@ -84,7 +83,6 @@ end
 for i=1:n_obj
     the_obj = obj_list{i};
     if isa(the_obj,'sqw')
-        % split input parameters according to the number of parameters and
         % set this parameters on object in memory
         the_obj = the_obj.set_mod_pulse(pulse_model,pm_par_split{i});
     elseif isa(the_obj,'sqw_file_interface')

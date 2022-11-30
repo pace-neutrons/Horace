@@ -32,13 +32,13 @@ function [efix,emode,ok,mess,en] = get_efix(obj,tol)
 
 % Parse input
 % -----------
-if exist('tol','var') 
+if exist('tol','var')
     if ~(isnumeric(tol) && isscalar(tol) && tol >=0)
-        error( ...
+        error('HORACE:sqw:invalid_argument',...
             'Check optional fractional tolerance is a non-negative scalar')
     end
 else
-    tol=5e-3;    % relative tolerance of spread of incident energies    
+    tol=5e-3;    % relative tolerance of spread of incident energies
 end
 
 % Perform operations

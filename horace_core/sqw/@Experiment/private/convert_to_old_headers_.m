@@ -15,7 +15,7 @@ function oldhdrs = convert_to_old_headers_(obj,nomangle,varargin)
 %               upgrading file format
 %
 if ~isempty(varargin)
-    header_num = varargin{:};
+    header_num = varargin{1};
 else
     header_num = [];
 end
@@ -32,6 +32,6 @@ else
         oldhdrs{i} = obj.expdata_(i).convert_to_binfile_header( ...
             '-inst_samp',                ...
             obj.instruments{i}, ...
-            obj.samples{i},     nomangle);
+            obj.samples{i},nomangle);
     end
 end

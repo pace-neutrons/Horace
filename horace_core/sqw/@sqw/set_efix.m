@@ -32,7 +32,7 @@ if ~exist('emode','var')
 else
     if ~(isnumeric(emode) && isscalar(emode) && (emode==0||emode==1||emode==2))
         error('HORACE:sqw:invalid_argument',...
-            'emode must 1 (direct geometry), 2 (indirect geometry) or 0 (elastic)')
+            'emode must one of: 0 (elastic), 1 (direct geometry) or 2 (indirect geometry)')
     end
 end
 

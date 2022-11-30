@@ -2,8 +2,8 @@ classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
 
     properties(Access=private)
-        % the vanilla constructor will give instruments_ one IX_null_inst
-        % if no other instrument input is provided - see constructor
+        % if no other instrument input is provided Exeriment instrument
+        % remain empty.
         instruments_ = unique_objects_container('baseclass','IX_inst');
         detector_arrays_ = []
         samples_ = unique_objects_container('baseclass','IX_samp');
@@ -184,11 +184,6 @@ classdef Experiment < serializable
         %------------------------------------------------------------------
         function nr = get.n_runs(obj)
             nr = numel(obj.expdata_);
-            if nr == 1
-                if isempty(obj.expdata_(1))
-                    nr = 0;
-                end
-            end
         end
         function is = get.runid_recalculated(obj)
             is  = obj.runid_recalculated_;
@@ -260,10 +255,10 @@ classdef Experiment < serializable
             end
         end
         function [inst, all_inst] = get_inst_class (obj)
-            % Determine the instrument type in the collection of
-            % instruments
-            % TODO: see ticket #917 for modification/clarification
-            %            
+            % Retrieve the main instrument instance from the collection of
+            % instruments.
+            % TODO: Confusing. See ticket #917 for modification/clarification
+            %
             [inst, all_inst] = get_inst_class_(obj);
         end
         %

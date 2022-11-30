@@ -330,6 +330,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         % Return the mean fixed neutron energy and emode for an array of sqw objects.
         [efix,emode,ok,mess,en] = get_efix(obj,tol);
+        % Set the fixed neutron energy for an array of sqw objects.        
+        obj = set_efix(obj,efix,emode);        
 
         % Change the crystal lattice and orientation of an sqw object or array of objects
         wout = change_crystal (obj,varargin)

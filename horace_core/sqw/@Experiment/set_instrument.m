@@ -15,10 +15,7 @@ if isa(instr_or_fun,'IX_inst')
                 'Multiple instruments (N=%d) provided as input for set_instrument function but the number is not 1 and not equal to the number of runs defined in container (%d)', ...
                 numel(instr_or_fun),inst.n_runs)
         end
-        n_runs = inst.n_runs;
-        for i=1:n_runs
-            inst(i) = instr_or_fun(i);
-        end
+        inst = inst.add(instr_or_fun);
         obj.instruments = inst;
     end
 elseif isa(instr_or_fun,'unique_objects_container') && strcmp(instr_or_fun.baseclass,'IX_inst')
