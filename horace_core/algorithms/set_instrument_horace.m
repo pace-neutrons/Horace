@@ -50,6 +50,10 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 % Original author: T.G.Perring
 %
 out = set_instrument(filename,instrument,varargin{:});
-for i=1:nargout
-    varargout{i} = out{i};
+if nargout == 1
+    varargout{1} = out;
+else
+    for i=1:nargout
+        varargout{i} = out{i};
+    end
 end

@@ -50,7 +50,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
-
+    %======================================================================
+    % Various sqw methods
     methods
         has = has_pixels(w);          % returns true if a sqw object has pixels
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
@@ -126,21 +127,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = replicate (win,wref);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
-
-        %------------------------------------------------------------------
-        % ACCESSORS TO OBJECT PROPERTIES
-        function dtp = my_detpar(obj)
-            dtp = obj.detpar_x;
+        %
+        function  save_xye(obj,varargin)
+            save_xye(obj.data,varargin{:});
         end
-
-        function obj = change_detpar(obj,dtp)
-            obj.detpar_x = dtp;
+        function  s=xye(w, varargin)
+            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
+            s = w.data.xye(varargin{:});
         end
-
-        function obj = change_header(obj,hdr)
-            obj.experiment_info = hdr;
-        end
-
+    end
+    %======================================================================
+    % ACCESSORS TO OBJECT PROPERTIES and construction
+    methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
 
@@ -188,6 +186,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
             end
         end
+        %------------------------------------------------------------------        
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
@@ -215,19 +214,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
         end
         %
-        function hdr = get.header(obj)
-            % return old (legacy) header(s) providing short experiment info
-            %
-            if isempty(obj.experiment_info_)
-                hdr = IX_experiment().to_bare_struct();
-                hdr.alatt = [];
-                hdr.angdeg = [];
-                return;
-            end
-            hdr = obj.experiment_info_.convert_to_old_headers();
-            hdr = [hdr{:}];
-            hdr = rmfield(hdr,{'instrument','sample'});
-        end
         function val = get.detpar(obj)
             val = obj.detpar_;
         end
@@ -269,26 +255,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
             obj.experiment_info_ = val;
         end
-
-        function val = get.detpar_x(obj)
-            % obsolete interface
-            val = obj.detpar_;
-        end
-        function obj = set.detpar_x(obj,val)
-            % obsolete interface
-            obj.detpar_ = val;
-        end
-        function  save_xye(obj,varargin)
-            save_xye(obj.data,varargin{:});
-        end
-        function  s=xye(w, varargin)
-            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
-            s = w.data.xye(varargin{:});
-        end
+        %------------------------------------------------------------------
+        % READ Only Accessors
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
         end
-
+        %
         function map = get.runid_map(obj)
             if isempty(obj.experiment_info)
                 map = [];
@@ -304,7 +276,43 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             is = isempty(obj.pix_);
         end
     end
-    %----------------------------------------------------------------------
+    %======================================================================
+    % REDUNDANT and compartibility ACCESSORS    
+    methods
+        function obj = change_header(obj,hdr)
+            obj.experiment_info = hdr;
+        end
+
+        function dtp = my_detpar(obj)
+            dtp = obj.detpar_x;
+        end
+
+        function obj = change_detpar(obj,dtp)
+            obj.detpar_x = dtp;
+        end
+        function val = get.detpar_x(obj)
+            % obsolete interface
+            val = obj.detpar_;
+        end
+        function obj = set.detpar_x(obj,val)
+            % obsolete interface
+            obj.detpar_ = val;
+        end
+        function hdr = get.header(obj)
+            % return old (legacy) header(s) providing short experiment info
+            %
+            if isempty(obj.experiment_info_)
+                hdr = IX_experiment().to_bare_struct();
+                hdr.alatt = [];
+                hdr.angdeg = [];
+                return;
+            end
+            hdr = obj.experiment_info_.convert_to_old_headers();
+            hdr = [hdr{:}];
+            hdr = rmfield(hdr,{'instrument','sample'});
+        end
+    end
+    %======================================================================
     % TOBYFIT INTERFACE
     methods
         % set the moderator pulse model and its parameters. (TODO: should
@@ -323,9 +331,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % Return the mean fixed neutron energy and emode for an array of sqw objects.
         [efix,emode,ok,mess,en] = get_efix(obj,tol);
 
+        % Change the crystal lattice and orientation of an sqw object or array of objects
+        wout = change_crystal (obj,varargin)
+
         %TODO: Special call on interface for different type of instruments
-        %      from generic object, which may contain any instrument looks
-        %      dodgy. it should be resfun covariance here, if it is needs
+        %      from generic object, which may contain any instrument is 
+        %      incorrect. It should be resfun covariance here, if it is needs
         %      to be here at all.
         varargout = tobyfit (varargin);
         [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
@@ -336,7 +347,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
 
     end
-    %----------------------------------------------------------------------
+    %======================================================================
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
@@ -354,14 +365,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
         end
     end
-    %----------------------------------------------------------------------
+    %======================================================================
     methods(Static, Access = private)
         % Signatures of private class functions declared in files
         sqw_struct = make_sqw(ndims);
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
     end
-    %----------------------------------------------------------------------
+    %======================================================================
     methods(Access = private)
         % process various inputs for the constructor and return some
         % standard output used in sqw construction
@@ -404,7 +415,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             [set_single,set_per_obj,n_runs_in_obj]=find_set_mode_(obj,varargin{:});
         end
     end
-    %----------------------------------------------------------------------
+    %======================================================================
     % SERIALIZABLE INTERFACE
     properties(Constant,Access=protected)
         fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
@@ -453,8 +464,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
     methods(Static)
         function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
-            % saveable class
+            % loadobj method, calling generic method of
+            % saveable class. Provides empty sqw class instance to 
             obj = sqw();
             obj = loadobj@serializable(S,obj);
         end

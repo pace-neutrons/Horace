@@ -107,6 +107,7 @@ classdef (Abstract) SQWDnDBase < serializable
 
     methods  % Public
         [sel,ok,mess] = mask_points(win, varargin);
+        % Change the crystal lattice and orientation of an sqw object or array of objects
         varargout = change_crystal (varargin);
 
         cl = save(w, varargin);
