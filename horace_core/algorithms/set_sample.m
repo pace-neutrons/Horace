@@ -51,6 +51,9 @@ for i=1:nobj
         if set_multi
             exper = exper.set_sample(sample(i));
         else
+            if isempty(sample)
+                sample = IX_null_sample();
+            end
             exper = exper.set_sample(sample(1));
         end
         ldr= ldr.upgrade_file_format(); % also reopens file in update mode if format is already the latest one

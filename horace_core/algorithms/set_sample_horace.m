@@ -7,8 +7,8 @@ function varargout=set_sample_horace(filename,sample)
 %
 % Input:
 % -----
-%   file       File name, or cell array of file names. In latter case, the
-%              change is performed on each file
+%   file       File name, or cell array of file names and/or sqw objects.
+%              In latter case, the change is performed on each file/object
 %
 %   sample     Sample object (IX_sample object) or structure
 %              Note: only a single sample object can be provided. That is,
@@ -26,6 +26,10 @@ function varargout=set_sample_horace(filename,sample)
 
 
 out = set_sample(filename,sample);
-for i=1:nargout
-    varargout{i} = out{i};
+if nargout == 1
+    varargout{1} = out;
+else
+    for i=1:nargout
+        varargout{i} = out{i};
+    end
 end
