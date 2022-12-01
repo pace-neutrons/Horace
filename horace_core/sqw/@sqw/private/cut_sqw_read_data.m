@@ -52,7 +52,7 @@ if ischar(data_source)
         return
     end
     main_header = ld.get_main_header();
-    header = ld.get_header('-all');
+    header = ld.get_exp_info('-all');
     detpar = ld.get_detpar();
     data = ld.get_data('-nopix');
     npixtot = ld.npixels;

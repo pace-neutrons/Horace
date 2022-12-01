@@ -79,7 +79,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(mheader.filepath,...
                 'd:\Users\abuts\Data\ExcitDev\ISIS_svn\Hor#162\_test\test_sqw_file\');
 
-            [exp_info,~] = to.get_header();
+            [exp_info,~] = to.get_exp_info();
 
             assertEqual(exp_info.runid_map.keys(),{1})
             assertEqual(exp_info.runid_map.values(),{1})

@@ -87,7 +87,7 @@ for i=1:n_obj
         the_obj = the_obj.set_mod_pulse(pulse_model,pm_par_split{i});
     elseif isa(the_obj,'sqw_file_interface')
         % set input parameters on file
-        Exper = the_obj.get_header('-all');
+        Exper = the_obj.get_exp_info('-all');
         Exper = Exper.set_mod_pulse(pulse_model,pm_par_split{i});
         the_obj = the_obj.upgrade_file_format(); % also reopens file in update mode if format is already the latest one
         the_obj.put_instruments(Exper.instruments);

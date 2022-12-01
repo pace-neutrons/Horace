@@ -83,7 +83,7 @@ classdef test_faccess_sqw_v2< TestCase
             to = to.init(initob);
             assertEqual(to.npixels,1164180);
 
-            exper = to.get_header();
+            exper = to.get_exp_info();
             exp_info = exper.expdata;
             assertEqual(exp_info.filename,'slice_n_c_m1_ei140')
             assertEqual(exp_info .ulabel{4},'E')
@@ -115,7 +115,7 @@ classdef test_faccess_sqw_v2< TestCase
             to = to.init(initob);
             assertEqual(to.npixels,179024);
 
-            exper = to.get_header();
+            exper = to.get_exp_info();
             header = exper.expdata;
             assertEqual(header.filename,'map11014.spe;1')
             assertEqual(header.ulabel{4},'E')
@@ -133,7 +133,7 @@ classdef test_faccess_sqw_v2< TestCase
             pix = to.get_pix();
             assertEqual(pix.num_pixels,179024)
 
-            exp_info = to.get_header('-all');
+            exp_info = to.get_exp_info('-all');
             assertTrue(isa(exp_info,'Experiment'));
             assertEqual(exp_info.n_runs,186)
 

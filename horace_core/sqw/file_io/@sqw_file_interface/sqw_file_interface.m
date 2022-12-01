@@ -11,7 +11,7 @@ classdef sqw_file_interface < dnd_binfile_common
     % Abstract accessors:
     % get_main_header - obtain information stored in main header
     %
-    % get_header      - obtain information stored in one of the
+    % get_exp_info      - obtain information stored in one of the
     %                   contributing file's header
     % get_detpar      - retrieve detectors information.
     % get_pix         - get PixelData object, containing pixels data
@@ -136,7 +136,7 @@ classdef sqw_file_interface < dnd_binfile_common
         % retrieve different parts of sqw data
         %------------------------------------------------------------------
         main_header = get_main_header(obj,varargin);
-        [header,pos]= get_header(obj,varargin);
+        [header,pos]= get_exp_info(obj,varargin);
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
         pix         = get_raw_pix(obj,varargin);

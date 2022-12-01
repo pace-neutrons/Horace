@@ -80,8 +80,8 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(mheader.filepath,...
                 'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file\');
 
-            exp_info = file_accessor.get_header();
-            %exp_info = header.get_header();
+            exp_info = file_accessor.get_exp_info();
+            %exp_info = header.get_exp_info();
             assertTrue(isa(exp_info,'Experiment'));
             inf = exp_info.expdata(1);
 

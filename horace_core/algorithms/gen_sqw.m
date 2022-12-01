@@ -599,7 +599,7 @@ for i=1:numel(files_to_check)
 
     % Get header information to check other fields
     % --------------------------------------------
-    header = ldr.get_header('-all');
+    header = ldr.get_exp_info('-all');
     data   = ldr.get_data('-head');
     pix1  = ldr.get_raw_pix(1,1);
     run_ids(i) = pix1(5);

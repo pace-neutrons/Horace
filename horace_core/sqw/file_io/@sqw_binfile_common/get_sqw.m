@@ -64,7 +64,7 @@ end
 
 % Get cell array of headers for each contributing spe file
 % ------------------------------------------
-[exp_info,~]  = obj.get_header('-all');
+[exp_info,~]  = obj.get_exp_info('-all');
 
 % Get detector parameters
 % -----------------------

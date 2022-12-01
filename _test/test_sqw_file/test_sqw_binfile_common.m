@@ -1,6 +1,6 @@
 classdef test_sqw_binfile_common <  TestCase
     %Testing common part of the code used to access binary sqw files
-    % and various auxliary methods, availble on this class
+    % and various auxiliary methods, available on this class
     %
     properties
         test_folder

@@ -83,7 +83,7 @@ classdef test_faccess_sqw_prototype< TestCase
             to = to.init(inob);
             assertEqual(to.npixels,16);
 
-            header = to.get_header();
+            header = to.get_exp_info();
             assertTrue(isa(header,'Experiment'));
             expdata = header.expdata();
             assertTrue(isa(expdata,'IX_experiment'));

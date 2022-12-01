@@ -1,6 +1,6 @@
 function convert_uoffset_to_crystal_cartesian(filename,varargin)
 % Read uoffset, currently stored in sqw files, and convert this offset into
-% crystal cartesian system coordinat if the value, specified in the sqw
+% crystal Cartesian system coordinate if the value, specified in the sqw
 % file 
 %
 options = {'-convert_to_cc'};
@@ -21,8 +21,8 @@ fprintf('****************************************\n');
 if ~convert_to_cc
     return
 end
-fprintf('**** Converting offset into Crystal Cartesian coordinats\n');
-head = ld.get_header();
+fprintf('**** Converting offset into Crystal Cartesian coordinates\n');
+head = ld.get_exp_info();
 head = header_average(head);
 uoffset = head.u_to_rlu\dat.uoffset;
 dat.uoffset = uoffset;

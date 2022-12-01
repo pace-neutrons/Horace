@@ -24,7 +24,7 @@ for i=1:nfiles
     if ~strcmpi(data_type,'a'); error('WRITE_NSQW_TO_SQW:invalid_argument',...
             ['No pixel information in ',infiles{i}]); end
     main_header{i} = ldrs{i}.get_main_header();
-    header{i}      = ldrs{i}.get_header('-all');
+    header{i}      = ldrs{i}.get_exp_info('-all');
     datahdr{i}     = ldrs{i}.get_data('-head');
     det_tmp        = ldrs{i}.get_detpar();
     if i==1

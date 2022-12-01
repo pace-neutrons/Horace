@@ -1,5 +1,5 @@
 function   obj = put_headers(obj,varargin)
-% put or replace header information into the  properly initalized
+% put or replace header information into the  properly initialized
 % binary sqw file
 %
 %Usage:
@@ -10,7 +10,7 @@ function   obj = put_headers(obj,varargin)
 %>>obj.put_header(___,sqw_obj_new_source_for_update)
 %
 % If update options is selected, header have to exist. This option replaces
-% only constatnt header's information
+% only constant header's information
 %
 %
 
@@ -28,7 +28,7 @@ if ~isempty(argi)
     if any(numeric_pos)
         if sum(numeric_pos)>1
             error('HORACE:put_headers:invalid_argument',...
-                'put_headers: you can only request all or one header number to save, but got %d numerical agruments',...
+                'put_headers: you can only request all or one header number to save, but got %d numerical arguments',...
                 sum(numeric_pos));
         end
         argi = argi(~numeric_pos);

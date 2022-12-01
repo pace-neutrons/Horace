@@ -10,7 +10,7 @@ classdef sqw_binfile_common < sqw_file_interface
     % Implemented accessors:
     % get_main_header - obtain information stored in main header
     %
-    % get_header      - obtain information stored in one of the
+    % get_exp_info      - obtain information stored in one of the
     %                   contributing file's header
     % get_detpar      - retrieve detectors information.
     % get_pix         - get PixelData object, containing pixels data
@@ -198,7 +198,7 @@ classdef sqw_binfile_common < sqw_file_interface
         % get main sqw header
         main_header = get_main_header(obj,varargin);
         % get header of one of contributed files
-        [header,pos] = get_header(obj,varargin);
+        [header,pos] = get_exp_info(obj,varargin);
         % Read the detector parameters from properly initialized binary file.
         det = get_detpar(obj);
         %
