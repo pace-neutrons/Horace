@@ -125,15 +125,6 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             obj = obj.put_sqw_footer();
         end
         %
-        function struc = saveobj(obj)
-            % method used to convert object into structure
-            % for saving it to disc.
-            struc = saveobj@faccess_sqw_v3(obj);
-            flds = obj.fields_to_save_3_3;
-            for i=1:numel(flds)
-                struc.(flds{i}) = obj.(flds{i});
-            end
-        end
         function obj = upgrade_file_format(obj,varargin)
             % upgrade the file to recent write format and open this file
             % for writing/updating
@@ -182,19 +173,45 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             end
             obj = init_sqw_footer(obj);
         end
+    end
+    %==================================================================
+    % SERIALIZABLE INTERFACE
+    methods
+        function strc = to_bare_struct(obj,varargin)
+            base_cont = to_bare_struct@faccess_sqw_v3(obj,varargin{:});
+            flds = faccess_sqw_v3_3.fields_to_save_3_3;
+            cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
 
-        function obj=init_from_structure(obj,obj_structure_from_saveobj)
-            % init file accessors using structure, obtained for object
-            % serialization (saveobj method);
-            obj = init_from_structure@faccess_sqw_v3(obj,obj_structure_from_saveobj);
+            base_flds = fieldnames(base_cont);
+            base_cont = struct2cell(base_cont);
+            flds  = [base_flds(:);flds(:)];
+            cont = [base_cont(:);cont(:)];
             %
-            flds = obj.fields_to_save_3_3;
+            strc = cell2struct(cont,flds);
+        end
+
+        function obj=from_bare_struct(obj,indata)
+            obj = from_bare_struct@faccess_sqw_v3(obj,indata);
+            %
+            flds = faccess_sqw_v3_3.fields_to_save_3_3;
             for i=1:numel(flds)
-                if isfield(obj_structure_from_saveobj,flds{i})
-                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
-                end
+                name = flds{i};
+                obj.(name) = indata.(name);
             end
         end
+        function flds = saveableFields(obj)
+            add_flds = faccess_sqw_v3_3.fields_to_save_3_3;
+            flds = saveableFields@faccess_sqw_v3(obj);
+            flds = [flds(:);add_flds(:)];
+        end
+
     end
+    methods(Static)
+        function obj = loadobj(inputs,varargin)
+            inobj = faccess_sqw_v3_3();
+            obj = loadobj@serializable(inputs,inobj,varargin{:});
+        end
+    end
+
     %
 end

@@ -145,6 +145,15 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
             header = get_header_form_(varargin{:});
         end
     end
+   %==================================================================
+    % SERIALIZABLE INTERFACE
+    methods(Static)
+        function obj = loadobj(inputs,varargin)
+            inobj = faccess_sqw_v3_2();
+            obj = loadobj@serializable(inputs,inobj,varargin{:});
+        end
+    end
+    
     %
 end
 

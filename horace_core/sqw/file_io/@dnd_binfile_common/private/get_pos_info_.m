@@ -4,7 +4,7 @@ function   pos_info = get_pos_info_(obj)
 % used to fully describe this file
 %
 
-fields2save = obj.fields_to_save();
+fields2save = obj.saveableFields();
 pos_info  = struct();
 for i=1:numel(fields2save)
     fld = fields2save{i};

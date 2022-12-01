@@ -19,18 +19,29 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             obj.test_folder=fileparts(mfilename('fullpath'));
         end
         %-----------------------------------------------------------------
+        function test_serialize_deserialize(~)
+            to = dnd_binfile_common_tester();                        
+            
+            struc = to.to_struct();
+
+            to_r = serializable.from_struct(struc);
+
+            assertEqual(to,to_r);
+        end
+        function test_get_version_invalid_throws(obj)
+            to = dnd_binfile_common_tester();            
+            wrong_source = fullfile(fileparts(obj.test_folder),'common_data','96dets.par');
+
+            f = @()(to.get_file_header('non-existing_file.sqw'));
+            assertExceptionThrown(f,'HORACE:sqw_file_interface:io_error');
+
+            f = @()to.get_file_header(wrong_source);
+            assertExceptionThrown(f,'HORACE:sqw_file_interface:runtime_error');
+
+        end
         function obj = test_get_version(obj)
             to = dnd_binfile_common_tester();
             source = fullfile(fileparts(obj.test_folder),'test_symmetrisation','w1d_d1d.sqw');
-            wrong_source = fullfile(fileparts(obj.test_folder),'common_data','96dets.par');
-
-
-            f = @()(to.get_file_header('non-existing_file.sqw'));
-            assertExceptionThrown(f,'SQW_FILE_IO:io_error');
-
-            f = @()to.get_file_header(wrong_source);
-            assertExceptionThrown(f,'SQW_FILE_IO:runtime_error');
-
 
             [stream,fid1] = to.get_file_header(source);
             co1 = onCleanup(@()fclose(fid1));
@@ -186,7 +197,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
                 'test_symmetrisation','w1d_d1d.sqw');
             ttob = dnd_binfile_common_tester(samp);
             % important! -verbatim is critical here!, as it returns filenames
-            % as they were stored on file, so we can write everyting exactly 
+            % as they were stored on file, so we can write everyting exactly
             % at the same places as before. Without it we should
             % reinitialize object to write
             sq_obj = ttob.get_sqw('-verbatim');
@@ -259,7 +270,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             bin_file.deactivate();
 
             f = @() bin_file.activate('not-a-permission');
-            assertExceptionThrown(f, 'DNDBINFILECOMMON:get_fopen_permission_');
+            assertExceptionThrown(f, 'HORACE:dnd_binfile_common:invalid_argument');
         end
 
     end

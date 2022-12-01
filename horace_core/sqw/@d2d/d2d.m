@@ -7,7 +7,7 @@ classdef d2d < DnDBase
     %   >> w = d2d(filename)       % Create a D2D object from a file
     %   >> w = d2d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent,Access = protected)
+    properties (Dependent)
         NUM_DIMS;
     end
 
@@ -42,7 +42,6 @@ classdef d2d < DnDBase
             nd = 2;
             sz = obj.axes_.data_nbins;
         end
-
     end
 
     methods(Access = private)

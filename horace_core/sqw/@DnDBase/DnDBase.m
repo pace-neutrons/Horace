@@ -1,7 +1,7 @@
 classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
-    properties(Abstract,Dependent,Access = protected)
+    properties(Abstract,Dependent)
         NUM_DIMS
     end
     properties(Constant,Access=protected)

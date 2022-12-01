@@ -5,9 +5,6 @@ function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
 % exactly the same routine  has to be present in dnd_binfile_common\private
 % folder.
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
-%
 this_pos = obj.get_pos_info();
 if isa(other_obj,'dnd_file_interface')
     other_pos = other_obj.get_pos_info();
@@ -17,7 +14,7 @@ elseif isstruct(other_obj) % we assume that there is sturcute, containing the po
     input_is_class = false;
     other_pos = other_obj;
 else
-    error('SQW_FILE_IO:invalid_argument',...
+    error('HORACE:sqw_file_interface:invalid_argument',...
         'The second argument of copy_contents funtion has to be a faccess class or stucute, containing fields positions');
 end
 
@@ -68,7 +65,7 @@ obj.filename_ = [fn,fe];
 obj.filepath_ = [fp,filesep];
 obj.file_id_ = fopen(file,mode);
 if obj.file_id_ <= 0
-    error('SQW_FILE_IO:io_error',...
+    error('HORACE:sqw_file_interface:io_error',...
         'Can not open file %s in %s mode',file,mode)
 end
 obj.file_closer_ = onCleanup(@()obj.fclose());

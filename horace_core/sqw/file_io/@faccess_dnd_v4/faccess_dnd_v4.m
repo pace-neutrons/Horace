@@ -1,4 +1,4 @@
-classdef faccess_dnd_v2 < dnd_binfile_common
+classdef faccess_dnd_v4 < dnd_binfile_common
     % Class to access Horace dnd files written by Horace v1-v2
     %
     % Majority of class properties and methods are inherited from <a href="matlab:help('dnd_binfile_common');">dnd_binfile_common</a>
@@ -6,10 +6,10 @@ classdef faccess_dnd_v2 < dnd_binfile_common
     %
     % Usage:
     % 1)
-    %>>dnd_access = faccess_dnd_v2(filename)
+    %>>dnd_access = faccess_dnd_v4(filename)
     % or
     % 2)
-    %>>dnd_access = faccess_dnd_v2(sqw_dnd_object,filename)
+    %>>dnd_access = faccess_dnd_v4(sqw_dnd_object,filename)
     %---------------------------------------------------------------
     %
     % 1)------------------------------------------------------------
@@ -48,18 +48,18 @@ classdef faccess_dnd_v2 < dnd_binfile_common
     %
     %
     methods
-        function obj=faccess_dnd_v2(varargin)
+        function obj=faccess_dnd_v4(varargin)
             % constructor, to build sqw reader/writer version 2
             %
             % Usage:
-            % ld = faccess_dnd_v2() % initialize empty sqw reader/writer version 2
+            % ld = faccess_dnd_v4() % initialize empty sqw reader/writer version 2
             %                       The class should be initialized later using
             %                       init command
-            % ld = faccess_dnd_v2(filename) % initialize sqw reader/writer  version 2
+            % ld = faccess_dnd_v4(filename) % initialize sqw reader/writer  version 2
             %                       to load sqw file version 2.
             %                       Throw error if the file version is not sqw
             %                       version 2.
-            % ld = faccess_dnd_v2(dnd_object) % initialize sqw reader/writer version 2
+            % ld = faccess_dnd_v4(dnd_object) % initialize sqw reader/writer version 2
             %                       to save dnd object provided. The name
             %                       of the file to save the object should
             %                       be provided separately.
@@ -108,12 +108,5 @@ classdef faccess_dnd_v2 < dnd_binfile_common
         %
         %
     end
-    %==================================================================
-    % SERIALIZABLE INTERFACE
-    methods(Static)
-        function obj = loadobj(inputs,varargin)
-            inobj = faccess_dnd_v2();
-            obj = loadobj@serializable(inputs,inobj,varargin{:});
-        end
-    end
+    
 end

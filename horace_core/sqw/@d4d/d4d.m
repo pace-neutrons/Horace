@@ -7,7 +7,7 @@ classdef d4d < DnDBase
     %   >> w = d4d(filename)       % Create a D4D object from a file
     %   >> w = d4d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent,Access = protected)
+    properties (Dependent)
         NUM_DIMS;
     end
 
@@ -39,6 +39,5 @@ classdef d4d < DnDBase
             nd = 4;
             sz = obj.axes_.data_nbins;
         end
-
     end
 end

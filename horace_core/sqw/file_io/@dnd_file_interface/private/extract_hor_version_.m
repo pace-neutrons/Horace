@@ -4,9 +4,6 @@ function [ver_struct,mess] = extract_hor_version_(data_stream)
 % Original author: T.G.Perring
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
-%
 % read application version
 % Read header data from file. We require:
 % (1) the application name is a valid variable name

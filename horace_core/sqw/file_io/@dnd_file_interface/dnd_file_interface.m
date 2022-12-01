@@ -1,4 +1,4 @@
-classdef dnd_file_interface
+classdef dnd_file_interface < serializable
     % Interface to access dnd files,
     % containing common properties, describing any sqw or dnd file.
     %
@@ -43,7 +43,7 @@ classdef dnd_file_interface
     % ----------------------------------------------------------------
     %
     %
-    properties(Access=protected,Hidden=true)
+    properties(Access=protected)
         filename_=''
         filepath_=''
         % Bad MATLAB OO :: each child should redefine this version manually
@@ -68,13 +68,13 @@ classdef dnd_file_interface
         sqw_holder_ = [];
     end
     %
-    properties(Constant,Access=protected,Hidden=true)
+    properties(Constant,Access=protected)
         % format of application header, written at the beginning of a
         % binary sqw/dnd file to identify this file for clients
         app_header_form_ = struct('appname','horace','version',double(1),...
             'sqw_type',uint32(1),'ndim',uint32(1));
     end
-    properties(Constant,Access=private,Hidden=true)
+    properties(Constant,Access=private)
         % list of fieldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file accessor
         fields_to_save_ = {'filename_';'filepath_';...
@@ -121,7 +121,7 @@ classdef dnd_file_interface
         convert_to_double
         %
     end
-    properties(Access=public,Hidden)
+    properties(Dependent)
         % get access to internal sqw object if any is defined for testing
         % purposes
         sqw_holder
@@ -131,21 +131,46 @@ classdef dnd_file_interface
         function sh = get.sqw_holder(obj)
             sh = obj.sqw_holder_;
         end
+        function obj = set.sqw_holder(obj,val)
+            if ~isa(val,'SQWDnDBase')
+                error('HORACE:dnd_file_interface:invalid_argument', ...
+                    'sqw_holder can be initialized by an sqw family of objects only. Trying to assign: %s',...
+                    class(val));
+            end
+            obj.sqw_holder_ = val;
+            obj = obj.init_from_sqw_obj();
+        end
         %------------------------------------------------
         function fn  = get.filename(obj)
             % the name of the file, this object is associated with
             fn = obj.filename_;
+        end
+        function obj = set.filename(obj,val)
+            if ~ischar(val) || isstring(val)
+                error('HORACE:dnd_file_interface:invalid_argument', ...
+                    'The filename can be only string or char array. It is: %s',...
+                    class(val));
+            end
+            obj.filename_ = val;
         end
         %
         function fp  = get.filepath(obj)
             % the path to the file, this object is associated with
             fp = obj.filepath_;
         end
+        function obj = set.filepath(obj,val)
+            if ~ischar(val) || isstring(val)
+                error('HORACE:dnd_file_interface:invalid_argument', ...
+                    'The filename can be only string or char array. It is: %s',...
+                    class(val));
+            end
+            obj.filepath_ = val;
+        end
         %------------------------------------------------
         function ver = get.file_version(obj)
             % return the version of the loader corresponding to the format
             % of data, stored in the file
-            ver = ['-v',num2str(obj.file_ver_)];
+            ver = get_file_version(obj);
         end
         %------------------------------------------------
         function ndims = get.num_dim(obj)
@@ -190,28 +215,6 @@ classdef dnd_file_interface
             obj.sqw_type_       = false;
             obj.convert_to_double_ = true;
         end
-        %
-        function struc = saveobj(obj)
-            % method used to convert object into structure
-            % for saving it to disc.
-            struc = struct('class_name',class(obj));
-            flds = obj.fields_to_save_;
-            for i=1:numel(flds)
-                struc.(flds{i}) = obj.(flds{i});
-            end
-            if ~isempty(obj.sqw_holder_)
-                warning('FACCESS:not_implemented',...
-                    'sqw object serialization is not fully implemented. Using structure on object');
-                struc.sqw_holder_ = struct(obj.sqw_holder_);
-            end
-        end
-        %
-        function struc = struct(obj)
-            % convert faccess object into structure, which would allow to
-            % recover such object
-            struc = saveobj(obj);
-        end
-        %
         function has = has_pix_range(~)
             % Returns true when the pix_range is stored within a file.
             %
@@ -220,34 +223,18 @@ classdef dnd_file_interface
             %
             has = false;
         end
+        % Build header, which allows to distinguish Horace from other
+        % applications and adds some information about stored sqw/dnd
+        % object. The binary header should be readable by all Horace versions
+        % including binary versions, so its implemenataion is moved to top
+        % faccessors level
+        app_header = build_app_header(obj,varargin)
     end
-    methods(Access = protected,Hidden=true)
-        %
-        function tm = get_creation_date(obj)
-            % Get the creation date of current file
-            %
-            % extract code which gets creation date into separate
-            % function to allow overloading
-            finf= dir(fullfile(obj.filepath,obj.filename));
-            tm = finf.date;
+    methods(Access = protected)
+        function ver = get_file_version(obj)
+            ver = ['-v',num2str(obj.file_ver_)];
         end
         %
-        function flds = fields_to_save(obj)
-            % return list of filenames to save on hdd to be able to recover
-            % all substantial parts of appropriate sqw file.
-            flds = obj.fields_to_save_;
-        end
-        %
-        function obj=init_from_structure(obj,obj_structure_from_saveobj)
-            % init file accessors using structure, obtained for object
-            % serialization (saveobj method);
-            flds = obj.fields_to_save_;
-            for i=1:numel(flds)
-                if isfield(obj_structure_from_saveobj,flds{i})
-                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
-                end
-            end
-        end
     end
     %----------------------------------------------------------------------
     methods(Static) % defined by this class
@@ -259,10 +246,6 @@ classdef dnd_file_interface
         % convert all numerical types of a structure into double
         val = do_convert_to_double(val)
         % build object from correspondent data structure.
-        function obj = loadobj(struc)
-            obj = feval(struc.class_name);
-            obj = obj.init_from_structure(struc);
-        end
     end
     %----------------------------------------------------------------------
     methods(Abstract)
@@ -353,6 +336,36 @@ classdef dnd_file_interface
         % init file accessors from sqw file on hdd
         obj=init_from_sqw_file(obj,varargin);
     end
-
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    methods
+        function strc = to_bare_struct(obj,varargin)
+            flds = dnd_file_interface.fields_to_save_;
+            cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
+            strc = cell2struct(cont,flds);
+        end
+        function obj=from_bare_struct(obj,indata)
+            flds = dnd_file_interface.fields_to_save_;
+            for i=1:numel(flds)
+                name = flds{i};
+                obj.(name) = indata.(name);
+            end
+            if isfield(indata,'sqw_holder')
+                if isa(indata.sqw_holder,'SQWDnDBase')
+                    obj.sqw_holder_  = indata.sqw_holder;
+                else
+                    obj.sqw_holder_  = serializable.from_struct(indata.sqw_holder);
+                end
+            end
+        end
+        function  ver  = classVersion(~)
+            % serializable fields version
+            ver = 1;
+        end
+        function flds = saveableFields(~)
+            flds = dnd_file_interface.fields_to_save_;
+        end
+        %------------------------------------------------------------------
+    end
 end
 

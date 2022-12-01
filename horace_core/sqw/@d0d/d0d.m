@@ -6,7 +6,7 @@ classdef d0d < DnDBase
     %   >> w = d0d(filename)       % Create a D0D object from a file
     %   >> w = d0d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent,Access = protected)
+    properties (Dependent)
         NUM_DIMS;
     end
     methods
@@ -18,6 +18,7 @@ classdef d0d < DnDBase
                 obj.npix_ = 0;
             end
         end
+        %
         function nd = get.NUM_DIMS(~)
             nd =0;
         end

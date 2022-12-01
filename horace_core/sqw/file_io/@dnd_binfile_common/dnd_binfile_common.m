@@ -221,13 +221,6 @@ classdef dnd_binfile_common < dnd_file_interface
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
         %
-        function flds = fields_to_save(obj)
-            % return list of fileldnames to save on hdd to be able to recover
-            % all substantial parts of appropriate sqw file.
-            flds = fields_to_save@dnd_file_interface(obj);
-            flds = [flds(:);obj.fields_to_save_(:)];
-        end
-        %
         function obj=init_from_structure(obj,obj_structure_from_saveobj)
             % init file accessors using structure, obtained for object
             % serialization (saveobj method);
@@ -252,13 +245,23 @@ classdef dnd_binfile_common < dnd_file_interface
             end
         end
         %
+        function tm = get_creation_date(obj)
+            % Get the creation date of current file
+            %
+            % extract code which gets creation date into separate
+            % function to allow overloading
+            finf= dir(fullfile(obj.filepath,obj.filename));
+            tm = finf.date;
+        end        
+        %
         function check_error_report_fail_(obj,pos_mess)
             % check if error occured during io operation and throw if it does happened
             [mess,res] = ferror(obj.file_id_);
-            if res ~= 0; error('SQW_FILE_IO:io_error',...
+            if res ~= 0; error('HORACE:sqw_file_insterface:io_error',...
                     '%s -- Reason: %s',pos_mess,mess);
             end
         end
+        
     end
     %----------------------------------------------------------------------
     methods % defined by this class
@@ -275,7 +278,7 @@ classdef dnd_binfile_common < dnd_file_interface
 
         % Reopen existing file to overwrite or write new data to it
         % or open new target file to save data.
-        obj = reopen_to_write(obj,filename)
+        obj = reouten_to_write(obj,filename)
         %
         % initialize loader, to be ready to read or write dnd data.
         obj = init(obj,varargin);
@@ -352,12 +355,7 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         obj = put_dnd(obj,varargin)
 
-        %------   Auxiliary methods
-        % build header, which contains information on sqw/dnd object and
-        % informs clients on the contents of a binary file
-        header = build_app_header(obj,sqw_obj)
-
-        %------- Used in upgrade
+        %------   Auxiliary methods Used in upgrade
         function type = get.upgrade_mode(obj)
             % return true if object is set up for upgrade
             type = ~isempty(obj.upgrade_map_);
@@ -573,21 +571,50 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.file_closer_ = onCleanup(@()obj.fclose());
         end
         %
-        function struc = saveobj(obj)
-            % method used to convert object into structure
-            % for saving it to disc.
-            struc = saveobj@dnd_file_interface(obj);
-            flds = obj.fields_to_save_;
-            for i=1:numel(flds)
-                struc.(flds{i}) = obj.(flds{i});
-            end
-        end
     end
     %
     methods(Static)
         % function extracts first and last field in the structure pos_fields
         % correspondent to the structure form_fields
         [fn_start,fn_end,is_last] = extract_field_range(pos_fields,form_fields);
-        %
+
     end
+    %==================================================================
+    % SERIALIZABLE INTERFACE
+    methods
+        function strc = to_bare_struct(obj,varargin)
+            base_cont = to_bare_struct@dnd_file_interface(obj,varargin{:});
+            flds = dnd_binfile_common.fields_to_save_;
+            cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
+
+            base_flds = fieldnames(base_cont);
+            base_cont = struct2cell(base_cont);
+            flds  = [base_flds(:);flds(:)];
+            cont = [base_cont(:);cont(:)];
+            %
+            strc = cell2struct(cont,flds);
+        end
+        
+        function obj=from_bare_struct(obj,indata)
+            obj = from_bare_struct@dnd_file_interface(obj,indata);
+            %
+            flds = dnd_binfile_common.fields_to_save_;
+            for i=1:numel(flds)
+                name = flds{i};
+                obj.(name) = indata.(name);
+            end
+        end        
+        function flds = saveableFields(obj)
+            add_flds = dnd_binfile_common.fields_to_save_;
+            flds = saveableFields@dnd_file_interface(obj);
+            flds = [flds(:);add_flds(:)];
+        end
+        
+    end
+    methods(Static)        
+        function obj = loadobj(inputs,varargin)
+            inobj = dnd_binfile_common();
+            obj = loadobj@serializable(inputs,inobj,varargin{:});
+        end        
+    end    
 end

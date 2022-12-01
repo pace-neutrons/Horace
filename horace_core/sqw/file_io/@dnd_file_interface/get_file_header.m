@@ -12,7 +12,7 @@ function [header,fid] = get_file_header(file,varargin)
 %                analysis of file contents is necessary to be sure that the file is Horace file
 %                It is true when legacy Horace version is encountered. Legacy file loaders
 %                performs additional analysis to verify if the provided file is Horace file
-%                or just binary file with initial bytes which look like a header Horace. 
+%                or just binary file with initial bytes which look like a header Horace.
 %
 % 'sqw_type'  -- if sqw file is sqw or dnd file
 % 'num_dim'   -- number of dimensions in sqw or dnd file
@@ -25,7 +25,7 @@ if ~isempty(message)
     if fid>0
         fclose(fid);
     end
-    error('SQW_FILE_IO:io_error','file: %s\n Error: %s',file,message);
+    error('HORACE:sqw_file_interface:io_error','file: %s\n Error: %s',file,message);
 end
 % try to interpret input binary stream as Horace header and
 % convert data stream into structure describing Horace format
@@ -34,7 +34,7 @@ if ~isempty(mess)
     if fid>0
         fclose(fid);
     end
-    error('SQW_FILE_IO:runtime_error','Error: %s',message);
+    error('HORACE:sqw_file_interface:runtime_error','Error: %s',message);
 end
 
 

@@ -134,6 +134,15 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             new_obj = upgrade_file_format_(obj);
         end
     end
+    %==================================================================
+    % SERIALIZABLE INTERFACE
+    methods(Static)        
+        function obj = loadobj(inputs,varargin)
+            inobj = faccess_sqw_v2();
+            obj = loadobj@serializable(inputs,inobj,varargin{:});
+        end        
+    end    
+    
     
 end
 

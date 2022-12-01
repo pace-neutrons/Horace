@@ -1,12 +1,12 @@
 classdef obj_init
-    % Class-holder of the initialization information for the classes responsible
-    % for binary sqw files access.
+    % Class-holder of the initialization information for the classes
+    % responsible for binary sqw files access.
     %
-    % Used to accelerate and optimize the transfer of binary sqw file service information stored
-    % in binary sqw file header from should_load method to a class initialization methods to avoid
-    % repetitive reads and extractions of the same information from a file on disk.
-    %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+    % Used to accelerate and optimize the transfer of binary sqw file
+    % service information stored in binary sqw file header
+    % from should_load method to a class initialization methods
+    % to avoid repetitive reads and extractions of the same information
+    % from a file on disk.
     %
     properties(Access=protected,Hidden=true)
         file_id_ = -1;
@@ -15,13 +15,13 @@ classdef obj_init
     properties(Dependent)
         % Matlab file identifier, referring to open binary sqw file.
         file_id
-        % number of dimensions in the dnd image stored in the sqw file. 
+        % number of dimensions in the dnd image stored in the sqw file.
         % Can change from 0 to 4.
         num_dim
     end
-    
+
     methods
-        function obj = obj_init(varargin)
+        function obj = obj_init(fid,numdim)
             % constructor.
             %Usage:
             %>>obj = obj_init(); % returns empty object
@@ -31,40 +31,22 @@ classdef obj_init
             % fid - the Matlab file identifier for open sqw binary file
             % numdim - number of dimensions of the dnd image stored in the sqw binary file
             %
-            if nargin==2
-                if ~isnumeric(varargin{1}) || varargin{1} < 1
-                    error('SQW_FILE_IO:invalid_argument',...
-                        'obj_init::constructor: first argument of the constructor must contain open file_id')
-                else
-                    obj.file_id_ = varargin{1};
-                end
-                
-                obj.num_dim_ = varargin{2};
-                %
-                % Verify inputs:
-                if ~(ischar(obj.num_dim_) || isnumeric(obj.num_dim_))
-                    error('SQW_FILE_IO:invalid_argument',...
-                        'obj_init::constructor: second argument of the constructor has to be a number of dimensions or word "undefined"')
-                end
-                if ischar(obj.num_dim_)
-                    if ~strcmp(obj.num_dim_,'undefined')
-                        error('SQW_FILE_IO:invalid_argument',...
-                            'obj_init::constructor: second argument of the constructor has to be a number of dimensions or word "undefined"')
-                    end
-                else
-                    obj.num_dim_ = double(obj.num_dim_);
-                    if obj.num_dim_<0 || obj.num_dim_>4
-                        error('SQW_FILE_IO:invalid_argument',...
-                            'obj_init second argument is number of dimensions, which can change from 0 to 4 but get: %d ',...
-                            obj.num_dim_)
-                    end
-                end
-            else
-                if nargin~=0
-                    error('SQW_FILE_IO:invalid_argument',...
-                        'obj_init::constructor: must be called with 2 or no arguments')
-                end
+            if nargin == 0
+                return;
             end
+            if ~isnumeric(fid) || fid<1
+                error('HORACE:sqw_file_interface:invalid_argument',...
+                    'First argument of the constructor must contain open file_id. It is: %s', ...
+                    disp2str(fid))
+            end
+            obj.file_id_ = fid;
+            if ~((ischar(numdim)&&strcmp(numdim,'undefined')) ||...
+                    (isnumeric(numdim)&&(numdim>=0 && numdim <=4)))
+                error('HORACE:sqw_file_interface:invalid_argument',...
+                    'Second argument of the constructor has to be a number of dimensions in range [0-4] or word "undefined". It is: %s',...
+                    disp2str(numdim))
+            end
+            obj.num_dim_ = numdim;
         end
         %
         function id = get.file_id(obj)
@@ -74,7 +56,7 @@ classdef obj_init
             nd = obj.num_dim_;
         end
     end
-    
+
 end
 
 
