@@ -8,12 +8,12 @@ classdef sqw_multicut_tester < sqw
     methods
         function obj = sqw_multicut_tester(varargin)
             obj = obj@sqw(varargin{:});
-            obj.main_header.creation_date = datetime('now');
+            obj.main_header.creation_date = datetime(1900,01,01);
         end
 
         function  wout = cut(obj, varargin)
             % overloaded cut
             wout = obj;
-          end
+        end
     end
 end

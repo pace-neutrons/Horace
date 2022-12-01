@@ -1,15 +1,17 @@
 function [res,obj] = get_instr_or_sample_(obj,field_name,varargin)
-% get instrument or sample stored in sqw file
+% get instrument or sample stored in sqw file or unique object container
+% containing instruments for all runs
 %
 % Usage:
 %>>inst = obj.get_instr_or_sample_('instrument')
-% Returns first instrument, present in the file
+% Returns first unique instrument, present in the file
 %
 %>>sample = obj.get_instrument('sample',number)
 % Returns first instrument with number, specified
 %
 %>>inst = obj.get_instrument('instrument','-all')
-% Returns cellarray of all instruments, stored in the file
+% Returns unique unique object container with all instruments stored in
+% file
 %
 
 [ok,mess,get_all,other]=parse_char_options(varargin,{'-all'});
@@ -17,24 +19,38 @@ if ~ok
     error('HORACE:faccess_sqw_v3:invalid_argument',...
         'get_%s, error: %s',field_name,mess )
 end
+if strcmp(field_name,'instrument')
+    res = unique_objects_container('IX_inst');
+elseif strcmp(field_name,'sample')
+    res = unique_objects_container('IX_samp');
+else
+    error('HORACE:faccess_sqw_v3:invalid_argument',...
+        'This routine accepts only "instrument" or "sample" as second argument. It gets %s',...
+        disp2str(field_name));
+end
 res_block = get_all_instr_or_samples_(obj,field_name);
-if strcmp(field_name,'instrument') && isstruct(res_block) && numel(fields(res_block))==0
-    res_block  = IX_null_inst();
+if strcmp(field_name,'instrument')
+    if isstruct(res_block) && numel(fields(res_block))==0
+        res{1} = IX_null_inst();
+        res_block = {res(1)}; % for getting single instrument below
+    else
+        res = res.add(res_block);
+    end
 end
-if strcmp(field_name,'sample') && isstruct(res_block) && numel(fields(res_block))==0
-    res_block  = IX_null_sample();
+if strcmp(field_name,'sample')
+    if isstruct(res_block) && numel(fields(res_block))==0
+        res{1} = IX_null_sample();
+        res_block = {res(1)};  % for getting single sample below
+    else
+        res = res.add(res_block);
+    end
 end
-if ~iscell(res_block)
-    res_block = num2cell(res_block);
-end
-
 
 if get_all
-    res  = res_block;
     return
 end
 
-if ~isempty(other)
+if ~isempty(other) % process and obtain requested component number
     n_inst = other{1};
     if ~isnumeric(n_inst)
         error('HORACE:faccess_sqw_v3:invalid_argument',...
@@ -48,6 +64,8 @@ if ~isempty(other)
 else
     n_inst = 1;
 end
+% this is controversial now and complicates usave as output type here differs from
+% the output, obtained above, but let's keep it for the time beeing
 if iscell(res_block)
     if numel(res_block) == 1
         res = res_block{1};
@@ -89,6 +107,14 @@ else % sample
     data_end_name = 'instr_sample_end_pos_';
 end
 data_size = obj.(data_end_name)-obj.(data_start_name);
+if data_size == 0
+    if strcmp(field_name,'instrument')
+        res = IX_null_inst();
+    else
+        res = IX_null_sample();
+    end
+    return
+end
 %
 if  old_matlab % some MATLAB problems with moving to correct eof
     fseek(obj.file_id_,double(obj.(data_start_name)),'bof');
@@ -127,6 +153,12 @@ if version == 3
                 res = IX_null_sample();
             end
         else
+            % NB This will produce a cell array of the deserialized objects
+            % in res. For cellarrays of instruments or samples this is
+            % fine. For a unique_objects_container this is also fine as the
+            % subsequent code will extract the singleton
+            % unique_objects_container later on.
+
             res = arrayfun(@(x)serializable.from_struct(x),res,...
                 'UniformOutput',false);
         end
@@ -143,6 +175,11 @@ ihead_pos = obj.(head_name);
 pos = obj.(body_name);
 % read field version:
 descriptor_sz = pos - ihead_pos;
+if descriptor_sz == 0 % nothing was written despite format supports it
+    descr = struct();
+    version = 3;
+    return
+end
 if  old_matlab % some MATLAB problems with moving to correct eof
     fseek(obj.file_id_,double(ihead_pos),'bof');
 else

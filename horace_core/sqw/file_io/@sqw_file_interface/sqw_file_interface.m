@@ -128,11 +128,6 @@ classdef sqw_file_interface < dnd_binfile_common
             for i=1:numel(flds)
                 struc.(flds{i}) = obj.(flds{i});
             end
-            %struc = structIndep(obj);
-            % dynamic fields, containing special information generated on
-            % % construction. Should not be stored
-            % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
-            % struc = rmfield(struc,caches);
         end
     end
     %----------------------------------------------------------------------

@@ -10,8 +10,15 @@ classdef IX_null_sample < IX_samp
 
         % Constructor
         %------------
-        function obj = IX_null_sample()
+        function obj = IX_null_sample(varargin)
             obj = obj@IX_samp(''); %[1.0 1.0 1.0],[90 90 90]);
+            if nargin == 3
+                obj.name = varargin{1};
+                obj.alatt = varargin{2};
+                obj.angdeg = varargin{3};
+            elseif nargin ~= 0
+                error('HORACE:IX_null_sample:invalid argument','invalid no. args');
+            end
         end
 
         % ?
@@ -26,6 +33,18 @@ classdef IX_null_sample < IX_samp
             ver = 2;
         end
     end
+    methods(Access = protected)
+        function alat = get_lattice(~)
+            alat = [];
+        end
+        function ang = get_angles(~)
+            ang = [];
+        end
+        function name = get_name(~)
+            name = '';
+        end
+    end
+
 
     methods(Access=protected)
         %------------------------------------------------------------------

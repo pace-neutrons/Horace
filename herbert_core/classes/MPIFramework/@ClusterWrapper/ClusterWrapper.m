@@ -1,15 +1,15 @@
 classdef ClusterWrapper
-% The class-wrapper containing common code for any Matlab cluster,
-% and job progress logging operations supported by Herbert
-%
-%----------------------------------------------------------------------
+    % The class-wrapper containing common code for any Matlab cluster,
+    % and job progress logging operations supported by Herbert
+    %
+    %----------------------------------------------------------------------
     properties
         % The time to wait for cluster to start (in sec). If this time is
         % exceeded,
         % the cluster reports failure and parallel job will not start.
         cluster_startup_time = 120 % 2min
-                                   % If true, write logs containing information about each parallel
-                                   % executor (sets DO_LOGGING=true) in parallel worker
+        % If true, write logs containing information about each parallel
+        % executor (sets DO_LOGGING=true) in parallel worker
         DEBUG_REMOTE = false;
     end
 
@@ -86,10 +86,10 @@ classdef ClusterWrapper
         % clusters
         common_env_var_= containers.Map(...
             {'MATLABPATH',...  Additional Matlab m-files search path, containing horace_on/herbert_on initialization scripts and Matlab worker script ($PARALLEL_WORKER value), run by Matlab when it runs in the script mode
-             'HERBERT_PARALLEL_EXECUTOR',... the program which executes the parallel job on server. Matlab or compiled Horace
-             'HERBERT_PARALLEL_WORKER',... the parameters string used as input arguments for the parallel job. If its Matlab, it is the worker name and the run parameters.
-             'WORKER_CONTROL_STRING',...  input for the script, containing encoded info about the location of the exchange folder
-             'DO_PARALLEL_MATLAB_LOGGING',...  if 'true' each parallel process will write progress log
+            'HERBERT_PARALLEL_EXECUTOR',... the program which executes the parallel job on server. Matlab or compiled Horace
+            'HERBERT_PARALLEL_WORKER',... the parameters string used as input arguments for the parallel job. If its Matlab, it is the worker name and the run parameters.
+            'WORKER_CONTROL_STRING',...  input for the script, containing encoded info about the location of the exchange folder
+            'DO_PARALLEL_MATLAB_LOGGING',...  if 'true' each parallel process will write progress log
             }, {'','matlab','worker_v2','','false'});
         %------------------------------------------------------------------
         % properties, indicating changes in the pool status and used by
@@ -127,24 +127,24 @@ classdef ClusterWrapper
 
     methods
         function obj = ClusterWrapper(n_workers,mess_exchange_framework,log_level)
-        % Constructor, which initiates Parallel clusters wrapper, to
-        % control Matlab parallel toolbox framework using common
-        % interface.
-        %
-        % Empty constructor generates wrapper which has to be
-        % initiated by init method.
-        %
-        % Non-empty calls the init method itself
-        %
-        % Inputs (if any):
-        % n_workers -- number of independent Matlab workers to execute
-        %              a job
-        % mess_exchange_framework -- a class-child of
-        %              iMessagesFramework, used  for communications
-        %              between cluster and the host Matlab session,
-        %              which started and controls the job.
-        % log_level    if present, defines the verbosity of the
-        %              operations over the framework
+            % Constructor, which initiates Parallel clusters wrapper, to
+            % control Matlab parallel toolbox framework using common
+            % interface.
+            %
+            % Empty constructor generates wrapper which has to be
+            % initiated by init method.
+            %
+            % Non-empty calls the init method itself
+            %
+            % Inputs (if any):
+            % n_workers -- number of independent Matlab workers to execute
+            %              a job
+            % mess_exchange_framework -- a class-child of
+            %              iMessagesFramework, used  for communications
+            %              between cluster and the host Matlab session,
+            %              which started and controls the job.
+            % log_level    if present, defines the verbosity of the
+            %              operations over the framework
 
             obj.running_mess_contents_= 'process not exited';
 
@@ -161,24 +161,24 @@ classdef ClusterWrapper
         function obj = set_mess_exchange(obj,mess_exchange)
             if ~isa(mess_exchange,'iMessagesFramework')
                 error('CLUSTER_WRAPPER:invalid_argument',...
-                      ' can set only instance of message exchange framework but setting %s',...
-                      evalc('disp(mess_exchange)'));
+                    ' can set only instance of message exchange framework but setting %s',...
+                    evalc('disp(mess_exchange)'));
             end
             obj.mess_exchange_ = mess_exchange;
         end
 
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
-        % The method to initiate the cluster wrapper
-        %
-        % Inputs:
-        % n_workers -- number of independent Matlab workers to execute
-        %              a job
-        % mess_exchange_framework -- a class-child of
-        %              iMessagesFramework, used  for communications
-        %              between cluster and the host Matlab session,
-        %              which started and controls the job.
-        %log_level     if present, the number, which describe the
-        %              verbosity of the cluster operations output;
+            % The method to initiate the cluster wrapper
+            %
+            % Inputs:
+            % n_workers -- number of independent Matlab workers to execute
+            %              a job
+            % mess_exchange_framework -- a class-child of
+            %              iMessagesFramework, used  for communications
+            %              between cluster and the host Matlab session,
+            %              which started and controls the job.
+            %log_level     if present, the number, which describe the
+            %              verbosity of the cluster operations output;
 
             if ~exist('log_level', 'var')
                 log_level = -1;
@@ -207,7 +207,7 @@ classdef ClusterWrapper
             prog_path  = find_matlab_path();
             if isempty(prog_path)
                 error('HERBERT:ClusterWrapper:runtime_error',...
-                      'Can not find Matlab');
+                    'Can not find Matlab');
             end
 
             if ispc()
@@ -247,53 +247,53 @@ classdef ClusterWrapper
         end
 
         function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)
-        % send initialization information to each worker in the cluster
-        % providing information about the particular parallel job.
-        %Inputs:
-        % je_init_message -- The message prepared by messages framework
-        %                    and containing information about the
-        %                    particular job_executor the worker would run
-        %                    and the way this job_executor would be
-        %                    treated by the worker. The message is the
-        %                    same for every worker
-        % task_init_mess  -- The list of messages, generated by
-        %                    JobDispatcher split_tasks method and
-        %                    containing the initialization messages for
-        %                    every instance of jobExecutor on every
-        %                    worker. Usually different for each worker,
-        %
-        % log_message_prefix - the prefix of the log message,
-        %                     displayed when a parallel job is started,
-        %                     indicating previous state of the cluster
-        %                     running this job e.g. 'starting' or
-        %                     'continuing'
-        %
-        %
+            % send initialization information to each worker in the cluster
+            % providing information about the particular parallel job.
+            %Inputs:
+            % je_init_message -- The message prepared by messages framework
+            %                    and containing information about the
+            %                    particular job_executor the worker would run
+            %                    and the way this job_executor would be
+            %                    treated by the worker. The message is the
+            %                    same for every worker
+            % task_init_mess  -- The list of messages, generated by
+            %                    JobDispatcher split_tasks method and
+            %                    containing the initialization messages for
+            %                    every instance of jobExecutor on every
+            %                    worker. Usually different for each worker,
+            %
+            % log_message_prefix - the prefix of the log message,
+            %                     displayed when a parallel job is started,
+            %                     indicating previous state of the cluster
+            %                     running this job e.g. 'starting' or
+            %                     'continuing'
+            %
+            %
             obj = obj.init_workers(je_init_message,task_init_mess,log_message_prefix);
         end
 
         function obj = init_workers(obj,je_init_message,task_init_mess,log_message_prefix)
-        % send initialization information to each worker in the cluster
-        % providing information about parallel job.
-        %Inputs:
-        % je_init_message -- The message prepared by messages framework
-        %                    and containing information about the
-        %                    particular job_executor the worker would run
-        %                    and the way this job_executor would be
-        %                    treated by the worker. The message is the
-        %                    same for every worker
-        % task_init_mess  -- The list of messages, generated by
-        %                    JobDispatcher split_tasks method and
-        %                    containing the initialization messages for
-        %                    every instance of jobExecutor on every
-        %                    worker. Usually different for each
-        %
-        % log_message_prefix - the prefix of the log message,
-        %                     displayed when a parallel job is started,
-        %                     indicating previous state of the cluster
-        %                     running this job e.g. 'starting' or
-        %                     'continuing'
-        %
+            % send initialization information to each worker in the cluster
+            % providing information about parallel job.
+            %Inputs:
+            % je_init_message -- The message prepared by messages framework
+            %                    and containing information about the
+            %                    particular job_executor the worker would run
+            %                    and the way this job_executor would be
+            %                    treated by the worker. The message is the
+            %                    same for every worker
+            % task_init_mess  -- The list of messages, generated by
+            %                    JobDispatcher split_tasks method and
+            %                    containing the initialization messages for
+            %                    every instance of jobExecutor on every
+            %                    worker. Usually different for each
+            %
+            % log_message_prefix - the prefix of the log message,
+            %                     displayed when a parallel job is started,
+            %                     indicating previous state of the cluster
+            %                     running this job e.g. 'starting' or
+            %                     'continuing'
+            %
             if ~exist('log_message_prefix', 'var')
                 log_message_prefix = 'starting';
             end
@@ -302,22 +302,22 @@ classdef ClusterWrapper
         end
 
         function [obj, task_id] = start_workers(obj, worker_control_string, ...
-                                                varargin)
-        % Start workers running in parallel and return appropriate task_id to calling function
-        % Should appropriately start workers for the Herbert, mpiexec_mpi and slurm_mpi modes
-        %
-        % Inputs:
-        %  prefix_command  -- Commands placed before the main matlab call
-        %  postfix_command -- Extra arguments and flags passed to the main matlab call
-        %  matlab_extra    -- Commands to be run before starting parallel worker
-        %  debug           -- Direct stdout of workers to host stdout
-        %  target_threads  -- Start matlab jobs running with this many threads
+                varargin)
+            % Start workers running in parallel and return appropriate task_id to calling function
+            % Should appropriately start workers for the Herbert, mpiexec_mpi and slurm_mpi modes
+            %
+            % Inputs:
+            %  prefix_command  -- Commands placed before the main matlab call
+            %  postfix_command -- Extra arguments and flags passed to the main matlab call
+            %  matlab_extra    -- Commands to be run before starting parallel worker
+            %  debug           -- Direct stdout of workers to host stdout
+            %  target_threads  -- Start matlab jobs running with this many threads
             par = parallel_config;
             p = inputParser();
             addOptional(p, 'prefix_command' , {}, @iscellstr);
             addOptional(p, 'postfix_command', {}, @iscellstr);
             addOptional(p, 'matlab_extra'   , '', @isstring);
-            addOptional(p, 'debug', false, @islognumscalar);
+            addOptional(p, 'debug', par.debug, @islognumscalar);
             addOptional(p, 'target_threads', par.par_threads, @isnumeric);
             parse(p, varargin{:});
 
@@ -329,7 +329,7 @@ classdef ClusterWrapper
             obj.common_env_var_('WORKER_CONTROL_STRING') = worker_control_string;
 
             task_info = obj.generate_run_string(target_threads, ...
-                                                prefix_command, postfix_command, matlab_extra);
+                prefix_command, postfix_command, matlab_extra);
 
             if ispc()
                 runtime = java.lang.ProcessBuilder('cmd.exe');
@@ -350,33 +350,33 @@ classdef ClusterWrapper
         end
 
         function task_info = generate_run_string(obj, target_threads, ...
-                                                 prefix_command, postfix_command, matlab_extra)
-        % Construct the string required for running a parallel Horace instance based on the required
-        % threads, and any extra commands which need to be added (e.g. mpi starters)
+                prefix_command, postfix_command, matlab_extra)
+            % Construct the string required for running a parallel Horace instance based on the required
+            % threads, and any extra commands which need to be added (e.g. mpi starters)
 
             matlab_command = sprintf('maxNumCompThreads(%d);%s;%s(''%s'');exit;', ...
-                                     target_threads, ...
-                                     matlab_extra, ...
-                                     obj.worker_name_, ...
-                                     obj.common_env_var_('WORKER_CONTROL_STRING'));
+                target_threads, ...
+                matlab_extra, ...
+                obj.worker_name_, ...
+                obj.common_env_var_('WORKER_CONTROL_STRING'));
 
             task_info = [prefix_command(:)',...
-                         {obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},...
-                         postfix_command(:)', ...
-                         {'-batch'},{matlab_command}];
+                {obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},...
+                postfix_command(:)', ...
+                {'-batch'},{matlab_command}];
         end
 
 
         function [obj,ok]=wait_started_and_report(obj,check_time,varargin)
-        % check for 'ready' message and report cluster ready to user.
-        %
-        % if not ready for some reason, report the failure and
-        % diagnostics.
-        % Returns:
-        % initialized cluster object with appropriate status set.
-        % ok -- true if cluster started successfully and false if it
-        % does not
-        %
+            % check for 'ready' message and report cluster ready to user.
+            %
+            % if not ready for some reason, report the failure and
+            % diagnostics.
+            % Returns:
+            % initialized cluster object with appropriate status set.
+            % ok -- true if cluster started successfully and false if it
+            % does not
+            %
             if ~exist('check_time', 'var')
                 check_time = 4;
             end
@@ -384,21 +384,21 @@ classdef ClusterWrapper
         end
 
         function [completed, obj] = check_progress(obj,varargin)
-        % Check the job progress from MPI job control system and
-        % verifying and receiving all messages,
-        % sent from Worker 1 in normal circumstances and all
-        % other workers in case of failure.
-        %
-        % usage:
-        %>> [completed, obj] = check_progress(obj) -- check and receive
-        %                      information from appropriate parallel job
-        %                      control system and receive all messages
-        %                      control/log messages addressed to
-        %                      the headnode to identify the
-        %
-        %>> [completed, obj] = check_progress(obj,status_message) accept
-        %                      and verify status message, provided as
-        %                      input
+            % Check the job progress from MPI job control system and
+            % verifying and receiving all messages,
+            % sent from Worker 1 in normal circumstances and all
+            % other workers in case of failure.
+            %
+            % usage:
+            %>> [completed, obj] = check_progress(obj) -- check and receive
+            %                      information from appropriate parallel job
+            %                      control system and receive all messages
+            %                      control/log messages addressed to
+            %                      the headnode to identify the
+            %
+            %>> [completed, obj] = check_progress(obj,status_message) accept
+            %                      and verify status message, provided as
+            %                      input
             if isempty(varargin)
                 if obj.is_job_initiated()
                     [running,failedC,paused,messC]=get_state_from_job_control(obj);
@@ -454,9 +454,9 @@ classdef ClusterWrapper
         end
 
         function obj = display_progress(obj,varargin)
-        % report job progress using internal state of the cluster
-        % calculated by executing check_progress method
-        %
+            % report job progress using internal state of the cluster
+            % calculated by executing check_progress method
+            %
             options = {'-force_display'};
             [ok,mess,force_display,argi] = parse_char_options(varargin,options);
 
@@ -497,8 +497,8 @@ classdef ClusterWrapper
         end
 
         function obj=finalize_all(obj)
-        % Close parallel framework, delete filebased exchange folders
-        % and complete parallel job
+            % Close parallel framework, delete filebased exchange folders
+            % and complete parallel job
             if ~isempty(obj.mess_exchange_)
                 obj.mess_exchange_.finalize_all();
                 new_mess_exchange_folder = obj.mess_exchange_.next_message_folder_name;
@@ -506,7 +506,7 @@ classdef ClusterWrapper
                     [ok,mess]=rmdir(new_mess_exchange_folder,'s');
                     if ~ok
                         warning(' can not clean-up prospective message exchange folder %s Reason %s',...
-                                new_mess_exchange_folder,mess);
+                            new_mess_exchange_folder,mess);
                     end
                 end
                 obj.mess_exchange_ = [];
@@ -518,31 +518,31 @@ classdef ClusterWrapper
         end
 
         function [outputs,n_failed,obj]=  retrieve_results(obj)
-        % retrieve parallel job results
+            % retrieve parallel job results
             [outputs,n_failed,obj] = get_job_results_(obj);
         end
 
         function check_availability(~)
-        % verify the availability of a particular type of framework
-        % (cluster)
-        %
-        % Should throw PARALLEL_CONFIG:not_avalable exception
-        % if the particular framework is not available.
+            % verify the availability of a particular type of framework
+            % (cluster)
+            %
+            % Should throw PARALLEL_CONFIG:not_avalable exception
+            % if the particular framework is not available.
             worker = config_store.instance.get_value('parallel_config','worker');
             assert(~isempty(which(worker)) || exist(worker, 'file'), ...
-                   'HERBERT:ClusterWrapper:not_available',...
-                   'Parallel worker %s is not on Matlab path. Parallel extensions are not available',...
-                   worker);
+                'HERBERT:ClusterWrapper:not_available',...
+                'Parallel worker %s is not on Matlab path. Parallel extensions are not available',...
+                worker);
         end
 
         % The property returns the list of the configurations, available for
         % usage by the
         function config = get_cluster_configs_available(obj)
-        % The function returns the list of the available clusters
-        % to run using correspondent parallel framework.
-        %
-        % The first configuration in the clusters list would be the
-        % default configuration.
+            % The function returns the list of the available clusters
+            % to run using correspondent parallel framework.
+            %
+            % The first configuration in the clusters list would be the
+            % default configuration.
             config = {obj.cluster_config_};
         end
 
@@ -598,12 +598,12 @@ classdef ClusterWrapper
         end
 
         function obj = set.cluster_config(obj,val)
-        % sets up configuration class, suitable for appropriate MPI
-        % cluster.
-        % overload set_cluster_config_ to check and accept such
-        % configuration, used by the particular cluster.
+            % sets up configuration class, suitable for appropriate MPI
+            % cluster.
+            % overload set_cluster_config_ to check and accept such
+            % configuration, used by the particular cluster.
 
-        % only 'local' (or missing) configuration is used by default.
+            % only 'local' (or missing) configuration is used by default.
             obj = set_cluster_config_(obj,val);
         end
 
@@ -612,45 +612,45 @@ classdef ClusterWrapper
         end
 
         function frmwk = get_exchange_framework(obj)
-        % get framework used for data exchange between running cluster
-        % and control node.
+            % get framework used for data exchange between running cluster
+            % and control node.
             frmwk = obj.mess_exchange_;
         end
 
         function [completed,failed,mess] = check_progress_from_messages(obj,varargin)
-        % function analystes received progress messages and calculates
-        % progress from them
-        %
-        % Part of check_progress method. Exposed for testing purposes
+            % function analystes received progress messages and calculates
+            % progress from them
+            %
+            % Part of check_progress method. Exposed for testing purposes
             [completed,failed,mess] = check_progress_from_messages_(obj,varargin{:});
         end
     end
 
     methods(Access=protected)
         function env = set_env(obj,env)
-        % helper function to set enviroment for a java process.
-        % Inputs:
-        % [env] -- If present, Matlab representation of the java env
-        %          the enviroment will be set to java process space.
-        %          If absent, the eniromental variables will be set up
-        %          to current running Matlab version
-        %
+            % helper function to set enviroment for a java process.
+            % Inputs:
+            % [env] -- If present, Matlab representation of the java env
+            %          the enviroment will be set to java process space.
+            %          If absent, the eniromental variables will be set up
+            %          to current running Matlab version
+            %
             keys = obj.common_env_var_.keys;
             val  = obj.common_env_var_.values;
             if exist('env','var')
                 cellfun(@(name,val)env.put(name,val),keys,val,...
-                        'UniformOutput',false);
+                    'UniformOutput',false);
             else
                 cellfun(@(name,val)setenv(name,val),keys,val,...
-                        'UniformOutput',false);
+                    'UniformOutput',false);
             end
         end
 
         function check_failed(obj)
-        % run cluster-specific get_state_from_job_control function and
-        % throw if this function return failure
-        %
-        % Used by init method, to identify cluster startup failure early.
+            % run cluster-specific get_state_from_job_control function and
+            % throw if this function return failure
+            %
+            % Used by init method, to identify cluster startup failure early.
             [~,failed,~,mess] = obj.get_state_from_job_control();
             if failed
                 if isa(mess,'FailedMessage')
@@ -671,54 +671,54 @@ classdef ClusterWrapper
                 obj = obj.finalize_all();
 
                 error('HERBERT:ClusterWrapper:runtime_error',format,...
-                      obj.starting_cluster_name_,jobid,stat_name,info);
+                    obj.starting_cluster_name_,jobid,stat_name,info);
 
             end
         end
 
         function obj = generate_log(obj,varargin)
-        % prepare log message from input parameters and the data, retrieved
-        % by check_progress method
+            % prepare log message from input parameters and the data, retrieved
+            % by check_progress method
             obj = generate_log_(obj,varargin{:});
         end
 
         function obj = set_cluster_config_(obj,val)
             if ~strcmpi(val,obj.cluster_config_)
                 warning('HERBERT:ClusterWrapper:invalid_argument',...
-                        'This type of cluster wrapper accepts only %s configuration. Changed to %s',...
-                        obj.cluster_config_,obj.cluster_config_)
+                    'This type of cluster wrapper accepts only %s configuration. Changed to %s',...
+                    obj.cluster_config_,obj.cluster_config_)
             end
 
         end
 
         function obj = set_cluster_status(obj,mess)
-        % Setter for status property
-        % defined as function and protected to be able to
-        % overload set.status method.
-        %
-        % Does substiturions for messages
-        % running -> log
-        % finished-> completed
-        %
+            % Setter for status property
+            % defined as function and protected to be able to
+            % overload set.status method.
+            %
+            % Does substiturions for messages
+            % running -> log
+            % finished-> completed
+            %
             obj = set_cluster_status_(obj,mess);
         end
 
         function ex = exit_worker_when_job_ends_(~)
-        % function defines desired completion of the workers.
-        % should be true for java-controlled worker and false for parallel
-        % computing toolbox controlled one.
+            % function defines desired completion of the workers.
+            % should be true for java-controlled worker and false for parallel
+            % computing toolbox controlled one.
             ex  = true;
         end
 
         function [running,failed,mess] = is_java_process_running(obj,task_handle)
-        % check if java process is still running or has been completed
-        %
-        % inputs:
-        % task_handle -- handle for Java process
-        % obj.running_mess_contents_ -- the string, containing the
-        %                               part of the java message,
-        %                               indicating that the process is
-        %                               still running
+            % check if java process is still running or has been completed
+            %
+            % inputs:
+            % task_handle -- handle for Java process
+            % obj.running_mess_contents_ -- the string, containing the
+            %                               part of the java message,
+            %                               indicating that the process is
+            %                               still running
             if isempty(task_handle)
                 running = false;
                 failed  = true;
@@ -788,7 +788,7 @@ classdef ClusterWrapper
 
     methods(Static)
         function mpi_exec = get_mpiexec()
-        % Get the appropriate mpiexec program for running MPI jobs
+            % Get the appropriate mpiexec program for running MPI jobs
             mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
             if ~isempty(mpi_exec)
                 if is_file(mpi_exec) % found external mpiexec

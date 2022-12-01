@@ -3,40 +3,39 @@ classdef test_instrument_save_load < TestCaseWithSave
     properties
         inst_DGdisk
         inst_DGfermi
-        matfile
     end
     
     methods
         %--------------------------------------------------------------------------
-        function self = test_instrument_save_load (name)
-            self@TestCaseWithSave(name);
+        function obj = test_instrument_save_load (name)
+            home_folder = fileparts(mfilename('fullpath'));
+            if nargin == 0
+                name = 'test_instrument_save_load';
+            end
+            file = fullfile(home_folder,'test_instrument_save_load_output.mat');
+            obj@TestCaseWithSave(name,file);
+            
             
             % Instruments
-            self.inst_DGdisk = let_instrument_obj_for_tests(8,240,120,20,1,2);
-            self.inst_DGfermi = maps_instrument_obj_for_tests(300,250,'S');
+            obj.inst_DGdisk = let_instrument_obj_for_tests(8,240,120,20,1,2);
+            obj.inst_DGfermi = maps_instrument_obj_for_tests(300,250,'S');
             
-            % Temporary output file
-            self.matfile = fullfile(tmp_dir,'test_instrument_save_load.mat');
             
-            self.save()
+            obj.save()
         end
         
         %--------------------------------------------------------------------------
         function test_DGdisk_mat (self)
-            inst_ref = self.inst_DGdisk;
-            save(self.matfile,'inst_ref');
-            tmp = load(self.matfile);
+            disk_inst_ref = self.inst_DGdisk;
             
-            assertEqual(inst_ref,tmp.inst_ref)
+            assertEqualWithSave(self,disk_inst_ref)
         end
         
         %--------------------------------------------------------------------------
         function test_DGfermi_mat (self)
-            inst_ref = self.inst_DGfermi;
-            save(self.matfile,'inst_ref');
-            tmp = load(self.matfile);
+            fermi_inst_ref = self.inst_DGfermi;
             
-            assertEqual(inst_ref,tmp.inst_ref)
+            assertEqualWithSave(self,fermi_inst_ref)
         end
         
         %--------------------------------------------------------------------------

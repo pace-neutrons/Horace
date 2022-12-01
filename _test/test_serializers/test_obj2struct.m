@@ -50,7 +50,7 @@ classdef test_obj2struct < TestCaseWithSave
         function test_3 (self)
             % Structure of array of objects - independent properties
             S.a = {[self.mod1,self.mod2]};
-            Sres = obj2structIndep(S);
+            Sres = obj2struct(S);
 
             assertEqualWithSave (self,Sres);
 

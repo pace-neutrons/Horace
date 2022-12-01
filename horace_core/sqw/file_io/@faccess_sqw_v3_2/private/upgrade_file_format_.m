@@ -72,7 +72,7 @@ head.u_to_rlu = zeros(4,4);
 head.ulen = ones(1,4);
 head.ulabel = {'a','b','c','d'};
 head.instruments = IX_null_inst();
-head.samples = IX_null_sample();
+head.samples = IX_samp('',head.alatt,head.angdeg);
 head.run_id = 1;
 ids = 1:nfiles;
 if nfiles>1
@@ -83,9 +83,8 @@ else
     heads = head;
 end
 exp_descr = IX_experiment(heads);
-exp = Experiment();
-exp.expdata = exp_descr;
-sq = sq.change_header(exp);
+
+sq.experiment_info = Experiment([],head.instruments,head.samples,exp_descr);
 
 
 function hd= gen_head(head,x)

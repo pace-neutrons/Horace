@@ -17,11 +17,6 @@ if ~isscalar(obj)
         'Method only takes a scalar object')
 end
 
-if ~obj.valid_
-    error('IX_moderator:pdf_table:invalid_argument',...
-        'Moderator object is not valid')
-end
-
 pdf = obj.pdf_;
 
 end

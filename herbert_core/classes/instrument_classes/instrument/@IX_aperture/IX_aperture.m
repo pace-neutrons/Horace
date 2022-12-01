@@ -8,8 +8,9 @@ classdef IX_aperture < serializable
         distance_ = 0;
         width_ = 0;
         height_ = 0;
+        mandatory_field_set_ = false(1,3);
     end
-    
+
     properties (Dependent)
         % Mirrors of private properties
         name
@@ -25,7 +26,7 @@ classdef IX_aperture < serializable
             % Create sample object
             %
             %   >> aperture = IX_aperture (distance, width, height)
-            %   >> aperture = IX_aperture (name, distance, width, height)
+            %   >> aperture = IX_aperture (distance, width, height,name)
             %
             % Required:
             %   distance        Distance from sample (-ve if upstream, +ve if downstream)
@@ -38,37 +39,45 @@ classdef IX_aperture < serializable
             %
             % Note: any number of the arguments can given in arbitrary order
             % after leading positional arguments if they are preceded by the
-            % argument name (including abbreviations) with a preceding hyphen e.g.
+            % argument name (including abbreviations) e.g.:
             %
-            %   ap = IX_aperture (distance, width, height,'-name','in-pile')
-            
-            
+            %   ap = IX_aperture (distance, width, height,'name','in-pile')
+
+
             % Original author: T.G.Perring
-            
-            
+
+
             % Use the non-dependent property set functions to force a check of type,
             % size etc.
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_aperture.loadobj(varargin{1});
             elseif nargin>0
-                namelist = {'name','distance','width','height'};
-                [S, present] = parse_args_namelist ({namelist,{'char'}}, varargin{:});
-                
-                if present.name
-                    obj.name_ = S.name;
-                end
-                if present.distance && present.width && present.height
-                    obj.distance_ = S.distance;
-                    obj.width_ = S.width;
-                    obj.height_ = S.height;
+                % define parameters accepted by constructor as keys and also the
+                % order of the positional parameters, if the parameters are
+                % provided without their names
+                pos_params = obj.saveableFields();
+                % process deprecated interface where the "name" property
+                % value is first among the input arguments.
+                if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
+                    argi = varargin(2:end);
+                    obj.name = varargin{1};
                 else
-                    error('HERBERT:IX_apperture:invalid_argument',...
-                        'Must give distance, width and height')
+                    argi = varargin;
+                end
+                % set positional parameters and key-value pairs and check their
+                % consistency using public setters interface. Run
+                % check_compo_arg after all settings have been done.
+                [obj,remains] = set_positional_and_key_val_arguments(obj,...
+                    pos_params,true,argi{:});
+                if ~isempty(remains)
+                    error('HERBERT:IX_aperture:invalid_argument', ...
+                        'Unrecognized extra parameters provided as input to IX_aperture constructor: %s',...
+                        disp2str(remains));
                 end
             end
         end
-        
+
         %------------------------------------------------------------------
         % Set methods for dependent properties
         %
@@ -82,56 +91,54 @@ classdef IX_aperture < serializable
                 error('HERBERT:IX_apperture:invalid_argument',...
                     'Sample name must be a character string (or empty string)')
             end
-            
+
             obj.name_=val;
         end
-        
+
         function obj=set.distance(obj,val)
             if isscalar(val) && isnumeric(val)
                 obj.distance_=val;
+                obj.mandatory_field_set_(1)=true;
             else
                 error('HERBERT:IX_apperture:invalid_argument',...
                     'Distance must be a numeric scalar')
             end
-            
-            obj.distance_=val;
         end
-        
+
         function obj=set.width(obj,val)
             if isscalar(val) && isnumeric(val) && val>=0
                 obj.width_=val;
+                obj.mandatory_field_set_(2)=true;
             else
                 error('HERBERT:IX_apperture:invalid_argument',...
                     'Aperture width must be a numeric scalar greater than or equal to zero')
             end
-            
-            obj.width_=val;
         end
-        
+
         function obj=set.height(obj,val)
             if isscalar(val) && isnumeric(val) && val>=0
                 obj.height_=val;
+                obj.mandatory_field_set_(3)=true;
             else
                 error('HERBERT:IX_apperture:invalid_argument',...
                     'Aperture height must be a numeric scalar greater than or equal to zero')
             end
-            obj.height_=val;
         end
-        
+
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function val=get.name(obj)
             val=obj.name_;
         end
-        
+
         function val=get.distance(obj)
             val=obj.distance_;
         end
-        
+
         function val=get.width(obj)
             val=obj.width_;
         end
-        
+
         function val=get.height(obj)
             val=obj.height_;
         end
@@ -159,42 +166,51 @@ classdef IX_aperture < serializable
             % optimization here is possible to not to use the public
             % interface. But is it necessary? its the question
             obj = from_old_struct@serializable(obj,inputs);
-            
+
         end
     end
-    
-    
+
+
     %======================================================================
-    % Methods for fast construction of structure with independent properties
-    methods (Static, Access = private)
-        function names = propNamesIndep_
-            % Determine the independent property names and cache the result.
-            % Code is boilerplate
-            persistent names_store
-            if isempty(names_store)
-                names_store = fieldnamesIndep(eval(mfilename('class')));
-                % here we rely on agreement that private independent
-                % properties have the same names as public properties but
-                % have added suffix '_' at the end
-                names_store = cellfun(@(x)x(1:end-1),...
-                    names_store,'UniformOutput',false);
-            end
-            names = names_store;
-        end
-    end
-    
     methods
-        function flds = saveableFields(obj)
+        function flds = saveableFields(~,mandatory)
             % Return cellarray of independent properties of the class
             %
-            flds = obj.propNamesIndep_;
+            if exist('mandatory','var')
+                mandatory = true;
+            else
+                mandatory = false;
+            end
+            flds = {'distance','width','height','name'};
+            if mandatory
+                flds = flds(1:3);
+            end
         end
         function ver  = classVersion(~)
             % return current class version as it is stored on hdd
             ver = 2;
         end
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check
+            %
+            % Throw if the properties are inconsistent and return without
+            % problem it they are not, after recomputing dependent variables
+            %  if requested.
+
+
+            if ~all(obj.mandatory_field_set_)
+                mandatory_field_names = obj.saveableFields('mandatory');
+                error('HERBERT:IX_aperture:invalid_argument', ...
+                    'Must give all mandatory properties namely: %s\n. Properties: %s have not been set', ...
+                    disp2str(mandatory_field_names),...
+                    disp2str(mandatory_field_names(~obj.mandatory_field_set_)));
+            end
+
+        end
+
     end
-    
+
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -205,5 +221,5 @@ classdef IX_aperture < serializable
         end
     end
     %======================================================================
-    
+
 end

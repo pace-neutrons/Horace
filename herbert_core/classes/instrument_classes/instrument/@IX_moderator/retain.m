@@ -23,10 +23,6 @@ if ~isscalar(obj)
         'Method only takes a scalar object')
 end
 
-if ~obj.valid_
-    error('IX_moderator:retain:invalid_argument',...
-        'Moderator object is not valid')
-end
 
 ok = retain (pdf_table(obj), t);
 

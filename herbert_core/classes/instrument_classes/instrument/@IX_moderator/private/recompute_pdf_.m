@@ -17,11 +17,6 @@ if ~isscalar(obj)
         'Method only takes a scalar object')
 end
 
-if ~obj.valid_
-    error('IX_moderator:recompute_pdf_:invalid_argument',...
-        'Moderator object is not valid')
-end
-
 models= obj.pulse_models_;
 model = obj.pulse_model_;
 
@@ -35,10 +30,9 @@ elseif models.match('table',model)
     pdf = table_recompute_pdf (obj.pp_);
     
 elseif models.match('delta_function',model)
-    pdf = delta_function_recompute_pdf (obj.pp_);
-    
+    pdf = delta_function_recompute_pdf (obj.pp_);    
 else
-    error('IX_moderator:recompute_pdf_:invalid_argument',...
+    error('HERBERT:IX_moderator:invalid_argument',...
         'Unrecognised moderator pulse model for computing pdf_table')
 end
 

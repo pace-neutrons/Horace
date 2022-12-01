@@ -24,7 +24,7 @@ function [sample, s_mat, spec_to_rlu, alatt, angdeg] =...
 
 % Check sample description the same for all spe files in the sqw object
 samples = header.samples;
-nrun=numel(samples);
+nrun=samples.n_runs;
 sample=samples{1};
 alatt=sample.alatt;
 angdeg=sample.angdeg;
@@ -33,7 +33,9 @@ for i=2:nrun
         error('HORACE:sample_coords_to_spec_to_rlu:invalid_argument', ...
             'Sample description must be identical for all contributing spe files');
     end
-    if ~all(alatt==samples{i}.alatt) || ~all(angdeg==samples{i}.angdeg)
+    si = samples{i};
+    if ~all(alatt==si.alatt) || ~all(angdeg==si.angdeg)
+        ok=false;
         error('HORACE:sample_coords_to_spec_to_rlu:invalid_argument', ...
             'Lattice parameters must be identical for all contributing spe files');
     end

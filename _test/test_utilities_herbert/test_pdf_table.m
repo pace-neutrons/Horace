@@ -134,7 +134,7 @@ classdef test_pdf_table < TestCaseWithSave
         end
             
         %--------------------------------------------------------------------------
-        function test_9 (self)
+        function test_9 (~)
             % Gaussian - to test random number selection
             % Something more complex than a hat or triangle
             x = linspace(31,69,381);
@@ -167,9 +167,26 @@ classdef test_pdf_table < TestCaseWithSave
             assertTrue(all(abs(Nnorm-Anorm)./Anorm < 1e-3)) % account for random noise
             
         end
+        function test_function_handle_vs_values(~)
+            x = linspace(31,69,381);
+            
+            pdf_fh = pdf_table(x,@gauss,[10,50,10]);
+
+            y = gauss(x,[10,50,10]);
+            pdf_val = pdf_table(x,y);            
+
+            assertEqual(pdf_val,pdf_fh);
+
+            fh = @(x)gauss(x,[10,40,10]);
+            pdf_fh.f = fh;
+            
+            y_prime = fh(x);
+            pdf_val.f = y_prime;            
+            assertEqual(pdf_val,pdf_fh);            
+        end
             
         %--------------------------------------------------------------------------
-        function test_10 (self)
+        function test_10 (~)
             % delta function random selection
             pdf_delta = pdf_table (23,Inf);
             

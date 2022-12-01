@@ -145,8 +145,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         function [instr_str,sampl_str] = get_instr_sample_to_save(~,exp_info)
             % get instrument and sample data in the form they would be written
             % on hdd.
-            instr = exp_info.get_unique_instruments();
-            sampl = exp_info.get_unique_samples();
+            instr = exp_info.instruments.unique_objects; % get_unique_instruments();
+            sampl = exp_info.samples.unique_objects; % get_unique_samples();
             instr_str = cellfun(@(x)(x.to_struct()),instr,'UniformOutput',false);
             sampl_str = cellfun(@(x)(x.to_struct()),sampl,'UniformOutput',false);            
         end
@@ -222,11 +222,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %>>inst = obj.get_instrument(number)
             % Returns instrument with number, specified
             %>>inst = obj.get_instrument('-all')
-            % returns array of instruments if they are different or
-            % single instrument if they are the same.
+            % returns unique_object_container containing instruments
             %
-            %TODO: change this to return always array or always cellarray
-            %      regardless of the internal structure
             [inst,obj] = get_instr_or_sample_(obj,'instrument',varargin{:});
         end
         %

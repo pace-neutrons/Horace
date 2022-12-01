@@ -24,10 +24,6 @@ if ~isscalar(obj)
         'Method only takes a scalar object')
 end
 
-if ~obj.valid_
-    error('IX_moderator:pulse_shape:invalid_argument',...
-        'Moderator object is not valid')
-end
 
 if numel(varargin)==0
     t = []; % interpreted by called functions to choose a default set of times

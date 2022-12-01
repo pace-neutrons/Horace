@@ -10,10 +10,30 @@ if ~isempty(obj.lattice)
     lat = obj.lattice;
     obj.isvalid_ = lat.isvalid;
     obj.reason_for_invalid_ = lat.reason_for_invalid;
+    % TODO: sample and lattice should be the same object
+    lat.do_check_combo_arg = obj.do_check_combo_arg_;
+    lat.angular_units = 'deg';
+    if isa(obj.sample_,'IX_null_sample')
+        obj.sample_ = IX_samp('',lat.alatt,lat.angdeg);
+    elseif isa(obj.sample_,'IX_samp')
+        if is_defined(lat,'alatt') && is_defined(lat,'angdeg')
+            obj.sample_.alatt = lat.alatt;
+            obj.sample_.angdeg  = lat.angdeg;
+        end
+    else
+        if is_defined(lat,'alatt')
+            obj.sample_.alatt = lat.alatt;
+        end
+        if is_defined(lat,'angdeg')
+            obj.sample_.angdeg = lat.angdeg;
+        end
+    end
     if ~obj.isvalid_
         return;
-    end
+    end    
 end
+
+
 % Check efix
 [obj.isvalid_,obj.reason_for_invalid_] = check_efix_correct(obj);
 if ~obj.isvalid_
@@ -103,7 +123,6 @@ switch(obj.emode)
                     n_efix,n_det);
             end
         end
-
         if efix_min+bin_bndry<0
             ok = false;
             mess = sprintf( ...

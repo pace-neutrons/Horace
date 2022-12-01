@@ -1,4 +1,5 @@
 classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & sqw_plot_interface
+
     %SQW Create an sqw object
     %
     % Syntax:
@@ -26,8 +27,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %       neutron experiment.
         %
         pix % access to pixel information, if any such information is
-        %     stored within the object. May also provide pix_combine_info
-        %     or filebased pixels.
+        %     stored within an object. May also return pix_combine_info or
+        %     filebased pixels. (TODO -- this should be modified)
+        %;
     end
     properties(Hidden,Dependent)
         % obsolete property, duplicating detpar. Do not use
@@ -43,17 +45,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % holder for pix data
         pix_ = PixelData()      % Object containing data for each pixe
     end
-    properties(Access=private)
+    properties(Access=protected)
         main_header_ = main_header_cl();
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
-    properties(Constant,Access=protected)
-        fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
-    end
-
+    %======================================================================
+    % Various sqw methods
     methods
-        has = has_pixels(w);          % returns true if a sqw object has non-zero number of pixels
+        has = has_pixels(w);          % returns true if a sqw object has pixels
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         wout = smooth(win, varargin)  % smooth sqw object or array of sqw
         %                             % objects containing no pixels
@@ -75,8 +75,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
-        wout = signal(w,name);  % Set the intensity of an sqw object to the
-        %                       % values for the named argument
         wout = cut(obj, varargin); % take cut from the sqw object.
         %
         function wout = cut_dnd(obj,varargin)
@@ -89,23 +87,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         %
         [wout,mask_array] = mask(win, mask_array);
+        %
         wout = mask_pixels(win, mask_array);
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
-        %[sel,ok,mess] = mask_points (win, varargin);
 
+
+        %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
-        % TOBYFIT intreface
-        %------------------------------------------------------------------
-        %TODO: Something in this interface looks dodgy. Should it be just
-        %      TOBYFIT interface, or should it go out of here?
-        varargout = tobyfit (varargin);
-        [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
-            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
-        [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
-            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
+
 
         %------------------------------------------------------------------
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
@@ -137,8 +127,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = replicate (win,wref);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
-
-        %------------------------------------------------------------------
+        %
+        function  save_xye(obj,varargin)
+            save_xye(obj.data,varargin{:});
+        end
+        function  s=xye(w, varargin)
+            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
+            s = w.data.xye(varargin{:});
+        end
+    end
+    %======================================================================
+    % ACCESSORS TO OBJECT PROPERTIES and construction
+    methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
 
@@ -186,19 +186,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
             end
         end
-        %------------------------------------------------------------------
-        % ACCESSORS TO OBJECT PROPERTIES To remove?
-        function dtp = my_detpar(obj)
-            dtp = obj.detpar_x;
-        end
-
-        function obj = change_detpar(obj,dtp)
-            obj.detpar_x = dtp;
-        end
-        function obj = change_header(obj,hdr)
-            obj.experiment_info = hdr;
-        end
-        %------------------------------------------------------------------
+        %------------------------------------------------------------------        
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
@@ -226,19 +214,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
         end
         %
-        function hdr = get.header(obj)
-            % return old (legacy) header(s) providing short experiment info
-            %
-            if isempty(obj.experiment_info_)
-                hdr = IX_experiment().to_bare_struct();
-                hdr.alatt = [];
-                hdr.angdeg = [];
-                return;
-            end
-            hdr = obj.experiment_info_.convert_to_old_headers();
-            hdr = [hdr{:}];
-            hdr = rmfield(hdr,{'instrument','sample'});
-        end
         function val = get.detpar(obj)
             val = obj.detpar_;
         end
@@ -281,25 +256,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.experiment_info_ = val;
         end
         %------------------------------------------------------------------
-        function val = get.detpar_x(obj)
-            % obsolete interface
-            val = obj.detpar_;
-        end
-        function obj = set.detpar_x(obj,val)
-            % obsolete interface
-            obj.detpar_ = val;
-        end
-        %------------------------------------------------------------------
-        function  save_xye(obj,varargin)
-            save_xye(obj.data,varargin{:});
-        end
-        function  s=xye(w, varargin)
-            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
-            s = w.data.xye(varargin{:});
-        end
+        % READ Only Accessors
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
         end
+        %
         function map = get.runid_map(obj)
             if isempty(obj.experiment_info)
                 map = [];
@@ -314,37 +275,81 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function is = dnd_type(obj)
             is = isempty(obj.pix_);
         end
+    end
+    %======================================================================
+    % REDUNDANT and compartibility ACCESSORS    
+    methods
+        function obj = change_header(obj,hdr)
+            obj.experiment_info = hdr;
+        end
 
-        %------------------------------------------------------------------
-        % SERIALIZABLE INTERFACE
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
-            ver = 4;
+        function dtp = my_detpar(obj)
+            dtp = obj.detpar_x;
         end
-        function flds = saveableFields(~)
-            flds = sqw.fields_to_save_;
+
+        function obj = change_detpar(obj,dtp)
+            obj.detpar_x = dtp;
         end
-        function str = saveobj(obj)
-            if ~obj.main_header_.creation_date_defined
-                % support old files, which do not have creation date defined
-                obj.main_header_.creation_date = datetime('now');
+        function val = get.detpar_x(obj)
+            % obsolete interface
+            val = obj.detpar_;
+        end
+        function obj = set.detpar_x(obj,val)
+            % obsolete interface
+            obj.detpar_ = val;
+        end
+        function hdr = get.header(obj)
+            % return old (legacy) header(s) providing short experiment info
+            %
+            if isempty(obj.experiment_info_)
+                hdr = IX_experiment().to_bare_struct();
+                hdr.alatt = [];
+                hdr.angdeg = [];
+                return;
             end
-            str = saveobj@serializable(obj);
+            hdr = obj.experiment_info_.convert_to_old_headers();
+            hdr = [hdr{:}];
+            hdr = rmfield(hdr,{'instrument','sample'});
         end
     end
+    %======================================================================
+    % TOBYFIT INTERFACE
+    methods
+        % set the moderator pulse model and its parameters. (TODO: should
+        % be setting a class. Ticket #910)
+        obj = set_mod_pulse(obj,pulse_model,pmp)
+        % Get moderator pulse model name and mean pulse parameters for
+        % an array of sqw objects
+        [pulse_model,pp,ok,mess,p,present] = get_mod_pulse(varargin)
 
-    methods(Static)
-        function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
-            % saveable class
-            obj = sqw();
-            obj = loadobj@serializable(S,obj);
+        % add or reset instrument, related to this sqw object
+        obj = set_instrument(obj, instrument,varargin)
+        function inst = get_instruments(obj,varargin)
+            % retrieve object container with instruments
+            inst = obj.experiment_info.instruments;
         end
-    end
+        % Return the mean fixed neutron energy and emode for an array of sqw objects.
+        [efix,emode,ok,mess,en] = get_efix(obj,tol);
+        % Set the fixed neutron energy for an array of sqw objects.        
+        obj = set_efix(obj,efix,emode);        
 
+        % Change the crystal lattice and orientation of an sqw object or array of objects
+        wout = change_crystal (obj,varargin)
+
+        %TODO: Special call on interface for different type of instruments
+        %      from generic object, which may contain any instrument is 
+        %      incorrect. It should be resfun covariance here, if it is needs
+        %      to be here at all.
+        varargout = tobyfit (varargin);
+        [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
+            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
+        [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
+            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
+
+    end
+    %======================================================================
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
@@ -357,37 +362,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = sqw_eval_pix(w, sqwfunc, ave_pix, pars, outfilecell, i);
 
         function  [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
+            % compare two sqw objects according to internal comparison
+            % algorithm
             [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
         end
-
-        function obj = from_old_struct(obj,S)
-            % restore object from the old structure, which describes the
-            % previous version(s) of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % Input:
-            % ------
-            %   S       An instance of this object or struct
-            % By default, this function interfaces the default from_bare_struct
-            % method, but when the old structure substantially differs from
-            % the modern structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
-            %
-            obj = set_from_old_struct_(obj,S);
-        end
     end
-    %----------------------------------------------------------------------
+    %======================================================================
     methods(Static, Access = private)
         % Signatures of private class functions declared in files
         sqw_struct = make_sqw(ndims);
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
     end
-    %----------------------------------------------------------------------
-    methods(Access = 'private')
+    %======================================================================
+    methods(Access = private)
         % process various inputs for the constructor and return some
         % standard output used in sqw construction
         args = parse_sqw_args_(obj,varargin)
@@ -422,5 +410,67 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.data = data_struct.data;
             obj.pix = data_struct.pix;
         end
+        function  [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,varargin)
+            % Helper function for various set component for Tobyfit methods
+            % Given array of values to set on array of objects, identify how these
+            % values should be distributed among objects
+            [set_single,set_per_obj,n_runs_in_obj]=find_set_mode_(obj,varargin{:});
+        end
     end
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access=protected)
+        fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
+    end
+
+    methods
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 4;
+        end
+        function flds = saveableFields(~)
+            flds = sqw.fields_to_save_;
+        end
+        function str = saveobj(obj)
+            if ~obj.main_header_.creation_date_defined
+                % support old files, which do not have creation date defined
+                obj.main_header_.creation_date = datetime('now');
+            end
+            str = saveobj@serializable(obj);
+        end
+    end
+    methods(Access = protected)
+
+        function obj = from_old_struct(obj,S)
+            % restore object from the old structure, which describes the
+            % previous version(s) of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % Input:
+            % ------
+            %   S       An instance of this object or struct
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadob to recover new structure from an old structure.
+            %
+            obj = set_from_old_struct_(obj,S);
+        end
+    end
+
+    methods(Static)
+        function obj = loadobj(S)
+            % loadobj method, calling generic method of
+            % saveable class. Provides empty sqw class instance to 
+            obj = sqw();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
+
 end

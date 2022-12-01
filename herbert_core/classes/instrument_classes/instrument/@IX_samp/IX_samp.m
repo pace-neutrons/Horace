@@ -8,12 +8,6 @@ classdef IX_samp  < serializable
         angdeg_;
     end
 
-    properties (Access=private)
-        % Stored properties - but kept private and accessible only through
-        % public dependent properties because validity checks of setters
-        % require checks against the other properties
-    end
-
     properties
         %
     end
@@ -56,22 +50,25 @@ classdef IX_samp  < serializable
             [obj,remains] = init(obj,varargin{:});
         end
         function  [obj,remains] = init(obj,varargin)
-            % initialize serializable object using constructor fields
-            % 'name','alatt','angdeg'
-            fields = obj.saveableFields();
-            [obj,remains] = set_positional_and_key_val_arguments(obj,fields,...
-                varargin{:});
+            % define parameters accepted by constructor as keys and also the
+            % order of the positional parameters, if the parameters are
+            % provided without their names
+            pos_params = obj.saveableFields();
+            % process deprecated interface where the "name" property is
+            % first among the input arguments
+            if ischar(varargin{1})&&~strncmp(varargin{1},'-',1)&&~ismember(varargin{1},pos_params)
+                argi = varargin(2:end);
+                obj.name = varargin{1};
+            else
+                argi = varargin;
+            end
+            % set positional parameters and key-value pairs and check their
+            % consistency using public setters interface. check_compo_arg
+            % after all settings have been done.
+            [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
+                false,argi{:});
         end
 
-        % SERIALIZABLE interface
-        %------------------------------------------------------------------
-        function vers = classVersion(~)
-            vers = 0; % base class function, dummy value
-        end
-
-        function flds = saveableFields(~)
-            flds = {'name', 'alatt', 'angdeg'};
-        end
 
         %------------------------------------------------------------------
         % Set methods
@@ -97,8 +94,8 @@ classdef IX_samp  < serializable
             end
         end
 
-        function n=get.name(obj)
-            n = obj.name_;
+        function name=get.name(obj)
+            name = get_name(obj);
         end
 
         function obj=set.alatt(obj,val)
@@ -120,11 +117,13 @@ classdef IX_samp  < serializable
                     'Sample alatt must be a 1 or 3 compoment numeric vector')
             end
         end
-
         function alat=get.alatt(obj)
-            alat = obj.alatt_;
+            alat = get_lattice(obj);
         end
-
+        %
+        function ang=get.angdeg(obj)
+            ang = get_angles(obj);
+        end
         function obj=set.angdeg(obj,val)
             if isempty(val)
                 obj.angdeg_ = [];
@@ -146,9 +145,34 @@ classdef IX_samp  < serializable
 
             obj.angdeg_=val(:)';
         end
-
-        function ang=get.angdeg(obj)
+    end
+    methods(Access = protected)
+        function alat = get_lattice(obj)
+            alat = obj.alatt_;
+        end
+        function ang = get_angles(obj)
             ang = obj.angdeg_;
+        end
+        function name = get_name(obj)
+            name = obj.name_;
+        end
+    end
+    % SERIALIZABLE interface
+    %------------------------------------------------------------------
+    properties (Constant,Access=protected)
+        % Stored properties - but kept protected (to allow children access)
+        % and accessible only through
+        % public dependent properties because validity checks of setters
+        % require checks against the other properties
+        fields_to_save_ =  {'alatt', 'angdeg','name'};
+    end
+    methods
+        function vers = classVersion(~)
+            vers = 0; % base class function
+        end
+
+        function flds = saveableFields(~)
+            flds =IX_samp.fields_to_save_;
         end
     end
     %------------------------------------------------------------------

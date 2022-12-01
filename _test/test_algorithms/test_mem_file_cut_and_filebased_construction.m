@@ -140,7 +140,8 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
 
             cut_horace(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
             tmp=sqw(tmp_file);
-            [ok,mess]=equal_to_tol(tmp0,tmp,'ignore_str',1); assertTrue(ok,['test_file_input: Error in functionality',mess]);
+
+            assertEqualToTol(tmp0,tmp,'ignore_str');
 
             % looks like waste of time?
             %cut_sqw(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
@@ -224,14 +225,10 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             s1_s_s=cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_f_s=cut_sqw(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
 
-            [ok,mess] = equal_to_tol(s1_s_s,s1_s_h);
-            assertTrue(ok,['Error in functionality: ',mess])
 
-            [ok,mess] = equal_to_tol(s1_s_h,s1_s_s);
-            assertTrue(ok,['Error in functionality: ',mess])
+            assertEqualToTol(s1_s_h,s1_s_s,'-ignore_date');
 
-            [ok,mess] = equal_to_tol(s1_s_h,s1_f_s,[1.e-7,1.e-7],'ignore_str',1);
-            assertTrue(ok,['Error in functionality: ',mess])
+            assertEqualToTol(s1_s_h,s1_f_s,'-ignore_date','ignore_str',1);
         end
 
         function test_cut_sqw_fais_on_dnd(obj)

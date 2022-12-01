@@ -151,6 +151,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % smooth dnd object or array of dnd objects
         wout = smooth(win, varargin)
 
+        % Change the crystal lattice and orientation of an sqw object or array of objects
         wout = change_crystal(win,varargin);
         %------------------------------------------------------------------
         % Accessors
@@ -186,7 +187,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 elseif ~isempty(args.set_of_fields)
                     keys = obj.saveableFields();
                     obj(i) = set_positional_and_key_val_arguments(obj,...
-                        keys,args.set_of_fields{:});
+                        keys,false,args.set_of_fields{:});
                     % copy label from projection to axes block in case it
                     % has been redefined on projection
                     is_proj = cellfun(@(x)isa(x,'aProjection'),args.set_of_fields);
@@ -471,4 +472,3 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
     end
 end
-

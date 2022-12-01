@@ -73,7 +73,18 @@ else
         end
     end
 end
-if iscell(the_obj)
+if isa(the_obj, 'unique_objects_container')
+    if the_obj.n_unique == 1 &&  the_obj.n_runs == 1
+        contents = the_obj.unique_objects;
+    elseif the_obj.n_unique > 1 && (the_obj.n_unique == the_obj.n_runs)
+        contents = the_obj.unique_objects;
+        contents = contents(the_obj.idx);
+    else
+        ic = 1:the_obj.n_runs;
+        contents = arrayfun(@(x)the_obj(x),ic,'UniformOutput',false);
+    end
+    the_obj = cellfun(@(x)x.to_struct,contents);
+elseif iscell(the_obj)
     the_obj = cellfun(@(x)(x.to_struct),the_obj,'UniformOutput',false);
 else
     the_obj = arrayfun(@(x)(x.to_struct),the_obj,'UniformOutput',false);

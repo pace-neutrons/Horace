@@ -107,16 +107,35 @@ classdef IX_experiment < serializable
         %------------------------------------------------------------------
         % SQW_binfile_common methods related to saving to binfile and
         % run_id scrambling:
-        function old_hdr = convert_to_binfile_header(obj,alatt,angdeg,nomangle)
+        function old_hdr = convert_to_binfile_header(obj,mode,arg1,arg2,nomangle)
             % convert to the header structure, to be stored in the old
             % binary files.
+            %
             % Inputs:
-            % obj   -- the header to convert
-            % alatt -- lattice cell sizes (3x1 vector)
-            % angdeg --lattice angles (3x1 vector)
+            % Required:
+            % obj   -- the experiment data header object to convert - 
+            % mode  --
+            %    = '-inst_samp' : the next 2 arguments are an instrument
+            %                     and sample respectively
+            %    = '-alatt_angdeg' : the next 2 arguments are the alatt and
+            %                        angdeg values of the run respectively.
+            %                        In this case a null instrument and
+            %                        sample with these values are created
+            %                        and used.
+            % arg1  --
+            %    = instrument to set if mode == '-inst_samp'
+            %    = alatt -- lattice cell sizes (3x1 vector) if mode ==
+            %               '-alatt_angdeg'
+            % arg2  --
+            %    = sample to set if node == '-inst_samp'
+            %    = angdeg --lattice angles (3x1 vector) if mode ==
+            %               '-alatt_angdeg'
             % Optional:
             % nomangle -- if false or absent, mangle (append to the end)
             %             file name with run_id (if one is defined)
+            %
+            % Outputs:
+            % old_hdr  -- struct with the old-style header data
             %
             if ~exist('nomangle','var')
                 nomangle = false;
@@ -126,10 +145,20 @@ classdef IX_experiment < serializable
                 old_hdr.filename = sprintf('%s$id$%d',old_hdr.filename,old_hdr.run_id);
             end
             old_hdr = rmfield(old_hdr,'run_id');
-            old_hdr.alatt = alatt;
-            old_hdr.angdeg = angdeg;
-            old_hdr.instrument = struct();
-            old_hdr.sample = struct();
+            if strcmp( mode, '-inst_samp')
+                old_hdr.instrument = arg1;
+                old_hdr.sample     = arg2;
+                old_hdr.alatt      = arg2.alatt;
+                old_hdr.angdeg     = arg2.angdeg;
+            elseif strcmp( mode, '-alatt_angdeg')
+                old_hdr.instrument = IX_null_inst();
+                old_hdr.sample = IX_null_sample('',arg1,arg2);
+                old_hdr.alatt      = arg1;
+                old_hdr.angdeg     = arg2;
+            else
+                error('HORACE:convert_to_binfile_header:invalid argument', ...
+                      'mode arg is not -inst_samp or -alatt_angdeg');
+            end
         end
         function obj = IX_experiment(varargin)
             if nargin==0
@@ -161,12 +190,7 @@ classdef IX_experiment < serializable
                     % constructor
                     % The constructor parameters names in the order, then can
                     % appear in constructor
-                    for i=1:numel(flds)
-                        fld = flds{i};
-                        if isfield(input,fld)
-                            obj.(fld) = input.(fld);
-                        end
-                    end
+                    obj = IX_experiment.loadobj(input);
                 else
                     error('HERBERT:IX_experiment:invalid_argument',...
                         'Unrecognised single input argument of class %s',...
@@ -179,10 +203,11 @@ classdef IX_experiment < serializable
                 % key-value pairs. The accurate validation should occur on
                 % setters.
                 [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                    flds,varargin{:});
+                    flds,false,varargin{:});
                 if ~isempty(remains)
                     error('HERBERT:IX_experiment:invalid_argument',...
-                        'Non-recognized extra-arguments provided as input for constructor for IX_experiemt')
+                        'Non-recognized extra-arguments provided as input for constructor for IX_experiemt: %s', ...
+                        disp2str(remains));
                 end
             else
                 error('HERBERT:IX_experiment:invalid_argument',...

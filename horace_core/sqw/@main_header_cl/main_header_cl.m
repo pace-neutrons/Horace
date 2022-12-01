@@ -66,16 +66,6 @@ classdef main_header_cl < serializable
         dt_format = 'yyyy-mm-ddTHH:MM:SS';
     end
 
-    properties(Constant,Access = protected)
-        % fields used with serializable interface. Keep order of fields
-        % unchanged, as setting creation_date sets also creation_date_defined_
-        % and creation_date_defined_privately sets/reads creation_date_defined_
-        % (contrary to usual convention, but necessary for supporting old
-        % mat and sqw files, which do not have these proerties stored within them)
-        fields_to_save_ = {'filename','filepath','title','nfiles',...
-            'creation_date','creation_date_defined_privately'};
-    end
-
     methods
         function obj = main_header_cl(varargin)
             % Construct an instance of main header class
@@ -89,33 +79,27 @@ classdef main_header_cl < serializable
             switch nargin
                 case 0
                     return;
-
                 case 1
                     arg = varargin{1};
 
                     if isa(arg,'main_header')
                         obj = arg;
-
                     elseif isstruct(arg)
                         obj = serializable.from_struct(arg,obj);
                         if isfield(arg,'filename_with_cdate')
                             obj.filename_with_cdate = arg.filename_with_cdate;
                         end
-
                     elseif ischar(arg)
                         obj.filename = arg;
-
                     else
                         error('HORACE:main_header:invalid_argument',...
                             'Can not construct main header from parameter %s',...
                             evalc('disp(arg))'))
                     end
-
                 otherwise
-
                     param_names_list = obj.saveableFields();
                     [obj,remains] = obj.set_positional_and_key_val_arguments(...
-                        param_names_list(1:4),varargin{:});
+                        param_names_list(1:4),false,varargin{:});
 
                     if ~isempty(remains)
                         error('HORACE:main_header:invalid_argument',...
@@ -256,9 +240,20 @@ classdef main_header_cl < serializable
             % creation date becomes "known";
             obj = set_filename_with_cdate_(obj,val);
         end
-
-        %------------------------------------------------------------------
-
+    end
+    %------------------------------------------------------------------    
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access = protected)
+        % fields used with serializable interface. Keep order of fields
+        % unchanged, as setting creation_date sets also creation_date_defined_
+        % and creation_date_defined_privately sets/reads creation_date_defined_
+        % (contrary to usual convention, but necessary for supporting old
+        % mat and sqw files, which do not have these proerties stored within them)
+        fields_to_save_ = {'filename','filepath','title','nfiles',...
+            'creation_date','creation_date_defined_privately'};
+    end
+    
+    methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
             % and nxsqw data format. Each new version would presumably read

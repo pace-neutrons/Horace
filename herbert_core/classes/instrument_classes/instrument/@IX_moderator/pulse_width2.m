@@ -25,13 +25,8 @@ function [width, tmax, tlo, thi] = pulse_width2 (obj, frac, varargin)
 
 
 if ~isscalar(obj)
-    error('IX_moderator:pulse_width2:invalid_argument',...
+    error('HERBERT:IX_moderator:invalid_argument',...
         'Method only takes a scalar object')
-end
-
-if ~obj.valid_
-    error('IX_moderator:pulse_width2:invalid_argument',...
-        'Moderator object is not valid')
 end
 
 if numel(varargin)==0
@@ -39,7 +34,7 @@ if numel(varargin)==0
 elseif numel(varargin)==1
     energy = varargin{1};
 else
-    error('IX_moderator:pulse_width2:invalid_argument',...
+    error('HERBERT:IX_moderator:invalid_argument',...
         'Check number of input arguments')
 end
 
@@ -59,7 +54,7 @@ elseif models.match('delta_function',model)
     [width, tmax, tlo, thi] = delta_function_pulse_width2 (obj.pp_, frac, energy);
     
 else
-    error('IX_moderator:pulse_width2:invalid_argument',...
+    error('HERBERT:IX_moderator:invalid_argument',...
         'Unrecognised moderator pulse model for computing pulse width')
 end
 

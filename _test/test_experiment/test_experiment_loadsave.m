@@ -61,11 +61,11 @@ classdef test_experiment_loadsave < TestCase
             assertTrue( isa(ldd.sq3(1).experiment_info, 'Experiment') );
             assertTrue( isa(ldd.sq3(2).experiment_info, 'Experiment') );
             assertEqual( numel(ldd.sq3(1).experiment_info.expdata), 2);
-            assertEqual( numel(ldd.sq3(1).experiment_info.instruments), 2);
-            assertEqual( numel(ldd.sq3(1).experiment_info.samples), 2);
+            assertEqual( ldd.sq3(1).experiment_info.instruments.n_runs, 2);
+            assertEqual( ldd.sq3(1).experiment_info.samples.n_runs, 2);
             assertEqual( numel(ldd.sq3(2).experiment_info.expdata), 2);
-            assertEqual( numel(ldd.sq3(2).experiment_info.instruments), 2);
-            assertEqual( numel(ldd.sq3(2).experiment_info.samples), 2);
+            assertEqual( ldd.sq3(2).experiment_info.instruments.n_runs, 2);
+            assertEqual( ldd.sq3(2).experiment_info.samples.n_runs, 2);
             % the sqw object is saved with the new Experiment class
             % experiment_info
             loadsavefile = fullfile(tmp_dir, 'experiment_multisqw.mat');

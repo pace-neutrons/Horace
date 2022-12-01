@@ -23,10 +23,10 @@ function [ok,mess,ei,x0,xa,x1,mod_shape_mono,horiz_div,vert_div] =...
 
 % Get array of instruments
 instruments = header.instruments;
-nrun=numel(instruments);
-inst=repmat(instruments(1),[nrun,1]);
+nrun=instruments.n_runs;
+inst=repmat({instruments{1}},[nrun,1]);
 for i=2:nrun
-    inst(i)=instruments(i);;
+    inst{i}=instruments{i};;
 end
 
 % Fill output arguments

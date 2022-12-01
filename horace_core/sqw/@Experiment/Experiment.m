@@ -1,11 +1,21 @@
 classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
 
-    properties(Access=protected)
-        instruments_ = {IX_null_inst()};
+    properties(Access=private)
+        % if no other instrument input is provided Exeriment instrument
+        % remain empty.
+        instruments_ = unique_objects_container('baseclass','IX_inst');
         detector_arrays_ = []
-        samples_ = {IX_null_sample()}; % IX_samp.empty;
+        samples_ = unique_objects_container('baseclass','IX_samp');
+        samples_set_ = false; % Two prperties used to harmonize lattice
+        expdata_set_ = false; % which stored both in sample and in expdata
+        %holder to store old sample lattice if the new lattice is set
+        old_lattice_holder_ = [];
+        % NOTE: Not yet implemented
+        % if both sample and expdata are set, all conain lattice and
+        % lattices are different, expdata_ lattice takes priority
         expdata_ = [];
+
         %
         runid_map_ = [];   % the property defines the relationship between
         % the runid, contained in expdata and the position of the object
@@ -48,15 +58,9 @@ classdef Experiment < serializable
         % with incorrect header->pixel.run_indx connection.
         runid_recalculated
     end
-    properties(Constant,Access=private)
-        % the order is important as in this order the component will be set
-        % during deserialization, so this order is chosen to avoid
-        % repetitive unnecessary checks
-        fields_to_save_ = {'detector_arrays','instruments','samples',...
-            'expdata'};
-    end
-
-
+    %----------------------------------------------------------------------
+    % CONSTRUCTOR AND PROPERTIES ACCESSORS
+    %----------------------------------------------------------------------
     methods
         function obj = Experiment(varargin)
             % Create a new Experiment object.
@@ -91,6 +95,8 @@ classdef Experiment < serializable
             %
             % Each argument can be a single object or array of objects.
             if nargin == 0
+                % add one null instrument if using the vanilla constructor
+                % to satisfy the requirements of subsequent initialisation
                 return;
             end
             obj = init_(obj,varargin{:});
@@ -104,10 +110,7 @@ classdef Experiment < serializable
             end
             obj = init_(obj,varargin{:});
         end
-        %
-        %Change fields in the experiment with correction related to aligned
-        %crystal lattice parameters and orientation
-        obj=change_crystal(obj,alatt,angdeg,rlu_corr)
+        %------------------------------------------------------------------
         %------------------------------------------------------------------
         function val=get.detector_arrays(obj)
             val=obj.detector_arrays_;
@@ -128,14 +131,9 @@ classdef Experiment < serializable
             val=obj.instruments_;
         end
         function obj=set.instruments(obj, val)
-            [is,std_form] = check_si_input(obj,val,'IX_inst');
-            if is
-                obj.instruments_ = std_form(:)';
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'instruments must be a cellarray or array of IX_inst objects . In fact it is %s',...
-                    class(val));
-            end
+            std_form = check_si_input(obj,val,'IX_inst');
+            obj.instruments_ = std_form;
+
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -145,14 +143,12 @@ classdef Experiment < serializable
             val=obj.samples_;
         end
         function obj=set.samples(obj, val)
-            [is,std_form] = check_si_input(obj,val,'IX_samp');
-            if is
-                obj.samples_ = std_form(:)';
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'Samples must be a cellarray or array of IX_samp objects . In fact it is %s',...
-                    class(val));
-            end
+            std_form = check_si_input(obj,val,'IX_samp');
+            %
+            [obj,std_form] = check_lattice_defined_(obj,std_form);
+            obj.samples_ = std_form;
+            obj.samples_set_ = true;
+
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -163,55 +159,32 @@ classdef Experiment < serializable
             val=obj.expdata_;
         end
         function obj=set.expdata(obj, val)
-            if all(isempty(val))
-                if ~isa(val,'IX_experiment')
-                    obj.expdata_ = [];
-                    obj.runid_map_ = [];
-                    return;
-                end
-            end
-            if ~isa(val,'IX_experiment')
-                error('HORACE:Experiment:invalid_argument', ...
-                    'Sample must be one or an array of IX_experiment objects or empty. Actually it is: %s',...
-                    class(v))
-            end
-            obj.expdata_ = val(:)';
-            obj = build_runid_map_(obj);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-
+            %check and set the classes, containing main
+            %information about every run of the experiment
+            %
+            % Input should contain one or array of such classes
+            obj = check_and_set_expdata_(obj,val);
         end
         %
         function map = get.runid_map(obj)
             % deep copy handle class, to maintain consistent behaviour
             if isempty(obj.runid_map_)
                 map = [];
-            else
+            else % copy existing map as containers.Map is handle now.
                 map = containers.Map(obj.runid_map_.keys,obj.runid_map_.values);
             end
         end
         function obj = set.runid_map(obj,val)
-            % set runid or runid map and
+            % Check and set runid_map, connecting run-id, describing the
+            % experiment and the number of the experiment information
+            % header in the list of all experiment descriptors.
             %
-            if isa(val,'containers.Map')
-                obj.runid_map_ = val;
-                keys = val.keys;
-                keys = [keys{:}];
-            elseif isnumeric(val) && numel(val) == obj.n_runs
-                keys = val(:)';
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'input for runid_map should be map, defining connection between run-ids and headers(expdata), describing these runs or array of runid-s to set. It is %s', ...
-                    class(val))
-            end
-            obj = set_runids_map_and_synchonize_headers_(obj,keys);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-
+            obj = set_runid_map_(obj,val);
         end
         %------------------------------------------------------------------
+        function nr = get.n_runs(obj)
+            nr = numel(obj.expdata_);
+        end
         function is = get.runid_recalculated(obj)
             is  = obj.runid_recalculated_;
         end
@@ -220,14 +193,47 @@ classdef Experiment < serializable
             % property, which inform about the behaviour of runid map
             obj.runid_recalculated_ = logical(val);
         end
-        %------------------------------------------------------------------
-        function nr = get.n_runs(obj)
-            nr = numel(obj.expdata_);
-            if nr == 1
-                if isempty(obj.expdata_(1))
-                    nr = 0;
-                end
+    end
+    %----------------------------------------------------------------------
+    % legacy instrument methods interface
+    %----------------------------------------------------------------------
+    methods
+        %Change fields in the experiment with corrections related to aligned
+        %crystal lattice parameters and orientation
+        obj=change_crystal(obj,alatt,angdeg,rlu_corr)
+
+        % add or reset instrument, related to the given experiment object
+        % array of instruments, or function, which defines the instrument
+        % with its possible parameters
+        obj = set_instrument(obj,instrument,varargin)
+        % set moderator pulse on every instrument contributing to the
+        % object
+        obj = set_mod_pulse(obj,pulse_model,pm_par)
+        % Return array of incident energies from all contributing runs
+        en = get_efix(obj);
+        function emode = get_emode(obj)
+            % Return array of instrument modes provided in all contributing runs
+            emode = arrayfun(@(x)x.emode,obj.expdata_,'UniformOutput',true);
+        end
+        function obj = set_efix_emode(obj,efix,emode)
+            % change efix and (optionally) emode in all experiment descriptions
+            % if emode is absent or described by any character string,
+            % the emode is kept unchanged
+            if nargin == 2
+                emode = '-keep_emode';
+            elseif isempty(emode)
+                emode = '-keep_emode';
             end
+            obj = set_efix_emode_(obj,efix,emode);
+        end
+
+        function [pulsemodel,pm_par,present] = get_mod_pulse(obj)
+            % Get moderator pulse model names and array of pulse parameters
+            % from all runs, contributing to the class
+            % if present is false, all or some instruments in runs do not
+            % have defined moderator
+            %
+            [pulsemodel,pm_par,present] = get_mod_pulse_(obj);
         end
         %
         function expi = get_aver_experiment(obj)
@@ -248,6 +254,42 @@ classdef Experiment < serializable
                 end
             end
         end
+        function [inst, all_inst] = get_inst_class (obj)
+            % Retrieve the main instrument instance from the collection of
+            % instruments.
+            % TODO: Confusing. See ticket #917 for modification/clarification
+            %
+            [inst, all_inst] = get_inst_class_(obj);
+        end
+        %
+        function instr = get_unique_instruments(obj)
+            % compatibility fields with old binary file formats
+            instr = obj.instruments_.unique_objects;
+        end
+        %
+        function samp = get_unique_samples(obj)
+            % compatibility fields with old binary file formats
+            samp = obj.samples_.unique_objects;
+        end
+        %
+        function obj = set_sample(obj,val)
+            % compartibility with sqw interface
+            obj.samples = val;
+        end
+    end
+    %----------------------------------------------------------------------
+    methods(Static)
+        function [efix,emode,ok,mess,en] = calc_efix_avrgs(efix_arr,emode_arr,tol)
+            % calculate specific (emode dependent) average of efix array
+            [efix,emode,ok,mess,en] = calc_efix_avrgs_(efix_arr,emode_arr,tol);
+        end
+        function [pulse_model,pm_par_avrg,ok,mess,p] =calc_mod_pulse_avrgs(pm_par,pm_list,tol)
+            %calculates average parameters of the pulse model provided
+            [pulse_model,pm_par_avrg,ok,mess,p] =calc_mod_pulse_avrgs_(pm_par,pm_list,tol);
+        end
+    end
+    %----------------------------------------------------------------------
+    methods
         %
         function exp = get_experiments(obj,ind)
             % return experiment info, which corresponds to the appropriate
@@ -294,17 +336,6 @@ classdef Experiment < serializable
             end
             subexper = get_subobj_(obj,runids_to_keep,indexes_provided);
         end
-        % instrument methods interface
-        %------------------------------------------------------------------
-        function obj = set_efix_emode(obj,efix,emode)
-            % change efix and (optionally) emode in all experiment descriptions
-            % if emode is absent or described by any character string,
-            % the emode is kept unchanged
-            if nargin == 2
-                emode = '-keep_emode';
-            end
-            obj = set_efix_emode_(obj,efix,emode);
-        end
         %
         % GEN_SQW interface
         %------------------------------------------------------------------
@@ -328,28 +359,19 @@ classdef Experiment < serializable
                 avh = avh.to_bare_struct();
             end
             sampl = obj.samples_{1};
-            avh.alatt = sampl.alatt;
-            avh.angdeg = sampl.angdeg;
+            if ~isempty(sampl)
+                avh.alatt = sampl.alatt;
+                avh.angdeg = sampl.angdeg;
+            end
         end
-        %
-        function instr = get_unique_instruments(obj)
-            % compatibility fields with old binary file formats
-            % TODO: needs proper implementation
-            instr = obj.instruments_;
-        end
-        %
-        function samp = get_unique_samples(obj)
-            % compatibility fields with old binary file formats
-            % TODO: needs proper implementation
-            samp = obj.samples_;
-        end
-        %
+        %------------------------------------------------------------------
+        % REDUNDANT AND OLD FILE FORMAT COMPARTIBILITY METHOS
+        %------------------------------------------------------------------
         function head = get.header(obj)
             head = obj.convert_to_old_headers();
             head = [head{:}];
             head = rmfield(head,{'instrument','sample'});
         end
-        %
         function oldhdrs = convert_to_old_headers(obj,varargin)
             % convert Experiment into the structure suitable to be
             % stored in old binary sqw files (up to version 3.xxx)
@@ -370,42 +392,125 @@ classdef Experiment < serializable
             if ~ok
                 error('HORACE:Experiment:invalid_argument',mess);
             end
-            if ~isempty(remains)
-                header_num = remains{:};
-            else
-                header_num = [];
-            end
-            samp = obj.get_unique_samples();
-            if iscell(samp) && numel(samp) == obj.n_runs
-                different_samples = true;
-            else
-                different_samples = false;
-                if iscell(samp)
-                    samp = samp{1};
-                end
-            end
-            if ~isempty(header_num)
-                oldhdrs = obj.expdata_(header_num).convert_to_binfile_header( ...
-                    samp.alatt,samp.angdeg,nomangle);
-            else
-                nruns = obj.n_runs;
-                oldhdrs = cell(nruns,1);
-                for i=1:nruns
-                    if different_samples
-                        alatt = samp{i}.alatt;
-                        angdeg = samp{i}.angdeg;
-                    else
-                        alatt = samp.alatt;
-                        angdeg = samp.angdeg;
-                    end
-                    oldhdrs{i} = obj.expdata_(i).convert_to_binfile_header( ...
-                        alatt,angdeg,nomangle);
-                end
-            end
+            oldhdrs = convert_to_old_headers_(obj,nomangle,remains{:});
+        end
+    end
+    %
+    methods(Access=private)
+        % copy non-empty contents to the contents of this class
+        [obj,n_added] = check_and_copy_contents_(obj,other_cont,field_name);
+        %
+        function std_form = check_si_input(~,sample_or_instrument,class_base)
+            % The function is the common part of the checks to set sample
+            % or instrument methods.
+            %
+            % check if input is sample or instrument type input and return
+            % standard form of the class, to store within the class method.
+            % Inputs:
+            % sample_or_instrument --object or collection of objects in any
+            %                        standard form acceptable
+            % class_base           --base class for samples or instruments
+            %                        depending on sample or instrument is
+            %                        verified
+            % Output:
+            % std_form -- the standard form of sample or instrument
+            %             collection to store within the container
+            % Throws 'HORACE:Experiment:invalid_argument' if the input can
+            % not be converted into the standard form
+            std_form = check_sample_or_inst_array_and_return_std_form_(...
+                sample_or_instrument,class_base);
+        end
+    end
+    %
+    methods(Static)
+        function obj = build_from_binfile_headers(headers)
+            % restore basic experiment info from old style headers,
+            % stored on hdd.
+            %
+            obj = build_from_binfile_headers_(headers);
+        end
+        function [args,npar] = check_and_expand_function_args(varargin)
+            % Check arguments have one of the permitted forms below
+            %
+            %   >> argout=check_and_expand_function_args(arg1,arg2,...)
+            %
+            % Input:
+            % ------
+            %   arg1,arg2,...  Input arguments
+            %                  Each argument can be a 2D array with 0,1 or more rows
+            %                  If more than one row in an argument, then this gives the
+            %                  number of argument sets.
+            %
+            % Output:
+            % -------
+            %   argout         Cell array of arguments, each row a cell array
+            %                  with the input arguments
+            %
+            % Checks arguments have one of following forms:
+            %	- scalar, row vector (which can be numerical, logical,
+            %     structure, cell array or object), or character string
+            %
+            %   - Multiple arguments can be passed, one for each run that
+            %     constitutes the sqw object, by having one row per run
+            %   	i.e
+            %       	scalar      ---->   column vector (nrun elements)
+            %           row vector  ---->   2D array (nrun rows)
+            %        	string      ---->   cell array of strings
+            %
+            % Throws if not valid form
+            [args,npar] = check_and_expand_function_args_(varargin{:});
         end
 
-        % SERIALIZABLE interface
-        %------------------------------------------------------------------
+        function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,drop_subzone_headers)
+            % take cellarray of experiments (e.g., generated from each runfile build
+            % during gen_sqw generation)
+            % and combine then together into single Experiment info class
+            %
+            %This is the HACK, providing only basic functionality. Previous
+            %header-s on the basis of sqw_header and part, present in
+            %write_nsqw_to_sqw implementation offers much more.
+            %
+            %TODO: Do proper optimization on the way. See
+            % sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
+            %TODO: use allow_equal_headers,drop_subzone_headers variables
+            %      appropriately
+            %TODO: repeat at least the logic within sqw_header helper class
+            %      and write_nsqw_to_sqw combine/check headers operation
+            n_contrib = numel(exp_cellarray);
+            nspe = zeros(n_contrib,1);
+            for i=1:n_contrib
+                nspe(i) = exp_cellarray{i}.n_runs;
+            end
+            n_tot = sum(nspe);
+            instr  = unique_objects_container('baseclass','IX_inst'); %cell(1,n_tot);
+            sampl  = unique_objects_container('baseclass','IX_samp'); %cell(1,n_tot);
+            %warning('stop here so you can check that instr and sampl should no longer be set as cells');
+            expinfo= repmat(IX_experiment(),1,n_tot);
+            ic = 1;
+            %TODO: combine instruments using unique_objects_container
+            %      rather than doing a complete unpack and repack
+            for i=1:n_contrib
+                for j=1:exp_cellarray{i}.n_runs
+                    instr{ic}  = exp_cellarray{i}.instruments{j};
+                    sampl{ic}  = exp_cellarray{i}.samples{j};
+                    expinfo(ic)= exp_cellarray{i}.expdata(j);
+                    ic = ic+1;
+                end
+            end
+            exp = Experiment([], instr, sampl,expinfo);
+        end
+    end
+    %======================================================================
+    % SERIALIZABLE interface
+    %------------------------------------------------------------------
+    properties(Constant,Access=private)
+        % the order is important as in this order the component will be set
+        % during deserialization, so this order is chosen to avoid
+        % repetitive unnecessary checks
+        fields_to_save_ = {'detector_arrays','instruments','samples',...
+            'expdata'};
+    end
+    methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
             % and nxsqw data format. Each new version would presumably read
@@ -433,9 +538,8 @@ classdef Experiment < serializable
             obj = check_combo_arg_(obj);
         end
     end
-
+    %----------------------------------------------------------------------
     methods(Access=protected)
-        %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
             % previous version of the object.
@@ -449,10 +553,6 @@ classdef Experiment < serializable
             % the modern structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
             %
-            %if isfield(inputs,'version')
-            %      do check for previous versions
-            %      and appropriate code
-            %end
             if isfield(inputs,'filename') && isfield(inputs,'efix') % this is probably old single header
                 obj = build_from_old_headers_(obj,{inputs});
             elseif iscell(inputs) && isfield(inputs{1},'filename') && isfield(inputs{1},'efix')
@@ -466,84 +566,15 @@ classdef Experiment < serializable
                 end
             end
         end
-
     end
-    %
-    methods(Access=private)
-        % copy non-empty contents to the contents of this class
-        [obj,n_added] = check_and_copy_contents_(obj,other_cont,field_name);
-        %
-        function [is,std_form] = check_si_input(obj,sample_or_instrument,class_base)
-            % The function is the common part of the checks to set sample
-            % or instrument methods.
-            %
-            % check if input is sample or instrument type input and return
-            % standard form of the class, to store within the class method.
-            % Inputs:
-            % sample_or_instrument --object or collection of objects in any
-            %                        standard form acceptable
-            % class_base           --base class for samples or instruments
-            %                        depending on sample or instrument is
-            %                        verified
-            % Output:
-            % is       -- true, if sample_or_instrument input is convertible to
-            %             the standard form.
-            % std_form -- the standard form of sample or instrument
-            %             collection to store within the container
-            [is,std_form] = check_sample_or_inst_array_and_return_std_form_(...
-                obj,sample_or_instrument,class_base);
-        end
-    end
-    %
     methods(Static)
-        function obj = build_from_binfile_headers(headers)
-            % restore basic experiment info from old style headers,
-            % stored on hdd.
-            %
-            obj = build_from_binfile_headers_(headers);
-        end
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % save-able class
             obj = Experiment();
             obj = loadobj@serializable(S,obj);
         end
-        function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,drop_subzone_headers)
-            % take cellarray of experiments (e.g., generated from each runfile build
-            % during gen_sqw generation)
-            % and combine then together into single Experiment info class
-            %
-            %This is the HACK, providing only basic functionality. Previous
-            %header-s on the basis of sqw_header and part, present in
-            %write_nsqw_to_sqw implementation offers much more.
-            %
-            %TODO: Do proper optimization on the way. See
-            % sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
-            %TODO: use allow_equal_headers,drop_subzone_headers variables
-            %      appropriately
-            %TODO: repeat at least the logic within sqw_header helper class
-            %      and write_nsqw_to_sqw combine/check headers operation
-            n_contrib = numel(exp_cellarray);
-            nspe = zeros(n_contrib,1);
-            for i=1:n_contrib
-                nspe(i) = exp_cellarray{i}.n_runs;
-            end
-            n_tot = sum(nspe);
-            instr  = cell(1,n_tot);
-            sampl  = cell(1,n_tot);
-            expinfo= repmat(IX_experiment(),1,n_tot);
-            ic = 1;
-            for i=1:n_contrib
-                for j=1:exp_cellarray{i}.n_runs
-                    instr{ic}  = exp_cellarray{i}.instruments{j};
-                    sampl{ic}  = exp_cellarray{i}.samples{j};
-                    expinfo(ic)= exp_cellarray{i}.expdata(j);
-                    ic = ic+1;
-                end
-            end
-            exp = Experiment([], instr, sampl,expinfo);
-        end
     end
-    %======================================================================
+    %----------------------------------------------------------------------
 end
 

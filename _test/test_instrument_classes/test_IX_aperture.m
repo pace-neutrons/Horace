@@ -22,7 +22,7 @@ classdef test_IX_aperture < TestCaseWithSave
         
         %--------------------------------------------------------------------------
         function test_2 (self)
-            ap = IX_aperture (12,0.1,0.06,'-name','in-pile');
+            ap = IX_aperture (12,0.1,0.06,'name','in-pile');
             assertEqualWithSave (self,ap);
         end
         
@@ -68,15 +68,14 @@ classdef test_IX_aperture < TestCaseWithSave
             else
                 save_variables=false;
                 verstr = 'ver0';
-                [ok,mess] = check_matfile_IO(verstr, save_variables,sample_file_location ,ap_arr);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables,sample_file_location ,ap_arr);
                 
                 verstr= 'ver1';
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_file_location ,ap_arr);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_file_location ,ap_arr);
+
             end
             
-        end
+        end        
         %
         function test_single_aperture_load_prev_versions(obj)
             % Scalar example
@@ -88,18 +87,15 @@ classdef test_IX_aperture < TestCaseWithSave
                 save_variables=true;
                 ver = ap.classVersion();
                 verstr = ['ver',num2str(ver)];
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location ,ap);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_files_location,ap);
                 
             else
                 save_variables=false;
                 verstr = 'ver0';
-                [ok,mess] = check_matfile_IO(verstr, save_variables,sample_files_location ,ap);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables,sample_files_location,ap);
                 
                 verstr= 'ver1';
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location ,ap);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_files_location,ap);
             end
         end
         

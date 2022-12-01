@@ -3,7 +3,6 @@ classdef test_set_instrument_data< TestCase
         data_inst;
         data_inst_ref;
         clenup1
-        clenup2
         w1;
     end
 
@@ -27,18 +26,81 @@ classdef test_set_instrument_data< TestCase
             obj.data_inst_ref = fullfile(data_dir,'w1_inst_ref.sqw');
             obj.data_inst = fullfile(tmp_dir,'test_setup_inst_data_w1_inst.sqw');    % for copying to later
 
-            das = obj.data_inst;
-            obj.clenup2= onCleanup(@()delete(das));
-
             % Read as an object too:
             obj.w1 = read_sqw(obj.data_inst_ref);
+
+        end
+        function setUp(obj)
             if is_file(obj.data_inst)
                 delete(obj.data_inst);
             end
             save(obj.w1,obj.data_inst);
+        end
+        function tearDown(obj)
+            if is_file(obj.data_inst)
+                delete(obj.data_inst);
+            end
+        end
+        function test_set_moderator_params_on_mix(obj)
+            % Set moderator parameters - OK
+            ei=300+(1:29);
+            pulse_model = 'ikcarp';
+            pp=[100./sqrt(ei(:)),zeros(29,2)];  % one row per moderator
+
+            pp = [pp;pp];
+            wtmp = set_mod_pulse({obj.w1,obj.data_inst},pulse_model,pp);
+
+            [pulse_model_obj,ppmod,ok,mess,p,present]=get_mod_pulse(wtmp{1});
+            assertFalse(ok)
+
+            [pulse_model_file,ppmod_f,ok,mess_f,p_f,pres_f]=get_mod_pulse(obj.data_inst);
+
+            assertFalse(ok)
+            assertEqual(ppmod,ppmod_f)
+            assertEqual(mess,mess_f)
+            assertEqual(p,p_f)
+            assertEqual(present,pres_f)
+            assertEqual(pulse_model_obj,pulse_model_file);
+
+            [pulse_model_c,pmod_c,ok,mess_c,p_c,present]=get_mod_pulse(wtmp);
+            assertFalse(ok)
+            assertEqual(pulse_model_obj,pulse_model_c)
+            assertEqualToTol(ppmod,pmod_c,1.e-12);
+            assertEqual(mess,mess_c)
+            % reduce number of contributing runs by half to compare with
+            % single dataset
+            pp = p_c.pp;
+            pp = pp(1:29,:);
+            p_c.pp = pp;
+            assertEqualToTol(p_f,p_c,1.e-12);
+
+            assertTrue(present);
 
         end
-        function test_moderator_params(obj)
+
+        function test_set_moderator_params_with_ei(obj)
+            % Set moderator parameters - OK
+            ei=300+(1:29);
+            pulse_model = 'ikcarp';
+            pp=[100./sqrt(ei(:)),zeros(29,2)];  % one row per moderator
+
+            wtmp = set_mod_pulse(obj.w1,pulse_model,pp);
+
+            set_mod_pulse(obj.data_inst,pulse_model,pp);
+
+            [pulse_model_obj,ppmod,ok,mess,p,present]=get_mod_pulse(wtmp);
+            assertFalse(ok)
+
+            [pulse_model_file,ppmod_f,ok,mess_f,p_f,pres_f]=get_mod_pulse(obj.data_inst);
+
+            assertFalse(ok)
+            assertEqual(ppmod,ppmod_f)
+            assertEqual(mess,mess_f)
+            assertEqual(p,p_f)
+            assertEqual(present,pres_f)
+            assertEqual(pulse_model_obj,pulse_model_file);
+        end
+        function test_get_moderator_params_file_vs_memory(obj)
 
             %% --------------------------------------------------------------------------------------------------
             % New moderator parameters
@@ -59,36 +121,8 @@ classdef test_set_instrument_data< TestCase
             assertEqual(p,pf_m)
             assertEqual(present,pres_f)
             assertEqual(pulse_model_obj,pulse_model_file);
-
-
-
-            % Set moderator parameters - OK
-            ei=300+(1:29);
-            pulse_model = 'ikcarp';
-            pp=[100./sqrt(ei(:)),zeros(29,2)];  % one row per moderator
-
-
-            wtmp = set_mod_pulse(obj.w1,pulse_model,pp);
-            if is_file(obj.data_inst)
-                delete(obj.data_inst);
-            end
-            save(obj.w1,obj.data_inst);
-
-
-            set_mod_pulse_horace(obj.data_inst,pulse_model,pp);
-
-            [pulse_model_obj,ppmod,ok,mess,p,present]=get_mod_pulse(wtmp);
-            assertFalse(ok)
-
-            [pulse_model_file,ppmod_f,ok,mess_f,p_f,pres_f]=get_mod_pulse_horace(obj.data_inst);
-
-            assertFalse(ok)
-            assertEqual(ppmod,ppmod_f)
-            assertEqual(mess,mess_f)
-            assertEqual(p,p_f)
-            assertEqual(present,pres_f)
-            assertEqual(pulse_model_obj,pulse_model_file);
         end
+
 
         function test_head_data(obj)
             % Set up names of data files
@@ -100,11 +134,26 @@ classdef test_set_instrument_data< TestCase
             assertEqual(sam.shape,'cuboid');
             inst = hdr.instruments{1};
             assertTrue(isa(inst,'IX_inst'));
-            assertEqual(inst.name,'_');
+            assertEqual(inst.name,'');
             %% --------------------------------------------------------------------------------------------------
             % assertThrowsNothing!
         end
-        function test_get_ei_set_ei(obj)
+        function test_set_ei_on_two(obj)
+            % Set incident energies - OK
+            ei=1000+(1:29);
+            ei = [ei,ei];
+
+            wtmp = set_efix({obj.w1,obj.data_inst},ei); % object
+
+            ei_obj=get_efix(wtmp{1});
+            ei_fl=get_efix(wtmp{2});
+            ei_all=get_efix(wtmp);
+
+            assertEqual(ei_obj,ei_fl);
+            assertEqual(ei_all,ei_obj);
+        end
+
+        function test_get_ei(obj)
 
             %% --------------------------------------------------------------------------------------------------
             % New incident energies
@@ -112,25 +161,20 @@ classdef test_set_instrument_data< TestCase
 
             % Get incident energies - OK
             ei_obj=get_efix(obj.w1);
-
-            if is_file(obj.data_inst)
-                delete(obj.data_inst);
-            end
-            save(obj.w1,obj.data_inst);
-
             ei=get_efix_horace(obj.data_inst);
             assertEqual(ei_obj,ei);
+        end
 
+        function test_set_ei(obj)
             % Set incident energies - OK
             ei=1000+(1:29);
 
-            wtmp = set_efix(obj.w1,ei);     % object
-            set_efix_horace(obj.data_inst,ei)  % file
+            wtmp = set_efix(obj.w1,ei); % object
+            set_efix(obj.data_inst,ei)  % file
 
             ei_obj=get_efix(wtmp);
             ei    =get_efix_horace(obj.data_inst);
             assertEqual(ei_obj,ei);
-
         end
 
     end

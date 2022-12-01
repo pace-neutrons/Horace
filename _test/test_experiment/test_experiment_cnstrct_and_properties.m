@@ -5,8 +5,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             expt = Experiment();
             assertEqual(expt.n_runs,0);
 
-            assertTrue(isa(expt.samples{1},'IX_null_sample'));
-            assertTrue(isa(expt.instruments{1},'IX_null_inst'));
+            assertTrue(isempty(expt.samples{1}));
+            assertTrue(isempty(expt.instruments{1}));
             assertTrue(isempty(expt.detector_arrays));
             assertTrue(isempty(expt.expdata));
         end
@@ -67,15 +67,19 @@ classdef test_experiment_cnstrct_and_properties < TestCase
         end
 
         function test_constructor_raises_error_with_no_sample(~)
-            assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, 'not-a-sample'),...
+            assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, 'not-a-sample',IX_experiment),...
                 'HORACE:Experiment:invalid_argument');
         end
         function test_constructor_raises_error_with_no_instrument(~)
-            assertExceptionThrown(@()Experiment(IX_detector_array, 'not-an-inst', IX_sample),...
+            assertExceptionThrown(@()Experiment(IX_detector_array, 'not-an-inst', IX_sample, IX_experiment),...
                 'HORACE:Experiment:invalid_argument');
         end
         function test_constructor_raises_error_with_no_detectors(~)
-            assertExceptionThrown(@()Experiment('not-a-da', IX_inst_DGfermi, IX_sample),...
+            assertExceptionThrown(@()Experiment('not-a-da', IX_inst_DGfermi, IX_sample, IX_experiment),...
+                'HORACE:Experiment:invalid_argument');
+        end
+        function test_constructor_raises_error_with_no_expdata(~)
+            assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, IX_sample, 'not-a-expd'),...
                 'HORACE:Experiment:invalid_argument');
         end
 
@@ -89,8 +93,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 [instrument, instrument], ...
                 [sample, sample],info);
 
-            assertEqual(expt.samples, {sample, sample});
-            assertEqual(expt.instruments, {instrument, instrument});
+            assertEqual({expt.samples{1}, expt.samples{2}}, {sample, sample});
+            assertEqual({expt.instruments{1}, expt.instruments{2}}, {instrument, instrument});
             assertEqual(expt.detector_arrays, [detector_array, detector_array]);
             info = expt.expdata;
             assertTrue(expt.runid_recalculated)
@@ -127,8 +131,10 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             clear('expt');
 
             load(tmpfile, 'expt');
-            assertEqual(expt.samples{1}.name, 'sample1')
-            assertEqual(expt.samples{2}.name, 'sample2')
+            s1 = expt.samples{1};
+            s2 = expt.samples{2};
+            assertEqual(s1.name, 'sample1')
+            assertEqual(s2.name, 'sample2')
             assertTrue(isa(expt.instruments{1}, 'IX_inst_DGfermi'));
             assertTrue(isa(expt.instruments{2}, 'IX_inst_DGdisk'));
             assertEqual(expt.detector_arrays, IX_detector_array);
@@ -150,8 +156,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             clear('expt');
 
             load(tmpfile, 'expt');
-            assertTrue(isa(expt.instruments{1},'IX_null_inst'));
-            assertTrue( isa(expt.samples{1},'IX_null_sample'));
+            assertTrue(isempty(expt.instruments(1)));
+            assertTrue(isempty(expt.samples(1)));
             assertEqual(expt.detector_arrays, []);
         end
 
@@ -161,7 +167,8 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             expt = Experiment();
             expt.instruments = instruments;
 
-            assertEqual(expt.instruments, instruments);
+            assertEqual(expt.instruments{1}, instruments{1});
+            assertEqual(expt.instruments{2}, instruments{2});
         end
 
         function test_instruments_setter_raises_error_for_invalid_value(~)
@@ -181,7 +188,9 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             expt.samples = {samples};
 
             assertEqual(expt.samples{1}, samples);
-            assertEqual(expt.samples,    {samples});
+            uoc = unique_objects_container('baseclass','IX_samp');
+            uoc = uoc.add(samples);
+            assertEqual(expt.samples,  uoc);
         end
 
         function test_samples_setter_raises_error_for_invalid_value(~)

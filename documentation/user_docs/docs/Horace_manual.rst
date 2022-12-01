@@ -19,6 +19,7 @@ Horace Manual
    manual/Multifit
    manual/Advanced_Multifit
    manual/Tobyfit
+   manual/Parallel
 
 .. toctree::
    :caption: Horace Manual Appendix

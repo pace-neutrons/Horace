@@ -3,7 +3,7 @@ function obj = set_efix_emode_(obj,efix,emode)
 
 if ischar(emode) || isstring(emode)
     change_emode = false;
-elseif isnumeric(emode) && emode>-1 && emode<3
+elseif isnumeric(emode) && all(emode>-1 & emode<3 )
     change_emode = true;
 else
     error('HORACE:Experiment:invalid_argument',...
@@ -23,6 +23,19 @@ if numel(efix)>1
 else
     multiefix = false;
 end
+if change_emode && numel(emode) > 1
+    multiemode = true;
+    if numel(emode) ~= obj.n_runs % this would not work for Mushrum. The question is if this
+        % method should be used for mushroom or should be used at all
+        % but...
+        error('HORACE:Experiment:invalid_argument',...
+            'number of elements in emode must be one or equal to the number of experiment info. Actually n_emode = %d, n_runs= %d',...
+            numel(emode),obj.n_runs);
+    end
+
+else
+    multiemode = false;
+end
 
 expd = obj.expdata_;
 for i=1:obj.n_runs
@@ -32,7 +45,11 @@ for i=1:obj.n_runs
         expd(i).efix = efix;
     end
     if change_emode
-        expd(i).emode = emode;
+        if multiemode
+            expd(i).emode = emode(i);
+        else
+            expd(i).emode = emode;
+        end
     end
 end
 obj.expdata_ = expd;

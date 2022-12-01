@@ -1,4 +1,4 @@
-classdef pdf_table
+classdef pdf_table < serializable
     % Probability distribution function table in one independent variable
     %
     % The constructor creates a probability distribution lookup table from a set
@@ -24,8 +24,6 @@ classdef pdf_table
 
 
     properties (Access=private)
-        % Class version number
-        class_version_ = 1;
         % x values
         x_ = zeros(0,1)
         % Normalised values of pdf
@@ -37,6 +35,9 @@ classdef pdf_table
         A_ = zeros(0,1)
         % Gradient m(i) = (f(i+1)-f(i))/(x(i+1)-x(i))
         m_ = zeros(0,1)
+        % Temporary variable which holds function parameters at
+        % construction. (could we modify lambda function not to use it?)
+        func_par_ = [];
     end
 
     properties (Dependent)
@@ -106,64 +107,20 @@ classdef pdf_table
                 obj = pdf_table.loadobj(x);
 
             elseif nargin>0
-                % Check x values
-                if ~isnumeric(x) || ~isvector(x) || numel(x)==0 ||...
-                        ~all(isfinite(x)) || any(diff(x)<0)
-                    error('HERBERT:pdf_table:non_monotonic',...
-                        'x values must be a monotonic increasing vector')
-                else
-                    x = x(:);   % ensure column array
+                if isa(pdf,'function_handle') && numel(varargin)>0
+                    obj.func_par_ = varargin;
                 end
-
-                % Check pdf
-                if isnumeric(pdf)
-                    if numel(varargin)==0
-                        f = pdf;
-                    else
-                        error('HERBERT:pdf_table:invalid_argument',...
-                            'Check the number and type of input arguments')
-                    end
-                elseif isa(pdf,'function_handle')
-                    f = pdf (x, varargin{:});
-                else
-                    error('HERBERT:pdf_table:bad_pdf', ['The pdf must be a ',...
-                        'numeric vector or function handle and arguments'])
-                end
-
-                if numel(f)~=numel(x)
-                    error('HERBERT:pdf_table:bad_pdf', ['The number of values ',...
-                        'of the pdf must equal the number of x values.'])
-                elseif ~isvector(f) || any(f<0) || ~(all(isfinite(f)) ||...
-                        (numel(x)==1 && f==Inf))    % special case of a delta-function
-                    error('HERBERT:pdf_table:bad_pdf', ['The pdf values must ',...
-                        'all be finite and greater or equal to zero\n',...
-                        'or a single point with value +Inf (i.e. a delta function)'])
-                else
-                    f = f(:);   % ensure column array
-                end
-
-                % Derived quantities to speed up random sampling
-                if numel(x)>1
-                    % Properly defined pdf
-                    dA = 0.5*diff(x).*(f(2:end)+f(1:end-1));
-                    if all(dA==0)
-                        error('HERBERT:pdf_table:bad_pdf', ['The pdf has zero ',...
-                            'integrated area. The area must be non-zero.'])
-                    end
-                    A = cumsum(dA);
-                    Atot = A(end);
-                    obj.x_ = x;
-                    obj.f_ = f/Atot;                % to give normalised area
-                    obj.fmax_ = max(obj.f_);        % handy to save time elsewhere
-                    obj.A_ = [0;A(1:end-1)/Atot;1]; % normalise the area
-                    obj.m_ = diff(obj.f_)./diff(obj.x_);
-                else
-                    % delta function
-                    obj.x_ = x;
-                    obj.f_ = f;
-                    obj.fmax_ = f;
-                    obj.A_ = 1;
-                    obj.m_ = NaN;
+                argi = {x,pdf};
+                pos_params = obj.saveableFields();
+                % set positional parameters and key-value pairs and check their
+                % consistency using public setters interface. check_compo_arg
+                % after all settings are done.
+                [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
+                    false,argi{:});
+                if ~isempty(remains)
+                    error('HERBERT:IX_fermi_chopper:invalid_argument', ...
+                        'Unrecognized extra parameters provided as input to IX_fermi_chopper constructor: %s',...
+                        disp2str(remains));
                 end
             end
         end
@@ -193,218 +150,125 @@ classdef pdf_table
         function val=get.filled(obj)
             val=~isempty(obj.x_);
         end
-
         %------------------------------------------------------------------
-    end
-
-    %======================================================================
-    % Methods for fast construction of structure with independent properties
-    methods (Static, Access = private)
-        function names = propNamesIndep_
-            % Determine the independent property names and cache the result.
-            % Code is boilerplate
-            persistent names_store
-            if isempty(names_store)
-                names_store = fieldnamesIndep(eval(mfilename('class')));
-            end
-            names = names_store;
-        end
-
-        function names = propNamesPublic_
-            % Determine the visible public property names and cache the result.
-            % Code is boilerplate
-            persistent names_store
-            if isempty(names_store)
-                names_store = properties(eval(mfilename('class')));
-            end
-            names = names_store;
-        end
-
-        function struc = scalarEmptyStructIndep_
-            % Create a scalar structure with empty fields, and cache the result
-            % Code is boilerplate
-            persistent struc_store
-            if isempty(struc_store)
-                names = eval([mfilename('class'),'.propNamesIndep_''']);
-                arg = [names; repmat({[]},size(names))];
-                struc_store = struct(arg{:});
-            end
-            struc = struc_store;
-        end
-
-        function struc = scalarEmptyStructPublic_
-            % Create a scalar structure with empty fields, and cache the result
-            % Code is boilerplate
-            persistent struc_store
-            if isempty(struc_store)
-                names = eval([mfilename('class'),'.propNamesPublic_''']);
-                arg = [names; repmat({[]},size(names))];
-                struc_store = struct(arg{:});
-            end
-            struc = struc_store;
-        end
-    end
-
-    methods
-        function S = structIndep(obj)
-            % Return the independent properties of an object as a structure
-            %
-            %   >> s = structIndep(obj)
-            %
-            % Use <a href="matlab:help('structArrIndep');">structArrIndep</a> to convert an object array to a structure array
-            %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
-            % - Any structure array is returned unchanged
-            % - If an object is empty, an empty structure is returned with fieldnames
-            %   but the same size as the object
-            % - If the object is non-empty array, returns a scalar structure corresponding
-            %   to the the first element in the array of objects
-            %
-            %
-            % See also structPublic, structArrIndep, structArrPublic
-
-            names = obj.propNamesIndep_';
-            if ~isempty(obj)
-                tmp = obj(1);
-                S = obj.scalarEmptyStructIndep_;
-                for i=1:numel(names)
-                    S.(names{i}) = tmp.(names{i});
-                end
+        function obj = set.x(obj,val)
+            % Check x values
+            if ~isnumeric(val) || ~isvector(val) || numel(val)==0 ||...
+                    ~all(isfinite(val)) || any(diff(val)<0)
+                error('HERBERT:pdf_table:non_monotonic',...
+                    'x values must be a monotonic increasing vector')
             else
-                args = [names; repmat({cell(size(obj))},size(names))];
-                S = struct(args{:});
+                obj.x_ = val(:);   % ensure column array
+            end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
             end
         end
-
-        function S = structArrIndep(obj)
-            % Return the independent properties of an object array as a structure array
-            %
-            %   >> s = structArrIndep(obj)
-            %
-            % Use <a href="matlab:help('structIndep');">structIndep</a> for behaviour that more closely matches the Matlab
-            % intrinsic function struct.
-            %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
-            % - Any structure array is returned unchanged
-            % - If an object is empty, an empty structure is returned with fieldnames
-            %   but the same size as the object
-            %
-            % However, differs in the behaviour if an object array:
-            % - If the object is non-empty array, returns a structure array of the same
-            %   size. This is different to the instrinsic Matlab, which returns a scalar
-            %   structure from the first element in the array of objects
-            %
-            %
-            % See also structIndep, structPublic, structArrPublic
-
-            if numel(obj)>1
-                S = arrayfun(@fill_it, obj);
+        %
+        function obj = set.f(obj,pdf)
+            if isnumeric(pdf)
+                obj.f_ = pdf(:); % ensure column array
+            elseif isa(pdf,'function_handle')
+                obj.f_ = pdf;
             else
-                S = structIndep(obj);
+                error('HERBERT:pdf_table:bad_pdf', ...
+                    'The pdf must be a numeric vector or function handle and arguments. It is %s',...
+                    class(pdf))
             end
 
-            function S = fill_it (obj)
-                names = obj.propNamesIndep_';
-                S = obj.scalarEmptyStructIndep_;
-                for i=1:numel(names)
-                    S.(names{i}) = obj.(names{i});
-                end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
             end
-
-        end
-
-        function S = structPublic(obj)
-            % Return the public properties of an object as a structure
-            %
-            %   >> s = structPublic(obj)
-            %
-            % Use <a href="matlab:help('structArrPublic');">structArrPublic</a> to convert an object array to a structure array
-            %
-            % Has the same behaviour as struct in that
-            % - Any structure array is returned unchanged
-            % - If an object is empty, an empty structure is returned with fieldnames
-            %   but the same size as the object
-            % - If the object is non-empty array, returns a scalar structure corresponding
-            %   to the the first element in the array of objects
-            %
-            %
-            % See also structIndep, structArrPublic, structArrIndep
-
-            names = obj.propNamesPublic_';
-            if ~isempty(obj)
-                tmp = obj(1);
-                S = obj.scalarEmptyStructPublic_;
-                for i=1:numel(names)
-                    S.(names{i}) = tmp.(names{i});
-                end
-            else
-                args = [names; repmat({cell(size(obj))},size(names))];
-                S = struct(args{:});
-            end
-        end
-
-        function S = structArrPublic(obj)
-            % Return the public properties of an object array as a structure array
-            %
-            %   >> s = structArrPublic(obj)
-            %
-            % Use <a href="matlab:help('structPublic');">structPublic</a> for behaviour that more closely matches the Matlab
-            % intrinsic function struct.
-            %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
-            % - Any structure array is returned unchanged
-            % - If an object is empty, an empty structure is returned with fieldnames
-            %   but the same size as the object
-            %
-            % However, differs in the behaviour if an object array:
-            % - If the object is non-empty array, returns a structure array of the same
-            %   size. This is different to the instrinsic Matlab, which returns a scalar
-            %   structure from the first element in the array of objects
-            %
-            %
-            % See also structPublic, structIndep, structArrIndep
-
-            if numel(obj)>1
-                S = arrayfun(@fill_it, obj);
-            else
-                S = structPublic(obj);
-            end
-
-            function S = fill_it (obj)
-                names = obj.propNamesPublic_';
-                S = obj.scalarEmptyStructPublic_;
-                for i=1:numel(names)
-                    S.(names{i}) = obj.(names{i});
-                end
-            end
-
         end
     end
 
     %======================================================================
-    % Custom loadobj and saveobj
-    % - to enable custom saving to .mat files and bytestreams
-    % - to enable older class definition compatibility
-
     methods
+        % SERIALIZABLE interface
         %------------------------------------------------------------------
-        function S = saveobj(obj)
-            % Method used my Matlab save function to support custom
-            % conversion to structure prior to saving.
-            %
-            %   >> S = saveobj(obj)
-            %
-            % Input:
-            % ------
-            %   obj     Scalar instance of the object class
-            %
-            % Output:
-            % -------
-            %   S       Structure created from obj that is to be saved
+        function ver = classVersion(~)
+            ver = 2;
+        end
 
-            % The following is boilerplate code
+        function flds = saveableFields(~)
+            flds = {'x','f'};
+        end
 
-            S = structIndep(obj);
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check
+            %
+            % Throw if the properties are inconsistent and return without
+            % problem it they are not, after recomputing dependent variables
+            % if requested.
+            if isnumeric(obj.f_)
+                if numel(obj.f_)~=numel(obj.x_)
+                    error('HERBERT:pdf_table:bad_pdf', ...
+                        'The number of values of the pdf (%d) must equal the number of x values (%d).', ...
+                        numel(obj.f_),numel(obj.x_))
+                end
+                ff = obj.f_;
+            else % function handle, no other options here
+                if isempty(obj.func_par_)
+                    ff = obj.f_(obj.x_);
+                else
+                    ff = obj.f_(obj.x_,obj.func_par_{:});
+                    obj.func_par_ = [];
+                end
+            end
+            if ~isvector(ff) || any(ff<0) ||...
+                    ~(all(isfinite(ff))||(numel(obj.x_)==1 && ff==Inf))    % special case of a delta-function
+                error('HERBERT:pdf_table:bad_pdf', ['The pdf values must ',...
+                    'all be finite and greater or equal to zero\n',...
+                    'or a single point with value +Inf (i.e. a delta function)'])
+            end
+            % Derived quantities to speed up random sampling
+            if numel(obj.x_)>1
+                xx = obj.x_;
+                % Properly defined pdf
+                dA = 0.5*diff(xx).*(ff(2:end)+ff(1:end-1));
+                if all(dA==0)
+                    error('HERBERT:pdf_table:bad_pdf', ['The pdf has zero ',...
+                        'integrated area. The area must be non-zero.'])
+                end
+                AA = cumsum(dA);
+                Atot = AA(end);
+                obj.f_ = ff/Atot;                % to give normalised area
+                obj.fmax_ = max(obj.f_);        % handy to save time elsewhere
+                obj.A_ = [0;AA(1:end-1)/Atot;1]; % normalise the area
+                obj.m_ = diff(obj.f_)./diff(obj.x_);
+            else
+                % delta function
+                obj.f_ = ff;
+                obj.fmax_ = ff;
+                obj.A_ = 1;
+                obj.m_ = NaN;
+            end
+        end
+    end
+
+    methods(Access=protected)
+        %------------------------------------------------------------------
+        function obj = from_old_struct(obj,inputs)
+            % restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % By default, this function interfaces the default from_struct
+            % function, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
+            inputs = convert_old_struct_(obj,inputs);
+            if isfield(inputs,'x')&&isempty(inputs.x)
+                return
+            end
+            % optimization here is possible to not to use the public
+            % interface. But is it necessary? its the question
+            obj = from_old_struct@serializable(obj,inputs);
+
         end
     end
 
@@ -425,21 +289,18 @@ classdef pdf_table
             % -------
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
-            %           or structure array)
+            %       	or structure array)
 
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-
-            if isobject(S)
-                obj = S;
-            else
-                obj = arrayfun(@(x)loadobj_private_(x), S);
-            end
+            obj = pdf_table();
+            obj = loadobj@serializable(S,obj);
         end
         %------------------------------------------------------------------
 
     end
     %======================================================================
+
 
 end

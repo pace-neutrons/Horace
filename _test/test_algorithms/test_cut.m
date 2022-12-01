@@ -59,6 +59,25 @@ classdef test_cut < TestCase & common_state_holder
             end
         end
         %
+        function test_take_a_cut_from_an_sqw_file_single_chunk(obj)
+            % Really large file V2 on disk to ensure that ranges are
+            % calculated using filebased algorithm rather than all data
+            % loaded in memory.
+            %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
+            %sqw_cut = cut(v2large_file, obj.ref_params{:});
+
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 8000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
+
+            sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
+
+            ref_sqw = read_sqw(obj.ref_cut_file);
+            assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
+                'ignore_str', true,'-ignore_date');
+        end
+
         function test_take_a_cut_from_an_sqw_object(obj)
             %sqw_obj = read_sqw(obj.sqw_file);
             sqw_obj = obj.sqw_4d; % it have just been read in constructor
@@ -69,6 +88,23 @@ classdef test_cut < TestCase & common_state_holder
             assertElementsAlmostEqual(sqw_cut.data.offset,obj.ref_params{1}.offset);
 
             ref_sqw = read_sqw(obj.ref_cut_file);
+			
+			% ref_sqw coming from file differs from sqw_cut in that the
+            % instrument names are '' rather than '_'. This previously did
+            % not matter as the assertequalToTol below had ignore_str==T.
+            % However as the instruments are now in a
+            % unique_objects_container, the name has now also changed the
+            % object hash. To prevent the name polluting the comparison
+            % like this, both sqw objects are now renamed with all
+            % instruments named ''. The containers and their hashes are
+            % then reconstructed befor the asserted comparison.
+            cut_instr = sqw_cut.experiment_info.instruments;
+            cut_instr = cut_instr.rename_all_blank();
+            sqw_cut.experiment_info.instruments = cut_instr;
+            
+            ref_instr = ref_sqw.experiment_info.instruments;
+            ref_instr = ref_instr.rename_all_blank();
+            ref_sqw.experiment_info.instruments = ref_instr;
 
             assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');
@@ -87,7 +123,7 @@ classdef test_cut < TestCase & common_state_holder
             sqw_obj2 = sqw(obj.sqw_file);
 
             out_sqw = cut([sqw_obj1, sqw_obj2], obj.ref_params{:});
-            assertEqual(out_sqw(1),out_sqw(2))
+            assertEqualToTol(out_sqw(1),out_sqw(2),'-ignore_date');
         end
 
         function test_take_a_cut_integrating_over_more_than_1_axis(obj)
@@ -120,11 +156,8 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(runid,ret_sqw.experiment_info.expdata.get_run_ids());
 
             loaded_cut = read_sqw(outfile);
-            % bug #797 requesting investigation
-            loaded_cut.experiment_info.instruments = ret_sqw.experiment_info.instruments;
 
             assertEqualToTol(ret_sqw, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
         %
         function test_cut_from_an_sqw_file_to_another_sqw_file_combined_mex(obj)
@@ -155,12 +188,9 @@ classdef test_cut < TestCase & common_state_holder
             % reference memory-based cut
             ref_par = obj.ref_params;
             ref_cut = cut(ref_obj,ref_par{:});
-            % bug #797 requesting investigation
-            loaded_cut.experiment_info.instruments = ref_cut.experiment_info.instruments;
 
 
             assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('Instrument is not stored/restored properly. Horace ticket #797')
         end
 
 
@@ -185,12 +215,9 @@ classdef test_cut < TestCase & common_state_holder
             sqw_obj = obj.sqw_4d; % it have just been read in constructor
             ref_par = obj.ref_params;
             ref_cut = cut(sqw_obj,ref_par{:});
-            % bug #797 requesting investigation
-            loaded_cut.experiment_info.instruments = ref_cut.experiment_info.instruments;
 
 
             assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
 
 
@@ -210,12 +237,9 @@ classdef test_cut < TestCase & common_state_holder
             loaded_cut = read_sqw(outfile);
             ref_cut = read_sqw(obj.ref_cut_file);
 
-            % bug #797 requesting investigation
-            loaded_cut.experiment_info.instruments = ref_cut.experiment_info.instruments;
-
             assertEqualToTol(loaded_cut, ref_cut, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
+
         end
 
         function test_you_can_take_a_cut_from_a_dnd_object(obj)
@@ -318,7 +342,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_you_can_take_an_out_of_memory_cut_with_tmp_files_with_mex(obj)
-            skipTest('mex cutting is disabled for the time being')
+            skipTest('Ticket #896: mex cutting is disabled for the time being')
             mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup_config = set_temporary_config_options( ...
@@ -366,17 +390,9 @@ classdef test_cut < TestCase & common_state_holder
             contr_headers = output_sqw.experiment_info.get_subobj(contrib_ind);
             assertEqual(contr_headers,output_sqw.experiment_info);
 
-            % bug #797 requesting investigation
-            output_sqw.experiment_info.instruments = ref_sqw.experiment_info.instruments;
-            %
-            %output_sqw.runid_map = ref_sqw.runid_map;
-            %output_sqw.experiment_info = contr_headers;
-            %cut stored on file contains different exp
-            % these representations have to be alighned
             assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date');
             clear cleanup_config_handle;
-            skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
 
         function test_calling_cut_with_no_outfile_and_no_nargout_throws_error(obj)
@@ -523,24 +539,7 @@ classdef test_cut < TestCase & common_state_holder
             assertEqualToTol(sqw_cut1,sqw_cut2,'-ignore_date');
         end
         %
-        function test_take_a_cut_from_an_sqw_file_single_chunk(obj)
-            % Really large file V2 on disk to ensure that ranges are
-            % calculated using filebased algorithm rather than all data
-            % loaded in memory.
-            %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
-            %sqw_cut = cut(v2large_file, obj.ref_params{:});
 
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 8000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
-
-            sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
-
-            ref_sqw = read_sqw(obj.ref_cut_file);
-            assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
-                'ignore_str', true,'-ignore_date');
-        end
         function test_take_cut_dnd_from_sqw_file_throws(obj)
             ex = assertExceptionThrown(@()cut_dnd(obj.sqw_file, obj.ref_params{:}), ...
                 'HORACE:cut:invalid_argument');

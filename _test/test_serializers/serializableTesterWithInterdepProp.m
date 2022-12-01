@@ -5,8 +5,14 @@ classdef serializableTesterWithInterdepProp < serializable
     properties(Dependent)
         Prop_class2_1
         Prop_class2_2;
-        Prop_class2_3;
+        Prop_class2_3;        
     end
+    properties
+        partial_match_1_blue
+        partial_match_2_green
+        partial_match_3_yellow
+    end
+    
     properties(Access=protected)
         Prop_class2_1_
         Prop_class2_2_;
@@ -21,7 +27,7 @@ classdef serializableTesterWithInterdepProp < serializable
             positional_arg_names = obj.saveableFields();
             [obj,remains] = ...
                 set_positional_and_key_val_arguments(obj,...
-                positional_arg_names,varargin{:});
+                positional_arg_names,true,varargin{:});
         end
 
         function val = get.Prop_class2_1(obj)
@@ -59,7 +65,7 @@ classdef serializableTesterWithInterdepProp < serializable
                 (obj.Prop_class2_1 > obj.Prop_class2_2)
                 
                 error('HERBERT:serializableTester:invalid_argument', ...
-                    'inconsisten interdependent properties')
+                    'inconsistent interdependent properties')
             end
         end
         % get independent fields, which fully define the state of the object
@@ -81,7 +87,8 @@ classdef serializableTesterWithInterdepProp < serializable
     end
 
     properties(Constant,Access=protected)
-        fields_to_save_ = {'Prop_class2_1','Prop_class2_2','Prop_class2_3'};
+        fields_to_save_ = {'Prop_class2_1','Prop_class2_2','Prop_class2_3',...
+            'partial_match_1_blue','partial_match_2_green','partial_match_3_yellow'};
     end
 
 end

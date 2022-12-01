@@ -22,8 +22,8 @@ headers = varargin{1};
 % Make arrays of the hew-style header class types to receive the data
 % coming from each run in headers
 expdata     = repmat(IX_experiment(), 1,numel(headers));
-instruments = repmat({IX_null_inst()},  1,numel(headers));
-samples     = repmat({IX_null_sample()},1,numel(headers));
+instruments = unique_objects_container('IX_inst');
+samples     = unique_objects_container('IX_samp');
 
 hdr = headers{1};
 alatt = hdr.alatt;
@@ -76,11 +76,10 @@ for i=1:numel(headers)
             sampl = IX_samp();
             sampl.alatt = alatt;
             sampl.angdeg = angdeg;
-            samples{i} = sampl;
             % struct may have enough info to make a sample (though this is not
             % defined yet - call to factory method will probably fail)
         else
-            samples{i} = make_sample_from_struct(sampl);
+            sampl  = make_sample_from_struct(sampl);
         end
         % Sample is actually a subclass of IX_samp, so keep it but overwrite
         % the lattice parameters if they were not in the old version

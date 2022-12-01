@@ -97,7 +97,7 @@ classdef hpc_config < config_base
         % file.
         mex_combine_buffer_size;
 
-        % parallelise multifit select
+        % Enable or disable computation of fitting in parallel.
         parallel_multifit;
 
         % exposes the folder used by the parallel_config for
@@ -108,18 +108,18 @@ classdef hpc_config < config_base
         parallel_workers_number;
 
         % what parallel framework to use for parallel  tasks. Available
-        % options are: matlab, partool, mpiexec. Defined in parallel_config and
+        % options are detailed in hpc_options. Defined in parallel_config and
         % exposed here for clarity.
         parallel_cluster;
 
         %----
         % immutable reference to the class, which describes the parallel
         % configuration. To change the parallel configuration, work with
-        % this configuration class itself;
+        % the configuration class itself;
         parallel_configuration;
 
-        % helper read-only property, returining the list of options, which
-        % define hpc configuration. Coinsides with saved_properties_list_
+        % helper read-only property, returning list of options, which
+        % define hpc configuration. Set by saved_properties_list_
         hpc_options;
     end
 

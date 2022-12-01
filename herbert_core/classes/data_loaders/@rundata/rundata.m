@@ -338,23 +338,8 @@ classdef rundata < serializable
                 error('HERBERT:rundata:invalid_argument',...
                     'lattice can be set by single oriented_lattice object only')
             end
-            % TODO: sample and lattice should be the same object
-            lat = obj.lattice_;
-            if ~isempty(lat)
-                lat.do_check_combo_arg = obj.do_check_combo_arg_;
-                lat.angular_units = 'deg';
-                if isa(obj.sample_,'IX_null_sample')
-                    if is_defined(lat,'alatt') && is_defined(lat,'angdeg')
-                        obj.sample_ = IX_samp('',lat.alatt,lat.angdeg);
-                    end
-                else
-                    if is_defined(lat,'alatt')
-                        obj.sample_.alatt = lat.alatt;
-                    end
-                    if is_defined(lat,'angdeg')
-                        obj.sample_.angdeg = lat.angdeg;
-                    end
-                end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
             end
         end
         %
@@ -514,25 +499,8 @@ classdef rundata < serializable
                     'only instance of IX_samp class can be set as rundata sample. You are setting %s',...
                     class(val))
             end
-            if ~isa(obj.sample_,'IX_null_sample') %TODO: reconcile oriented lattice and sample
-                sam = obj.sample;
-                lat = obj.lattice;
-                ou = lat.angular_units;
-                lat.angular_units = 'deg';
-                if isempty(sam.alatt)
-                    sam.alatt = lat.alatt;
-                    obj.sample_ = sam;
-                else
-                    lat.alatt = sam.alatt;
-                end
-                if isempty(sam.angdeg)
-                    sam.angdeg = lat.angdeg;
-                    obj.sample_ = sam;
-                else
-                    lat.angdeg = sam.angdeg;
-                end
-                lat.angular_units = ou;
-                obj.lattice_ = lat;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
             end
         end
         %
