@@ -1,12 +1,10 @@
-function [efix,emode,ok,mess,en] = get_efix(obj,tol)
-% Return the mean fixed neutron energy and emode for an array of sqw objects.
-%
-%   >> [efix,emode,ok,mess,en] = get_efix(win)
-%   >> [efix,emode,ok,mess,en] = get_efix(win,tol)
+function  [efix,emode,ok,mess,en] = calc_efix_avrgs_(efix_arr,emode_arr,tol)
+% calculate specific (emode dependent) average of efix array
 %
 % Input:
 % ------
-%   win         Array of sqw objects of sqw type
+%  efix_arr     Array of energies
+%  emode_arr    Array of instrument modes. (the same length as efix_arr)
 %   tol         [Optional] acceptable relative spread w.r.t. average:
 %                   max(|max(efix)-efix_ave|,|min(efix)-efix_ave|) <= tol*efix_ave
 %
@@ -28,25 +26,29 @@ function [efix,emode,ok,mess,en] = get_efix(obj,tol)
 %                 (If emode not the same for all data sets, ave,min,max,relerr all==NaN)
 
 % Original author: T.G.Perring
-%
 
-% Parse input
-% -----------
-if exist('tol','var')
-    if ~(isnumeric(tol) && isscalar(tol) && tol >=0)
-        error('HORACE:sqw:invalid_argument',...
-            'Check optional fractional tolerance is a non-negative scalar')
+en=struct('efix',efix_arr,'emode',emode_arr,'ave',NaN,'min',NaN,'max',NaN,'relerr',NaN);
+if all(emode_arr==emode_arr(1))
+    efix=sum(efix_arr)/numel(efix_arr);
+    emode=emode_arr(1);
+    en.ave=efix;
+    en.min=min(efix_arr);
+    en.max=max(efix_arr);
+    if en.ave==0 && en.min==0 && en.max==0
+        en.relerr=0;    % if all energies==0, then accept this as no relative error
+    else
+        en.relerr=max(en.max-efix,efix-en.min)./efix;
+    end
+    if isfinite(en.relerr) && abs(en.relerr)<=tol
+        ok=true;
+        mess='';
+    else
+        ok=false;
+        mess=['Spread of efix lies outside acceptable fraction of average of ',num2str(tol)];
     end
 else
-    tol=5e-3;    % relative tolerance of spread of incident energies
+    efix=NaN;
+    emode=NaN;
+    ok=false;
+    mess='All datasets must have the same value of emode (1=direct inelastic , 2=indirect inelastic; 0=elastic)';
 end
-
-% Perform operations
-% ------------------
-
-efix_arr  = arrayfun(@(x)x.experiment_info_.get_efix(),obj,'UniformOutput',false);
-efix_arr  = [efix_arr{:}];
-emode_arr = arrayfun(@(x)x.experiment_info_.get_emode(),obj,'UniformOutput',false);
-emode_arr = [emode_arr{:}];
-
-[efix,emode,ok,mess,en] = Experiment.calc_efix_avrgs(efix_arr,emode_arr,tol);

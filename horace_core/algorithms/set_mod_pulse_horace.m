@@ -1,4 +1,4 @@
-function varargout=set_mod_pulse_horace(varargin)
+function varargout=set_mod_pulse_horace(file,varargin)
 % Set the moderator pulse shape model and pulse parameters for an array of sqw objects.
 %
 %   >> wout = set_mod_pulse(file, pulse_model, pp)
@@ -33,12 +33,7 @@ function varargout=set_mod_pulse_horace(varargin)
 % Original author: T.G.Perring
 %
 
-if nargin<1 || nargin>3
-    error('Check number of input arguments')
-elseif nargout>0
-    error('No output arguments returned by this function')
+out = set_mod_pulse(file,varargin{:});
+for i=1:nargout
+    varargout{i} = out{i};
 end
-
-[varargout,mess] = horace_function_call_method (nargout, @set_mod_pulse, '$hor', varargin{:});
-if ~isempty(mess), error(mess), end
-

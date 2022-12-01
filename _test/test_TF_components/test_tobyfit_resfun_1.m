@@ -80,7 +80,6 @@ else
     load(datafile,'w2a','wce','w2b');
 end
 
-skipTest('Sample and instrument settings are currently disabled Ticket #899')
 % Add instrument and sample information to cuts
 sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
 sample.alatt = [4.2240 4.2240 4.2240];

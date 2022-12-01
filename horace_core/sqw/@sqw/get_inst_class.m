@@ -1,7 +1,8 @@
-function [inst, all_inst] = get_inst_class (obj)
-% Determine the instrument type in a collection of sqw objects
+function [main_inst, all_inst] = get_inst_class (obj)
+% Determine the instrument type in a collection of sqw objects and retrieve
+% main instrument (Single instrument?)
 %
-%   >> inst = get_inst_class (obj)              % single sqw array
+%   >> [inst,all_inst] = get_inst_class (obj)              % single sqw array
 %
 % Input:
 % ------
@@ -15,32 +16,36 @@ function [inst, all_inst] = get_inst_class (obj)
 %
 %  all_inst  True if instruments were set for all headers in all sqw objects
 
-
+% TODO: see ticket #917 for modification/clarification
 
 
 % Check data
 % Get instrument information
-main_inst = obj(1).experiment_info.instruments.unique_objects;
-if isempty(main_inst) || isa(main_inst{1},'IX_null_inst')
-    inst = [];
-    all_inst = false;
-    return;
+[inst,all_inst] = obj(1).experiment_info.get_inst_class();
+if ~all_inst
+    if iscell(inst)
+        main_inst = inst{1};
+    else
+        main_inst =[];
+    end
+    return
 end
-if numel(main_inst)>1
+main_inst = inst{1};
+inst_type = class(main_inst);
+same_type = cellfun(@(x)isa(x,inst_type),inst);
+if ~same_type
     error('HORACE:tobyfit:not_implemented',...
-        'Tobyfit does not currently supports multiple different instruments')
+        'Tobyfit does not currently support different types of instruments or some instruments for some runs are empty')
 end
-inst_type = class(main_inst{1});
 for i=2:numel(obj)
-    other_inst = obj(i).experiment_info.instruments.unique_objects;
-    if numel(other_inst)>1
-        error('HORACE:tobyfit:not_implemented',...
-            'Tobyfit does not currently works with multiple different instruments')
+    [other_inst,all_inst] = obj(i).experiment_info.get_inst_class();
+    if ~all_inst
+        return
     end
-    if ~isa(other_inst{1},inst_type)
+    same_type = cellfun(@(x)isa(x,inst_type),other_inst);
+    if ~same_type
         error('HORACE:tobyfit:not_implemented',...
-            'Tobyfit currently needs the same instruments in all input sqw objects')
+            'Tobyfit does not currently support different types of instruments or some instruments for some runs are empty')
     end
+
 end
-inst = main_inst{1};
-all_inst = true;

@@ -15,7 +15,7 @@ mess = '';
 
 if obj.instruments_.n_runs ~= nruns
     if obj.instruments_.n_runs == 1
-        obj.instruments_ = obj.instruments_.expand_runs(nruns);
+        obj.instruments_ = obj.instruments_.replicate_runs(nruns);
     else
         mess = sprintf(...
             'Number of instruments: %d is not equal to number of runs: %d; ',...
@@ -24,7 +24,7 @@ if obj.instruments_.n_runs ~= nruns
 end
 if obj.samples_.n_runs ~= nruns
     if obj.samples_.n_runs == 1
-        obj.samples_ = obj.samples_.expand_runs(nruns);
+        obj.samples_ = obj.samples_.replicate_runs(nruns);
     else
         mess = sprintf(...
             '%s\n Number of samples %d is not equal to number of runs: %d; ',...
@@ -51,3 +51,59 @@ end
 if ~isempty(mess)
     error('HORACE:Experiment:invalid_argument',mess);
 end
+% check if new lattice is defined
+new_uni_obj = obj.samples_.unique_objects;
+new_lat_def = cellfun(@(x)~isempty(x.alatt),new_uni_obj);
+new_ang_def = cellfun(@(x)~isempty(x.angdeg),new_uni_obj);
+if ~(all(new_lat_def) && all(new_ang_def))
+    if ~isempty(obj.old_lattice_holder_) % try to retrieve old lattice
+        one_unique = (obj.old_lattice_holder_.n_unique ==1 && obj.samples_.n_unique == 1);
+        if obj.old_lattice_holder_.n_runs == obj.samples.n_runs || one_unique
+            if one_unique
+                uni_source = obj.old_lattice_holder_.unique_objects;
+                uni_targ  = obj.samples_.unique_objects;
+                uni_targ{1}.alatt = uni_source{1}.alatt;
+                uni_targ{1}.angdeg = uni_source{1}.angdeg;
+                obj.samples_.unique_objects = uni_targ;
+            else
+                targ_samp = obj.samples_;
+                source_samp = obj.old_lattice_holder_;
+                n_runs = obj.samples_.n_runs;
+                one_defined = obj.old_lattice_holder_.n_unique ==1;
+                the_source = source_samp(1);
+                for i=1:n_runs
+                    the_samp = targ_samp(i);
+                    if one_defined
+                        the_samp.alatt = the_source.alatt;
+                        the_samp.angdeg = the_source .angdeg;
+                    else
+                        the_source = source_samp(i);
+                        the_samp.alatt = the_source.alatt;
+                        the_samp.angdeg = the_source.angdeg;
+                    end
+                    targ_samp(i)  = the_samp;
+                end
+                obj.samples_ = targ_samp;
+            end
+
+        else
+            warning('HORACE:Experiment:invalid_argument', ...
+                'Samples in experiment are defined but their lattice is undefined and the old simples define different lattice')
+        end
+        obj.old_lattice_holder_ = [];
+    else
+        warning('HORACE:Experiment:invalid_argument', ...
+            'Samples in experiment are defined but their lattice is undefined')
+    end
+end
+
+
+% % ensure sample lattice and expdata lattice are consistent.
+% if obj.samples_set_ || obj.expdata_set_
+%     samp = obj.samples_.unique_objects;
+%     no_samp = cellfun(@(x)isa(x,'IX_null_samp'),samp);
+%     if all(no_samp)
+%         return; % no sample lattice No need to worry
+%     end
+%
+% end

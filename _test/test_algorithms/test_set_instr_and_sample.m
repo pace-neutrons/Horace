@@ -47,7 +47,9 @@ classdef test_set_instr_and_sample < TestCase
             % loaded in memory.
             %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
             %set_sample_horace(v2large_file,obj.sam1);
-            sqw_out = set_sample_horace(obj.test_sqw_file,obj.sam1);
+            file_out = set_sample_horace(obj.test_sqw_file,obj.sam1);
+            assertTrue(is_file(file_out));
+            sqw_out = sqw(file_out); % this currently should construct filebased sqw
             assertTrue(isa(sqw_out,'sqw'))
 
             hdr = sqw_out.experiment_info;

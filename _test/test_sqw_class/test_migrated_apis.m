@@ -191,8 +191,8 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
 
             expected_efix = 34.959999084472656;
             expected_en = struct( ...
-                'efix', expected_efix * ones(24,1), ...
-                'emode', ones(24,1), ...
+                'efix', expected_efix * ones(1,24), ...
+                'emode', ones(1,24), ...
                 'ave', expected_efix, ...
                 'min', expected_efix, ...
                 'max', expected_efix, ...
@@ -214,12 +214,12 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
 
-            skipTest('set_instrument is currently not functional Ticket #899')
+
             updated = s.set_instrument(expected_inst);
-            [instrument_class, all_inst] = updated.get_inst_class();
+            [retrieved_instrument, all_inst] = updated.get_inst_class();
 
             assertTrue(all_inst);
-            assertTrue(equal_to_tol(instrument_class, class(expected_inst)));
+            assertTrue(equal_to_tol(retrieved_instrument, expected_inst));
 
         end
         function test_get_inst_class_with_missing_instrument(obj)
@@ -235,24 +235,24 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
 
-            skipTest('set_instrument is currently not functional Ticket #899')
-            % there are 85 runs. Change the header so that the first 20
+            % there are 24 runs. Change the header so that the first 20
             % runs are now the DGfermi, the rest are still ''. But they
             % are all IX_inst because that is how the new header is set up.
             % Previously the unset ones were just structs.
+            hdr = s.experiment_info;            
             for idx=1:20
-                hdr = s.experiment_info;
                 hdr.instruments{idx} = expected_inst;
-                s = s.change_header(hdr);
             end
+            s = s.change_header(hdr);
+            
+
+            [inst,all_inst] = get_inst_class(s);
 
             % Now get the instrument classes from s.
             % Some are DGfermi, some are '', all IX_inst.
-            [instrument_class, all_inst] = s.get_inst_class();
-            % So assert all_inst is true (they are all IX_inst)
-            % and that the class name is '' (they are not all the same)
-            assertTrue(all_inst);
-            assertEqual(instrument_class, '');
+            assertFalse(all_inst);
+            assertEqual(inst,expected_inst);
+
         end
         %        function test_get_mod_pulse(obj)
         %            % tested as part of test_instrument_methods
@@ -313,7 +313,6 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             ap_1 = IX_aperture(-10,0.1,0.11);
             chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
-            skipTest('set_instrument is currently not functional Ticket #899')
             updated = s.set_instrument(expected_inst);
             %assertTrue(all(cellfun(@(x) equal_to_tol(x, expected_inst), updated.experiment_info.instruments)));
             for i=1:updated.experiment_info.instruments.n_runs
@@ -322,16 +321,12 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             end
         end
 
-        %        function test_set_mod_pulse(obj)
-        %            % tested as part of test_instrument_methods
-        %        end
         function test_set_sample(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             sam1=IX_sample('test_sample_name', true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
             sam1.alatt = [4.2275 4.2275 4.2275];
             sam1.angdeg = [90 90 90];
 
-            skipTest('set_sample is currently not functional Ticket #899')
             s_updated = s.set_sample(sam1);
 
             hdr = s_updated.experiment_info;
@@ -348,7 +343,7 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
         end
         function test_shift_pixels(obj)
             %TODO: test return values more
-            params = {}; % no paramters required by test shift_rln function
+            params = {}; % no parameters required by test shift_rln function
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
             wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, params);
             assertEqual(sqw_4d_obj.npixels,wout.npixels);

@@ -124,7 +124,7 @@ classdef test_sqw_file_read_write < TestCase
             % These tests exercise the read/write of get_sqw and put_sqw, and the correct operation
             % of the set_sample and set_instrument methods for both objects and files.
 
-            skipTest('Change of sample and instrument are currently disabled Ticket #899')
+
             % Add sample to a single spe file sqw object
             f1_1_s1=change_header_test(obj.ds.f1_1,'-none',obj.sam1);
 
@@ -150,7 +150,7 @@ classdef test_sqw_file_read_write < TestCase
             % Do some fancy stuff: remove instrument and sample
             % replace with null inst and sample (was empty structs)
             ins=IX_null_inst();
-            sam=IX_null_sample();
+            sam=IX_sample();
             sam.alatt=[4 5 6];
             sam.angdeg=[91 92 93];
             f1_2_i0s0=change_header_test(f1_2_i1s1,ins,sam);
@@ -175,7 +175,7 @@ classdef test_sqw_file_read_write < TestCase
             wref = wref.change_header(hdr);
             inst_arr=create_test_instrument(95,250,'s');
             inst_arr(2)=create_test_instrument(105,300,'a');
-            skipTest('Change of sample and instrument are currently disabled Ticket #899')            
+
             wref=change_header_test(wref,inst_arr,obj.sam1);
 
             save(wref,tmpsqwfile);

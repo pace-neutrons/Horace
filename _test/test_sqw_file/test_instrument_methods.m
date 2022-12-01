@@ -7,7 +7,6 @@ classdef test_instrument_methods <  TestCase %WithSave
         test_folder
         sample_file
         test_file_
-
     end
 
     methods
@@ -87,7 +86,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             wref=read_sqw(obj.test_file_);
 
             %---------------------------------------------------------------------
-            skipTest('Setting instrument is currently disabled #899')
+
             wtmp=set_instrument(wref,@create_test_instrument,400,500,'s');
             set_instrument_horace(obj.test_file_,@create_test_instrument,400,500,'s');
 
@@ -114,26 +113,26 @@ classdef test_instrument_methods <  TestCase %WithSave
             inst = inst{1}; % unpack the single instrument in the cellarray
             hdr = wtmp.experiment_info;
             assertEqual(hdr.instruments{186},inst); % compare the last instrument in the header with the single instrument
+        end
+        function test_set_multi_instrument(obj)
+            % Set the incident energies in the object - no problem
+            wref=read_sqw(obj.test_file_);
 
             %---------------------------------------------------------------------
-            % NOT IMPLEMENTED or implemented wrongly. Does not accept array
-            % of parameters
-            %             omg  = 400 + (1:186);
-            %             %
-            %             wtmp=set_instrument(wref,@create_test_instrument,'-efix',omg ,'s');
-            %             set_instrument_horace(obj.test_file_,@create_test_instrument,'-efix',omg,'s');
+            omg  = (400 + (1:186))';
             %
-            %             inst = ldr1.get_instrument('-all');
-            %             assertEqual(numel(inst),186) % all instruments for this file are the same
-            %             assertEqual(wtmp.header{186}.instrument,inst(186));
-            %             assertEqual(wtmp.header{1}.instrument,inst(1));
-            %             assertEqual(wtmp.header{10}.instrument,inst(10));
+            wtmp=set_instrument(wref,@create_test_instrument,'-efix',omg ,'s');
+            set_instrument_horace(obj.test_file_,@create_test_instrument,'-efix',omg,'s');
 
+            ldr1 = sqw_formats_factory.instance().get_loader(obj.test_file_);
+            inst = ldr1.get_instrument('-all');
+            assertEqual(inst.n_runs,186) % all instruments for this file are the same
+            assertEqual(wtmp.experiment_info.instruments{186},inst(186));
+            assertEqual(wtmp.experiment_info.instruments(1),inst(1));
+            assertEqual(wtmp.experiment_info.instruments{10},inst(10));
         end
         %
         function test_update_instrument_set_pulse(obj)
-            %TODO decide on and return instrument either as array or
-            %cellarray
             ei=1000+(1:186);
             pulse_model = 'ikcarp';
             pp=[100./sqrt(ei(:)),zeros(186,2)];  % one row per moderator
@@ -141,12 +140,11 @@ classdef test_instrument_methods <  TestCase %WithSave
             % file contains empty instrument and sample.
             wtmp=read_sqw(obj.test_file_);
             f = @()set_mod_pulse(wtmp,pulse_model,pp);
-            assertExceptionThrown(f,'HERBERT:IX_moderator:invalid_argument');
+            assertExceptionThrown(f,'HORACE:IX_inst:runtime_error');
             % set up proper instrument:
             inst = maps_instrument(100,400,'S');
             wtmp= set_instrument(wtmp,inst);
 
-            skipTest('Setting moderator pulse model is currently disabled #899')
             wtmp_new = set_mod_pulse(wtmp,pulse_model,pp);
             hdr = wtmp_new.experiment_info;
             inst = hdr.instruments{10};
@@ -155,11 +153,13 @@ classdef test_instrument_methods <  TestCase %WithSave
             % Set the incident energies in the file - produces an error as
             % the instrument is empty
             f = @()set_mod_pulse_horace(obj.test_file_,pulse_model,pp);
-            assertExceptionThrown(f,'HORACE:set_mod_pulse:invalid_instrument');
+            assertExceptionThrown(f,'HORACE:IX_inst:runtime_error');
             n_files = wtmp.main_header.nfiles;
             inst_arr = repmat(inst,n_files,1);
+            inst = unique_objects_container('IX_inst');
+            inst = inst.add(inst_arr);
             % set up multiple instrument on file
-            set_instrument_horace(obj.test_file_,inst_arr);
+            set_instrument_horace(obj.test_file_,inst);
             % as we have proper instrument, setting moderator pulse should work
             set_mod_pulse_horace(obj.test_file_,pulse_model,pp);
 
@@ -167,15 +167,13 @@ classdef test_instrument_methods <  TestCase %WithSave
 
             inst = ldr1.get_instrument('-all');
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
-            inst = inst{1};
+
             assertEqual(inst.n_runs,186);
             hdr = wtmp_new.experiment_info;
             assertEqual(hdr.instruments{186},inst{186});
             assertEqual(hdr.instruments{10},inst{10});
             assertEqual(hdr.instruments{1},inst{1});
         end
-
     end
-
 end
 

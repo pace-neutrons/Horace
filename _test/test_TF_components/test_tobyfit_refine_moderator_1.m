@@ -128,7 +128,7 @@ if ~ok, error(mess), end    % check name and parameters are all the same (within
 
 % Set moderator tauf to something else to actually test fitting
 ppmod=0.65*ppmod;
-skipTest('set_mod_pulse is currently disabled. Ticket #899')
+
 w1inc = set_mod_pulse(w1inc,pulse_model,ppmod);
 
 % Tobyfitting proper

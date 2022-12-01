@@ -22,6 +22,37 @@ classdef test_unique_objects < TestCase
         end
         %
         %------------------------------------------------------------------
+        function test_contains_object(obj)
+            uoc = unique_objects_container('IX_inst');
+            uoc = uoc.add(obj.mi1);
+            uoc = uoc.add(IX_null_inst());
+            uoc = uoc.add(merlin_instrument(185, 600, 'g'));
+            uoc = uoc.add(IX_null_inst());
+
+            assertEqual(uoc.n_runs,4)
+
+            [is,ind] = uoc.contains(obj.mi1);
+            assertTrue(is);
+            assertEqual(ind,1);
+            % different branch of the code
+            is = uoc.contains(obj.mi1);
+            assertTrue(is);
+        end
+
+        function test_contains_class(obj)
+            uoc = unique_objects_container('IX_inst');
+            uoc = uoc.add(obj.mi1);
+            uoc = uoc.add(IX_null_inst());
+            uoc = uoc.add(obj.mi1);
+            uoc = uoc.add(IX_null_inst());
+
+            assertEqual(uoc.n_runs,4)
+
+            [is,ind] = uoc.contains('IX_null_inst');
+            assertTrue(is);
+            assertEqual(ind,2);
+        end
+
         function test_add_non_unique_objects(obj)
 
 
@@ -329,7 +360,7 @@ classdef test_unique_objects < TestCase
             assertEqual(uoc.n_runs,1)
             assertEqual(uoc.n_unique,1)
 
-            uoc = uoc.expand_runs(10);
+            uoc = uoc.replicate_runs(10);
             assertEqual(uoc.n_runs,10);
             assertEqual(uoc.n_unique,1);
             assertEqual(uoc.n_duplicates,10);

@@ -59,7 +59,7 @@ if ~(isa(main_sampl,'IX_null_sample') || ...
         end
         if isa(main_sampl,'unique_objects_container')
             if main_sampl.n_runs==1
-                main_sampl = main_sampl.expand_runs(n_runs);
+                main_sampl = main_sampl.replicate_runs(n_runs);
             elseif main_sampl.n_runs==n_runs
                 % container is fine, leave as is for assignment to exp_info
                 % below
@@ -77,7 +77,7 @@ if ~(isa(main_sampl,'IX_null_sample') || ...
         else
             ms  =unique_objects_container('IX_samp');
             ms{1} = main_sampl;
-            main_sampl = ms.expand_runs(n_runs);
+            main_sampl = ms.replicate_runs(n_runs);
         end
     end
     footer_sample_present = true;
@@ -124,7 +124,13 @@ if footer_sample_present % set up its lattice if the lattice is not present
     main_sampl.unique_objects = main_si;
     exp_info.samples = main_sampl;
 else % basic sample have already been built from lattice stored in header
-end  % so nothibng to do.
+     % so nothing to do, if this is full sqw access. If not, may be
+     % variants
+     if ~isempty(obj.sqw_holder_) && main_sampl.contains('IX_null_samp')
+         warning('HORACE:faccess_sqw_v3:not_implemented',...
+             'setting sample from sqw object at get_header is not yet implemented');
+     end
+end  
 %
 
 if ~(isa(instr,'IX_null_inst') || ...
@@ -137,7 +143,7 @@ if ~(isa(instr,'IX_null_inst') || ...
         if isa(instr,'unique_objects_container')
             % equivalent to repmat in the else clause below
             if instr.n_runs==1
-                instr= instr.expand_runs(n_runs);
+                instr= instr.replicate_runs(n_runs);
                 exp_info.instruments = instr;
             elseif instr.n_runs == n_runs
                 exp_info.instruments = instr;
@@ -149,7 +155,7 @@ if ~(isa(instr,'IX_null_inst') || ...
         else
             ms  =unique_objects_container('IX_inst');
             ms{1} = instr;
-            exp_info.instruments  = ms.expand_runs(n_runs);
+            exp_info.instruments  = ms.replicate_runs(n_runs);
         end
     else
         if ~iscell(instr)

@@ -199,7 +199,21 @@ classdef unique_objects_container < serializable
     % OTHER
     %----------------------------------------------------------------------
     methods
-        function obj = expand_runs(obj,n_runs)
+        function [is,unique_ind] = contains(obj,value)
+            % check if the container has the objects of the class "value"
+            % if the value is char, or the the object equal value, if the
+            % value is the object of the kind, stored in container
+            % Inputs:
+            % value  -- the sample, to verify presence in the container
+            % Outputs:
+            % is      -- true if the sample is present in the container and
+            %            false -- otherwise. 
+            % unique_ind
+            %         -- if requested, the positions of the sample in the
+            %            unique objects container
+            [is,unique_ind] = contains_(obj,value,nargout);
+        end
+        function obj = replicate_runs(obj,n_runs)
             % function expands container onto specified number of runs.
             % only single unique object allowed to be present in the
             % container initially
@@ -430,9 +444,9 @@ classdef unique_objects_container < serializable
                     self.stored_hashes_{oldix} = hash;
                     self.n_duplicates_(oldix) = self.n_duplicates_(oldix)+1;
                 else
-                    self.unique_objects_ = cat(1, self.unique_objects_, {obj});
+                    self.unique_objects_ = [self.unique_objects_(:);{obj}]';
 
-                    self.stored_hashes_ = [self.stored_hashes_(:),hash];
+                    self.stored_hashes_ = [self.stored_hashes_(:);hash]';
                     self.idx_(nuix) = numel(self.unique_objects_);
                     self.n_duplicates_ = [self.n_duplicates_(:)', 1];
                 end

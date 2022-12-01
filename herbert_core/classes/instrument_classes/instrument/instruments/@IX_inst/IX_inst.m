@@ -132,6 +132,10 @@ classdef IX_inst < serializable
         %------------------------------------------------------------------
         function obj = set_mod_pulse(obj,pulse_model,pm_par)
             % set moderator pulse model
+            % Inputs:
+            % pulse_model -- the string, defining the pulse model (TODO:
+            %                should be a class)
+            % pm_par      -- the parameters of the model
             mod = get_moderator(obj);
             mod = mod.set_mod_pulse(pulse_model,pm_par);
             obj = obj.set_moderator(mod);
@@ -167,12 +171,14 @@ classdef IX_inst < serializable
     methods(Access=protected)
         function val = get_moderator(~)
             % overloadable moderator getter
-            val = [];
+            error('HORACE:IX_inst:runtime_error',...
+                'Moderator can not be retrieved from  IX_inst abstraction or empty instrument');
+
         end
         function obj = set_moderator(~,~)
             % overloadable moderator setter
             error('HERBERT:IX_inst:runtime_error',...
-                'You can not set moderator on IX_inst abstraction')
+                'You can not set moderator on IX_inst abstraction or empty instrument')
         end
         
         %------------------------------------------------------------------

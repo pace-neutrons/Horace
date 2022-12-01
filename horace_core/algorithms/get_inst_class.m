@@ -1,4 +1,4 @@
-function [inst, all_inst] = get_inst_class (varargin)
+function [inst, all_inst] = get_inst_class (w)
 % Determine the instrument type in a collection of sqw objects
 %
 %   >> inst = get_inst_class (w)                % single sqw array
@@ -18,30 +18,48 @@ function [inst, all_inst] = get_inst_class (varargin)
 
 
 
+if ~iscell(w)
+    w = {w};
+end
 
-% Check data
-sqw_objects = cellfun(@(x)isa(x,'sqw'), varargin);
-if ~all(sqw_objects(:))
-    error('HORACE:tobyfit:invalid_argument',...
-        'All inputs must be sqw objects or sqw object arrays')
+
+% Perform operations
+% ==================
+nobj=numel(w);     % number of sqw objects or files
+[inst,all_inst] = check_single(1,w{1});
+if ~all_inst
+    return
 end
-[inst,all_inst] = varargin{1}.get_inst_class();
-if isempty(inst)
-    return;
-end
-inst_type = class(inst);
-% Get instrument information
-for i=2:numel(varargin)
-    [other_inst,all_inst] = varargin{i}.get_inst_class();
+inst_type = class(main_inst);
+for i=2:nobj
+    win = w{i};
+    [inst_x,all_inst] = check_single(i,win);
     if ~all_inst
-        error('HORACE:tobyfit:invalid_argument',...
-            'The object N%d does not have instrument attached to it',i);
+        return
     end
-    if ~isa(other_inst,inst_type)
+    if ~isa(inst_x,inst_type)
         error('HORACE:tobyfit:not_implemented',...
-            'Instrument for oblect N%d is %s and it is different from first instrument %s\n. Tobyfit does not currently works with multiple different instruments',...
-            i,class(other_inst),inst_type);
+            'Tobyfit does not currently support different types of instruments or some instruments for some runs in object N%d are empty', ...
+            i)
     end
 end
-all_inst = true;
-
+%
+function [inst,all_inst] = check_single(i,win)
+if ischar(win)||isstring(win)
+    ldr = sqw_formats_factory.instance().get_loader(win);
+    if ~ldr.sqw_type
+        % Check that the data has the correct type
+        error('HORACE:algorithms:invalid_argument', ...
+            'Instrument can only be retrieved from sqw-type data. File N%d, name: %s does not contain sqw object', ...
+            i,win)
+    end
+    exper = ldr.get_header('-all');
+    [inst,all_inst] = exper.get_inst_class();
+elseif isa(win,'sqw')
+    exper = win.experiment_info;
+    [inst,all_inst] = exper.get_inst_class();
+else
+    error('HORACE:algorithms:invalid_argument', ...
+        'Instrument can only be retrieved from sqw-type data. Object N%d, has type %s', ...
+        i,class(win));
+end

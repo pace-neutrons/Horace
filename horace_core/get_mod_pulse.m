@@ -1,4 +1,4 @@
-function [pulse_model,pm_par,ok,mess,p,present] = get_mod_pulse(obj,tol)
+function [pulse_model,pm_par,ok,mess,p,present] = get_mod_pulse(win,tol)
 % Get moderator pulse model name and mean pulse parameters for an array of sqw objects
 %
 %   >> [pulse_model,pp,ok,mess,p,present] = get_mod_pulse (win)
@@ -6,7 +6,7 @@ function [pulse_model,pm_par,ok,mess,p,present] = get_mod_pulse(obj,tol)
 %
 % Input:
 % ------
-%   obj         Array of sqw objects of sqw type
+%   win         Array of sqw objects of sqw type
 %   tol         [Optional] acceptable relative spread w.r.t. average of moderator
 %              pulse shape parameters: maximum over all parameters of
 %                   max(|max(p)-p_ave|,|min(p)-p_ave|) <= tol
@@ -36,44 +36,66 @@ function [pulse_model,pm_par,ok,mess,p,present] = get_mod_pulse(obj,tol)
 
 
 % Original author: T.G.Perring
+%
+
 
 % Parse input
 % -----------
-if exist('tol','var') 
+if exist('tol','var')
     if ~(isnumeric(tol) && isscalar(tol) && tol >=0)
-    error('HORACE:sqw:invalid_argument', ...
-        'Optional fractional tolerance should be a non-negative scalar. It is: %s',...
-        disp2str(tol))
+        error('HORACE:sqw:invalid_argument', ...
+            'Optional fractional tolerance should be a non-negative scalar. It is: %s',...
+            disp2str(tol))
     end
 else
-    tol=5e-3;   % relative tolerance of spread of pulse shape parameters 
+    tol=5e-3;   % relative tolerance of spread of pulse shape parameters
 end
 present = true;
 p = struct();
+if ~iscell(win)
+    win = {win};
+end
+
 
 % Perform operations
 % ------------------
-
-
 % Get values
-nobj=numel(obj);     % number of sqw objects or files
+
+nobj=numel(win);     % number of sqw objects or files
 pm_list = cell(1,nobj);
 pm_par = cell(1,nobj);
 for i=1:nobj
-    exper=obj(i).experiment_info;
+    w = win{i};
+    if ischar(w)||isstring(w)
+        ld = sqw_formats_factory.instance().get_loader(w);
+        if ~ld.sqw_type
+            error('HORACE:sqw:invalid_argument', ...
+                'moderator pulse parameters can only be retrived from sqw-type data. Object N%d, file: %s is nof sqw-type object', ...
+                i,w)
+        end
+        exper = ld.get_header('-all');
+        ld.delete();
+    elseif isa(w,'sqw')
+        exper = w.experiment_info;
+    else
+        error('HORACE:sqw:invalid_argument', ...
+            'moderator pulse parameters can only be retrived from sqw-type data. Object N%d is of class: %s', ...
+            i,class(w));
+    end
+    %
     [pm_list{i},pm_par{i},present] = exper.get_mod_pulse();
     if ~present
-        mess = sprintf('Object N%d does not have defined moderator',i);
+        mess = sprintf('Object N%d does not have moderator defined on it',i);
         ok = false;
         return;
     end
     if iscell(pm_list{i})
-        mess = sprintf('Object N%d contains more then one different pulse model',i);        
+        mess = sprintf('Object N%d contains more then one different pulse model',i);
         ok = false;
-        return;        
+        return;
     end
-    pm_par{i} = pm_par{i}';
 end
-pm_arr = [pm_par{:}]';
+pm_arr = cat(1,pm_par{:});
 [pulse_model,pm_par,ok,mess,p] =Experiment.calc_mod_pulse_avrgs(pm_arr,pm_list,tol);
+
 
