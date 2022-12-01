@@ -82,15 +82,15 @@
            <div itemprop="articleBody">
              
   <section id="api-reference">
-<h1><a class="toc-backref" href="#id111">API Reference</a><a class="headerlink" href="#api-reference" title="Permalink to this heading"></a></h1>
+<h1><a class="toc-backref" href="#id110">API Reference</a><a class="headerlink" href="#api-reference" title="Permalink to this heading"></a></h1>
 <div class="contents topic" id="table-of-contents">
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#api-reference" id="id111">API Reference</a></p>
+<li><p><a class="reference internal" href="#api-reference" id="id110">API Reference</a></p>
 <ul>
-<li><p><a class="reference internal" href="#module-sqw.&#64;SQWDnDBase" id="id112"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a></p></li>
-<li><p><a class="reference internal" href="#module-sqw.&#64;Experiment" id="id113"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a></p></li>
-<li><p><a class="reference internal" href="#module-sqw.PixelData.&#64;PixelData" id="id114"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#module-sqw.&#64;SQWDnDBase" id="id111"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#module-sqw.&#64;Experiment" id="id112"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#module-sqw.PixelData.&#64;PixelData" id="id113"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a></p></li>
 </ul>
 </li>
 </ul>
@@ -99,7 +99,7 @@
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">API Index</span></a></p></li>
 </ul>
 <section id="module-sqw.&#64;SQWDnDBase">
-<span id="sqwdndbase-class"></span><h2><a class="toc-backref" href="#id112"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a><a class="headerlink" href="#module-sqw.@SQWDnDBase" title="Permalink to this heading"></a></h2>
+<span id="sqwdndbase-class"></span><h2><a class="toc-backref" href="#id111"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a><a class="headerlink" href="#module-sqw.@SQWDnDBase" title="Permalink to this heading"></a></h2>
 <dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.IX_dataset_1d">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">IX_dataset_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.IX_dataset_1d" title="Permalink to this definition"></a></dt>
@@ -592,75 +592,6 @@ for convenience with fitting routines etc.</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.change_crystal">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">change_crystal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.change_crystal" title="Permalink to this definition"></a></dt>
-<dd><p>Change the crystal lattice and orientation of an sqw object or array of objects</p>
-<dl class="simple">
-<dt>Most commonly:</dt><dd><p>&gt;&gt; wout = change_crystal (w, rlu_corr)              % change lattice parameters and orientation</p>
-</dd>
-<dt>OR</dt><dd><p>&gt;&gt; wout = change_crystal (w, alatt)                 % change just length of lattice vectors
-&gt;&gt; wout = change_crystal (w, alatt, angdeg)         % change all lattice parameters
-&gt;&gt; wout = change_crystal (w, alatt, angdeg, rotmat) % change lattice parameters and orientation
-&gt;&gt; wout = change_crystal (w, alatt, angdeg, u, v)   % change lattice parameters and redefine u, v</p>
-</dd>
-</dl>
-<section id="id33">
-<h3>Input:<a class="headerlink" href="#id33" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>w           Input sqw object</p>
-<dl>
-<dt>rlu_corr    Matrix to convert notional rlu in the current crystal lattice to</dt><dd><p>the rlu in the the new crystal lattice together with any re-orientation
-of the crystal. The matrix is defined by the matrix:</p>
-<blockquote>
-<div><blockquote>
-<div><p>qhkl(i) = rlu_corr(i,j) * qhkl_0(j)</p>
-</div></blockquote>
-<p>This matrix can be obtained from refining the lattice and</p>
-</div></blockquote>
-<p>orientation with the function refine_crystal (type
-&gt;&gt; help refine_crystal  for more details).</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl>
-<dt><em>OR</em></dt><dd><p>alatt       New lattice parameters [a,b,c] (Angstroms)
-angdeg      New lattice angles [alf,bet,gam] (degrees)
-rotmat      Rotation matrix that relates crystal Cartesian coordinate frame of the new</p>
-<blockquote>
-<div><p>lattice as a rotation of the current crystal frame. Orthonormal coordinates
-in the two frames are related by</p>
-<blockquote>
-<div><p>v_new(i)= rotmat(i,j)*v_current(j)</p>
-</div></blockquote>
-</div></blockquote>
-<dl class="simple">
-<dt>u, v        Redefine the two vectors that were used to determine the scattering plane</dt><dd><p>These are the vectors at whatever disorientation angles dpsi, gl, gs (which
-cannot be changed).</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</section>
-<section id="id34">
-<h3>Output:<a class="headerlink" href="#id34" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>wout        Output sqw object with changed crystal lattice parameters and orientation</p>
-</div></blockquote>
-<dl>
-<dt>NOTE</dt><dd><p>The input data set(s) can be reset to their original orientation by inverting the
-input data e.g.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>call with inv(rlu_corr)</p></li>
-<li><p>call with the original alatt, angdeg, u and v</p></li>
-</ul>
-</div></blockquote>
-</dd>
-</dl>
-</section>
-</dd></dl>
-
-<dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.compact">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">compact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.compact" title="Permalink to this definition"></a></dt>
 <dd><p>Squeezes the data range in an sqw or dnd object to eliminate empty bins</p>
@@ -668,14 +599,14 @@ input data e.g.</p>
 <dt>Syntax:</dt><dd><p>&gt;&gt; wout = compact(win)</p>
 </dd>
 </dl>
-<section id="id35">
-<h3>Input:<a class="headerlink" href="#id35" title="Permalink to this heading"></a></h3>
+<section id="id33">
+<h3>Input:<a class="headerlink" href="#id33" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>win         Input object</p>
 </div></blockquote>
 </section>
-<section id="id36">
-<h3>Output:<a class="headerlink" href="#id36" title="Permalink to this heading"></a></h3>
+<section id="id34">
+<h3>Output:<a class="headerlink" href="#id34" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl class="simple">
 <dt>wout        Output object, with length of axes reduced to yield the</dt><dd><p>smallest cuboid that contains the non-empty bins.</p>
@@ -702,6 +633,30 @@ wref is empty then the co-ordinate system remains unchanged.</p>
 <blockquote>
 <div><p>&gt;&gt; w = cos(w1)</p>
 </div></blockquote>
+<section id="id35">
+<h3>Input:<a class="headerlink" href="#id35" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><dl class="simple">
+<dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="id36">
+<h3>Output:<a class="headerlink" href="#id36" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>w           Output object or array of objects.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.cosh">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">cosh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.cosh" title="Permalink to this definition"></a></dt>
+<dd><p>Implements cosh(w1) for objects</p>
+<blockquote>
+<div><p>&gt;&gt; w = cosh(w1)</p>
+</div></blockquote>
 <section id="id37">
 <h3>Input:<a class="headerlink" href="#id37" title="Permalink to this heading"></a></h3>
 <blockquote>
@@ -720,11 +675,11 @@ wref is empty then the co-ordinate system remains unchanged.</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.cosh">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">cosh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.cosh" title="Permalink to this definition"></a></dt>
-<dd><p>Implements cosh(w1) for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.cot">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">cot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.cot" title="Permalink to this definition"></a></dt>
+<dd><p>Implements cot(w1) for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = cosh(w1)</p>
+<div><p>&gt;&gt; w = cot(w1)</p>
 </div></blockquote>
 <section id="id39">
 <h3>Input:<a class="headerlink" href="#id39" title="Permalink to this heading"></a></h3>
@@ -744,11 +699,11 @@ wref is empty then the co-ordinate system remains unchanged.</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.cot">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">cot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.cot" title="Permalink to this definition"></a></dt>
-<dd><p>Implements cot(w1) for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.coth">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">coth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.coth" title="Permalink to this definition"></a></dt>
+<dd><p>Implements coth(w1) for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = cot(w1)</p>
+<div><p>&gt;&gt; w = coth(w1)</p>
 </div></blockquote>
 <section id="id41">
 <h3>Input:<a class="headerlink" href="#id41" title="Permalink to this heading"></a></h3>
@@ -768,11 +723,11 @@ wref is empty then the co-ordinate system remains unchanged.</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.coth">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">coth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.coth" title="Permalink to this definition"></a></dt>
-<dd><p>Implements coth(w1) for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.csc">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">csc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.csc" title="Permalink to this definition"></a></dt>
+<dd><p>Implements csc(w1) for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = coth(w1)</p>
+<div><p>&gt;&gt; w = csc(w1)</p>
 </div></blockquote>
 <section id="id43">
 <h3>Input:<a class="headerlink" href="#id43" title="Permalink to this heading"></a></h3>
@@ -792,11 +747,11 @@ wref is empty then the co-ordinate system remains unchanged.</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.csc">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">csc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.csc" title="Permalink to this definition"></a></dt>
-<dd><p>Implements csc(w1) for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.csch">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">csch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.csch" title="Permalink to this definition"></a></dt>
+<dd><p>Implements csch(w1) for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = csc(w1)</p>
+<div><p>&gt;&gt; w = csch(w1)</p>
 </div></blockquote>
 <section id="id45">
 <h3>Input:<a class="headerlink" href="#id45" title="Permalink to this heading"></a></h3>
@@ -816,38 +771,14 @@ wref is empty then the co-ordinate system remains unchanged.</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.csch">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">csch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.csch" title="Permalink to this definition"></a></dt>
-<dd><p>Implements csch(w1) for objects</p>
-<blockquote>
-<div><p>&gt;&gt; w = csch(w1)</p>
-</div></blockquote>
-<section id="id47">
-<h3>Input:<a class="headerlink" href="#id47" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><dl class="simple">
-<dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
-</dd>
-</dl>
-</div></blockquote>
-</section>
-<section id="id48">
-<h3>Output:<a class="headerlink" href="#id48" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>w           Output object or array of objects.</p>
-</div></blockquote>
-</section>
-</dd></dl>
-
-<dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.disp2sqw_eval">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">disp2sqw_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">dispreln</span></em>, <em class="sig-param"><span class="pre">pars</span></em>, <em class="sig-param"><span class="pre">fwhh</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.disp2sqw_eval" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate sqw for a model scattering function</p>
 <blockquote>
 <div><p>&gt;&gt; wout = disp2sqw_eval(win,dispreln,pars,fwhh,varargin)</p>
 </div></blockquote>
-<section id="id49">
-<h3>Input:<a class="headerlink" href="#id49" title="Permalink to this heading"></a></h3>
+<section id="id47">
+<h3>Input:<a class="headerlink" href="#id47" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl>
 <dt>win         Dataset, or array of datasets, that provides the axes and points</dt><dd><p>for the calculation</p>
@@ -940,8 +871,8 @@ pixel individually. Reduces cost of expensive calculations.</p>
 </dl>
 </div></blockquote>
 </section>
-<section id="id50">
-<h3>Output:<a class="headerlink" href="#id50" title="Permalink to this heading"></a></h3>
+<section id="id48">
+<h3>Output:<a class="headerlink" href="#id48" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>wout        Output dataset or array of datasets</p>
 </div></blockquote>
@@ -978,8 +909,8 @@ branch, then in the case of a single input dataset the output will be an array
 of datasets, one for each branch. If the input is an array of datasets, then only
 the first dispersion branch will be returned, so there is one output dataset per
 input dataset.</p>
-<section id="id51">
-<h3>Input:<a class="headerlink" href="#id51" title="Permalink to this heading"></a></h3>
+<section id="id49">
+<h3>Input:<a class="headerlink" href="#id49" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl>
 <dt>win         Dataset that provides the axes and points for the calculation</dt><dd><blockquote>
@@ -1028,8 +959,8 @@ above then pars = {p, c1, c2, …}</p>
 </dl>
 </div></blockquote>
 </section>
-<section id="id52">
-<h3>Output:<a class="headerlink" href="#id52" title="Permalink to this heading"></a></h3>
+<section id="id50">
+<h3>Output:<a class="headerlink" href="#id50" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl>
 <dt>wdisp       Output dataset or array of datasets of the same type as the input argument.</dt><dd><blockquote>
@@ -1075,8 +1006,8 @@ input dataset.</p>
 <p>In addition, it is possible to check the contents of just a random
 fraction of non-empty bins (see option ‘fraction’) in order to speed up
 the comparison of large objects.</p>
-<section id="id53">
-<h3>Input:<a class="headerlink" href="#id53" title="Permalink to this heading"></a></h3>
+<section id="id51">
+<h3>Input:<a class="headerlink" href="#id51" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>w1,w2   Test objects (scalar objects, or arrays of objects with same sizes)</p>
 <dl>
@@ -1156,8 +1087,8 @@ takes time, however, so the option to test on a few bins is given.</p>
 <blockquote>
 <div><p>&gt;&gt; w = exp(w1)</p>
 </div></blockquote>
-<section id="id54">
-<h3>Input:<a class="headerlink" href="#id54" title="Permalink to this heading"></a></h3>
+<section id="id52">
+<h3>Input:<a class="headerlink" href="#id52" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl class="simple">
 <dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
@@ -1165,8 +1096,8 @@ takes time, however, so the option to test on a few bins is given.</p>
 </dl>
 </div></blockquote>
 </section>
-<section id="id55">
-<h3>Output:<a class="headerlink" href="#id55" title="Permalink to this heading"></a></h3>
+<section id="id53">
+<h3>Output:<a class="headerlink" href="#id53" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>w           Output object or array of objects.</p>
 </div></blockquote>
@@ -1186,8 +1117,8 @@ Syntax:</p>
 </div></blockquote>
 <p>If function is called on sqw-type object (i.e. has pixels), the pixels’
 signal is also modified and evaluated</p>
-<section id="id56">
-<h3>Input:<a class="headerlink" href="#id56" title="Permalink to this heading"></a></h3>
+<section id="id54">
+<h3>Input:<a class="headerlink" href="#id54" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl>
 <dt>win         Dataset or array of datasets; the function will be evaluated</dt><dd><p>at the bin centres along the plot axes</p>
@@ -1242,8 +1173,8 @@ that contain data.</p>
 </dd>
 </dl>
 </section>
-<section id="id57">
-<h3>Output:<a class="headerlink" href="#id57" title="Permalink to this heading"></a></h3>
+<section id="id55">
+<h3>Output:<a class="headerlink" href="#id55" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>wout        Output objects or array of objects</p>
 </div></blockquote>
@@ -1266,6 +1197,30 @@ y = (pars(1)/(sig*sqrt(2*pi))) * …</p>
 <blockquote>
 <div><p>&gt;&gt; w = log(w1)</p>
 </div></blockquote>
+<section id="id56">
+<h3>Input:<a class="headerlink" href="#id56" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><dl class="simple">
+<dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="id57">
+<h3>Output:<a class="headerlink" href="#id57" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>w           Output object or array of objects.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.log10">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">log10</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.log10" title="Permalink to this definition"></a></dt>
+<dd><p>Implements log10(w1) for objects</p>
+<blockquote>
+<div><p>&gt;&gt; w = log10(w1)</p>
+</div></blockquote>
 <section id="id58">
 <h3>Input:<a class="headerlink" href="#id58" title="Permalink to this heading"></a></h3>
 <blockquote>
@@ -1284,30 +1239,6 @@ y = (pars(1)/(sig*sqrt(2*pi))) * …</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.log10">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">log10</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.log10" title="Permalink to this definition"></a></dt>
-<dd><p>Implements log10(w1) for objects</p>
-<blockquote>
-<div><p>&gt;&gt; w = log10(w1)</p>
-</div></blockquote>
-<section id="id60">
-<h3>Input:<a class="headerlink" href="#id60" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><dl class="simple">
-<dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
-</dd>
-</dl>
-</div></blockquote>
-</section>
-<section id="id61">
-<h3>Output:<a class="headerlink" href="#id61" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>w           Output object or array of objects.</p>
-</div></blockquote>
-</section>
-</dd></dl>
-
-<dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mask_points">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mask_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">win</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mask_points" title="Permalink to this definition"></a></dt>
 <dd><p>TODO: Does not look like this function should be here</p>
@@ -1319,8 +1250,8 @@ y = (pars(1)/(sig*sqrt(2*pi))) * …</p>
 <blockquote>
 <div><p>&gt;&gt; sel = mask_points (win, ‘mask’, mask, ‘remove’, xremove)</p>
 </div></blockquote>
-<section id="id62">
-<h3>Input:<a class="headerlink" href="#id62" title="Permalink to this heading"></a></h3>
+<section id="id60">
+<h3>Input:<a class="headerlink" href="#id60" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>win     Input sqw object</p>
 <dl>
@@ -1359,11 +1290,11 @@ consistently with the input required by the mask method.</p>
 </dl>
 </div></blockquote>
 </section>
-<section id="id63">
-<h3>Output:<a class="headerlink" href="#id63" title="Permalink to this heading"></a></h3>
+<section id="id61">
+<h3>Output:<a class="headerlink" href="#id61" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><blockquote>
-<div><p>sel     Mask array of same shape as <a href="#id115"><span class="problematic" id="id116">data_</span></a>. true for bins to keep, false to discard.</p>
+<div><p>sel     Mask array of same shape as <a href="#id114"><span class="problematic" id="id115">data_</span></a>. true for bins to keep, false to discard.</p>
 </div></blockquote>
 <p>Advanced use: in addition the following two arguments, if present, suppress failure or the
 display of informational messges. Instead, the messages are returned to be used as desired.</p>
@@ -1381,6 +1312,76 @@ display of informational messges. Instead, the messages are returned to be used 
 <dd><p>Implements w1 - w2 for objects</p>
 <blockquote>
 <div><p>&gt;&gt; w = w1 - w2</p>
+</div></blockquote>
+<section id="id62">
+<h3>Input:<a class="headerlink" href="#id62" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><dl>
+<dt>w1, w2      Objects on which the binary operation is to be performed.</dt><dd><p>One of these can be a Matlab double (i.e. double precision)
+array, in which case the variance array is taken to be zero.</p>
+<p>If w1, w2 are scalar objects with the same signal array sizes:
+- The operation is performed element-by-element.</p>
+<p>If one of w1 or w2 is a double array (and the other is a
+scalar object):
+- If a scalar, apply to each element of the object signal.
+- If it is an array of the same size as the object signal</p>
+<blockquote>
+<div><p>array, apply the operation element by element.</p>
+</div></blockquote>
+<p>If one or both of w1 and w2 are arrays of objects:
+- If objects have same array sizes, the binary operation is</p>
+<blockquote>
+<div><p>applied object element-by-object element.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>If one of the objects is scalar (i.e. only one object),</p></li>
+</ul>
+<blockquote>
+<div><p>then it is applied by the binary operation to each object
+in the other array.</p>
+</div></blockquote>
+<p>If one of w1, w2 is an array of objects and the other is a
+double array:
+- If the double is a scalar, it is applied to every object</p>
+<blockquote>
+<div><p>in the array.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>If the double is an array with the same size as the object</p></li>
+</ul>
+<blockquote>
+<div><p>array, then each element is applied as a scalar to the
+corresponding object in the object array.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>If the double is an array with larger size than the object</p></li>
+</ul>
+<blockquote>
+<div><p>array, then the array is resolved into a stack of arrays,
+where the stack has the same size as the object array, and
+the each array in the stack is applied to the corresponding
+object in the object array. [Note that for this operation
+to be valid, each object must have the same signal array
+size.]</p>
+</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="id63">
+<h3>Output:<a class="headerlink" href="#id63" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>w           Output object or array of objects.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mldivide">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mldivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mldivide" title="Permalink to this definition"></a></dt>
+<dd><p>Implements w1 w2 for objects</p>
+<blockquote>
+<div><p>&gt;&gt; w = w1 w2</p>
 </div></blockquote>
 <section id="id64">
 <h3>Input:<a class="headerlink" href="#id64" title="Permalink to this heading"></a></h3>
@@ -1446,11 +1447,11 @@ size.]</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mldivide">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mldivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mldivide" title="Permalink to this definition"></a></dt>
-<dd><p>Implements w1 w2 for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mpower">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mpower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mpower" title="Permalink to this definition"></a></dt>
+<dd><p>Implements w1 ^ w2 for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = w1 w2</p>
+<div><p>&gt;&gt; w = w1 ^ w2</p>
 </div></blockquote>
 <section id="id66">
 <h3>Input:<a class="headerlink" href="#id66" title="Permalink to this heading"></a></h3>
@@ -1516,11 +1517,11 @@ size.]</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mpower">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mpower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mpower" title="Permalink to this definition"></a></dt>
-<dd><p>Implements w1 ^ w2 for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mrdivide">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mrdivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mrdivide" title="Permalink to this definition"></a></dt>
+<dd><p>Implements w1 / w2 for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = w1 ^ w2</p>
+<div><p>&gt;&gt; w = w1 / w2</p>
 </div></blockquote>
 <section id="id68">
 <h3>Input:<a class="headerlink" href="#id68" title="Permalink to this heading"></a></h3>
@@ -1586,11 +1587,11 @@ size.]</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mrdivide">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mrdivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mrdivide" title="Permalink to this definition"></a></dt>
-<dd><p>Implements w1 / w2 for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mtimes">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mtimes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mtimes" title="Permalink to this definition"></a></dt>
+<dd><p>Implements w1 * w2 for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = w1 / w2</p>
+<div><p>&gt;&gt; w = w1 * w2</p>
 </div></blockquote>
 <section id="id70">
 <h3>Input:<a class="headerlink" href="#id70" title="Permalink to this heading"></a></h3>
@@ -1649,76 +1650,6 @@ size.]</p>
 </section>
 <section id="id71">
 <h3>Output:<a class="headerlink" href="#id71" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>w           Output object or array of objects.</p>
-</div></blockquote>
-</section>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.mtimes">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">mtimes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em>, <em class="sig-param"><span class="pre">w2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.mtimes" title="Permalink to this definition"></a></dt>
-<dd><p>Implements w1 * w2 for objects</p>
-<blockquote>
-<div><p>&gt;&gt; w = w1 * w2</p>
-</div></blockquote>
-<section id="id72">
-<h3>Input:<a class="headerlink" href="#id72" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><dl>
-<dt>w1, w2      Objects on which the binary operation is to be performed.</dt><dd><p>One of these can be a Matlab double (i.e. double precision)
-array, in which case the variance array is taken to be zero.</p>
-<p>If w1, w2 are scalar objects with the same signal array sizes:
-- The operation is performed element-by-element.</p>
-<p>If one of w1 or w2 is a double array (and the other is a
-scalar object):
-- If a scalar, apply to each element of the object signal.
-- If it is an array of the same size as the object signal</p>
-<blockquote>
-<div><p>array, apply the operation element by element.</p>
-</div></blockquote>
-<p>If one or both of w1 and w2 are arrays of objects:
-- If objects have same array sizes, the binary operation is</p>
-<blockquote>
-<div><p>applied object element-by-object element.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>If one of the objects is scalar (i.e. only one object),</p></li>
-</ul>
-<blockquote>
-<div><p>then it is applied by the binary operation to each object
-in the other array.</p>
-</div></blockquote>
-<p>If one of w1, w2 is an array of objects and the other is a
-double array:
-- If the double is a scalar, it is applied to every object</p>
-<blockquote>
-<div><p>in the array.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>If the double is an array with the same size as the object</p></li>
-</ul>
-<blockquote>
-<div><p>array, then each element is applied as a scalar to the
-corresponding object in the object array.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>If the double is an array with larger size than the object</p></li>
-</ul>
-<blockquote>
-<div><p>array, then the array is resolved into a stack of arrays,
-where the stack has the same size as the object array, and
-the each array in the stack is applied to the corresponding
-object in the object array. [Note that for this operation
-to be valid, each object must have the same signal array
-size.]</p>
-</div></blockquote>
-</dd>
-</dl>
-</div></blockquote>
-</section>
-<section id="id73">
-<h3>Output:<a class="headerlink" href="#id73" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>w           Output object or array of objects.</p>
 </div></blockquote>
@@ -1863,8 +1794,8 @@ be &lt;a href=”matlab:help(‘sqw/multifit_legacy_sqw_sqw’);”&gt;found her
 <blockquote>
 <div><p>&gt;&gt; w = w1 + w2</p>
 </div></blockquote>
-<section id="id74">
-<h3>Input:<a class="headerlink" href="#id74" title="Permalink to this heading"></a></h3>
+<section id="id72">
+<h3>Input:<a class="headerlink" href="#id72" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl>
 <dt>w1, w2      Objects on which the binary operation is to be performed.</dt><dd><p>One of these can be a Matlab double (i.e. double precision)
@@ -1918,8 +1849,8 @@ size.]</p>
 </dl>
 </div></blockquote>
 </section>
-<section id="id75">
-<h3>Output:<a class="headerlink" href="#id75" title="Permalink to this heading"></a></h3>
+<section id="id73">
+<h3>Output:<a class="headerlink" href="#id73" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>w           Output object or array of objects.</p>
 </div></blockquote>
@@ -1939,7 +1870,7 @@ size.]</p>
 ignored)</p>
 </div></blockquote>
 <dl class="simple">
-<dt>&gt;&gt; save (w, file,[‘-parallel’<a href="#id76"><span class="problematic" id="id77">|</span></a>JobDispatcher])</dt><dd><p>combine file usging parallel algorithm.
+<dt>&gt;&gt; save (w, file,[‘-parallel’<a href="#id74"><span class="problematic" id="id75">|</span></a>JobDispatcher])</dt><dd><p>combine file usging parallel algorithm.
 Useful and would works only if (when) pix
 value of sqw object data is set up to the
 instance of pix_combine_info class,
@@ -1980,6 +1911,30 @@ implemented properly</p>
 <blockquote>
 <div><p>&gt;&gt; w = sec(w1)</p>
 </div></blockquote>
+<section id="id76">
+<h3>Input:<a class="headerlink" href="#id76" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><dl class="simple">
+<dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="id77">
+<h3>Output:<a class="headerlink" href="#id77" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>w           Output object or array of objects.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sech">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sech</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sech" title="Permalink to this definition"></a></dt>
+<dd><p>Implements sech(w1) for objects</p>
+<blockquote>
+<div><p>&gt;&gt; w = sech(w1)</p>
+</div></blockquote>
 <section id="id78">
 <h3>Input:<a class="headerlink" href="#id78" title="Permalink to this heading"></a></h3>
 <blockquote>
@@ -1998,11 +1953,11 @@ implemented properly</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sech">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sech</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sech" title="Permalink to this definition"></a></dt>
-<dd><p>Implements sech(w1) for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sin">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sin" title="Permalink to this definition"></a></dt>
+<dd><p>Implements sin(w1) for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = sech(w1)</p>
+<div><p>&gt;&gt; w = sin(w1)</p>
 </div></blockquote>
 <section id="id80">
 <h3>Input:<a class="headerlink" href="#id80" title="Permalink to this heading"></a></h3>
@@ -2022,11 +1977,11 @@ implemented properly</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sin">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sin" title="Permalink to this definition"></a></dt>
-<dd><p>Implements sin(w1) for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sinh">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sinh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sinh" title="Permalink to this definition"></a></dt>
+<dd><p>Implements sinh(w1) for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = sin(w1)</p>
+<div><p>&gt;&gt; w = sinh(w1)</p>
 </div></blockquote>
 <section id="id82">
 <h3>Input:<a class="headerlink" href="#id82" title="Permalink to this heading"></a></h3>
@@ -2046,11 +2001,11 @@ implemented properly</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sinh">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sinh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sinh" title="Permalink to this definition"></a></dt>
-<dd><p>Implements sinh(w1) for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqrt">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqrt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqrt" title="Permalink to this definition"></a></dt>
+<dd><p>Implements sqrt(w1) for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = sinh(w1)</p>
+<div><p>&gt;&gt; w = sqrt(w1)</p>
 </div></blockquote>
 <section id="id84">
 <h3>Input:<a class="headerlink" href="#id84" title="Permalink to this heading"></a></h3>
@@ -2063,30 +2018,6 @@ implemented properly</p>
 </section>
 <section id="id85">
 <h3>Output:<a class="headerlink" href="#id85" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>w           Output object or array of objects.</p>
-</div></blockquote>
-</section>
-</dd></dl>
-
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqrt">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqrt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqrt" title="Permalink to this definition"></a></dt>
-<dd><p>Implements sqrt(w1) for objects</p>
-<blockquote>
-<div><p>&gt;&gt; w = sqrt(w1)</p>
-</div></blockquote>
-<section id="id86">
-<h3>Input:<a class="headerlink" href="#id86" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><dl class="simple">
-<dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
-</dd>
-</dl>
-</div></blockquote>
-</section>
-<section id="id87">
-<h3>Output:<a class="headerlink" href="#id87" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>w           Output object or array of objects.</p>
 </div></blockquote>
@@ -2157,7 +2088,7 @@ array of file paths with equal number of elements as win.</p>
 </dd>
 <dt>all        If true, requests that the calculated sqw be returned over</dt><dd><p>the whole of the domain of the input dataset. If false, then
 the function will be returned only at those points of the dataset
-that contain <a href="#id117"><span class="problematic" id="id118">data_</span></a>.</p>
+that contain <a href="#id116"><span class="problematic" id="id117">data_</span></a>.</p>
 <blockquote>
 <div><p>Applies only to input with no pixel information - it is ignored if</p>
 </div></blockquote>
@@ -2219,6 +2150,30 @@ pars       Arguments needed by the function.</p>
 <blockquote>
 <div><p>&gt;&gt; w = tan(w1)</p>
 </div></blockquote>
+<section id="id86">
+<h3>Input:<a class="headerlink" href="#id86" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><dl class="simple">
+<dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+<section id="id87">
+<h3>Output:<a class="headerlink" href="#id87" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>w           Output object or array of objects.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.tanh">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">tanh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.tanh" title="Permalink to this definition"></a></dt>
+<dd><p>Implements tanh(w1) for objects</p>
+<blockquote>
+<div><p>&gt;&gt; w = tanh(w1)</p>
+</div></blockquote>
 <section id="id88">
 <h3>Input:<a class="headerlink" href="#id88" title="Permalink to this heading"></a></h3>
 <blockquote>
@@ -2237,11 +2192,11 @@ pars       Arguments needed by the function.</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.tanh">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">tanh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.tanh" title="Permalink to this definition"></a></dt>
-<dd><p>Implements tanh(w1) for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.uminus">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">uminus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.uminus" title="Permalink to this definition"></a></dt>
+<dd><p>Implements uminus(w1) for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = tanh(w1)</p>
+<div><p>&gt;&gt; w = uminus(w1)</p>
 </div></blockquote>
 <section id="id90">
 <h3>Input:<a class="headerlink" href="#id90" title="Permalink to this heading"></a></h3>
@@ -2261,11 +2216,11 @@ pars       Arguments needed by the function.</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.uminus">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">uminus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.uminus" title="Permalink to this definition"></a></dt>
-<dd><p>Implements uminus(w1) for objects</p>
+<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.uplus">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">uplus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.uplus" title="Permalink to this definition"></a></dt>
+<dd><p>Implements uplus(w1) for objects</p>
 <blockquote>
-<div><p>&gt;&gt; w = uminus(w1)</p>
+<div><p>&gt;&gt; w = uplus(w1)</p>
 </div></blockquote>
 <section id="id92">
 <h3>Input:<a class="headerlink" href="#id92" title="Permalink to this heading"></a></h3>
@@ -2284,33 +2239,9 @@ pars       Arguments needed by the function.</p>
 </section>
 </dd></dl>
 
-<dl class="mat function">
-<dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.uplus">
-<span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">uplus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.uplus" title="Permalink to this definition"></a></dt>
-<dd><p>Implements uplus(w1) for objects</p>
-<blockquote>
-<div><p>&gt;&gt; w = uplus(w1)</p>
-</div></blockquote>
-<section id="id94">
-<h3>Input:<a class="headerlink" href="#id94" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><dl class="simple">
-<dt>w1          Input object or array of objects on which to apply the</dt><dd><p>unary operator.</p>
-</dd>
-</dl>
-</div></blockquote>
-</section>
-<section id="id95">
-<h3>Output:<a class="headerlink" href="#id95" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>w           Output object or array of objects.</p>
-</div></blockquote>
-</section>
-</dd></dl>
-
 </section>
 <section id="module-sqw.&#64;Experiment">
-<span id="experiment-class"></span><h2><a class="toc-backref" href="#id113"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a><a class="headerlink" href="#module-sqw.@Experiment" title="Permalink to this heading"></a></h2>
+<span id="experiment-class"></span><h2><a class="toc-backref" href="#id112"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a><a class="headerlink" href="#module-sqw.@Experiment" title="Permalink to this heading"></a></h2>
 <dl class="mat class">
 <dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">Experiment</span></span><a class="headerlink" href="#sqw.@Experiment.Experiment" title="Permalink to this definition"></a></dt>
@@ -2330,9 +2261,46 @@ pars       Arguments needed by the function.</p>
 <p>Change fields of Experiment as required</p>
 </dd></dl>
 
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.get_efix">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">get_efix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.get_efix" title="Permalink to this definition"></a></dt>
+<dd><p>Return array of incident energies from all runs, contributing to
+experiment.</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.set_instrument">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">set_instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">instr_or_fun</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.set_instrument" title="Permalink to this definition"></a></dt>
+<dd><p>add or reset instrument, related to the given experiment class</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.set_mod_pulse">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">set_mod_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">pulse_model</span></em>, <em class="sig-param"><span class="pre">pm_par</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.set_mod_pulse" title="Permalink to this definition"></a></dt>
+<dd><p>Set moderator pulse model on all unique instruments, contributed in the
+experiment
+Input:
+——</p>
+<blockquote>
+<div><p>obj         Experiment object
+pulse_model Pulse shape model name e.g. ‘ikcarp’
+pp          Pulse shape parameters: row vector for a single set of parameters</p>
+<blockquote>
+<div><p>or a 2D array, one row per spe data set for each instrument
+of the sqw object(s).</p>
+</div></blockquote>
+</div></blockquote>
+<section id="id94">
+<h3>Output:<a class="headerlink" href="#id94" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><p>obj         Modified experiment</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
 </section>
 <section id="module-sqw.PixelData.&#64;PixelData">
-<span id="pixeldata-class"></span><h2><a class="toc-backref" href="#id114"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a><a class="headerlink" href="#module-sqw.PixelData.@PixelData" title="Permalink to this heading"></a></h2>
+<span id="pixeldata-class"></span><h2><a class="toc-backref" href="#id113"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a><a class="headerlink" href="#module-sqw.PixelData.@PixelData" title="Permalink to this heading"></a></h2>
 <dl class="mat class">
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.PixelData.&#64;PixelData.</span></span><span class="sig-name descname"><span class="pre">PixelData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">arg</span></em>, <em class="sig-param"><span class="pre">mem_alloc</span></em>, <em class="sig-param"><span class="pre">upgrade</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData" title="Permalink to this definition"></a></dt>
@@ -2353,7 +2321,7 @@ an instance of sqw_binfile_common.</p>
 data object. No pixel data will be loaded from the file on construction.
 Data will be loaded when a getter is called e.g. pix_data.signal. Data will
 be loaded in pages such that the data held in memory will not exceed the
-size (in bytes) specified by private attribute <a href="#id119"><span class="problematic" id="id120">page_memory_size_</span></a> - this can
+size (in bytes) specified by private attribute <a href="#id118"><span class="problematic" id="id119">page_memory_size_</span></a> - this can
 be set on construction (see mem_alloc above).</p>
 <p>The file-backed operations work by loading “pages” of data into memory as
 required. If editing pixels, to avoid losing changes, if a page has been
@@ -2526,14 +2494,14 @@ a straight-forward data concatenation.</p>
 <blockquote>
 <div><p>&gt;&gt; joined_pix = PixelData.cat(pix_data1, pix_data2);</p>
 </div></blockquote>
-<section id="id96">
-<h3>Input:<a class="headerlink" href="#id96" title="Permalink to this heading"></a></h3>
+<section id="id95">
+<h3>Input:<a class="headerlink" href="#id95" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>varargin    A cell array of PixelData objects</p>
 </div></blockquote>
 </section>
-<section id="id97">
-<h3>Output:<a class="headerlink" href="#id97" title="Permalink to this heading"></a></h3>
+<section id="id96">
+<h3>Output:<a class="headerlink" href="#id96" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><dl class="simple">
 <dt>obj         A PixelData object containing all the pixels in the inputted</dt><dd><p>PixelData objects</p>
@@ -2738,8 +2706,8 @@ object.</p>
 <p>The pixels to append must all be in memory and you cannot append pixels if
 the inputted PixelData object has more pixels than are allowed in a single
 page.</p>
-<section id="id98">
-<h3>Input<a class="headerlink" href="#id98" title="Permalink to this heading"></a></h3>
+<section id="id97">
+<h3>Input<a class="headerlink" href="#id97" title="Permalink to this heading"></a></h3>
 <p>pix    A PixelData object containing the pixels to append</p>
 </section>
 </dd></dl>
@@ -2753,12 +2721,12 @@ Returns empty arrays if obj contains no pixels.</p>
 <blockquote>
 <div><p>&gt;&gt; [mean_signal, mean_variance] = compute_bin_data(obj, npix)</p>
 </div></blockquote>
-<section id="id99">
-<h3>Input<a class="headerlink" href="#id99" title="Permalink to this heading"></a></h3>
+<section id="id98">
+<h3>Input<a class="headerlink" href="#id98" title="Permalink to this heading"></a></h3>
 <p>npix   The number of contributing pixels to each bin of the plot axes</p>
 </section>
-<section id="id100">
-<h3>Output<a class="headerlink" href="#id100" title="Permalink to this heading"></a></h3>
+<section id="id99">
+<h3>Output<a class="headerlink" href="#id99" title="Permalink to this heading"></a></h3>
 <dl class="simple">
 <dt>mean_signal     The average signal for each plot axis bin.</dt><dd><p>size(mean_signal) = size(npix)</p>
 </dd>
@@ -2778,8 +2746,8 @@ Returns empty arrays if obj contains no pixels.</p>
 <p>&gt;&gt; pix_sum = obj.do_binary_op(signal_array, &#64;plus_single, ‘npix’, npix, ‘flip’, true)</p>
 </dd>
 </dl>
-<section id="id101">
-<h3>Input<a class="headerlink" href="#id101" title="Permalink to this heading"></a></h3>
+<section id="id100">
+<h3>Input<a class="headerlink" href="#id100" title="Permalink to this heading"></a></h3>
 <dl class="simple">
 <dt>operand    The second operand to use in the binary operation.</dt><dd><dl class="simple">
 <dt>The operand must have one of the following types:</dt><dd><ul class="simple">
@@ -2813,8 +2781,8 @@ sum(npix, [], ‘all’) must be equal to obj.num_pixels</p>
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.do_unary_op">
 <span class="sig-prename descclassname"><span class="pre">sqw.PixelData.&#64;PixelData.</span></span><span class="sig-name descname"><span class="pre">do_unary_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">unary_op</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.do_unary_op" title="Permalink to this definition"></a></dt>
 <dd><p>Perform a unary operation on this object’s signal and variance arrays</p>
-<section id="id102">
-<h3>Input:<a class="headerlink" href="#id102" title="Permalink to this heading"></a></h3>
+<section id="id101">
+<h3>Input:<a class="headerlink" href="#id101" title="Permalink to this heading"></a></h3>
 <dl class="simple">
 <dt>unary_op   Function handle pointing to the operation to perform. This</dt><dd><p>operation should take a sigvar object as an argument.</p>
 </dd>
@@ -2826,8 +2794,8 @@ sum(npix, [], ‘all’) must be equal to obj.num_pixels</p>
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.equal_to_tol">
 <span class="sig-prename descclassname"><span class="pre">sqw.PixelData.&#64;PixelData.</span></span><span class="sig-name descname"><span class="pre">equal_to_tol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">other_pix</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.equal_to_tol" title="Permalink to this definition"></a></dt>
 <dd><p>EQUAL_TO_TOL Check if two PixelData objects are equal to a given tolerance</p>
-<section id="id103">
-<h3>Input:<a class="headerlink" href="#id103" title="Permalink to this heading"></a></h3>
+<section id="id102">
+<h3>Input:<a class="headerlink" href="#id102" title="Permalink to this heading"></a></h3>
 <p>pix        The first pixel data object to compare.</p>
 <p>other_pix  The second pixel data object to compare.</p>
 <dl>
@@ -2900,8 +2868,8 @@ appear in the inputted cell array.</p>
 </dd>
 </dl>
 </div></blockquote>
-<section id="id104">
-<h3>Input:<a class="headerlink" href="#id104" title="Permalink to this heading"></a></h3>
+<section id="id103">
+<h3>Input:<a class="headerlink" href="#id103" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><p>pix_fields       The name of a field, or a cell array of field names
 abs_pix_indices  The pixel indices to retrieve, if not given, get full range.</p>
@@ -2925,8 +2893,8 @@ Ranges are inclusive.</p>
 <blockquote>
 <div><p>&gt;&gt; pix = get_pix_in_ranges([1, 12, 25], [6, 12, 27])</p>
 </div></blockquote>
-<section id="id105">
-<h3>Input:<a class="headerlink" href="#id105" title="Permalink to this heading"></a></h3>
+<section id="id104">
+<h3>Input:<a class="headerlink" href="#id104" title="Permalink to this heading"></a></h3>
 <p>pix_starts  Absolute indices of the starts of pixel ranges [Nx1 or 1xN array].
 block_sizes The sizes of the blocks to read                [Nx1 or 1xN array].
 Optional
@@ -2941,8 +2909,8 @@ load. Default false</p>
 </dd>
 </dl>
 </section>
-<section id="id106">
-<h3>Output:<a class="headerlink" href="#id106" title="Permalink to this heading"></a></h3>
+<section id="id105">
+<h3>Output:<a class="headerlink" href="#id105" title="Permalink to this heading"></a></h3>
 <p>pix_out     A PixelData object containing the pixels in the given ranges.</p>
 </section>
 </dd></dl>
@@ -2961,8 +2929,8 @@ a Matlab array. The difference being the returned object is a PixelData
 object and not an array.</p>
 <p>This function may be useful if you want to extract data for a particular
 image bin.</p>
-<section id="id107">
-<h3>Input:<a class="headerlink" href="#id107" title="Permalink to this heading"></a></h3>
+<section id="id106">
+<h3>Input:<a class="headerlink" href="#id106" title="Permalink to this heading"></a></h3>
 <blockquote>
 <div><blockquote>
 <div><dl class="simple">
@@ -2989,8 +2957,8 @@ property.</p>
 <span class="sig-prename descclassname"><span class="pre">sqw.PixelData.&#64;PixelData.</span></span><span class="sig-name descname"><span class="pre">mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">mask_array</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.mask" title="Permalink to this definition"></a></dt>
 <dd><p>MASK remove the pixels specified by the input logical array</p>
 <p>You must specify exactly one return argument when calling this function.</p>
-<section id="id108">
-<h3>Input:<a class="headerlink" href="#id108" title="Permalink to this heading"></a></h3>
+<section id="id107">
+<h3>Input:<a class="headerlink" href="#id107" title="Permalink to this heading"></a></h3>
 <dl>
 <dt>mask_array   A logical array specifying which pixels should be kept/removed</dt><dd><p>from the PixelData object. Must be of length equal to the number
 of pixels in ‘obj’ or equal in size to the ‘npix’ argument. A
@@ -3014,8 +2982,8 @@ all(size(mask_array) == size(npix)).</p>
 </dd>
 </dl>
 </section>
-<section id="id109">
-<h3>Output:<a class="headerlink" href="#id109" title="Permalink to this heading"></a></h3>
+<section id="id108">
+<h3>Output:<a class="headerlink" href="#id108" title="Permalink to this heading"></a></h3>
 <p>pix_out      A PixelData object containing only non-masked pixels.</p>
 </section>
 </dd></dl>
@@ -3091,8 +3059,8 @@ elements in ‘abs_pix_indices’.</p>
 </dd>
 </dl>
 </section>
-<section id="id110">
-<h3>Input:<a class="headerlink" href="#id110" title="Permalink to this heading"></a></h3>
+<section id="id109">
+<h3>Input:<a class="headerlink" href="#id109" title="Permalink to this heading"></a></h3>
 <p>pix_fields       The name of a field, or a cell array of field names.
 data             The data with which to set the given fields.
 abs_pix_indices  The indices to set data on. If not specified all indices are</p>
@@ -3117,7 +3085,7 @@ abs_pix_indices  The indices to set data on. If not specified all indices are</p
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2022, STFC RAL.
-      <span class="lastupdated">Last updated on Nov 25, 2022, 10:27:28 AM.
+      <span class="lastupdated">Last updated on Dec 1, 2022, 10:03:10 AM.
       </span></p>
   </div>
 
