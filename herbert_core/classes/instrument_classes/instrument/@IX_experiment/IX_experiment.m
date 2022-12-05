@@ -190,12 +190,7 @@ classdef IX_experiment < serializable
                     % constructor
                     % The constructor parameters names in the order, then can
                     % appear in constructor
-                    for i=1:numel(flds)
-                        fld = flds{i};
-                        if isfield(input,fld)
-                            obj.(fld) = input.(fld);
-                        end
-                    end
+                    obj = IX_experiment.loadobj(input);
                 else
                     error('HERBERT:IX_experiment:invalid_argument',...
                         'Unrecognised single input argument of class %s',...
@@ -208,10 +203,11 @@ classdef IX_experiment < serializable
                 % key-value pairs. The accurate validation should occur on
                 % setters.
                 [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                    flds,varargin{:});
+                    flds,false,varargin{:});
                 if ~isempty(remains)
                     error('HERBERT:IX_experiment:invalid_argument',...
-                        'Non-recognized extra-arguments provided as input for constructor for IX_experiemt')
+                        'Non-recognized extra-arguments provided as input for constructor for IX_experiemt: %s', ...
+                        disp2str(remains));
                 end
             else
                 error('HERBERT:IX_experiment:invalid_argument',...

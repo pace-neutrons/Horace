@@ -49,6 +49,13 @@ if ~isfield(S,'version') || S.version<4
                 ss.data = data_sqw_dnd.loadobj(ss.data);
             end
             if isa(ss.data,'data_sqw_dnd')
+                if ss.experiment_info.samples.n_runs == 0
+                    sam = IX_samp('alatt',ss.data.alatt,'angdeg',ss.data.angdeg);
+                    ss.experiment_info.samples{1} = sam;
+                    if ss.experiment_info.instruments.n_runs == 0                    
+                        ss.experiment_info.instruments{1} = IX_null_inst();
+                    end
+                end
                 hav = header_average(ss.experiment_info);
                 if isempty(hav.alatt) % no actual header, happens in old test files
                     proj = ss.data.get_projection();     
@@ -74,7 +81,7 @@ if ~isfield(S,'version') || S.version<4
         end
         proj = ss.data.proj;
         header_av = ss.experiment_info.header_average();
-        if ~isempty(header_av.u_to_rlu)
+        if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
             ss.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
         end
         

@@ -32,8 +32,7 @@ classdef IX_null_inst < IX_inst
         end
         
         function flds = saveableFields(obj)
-            baseflds = saveableFields@IX_inst(obj);
-            flds = { baseflds{:} };
+            flds = saveableFields@IX_inst(obj);
         end
     end
 

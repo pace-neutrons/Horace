@@ -21,7 +21,7 @@ function [tlo, thi] = pulse_range (obj, varargin)
 
 
 if ~isscalar(obj)
-    error('IX_doubledisk_chopper:pulse_range:invalid_argument',...
+    error('HORACE:IX_doubledisk_chopper:invalid_argument',...
         'Method only takes a scalar double disk chopper object')
 end
 
@@ -33,7 +33,7 @@ if nargin==2
     tlo = tlo * ones(size(varargin{1}));
     thi = thi * ones(size(varargin{1}));
 elseif nargin>2
-    error('IX_doubledisk_chopper:pulse_range:invalid_argument',...
+    error('HORACE:IX_doubledisk_chopper:invalid_argument',...
         'Check number of input arguments')
 end
 

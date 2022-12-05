@@ -51,6 +51,7 @@ classdef test_change_crystal_file_eq_memory < TestCase
             save(obj.w2_2,w2c_2_file);
             w2arr = [obj.w2_1,obj.w2_2];
 
+            
             ref_ans = change_crystal(w2arr,obj.rlu_corr);
 
             change_crystal({w2c_1_file,w2c_2_file},obj.rlu_corr);

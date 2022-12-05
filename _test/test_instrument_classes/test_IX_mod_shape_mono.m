@@ -5,23 +5,32 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
         mod_DGdisk
         shape_DGdisk
         mono_DGdisk
+
+        home_folder;
     end
     
     methods
         %--------------------------------------------------------------------------
-        function self = test_IX_mod_shape_mono (name)
-            self@TestCaseWithSave(name);
+        function obj = test_IX_mod_shape_mono (name)
+            home_folder = fileparts(mfilename('fullpath'));
+            if nargin == 0
+                name = 'test_IX_mod_shape_mono';
+            end
+            file = fullfile(home_folder,'test_IX_mod_shape_mono_output.mat');
+            obj@TestCaseWithSave(name,file);
+            obj.home_folder = home_folder;            
+            
             
             % Create components needed for an IX_inst_DGdisk
             % Use an old-ish LET function for convenience
-            self.efix = 8;
-            instru = let_instrument_struct_for_tests (self.efix, 280, 140, 20, 2, 2);
+            obj.efix = 8;
+            instru = let_instrument_struct_for_tests (obj.efix, 280, 140, 20, 2, 2);
             
-            self.mod_DGdisk = instru.moderator;
-            self.shape_DGdisk = instru.chop_shape;
-            self.mono_DGdisk = instru.chop_mono;
+            obj.mod_DGdisk = instru.moderator;
+            obj.shape_DGdisk = instru.chop_shape;
+            obj.mono_DGdisk = instru.chop_mono;
             
-            self.save()
+            obj.save()
         end
         
         %--------------------------------------------------------------------------
@@ -93,7 +102,7 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             
             % mod FWHH=33947us, shape_chop FWHH=66.48us
             shaped_mod = msm.shaped_mod;        % should be true - extreme case
-            assertEqualWithSave(self,shaped_mod);
+            assertTrue(shaped_mod);
             
             tcov = msm.covariance();
             tmean = msm.mean();
@@ -103,9 +112,28 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             [tcovR,tmeanR] = rand_covariance (msm, npnt);
             assertEqualToTol(tcov, tcovR, 'tol', [0.5,2e-2])
             assertEqualToTol(tmean, tmeanR, 'tol', [0.5,2e-2])
+        end        
+        %--------------------------------------------------------------------------
+        function test_prev_versions(obj)
+            % Scalar example
+            mod_sm = IX_mod_shape_mono(obj.mod_DGdisk, obj.shape_DGdisk, obj.mono_DGdisk);
+            sample_files_location = obj.home_folder;
+            if obj.save_output
+                % run test_IX_apperture with -save option to obtain reference
+                % files before changed to new class version
+                save_variables=true;
+                ver = mod_sm.classVersion();
+                verstr = ['ver',num2str(ver)];
+                check_matfile_IO(verstr, save_variables, sample_files_location,mod_sm);
+
+            else
+                save_variables=false;
+
+                verstr= 'ver1';
+                check_matfile_IO(verstr, save_variables, sample_files_location ,mod_sm);
+            end
         end
         
-        %--------------------------------------------------------------------------
     end
 end
 

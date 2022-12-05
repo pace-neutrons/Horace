@@ -22,7 +22,7 @@ end
 %
 % The question if one should allow this to happen (e.g. heterogeneous
 % arrays) remains open
-fields_to_set = obj.saveableFields();
+fields_to_set = obj(1).saveableFields();
 fields_present = fieldnames(inputs);
 is_present = ismember(fields_to_set,fields_present);
 if ~all(is_present)

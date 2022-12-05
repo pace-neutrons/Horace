@@ -1,4 +1,4 @@
-function varargout = get_efix(varargin)
+function [efix,emode,ok,mess,en] = get_efix(obj,tol)
 % Return the mean fixed neutron energy and emode for an array of sqw objects.
 %
 %   >> [efix,emode,ok,mess,en] = get_efix(win)
@@ -29,111 +29,24 @@ function varargout = get_efix(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 
 % Parse input
 % -----------
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
-if ~isempty(mess), error(mess); end
-
+if exist('tol','var')
+    if ~(isnumeric(tol) && isscalar(tol) && tol >=0)
+        error('HORACE:sqw:invalid_argument',...
+            'Check optional fractional tolerance is a non-negative scalar')
+    end
+else
+    tol=5e-3;    % relative tolerance of spread of incident energies
+end
 
 % Perform operations
 % ------------------
-tol_default=5e-3;
-if numel(args)==1 && isnumeric(args{1}) && isscalar(args{1}) && args{1}>=0
-    tol=args{1};
-elseif numel(args)==0
-    tol=tol_default;    % relative tolerance of spread of incident energies
-else
-    error('Check optional fractional tolerance is a non-negative scalar')
-end
 
-% Check that the data has the correct type
-if ~all(w.sqw_type(:))
-    error('efix and emode can only be retrived from sqw-type data')
-end
+efix_arr  = arrayfun(@(x)x.experiment_info_.get_efix(),obj,'UniformOutput',false);
+efix_arr  = [efix_arr{:}];
+emode_arr = arrayfun(@(x)x.experiment_info_.get_emode(),obj,'UniformOutput',false);
+emode_arr = [emode_arr{:}];
 
-source_is_file=w.source_is_file;
-nobj=numel(w.data);     % number of sqw objects or files
-nfiles=w.nfiles;
-nend=cumsum(nfiles(:));
-nbeg=nend-nfiles(:)+1;
-efix_arr=zeros(nend(end),1);
-emode_arr=zeros(nend(end),1);
-for i=1:nobj
-    if source_is_file
-        ld = w.loaders_list{i};
-        header = ld.get_header('-all');
-    else
-        header=w.data(i).experiment_info;
-    end
-    [efix_arr(nbeg(i):nend(i)),emode_arr(nbeg(i):nend(i))]=get_efix_single(header);
-end
-
-en=struct('efix',efix_arr,'emode',emode_arr,'ave',NaN,'min',NaN,'max',NaN,'relerr',NaN);
-if all(emode_arr==emode_arr(1))
-    efix=sum(efix_arr)/numel(efix_arr);
-    emode=emode_arr(1);
-    en.ave=efix;
-    en.min=min(efix_arr);
-    en.max=max(efix_arr);
-    if en.ave==0 && en.min==0 && en.max==0
-        en.relerr=0;    % if all energies==0, then accept this as no relative error
-    else
-        en.relerr=max(en.max-efix,efix-en.min)./efix;
-    end
-    if isfinite(en.relerr) && abs(en.relerr)<=tol
-        ok=true;
-        mess='';
-    else
-        ok=false;
-        mess=['Spread of efix lies outside acceptable fraction of average of ',num2str(tol)];
-    end
-else
-    efix=NaN;
-    emode=NaN;
-    ok=false;
-    mess='All datasets must have the same value of emode (1=direct inelastic , 2=indirect inelastic; 0=elastic)';
-end
-
-
-% Set return arguments
-argout{1}=efix;
-argout{2}=emode;
-argout{3}=ok;
-argout{4}=mess;
-argout{5}=en;
-
-
-% Package output arguments
-% ------------------------
-[varargout,mess]=horace_function_pack_output(w,argout{:});
-if ~isempty(mess), error(mess), end
-
-
-%------------------------------------------------------------------------------
-function [efix,emode]=get_efix_single(header)
-% Get array of efix and emode for a single sqw object header
-if isa(header,'Experiment')
-    expdata = header.expdata;
-    nrun=numel(expdata);
-    efix=zeros(nrun,1);
-    emode=zeros(nrun,1);
-    for i=1:nrun
-        efix(i)=expdata(i).efix;
-        emode(i)=expdata(i).emode;
-    end
-elseif ~iscell(header)
-    efix=header.efix;
-    emode=header.emode;
-else
-    nrun=numel(header);
-    efix=zeros(nrun,1);
-    emode=zeros(nrun,1);
-    for i=1:nrun
-        efix(i)=header{i}.efix;
-        emode(i)=header{i}.emode;
-    end
-end
-
+[efix,emode,ok,mess,en] = Experiment.calc_efix_avrgs(efix_arr,emode_arr,tol);

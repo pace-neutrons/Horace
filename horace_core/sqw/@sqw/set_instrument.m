@@ -1,4 +1,4 @@
-function varargout = set_instrument (varargin)
+function obj = set_instrument (obj,instr_or_fun,varargin)
 % Change the instrument in an sqw object or array of objects
 %
 %   >> wout = set_instrument (w, instrument)
@@ -50,294 +50,77 @@ function varargout = set_instrument (varargin)
 % Original author: T.G.Perring
 %
 
-
-% This routine is also used to set the instrument in sqw files, when it overwrites the input file.
-
-% Parse input
-% -----------
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
-if ~isempty(mess), error(mess); end
-
-
 % Perform operations
 % ==================
-narg=numel(args);
-if narg==0
-    % No input arguments - nothing to do
-    if w.source_is_file
-        argout={};
-    else
-        argout{1}=w.data;
-    end
-    
-elseif narg==1 || isa(args{1},'function_handle')
-    % Perform checks on input
-    % -----------------------
-    % Check instrument parameter arguments are valid
-    if isa(args{1},'IX_inst')
-        is_instfunc=false;
-        instrument=args{1};
-        ninst=numel(instrument);
-        
-    elseif isempty(args{1}) || isequal(args{1},struct())
-        is_instfunc=false;
-        instrument=struct();
-        ninst=numel(instrument);
-        
-    elseif isscalar(args{1}) && isa(args{1},'function_handle')
-        instfunc=args{1}; % single function handle
-        % Check instrument definition function arguments are OK and consistent
-        [ok,mess,instfunc_args]=check_function_args(args{2:end});
-        if ~ok
-            mess=['Instrument definition function: ',mess];
-            error(mess);
-        end
-        if size(instfunc_args,1)==0
-            is_instfunc=false;
-            instrument=instfunc();  % call with no arguments
-            if ~isa(instrument,'IX_inst')
-                error('The instrument definition function does not return an object of class IX_inst')
-            end
-            ninst=1;
-        else
-            % If none of the arguments match substitution arguments we can
-            % evaluate the instrument definition function now
-            subst_args=substitute_arguments();
-            ninst=size(instfunc_args,1);
-            if substitution_arguments_present(subst_args,instfunc_args)
-                is_instfunc=true;
-            else
-                is_instfunc=false;
-                instrument=instfunc(instfunc_args{1,:});
-                if ~isa(instrument,'IX_inst')
-                    error('The instrument definition function does not return an object of class IX_inst')
-                end
-                if ninst>1
-                    instrument=repmat(instrument,ninst,1);
-                    for i=2:ninst
-                        instrument(i)=instfunc(instfunc_args{i,:});
-                    end
-                end
-            end
-        end
-    else
-        error('Instrument must be an object of class IX_inst or function handle (or an empty argument to indicate ''no instrument'')')
-    end
-    
-    % Check that the data has the correct type
-    if ~all(w.sqw_type(:))
-        error('Instrument can only be set or changed in sqw-type data')
-    end
-    
-    % Change the instrument
-    % ---------------------
-    source_is_file=w.source_is_file;
-    nobj=numel(w.data);     % number of sqw objects or files
-    
-    % Set output argument if object input
-    if source_is_file
-        set_sample_horace(w.data);
-        return;
-    else
-        wout=w.data;    % set output argument if object input
-    end
-    
-    % Check the number of spe files matches the number of instruments
-    if ninst>1
-        for i=1:nobj
-            if w.nfiles(i)~=ninst
-                error('An array of instruments was given but its length does not match the number of spe files in (all) the sqw source(s) being altered')
-            end
-        end
-    end
-    
-    % Change the instruments for each data source in a loop
-    for i=1:nobj
-        % Read the header part of the data
-        h=wout(i);  % pointer to object
-        
-        % Change the header
-        nfiles=h.main_header.nfiles;
-        tmp=h.experiment_info;   % to keep referencing to sub-fields to a minimum
-        for ifile=1:nfiles
-            if ninst==1
-                if is_instfunc
-                    args=substitute_arguments(h,ifile,instfunc_args(1,:));
-                    instrument=instfunc(args{:});
-                    if ~isa(instrument,'IX_inst')
-                        error('HORACE:sqw:invalid_output', ...
-                            ['The instrument definition function does not return' ...
-                            ' an object of class IX_inst'])
-                    end
-                    tmp.instruments{ifile}=instrument;
-                else
-                    tmp.instruments{ifile}=instrument;
-                end
-            else
-                if is_instfunc
-                    args=substitute_arguments(h,ifile,instfunc_args(ifile,:));
-                    instrument=instfunc(args{:});
-                    if ~isa(instrument,'IX_inst')
-                        error('HORACE:sqw:invalid_output', ...
-                            ['The instrument definition function does not return' ...
-                            ' an object of class IX_inst'])
-                    end
-                    tmp.instruments{ifile}=instrument;
-                else
-                    tmp.instruments{ifile}=instrument(ifile);
-                end
-            end
-        end
-        wout(i).experiment_info=tmp;
-    end
-    
-    % Set return argument if necessary
-    if source_is_file
-        argout={};
-    else
-        argout{1}=wout;
-    end
-else
-    error('Check the number of input arguments')
-end
 
-
-% Package output arguments
-% ------------------------
-[varargout,mess]=horace_function_pack_output(w,argout{:});
-if ~isempty(mess), error(mess), end
-
-
-%==============================================================================
-function [ok, mess, argout]=check_function_args(varargin)
-% Check arguments have one of the permitted forms below
-%
-%   >> [ok, mess, argout]=check_function_args(arg1,arg2,...)
-%
-% Input:
-% ------
-%   arg1,arg2,...   Input arguments
-%                  Each argument can be a 2D array with 0,1 or more rows
-%                  If more than one row in an argument, then this gives the
-%                  number of argument sets.
-%
-% Output:
-% -------
-%   ok              =true all OK; =false otherwise
-%   mess            Error message if not OK; empty string if OK
-%   argout          Cell array of arguments, each row a cell array
-%                  with the input arguments
-%
-% Checks arguments have one of following forms:
-%	- scalar, row vector (which can be numerical, logical,
-%     structure, cell array or object), or character string
-%
-%   - Multiple arguments can be passed, one for each run that
-%     constitutes the sqw object, by having one row per run
-%   	i.e
-%       	scalar      ---->   column vector (nrun elements)
-%           row vector  ---->   2D array (nrun rows)
-%        	string      ---->   cell array of strings
-%
-% Returns arg=[] if not valid form
-
-narg=numel(varargin);
-ok=true;
-mess='';
-argout={};
-
-% Find out how many rows, and check consistency
-nr=zeros(1,narg);
-nc=zeros(1,narg);
-for i=1:narg
-    if numel(size(varargin{i}))==2
-        nr(i)=size(varargin{i},1);
-        nc(i)=size(varargin{i},2);
-    else
-        ok=false;
-        mess='Check arguments have valid array size';
-        return
-    end
-end
-if all(nr==max(nr)|nr<=1)
-    nrow=max(nr);
-else
-    ok=false;
-    mess='If any arguments have more than one row, all such arguments must be the same number of rows';
+if isa(instr_or_fun,'IX_inst')
+    % just set instrument provided as input
+    obj = set_instr(obj,instr_or_fun);
     return
 end
+if ~isa(instr_or_fun,'function_handle')
+    error('HORACE:sqw:invalid_argument',...
+        ['Neither instrument (including IX_null_inst) nor function building instrument is provided as input for the method.\n', ...
+        ' Setting instrument as a structure is not allowed any more'])
+end
+if ~isscalar(instr_or_fun)
+    error('HORACE:sqw:invalid_argument',...
+        'only one function handle allowed to define instrument')
 
-% Now create cell arrays of output arguments
-if nrow>1
-    argout=cell(nrow,narg);
-    for i=1:narg
-        if ~iscell(varargin{i})
-            if nr(i)==nrow
-                argout(:,i)=mat2cell(varargin{i},ones(1,nrow),size(varargin{i},2));
-            else
-                argout(:,i)=repmat(varargin(i),nrow,1);
-            end
-        else
-            if nr(i)==nrow
-                if nc(i)>1
-                    argout(:,i)=mat2cell(varargin{i},ones(1,nrow),size(varargin{i},2));
-                else
-                    argout(:,i)=varargin{i};
-                end
-            else
-                argout(:,i)=repmat(varargin(i),nrow,1);
-            end
-        end
+end
+instfunc = instr_or_fun;
+obj = set_instr(obj,instfunc,varargin{:});
+
+
+%--------------------------------------------------------------------------
+function obj = set_instr(obj,instr,varargin)
+% Change the instrument
+% ---------------------
+
+if nargin > 2
+    [ok,mess,substitute_efix,argi] = parse_char_options(varargin,{'-efix'});
+    if ~ok
+        error('HORACE:sqw:invalid_argument',mess);
+    end
+
+    [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,argi{:});
+    if ~set_single
+        args_mat = Experiment.check_and_expand_function_args(argi{:});
+        n_col = size(args_mat,2);
     end
 else
-    argout=varargin;
+    [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,instr);
 end
-
-
-%==============================================================================
-function status = substitution_arguments_present(subst_args,args)
-% Check if any argumnent are to be substituted
-
-narg=numel(args);
-isstr=false(narg,1);
-for i=1:narg
-    isstr(i)=is_string(args{i});
-end
-strargs=args(isstr);
-
-status=false;
-for i=1:numel(subst_args)
-    if any(strcmpi(subst_args{i},strargs))
-        status=true;
-        return
-    end
-end
-
-%==============================================================================
-function argout = substitute_arguments(w,ifile,argin)
-% Substitue arguments with values from object
-%
-% Return cellstr with list of all substitution arguments:
-%   >> subst_args = substitute_arguments
-%
-% Argument list with substitutions made from sqw object or header fields of sqw file:
-%   >> argout = substitute_arguments(w,ifile,argin)
-
-% List of substitution keywords
-if nargin==0
-    argout={'-efix'};
-    return
-end
-
-% Substitute values
-argout=argin;
-for i=1:numel(argin)
-    if is_string(argin{i}) && strcmpi(argin{i},'-efix')
-        if ifile>1 || w.main_header.nfiles>1
-            argout{i}=w.experiment_info.expdata(ifile).efix;
+n_inst_set = 0;
+for i=1:numel(obj)
+    if set_single
+        obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr,varargin{:});
+    else
+        if set_per_obj
+            obj(i).experiment_info = obj(i).experiment_info.set_instrument(instr(i),varargin{i,:});
         else
-            argout{i}=w.experiment_info.efix;
+            if nargin>2
+                if substitute_efix
+                    argi = cell(1,n_col+1);
+                    argi{1} = '-efix';
+                    ics = 1;
+                else
+                    argi = cell(1,n_col);
+                    ics = 0;
+                end
+                for j=1:n_col
+                    argi{j+ics} = [args_mat{n_inst_set+1:n_inst_set+n_runs_in_obj(i),j}]';
+                end
+
+                obj(i).experiment_info = obj(i).experiment_info.set_instrument( ...
+                    instr,argi{:});
+            else
+                obj(i).experiment_info = obj(i).experiment_info.set_instrument( ...
+                    instr(n_inst_set+1:n_inst_set+n_runs_in_obj(i)));
+            end
+            n_inst_set = n_inst_set+n_runs_in_obj(i);
         end
     end
 end
 
+%--------------------------------------------------------------------------

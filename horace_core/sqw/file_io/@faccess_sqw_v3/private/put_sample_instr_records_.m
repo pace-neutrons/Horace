@@ -32,15 +32,16 @@ if isa(header,'is_holder')
     setting_sample = header.setting_sampl;
     setting_instr  = header.setting_instr;
     if setting_instr && ~setting_sample % existing instrument should be retrieved for not to be overwritten
-        sampl  = obj.get_sample('-all');        
+        sampl  = obj.get_sample('-all');
+        sampl  = sampl.unique_objects;
         sampl_str = cellfun(@(x)(x.to_struct),sampl,'UniformOutput',false);
         setting_sample = true;
     end
 elseif isa(header, 'Experiment')
     [instr_str,sampl_str] = obj.get_instr_sample_to_save(header);
 elseif isempty(header)
-    instr_str = struct();
-    sampl_str = struct();
+    instr_str = cell(1,0);
+    sampl_str = cell(1,0);
 else % should be header of an sqw file provided, possibly converted from an Experiment
     % extract instrument and sample from the headers block
     error('HORACE:faccess_sqw_v3:runtime_error',...
@@ -70,7 +71,7 @@ if setting_instr
     else
         fseek(obj.file_id_,start,'bof');
     end
-    
+
     check_error_report_fail_(obj,'can not move to the instrument(s) start position');
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,'error writing serialized instrument(s)');
@@ -78,7 +79,7 @@ end
 
 if setting_sample
     % serialize sample(s)
-    
+
     [bytes,sample_size] = serialize_si_block_(obj,sampl_str,'sample');
     %clc_size = obj.instr_sample_end_pos_ - obj.sample_pos_;
     % recalculate sample positions (just in case)
@@ -91,7 +92,7 @@ if setting_sample
         um = um.set_cblock_param('sample',obj.sample_pos_,sample_size);
         obj.upgrade_map_ = um;
     end
-    
+
     %
     if old_matlab % some MATLAB problems with moving to correct eof
         fseek(obj.file_id_,double(obj.sample_head_pos_),'bof');

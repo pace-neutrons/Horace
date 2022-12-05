@@ -34,10 +34,10 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertEqual(sqw_obj.main_header, main_header_cl());
             assertTrue(isa(sqw_obj.experiment_info, 'Experiment'));
 
-            assertTrue((sqw_obj.experiment_info.instruments.n_total()==1));
-            assertTrue(isa(sqw_obj.experiment_info.instruments{1},'IX_null_inst'));
-            assertTrue((sqw_obj.experiment_info.samples.n_total()==1));
-            assertTrue(isa(sqw_obj.experiment_info.samples{1},'IX_null_sample'));
+            assertTrue((sqw_obj.experiment_info.instruments.n_runs==0));
+            assertTrue(isempty(sqw_obj.experiment_info.instruments{1}));
+            assertTrue((sqw_obj.experiment_info.samples.n_runs==0));
+            assertTrue(isempty(sqw_obj.experiment_info.samples{1}));
             assertEqual(sqw_obj.detpar, struct([]));
             assertEqual(sqw_obj.pix, PixelData());
             assertEqual(numel(sqw_obj.data.pax), 0);
@@ -50,8 +50,8 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertTrue(isa(sqw_obj, 'sqw'));
             assertEqual(sqw_obj.main_header.nfiles, 14)
             assertEqual(numel(sqw_obj.experiment_info.expdata), 14)
-            assertEqual(n_runs(sqw_obj.experiment_info.instruments), 14)
-            assertEqual(n_runs(sqw_obj.experiment_info.samples), 14)
+            assertEqual(sqw_obj.experiment_info.instruments.n_runs, 14)
+            assertEqual(sqw_obj.experiment_info.samples.n_runs, 14)
             assertEqual(numel(sqw_obj.detpar.group), 36864);
             assertEqual(numel(sqw_obj.data.pax), 1);
             assertEqual(sqw_obj.pix.num_pixels, 100337);

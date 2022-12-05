@@ -301,7 +301,7 @@ classdef sqw_binfile_common < sqw_file_interface
         function [inst,obj] = get_instrument(obj,varargin)
             % get instrument, stored in a file. If no instrument is
             % defined, return empty structure.
-            inst = IX_inst();
+            inst = IX_null_inst();
         end
         %
         function [samp,obj] = get_sample(obj,varargin)

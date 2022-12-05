@@ -73,7 +73,7 @@ classdef test_serialize_deserialize_instruments< TestCase
 
             %---  Samples
             samp = [IX_sample([1,0,0],[0,1,0],'cuboid',[2,3,4]),...
-                IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-eta', 4134)];
+                IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], 'eta', 4134)];
 
             siz = samp.serial_size();
             bytes = samp.serialize();

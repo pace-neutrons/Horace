@@ -28,8 +28,8 @@ classdef test_IX_source < TestCaseWithSave
         
         function test_source_array_prev_versions(obj)
             % 3x1 array example
-            srs_arr = [IX_source('ISIS','TS2',40), IX_source('-name','SNS',...
-                '-target_name','TS1','-frequency',50),...
+            srs_arr = [IX_source('ISIS','TS2',40), IX_source('name','SNS',...
+                'target_name','TS1','frequency',50),...
                 IX_source()];
             sample_file_location = obj.home_folder;
             if obj.save_output % prepare test data for the future.
@@ -41,21 +41,19 @@ classdef test_IX_source < TestCaseWithSave
                 ver = srs_arr.classVersion();
                 %ver = 1;
                 verstr = ['ver',num2str(ver)];
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_file_location ,srs_arr);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_file_location ,srs_arr);
             else
                 save_variables=false;
                 
                 verstr= 'ver1';
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_file_location ,srs_arr);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_file_location ,srs_arr);
             end
             
         end
         %
         function test_single_source_load_prev_versions(obj)
             % Scalar example
-            srs = IX_source(30);
+            srs = IX_source('-freq',30);
             sample_files_location = obj.home_folder;
             if obj.save_output
                 % run test_IX_apperture with -save option to obtain reference
@@ -64,15 +62,13 @@ classdef test_IX_source < TestCaseWithSave
                 ver = srs.classVersion();
                 %ver = 1;
                 verstr = ['ver',num2str(ver)];
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location ,srs);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_files_location ,srs);
                 
             else
                 save_variables=false;
                 
                 verstr= 'ver1';
-                [ok,mess] = check_matfile_IO(verstr, save_variables, sample_files_location ,srs);
-                assertTrue(ok,mess)
+                check_matfile_IO(verstr, save_variables, sample_files_location ,srs);
             end
         end
         
