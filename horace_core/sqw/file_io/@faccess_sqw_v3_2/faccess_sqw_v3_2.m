@@ -63,6 +63,10 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
 
     %
     methods(Access=protected,Hidden=true)
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            ver = 3.2;
+        end
     end
     %
     %
@@ -96,7 +100,6 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
             %
             % set up fields, which define appropriate file version
             obj = obj@faccess_sqw_v3(varargin{:});
-            obj.file_ver_ = 3.2;
         end
 
         %
@@ -145,7 +148,7 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
             header = get_header_form_(varargin{:});
         end
     end
-   %==================================================================
+    %==================================================================
     % SERIALIZABLE INTERFACE
     methods(Static)
         function obj = loadobj(inputs,varargin)
@@ -153,7 +156,7 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
             obj = loadobj@serializable(inputs,inobj,varargin{:});
         end
     end
-    
+
     %
 end
 

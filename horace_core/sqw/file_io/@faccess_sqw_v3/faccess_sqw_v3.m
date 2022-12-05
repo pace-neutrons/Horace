@@ -81,6 +81,11 @@ classdef faccess_sqw_v3 < sqw_binfile_common
 
     %
     methods(Access=protected,Hidden=true)
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            ver = 3.1;
+        end
+
         function obj=init_from_sqw_file(obj,varargin)
             % initialize the structure of faccess class using opened
             % sqw file as input
@@ -206,7 +211,6 @@ classdef faccess_sqw_v3 < sqw_binfile_common
 
             %
             % set up fields, which define appropriate file version
-            obj.file_ver_ = 3.1;
             obj.sqw_type_ = true;
             if nargin>0
                 obj = obj.init(varargin{:});

@@ -28,10 +28,7 @@ else
                 'reopen_to_write: get input file handle with incorrect file access for file %s',fname);
         end
         obj=fclose_file(obj);
-        obj.file_id_ = fname;
-        [fp,fn,fext] = fileparts(fname);
-        obj.filename_ = [fn,fext];
-        obj.filepath_ = [fp,filesep];
+        obj.full_file_name = fname;
         obj.file_closer_ = onCleanup(@()obj.fclose());
         return;
     else
@@ -44,7 +41,7 @@ else
 end
 
 if isempty(obj.filename) && isempty(filename)
-    error('HORACE:dnd_binfile_common:runtime_error',...
+    error('HORACE:horace_binfile_interface:runtime_error',...
         'reopen_to_write: can not reopen file if filename is not defined')
 end
 
@@ -58,12 +55,10 @@ end
 
 obj = fclose_file(obj);
 if ~isempty(filename)
-    [fp,fn,fext] = fileparts(filename);
-    obj.filename_ = [fn,fext];
-    obj.filepath_ = [fp,filesep];
+    obj.full_filename = filename;
 end
 
-fname = fullfile(obj.filepath,obj.filename);
+fname = obj.full_filename;
 if exist(fname,'file') == 2
     fid = fopen(fname,'rb+');
 else
@@ -77,15 +72,14 @@ if fid<1
 end
 obj.file_id_      = fid;
 obj.file_closer_  = onCleanup(@()obj.fclose());
-% 
-obj.upgrade_headers_ = false;
+
 
 
 function obj=fclose_file(obj)
 if obj.file_id_>0
     clear obj.file_closer_; % This should close file
-    fn = fopen(obj.file_id_);
-    if ~isempty(fn)
-        obj = obj.fclose();
-    end
+    % everything else -- to ensure Matlab/jave memory allocation strategy
+    % does not mess thing out
+    obj = obj.fclose();
+    obj.file_closer_ = [];
 end

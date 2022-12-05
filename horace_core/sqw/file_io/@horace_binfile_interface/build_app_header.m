@@ -26,7 +26,7 @@ end
 
 format = obj.app_header_form_;
 app_header = format;
-app_header.version  = obj.file_ver_;
+app_header.version  = obj.faccess_version;
 %
 if isa(obj_to_save,'sqw')
     app_header.sqw_type = true;

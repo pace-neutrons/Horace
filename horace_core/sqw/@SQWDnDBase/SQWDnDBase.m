@@ -163,6 +163,5 @@ classdef (Abstract) SQWDnDBase < serializable
         status = adjust_aspect(w);
         [ok,mess,adjust,present]=adjust_aspect_option(args_in);
         dout = smooth_dnd(din, xunit, varargin);
-    end
+    end    
 end
-

@@ -1,8 +1,50 @@
+function obj = init_(obj,varargin)
+% Initialization procedure for empty DnD-type object or reinitialize one
+% defined previously.
+
+args = parse_args_(obj,varargin{:});
+%
+if args.array_numel>1
+    obj = repmat(obj,args.array_size);
+elseif args.array_numel==0
+    obj = obj.from_bare_struct(args.data_struct);
+end
+for i=1:args.array_numel
+    % i) copy
+    if ~isempty(args.dnd_obj)
+        if args.dnd_obj.dimensions == obj.dimensions
+            obj(i) = copy(args.dnd_obj(i));
+        else % rebin the input object to the object
+            %  with the dimensionality, smaller then the
+            %  dimensionalify of the input object.
+            %  Bigger dimensionality will be rejected.
+            %
+            obj(i) = rebin(obj(i),args.dnd_obj(i));
+        end
+        % ii) struct
+    elseif ~isempty(args.data_struct)
+        obj(i) = obj(i).from_bare_struct(args.data_struct(i));
+    elseif ~isempty(args.set_of_fields)
+        keys = obj.saveableFields();
+        obj(i) = set_positional_and_key_val_arguments(obj,...
+            keys,false,args.set_of_fields{:});
+        % copy label from projection to axes block in case it
+        % has been redefined on projection
+        is_proj = cellfun(@(x)isa(x,'aProjection'),args.set_of_fields);
+        if any(is_proj)
+            obj(i).axes.label = args.set_of_fields{is_proj}.label;
+        end
+    elseif ~isempty(args.sqw_obj)
+        obj(i) = args.sqw_obj(i).data;
+    end
+end
+
 function args = parse_args_(obj, varargin)
 % Parse the argument passed to the DnD constructor.
 %
 % Return struct with the data set to the appropriate element:
-% - args.filename  % string, presumed to be filename
+% - args.filename  % string, presumed to be filename -- Redundant; will
+%                    throw
 % - args.dnd_obj   % DnD class instance
 % - args.sqw_obj   % SQW class instance
 % - args.data_struct % generic struct, presumed to represent DnD

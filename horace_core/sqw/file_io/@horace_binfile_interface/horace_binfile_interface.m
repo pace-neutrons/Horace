@@ -1,12 +1,12 @@
-classdef dnd_file_interface < serializable
-    % Interface to access dnd files,
+classdef horace_binfile_interface < serializable
+    % Interface to access all sqw binary files,
     % containing common properties, describing any sqw or dnd file.
     %
     % Various accessors should inherit this class, implement the
     % abstract methods mentioned here and define protected fields, common
     % for all dnd-file accessors.
     %
-    % dnd_file_interface Methods:
+    % horace_binfile_interface Methods:
     % ----------------------------------------------------------------
     % Properties:
     % See Property Summary chapter.
@@ -15,9 +15,10 @@ classdef dnd_file_interface < serializable
     % Initializers:
     % Static:
     % get_file_header   - open existing file for rw access and read sqw
-    %                     header
+    %                     header, allowing to identify the version of the
+    %                     file format.
     % ----------------------------------------------------------------
-    % Abstract methods:
+    % Main methods same for all binfiles:
     % should_load        - verify if the class should load the file
     % should_load_stream - verify if the class should load the file,
     %                      determined by opened file id
@@ -42,25 +43,6 @@ classdef dnd_file_interface < serializable
     % There is also range of auxiliary less important methods.
     % ----------------------------------------------------------------
     %
-    %
-    properties(Access=protected)
-        %
-    end
-    %
-    properties(Constant,Access=protected)
-        % format of application header, written at the beginning of a
-        % binary sqw/dnd file to identify this file for clients
-        app_header_form_ = struct('appname','horace','version',double(1),...
-            'sqw_type',uint32(1),'ndim',uint32(1));
-    end
-    properties(Constant,Access=private)
-        % list of fieldnames to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file accessor
-        fields_to_save_ = {'filename_';'filepath_';...
-            'num_dim_';'dnd_dimensions_';'data_type_';'convert_to_double_'};
-        max_header_size_ = 4+6+8+4+4;
-    end
-
     properties(Dependent)
         % The name of the file, for the accessor to work with.
         filename
@@ -72,38 +54,163 @@ classdef dnd_file_interface < serializable
         % version it understands and store this version in a sqw file.
         % The sqw_formats_factory registers all available accessors and
         % selects appropriate accessor according to the file version.
-        file_version;
+        faccess_version;
         % If file, associated with loader is sqw or dnd file (contains pixels information)
         sqw_type;
         % Number of dimensions in the dnd image
         num_dim;
         % Dimensions of the Horace image (dnd object), stored in the file.
         dnd_dimensions
-        % Legacy type of data written in the file, describing the information
-        % stored in a sqw file
-        %
-        % Possible types are:
-        %   type 'b'    fields: filename,...,dax,s,e
-        %   type 'b+'   fields: filename,...,dax,s,e,npix
-        %   type 'a'    fields: filename,...,dax,s,e,npix,img_db_range,pix
-        %   type 'a-'   fields: filename,...,dax,s,e,npix,img_db_range.
-        %
-        % all modern data files are either b+ (dnd) or a+ (sqw data) type
-        % files.
-        data_type
+
         % In old style sqw files returns timestamp of the file, Recent
         % format files return real creatrion time, files store real
         % creation time within
         creation_date
-
-        % if all numeric types, read from a file to be converted to double.
-        % (except pixels)
-        convert_to_double
         %
-        % get access to internal sqw object if any is defined.
-        sqw_holder        
+        % get access to internal sqw object if any is defined for testing
+        % purposes
+        sqw_holder
+    end
+    properties(Dependent)
+        % the property which sets/gets full file name (with path);
+        full_filename;
+    end
+
+    properties(Access=protected)
+        filename_=''
+        filepath_=''
+
+        % if the file is sqw or dnd
+        sqw_type_ = false;
+        % number of dimensions in sqw object
+        num_dim_ = 'undefined'
+        % list of the sqw class fields or subclasses and auxiliary data
+        % structures, stored on hdd
+        dnd_dimensions_ = 'undefined'
+        % internal sqw/dnd object holder used as source for subsequent
+        % write operations, when file accessor is initialized from this sqw
+        % object
+        sqw_holder_ = [];
+        %------------------------------------------------------------------
+        % class used to calculate all transformations between sqw/dnd class
+        % in memory, and their byte representation on hdd.
+        sqw_serializer_=sqw_serializer();
+        % the open file handle (if any is open)
+        file_id_=-1
+        % holder for the object which surely closes open sqw file on class
+        % deletion
+        file_closer_ = [];
+    end
+    %
+    properties(Constant,Access=protected)
+        % format of application header, written at the beginning of a
+        % binary sqw/dnd file to identify this file for clients
+        app_header_form_ = struct('appname','horace','version',double(1),...
+            'sqw_type',uint32(1),'ndim',uint32(1));
+        % the size of the horace version definition tape, the tape occupies
+        % on the disk.
+        max_header_size_ = 4+6+8+4+4;
+    end
+    %======================================================================
+    % CONSTRUCTOR AND MAIN OPERATIONS:
+    methods(Static) % defined by this class
+        % open existing file for rw access and get sqw file header,
+        % allowing loaders to identify the type of the file format
+        % stored within the file
+        [header,fid] = get_file_header(file,varargin)
+        %
+    end
+    methods
+        function obj = horace_binfile_interface(varargin)
+            % constructor. All operations are performed througn init
+            % function.
+            if nargin == 0
+                return;
+            end
+            obj = obj.init(varargin{:});
+        end
+        %-------------------------
+        % Build header, which allows to distinguish Horace from other
+        % applications and adds some information about stored sqw/dnd
+        % object and binary file version
+        % The binary header should be readable by all Horace versions
+        % including binary versions, so its implemenataion is moved to top
+        % faccessors level
+        app_header = build_app_header(obj,varargin)
+        % store application header which describes the sqw binary file
+        obj = put_app_header(obj);
+        %
+        % initialize the loader, to be ready to read or write binary data.
+        % Usage:
+        %>>obj = obj.init(filename_to_read);
+        %>>obj = obj.init(sqw_object);
+        %>>obj = obj.init(sqw_object,filename_to_write);
+        %>>obj = obj.init(obj_structure_from_saveobj);
+        obj = init(obj,varargin);
+        %------------------------------------------------------------------
+        % check if the specific loader should load this file
+        [ok,objinit,mess]=should_load(obj,filename)
+        % check if the specific loader should load this file given that the
+        % file is already opened and the file header have been read,
+        [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
+        %----------------
+        % Reopen existing file to overwrite or write new data to it
+        % or open new target file to save data.
+        obj = reopen_to_write(obj,filename)
+        % Set new filename to write file or prepare existing file for
+        % update or write if update is not possible.
+        [obj,file_exist,old_ldr] = set_file_to_update(obj,varargin)
+        %----------------
+        % open file, connected to the sqw object, defined as input,
+        % assuming that all information about this file is already loaded
+        % in memory by init/deactivate or deserialize methods.
+        obj = activate(obj,varargin)
+        % Close files related to this file accessor leaving all information
+        % about this file in memory, e.g. preparing to serialize the class.
+        obj = deactivate(obj)
+        % Return true if the file accessor is connected to an open file
+        is = is_activated(obj, read_or_write);
+        %----------------
+        function obj = delete(obj)
+            % close associated file (if open) and remove all information
+            % about internal file structure from memory.
+            obj = delete_(obj);
+        end
+        function obj = init_by_input_stream(obj,objinit)
+            % initialize object to read input file using proper obj_init
+            % information
+            obj = init_by_input_stream_(obj,objinit);
+        end
     end
     %----------------------------------------------------------------------
+    methods(Access = protected)
+        function check_obj_initated_properly(obj)
+            % helper function to check the state of put and update functions
+            % if put methods are invoked separately
+            check_obj_initiated_properly_(obj);
+        end
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            error('HORACE:horace_binfile_interface:not_implemented',...
+                'function is not implemented on interface and should be overloaded by chilren classes')
+        end
+        % Get the creation date of the file, associated with loader
+        tm = get_creation_date(obj)
+
+        function obj = fclose(obj)
+            % Close existing file header if it has been opened
+            obj = fclose_(obj);
+        end
+        function check_error_report_fail_(obj,pos_mess)
+            % check if error occured during io operation and throw if it does happened
+            [mess,res] = ferror(obj.file_id_);
+            if res ~= 0; error('HORACE:sqw_file_insterface:io_error',...
+                    '%s -- Reason: %s',pos_mess,mess);
+            end
+        end
+    end
+    %======================================================================
+    % ACCESSORS & MUTATORS
     methods
         function sh = get.sqw_holder(obj)
             sh = obj.sqw_holder_;
@@ -122,146 +229,55 @@ classdef dnd_file_interface < serializable
             % the name of the file, this object is associated with
             fn = obj.filename_;
         end
-        function obj = set.filename(obj,val)
-            if ~ischar(val) || isstring(val)
-                error('HORACE:dnd_file_interface:invalid_argument', ...
-                    'The filename can be only string or char array. It is: %s',...
-                    class(val));
-            end
-            obj.filename_ = val;
-        end
         %
         function fp  = get.filepath(obj)
             % the path to the file, this object is associated with
             fp = obj.filepath_;
         end
-        function obj = set.filepath(obj,val)
+
+        function fp = get.full_filename(obj)
+            fp = fullfile(obj.filepath_,obj.filename_);
+        end
+        function obj = set.full_filename(obj,val)
             if ~ischar(val) || isstring(val)
                 error('HORACE:dnd_file_interface:invalid_argument', ...
-                    'The filename can be only string or char array. It is: %s',...
+                    'The full filename can be only string or char array. It is: %s',...
                     class(val));
             end
-            obj.filepath_ = val;
-        end
-        %------------------------------------------------
-        function ver = get.file_version(obj)
-            % return the version of the loader corresponding to the format
-            % of data, stored in the file
-            ver = get_file_version(obj);
+            [fp,fn,fe] = fileparts(val);
+            obj.filepath_ = fp;
+            obj.filename_  = [fn,lower(fe)];
         end
         %------------------------------------------------
         function ndims = get.num_dim(obj)
             % get number of dimensions the image part of the object has.
             ndims = obj.num_dim_;
         end
-        %------------------------------------------------
+
         function type = get.sqw_type(obj)
             % return true if the object to load is sqw-type (contains pixels) or
             % false if not.
             type = obj.sqw_type_;
         end
         %
-        function ff=get.data_type(obj)
-            ff = obj.data_type_;
-        end
-        %
         function dims = get.dnd_dimensions(obj)
             % return image binning
             dims = obj.dnd_dimensions_;
         end
-        %
-        function conv = get.convert_to_double(obj)
-            % if true, convert all numerical values read from an sqw file
-            % into double precision
-            conv = obj.convert_to_double_;
-        end
-        %
-        function obj = set.convert_to_double(obj,val)
-            lval = logical(val);
-            obj.convert_to_double_ = lval;
-        end
+        %------------------------------------------------------------------
+        %OVERLOADABLE ACCESSORS
         function tm = get.creation_date(obj)
             tm = get_creation_date(obj);
         end
-        %-------------------------
-        function obj = delete(obj)
-            % invalidate an object in memory (make it non-initialized).
-            obj.num_dim_        = 'undefined';
-            obj.dnd_dimensions_ = 'undefined';
-            obj.data_type_      = 'undefined';
-            obj.sqw_type_       = false;
-            obj.convert_to_double_ = true;
-        end
-        function has = has_pix_range(~)
-            % Returns true when the pix_range is stored within a file.
-            %
-            % old sqw file formatters were not storing this variable.
-            % If it is not stored, it needs to be recalculated.
-            %
-            has = false;
-        end
-        % Build header, which allows to distinguish Horace from other
-        % applications and adds some information about stored sqw/dnd
-        % object. The binary header should be readable by all Horace versions
-        % including binary versions, so its implemenataion is moved to top
-        % faccessors level
-        app_header = build_app_header(obj,varargin)
-        % store application header which describes the sqw binary file
-        obj = put_app_header(obj);
-        %
-    end
-    %
-    methods(Access=protected)
-        function ver = get_file_version(obj)
-            % retrieve sqw-file version the particular loader works with
-            ver = obj.file_ver_;
+        function ver = get.faccess_version(obj)
+            % return the version of the loader corresponding to the format
+            % of data, stored in the file.  Overloadable by children.
+            ver = get_faccess_version(obj);
         end
     end
-    %----------------------------------------------------------------------
-    methods(Static) % defined by this class
-        % open existing file for rw access and get sqw file header,
-        % allowing loaders to identify the type of the file format
-        % stored within the file
-        [header,fid] = get_file_header(file,varargin)
-        %
-        % convert all numerical types of a structure into double
-        val = do_convert_to_double(val)
-    end
-    %----------------------------------------------------------------------
+    %======================================================================
     methods(Abstract)
         %
-        % Mainly used by file formats factory and
-        % verifies if the class should load the file
-        [ok,objinit,mess]=should_load(obj,filename);
-        %
-        % verifies if the class should load the file, determined by opened
-        % file identifier, by analyzing the block of information (stream)
-        % obtained from the open file by get_file_header static method of
-        % this class.
-        [should,objinit,mess]= should_load_stream(obj,stream,fid)
-        %
-        % Main initializer (accessible through constructor with the same
-        % arguments too.)
-        %
-        % initialize the loader, to be ready to read or write dnd data.
-        % Usage:
-        %>>obj = obj.init(filename_to_read);
-        %>>obj = obj.init(sqw_object);
-        %>>obj = obj.init(sqw_object,filename_to_write);
-        %>>obj = obj.init(obj_structure_from_saveobj);
-        obj = init(obj,varargin);
-        %
-        % Set new filename to write file or prepare existing file for
-        % update or write if update is not possible.
-        %Usage:
-        %>>[obj,file_exist] = obj.set_file_to_update(filename_to_write);
-        [obj,file_exist] = set_file_to_update(obj,varargin)
-
-        % Reopen existing file to write new data to it assuming
-        % the loader has been already initiated by this file. Will be
-        % clearly overwritten or corrupted if partial information is
-        % different and no total info was written.
-        obj = reopen_to_write(obj,filename)
         %---------------------------------------------------------
         [data,obj]  = get_data(obj,varargin); % get whole dnd data without packing these data into dnd object.
         [data_str,obj] = get_se_npix(obj,varargin) % get only dnd image data, namely s, err and npix
@@ -273,6 +289,7 @@ classdef dnd_file_interface < serializable
         [sqw_obj,varargout] = get_sqw(obj,varargin); % retrieve the whole sqw or dnd object from properly initialized sqw file
         [dnd_obj,varargout] = get_dnd(obj,varargin); % retrieve any sqw/dnd object as dnd object
 
+        % -----------------------------------------------------------------
         % get [2x4] array of min/max ranges of the pixels contributing into
         % an object
         pix_range = get_pix_range(obj);
@@ -297,35 +314,35 @@ classdef dnd_file_interface < serializable
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
         obj = put_dnd_data(obj,varargin);
-        % Return true if the file accessor is connected to an open file
-        is = is_activated(obj, read_or_write);
-        % open file, connected to the sqw object, defined as input,
-        % assuming that all information about this file is already loaded
-        % in memory by init/deactivate or deserialize methods.
-        obj = activate(obj)
-        % Close files related to this file accessor leaving all information
-        % about this file in memory, e.g. preparing to serialize the class.
-        obj = deactivate(obj)
-
     end
-    methods(Abstract,Access=protected,Hidden=true)
+    methods(Abstract,Access=protected)
         % init file accessors from sqw object in memory
         %
         obj=init_from_sqw_obj(obj,varargin);
         % init file accessors from sqw file on hdd
         obj=init_from_sqw_file(obj,varargin);
 
+        % the main part of the copy constructor, copying the contents
+        % of the one class into another including opening the
+        % corresponding file with the same access rights
+        [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
+    properties(Constant,Access=private)
+        % list of fieldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file accessor
+        fields_to_save_ = {'filename_';'filepath_';...
+            'num_dim_';'dnd_dimensions_'};
+    end
     methods
         function strc = to_bare_struct(obj,varargin)
-            flds = dnd_file_interface.fields_to_save_;
+            flds = horace_binfile_interface.fields_to_save_;
             cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
             strc = cell2struct(cont,flds);
         end
         function obj=from_bare_struct(obj,indata)
-            flds = dnd_file_interface.fields_to_save_;
+            flds = horace_binfile_interface.fields_to_save_;
             for i=1:numel(flds)
                 name = flds{i};
                 obj.(name) = indata.(name);
@@ -343,7 +360,7 @@ classdef dnd_file_interface < serializable
             ver = 1;
         end
         function flds = saveableFields(~)
-            flds = dnd_file_interface.fields_to_save_;
+            flds = horace_binfile_interface.fields_to_save_;
         end
         %------------------------------------------------------------------
     end

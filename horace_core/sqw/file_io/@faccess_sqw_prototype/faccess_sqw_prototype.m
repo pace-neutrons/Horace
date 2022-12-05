@@ -42,6 +42,11 @@ classdef faccess_sqw_prototype < sqw_binfile_common
     properties
     end
     methods(Access=protected)
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            ver = 0;
+        end        
+        
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of sqw file using sqw object as input
             error('SQW_FILE_IO:runtime_error',...
@@ -80,7 +85,6 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %                       saving in prototype format is not
             %                       supported
             %
-            obj.file_ver_ = 0;
             obj.sqw_type_ = true;
             if nargin>0
                 obj = obj.init(varargin{:});

@@ -17,24 +17,33 @@ function [header,fid] = get_file_header(file,varargin)
 % 'sqw_type'  -- if sqw file is sqw or dnd file
 % 'num_dim'   -- number of dimensions in sqw or dnd file
 %
-%
-%
-%
-[header,fid,message] = read_header_(file,varargin{:});
-if ~isempty(message)
+
+isnum = cellfun(@(x)isnumeric(x),varargin);
+if any(isnum)
+    max_buffer_size = varargin{isnum};
+    argi = varargin(~isnum);
+else
+    max_buffer_size = horace_binfile_interface.max_header_size_;    
+    argi = varargin;
+end
+[header,fid,message] = read_header_(file,max_buffer_size,argi{:});
+if ~isempty(message)||fid<=0
     if fid>0
         fclose(fid);
     end
-    error('HORACE:sqw_file_interface:io_error','file: %s\n Error: %s',file,message);
+    error('HORACE:horace_binfile_interface:io_error','file: %s\n Error: %s', ...
+        file,message);
 end
 % try to interpret input binary stream as Horace header and
 % convert data stream into structure describing Horace format
-[header,mess] = extract_hor_version_(header);
+ver_struc = horace_binfile_interface.app_header_form_;
+[header,mess] = extract_hor_version_(ver_struc,header);
 if ~isempty(mess)
     if fid>0
         fclose(fid);
     end
-    error('HORACE:sqw_file_interface:runtime_error','Error: %s',message);
+    error('HORACE:horace_binfile_interface:runtime_error','Error: %s', ...
+        message);
 end
 
 

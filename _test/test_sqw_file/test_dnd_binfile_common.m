@@ -20,8 +20,8 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
         %-----------------------------------------------------------------
         function test_serialize_deserialize(~)
-            to = dnd_binfile_common_tester();                        
-            
+            to = dnd_binfile_common_tester();
+
             struc = to.to_struct();
 
             to_r = serializable.from_struct(struc);
@@ -29,14 +29,14 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             assertEqual(to,to_r);
         end
         function test_get_version_invalid_throws(obj)
-            to = dnd_binfile_common_tester();            
+            to = dnd_binfile_common_tester();
             wrong_source = fullfile(fileparts(obj.test_folder),'common_data','96dets.par');
 
             f = @()(to.get_file_header('non-existing_file.sqw'));
-            assertExceptionThrown(f,'HORACE:sqw_file_interface:io_error');
+            assertExceptionThrown(f,'HORACE:horace_binfile_interface:io_error');
 
             f = @()to.get_file_header(wrong_source);
-            assertExceptionThrown(f,'HORACE:sqw_file_interface:runtime_error');
+            assertExceptionThrown(f,'HORACE:horace_binfile_interface:runtime_error');
 
         end
         function obj = test_get_version(obj)
@@ -118,14 +118,21 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
                 end
             end
         end
+        function test_call_set_file_to_update_without_arguments_throws(obj)
+            tob = dnd_binfile_common();
+
+            samp = fullfile(fileparts(obj.test_folder),...
+                'test_symmetrisation','w1d_sqw.sqw');
+            f=@()(tob.set_file_to_update(samp));
+            assertExceptionThrown(f,'HORACE:horace_binfile_interface:invalid_argument');
+
+        end
         %
         function obj = test_change_file_to_write(obj)
             tob = dnd_binfile_common();
 
             samp = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_sqw.sqw');
-            f=@()(tob.set_file_to_update(samp));
-            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
 
             tob=tob.set_file_to_update(samp);
 
@@ -270,7 +277,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             bin_file.deactivate();
 
             f = @() bin_file.activate('not-a-permission');
-            assertExceptionThrown(f, 'HORACE:dnd_binfile_common:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:horace_binfile_interface:invalid_argument');
         end
 
     end

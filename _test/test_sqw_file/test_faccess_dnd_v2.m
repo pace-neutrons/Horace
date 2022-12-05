@@ -27,8 +27,7 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
                  end
 
              end
-        end
-        
+        end        
     end
     
     methods

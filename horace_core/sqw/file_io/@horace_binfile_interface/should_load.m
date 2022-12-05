@@ -18,9 +18,7 @@ function [ok,objinit,mess]=should_load(obj,filename)
 %
 % The method is simple wrapper which packs dnd_file_interface.get_file_header
 % and this class should_load_stream method together.
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
+
 if ~isnumeric(filename)
     [ok,mess,full_data_name] = check_file_exist(filename,'*');
 else
@@ -33,7 +31,7 @@ if ~ok
         'should_load function: %s',mess);
 end
 
-[header,fh] = dnd_file_interface.get_file_header(full_data_name);
+[header,fh] = horace_binfile_interface.get_file_header(full_data_name);
 
 % call child function to check if the stream should be loaded by
 % appropriate loader

@@ -1,5 +1,5 @@
 function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
-% Check if this loader should load input data.
+% Check if this loader should load input data if the file is already open.
 %
 % The default implementation returns true if class version corresponds to
 % the version provided by the structure and the type of the loader
@@ -33,11 +33,9 @@ function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
 % as common dnd_file_interface.get_file_header method which opens file and
 % reads the file header is slow so is deployed by sqw_format_factory only once.
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 mess = '';
 if isstruct(head_struc) && all(isfield(head_struc,{'sqw_type','version'}))
-    if head_struc.sqw_type == obj.sqw_type && head_struc.version == obj.file_ver_
+    if head_struc.sqw_type == obj.sqw_type && head_struc.version == obj.faccess_version
         objinit = obj_init(fid,head_struc.num_dim);
         should = true;
     else
@@ -47,12 +45,10 @@ if isstruct(head_struc) && all(isfield(head_struc,{'sqw_type','version'}))
         else
             type = 'dnd';
         end
-        mess = ['not Horace ',type,' ',obj.file_version,' file'];
+        mess = sprintf('not Horace %s version: %g file',type,obj.faccess_version);
         objinit = obj_init();
     end
 else
-    error('DND_FILE_INTERFACE:invalid_argument',...
-        'the input structure for should_load_stream function does not have correct format');
+    error('HORACE:horace_binfile_interface:invalid_argument',...
+        'the input head_struc structure for should_load_stream function does not have correct format');
 end
-
-

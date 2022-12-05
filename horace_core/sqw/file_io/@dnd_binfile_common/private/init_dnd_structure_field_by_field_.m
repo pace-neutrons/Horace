@@ -64,4 +64,3 @@ if res ~= 0
     error('SQW_FILE_IO:io_error',...
         '%s: Reason %s',mess_pos,mess)
 end
-

@@ -19,7 +19,7 @@ if ~ok
         ['put_dnd_metadata: Error: ',mess]);
 end
 % verify we use this method on an properly initialized file accessor
-check_obj_initiated_properly_(obj);
+obj.check_obj_initated_properly();
 %
 %
 %

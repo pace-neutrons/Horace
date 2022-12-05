@@ -10,11 +10,12 @@ function [stream,fid,mess] = read_header_(file,varargin)
 % Set the read/write permission that is required
 permission_req='rb';   % open for reading
 stream = [];
-buf_size =4+6+8+4+4;
 if nargin> 1
     num = cellfun(@isnumeric,varargin);
     if any(num)
         buf_size = varargin{num};
+    else
+        buf_size = horace_binfile_interface.max_header_size_; % default horace header size
     end
     argi = varargin(~num);
     if numel(argi)> 0
@@ -50,7 +51,7 @@ if feof(fid) == 1
 end
 [mess,res] = ferror(fid);
 if res ~= 0
-    error('DND_FILE_INTERFACE:io_error',...
+    error('HORACE:horace_binfile_interface:io_error',...
         'IO error reading first %d bytes of the file: Reason %s',buf_size,mess)
 end
 

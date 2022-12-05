@@ -115,6 +115,7 @@ classdef sqw_file_interface < dnd_binfile_common
             %
             obj.num_contrib_files_ = 'undefined';
             obj.npixels_ = 'undefined';
+            obj.num_dim_ = 'undefined';
             obj = delete@dnd_binfile_common(obj);
             % its still sqw loader
             obj.sqw_type_ = true;

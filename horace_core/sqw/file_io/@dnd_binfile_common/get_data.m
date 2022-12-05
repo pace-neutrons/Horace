@@ -142,7 +142,7 @@ end
 
 % convert to double if necessary
 if obj.convert_to_double
-    data_str = obj.do_convert_to_double(data_str);
+    data_str = dnd_binfile_common.do_convert_to_double(data_str);
 end
 %data_str = axes_block.convert_old_struct_into_nbins(data_str);
 %

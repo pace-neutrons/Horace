@@ -6,7 +6,7 @@ function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
 % folder.
 %
 this_pos = obj.get_pos_info();
-if isa(other_obj,'dnd_file_interface')
+if isa(other_obj,'horace_binfile_interface')
     other_pos = other_obj.get_pos_info();
     input_is_class = true;
 elseif isstruct(other_obj) % we assume that there is sturcute, containing the positions
@@ -14,7 +14,7 @@ elseif isstruct(other_obj) % we assume that there is sturcute, containing the po
     input_is_class = false;
     other_pos = other_obj;
 else
-    error('HORACE:sqw_file_interface:invalid_argument',...
+    error('HORACE:dnd_binfile_common:invalid_argument',...
         'The second argument of copy_contents funtion has to be a faccess class or stucute, containing fields positions');
 end
 
@@ -50,7 +50,6 @@ if keep_internals
     return;
 end
 % copy fields which are not saved
-obj.sqw_serializer_ = other_obj.sqw_serializer_;
 obj.sqw_holder_   = other_obj.sqw_holder_;
 obj.real_eof_pos_ = other_obj.real_eof_pos_;
 obj.upgrade_map_  = other_obj.upgrade_map_;

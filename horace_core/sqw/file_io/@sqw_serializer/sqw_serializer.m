@@ -4,15 +4,20 @@ classdef sqw_serializer
     %
     %
     %
+    properties(Constant,Access=private)
+        base_classes_ = {'double','single','int8','uint8','int16','uint16',...
+            'int32','uint32','int64','uint64','float64'};
+        class_sizes_ =  [8,4,1,1,2,2,4,4,8,8,8]; % in bytes
+
+        % map to associate class name and class size
+        class_map_ = containers.Map(sqw_serializer.base_classes_, ...
+            sqw_serializer.class_sizes_);
+    end
     properties(Access=private,Hidden=true)
         sqw_holder_ = []; % reference to sqw object to serialize (if any)
         n_header_ = 1; % number of header to process
         %
-        base_classes_ = {'double','single','int8','uint8','int16','uint16',...
-            'int32','uint32','int64','uint64','float64'};
-        class_sizes_ =  [8,4,1,1,2,2,4,4,8,8,8]; % in bytes
-        class_map_; % map to associate class name and class size
-        
+
         % helper property to calculate size of a structure
         input_is_stuct_= false;
         % helper property to calculate positions of a file
@@ -29,10 +34,9 @@ classdef sqw_serializer
         % an array of bytes.
         input_is_struct;
     end
-    
+
     methods
         function obj = sqw_serializer()
-            obj.class_map_ = containers.Map(obj.base_classes_,obj.class_sizes_);
         end
         %
         function is = get.input_is_file(obj)
@@ -103,7 +107,7 @@ classdef sqw_serializer
             [obj,pos] = calc_pos_check_input_set_defaults_(obj,input,varargin{:});
             %
             [size_str,pos,eof,template_struc] = calculate_positions_(obj,template_struc,input,pos);
-            
+
         end
         %
         function [targ_struc,pos] = deserialize_bytes(obj,input,template_str,varargin)
@@ -144,13 +148,13 @@ classdef sqw_serializer
             end
             [targ_struc,pos] = deserialize_bytes_(obj,input,template_str,varargin{:});
         end
-        
+
     end
     methods(Static)
         function obj = loadobj(ls)
             % Retrieve message object from sequnce of bytes
             % produced by saveobj method.
-            
+
             ser_struc = hlp_deserialize(ls);
             if strcmp(ser_struc,'sqw_serializer')
                 obj = sqw_serializer();
@@ -158,11 +162,11 @@ classdef sqw_serializer
                 error('HORACE:sqw_serializer:runtime_error',...
                     'Attempt to recover sqw serializer from incorrect data')
             end
-            
+
         end
     end
-    
-    
+
+
 end
 
 

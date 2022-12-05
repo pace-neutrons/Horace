@@ -13,5 +13,3 @@ fseek(obj.file_id_,0,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the file');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the sqw file header');
-
-

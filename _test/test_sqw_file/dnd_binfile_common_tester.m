@@ -2,6 +2,7 @@ classdef dnd_binfile_common_tester < dnd_binfile_common
     %   Detailed explanation goes here
     
     properties
+        file_version_to_process = 2;
     end
     
     methods
@@ -33,8 +34,12 @@ classdef dnd_binfile_common_tester < dnd_binfile_common
             % header_pos
             [header_pos,pos] = obj.sqw_serializer_.calculate_positions(format,app_header,0);
             obj.data_pos_  = pos;
+        end        
+    end
+    methods(Access=protected)
+        function ver = get_faccess_version(obj)
+            ver = obj.file_version_to_process;
         end
-        
     end
 end
 

@@ -1,4 +1,4 @@
-classdef dnd_binfile_common < dnd_file_interface
+classdef dnd_binfile_common < horace_binfile_interface
     % Class contains common methods and code used to access binary dnd
     % files.
     %
@@ -15,17 +15,6 @@ classdef dnd_binfile_common < dnd_file_interface
     % Properties:
     % See Property Summary chapter.
     % ----------------------------------------------------------------
-    % ----------------------------------------------------------------
-    % Implemented Methods:
-    % ----------------------------------------------------------------
-    % Initializers:
-    % should_load        - verify if the class should load the file
-    % should_load_stream - verify if the class should load the file,
-    %                      determined by opened file id
-    % init               - main method to initialize empty objects.
-    % set_file_to_update - open new or reopen existing file in update mode.
-    %                      (all put operations will try to keep file
-    %                      contents or fail)
     % reopen_to_write    - open new or reopen existing file in write mode
     %                      (all existing contents will be ignored)
     % ----------------------------------------------------------------
@@ -46,9 +35,7 @@ classdef dnd_binfile_common < dnd_file_interface
     % ----------------------------------------------------------------
     %
     %
-    properties(Access=protected,Hidden=true)
-        file_id_=-1 % the open file handle (if any)
-        %
+    properties(Access=protected)
         % position (in bytes from start of the file of the appropriate part
         % of Horace data information and the size of this part.
         % 26 is standard position in modern sqw file format.
@@ -68,12 +55,6 @@ classdef dnd_binfile_common < dnd_file_interface
         % operations
         data_fields_locations_=[];
         %
-        % class used to calculate all transformations between sqw/dnd class
-        % in memory, and their byte representation on hdd.
-        sqw_serializer_=[];
-        % holder for the object which surely closes open sqw file on class
-        % deletion
-        file_closer_ = [];
         % a pointer to eof position, used to identify the state of IO
         % operations showing position where the data have actually been
         % written
@@ -83,17 +64,31 @@ classdef dnd_binfile_common < dnd_file_interface
         % internal parameters used to control the process of upgrading
         % headers with run_id. Should be disabled in upgrade mode
         upgrade_headers_ = true;
-    end
-    %
-    properties(Constant,Access=private,Hidden=true)
-        % list of fileldnames to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file
-        fields_to_save_ = {'data_pos_';'s_pos_';'e_pos_';'npix_pos_';'dnd_eof_pos_';...
-            'data_fields_locations_'};
 
+        %True if convert all read fields (except pixels) into double
+        convert_to_double_ = true;
+
+        % LEGACY: type of binary data stored in file
+        data_type_ = 'undefined';
     end
     %
     properties(Dependent)
+        % Legacy type of data written in the file, describing the information
+        % stored in a sqw file
+        %
+        % Possible types are:
+        %   type 'b'    fields: filename,...,dax,s,e
+        %   type 'b+'   fields: filename,...,dax,s,e,npix
+        %   type 'a'    fields: filename,...,dax,s,e,npix,img_db_range,pix
+        %   type 'a-'   fields: filename,...,dax,s,e,npix,img_db_range.
+        %
+        % all modern data files are either b+ (dnd) or a+ (sqw data) type
+        % files.
+        data_type
+        % if all numeric types, read from a file to be converted to double.
+        % (except pixels)
+        convert_to_double        
+
         % true if existing file should be upgraded false -- overwritten
         upgrade_mode;
         % interfaces to binary access outside of this class:
@@ -101,10 +96,13 @@ classdef dnd_binfile_common < dnd_file_interface
         data_position;
         % initial location of npix fields
         npix_position;
-
+    end
+    methods(Static)
+        % convert all numerical types of a structure into double
+        val = do_convert_to_double(val)        
     end
 
-    methods(Access = protected,Hidden=true)
+    methods(Access = protected)
         %
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of sqw file using sqw/dnd object as
@@ -159,11 +157,6 @@ classdef dnd_binfile_common < dnd_file_interface
             obj= init_dnd_structure_field_by_field_(obj,varargin{:});
         end
         %
-        function check_obj_initated_properly(obj)
-            % helper function to check the state of put and update functions
-            % if put methods are invoked separately
-            check_obj_initiated_properly_(obj);
-        end
         %
         function [sub_obj,external] = extract_correct_subobj(obj,obj_name,varargin)
             % auxiliary function helping to extract correct sub-object from
@@ -194,20 +187,11 @@ classdef dnd_binfile_common < dnd_file_interface
             end
         end
         %
-        function obj = init_by_input_file(obj,objinit)
-            % initialize object to read input file using proper obj_init information
-            %
-            % objinit information is obtained by can_load method if the
-            % file indeed can be loaded by the selected loader
-            %
-            obj.file_id_ = objinit.file_id;
-            obj.num_dim_ = objinit.num_dim;
-            obj.file_closer_ = onCleanup(@()obj.fclose());
-        end
         %
         function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
             % the main part of the copy constructor, copying the contents
-            % of the one class into another.
+            % of the one class into another including opening the
+            % corresponding file with the same access rights
             %
             % Copied to all children classes to support overloading as
             % private properties are not accessible from parents
@@ -221,69 +205,25 @@ classdef dnd_binfile_common < dnd_file_interface
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
         %
-        function obj=init_from_structure(obj,obj_structure_from_saveobj)
-            % init file accessors using structure, obtained for object
-            % serialization (saveobj method);
-            obj = init_from_structure@dnd_file_interface(obj,obj_structure_from_saveobj);
-            flds = obj.fields_to_save_;
-            for i=1:numel(flds)
-                if isfield(obj_structure_from_saveobj,flds{i})
-                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
-                else
-                    warning('dnd_binfile_common field %s is not in the structure, restored from the file',...
-                        flds{i});
-                end
-            end
-            if ~isempty(obj.file_closer_) && obj.file_id_ > 0
-                return;
-            end
-            if ~ischar(obj.num_dim_) && ~isempty(obj.filename_)
-                file = fullfile(obj.filepath,obj.filename);
-                if exist(file,'file') == 2
-                    obj = obj.activate();
-                end
-            end
-        end
         %
-        function tm = get_creation_date(obj)
-            % Get the creation date of current file
-            %
-            % extract code which gets creation date into separate
-            % function to allow overloading
-            finf= dir(fullfile(obj.filepath,obj.filename));
-            tm = finf.date;
-        end        
-        %
-        function check_error_report_fail_(obj,pos_mess)
-            % check if error occured during io operation and throw if it does happened
-            [mess,res] = ferror(obj.file_id_);
-            if res ~= 0; error('HORACE:sqw_file_insterface:io_error',...
-                    '%s -- Reason: %s',pos_mess,mess);
-            end
+    end
+    methods
+        function ff=get.data_type(obj)
+            ff = obj.data_type_;
         end
-        
     end
     %----------------------------------------------------------------------
     methods % defined by this class
+        function [obj,file_exist,old_ldr] = set_file_to_update(obj,filename)
+            [obj,file_exist,old_ldr] = set_file_to_update@horace_binfile_interface(obj,filename,nargout);
+            if old_ldr == obj
+                obj.upgrade_headers_ = false;                
+                return;
+            end
+            obj=define_upgrade_map_(obj,file_exist,old_ldr);
+        end
         %
-        % check if this loader should deal with selected file
-        [ok,objinit,mess]=should_load(obj,filename)
-        %
-        % Check if this loader should deal with selected data stream
-        [should,objinit,mess]= should_load_stream(obj,stream,fid)
-
-        % set filename to save sqw data and open file for write/append
-        % operations
-        [obj,file_exist] = set_file_to_update(obj,filename)
-
-        % Reopen existing file to overwrite or write new data to it
-        % or open new target file to save data.
-        obj = reouten_to_write(obj,filename)
-        %
-        % initialize loader, to be ready to read or write dnd data.
-        obj = init(obj,varargin);
         % ----------------------------------------------------------------
-
         % read main dnd data  from properly initialized binary file.
         [dnd_data,obj] = get_data(obj,varargin);
         % write only image signal and error data
@@ -345,7 +285,6 @@ classdef dnd_binfile_common < dnd_file_interface
         obj = put_sqw(obj,varargin);
         % Consisting of:
         % 1) store or update application header
-        obj = put_app_header(obj);
         % 2) store dnd information ('-update' option updates this
         % information within existing file)
         obj = put_dnd_metadata(obj,varargin);
@@ -376,6 +315,16 @@ classdef dnd_binfile_common < dnd_file_interface
             % return the position of the npix field in the file
             pos = obj.npix_pos_;
         end
+        function conv = get.convert_to_double(obj)
+            % if true, convert all numerical values read from an sqw file
+            % into double precision
+            conv = obj.convert_to_double_;
+        end
+        %
+        function obj = set.convert_to_double(obj,val)
+            lval = logical(val);
+            obj.convert_to_double_ = lval;
+        end        
         %
         %
         function pos_info = get_pos_info(obj)
@@ -400,25 +349,13 @@ classdef dnd_binfile_common < dnd_file_interface
         function obj=delete(obj)
             % Close existing file and clear dynamic file information
             %
-            if ~isempty(obj.file_closer_)
-                obj.file_closer_ = [];
-            end
-            obj = obj.fclose();
-            obj.sqw_holder_ = [];
-            obj=delete@dnd_file_interface(obj);
+            obj = delete@horace_binfile_interface(obj);
+            obj.data_type_      = 'undefined';
             obj.real_eof_pos_ = 0;
             obj.upgrade_map_ = [];
             obj.upgrade_headers_= true;
         end
         %
-        function obj = fclose(obj)
-            % Close existing file header if it has been opened
-            fn = fopen(obj.file_id_);
-            if ~isempty(fn)
-                fclose(obj.file_id_);
-            end
-            obj.file_id_ = -1;
-        end       
         %
         function data_form = get_dnd_form(obj,varargin)
             % Return the structure of the data file header in the form
@@ -493,36 +430,6 @@ classdef dnd_binfile_common < dnd_file_interface
             sqw_obj  = obj.sqw_holder_;
         end
         %
-        function is = is_activated(obj, read_or_write)
-            % Check if the file-accessor is bound to an open binary file
-            %
-            % Input
-            % -----
-            %
-            % read_or_write   Char array. If 'read' return true if file is open
-            %                 for reading. If 'write' return true if file is
-            %                 open for writing.
-            %
-            full_file_path = fullfile(obj.filepath, obj.filename);
-            [file_id_path, permission] = fopen(obj.file_id_);
-            is = strcmp(full_file_path, file_id_path);
-
-            if is && nargin == 2
-                if strcmpi(read_or_write, 'read')
-                    READ_MODE_REGEX = '([ra]b\+?)|(wb\+)';
-                    open_for_reading = regexp(permission, READ_MODE_REGEX, 'once');
-                    is = ~isempty(open_for_reading);
-                elseif strcmpi(read_or_write, 'write')
-                    WRITE_MODE_REGEX = '([WAaw]b\+?)|(rb\+)';
-                    open_for_writing = regexp(permission, WRITE_MODE_REGEX, 'once');
-                    is = ~isempty(open_for_writing);
-                else
-                    error('HORACE:dnd_binfile_common:invalid_argument',...
-                        ['Invalid input for read_or_write. Must be ''read'' ', ...
-                        'or ''write'', found ''%s'''], read_or_write);
-                end
-            end
-        end
         %
         function obj = deactivate(obj)
             % Close respective file keeping all internal information about
@@ -530,45 +437,8 @@ classdef dnd_binfile_common < dnd_file_interface
             %
             % To use for MPI transfers between workers when open file can
             % not be transferred between workers but everything else can
-            if ~isempty(obj.file_closer_)
-                obj.file_closer_ = [];
-            end
-            obj = obj.fclose();
-            obj.file_id_ = 0;
+            obj = deactivate@horace_binfile_interface(obj);
             obj.upgrade_headers_ = true;
-        end
-        %
-        function obj = activate(obj, read_or_write)
-            % Open respective file in read or write mode without reading any
-            % supplementary file information. Assume that header information
-            % stored on this object is correct.
-            %
-            % Can be used for MPI transfers between workers when open file can
-            % not be transferred between workers but everything else can
-            %
-            % Input
-            % -----
-            %
-            % read_or_write   Char array. If 'read' open the file in read-only
-            %                 mode If 'write' open the file in read/write mode.
-            %                 Default is 'read'.
-            %
-            if nargin == 1
-                read_or_write = 'read';
-            end
-            permission = get_fopen_permission_(read_or_write);
-
-            if ~isempty(obj.file_closer_)
-                obj.file_closer_ = [];
-            end
-
-            obj.file_id_ = fopen(fullfile(obj.filepath,obj.filename), permission);
-            if obj.file_id_ <=0
-                error('HORACE:dnd_binfile_common:runtime_error',...
-                    'Can not open file %s at location %s',...
-                    obj.filename,obj.filepath);
-            end
-            obj.file_closer_ = onCleanup(@()obj.fclose());
         end
         %
     end
@@ -581,9 +451,17 @@ classdef dnd_binfile_common < dnd_file_interface
     end
     %==================================================================
     % SERIALIZABLE INTERFACE
+    properties(Constant,Access=private,Hidden=true)
+        % list of fileldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        fields_to_save_ = {'data_type_';'data_pos_';'s_pos_';'e_pos_';
+            'npix_pos_';'dnd_eof_pos_';'data_fields_locations_'};
+
+    end
+    %----------------------------------------------------------------------
     methods
         function strc = to_bare_struct(obj,varargin)
-            base_cont = to_bare_struct@dnd_file_interface(obj,varargin{:});
+            base_cont = to_bare_struct@horace_binfile_interface(obj,varargin{:});
             flds = dnd_binfile_common.fields_to_save_;
             cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
 
@@ -594,27 +472,27 @@ classdef dnd_binfile_common < dnd_file_interface
             %
             strc = cell2struct(cont,flds);
         end
-        
+
         function obj=from_bare_struct(obj,indata)
-            obj = from_bare_struct@dnd_file_interface(obj,indata);
+            obj = from_bare_struct@horace_binfile_interface(obj,indata);
             %
             flds = dnd_binfile_common.fields_to_save_;
             for i=1:numel(flds)
                 name = flds{i};
                 obj.(name) = indata.(name);
             end
-        end        
+        end
         function flds = saveableFields(obj)
             add_flds = dnd_binfile_common.fields_to_save_;
-            flds = saveableFields@dnd_file_interface(obj);
+            flds = saveableFields@horace_binfile_interface(obj);
             flds = [flds(:);add_flds(:)];
         end
-        
+
     end
-    methods(Static)        
+    methods(Static)
         function obj = loadobj(inputs,varargin)
             inobj = dnd_binfile_common();
             obj = loadobj@serializable(inputs,inobj,varargin{:});
-        end        
-    end    
+        end
+    end
 end

@@ -124,7 +124,7 @@ classdef sqw_formats_factory < handle
             end
             % read initial bytes of binary file and interpret them as Horace headers to identify file format.
             % Returns header block and open file handle not to open file again
-            [head_struc,fh] = dnd_file_interface.get_file_header(full_data_name);
+            [head_struc,fh] = horace_binfile_interface.get_file_header(full_data_name);
 
             for i=1:numel(obj.supported_accessors_)
                 loader = obj.supported_accessors_{i};

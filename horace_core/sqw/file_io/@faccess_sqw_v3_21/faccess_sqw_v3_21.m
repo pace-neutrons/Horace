@@ -97,7 +97,6 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             %
             % set up fields, which define appropriate file version
             obj = obj@faccess_sqw_v3_2(varargin{:});
-            obj.file_ver_ = 3.21;
         end
 
         %
@@ -121,6 +120,11 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
         %
     end
     methods(Access=protected,Hidden=true)
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            ver = 3.21;
+        end
+
         function obj = init_v3_specific(obj)
             % Initialize position information specific for sqw v3.3 object.
             %

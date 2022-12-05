@@ -1,4 +1,4 @@
-function [ver_struct,mess] = extract_hor_version_(data_stream)
+function [ver_struct,mess] = extract_hor_version_(ver_struct,data_stream)
 % Cast data stream into Horace application version
 %
 % Original author: T.G.Perring
@@ -13,8 +13,8 @@ function [ver_struct,mess] = extract_hor_version_(data_stream)
 %       assigned if the first entry is a integer followed by a character string
 %       of that length.
 
-ver_struct = struct('version',0,'name','unknown','typestart',0,...
-    'uncertain',true,'sqw_type',false,'num_dim','undefined');
+% ver_struct = struct('version',0,'name','unknown','typestart',0,...
+%     'uncertain',true,'sqw_type',false,'num_dim','undefined');
 mess = [];
 
 n = typecast(data_stream(1:4),'int32');

@@ -99,7 +99,6 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
 
             % set up fields, which define appropriate file version
             obj = obj@faccess_sqw_v3();
-            obj.file_ver_ = 3.3;
             if nargin>0
                 obj = obj.init(varargin{:});
             end
@@ -138,6 +137,11 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
         %-------------------------------------------------------------------
     end
     methods(Access=protected,Hidden=true)
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            ver=3.3;
+        end
+
         function flds = fields_to_save(obj)
             % returns the fields to save in the structure in sqw binfile v3 format
             head_flds = fields_to_save@faccess_sqw_v3(obj);
