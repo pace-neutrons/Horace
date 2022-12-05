@@ -40,7 +40,7 @@ for i=2:n_files
 end
 obj.detpar_pos_ = pos;
 
-detpar = sqw_obj.my_detpar();
+detpar = sqw_obj.detpar;
 detpar_form = obj.get_detpar_form();
 [detpar_pos,pos]=obj.sqw_serializer_.calculate_positions(detpar_form,detpar,pos);
 obj.detpar_pos_info_ = detpar_pos;

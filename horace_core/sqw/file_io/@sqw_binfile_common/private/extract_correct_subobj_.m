@@ -23,7 +23,7 @@ if isa(input_obj,'sqw') || is_sqw_struct(input_obj)
     if strcmp(obj_name, 'header')
         subobj = input_obj.experiment_info;
     elseif strcmp(obj_name, 'detpar')
-        subobj = input_obj.my_detpar();
+        subobj = input_obj.detpar();
     else
         subobj = input_obj.(obj_name);
     end

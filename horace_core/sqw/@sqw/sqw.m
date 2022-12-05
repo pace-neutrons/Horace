@@ -283,10 +283,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.experiment_info = hdr;
         end
 
-        function dtp = my_detpar(obj)
-            dtp = obj.detpar_x;
-        end
-
         function obj = change_detpar(obj,dtp)
             obj.detpar_x = dtp;
         end
