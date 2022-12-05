@@ -136,6 +136,9 @@ if ~verbatim
     data_str.filename = obj.filename;
 end
 %
+if ischar(obj.num_dim_)
+    obj.num_dim_ = numel(data_str.p);
+end
 if ischar(obj.dnd_dimensions_)
     obj.dnd_dimensions_ = cellfun(@(x)(numel(x)-1),data_str.p,'UniformOutput',true);
 end

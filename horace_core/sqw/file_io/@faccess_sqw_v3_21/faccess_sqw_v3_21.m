@@ -61,11 +61,6 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
         % footer.
         pix_range_ = [];
     end
-    properties(Constant,Access=protected,Hidden=true)
-        % list of field-names to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file
-        fields_to_save_3_21 = {'pix_range_'};
-    end
 
     methods
         %
@@ -147,10 +142,15 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
     end
     %==================================================================
     % SERIALIZABLE INTERFACE
+    properties(Constant,Access=private,Hidden=true)
+        % list of field-names to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        fields_to_save_ = {'pix_range_'};
+    end
     methods
         function strc = to_bare_struct(obj,varargin)
             base_cont = to_bare_struct@faccess_sqw_v3(obj,varargin{:});
-            flds = faccess_sqw_v3_21.fields_to_save_3_21;
+            flds = faccess_sqw_v3_21.fields_to_save_;
             cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
 
             base_flds = fieldnames(base_cont);
@@ -164,14 +164,14 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
         function obj=from_bare_struct(obj,indata)
             obj = from_bare_struct@faccess_sqw_v3(obj,indata);
             %
-            flds = faccess_sqw_v3_21.fields_to_save_3_21;
+            flds = faccess_sqw_v3_21.fields_to_save_;
             for i=1:numel(flds)
                 name = flds{i};
                 obj.(name) = indata.(name);
             end
         end
         function flds = saveableFields(obj)
-            add_flds = faccess_sqw_v3.fields_to_save_;
+            add_flds = faccess_sqw_v3_21.fields_to_save_;
             flds = saveableFields@faccess_sqw_v3(obj);
             flds = [flds(:);add_flds(:)];
         end

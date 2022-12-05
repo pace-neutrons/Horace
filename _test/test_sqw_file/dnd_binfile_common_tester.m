@@ -40,6 +40,9 @@ classdef dnd_binfile_common_tester < dnd_binfile_common
         function ver = get_faccess_version(obj)
             ver = obj.file_version_to_process;
         end
+        function is_sqw = get_sqw_type(~)
+            is_sqw = false;
+        end
     end
 end
 

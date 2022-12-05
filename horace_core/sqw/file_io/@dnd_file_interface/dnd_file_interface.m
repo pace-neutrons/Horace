@@ -54,10 +54,10 @@ classdef dnd_file_interface < serializable
             'sqw_type',uint32(1),'ndim',uint32(1));
     end
     properties(Constant,Access=private)
-        % list of fieldnames to save on hdd to be able to recover
+        % list of field-names to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file accessor
         fields_to_save_ = {'filename_';'filepath_';...
-            'num_dim_';'dnd_dimensions_';'data_type_';'convert_to_double_'};
+            'num_dim_';'data_type_';'convert_to_double_'};
         max_header_size_ = 4+6+8+4+4;
     end
 
@@ -167,7 +167,7 @@ classdef dnd_file_interface < serializable
         %
         function dims = get.dnd_dimensions(obj)
             % return image binning
-            dims = obj.dnd_dimensions_;
+            dims = obj.num_dim_;
         end
         %
         function conv = get.convert_to_double(obj)

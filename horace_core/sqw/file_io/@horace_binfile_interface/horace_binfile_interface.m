@@ -59,11 +59,9 @@ classdef horace_binfile_interface < serializable
         sqw_type;
         % Number of dimensions in the dnd image
         num_dim;
-        % Dimensions of the Horace image (dnd object), stored in the file.
-        dnd_dimensions
 
         % In old style sqw files returns timestamp of the file, Recent
-        % format files return real creatrion time, files store real
+        % format files return real creation time, files store real
         % creation time within
         creation_date
         %
@@ -80,13 +78,9 @@ classdef horace_binfile_interface < serializable
         filename_=''
         filepath_=''
 
-        % if the file is sqw or dnd
-        sqw_type_ = false;
         % number of dimensions in sqw object
         num_dim_ = 'undefined'
-        % list of the sqw class fields or subclasses and auxiliary data
-        % structures, stored on hdd
-        dnd_dimensions_ = 'undefined'
+        %
         % internal sqw/dnd object holder used as source for subsequent
         % write operations, when file accessor is initialized from this sqw
         % object
@@ -189,11 +183,6 @@ classdef horace_binfile_interface < serializable
             % if put methods are invoked separately
             check_obj_initiated_properly_(obj);
         end
-        function ver = get_faccess_version(~)
-            % retrieve sqw-file version the particular loader works with
-            error('HORACE:horace_binfile_interface:not_implemented',...
-                'function is not implemented on interface and should be overloaded by chilren classes')
-        end
         % Get the creation date of the file, associated with loader
         tm = get_creation_date(obj)
 
@@ -253,19 +242,13 @@ classdef horace_binfile_interface < serializable
             % get number of dimensions the image part of the object has.
             ndims = obj.num_dim_;
         end
-
+        %------------------------------------------------------------------
+        %OVERLOADABLE ACCESSORS
         function type = get.sqw_type(obj)
             % return true if the object to load is sqw-type (contains pixels) or
             % false if not.
-            type = obj.sqw_type_;
+            type = get_sqw_type(obj);
         end
-        %
-        function dims = get.dnd_dimensions(obj)
-            % return image binning
-            dims = obj.dnd_dimensions_;
-        end
-        %------------------------------------------------------------------
-        %OVERLOADABLE ACCESSORS
         function tm = get.creation_date(obj)
             tm = get_creation_date(obj);
         end
@@ -326,6 +309,11 @@ classdef horace_binfile_interface < serializable
         % of the one class into another including opening the
         % corresponding file with the same access rights
         [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
+
+        % get the version of the file format, the loader should process
+        ver = get_faccess_version(~);
+        % true, if loader processes sqw file and false if dnd.
+        is_sqw = get_sqw_type(~)
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
@@ -333,7 +321,7 @@ classdef horace_binfile_interface < serializable
         % list of fieldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file accessor
         fields_to_save_ = {'filename_';'filepath_';...
-            'num_dim_';'dnd_dimensions_'};
+            'num_dim_'};
     end
     methods
         function strc = to_bare_struct(obj,varargin)

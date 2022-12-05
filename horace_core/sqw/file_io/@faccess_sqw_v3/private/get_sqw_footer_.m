@@ -91,7 +91,7 @@ obj.position_info_pos_ = pos_info_location;
 obj.eof_pos_  = eof_pos;
 obj.real_eof_pos_ = eof_pos;
 
-obj = obj.init_from_structure(fd_struct);
+obj = obj.from_bare_struct(fd_struct);
 obj.data_type_ = char(obj.data_type_);
 
 % debug and sanity options@

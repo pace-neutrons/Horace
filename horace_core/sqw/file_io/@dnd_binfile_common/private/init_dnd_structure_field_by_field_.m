@@ -22,7 +22,7 @@ data_header = obj.get_dnd_form();
 if io_error
     if ~isfield(data_pos,'s_pos_') || ~isfield(data_pos,'e_pos_')
         error('SQW_FILE_IO:io_error',...
-            'DND_BINFILE_COMMON: IO error while parsing data, can not indetify location of signal and error arrays')
+            'DND_BINFILE_COMMON: IO error while parsing data, can not identify location of signal and error arrays')
     end
 end
 %

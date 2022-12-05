@@ -4,7 +4,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
     %
 
     properties
-        test_folder
+        test_data_folder
     end
 
     methods
@@ -16,7 +16,8 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             end
             %obj = obj@TestCaseWithSave(name,sample_file);
             obj = obj@TestCase(name);
-            obj.test_folder=fileparts(mfilename('fullpath'));
+            hp = horace_paths;
+            obj.test_data_folder=hp.test_common;
         end
         %-----------------------------------------------------------------
         function test_serialize_deserialize(~)
@@ -30,7 +31,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
         function test_get_version_invalid_throws(obj)
             to = dnd_binfile_common_tester();
-            wrong_source = fullfile(fileparts(obj.test_folder),'common_data','96dets.par');
+            wrong_source = fullfile(obj.test_data_folder,'96dets.par');
 
             f = @()(to.get_file_header('non-existing_file.sqw'));
             assertExceptionThrown(f,'HORACE:horace_binfile_interface:io_error');
@@ -41,7 +42,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
         function obj = test_get_version(obj)
             to = dnd_binfile_common_tester();
-            source = fullfile(fileparts(obj.test_folder),'test_symmetrisation','w1d_d1d.sqw');
+            source = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
 
             [stream,fid1] = to.get_file_header(source);
             co1 = onCleanup(@()fclose(fid1));
@@ -119,25 +120,23 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             end
         end
         function test_call_set_file_to_update_without_arguments_throws(obj)
-            tob = dnd_binfile_common();
+            tob = dnd_binfile_common_tester();
 
-            samp = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_sqw.sqw');
+            samp = fullfile(obj.test_data_folder,'w1d_sqw.sqw');
             f=@()(tob.set_file_to_update(samp));
             assertExceptionThrown(f,'HORACE:horace_binfile_interface:invalid_argument');
 
         end
         %
         function obj = test_change_file_to_write(obj)
-            tob = dnd_binfile_common();
+            tob = dnd_binfile_common_tester();
 
-            samp = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_sqw.sqw');
+            samp = fullfile(obj.test_data_folder,'w1d_sqw.sqw');
 
             tob=tob.set_file_to_update(samp);
 
             assertTrue(tob.sqw_type)
-            assertEqual(tob.num_dim,1)
+            assertEqual(tob.num_dim,int32(1))
             assertTrue(isa(tob,'faccess_sqw_v2'));
 
 
@@ -155,8 +154,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         %
         function obj = test_copy_constructor(obj)
 
-            samp = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_d1d.sqw');
+            samp = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
             tob = dnd_binfile_common_tester(samp);
 
 
@@ -170,8 +168,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
         function obj = test_copy_constructor_write_perm(obj)
 
-            samp = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_d1d.sqw');
+            samp = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
             ttob = dnd_binfile_common_tester(samp);
             sq_obj = ttob.get_sqw();
             assertTrue(isa(sq_obj,'d1d'));
@@ -200,8 +197,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         %
         function obj = test_reopen_to_write(obj)
 
-            samp = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_d1d.sqw');
+            samp = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
             ttob = dnd_binfile_common_tester(samp);
             % important! -verbatim is critical here!, as it returns filenames
             % as they were stored on file, so we can write everyting exactly
@@ -233,8 +229,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
 
         function test_activate_reopens_file_in_rb_if_read_given(obj)
-            file_path = fullfile( ...
-                fileparts(obj.test_folder), 'test_symmetrisation', 'w1d_d1d.sqw');
+            file_path = fullfile(obj.test_data_folder, 'w1d_d1d.sqw');
             bin_file = dnd_binfile_common_tester(file_path);
             cleanup = onCleanup(@() bin_file.delete());
             bin_file.deactivate();
@@ -251,8 +246,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
 
         function test_activate_reopens_file_in_rbplus_if_write_given(obj)
-            file_path = fullfile( ...
-                fileparts(obj.test_folder), 'test_symmetrisation', 'w1d_d1d.sqw');
+            file_path = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
             bin_file = dnd_binfile_common_tester(file_path);
             cleanup = onCleanup(@() bin_file.delete());
             bin_file.deactivate();
@@ -270,8 +264,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
 
         function test_error_raised_if_activating_file_with_bad_permission(obj)
-            file_path = fullfile( ...
-                fileparts(obj.test_folder), 'test_symmetrisation', 'w1d_d1d.sqw');
+            file_path = fullfile(obj.test_data_folder, 'w1d_d1d.sqw');
             bin_file = dnd_binfile_common_tester(file_path);
             cleanup = onCleanup(@() bin_file.delete());
             bin_file.deactivate();

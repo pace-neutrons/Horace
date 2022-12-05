@@ -45,8 +45,8 @@ if isstruct(head_struc) && all(isfield(head_struc,{'sqw_type','version'}))
         else
             type = 'dnd';
         end
-        mess = sprintf('not Horace %s version: %g file',type,obj.faccess_version);
-        objinit = obj_init();
+        mess = sprintf('not Horace type: %s version: %g file',type,obj.faccess_version);
+        objinit = [];
     end
 else
     error('HORACE:horace_binfile_interface:invalid_argument',...

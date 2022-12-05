@@ -70,9 +70,15 @@ classdef dnd_binfile_common < horace_binfile_interface
 
         % LEGACY: type of binary data stored in file
         data_type_ = 'undefined';
+        % sizes of the image array, containing in
+        dnd_dimensions_ = 'undefined'
     end
     %
     properties(Dependent)
+        % Dimensions of the Horace image (dnd object), stored in the file.
+        % (Legacy property. Use num_dim instead)
+        dnd_dimensions
+
         % Legacy type of data written in the file, describing the information
         % stored in a sqw file
         %
@@ -85,11 +91,13 @@ classdef dnd_binfile_common < horace_binfile_interface
         % all modern data files are either b+ (dnd) or a+ (sqw data) type
         % files.
         data_type
+        % Legacy field:
         % if all numeric types, read from a file to be converted to double.
         % (except pixels)
-        convert_to_double        
+        convert_to_double
 
-        % true if existing file should be upgraded false -- overwritten
+        % Legacy field: true if existing file should be upgraded false
+        % -- overwritten
         upgrade_mode;
         % interfaces to binary access outside of this class:
         % initial location of dnd data fields
@@ -99,7 +107,7 @@ classdef dnd_binfile_common < horace_binfile_interface
     end
     methods(Static)
         % convert all numerical types of a structure into double
-        val = do_convert_to_double(val)        
+        val = do_convert_to_double(val)
     end
 
     methods(Access = protected)
@@ -205,19 +213,60 @@ classdef dnd_binfile_common < horace_binfile_interface
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
         %
-        %
+        function is_sqw = get_sqw_type(~)
+            is_sqw = false;
+        end
     end
+    % ACCESSORS AND CONSTRUCTOR
     methods
+        %------   Auxiliary methods Used in upgrade
+        function type = get.upgrade_mode(obj)
+            % return true if object is set up for upgrade
+            type = ~isempty(obj.upgrade_map_);
+        end
+        %
+        function obj = set.upgrade_mode(obj,mode)
+            obj.upgrade_headers_ = false;
+            obj = set_upgrade_mode_(obj,mode);
+        end
+        % -------------------------------------------
+        function  pos = get.data_position(obj)
+            % return the position of the start of the dnd data fields
+            % in the file (usually its start of main header for sqw or  filename
+            % filename for dnd file)
+            pos = obj.data_pos_;
+        end
+        function  pos = get.npix_position(obj)
+            % return the position of the npix field in the file
+            pos = obj.npix_pos_;
+        end
         function ff=get.data_type(obj)
             ff = obj.data_type_;
         end
+
+
+        function conv = get.convert_to_double(obj)
+            % if true, convert all numerical values read from an sqw file
+            % into double precision
+            conv = obj.convert_to_double_;
+        end
+        %
+        function obj = set.convert_to_double(obj,val)
+            lval = logical(val);
+            obj.convert_to_double_ = lval;
+        end
+        function dims = get.dnd_dimensions(obj)
+            % return image binning (legacy field). Use num_dim instead
+            dims = obj.dnd_dimensions_;
+        end
     end
     %----------------------------------------------------------------------
+    % OTHER CLASS METHODS
     methods % defined by this class
         function [obj,file_exist,old_ldr] = set_file_to_update(obj,filename)
             [obj,file_exist,old_ldr] = set_file_to_update@horace_binfile_interface(obj,filename,nargout);
             if old_ldr == obj
-                obj.upgrade_headers_ = false;                
+                obj.upgrade_headers_ = false;
                 return;
             end
             obj=define_upgrade_map_(obj,file_exist,old_ldr);
@@ -293,38 +342,6 @@ classdef dnd_binfile_common < horace_binfile_interface
         [obj,varargout] = put_dnd_data(obj,varargin);
         %
         obj = put_dnd(obj,varargin)
-
-        %------   Auxiliary methods Used in upgrade
-        function type = get.upgrade_mode(obj)
-            % return true if object is set up for upgrade
-            type = ~isempty(obj.upgrade_map_);
-        end
-        %
-        function obj = set.upgrade_mode(obj,mode)
-            obj.upgrade_headers_ = false;
-            obj = set_upgrade_mode_(obj,mode);
-        end
-        % -------------------------------------------
-        function  pos = get.data_position(obj)
-            % return the position of the start of the dnd data fields
-            % in the file (usually its start of main header for sqw or  filename
-            % filename for dnd file)
-            pos = obj.data_pos_;
-        end
-        function  pos = get.npix_position(obj)
-            % return the position of the npix field in the file
-            pos = obj.npix_pos_;
-        end
-        function conv = get.convert_to_double(obj)
-            % if true, convert all numerical values read from an sqw file
-            % into double precision
-            conv = obj.convert_to_double_;
-        end
-        %
-        function obj = set.convert_to_double(obj,val)
-            lval = logical(val);
-            obj.convert_to_double_ = lval;
-        end        
         %
         %
         function pos_info = get_pos_info(obj)
@@ -351,6 +368,7 @@ classdef dnd_binfile_common < horace_binfile_interface
             %
             obj = delete@horace_binfile_interface(obj);
             obj.data_type_      = 'undefined';
+            obj.dnd_dimensions_ = 'undefined';
             obj.real_eof_pos_ = 0;
             obj.upgrade_map_ = [];
             obj.upgrade_headers_= true;
@@ -384,14 +402,16 @@ classdef dnd_binfile_common < horace_binfile_interface
             %   data.title      Title of sqw data structure
             %   data.alatt      Lattice parameters for data field (Ang^-1)
             %   data.angdeg     Lattice angles for data field (degrees)
-            %   data.offset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+            %   data.offset    Offset of origin of projection axes in r.l.u.
+            % and energy ie. [h; k; l; en] [column vector]
             %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
             %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-            %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
+            %   data.ulen      Length of projection axes vectors in Ang^-1 or meV [row vector]
             %   data.label     Labels of the projection axes [1x4 cell array of character strings]
-            %   data.iax        Index of integration axes into the projection axes  [row vector]
+            %   data.iax       Index of integration axes into the projection axes  [row vector]
             %                  Always in increasing numerical order
-            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+            %                  e.g. if data is 2D, data.iax=[1,3] means
+            %                  summation has been performed along u1 and u3 axes
             %   data.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
             %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
             %   data.pax        Index of plot axes into the projection axes  [row vector]
@@ -399,12 +419,16 @@ classdef dnd_binfile_common < horace_binfile_interface
             %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
             %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
             %   data.p          Cell array containing bin boundaries along the plot axes [column vectors]
-            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
+            %                       i.e. row cell array{data.p{1}, data.p{2} ...}
+            %                   (for as many plot axes as given by length of data.pax)
             %   data.dax        Index into data.pax of the axes for display purposes. For example we may have
-            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-            %                  be reordered [row vector]
+            %                  data.pax=[1,3,4] and data.dax=[3,1,2]
+            %                  This means that the first plot axis is data.pax(3)=4,
+            %                  the second is data.pax(1)=1, the third is
+            %                  data.pax(2)=3. The reason for data.dax is to
+            %                  allow the display axes to be permuted but
+            %                  without the contents of the fields p, s,..pix
+            %                  needing to be reordered [row vector]
             %   data.s          Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
@@ -454,9 +478,8 @@ classdef dnd_binfile_common < horace_binfile_interface
     properties(Constant,Access=private,Hidden=true)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
-        fields_to_save_ = {'data_type_';'data_pos_';'s_pos_';'e_pos_';
+        fields_to_save_ = {'data_type_';'dnd_dimensions_';'data_pos_';'s_pos_';'e_pos_';
             'npix_pos_';'dnd_eof_pos_';'data_fields_locations_'};
-
     end
     %----------------------------------------------------------------------
     methods

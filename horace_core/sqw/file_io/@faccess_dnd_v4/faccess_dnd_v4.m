@@ -1,5 +1,5 @@
-classdef faccess_dnd_v4 < dnd_binfile_common
-    % Class to access Horace dnd files written by Horace v1-v2
+classdef faccess_dnd_v4 < binfile_v4_common
+    % Class to access Horace dnd files written by Horace v4
     %
     % Majority of class properties and methods are inherited from <a href="matlab:help('dnd_binfile_common');">dnd_binfile_common</a>
     % class.
@@ -67,46 +67,17 @@ classdef faccess_dnd_v4 < dnd_binfile_common
             if nargin>0
                 obj = obj.init(varargin{:});
             end
+        end        
+        %
+    end
+    methods(Access=protected)
+        function is_sqw = get_sqw_type(~)
+            % Main part of get.sqw_type accessor
+            % return true if the loader is intended for processing sqw file
+            % format and false otherwise
+            is_sqw = true;
         end
-        %
-        function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
-            % Check if faccess_dnd_v2 loader should process selected input data
-            % file.
-            %
-            %Usage:
-            %>> [should,objinit,mess] = obj.should_load_stream(head_struc,fid)
-            % where:
-            % head_struc:: structure returned by dnd_file_interface.get_file_header
-            %              static method and containing sqw/dnd file info, stored in
-            %              the file header.
-            % fid       :: file identifier of already opened binary sqw/dnd file where
-            %              head_struct has been read from.
-            %
-            % Returns:
-            % should  :: boolean equal to true if the loader can load these data,
-            %            or false if not.
-            % objinit :: initialized helper obj_init class, containing information,
-            %            necessary to initialize the loader.
-            % message :: if false, contains detailed information on the reason
-            %            why this file should not be loaded by this loader.
-            %            Empty, if should == true.
-            mess = '';
-            if isstruct(head_struc) && all(isfield(head_struc,{'sqw_type','version'}))
-                if ~head_struc.sqw_type
-                    objinit = obj_init(fid,double(head_struc.num_dim));
-                    should = true;
-                else
-                    should = false;
-                    mess = ['not Horace dnd  ',obj.file_version,' file'];
-                    objinit  =obj_init();
-                end
-            else
-                error('SQW_FILE_IO:invalid_argument',...
-                    'should_load_stream: the input structure for this function does not have correct format');
-            end
-        end
-        %
-        %
+        
     end
     
 end

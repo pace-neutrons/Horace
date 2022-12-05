@@ -65,7 +65,7 @@ classdef test_faccess_sqw_v3_21< TestCase
             % mushrum file had been generated in v3_21 format -- the
             % preference for indirect
             fl_acc = faccess_sqw_v3_21();
-            assertEqual(fl_acc.file_version,'-v3.21');
+            assertEqual(fl_acc.faccess_version,3.21);
             %--------------------------------------------------------------
             % by default, test file has been creaded by constructor as
             % v3.21

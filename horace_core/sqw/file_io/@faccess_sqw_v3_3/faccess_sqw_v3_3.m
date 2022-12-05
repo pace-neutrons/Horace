@@ -65,11 +65,6 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
         % footer.
         pix_range_ = PixelData.EMPTY_RANGE_;
     end
-    properties(Constant,Access=protected,Hidden=true)
-        % list of fileldnames to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file
-        fields_to_save_3_3 = {'pix_range_'};
-    end
 
     methods
 
@@ -180,6 +175,12 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
     end
     %==================================================================
     % SERIALIZABLE INTERFACE
+    properties(Constant,Access=protected,Hidden=true)
+        % list of fileldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        fields_to_save_3_3 = {'pix_range_'};
+    end
+
     methods
         function strc = to_bare_struct(obj,varargin)
             base_cont = to_bare_struct@faccess_sqw_v3(obj,varargin{:});
