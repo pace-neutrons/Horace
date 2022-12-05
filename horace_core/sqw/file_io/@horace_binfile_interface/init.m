@@ -26,7 +26,7 @@ function obj = init(obj,varargin)
 %      has already been initiated with this file.
 %
 %
-if nargin<1
+if isempty(varargin)
     return;
 end
 %

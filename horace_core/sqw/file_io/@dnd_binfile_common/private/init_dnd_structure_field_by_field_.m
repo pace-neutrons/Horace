@@ -30,6 +30,9 @@ obj.dnd_dimensions_ = double(data_header.p_size.field_value);
 if ischar(obj.num_dim_) % un-initialized as prototype format does not have dimensions in header
     obj.num_dim_ = double(numel(data_header.p_size.field_value));
 end
+if obj.convert_to_double
+    obj.num_dim_  = double(obj.num_dim_);
+end
 obj.data_fields_locations_ = data_pos;
 %
 obj.s_pos_=data_pos.s_pos_;
