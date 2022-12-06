@@ -17,7 +17,7 @@ classdef test_read_all< TestCase
     end
 
     methods
-        
+
 
         %The above can now be read into the test routine directly.
         function this=test_read_all(varargin)
@@ -28,8 +28,9 @@ classdef test_read_all< TestCase
             end
             this=this@TestCase(name);
 
-            this.sample_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))));
-            this.sample_file = fullfile(this.sample_dir,'test_symmetrisation','w2d_qq_d2d.sqw');
+            hc = horace_paths;
+            this.sample_dir = fileparts(mfilename('fullpath'));
+            this.sample_file = fullfile(hc.test_common,'w2d_qq_d2d.sqw');
 
         end
 
@@ -78,8 +79,8 @@ classdef test_read_all< TestCase
             assertEqual(numel(out),1);
 
 
-            files = {fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3_1.sqw'),...
-                fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3.sqw')};
+            files = {fullfile(obj.sample_dir,'test_sqw_file_read_write_v3_1.sqw'),...
+                fullfile(obj.sample_dir,'test_sqw_file_read_write_v3.sqw')};
             out = read_sqw(files);
 
             assertEqual(numel(out),2);
@@ -87,8 +88,8 @@ classdef test_read_all< TestCase
             assertTrue(isa(out,'sqw'));
 
 
-            files = {fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3_1.sqw'),...
-                fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3.sqw'),...
+            files = {fullfile(obj.sample_dir,'test_sqw_file_read_write_v3_1.sqw'),...
+                fullfile(obj.sample_dir,'test_sqw_file_read_write_v3.sqw'),...
                 obj.sample_file};
             out = read_horace(files);
 

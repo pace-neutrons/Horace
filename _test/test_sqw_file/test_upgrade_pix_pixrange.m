@@ -17,15 +17,14 @@ classdef test_upgrade_pix_pixrange< TestCase
             end
             this=this@TestCase(name);
 
-            hc = horace_path;
+            hc = horace_paths;
             this.tests_dir = hc.test;
         end
 
         % tests
-        function obj = test_upgrade_v3_1_toV3_3(obj)
-            test_source = fileparts(obj.tests_dir);
+        function obj = test_upgrade_v3_1_toV3_3(obj)            
             test_fname = 'test_cut_sqw_sym.sqw'; % v3.1 source test file
-            source_file = fullfile(test_source,'test_sym_op',test_fname );
+            source_file = fullfile(obj.tests_dir,'test_sym_op',test_fname );
             test_file   = fullfile(tmp_dir(),test_fname);
             copyfile(source_file ,test_file);
             clob = onCleanup(@()delete(test_file));
