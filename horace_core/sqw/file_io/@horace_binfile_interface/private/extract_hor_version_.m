@@ -28,10 +28,12 @@ if n>0 && n<1024   % allow up to 1024 characters in filename if bytes are from
             ver_struct.name = 'horace';
             ver_struct.typestart = 0;
             ver_struct.sqw_type=true;
+            ver_struct.version = 0;
             if uncertain
                 ver_struct.uncertain = true;
             else
                 ver_struct.uncertain = false;
+                ver_struct.num_dim = 'undefined';
             end
             return
         end

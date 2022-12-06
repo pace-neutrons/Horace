@@ -91,7 +91,6 @@ classdef faccess_sqw_prototype < sqw_binfile_common
                 obj = obj.init(varargin{:});
             end
         end
-        %
         function [should,initob,mess] =should_load_stream(obj,header,fid)
             % Check if faccess_sqw_prototype loader should process selected
             % data file.
@@ -118,7 +117,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             if header.version == 0 && strcmp(header.name,'horace')
                 if header.uncertain
                     fseek(fid,0,'bof');
-                    header = dnd_file_interface.get_file_header(fid,4098+22);
+                    header = horace_binfile_interface.get_file_header(fid,4098+22);
                 end
             end
 
@@ -128,6 +127,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
                 warning('SQW_FILE_IO:legacy_data',...
                     'FACCESS_SQW_PROTOTYPE::should_load_stream: trying to load legacy Horace prototype data format');
             end
+        
         end
         %
         function data_form = get_dnd_form(obj,varargin)

@@ -6,9 +6,10 @@ function obj = init_by_input_stream_(obj,objinit)
 % file indeed can be loaded by the selected loader
 %
 
-if ~objinit.defined()
-    error('HORACE:horace_binfile_interface',...
-        'attempt to initalize f-accessor using undefined objinit information')
+
+if ~objinit.defined() && obj.faccess_version ~=0
+     error('HORACE:horace_binfile_interface',...
+         'attempt to initalize f-accessor using undefined objinit information')
 end
 obj.file_id_ = objinit.file_id;
 obj.num_dim_ = objinit.num_dim;
