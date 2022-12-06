@@ -14,7 +14,7 @@ function obj = put_image(obj, s, e)
 %
 BYTES_IN_SINGLE = 4;
 
-check_obj_initiated_properly_(obj);
+obj.check_obj_initated_properly();
 
 validateattributes(s, {'numeric'}, {}, 'put_image', 's');
 validateattributes(e, {'numeric'}, {}, 'put_image', 'e');

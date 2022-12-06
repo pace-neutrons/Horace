@@ -60,8 +60,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %                      image coordinate system.
         % The date when the object has been stored on hdd first time
         creation_date_;
+        creation_date_defined_ = false;
     end
-    %======================================================================    
+    %======================================================================
     % OTHER DND METHODS
     methods (Static)
         function w = dnd(varargin)
@@ -87,7 +88,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             end
         end
     end
-    %======================================================================    
+    %======================================================================
     methods
         % function signatures:
         %------------------------------------------------------------------
@@ -234,17 +235,17 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             if nargin>0
                 obj = obj.init(varargin{:});
             end
-        end        
+        end
         %
         function obj = init(obj,varargin)
-            % initialize empty object or re-initialize existing 
+            % initialize empty object or re-initialize existing
             % with any allowed sequence of input arguments.
             if nargin == 1
                 return
             end
             obj = init_(obj,varargin{:});
         end
-        
+
         function val = get.s(obj)
             val = obj.s_;
         end
@@ -311,6 +312,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             end
             cd = main_header_cl.convert_datetime_to_str(dt);
         end
+        function obj = set.creation_date(obj,val)
+            % explicitly set up creation date and make it "known"
+            dt = main_header_cl.check_datetime_valid(val);
+            obj.creation_date_    = dt;
+            obj.creation_date_defined_ = true;
+
+        end
         %
         function val = get.filename(obj)
             val = obj.axes_.filename;
@@ -331,7 +339,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function obj = set.title(obj, title)
             obj.axes_.title = title;
-        end        
+        end
         %
         function struct = to_head_struct(obj,keep_data_arrays)
             %convert dnd data into structure, obtained by head operation
@@ -410,6 +418,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         function flds = saveableFields(obj)
             flds = obj.fields_to_save_;
+            if ~obj.creation_date_defined_
+                flds  = flds(1:end-1);
+            end
         end
         %
         function str = saveobj(obj)
@@ -426,7 +437,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             % reason for failure.
             %
             obj = check_combo_arg_(obj);
-        end        
+        end
     end
     methods(Access = protected)
         %------------------------------------------------------------------
