@@ -3,7 +3,7 @@ classdef test_upgrade_pix_pixrange< TestCase
     % Validate if the update works
     %
     properties
-        test_dir;
+        tests_dir;
     end
 
     methods
@@ -17,12 +17,13 @@ classdef test_upgrade_pix_pixrange< TestCase
             end
             this=this@TestCase(name);
 
-            this.test_dir = fullfile(fileparts(mfilename('fullpath')));
+            hc = horace_path;
+            this.tests_dir = hc.test;
         end
 
         % tests
         function obj = test_upgrade_v3_1_toV3_3(obj)
-            test_source = fileparts(obj.test_dir);
+            test_source = fileparts(obj.tests_dir);
             test_fname = 'test_cut_sqw_sym.sqw'; % v3.1 source test file
             source_file = fullfile(test_source,'test_sym_op',test_fname );
             test_file   = fullfile(tmp_dir(),test_fname);
@@ -57,9 +58,8 @@ classdef test_upgrade_pix_pixrange< TestCase
         end
 
         function obj = test_upgrade_v2_toV3_3(obj)
-            test_source = fileparts(obj.test_dir);
             test_fname = 'w3d_sqw.sqw'; % v2 source test file
-            source_file = fullfile(test_source,'test_symmetrisation',test_fname );
+            source_file = fullfile(obj.tests_dir,'common_data',test_fname );
             test_file   = fullfile(tmp_dir(),test_fname);
             copyfile(source_file ,test_file);
             clob = onCleanup(@()delete(test_file));

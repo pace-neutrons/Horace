@@ -85,7 +85,7 @@ classdef test_faccess_sqw_v3_21< TestCase
 
             assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fl_acc.filename)
-            assertEqual(sqw_obj.main_header.filepath,fl_acc.filepath)
+            assertEqual(sqw_obj.main_header.filepath,[fl_acc.filepath,filesep])
 
             % we can save the object as previous version of the file
             test_file=fullfile(obj.working_dir,'test_read_wr_upd_indirect_v3_2.sqw');

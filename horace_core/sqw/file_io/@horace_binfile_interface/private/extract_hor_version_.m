@@ -49,7 +49,7 @@ if n>0 && n<1024   % allow up to 1024 characters in filename if bytes are from
     ver_struct.version = version;
     ver_struct.name = name;
 else
-    mess='Not Horace binary format';
+    mess='is not recognized as Horace binary file';
     return;
 end
 if n == 6 && strcmp(name,'horace') % it still may be strange file name like file named "horace"

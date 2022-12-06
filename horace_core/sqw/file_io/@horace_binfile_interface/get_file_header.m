@@ -42,8 +42,8 @@ if ~isempty(mess)
     if fid>0
         fclose(fid);
     end
-    error('HORACE:horace_binfile_interface:runtime_error','Error: %s', ...
-        message);
+    error('HORACE:horace_binfile_interface:runtime_error','File: %s  %s', ...
+        file,mess);
 end
 
 
