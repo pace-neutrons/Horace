@@ -23,7 +23,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
     % initialized for reading this file.
     %
     % The initialized object allows to use all get/read methods described
-    % by sqw_file_interface and dnd_file_interface
+    % by sqw_file_interface and horace_binfile_interface
     %
     % Prototype file format does not allow writing into it. After
     % retrieving all necessary data from the file, its necessary to set
@@ -98,7 +98,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %
             %>> [should,objinit,mess] = obj.should_load_stream(head_struc,fid)
             % where:
-            % head_struc:  structure returned by dnd_file_interface.get_file_header
+            % head_struc:  structure returned by horace_binfile_interface.get_file_header
             %              static method and containing sqw/dnd file info, stored in
             %              the file header.
             % fid       :: file identifier of already opened binary sqw/dnd file where

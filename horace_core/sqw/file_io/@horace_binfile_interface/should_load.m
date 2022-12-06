@@ -16,7 +16,7 @@ function [ok,objinit,mess]=should_load(obj,filename)
 % mess        --  text containing additional information on reasons of false
 %                 if ok is false. Empty if ok is true
 %
-% The method is simple wrapper which packs dnd_file_interface.get_file_header
+% The method is simple wrapper which packs horace_binfile_interface.get_file_header
 % and this class should_load_stream method together.
 
 if ~isnumeric(filename)

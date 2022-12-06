@@ -169,7 +169,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 % iii) struct or data loader - a struct, pass to the struct
                 % loader
             elseif ~isempty(args.data_struct)
-                if isa(args.data_struct,'dnd_file_interface')
+                if isa(args.data_struct,'horace_binfile_interface')
                     args.data_struct = obj.get_loader_struct_(...
                         args.data_struct,args.pixel_page_size);
                     obj = from_bare_struct(obj,args.data_struct);

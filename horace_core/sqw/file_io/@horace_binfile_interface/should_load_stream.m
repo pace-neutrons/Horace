@@ -13,7 +13,7 @@ function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
 %
 %>> [should,objinit,mess] = obj.should_load_stream(head_struc,fid)
 % where:
-% head_struc:: structure returned by dnd_file_interface.get_file_header
+% head_struc:: structure returned by horace_binfile_interface.get_file_header
 %              static method and containing sqw/dnd file info, stored in
 %              the file header.
 % fid       :: file identifier of already opened binary sqw/dnd file where
@@ -30,7 +30,7 @@ function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
 %
 % The method is the main method used by sqw_file_formats factory to
 % identify if particular accessor's class should be used to load the data
-% as common dnd_file_interface.get_file_header method which opens file and
+% as common horace_binfile_interface.get_file_header method which opens file and
 % reads the file header is slow so is deployed by sqw_format_factory only once.
 %
 mess = '';

@@ -66,7 +66,7 @@ if is_string(source)
     % We expect either a .sqw or .dnd file, throw an error otherwise.
     ldr = sqw_formats_factory.instance().get_loader(source);
     sqw_dnd_obj=obj_from_faccessor(ldr,n_object,sqw_only,dnd_only);
-elseif isa(source,'dnd_file_interface')
+elseif isa(source,'horace_binfile_interface')
     sqw_dnd_obj=obj_from_faccessor(source,n_object,sqw_only,dnd_only);
 elseif isa(source, 'SQWDnDBase')
     sqw_dnd_obj = source;

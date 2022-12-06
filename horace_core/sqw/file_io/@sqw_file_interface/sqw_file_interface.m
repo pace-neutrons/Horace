@@ -1,7 +1,7 @@
 classdef sqw_file_interface < binfile_v2_common
     % Class describes interface to access sqw files. The whole public
     % interface to access files, containing sqw objects consists of
-    % dnd_file_interface and sqw_file_interface.
+    % horace_binfile_interface and sqw_file_interface.
     %
     % Various accessors should inherit these interfaces, implement the
     % abstract methods mentioned there and define protected fields,

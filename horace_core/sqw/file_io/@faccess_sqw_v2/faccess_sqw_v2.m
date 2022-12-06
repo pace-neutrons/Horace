@@ -25,7 +25,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     % sqw_formats_factory will return instance of this class, initialized for reading this file.
     %
     % The initialized object allows to use all get/read methods described by sqw_file_interface
-    % and dnd_file_interface
+    % and horace_binfile_interface
     %
     % 2)
     % Second form used to initialize the operation of writing new or updating existing sqw file.
@@ -40,7 +40,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     % If existing file can not be updated, it will be open in write mode.
     % If file with filename does not exist, the object will be open in write mode.
     %
-    % Initialized faccess_sqw_v2 object allows to use write/update methods of dnd_file_interface
+    % Initialized faccess_sqw_v2 object allows to use write/update methods of horace_binfile_interface
     % or sqw_file_interface and all read methods of these interfaces if the proper information
     % already exists in the file.
     %
@@ -96,7 +96,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             %Usage:
             %>> [should,objinit,mess] = obj.should_load_stream(head_struc,fid)
             % where:
-            % head_struc:  structure returned by dnd_file_interface.get_file_header
+            % head_struc:  structure returned by horace_binfile_interface.get_file_header
             %              static method and containing sqw/dnd file info, stored in
             %              the file header
             % fid       :: file identifier of already opened binary sqw/dnd file where

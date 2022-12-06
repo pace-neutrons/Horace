@@ -6,7 +6,7 @@ classdef test_func_eval < TestCase & common_state_holder
 
     properties
 
-        d2d_file_path = '../test_symmetrisation/w2d_qq_small_d2d.sqw'
+        d2d_file_path = '../common_data/w2d_qq_small_d2d.sqw'
         d2d_obj;
         sqw_2d_file_path = '../common_data/sqw_2d_1.sqw'
         sqw_1d_file_path = '../common_data/sqw_1d_1.sqw'

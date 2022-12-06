@@ -7,7 +7,7 @@ classdef binfile_v2_common < horace_binfile_interface
     %
     % Binary sqw/dnd-file accessors inherit this class, use common methods,
     % defined in this class, implement remaining methods, inherited from
-    % dnd_file_interface and overload the methods, which have different
+    % horace_binfile_interface and overload the methods, which have different
     % data access requests.
     %
     % binfile_v2_common Methods:

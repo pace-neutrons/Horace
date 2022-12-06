@@ -26,7 +26,7 @@ classdef faccess_dnd_v4 < binfile_v4_common
     %
     % If the sqw file with filename is dnd v1 or v2 sqw file, the sqw format factory will
     % return instance of this class, initialized for reading the file.
-    % The initialized object allows to use all get/read methods described by dnd_file_interface.
+    % The initialized object allows to use all get/read methods described by horace_binfile_interface.
     %
     % 2)------------------------------------------------------------
     % Second form used to initialize the operation of writing new or updating existing dnd file.

@@ -30,7 +30,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     % reading this file.
     % The initialized object allows to use all get/read methods described
     % by sqw_file_interface,
-    % dnd_file_interface and additional methods to read instrument and
+    % horace_binfile_interface and additional methods to read instrument and
     % sample, specific for v3.1 file format.
     %
     % 2)
@@ -50,7 +50,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     % If file with filename does not exist, the object will be open in write mode.
     %
     % Initialized faccess_sqw_v3 object allows to use write/update methods of
-    % dnd_file_interface, sqw_file_interface + writing instrument and sample
+    % horace_binfile_interface, sqw_file_interface + writing instrument and sample
     % and all read methods of these interfaces if the proper information
     % already exists in the file.
     %

@@ -33,7 +33,7 @@ classdef sqw_formats_factory < handle
     %
     properties(Access=private) %
         % List of registered file accessors:
-        % Add all new file readers which inherit from sqw_file_interface and dnd_file_interface
+        % Add all new file readers which inherit from sqw_file_interface and horace_binfile_interface
         % to this list in the order of expected frequency of their appearance.
         supported_accessors_ = { ...
             faccess_sqw_v3_3(), ...

@@ -8,7 +8,7 @@ function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
 %
 %
 this_pos = obj.get_pos_info();
-if isa(other_obj,'dnd_file_interface')
+if isa(other_obj,'horace_binfile_interface')
     other_pos = other_obj.get_pos_info();
     input_is_class = true;
 elseif isstruct(other_obj) % we assume that there is structure, containing the positions
