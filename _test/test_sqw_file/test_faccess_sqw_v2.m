@@ -34,7 +34,8 @@ classdef test_faccess_sqw_v2< TestCase
             end
             this=this@TestCase(name);
 
-            this.sample_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_symmetrisation');
+            hc = horace_paths;
+            this.sample_dir = hc.test_common;
             this.sample_file = fullfile(this.sample_dir,'w3d_sqw.sqw');
             this.test_folder=fileparts(mfilename('fullpath'));
         end
@@ -65,15 +66,20 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(initob.file_id>0);
         end
 
+        function test_empty_init_does_nothing(~)
+            to = faccess_sqw_v2();
+
+            % does nothing
+            to = to.init();
+
+            assertEqual(to.num_dim,'undefined')
+            assertEqual(to.data_type,'undefined')
+
+        end        
+
         function obj = test_init(obj)
             to = faccess_sqw_v2();
-            assertEqual(to.file_version,'-v2');
-
-
-            % access to incorrect object
-            f = @()(to.init());
-            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
-
+            assertEqual(to.faccess_version,2);
 
             [ok,initob] = to.should_load(obj.sample_file);
 
@@ -105,7 +111,7 @@ classdef test_faccess_sqw_v2< TestCase
         end
         function obj = test_read_v1(obj)
             to = faccess_sqw_v2();
-            assertEqual(to.file_version,'-v2');
+            assertEqual(to.faccess_version,2);
 
             [ok,initob] = to.should_load(fullfile(obj.test_folder,'w2_small_v1.sqw'));
 
@@ -187,7 +193,7 @@ classdef test_faccess_sqw_v2< TestCase
 
             assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fo.filename)
-            assertEqual(sqw_obj.main_header.filepath,fo.filepath)
+            assertEqual(sqw_obj.main_header.filepath,[fo.filepath,filesep])
 
             sqw_obj1 = fo.get_sqw('-hverbatim');
             assertTrue(isa(sqw_obj1,'sqw'));
@@ -258,9 +264,10 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(to,'faccess_sqw_v3'));
 
             sqw2 = to.get_sqw();
+            to.delete();            
 
-            assertEqual(sqw1,sqw2);
-            to.delete();
+            assertEqualToTol(sqw1,sqw2,'-ignore_date','ignore_str',true);
+
             %
         end
         %
@@ -289,7 +296,7 @@ classdef test_faccess_sqw_v2< TestCase
             sqw2 = to.get_sqw();
             to.delete();
 
-            assertEqualToTol(sqw1,sqw2,'-ignore_date');
+            assertEqualToTol(sqw1,sqw2,'-ignore_date','ignore_str',true);
             %
         end
 
@@ -388,8 +395,7 @@ classdef test_faccess_sqw_v2< TestCase
         %
         function obj = test_sqw_reopen_to_write(obj)
 
-            samp = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_sqw.sqw');
+            samp = fullfile(obj.sample_dir,'w1d_sqw.sqw');
             ttob = faccess_sqw_v2(samp);
             % important! -keep_original is critical here! without it we should
             % reinitialize object to for upgrade, as file fields change!

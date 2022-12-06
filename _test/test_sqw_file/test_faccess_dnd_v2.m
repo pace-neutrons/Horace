@@ -49,7 +49,7 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
         % tests
         function obj = test_should_load_stream(obj)
             to = faccess_dnd_v2();
-            co = onCleanup(@()to.fclose());
+            co = onCleanup(@()to.delete());
 
 
             [stream,fid] = to.get_file_header(obj.sample_file);
@@ -192,38 +192,7 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
             tn.delete();
 
             assertEqualToTol(tob_dnd,rec_dnd);
-
         end
-        %
-        %         function obj = test_block_sizes(obj)
-        %             tob = dnd_binfile_common();
-        %
-        %             samp = fullfile(fileparts(obj.test_folder),...
-        %                 'test_symmetrisation','w1d_d1d.sqw');
-        %
-        %             tob=tob.init(samp);
-        %
-        %             assertFalse(tob.sqw_type)
-        %             assertEqual(tob.num_dim,1)
-        %
-        %             td1d = tob.get_sqw();
-        %
-        %             td1d.alatt = td1d.alatt*1.1;
-        %             test_file = fullfile(tmp_dir,'test_block_sizes_dnd.sqw');
-        %             clob = onCleanup(@()delete(test_file));
-        %
-        %             whl = faccess_dnd_v2(td1d,test_file);
-        %             whl = whl.put_sqw();
-        %             whl.delete();
-        %
-        %             other_tob = faccess_dnd_v2(test_file);
-        %
-        %             ok = tob.check_upgrade(other_tob);
-        %             assertTrue(ok)
-        %
-        %             other_tob.delete();
-        %         end
-
     end
 end
 

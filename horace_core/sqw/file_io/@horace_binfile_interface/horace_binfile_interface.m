@@ -210,8 +210,7 @@ classdef horace_binfile_interface < serializable
                     'sqw_holder can be initialized by an sqw family of objects only. Trying to assign: %s',...
                     class(val));
             end
-            obj.sqw_holder_ = val;
-            obj = obj.init_from_sqw_obj();
+            obj = obj.init_from_sqw_obj(val);
         end
         %------------------------------------------------
         function fn  = get.filename(obj)

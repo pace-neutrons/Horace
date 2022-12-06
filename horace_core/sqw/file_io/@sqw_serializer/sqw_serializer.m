@@ -51,7 +51,7 @@ classdef sqw_serializer
             % and defined by format_struct
             %
             if nargin == 1 % object tries to serialize themselves
-                stream = obj.saveobj();
+                stream = obj.serialize();
                 return;
             end
             stream = serialize_(obj,struct,format_struct);

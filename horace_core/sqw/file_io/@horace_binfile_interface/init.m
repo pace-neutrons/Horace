@@ -46,7 +46,7 @@ argi = argi(2:end);
 if isa(input,'obj_init')
     if input.file_id<0
         error('HORACE:horace_binfile_interface:invalid_argument',...
-            'Incorrect initialization information from obj_init class')
+            'Incorrect initialization information from obj_init class. Input file is not opened')
     end
     obj = obj.init_by_input_stream(input);
 elseif ischar(input) || isnumeric(input)
@@ -84,7 +84,8 @@ else
         return;
     else
         error('HORACE:dnd_binfile_common:invalid_argument',...
-            'dnd_binfile_common::init method: input can be only sqw/dnd object or sqw file name')
+            'Гnput can be only sqw/dnd object or sqw file name.\n In fact, its class is: %s and value: %s', ...
+            class(input),disp2str(input));
     end
 end
 obj = obj.init_from_sqw_file(argi{:});

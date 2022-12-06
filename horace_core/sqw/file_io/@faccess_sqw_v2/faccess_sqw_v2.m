@@ -112,11 +112,14 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             %            why this file should not be loaded by this loader.
             %            Empty, if should == true.
             if header.version == 3 || header.version==1
-                warning('SQW_FILE_IO:legacy_data',...
-                    ['should_load_stream -- Legacy sqw file version 3.0 has been discovered.\n'...
-                    'Loading it as sqw version 2 file with instrument/sample block ignored'])
+                if header.version == 3
+                    warning('SQW_FILE_IO:legacy_data',...
+                        ['Legacy sqw file version 3.0 has been discovered.\n'...
+                        'Loading it as sqw version 2 file with instrument/sample block ignored']);
+
+                end
+                header.version = 2;
             end
-            header.version = 2;
             [should,objinit,mess] = should_load_stream@horace_binfile_interface(obj,header,fid);
         end
         %

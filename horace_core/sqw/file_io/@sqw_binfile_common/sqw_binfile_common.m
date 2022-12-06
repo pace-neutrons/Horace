@@ -262,7 +262,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % file (when object is initialized) plus some auxiliary information
             % used to fully describe this file
             %
-            fields2save = obj.fields_to_save();
+            fields2save = obj.saveableFields();
             pos_info  = struct();
             for i=1:numel(fields2save)
                 fld = fields2save{i};

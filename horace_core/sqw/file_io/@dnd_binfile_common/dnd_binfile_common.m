@@ -259,15 +259,28 @@ classdef dnd_binfile_common < horace_binfile_interface
             % return image binning (legacy field). Use num_dim instead
             dims = obj.dnd_dimensions_;
         end
+        function obj = reopen_to_write(obj,filename)
+            % Reopen existing file to overwrite or write new data to it
+            % or open new target file to save data.
+            obj = reopen_to_write@horace_binfile_interface(obj,filename);
+            obj.upgrade_headers_ = false;
+        end
+
     end
     %----------------------------------------------------------------------
     % OTHER CLASS METHODS
     methods % defined by this class
         function [obj,file_exist,old_ldr] = set_file_to_update(obj,filename)
+            if ~exist('filename','var')
+                filename = obj.full_filename;
+            end
             [obj,file_exist,old_ldr] = set_file_to_update@horace_binfile_interface(obj,filename,nargout);
             if old_ldr == obj
-                obj.upgrade_headers_ = false;
-                return;
+                if file_exist
+                    obj.upgrade_headers_ = false;
+                else
+                    return;
+                end
             end
             obj=define_upgrade_map_(obj,file_exist,old_ldr);
         end
