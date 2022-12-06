@@ -354,7 +354,9 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             flds = faccess_sqw_v3.fields_to_save_;
             for i=1:numel(flds)
                 name = flds{i};
-                obj.(name) = indata.(name);
+                if isfield(indata,name)
+                    obj.(name) = indata.(name);
+                end
             end
         end
         function flds = saveableFields(obj)

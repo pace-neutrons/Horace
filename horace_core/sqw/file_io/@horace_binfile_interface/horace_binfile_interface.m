@@ -332,7 +332,9 @@ classdef horace_binfile_interface < serializable
             flds = horace_binfile_interface.fields_to_save_;
             for i=1:numel(flds)
                 name = flds{i};
-                obj.(name) = indata.(name);
+                if isfield(indata,name)
+                    obj.(name) = indata.(name);
+                end
             end
             if isfield(indata,'sqw_holder')
                 if isa(indata.sqw_holder,'SQWDnDBase')

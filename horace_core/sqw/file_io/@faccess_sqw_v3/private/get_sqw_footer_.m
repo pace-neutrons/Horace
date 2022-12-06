@@ -13,9 +13,7 @@ end
 obj = get_sqw_file_footer(obj);
 %
 if ~init_for_upgrade
-    [fp,fn,ext]=fileparts(fopen(obj.file_id_));
-    obj.filename_ =[fn,ext];
-    obj.filepath_ =[fp,filesep];
+    obj.full_filename = fopen(obj.file_id_);
 end
 
 % read the number of files contributing into this sqw file
