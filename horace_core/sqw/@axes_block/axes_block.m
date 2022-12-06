@@ -15,8 +15,12 @@ classdef axes_block < serializable
     %        or any combination of ranges [min,step,max] or [min,max]
     %3) ab = axes_block(structure) where structure contains any fields
     %                              returned by savebleFields method
-    %4) ab = axes_block(param,param,param,'key1',value1,'key2',value2....)
-    %        where param are the values of the fields
+    %4) ab = axes_block(param1,param2,param3,'key1',value1,'key2',value2....)
+    %        where param(1-n) are the values of the fields in the order
+    %        fields are returned by saveableFields function.
+    %5) ab = axes_block('img_range',img_range,'nbins_all_dims',nbins_all_dims)
+    %    -- particularly frequent case of building axes block (case 4)
+    %       from the image range and number of bins in all directions.
     properties(Dependent)
         title;      % Title of sqw data structure, displayed on plots.
         filename;   % Name of sqw file that is being read, excluding path. Used in titles
@@ -77,8 +81,8 @@ classdef axes_block < serializable
         % axis. By default, single nbins_all_dims direction is
         % integration direction.
         % If the index is false in a direction, where more then one bin
-        % is defined, the binning parameters in this direction are treated
-        % as bin edges rather then bin centres.
+        % is defined, the input binning parameters in this direction
+        % are treated as bin edges rather then bin centres.
         single_bin_defines_iax;
     end
 
