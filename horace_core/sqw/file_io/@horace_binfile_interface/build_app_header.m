@@ -40,7 +40,7 @@ else
     app_header.sqw_type = false;
     ndim = obj_to_save.NUM_DIMS;    
 end
-app_header.ndim = ndim;
+app_header.num_dim = ndim;
 %
 
 

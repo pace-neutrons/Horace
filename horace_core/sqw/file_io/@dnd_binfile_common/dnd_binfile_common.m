@@ -262,6 +262,9 @@ classdef dnd_binfile_common < horace_binfile_interface
         function obj = reopen_to_write(obj,filename)
             % Reopen existing file to overwrite or write new data to it
             % or open new target file to save data.
+            if ~exist('filename','var')
+                filename = '';
+            end
             obj = reopen_to_write@horace_binfile_interface(obj,filename);
             obj.upgrade_headers_ = false;
         end

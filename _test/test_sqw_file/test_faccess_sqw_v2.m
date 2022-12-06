@@ -75,7 +75,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(to.num_dim,'undefined')
             assertEqual(to.data_type,'undefined')
 
-        end        
+        end
 
         function obj = test_init(obj)
             to = faccess_sqw_v2();
@@ -264,7 +264,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(to,'faccess_sqw_v3'));
 
             sqw2 = to.get_sqw();
-            to.delete();            
+            to.delete();
 
             assertEqualToTol(sqw1,sqw2,'-ignore_date','ignore_str',true);
 
@@ -332,11 +332,9 @@ classdef test_faccess_sqw_v2< TestCase
             to.delete();
             assertTrue(sqw2.main_header.creation_date_defined);
 
-            assertEqual(sqw1,sqw2);
+            assertEqualToTol(sqw1,sqw2,'ignore_str',true);
 
-            sqwob.main_header.creation_date = sqw1.main_header.creation_date;
-            [ok,mess]=equal_to_tol(sqwob,sqw2,'ignore_str',true);
-            assertTrue(ok,mess)
+            assertEqualToTol(sqwob,sqw2,'ignore_str',true,'-ignore_date')
 
             %
         end
@@ -361,8 +359,7 @@ classdef test_faccess_sqw_v2< TestCase
             to.delete();
             assertTrue(isa(sqw2,'d2d'));
 
-            [ok,mess]=equal_to_tol(d2d(sqwob),sqw2,'ignore_str',true);
-            assertTrue(ok,mess)
+            assertEqualToTol(d2d(sqwob),sqw2,'ignore_str',true)
             %
         end
         %

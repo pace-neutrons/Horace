@@ -20,7 +20,7 @@ else
 end
 fseek(obj.file_id_,obj.s_pos_,'bof');
 check_error_report_fail_(obj,...
-    'DND_BINFILE_COMMON::get_data: Can not move to the signal start position');
+    'HORACE:dnd_binfile_common:runtime_error: Can not move to the signal start position');
 
 numl = prod(obj.dnd_dimensions);
 if obj.convert_to_double
