@@ -1,6 +1,6 @@
 classdef dnd_tester < DnDBase
     % Class for testing protected properties and methods of dnd objects
-    properties(Dependent,Access = protected)
+    properties(Dependent,Hidden=true)
         NUM_DIMS;
     end
     properties(Access=protected)

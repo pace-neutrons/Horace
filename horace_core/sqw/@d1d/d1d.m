@@ -7,7 +7,7 @@ classdef d1d < DnDBase
     %   >> w = d1d(filename)       % Create a D1D object from a file
     %   >> w = d1d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent)
+    properties (Dependent,Hidden=true)
         NUM_DIMS;
     end
 

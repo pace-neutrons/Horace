@@ -8,6 +8,8 @@ classdef data_sqw_dnd < DnDBase
 
         % The pixels are rebinned on this grid
         img_db_range;
+    end
+    properties(Dependent,Hidden=true)
         %
         NUM_DIMS;
     end

@@ -2,8 +2,16 @@ function inputs = modify_old_structure_(inputs)
 % Modify old structure, possibly available in dnd object to 
 % be acceptable by modern DnD object loader
 if isfield(inputs,'version') && inputs.version<4
-    inputs.proj = ortho_proj.get_from_old_data(inputs);
-    inputs.axes = axes_block.get_from_old_data(inputs);
+    if isfield(inputs,'proj')
+        inputs.proj = serializable.from_struct(inputs.proj);
+    else
+        inputs.proj = ortho_proj.get_from_old_data(inputs);
+    end
+    if isfield(inputs,'axes')    
+        inputs.axes = serializable.from_struct(inputs.axes); 
+    else
+        inputs.axes = axes_block.get_from_old_data(inputs);
+    end
 else
     if isfield(inputs,'data_')
         inputs = inputs.data_;

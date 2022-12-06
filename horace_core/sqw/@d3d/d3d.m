@@ -7,7 +7,7 @@ classdef d3d < DnDBase
     %   >> w = d3d(filename)       % Create a D3D object from a file
     %   >> w = d3d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent)
+    properties (Dependent,Hidden=true)
         NUM_DIMS;
     end
 
