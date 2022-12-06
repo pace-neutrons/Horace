@@ -11,7 +11,6 @@ else
         if numel(val)==1
             if strcmp(field,'instrument')
                 for i=1:tmp.instruments.n_runs
-
                     tmp.instruments{i}=val;
                 end
             elseif strcmp(field,'sample')
@@ -23,7 +22,7 @@ else
                     tmp.expdata(i).(field)=val;
                 end
             end
-        elseif numel(val)==numel(tmp.expdata)
+        elseif numel(val)==tmp.n_runs
             if strcmp(field,'instrument')
                 for i=1:tmp.instruments.n_runs
                     tmp.instruments{i}=val(i);
@@ -38,7 +37,9 @@ else
                 end
             end
         else
-            error('HORACE:set_header_fudge:Check number of values')
+            error('HORACE:set_header_fudge:invalid_argument', ...
+                'Incorrect number of input values: n_runs %d, n_values: %d', ...
+                w.experiment_info.n_runs,numel(values))
         end
     else
         if numel(val)==1
