@@ -13,13 +13,13 @@ function    obj = put_dnd(obj,varargin)
 
 [ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
 if ~ok
-    error('HORACE:dnd_binfile_common:invalid_artgument',...
+    error('HORACE:binfile_v2_common:invalid_artgument',...
         ['put_sqw: Error: ',mess]);
 end
 if ~isempty(argi)
     input = argi{1};
     if ~(isa(input, 'SQWDnDBase') || is_sqw_struct(input))
-        error('HORACE:dnd_binfile_common:invalid_artgument',...
+        error('HORACE:binfile_v2_common:invalid_artgument',...
             'put_sqw: this function can accept only sqw or dnd-type object, and got %s', class(input))
     end
     storage = obj.sqw_holder_;

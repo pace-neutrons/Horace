@@ -9,7 +9,7 @@ function data_form = process_format_fields_(varargin)
 %>>df = obj.get_data_form('-data');
 
 % where the options '-head' and 'const' return
-% partial structures, namely methadata only and the methadata
+% partial structures, namely metadata only and the metadata
 % fields, which do not change on hdd
 % -data option returns the format string for data fields, namely s,e and
 %       npix. This can be used to identify the size of data fields on hdd
@@ -58,11 +58,11 @@ persistent data_fields;
 [ok,mess,head_only,constant_len_fields,data_only,~] =...
     parse_char_options(varargin,{'-header','-const','-data'});
 if ~ok
-    error('HORACE:dnd_binfile_common:invalid_argument',...
+    error('HORACE:binfile_v2_common:invalid_argument',...
         'get_head_form: invalid argument: %s',mess)
 end
 if (head_only || constant_len_fields) && data_only
-    error('HORACE:dnd_binfile_common:invalid_argument',...
+    error('HORACE:binfile_v2_common:invalid_argument',...
         'get_head_form: -data and -head or -const fields can not be provided together')
 end
 % by default, return all record

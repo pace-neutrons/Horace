@@ -1,4 +1,4 @@
-classdef sqw_file_interface < dnd_binfile_common
+classdef sqw_file_interface < binfile_v2_common
     % Class describes interface to access sqw files. The whole public
     % interface to access files, containing sqw objects consists of
     % dnd_file_interface and sqw_file_interface.
@@ -93,13 +93,13 @@ classdef sqw_file_interface < dnd_binfile_common
             obj.num_contrib_files_ = 'undefined';
             obj.npixels_ = 'undefined';
             obj.num_dim_ = 'undefined';
-            obj = delete@dnd_binfile_common(obj);
+            obj = delete@binfile_v2_common(obj);
         end
         %
         %         function struc = saveobj(obj)
         %             % method used to convert object into structure
         %             % for saving it to disc.
-        %             struc = saveobj@dnd_binfile_common(obj);
+        %             struc = saveobj@binfile_v2_common(obj);
         %             flds = obj.fields_to_save_;
         %             for i=1:numel(flds)
         %                 struc.(flds{i}) = obj.(flds{i});
@@ -143,7 +143,7 @@ classdef sqw_file_interface < dnd_binfile_common
     %----------------------------------------------------------------------
     methods
         function strc = to_bare_struct(obj,varargin)
-            base_cont = to_bare_struct@dnd_binfile_common(obj,varargin{:});
+            base_cont = to_bare_struct@binfile_v2_common(obj,varargin{:});
             flds = sqw_file_interface.fields_to_save_;
             cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
 
@@ -156,7 +156,7 @@ classdef sqw_file_interface < dnd_binfile_common
         end
 
         function obj=from_bare_struct(obj,indata)
-            obj = from_bare_struct@dnd_binfile_common(obj,indata);
+            obj = from_bare_struct@binfile_v2_common(obj,indata);
             %
             flds = sqw_file_interface.fields_to_save_;
             for i=1:numel(flds)
@@ -168,7 +168,7 @@ classdef sqw_file_interface < dnd_binfile_common
         function flds = saveableFields(obj)
             % return list of fileldnames to save on hdd to be able to recover
             % all substantial parts of appropriate sqw file.
-            flds = saveableFields@dnd_binfile_common(obj);
+            flds = saveableFields@binfile_v2_common(obj);
             flds = [obj.fields_to_save_(:);flds(:)];
         end
     end

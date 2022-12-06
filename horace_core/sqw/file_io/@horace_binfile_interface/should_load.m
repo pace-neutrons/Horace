@@ -27,7 +27,7 @@ end
 %
 if ~ok
     mess = regexprep(mess,'[\\]','/');
-    error('HORACE:dnd_binfile_common:invalid_argument', ...
+    error('HORACE:horace_binfile_interface:invalid_argument', ...
         'should_load function: %s',mess);
 end
 

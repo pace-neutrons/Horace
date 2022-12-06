@@ -70,7 +70,7 @@ else
         % still needed check against an obj already defined and new object
         % used as upgrade
         if ~ischar(obj.num_dim) && obj.file_id_ > 0
-            error('HORACE:dnd_binfile_common:runtime_error',...
+            error('HORACE:binfile_v2_common:runtime_error',...
                 'Upgrade of existing object with new sqw/dnd object is not yet implemented')
         end
         obj = obj.init_from_sqw_obj(input);
@@ -83,8 +83,8 @@ else
         end
         return;
     else
-        error('HORACE:dnd_binfile_common:invalid_argument',...
-            'Гnput can be only sqw/dnd object or sqw file name.\n In fact, its class is: %s and value: %s', ...
+        error('HORACE:binfile_v2_common:invalid_argument',...
+            'Input can be only sqw/dnd object or sqw file name.\n In fact, its class is: %s and value: %s', ...
             class(input),disp2str(input));
     end
 end

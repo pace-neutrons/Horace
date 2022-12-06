@@ -87,7 +87,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % assume max data type which will be reduced if some fields are
             % missing (how they when initialized from sqw?)
             obj.data_type_ = 'a'; % should it always be 'a'?
-            obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
+            obj = init_from_sqw_obj@binfile_v2_common(obj,varargin{:});
             obj.sqw_holder_ = varargin{1};
 
             obj = init_pix_info_(obj);
@@ -116,7 +116,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % the main part of the copy constructor, copying the contents
             % of the one class into another.
             %
-            % Copied of dnd_binfile_common to support overloading as
+            % Copied of binfile_v2_common to support overloading as
             % private properties are not accessible from parents
             %
             % keep_internals -- if true, do not overwrite service fields

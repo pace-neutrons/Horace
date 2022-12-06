@@ -1,4 +1,4 @@
-classdef test_dnd_binfile_common <  TestCase %WithSave
+classdef test_binfile_v2_common <  TestCase %WithSave
     %Testing common part of the code used to access binary sqw files
     % and various auxiliary methods, available on this class
     %
@@ -8,7 +8,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
     end
 
     methods
-        function obj = test_dnd_binfile_common(varargin)
+        function obj = test_binfile_v2_common(varargin)
             if nargin > 0
                 name = varargin{1};
             else
@@ -21,7 +21,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
         %-----------------------------------------------------------------
         function test_serialize_deserialize(~)
-            to = dnd_binfile_common_tester();
+            to = binfile_v2_common_tester();
 
             struc = to.to_struct();
 
@@ -30,7 +30,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             assertEqual(to,to_r);
         end
         function test_get_version_invalid_throws(obj)
-            to = dnd_binfile_common_tester();
+            to = binfile_v2_common_tester();
             wrong_source = fullfile(obj.test_data_folder,'96dets.par');
 
             f = @()(to.get_file_header('non-existing_file.sqw'));
@@ -41,7 +41,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
         end
         function obj = test_get_version(obj)
-            to = dnd_binfile_common_tester();
+            to = binfile_v2_common_tester();
             source = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
 
             [stream,fid1] = to.get_file_header(source);
@@ -59,7 +59,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
         %
         function obj = test_get_data_form(obj)
-            tob = dnd_binfile_common_tester();
+            tob = binfile_v2_common_tester();
 
             form = tob.get_dnd_form();
             fn = fieldnames(form);
@@ -89,7 +89,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
             filter1 = struct('f1','','f2','','f3','');
 
-            [f1,f2,is_last] = dnd_binfile_common.extract_field_range(base_str,filter1);
+            [f1,f2,is_last] = binfile_v2_common.extract_field_range(base_str,filter1);
             assertFalse(is_last)
             assertEqual(f1,'f1_pos_');
             assertEqual(f2,'f4_pos_');
@@ -97,7 +97,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
             filter2 = struct('f3','','f4','','f7','');
 
-            [f1,f2,is_last] = dnd_binfile_common.extract_field_range(base_str,filter2);
+            [f1,f2,is_last] = binfile_v2_common.extract_field_range(base_str,filter2);
             assertFalse(is_last)
             assertEqual(f1,'f3_pos_');
             assertEqual(f2,'f8_pos_');
@@ -105,7 +105,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
             filter3 =struct('f4','','f7','','f10','');
 
-            [f1,f2,is_last] = dnd_binfile_common.extract_field_range(base_str,filter3);
+            [f1,f2,is_last] = binfile_v2_common.extract_field_range(base_str,filter3);
             assertTrue(is_last)
             assertEqual(f1,'f4_pos_');
             assertEqual(f2,'f10_pos_');
@@ -120,7 +120,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             end
         end
         function test_call_set_file_to_update_without_arguments_throws(obj)
-            tob = dnd_binfile_common_tester();
+            tob = binfile_v2_common_tester();
 
             samp = fullfile(obj.test_data_folder,'w1d_sqw.sqw');
             f=@()(tob.set_file_to_update(samp));
@@ -129,7 +129,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
         %
         function obj = test_change_file_to_write(obj)
-            tob = dnd_binfile_common_tester();
+            tob = binfile_v2_common_tester();
 
             samp = fullfile(obj.test_data_folder,'w1d_sqw.sqw');
 
@@ -155,10 +155,10 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         function obj = test_copy_constructor(obj)
 
             samp = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
-            tob = dnd_binfile_common_tester(samp);
+            tob = binfile_v2_common_tester(samp);
 
 
-            cob = dnd_binfile_common_tester(tob);
+            cob = binfile_v2_common_tester(tob);
 
             d0 = tob.get_sqw();
             d1 = cob.get_sqw();
@@ -169,20 +169,20 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         function obj = test_copy_constructor_write_perm(obj)
 
             samp = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
-            ttob = dnd_binfile_common_tester(samp);
+            ttob = binfile_v2_common_tester(samp);
             sq_obj = ttob.get_sqw();
             assertTrue(isa(sq_obj,'d1d'));
 
             test_f = fullfile(tmp_dir,'test_dnd_copy_constructor_write_perm.sqw');
             clob = onCleanup(@()delete(test_f));
 
-            tob =  dnd_binfile_common_tester(sq_obj,test_f);
-            cob = dnd_binfile_common_tester(tob);
+            tob =  binfile_v2_common_tester(sq_obj,test_f);
+            cob = binfile_v2_common_tester(tob);
 
             cob  = cob.put_sqw();
             cob.delete();
 
-            chob = dnd_binfile_common_tester(test_f);
+            chob = binfile_v2_common_tester(test_f);
 
             tsq_obj = chob.get_sqw();
             tsq0_obj = tob.get_sqw();
@@ -198,7 +198,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         function obj = test_reopen_to_write(obj)
 
             samp = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
-            ttob = dnd_binfile_common_tester(samp);
+            ttob = binfile_v2_common_tester(samp);
             % important! -verbatim is critical here!, as it returns filenames
             % as they were stored on file, so we can write everyting exactly
             % at the same places as before. Without it we should
@@ -218,7 +218,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
             assertEqual(exist(test_f,'file'),2);
 
-            chob = dnd_binfile_common_tester(test_f);
+            chob = binfile_v2_common_tester(test_f);
 
             tsq_obj = chob.get_sqw();
             chob.delete();
@@ -230,7 +230,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
         function test_activate_reopens_file_in_rb_if_read_given(obj)
             file_path = fullfile(obj.test_data_folder, 'w1d_d1d.sqw');
-            bin_file = dnd_binfile_common_tester(file_path);
+            bin_file = binfile_v2_common_tester(file_path);
             cleanup = onCleanup(@() bin_file.delete());
             bin_file.deactivate();
             assertFalse(bin_file.is_activated('read'));
@@ -247,7 +247,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
         function test_activate_reopens_file_in_rbplus_if_write_given(obj)
             file_path = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
-            bin_file = dnd_binfile_common_tester(file_path);
+            bin_file = binfile_v2_common_tester(file_path);
             cleanup = onCleanup(@() bin_file.delete());
             bin_file.deactivate();
             assertFalse(bin_file.is_activated('read'));
@@ -265,7 +265,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
 
         function test_error_raised_if_activating_file_with_bad_permission(obj)
             file_path = fullfile(obj.test_data_folder, 'w1d_d1d.sqw');
-            bin_file = dnd_binfile_common_tester(file_path);
+            bin_file = binfile_v2_common_tester(file_path);
             cleanup = onCleanup(@() bin_file.delete());
             bin_file.deactivate();
 

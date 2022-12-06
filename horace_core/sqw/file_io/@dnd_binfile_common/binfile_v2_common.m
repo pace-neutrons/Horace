@@ -1,4 +1,4 @@
-classdef dnd_binfile_common < horace_binfile_interface
+classdef binfile_v2_common < horace_binfile_interface
     % Class contains common methods and code used to access binary dnd
     % files.
     %
@@ -10,7 +10,7 @@ classdef dnd_binfile_common < horace_binfile_interface
     % dnd_file_interface and overload the methods, which have different
     % data access requests.
     %
-    % dnd_binfile_common Methods:
+    % binfile_v2_common Methods:
     % ----------------------------------------------------------------
     % Properties:
     % See Property Summary chapter.
@@ -141,7 +141,7 @@ classdef dnd_binfile_common < horace_binfile_interface
             %
             if nargin < 2
                 error('SQW_FILE_IO:runtime_error',...
-                    'dnd_binfile_common:init_from_sqw_obj method should be invoked with at least an existing sqw or dnd object provided');
+                    'binfile_v2_common:init_from_sqw_obj method should be invoked with at least an existing sqw or dnd object provided');
             end
             if isa(varargin{1},'sqw') || is_sqw_struct(varargin{1})
                 inobj = obj.extract_correct_subobj('data',varargin{:});
@@ -501,7 +501,7 @@ classdef dnd_binfile_common < horace_binfile_interface
     methods
         function strc = to_bare_struct(obj,varargin)
             base_cont = to_bare_struct@horace_binfile_interface(obj,varargin{:});
-            flds = dnd_binfile_common.fields_to_save_;
+            flds = binfile_v2_common.fields_to_save_;
             cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
 
             base_flds = fieldnames(base_cont);
@@ -515,14 +515,14 @@ classdef dnd_binfile_common < horace_binfile_interface
         function obj=from_bare_struct(obj,indata)
             obj = from_bare_struct@horace_binfile_interface(obj,indata);
             %
-            flds = dnd_binfile_common.fields_to_save_;
+            flds = binfile_v2_common.fields_to_save_;
             for i=1:numel(flds)
                 name = flds{i};
                 obj.(name) = indata.(name);
             end
         end
         function flds = saveableFields(obj)
-            add_flds = dnd_binfile_common.fields_to_save_;
+            add_flds = binfile_v2_common.fields_to_save_;
             flds = saveableFields@horace_binfile_interface(obj);
             flds = [flds(:);add_flds(:)];
         end
@@ -530,7 +530,7 @@ classdef dnd_binfile_common < horace_binfile_interface
     end
     methods(Static)
         function obj = loadobj(inputs,varargin)
-            inobj = dnd_binfile_common();
+            inobj = binfile_v2_common();
             obj = loadobj@serializable(inputs,inobj,varargin{:});
         end
     end

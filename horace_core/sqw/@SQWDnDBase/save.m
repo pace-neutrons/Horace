@@ -7,7 +7,7 @@ function cl=save(w, varargin)
 %                             (-update option, is provided, will be
 %                             ignored)
 %   >> save (w, file,['-parallel'|JobDispatcher])
-%                             combine file usging parallel algorithm.
+%                             combine file using parallel algorithm.
 %                             Useful and would works only if (when) pix
 %                             value of sqw object data is set up to the
 %                             instance of pix_combine_info class,
@@ -27,12 +27,12 @@ function cl=save(w, varargin)
 %   array of filenames of the same size.
 %
 % Optional output:
-% cl -- running insance of parallel cluster, used to combine multiple tmp
+% cl -- running instance of parallel cluster, used to combine multiple tmp
 %       files together if pix field of sqw object contains pix_combine_into
 %       and -parallel option or parallel cluster itself are provided as
 %       inpout. Empty in any other case
 %
-%      TODO: currenlty empty. May reenable when parallel saving is
+%      TODO: currently empty. May re-enable when parallel saving is
 %      implemented properly
 
 % Original author: T.G.Perring
@@ -56,7 +56,7 @@ if numel(argi)==0
             'No file given to save result')
     end
 elseif numel(argi)>1 
-    if isa(argi{2},'dnd_binfile_common') % specific loader provided
+    if isa(argi{2},'horace_binfile_interface') % specific loader provided
         file_internal = argi{1};
         ldw  = argi{2};
         n_found = 2;

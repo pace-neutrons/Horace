@@ -1,10 +1,10 @@
 	/*edge [dir=back,arrowhead=odiamond];*/digraph CollabDiag {
    /* Collaboration&inheritance diagram showing relationship between various classes supporting sqw file access*/
 	edge [dir=back];
-	dnd_binfile_common [shape=box];
+	horace_binfile_interface [shape=box];
 
-	dnd_file_interface -> dnd_binfile_common -> faccess_dnd_v2;
-	dnd_binfile_common -> sqw_file_interface->sqw_binfile_common;
+	horace_binfile_interface -> binfile_v2_common -> faccess_dnd_v2;
+	binfile_v2_common -> sqw_file_interface->sqw_binfile_common;
 	sqw_binfile_common-> faccess_sqw_prototype;
 	sqw_binfile_common-> faccess_sqw_v2;
 	sqw_binfile_common-> faccess_sqw_v3;
@@ -13,13 +13,12 @@
     
                     faccess_sqw_v3-> faccess_sqw_v3_2
                     faccess_sqw_v3-> faccess_sqw_v3_3
-
-                        faccess_sqw_v3_2-> faccess_sqw_v3_21
+                    faccess_sqw_v3_2-> faccess_sqw_v3_21
                         
 	edge [dir=normal,arrowhead=odiamond]
-	{rank = same;"dnd_binfile_common";"sqw_serializer";"const_blocks_map"};
-	sqw_serializer  -> dnd_binfile_common;
-	const_blocks_map -> dnd_binfile_common;
+	{rank = same;"binfile_v2_common";"sqw_serializer";"const_blocks_map"};
+	sqw_serializer  -> binfile_v2_common;
+	const_blocks_map -> binfile_v2_common;
 	edge [style=dotted,arrowhead=vee];
 	sqw_serializer -> sqw_fields_formatters;
 

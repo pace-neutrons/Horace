@@ -122,7 +122,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             end
 
 
-            [should,initob,mess]= should_load_stream@dnd_binfile_common(obj,header,fid);
+            [should,initob,mess]= should_load_stream@binfile_v2_common(obj,header,fid);
             if should
                 warning('SQW_FILE_IO:legacy_data',...
                     'FACCESS_SQW_PROTOTYPE::should_load_stream: trying to load legacy Horace prototype data format');
@@ -166,7 +166,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %   data.pix        A PixelData object
 
             %
-            data_form = get_dnd_form@dnd_binfile_common(obj,varargin{:});
+            data_form = get_dnd_form@binfile_v2_common(obj,varargin{:});
             data_form = rmfield(data_form,{'filename','filepath','title','alatt','angdeg'});
         end
         %
@@ -271,7 +271,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
         %
         function sqw_data = get_se_npix(obj,varargin)
             % get signal,error and npix data only
-            sqw_data = get_se_npix@dnd_binfile_common(obj,varargin{:});
+            sqw_data = get_se_npix@binfile_v2_common(obj,varargin{:});
             [sqw_data.s,sqw_data.e] = ...
                 convert_signal_error_(sqw_data.s,sqw_data.e,sqw_data.npix);
         end

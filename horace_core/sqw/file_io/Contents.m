@@ -13,8 +13,8 @@
 %                       in memory.
 %
 % File access interface description:
-% dnd_file_interface - class describes main public methods, used to read/write
-%                      dnd image information.
+% horace_binfile_interface - class describes main public methods, used to read/write
+%                      Horace image information.
 % sqw_file_interface - class describes main public methods, used to read/write
 %                      all remaining (non-dnd) information found in sqw files,
 %                      particularly metadata describing each file
@@ -23,7 +23,7 @@
 %                      the contributing pixels.
 %
 % File access main code:
-% dnd_binfile_common - class implements common part of dnd_file_interface
+% binfile_v2_common  - class implements common part of dnd_file_interface
 %                      and contains main code, used to read/write dnd image
 %                      information stored in binary dnd/sqw files.
 % sqw_binfile_common - class implements common part of sqw_file_interface

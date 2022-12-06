@@ -2,20 +2,20 @@ function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
 % Copy constructor with possibility to set up the data positions directly.
 %
 % Due to constrains of Matlab Object Model (or some misunderstanding),
-% exactly the same routine  has to be present in dnd_binfile_common\private
+% exactly the same routine  has to be present in binfile_v2_common\private
 % folder.
 %
 this_pos = obj.get_pos_info();
 if isa(other_obj,'horace_binfile_interface')
     other_pos = other_obj.get_pos_info();
     input_is_class = true;
-elseif isstruct(other_obj) % we assume that there is sturcute, containing the positions
+elseif isstruct(other_obj) % we assume that there is structure, containing the positions
     keep_internals = true;
     input_is_class = false;
     other_pos = other_obj;
 else
-    error('HORACE:dnd_binfile_common:invalid_argument',...
-        'The second argument of copy_contents funtion has to be a faccess class or stucute, containing fields positions');
+    error('HORACE:binfile_v2_common:invalid_argument',...
+        'The second argument of copy_contents function has to be a faccess class or structure, containing fields positions');
 end
 
 flds = fieldnames(this_pos);

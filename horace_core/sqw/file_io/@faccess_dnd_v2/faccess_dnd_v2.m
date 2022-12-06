@@ -1,7 +1,7 @@
-classdef faccess_dnd_v2 < dnd_binfile_common
+classdef faccess_dnd_v2 < binfile_v2_common
     % Class to access Horace dnd files written by Horace v1-v2
     %
-    % Majority of class properties and methods are inherited from <a href="matlab:help('dnd_binfile_common');">dnd_binfile_common</a>
+    % Majority of class properties and methods are inherited from <a href="matlab:help('binfile_v2_common');">binfile_v2_common</a>
     % class.
     %
     % Usage:

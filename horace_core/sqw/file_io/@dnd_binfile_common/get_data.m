@@ -87,7 +87,7 @@ function [data_str,obj] = get_data (obj,varargin)
     parse_char_options(varargin, ...
     {'-head','-verbatim','-hverbatim','-noclass','-noupgrade'});
 if ~ok
-    error('HORACE:dnd_binfile_common:invalid_argument',...
+    error('HORACE:binfile_v2_common:invalid_argument',...
         'get_data::Error: %s',mess);
 end
 header_only = header_only||hverbatim;
@@ -100,7 +100,7 @@ verbatim    = verbatim||hverbatim;
 % This first set of fields are required for all output options
 % ------------------------------------------------------------
 if ischar(obj.num_dim)
-    error('HORACE:dnd_binfile_common:runtime_error',...
+    error('HORACE:binfile_v2_common:runtime_error',...
         'get_data: method called on un-initialized loader')
 end
 
@@ -145,7 +145,7 @@ end
 
 % convert to double if necessary
 if obj.convert_to_double
-    data_str = dnd_binfile_common.do_convert_to_double(data_str);
+    data_str = binfile_v2_common.do_convert_to_double(data_str);
 end
 %data_str = axes_block.convert_old_struct_into_nbins(data_str);
 %

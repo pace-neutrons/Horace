@@ -109,7 +109,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % the main part of the copy constructor, copying the contents
             % of the one class into another.
             %
-            % Copied of dnd_binfile_common to support overloading as
+            % Copied of binfile_v2_common to support overloading as
             % private properties are not accessible from parents
             %
             % keep_internals -- if true, do not overwrite service fields

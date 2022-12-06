@@ -1,4 +1,4 @@
-classdef dnd_binfile_common_tester < dnd_binfile_common
+classdef binfile_v2_common_tester < binfile_v2_common
     %   Detailed explanation goes here
     
     properties
@@ -6,8 +6,8 @@ classdef dnd_binfile_common_tester < dnd_binfile_common
     end
     
     methods
-        function obj = dnd_binfile_common_tester(varargin)
-            obj = obj@dnd_binfile_common();
+        function obj = binfile_v2_common_tester(varargin)
+            obj = obj@binfile_v2_common();
             if nargin>0
                 obj  = obj.init(varargin{:});
             end

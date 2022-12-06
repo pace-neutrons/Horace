@@ -1,6 +1,6 @@
 classdef test_const_blocks_map <  TestCase
     %Testing common part of the code used to access binary sqw files
-    % and various auxliary methods, availble on this class
+    % and various auxiliary methods, available on this class
     %
 
     %
@@ -135,7 +135,7 @@ classdef test_const_blocks_map <  TestCase
 
             samp = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
 
-            tob = dnd_binfile_common_tester();
+            tob = binfile_v2_common_tester();
             tob = tob.init(samp);
 
             pos = tob.get_pos_info();
