@@ -53,7 +53,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             dnd_2d_ = read_dnd(obj.test_dnd_file_path);
             [ok, mess] = equal_to_tol(obj.sqw_2d, dnd_2d_);
             assertFalse(ok);
-            assertEqual(mess, 'Objects being compared are not both sqw-type or both dnd-type');
+            assertEqual(mess, 'Objects being compared are not the same type');
         end
 
         function test_different_sqw_objects_are_not_equal(obj)

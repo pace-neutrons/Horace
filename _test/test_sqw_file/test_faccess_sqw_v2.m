@@ -416,11 +416,8 @@ classdef test_faccess_sqw_v2< TestCase
             tsq_obj = chob.get_sqw();
             chob.delete();
 
-            isdef = sq_obj.main_header.creation_date_defined_privately;
-            sq_obj.main_header.creation_date = tsq_obj.main_header.creation_date;
-            sq_obj.main_header.creation_date_defined_privately = isdef; % it was undefined here
-            [ok,mess]=equal_to_tol(sq_obj,tsq_obj,'ignore_str',true);
-            assertTrue(ok,mess)
+            assertEqualToTol(sq_obj,tsq_obj,'ignore_str',true,'-ignore_date');
+
 
         end
     end
