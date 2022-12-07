@@ -38,7 +38,7 @@ methods
         sqw_2d = sqw(obj.test_sqw_file_path);
         [ok, mess] = equal_to_tol(obj.dnd_2d, sqw_2d);
         assertFalse(ok);
-        assertEqual(mess, 'Objects being compared are not both sqw-type or both dnd-type');
+        assertEqual(mess, 'Objects being compared are not the same type');
     end
 
     function test_different_d2d_objects_are_not_equal(obj)

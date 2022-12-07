@@ -47,7 +47,7 @@ classdef sqw_serializer
         end
         %---------------------------------------------------------------------
         function stream = serialize(obj,struct,format_struct)
-            % serialize struct into the form, usually written by Horace
+            % serialize structure into the form, usually written by Horace
             % and defined by format_struct
             %
             if nargin == 1 % object tries to serialize themselves
@@ -67,7 +67,7 @@ classdef sqw_serializer
             % 1) class or structure to serialize
             % 2) array of bytes
             % 3) the handle related to open binary file to read.
-            % The method calcuates the positions each input data field
+            % The method calculates the positions each input data field
             % would occupy or is occupying (if converted) into/in a/the
             % sequence of  bytes.
             %
@@ -152,7 +152,7 @@ classdef sqw_serializer
     end
     methods(Static)
         function obj = loadobj(ls)
-            % Retrieve message object from sequnce of bytes
+            % Retrieve message object from sequence of bytes
             % produced by saveobj method.
 
             ser_struc = hlp_deserialize(ls);
