@@ -32,7 +32,7 @@ classdef (Abstract) SQWDnDBase < serializable
         sz                = sigvar_size(w);
         %------------------------------------------------------------------
         wout = signal(w,name); % Set the intensity of an sqw object to the
-                               % values for the named argument
+        % values for the named argument
         wout = cut(obj, varargin);    % take cut from a sqw or sqw/dnd object
         wout = cut_dnd(obj,varargin); % legacy entrance for cut for dnd objects
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
@@ -163,5 +163,5 @@ classdef (Abstract) SQWDnDBase < serializable
         status = adjust_aspect(w);
         [ok,mess,adjust,present]=adjust_aspect_option(args_in);
         dout = smooth_dnd(din, xunit, varargin);
-    end    
+    end
 end

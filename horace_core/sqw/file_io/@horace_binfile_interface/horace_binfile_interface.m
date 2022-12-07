@@ -151,10 +151,10 @@ classdef horace_binfile_interface < serializable
         % Reopen existing file to overwrite or write new data to it
         % or open new target file to save data.
         [obj,permissions] = reopen_to_write(obj,filename)
-        % Set new filename to write file or prepare existing file for
-        % update or write if update is not possible. Here only 
-        % common update/read/write code is defined. Children should reuse and 
-        % overload it to extract update information.
+        % Set filename to save sqw data and open file for write/append
+        % /update operations. Only common update/read/write code is defined
+        % here. Children should reuse it and add code to extract
+        % information necessary for updating file format.
         [obj,file_exist,old_ldr] = set_file_to_update(obj,varargin)
         %----------------
         % open file, connected to the sqw object, defined as input,

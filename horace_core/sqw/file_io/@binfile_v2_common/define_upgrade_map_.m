@@ -1,15 +1,21 @@
 function obj=define_upgrade_map_(obj,file_exist,old_ldr)
+% Read the positions of the various blocks, defined in the binary sqw file
+% and identify the positons of the blocks that would not change if
+% corresponend sqw object is modified.
+%
+% such blocks are usually various data arrays, as it contents may change
+% but the size and position in the binary file would remain the same.
 %
 log_level = config_store.instance().get_value('herbert_config','log_level');
 new_filename = obj.full_filename;
 %
 if file_exist
-    obj.upgrade_headers_ = false;    
+    obj.upgrade_headers_ = false;
     if isempty(old_ldr) && log_level > 1
         fprintf('*** Existing file:  %s will be overwritten.\n',new_filename);
         return
     end
-    
+
     col = class(old_ldr);
     if isa(obj,col)
         this_pos = old_ldr.get_pos_info();
@@ -18,7 +24,7 @@ if file_exist
         if log_level>1;   fprintf('*** Existing file:  %s can be upgraded with new object data.\n',new_filename);  end
         return;
     end
-    
+
 
     can_upgrade = sqw_formats_factory.instance().check_compatibility(old_ldr,obj);
     if ~can_upgrade

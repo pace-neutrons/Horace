@@ -1,16 +1,20 @@
 function [obj,permissions] = reopen_to_write(obj,filename)
 % reopen already opened file in read-write mode (rb+) or
-% specify new filename to write and open it in the write mode (wb+).
+% specify new filename to write and open it in write mode (wb+).
 %
 % Usage:
 %>>[obj,permissions] = obj.reopen_to_write();
 % or
 %>>[obj,permissions] = obj.reopen_to_write(filename);
+%
 % Where first form reopens/opens file with filename which already set up in
 % the object (e.g. object has been initialized to read data)
 % and the second form sets up new filename and opens it in write mode
 %
 % If file with filename exist, it will be overwritten
+% Returns:
+% obj         -- faccessor initiated for performiong write operations
+% permissions --  
 %
 if ~exist('filename','var')
     filename = '';

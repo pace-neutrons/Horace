@@ -1,21 +1,29 @@
 function  [obj,file_exist,old_ldr] = set_file_to_update(obj,filename,varargin)
 % Set filename to save sqw data and open file for write/append/update
-% operations
+% operations. Only common update/read/write code is defined here.
+% Children should reuse it and add code to extract information necessary
+% for updating file format.
 %
-% Usage
-% >> obj = obj.set_file_to_update(); % reopen existing file for
-%          write/update operations
-%
+% Usage:
+% >> obj = obj.set_file_to_update();
+% or
 % >> obj = obj.set_file_to_update(new_filename);
 %
-% Open new or existing sqw file to perform write/append operations
+% Inputs:
+%  obj     --  the file defined in full_filename property used as input
 %
-% Ouptputs:
+% Optional:
+% filename -- the file provided in filename is used as input for
+%             full_filename operations.
+% nargout  -- if provided, defines number of output arguments, requested by
+%             calling function. Used for correct usage error control.
+%
+% Outputs:
 % obj        -- the loader object initialized properly to handle update
 %               or write operations
 % file_exist -- true if file to open already exist
 % old_ldr    -- if file exists and is written in old file format, the
-%               loader, used to load the file. empty if file_exist is false
+%               loader, used to load the file. Empty if file_exist is false
 %
 if ~exist('filename','var')
     filename = '';
@@ -48,7 +56,8 @@ if nargin>1
         catch ME
             file_exist = false;
             if log_level > 1
-                fprintf('*** Existing file:  %s will be overwritten.\n',new_filename);
+                fprintf(2,'*** WARNING: Existing file:  %s will be fully overwritten.\n', ...
+                    new_filename);
             end
         end
     end

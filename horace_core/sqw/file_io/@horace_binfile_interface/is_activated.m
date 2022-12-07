@@ -7,6 +7,8 @@ function is = is_activated(obj, read_or_write)
 % read_or_write   Char array. If 'read' return true if file is open
 %                 for reading. If 'write' return true if file is
 %                 open for writing.
+%                 Throws invalid_argument in any other cases or if
+%                 read_or_write is undefined.
 %
 full_file_path = obj.full_filename;
 [file_id_path, permission] = fopen(obj.file_id_);
@@ -23,7 +25,7 @@ if is && nargin == 2
         is = ~isempty(open_for_writing);
     else
         error('HORACE:horace_binfile_interface:invalid_argument',...
-            ['Invalid input for read_or_write. Must be ''read'' ', ...
+            ['Invalid input for read_or_write option. Must be ''read'' ', ...
             'or ''write'', found ''%s'''], read_or_write);
     end
 end
