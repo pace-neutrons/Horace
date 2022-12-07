@@ -1,11 +1,11 @@
-function obj = reopen_to_write(obj,filename)
+function [obj,permissions] = reopen_to_write(obj,filename)
 % reopen already opened file in read-write mode (rb+) or
 % specify new filename to write and open it in the write mode (wb+).
 %
 % Usage:
-%>>obj= obj.reopen_to_write();
+%>>[obj,permissions] = obj.reopen_to_write();
 % or
-%>>obj= obj.reopen_to_write(filename);
+%>>[obj,permissions] = obj.reopen_to_write(filename);
 % Where first form reopens/opens file with filename which already set up in
 % the object (e.g. object has been initialized to read data)
 % and the second form sets up new filename and opens it in write mode
@@ -60,10 +60,11 @@ end
 
 fname = obj.full_filename;
 if exist(fname,'file') == 2
-    fid = fopen(fname,'rb+');
+    permissions = 'rb+';    
 else
-    fid = fopen(fname,'wb+');
+    permissions = 'wb+';
 end
+fid = fopen(fname,permissions);
 %
 if fid<1
     error('HORACE:horace_binfile_interface:runtime_error',...

@@ -16,7 +16,12 @@ classdef binfile_v2_common < horace_binfile_interface
     % See Property Summary chapter.
     % ----------------------------------------------------------------
     % reopen_to_write    - open new or reopen existing file in write mode
-    %                      (all existing contents will be ignored)
+    %                      (all existing contents will be ignored, though
+    %                       may be mainained if the file exists, but additional
+    %                      measure to be taken)
+    % set_file_to_update - open new or reopen existing file for updating
+    %                      existing information in  it (where possible)
+    %
     % ----------------------------------------------------------------
     % Data accessors:
     % get_data           - get all dnd data without packing them into dnd
@@ -259,16 +264,6 @@ classdef binfile_v2_common < horace_binfile_interface
             % return image binning (legacy field). Use num_dim instead
             dims = obj.dnd_dimensions_;
         end
-        function obj = reopen_to_write(obj,filename)
-            % Reopen existing file to overwrite or write new data to it
-            % or open new target file to save data.
-            if ~exist('filename','var')
-                filename = '';
-            end
-            obj = reopen_to_write@horace_binfile_interface(obj,filename);
-            obj.upgrade_headers_ = false;
-        end
-
     end
     %----------------------------------------------------------------------
     % OTHER CLASS METHODS
@@ -286,6 +281,20 @@ classdef binfile_v2_common < horace_binfile_interface
                 end
             end
             obj=define_upgrade_map_(obj,file_exist,old_ldr);
+        end
+        % ----------------------------------------------------------------
+        function [obj,permissions] = reopen_to_write(obj,filename)
+            % Reopen existing file to overwrite or write new data to it
+            % or open new target file to save data.
+            if ~exist('filename','var')
+                filename = '';
+            end
+            [obj,permissions] = reopen_to_write@horace_binfile_interface(obj,filename);
+            if strcmp(permissions,'rb+')
+                obj.upgrade_headers_ = false;
+            else
+                obj.upgrade_headers_ = true;
+            end
         end
         %
         % ----------------------------------------------------------------

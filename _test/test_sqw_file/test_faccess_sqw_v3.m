@@ -272,7 +272,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertFalse(ver_obj.experiment_info.runid_recalculated);
 
             ver_obj.experiment_info.runid_recalculated = true;
-            assertEqualToTol(sqw_ob,ver_obj,1.e-7);
+            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date');
         end
         %
         function test_save_sqwV3toV2(obj)
