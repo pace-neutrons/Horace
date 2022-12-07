@@ -49,6 +49,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % removed
         u_to_rlu;
         ulen;
+        creation_date_defined;
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == axes_block.dims_as_ssize)
@@ -348,6 +349,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             end
             struct = to_head_struct_(obj,keep_data_arrays);
         end
+        %
+        function def = get.creation_date_defined(obj)
+            def = obj.creation_date_defined_;
+        end
     end
 
     methods(Access = protected)
@@ -409,8 +414,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % by constructor without the arguments
         fields_to_save_ = {'axes','proj','s','e','npix','creation_date'}
     end
-
-
+    %----------------------------------------------------------------------
     methods
         function ver  = classVersion(~)
             ver = 4;
@@ -423,14 +427,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             end
         end
         %
-        function str = saveobj(obj)
-            if isempty(obj.creation_date_)
-                % support old files, which do not have creation date defined
-                obj.creation_date_ = datetime('now');
-            end
-            str = saveobj@serializable(obj);
-        end
-        %
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained dnd object. Return the result of the check and the
@@ -439,8 +435,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             obj = check_combo_arg_(obj);
         end
     end
+    %----------------------------------------------------------------------    
     methods(Access = protected)
-        %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
             % previous version of the object.

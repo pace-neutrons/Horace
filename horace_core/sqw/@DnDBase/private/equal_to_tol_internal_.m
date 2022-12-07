@@ -20,7 +20,11 @@ if ~isnumeric(opt.fraction) || opt.fraction < 0 || opt.fraction > 1
 end
 
 % Test equality of DnD class fields. Pass class fields to the generic equal_to_tol.
-class_fields = properties(w1);
+if isa(w1,'serializable')
+    class_fields = w1.saveableFields();
+else
+    class_fields = properties(w1);
+end
 for idx = 1:numel(class_fields)
     field_name = class_fields{idx};
     tmp1 = w1.(field_name);

@@ -186,28 +186,27 @@ classdef test_binfile_v2_common <  TestCase %WithSave
 
             tsq_obj = chob.get_sqw();
             tsq0_obj = tob.get_sqw();
-
-            [ok,mess]=equal_to_tol(sq_obj,tsq_obj,'ignore_str',true);
-            assertTrue(ok,mess)
-            [ok,mess]=equal_to_tol(tsq0_obj,tsq_obj,'ignore_str',true);
-            assertTrue(ok,mess)
             chob.delete();
             tob.delete();
+
+            assertEqualToTol(sq_obj,tsq_obj,'ignore_str',true);
+            assertEqualToTol(tsq0_obj,tsq_obj,'ignore_str',true);
         end
         %
         function obj = test_reopen_to_write(obj)
 
             samp = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
-            ttob = binfile_v2_common_tester(samp);
+            test_f = fullfile(tmp_dir,'test_dnd_reopen_to_write.sqw');
+            copyfile(samp,test_f,"f");
+            clob = onCleanup(@()delete(test_f));
+
+            ttob = binfile_v2_common_tester(test_f);
             % important! -verbatim is critical here!, as it returns filenames
             % as they were stored on file, so we can write everyting exactly
             % at the same places as before. Without it we should
             % reinitialize object to write
             sq_obj = ttob.get_sqw('-verbatim');
             assertTrue(isa(sq_obj,'d1d'));
-
-            test_f = fullfile(tmp_dir,'test_dnd_reopen_to_wrire.sqw');
-            clob = onCleanup(@()delete(test_f));
 
             % using already initialized object to write new data.
             % its better to initialize object again as with this form
@@ -216,7 +215,7 @@ classdef test_binfile_v2_common <  TestCase %WithSave
             ttob = ttob.put_sqw(sq_obj);
             ttob.delete();
 
-            assertEqual(exist(test_f,'file'),2);
+            %assertEqual(exist(test_f,'file'),2);
 
             chob = binfile_v2_common_tester(test_f);
 
@@ -276,7 +275,6 @@ classdef test_binfile_v2_common <  TestCase %WithSave
     end
 
     methods (Static)
-
         function permission = get_opened_file_permission(file_path)
             % Get the permission of an open file from its path
             %   If the file is not open the permission will be empty
@@ -290,7 +288,6 @@ classdef test_binfile_v2_common <  TestCase %WithSave
                 end
             end
         end
-
-    end
-
+        %
+    end % Methods
 end
