@@ -24,9 +24,9 @@ if ~isempty(argi)
     end
     storage = obj.sqw_holder_;
     if isa(input,'sqw')
-        obj.sqw_holder_ = input.data;
+        obj.sqw_holder = input.data;
     else
-        obj.sqw_holder_ = input;
+        obj.sqw_holder = input;
     end
     if numel(argi) > 1
         argi = argi{2:end};
