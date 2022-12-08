@@ -128,7 +128,7 @@ classdef test_binfile_v2_common <  TestCase %WithSave
 
         end
         %
-        function obj = test_change_file_to_write(obj)
+        function obj = test_set_file_to_update_opens_in_rb_plus(obj)
             tob = binfile_v2_common_tester();
 
             samp = fullfile(obj.test_data_folder,'w1d_sqw.sqw');
@@ -139,15 +139,24 @@ classdef test_binfile_v2_common <  TestCase %WithSave
             assertEqual(tob.num_dim,int32(1))
             assertTrue(isa(tob,'faccess_sqw_v2'));
 
+            tob = tob.delete();
+            assertTrue(tob.sqw_type) % its still sqw reader, you know...
+            assertEqual(tob.num_dim,'undefined')
+            
+        end
+        %
+        function obj = test_set_missing_file_to_update_opens_in_wb_plus(obj)
+            tob = binfile_v2_common_tester();            
 
             test_f = fullfile(tmp_dir,'test_change_file_to_write.sqw');
             clob = onCleanup(@()delete(test_f));
 
             tob=tob.set_file_to_update(test_f);
             assertTrue(exist(test_f,'file')==2);
+            assertEqual(tob.get_faccess_mode(),'wb+')            
 
             tob=tob.delete();
-            assertTrue(tob.sqw_type) % its still sqw reader, you know...
+            assertFalse(tob.sqw_type) % its still sqw reader, you know...
             assertEqual(tob.num_dim,'undefined')
 
         end

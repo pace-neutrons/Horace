@@ -19,7 +19,7 @@ if ~ok
     error('HORACE:put_headers:invalid_argument',mess);
 end
 %
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 %
 header_num =[];  % by default, return all headers
 if ~isempty(argi)

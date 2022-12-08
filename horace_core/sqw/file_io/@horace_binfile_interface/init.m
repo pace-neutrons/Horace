@@ -48,7 +48,7 @@ if isa(input,'obj_init')
         error('HORACE:horace_binfile_interface:invalid_argument',...
             'Incorrect initialization information from obj_init class. Input file is not opened')
     end
-    obj = obj.init_by_input_stream(input);
+    obj = obj.init_input_stream(input);
 elseif ischar(input) || isnumeric(input)
     [ok,objinit,mess] = obj.should_load(input);
     if ~ok
@@ -61,7 +61,7 @@ elseif ischar(input) || isnumeric(input)
             'Can initialize loader by input file: %s\n Reason: %s',...
             fname,mess);
     end
-    obj = obj.init_by_input_stream(objinit);
+    obj = obj.init_input_stream(objinit);
 elseif isstruct(input) && (isfield(input,'class_name') || isfield(input,'serial_name'))
     obj = loadobj(input);
     return;

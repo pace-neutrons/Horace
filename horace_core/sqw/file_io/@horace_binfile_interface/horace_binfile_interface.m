@@ -172,18 +172,18 @@ classdef horace_binfile_interface < serializable
             % about internal file structure from memory.
             obj = delete_(obj);
         end
-        function obj = init_by_input_stream(obj,objinit)
+        function obj = init_input_stream(obj,objinit)
             % initialize object to read input file using proper obj_init
-            % information
-            obj = init_by_input_stream_(obj,objinit);
+            % information, containing opened file handle.
+            obj = init_input_stream_(obj,objinit);
         end
     end
     %----------------------------------------------------------------------
     methods(Access = protected)
-        function check_obj_initated_properly(obj)
+        function obj=check_obj_initated_properly(obj)
             % helper function to check the state of put and update functions
             % if put methods are invoked separately
-            check_obj_initiated_properly_(obj);
+            obj=check_obj_initiated_properly_(obj);
         end
         % Get the creation date of the file, associated with loader
         tm = get_creation_date(obj)
@@ -193,7 +193,7 @@ classdef horace_binfile_interface < serializable
             obj = fclose_(obj);
         end
         function check_error_report_fail_(obj,pos_mess)
-            % check if error occured during io operation and throw if it does happened
+            % check if error occurred during io operation and throw if it does happened
             [mess,res] = ferror(obj.file_id_);
             if res ~= 0; error('HORACE:sqw_file_insterface:io_error',...
                     '%s -- Reason: %s',pos_mess,mess);

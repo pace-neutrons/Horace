@@ -1,6 +1,6 @@
 function obj = put_app_header(obj)
 % store binary data block, which describes object as sqw or dnd object
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 %
 % store sqw file header
 head = obj.build_app_header();

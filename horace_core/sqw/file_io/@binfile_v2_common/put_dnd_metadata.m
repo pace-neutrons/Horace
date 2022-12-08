@@ -17,7 +17,7 @@ if ~ok
         ['put_dnd_metadata: Error: ',mess]);
 end
 % verify we use this method on an properly initialized file accessor
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 %
 [input_obj,new_obj] = obj.extract_correct_subobj('data',argi{:});
 if new_obj

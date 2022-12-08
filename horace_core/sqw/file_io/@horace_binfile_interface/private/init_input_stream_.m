@@ -1,4 +1,4 @@
-function obj = init_by_input_stream_(obj,objinit)
+function obj = init_input_stream_(obj,objinit)
 % initialize object to read input file using proper obj_init
 % information
 %
@@ -13,6 +13,6 @@ if ~objinit.defined() && obj.faccess_version ~=0
 end
 obj.file_id_ = objinit.file_id;
 obj.num_dim_ = objinit.num_dim;
-obj.file_closer_ = onCleanup(@()obj.fclose());
+obj.file_closer_ = onCleanup(@()fclose(obj));
 
 

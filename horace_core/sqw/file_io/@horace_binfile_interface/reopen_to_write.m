@@ -32,7 +32,7 @@ else
         end
         obj=fclose_file(obj);
         obj.full_file_name = fname;
-        obj.file_closer_ = onCleanup(@()obj.fclose());
+        obj.file_closer_ = onCleanup(@()fclose(obj));
         return;
     else
         if ~(ischar(filename)|| isstring(filename))
@@ -68,23 +68,23 @@ if exist(fname,'file') == 2
 else
     permissions = 'wb+';
 end
-fid = fopen(fname,permissions);
+obj.file_id_ = fopen(fname,permissions);
 %
-if fid<1
+if obj.file_id_ < 1
     error('HORACE:horace_binfile_interface:runtime_error',...
         'Error reopening file %s in write access mode',...
         fname)
 end
-obj.file_id_      = fid;
-obj.file_closer_  = onCleanup(@()obj.fclose());
+obj.file_closer_  = onCleanup(@()fclose(obj));
 
 
 
 function obj=fclose_file(obj)
 if obj.file_id_>0
-    clear obj.file_closer_; % This should close file
+    %clear obj.file_closer_; % This should close the file
     % everything else -- to ensure Matlab/jave memory allocation strategy
     % does not mess thing out
+    obj.file_closer_ = [];    
     obj = obj.fclose();
-    obj.file_closer_ = [];
+
 end

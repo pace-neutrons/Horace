@@ -277,6 +277,7 @@ classdef binfile_v2_common < horace_binfile_interface
                 if file_exist
                     obj.upgrade_headers_ = false;
                 else
+                    obj.upgrade_headers_ = true;                    
                     return;
                 end
             end

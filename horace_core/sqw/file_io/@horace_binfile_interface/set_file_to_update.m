@@ -90,7 +90,7 @@ end
 if file_exist
     if ischar(obj.num_dim) % existing reader is not defined. Lets return loader,
         obj = old_ldr.reopen_to_write(); %already selected as best for this file by loaders factory
-        old_ldr = obj;
+        %old_ldr = obj; % this closes the file, just opened above
         return
     end
     perm = 'rb+';
@@ -110,5 +110,5 @@ if obj.file_id_ <=0
     error('HORACE:horace_binfile_interface:io_error',...
         'Can not open file %s to write data',obj.full_filename)
 end
-obj.file_closer_ = onCleanup(@()obj.fclose());
+obj.file_closer_ = onCleanup(@()fclose(obj));
 %-------------------------------------------------------------------------
