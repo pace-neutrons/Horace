@@ -19,6 +19,19 @@ classdef data_block < serializable
     %======================================================================
     methods
         function obj = put_block_data(obj,fid,sqw_obj)
+            % extract sub-block information from sqw object and write this
+            % information on HDD
+            subobj = extract_proper_subobj(sqw_obj);
+            bindata = subobj.serialize();
+            obj.size_ = numel(bindata);
+            obj = put_bindata_in_file(obj,fid,bindata);
+        end
+        function obj = put_bindata_in_file(obj,fid,bindata)
+            % store array of bytes into selected and opened binary file
+            % Inputs: 
+            % fid      -- opened file handle
+            % bindata  -- array of bytes to store on hdd
+            obj = put_bindata_in_file_(obj,fid,bindata);
         end
     end
     %======================================================================
