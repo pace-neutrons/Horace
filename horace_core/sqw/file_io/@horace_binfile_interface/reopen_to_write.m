@@ -81,7 +81,7 @@ obj.file_closer_  = onCleanup(@()fclose(obj));
 
 function obj=fclose_file(obj)
 if obj.file_id_>0
-    %clear obj.file_closer_; % This should close the file
+    clear obj.file_closer_; % This should close the file
     % everything else -- to ensure Matlab/jave memory allocation strategy
     % does not mess thing out
     obj.file_closer_ = [];    
