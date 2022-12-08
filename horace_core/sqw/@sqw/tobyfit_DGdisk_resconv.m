@@ -196,6 +196,7 @@ for i=1:numel(ind)
 
     % Run and detector for each pixel
     irun = win(i).data.pix.run_idx';   % column vector
+    [uir, ~, ic] = unique(irun); irun = arrayfun(@(v) win(i).runid_map(v), uir); irun = irun(ic); clear ic uir;
     idet = win(i).data.pix.detector_idx';   % column vector
     npix = win(i).data.pix.num_pixels;
 

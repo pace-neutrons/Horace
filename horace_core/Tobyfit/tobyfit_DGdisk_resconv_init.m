@@ -229,7 +229,8 @@ for iw=1:nw
     end
     if ~ok, return, end
     npix(iw) = numel(irun);
-    
+    [uir, ~, ic] = unique(irun); irun = arrayfun(@(v) wtmp.runid_map(v), uir); irun = irun(ic); clear ic uir;
+
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
