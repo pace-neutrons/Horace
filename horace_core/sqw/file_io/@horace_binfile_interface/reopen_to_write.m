@@ -13,7 +13,7 @@ function [obj,permissions] = reopen_to_write(obj,filename)
 %
 % If file with filename exist, it will be overwritten
 % Returns:
-% obj         -- faccessor initiated for performiong write operations
+% obj         -- faccessor initiated for performing write operations
 % permissions --  
 %
 if ~exist('filename','var')
@@ -32,7 +32,9 @@ else
         end
         obj=fclose_file(obj);
         obj.full_file_name = fname;
-        obj.file_closer_ = onCleanup(@()fclose(obj));
+        if isempty(obj.file_closer_ )
+        %    obj.file_closer_ = onCleanup(@()fclose(obj));
+        end
         return;
     else
         if ~(ischar(filename)|| isstring(filename))
@@ -75,16 +77,18 @@ if obj.file_id_ < 1
         'Error reopening file %s in write access mode',...
         fname)
 end
-obj.file_closer_  = onCleanup(@()fclose(obj));
+if isempty(obj.file_closer_)
+    obj.file_closer_  = onCleanup(@()fclose(obj));
+end
 
 
 
 function obj=fclose_file(obj)
 if obj.file_id_>0
-    clear obj.file_closer_; % This should close the file
+    obj.file_closer_ = [];  % This should close the file      
     % everything else -- to ensure Matlab/jave memory allocation strategy
-    % does not mess thing out
-    obj.file_closer_ = [];    
+    % does not mess thing out    
+    % clear obj.file_closer_; 
     obj = obj.fclose();
 
 end

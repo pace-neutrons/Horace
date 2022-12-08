@@ -9,10 +9,12 @@ function obj = init_input_stream_(obj,objinit)
 
 if ~objinit.defined() && obj.faccess_version ~=0
      error('HORACE:horace_binfile_interface',...
-         'attempt to initalize f-accessor using undefined objinit information')
+         'attempt to initialize f-accessor using undefined objinit information')
 end
 obj.file_id_ = objinit.file_id;
 obj.num_dim_ = objinit.num_dim;
-obj.file_closer_ = onCleanup(@()fclose(obj));
+if isempty(obj.file_closer_)
+    obj.file_closer_ = onCleanup(@()fclose(obj));
+end
 
 

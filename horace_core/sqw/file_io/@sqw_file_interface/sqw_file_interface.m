@@ -96,15 +96,6 @@ classdef sqw_file_interface < binfile_v2_common
             obj = delete@binfile_v2_common(obj);
         end
         %
-        %         function struc = saveobj(obj)
-        %             % method used to convert object into structure
-        %             % for saving it to disc.
-        %             struc = saveobj@binfile_v2_common(obj);
-        %             flds = obj.fields_to_save_;
-        %             for i=1:numel(flds)
-        %                 struc.(flds{i}) = obj.(flds{i});
-        %             end
-        %         end
     end
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------

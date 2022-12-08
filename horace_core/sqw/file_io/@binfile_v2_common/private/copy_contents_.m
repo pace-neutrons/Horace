@@ -67,5 +67,7 @@ if obj.file_id_ <= 0
     error('HORACE:sqw_file_interface:io_error',...
         'Can not open file %s in %s mode',file,mode)
 end
-obj.file_closer_ = onCleanup(@()obj.fclose());
+if isempty(obj.file_closer_)
+    obj.file_closer_ = onCleanup(@()obj.fclose());
+end
 

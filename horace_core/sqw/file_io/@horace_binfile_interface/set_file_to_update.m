@@ -75,7 +75,7 @@ else % reopening existing file with old name
                 old_ldr = obj;
                 return;
             else
-                clear obj.file_closer_;
+                obj.file_closer_ = [];
                 obj = obj.fclose(); % this should not be necessary, unless Matlab delays clearing the memory above
             end
         end
@@ -110,5 +110,5 @@ if obj.file_id_ <=0
     error('HORACE:horace_binfile_interface:io_error',...
         'Can not open file %s to write data',obj.full_filename)
 end
-obj.file_closer_ = onCleanup(@()fclose(obj));
+%obj.file_closer_ = onCleanup(@()fclose(obj));
 %-------------------------------------------------------------------------

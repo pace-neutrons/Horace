@@ -28,7 +28,7 @@ if obj.file_id_ <=0
         'Can not open file %s at location %s',...
         obj.filename,obj.filepath);
 end
-obj.file_closer_ = onCleanup(@()obj.fclose());
+%obj.file_closer_ = onCleanup(@()obj.fclose());
 
 
 function permission = get_fopen_permission_(permission)

@@ -82,13 +82,13 @@ classdef sqw_binfile_common < sqw_file_interface
                     'init_from_sqw_obj method should be initiated by an sqw object');
             end
             %
-            obj = init_headers_from_sqw_(obj,varargin{1});
+            [obj,sqw_obj] = init_headers_from_sqw_(obj,varargin{1});
             % initialize data fields
             % assume max data type which will be reduced if some fields are
             % missing (how they when initialized from sqw?)
             obj.data_type_ = 'a'; % should it always be 'a'?
             obj = init_from_sqw_obj@binfile_v2_common(obj,varargin{:});
-            obj.sqw_holder_ = varargin{1};
+            obj.sqw_holder_ = sqw_obj;
 
             obj = init_pix_info_(obj);
         end

@@ -54,6 +54,7 @@ classdef test_upgrade_pix_pixrange< TestCase
             assertEqual(pix1.pix_range,pix2.pix_range);
             ld1.delete();
             ld0.delete();
+            fclose all;
         end
 
         function obj = test_upgrade_v2_toV3_3(obj)

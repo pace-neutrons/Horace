@@ -866,7 +866,8 @@ function verify_pix_range_est(pix_range,pix_range_est,log_level)
 if isempty(pix_range_est)
     pix_range_est = pix_range;
 end
-if any(abs(pix_range-pix_range_est)>1.e-4, 'all') && log_level>0
+dif = abs(pix_range-pix_range_est)>1.e-4;
+if any(dif(:)) && log_level>0
     args = arrayfun(@(x)x,[pix_range_est(1,:),pix_range_est(2,:),...
         pix_range(1,:),pix_range(2,:)],'UniformOutput',false);
     warning('gen_sqw:runtime_logic',...

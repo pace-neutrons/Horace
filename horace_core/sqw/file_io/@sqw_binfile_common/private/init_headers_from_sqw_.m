@@ -1,4 +1,4 @@
-function obj=init_headers_from_sqw_(obj,sqw_obj)
+function [obj,sqw_obj]=init_headers_from_sqw_(obj,sqw_obj)
 % Initialize the structure of sqw header block for subsequent write operations
 % using sqw object, stored in memory
 %
@@ -9,6 +9,7 @@ main_h = sqw_obj.main_header;
 is_def = main_h.creation_date_defined;
 if ~is_def && obj.upgrade_headers_
     main_h.creation_date = datetime('now');
+    sqw_obj.main_header = main_h;
 end
 
 [obj.main_head_pos_info_,pos]= obj.sqw_serializer_.calculate_positions(main_h_form,main_h ,obj.main_header_pos_);

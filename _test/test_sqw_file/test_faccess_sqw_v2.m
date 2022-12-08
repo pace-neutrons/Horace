@@ -267,8 +267,8 @@ classdef test_faccess_sqw_v2< TestCase
             to.delete();
 
             assertEqualToTol(sqw1,sqw2,'-ignore_date','ignore_str',true);
-
             %
+            %fclose all;
         end
         %
         function obj = test_upgrade_sqw_multiheader(obj)
@@ -298,6 +298,7 @@ classdef test_faccess_sqw_v2< TestCase
 
             assertEqualToTol(sqw1,sqw2,'-ignore_date','ignore_str',true);
             %
+            %fclose all;
         end
 
         %

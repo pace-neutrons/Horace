@@ -4,6 +4,7 @@ function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
 % keep_internals -- if true, do not overwrite service fields
 %                   not related to the position information
 %
+obj = obj.fclose();
 this_pos = obj.get_pos_info();
 other_pos = other_obj.get_pos_info();
 missing_fields = {};
@@ -47,7 +48,7 @@ obj.convert_to_double_ = other_obj.convert_to_double_;
 
 
 function obj= open_obj_file(obj,file,mode)
-% open object's file with apporpriate access rights.
+% open object's file with appropriate access rights.
 [fp,fn,fe] = fileparts(file);
 obj.filename_ = [fn,fe];
 obj.filepath_ = [fp,filesep];
@@ -56,4 +57,6 @@ if obj.file_id_ <= 0
     error('SQW_FILE_IO:io_error',...
         'Can not open file %s in %s mode',file,mode)
 end
-obj.file_closer_ = onCleanup(@()obj.fclose());
+if isempty(obj.file_closer_)
+    %obj.file_closer_ = onCleanup(@()obj.fclose());
+end
