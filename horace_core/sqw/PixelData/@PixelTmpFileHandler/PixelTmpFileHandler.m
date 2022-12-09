@@ -56,7 +56,7 @@ classdef PixelTmpFileHandler
             new_obj = PixelTmpFileHandler(obj_id, false, obj.offset_, obj.page_size);
             new_obj.has_tmp_file_ = obj.copy_file(obj_id);
             if new_obj.has_tmp_file_
-                new_obj = new_obj.reopen_file_();
+                new_obj = new_obj.open_file_();
             end
         end
 
@@ -73,31 +73,10 @@ classdef PixelTmpFileHandler
             end_idx = start_idx - 1 + (pix_end-pix_start+1)*obj.NUM_COLS;
 
             raw_pix = reshape(double(obj.file_id_.Data(start_idx:end_idx)), [obj.NUM_COLS, pix_end - pix_start + 1]);
-
-%             obj.seek_(obj.SIZE_OF_FLOAT*obj.NUM_COLS*pix_start, 'bof');
-%             raw_pix = obj.read_([obj.NUM_COLS, pix_end-pix_start+1]);
         end
 
         function raw_pix = load_pixels_at_indices(obj, indices)
-
             raw_pix = obj.load_cols_at_indices(indices, 1:obj.NUM_COLS);
-            % [read_sizes, seek_sizes, idx_map] = get_pix_locs(indices);
-            % PIXEL_SIZE = obj.SIZE_OF_FLOAT*obj.NUM_COLS;  % bytes
-            %
-            % obj.seek_(0, 'bof');
-            %
-            % out_pix_start = 1;
-            % raw_pix =
-            % for block_num = 1:numel(read_sizes)
-            %     obj.seek_(seek_sizes(block_num)*PIXEL_SIZE, 'cof');
-            %
-            %     out_pix_end = out_pix_start + read_sizes(block_num) - 1;
-            %     read_size = [ncols, read_sizes(block_num)];
-            %     raw_pix(:, out_pix_start:out_pix_end) = obj.read_(read_size);
-            %
-            %     out_pix_start = out_pix_start + read_sizes(block_num);
-            % end
-
         end
 
         function raw_pix = load_cols_at_indices(obj, pix_indices, col_indices)
@@ -109,20 +88,6 @@ classdef PixelTmpFileHandler
                 raw_pix(i, :) = obj.file_id_.Data(pix_indices+col_indices(i));
             end
             raw_pix = double(raw_pix);
-
-        %             data = memmapfile(obj.file_path_, ...
-%                               'Format', 'single', ...
-%                               'Offset', obj.offset_/obj.SIZE_OF_FLOAT ...
-%                              );
-%
-%             data.Data
-%             npix = numel(data.Data)/obj.NUM_COLS;
-%             data.Format = {'single', [obj.NUM_COLS npix], 'pix'};
-%             data.Data.pix
-%             fread(fopen(obj.file_path_), [obj.NUM_COLS inf], 'single')
-%             raw_pix = data.Data.pix(col_indices,pix_indices);
-
-
         end
 
         function obj = set_all_indices(obj, col_indices, data)
@@ -159,9 +124,6 @@ classdef PixelTmpFileHandler
             raw_pix = single(raw_pix);
             ind = sub2ind([obj.NUM_COLS obj.num_pixels], 1, start_idx);
             obj.file_id_.Data(ind:ind+numel(raw_pix)-1) = raw_pix;
-
-        %             obj.seek_(obj.get_start_of_page_(page_number), 'bof');
-%             obj.write_(raw_pix);
         end
 
         function tmp_file = copy_file(obj, target_pix_id)
@@ -213,14 +175,13 @@ classdef PixelTmpFileHandler
             if ~is_perm
                 obj.file_path_ = target_file;
                 fclose(obj.file_id_);
-                obj = obj.reopen_file_();
+                obj = obj.open_file_();
             end
         end
 
         function obj = delete_file(obj)
         % Delete the tmp file
             if obj.has_tmp_file_
-%                 fclose(obj.file_id_);
                 delete(obj.file_path_);
             end
             obj.has_tmp_file_ = false;
@@ -262,12 +223,7 @@ classdef PixelTmpFileHandler
             fid = fopen(obj.file_path_,'a');
             fwrite(fid, pixels, obj.FILE_DATA_FORMAT_);
             fclose(fid);
-            obj = obj.reopen_file_();
-%             ftell(obj.file_id_)
-%             obj.seek_(0, 'eof')
-%             ftell(obj.file_id_)
-%             numel(pixels)
-%             obj.write_(pixels);
+            obj = obj.open_file_();
         end
 
         function obj = open_file_(obj)
@@ -281,33 +237,11 @@ classdef PixelTmpFileHandler
                                       'Writable', true ...
                                      );
             obj.has_tmp_file_ = true;
-%             obj.file_id_ = fopen(obj.file_path_, 'wb+');
-        end
-
-        function obj = reopen_file_(obj)
-            obj = obj.open_file_();
-        %             obj.file_id_ = fopen(obj.file_path_, 'rb+');
-%             obj.has_tmp_file_ = true;
         end
 
     end
 
     methods (Access=private)
-        function seek_(obj, offset, mode)
-            do_fseek(obj.file_id_, obj.offset_+offset, mode);
-        end
-
-        function write_(obj, data)
-            fwrite(obj.file_id_, data, obj.FILE_DATA_FORMAT_);
-        end
-
-        function data = read_(obj, shape, skip)
-            if ~exist('skip', 'var')
-                skip = 0;
-            end
-            data = fread(obj.file_id_, shape, obj.FILE_DATA_FORMAT_, skip);
-            data = double(data);
-        end
 
         function file_path = generate_tmp_pix_file_path_(obj, pix_id)
         % Generate the file path to a tmp file with the given page number
@@ -339,5 +273,24 @@ classdef PixelTmpFileHandler
 
         end
     end
+
+    % Unused methods for turning back into file-based if necessary in future
+    % methods(Deprecated)
+    %     function seek_(obj, offset, mode)
+    %         do_fseek(obj.file_id_, obj.offset_+offset, mode);
+    %     end
+
+    %     function write_(obj, data)
+    %         fwrite(obj.file_id_, data, obj.FILE_DATA_FORMAT_);
+    %     end
+
+    %     function data = read_(obj, shape, skip)
+    %         if ~exist('skip', 'var')
+    %             skip = 0;
+    %         end
+    %         data = fread(obj.file_id_, shape, obj.FILE_DATA_FORMAT_, skip);
+    %         data = double(data);
+    %     end
+    % end
 
 end
