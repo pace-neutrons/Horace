@@ -103,7 +103,7 @@ obj.full_filename = new_filename;
 if isempty(old_ldr)
     old_ldr = obj;
 end
-%
+obj = obj.fclose();
 obj.file_id_ = fopen(obj.full_filename,perm);
 
 if obj.file_id_ <=0
