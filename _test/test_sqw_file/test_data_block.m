@@ -13,25 +13,74 @@ classdef test_data_block < TestCase
             obj = obj@TestCase(name);
             hc = horace_paths;
             en = -1:1:50;
-            par_file = fullfile(hc.test_common,'gen_sqw_96dets.nxspe');            
+            par_file = fullfile(hc.test_common,'gen_sqw_96dets.nxspe');
             fsqw = dummy_sqw (en, par_file, '', 51, 1,[2.8,3.86,4.86], [120,80,90],...
-                             [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [50,50,50,50]);
+                [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [50,50,50,50]);
             sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
             fsqw = fsqw{1};
             sample.alatt = [4.2240 4.2240 4.2240];
-            sample.angdeg = [90 90 90];            
+            sample.angdeg = [90 90 90];
             inst = maps_instrument(90,250,'s');
             fsqw.experiment_info.samples = sample;
-            fsqw.experiment_info.instruments = inst;            
+            fsqw.experiment_info.instruments = inst;
             obj.sqw_obj_for_tests = fsqw;
         end
+        function file_deleter(~,fid,file)
+            fn = fopen(fid);
+            if ~isempty(fn)
+                fclose(fid);
+            end
+            delete(file);
+        end
+        function test_put_get_two_data_blocks(obj)
+            dp1 = data_block('experiment_info','samples');
+            dp2 = data_block('experiment_info','instruments');
+
+            file = fullfile(tmp_dir(),'put_get_data_block.bin');
+            fid = fopen(file,'wb+');
+            clOb = onCleanup(@()file_deleter(obj,fid,file));
+
+            tob = obj.sqw_obj_for_tests;
+            dp1 = dp1.put_data_block(fid,tob);
+            dp2.position = dp1.size;
+            dp2 = dp2.put_data_block(fid,tob);
+
+
+            tob.experiment_info.instruments = [];
+            tob.experiment_info.samples = [];
+            [~,rec_obj] = dp1.get_data_block(fid,tob);
+            [~,rec_obj] = dp2.get_data_block(fid,rec_obj);
+            fclose(fid);
+
+            assertEqual(obj.sqw_obj_for_tests,rec_obj);
+
+        end
+
+        function test_put_get_data_block(obj)
+            dp = data_block('experiment_info','instruments');
+
+            file = fullfile(tmp_dir(),'put_get_data_block.bin');
+            fid = fopen(file,'wb+');
+            clOb = onCleanup(@()file_deleter(obj,fid,file));
+
+            tob = obj.sqw_obj_for_tests;
+            dp = dp.put_data_block(fid,tob);
+
+            tob.experiment_info.instruments = [];
+            [~,rec_obj] = dp.get_data_block(fid,tob);
+            fclose(fid);
+
+            assertEqual(obj.sqw_obj_for_tests,rec_obj);
+
+        end
+        %------------------------------------------------------------------
         function test_get_set_proper_dnd_subobj_proj(obj)
             dp = data_block('data','proj');
 
             proj = ortho_proj([1,1,0],[1,-1,0]);
             dnd_mod = dp.set_subobj(obj.sqw_obj_for_tests.data,proj);
             assertEqual(dnd_mod.proj,proj);
-        end        
+        end
         function test_get_set_proper_subobj_proj(obj)
             dp = data_block('data','proj');
 
@@ -39,30 +88,28 @@ classdef test_data_block < TestCase
             sqw_mod = dp.set_subobj(obj.sqw_obj_for_tests.data,proj);
 
             assertEqual(sqw_mod.proj,proj);
-        end        
+        end
         function test_get_set_proper_subobj_instr(obj)
             dp = data_block('experiment_info','instruments');
 
             inst = IX_null_inst();
-
-            sqw_mod = dp.set_subobj(obj.sqw_obj_for_tests,inst);            
+            sqw_mod = dp.set_subobj(obj.sqw_obj_for_tests,inst);
 
             assertEqual(sqw_mod.experiment_info.instruments(1),inst);
         end
-        
         %------------------------------------------------------------------
         function test_get_proper_dnd_subobj_proj(obj)
             dp = data_block('data','proj');
 
             subobj = dp.get_subobj(obj.sqw_obj_for_tests.data);
             assertEqual(obj.sqw_obj_for_tests.data.proj,subobj);
-        end        
+        end
         function test_get_proper_subobj_proj(obj)
             dp = data_block('data','proj');
 
             subobj = dp.get_subobj(obj.sqw_obj_for_tests);
             assertEqual(obj.sqw_obj_for_tests.data.proj,subobj);
-        end        
+        end
         function test_get_proper_subobj_instr(obj)
             dp = data_block('experiment_info','instruments');
 

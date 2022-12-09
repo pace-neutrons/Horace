@@ -9,9 +9,9 @@ classdef data_block < serializable
     properties(Dependent)
         base_prop_name;
         level2_prop_name;
-       % position of the binary block on hdd in C numeration (first byte is
-       % in the position 0)
-        position; 
+        % position of the binary block on hdd in C numeration (first byte is
+        % in the position 0)
+        position;
         % size (in bytes) of the block would occupy on hdd
         size;
     end
@@ -20,25 +20,52 @@ classdef data_block < serializable
         second_prop_name_ = '';
         position_=0;
         size_ = 0;
+        % The cache containing serialized object after estimating its size
+        serialized_obj_cache_ = [];
     end
     %======================================================================
     methods
-        function obj = put_block_data(obj,fid,sqw_obj)
+        function [obj,sqw_obj_to_set] = get_data_block(obj,fid,sqw_obj_to_set)
+            % Read sub-block binary information from sqw object on HDD and
+            % set this subobject to the proper field of the input sqw
+            % object.
+            bindata = obj.get_bindata_from_file(fid);
+            subobj = serializable.deserialize(bindata);
+            sqw_obj_to_set = obj.set_subobj(sqw_obj_to_set,subobj);
+        end
+        %
+        function obj = put_data_block(obj,fid,sqw_obj)
             % extract sub-block information from sqw object and write this
             % information on HDD
+            if exist('sqw_obj','var')
+                obj = obj.cache_and_calc_obj_size(sqw_obj);
+            else
+                if isempty(obj.serialized_obj_cache_)
+                    error('HORACE:data_block:runtime_error',...
+                        ['put_data_block is called sqw object argument, ', ...
+                        'but the size of the object has not been set ', ...
+                        'and object cache is empty']);
+                end
+            end
+            bindata = obj.serialized_obj_cache_;
+            obj = put_bindata_in_file(obj,fid,bindata);
+            if nargout>0
+                obj.serialized_obj_cache_ = [];
+            end
+        end
+        function obj = cache_and_calc_obj_size(obj,sqw_obj)
+            % caclculate size of the serialized object and put the
+            % serialized object into data cache for subsequent put
+            % operation(s)
             subobj = obj.get_subobj(sqw_obj);
             bindata = subobj.serialize();
             obj.size_ = numel(bindata);
-            obj = put_bindata_in_file(obj,fid,bindata);
-        end
-        function obj = put_bindata_in_file(obj,fid,bindata)
-            % store array of bytes into selected and opened binary file
-            % Inputs: 
-            % fid      -- opened file handle
-            % bindata  -- array of bytes to store on hdd
-            obj = put_bindata_in_file_(obj,fid,bindata);
+            obj.serialized_obj_cache_ = bindata;
         end
         %
+        %==================================================================
+        %    end % --- Should it be protected?
+        %    methods(Access=protected)
         function subobj = get_subobj(obj,sqw_dnd_obj)
             % Extract class-defined sub-object from sqw or dnd object for
             % further operations. (serialization and damping to hdd)
@@ -51,9 +78,34 @@ classdef data_block < serializable
         function sqw_dnd_obj = set_subobj(obj,sqw_dnd_obj,part_to_set)
             % Set up class-defined sub-object at proper place of input
             % sqw_dnd_object. The operation is opposite to get_subobj and
-            % used during recovery of the stored sqw object from binary file. 
+            % used during recovery of the stored sqw object from binary file.
             sqw_dnd_obj = set_subobj_(obj,sqw_dnd_obj,part_to_set);
         end
+        %------------------------------------------------------------------
+        function obj = put_bindata_in_file(obj,fid,bindata)
+            % store array of bytes into selected and opened binary file
+            % Inputs:
+            % fid      -- opened file handle
+            % bindata  -- array of bytes to store on hdd
+            %
+            % Returns:
+            % obj      -- unchanged
+            obj = put_bindata_in_file_(obj,fid,bindata);
+        end
+        function bindata = get_bindata_from_file(obj,fid)
+            % read array of bytes from opened binary file
+            %
+            % Inputs:
+            % fid      -- opened file handle
+            %
+            % Returns:
+            % bindata  -- unit8 array of the data read from file.
+            %
+            % Eroror: HORACE:data_block:io_error is thrhown in case of problem with
+            %         redading data files
+            bindata = get_bindata_from_file_(obj,fid);
+        end
+
     end
     %======================================================================
     % CONSTRUCTOR and PROPERTY ACCESSORS
@@ -94,7 +146,7 @@ classdef data_block < serializable
                     class(val));
             end
             obj.second_prop_name_ = val;
-        end        
+        end
         %------------------------------------------------------------------
         function pos = get.position(obj)
             pos = obj.position_;
