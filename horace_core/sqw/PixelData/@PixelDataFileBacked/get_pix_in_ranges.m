@@ -31,24 +31,24 @@ end
 
 validate_ranges(abs_indices_starts, block_sizes);
 
-if any(obj.page_dirty_)
+if obj.page_edited
     % At least some pixels sit in temporary files
     abs_indices = get_ind_from_ranges(abs_indices_starts, block_sizes);
     pix_out = obj.get_pixels(abs_indices);
-    return
+
 else
+
     skip_arg_validation = true;  % no point validating inputs again in faccess
     raw_pix = obj.f_accessor_.get_pix_in_ranges( ...
         abs_indices_starts, block_sizes, skip_arg_validation,keep_precision);
-end
 
-if recalculate_pix_range
-    pix_out = PixelDataBase.create(raw_pix);
-else
-    pix_out = PixelDataBase.create();
-    set_data(pix_out,'all',raw_pix);
-end
+    if recalculate_pix_range
+        pix_out = PixelDataBase.create(raw_pix);
+    else
+        pix_out = PixelDataBase.create();
+        set_data(pix_out,'all',raw_pix);
+    end
 
+end
 
 end  % function
-% -----------------------------------------------------------------------------

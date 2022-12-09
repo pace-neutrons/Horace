@@ -26,40 +26,50 @@ function data_out = get_data(obj, pix_fields, varargin)
 %                    property.
 %
 
+NO_INPUT_INDICES = -1;
 [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, varargin{:});
 field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
-base_pg_size = obj.base_page_size;
-if abs_pix_indices == -1
-    first_required_page = 1;
-    data_out = zeros(numel(pix_fields), obj.num_pixels);
+if obj.tmp_io_handler_.has_tmp_file_
+    if abs_pix_indices == NO_INPUT_INDICES
+        abs_pix_indices = 1:obj.num_pixels;
+    end
+    if obj.page_edited
+        obj = obj.write_dirty_page_;
+    end
+    data_out = obj.tmp_io_handler_.load_cols_at_indices(abs_pix_indices, field_indices);
+
 else
-    first_required_page = ceil(min(abs_pix_indices)/base_pg_size);
-    data_out = zeros(numel(pix_fields), numel(abs_pix_indices));
-end
 
-obj.move_to_page(first_required_page);
+    if abs_pix_indices == NO_INPUT_INDICES
+        obj.move_to_page(1);
+        data_out = zeros(numel(field_indices), obj.num_pixels);
+    else
+        obj.move_to_page(ceil(min(abs_pix_indices)/obj.base_page_size));
+        data_out = zeros(numel(field_indices), numel(abs_pix_indices));
+    end
+    base_pg_size = obj.base_page_size;
 
-data_out = assign_page_values(...
-    obj, data_out, abs_pix_indices, field_indices, base_pg_size);
-while obj.has_more()
-    obj.advance();
+
     data_out = assign_page_values(...
         obj, data_out, abs_pix_indices, field_indices, base_pg_size);
+    while obj.has_more()
+        obj.advance();
+        data_out = assign_page_values(...
+            obj, data_out, abs_pix_indices, field_indices, base_pg_size);
+    end
+end
+
 end
 
 
-end  % function
-
-
-% -----------------------------------------------------------------------------
 function data_out = assign_page_values(...
         obj, data_out, abs_pix_indices, field_indices, base_pg_size ...
     )
     NO_INPUT_INDICES = -1;
 
-    start_idx = (obj.page_number_ - 1)*base_pg_size + 1;
-    end_idx = min(obj.page_number_*base_pg_size, obj.num_pixels);
+    start_idx = obj.get_page_start_(obj.page_number_);
+    end_idx = start_idx + obj.get_npix_on_page_(obj.page_number_) - 1;
     if abs_pix_indices == NO_INPUT_INDICES
         data_out(:, start_idx:end_idx) = obj.data(field_indices, 1:end);
     else

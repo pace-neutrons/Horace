@@ -34,42 +34,23 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 
 abs_pix_indices = parse_args(obj, abs_pix_indices);
 
-if any(obj.page_dirty_)
+if obj.tmp_io_handler_.has_tmp_file_ || obj.page_edited
     % At least some pixels sit in temporary files
 
     % Allocate output array
     pix_out = PixelDataBase.create(numel(abs_pix_indices));
 
-    % Logical index into abs_pix_indices of all pixels on dirty pages
-    % This is used to track the positions of assigned pixels. We can use
-    % this to remove pixel indices from abs_pix_indices, so we're just left
-    % with the unassigned pixels.
-    pix_assigned = zeros(size(abs_pix_indices));
+    pixels = obj.tmp_io_handler_.load_pixels_at_indices( ...
+        abs_pix_indices);
 
-    % Deal with currently cached page
-    if ~obj.cache_is_empty_()
-        [pg_idxs, global_idx] = get_pg_idx_from_absolute_( ...
-            obj, abs_pix_indices, obj.page_number_);
-        pix_out.data(:, global_idx) = obj.data(:, pg_idxs);
-
-        pix_assigned = get_pix_pg_mask(obj, abs_pix_indices, obj.page_number_);
-    end
-
-    % Deal with dirty pixels
-    [pix_out, pix_assigned] = read_and_assign_dirty_pixels( ...
-        obj, pix_out, abs_pix_indices, pix_assigned);
-
-    % If there are pixels left to assign, load them from .sqw file
-    if ~all(pix_assigned)
-        pix_out.data(:, ~pix_assigned) = ...
-            read_clean_pix(obj, abs_pix_indices(~pix_assigned));
-    end
+    pix_out.data = pixels;
 
 else
     pix_out = PixelDataBase.create(read_clean_pix(obj, abs_pix_indices));
 end
 
-% -----------------------------------------------------------------------------
+end
+
 function abs_pix_indices = parse_args(obj, varargin)
 parser = inputParser();
 parser.addRequired('abs_pix_indices', @is_positive_int_vector_or_logical_vector);
@@ -96,65 +77,11 @@ if max_idx > obj.num_pixels
         obj.num_pixels);
 end
 
-
+end
 
 function is = is_positive_int_vector_or_logical_vector(vec)
 is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
-
-
-function [pix, pix_assigned] = read_and_assign_dirty_pixels( ...
-    obj, pix, abs_pix_indices, pix_assigned)
-% Assign dirty pixels to the given pixel data object.
-%
-% Inputs:
-% -------
-%   pix                The PixelData object to assign the dirty data to.
-%   abs_pix_indices    The absolute indices of the required pixels. These
-%                      will be filtered such that only the dirty pixels are
-%                      assigned - the clean pixel indices are discarded.
-%  pix_assigned        Logical array with true where the pixel at that
-%                      index has already been assigned to 'pix'.
-%
-dirty_pages = find(obj.page_dirty_);  % page number of dirty pages
-for i = 1:numel(dirty_pages)
-    pg_num = dirty_pages(i);
-
-    if (pg_num == obj.page_number_) && ~obj.cache_is_empty_()
-        % pix in cached page so we ignore temp files and use the cache
-        continue
-    end
-
-    % Logical array tracking indices of abs_pix_indices that are in pg_num
-    pix_pg_mask = get_pix_pg_mask(obj, abs_pix_indices, pg_num);
-    if ~any(pix_pg_mask)
-        continue
-    end
-
-    % Update logical array tracking indexes of dirty pixels
-    pix_assigned = pix_assigned | pix_pg_mask;
-
-    % Convert absolute indices into indices relative to the dirty page
-    pg_idxs = get_pg_idx_from_absolute_( ...
-        obj, abs_pix_indices(pix_pg_mask), pg_num);
-
-    % Load required pixels from temporary files
-    pixels = obj.tmp_io_handler_.load_pixels_at_indices( ...
-        pg_num, pg_idxs, obj.PIXEL_BLOCK_COLS_);
-
-    pix.data(:, pix_pg_mask) = pixels;
 end
-
-
-
-function pix_pg_mask = get_pix_pg_mask(obj, abs_pix_indices, page_number)
-% Get the min/max absolute index of the dirty page
-min_idx = (page_number - 1)*obj.base_page_size + 1;
-max_idx = min_idx + obj.base_page_size;
-
-% Logical array tracking indices of abs_pix_indices that are in page_number
-pix_pg_mask = abs_pix_indices >= min_idx & abs_pix_indices < max_idx;
-
-
 
 function pix = read_clean_pix(obj, indices)
 % Read the pixels at the given indices from the .sqw file backing obj
@@ -169,4 +96,6 @@ else
     [unique_sorted, ~, idx_map] = unique(indices);
     pix = obj.f_accessor_.get_pix_at_indices(unique_sorted);
     pix = pix(:, idx_map);
+end
+
 end

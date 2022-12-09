@@ -26,6 +26,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         RUN_IDX = 5;
         SIGNAL_IDX = 8;
         VARIANCE_IDX = 9;
+        tol = 1e-6;
     end
 
     methods(Static, Access=private)
@@ -275,6 +276,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             f = @() PixelDataBase.create(s);
             assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
+
         function test_PixelData_set_data_all(~)
             pix_data_obj = PixelDataBase.create();
             data = zeros(9,1);
@@ -283,6 +285,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(pix_data_obj.coordinates,zeros(4,1));
 
         end
+
         function test_PixelData_set_data_all_wrong_size(~)
             pix_data_obj = PixelDataBase.create();
             data = zeros(4,1);
@@ -446,7 +449,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             assertEqual(size(pix.signal), [1, pix.page_size]);
-            assertElementsAlmostEqual(pix.signal, data(8, 1:11),'relative',4.e-8);
+            assertElementsAlmostEqual(pix.signal, data(8, 1:11),'relative',obj.tol);
         end
 
         function test_calling_get_data_returns_data_for_single_page(obj)
@@ -454,10 +457,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             sig_var = pix.get_data({'signal', 'variance'}, 3:8);
-            assertElementsAlmostEqual(sig_var, data(8:9, 3:8),'relative',4e-8);
+            assertElementsAlmostEqual(sig_var, data(8:9, 3:8),'relative',obj.tol);
         end
 
-        function test_data_values_are_not_effected_by_changes_in_copies(~)
+        function test_data_values_are_not_affected_by_changes_in_copies(~)
             n_rows = 5;
             p1 = PixelDataBase.create(ones(9, n_rows));
             p2 = copy(p1);
@@ -498,7 +501,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             data = rand(9, 30);
             f = @(pix, iter) assertElementsAlmostEqual(pix.signal, ...
                 data(8, (iter*11 + 1):((iter*11 + 1) + pix.page_size - 1)),...
-                'relative',4.e-8);
+                'relative',obj.tol);
             obj.do_pixel_data_loop_with_f(f, data);
         end
 
@@ -556,9 +559,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix.advance();
-            assertElementsAlmostEqual(pix.u1, data(1, 12:22),'relative',4e-8);  % currently on the second page
+            assertElementsAlmostEqual(pix.u1, data(1, 12:22),'relative',obj.tol);  % currently on the second page
             pix.move_to_first_page();
-            assertElementsAlmostEqual(pix.u1, data(1, 1:11),'relative',4e-8);  % should be back to the first page
+            assertElementsAlmostEqual(pix.u1, data(1, 1:11),'relative',obj.tol);  % should be back to the first page
         end
 
         function test_move_to_first_page_keeps_data_if_pix_not_file_backed(obj)
@@ -593,19 +596,19 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix.u1 = 1;  % sets page 1 of u1 to all ones
             pix.advance();  % move to second page
             assertElementsAlmostEqual(pix.u1, data(1, (npix_in_page + 1):(2*npix_in_page)),...
-                'relative',4e-8);
+                'relative',obj.tol);
             pix.move_to_first_page();
-            assertEqual(pix.u1, ones(1, npix_in_page),'relative',4e-8);
+            assertEqual(pix.u1, ones(1, npix_in_page),'relative',obj.tol);
         end
 
         function test_dirty_pix_tmp_files_are_deleted_when_pix_out_of_scope(obj)
             old_rng_state = rng();
             clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;
-            rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 54452
-            expected_tmp_dir = fullfile( ...
+            rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 53805
+            expected_tmp_file = fullfile( ...
                 get(parallel_config, 'working_directory'), ...
-                'sqw_pix53805' ...
+                'sqw_pix000053805.tmp_sqw' ...
                 );
 
             function do_pix_creation_and_delete()
@@ -615,14 +618,14 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
                 pix.u1 = 1;
                 pix.advance();  % creates tmp file for first page
                 assertTrue( ...
-                    is_folder(expected_tmp_dir), ...
-                    sprintf('Temp directory ''%s'' not created', expected_tmp_dir) ...
+                    is_file(expected_tmp_file), ...
+                    sprintf('Temp file ''%s'' not created', expected_tmp_file) ...
                     );
             end
 
             do_pix_creation_and_delete();
-            assertFalse(is_folder(expected_tmp_dir), ...
-                'Temp directory not deleted');
+            assertFalse(is_file(expected_tmp_file), ...
+                'Temp file not deleted');
         end
 
         function test_all_page_changes_saved_after_edit_advance_and_reset(obj)
@@ -871,13 +874,13 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             npix_in_page = 3;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
-            assertElementsAlmostEqual(pix.data, data(:, 1:3),'relative',4e-8);
+            assertElementsAlmostEqual(pix.data, data(:, 1:3),'relative',obj.tol);
             pix.advance();
-            assertElementsAlmostEqual(pix.data, data(:, 4:6),'relative',4e-8);
+            assertElementsAlmostEqual(pix.data, data(:, 4:6),'relative',obj.tol);
             pix.advance();
-            assertElementsAlmostEqual(pix.data, data(:, 7:9),'relative',4e-8);
+            assertElementsAlmostEqual(pix.data, data(:, 7:9),'relative',obj.tol);
             pix.advance();
-            assertElementsAlmostEqual(pix.data, data(:, 10),'relative',4e-8);
+            assertElementsAlmostEqual(pix.data, data(:, 10),'relative',obj.tol);
         end
 
         function test_unedited_dirty_pages_are_not_rewritten(obj)
@@ -885,9 +888,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;  % this seed gives an expected object_id_ = 03862
             rng(fixed_seed, 'twister');
-            expected_tmp_dir = fullfile( ...
+            expected_tmp_file = fullfile( ...
                 get(parallel_config, 'working_directory'), ...
-                'sqw_pix03862' ...
+                'sqw_pix000003862.tmp_sqw' ...
                 );
 
             data = rand(9, 10);
@@ -899,11 +902,11 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             [n_page,num_pages]=pix.advance();
             assertEqual(n_page,2)
             assertEqual(num_pages,4)
-            tmp_file_path = fullfile(expected_tmp_dir, '000000001.tmp');
-            assertTrue(is_file(tmp_file_path));
+
+            assertTrue(is_file(expected_tmp_file));
 
             % record the temp file's original timestamp
-            original_timestamp = java.io.File(tmp_file_path).lastModified();
+            original_timestamp = java.io.File(expected_tmp_file).lastModified();
 
             % move to first page and advance again
             pix.move_to_first_page();
@@ -912,22 +915,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             pause(0.2)  % let the file system catch up
             % get most recent timestamp
-            new_timestamp = java.io.File(tmp_file_path).lastModified();
+            new_timestamp = java.io.File(expected_tmp_file).lastModified();
 
             assertEqual(new_timestamp, original_timestamp, ...
                 'Temporary file timestamps are not equal.');
-        end
-
-        function test_cannot_append_more_pixels_than_can_fit_in_page(obj)
-            npix_in_page = 5;
-            mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
-            pix = PixelDataFileBacked(zeros(9, 0), mem_alloc);
-
-            data = ones(obj.NUM_COLS_IN_PIX_BLOCK, 11);
-            pix_to_append = PixelData.create(data);
-
-            f = @() pix.append(pix_to_append);
-            assertExceptionThrown(f, 'PIXELDATA:append:invalid_argument');
         end
 
         function test_you_can_append_to_empty_PixelData_object(obj)
@@ -962,14 +953,14 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             expected_pg_2_data = data(:, (pg_offset + 1):end);
 
             pix.append(pix_to_append);
-            assertEqual(pix.pix_range,minmax)
+            assertEqual(pix.pix_range,minmax, '', obj.tol);
 
             pix.move_to_first_page();
-            assertEqual(pix.data, expected_pg_1_data, '', 1e-7);
+            assertEqual(pix.data, expected_pg_1_data, '', obj.tol);
 
             pix.advance();
-            assertEqual(pix.data, expected_pg_2_data, '', 1e-7);
-            assertEqual(pix.pix_range,minmax);
+            assertEqual(pix.data, expected_pg_2_data, '', obj.tol);
+            assertEqual(pix.pix_range,minmax, '', obj.tol);
         end
 
         function test_you_can_append_to_PixelData_with_full_page(obj)
@@ -986,11 +977,11 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix.append(pix_to_append);
 
             pix.move_to_first_page();
-            assertEqual(pix.data, existing_data, '', 1e-7);
+            assertEqual(pix.data, existing_data, '', obj.tol);
             assertEqual(pix.pix_range,minmax);
 
             pix.advance();
-            assertEqual(pix.data, appended_data, '', 1e-7);
+            assertEqual(pix.data, appended_data, '', obj.tol);
             assertEqual(pix.pix_range,minmax);
         end
 
@@ -1000,24 +991,26 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
             original_data = rand(9, num_pix);
 
-            pix = PixelDataFileBacked(original_data(:, 1:npix_in_page), mem_alloc);
+            pix = get_pix_with_fake_faccess(obj, original_data(:, 1:npix_in_page), npix_in_page);
             minmax = obj.get_ref_range(original_data);
-            assertEqual(pix.data, original_data(:, 1:npix_in_page));
+            assertEqual(pix.data, original_data(:, 1:npix_in_page), '', obj.tol);
             pix.signal = ones(1, npix_in_page);
-
-            for i = 2:ceil(num_pix/npix_in_page)
-                start_idx = (i - 1)*npix_in_page + 1;
-                end_idx = min(start_idx + npix_in_page - 1, num_pix);
-                pix.append(PixelDataFileBacked(original_data(:, start_idx:end_idx)));
-                assertEqual(pix.data, original_data(:, start_idx:end_idx));
-            end
-            assertEqual(pix.pix_range, minmax)
+            pix.append(PixelDataFileBacked(original_data(:, npix_in_page:end)));
 
             pix.move_to_first_page();
             expected_pg_1_data = original_data(:, 1:npix_in_page);
             expected_pg_1_data(8, :) = 1;
-            assertEqual(pix.data, expected_pg_1_data, '', 1e-7);
-            assertEqual(pix.pix_range,minmax);
+            assertEqual(pix.data, expected_pg_1_data, '', obj.tol);
+
+            for start_idx = npix_in_page:npix_in_page:num_pix
+                end_idx = min(start_idx + npix_in_page - 1, num_pix);
+                pix.advance();
+                assertEqual(pix.data, original_data(:, start_idx:end_idx), '', obj.tol);
+            end
+
+            assertEqual(pix.pix_range,minmax, '', obj.tol);
+
+
         end
 
         function test_you_can_append_to_file_backed_PixelData(obj)
@@ -1026,43 +1019,31 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             [pix,pix_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             data_to_append = rand(9, 8);
-            new_range = obj.get_ref_range(data_to_append);
 
+            new_range = obj.get_ref_range(data_to_append);
             pix_to_append = PixelDataFileBacked(data_to_append);
+
             tot_range = [min(new_range(1,:),pix_range(1,:));...
-                max(new_range(2,:),pix_range(2,:))];
+                         max(new_range(2,:),pix_range(2,:))];
+
             pix.append(pix_to_append);
-            assertElementsAlmostEqual(tot_range,pix.pix_range,'relative',4e-8);
+
+            assertEqualToTol(tot_range,pix.pix_range,'abs',obj.tol);
 
             expected_final_pg = horzcat(data(:, 23:end), data_to_append);
-            assertElementsAlmostEqual(pix.data, expected_final_pg,'relative',4e-8);
 
             pix.move_to_first_page();
-            assertEqual(pix.data, data(:, 1:npix_in_page), '', 1e-7);
-            assertElementsAlmostEqual(tot_range,pix.pix_range,'relative',4e-8);
-
+            assertEqualToTol(pix.data, data(:, 1:npix_in_page), 'abs', obj.tol);
             pix.advance();
-            assertEqual(pix.data, data(:, (npix_in_page + 1):(2*npix_in_page)), ...
-                '', 1e-7);
-
+            assertEqualToTol(pix.data, data(:, (npix_in_page + 1):(2*npix_in_page)), ...
+                'abs', obj.tol);
             pix.advance();
-            assertEqual(pix.data, expected_final_pg, '', 1e-7);
-            assertElementsAlmostEqual(tot_range,pix.pix_range,'relative',4e-8);
+            assertEqualToTol(pix.data, expected_final_pg, 'abs', obj.tol);
         end
 
         function test_error_if_append_called_with_non_PixelData_object(~)
             pix = PixelDataFileBacked(rand(9, 1));
             f = @() pix.append(rand(9, 1));
-            assertExceptionThrown(f, 'PIXELDATA:append:invalid_argument');
-        end
-
-        function test_error_if_appending_pix_with_multiple_pages(obj)
-            npix_in_page = 11;
-            mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
-            pix = PixelDataFileBacked(rand(9, 5), mem_alloc);
-
-            pix_to_append = obj.get_pix_with_fake_faccess(rand(9, 23), npix_in_page);
-            f = @() pix.append(pix_to_append);
             assertExceptionThrown(f, 'PIXELDATA:append:invalid_argument');
         end
 
@@ -1073,11 +1054,11 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_to_append = PixelDataFileBacked(rand(9, 5));
 
             [~] = pix.append(pix_to_append);
-            assertElementsAlmostEqual(pix.pix_range,pix_range,'relative',4.e-8);
+            assertElementsAlmostEqual(pix.pix_range,pix_range,'relative',obj.tol);
 
             assertEqual(pix.num_pixels, size(data, 2));
             pix_data = concatenate_pixel_pages(pix);
-            assertElementsAlmostEqual(pix_data, data,'relative',4.e-8);
+            assertElementsAlmostEqual(pix_data, data,'relative',obj.tol);
         end
 
         function test_append_returns_edited_pix_if_nargout_eq_1(obj)
@@ -1110,7 +1091,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(range,pix.pix_range);
         end
 
-        function test_copied_pix_that_has_been_appended_to_has_correct_num_pix(~)
+        function test_copied_pix_that_has_been_appended_to_has_correct_num_pix(obj)
             data = rand(9, 30);
             pix = PixelDataFileBacked(data);
             range1 = pix.pix_range;
@@ -1129,7 +1110,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_copy = copy(pix);
             assertEqual(pix.num_pixels, size(data, 2) + num_appended_pix);
             assertEqual(pix_copy.num_pixels, size(data, 2) + num_appended_pix);
-            assertEqual(ref_range,pix_copy.pix_range);
+            assertEqualToTol(ref_range,pix_copy.pix_range, 'reltol', obj.tol);
         end
 
         function test_has_more_is_true_after_appending_page_to_non_file_backed(~)
@@ -1179,9 +1160,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
                 pix.move_to_page(pg_num);
                 assertElementsAlmostEqual(pix.data,...
-                    data(:, pg_idx_start:pg_idx_end),'relative',4e-8);
+                    data(:, pg_idx_start:pg_idx_end),'relative',obj.tol);
             end
-            assertElementsAlmostEqual(pix.pix_range,pix_range,'relative',4e-8);
+            assertElementsAlmostEqual(pix.pix_range,pix_range,'relative',obj.tol);
         end
 
         function test_move_to_page_throws_if_arg_exceeds_number_of_pages(obj)
@@ -1243,9 +1224,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix_chunk = pix.get_pixels(start_idx:end_idx);
             ref_range = obj.get_ref_range(data(:,start_idx:end_idx));
-            assertElementsAlmostEqual(pix_chunk.pix_range,ref_range,'relative',4e-8);
+            assertElementsAlmostEqual(pix_chunk.pix_range,ref_range,'relative',obj.tol);
             assertElementsAlmostEqual(pix_chunk.data, ...
-                data(:, start_idx:end_idx),'relative',4e-8);
+                data(:, start_idx:end_idx),'relative',obj.tol);
         end
 
         function test_get_pixels_retrieves_correct_data_at_page_boundary(obj)
@@ -1258,25 +1239,25 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             ref_range = obj.get_ref_range(data(:, 1:3));
 
             assertElementsAlmostEqual(pix_chunk1.data, data(:, 1:3),... ...
-                'relative',4e-8);
+                'relative',obj.tol);
             assertElementsAlmostEqual(pix_chunk1.pix_range,ref_range,...
-                'relative',4e-8);
+                'relative',obj.tol);
 
 
             pix_chunk2 = pix.get_pixels(20);
             ref_range = obj.get_ref_range(data(:, 20));
 
             assertElementsAlmostEqual(pix_chunk2.data, data(:, 20),...
-                'relative',4e-8);
+                'relative',obj.tol);
             assertElementsAlmostEqual(pix_chunk2.pix_range,ref_range,...
-                'relative',4e-8);
+                'relative',obj.tol);
 
             pix_chunk3 = pix.get_pixels(1:1);
             ref_range = obj.get_ref_range(data(:, 1));
             assertElementsAlmostEqual(pix_chunk3.data, data(:, 1),...
-                'relative',4e-8);
+                'relative',obj.tol);
             assertElementsAlmostEqual(pix_chunk3.pix_range,ref_range,...
-                'relative',4e-8);
+                'relative',obj.tol);
         end
 
         function test_get_pixels_gets_all_data_if_full_range_requested(obj)
@@ -1288,10 +1269,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             ref_range = obj.get_ref_range(data(:,1:num_pix));
             pix_chunk = pix.get_pixels(1:num_pix);
             assertElementsAlmostEqual(pix_chunk.pix_range,ref_range,...
-                'relative',4e-8);
+                'relative',obj.tol);
 
             assertElementsAlmostEqual(pix_chunk.data,...
-                concatenate_pixel_pages(pix),'relative',4e-8);
+                concatenate_pixel_pages(pix),'relative',obj.tol);
         end
 
         function test_get_pixels_reorders_output_according_to_indices(obj)
@@ -1304,8 +1285,8 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             shuffled_pix = data(:, rand_order);
             pix_out = pix.get_pixels(rand_order);
 
-            assertElementsAlmostEqual(pix_out.data, shuffled_pix,'relative',4e-8);
-            assertElementsAlmostEqual(pix_out.pix_range,ref_range,'relative',4e-8);
+            assertElementsAlmostEqual(pix_out.data, shuffled_pix,'relative',obj.tol);
+            assertElementsAlmostEqual(pix_out.pix_range,ref_range,'relative',obj.tol);
         end
 
         function test_get_pixels_throws_invalid_arg_if_indices_not_vector(~)
@@ -1360,9 +1341,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_out = pix.get_pixels(logical_array);
 
             assertElementsAlmostEqual(pix_out.data, data(:, logical_array),...
-                'relative',4e-8);
+                'relative',obj.tol);
             assertElementsAlmostEqual(pix_out.pix_range,ref_range,...
-                'relative',4e-8);
+                'relative',obj.tol);
         end
 
         function test_get_pixels_throws_if_logical_1_index_out_of_range(obj)
@@ -1387,10 +1368,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_out = pix.get_pixels(logical_array);
 
             assertElementsAlmostEqual(pix_out.data, data(:, logical_array),...
-                'relative',4e-8);
+                'relative',obj.tol);
             ref_range = obj.get_ref_range(data(:, logical_array));
             assertElementsAlmostEqual(pix_out.pix_range,ref_range,...
-                'relative',4e-8);
+                'relative',obj.tol);
         end
 
         function test_in_mem_pix_get_pixels_can_be_called_with_a_logical(obj)
@@ -1402,10 +1383,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_out = pix.get_pixels(logical_array);
 
             assertElementsAlmostEqual(pix_out.data, pix.data(:, logical_array),...
-                'relative',4e-8);
+                'relative',obj.tol);
             ref_range = obj.get_ref_range(in_data(:,logical_array));
             assertElementsAlmostEqual(pix_out.pix_range,ref_range,...
-                'relative',4e-8);
+                'relative',obj.tol);
         end
 
         function test_get_pixels_can_handle_repeated_indices(obj)
@@ -1418,10 +1399,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             pix_chunk = pix.get_pixels(idx_array);
             assertElementsAlmostEqual(pix_chunk.data, data(:, idx_array),...
-                'relative',4e-8);
+                'relative',obj.tol);
             ref_range = obj.get_ref_range(data(:,idx_array));
             assertElementsAlmostEqual(ref_range,pix_chunk.pix_range,...
-                'relative',4e-8);
+                'relative',obj.tol);
         end
 
         function test_get_pixels_on_file_backed_can_handle_repeated_indices(obj)
@@ -1463,7 +1444,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             expected_sig_var = data([obj.SIGNAL_IDX, obj.VARIANCE_IDX], indices);
 
             assertElementsAlmostEqual(sig_var, expected_sig_var,...
-                'relative',4.e-8);
+                'relative',obj.tol);
         end
 
         function test_get_data_retrieves_correct_data_at_page_boundary(obj)
@@ -1472,17 +1453,19 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             npix_in_page = 10;
 
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+%             a = pix.get_data('signal')
             sig = pix.get_data('signal', 1:3);
             assertElementsAlmostEqual(sig, data(obj.SIGNAL_IDX, 1:3),...
-                'relative',4.e-8);
+                'relative',obj.tol);
 
             sig2 = pix.get_data('signal', 20);
             assertElementsAlmostEqual(sig2, data(obj.SIGNAL_IDX, 20),...
-                'relative',4.e-8);
+                'relative',obj.tol);
 
             sig3 = pix.get_data('signal', 1:1);
             assertElementsAlmostEqual(sig3, data(obj.SIGNAL_IDX, 1),...
-                'relative',4.e-8);
+                'relative',obj.tol);
         end
 
         function test_paged_pix_get_data_returns_full_data_range_if_no_idx_arg(obj)
@@ -1494,7 +1477,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             expected_var_sig = data([obj.VARIANCE_IDX, obj.SIGNAL_IDX], :);
 
             assertElementsAlmostEqual(var_sig, expected_var_sig,...
-                'relative',4.e-8);
+                'relative',obj.tol);
         end
 
         function test_paged_pix_get_data_can_be_called_with_a_logical(obj)
@@ -1509,7 +1492,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             expected_sig_var = data([obj.SIGNAL_IDX, obj.VARIANCE_IDX], ...
                 logical_array);
             assertElementsAlmostEqual(sig_var, expected_sig_var,...
-                'relative',4.e-8);
+                'relative',obj.tol);
         end
 
         function test_get_data_throws_if_logical_1_index_out_of_range(obj)
@@ -1535,7 +1518,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             assertElementsAlmostEqual(var_sig, ...
                 data([obj.VARIANCE_IDX, obj.SIGNAL_IDX], logical_array),...
-                'relative',4e-8);
+                'relative',obj.tol);
         end
 
 
@@ -1560,7 +1543,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             sig_run = pix.get_data({'signal', 'run_idx'}, idx_array);
             assertElementsAlmostEqual(sig_run, data([obj.SIGNAL_IDX, obj.RUN_IDX], idx_array),...
-                'relative',4e-8);
+                'relative',obj.tol);
         end
 
 
@@ -1576,9 +1559,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             assertElementsAlmostEqual(sig_var, ...
                 shuffled_pix([obj.SIGNAL_IDX, obj.VARIANCE_IDX], :),...
-                'relative',4e-8);
+                'relative',obj.tol);
             assertElementsAlmostEqual(pix.pix_range,pix_range,...
-                'relative',4e-8);
+                'relative',obj.tol);
         end
 
         function test_get_data_throws_invalid_arg_if_indices_not_vector(~)
@@ -1629,101 +1612,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(pix.base_page_size, expected_num_pix);
         end
 
-        function test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages(obj)
-            pix = PixelDataFileBacked(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE/2);
-            pix.advance();  % pg 1 is clean
-            % Set all signals in page 2 to 11
-            pix.signal = 11;
-            pix.advance();  % pg 2 is dirty
-            pix.advance();  % pg 3 is clean
-            % Set all signals in page 4 to 12
-            pix.signal = 12;
-            pix.advance();  % advance to save pixels to tmp file (pg 4 is dirty)
-
-            pg_size = pix.base_page_size;
-            % Set a range spanning into the first and second page and half of the
-            % 4th page
-            pix_range = [5:(pg_size + 100), ...
-                (3*pg_size + 4):(3*pg_size + floor(pg_size/2))];
-            new_pix = pix.get_pixels(pix_range);
-
-            % Load the whole file into a PixelData object, set the corresponding
-            % pixels to 11 and 12 as above
-            in_mem_pix = PixelDataMemory(obj.tst_sqw_file_full_path);
-            in_mem_pix.signal((pg_size + 1):(2*pg_size)) = 11;
-            in_mem_pix.signal((3*pg_size + 1):(4*pg_size)) = 12;
-            expected_pix = PixelDataMemory(in_mem_pix.data(:, pix_range));
-
-            assertEqualToTol(new_pix, expected_pix);
-        end
-
-        function test_get_pixels_can_load_clean_and_dirty_pix_out_of_order(obj)
-            % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
-            % relevant test explanation
-            pix = PixelDataFileBacked(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
-            pix.advance();
-            pix.signal = 11;
-            pix.advance();
-            pix.signal = 12;
-            pix.advance();
-
-            pg_size = pix.base_page_size;
-            pix_range = pix.num_pixels:-1:1;  % pix range in reverse order
-            new_pix = pix.get_pixels(pix_range);
-
-            in_mem_pix = PixelDataMemory(obj.tst_sqw_file_full_path);
-            in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
-            in_mem_pix.signal(2*pg_size + 1:3*pg_size) = 12;
-            expected_pix = PixelDataMemory(in_mem_pix.data(:, pix_range));
-
-            assertEqualToTol(new_pix, expected_pix);
-        end
-
-        function test_get_pixels_can_load_clean_and_dirty_pix_with_duplicates(obj)
-            % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
-            % relevant test explanation
-            pix = PixelDataFileBacked(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
-            assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
-            pix.advance();
-            pix.signal = 11;
-            pix.advance();
-
-            pg_size = pix.base_page_size;
-            % Repeat each index from 1 to the page size 3 times
-            pix_range = repelem(1:3*pg_size, 3);
-            new_pix = pix.get_pixels(pix_range);
-
-            in_mem_pix = PixelDataMemory(obj.tst_sqw_file_full_path);
-            in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
-            expected_pix = PixelDataMemory(in_mem_pix.data(:, pix_range));
-
-            assertEqualToTol(new_pix, expected_pix);
-        end
-
-        function test_get_pixels_can_load_clean_and_dirty_pix_cached_page_dirty(obj)
-            % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
-            % relevant test explanation
-            pix = PixelDataFileBacked(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
-            assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
-            pix.advance();
-            pix.signal = 11;
-
-            % Do not advance past edited page, changes only exist in cache and not
-            % in temporary files
-            pg_size = pix.base_page_size;
-
-            % Repeat each index from 1 to the page size 3 times
-            pix_range = repelem(1:3*pg_size, 3);
-            new_pix = pix.get_pixels(pix_range);
-
-            in_mem_pix = PixelDataMemory(obj.tst_sqw_file_full_path);
-            in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
-            expected_pix = PixelDataMemory(in_mem_pix.data(:, pix_range));
-
-            assertEqualToTol(new_pix, expected_pix);
-        end
-
-        function test_get_pixels_correct_if_all_pages_dirty(~)
+        function test_get_pixels_correct_if_all_pages_dirty(obj)
             data = rand(9, 45);
             mem_alloc = 8*9*15;
             pix = PixelDataFileBacked(zeros(9, 0), mem_alloc);
@@ -1735,10 +1624,11 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             pix_idx = [12:17, 28:33, 44];
             new_pix = pix.get_pixels(pix_idx);
-
             expected_pix = PixelDataMemory(data(:, pix_idx));
-            assertEqualToTol(new_pix, expected_pix, 'reltol', 1e-5);
+
+            assertEqualToTol(new_pix, expected_pix, 'reltol', obj.tol);
         end
+
         function test_calling_advance_with_nosave_discards_cached_changes(obj)
             data = zeros(9, 30);
             npix_in_page = 11;
@@ -1859,7 +1749,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             assertEqual(pix.get_data(fields), new_data);
         end
+
         % -- Helpers --
+
         function [pix,pix_range] = get_pix_with_fake_faccess(obj, data, npix_in_page)
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
             faccess = FakeFAccess(data);

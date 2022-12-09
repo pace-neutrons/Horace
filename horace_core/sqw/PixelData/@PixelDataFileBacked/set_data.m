@@ -24,23 +24,26 @@ NO_INPUT_INDICES = -1;
 
 base_pg_size = obj.base_page_size;
 
+if ~obj.tmp_io_handler_.has_tmp_file_
+    obj = obj.dump_all_pixels_();
+end
+
 if abs_pix_indices == NO_INPUT_INDICES
-    first_required_page = 1;
+    obj.tmp_io_handler_ = obj.tmp_io_handler_.set_all_indices(field_indices, data);
 else
     first_required_page = ceil(min(abs_pix_indices)/base_pg_size);
-end
-obj.move_to_page(first_required_page);
+    obj.move_to_page(first_required_page);
 
-set_page_data(obj, field_indices, data, abs_pix_indices);
-while obj.has_more()
-    obj.advance();
     set_page_data(obj, field_indices, data, abs_pix_indices);
+    while obj.has_more()
+        obj.advance();
+        set_page_data(obj, field_indices, data, abs_pix_indices);
+    end
 end
 
 end  % function
 
 
-% -----------------------------------------------------------------------------
 function [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin)
     NO_INPUT_INDICES = -1;
 
@@ -84,19 +87,12 @@ end
 
 function set_page_data(obj, field_indices, data, abs_indices)
     % Set the values on the given fields on the current page of data.
-    NO_INPUT_INDICES = -1;
-    base_pg_size = obj.base_page_size;
 
-    if abs_indices == NO_INPUT_INDICES
-        start_idx = (obj.page_number_ - 1)*base_pg_size + 1;
-        end_idx = min(obj.page_number_*base_pg_size, obj.num_pixels);
-        obj.data(field_indices, :) = data(:, start_idx:end_idx);
-    else
-        [pg_idxs, data_idxs] = get_pg_idx_from_absolute_( ...
-            obj, abs_indices, obj.page_number_ ...
-        );
-        if ~isempty(pg_idxs)
-            obj.data(field_indices, pg_idxs) = data(:, data_idxs);
-        end
+    [pg_idxs, data_idxs] = get_pg_idx_from_absolute_( ...
+        obj, abs_indices, obj.page_number_ ...
+                                                    );
+    if ~isempty(pg_idxs)
+        obj.data(field_indices, pg_idxs) = data(:, data_idxs);
     end
+    obj.page_edited = true;
 end

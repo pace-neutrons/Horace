@@ -35,6 +35,10 @@ if nargout ~= 1
         'called with exactly one output argument.']);
 end
 
+if ~exist('npix', 'var')
+    npix = [];
+end
+
 [mask_array, npix] = validate_input_args(obj, mask_array, npix);
 
 if numel(mask_array) == obj.num_pixels && all(mask_array)

@@ -1,40 +1,48 @@
 classdef PixelTmpFileHandler
 
     properties (Constant, Access=private)
-        TMP_DIR_BASE_NAME_ = 'sqw_pix%09d.tmp_sqw';
-        FILE_DATA_FORMAT_ = 'float32';
+        TMP_FILE_BASE_NAME_ = 'sqw_pix%09d.tmp_sqw';
+        FILE_DATA_FORMAT_ = 'single';
         SIZE_OF_FLOAT = 4;
+        NUM_COLS = 9;
     end
 
     properties(Dependent)
-        page_size
+        page_size;
+        file_path;
+        pix_per_page;
+        num_pixels;
     end
 
-    properties(Access=private, SetAccess=immutable)
-        file_path_ = '';  % The path to the directory in which to write the tmp files
+    properties(GetAccess=public, SetAccess=immutable, Hidden)
+        file_path_ = '';  % The path to the directory in which to write the tmp file
         pix_id_ = -1;     % The ID of the PixelData instance linked to this object
         offset_ = 0;      % Offset of the filehandler's pix in file (for parallel usage)
     end
 
+    properties
+        has_tmp_file_ = false;  % whether object has a tmp file
+    end
+
     properties (Access=private)
-        has_tmp_file_ = false;  % Logical array mapping page to whether that page has a tmp file
-        page_size_ = get(hpc_config, 'mem_chunk_size');
+        page_size_ = get(hor_config, 'mem_chunk_size');
+        file_id_ = -1;
     end
 
     methods
 
-        function obj = PixelTmpFileHandler(pix_id, has_tmp_files, offset, page_size)
+        function obj = PixelTmpFileHandler(pix_id, has_tmp_file, offset, page_size)
         % Construct a PixelTmpFileHandler object
         %
         % Input
         % -----
         % pix_id   The ID of the PixelData instance this object is linked to.
         %          This sets the tmp directory name
-        % has_tmp_files  Logical array saying if tmp exist for the given page
+        % has_tmp_file  Logical array saying if tmp exist for the given page
             obj.pix_id_ = pix_id;
             obj.file_path_ = obj.generate_tmp_pix_file_path_();
-            if exist('has_tmp_files', 'var')
-                obj.has_tmp_file_ = has_tmp_files;
+            if exist('has_tmp_file', 'var')
+                obj.has_tmp_file_ = has_tmp_file;
             end
             if exist('offset', 'var')
                 obj.offset_ = offset;
@@ -44,7 +52,15 @@ classdef PixelTmpFileHandler
             end
         end
 
-        function raw_pix = load_page(obj, page_number, ncols)
+        function new_obj = copy(obj, obj_id)
+            new_obj = PixelTmpFileHandler(obj_id, false, obj.offset_, obj.page_size);
+            new_obj.has_tmp_file_ = obj.copy_file(obj_id);
+            if new_obj.has_tmp_file_
+                new_obj = new_obj.reopen_file_();
+            end
+        end
+
+        function raw_pix = load_pix(obj, pix_start, pix_end)
         % Load a page of data from the tmp file with the given page number
         %
         % Input
@@ -53,45 +69,82 @@ classdef PixelTmpFileHandler
         % ncols         The number of columns in the page, used for reshaping
         %               (default = 1)
         %
-            if ~exist('ncols', 'var')
-                ncols = 1;
-            end
+            start_idx = sub2ind([obj.NUM_COLS, obj.num_pixels], 1, pix_start);
+            end_idx = start_idx - 1 + (pix_end-pix_start+1)*obj.NUM_COLS;
 
-            [file_id, clean_up] = obj.open_file_('rb');
+            raw_pix = reshape(double(obj.file_id_.Data(start_idx:end_idx)), [obj.NUM_COLS, pix_end - pix_start + 1]);
 
-            do_fseek(file_id, obj.page_size*page_number, 'cof');
-
-            page_shape = [ncols, Inf];
-            raw_pix = do_fread(file_id, page_shape, obj.FILE_DATA_FORMAT_);
+%             obj.seek_(obj.SIZE_OF_FLOAT*obj.NUM_COLS*pix_start, 'bof');
+%             raw_pix = obj.read_([obj.NUM_COLS, pix_end-pix_start+1]);
         end
 
-        function raw_pix = load_pixels_at_indices(obj, indices, ncols)
-            if nargin == 2
-                ncols = 1;
+        function raw_pix = load_pixels_at_indices(obj, indices)
+
+            raw_pix = obj.load_cols_at_indices(indices, 1:obj.NUM_COLS);
+            % [read_sizes, seek_sizes, idx_map] = get_pix_locs(indices);
+            % PIXEL_SIZE = obj.SIZE_OF_FLOAT*obj.NUM_COLS;  % bytes
+            %
+            % obj.seek_(0, 'bof');
+            %
+            % out_pix_start = 1;
+            % raw_pix =
+            % for block_num = 1:numel(read_sizes)
+            %     obj.seek_(seek_sizes(block_num)*PIXEL_SIZE, 'cof');
+            %
+            %     out_pix_end = out_pix_start + read_sizes(block_num) - 1;
+            %     read_size = [ncols, read_sizes(block_num)];
+            %     raw_pix(:, out_pix_start:out_pix_end) = obj.read_(read_size);
+            %
+            %     out_pix_start = out_pix_start + read_sizes(block_num);
+            % end
+
+        end
+
+        function raw_pix = load_cols_at_indices(obj, pix_indices, col_indices)
+
+            raw_pix = zeros(numel(col_indices), numel(pix_indices));
+            pix_indices = (pix_indices - 1)*obj.NUM_COLS;
+
+            for i = 1:numel(col_indices)
+                raw_pix(i, :) = obj.file_id_.Data(pix_indices+col_indices(i));
             end
+            raw_pix = double(raw_pix);
 
-            PIXEL_SIZE = obj.SIZE_OF_FLOAT*ncols;  % bytes
+        %             data = memmapfile(obj.file_path_, ...
+%                               'Format', 'single', ...
+%                               'Offset', obj.offset_/obj.SIZE_OF_FLOAT ...
+%                              );
+%
+%             data.Data
+%             npix = numel(data.Data)/obj.NUM_COLS;
+%             data.Format = {'single', [obj.NUM_COLS npix], 'pix'};
+%             data.Data.pix
+%             fread(fopen(obj.file_path_), [obj.NUM_COLS inf], 'single')
+%             raw_pix = data.Data.pix(col_indices,pix_indices);
 
-            [file_id, clean_up] = obj.open_file_('rb');
-            [read_sizes, seek_sizes, idx_map] = obj.get_pix_locs(indices);
-            raw_pix = zeros(ncols, numel(indices));
 
-            out_pix_start = 1;
-            for block_num = 1:numel(read_sizes)
-                do_fseek(file_id, seek_sizes(block_num)*PIXEL_SIZE, 'cof');
+        end
 
-                out_pix_end = out_pix_start + read_sizes(block_num) - 1;
-                read_size = [ncols, read_sizes(block_num)];
-                raw_pix(:, out_pix_start:out_pix_end) = ...
-                    do_fread(file_id, read_size, obj.FILE_DATA_FORMAT_);
-
-                out_pix_start = out_pix_start + read_sizes(block_num);
-            end
-
-            if ~isempty(idx_map)
-                raw_pix = raw_pix(:, idx_map);
+        function obj = set_all_indices(obj, col_indices, data)
+            if ~isscalar(data)
+                for i = 1:numel(col_indices)
+                    obj.file_id_.Data(col_indices(i):obj.NUM_COLS:obj.num_pixels*obj.NUM_COLS) = data(i, :);
+                end
+            else
+                for i = 1:numel(col_indices)
+                    obj.file_id_.Data(col_indices(i):obj.NUM_COLS:obj.num_pixels*obj.NUM_COLS) = data;
+                end
             end
         end
+
+        function obj = set_pix_indices(obj, pix_indices, col_indices, data)
+            pix_indices = (pix_indices - 1)*obj.NUM_COLS;
+
+            for i = 1:numel(col_indices)
+                obj.file_id_.Data(pix_indices+col_indices(i)) = data(i, :);
+            end
+        end
+
 
         function obj = write_pixels(obj, page_number, raw_pix)
         % Write the given pixel data to tmp file with the given page number
@@ -102,31 +155,17 @@ classdef PixelTmpFileHandler
         % raw_pix       The raw pixel data array to write
         %
 
-            [file_id, clean_up] = obj.open_file_('wb');
+            start_idx = (page_number-1)*obj.pix_per_page+1;
+            raw_pix = single(raw_pix);
+            ind = sub2ind([obj.NUM_COLS obj.num_pixels], 1, start_idx);
+            obj.file_id_.Data(ind:ind+numel(raw_pix)-1) = raw_pix;
 
-            do_fseek(file_id, obj.page_size*page_number, 'cof');
-
-            try
-                fwrite(file_id, raw_pix, obj.FILE_DATA_FORMAT_);
-            catch ME
-                switch ME.identifier
-                  case 'MATLAB:badfid_mx'
-                    error('PIXELTMPFILEHANDLER:write_float_data_', ...
-                          ['Could not write to file with ID ''%d'':\n' ...
-                           'The file is not open'], file_id);
-                  otherwise
-                    tmp_file_path = fopen(file_id);
-                    error('PIXELTMPFILEHANDLER:write_float_data_', ...
-                          'Could not write to file ''%s'':\n%s', ...
-                          tmp_file_path, ferror(file_id));
-                end
-            end
-
-            obj.has_tmp_file_ = true;
+        %             obj.seek_(obj.get_start_of_page_(page_number), 'bof');
+%             obj.write_(raw_pix);
         end
 
-        function new_path = copy_file(obj, target_pix_id)
-        % Copy the temporary files managed by this class instance to a new folder
+        function tmp_file = copy_file(obj, target_pix_id)
+        % Copy the temporary file managed by this class instance to a new folder
         %
         % Input
         % -----
@@ -137,12 +176,15 @@ classdef PixelTmpFileHandler
         % ------
         % new_path        New location of moved file
         %
-            new_path = obj.generate_tmp_dir_path_(target_pix_id);
-            [status, err_msg] = copyfile(obj.file_path_, new_path);
-            if status == 0
-                error('PIXELDATA:copy_file', ...
-                      'Could not copy PixelData tmp files from ''%s'' to ''%s'':\n%s', ...
-                      obj.file_path_, new_path, err_msg);
+            tmp_file = obj.has_tmp_file_;
+            if tmp_file
+                new_path = obj.generate_tmp_pix_file_path_(target_pix_id);
+                [status, err_msg] = copyfile(obj.file_path_, new_path);
+                if status == 0
+                    error('PIXELDATA:copy_file', ...
+                          'Could not copy PixelData tmp file from ''%s'' to ''%s'':\n%s', ...
+                          obj.file_path_, new_path, err_msg);
+                end
             end
         end
 
@@ -170,12 +212,15 @@ classdef PixelTmpFileHandler
             % if it's not permenent, we now point to our new temp file
             if ~is_perm
                 obj.file_path_ = target_file;
+                fclose(obj.file_id_);
+                obj = obj.reopen_file_();
             end
         end
 
-        function obj = delete_files(obj)
-        % Delete the tmp files
+        function obj = delete_file(obj)
+        % Delete the tmp file
             if obj.has_tmp_file_
+%                 fclose(obj.file_id_);
                 delete(obj.file_path_);
             end
             obj.has_tmp_file_ = false;
@@ -186,40 +231,99 @@ classdef PixelTmpFileHandler
             has = obj.has_tmp_file_;
         end
 
+        function page_size = get.page_size(obj)
+            page_size = obj.page_size_;
+        end
+
+        function pix_per_page = get.pix_per_page(obj)
+            pix_per_page = floor(obj.page_size / (obj.SIZE_OF_FLOAT * obj.NUM_COLS));
+        end
+
         function obj = set.page_size(obj, val)
-            if val < SIZE_OF_FLOAT
+            if val < obj.SIZE_OF_FLOAT
                 error('PIXELTMPFILEHANDLER:invalid_argument', 'Page cannot be smaller than 1 float')
             end
             obj.page_size_ = val;
         end
 
-        function page_size = get.page_size(obj)
-            page_size = obj.page_size_;
+        function npix = get.num_pixels(obj)
+            npix = numel(obj.file_id_.Data) / obj.NUM_COLS;
+        end
+
+        function fp = get.file_path(obj)
+            fp = obj.file_path_;
+        end
+
+    end
+
+    methods (Hidden)
+        function obj = append_pixels(obj, pixels)
+
+            fid = fopen(obj.file_path_,'a');
+            fwrite(fid, pixels, obj.FILE_DATA_FORMAT_);
+            fclose(fid);
+            obj = obj.reopen_file_();
+%             ftell(obj.file_id_)
+%             obj.seek_(0, 'eof')
+%             ftell(obj.file_id_)
+%             numel(pixels)
+%             obj.write_(pixels);
+        end
+
+        function obj = open_file_(obj)
+            if ~is_file(obj.file_path_)
+                fid = fopen(obj.file_path_, 'w');
+                fclose(fid);
+            end
+
+            obj.file_id_ = memmapfile(obj.file_path_, ...
+                                      'Format', obj.FILE_DATA_FORMAT_, ...
+                                      'Writable', true ...
+                                     );
+            obj.has_tmp_file_ = true;
+%             obj.file_id_ = fopen(obj.file_path_, 'wb+');
+        end
+
+        function obj = reopen_file_(obj)
+            obj = obj.open_file_();
+        %             obj.file_id_ = fopen(obj.file_path_, 'rb+');
+%             obj.has_tmp_file_ = true;
         end
 
     end
 
     methods (Access=private)
-        function [file_id, clean_up] = open_file_(obj, rw)
-            file_id = fopen(obj.file_path_, rw);
-            if file_id < 0
-                error('PIXELTMPFILEHANDLER:write_page', ...
-                      'Could not open file ''%s'' for writing.\n', obj.file_path_);
-            end
-            clean_up = onCleanup(@() fclose(file_id));
-
-            do_fseek(file_id, offset, 'bof');
-
+        function seek_(obj, offset, mode)
+            do_fseek(obj.file_id_, obj.offset_+offset, mode);
         end
 
+        function write_(obj, data)
+            fwrite(obj.file_id_, data, obj.FILE_DATA_FORMAT_);
+        end
 
-        function file_path = generate_tmp_pix_file_path_(obj)
+        function data = read_(obj, shape, skip)
+            if ~exist('skip', 'var')
+                skip = 0;
+            end
+            data = fread(obj.file_id_, shape, obj.FILE_DATA_FORMAT_, skip);
+            data = double(data);
+        end
+
+        function file_path = generate_tmp_pix_file_path_(obj, pix_id)
         % Generate the file path to a tmp file with the given page number
+            if ~exist('pix_id', 'var')
+                pix_id = obj.pix_id_;
+            end
+
+            pc = parallel_config;
+
             file_name = sprintf(obj.TMP_FILE_BASE_NAME_, pix_id);
             file_path = fullfile(pc.working_directory, file_name);
         end
 
-
+        function offset = get_start_of_page_(obj, page_number)
+            offset = max(obj.page_size*(page_number-1)/obj.NUM_COLS/obj.SIZE_OF_FLOAT, 0)+1;
+        end
     end
 
     methods(Static)

@@ -11,13 +11,15 @@ function [page_number,total_num_pages] = move_to_page(obj, page_number, varargin
 % total_num_pages -- total number of pages, present in the file
 %
 [page_number, total_num_pages, nosave] = parse_args(obj, page_number, varargin{:});
-if obj.page_number_ ~= page_number
-    if ~nosave && obj.page_is_dirty_(obj.page_number_) && obj.dirty_page_edited_
-        obj.write_dirty_page_();
+
+if obj.page_number_ ~= page_number || obj.page_edited
+    if ~nosave && obj.page_edited
+        if ~obj.tmp_io_handler_.has_tmp_file_
+            obj = obj.dump_all_pixels_();
+        end
+        obj = obj.write_dirty_page_();
     end
-    obj.page_number_ = page_number;
-    obj.dirty_page_edited_ = false;
-    obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, 0);
+    obj = obj.load_page_(page_number);
 end
 
 end
@@ -34,9 +36,9 @@ end
 parser.parse(varargin{:});
 
 page_number = parser.Results.page_number;
-total_num_pages = obj.get_num_pages_();
 nosave = parser.Results.nosave;
 
+total_num_pages = obj.get_num_pages_();
 if page_number > total_num_pages
     error('PIXELDATA:move_to_page', ...
         'Cannot advance to page %i only %i pages of data found.', ...

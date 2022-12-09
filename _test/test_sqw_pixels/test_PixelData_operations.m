@@ -24,12 +24,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix.move_to_first_page();
             iter = 0;
             while true
-                start_idx = (iter*2*npix_in_page) + 1;
-                %TODO: mess. Pixels in memory are usually double of pixels
-                %on file but this is not always the case. Need to be
-                %clarified, simplified and fixed as part of file-access
-                %refactoring.
-                end_idx = min(start_idx + 2*npix_in_page - 1, pix.num_pixels);
+                start_idx = (iter*npix_in_page) + 1;
+                end_idx = min(start_idx + npix_in_page - 1, pix.num_pixels);
 
                 original_signal = data(obj.SIGNAL_IDX, start_idx:end_idx);
                 original_variance = data(obj.VARIANCE_IDX, start_idx:end_idx);
@@ -107,7 +103,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
                 pix.do_unary_op(unary_op);
 
-                file_backed_data = pix.get_pixels(1:pix.num_pixels).data;
+                file_backed_data = pix.get_data('all');
 
                 pix_in_mem = PixelDataBase.create(data);
                 pix_in_mem = pix_in_mem.do_unary_op(unary_op);
@@ -115,7 +111,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
                 assertElementsAlmostEqual( ...
                     file_backed_data, in_memory_data, ...
-                    'relative',obj.FLOAT_TOLERANCE,...
+                    'relative',1e-5,... % Due to single precision errors
                     sprintf(['In-memory and file-backed data do not match after ' ...
                     'operation: ''%s''.'], char(unary_op)) );
             end
@@ -374,9 +370,13 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         % -- Helpers --
-        function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
+        function [pix,pix_range] = get_pix_with_fake_faccess(obj, data, npix_in_page)
+            pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
             faccess = FakeFAccess(data);
-            pix = PixelDataFileBacked(faccess, npix_in_page*obj.BYTES_PER_PIX);
+            % give it a real file path to trick code into thinking it exists
+            faccess = faccess.set_filepath('fake_file');
+            mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
+            pix = PixelDataFileBacked(faccess, mem_alloc);
         end
 
     end

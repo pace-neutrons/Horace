@@ -95,6 +95,7 @@ classdef PixelDataFileBacked < PixelDataBase
         % range in conjunction with set_range method at the end of the loop.
         page_range;
         page_memory_size_ = get(hor_config, 'mem_chunk_size');  % the maximum amount of memory a page can use
+        page_edited = false;
     end
 
     properties (Dependent)
@@ -123,14 +124,14 @@ classdef PixelDataFileBacked < PixelDataBase
                 upgrade = true;
             end
 
+            obj.object_id_ = randi([10, 99999], 1, 1);
+            obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
+
             if exist('mem_alloc', 'var') && ~isempty(mem_alloc)
                 obj.page_memory_size = mem_alloc;
             elseif isa(init, 'PixelDataFileBacked')
                 obj.page_memory_size = init.page_memory_size_;
             end
-
-            obj.object_id_ = randi([10, 99999], 1, 1);
-            obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
 
             if exist('init', 'var')
                 if isstruct(init)
@@ -141,11 +142,9 @@ classdef PixelDataFileBacked < PixelDataBase
                     end
 
                     obj.data_ = init.data;
+                    obj.page_edited = init.page_edited;
                     obj.num_pixels_ = init.num_pixels;
-                    has_tmp_files = init.tmp_io_handler_.copy_folder(obj.object_id_);
-                    if any(has_tmp_files)
-                        obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_, has_tmp_files);
-                    end
+                    obj.tmp_io_handler_ = init.tmp_io_handler_.copy(obj.object_id_);
                     obj.move_to_page(init.page_number_);
                 elseif ischar(init) || isstring(init)
                     if ~is_file(init)
@@ -222,7 +221,11 @@ classdef PixelDataFileBacked < PixelDataBase
                 validateattributes(val, {'numeric'}, {'scalar'})
             end
             obj = obj.load_current_page_if_data_empty_();
+            if ~obj.tmp_io_handler_.has_tmp_file_
+                obj = obj.dump_all_pixels_();
+            end
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
+            obj.page_edited = true;
             if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
                 obj.reset_changed_coord_range(fld);
             end
@@ -230,8 +233,10 @@ classdef PixelDataFileBacked < PixelDataBase
 
         % --- Operator overrides ---
         function delete(obj)
-        % Class destructor to delete any temporary files
-            obj.tmp_io_handler_.delete_files();
+        % Class destructor to delete any temporary file
+            if ~isempty(obj.tmp_io_handler_)
+                obj.tmp_io_handler_.delete_file();
+            end
         end
 
         function saveobj(~)
@@ -283,7 +288,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function pix_position = get.pix_position_(obj)
-            pix_position = (obj.page_number_ - 1)*obj.base_page_size + 1;
+            pix_position = obj.get_page_start_(obj.page_number_);
         end
 
         function np = get.n_pages(obj)
@@ -292,20 +297,17 @@ classdef PixelDataFileBacked < PixelDataBase
 
         function page_size = get.page_size(obj)
             % The number of pixels that are held in the current page.
-            if obj.num_pixels > 0 && obj.cache_is_empty_()
+            if ~obj.cache_is_empty_()  % Size of currently loaded pix
+                page_size = size(obj.data_, 2);
+            else
                 % No pixels currently loaded, show the number that will be loaded
                 % when a getter is called
-                base_pg_size = obj.base_page_size;
-                if base_pg_size*obj.page_number_ > obj.num_pixels
-                    % In this case we're on the final page and there are fewer
-                    % leftover pixels than would be in a full-size page
-                    page_size = obj.num_pixels - base_pg_size*(obj.page_number_ - 1);
-                else
-                    page_size = min(base_pg_size, obj.num_pixels);
-                end
-            else
-                page_size = size(obj.data_, 2);
+                page_size = obj.get_npix_on_page(obj.page_number_);
             end
+        end
+
+        function page_size = get.page_memory_size(obj)
+            page_size = obj.page_memory_size_;
         end
 
         function set.page_memory_size(obj, val)
@@ -315,13 +317,27 @@ classdef PixelDataFileBacked < PixelDataBase
             % Keep synchronised
             obj.tmp_io_handler_.page_size = obj.page_memory_size_;
         end
-
-        function page_size = get.page_memory_size(obj)
-            page_size = obj.page_memory_size_;
-        end
     end
 
     methods (Access = private)
+        function loc = get_page_start_(obj, page_number)
+            loc = (page_number - 1)*obj.base_page_size + 1;
+        end
+
+        function page_size = get_npix_on_page_(obj, page_number)
+            base_pg_size = obj.base_page_size;
+            if page_number == obj.n_pages
+                % In this case we're on the final page and there are fewer
+                % leftover pixels than would be in a full-size page
+                page_size = obj.num_pixels - base_pg_size*(page_number - 1);
+            else
+                page_size = base_pg_size;
+            end
+        end
+
+        function num_pages = get_num_pages_(obj)
+            num_pages = max(ceil(obj.num_pixels/obj.base_page_size), 1);
+        end
 
         function obj = load_current_page_if_data_empty_(obj)
             % Check if there's any data in the current page and load a page if not
@@ -332,38 +348,70 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function obj = load_page_(obj, page_number)
-            % Load the data for the given page index
-            if ~obj.tmp_io_handler_.has_tmp_files_
-                obj = obj.load_clean_page_(page_number)
+        % Load the data for the given page index
+            if ~obj.tmp_io_handler_.has_tmp_file_
+                obj.data_ = obj.load_clean_page_(page_number);
             else
-                obj.data_ = obj.tmp_io_handler_.load_page(page_number, ...
-                                                          obj.PIXEL_BLOCK_COLS_);
+                obj.data_ = obj.load_dirty_page_(page_number);
             end
             obj.page_number_ = page_number;
         end
 
-        function obj = load_clean_page_(obj, page_number)
+        function data = load_clean_page_(obj, page_number)
         % Load the given page of data from the sqw file backing this object
-            pix_idx_start = (page_number - 1)*obj.base_page_size + 1;
+            [pix_idx_start, pix_idx_end] = obj.get_page_idx_(page_number);
+            data = obj.f_accessor_.get_raw_pix(pix_idx_start, pix_idx_end);
+        end
+
+        function data = load_dirty_page_(obj, page_number)
+            [pix_idx_start, pix_idx_end] = obj.get_page_idx_(page_number);
+            data = obj.tmp_io_handler_.load_pix(pix_idx_start, pix_idx_end);
+        end
+
+        function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, page_number)
+            pix_idx_start = obj.get_page_start_(page_number);
             if pix_idx_start > obj.num_pixels
                 error('HORACE:PixelData:runtime_error', ...
                     'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
                     pix_idx_start, obj.num_pixels);
             end
             % Get the index of the final pixel to read given the maximum page size
-            pix_idx_end = min(pix_idx_start + obj.base_page_size - 1, obj.num_pixels);
-            obj.data_ = obj.f_accessor_.get_raw_pix(pix_idx_start, pix_idx_end);
-
+            pix_idx_end = pix_idx_start + obj.get_npix_on_page_(page_number) - 1;
         end
 
         function obj = write_dirty_page_(obj)
             % Write the current page's pixels to a tmp file
-            obj.tmp_io_handler_ = obj.tmp_io_handler_.write_page(obj.page_number_, obj.data);
+            obj.tmp_io_handler_ = obj.tmp_io_handler_.write_pixels(obj.page_number_, obj.data);
+            obj.page_edited = false;
         end
 
-        function num_pages = get_num_pages_(obj)
-            num_pages = max(ceil(obj.num_pixels/obj.base_page_size), 1);
+        function obj = dump_all_pixels_(obj)
+        % Dump all pixels to tmp_file used for initialising tmp file
+        % most operations operate and change the entire file
+            if obj.num_pixels == 0
+                return
+            end
+            if isempty(obj.file_path)
+                obj.tmp_io_handler_ = obj.tmp_io_handler_.open_file_();
+                obj.tmp_io_handler_ = obj.tmp_io_handler_.append_pixels(obj.data);
+            else
+                pn = obj.page_number_;
+
+                tmp_data = obj.data_;
+                obj.page_number_ = 1;
+                obj.data_ = obj.load_clean_page_(1);
+                obj.tmp_io_handler_ = obj.tmp_io_handler_.open_file_();
+                obj.tmp_io_handler_ = obj.tmp_io_handler_.append_pixels(obj.data);
+                while obj.has_more()
+                    obj.page_number_ = obj.page_number_+1;
+                    obj.data_ = obj.load_clean_page_(obj.page_number_);
+                    obj.tmp_io_handler_ = obj.tmp_io_handler_.append_pixels(obj.data);
+                end
+                obj.data_ = tmp_data;
+                obj.page_number_ = pn;
+            end
         end
+
     end
 
     methods (Access = ?PixelDataBase)
@@ -379,10 +427,8 @@ classdef PixelDataFileBacked < PixelDataBase
                                       obj.f_accessor_.filename);
             obj.page_number_ = 1;
             obj.num_pixels_ = double(obj.f_accessor_.npixels);
-
             obj.data();
             obj.pix_range_ = obj.f_accessor_.get_pix_range();
-
         end
 
         function reset_changed_coord_range(obj,field_name)
