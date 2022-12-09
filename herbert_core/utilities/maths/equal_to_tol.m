@@ -259,7 +259,7 @@ else
         end
     else
         error('HERBERT:equal_to_tol:invalid_argument',...
-            'Check number and type of non-keyword input arguments')
+            'Unrecognized input argument(s): %s',disp2str(par));
     end
 
     % Strip away temporary fields

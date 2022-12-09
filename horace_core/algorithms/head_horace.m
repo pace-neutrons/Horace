@@ -62,7 +62,7 @@ else
 end
 %
 all_fnames = cellfun(@ischar,argi,'UniformOutput',true);
-all_ldrs    = cellfun(@(x)isa(x,'dnd_file_interface'),argi,'UniformOutput',true);
+all_ldrs    = cellfun(@(x)isa(x,'horace_binfile_interface'),argi,'UniformOutput',true);
 if ~any(all_fnames|all_ldrs)
     error('HORACE:head:invalid_argument',...
         'read_sqw: not all input arguments represent filenames or loaders')

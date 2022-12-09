@@ -72,7 +72,7 @@ if ~isequal(size(w1), size(w2))
 end
 
 % Check that corresponding objects in the array have the same type
-base_message = 'Objects being compared are not both sqw-type or both dnd-type';
+base_message = 'Objects being compared are not the same type';
 for i = 1:numel(w1)
     if ~strcmp(class(w1(i)),class(w2(i)))
         elmtstr = '';

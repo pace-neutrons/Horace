@@ -61,18 +61,12 @@ end
 function [iseq,mess] = eq_single(obj1,obj2,name_a,name_a_val,name_b,name_b_val,varargin)
 % compare single pair of serializeble objects
 %
-flds = obj1.saveableFields;
+struc1 = obj1.to_bare_struct();
+struc2 = obj2.to_bare_struct();
+[iseq,mess] = equal_to_tol(struc1,struc2, ...
+        name_a,name_a_val,name_b,name_b_val,varargin{:});
 
-for i=1:numel(flds)
-    val1 = obj1.(flds{i});
-    name_a_val_f = [name_a_val,'.',flds{i}];
-    name_b_val_f = [name_b_val,'.',flds{i}];
-    [iseq,mess] = equal_to_tol(val1,obj2.(flds{i}), ...
-        name_a,name_a_val_f,name_b,name_b_val_f,varargin{:});
-    if ~iseq
-        return;
-    end
-end
+
 
 function [name_a,name_b,argi] = check_and_extract_name(input_name1,input_name2,varargin)
 name_a_default = 'lhs_obj';

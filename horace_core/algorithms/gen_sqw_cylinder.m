@@ -144,7 +144,7 @@ nQbin_def=33;
 nepsbin_def=33;
 ldr = sqw_formats_factory.instance().get_loader(tmp_file{1});
 detpar = ldr.get_detpar();
-hdr    = ldr.get_header();
+hdr    = ldr.get_exp_info();
 hdr    = hdr.expdata(1);
 ldr.delete();
 

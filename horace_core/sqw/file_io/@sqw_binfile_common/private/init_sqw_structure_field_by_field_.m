@@ -134,9 +134,8 @@ obj=set_filepath(obj);
 
 function obj=set_filepath(obj)
 
-[path,name,ext]=fileparts(fopen(obj.file_id_));
-obj.filename_=[name,ext];
-obj.filepath_=[path,filesep];
+file = fopen(obj.file_id_);
+obj.full_filename = file;
 
 function check_and_throw_error(obj,mess_pos)
 [mess,res] = ferror(obj.file_id_);

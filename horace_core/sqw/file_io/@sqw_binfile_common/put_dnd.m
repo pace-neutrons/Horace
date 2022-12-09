@@ -17,13 +17,12 @@ end
 % initialize dnd positions
 obj.data_pos_=26;
 obj.data_type_ = 'b+';
-obj.sqw_type_ = false;
 [obj,dnd_inobj] = obj.init_dnd_info(inobj);
 % need to do it for correct application header as it will be sqw otherwise
 obj.sqw_holder_ = dnd_inobj;
 
 % put dnd data
-obj = put_dnd@dnd_binfile_common(obj,varargin{:});
+obj = put_dnd@binfile_v2_common(obj,varargin{:});
 
 %revert sqw positions back to object, keeping internals intact (may cause
 % problems with update)

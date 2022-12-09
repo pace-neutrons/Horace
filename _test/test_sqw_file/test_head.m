@@ -17,10 +17,11 @@ classdef test_head < TestCase
             end
             obj=obj@TestCase(name);
 
-            obj.test_dir = fileparts(fileparts(mfilename('fullpath')));
+            hc = horace_paths;
+            obj.test_dir = hc.test;
             obj.files = {fullfile(obj.test_dir,'test_sqw_file','test_sqw_file_read_write_v3_1.sqw'),...
                 fullfile(obj.test_dir,'test_sqw_file','test_sqw_file_read_write_v3.sqw'),...
-                fullfile(obj.test_dir,'test_symmetrisation','w2d_qq_d2d.sqw')};
+                fullfile(hc.test_common,'w2d_qq_d2d.sqw')};
         end
         function setUp(~)
             warning('off','SQW_FILE_IO:legacy_data');
@@ -28,7 +29,7 @@ classdef test_head < TestCase
         function tearDown(~)
             warning('on','SQW_FILE_IO:legacy_data');
         end
-       
+
 
         function test_head_horace_multiout(obj)
             [out1,out2,out3] = head_horace(obj.files,'-full');

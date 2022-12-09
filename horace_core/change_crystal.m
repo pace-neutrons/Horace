@@ -65,7 +65,7 @@ for i=1:numel(filenames)
     alatt0 = data.alatt;
     angdeg0 = data.angdeg;
     if ld.sqw_type
-        exp_info= ld.get_header('-all');
+        exp_info= ld.get_exp_info('-all');
         [alatt,angdeg,rlu_corr]=SQWDnDBase.parse_change_crystal_arguments(alatt0,angdeg0,exp_info,varargin{:});
         exp_info = change_crystal(exp_info,alatt,angdeg,rlu_corr);
         ld = ld.put_headers(exp_info);

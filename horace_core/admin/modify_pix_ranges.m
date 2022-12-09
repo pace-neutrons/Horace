@@ -45,7 +45,7 @@ log_level = hc.log_level;
 
 for i=1:n_inputs
     ld = loaders{i};
-    new_format = strcmpi(ld.file_version,'-v3.3');
+    new_format = strcmpi(ld.faccess_version,3.3);
     if new_format && ~use_urange
         if log_level>0
             fprintf(2,' file %s is already updated to the recent version\n',ld.filename);

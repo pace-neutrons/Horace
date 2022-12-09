@@ -33,7 +33,7 @@ classdef sqw_formats_factory < handle
     %
     properties(Access=private) %
         % List of registered file accessors:
-        % Add all new file readers which inherit from sqw_file_interface and dnd_file_interface
+        % Add all new file readers which inherit from sqw_file_interface and horace_binfile_interface
         % to this list in the order of expected frequency of their appearance.
         supported_accessors_ = { ...
             faccess_sqw_v3_3(), ...
@@ -124,7 +124,7 @@ classdef sqw_formats_factory < handle
             end
             % read initial bytes of binary file and interpret them as Horace headers to identify file format.
             % Returns header block and open file handle not to open file again
-            [head_struc,fh] = dnd_file_interface.get_file_header(full_data_name);
+            [head_struc,fh] = horace_binfile_interface.get_file_header(full_data_name);
 
             for i=1:numel(obj.supported_accessors_)
                 loader = obj.supported_accessors_{i};

@@ -1,6 +1,6 @@
 classdef data_sqw_dnd < DnDBase
     % Transient class used as part of sqw object in the Horace, version < 4.0
-    % and  left for loading data from old format .mat files.
+    % and kept for loading data from old format .mat files.
     %
     % Do not use in any new development
     properties(Dependent)
@@ -9,7 +9,8 @@ classdef data_sqw_dnd < DnDBase
         % The pixels are rebinned on this grid
         img_db_range;
     end
-    properties (Access = protected)
+    properties(Dependent,Hidden=true)
+        %
         NUM_DIMS;
     end
 

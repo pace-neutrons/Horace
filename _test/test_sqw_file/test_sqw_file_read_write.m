@@ -150,7 +150,7 @@ classdef test_sqw_file_read_write < TestCase
             % Do some fancy stuff: remove instrument and sample
             % replace with null inst and sample (was empty structs)
             ins=IX_null_inst();
-            sam=IX_sample();
+            sam=IX_samp();
             sam.alatt=[4 5 6];
             sam.angdeg=[91 92 93];
             f1_2_i0s0=change_header_test(f1_2_i1s1,ins,sam);

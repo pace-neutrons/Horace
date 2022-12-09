@@ -1,19 +1,9 @@
 classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
-    properties(Abstract,Dependent,Access = protected)
+    properties(Abstract,Dependent,Hidden=true)
         NUM_DIMS
     end
-    properties(Constant,Access=protected)
-        %fields_to_save_ = {'filename','filepath','title','alatt','angdeg',...
-        %        'uoffset','u_to_rlu','ulen','label',...
-        %        'dax','img_range','nbins_all_dims','s','e','npix'};
-
-        % order of the components defines the order of the inputs, accepted
-        % by constructor without the arguments
-        fields_to_save_ = {'axes','proj','s','e','npix'}
-    end
-
     % The dependent props here have been created solely to retain the (old) DnD object API during the refactor.
     % These will be updated/removed at a later phase of the refactor when the class API is modified.
     properties(Dependent)
@@ -49,6 +39,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         axes % access to the axes block class directly
         proj % access to projection class directly
+        % The date when the object has been stored on hdd first time
+        % if it have not been ever stored, returns current date
+        creation_date;
     end
     properties(Dependent,Hidden)
         % legacy operations, necessary for saving dnd object in the old sqw
@@ -56,6 +49,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % removed
         u_to_rlu;
         ulen;
+        creation_date_defined;
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == axes_block.dims_as_ssize)
@@ -65,8 +59,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         proj_ = ortho_proj(); % Object defining the transformation, used to convert data from
         %                      crystal Cartesian coordinate system to this
         %                      image coordinate system.
+        % The date when the object has been stored on hdd first time
+        creation_date_;
+        creation_date_defined_ = false;
     end
-
+    %======================================================================
+    % OTHER DND METHODS
     methods (Static)
         function w = dnd(varargin)
             % create dnd object with size and dimensions, defined by inputs
@@ -91,7 +89,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             end
         end
     end
-
+    %======================================================================
     methods
         % function signatures:
         %------------------------------------------------------------------
@@ -122,7 +120,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             % legacy entrance to cut
             wout = obj.cut(varargin{:});
         end
-        function wout = cut_sqw(obj,varargin)
+        function wout = cut_sqw(~,varargin)
             % throw on cut_sqw on dnd object
             error('HORACE:DnDBase:invalid_argument', ...
                 'Can not run cut_sqw on dnd object');
@@ -153,81 +151,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         % Change the crystal lattice and orientation of an sqw object or array of objects
         wout = change_crystal(win,varargin);
-        %------------------------------------------------------------------
-        % Accessors
+    end
+    %======================================================================
+    % Redundant and convenience Accessors
+    methods
         function pixels = has_pixels(w)
             % dnd object(s) do not have pixels
             pixels = false(size(w));
         end
         %
-        function obj = init(obj,varargin)
-            % initialize empty object with any possible input arguments
-            % Part of the object constructor
-            args = parse_args_(obj,varargin{:});
-            if args.array_numel>1
-                obj = repmat(obj,args.array_size);
-            elseif args.array_numel==0
-                obj = obj.from_bare_struct(args.data_struct);
-            end
-            for i=1:args.array_numel
-                % i) copy
-                if ~isempty(args.dnd_obj)
-                    if args.dnd_obj.dimensions == obj.dimensions
-                        obj(i) = copy(args.dnd_obj(i));
-                    else % rebin the input object to the object
-                        %  with the dimensionality, smaller then the
-                        %  dimensionalify of the input object.
-                        %  Bigger dimensionality will be rejected.
-                        %
-                        obj(i) = rebin(obj(i),args.dnd_obj(i));
-                    end
-                    % ii) struct
-                elseif ~isempty(args.data_struct)
-                    obj(i) = obj(i).from_bare_struct(args.data_struct(i));
-                elseif ~isempty(args.set_of_fields)
-                    keys = obj.saveableFields();
-                    obj(i) = set_positional_and_key_val_arguments(obj,...
-                        keys,false,args.set_of_fields{:});
-                    % copy label from projection to axes block in case it
-                    % has been redefined on projection
-                    is_proj = cellfun(@(x)isa(x,'aProjection'),args.set_of_fields);
-                    if any(is_proj)
-                        obj(i).axes.label = args.set_of_fields{is_proj}.label;
-                    end
-                elseif ~isempty(args.sqw_obj)
-                    obj(i) = args.sqw_obj(i).data;
-                end
-            end
-        end
-
-        function obj = DnDBase(varargin)
-            obj = obj@SQWDnDBase();
-            if nargin>0
-                obj = obj.init(varargin{:});
-            end
-
-        end
-        %
-        function val = get.filename(obj)
-            val = obj.axes_.filename;
-        end
-        function obj = set.filename(obj, filename)
-            obj.axes_.filename = filename;
-        end
-        %
-        function val = get.filepath(obj)
-            val = obj.axes_.filepath;
-        end
-        function obj = set.filepath(obj, filepath)
-            obj.axes_.filepath = filepath;
-        end
-        %
-        function val = get.title(obj)
-            val = obj.axes_.title;
-        end
-        function obj = set.title(obj, title)
-            obj.axes_.title = title;
-        end
         %
         function val = get.alatt(obj)
             val = obj.proj_.alatt;
@@ -294,9 +226,27 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         function obj = set.dax(obj, dax)
             obj.axes_.dax = dax;
         end
-        %------------------------------------------------------------------
-        % MODERN dnd interface
-        %------------------------------------------------------------------
+    end
+    %======================================================================
+    % MODERN dnd interface + constructor
+    %======================================================================
+    methods
+        function obj = DnDBase(varargin)
+            obj = obj@SQWDnDBase();
+            if nargin>0
+                obj = obj.init(varargin{:});
+            end
+        end
+        %
+        function obj = init(obj,varargin)
+            % initialize empty object or re-initialize existing
+            % with any allowed sequence of input arguments.
+            if nargin == 1
+                return
+            end
+            obj = init_(obj,varargin{:});
+        end
+
         function val = get.s(obj)
             val = obj.s_;
         end
@@ -308,23 +258,23 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             val = obj.e_;
         end
         function obj = set.e(obj, e)
-            obj = set_senpix(obj,e,'e');
-            if any(e<0)
+            if any(e(:)<0)
                 error('HORACE:DnDBase:invalid_argument',...
                     'errors values can not be negative')
             end
+            obj = set_senpix(obj,e,'e');
         end
         %
         function val = get.npix(obj)
             val = obj.npix_;
         end
         function obj = set.npix(obj, npix)
-            obj = set_senpix(obj,npix,'npix');
-            if any(npix<0)
+            if any(npix(:)<0)
                 error('HORACE:DnDBase:invalid_argument',...
                     'npix values can not be negative')
             end
 
+            obj = set_senpix(obj,npix,'npix');
         end
         %
         function ax = get.axes(obj)
@@ -353,22 +303,43 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         function nb = get.nbins(obj)
             nb = obj.axes_.data_nbins;
         end
-        %------------------------------------------------------------------
-        % Serializable interface
-        %------------------------------------------------------------------
-        function flds = saveableFields(obj)
-            flds = obj.fields_to_save_;
+        function cd = get.creation_date(obj)
+            % Retrieve file creation date either from stored value, or
+            % from system file date.
+            if isempty(obj.creation_date_)
+                dt = datetime("now");
+            else
+                dt = obj.creation_date_;
+            end
+            cd = main_header_cl.convert_datetime_to_str(dt);
         end
-        function ver  = classVersion(~)
-            ver = 3;
-        end
+        function obj = set.creation_date(obj,val)
+            % explicitly set up creation date and make it "known"
+            dt = main_header_cl.check_datetime_valid(val);
+            obj.creation_date_    = dt;
+            obj.creation_date_defined_ = true;
 
-        function obj = check_combo_arg(obj)
-            % verify interdependent variables and the validity of the
-            % obtained dnd object. Return the result of the check and the
-            % reason for failure.
-            %
-            obj = check_combo_arg_(obj);
+        end
+        %
+        function val = get.filename(obj)
+            val = obj.axes_.filename;
+        end
+        function obj = set.filename(obj, filename)
+            obj.axes_.filename = filename;
+        end
+        %
+        function val = get.filepath(obj)
+            val = obj.axes_.filepath;
+        end
+        function obj = set.filepath(obj, filepath)
+            obj.axes_.filepath = filepath;
+        end
+        %
+        function val = get.title(obj)
+            val = obj.axes_.title;
+        end
+        function obj = set.title(obj, title)
+            obj.axes_.title = title;
         end
         %
         function struct = to_head_struct(obj,keep_data_arrays)
@@ -377,6 +348,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 keep_data_arrays = true;
             end
             struct = to_head_struct_(obj,keep_data_arrays);
+        end
+        %
+        function def = get.creation_date_defined(obj)
+            def = obj.creation_date_defined_;
         end
     end
 
@@ -397,44 +372,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
             [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
-        end
-        %------------------------------------------------------------------
-        function obj = from_old_struct(obj,inputs)
-            % Restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain a version or the version, stored
-            % in the structure does not correspond to the current version
-            % of the class.
-            %
-            % By default, this function interfaces the default from_bare_struct
-            % method, but when the old structure substantially differs from
-            % the modern structure, this method needs the specific overloading
-            % to allow loadobj to recover new structure from an old structure.
-            %
-            %if isfield(inputs,'version') % do checks for previous versions
-            %   Add appropriate code to convert from specific version to
-            %   modern version
-            %end
-            if numel(inputs)>1
-                out = cell(numel(inputs),1);
-                for i=1:numel(inputs)
-                    out{i} = modify_old_structure_(inputs(i));
-                end
-                outa = [out{:}];
-
-                out = struct('array_dat',[]);
-                out.array_dat = outa;
-            else
-                out = modify_old_structure_(inputs);
-            end
-
-            if isfield(out,'array_dat')
-                obj = obj.from_bare_struct(out.array_dat);
-            else
-                obj = obj.from_bare_struct(out);
-            end
         end
         %
         function obj = set_do_check_combo_arg(obj,val)
@@ -469,6 +406,68 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             varargout{1} = cut_single_(obj, tag_proj, targ_axes,...
                 return_cut,outfile,proj_given,log_level);
         end
+    end
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access=protected)
+        % order of the components defines the order of the inputs, accepted
+        % by constructor without the arguments
+        fields_to_save_ = {'axes','proj','s','e','npix','creation_date'}
+    end
+    %----------------------------------------------------------------------
+    methods
+        function ver  = classVersion(~)
+            ver = 4;
+        end
 
+        function flds = saveableFields(obj)
+            flds = obj.fields_to_save_;
+            if ~obj.creation_date_defined_
+                flds  = flds(1:end-1);
+            end
+        end
+        %
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained dnd object. Return the result of the check and the
+            % reason for failure.
+            %
+            obj = check_combo_arg_(obj);
+        end
+    end
+    %----------------------------------------------------------------------    
+    methods(Access = protected)
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain a version or the version, stored
+            % in the structure does not correspond to the current version
+            % of the class.
+            %
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
+            %
+            %if isfield(inputs,'version') % do checks for previous versions
+            %   Add appropriate code to convert from specific version to
+            %   modern version
+            %end
+            if numel(inputs)>1
+                out = cell(numel(inputs),1);
+                for i=1:numel(inputs)
+                    out{i} = modify_old_structure_(inputs(i));
+                end
+                outa = [out{:}];
+
+                out = struct('array_dat',[]);
+                out.array_dat = outa;
+            else
+                out = modify_old_structure_(inputs);
+            end
+            obj = from_old_struct@serializable(obj,out);
+        end
     end
 end

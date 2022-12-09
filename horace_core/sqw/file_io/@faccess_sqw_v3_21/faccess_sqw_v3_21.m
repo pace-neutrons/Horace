@@ -30,7 +30,7 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
     % reading this file.
     % The initialized object allows to use all get/read methods described
     % by sqw_file_interface,
-    % dnd_file_interface and additional methods to read instrument and
+    % horace_binfile_interface and additional methods to read instrument and
     % sample, specific for v3.2 file format.
     %
     % 2)
@@ -50,7 +50,7 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
     % If file with filename does not exist, the object will be open in write mode.
     %
     % Initialized faccess_sqw_v3 object allows to use write/update methods of
-    % dnd_file_interface, sqw_file_interface + writing instrument and sample
+    % horace_binfile_interface, sqw_file_interface + writing instrument and sample
     % and all read methods of these interfaces if the proper information
     % already exists in the file.
     %
@@ -61,12 +61,7 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
         % footer.
         pix_range_ = [];
     end
-    properties(Constant,Access=protected,Hidden=true)
-        % list of field-names to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file
-        fields_to_save_3_21 = {'pix_range_'};
-    end
-    
+
     methods
         %
         %
@@ -93,13 +88,12 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             %                       to save sqw object provided. The name
             %                       of the file to save the object should
             %                       be provided separately.
-            
+
             %
             % set up fields, which define appropriate file version
             obj = obj@faccess_sqw_v3_2(varargin{:});
-            obj.file_ver_ = 3.21;
         end
-        
+
         %
         function obj = upgrade_file_format(obj,varargin)
             % upgrade the file to recent write format and open this file
@@ -116,17 +110,16 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             % into an object. Empty for DND object
             %
             pix_range = obj.pix_range_;
-        end        
-        
+        end
+
         %
     end
     methods(Access=protected,Hidden=true)
-        function flds = fields_to_save(obj)
-            % returns the fields to save in the structure in sqw binfile v3 format
-            head_flds = fields_to_save@faccess_sqw_v3(obj);
-            flds = [head_flds(:);obj.fields_to_save_3_21(:)];
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            ver = 3.21;
         end
-        %
+
         function obj = init_v3_specific(obj)
             % Initialize position information specific for sqw v3.3 object.
             %
@@ -139,28 +132,57 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             pix = obj.extract_correct_subobj('pix');
             obj.pix_range_ = pix.pix_range;
             num_pix = pix.num_pixels;
-            
+
             if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && num_pix > 0
                 pix = pix.recalc_pix_range();
                 obj.pix_range_ = pix.pix_range;
             end
             obj = init_sqw_footer(obj);
         end
-        
-        function obj=init_from_structure(obj,obj_structure_from_saveobj)
-            % init file accessors using structure, obtained for object
-            % serialization (saveobj method);
-            obj = init_from_structure@faccess_sqw_v3(obj,obj_structure_from_saveobj);
+    end
+    %==================================================================
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access=private,Hidden=true)
+        % list of field-names to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        fields_to_save_ = {'pix_range_'};
+    end
+    methods
+        function strc = to_bare_struct(obj,varargin)
+            base_cont = to_bare_struct@faccess_sqw_v3(obj,varargin{:});
+            flds = faccess_sqw_v3_21.fields_to_save_;
+            cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
+
+            base_flds = fieldnames(base_cont);
+            base_cont = struct2cell(base_cont);
+            flds  = [base_flds(:);flds(:)];
+            cont = [base_cont(:);cont(:)];
             %
-            flds = obj.fields_to_save_3_21;
+            strc = cell2struct(cont,flds);
+        end
+
+        function obj=from_bare_struct(obj,indata)
+            obj = from_bare_struct@faccess_sqw_v3(obj,indata);
+            %
+            flds = faccess_sqw_v3_21.fields_to_save_;
             for i=1:numel(flds)
-                if isfield(obj_structure_from_saveobj,flds{i})
-                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
-                end
+                name = flds{i};
+                obj.(name) = indata.(name);
             end
         end
+        function flds = saveableFields(obj)
+            add_flds = faccess_sqw_v3_21.fields_to_save_;
+            flds = saveableFields@faccess_sqw_v3(obj);
+            flds = [flds(:);add_flds(:)];
+        end
+
     end
-    
+    methods(Static)
+        function obj = loadobj(inputs,varargin)
+            inobj = faccess_sqw_v3_21();
+            obj = loadobj@serializable(inputs,inobj,varargin{:});
+        end
+    end
     %
 end
 

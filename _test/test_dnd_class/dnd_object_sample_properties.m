@@ -28,4 +28,4 @@ sample_properties('proj') = ortho_proj('alatt',4);
 sample_properties('dax') = 1:numel(box_size);
 
 dependent_properties = {'iint','iax','p','pax','img_range','nbins'};
-const_prop = {'border_size'};
+const_prop = {'border_size','creation_date'}; % creation date is not constant but we do not care here

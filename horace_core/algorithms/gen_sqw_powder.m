@@ -97,7 +97,7 @@ nQbin_def=100;
 nepsbin_def=100;
 ldr = sqw_formats_factory.instance().get_loader(tmp_file{1});
 detpar = ldr.get_detpar();
-hdr    = ldr.get_header();
+hdr    = ldr.get_exp_info();
 ldr.delete();
 
 ndet=numel(detpar.group);

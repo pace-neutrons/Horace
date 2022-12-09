@@ -28,7 +28,7 @@ classdef test_faccess_sqw_v3_3< TestCase
         % tests
         function obj = test_should_load_stream(obj)
             file_accessor = faccess_sqw_v3_3();
-            assertEqual(file_accessor.file_version,'-v3.3');
+            assertEqual(file_accessor.faccess_version,3.3);
             co = onCleanup(@()file_accessor.delete());
 
 
@@ -52,15 +52,6 @@ classdef test_faccess_sqw_v3_3< TestCase
 
         end
         %
-        function obj = test_init_wrong(obj)
-            file_accessor = faccess_sqw_v3_3();
-
-            % access to incorrect object
-            f = @()(file_accessor.init());
-            assertExceptionThrown(f, ...
-                'HORACE:dnd_binfile_common:invalid_argument');
-        end
-
         function obj = test_init_and_get(obj)
             file_accessor = faccess_sqw_v3_3();
 
@@ -80,8 +71,8 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(mheader.filepath,...
                 'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file\');
 
-            exp_info = file_accessor.get_header();
-            %exp_info = header.get_header();
+            exp_info = file_accessor.get_exp_info();
+            %exp_info = header.get_exp_info();
             assertTrue(isa(exp_info,'Experiment'));
             inf = exp_info.expdata(1);
 
@@ -152,7 +143,7 @@ classdef test_faccess_sqw_v3_3< TestCase
 
             assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fo.filename)
-            assertEqual(sqw_obj.main_header.filepath,fo.filepath)
+            assertEqual(sqw_obj.main_header.filepath,[fo.filepath,filesep])
 
             sqw_obj1 = fo.get_sqw('-hverbatim');
 
@@ -196,7 +187,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             tob=tob.delete();
 
             tob=tob.init(tf);
-            assertEqual(tob.file_version,'-v3.3');
+            assertEqual(tob.faccess_version,3.3);
             img_db_range = tob.get_img_db_range();
             assertElementsAlmostEqual(ref_range,img_db_range)
             pix_range = tob.get_pix_range();

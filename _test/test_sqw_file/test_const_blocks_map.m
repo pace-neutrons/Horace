@@ -1,11 +1,12 @@
 classdef test_const_blocks_map <  TestCase
     %Testing common part of the code used to access binary sqw files
-    % and various auxliary methods, availble on this class
+    % and various auxiliary methods, available on this class
     %
 
     %
     properties
         test_folder;
+        test_data_folder;
     end
     methods(Static)
         function pos = modify_test_pos(pos_var)
@@ -36,6 +37,8 @@ classdef test_const_blocks_map <  TestCase
             end
             obj = obj@TestCase(name);
             obj.test_folder=fileparts(mfilename('fullpath'));
+            hc = horace_paths;
+            obj.test_data_folder = hc.test_common;
         end
 
 
@@ -130,10 +133,9 @@ classdef test_const_blocks_map <  TestCase
 
         function obj=test_block_map_construct(obj)
 
-            samp = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_d1d.sqw');
+            samp = fullfile(obj.test_data_folder,'w1d_d1d.sqw');
 
-            tob = dnd_binfile_common_tester();
+            tob = binfile_v2_common_tester();
             tob = tob.init(samp);
 
             pos = tob.get_pos_info();

@@ -5,6 +5,7 @@ classdef sqw_binfile_common_tester < sqw_binfile_common
 
     properties
         is_mangled;
+        file_version = 3;
     end
     properties(Access=protected)
         sqw_binfile_accessor_ = [];
@@ -48,6 +49,11 @@ classdef sqw_binfile_common_tester < sqw_binfile_common
         function new_obj = upgrade_file_format(~)
             error('HORACE:sqw_binfile_common_tester:not_implemented', ...
                 'generic file format upgrade is not implemented')
+        end
+    end
+    methods(Access=protected)
+        function ver = get_faccess_version(obj)
+            ver = obj.file_version;
         end
     end
 

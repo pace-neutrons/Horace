@@ -12,7 +12,15 @@ function horace_init
 % -----------------------------------------------------------------------------
 % Check if supporting Herbert package is available
 if isempty(which('herbert_init'))
-    error('Ensure Herbert is installed and initialized to run Horace. (Libisis is no longer supported)')
+    this_path = fileparts(mfilename('fullpath'));
+    internal_her_path = fullfile(fileparts(this_path),'herbert_core');
+    addpath(internal_her_path);
+    hi = which('herbert_init');
+    if isempty(hi)
+        error('Ensure herbert_core is present to run Horace.')
+    else
+        herbert_init;
+    end
 end
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 % -----------------------------------------------------------------------------

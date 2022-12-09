@@ -8,11 +8,24 @@ classdef (Abstract=true) serializable
     % The class is necessary to provide common interface to loading and
     % saving classes to Matlab .mat files and Horace sqw objects and to
     % support old versions of the classes
+    %
+    % A class needs to have two features to be able to become serializable:
+    % 1) An empty constructor which creates valid empty instance
+    %    of the class
+    % 2) A public interface (list of properties) which can fully define
+    %    the class contents by setting values of these properties to an
+    %    empty class instance.
+    %
+    % The public interface request (No 2) can be weakened by accurate
+    % overloading of to_bare_struct/from_bare_struct methods.
+    % (expert usage only)
+    %
     %----------------------------------------------------------------------
     % VALIDATION interface:
     %----------------------------------------------------------------------
     % In addition to save/load interface the class defines and uses
     % validation interface.
+    %
     % one property and one method, namely protected property "do_check_combo_arg_"
     % and "check_combo_arg" method are defined on this public interface.
     %

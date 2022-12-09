@@ -70,16 +70,16 @@ for i=1:nobj
         ld = sqw_formats_factory.instance().get_loader(w);
         if ~ld.sqw_type
             error('HORACE:sqw:invalid_argument', ...
-                'moderator pulse parameters can only be retrived from sqw-type data. Object N%d, file: %s is nof sqw-type object', ...
+                'moderator pulse parameters can only be retrieved from sqw-type data. Object N%d, file: %s is not sqw-type object', ...
                 i,w)
         end
-        exper = ld.get_header('-all');
+        exper = ld.get_exp_info('-all');
         ld.delete();
     elseif isa(w,'sqw')
         exper = w.experiment_info;
     else
         error('HORACE:sqw:invalid_argument', ...
-            'moderator pulse parameters can only be retrived from sqw-type data. Object N%d is of class: %s', ...
+            'moderator pulse parameters can only be retrieved from sqw-type data. Object N%d is of class: %s', ...
             i,class(w));
     end
     %

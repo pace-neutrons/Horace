@@ -19,7 +19,7 @@ if ~isempty(argi)
             error('HORACE:sqw_binfile_common:invalid_artgument',...
                 'only one sqw object can be provided as input for put_sqw');
         end
-        obj.sqw_holder_ = argi{is_sqw};
+        obj.sqw_holder = argi{is_sqw};
         argi = argi(~is_sqw);
     end
     if ~isempty(argi)

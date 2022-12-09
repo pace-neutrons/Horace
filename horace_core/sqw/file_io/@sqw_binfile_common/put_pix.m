@@ -3,15 +3,15 @@ function   obj = put_pix(obj,varargin)
 %
 %Usage:
 %>>obj = obj.put_pix();
-% Availible options:
-% '-update' -- update eixsting data rather then (over)writing new file
+% Available options:
+% '-update' -- update existing data rather then (over)writing new file
 % '-nopix'  -- do not write pixels
 % '-reserve' -- if applied together with nopix, pixel information is not
 %               written but the space dedicated for pixels is filled in with zeros.
 %                If -nopix is not used, the option is ignored.
 %
 % If update options is selected, file header have to exist. This option keeps
-% exisitng file information untouched;
+% existing file information untouched;
 [ok,mess,update,nopix,reserve,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve'});
 if ~ok
     error('SQW_FILE_IO:invalid_argument',...
@@ -22,7 +22,7 @@ if ~obj.is_activated('write')
     obj = obj.activate('write');
 end
 
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 
 
 if ~isempty(argi) % parse inputs which may or may not contain any
