@@ -11,20 +11,8 @@ function  bindata = get_bindata_from_file_(obj,fid)
 %         redading data files
 
 %
-fseek(fid,obj.position,'bof');
-[mess,res] = ferror(fid);
-if res ~= 0
-    file = fopen(fid);
-    error('HORACE:data_block:io_error',...
-        'Error "%s" moving to the start of the record %s.%s in the source file: %s', ...
-        mess,obj.base_prop_name,obj.level2_prop_name,file);
-end
+obj.move_to_position(fid);
 
 bindata = fread(fid,obj.size,"*uint8");
-[mess,res] = ferror(fid);
-if res ~= 0
-    file = fopen(fid);
-    error('HORACE:data_block:io_error',...
-        'Error "%s" writing the data for the record %s.%s in the target file: %s', ...
-        mess,obj.base_prop_name,obj.level2_prop_name,file);
-end
+
+obj.check_read_error(fid)

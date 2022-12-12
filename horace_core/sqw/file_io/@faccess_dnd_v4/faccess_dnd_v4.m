@@ -51,8 +51,9 @@ classdef faccess_dnd_v4 < binfile_v4_common
         bat_
     end
     properties(Constant,Access=protected)
-        % list of dnd blocks
-        dnd_blocks_list_ = {data_block('data','dnd_metadata')}
+        % list of data blocks, this class maintains
+        dnd_blocks_list_ = {data_block('data','dnd_metadata'),...
+            dnd_data_block()}
     end
     methods
         function obj=faccess_dnd_v4(varargin)

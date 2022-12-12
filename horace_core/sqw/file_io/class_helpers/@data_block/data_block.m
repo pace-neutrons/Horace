@@ -7,7 +7,7 @@ classdef data_block < serializable
     % of interest or place this information into sqw/dnd object
 
     properties(Dependent)
-        base_prop_name;
+        sqw_prop_name;
         level2_prop_name;
         % position of the binary block on hdd in C numeration (first byte is
         % in the position 0)
@@ -16,7 +16,7 @@ classdef data_block < serializable
         size;
     end
     properties(Access=protected)
-        base_prop_name_ ='';
+        sqw_prop_name_ ='';
         second_prop_name_ = '';
         position_=0;
         size_ = 0;
@@ -48,7 +48,7 @@ classdef data_block < serializable
                 end
             end
             bindata = obj.serialized_obj_cache_;
-            obj = put_bindata_in_file(obj,fid,bindata);
+            obj = obj.put_bindata_in_file(fid,bindata);
             if nargout>0
                 obj.serialized_obj_cache_ = [];
             end
@@ -79,6 +79,12 @@ classdef data_block < serializable
             % Set up class-defined sub-object at proper place of input
             % sqw_dnd_object. The operation is opposite to get_subobj and
             % used during recovery of the stored sqw object from binary file.
+            %
+            % Sets the value of the property, defined by class,
+            % to the appropriate place of the input sqw object.
+            % Inputs:
+            % sqw_dnd_obj -- input sqw or dnd object to set property value
+            %                on
             sqw_dnd_obj = set_subobj_(obj,sqw_dnd_obj,part_to_set);
         end
         %------------------------------------------------------------------
@@ -124,16 +130,16 @@ classdef data_block < serializable
             end
         end
         %
-        function nm = get.base_prop_name(obj)
-            nm = obj.base_prop_name_;
+        function nm = get.sqw_prop_name(obj)
+            nm = obj.sqw_prop_name_;
         end
-        function obj = set.base_prop_name(obj,val)
+        function obj = set.sqw_prop_name(obj,val)
             if ~(ischar(val)||isstring(val))
                 error('HORACE:data_block:invalid_argument', ...
                     'Primary property name can be only string or character array. In fact its class is %s', ...
                     class(val));
             end
-            obj.base_prop_name_ = val;
+            obj.sqw_prop_name_ = val;
         end
         %
         function nm = get.level2_prop_name(obj)
@@ -172,6 +178,49 @@ classdef data_block < serializable
             obj.size_ = val;
         end
     end
+    methods(Access=protected)
+        function move_to_position(obj,fid,pos)
+            % move write point to the position, specified by class
+            % properties.
+            %
+            % Inputs:
+            % obj  -- initialized instance of data_block,
+            %
+            % Optional:
+            % pos -- specify potition to move as input argument
+            %
+            % Throw, HORACE:data_block:io_error if the movement have not sucseeded.
+            %
+            if nargin<3
+                pos = [];
+            end
+            move_to_position_(obj,fid,pos);
+        end
+        function check_write_error(obj,fid,add_info)
+            % check if write operation have completed sucsesfully.
+            %
+            % Throw HORACE:data_block:io_error if there were write errors.
+            %
+            % If add_info is not empty, it added to the error message and
+            % used for clarification of the error location.
+            if ~exist('add_info','var')
+                add_info = '';
+            end
+            check_io_error_(obj,fid,'writing',add_info);
+        end
+        function check_read_error(obj,fid,add_info)
+            % check if read operation have completed sucsesfully.
+            %
+            % Throw HORACE:data_block:io_error if there were read errors.
+            %
+            % If add_info is not empty, it added to the error message and
+            % used for clarification of the error location.
+            if ~exist('add_info','var')
+                add_info = '';
+            end
+            check_io_error_(obj,fid,'reading',add_info);
+        end
+    end
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods
@@ -180,7 +229,7 @@ classdef data_block < serializable
             ver = 1;
         end
         function flds = saveableFields(~)
-            flds = {'base_prop_name','level2_prop_name','position','size'};
+            flds = {'sqw_prop_name','level2_prop_name','position','size'};
         end
         %------------------------------------------------------------------
     end

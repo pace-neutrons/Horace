@@ -4,7 +4,7 @@ if (nargin>1)
     has_dims = cellfun(@(x)(isa(x,'axes_block')||isa(x,'SQWDnDBase')||...
         isa(x,'dnd_metadata')||isa(x,'dnd_data')),varargin);
     if any(has_dims)
-        dim_id = find(had_dims,1);
+        dim_id = find(has_dims,1);
         ax = varargin{dim_id};
         ndims = ax.dimensions();
     else

@@ -32,6 +32,94 @@ classdef test_data_block < TestCase
             end
             delete(file);
         end
+        function test_put_get_dnd_info_reverted(obj)
+            dp1 = dnd_data_block();
+            dp2 = data_block('data','metadata');
+
+            file = fullfile(tmp_dir(),'put_get_dnd_data_block_reverted.bin');
+            fid = fopen(file,'wb+');
+            clOb = onCleanup(@()file_deleter(obj,fid,file));
+
+            tob = obj.sqw_obj_for_tests;
+            sig = rand(size(tob.data.s));
+            err = 1+rand(size(tob.data.s));
+            npix = 1+uint64(rand(size(tob.data.s)));
+            tob.data.s = sig;
+            tob.data.e = err;
+            tob.data.npix = npix;
+
+
+            dp1 = dp1.put_data_block(fid,tob);
+            dp2.position = dp1.size;
+            dp2 = dp2.put_data_block(fid,tob);
+
+            tob.data = [];
+
+            [~,rec_obj] = dp1.get_data_block(fid,tob);
+            [~,rec_obj] = dp2.get_data_block(fid,rec_obj);
+            fclose(fid);
+
+            rec_obj.data.do_check_combo_arg = true;
+            try
+                rec_obj.data  = rec_obj.data.check_combo_arg();
+                check_failed = false;
+                ME = struct('message','');
+            catch ME
+                check_failed  = true;
+            end
+            assertFalse(check_failed,ME.message);
+
+            tob = obj.sqw_obj_for_tests;
+            tob.data.s = sig;
+            tob.data.e = err;
+            tob.data.npix = npix;
+
+            assertEqualToTol(tob,rec_obj);
+        end
+
+        function test_put_get_dnd_info(obj)
+            dp1 = data_block('data','metadata');
+            dp2 = dnd_data_block();
+
+            file = fullfile(tmp_dir(),'put_get_dnd_data_block.bin');
+            fid = fopen(file,'wb+');
+            clOb = onCleanup(@()file_deleter(obj,fid,file));
+
+            tob = obj.sqw_obj_for_tests;
+            sig = rand(size(tob.data.s));
+            err = 1+rand(size(tob.data.s));
+            npix = 1+uint64(rand(size(tob.data.s)));
+            tob.data.s = sig;
+            tob.data.e = err;
+            tob.data.npix = npix;
+
+            dp1 = dp1.put_data_block(fid,tob);
+            dp2.position = dp1.size;
+            dp2 = dp2.put_data_block(fid,tob);
+
+            tob.data = [];
+
+            [~,rec_obj] = dp1.get_data_block(fid,tob);
+            [~,rec_obj] = dp2.get_data_block(fid,rec_obj);
+            fclose(fid);
+
+            rec_obj.data.do_check_combo_arg = true;
+            try
+                rec_obj.data  = rec_obj.data.check_combo_arg();
+                check_failed = false;
+                ME = struct('message','');
+            catch ME
+                check_failed  = true;
+            end
+            assertFalse(check_failed,ME.message);
+
+            tob = obj.sqw_obj_for_tests;
+            tob.data.s = sig;
+            tob.data.e = err;
+            tob.data.npix = npix;
+
+            assertEqualToTol(tob,rec_obj);
+        end
         function test_put_get_two_data_blocks(obj)
             dp1 = data_block('experiment_info','samples');
             dp2 = data_block('experiment_info','instruments');

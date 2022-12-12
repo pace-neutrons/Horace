@@ -2,29 +2,6 @@ function obj = init_(obj,varargin)
 % Initialization procedure for empty DnD-type object or reinitialize one
 % defined previously.
 
-if numel(varargin)>1
-    if isa(varargin{1},'axes_block') && isa(varargin{2},'aProjection') && numel(varargin{1})==1
-        cdd = obj.creation_date_defined_;
-        obj.creation_date_defined_= true;
-        keys = obj.saveableFields();
-        [obj,remains] = obj.set_positional_and_key_val_arguments(keys,false,varargin{:});
-        obj.creation_date_defined_ = cdd;
-        if isempty(remains)
-            return
-        end
-    elseif isa(varargin{1},'dnd_metadata') && isa(varargin{2},'dnd_data') && numel(varargin{1})==1
-        keys = {'metadata','nd_data'};
-        [obj,remains] = obj.set_positional_and_key_val_arguments(keys,false,varargin{:});
-        if isempty(remains)
-            return
-        end
-    end
-    if ~isempty(remains)
-        error('HORACE:DnDBase:invalid_argument',...
-            'Class constructor has been invoked with non-recognized parameters: %s',...
-            disp2str(remains));
-    end
-end
 
 args = parse_args_(obj,varargin{:});
 %
@@ -49,14 +26,19 @@ for i=1:args.array_numel
     elseif ~isempty(args.data_struct)
         obj(i) = obj(i).from_bare_struct(args.data_struct(i));
     elseif ~isempty(args.set_of_fields)
-        keys = obj.saveableFields();
-        obj(i) = set_positional_and_key_val_arguments(obj,...
-            keys,false,args.set_of_fields{:});
-        % copy label from projection to axes block in case it
-        % has been redefined on projection
-        is_proj = cellfun(@(x)isa(x,'aProjection'),args.set_of_fields);
-        if any(is_proj)
-            obj(i).axes.label = args.set_of_fields{is_proj}.label;
+        if isempty(args.keys)
+            keys = obj.saveableFields();
+            obj(i) = set_positional_and_key_val_arguments(obj,...
+                keys,false,args.set_of_fields{:});
+            % copy label from projection to axes block in case it
+            % has been redefined on projection
+            is_proj = cellfun(@(x)isa(x,'aProjection'),args.set_of_fields);
+            if any(is_proj)
+                obj(i).axes.label = args.set_of_fields{is_proj}.label;
+            end
+        else
+            obj(i) = set_positional_and_key_val_arguments(obj,...
+                args.keys,false,args.set_of_fields{:});
         end
     elseif ~isempty(args.sqw_obj)
         obj(i) = args.sqw_obj(i).data;
@@ -80,7 +62,8 @@ args = struct(...
     'dnd_obj',              [], ...
     'sqw_obj',              [], ...
     'set_of_fields',        [], ...
-    'data_struct',          [] ...
+    'data_struct',          [], ...
+    'keys',                 [] ...
     );
 
 if isempty(input_data)
@@ -129,10 +112,18 @@ elseif iscellstr(input_data)||isstring(input_data)
 elseif isstruct(input_data{1}) && ~isempty(input_data{1})
     args.data_struct = input_data;
 elseif numel(input_data) > 1
-    if numel(input_data) == 2 && isa(input_data{1},'axes_block') && isa(input_data{2},'aProjection')
-        sz = input_data{1}.dims_as_ssize;
-        strc = init_arrays_(struct(),sz);
-        args.set_of_fields = [varargin(:);struct2cell(strc)];
+    if numel(input_data) == 2
+        if isa(input_data{1},'axes_block') && isa(input_data{2},'aProjection')
+            sz = input_data{1}.dims_as_ssize;
+            strc = init_arrays_(struct(),sz);
+            args.set_of_fields = [varargin(:);struct2cell(strc)];
+        elseif isa(varargin{1},'dnd_metadata') && isa(varargin{2},'dnd_data')
+            args.set_of_fields = varargin;
+            args.keys = {'metadata','nd_data'};
+        else
+            error(['HORACE:', class(obj),':invalid_argument'], ...
+                'Class constructor invoked with two unrecognized input arguments')
+        end
     elseif numel(input_data) >= 5
         args.set_of_fields = input_data;
     else
