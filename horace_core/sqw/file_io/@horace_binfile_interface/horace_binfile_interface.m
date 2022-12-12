@@ -301,7 +301,6 @@ classdef horace_binfile_interface < serializable
     end
     methods(Abstract,Access=protected)
         % init file accessors from sqw object in memory
-        %
         obj=init_from_sqw_obj(obj,varargin);
         % init file accessors from sqw file on hdd
         obj=init_from_sqw_file(obj,varargin);

@@ -2,6 +2,30 @@ function obj = init_(obj,varargin)
 % Initialization procedure for empty DnD-type object or reinitialize one
 % defined previously.
 
+if numel(varargin)>1
+    if isa(varargin{1},'axes_block') && isa(varargin{2},'aProjection') && numel(varargin{1})==1
+        cdd = obj.creation_date_defined_;
+        obj.creation_date_defined_= true;
+        keys = obj.saveableFields();
+        [obj,remains] = obj.set_positional_and_key_val_arguments(keys,false,varargin{:});
+        obj.creation_date_defined_ = cdd;
+        if isempty(remains)
+            return
+        end
+    elseif isa(varargin{1},'dnd_metadata') && isa(varargin{2},'dnd_data') && numel(varargin{1})==1
+        keys = {'metadata','nd_data'};
+        [obj,remains] = obj.set_positional_and_key_val_arguments(keys,false,varargin{:});
+        if isempty(remains)
+            return
+        end
+    end
+    if ~isempty(remains)
+        error('HORACE:DnDBase:invalid_argument',...
+            'Class constructor has been invoked with non-recognized parameters: %s',...
+            disp2str(remains));
+    end
+end
+
 args = parse_args_(obj,varargin{:});
 %
 if args.array_numel>1
@@ -91,7 +115,7 @@ elseif isa(input_data{1}, 'SQWDnDBase')
             args.sqw_obj = input_data{1};
         end
     elseif input_data{1}.dimensions() >= obj.dimensions
-           args.dnd_obj = input_data{1};
+        args.dnd_obj = input_data{1};
     else
         error(['HORACE:', class(obj),':invalid_argument'], ...
             'Class %s cannot be constructed from an instance of object %s',...

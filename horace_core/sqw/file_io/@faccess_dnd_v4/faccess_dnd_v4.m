@@ -46,7 +46,14 @@ classdef faccess_dnd_v4 < binfile_v4_common
     %
     %
     %
-    %
+    properties(Access=protected)
+        % Blocks allocation table
+        bat_
+    end
+    properties(Constant,Access=protected)
+        % list of dnd blocks
+        dnd_blocks_list_ = {data_block('data','dnd_metadata')}
+    end
     methods
         function obj=faccess_dnd_v4(varargin)
             % constructor, to build sqw reader/writer version 2
@@ -65,9 +72,9 @@ classdef faccess_dnd_v4 < binfile_v4_common
             %                       be provided separately.
             %
             if nargin>0
-                obj = obj.init(varargin{:});
+                obj = obj.init(varargin{:}); % call generic init function
             end
-        end        
+        end
         %
     end
     methods(Access=protected)
@@ -75,9 +82,17 @@ classdef faccess_dnd_v4 < binfile_v4_common
             % Main part of get.sqw_type accessor
             % return true if the loader is intended for processing sqw file
             % format and false otherwise
-            is_sqw = true;
+            is_sqw = false;
         end
-        
+        function obj=init_from_sqw_obj(obj,varargin)
+            % init file accessors from sqw object in memory
+            obj = init_from_sqw_obj_(obj,varargin{:});
+        end
+        function obj=init_from_sqw_file(obj,varargin)
+            % init file accessors from sqw file on hdd
+            obj = init_from_sqw_file_(obj,varargin{:});
+        end
+
     end
-    
+
 end

@@ -50,6 +50,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         u_to_rlu;
         ulen;
         creation_date_defined;
+        %------------------------------------------------------------------
+        % Two properties, responsible for storing/restoring dnd information
+        % to/from binary hdd file format.
+        % The main purpose for the separation, is the possibility to access
+        % dnd-data from third party (non-Matlab) applications
+        %
+        metadata; % Full information describing dnd object
+        nd_data;     % N-D data arrays, describing DND image stored in dnd
+        %             % object
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == axes_block.dims_as_ssize)
@@ -354,6 +363,39 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             def = obj.creation_date_defined_;
         end
     end
+    %======================================================================
+    % binfile IO interface
+    methods
+        function md = get.metadata(obj)
+            md = dnd_metadata(obj);
+        end
+        function obj = set.metadata(obj,val)
+            if ~isa(val,'dnd_metadata')
+                error('HORACE:DnDBase:invalid_argument',...
+                    'Metadata can be set by instance of dnd_metadata class only. Input class is: %s', ...
+                    class(val))
+            end
+            obj.axes = val.axes;
+            obj.proj = val.proj;
+            if val.creation_date_defined
+                obj.creation_date = val.creation_date_str;
+            end
+        end
+        %
+        function dat = get.nd_data(obj)
+            dat = dnd_data(obj);
+        end
+        function obj = set.nd_data(obj,val)
+            if ~isa(val,'dnd_data')
+                error('HORACE:DnDBase:invalid_argument',...
+                    'Whole dnd_data can be set by instance of dnd_data class only. Input class is: %s', ...
+                    class(val))
+            end
+            obj.s = val.sig;
+            obj.e = val.err;
+            obj.npix = val.npix;
+        end
+    end
 
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
@@ -435,7 +477,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             obj = check_combo_arg_(obj);
         end
     end
-    %----------------------------------------------------------------------    
+    %----------------------------------------------------------------------
     methods(Access = protected)
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the

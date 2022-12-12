@@ -247,7 +247,7 @@ classdef (Abstract=true) serializable
             do = obj.do_check_combo_arg_;
         end
         function obj = set.do_check_combo_arg(obj,val)
-            %use function to be able to overload on children
+            %use set function to be able to overload this method by children
             obj = set_do_check_combo_arg(obj,val);
         end
         function [is,mess] = eq(obj,other_obj,varargin)
@@ -412,6 +412,18 @@ classdef (Abstract=true) serializable
             [obj,remains] = ...
                 set_positional_and_key_val_arguments_(obj,...
                 positinal_param_names_list,old_keyval_compat,varargin{:});
+            %
+            % Code sample to insert into new object constructor to use generic constructor:
+            %
+            % flds = obj.saveableFields();
+            % [obj,remains] = obj.set_positional_and_key_val_arguments(...
+            %        flds,false,varargin{:});
+            %  if ~isempty(remains) % process the parameters not recognized
+            %                       % as positional or key-value arguments
+            %      error('HORACE:class_name:invalid_argument',...
+            %           ' Class constructor has been invoked with non-recognized parameters: %s',...
+            %                         disp2str(remains));
+            %  end
         end
     end
 end
