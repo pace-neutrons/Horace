@@ -101,13 +101,13 @@ classdef dnd_data_block < data_block
             obj.check_read_error(fid,'header');
             %
             n_elements = prod(data_size);
-            sig = fread(fid,n_elements,'double');
+            sig = fread(fid,n_elements,'*double');
             obj.check_read_error(fid,'signal');
             %
-            err = fread(fid,n_elements,'double');
+            err = fread(fid,n_elements,'*double');
             obj.check_read_error(fid,'error');
             %
-            npix = fread(fid,n_elements,'uint64');
+            npix = fread(fid,n_elements,'*uint64');
             obj.check_read_error(fid,'npixel');
             %
             dnd_data_obj = dnd_data(reshape(sig,data_size'), ...
