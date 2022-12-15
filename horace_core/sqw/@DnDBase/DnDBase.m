@@ -302,6 +302,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                     'input for proj property has to be an instance of aProjection class only. It is %s',...
                     class(val));
             end
+            % keep the state of the check_combo_arg synchronized with whole
+            % class check_cobo_arg state
             check_combo_ = obj.proj_.do_check_combo_arg;
             obj.proj_ = val;
             obj.proj_.do_check_combo_arg = check_combo_;
@@ -416,15 +418,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
         end
         %
-        function obj = set_do_check_combo_arg(obj,val)
-            % set internal property do_check_combo_arg to all object
-            % components, which are serializable
-            val = logical(val);
-            obj.do_check_combo_arg_ = val;
-            obj.axes_.do_check_combo_arg  = val;
-            obj.proj_.do_check_combo_arg  = val;
-        end
-        %
         function obj = set_senpix(obj,val,field)
             % set signal error or npix value to a class field
             if ~isnumeric(val)
@@ -464,6 +457,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         function flds = saveableFields(obj)
             flds = obj.fields_to_save_;
+            % do not save creation data if it has not been defined
             if ~obj.creation_date_defined_
                 flds  = flds(1:end-1);
             end
@@ -510,6 +504,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 out = modify_old_structure_(inputs);
             end
             obj = from_old_struct@serializable(obj,out);
+        end
+        %
+        function obj = set_do_check_combo_arg(obj,val)
+            % set internal property do_check_combo_arg to all object
+            % components, which are serializable
+            val = logical(val);
+            obj.do_check_combo_arg_ = val;
+            obj.axes_.do_check_combo_arg  = val;
+            obj.proj_.do_check_combo_arg  = val;
         end
     end
 end

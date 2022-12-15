@@ -35,7 +35,7 @@ classdef dnd_data_block < data_block
         end
 
 
-        function obj = cache_and_calc_obj_size(obj,sqw_obj)
+        function obj =calc_obj_size(obj,sqw_obj,varargin)
             % Overloaded: -- caclculate size of the serialized object and
             % put the serialized object into data cache for subsequent put
             % operation(s)
@@ -55,10 +55,11 @@ classdef dnd_data_block < data_block
             dnd_data_obj = obj.get_bindata_from_file(fid);
             sqw_obj_to_set = obj.set_subobj(sqw_obj_to_set,dnd_data_obj);
         end
-        % Protected?
+    end
+    methods(Access=protected)
         %-----------------------------------------------------------------
         function obj = put_bindata_in_file(obj,fid,obj_data)
-            % Overloaded: -- store data containing in dnd_data class
+            % Overloaded: -- store data containing in dnd_data_block class
             % into binary file
             % Inputs:
             % fid      -- opened file handle
@@ -68,22 +69,11 @@ classdef dnd_data_block < data_block
             % obj      -- unchanged
             % Eroror: HORACE:data_block:io_error is thrhown in case of
             %         problem with writing data fields
-            obj.move_to_position(fid)
-            head_data = uint32([obj_data.dimensions,obj_data.data_size]);
-            fwrite(fid,head_data,'uint32');
-            obj.check_write_error(fid,'header');
-            %
-            fwrite(fid,double(obj_data.sig(:)),'double');
-            obj.check_write_error(fid,'signal');
-            %
-            fwrite(fid,double(obj_data.err(:)),'double');
-            obj.check_write_error(fid,'error');
-            %
-            fwrite(fid,uint64(obj_data.npix(:)),'uint64');
-            obj.check_write_error(fid,'npixel');
+            obj = put_bindata_in_file_(obj,fid,obj_data);
         end
         function dnd_data_obj = get_bindata_from_file(obj,fid)
-            % read array of bytes from opened binary file
+            % read information about dnd_data_block from opened binary file
+            % and recover the instance of dnd_data_block class
             %
             % Inputs:
             % fid      -- opened file handle
@@ -94,24 +84,7 @@ classdef dnd_data_block < data_block
             %
             % Eroror: HORACE:data_block:io_error is thrhown in case of
             %         problem with redading data fields
-            obj.move_to_position(fid);
-            %
-            n_dims = fread(fid,1,'uint32');
-            data_size = fread(fid,n_dims,'uint32');
-            obj.check_read_error(fid,'header');
-            %
-            n_elements = prod(data_size);
-            sig = fread(fid,n_elements,'*double');
-            obj.check_read_error(fid,'signal');
-            %
-            err = fread(fid,n_elements,'*double');
-            obj.check_read_error(fid,'error');
-            %
-            npix = fread(fid,n_elements,'*uint64');
-            obj.check_read_error(fid,'npixel');
-            %
-            dnd_data_obj = dnd_data(reshape(sig,data_size'), ...
-                reshape(err,data_size'),reshape(npix,data_size'));
+            dnd_data_obj = get_bindata_from_file_(obj,fid);
         end
     end
     %======================================================================

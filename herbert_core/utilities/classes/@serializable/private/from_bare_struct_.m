@@ -31,14 +31,16 @@ end
 %--------------------------------------------------------------------------
 %
 
+obj_in = cell(nobj,1);
 for i=1:nobj
     obj(i).do_check_combo_arg_ = false;    
     obj(i) = set_obj(obj(i),inputs(i),fields_to_set);
     obj(i).do_check_combo_arg_ = true;        
     % check interdependent properties. If the object is invalid, 
     % it throws the exception   
-    obj(i) = obj(i).check_combo_arg();
+    obj_in{i} = obj(i).check_combo_arg();
 end
+obj = [obj_in{:}];
 
 end % function from_bare_struct_
 %

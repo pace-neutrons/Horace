@@ -294,7 +294,7 @@ classdef test_dnd_constructor < TestCaseWithSave
             input = {axes_block([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
                 ones(11,11,11,11),ones(11,11,11,11),ones(11,11,11,11)};
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
-            assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d0d(input{:}),'MATLAB:class:mustReturnObject');
             obj = d4d(input{:});
 
             assertTrue(isa(obj,'d4d'));
@@ -305,7 +305,7 @@ classdef test_dnd_constructor < TestCaseWithSave
             input = {axes_block([0,0.1,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
                 ones(11,11,11),ones(11,11,11),ones(11,11,11)};
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
-            assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d0d(input{:}),'MATLAB:class:mustReturnObject');
             assertExceptionThrown(@()d4d(input{:}),'HORACE:DnDBase:invalid_argument');
             obj = d3d(input{:});
 
@@ -316,7 +316,7 @@ classdef test_dnd_constructor < TestCaseWithSave
             input = {axes_block([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
                 };
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
-            assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d0d(input{:}),'MATLAB:class:mustReturnObject');
             assertExceptionThrown(@()d3d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d4d(input{:}),'HORACE:DnDBase:invalid_argument');
             obj = d2d(input{:});
@@ -330,22 +330,34 @@ classdef test_dnd_constructor < TestCaseWithSave
             input = {axes_block([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
                 ones(11,11),ones(11,11),ones(11,11)};
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
-            assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d0d(input{:}),'MATLAB:class:mustReturnObject');
             assertExceptionThrown(@()d3d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d4d(input{:}),'HORACE:DnDBase:invalid_argument');
             obj = d2d(input{:});
 
             assertTrue(isa(obj,'d2d'));
         end
-
-        function test_d1d_non_empty(~)
+        function test_d1d_data_wrong_constructor_throws(~)
             %axis, proj, s,e,npix
             input = {axes_block([0,1],[0,1],[0,0.1,1],[0,2]),ortho_proj(),...
                 ones(1,11),ones(1,11),ones(1,11)};
-            assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d2d(input{:}),'HORACE:DnDBase:invalid_argument');
+
+        end
+
+        function test_d1d_non_empty_constructor_works(~)
+            %axis, proj, s,e,npix
+            input = {axes_block([0,1],[0,1],[0,0.1,1],[0,2]),ortho_proj(),...
+                ones(1,11),ones(1,11),ones(1,11)};
+
             obj = d1d(input{:});
 
             assertTrue(isa(obj,'d1d'));
+            input{1}.label = {'\zeta'  '\xi'  '\eta'  'E'};
+            assertEqual(obj.axes,input{1});
+            assertEqual(obj.proj,input{2});
+            assertEqual(obj.s,input{3}');
+            assertEqual(obj.npix,input{5}');
         end
 
         function test_d0d_non_empty(~)
@@ -449,10 +461,11 @@ classdef test_dnd_constructor < TestCaseWithSave
 
             % properties are mapped to an internal data structure; verify the getters and
             % setters are correctly wired
-            dnd_obj.do_check_combo_arg = false;
             for idx = 1:numel(test_prop)
                 prop_name = test_prop{idx};
                 test_value = sample_prop(prop_name);
+                %
+                dnd_obj.do_check_combo_arg = false;
                 dnd_obj.(prop_name) = test_value;
                 assertEqual(dnd_obj.(prop_name), test_value, ...
                     sprintf('Value set to "%s" not returned', prop_name));
@@ -515,8 +528,6 @@ classdef test_dnd_constructor < TestCaseWithSave
             dnd_obj.npix = 1;
             assertEqual(dnd_obj.npix,1);
         end
-
-
 
         function assert_dnd_contains_expected_properties(~, dnd_obj)
             expected_props = { ...

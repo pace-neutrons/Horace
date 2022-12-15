@@ -15,11 +15,13 @@ classdef d1d < DnDBase
         function obj = d1d(varargin)
             obj = obj@DnDBase(varargin{:});
             if nargin == 0
+                obj.do_check_combo_arg = false;
                 obj.axes.single_bin_defines_iax = [false,true,true,true];
                 obj.axes.dax= 1;
                 obj.s_ = 0;
                 obj.e_ = 0;
-                obj.npix_ = 0;                
+                obj.npix_ = 0;
+                obj.do_check_combo_arg = true;
             end
         end
         dat = IX_dataset_1d(obj);

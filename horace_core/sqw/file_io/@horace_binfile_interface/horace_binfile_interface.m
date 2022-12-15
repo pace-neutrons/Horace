@@ -315,6 +315,47 @@ classdef horace_binfile_interface < serializable
         % true, if loader processes sqw file and false if dnd.
         is_sqw = get_sqw_type(~)
     end
+    methods(Static)
+        function move_to_position(fid,pos)
+            % move write point to the position, specified by input
+            %
+            % Inputs:
+            % fid -- open file id
+            % pos -- potition from beginning of the file
+            % error_message
+            %     -- text to add to the error message in case of failure to
+            %        identify the code, attempting the move
+            %
+            % Throw, HORACE:data_block:io_error if the movement have not 
+            % been successful.
+            %
+            move_to_position_(fid,pos);
+        end
+        function check_write_error(fid)
+            % check if write operation have completed sucsesfully.
+            %
+            % Inputs:
+            % fid -- open file id for write operation
+            % Throw HORACE:data_block:io_error if there were write errors.
+            %
+            % If add_info is not empty, it added to the error message and
+            % used for clarification of the error location.
+            check_io_error_(fid,'writing');
+        end
+        function check_read_error(fid)
+            % check if read operation have completed sucsesfully.
+            %
+            % Inputs:
+            % fid -- open file id for write operation
+
+            % Throw HORACE:data_block:io_error if there were read errors.
+            %
+            % If add_info is not empty, it added to the error message and
+            % used for clarification of the error location.
+            check_io_error_(fid,'reading');
+        end
+
+    end
     %======================================================================
     % SERIALIZABLE INTERFACE
     properties(Constant,Access=private)

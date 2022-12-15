@@ -50,6 +50,9 @@ classdef faccess_dnd_v4 < binfile_v4_common
         % Blocks allocation table
         bat_
     end
+    properties(Dependent)
+        bat;
+    end
     properties(Constant,Access=protected)
         % list of data blocks, this class maintains
         dnd_blocks_list_ = {data_block('data','dnd_metadata'),...
@@ -77,6 +80,51 @@ classdef faccess_dnd_v4 < binfile_v4_common
             end
         end
         %
+        function bt = get.bat(obj)
+            bt = obj.bat_;
+        end
+        %
+    end
+    %======================================================================
+    % Define old interface
+    methods
+        %
+        %---------------------------------------------------------
+        [data,obj]  = get_data(obj,varargin); % get whole dnd data without packing these data into dnd object.
+        [data_str,obj] = get_se_npix(obj,varargin) % get only dnd image data, namely s, err and npix
+
+        [inst,obj]  = get_instrument(obj,varargin); % return instrument stored with sqw file or empty structure if
+        %                                             nothing is stored. Always empty for dnd objects.
+        [samp,obj]  = get_sample(obj,varargin);   % return sample stored with sqw file or empty structure if
+        %                                           nothing is stored. Always empty for dnd objects.
+        [sqw_obj,varargout] = get_sqw(obj,varargin); % retrieve the whole sqw or dnd object from properly initialized sqw file
+        [dnd_obj,varargout] = get_dnd(obj,varargin); % retrieve any sqw/dnd object as dnd object
+
+        % -----------------------------------------------------------------
+        % get [2x4] array of min/max ranges of the pixels contributing into
+        % an object
+        pix_range = get_pix_range(obj);
+        % get [2x4] array of min/max ranges of the image contributing into
+        % an object, which is the basis for the grid, the pixels are sorted
+        % on
+        img_db_range = get_img_db_range(obj);
+        %
+        % ----------------------------------------------------------------
+        % save sqw object stored in memory into binary sqw file. Depending
+        % on data present in memory it can in fact be a dnd object.
+        % Save new or fully overwrite existing sqw file
+        obj = put_sqw(obj,varargin);
+        % save sqw/dnd object stored in memory into binary sqw file as dnd object.
+        % it always reduced data in memory into dnd object on hdd
+        obj = put_dnd(obj,varargin);
+        % Comprising of:
+        % 1) store or update application header
+        % 2) store dnd information ('-update' option updates this
+        % information within existing file)
+        obj = put_dnd_metadata(obj,varargin);
+        % write dnd image data, namely s, err and npix ('-update' option updates this
+        % information within existing file)
+        obj = put_dnd_data(obj,varargin);        
     end
     methods(Access=protected)
         function is_sqw = get_sqw_type(~)
@@ -92,6 +140,12 @@ classdef faccess_dnd_v4 < binfile_v4_common
         function obj=init_from_sqw_file(obj,varargin)
             % init file accessors from sqw file on hdd
             obj = init_from_sqw_file_(obj,varargin{:});
+        end
+        function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
+            % the main part of the copy constructor, copying the contents
+            % of the one class into another including opening the
+            % corresponding file with the same access rights
+            error('Not Implemented yet');
         end
 
     end

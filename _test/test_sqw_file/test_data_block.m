@@ -41,9 +41,16 @@ classdef test_data_block < TestCase
             clOb = onCleanup(@()file_deleter(obj,fid,file));
 
             tob = obj.sqw_obj_for_tests;
-            sig = rand(size(tob.data.s));
-            err = 1+rand(size(tob.data.s));
-            npix = 1+uint64(rand(size(tob.data.s)));
+            npixels = tob.pix.num_pixels;
+            nbins = numel(tob.data.s);
+            idx = floor(1+(nbins-1)*rand(npixels,1));
+            sig = zeros(size(tob.data.s));
+            err = ones(size(tob.data.s));
+            npix = zeros(size(tob.data.s));
+
+            sig(idx) = 10;
+            err(idx) = 20;
+            npix(idx) = 1;
             tob.data.s = sig;
             tob.data.e = err;
             tob.data.npix = npix;
@@ -76,6 +83,32 @@ classdef test_data_block < TestCase
 
             assertEqualToTol(tob,rec_obj);
         end
+        
+        function test_dnd_block_bat_record_serialize_deserialize(~)
+            db = dnd_data_block(10,10000);
+
+            db_size = db.bat_record_size;
+            bat_record = db.bat_record;
+            assertEqual(db_size,numel(bat_record));
+
+            [db_recovered,pos] = data_block.deserialize_bat_record(bat_record);
+
+            assertEqual(db,db_recovered);
+            assertEqual(pos,db_size+1);
+        end
+        
+        function test_data_block_bat_record_serialize_deserialize(~)
+            db = data_block('my_sqw','my_property',10,10000);
+
+            db_size = db.bat_record_size;
+            bat_record = db.bat_record;
+            assertEqual(db_size,numel(bat_record));
+
+            [db_recovered,pos] = data_block.deserialize_bat_record(bat_record);
+
+            assertEqual(db,db_recovered);
+            assertEqual(pos,db_size+1);
+        end
 
         function test_put_get_dnd_info(obj)
             dp1 = data_block('data','metadata');
@@ -86,9 +119,16 @@ classdef test_data_block < TestCase
             clOb = onCleanup(@()file_deleter(obj,fid,file));
 
             tob = obj.sqw_obj_for_tests;
-            sig = rand(size(tob.data.s));
-            err = 1+rand(size(tob.data.s));
-            npix = 1+uint64(rand(size(tob.data.s)));
+            npixels = tob.pix.num_pixels;
+            nbins = numel(tob.data.s);
+            idx = floor(1+(nbins-1)*rand(npixels,1));
+            sig = zeros(size(tob.data.s));
+            err = ones(size(tob.data.s));
+            npix = zeros(size(tob.data.s));
+
+            sig(idx) = 10;
+            err(idx) = 20;
+            npix(idx) = 1;
             tob.data.s = sig;
             tob.data.e = err;
             tob.data.npix = npix;
@@ -186,6 +226,12 @@ classdef test_data_block < TestCase
             assertEqual(sqw_mod.experiment_info.instruments(1),inst);
         end
         %------------------------------------------------------------------
+        function test_get_block_name(~)
+            dp = data_block('data','proj');
+
+            assertEqual(dp.block_name,'bl_data_proj');
+        end
+        
         function test_get_proper_dnd_subobj_proj(obj)
             dp = data_block('data','proj');
 

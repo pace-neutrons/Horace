@@ -7,7 +7,12 @@ if ~isa(val,'axes_block')
         'input for axes property has to be an axes_block only. It is %s',...
         class(val));
 end
+% keep the state of the check_combo_arg synchronized with whole
+% class check_cobo_arg state
+check_combo_ = obj.axes_.do_check_combo_arg;
 obj.axes_ = val;
+obj.axes_.do_check_combo_arg = check_combo_;
+
 if obj.do_check_combo_arg_
     obj = obj.check_combo_arg();
 end

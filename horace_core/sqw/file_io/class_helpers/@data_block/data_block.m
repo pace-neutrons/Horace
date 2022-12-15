@@ -7,17 +7,30 @@ classdef data_block < serializable
     % of interest or place this information into sqw/dnd object
 
     properties(Dependent)
+        block_name;
         sqw_prop_name;
         level2_prop_name;
         % position of the binary block on hdd in C numeration (first byte is
         % in the position 0)
         position;
-        % size (in bytes) of the block would occupy on hdd
+        % size (in bytes) of the serialized block would occupy on hdd
         size;
+    end
+    properties(Dependent,Hidden)
+        % return class name -- property, used for serialization into BAT
+        % structure. Hidden not to polute class interface
+        serial_name;
+        % the format used to serialize class into BAT record,
+        bat_format;
+        % size (in bytes) the BAT record would occupy on hdd
+        bat_record_size;
+        % return array of bytes, necessary to store and recover data block
+        % class from blockAllocationTable.
+        bat_record;
     end
     properties(Access=protected)
         sqw_prop_name_ ='';
-        second_prop_name_ = '';
+        level2_prop_name_ = '';
         position_=0;
         size_ = 0;
         % The cache containing serialized object after estimating its size
@@ -38,7 +51,7 @@ classdef data_block < serializable
             % extract sub-block information from sqw object and write this
             % information on HDD
             if exist('sqw_obj','var')
-                obj = obj.cache_and_calc_obj_size(sqw_obj);
+                obj = obj.calc_obj_size(sqw_obj);
             else
                 if isempty(obj.serialized_obj_cache_)
                     error('HORACE:data_block:runtime_error',...
@@ -48,22 +61,46 @@ classdef data_block < serializable
                 end
             end
             bindata = obj.serialized_obj_cache_;
+            if isa(bindata,'uint8')
+                if (numel(bindata) > obj.size)
+                    error('HORACE:data_block:runtime_error',...
+                        'Precalculated block size %d differs from obtained block size %d. Binary file will be probably corrupted',...
+                        obj.block_size,numel(bindata))
+                else
+                    obj.size_=numel(bindata);
+                end
+            end
             obj = obj.put_bindata_in_file(fid,bindata);
             if nargout>0
                 obj.serialized_obj_cache_ = [];
             end
         end
-        function obj = cache_and_calc_obj_size(obj,sqw_obj)
+        function obj = calc_obj_size(obj,sqw_obj,nocache)
             % caclculate size of the serialized object and put the
             % serialized object into data cache for subsequent put
             % operation(s)
+            % If nocache variable is provided, do not serialize object
+            % to put it into the cache before evaluating its size
+            % but use serializable.serial_size method to find the object
+            % size
+            if exist('nocache','var')
+                if ~(islogical(nocache))
+                    nocache = logical(nocache);
+                end
+            else
+                nocache = false;
+            end
+            %
             subobj = obj.get_subobj(sqw_obj);
-            bindata = subobj.serialize();
-            obj.size_ = numel(bindata);
-            obj.serialized_obj_cache_ = bindata;
+            if nocache
+                obj.size_ = subobj.serial_size();
+            else
+                bindata = subobj.serialize();
+                obj.size_ = numel(bindata);
+                obj.serialized_obj_cache_ = bindata;
+            end
         end
         %
-        %==================================================================
         %    end % --- Should it be protected?
         %    methods(Access=protected)
         function subobj = get_subobj(obj,sqw_dnd_obj)
@@ -87,7 +124,9 @@ classdef data_block < serializable
             %                on
             sqw_dnd_obj = set_subobj_(obj,sqw_dnd_obj,part_to_set);
         end
-        %------------------------------------------------------------------
+    end
+    %======================================================================
+    methods(Access=protected)
         function obj = put_bindata_in_file(obj,fid,bindata)
             % store array of bytes into selected and opened binary file
             % Inputs:
@@ -117,17 +156,26 @@ classdef data_block < serializable
     % CONSTRUCTOR and PROPERTY ACCESSORS
     methods
         function obj = data_block(varargin)
+            %DATA_BLOCK constructor to create data block re
             if nargin == 0
                 return;
             end
-            fldNames = obj.saveableFields();
-            [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                fldNames,false,varargin{:});
-            if ~isempty(remains)
-                error('HORACE:data_block:invalid_argument', ...
-                    'Unrecognized properties/values are provided to the block constructor %s',...
-                    disp2str(remains));
+            if nargin == 1 && isstruct(varargin{1})
+                obj = serializable.from_struct(varargin{1});
+            else
+                fldNames = obj.saveableFields();
+                [obj,remains] = set_positional_and_key_val_arguments(obj,...
+                    fldNames,false,varargin{:});
+                if ~isempty(remains)
+                    error('HORACE:data_block:invalid_argument', ...
+                        'Unrecognized properties/values are provided to the block constructor %s',...
+                        disp2str(remains));
+                end
             end
+        end
+        %
+        function name = get.block_name(obj)
+            name = sprintf('bl_%s_%s',obj.sqw_prop_name,obj.level2_prop_name);
         end
         %
         function nm = get.sqw_prop_name(obj)
@@ -143,7 +191,7 @@ classdef data_block < serializable
         end
         %
         function nm = get.level2_prop_name(obj)
-            nm = obj.second_prop_name_;
+            nm = obj.level2_prop_name_;
         end
         function obj = set.level2_prop_name(obj,val)
             if ~(ischar(val)||isstring(val))
@@ -151,7 +199,7 @@ classdef data_block < serializable
                     'Second property name can be only string or character array. In fact its class is %s', ...
                     class(val));
             end
-            obj.second_prop_name_ = val;
+            obj.level2_prop_name_ = val;
         end
         %------------------------------------------------------------------
         function pos = get.position(obj)
@@ -163,7 +211,7 @@ classdef data_block < serializable
                     'block position can be only non-negative number. It is %s',...
                     disp2str(val));
             end
-            obj.position_ = val;
+            obj.position_ = uint64(val);
         end
         %
         function pos = get.size(obj)
@@ -175,7 +223,7 @@ classdef data_block < serializable
                     'block size can be only non-negative number. It is %s',...
                     disp2str(val));
             end
-            obj.size_ = val;
+            obj.size_ = uint64(val);
         end
     end
     methods(Access=protected)
@@ -206,7 +254,7 @@ classdef data_block < serializable
             if ~exist('add_info','var')
                 add_info = '';
             end
-            check_io_error_(obj,fid,'writing',add_info);
+            check_write_error_(obj,fid,add_info);
         end
         function check_read_error(obj,fid,add_info)
             % check if read operation have completed sucsesfully.
@@ -218,12 +266,63 @@ classdef data_block < serializable
             if ~exist('add_info','var')
                 add_info = '';
             end
-            check_io_error_(obj,fid,'reading',add_info);
+            check_read_error_(obj,fid,add_info);
         end
     end
     %======================================================================
-    % SERIALIZABLE INTERFACE
+    % SERIALIZABLE INTERFACES
+    % Two serializable interfaces are defined here. One for supporting Matlab
+    % loadobj/saveobj operations and other -- for supporting serialization
+    % the records, stored in the BlockAllocationTable.
+    properties(Constant,Access=protected)
+        % structure describes the format of the record conversion in BAT table
+        % the name of format retrieves the property to store and the
+        % type of value specifies what format use for serializing this
+        % property.
+        bat_record_format_ = struct('serial_name','', ...
+            'sqw_prop_name','','level2_prop_name','',...
+            'position',uint64(1),'size',uint64(1))
+        serializer_ = sqw_serializer();
+    end
+    methods(Static)
+        function [data_bl_obj,pos] =deserialize_bat_record(bindata,pos)
+            % Recover data block class instance from BlockAllocationTable
+            % record
+            % Inputs:
+            % bindata -- array of uint8 elements containing serialized
+            %            information to recover
+            % Optional:
+            % pos     -- the position of data to revover in the input
+            %            array. If missing, assumed that the data are
+            %            located at the beginning of the array
+            if ~exist('pos','var')
+                pos = 1;
+            end
+            [targ_struc,pos] = data_block.serializer_.deserialize_bytes(...
+                bindata,data_block.bat_record_format_,pos);
+            data_bl_obj = feval(targ_struc.serial_name,targ_struc);
+        end
+    end
+
     methods
+        %------------------------------------------------------------------
+        % OLD BINDATA SERIALIZE INTERFACE, used to store data in BAT table
+        function name = get.serial_name(obj)
+            name = class(obj);
+        end
+        function format = get.bat_format(~)
+            format = data_block.bat_record_format_;
+        end
+        function batr_size = get.bat_record_size(obj)
+            [~,pos] = data_block.serializer_.calculate_positions(obj.bat_format, ...
+                obj);
+            batr_size = pos-1;
+        end
+        function batr = get.bat_record(obj)
+            batr = data_block.serializer_.serialize(obj,obj.bat_format());
+        end
+        %-----------------------------------------------------------------
+        % Global Serialization
         function  ver  = classVersion(~)
             % serializable fields version
             ver = 1;

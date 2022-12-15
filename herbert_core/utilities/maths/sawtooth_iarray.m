@@ -20,7 +20,7 @@ function ivout = sawtooth_iarray (n)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
+
 
 nn0=n(n>0);
 nn0=nn0(:);
@@ -29,7 +29,7 @@ if ~isempty(nn0)
     tmp=ones(nend(end),1);
     ix=1+nend(1:end-1);
     if ~isempty(ix)
-        tmp(ix)=tmp(ix)-nn0(1:end-1);
+        tmp(ix)=tmp(ix)-double(nn0(1:end-1));
     end
     ivout=cumsum(tmp);
 else
