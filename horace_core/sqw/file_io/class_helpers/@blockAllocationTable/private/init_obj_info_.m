@@ -27,8 +27,8 @@ for i=1:n_b
     block_size(i) = db.size;
     obj.blocks_list_{i} = db;
 end
-block_pos = cumsum(block_size);
-block_pos = [0;block_pos(1:end-1)]+obj.blocks_start_position;
+block_pos = uint64(cumsum(block_size));
+block_pos = [uint64(0);block_pos(1:end-1)]+obj.blocks_start_position;
 for i=1:n_b
     obj.blocks_list_{i}.position = block_pos(i);
 end

@@ -1,6 +1,6 @@
 function obj = set_bat_position_(obj,val)
 % The body of block allocation table setter
-% contaning validator and 
+% contaning validator and
 if ~(isnumeric(val)&&isscalar(val)&&val>=0)
     error('HORACE:blockAllocationTable:invalid_argument', ...
         'Allocation block postion should be defined by non-negative scalar. It is %s', ...

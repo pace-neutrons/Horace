@@ -14,12 +14,17 @@ if ~all(is_db)
         first_non,class(val{first_non}));
 end
 obj.blocks_list_ = val;
-obj.bat_bin_size_ = calculate_bat_size_(obj);
+[bl_size,block_names] = calculate_bat_size_(obj);
+obj.bat_bin_size_ = bl_size;
+obj.block_names_ = block_names;
 
-function size = calculate_bat_size_(obj)
+function [blksize,name_list] = calculate_bat_size_(obj)
 % calculate the size of the block allocation table to store it on disk
 %
-size = 4; % first 4 bytes of BAT is number of blocks in the record
-for i=1:numel(obj.blocks_list_)
-    size = size+obj.blocks_list_{i}.bat_record_size;
+blksize = 4; % first 4 bytes of BAT is number of blocks in the record
+n_blocks = numel(obj.blocks_list_);
+name_list = cell(1,n_blocks);
+for i=1:n_blocks
+    blksize = blksize+obj.blocks_list_{i}.bat_record_size;
+    name_list{i} = obj.blocks_list_{i}.block_name;
 end

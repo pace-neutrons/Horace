@@ -15,6 +15,9 @@ classdef blockAllocationTable < serializable
         % the position of the first data block located after block
         % allocation table placed on disk
         blocks_start_position;
+        % The list of the names of the blocks, controlled by
+        % BlockAllocaionTable
+        block_names
     end
     properties(Dependent,Hidden)
         % returns serialized representation of the blockAllocationTable,
@@ -30,6 +33,7 @@ classdef blockAllocationTable < serializable
         block_list_location_initiated_ = false;
         %
         blocks_list_ = {};
+        block_names_ = {};
     end
     %======================================================================
     % Constructor and public accessors/mutators
@@ -51,7 +55,7 @@ classdef blockAllocationTable < serializable
             obj.position     = location;
             obj.blocks_list  = block_list;
         end
-        %----------------------------------------------------------------
+        %------------------------------------------------------------------
         function size = get.bat_bin_size(obj)
             size = obj.bat_bin_size_;
         end
@@ -79,10 +83,14 @@ classdef blockAllocationTable < serializable
         function obj = set.blocks_list(obj,val)
             obj = set_block_list_(obj,val);
         end
+        %------------------------------------------------------------------
+        function list = get.block_names(obj)
+            list = obj.block_names_;
+        end
         function pos = get.blocks_start_position(obj)
             % the data blocks start after BAT, 4 bytes of BAT size
             % + BAT binary representation itself
-            pos = obj.position + 4 + obj.bat_bin_size;
+            pos = uint64(obj.position + 4 + obj.bat_bin_size);
         end
     end
     %======================================================================
@@ -113,6 +121,25 @@ classdef blockAllocationTable < serializable
             end
             obj = init_obj_info_(obj,obj_to_analyze,nocache);
         end
+        function pos = get_block_pos(obj,block_name_or_class)
+            % return the position of block defined by current BAT
+            % Inputs:
+            % obj -- the instance of block_allocation table initialized by
+            %        an object
+            % block_name_or_class
+            %     -- name of the data block to find the position or an
+            %        instance of the block with specified property names
+            %        The block position is taken from BAT, any
+            %        defined on class is ignored.
+            % Returns:
+            % pos  -- the position of the block in binary file, retrieved
+            %         from this BAT.
+            % Throws:
+            % HORACE:blockAllocationTable:runtime_error if the table have
+            %       not been initialized
+            pos = get_block_pos_(obj,block_name_or_class);
+        end
+
         %
         function bindata = get.ba_table(obj)
             % generate BAT binary representation to store Block

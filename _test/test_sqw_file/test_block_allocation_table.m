@@ -27,21 +27,51 @@ classdef test_block_allocation_table < TestCase
             end
             delete(file);
         end
+        function test_get_block_position_works(obj)
+            data_list = {data_block('level1_a','level2_a'),data_block('level1_a','level2_b')...
+                data_block('level1_b','level2_bb'),data_block('level1_b','level2_aa')...
+                data_block('level1_c','level2_b'),data_block('level1_c','level2_a')};
+
+            bac = blockAllocationTable(0,data_list);
+            assertEqual(bac.bat_bin_size,4+54*4+55*2);
+            bac = bac.init_obj_info(obj.test_structure);
+
+            block1 = data_list{1};
+            pos1 = bac.get_block_pos(block1);
+            assertEqual(pos1,bac.blocks_start_position);
+
+            name2 = data_list{2}.block_name;
+            pos2 = bac.get_block_pos(name2);
+            assertTrue(pos2>bac.blocks_start_position);
+        end
+
+        function test_get_block_position_throws_uninitiated(~)
+            data_list = {data_block('level1_a','level2_a'),data_block('level1_a','level2_b')...
+                data_block('level1_b','level2_bb'),data_block('level1_b','level2_aa')...
+                data_block('level1_c','level2_b'),data_block('level1_c','level2_a')};
+
+            bac = blockAllocationTable(0,data_list);
+            assertEqual(bac.bat_bin_size,4+54*4+55*2);
+
+            name = data_list{2};
+            assertExceptionThrown(@()get_block_pos(bac,name), ...
+                'HORACE:blockAllocationTable:runtime_error');
+        end
         %
         function test_save_restore_bat(obj)
             data_list = {data_block('level1_a','level2_a'),data_block('level1_a','level2_b')...
                 data_block('level1_b','level2_bb'),data_block('level1_b','level2_aa')...
                 data_block('level1_c','level2_b'),data_block('level1_c','level2_a')};
 
-            bac = blockAllocationTable(0,data_list);            
-            assertEqual(bac.bat_bin_size,4+54*4+55*2);  
+            bac = blockAllocationTable(0,data_list);
+            assertEqual(bac.bat_bin_size,4+54*4+55*2);
 
             bac = bac.init_obj_info(obj.test_structure);
 
             file = fullfile(tmp_dir(),'put_get_bat.bin');
             fid = fopen(file,'wb+');
             clOb = onCleanup(@()file_deleter(obj,fid,file));
-            
+
             bac = bac.put_bat(fid);
 
             bat_rect = blockAllocationTable();
@@ -49,7 +79,7 @@ classdef test_block_allocation_table < TestCase
 
             assertEqual(bac,bat_rect);
 
-            last_pos = ftell(fid);
+            last_pos = uint64(ftell(fid));
             assertEqual(bat_rect.blocks_start_position,last_pos);
         end
 
