@@ -1,0 +1,12 @@
+function  obj=init_from_sqw_obj(obj,varargin)
+%init_from_sqw_obj -- initialize file writer from existig object in memory
+%
+in_obj = varargin{1};
+if ~isa(in_obj,'SQWDnDBase')
+    error('HORACE:binfile_v4_common:invalid_argument',...
+        'Input object must be sqw or dnd type object. It is: %s', ...
+        class(in_obj));
+end
+obj.bat_ = obj.bat_.init_obj_info(obj,in_obj,true);
+obj.sqw_holder_  = in_obj;
+%

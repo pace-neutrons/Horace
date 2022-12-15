@@ -15,7 +15,7 @@ classdef test_data_block < TestCase
             en = -1:1:50;
             par_file = fullfile(hc.test_common,'gen_sqw_96dets.nxspe');
             fsqw = dummy_sqw (en, par_file, '', 51, 1,[2.8,3.86,4.86], [120,80,90],...
-                [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [50,50,50,50]);
+                [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [10,20,25,15]);
             sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
             fsqw = fsqw{1};
             sample.alatt = [4.2240 4.2240 4.2240];

@@ -46,13 +46,6 @@ classdef faccess_dnd_v4 < binfile_v4_common
     %
     %
     %
-    properties(Access=protected)
-        % Blocks allocation table
-        bat_
-    end
-    properties(Dependent)
-        bat;
-    end
     properties(Constant,Access=protected)
         % list of data blocks, this class maintains
         dnd_blocks_list_ = {data_block('data','dnd_metadata'),...
@@ -75,13 +68,7 @@ classdef faccess_dnd_v4 < binfile_v4_common
             %                       of the file to save the object should
             %                       be provided separately.
             %
-            if nargin>0
-                obj = obj.init(varargin{:}); % call generic init function
-            end
-        end
-        %
-        function bt = get.bat(obj)
-            bt = obj.bat_;
+            obj = obj@binfile_v4_common(varargin{:});
         end
         %
     end
@@ -124,9 +111,15 @@ classdef faccess_dnd_v4 < binfile_v4_common
         obj = put_dnd_metadata(obj,varargin);
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
-        obj = put_dnd_data(obj,varargin);        
+        obj = put_dnd_data(obj,varargin);
     end
     methods(Access=protected)
+        function bll = get_data_blocks(~)
+            % Return list of data blocks, defined on this class
+            % main bat of data_blocks getter. Protected for possibility to
+            % overload
+            bll = faccess_dnd_v4.dnd_blocks_list_;
+        end
         function is_sqw = get_sqw_type(~)
             % Main part of get.sqw_type accessor
             % return true if the loader is intended for processing sqw file
