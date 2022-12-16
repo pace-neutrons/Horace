@@ -33,8 +33,10 @@ classdef test_block_allocation_table < TestCase
                 data_block('level1_c','level2_b'),data_block('level1_c','level2_a')};
 
             bac = blockAllocationTable(0,data_list);
+            assertFalse(bac.initialized);
             assertEqual(bac.bat_bin_size,4+54*4+55*2);
             bac = bac.init_obj_info(obj.test_structure);
+            assertTrue(bac.initialized);
 
             block1 = data_list{1};
             pos1 = bac.get_block_pos(block1);
@@ -51,6 +53,7 @@ classdef test_block_allocation_table < TestCase
                 data_block('level1_c','level2_b'),data_block('level1_c','level2_a')};
 
             bac = blockAllocationTable(0,data_list);
+            assertFalse(bac.initialized);
             assertEqual(bac.bat_bin_size,4+54*4+55*2);
 
             name = data_list{2};
@@ -64,9 +67,11 @@ classdef test_block_allocation_table < TestCase
                 data_block('level1_c','level2_b'),data_block('level1_c','level2_a')};
 
             bac = blockAllocationTable(0,data_list);
+            assertFalse(bac.initialized);
             assertEqual(bac.bat_bin_size,4+54*4+55*2);
 
             bac = bac.init_obj_info(obj.test_structure);
+            assertTrue(bac.initialized);
 
             file = fullfile(tmp_dir(),'put_get_bat.bin');
             fid = fopen(file,'wb+');
@@ -75,7 +80,9 @@ classdef test_block_allocation_table < TestCase
             bac = bac.put_bat(fid);
 
             bat_rect = blockAllocationTable();
+            assertFalse(bat_rect.initialized);
             bat_rect = bat_rect.get_bat(fid);
+            assertTrue(bat_rect.initialized);
 
             assertEqual(bac,bat_rect);
 
@@ -90,8 +97,10 @@ classdef test_block_allocation_table < TestCase
                 data_block('level1_c','level2_b')};
 
             bac = blockAllocationTable(0,data_list);
+            assertFalse(bac.initialized);
             assertEqual(bac.bat_bin_size,167);
             bac = bac.init_obj_info(obj.test_structure);
+            assertTrue(bac.initialized);
 
             bin_data = bac.ba_table;
             assertTrue(isa(bin_data,'uint8'));
@@ -104,6 +113,7 @@ classdef test_block_allocation_table < TestCase
         end
         function test_empty_table(~)
             bac = blockAllocationTable();
+            assertFalse(bac.initialized);
             assertEqual(bac.bat_bin_size,4); % Empty table occupies 4 bytes
 
             bin_data = bac.ba_table;

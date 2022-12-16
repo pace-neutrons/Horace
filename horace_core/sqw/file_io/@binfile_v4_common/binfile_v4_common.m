@@ -40,7 +40,47 @@ classdef binfile_v4_common < horace_binfile_interface
         function bll = get.data_blocks_list(obj)
             bll = get_data_blocks(obj);
         end
+        %------------------------------------------------------------------
+        function obj = put_all_blocks(obj,sqw_dnd_data,varargin)
+            % Put all blocks in the input data object in binary file
+            if exist('sqw_dnd_data','var')
+                obj.sqw_holder_ = sqw_dnd_data;
+            else
+                sqw_dnd_data = obj.sqw_holder;
+            end
+            %
+            obj=obj.put_app_header();
+
+            obj.bat_.put_bat(obj.file_id_);
+            fl = obj.data_blocks_list;
+            n_blocks = obj.bat_.n_blocks;
+            for i=1:n_blocks
+                fl{i} = fl{i}.put_data_block(obj.file_id_,sqw_dnd_data);
+            end
+            obj.bat_.put_bat(obj.file_id_);
+            %
+        end
+        %
+        function [obj,sqw_obj_to_set] = get_all_blocks(obj,filename,varargin)
+            % retrieve object
+            if exist('filename','var')
+                obj = obj.init(filename);
+            end
+            if ~isempty(varargin)
+                sqw_obj_to_set = varargin{1};
+            else
+                sqw_obj_to_set = sqw();
+            end
+            %
+            %obj.bat_ = obj.bat_.get_bat(obj.file_id_);
+            fl = obj.data_blocks_list;
+            n_blocks = obj.bat_.n_blocks;
+            for i=1:n_blocks
+                [~,sqw_obj_to_set] = fl{i}.get_data_block(obj.file_id_,sqw_obj_to_set);
+            end
+        end
     end
+    %======================================================================
     methods(Access=protected)
         function ver = get_faccess_version(~)
             % Main part of get.faccess_version accessor
@@ -77,10 +117,15 @@ classdef binfile_v4_common < horace_binfile_interface
 
     methods
         function strc = to_bare_struct(obj,varargin)
-            % Return default definition of the serializable
+            % Return default implementation from serializable as
+            % binfile version overloads it to support expose of protected
+            % or private properties
             strc  = to_bare_struct@serializable(obj,varargin{:});
         end
         function obj=from_bare_struct(obj,indata)
+            % Return default definition from serializable as
+            % binfile version overloads it to support expose of protected
+            % or private properties
             obj  = from_bare_struct@serializable(obj,indata);
         end
         function  ver  = classVersion(~)

@@ -43,7 +43,15 @@ classdef data_block < serializable
             % set this subobject to the proper field of the input sqw
             % object.
             bindata = obj.get_bindata_from_file(fid);
-            subobj = serializable.deserialize(bindata);
+            try
+                subobj = serializable.deserialize(bindata);
+            catch ME
+                if strcmp(ME.identifier,'HERBERT:serializable:invalid_argument')
+                    subobj = deserialise(bindata);
+                else
+                    rethrow(ME);
+                end
+            end
             sqw_obj_to_set = obj.set_subobj(sqw_obj_to_set,subobj);
         end
         %
@@ -92,11 +100,17 @@ classdef data_block < serializable
             end
             %
             subobj = obj.get_subobj(sqw_obj);
-            if nocache
+            is_serial = isa(subobj,'serializable');
+            if nocache && is_serial
                 obj.size_ = subobj.serial_size();
             else
-                bindata = subobj.serialize();
+                if is_serial
+                    bindata = subobj.serialize();
+                else
+                    bindata = serialise(subobj);
+                end
                 obj.size_ = numel(bindata);
+                if nocache; return; end
                 obj.serialized_obj_cache_ = bindata;
             end
         end

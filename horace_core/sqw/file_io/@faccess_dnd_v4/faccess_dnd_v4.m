@@ -114,11 +114,15 @@ classdef faccess_dnd_v4 < binfile_v4_common
         obj = put_dnd_data(obj,varargin);
     end
     methods(Access=protected)
-        function bll = get_data_blocks(~)
+        function bll = get_data_blocks(obj)
             % Return list of data blocks, defined on this class
             % main bat of data_blocks getter. Protected for possibility to
             % overload
-            bll = faccess_dnd_v4.dnd_blocks_list_;
+            if ~isempty(obj.bat_) && obj.bat_.initialized
+                bll = obj.bat_.blocks_list;
+            else
+                bll = faccess_dnd_v4.dnd_blocks_list_;                
+            end
         end
         function is_sqw = get_sqw_type(~)
             % Main part of get.sqw_type accessor

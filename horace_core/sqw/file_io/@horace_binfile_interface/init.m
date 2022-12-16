@@ -51,12 +51,14 @@ if isa(input,'obj_init')
     obj = obj.init_input_stream(input);
 elseif ischar(input) || isnumeric(input)
     [ok,objinit,mess] = obj.should_load(input);
-    if ~ok
-        if ischar(input)
-            fname = input;
-        else
-            fname = fopen(input);
-        end
+    if ischar(input)
+        fname = input;
+    else
+        fname = fopen(input);
+    end
+    if ok
+        obj.full_filename = fname;
+    else
         error('HORACE:horace_binfile_interface:runtime_error',...
             'Can initialize loader by input file: %s\n Reason: %s',...
             fname,mess);

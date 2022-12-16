@@ -16,3 +16,4 @@ while pos<obj.bat_bin_size_
     ic = ic+1;
 end
 obj.blocks_list_ = cl_table;
+obj.initialized_ = true;

@@ -5,6 +5,10 @@ classdef blockAllocationTable < serializable
     % sizes and block location on HDD
     %
     properties(Dependent)
+        % true, if BAT keeps information about block positions of some
+        % object. false otherwise
+        initialized;
+        %
         n_blocks      % Number of blocks the BAT table contains
         blocks_list;  % list of all data_blck blocks, this BAT manages
         %
@@ -29,8 +33,9 @@ classdef blockAllocationTable < serializable
         % the size of empty BAT. recalculated as BAT list is assigned to
         % BAT
         bat_bin_size_ = 4;
-        % if the BAT is initialized with particular object
-        block_list_location_initiated_ = false;
+        % if the BAT is initialized with particular object or its image on 
+        % hdd
+        initialized_ = false;
         %
         blocks_list_ = {};
         block_names_ = {};
@@ -61,6 +66,9 @@ classdef blockAllocationTable < serializable
         end
         function nb = get.n_blocks(obj)
             nb = numel(obj.blocks_list_);
+        end
+        function is = get.initialized(obj)
+            is = obj.initialized_;
         end
         %
         function pos = get.position(obj)
@@ -150,7 +158,8 @@ classdef blockAllocationTable < serializable
             % restore Block Allocation Table from its binary representation
             obj = set_ba_table_from_bindata_(obj,bindata);
         end
-        %
+        %------------------------------------------------------------------
+        % store/restore BAT on its place in file
         function obj = put_bat(obj,fid,position)
             % store block allocation table at specified location in the
             % binary file.

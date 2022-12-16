@@ -5,6 +5,7 @@ function   changed_obj = set_subobj_(obj,sqw_dnd_obj,part_to_set)
 
 if isempty(obj.sqw_prop_name)
     obj_level1 = sqw_dnd_obj;
+    dnd_obj = true;
 else
     % do overload for case when dnd object is provided as input
     settind_dnd = strcmp(obj.sqw_prop_name,'data');

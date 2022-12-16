@@ -36,16 +36,14 @@ if isa(obj_to_save,'sqw')
     app_header.sqw_type = true;
     ndim = obj_to_save.data.NUM_DIMS;
 else
-    if ~isa(obj_to_save,'DnDBase')
+    if ~(isa(obj_to_save,'DnDBase') || is_sqw_struct(obj_to_save))
         error('HORACE:horace_binfile_interface:invalid_argument',...
             'Unsupported class "%s" to save in sqw binary format.', ...
             class(obj_to_save))
     end
     app_header.sqw_type = false;
-    ndim = obj_to_save.NUM_DIMS;
+    ndim = obj_to_save.dimensions();
 end
 app_header.num_dim = ndim;
 %
-
-
 

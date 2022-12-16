@@ -4,9 +4,9 @@ function obj = init_obj_info_(obj,obj_to_analyze,nocache)
 % Inputs:
 % obj_to_analyze -- the object to split into sub-blocks and
 %                   create BAT for. The object has to be
-%                   compartible with the data_block-s list,
+%                   compatible with the data_block-s list,
 %                   provided at construction of the BAT.
-% nocache  -- if true, cache serizalized
+% nocache  -- if true, cache serialized
 %                   binary representation of obj_to_analyze
 %                   while calculating sizes of its blocks.
 %             if false, the binary representation will be
@@ -32,5 +32,4 @@ block_pos = [uint64(0);block_pos(1:end-1)]+obj.blocks_start_position;
 for i=1:n_b
     obj.blocks_list_{i}.position = block_pos(i);
 end
-obj.block_list_location_initiated_ = true;
-
+obj.initialized_ = true;

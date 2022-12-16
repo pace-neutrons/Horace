@@ -9,7 +9,7 @@ function pos = get_block_pos_(obj,block)
 % HORACE:blockAllocationTable:runtime_error if the table have
 %       not been initialized
 
-if ~obj.block_list_location_initiated_
+if ~obj.initialized_
     error('HORACE:blockAllocationTable:runtime_error',...
         'Attempt to obtain block position, but the BAT have not been initialized')
 end
