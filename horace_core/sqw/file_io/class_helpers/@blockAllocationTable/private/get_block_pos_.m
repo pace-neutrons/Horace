@@ -20,11 +20,11 @@ elseif ischar(block)
     block_name = block;
 end
 %
-bind = find(ismember(obj.block_names,block_name));
-if isempty(bind)
+bind = ismember(obj.block_names,block_name);
+if ~any(bind)
     error('HORACE:blockAllocationTable:invalid_argument',...
         'Block with Name %s is not among the blocks, defined in BAT', ...
         block)
 end
-
-pos = obj.blocks_list_{bind}.position;
+bl =  obj.blocks_list_{bind};
+pos = bl.position;

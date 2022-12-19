@@ -44,7 +44,8 @@ classdef sqw_formats_factory < handle
             faccess_sqw_v3_2(), ...
             faccess_sqw_prototype()};
         %
-        % Rules to load/save different classes:
+        % Rules for saving different classes:
+        %
         % sqw2 corresponds to sqw file in indirect mode with efixed beeing
         % array
         written_types_ = {'sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};

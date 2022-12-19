@@ -27,6 +27,7 @@ classdef test_block_allocation_table < TestCase
             end
             delete(file);
         end
+        %
         function test_get_block_position_works(obj)
             data_list = {data_block('level1_a','level2_a'),data_block('level1_a','level2_b')...
                 data_block('level1_b','level2_bb'),data_block('level1_b','level2_aa')...
@@ -46,7 +47,7 @@ classdef test_block_allocation_table < TestCase
             pos2 = bac.get_block_pos(name2);
             assertTrue(pos2>bac.blocks_start_position);
         end
-
+        %
         function test_get_block_position_throws_uninitiated(~)
             data_list = {data_block('level1_a','level2_a'),data_block('level1_a','level2_b')...
                 data_block('level1_b','level2_bb'),data_block('level1_b','level2_aa')...
@@ -90,7 +91,6 @@ classdef test_block_allocation_table < TestCase
             assertEqual(bat_rect.blocks_start_position,last_pos);
         end
 
-
         function test_init_by_list_output_ready(obj)
             data_list = {data_block('level1_a','level2_a'),...
                 data_block('level1_b','level2_bb'),...
@@ -122,7 +122,5 @@ classdef test_block_allocation_table < TestCase
             assertEqual(typecast(bin_data,'uint32'),uint32(0))
 
         end
-
     end
-
 end

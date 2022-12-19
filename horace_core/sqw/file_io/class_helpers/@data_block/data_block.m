@@ -18,7 +18,7 @@ classdef data_block < serializable
     end
     properties(Dependent,Hidden)
         % return class name -- property, used for serialization into BAT
-        % structure. Hidden not to polute class interface
+        % structure. Hidden not to polute main class interface
         serial_name;
         % the format used to serialize class into BAT record,
         bat_format;

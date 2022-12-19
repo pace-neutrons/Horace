@@ -12,8 +12,8 @@ classdef blockAllocationTable < serializable
         n_blocks      % Number of blocks the BAT table contains
         blocks_list;  % list of all data_blck blocks, this BAT manages
         %
-        position; % position of the block allocation table within the
-        %         % binary file
+        position;     % position of the block allocation table within the
+        %             % binary file
         bat_bin_size; % the size (number of bytes) the table occupies on HDD
         %
         % the position of the first data block located after block
@@ -33,12 +33,14 @@ classdef blockAllocationTable < serializable
         % the size of empty BAT. recalculated as BAT list is assigned to
         % BAT
         bat_bin_size_ = 4;
-        % if the BAT is initialized with particular object or its image on 
+        % if the BAT is initialized with particular object or its image on
         % hdd
         initialized_ = false;
         %
         blocks_list_ = {};
         block_names_ = {};
+        % location and sizes of free spaces within binary data, described by BAT
+        free_space_pos_and_size_ =zeros(2,0);
     end
     %======================================================================
     % Constructor and public accessors/mutators
@@ -89,6 +91,7 @@ classdef blockAllocationTable < serializable
             list = obj.blocks_list_;
         end
         function obj = set.blocks_list(obj,val)
+            % initialize BAT by assigning to it list of data blocks
             obj = set_block_list_(obj,val);
         end
         %------------------------------------------------------------------
@@ -104,9 +107,50 @@ classdef blockAllocationTable < serializable
     %======================================================================
     % Main BAT operations:
     methods
+        function [obj,new_pos,compress_bat] = find_block_place(obj, ...
+                data_block_or_name,block_size)
+            % find place to put data block provided as input within the
+            % block positions, described by BAT.
+            %
+            % The block have to be already registered wit the BAT.
+            %
+            % Inputs:
+            % data_block_or_name
+            %            -- data_block class instance or name of the block
+            %               to find its place in the BAT list
+            % block_size -- if block name is provided, the size of block to
+            %               place in BAT. if class is provided, ignored and
+            %               overwrtitten by the data_block.size() value
+            %Returns:
+            % obj        -- the BAT modified to accomodate new block
+            %               position
+            % new_pos    -- position to place block on hdd not to overlap
+            %               with other blocks
+            % compress_bat
+            %           -- if true, indicates that the blocks are placed on
+            %           hdd too loosely, so one needs to move then all
+            %           together to save space
+            if isa(data_block_or_name,'data_block')
+                block_size = data_block.size();
+                block_name = data_block.block_name;
+            elseif ischar(data_block_or_name)||isstring(data_block_or_name)
+                block_name = data_block_or_name;
+                if ~exist('block_size','var')
+                    error('HORACE:blockAllocationTable:invalid_argument', ...
+                        'If block name provided as input of the method, block size have to be provided. It has been not')
+                end
+            else
+                error('HORACE:blockAllocationTable:invalid_argument', ...
+                    'Method accepts either data_block class instance or the name of the block in BAT. The class of the parameter is %s', ...
+                    class(data_block_or_name));
+            end
+            [obj,new_pos,compress_bat] = find_block_place_(obj, ...
+                block_name,block_size);
+        end
+        %
         function obj = init_obj_info(obj,obj_to_analyze,nocache)
-            % Initialize block allocation table for the object, provided as
-            % input.
+            % Initialize block allocation table for the sqw/type object,
+            % provided as input.
             % Inputs:
             % obj_to_analyze -- the object to split into sub-blocks and
             %                   create BAT for. The object has to be
@@ -147,7 +191,6 @@ classdef blockAllocationTable < serializable
             %       not been initialized
             pos = get_block_pos_(obj,block_name_or_class);
         end
-
         %
         function bindata = get.ba_table(obj)
             % generate BAT binary representation to store Block

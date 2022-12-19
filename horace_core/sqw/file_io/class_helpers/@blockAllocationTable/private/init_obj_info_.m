@@ -17,7 +17,7 @@ function obj = init_obj_info_(obj,obj_to_analyze,nocache)
 % Result:
 % The blocks defined in this BlockAllocationTable calculate
 % their sizes and their positions are calculated assuming that
-% they will be placed one after another without gaps.
+% they are placed one after another without gaps.
 %
 n_b = obj.n_blocks;
 block_size = zeros(n_b,1);
@@ -28,8 +28,9 @@ for i=1:n_b
     obj.blocks_list_{i} = db;
 end
 block_pos = uint64(cumsum(block_size));
-block_pos = [uint64(0);block_pos(1:end-1)]+obj.blocks_start_position;
+block_pos = [uint64(0);block_pos]+obj.blocks_start_position;
 for i=1:n_b
     obj.blocks_list_{i}.position = block_pos(i);
 end
+obj.free_space_pos_and_size_  = [block_pos(end);inf];
 obj.initialized_ = true;
