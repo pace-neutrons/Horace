@@ -9,7 +9,7 @@ classdef binfile_v4_common < horace_binfile_interface
     properties(Dependent)
         % Block allocation table
         bat;
-        % list of data blocks, defined on the class
+        % list of data blocks to read/write on hdd, defined by the class
         data_blocks_list;
     end
     %

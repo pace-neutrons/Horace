@@ -1,20 +1,23 @@
 classdef dnd_data_block < data_block
-    %DND_DATA_BLOCK describes the binary data, corresponding
-    % for storing restoring on HDD DnD object data block in the binary
-    % format.
+    % DND_DATA_BLOCK describes the binary data, corresponding to DnD object
+    % arrrays (extracted by  dnd_data class) and used for storing/restoring
+    % DnD object on HDD in a binary form.
     %
     % The special form of data_block binary data format is caused by need
     % to access dnd_data_block from third party (non-Matlab) applications
     %
     properties(Dependent)
-        sig_position;
-        err_position;
-        npix_position;
+        % properties defile the location of the appropriate arrays in
+        % binary file. The positions are defined in bytes and canuted from
+        % the begining of the file.
+        sig_position;   % signal array position
+        err_position;   % error array position
+        npix_position;  % npix array positio
     end
     properties(Access=protected)
-        %
-        dimensions_=[];
-        data_size_=0;
+        dimensions_=[]; % number dimensions, the dnd arrays have
+        data_size_=0;   % the result of size operation applied to a dnd
+        %               % array
     end
     methods
         function obj = dnd_data_block(varargin)

@@ -64,13 +64,20 @@ classdef horace_binfile_interface < serializable
         % format files return real creation time, files store real
         % creation time within
         creation_date
+        % The property indicates if the data are stored in file the loader
+        % is connected to.
+        data_in_file;
+        
         %
-        % get access to internal sqw object if any is defined for testing
-        % purposes
+        % get access to internal sqw object to store/resrore from hdd
+        % if any is defined.
+        % Normally it is necessary for testing purposes
         sqw_holder
     end
     properties(Dependent)
         % the property which sets/gets full file name (with path);
+        % Duplicates filename/filepath information. Provided for
+        % flexibility/simplicity.
         full_filename;
     end
 
@@ -94,6 +101,9 @@ classdef horace_binfile_interface < serializable
         % holder for the object which surely closes open sqw file on class
         % deletion
         file_closer_ = [];
+        % The property indicates if the data are stored in file the loader
+        % is connected with.
+        data_in_file_ = false;        
     end
     %
     properties(Constant,Access=protected)
@@ -203,6 +213,10 @@ classdef horace_binfile_interface < serializable
     %======================================================================
     % ACCESSORS & MUTATORS
     methods
+        function is = get.data_in_file(obj)
+            is = obj.data_in_file_;
+        end
+        %
         function sh = get.sqw_holder(obj)
             sh = obj.sqw_holder_;
         end
@@ -326,7 +340,7 @@ classdef horace_binfile_interface < serializable
             %     -- text to add to the error message in case of failure to
             %        identify the code, attempting the move
             %
-            % Throw, HORACE:data_block:io_error if the movement have not 
+            % Throw, HORACE:data_block:io_error if the movement have not
             % been successful.
             %
             move_to_position_(fid,pos);
@@ -358,6 +372,11 @@ classdef horace_binfile_interface < serializable
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
+    % Unlike usual serializable, this class is serialized through
+    % protected and private properties values. Because of this, the class
+    % have unusual overloads, which may not support chain of serializable
+    % objects. This is unnecessary, because this object do not contain
+    % serializable properties.
     properties(Constant,Access=private)
         % list of fieldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file accessor

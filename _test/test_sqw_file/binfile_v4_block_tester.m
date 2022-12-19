@@ -49,25 +49,39 @@ classdef binfile_v4_block_tester < serializable
         end
 
         function a = get.level2_a(obj)
-            a = repmat(obj.block_filler,obj.num_data_in_blocks,1);
+            if isempty(obj.level2_a_)
+                a = repmat(obj.block_filler,obj.num_data_in_blocks,1);
+            else
+                a = obj.level2_a_;
+            end
         end
         function obj = set.level2_a(obj,val)
             obj.level2_a_ = val;
         end
         function b = get.level2_b(obj)
-            b = repmat(obj.block_filler,2*obj.num_data_in_blocks,1);
+            if isempty(obj.level2_b_)
+                b = repmat(obj.block_filler,2*obj.num_data_in_blocks,1);
+            else
+                b = obj.level2_b_;
+            end
         end
         function obj = set.level2_b(obj,val)
             obj.level2_b_ = val;
         end
-        function a = get.level2_c(obj)
-            a = repmat(obj.block_filler,3*obj.num_data_in_blocks,1);
+        function c = get.level2_c(obj)
+            if isempty(obj.level2_c_)
+                c = repmat(obj.block_filler,3*obj.num_data_in_blocks,1);
+            else
+                c = obj.level2_c_;
+            end
         end
         function obj = set.level2_c(obj,val)
             obj.level2_c_ = val;
         end
 
         function [nd,b_size] = dimensions(obj)
+            % this is common sqw interface used in preparing the sqw file
+            % header
             b_size = size(obj.data.nd_data.sig);
             nd = numel(b_size);
             if nd == 2 && any(b_size==1)

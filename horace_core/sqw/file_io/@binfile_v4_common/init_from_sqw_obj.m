@@ -7,7 +7,8 @@ if ~(isa(in_obj,'SQWDnDBase') || is_sqw_struct(in_obj))
         'Input object must be sqw or dnd type object. It is: %s', ...
         class(in_obj));
 end
-% define binary block header information
+% define binary block header information. It is redefined in header again,
+% but to have faccessor fully defined, it defined here too.
 obj.num_dim_ = in_obj.dimensions();
 %
 obj.bat_ = obj.bat_.init_obj_info(in_obj,true);

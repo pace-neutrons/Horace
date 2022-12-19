@@ -2,20 +2,20 @@ classdef dnd_data < serializable
     %DND_DATA class contains N-D data arrays, describing DND image stored in
     % dnd object and indended for providing specific format of storing these
     % data in horace binary files.
-
+    %
     properties(Access=protected)
         sig_;
         err_;
         npix_;
     end
 
-
     properties(Dependent)
-        dimensions
-        data_size;
-        sig;
-        err;
-        npix;
+        dimensions  % number of dimensions in dnd data arrays
+        data_size;  % the result of size() operation applied to a dnd data
+        %           % array
+        sig;        % signal array (s in dnd object)
+        err;        % error array  (e in dnd object
+        npix;       % npix array   (npix in dnd object)
     end
 
     methods

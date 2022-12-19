@@ -45,7 +45,8 @@ classdef sqw_formats_factory < handle
             faccess_sqw_prototype()};
         %
         % Rules to load/save different classes:
-        % sqw2 corresponds to sqw file in indirect mode with varying efixed
+        % sqw2 corresponds to sqw file in indirect mode with efixed beeing
+        % array
         written_types_ = {'sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders above to use for saving
         % correspondent class
@@ -98,15 +99,22 @@ classdef sqw_formats_factory < handle
             %
             %Usage:
             %>>loader=loaders_factory.instance().get_loader(sqw_file_name);
+            %>>loader=loaders_factory.instance().get_loader(sqw_file_name,'-update');
             %
             % where:
             %>>data_file_name  -- the name of the file, which is the source of the data
             %                     or the cellarray of such names.
             %                     If cellarray of the names provided, the method returns
             %                     cellarray of loaders.
+            % Optional:
+            % '-update'        -- if provided, open file for
+            %                     read/write/update operations
             %
-            % On error throws SQW_FILE_IO:runtime_error exception with message, explaining the reason for error.
-            %                    The errors are usually caused by missing or not-recognized (non-sqw) input files.
+            %
+            % On error throws SQW_FILE_IO:runtime_error exception with
+            %                message, explaining the reason for error.
+            %                The errors are usually caused by missing or
+            %                 not-recognized (non-sqw) input files.
             %
             if iscell(sqw_file_name) % process range of files
                 loader = cellfun(@(x)(obj.get_loader(x)),sqw_file_name,...
@@ -124,7 +132,7 @@ classdef sqw_formats_factory < handle
             end
             % read initial bytes of binary file and interpret them as Horace headers to identify file format.
             % Returns header block and open file handle not to open file again
-            [head_struc,fh] = horace_binfile_interface.get_file_header(full_data_name);
+            [head_struc,fh] = horace_binfile_interface.get_file_header(full_data_name,varargin{:});
 
             for i=1:numel(obj.supported_accessors_)
                 loader = obj.supported_accessors_{i};
