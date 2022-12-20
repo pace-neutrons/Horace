@@ -113,7 +113,7 @@ if obj.file_id_ <=0
     error('HORACE:horace_binfile_interface:io_error',...
         'Can not open file %s to write data',obj.full_filename)
 end
-if isempty(obj.obj.file_closer_)
+if isempty(obj.file_closer_)
     obj.file_closer_ = onCleanup(@()fclose(obj));
 end
 %-------------------------------------------------------------------------
