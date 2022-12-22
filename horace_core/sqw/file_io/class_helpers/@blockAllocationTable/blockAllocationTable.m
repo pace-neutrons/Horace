@@ -22,6 +22,12 @@ classdef blockAllocationTable < serializable
         % The list of the names of the blocks, controlled by
         % BlockAllocaionTable
         block_names
+        % the positions of the free spaces blocks between binary blocks,
+        % described BAT and free spaces sizes
+        free_spaces_and_size;
+        % position of the end of file (size of all blocks stored on the
+        % disk)
+        end_of_file_pos
     end
     properties(Dependent,Hidden)
         % returns serialized representation of the blockAllocationTable,
@@ -41,6 +47,7 @@ classdef blockAllocationTable < serializable
         block_names_ = {};
         % location and sizes of free spaces within binary data, described by BAT
         free_space_pos_and_size_ =zeros(2,0);
+        end_of_file_pos_ = 0;
     end
     %======================================================================
     % Constructor and public accessors/mutators
@@ -98,10 +105,17 @@ classdef blockAllocationTable < serializable
         function list = get.block_names(obj)
             list = obj.block_names_;
         end
-        function pos = get.blocks_start_position(obj)
-            % the data blocks start after BAT, 4 bytes of BAT size
+        function pos = get.blocks_start_position(obj)            
+            % the data blocks start after BAT position + 4 bytes describing 
+            % the number of bytes in BAT binary representation
             % + BAT binary representation itself
             pos = uint64(obj.position + 4 + obj.bat_bin_size);
+        end
+        function fsp = get.free_spaces_and_size(obj)
+            fsp = obj.free_space_pos_and_size_;
+        end
+        function pos = get.end_of_file_pos(obj)
+            pos = obj.end_of_file_pos_;
         end
     end
     %======================================================================
@@ -131,8 +145,10 @@ classdef blockAllocationTable < serializable
             %           hdd too loosely, so one needs to move then all
             %           together to save space
             if isa(data_block_or_name,'data_block')
-                block_size = data_block.size();
-                block_name = data_block.block_name;
+                block_name = data_block_or_name.block_name;
+                if ~exist('block_size','var')
+                    block_size = data_block_or_name.size;                    
+                end
             elseif ischar(data_block_or_name)||isstring(data_block_or_name)
                 block_name = data_block_or_name;
                 if ~exist('block_size','var')

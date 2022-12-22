@@ -1,6 +1,9 @@
 classdef binfile_v4_block_tester < serializable
-    % Class used to test common operations of
-    %
+    % Class used to test common operations on block allocation table and 
+    % faccess_v4_common classes.
+    % 
+    % Its main purpose to be the source of the blocks with variable, 
+    % defined for testing purposes size.
     properties
         num_data_in_blocks = 10;
         block_filler = 'a';

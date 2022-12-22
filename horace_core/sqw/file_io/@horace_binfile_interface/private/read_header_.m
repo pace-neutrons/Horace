@@ -19,7 +19,7 @@ function [stream,fid,mess] = read_header_(file_name,buf_size,varargin)
 
 %
 % Check if the read/write permission are requred
-[ok,mess,open_for_update] = parse_char_options(varargin,'-update');
+[ok,mess,open_for_update] = parse_char_options(varargin,{'-update'});
 if ~ok
     error('HORACE:horace_binfile_interface:invalid_argument',mess)
 end

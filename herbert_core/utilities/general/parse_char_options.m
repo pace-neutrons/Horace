@@ -45,6 +45,9 @@ else
     narg=1;
     args={args};
 end
+if ischar(options)||isstring(options)
+    options = {options};
+end
 nopt=numel(options);
 %nargoutchk(nopt+2,nopt+3,nargout)
 if nargout<nopt+2 || nargout>nopt+3

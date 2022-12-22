@@ -32,5 +32,5 @@ block_pos = [uint64(0);block_pos]+obj.blocks_start_position;
 for i=1:n_b
     obj.blocks_list_{i}.position = block_pos(i);
 end
-obj.free_space_pos_and_size_  = [block_pos(end);inf];
+obj.end_of_file_pos_  = block_pos(end);
 obj.initialized_ = true;

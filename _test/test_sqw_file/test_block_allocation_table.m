@@ -27,6 +27,80 @@ classdef test_block_allocation_table < TestCase
             end
             delete(file);
         end
+        function test_find_smaller_block_position(~)
+            % Find position of a block in the middle which size have
+            % decreased
+            
+            % blocks for working with binfile_v4_block_tester
+            data_list = {data_block('','level2_a'),data_block('','level2_b')...
+                data_block('','level2_c'),dnd_data_block()};
+            bac = blockAllocationTable(0,data_list);
+            assertFalse(bac.initialized);
+
+            test_class = binfile_v4_block_tester();
+            bac  = bac.init_obj_info(test_class);
+            assertTrue(bac.initialized);
+
+            bll = bac.blocks_list;
+            %
+            fs_s = bac.free_spaces_and_size;
+            % free space position at the end of the blocks
+            assertEqual(fs_s(1),bll{4}.position+bll{4}.size);
+
+            [bac,pos,compress]  = bac.find_block_place(bll{3},30);
+            assertFalse(compress);
+            assertEqual(pos,bll{3}.position);
+            fs_s_new = bac.free_spaces_and_size;
+            assertEqual(size(fs_s_new,2),2);
+            % free space at the end of the old bll{3};
+            assertEqual(fs_s_new(1,1),bll{3}.position+30)
+            assertEqual(double(fs_s_new(2,1)),10)
+            % end of file position have not changed
+            old_end_pos = bll{4}.position+bll{4}.size;
+            assertEqual(fs_s_new(1,2),old_end_pos)
+        end
+        
+        function test_find_larger_block_position(~)
+            % Find position of a block in the middle which size have
+            % increased
+            %
+            % blocks for working with binfile_v4_block_tester
+            data_list = {data_block('','level2_a'),data_block('','level2_b')...
+                data_block('','level2_c'),dnd_data_block()};
+            bac = blockAllocationTable(0,data_list);
+            assertFalse(bac.initialized);
+
+            test_class = binfile_v4_block_tester();
+            bac  = bac.init_obj_info(test_class);
+            assertTrue(bac.initialized);
+
+            bll = bac.blocks_list;
+            assertEqual(bll{1}.position,bac.blocks_start_position);
+            assertEqual(bll{1}.size,20);
+            assertEqual(bll{2}.position,bll{1}.position+bll{1}.size);
+            assertEqual(bll{2}.size,30);
+            assertEqual(bll{3}.position,bll{2}.position+bll{2}.size);
+            assertEqual(bll{3}.size,40);
+            assertEqual(bll{4}.position,bll{3}.position+bll{3}.size);
+            assertEqual(bll{4}.size,252);
+            %
+            fs_s = bac.free_spaces_and_size;
+            % free space position at the end of the blocks
+            assertEqual(fs_s(1),bll{4}.position+bll{4}.size);
+
+            [bac,pos,compress]  = bac.find_block_place(bll{3},50);
+            assertFalse(compress);
+            assertEqual(pos,fs_s(1));
+            fs_s_new = bac.free_spaces_and_size;
+            assertEqual(size(fs_s_new,2),2);
+            % free space on place of the old bll{3};
+            assertEqual(fs_s_new(1,1),bll{3}.position)
+            assertEqual(double(fs_s_new(2,1)),bll{3}.size)
+            % end of file position
+            old_end_pos = bll{4}.position+bll{4}.size;
+            assertEqual(fs_s_new(1,2),old_end_pos+50)
+
+        end
         %
         function test_get_block_position_works(obj)
             data_list = {data_block('level1_a','level2_a'),data_block('level1_a','level2_b')...
