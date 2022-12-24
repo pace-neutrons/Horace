@@ -1,9 +1,14 @@
 classdef binfile_v4_block_tester < serializable
-    % Class used to test common operations on block allocation table and 
+    % Class used to test common operations on block allocation table and
     % faccess_v4_common classes.
-    % 
-    % Its main purpose to be the source of the blocks with variable, 
+    %
+    % Its main purpose to be the source of the blocks with variable,
     % defined for testing purposes size.
+    % 
+    % the structure of the class is similar to structure of sqw class from
+    % point of view of access and the place of the blocks on the disk,
+    % while size of the blocks is not calculated randomly but can be
+    % defined externally
     properties
         num_data_in_blocks = 10;
         block_filler = 'a';
@@ -13,12 +18,14 @@ classdef binfile_v4_block_tester < serializable
         level2_b;
         level2_c;
         data;
+        level2_d;
     end
     properties(Access=protected)
         level2_a_;
         level2_b_;
         level2_c_;
         data_;
+        level2_d_;
     end
 
 
@@ -81,6 +88,17 @@ classdef binfile_v4_block_tester < serializable
         function obj = set.level2_c(obj,val)
             obj.level2_c_ = val;
         end
+        function d = get.level2_d(obj)
+            if isempty(obj.level2_d_)
+                d = repmat(obj.block_filler,4*obj.num_data_in_blocks,1);
+            else
+                d = obj.level2_d_;
+            end
+        end
+        function obj = set.level2_d(obj,val)
+            obj.level2_d_ = val;
+        end
+
 
         function [nd,b_size] = dimensions(obj)
             % this is common sqw interface used in preparing the sqw file

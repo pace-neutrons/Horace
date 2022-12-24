@@ -37,14 +37,15 @@ old_block_place = [the_block.position;the_block.size];
 % add the space freed after removing the current block to the list of
 % the free spaces
 fs = [obj.free_space_pos_and_size_,old_block_place];
+fs = merge_adjusent_blocks(fs);
+
 free_space_size = fs(2,:);
 will_fit = free_space_size>=block_size;
 
 if ~any(will_fit)
     new_pos = obj.end_of_file_pos; % free space positin was at the end but now we added just freed element to it
 
-    all_free = sum(fs,2);
-    all_free = all_free(2);
+    all_free = sum(free_space_size);
     compress_bat  = all_free>= block_size;
 
     % change last free space position to the new end of the file
@@ -67,35 +68,43 @@ else
         free_space_info(2) = free_space_info(2)-block_size;
         fs(:,is_min_size)=free_space_info;
     else  % efficiency can be greatly improved through proper container
-        % here is very inefficient algorithm
+        % here is very inefficient implementation, but the ocasion is rare
         fs=fs(:,~is_min_size);
     end
 end
-[~,indx] = sort(fs(1,:));
-fs = fs(:,indx);
-[obj,fs] = merge_adjusent_blocks(obj,fs);
+
+if fs(1,end)+fs(2,end) == obj.end_of_file_pos
+    obj.end_of_file_pos_ = fs(1,end);
+    fs = fs(:,1:end-1);
+end
+
+
 obj.free_space_pos_and_size_ = fs;
 
 obj.blocks_list{bl_ind} = the_block;
 
-function [obj,fs_new] = merge_adjusent_blocks(obj,fs)
-% merge together free space blocks, with lie one after another and 
-% describe coninious block of free space
-start_pos = fs(1,:);
+function [fs_new] = merge_adjusent_blocks(fs)
+% merge together free space blocks, with lie one after another and
+% describe coninious block of free space(s)
+[~,indx] = sort(fs(1,:));
+fs = fs(:,indx);
+
+start_pos   = fs(1,:);
 block_sizes = fs(2,:);
 end_pos = start_pos+block_sizes;
 adjusent = [false,start_pos(2:end)==end_pos(1:end-1)];
 if any(adjusent)
     ic = 1;
-    fs_new = zeros(2,numel(start_pos));
+    fs_new = zeros(2,numel(start_pos)-sum(adjusent));
     for i=1:numel(start_pos)
         if adjusent(i)
-            fs_new(2,ic) = fs_new(2,ic)+fs(2,i);                        
+            fs_new(2,ic-1) = fs_new(2,ic-1)+fs(2,i);
         else
             fs_new(1,ic) = fs(1,i);
-            fs_new(2,ic) = fs(2,i);            
+            fs_new(2,ic) = fs(2,i);
             ic = ic+1;
         end
     end
+else
+    fs_new = fs;
 end
-
