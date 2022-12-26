@@ -8,7 +8,13 @@ classdef data_block < serializable
 
     properties(Dependent)
         block_name;
+        % the name of the property of sqw/dnd object the block operates
+        % with. E.g.: sqw_obj.experiment_info (experiment_info)
         sqw_prop_name;
+        % the name of the property of the part of sqw object obtained by
+        % calling sqw_prop_name used to extract/set-up the part of the data
+        % this data_block operates with. E.g.:
+        % sqw_obj.experiment_info.instruments (instruments)
         level2_prop_name;
         % position of the binary block on hdd in C numeration (first byte is
         % in the position 0)
@@ -22,9 +28,9 @@ classdef data_block < serializable
         serial_name;
         % the format used to serialize class into BAT record,
         bat_format;
-        % size (in bytes) the BAT record would occupy on hdd
+        % size (in bytes) this BAT record would occupy on hdd
         bat_record_size;
-        % return array of bytes, necessary to store and recover data block
+        % return array of bytes, necessary to store and/or recover data block
         % class from blockAllocationTable.
         bat_record;
     end
@@ -60,7 +66,7 @@ classdef data_block < serializable
         end
         %
         function obj = put_sqw_block(obj,fid,sqw_obj)
-            % extract sub-block information from sqw or dnd object and write 
+            % extract sub-block information from sqw or dnd object and write
             % this information on HDD
             if exist('sqw_obj','var')
                 obj = obj.calc_obj_size(sqw_obj);
@@ -118,16 +124,15 @@ classdef data_block < serializable
                 obj.serialized_obj_cache_ = bindata;
             end
         end
-        %
-        %    end % --- Should it be protected?
-        %    methods(Access=protected)
+        %------------------------------------------------------------------
         function subobj = get_subobj(obj,sqw_dnd_obj)
             % Extract class-defined sub-object from sqw or dnd object for
             % further operations. (serialization and damping to hdd)
             %
             % Generic value extractor, valid for majority of the sqw object
-            % sub-objects we may want to extract. A specific subobject
-            % should overload this function
+            % sub-objects we may want to extract.
+            % If input is not a SQWDnDBase object, it is expected that the
+            % necessary subobject is provided as input
             subobj = get_subobj_(obj,sqw_dnd_obj);
         end
         function sqw_dnd_obj = set_subobj(obj,sqw_dnd_obj,part_to_set)
@@ -324,7 +329,7 @@ classdef data_block < serializable
 
     methods
         %------------------------------------------------------------------
-        % OLD BINDATA SERIALIZE INTERFACE, used to store data in BAT table
+        % OLD SQW BINDATA SERIALIZE INTERFACE, used to store data in BAT table
         function name = get.serial_name(obj)
             name = class(obj);
         end
@@ -340,7 +345,7 @@ classdef data_block < serializable
             batr = data_block.serializer_.serialize(obj,obj.bat_format());
         end
         %-----------------------------------------------------------------
-        % Global Serialization
+        % Global Serialization interface
         function  ver  = classVersion(~)
             % serializable fields version
             ver = 1;

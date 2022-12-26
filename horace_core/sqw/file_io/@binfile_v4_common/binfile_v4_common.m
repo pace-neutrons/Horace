@@ -62,7 +62,7 @@ classdef binfile_v4_common < horace_binfile_interface
         end
         %
         function [obj,sqw_obj_to_set] = get_all_blocks(obj,filename,varargin)
-            % retrieve sqw/dnd object from hdd and set it as 
+            % retrieve sqw/dnd object from hdd and set it as
             if exist('filename','var')
                 obj = obj.init(filename);
             end
@@ -71,34 +71,86 @@ classdef binfile_v4_common < horace_binfile_interface
             else
                 sqw_obj_to_set = sqw();
             end
-            %
+            % This have happened during intialization.
             %obj.bat_ = obj.bat_.get_bat(obj.file_id_);
             fl = obj.data_blocks_list;
             n_blocks = obj.bat_.n_blocks;
             for i=1:n_blocks
                 [~,sqw_obj_to_set] = fl{i}.get_sqw_block(obj.file_id_,sqw_obj_to_set);
             end
+            obj.sqw_holder_ = sqw_obj_to_set;
         end
         %------------------------------------------------------------------
         function [obj,set_obj] = get_sqw_block(obj,block_name_or_class,varargin)
-            % retrieve particular sqw object data block asking for it by 
+            % retrieve particular sqw object data block asking for it by
             % its name or data_block class instance.
             % Inputs:
             % obj          -- instance of faccess class. Either initialized
-            %                 or not. If not, the filename and (optionally)
-            %                 have to be provided sqw object to 
-            % 
+            %                 or not. If not, the filename to get block
+            %                 from have to be provided as third argument
+            % block_name_or_class
+            %              -- the name of the data_block in BAT or the
+            %                 instance of data_block class, providing this
+            %                 name.
+            % Optional:
+            % file_name    -- the name of the file to read necessary sqw
+            %                 block from. The file will be opened in read
+            %                 mode
+            % Returns.
+            % obj          -- initialized instance of faccess_xxx_v4 reader
+            % set_obj      -- if initial object contains the instance of
+            %                 sqw/dnd object, this object, modified with
+            %                 the data, stored in the requested block.
+            %                 If the obj.sqw_holder property is empty, the
+            %                 retrieved instance of the requested data,
+            %                 obtained using the block_name requested
+            %
             if nargin>2 % otherwise have to assume that the object is initialized
                 if nargin>3 || ~(ischar(varargin{1})||isstring(varargin{1}))
                     error('HORACE:binfile_v4_common:invalid_argument',...
                         'Third argument of get_sqw_block can be only filename. You have provided: %s', ...
                         disp2str(varargin))
                 end
-                obj = obj.init(varargin{1});                
+                obj = obj.init(varargin{1});
             end
             [obj,set_obj]  = get_sqw_block_(obj,block_name_or_class);
-
         end
+        function obj = put_sqw_block(obj,block_name_or_class,varargin)
+            % store modified particular sqw sub-object data block within the
+            % sqw object binary records on hdd
+            % Inputs:
+            % obj          -- instance of faccess class. Either initialized
+            %                 or not. If not, the information for the initialization
+            %                 have to be provided as subsequent arguments
+            % block_name_or_class
+            %              -- the registered data_block name or
+            %                 instance-source of the data_block name to
+            %                 store on hdd
+            %Optional:
+            % Either:
+            % sqw_object   -- the instance of SQWDnDBase class to extract
+            %                 modified subobject from
+            % OR:
+            % subobj       -- the subobject which corresponds to data_block
+            %                 object itself
+            % filename     -- if provided, the name of file to modify and
+            %                 store the data block in
+            %
+            if nargin>2 % otherwise have to assume that the object is initialized
+                if (isa(varargin{1},'SQWDnDBase')||is_sqw_struct(varargin{1}))
+                    obj = obj.init(varargin{:});
+                    obj  = put_sqw_block_(obj,block_name_or_class);
+                    return;
+                end
+                obj  = put_sqw_block_(obj,block_name_or_class,varargin{1});
+            else
+                obj  = put_sqw_block_(obj,block_name_or_class);
+            end
+        end
+        function obj = compress_file(obj)
+            % not yet implemented
+        end
+
     end
     %======================================================================
     methods(Access=protected)
