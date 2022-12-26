@@ -56,14 +56,14 @@ classdef test_data_block < TestCase
             tob.data.npix = npix;
 
 
-            dp1 = dp1.put_data_block(fid,tob);
+            dp1 = dp1.put_sqw_block(fid,tob);
             dp2.position = dp1.size;
-            dp2 = dp2.put_data_block(fid,tob);
+            dp2 = dp2.put_sqw_block(fid,tob);
 
             tob.data = [];
 
-            [~,rec_obj] = dp1.get_data_block(fid,tob);
-            [~,rec_obj] = dp2.get_data_block(fid,rec_obj);
+            [~,rec_obj] = dp1.get_sqw_block(fid,tob);
+            [~,rec_obj] = dp2.get_sqw_block(fid,rec_obj);
             fclose(fid);
 
             rec_obj.data.do_check_combo_arg = true;
@@ -133,14 +133,14 @@ classdef test_data_block < TestCase
             tob.data.e = err;
             tob.data.npix = npix;
 
-            dp1 = dp1.put_data_block(fid,tob);
+            dp1 = dp1.put_sqw_block(fid,tob);
             dp2.position = dp1.size;
-            dp2 = dp2.put_data_block(fid,tob);
+            dp2 = dp2.put_sqw_block(fid,tob);
 
             tob.data = [];
 
-            [~,rec_obj] = dp1.get_data_block(fid,tob);
-            [~,rec_obj] = dp2.get_data_block(fid,rec_obj);
+            [~,rec_obj] = dp1.get_sqw_block(fid,tob);
+            [~,rec_obj] = dp2.get_sqw_block(fid,rec_obj);
             fclose(fid);
 
             rec_obj.data.do_check_combo_arg = true;
@@ -164,38 +164,38 @@ classdef test_data_block < TestCase
             dp1 = data_block('experiment_info','samples');
             dp2 = data_block('experiment_info','instruments');
 
-            file = fullfile(tmp_dir(),'put_get_data_block.bin');
+            file = fullfile(tmp_dir(),'put_get_sqw_block.bin');
             fid = fopen(file,'wb+');
             clOb = onCleanup(@()file_deleter(obj,fid,file));
 
             tob = obj.sqw_obj_for_tests;
-            dp1 = dp1.put_data_block(fid,tob);
+            dp1 = dp1.put_sqw_block(fid,tob);
             dp2.position = dp1.size;
-            dp2 = dp2.put_data_block(fid,tob);
+            dp2 = dp2.put_sqw_block(fid,tob);
 
 
             tob.experiment_info.instruments = [];
             tob.experiment_info.samples = [];
-            [~,rec_obj] = dp1.get_data_block(fid,tob);
-            [~,rec_obj] = dp2.get_data_block(fid,rec_obj);
+            [~,rec_obj] = dp1.get_sqw_block(fid,tob);
+            [~,rec_obj] = dp2.get_sqw_block(fid,rec_obj);
             fclose(fid);
 
             assertEqual(obj.sqw_obj_for_tests,rec_obj);
 
         end
 
-        function test_put_get_data_block(obj)
+        function test_put_get_sqw_block(obj)
             dp = data_block('experiment_info','instruments');
 
-            file = fullfile(tmp_dir(),'put_get_data_block.bin');
+            file = fullfile(tmp_dir(),'put_get_sqw_block.bin');
             fid = fopen(file,'wb+');
             clOb = onCleanup(@()file_deleter(obj,fid,file));
 
             tob = obj.sqw_obj_for_tests;
-            dp = dp.put_data_block(fid,tob);
+            dp = dp.put_sqw_block(fid,tob);
 
             tob.experiment_info.instruments = [];
-            [~,rec_obj] = dp.get_data_block(fid,tob);
+            [~,rec_obj] = dp.get_sqw_block(fid,tob);
             fclose(fid);
 
             assertEqual(obj.sqw_obj_for_tests,rec_obj);

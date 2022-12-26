@@ -20,7 +20,55 @@ classdef test_binfile_v4_common <  TestCase %WithSave
             obj.test_data_folder=hp.test_common;
         end
         %-----------------------------------------------------------------
-        function test_replace_blocks_(~)
+        function test_get_sqw_block_invalid_argument(~)
+            tob = binfile_v4_block_tester(10);
+            t_file = fullfile(tmp_dir(),'binfile_v4_common_get_block.bin');
+            clOb = onCleanup(@()delete(t_file));
+            writ_obj = binfile_v4_common_tester(tob,t_file);
+            writ_obj = writ_obj.put_all_blocks();
+            writ_obj.delete();
+
+            assertTrue(is_file(t_file));
+
+
+            read_obj = binfile_v4_common_tester();
+            assertExceptionThrown(@()get_sqw_block(read_obj,'bl__level2_c',tob), ...
+                'HORACE:binfile_v4_common:invalid_argument');
+
+            assertExceptionThrown(@()get_sqw_block(read_obj,'bl_data_nd_data'), ...
+                'HORACE:binfile_v4_common:runtime_error');
+
+            [read_obj,obj1] = read_obj.get_sqw_block('bl__level2_c',t_file);
+            assertEqual(obj1,tob.level2_c);
+
+            assertExceptionThrown(@()get_sqw_block(read_obj,'missing_block'), ...
+                'HORACE:blockAllocationTable:invalid_argument');
+            read_obj.delete();
+
+        end
+
+        function test_get_sqw_block(~)
+            tob = binfile_v4_block_tester(10);
+            t_file = fullfile(tmp_dir(),'binfile_v4_common_get_block.bin');
+            clOb = onCleanup(@()delete(t_file));
+            writ_obj = binfile_v4_common_tester(tob,t_file);
+            writ_obj = writ_obj.put_all_blocks();
+            writ_obj.delete();
+
+            assertTrue(is_file(t_file));
+
+
+            read_obj = binfile_v4_common_tester(t_file);
+            [read_obj,obj1] = read_obj.get_sqw_block('bl__level2_c');
+            assertEqual(obj1,tob.level2_c);
+
+            [read_obj,obj2] = read_obj.get_sqw_block('bl_data_nd_data');
+            assertEqual(obj2,tob.data.nd_data);
+
+            read_obj.delete();
+        end
+
+        function test_replace_blocks(~)
             tob = binfile_v4_block_tester(10);
             t_file = fullfile(tmp_dir(),'binfile_v4_common_tester.bin');
             clOb = onCleanup(@()delete(t_file));
@@ -38,7 +86,7 @@ classdef test_binfile_v4_common <  TestCase %WithSave
             read_obj.delete();
             assertEqual(rec_obj,tob);
         end
-        
+
 
         function test_init_from_obj(~)
             tob = binfile_v4_block_tester(10);

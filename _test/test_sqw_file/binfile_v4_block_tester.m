@@ -4,7 +4,7 @@ classdef binfile_v4_block_tester < serializable
     %
     % Its main purpose to be the source of the blocks with variable,
     % defined for testing purposes size.
-    % 
+    %
     % the structure of the class is similar to structure of sqw class from
     % point of view of access and the place of the blocks on the disk,
     % while size of the blocks is not calculated randomly but can be
@@ -44,7 +44,7 @@ classdef binfile_v4_block_tester < serializable
             dnd =  dnd_data( ...
                 ones(obj.num_data_in_blocks,1), ...
                 2*ones(obj.num_data_in_blocks,1), ...
-                4*ones(obj.num_data_in_blocks,1));
+                uint64(4*ones(obj.num_data_in_blocks,1)));
             db = struct('nd_data',dnd);
         end
         function obj = set.data(obj,val)

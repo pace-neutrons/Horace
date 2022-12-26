@@ -55,14 +55,14 @@ classdef binfile_v4_common < horace_binfile_interface
             fl = obj.data_blocks_list;
             n_blocks = obj.bat_.n_blocks;
             for i=1:n_blocks
-                fl{i} = fl{i}.put_data_block(obj.file_id_,sqw_dnd_data);
+                fl{i} = fl{i}.put_sqw_block(obj.file_id_,sqw_dnd_data);
             end
             obj.bat_.put_bat(obj.file_id_);
             %
         end
         %
         function [obj,sqw_obj_to_set] = get_all_blocks(obj,filename,varargin)
-            % retrieve object
+            % retrieve sqw/dnd object from hdd and set it as 
             if exist('filename','var')
                 obj = obj.init(filename);
             end
@@ -76,8 +76,28 @@ classdef binfile_v4_common < horace_binfile_interface
             fl = obj.data_blocks_list;
             n_blocks = obj.bat_.n_blocks;
             for i=1:n_blocks
-                [~,sqw_obj_to_set] = fl{i}.get_data_block(obj.file_id_,sqw_obj_to_set);
+                [~,sqw_obj_to_set] = fl{i}.get_sqw_block(obj.file_id_,sqw_obj_to_set);
             end
+        end
+        %------------------------------------------------------------------
+        function [obj,set_obj] = get_sqw_block(obj,block_name_or_class,varargin)
+            % retrieve particular sqw object data block asking for it by 
+            % its name or data_block class instance.
+            % Inputs:
+            % obj          -- instance of faccess class. Either initialized
+            %                 or not. If not, the filename and (optionally)
+            %                 have to be provided sqw object to 
+            % 
+            if nargin>2 % otherwise have to assume that the object is initialized
+                if nargin>3 || ~(ischar(varargin{1})||isstring(varargin{1}))
+                    error('HORACE:binfile_v4_common:invalid_argument',...
+                        'Third argument of get_sqw_block can be only filename. You have provided: %s', ...
+                        disp2str(varargin))
+                end
+                obj = obj.init(varargin{1});                
+            end
+            [obj,set_obj]  = get_sqw_block_(obj,block_name_or_class);
+
         end
     end
     %======================================================================

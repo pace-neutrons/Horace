@@ -58,7 +58,7 @@ obj.convert_to_double_ = other_obj.convert_to_double_;
 
 
 function obj= open_obj_file(obj,file,mode)
-% open object's file with apporpriate access rights.
+% open object's file with appropriate access rights.
 obj.full_filename = file;
 obj.file_id_ = fopen(file,mode);
 if obj.file_id_ <= 0

@@ -36,8 +36,18 @@ classdef dnd_data_block < data_block
         function pos = get.npix_position(obj)
             pos = obj.sig_position+2*8*prod(obj.data_size_);
         end
-
-
+        %
+        function [obj,sqw_obj_to_set] = get_sqw_block(obj,fid,sqw_obj_to_set)
+            % Read sub-block binary information from sqw object on HDD and
+            % set this subobject to the proper field of the input sqw
+            % object.
+            subobj = obj.get_bindata_from_file(fid);
+            if ~exist('sqw_obj_to_set','var') || isempty(sqw_obj_to_set)
+                sqw_obj_to_set = subobj;
+            else
+                sqw_obj_to_set = obj.set_subobj(sqw_obj_to_set,subobj);
+            end
+        end
         function obj =calc_obj_size(obj,sqw_obj,varargin)
             % Overloaded: -- caclculate size of the serialized object and
             % put the serialized object into data cache for subsequent put
@@ -50,13 +60,6 @@ classdef dnd_data_block < data_block
             % 4--uint64 each of prop(subobj.data_size) elements
             obj.size_ = 4+obj.dimensions_*4+(3*8)*prod(obj.data_size_);
             obj.serialized_obj_cache_ = subobj;
-        end
-        function [obj,sqw_obj_to_set] = get_data_block(obj,fid,sqw_obj_to_set)
-            % Read sub-block binary information from sqw object on HDD and
-            % set this subobject to the proper field of the input sqw
-            % object.
-            dnd_data_obj = obj.get_bindata_from_file(fid);
-            sqw_obj_to_set = obj.set_subobj(sqw_obj_to_set,dnd_data_obj);
         end
     end
     methods(Access=protected)

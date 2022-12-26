@@ -38,7 +38,7 @@ classdef data_block < serializable
     end
     %======================================================================
     methods
-        function [obj,sqw_obj_to_set] = get_data_block(obj,fid,sqw_obj_to_set)
+        function [obj,sqw_obj_to_set] = get_sqw_block(obj,fid,sqw_obj_to_set)
             % Read sub-block binary information from sqw object on HDD and
             % set this subobject to the proper field of the input sqw
             % object.
@@ -52,12 +52,16 @@ classdef data_block < serializable
                     rethrow(ME);
                 end
             end
-            sqw_obj_to_set = obj.set_subobj(sqw_obj_to_set,subobj);
+            if ~exist('sqw_obj_to_set','var') || isempty(sqw_obj_to_set)
+                sqw_obj_to_set = subobj;
+            else
+                sqw_obj_to_set = obj.set_subobj(sqw_obj_to_set,subobj);
+            end
         end
         %
-        function obj = put_data_block(obj,fid,sqw_obj)
-            % extract sub-block information from sqw object and write this
-            % information on HDD
+        function obj = put_sqw_block(obj,fid,sqw_obj)
+            % extract sub-block information from sqw or dnd object and write 
+            % this information on HDD
             if exist('sqw_obj','var')
                 obj = obj.calc_obj_size(sqw_obj);
             else

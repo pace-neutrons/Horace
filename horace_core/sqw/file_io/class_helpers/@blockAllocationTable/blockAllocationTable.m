@@ -105,8 +105,8 @@ classdef blockAllocationTable < serializable
         function list = get.block_names(obj)
             list = obj.block_names_;
         end
-        function pos = get.blocks_start_position(obj)            
-            % the data blocks start after BAT position + 4 bytes describing 
+        function pos = get.blocks_start_position(obj)
+            % the data blocks start after BAT position + 4 bytes describing
             % the number of bytes in BAT binary representation
             % + BAT binary representation itself
             pos = uint64(obj.position + 4 + obj.bat_bin_size);
@@ -121,6 +121,20 @@ classdef blockAllocationTable < serializable
     %======================================================================
     % Main BAT operations:
     methods
+        function [data_bl_instance,bl_index] = get_data_block(obj,block_name_or_instance)
+            % get one data_block which is part of block allocation table. 
+            % Inputs:
+            % block_name_or_instance -- the name of the block in the BAT or
+            %                           the instance of the block, which
+            %                           defines the name
+            % Returns:
+            % data_bl_instance      -- initialized instance of the data
+            %                          block, containing information about
+            %                          particular part of BAT
+            % bl_index              -- the position of the block in the BAT
+            %                          list
+            [data_bl_instance,bl_index] = get_data_block_(obj,block_name_or_instance);
+        end
         function [obj,new_pos,compress_bat] = find_block_place(obj, ...
                 data_block_or_name,block_size)
             % find place to put data block provided as input within the
@@ -145,12 +159,10 @@ classdef blockAllocationTable < serializable
             %           hdd too loosely, so one needs to move then all
             %           together to save space
             if isa(data_block_or_name,'data_block')
-                block_name = data_block_or_name.block_name;
                 if ~exist('block_size','var')
-                    block_size = data_block_or_name.size;                    
+                    block_size = data_block_or_name.size;
                 end
             elseif ischar(data_block_or_name)||isstring(data_block_or_name)
-                block_name = data_block_or_name;
                 if ~exist('block_size','var')
                     error('HORACE:blockAllocationTable:invalid_argument', ...
                         'If block name provided as input of the method, block size have to be provided. It has been not')
@@ -161,7 +173,7 @@ classdef blockAllocationTable < serializable
                     class(data_block_or_name));
             end
             [obj,new_pos,compress_bat] = find_block_place_(obj, ...
-                block_name,block_size);
+                data_block_or_name,block_size);
         end
         %
         function obj = init_obj_info(obj,obj_to_analyze,nocache)
