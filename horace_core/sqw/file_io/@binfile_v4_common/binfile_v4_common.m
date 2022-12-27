@@ -63,12 +63,15 @@ classdef binfile_v4_common < horace_binfile_interface
         %
         function [obj,sqw_obj_to_set] = get_all_blocks(obj,filename,varargin)
             % retrieve sqw/dnd object from hdd and set it as
-            if exist('filename','var')
+            sqw_obj_to_set =[];
+            if exist('filename','var') && (ischar(filename)||isstring(filename))
                 obj = obj.init(filename);
+            else
+                sqw_obj_to_set = varargin{1};
             end
             if ~isempty(varargin)
                 sqw_obj_to_set = varargin{1};
-            else
+            elseif isempty(sqw_obj_to_set)
                 sqw_obj_to_set = sqw();
             end
             % This have happened during intialization.
@@ -125,16 +128,18 @@ classdef binfile_v4_common < horace_binfile_interface
             % block_name_or_class
             %              -- the registered data_block name or
             %                 instance-source of the data_block name to
-            %                 store on hdd
+            %                 use for storing the requested data on hdd
             %Optional:
-            % Either:
+            % 1) Either:
             % sqw_object   -- the instance of SQWDnDBase class to extract
             %                 modified subobject from
             % OR:
-            % subobj       -- the subobject which corresponds to data_block
-            %                 object itself
-            % filename     -- if provided, the name of file to modify and
-            %                 store the data block in
+            % subobj       -- the subobject of sqw object to store using selected
+            %                 data_block
+            % 2) filename  -- if provided, the name of file to modify and
+            %                 store the data block in. Any other
+            %                 information (subblock to store) is not
+            %                 acceptable in this situation
             %
             if nargin>2 % otherwise have to assume that the object is initialized
                 if (isa(varargin{1},'SQWDnDBase')||is_sqw_struct(varargin{1}))

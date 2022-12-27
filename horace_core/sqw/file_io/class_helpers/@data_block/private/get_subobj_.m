@@ -2,7 +2,7 @@ function   subobj = get_subobj_(obj,sqw_dnd_obj)
 % Extract class-defined sub-object from sqw or dnd object for
 % further operations. (serialization and damping to hdd)
 %
-if isa(sqw_dnd_obj,'SQWDnDBase') % get proper sub-object
+if isa(sqw_dnd_obj,'SQWDnDBase') || is_sqw_struct(sqw_dnd_obj) % get proper sub-object
     if isempty(obj.sqw_prop_name)
         subobj = sqw_dnd_obj;
     else
