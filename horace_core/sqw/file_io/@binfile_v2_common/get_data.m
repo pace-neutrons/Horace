@@ -103,9 +103,7 @@ if ischar(obj.num_dim)
     error('HORACE:binfile_v2_common:runtime_error',...
         'get_data: method called on un-initialized loader')
 end
-
-
-
+%
 fseek(obj.file_id_,obj.data_pos_,'bof');
 check_error_report_fail_(obj,...
     'get_data: Can not move to the start of the main data block');
