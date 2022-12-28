@@ -78,8 +78,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         function w = dnd(varargin)
             % create dnd object with size and dimensions, defined by inputs
             %
-            ndims = found_dims_(varargin{:});
-            argi = varargin;
+            if nargin == 1 && isnumeric(varargin{1})
+                ndims = varargin{1};
+                argi  = {};
+            else
+                ndims = found_dims_(varargin{:});
+                argi = varargin;
+            end
             switch(ndims)
                 case(0)
                     w = d0d(argi{:});

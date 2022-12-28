@@ -55,7 +55,7 @@ classdef faccess_dnd_v4 < binfile_v4_common
     end
     properties(Constant,Access=protected)
         % list of data blocks, this class maintains
-        dnd_blocks_list_ = {data_block('data','dnd_metadata'),...
+        dnd_blocks_list_ = {data_block('data','metadata'),...
             dnd_data_block()}
     end
     methods
@@ -119,7 +119,7 @@ classdef faccess_dnd_v4 < binfile_v4_common
                 filename = obj.full_filename;
             end
             [obj,file_exist,old_ldr] = set_file_to_update@horace_binfile_interface(obj,filename,nargout);
-            if old_ldr.versiob ~= obj.version
+            if file_exist && old_ldr.version ~= obj.version
                 dnd_obj = old_ldr.get_dnd();
                 obj.sqw_holder = dnd_obj;
                 obj = obj.put_dnd();
@@ -184,14 +184,6 @@ classdef faccess_dnd_v4 < binfile_v4_common
             % return true if the loader is intended for processing sqw file
             % format and false otherwise
             is_sqw = false;
-        end
-        function obj=init_from_sqw_obj(obj,varargin)
-            % init file accessors from sqw object in memory
-            obj = init_from_sqw_obj_(obj,varargin{:});
-        end
-        function obj=init_from_sqw_file(obj,varargin)
-            % init file accessors from sqw file on hdd
-            obj = init_from_sqw_file_(obj,varargin{:});
         end
         function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
             % the main part of the copy constructor, copying the contents

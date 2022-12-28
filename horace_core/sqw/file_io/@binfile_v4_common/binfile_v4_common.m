@@ -30,9 +30,9 @@ classdef binfile_v4_common < horace_binfile_interface
         function obj=set.bat(obj,val)
             % BAT setter, to use by serialization only. It will be probably
             % invalid otherwise
-            if ~isa(val,'blockAllocatioTable')
+            if ~isa(val,'blockAllocationTable')
                 error('HORACE:binfile_v4_common:invalid_argument',...
-                    'Attempt to set BlockAllocatioTable value using class: %s', ...
+                    'Attempt to set BlockAllocationTable value using class: %s', ...
                     class(val))
             end
             obj.bat_ = val;
@@ -42,9 +42,13 @@ classdef binfile_v4_common < horace_binfile_interface
         end
         %------------------------------------------------------------------
         function obj = put_all_blocks(obj,sqw_dnd_data,varargin)
-            % Put all blocks in the input data object in binary file
+            % Put all blocks containing in the input data object and defined
+            % in BAT into Horace binary file
+            %
+            % The faccess object have to be initialized
             if exist('sqw_dnd_data','var')
                 obj.sqw_holder_ = sqw_dnd_data;
+                obj.bat_ = obj.bat_.init_obj_info(sqw_dnd_data);
             else
                 sqw_dnd_data = obj.sqw_holder;
             end
@@ -52,36 +56,56 @@ classdef binfile_v4_common < horace_binfile_interface
             obj=obj.put_app_header();
 
             obj.bat_.put_bat(obj.file_id_);
-            fl = obj.data_blocks_list;
+            bl = obj.bat.blocks_list;
             n_blocks = obj.bat_.n_blocks;
             for i=1:n_blocks
-                fl{i} = fl{i}.put_sqw_block(obj.file_id_,sqw_dnd_data);
+                bl{i} = bl{i}.put_sqw_block(obj.file_id_,sqw_dnd_data);
             end
+            obj.bat.blocks_list = bl;
+
             obj.bat_.put_bat(obj.file_id_);
             %
         end
         %
-        function [obj,sqw_obj_to_set] = get_all_blocks(obj,filename,varargin)
-            % retrieve sqw/dnd object from hdd and set it as
-            sqw_obj_to_set =[];
-            if exist('filename','var') && (ischar(filename)||isstring(filename))
-                obj = obj.init(filename);
-            else
-                sqw_obj_to_set = varargin{1};
-            end
-            if ~isempty(varargin)
-                sqw_obj_to_set = varargin{1};
-            elseif isempty(sqw_obj_to_set)
-                sqw_obj_to_set = sqw();
-            end
-            % This have happened during intialization.
+        function [obj,obj_to_set] = get_all_blocks(obj,varargin)
+            % retrieve sqw/dnd object from hdd and return its values in
+            % the object provided as input.
+            % Inputs:
+            % obj             -- initialized instance of faccessor
+            % Optional:
+            % filename_or_obj
+            % Either       -- name of the file to initialize faccessor
+            %                 from if the object have not been initialized
+            %                 before
+            % OR           -- the object to modify with the data,
+            %                 obtained using initialized faccessor
+            % obj_to_set   -- if provided, previous parameter have to be
+            %                 the file to read data from. Then this
+            %                 parameter defines the object, to modify the
+            %                 data using faccessor, initialized by file
+            %                 above
+            % if none of additinal parameters is specified, result is
+            % returnded in sqw object
+            % Output:
+            % obj          -- initialized instance of faccessor.
+            % obj_to_set   -- the object, modified by the contents,
+            %                 obtained from the file. If other objects are
+            %                 not specified as input, this object is sqw
+            %                 object.
+            %
+            [obj,obj_to_set,is_serializable] = check_get_all_blocks_inputs_(obj,varargin{:});
+            % This have happened during intialization:
             %obj.bat_ = obj.bat_.get_bat(obj.file_id_);
-            fl = obj.data_blocks_list;
+            fl = obj.bat.blocks_list;
             n_blocks = obj.bat_.n_blocks;
             for i=1:n_blocks
-                [~,sqw_obj_to_set] = fl{i}.get_sqw_block(obj.file_id_,sqw_obj_to_set);
+                [~,obj_to_set] = fl{i}.get_sqw_block(obj.file_id_,obj_to_set);
             end
-            obj.sqw_holder_ = sqw_obj_to_set;
+            if is_serializable
+                obj.do_check_combo_arg = true;
+                obj = obj.check_combo_arg();
+            end
+            obj.sqw_holder_ = obj_to_set;
         end
         %------------------------------------------------------------------
         function [obj,set_obj] = get_sqw_block(obj,block_name_or_class,varargin)
@@ -160,7 +184,8 @@ classdef binfile_v4_common < horace_binfile_interface
     %======================================================================
     methods(Access=protected)
         function ver = get_faccess_version(~)
-            % Main part of get.faccess_version accessor
+            % Main part of get.faccess_ve
+            % rsion accessor
             % retrieve sqw-file version the particular loader works with
             ver = 4.0;
         end

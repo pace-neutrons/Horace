@@ -20,7 +20,11 @@ else
             error('HORACE:DnDBase:invalid_argument',...
                 'can not indentify the dimensions of the input data');
         end
-    else
+    elseif isa(varargin{1},'SQWDnDBase')
         ndims = varargin{1}.dimensions;
+    else
+        error('HORACE:DnDBase:invalid_argument',...
+            'Can not extract number of dimensions from the input of class: %s.\n Sqw stucture or SQWDnDBase instace input requested',...
+            class(varargin{1}));
     end
 end

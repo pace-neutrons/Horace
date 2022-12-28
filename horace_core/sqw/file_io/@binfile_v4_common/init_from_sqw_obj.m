@@ -12,7 +12,10 @@ end
 obj.num_dim_ = in_obj.dimensions();
 %
 obj.bat_ = obj.bat_.init_obj_info(in_obj,true);
-
-
-obj.sqw_holder_  = in_obj;
 %
+cn = class(obj);
+if contains(cn,"dnd") && isa(in_obj,"sqw")
+    obj.sqw_holder_ = in_obj.data;
+else
+    obj.sqw_holder_ = in_obj;
+end

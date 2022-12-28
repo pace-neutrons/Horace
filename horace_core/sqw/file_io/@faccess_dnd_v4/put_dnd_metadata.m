@@ -1,6 +1,16 @@
 function obj = put_dnd_metadata(obj,varargin)
 %PUT_DND_METADATA store information, describing dnd image
+% Inputs:
+% obj      -- the instance of the faccessor object, initialized for writing
+%             dnd metadata.
 %
+% Optional::- the information, necessary for initializing or re-initializing 
+%             faccessor for writing dnd metadata, namely:
+% sqw/dnd object or dnd_metadata subobject
+%          -- the object to extract subobject for writing or the subobject
+%             itself
+% filename -- full name of the file to write dnd metadata into.
+
 if ~isempty(varargin)
     is_sqw_dnd = cellfun(@(x)(isa(x,'SQWDnDBase')||is_sqw_struct(x)),varargin);
     if any(is_sqw_dnd)

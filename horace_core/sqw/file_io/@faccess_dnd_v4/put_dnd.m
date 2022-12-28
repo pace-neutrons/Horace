@@ -17,9 +17,16 @@ if ~isempty(varargin)
         obj = obj.init(varargin{:});
     end
 end
+if isempty(obj.sqw_holder)
+    error('HORACE:faccess_dnd_v4:runtime_error',...
+        'Attempt to store dnd object in file %s but the dnd object have not been defined', ...
+        obj.full_filename);
+end
 sqh = obj.sqw_holder;
 if ~sqh.creation_date_defined
     sqh.creation_date = datetime('now');
-    obj.sqw_holder_ = sqw;
+    obj.sqw_holder_ = sqh;
+    obj.bat_ = obj.bat_.init_obj_info(sqh);
 end
+
 obj = obj.put_all_blocks();

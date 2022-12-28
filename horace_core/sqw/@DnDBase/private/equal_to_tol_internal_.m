@@ -10,9 +10,16 @@ cntl.keys_once = false; % so name_a and name_b can be overridden
 if ~ok
     error(mess);
 end
+if ~isempty(args)
+    [ok,mess,nodate,args] = parse_char_options(args,{'-ignore_date'});
+    if ~ok
+        error('HORACE:DnDBase:invalid_argument', mess);
+    end
+end
 if ~islognumscalar(opt.reorder)
-    error('HORACE:DnDBase:equal_to_tol_internal', ...
-        '''reorder'' must be a logical scalar (or 0 or 1)')
+    error('HORACE:DnDBase:invalid_argument', ...
+        '''reorder'' must be a logical scalar (or 0 or 1). It is %s', ...
+        disp2str(opt.reorder))
 end
 if ~isnumeric(opt.fraction) || opt.fraction < 0 || opt.fraction > 1
     error('HORACE:DnDBase:equal_to_tol_internal', ...
@@ -27,10 +34,13 @@ else
 end
 for idx = 1:numel(class_fields)
     field_name = class_fields{idx};
+    if nodate && strcmp(field_name,'creation_date')
+        continue;
+    end
     tmp1 = w1.(field_name);
     tmp2 = w2.(field_name);
     name_aa = [name_a,'.',field_name];
-    name_bb = [name_b,'.',field_name];    
+    name_bb = [name_b,'.',field_name];
     [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_aa, 'name_b', name_bb);
 
     if ~ok
