@@ -6,6 +6,13 @@ classdef dnd_metadata < serializable
     % into custom bindary file.
     %
     properties(Dependent)
+        %------------------------------------------------------------------
+        % Old headers interface
+        title;      % Title of sqw data structure, displayed on plots.
+        filename;   % Name of sqw file that is being read, excluding path. Used in titles
+        filepath;   % Path to sqw file that is being read, including terminating file separator.
+        %            Used in titles
+        %------------------------------------------------------------------
         dimensions;
         axes;
         proj;
@@ -13,8 +20,9 @@ classdef dnd_metadata < serializable
         creation_date_defined
     end
     properties(Access=protected)
-        axes_;
-        proj_;
+        axes_ = axes_block();
+        proj_ = ortho_proj();
+        %
         creation_date_;
         creation_date_defined_ = false;
     end
@@ -46,6 +54,33 @@ classdef dnd_metadata < serializable
                         disp2str(remains));
                 end
             end
+        end
+        %------------------------------------------------------------------
+        % Re-wiring for old dnd metadata methods
+        function tit = get.title(obj)
+            % Title of sqw data structure, displayed on plots.
+            tit = obj.axes_.title;
+        end
+        function obj = set.title(obj,val)
+            obj.axes_.title = val;
+        end
+        function fn = get.filename(obj)
+            % Name of sqw file that is being read, excluding path. Used in titles
+            fn = obj.axes_.filename;
+        end
+        function obj = set.filename(obj,val)
+            % Name of sqw file that is being read, excluding path. Used in titles
+            obj.axes_.filename = val;
+        end
+        function fp = get.filepath(obj)
+            % Path to sqw file that is being read, including terminating file separator.
+            %            Used in titles
+            fp = obj.axes_.filepath;
+        end
+        function obj = set.filepath(obj,val)
+            % Path to sqw file that is being read, including terminating file separator.
+            %            Used in titles
+            obj.axes_.filepath = val;
         end
         %------------------------------------------------------------------
         function nd = get.dimensions(obj)

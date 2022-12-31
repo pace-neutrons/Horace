@@ -54,7 +54,7 @@ end
 
 dnd_obj = DnDBase.dnd(obj.num_dim);
 if header_only
-    [obj,dnd_obj] = obj.get_dnd_metadata();
+    [dnd_obj,obj] = obj.get_dnd_metadata();
 else
     [obj,dnd_obj] = obj.get_all_blocks(dnd_obj);
 end
@@ -65,5 +65,9 @@ if ~verbatim
 end
 
 if noclass
-    dnd_obj = dnd_obj.to_bare_struct();
+    dnd_struc = dnd_obj.to_bare_struct();
+    dnd_struc.title = dnd_obj.title;
+    dnd_struc.filename = dnd_obj.filename;
+    dnd_struc.filepath = dnd_obj.filepath;
+    dnd_obj = dnd_struc;
 end

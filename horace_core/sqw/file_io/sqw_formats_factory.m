@@ -36,6 +36,7 @@ classdef sqw_formats_factory < handle
         % Add all new file readers which inherit from sqw_file_interface and horace_binfile_interface
         % to this list in the order of expected frequency of their appearance.
         supported_accessors_ = { ...
+            faccess_dnd_v4(),...
             faccess_sqw_v3_3(), ...
             faccess_sqw_v3(), ...
             faccess_sqw_v3_21(), ...
@@ -48,10 +49,10 @@ classdef sqw_formats_factory < handle
         %
         % sqw2 corresponds to sqw file in indirect mode with efixed beeing
         % array
-        written_types_ = {'sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
+        written_types_ = {'DnDBase','sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders above to use for saving
         % correspondent class
-        access_to_type_ind_ = {1,3,5,5,5,5,5,5};
+        access_to_type_ind_ = {1,2,4,6,6,6,6,6,6};
         types_map_ ;
     end
     properties(Dependent)
@@ -203,11 +204,11 @@ classdef sqw_formats_factory < handle
             %            is not among the types specified above.
             %
             if nargin <2
-                loader = obj.supported_accessors_{1};
+                loader = obj.supported_accessors_{2};
                 return
             end
             if ischar(varargin{1})
-                the_type = varargin{1};
+                the_type = varargin{2};
             else
                 [the_type,orig_type] = sqw_formats_factory.get_sqw_type(varargin{1});
                 if strcmp(the_type,'none') % assume sqw

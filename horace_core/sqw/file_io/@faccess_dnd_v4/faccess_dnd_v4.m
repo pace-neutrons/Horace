@@ -53,6 +53,11 @@ classdef faccess_dnd_v4 < binfile_v4_common
         % initial location of npix fields
         npix_position;
     end
+    properties(Dependent,Hidden)
+        % old data type, not relevant any more. Always b+ for dnd and ? for
+        % sqw
+        data_type
+    end
     properties(Constant,Access=protected)
         % list of data blocks, this class maintains
         dnd_blocks_list_ = {data_block('data','metadata'),...
@@ -84,7 +89,7 @@ classdef faccess_dnd_v4 < binfile_v4_common
         %
     end
     %======================================================================
-    % Define old interface
+    % Define old interface, still relevant and usefule
     methods
         function pos = get.npix_position(obj)
             if isempty(obj.bat_) || ~obj.bat_.initialized
@@ -129,6 +134,9 @@ classdef faccess_dnd_v4 < binfile_v4_common
     %----------------------------------------------------------------------
     % Old, partially redundant interface
     methods
+        function dt = get.data_type(obj)
+            dt = get_data_type(obj);
+        end
         [inst,obj]  = get_instrument(obj,varargin); % return instrument stored with sqw file or empty structure if
         %                                             nothing is stored. Always empty for dnd objects.
         [samp,obj]  = get_sample(obj,varargin);   % return sample stored with sqw file or empty structure if
@@ -142,8 +150,20 @@ classdef faccess_dnd_v4 < binfile_v4_common
             end
         end
         function  [data,obj] =  get_data(obj,varargin)
-            % equivalend to get_dnd
-            [data,obj] = obj.get_dnd(varargin{:});
+            % equivalend to get_dnd('-noclass)
+            is_key = cellfun(@(x)(ischar(x)||isstring(x))&&startsWith(x,'-'), ...
+                varargin);
+            if any(is_key)
+                is_noclass = ismember('-noclass',varargin(is_key));
+                if is_noclass
+                    argi = varargin;
+                else
+                    argi = [varargin(:);'-noclass'];
+                end
+            else
+                argi = varargin;
+            end
+            [data,obj] = obj.get_dnd(argi{:});
         end
         % -----------------------------------------------------------------
         function pix_range = get_pix_range(~)
@@ -173,6 +193,10 @@ classdef faccess_dnd_v4 < binfile_v4_common
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function  dt = get_data_type(~)
+            % overloadable accessor for the class datatype function
+            dt  = 'b+';
+        end
         function bll = get_data_blocks(~)
             % Return list of data blocks, defined on this class
             % main bat of data_blocks getter. Protected for possibility to

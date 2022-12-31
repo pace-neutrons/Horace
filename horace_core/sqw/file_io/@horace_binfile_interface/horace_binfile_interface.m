@@ -67,7 +67,7 @@ classdef horace_binfile_interface < serializable
         % The property indicates if the data are stored in file the loader
         % is connected to.
         data_in_file;
-        
+
         %
         % get access to internal sqw object to store/resrore from hdd
         % if any is defined.
@@ -103,7 +103,7 @@ classdef horace_binfile_interface < serializable
         file_closer_ = [];
         % The property indicates if the data are stored in file the loader
         % is connected with.
-        data_in_file_ = false;        
+        data_in_file_ = false;
     end
     %
     properties(Constant,Access=protected)
@@ -255,7 +255,11 @@ classdef horace_binfile_interface < serializable
         %------------------------------------------------
         function ndims = get.num_dim(obj)
             % get number of dimensions the image part of the object has.
-            ndims = obj.num_dim_;
+            if ischar(obj.num_dim_)
+                ndims = obj.num_dim_;
+            else
+                ndims = double(obj.num_dim_);
+            end
         end
         %------------------------------------------------------------------
         %OVERLOADABLE ACCESSORS

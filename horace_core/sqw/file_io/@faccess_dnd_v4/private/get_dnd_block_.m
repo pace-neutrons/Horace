@@ -6,4 +6,4 @@ if nargin>2
     obj = obj.init(varargin{:});
 end
 %
-dnd_block = obj.get_sqw_block(obj,block_name_or_instance);
+[obj,dnd_block] = obj.get_sqw_block(block_name_or_instance);
