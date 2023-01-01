@@ -36,6 +36,6 @@ the_data_block = obj.bat_.get_data_block(block_name_or_class);
 %
 [~,set_obj] = the_data_block.get_sqw_block(obj.file_id_,obj.sqw_holder);
 % if sqw_holder is not empty, set updated sqw_holder
-if ~isempty(obj.sqw_holder)
+if ~isempty(obj.sqw_holder) && isa(set_obj,'SQWDnDBase')
     obj.sqw_holder_ = set_obj;
 end

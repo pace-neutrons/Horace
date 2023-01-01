@@ -124,7 +124,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
         end
         %
         function new_obj = upgrade_file_format(obj,varargin)
-            % Upgrade file from format 2 to format 3
+            % Upgrade file from format 2 to current preferred file format
             new_obj = upgrade_file_format_(obj);
         end
     end

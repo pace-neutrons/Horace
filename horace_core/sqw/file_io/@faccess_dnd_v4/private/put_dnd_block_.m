@@ -6,7 +6,8 @@ if nargin>2
     if ~obj.bat.initialized
         obj = obj.init(varargin{:});
     else
-        obj.sqw_holder_ = varargin{1};
+        obj = obj.put_sqw_block(block_name_or_instance,varargin{1});
+        return;
     end
 end
 obj = obj.put_sqw_block(block_name_or_instance);
