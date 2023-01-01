@@ -39,6 +39,27 @@ classdef test_block_allocation_table < TestCase
             assertTrue(bac.initialized);
 
         end
+        function test_set_block_list_with_gaps(~)
+            bat = blockAllocationTable();
+            blocks = {data_block('','a',174+5,10),...
+                data_block('','e',174+55,10),...
+                data_block('','c',174+35,10),...
+                data_block('','b',174+15,10)};
+            bat = bat.init(10,blocks);
+
+            assertEqual(size(bat.free_spaces_and_size),[2,3])
+            assertEqual(bat.free_spaces_and_size,[174,174+25,174+45;5,10,10])
+        end
+
+        function test_set_block_list_no_gaps(~)
+            bat = blockAllocationTable();
+            blocks = {data_block('','a',174,10),data_block('','b',174+10,20),...
+                data_block('','c',174+30,20),data_block('','e',174+50,20)};
+            bat = bat.init(10,blocks);
+
+            assertTrue(isempty(bat.free_spaces_and_size));
+        end
+
         function test_last_block_reallocated_back(obj)
 
             bac = obj.init_bac();
@@ -73,7 +94,6 @@ classdef test_block_allocation_table < TestCase
             % with file on disk using Matlab?
             assertEqual(bac.end_of_file_pos,old_eof_pos-50)
         end
-
 
         function test_adjusent_free_blocks_merged(obj)
 
@@ -303,6 +323,7 @@ classdef test_block_allocation_table < TestCase
 
             assertEqual(bac,rec_table);
         end
+
         function test_empty_table(~)
             bac = blockAllocationTable();
             assertFalse(bac.initialized);
@@ -312,7 +333,6 @@ classdef test_block_allocation_table < TestCase
             assertEqual(numel(bin_data),4);
 
             assertEqual(typecast(bin_data,'uint32'),uint32(0))
-
         end
     end
 end

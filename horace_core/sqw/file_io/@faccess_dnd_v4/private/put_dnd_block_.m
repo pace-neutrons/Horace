@@ -3,6 +3,10 @@ function obj = put_dnd_block_(obj, block_name_or_instance,varargin)
 
 if nargin>2
     check_file_defined_and_exist_(obj,'write',varargin{:});
-    obj = obj.init(varargin{:});
+    if ~obj.bat.initialized
+        obj = obj.init(varargin{:});
+    else
+        obj.sqw_holder_ = varargin{1};
+    end
 end
 obj = obj.put_sqw_block(block_name_or_instance);

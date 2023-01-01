@@ -15,6 +15,8 @@ if ~isempty(args)
     if ~ok
         error('HORACE:DnDBase:invalid_argument', mess);
     end
+else
+    nodate = false;
 end
 if ~islognumscalar(opt.reorder)
     error('HORACE:DnDBase:invalid_argument', ...

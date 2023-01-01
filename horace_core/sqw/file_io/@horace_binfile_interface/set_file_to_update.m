@@ -52,7 +52,7 @@ if nargin>1
     if exist(new_filename,'file')
         file_exist = true;
         try
-            old_ldr = sqw_formats_factory.instance().get_loader(new_filename,'-upgrade');
+            old_ldr = sqw_formats_factory.instance().get_loader(new_filename,'-update');
             obj.data_in_file_ = true;
         catch ME % data_in_file == false anyway
             file_exist = false;

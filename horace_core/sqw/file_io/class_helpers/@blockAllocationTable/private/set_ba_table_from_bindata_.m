@@ -15,5 +15,5 @@ while pos<obj.bat_bin_size_
     [cl_table{ic},pos]= data_block.deserialize_bat_record(bindata,pos);
     ic = ic+1;
 end
-obj.blocks_list_ = cl_table;
+obj.blocks_list = cl_table;
 obj.initialized_ = true;

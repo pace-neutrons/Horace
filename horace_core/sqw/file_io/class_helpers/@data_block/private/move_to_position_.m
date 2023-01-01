@@ -12,7 +12,7 @@ catch ME
     if strcmp(ME.identifier,'HORACE:data_block:io_error')
         error('HORACE:data_block:io_error',...
             '%s moving to the start of the record %s.%s',...
-            ME.message,obj.base_prop_name,obj.level2_prop_name);
+            ME.message,obj.sqw_prop_name,obj.level2_prop_name);
     else
         rethrow(ME);
     end

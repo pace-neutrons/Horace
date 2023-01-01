@@ -124,10 +124,12 @@ classdef faccess_dnd_v4 < binfile_v4_common
                 filename = obj.full_filename;
             end
             [obj,file_exist,old_ldr] = set_file_to_update@horace_binfile_interface(obj,filename,nargout);
-            if file_exist && old_ldr.version ~= obj.version
+            if file_exist && old_ldr.faccess_version ~= obj.faccess_version
                 dnd_obj = old_ldr.get_dnd();
                 obj.sqw_holder = dnd_obj;
                 obj = obj.put_dnd();
+            else
+                old_ldr.delete();
             end
         end
     end

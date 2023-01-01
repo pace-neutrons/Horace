@@ -19,11 +19,11 @@ function obj  = put_sqw_block_(obj,block_name_or_instance,obj_to_work_with)
 %
 if ~obj.bat_.initialized
     error('HORACE:binfile_v4_common:runtime_error', ...
-        'Attempt to get sqw block using non-initialized file-accessor')
+        'Attempt to put sqw block using non-initialized file-accessor')
 end
 if obj.file_id_ == -1
     error('HORACE:binfile_v4_common:runtime_error', ...
-        'Attempt to get sqw block using file-accessor with closed or undefined sqw file: "%s "', ...
+        'Attempt to put sqw block using file-accessor with closed or undefined sqw file: "%s "', ...
         obj.full_filename);
 end
 if ~exist('obj_to_work_with','var')

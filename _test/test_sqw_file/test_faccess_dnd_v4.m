@@ -119,6 +119,34 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
 
         end
         %
+        function obj = test_get_put_blocks(obj)
+            source = fullfile(obj.this_dir,'faccess_dnd_v4_sample.sqw');            
+            sample  = fullfile(tmp_dir,'faccess_dnd_v4_put_get_block.sqw');
+            copyfile(source,sample,'f');
+            clOb = onCleanup(@()delete(sample));
+
+
+            facc = faccess_dnd_v4(sample);
+            facc = facc.set_file_to_update();
+
+            dnd_meta = facc.get_dnd_metadata();
+            dnd_meta.title = 'my belowed data';
+            facc = facc.put_dnd_metadata(dnd_meta);
+
+            dnd_dat = facc.get_dnd_data();
+            dnd_dat.signal(1:10) = 1:10;
+            facc = facc.put_dnd_data(dnd_dat);            
+            facc.delete();
+
+            facc = faccess_dnd_v4(sample);            
+            up_data = facc.get_dnd();
+
+            ref_data = DnDBase.dnd(dnd_meta,dnd_dat);
+
+            assertEqualToTol(up_data,ref_data,'-ignore_date')
+
+        end
+        %
         function obj = test_get_data(obj)
             sample = fullfile(obj.this_dir,'faccess_dnd_v4_sample.sqw');
 
