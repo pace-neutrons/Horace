@@ -20,13 +20,13 @@ if ~exist('filename','var')
     filename = '';
 else
     if isnumeric(filename)
-        [fname,acc] = fopen(filename);
+        [fname,permissions] = fopen(filename);
         if isempty(fname)
             error('HORACE:horace_binfile_interface:invalid_argument',...
                 'Wrong (probably closed) file handle specified as input')
 
         end
-        if ~ismember(acc,{'wb+','rb+'})
+        if ~ismember(permissions,{'wb+','rb+'})
             error('HORACE:horace_binfile_interface:invalid_argument',...
                 'Get input file handle with incorrect file access for file %s',fname);
         end
@@ -52,8 +52,8 @@ if isempty(obj.full_filename)
 end
 
 if obj.file_id_ > 0 && isempty(filename)
-    [filename,acc] = fopen(obj.file_id_);
-    if ismember(acc,{'wb+','rb+'}) % nothing to do, already correct mode
+    [filename,permissions] = fopen(obj.file_id_);
+    if ismember(permissions,{'wb+','rb+'}) % nothing to do, already correct mode
         obj.full_filename = filename;
         return;
     end

@@ -136,7 +136,7 @@ classdef test_binfile_v2_common <  TestCase %WithSave
             tob=tob.set_file_to_update(samp);
 
             assertTrue(tob.sqw_type)
-            assertEqual(tob.num_dim,int32(1))
+            assertEqual(tob.num_dim,1)
             assertTrue(isa(tob,'faccess_sqw_v2'));
 
             tob = tob.delete();

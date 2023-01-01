@@ -5,14 +5,14 @@ function  obj= get_sqw_footer_(obj,varargin)
 %
 %
 %
-[ok,mess,init_for_upgrade] = parse_char_options(varargin,{'-upgrade'});
+[ok,mess,init_for_upgrade,for_update] = parse_char_options(varargin,{'-upgrade','-update'});
 if ~ok
     error('HORACE:faccess_sqw_v3:invalid_argument',mess);
 end
 
 obj = get_sqw_file_footer(obj);
 %
-if ~init_for_upgrade
+if ~(init_for_upgrade||for_update)
     obj.full_filename = fopen(obj.file_id_);
 end
 

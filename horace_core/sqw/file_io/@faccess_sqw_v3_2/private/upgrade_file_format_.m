@@ -18,8 +18,7 @@ if isempty(missing) % source and target are the same class. Invoke copy construc
     return;
 end
 [~,acc] = fopen(obj.file_id_);
-if ~ismember(acc,{'wb+','rb+'})
-    clear new_obj.file_closer_;  % as file is closed on output of reopen to write
+if ~ismember(acc,{'wb+','rb+'})    
     new_obj = new_obj.fclose();  % in case the previous does not work, and if it does, makes no harm
     new_obj = new_obj.set_file_to_update();
 end

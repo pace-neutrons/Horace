@@ -208,7 +208,7 @@ classdef sqw_formats_factory < handle
                 return
             end
             if ischar(varargin{1})
-                the_type = varargin{2};
+                the_type = varargin{1};
             else
                 [the_type,orig_type] = sqw_formats_factory.get_sqw_type(varargin{1});
                 if strcmp(the_type,'none') % assume sqw

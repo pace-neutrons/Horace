@@ -32,8 +32,7 @@ if other_obj.file_id_>0
         obj = open_obj_file(obj,file,'rb');
     end
 else
-    obj.filename_ = other_obj.filename;
-    obj.filepath_ = other_obj.filepath;
+    obj.full_filename = other_obj.full_filename;
 end
 if keep_internals
     return;
@@ -49,14 +48,12 @@ obj.convert_to_double_ = other_obj.convert_to_double_;
 
 function obj= open_obj_file(obj,file,mode)
 % open object's file with appropriate access rights.
-[fp,fn,fe] = fileparts(file);
-obj.filename_ = [fn,fe];
-obj.filepath_ = [fp,filesep];
+obj.full_filename = file;
 obj.file_id_ = fopen(file,mode);
 if obj.file_id_ <= 0
     error('SQW_FILE_IO:io_error',...
         'Can not open file %s in %s mode',file,mode)
 end
 if isempty(obj.file_closer_)
-    %obj.file_closer_ = onCleanup(@()obj.fclose());
+    obj.file_closer_ = onCleanup(@()obj.fclose());
 end
