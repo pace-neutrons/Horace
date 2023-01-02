@@ -178,6 +178,8 @@ classdef binfile_v4_common < horace_binfile_interface
         end
         function obj = compress_file(obj)
             % not yet implemented
+            warning('HORACE:binfile_v4_common:not_implemented', ...
+                'binary file compression have not been implemented yet')
         end
 
     end
@@ -197,6 +199,17 @@ classdef binfile_v4_common < horace_binfile_interface
         % of the one class into another including opening the
         % corresponding file with the same access rights
         [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
+        %
+        function   obj_type = get_format_for_object(~)
+            % main part of the format_for_object getter, specifying for
+            % what class saving the file format is intended
+            obj_type = 'dnd';
+        end
+        function obj = do_class_dependent_changes(obj,~)
+            % this function takes this file accessor and modify it with
+            % data necessary to access file with new file accessor
+            %
+        end
     end
     methods(Abstract,Access=protected)
         % return the list of (non-iniialized) data blocks, defined for
@@ -211,7 +224,7 @@ classdef binfile_v4_common < horace_binfile_interface
         num_dims_to_save;
     end
 
-    properties(Constant,Access=private,Hidden=true)
+    properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         fields_to_save_ = {'full_filename','num_dims_to_save','bat'};

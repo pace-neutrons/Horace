@@ -1,9 +1,9 @@
-function obj = put_app_header(obj)
+function obj = put_app_header(obj,varargin)
 % store binary data block, which describes object as sqw or dnd object
 obj=obj.check_obj_initated_properly();
 %
 % store sqw file header
-head = obj.build_app_header();
+head = obj.build_app_header(varargin{:});
 %
 head_form = obj.app_header_form_;
 

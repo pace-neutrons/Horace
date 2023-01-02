@@ -62,11 +62,14 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
     %
 
     %
-    methods(Access=protected,Hidden=true)
+    methods(Access=protected)
         function ver = get_faccess_version(~)
             % retrieve sqw-file version the particular loader works with
             ver = 3.2;
         end
+        % Method does class dependent changes while updating from sqw file
+        % format v3.2 to file format version 3.21
+        new_obj = do_class_dependent_changes(obj,new_obj);
     end
     %
     %
@@ -101,17 +104,14 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
             % set up fields, which define appropriate file version
             obj = obj@faccess_sqw_v3(varargin{:});
         end
-
-        %
-        function new_obj = upgrade_file_format(obj,varargin)
-            % upgrade the file to recent write format and open this file
-            % for writing/updating
-            %
-            % The operation upgrades format 3.2 to format 3.21, containing
-            % pix_range information
-            new_obj = upgrade_file_format_(obj,varargin{:});
+    end
+    methods(Access=protected)
+        function   obj_type = get_format_for_object(~)
+            % main part of the format_for_object getter, specifying for
+            % what class saving the file format is intended
+            obj_type = 'sqw2';
         end
-        %
+
     end
     methods(Static,Hidden=true)
         function header = get_header_form(varargin)

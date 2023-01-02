@@ -221,6 +221,16 @@ classdef binfile_v2_common < horace_binfile_interface
         function is_sqw = get_sqw_type(~)
             is_sqw = false;
         end
+        function   obj_type = get_format_for_object(~)
+            % main part of the format_for_object getter, specifying for
+            % what class saving the file format is intended
+            obj_type = 'dnd';
+        end
+        function new_obj = do_class_dependent_changes(~,new_obj,varargin)
+            % method does nothing for modern file format and defined here
+            % to support modern file format for recent v3 files
+            %
+        end
     end
     % ACCESSORS AND CONSTRUCTOR
     methods
@@ -277,7 +287,7 @@ classdef binfile_v2_common < horace_binfile_interface
                 if file_exist
                     obj.upgrade_headers_ = false;
                 else
-                    obj.upgrade_headers_ = true;                    
+                    obj.upgrade_headers_ = true;
                     return;
                 end
             end

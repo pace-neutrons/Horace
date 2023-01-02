@@ -120,9 +120,6 @@ classdef sqw_file_interface < binfile_v2_common
         % extended interface:
         obj = put_instruments(obj,varargin);
         obj = put_samples(obj,varargin);
-        % upgrade current sqw file to recent file format. May change the
-        % sqw file and always opens it in write mode.
-        new_obj = upgrade_file_format(obj,varargin);
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

@@ -11,19 +11,22 @@ function [dnd_obj,obj] = get_dnd(obj,varargin)
 %
 % Optional: (different keys provided as input):
 % ------
-% '-hverbatim'    The file name as stored in the main_header and
-%                 data sections are returned as stored, not set
-%                 to be from the current file name.
-
-% '-head'         Return only dnd_methadata, no data blocks retrieved
-%                 equivalent to get_dnd_metadata;
-% '-verbatim'
+% '-hverbatim'   The file name as stored in the main_header and
+%                data sections are returned as stored, not set
+%                to be from the current file name.
+% '-head'        Return only dnd_methadata, no data blocks retrieved
+%                equivalent to get_dnd_metadata;
+% '-verbatim'    do not modify filepath to the current file path, but
+%                return it as it has been stored on hdd
 % '-noclass'     Do not return dnd object but return the structure of the
 %                correspondent object
 %
 % Output:
 % -------
-%   dnd object of appropriate dimensions or the structure of this object
+% dnd_obj  --   dnd object of appropriate dimensions
+%       or  -   the structure of dnd object
+%       or  -   dnd object metadata class
+%       or  -   dnd object metadata structure
 %
 
 %

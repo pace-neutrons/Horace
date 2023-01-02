@@ -211,11 +211,9 @@ classdef faccess_dnd_v4 < binfile_v4_common
             % format and false otherwise
             is_sqw = false;
         end
-        function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
-            % the main part of the copy constructor, copying the contents
-            % of the one class into another including opening the
-            % corresponding file with the same access rights
-            error('Not Implemented yet');
-        end
+        %
+        obj = do_class_dependent_changes(obj,other_obj)
     end
+    %======================================================================
+    % SERIALIZABLE INTERFACE FULLY INHERITED FROM binfile_v4_common    
 end

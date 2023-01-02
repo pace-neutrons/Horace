@@ -90,7 +90,7 @@ classdef sqw_binfile_common < sqw_file_interface
             obj = init_from_sqw_obj@binfile_v2_common(obj,varargin{:});
             obj.sqw_holder_ = sqw_obj;
 
-            obj = init_pix_info_(obj);
+            obj = init_pix_info_(obj);            
         end
         %
         function obj=init_from_sqw_file(obj,varargin)
@@ -112,7 +112,7 @@ classdef sqw_binfile_common < sqw_file_interface
             bl_map  = obj.const_block_map_;
         end
         %
-        function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
+        function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals,varargin)
             % the main part of the copy constructor, copying the contents
             % of the one class into another.
             %
@@ -122,7 +122,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % keep_internals -- if true, do not overwrite service fields
             %                   not related to position information
             %
-            if ~exist('keep_internals','var')
+            if ~exist('keep_internals','var') || ischar(keep_internals)
                 keep_internals = false;
             end
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
@@ -164,6 +164,12 @@ classdef sqw_binfile_common < sqw_file_interface
             % format and false otherwise
             is_sqw = true;
         end
+        function   obj_type = get_format_for_object(~)
+            % main part of the format_for_object getter, specifying for
+            % what class saving the file format is intended
+            obj_type = 'sqw';
+        end        
+        
     end % end protected
     %
     methods % defined by this class

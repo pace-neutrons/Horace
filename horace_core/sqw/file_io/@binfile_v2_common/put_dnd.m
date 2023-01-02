@@ -22,11 +22,10 @@ if ~isempty(argi)
         error('HORACE:binfile_v2_common:invalid_artgument',...
             'put_sqw: this function can accept only sqw or dnd-type object, and got %s', class(input))
     end
-    storage = obj.sqw_holder_;
     if isa(input,'sqw')
-        obj.sqw_holder = input.data;
+        to_store  = input.data;
     else
-        obj.sqw_holder = input;
+        to_store  = input;
     end
     if numel(argi) > 1
         argi = argi{2:end};
@@ -34,7 +33,7 @@ if ~isempty(argi)
         argi = {};
     end
 else
-    storage  = [];
+    to_store  = [];
 end
 
 %
@@ -46,14 +45,14 @@ if update
     argi{end+1} = '-update';
 end
 
-obj=obj.put_app_header();
+obj=obj.put_app_header(to_store);
 
 % write dnd image metadata
 obj=obj.put_dnd_metadata(argi{:});
 % write dnd image data
 obj=obj.put_dnd_data(argi{:});
 %
-if ~isempty(storage)
-    obj.sqw_holder_ = storage;
+if ~isempty(to_store) && isempty(obj.sqw_holder_)
+    obj.sqw_holder_ = to_store;
 end
 

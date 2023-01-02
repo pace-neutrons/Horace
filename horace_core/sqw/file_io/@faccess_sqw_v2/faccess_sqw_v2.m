@@ -57,7 +57,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     %
     properties(Access = protected)
     end
-    methods(Access=protected,Hidden=true)
+    methods(Access=protected)
         function obj = put_sqw_footer(obj)
             % does nothing as v3 does not have sqw footer
         end
@@ -65,6 +65,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             % retrieve sqw-file version the particular loader works with
             ver = 2;
         end
+        new_obj = do_class_dependent_changes(obj,new_obj);
     end
 
     methods
@@ -123,10 +124,6 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             [should,objinit,mess] = should_load_stream@horace_binfile_interface(obj,header,fid);
         end
         %
-        function new_obj = upgrade_file_format(obj,varargin)
-            % Upgrade file from format 2 to current preferred file format
-            new_obj = upgrade_file_format_(obj);
-        end
     end
     %==================================================================
     % SERIALIZABLE INTERFACE
