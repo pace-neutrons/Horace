@@ -27,6 +27,7 @@ if ~isempty(argi)
     else
         to_store  = input;
     end
+    obj.sqw_holder_ = to_store;
     if numel(argi) > 1
         argi = argi{2:end};
     else
