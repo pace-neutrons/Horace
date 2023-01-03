@@ -124,12 +124,16 @@ classdef faccess_dnd_v4 < binfile_v4_common
                 filename = obj.full_filename;
             end
             [obj,file_exist,old_ldr] = set_file_to_update@horace_binfile_interface(obj,filename,nargout);
+            if old_ldr.sqw_type
+                error('HORACE:faccess_dnd_v4:invalid_argument', ...
+                    'Can not update file %s containing full sqw object using dnd accessor', ...
+                    filename)
+            end
             if file_exist && old_ldr.faccess_version ~= obj.faccess_version
                 dnd_obj = old_ldr.get_dnd();
                 obj.sqw_holder = dnd_obj;
                 obj = obj.put_dnd();
-            else
-                old_ldr.delete();
+                old_ldr.delete();                
             end
         end
     end
@@ -211,9 +215,7 @@ classdef faccess_dnd_v4 < binfile_v4_common
             % format and false otherwise
             is_sqw = false;
         end
-        %
-        obj = do_class_dependent_changes(obj,other_obj)
     end
     %======================================================================
-    % SERIALIZABLE INTERFACE FULLY INHERITED FROM binfile_v4_common    
+    % SERIALIZABLE INTERFACE FULLY INHERITED FROM binfile_v4_common
 end

@@ -21,9 +21,6 @@ classdef binfile_v4_common < horace_binfile_interface
                 obj = obj.init(varargin{:});
             end
         end
-        function nd = get.num_dims_to_save(obj)
-            nd = obj.num_dim_;
-        end
         function bt = get.bat(obj)
             bt = obj.bat_;
         end
@@ -142,6 +139,7 @@ classdef binfile_v4_common < horace_binfile_interface
             end
             [obj,set_obj]  = get_sqw_block_(obj,block_name_or_class);
         end
+        %
         function obj = put_sqw_block(obj,block_name_or_class,varargin)
             % store modified particular sqw sub-object data block within the
             % sqw object binary records on hdd
@@ -176,12 +174,12 @@ classdef binfile_v4_common < horace_binfile_interface
                 obj  = put_sqw_block_(obj,block_name_or_class);
             end
         end
+        %
         function obj = compress_file(obj)
             % not yet implemented
             warning('HORACE:binfile_v4_common:not_implemented', ...
                 'binary file compression have not been implemented yet')
         end
-
     end
     %======================================================================
     methods(Access=protected)
@@ -205,10 +203,12 @@ classdef binfile_v4_common < horace_binfile_interface
             % what class saving the file format is intended
             obj_type = 'dnd';
         end
-        function obj = do_class_dependent_changes(obj,~)
+        function obj = do_class_dependent_updates(obj,~)
             % this function takes this file accessor and modify it with
             % data necessary to access file with new file accessor
             %
+            % Currently this form does nothing as v4 is recent binary 
+            % file format
         end
     end
     methods(Abstract,Access=protected)
@@ -218,11 +218,6 @@ classdef binfile_v4_common < horace_binfile_interface
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
-    properties(Hidden=true)
-        % accessor to number of dimensions, hidden for use with
-        % serializable only
-        num_dims_to_save;
-    end
 
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
@@ -230,7 +225,7 @@ classdef binfile_v4_common < horace_binfile_interface
         fields_to_save_ = {'full_filename','num_dims_to_save','bat'};
     end
 
-    methods
+    methods                
         function strc = to_bare_struct(obj,varargin)
             % Return default implementation from serializable as
             % binfile version overloads it to support expose of protected

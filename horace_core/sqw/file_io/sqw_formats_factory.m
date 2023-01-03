@@ -45,14 +45,14 @@ classdef sqw_formats_factory < handle
             faccess_sqw_v3_2(), ...
             faccess_sqw_prototype()};
         %
-        % Rules for saving different classes:
-        %
+        % Rules for saving different classes, defines the preferred loader 
+        % for saving the class from the list:
         % sqw2 corresponds to sqw file in indirect mode with efixed beeing
         % array
         written_types_ = {'DnDBase','sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders above to use for saving
         % correspondent class
-        access_to_type_ind_ = {1,2,4,6,6,6,6,6,6};
+        access_to_type_ind_ = {1,2,4,1,1,1,1,1,1};
         types_map_ ;
     end
     properties(Dependent)

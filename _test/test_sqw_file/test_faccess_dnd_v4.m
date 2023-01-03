@@ -10,14 +10,6 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
         this_dir
     end
     methods(Static)
-        function sz = fl_size(filename)
-            fh = fopen(filename,'rb');
-            p0 = ftell(fh);
-            fseek(fh,0,'eof');
-            p1 = ftell(fh);
-            sz = p1-p0;
-            fclose(fh);
-        end
         function fcloser(fid)
             if fid>0
                 fn = fopen(fid);
@@ -46,36 +38,37 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
         end
         %------------------------------------------------------------------
         % tests
-%         function obj = test_upgrade_file_format(obj)
-%             source = obj.sample_file;
-%             sample  = fullfile(tmp_dir,'faccess_dnd_v4_upgrade_ff.sqw');
-%             copyfile(source,sample,'f');
-%             clOb = onCleanup(@()delete(sample));
-% 
-% 
-%              = faccess_dnd_v4();
-%             facc = facc.set_file_to_update(sample);
-% 
-%             dnd_meta = facc.get_dnd_metadata();
-%             dnd_meta.title = 'my belowed data';
-%             facc = facc.put_dnd_metadata(dnd_meta);
-% 
-%             dnd_dat = facc.get_dnd_data();
-%             dnd_dat.sig(1:10) = 1:10;
-%             facc = facc.put_dnd_data(dnd_dat);
-%             facc.delete();
-% 
-%             % need to use other file name as the previous deleter have not
-%             % been worked yet
-%             facc1 = faccess_dnd_v4(sample);
-%             up_data = facc1.get_dnd('-ver');
-%             facc1.delete();
-% 
-%             ref_data = DnDBase.dnd(dnd_meta,dnd_dat);
-% 
-%             assertEqualToTol(up_data,ref_data,'-ignore_date')
-%         end
-        
+        function test_set_file_to_update_fails_on_sqw(obj)
+            source = fullfile(obj.sample_dir,'w1d_sqw.sqw');
+
+            function ldr=f_checker(ldr,source)
+                ldr = ldr.set_file_to_update(source);
+            end
+
+            ldr = faccess_dnd_v4();
+            assertExceptionThrown(@()f_checker(ldr,source), ...
+                'HORACE:faccess_dnd_v4:invalid_argument');
+        end
+
+        function obj = test_upgrade_file_format(obj)
+            source = obj.sample_file;
+            sample  = fullfile(tmp_dir,'faccess_dnd_v4_upgrade_ff.sqw');
+            copyfile(source,sample,'f');
+            clOb = onCleanup(@()delete(sample));
+
+            ldr = sqw_formats_factory.instance().get_loader(sample);
+            d2d1 = ldr.get_dnd();
+
+            ldr = ldr.upgrade_file_format();
+
+            assertTrue(isa(ldr,'faccess_dnd_v4'));
+
+            d2d2 = ldr.get_dnd();
+            ldr.delete();
+
+            assertEqualToTol(d2d1,d2d2,1.e-12,'-ignore_date')
+        end
+
         function obj = test_should_load_stream(obj)
             sample = fullfile(obj.this_dir,'faccess_dnd_v4_sample.sqw');
             to = faccess_dnd_v4();
@@ -148,6 +141,25 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
             assertTrue(isprop(data.axes,'img_range'));
 
         end
+        function test_faccess_dnd_v4_other_get_methods(obj)
+            source = fullfile(obj.this_dir,'faccess_dnd_v4_sample.sqw');            
+            facc = faccess_dnd_v4(source);
+
+            dobj  = facc.get_sqw();
+            assertTrue(isa(dobj,'d2d'));
+
+            sen = facc.get_se_npix();
+
+            ins = facc.get_instrument();
+
+            sam = facc.get_sample();
+
+            pr =  facc.get_pix_range();
+
+            idb = facc.get_img_db_range();
+            
+        end
+        
         %
         function obj = test_get_put_blocks(obj)
             source = fullfile(obj.this_dir,'faccess_dnd_v4_sample.sqw');
@@ -263,7 +275,6 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
             f_reader.delete();
 
             assertEqual(sample_dnd,rec_dnd);
-
         end
         %
         function test_get_dnd_v4(obj)

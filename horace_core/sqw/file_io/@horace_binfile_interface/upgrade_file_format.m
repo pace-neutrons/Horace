@@ -13,12 +13,12 @@ end
 if isempty(missing) % source and target are the same class. Invoke copy constructor only
     return;
 end
-acc = obj.io_mode;
+acc = new_obj.io_mode;
 if ~ismember(acc,{'wb+','rb+'})
     new_obj = new_obj.fclose();  % in case the previous does not work, and if it does, makes no harm
-    new_obj = new_obj.set_file_to_update();
 end
+new_obj = new_obj.set_file_to_update();
 
-new_obj = obj.do_class_dependent_changes(new_obj,varargin{:});
+new_obj = obj.do_class_dependent_updates(new_obj,varargin{:});
 %
 new_obj = new_obj.put_app_header();

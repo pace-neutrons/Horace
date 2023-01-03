@@ -4,12 +4,16 @@ function   [obj,missinig_fields] = copy_contents(obj,other_obj,varargin)
 % corresponding file with the same access rights
 %
 
+% leave argi unused to ignore unknown fields
 [ok,mess,write_mode,argi] = parse_char_options(varargin,'-write_mode');
 if ~ok
     error('HORACE:binfile_v4_common:invalid_argument',mess)
 end
 
+% fields the other object need to define to be valid
 flds = obj.saveableFields();
+
+% appropriate object
 n_flds = numel(flds);
 missinig_fields = {};
 
@@ -25,6 +29,7 @@ end
 obj.do_check_combo_arg = true;
 obj = obj.check_combo_arg();
 %
+%
 facc_mode = other_obj.io_mode;
 if write_mode && strcmp(facc_mode,'rb')
     facc_mode = 'rb+';
@@ -32,12 +37,11 @@ end
 
 if ~(isempty(facc_mode) && isempty(obj.full_filename))
     %
-    obj.file_id_ = fopen(obj,facc_mode);
+    obj.file_id_ = fopen(obj.full_filename,facc_mode);
     if obj.file_id_ == -1
         error('HORACE:bifile_v4_common:runtime_error',...
             'Can not open file %s in mode %s', ...
             obj.full_filename,facc_mode);
     end
-else
-    return;
+
 end

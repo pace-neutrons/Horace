@@ -69,7 +69,7 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
         end
         % Method does class dependent changes while updating from sqw file
         % format v3.2 to file format version 3.21
-        new_obj = do_class_dependent_changes(obj,new_obj);
+        new_obj = do_class_dependent_updates(obj,new_obj);
     end
     %
     %

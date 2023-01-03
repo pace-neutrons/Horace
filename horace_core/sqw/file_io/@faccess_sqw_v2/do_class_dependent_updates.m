@@ -1,4 +1,4 @@
-function new_obj = do_class_dependent_changes(obj,new_obj)
+function new_obj = do_class_dependent_updates(obj,new_obj)
 % do modifications, necessary to upgrade file format 2 to file format 3.3
 
 % file format 3 specific part---------------------------------------------

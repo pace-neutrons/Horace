@@ -355,7 +355,7 @@ classdef horace_binfile_interface < serializable
         obj_type = get_format_for_object(obj);
         % main part of upgrade file format, which conputes and transforms missing
         % properties from old file format to the new file format
-        new_obj = do_class_dependent_changes(new_obj,old_obj);
+        new_obj = do_class_dependent_updates(new_obj,old_obj);
     end
     methods(Static) % helper methods used for binary IO
         function move_to_position(fid,pos)
@@ -411,7 +411,28 @@ classdef horace_binfile_interface < serializable
         fields_to_save_ = {'filename_';'filepath_';...
             'num_dim_'};
     end
+    properties(Dependent,Hidden=true)
+        % accessor to number of dimensions, hidden for use with
+        % serializable only and used by faccess_v4 to save/restore num_dim
+        % as old faccess_v<4 use protected "num_dim_" property
+        num_dims_to_save;
+    end
+
     methods % to satisfy serializable interface
+        function nd = get.num_dims_to_save(obj)
+            nd = obj.num_dim_;
+        end
+        function obj = set.num_dims_to_save(obj,val)
+            if ~(isnumeric(val) && (val>-1 && val<5))
+                if ~((ischar(val)||isstring(val))&&strcmp(val,'undefined'))
+                    error('HORACE:horace_binfile_interface:invalid_argument', ...
+                        'num_dim variable can be only number in the range [0:5]. It is: %s', ...
+                        disp2str(val));
+                end
+            end
+            obj.num_dim_ = val;
+        end
+
         function strc = to_bare_struct(obj,varargin)
             flds = horace_binfile_interface.fields_to_save_;
             cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);

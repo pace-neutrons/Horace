@@ -226,9 +226,12 @@ classdef binfile_v2_common < horace_binfile_interface
             % what class saving the file format is intended
             obj_type = 'dnd';
         end
-        function new_obj = do_class_dependent_changes(~,new_obj,varargin)
-            % method does nothing for modern file format and defined here
-            % to support modern file format for recent v3 files
+        function new_obj = do_class_dependent_updates(~,new_obj,varargin)
+            % method does nothing for modern file format as all changes have been done 
+            % elsewhere.
+            % 
+            % Also it is used for supporting modern file format for recent 
+            % format v3 files and these files do not change
             %
         end
     end

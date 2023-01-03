@@ -88,12 +88,6 @@ classdef binfile_v4_common_tester < binfile_v4_common
                     data_block('','level2_b'),dnd_data_block(),data_block('','level2_c')};
             end
         end
-        function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
-            % the main part of the copy constructor, copying the contents
-            % of the one class into another including opening the
-            % corresponding file with the same access rights
-            error('Not Implemented yet');
-        end
     end
 end
 
