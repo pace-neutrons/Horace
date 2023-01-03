@@ -149,14 +149,22 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
             assertTrue(isa(dobj,'d2d'));
 
             sen = facc.get_se_npix();
+            assertTrue(isstruct(sen))
+            assertEqual(dobj.s,sen.s)
+            assertEqual(dobj.e,sen.e)            
+            assertEqual(dobj.npix,sen.npix)            
 
             ins = facc.get_instrument();
+            assertEqual(ins,IX_null_inst);
 
             sam = facc.get_sample();
+            assertTrue(isa(sam,'IX_samp'));
 
             pr =  facc.get_pix_range();
+            assertTrue(isempty(pr));
 
             idb = facc.get_img_db_range();
+            assertEqual(idb,dobj.img_range);
             
         end
         

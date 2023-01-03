@@ -120,6 +120,10 @@ classdef faccess_dnd_v4 < binfile_v4_common
 
         %
         function [obj,file_exist,old_ldr] = set_file_to_update(obj,filename)
+            % open existing file for update its format and/or data blocks
+            % stored in it.
+            % Inputs:
+            %
             if ~exist('filename','var')
                 filename = obj.full_filename;
             end
@@ -133,7 +137,7 @@ classdef faccess_dnd_v4 < binfile_v4_common
                 dnd_obj = old_ldr.get_dnd();
                 obj.sqw_holder = dnd_obj;
                 obj = obj.put_dnd();
-                old_ldr.delete();                
+                old_ldr.delete();
             end
         end
     end
@@ -143,10 +147,12 @@ classdef faccess_dnd_v4 < binfile_v4_common
         function dt = get.data_type(obj)
             dt = get_data_type(obj);
         end
-        [inst,obj]  = get_instrument(obj,varargin); % return instrument stored with sqw file or empty structure if
-        %                                             nothing is stored. Always empty for dnd objects.
-        [samp,obj]  = get_sample(obj,varargin);   % return sample stored with sqw file or empty structure if
-        %                                           nothing is stored. Always empty for dnd objects.
+        [inst,obj]  = get_instrument(obj,varargin); % return instrument
+        % stored with sqw file or IX_null_inst if nothing is stored.
+        % Always IX_null_inst for dnd objects.
+        [samp,obj]  = get_sample(obj,varargin);     % return sample stored
+        % with sqw file or IX_samp containing lattice only if nothing is
+        % stored. Always IX_samp for dnd objects
         function [sqw_obj,varargout] = get_sqw(obj,varargin)
             % retrieve the whole sqw or dnd object from properly initialized sqw file
             if nargout > 1
@@ -188,12 +194,12 @@ classdef faccess_dnd_v4 < binfile_v4_common
             % get [2x4] array of min/max ranges of the image where pixels
             % are rebinned into
             ds = obj.get_dnd_metadata();
-            img_db_range  = ds.img_range;
+            img_db_range  = ds.axes.img_range;
         end
         function [data_str,obj] = get_se_npix(obj,varargin)
             % get only dnd image data, namely s, err and npix
             data_dnd = obj.get_dnd_data(varargin{:});
-            data_str = struct('s',data_dnd.signal,'e',data_dnd.error, ...
+            data_str = struct('s',data_dnd.sig,'e',data_dnd.err, ...
                 'npix',data_dnd.npix);
         end
     end

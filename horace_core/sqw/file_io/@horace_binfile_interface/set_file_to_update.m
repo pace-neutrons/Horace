@@ -62,10 +62,12 @@ if nargin>1
             end
         end
     end
-else % reopening existing file with old name
+else % reopening existing file with old name. Not used by new file format (after 01/01/2023)
+    % still may be used by previous file formatters
     if isempty(obj.filename)
         error('HORACE:horace_binfile_interface:invalid_argument',...
-            'Trying to reopen existing file for writing but its filename is empty')
+            'Trying to reopen loader %s-defined file for writing but loader"s filename is empty', ...
+            class(obj))
     end
     new_filename  = obj.full_filename;
     if obj.file_id_ > 0
@@ -94,7 +96,6 @@ if file_exist
         obj.file_closer_ = [];
         clear obj;
         obj = old_ldr.reopen_to_write(); %already selected as best for this file by loaders factory
-        %old_ldr = obj; % this closes the file, just opened above
         return
     end
     perm = 'rb+';
