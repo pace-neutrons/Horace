@@ -280,7 +280,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         %
         function val = get.npix(obj)
-            val = obj.npix_;
+            val = double(obj.npix_);
         end
         function obj = set.npix(obj, npix)
             if any(npix(:)<0)
