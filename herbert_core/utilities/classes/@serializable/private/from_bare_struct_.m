@@ -41,6 +41,9 @@ for i=1:nobj
     obj_in{i} = obj(i).check_combo_arg();
 end
 obj = [obj_in{:}];
+if nobj > 1
+    obj = reshape(obj,size(inputs));
+end
 
 end % function from_bare_struct_
 %
