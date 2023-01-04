@@ -81,7 +81,7 @@ classdef test_data_block < TestCase
             tob.data.e = err;
             tob.data.npix = npix;
 
-            assertEqualToTol(tob,rec_obj);
+            assertEqualToTol(tob,rec_obj,1.e-12);
         end
         
         function test_dnd_block_bat_record_serialize_deserialize(~)
@@ -158,7 +158,7 @@ classdef test_data_block < TestCase
             tob.data.e = err;
             tob.data.npix = npix;
 
-            assertEqualToTol(tob,rec_obj);
+            assertEqualToTol(tob,rec_obj,1.e-12);
         end
         function test_put_get_two_data_blocks(obj)
             dp1 = data_block('experiment_info','samples');

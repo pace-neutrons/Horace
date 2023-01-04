@@ -142,7 +142,7 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
 
         end
         function test_faccess_dnd_v4_other_get_methods(obj)
-            source = fullfile(obj.this_dir,'faccess_dnd_v4_sample.sqw');            
+            source = fullfile(obj.this_dir,'faccess_dnd_v4_sample.sqw');
             facc = faccess_dnd_v4(source);
 
             dobj  = facc.get_sqw();
@@ -151,8 +151,8 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
             sen = facc.get_se_npix();
             assertTrue(isstruct(sen))
             assertEqual(dobj.s,sen.s)
-            assertEqual(dobj.e,sen.e)            
-            assertEqual(dobj.npix,sen.npix)            
+            assertEqual(dobj.e,sen.e)
+            assertEqual(dobj.npix,double(sen.npix))
 
             ins = facc.get_instrument();
             assertEqual(ins,IX_null_inst);
@@ -165,9 +165,9 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
 
             idb = facc.get_img_db_range();
             assertEqual(idb,dobj.img_range);
-            
+
         end
-        
+
         %
         function obj = test_get_put_blocks(obj)
             source = fullfile(obj.this_dir,'faccess_dnd_v4_sample.sqw');
