@@ -24,7 +24,7 @@ classdef data_block < serializable
     end
     properties(Dependent,Hidden)
         % return class name -- property, used for serialization into BAT
-        % structure. Hidden not to polute main class interface
+        % structure. Hidden not to pollute main class interface
         serial_name;
         % the format used to serialize class into BAT record,
         bat_format;
@@ -46,7 +46,7 @@ classdef data_block < serializable
     methods
         function [obj,sqw_obj_to_set] = get_sqw_block(obj,fid,sqw_obj_to_set)
             % Read sub-block binary information from sqw object on HDD and
-            % set this subobject to the proper field of the input sqw
+            % set this sub-object to the proper field of the input sqw
             % object.
             bindata = obj.get_bindata_from_file(fid);
             try
@@ -82,7 +82,7 @@ classdef data_block < serializable
             if isa(bindata,'uint8')
                 if (numel(bindata) > obj.size)
                     error('HORACE:data_block:runtime_error',...
-                        'Precalculated block size %d differs from obtained block size %d. Binary file will be probably corrupted',...
+                        'Pre-calculated block size %d differs from obtained block size %d. Binary file will be probably corrupted',...
                         obj.block_size,numel(bindata))
                 else
                     obj.size_=numel(bindata);
@@ -94,13 +94,14 @@ classdef data_block < serializable
             end
         end
         function obj = calc_obj_size(obj,sqw_obj,nocache)
-            % caclculate size of the serialized object and put the
+            % calculate size of the serialized object and put the
             % serialized object into data cache for subsequent put
             % operation(s)
-            % If nocache variable is provided, do not serialize object
-            % to put it into the cache before evaluating its size
-            % but use serializable.serial_size method to find the object
-            % size
+            % If the "nocache" variable is provided and is true
+            % do not serialize object for evaluating its size
+            % and placing it into the cache for further usage
+            % but use serializable.serial_size method to find
+            % the object size
             if exist('nocache','var')
                 if ~(islogical(nocache))
                     nocache = logical(nocache);
@@ -132,7 +133,7 @@ classdef data_block < serializable
             % Generic value extractor, valid for majority of the sqw object
             % sub-objects we may want to extract.
             % If input is not a SQWDnDBase object, it is expected that the
-            % necessary subobject is provided as input
+            % necessary sub-object is provided as input
             subobj = get_subobj_(obj,sqw_dnd_obj);
         end
         function sqw_dnd_obj = set_subobj(obj,sqw_dnd_obj,part_to_set)
@@ -169,8 +170,8 @@ classdef data_block < serializable
             % Returns:
             % bindata  -- unit8 array of the data read from file.
             %
-            % Eroror: HORACE:data_block:io_error is thrhown in case of problem with
-            %         redading data files
+            % Eroror: HORACE:data_block:io_error is thrown in case of problem with
+            %         reading data files
             bindata = get_bindata_from_file_(obj,fid);
         end
 
@@ -191,7 +192,7 @@ classdef data_block < serializable
                     fldNames,false,varargin{:});
                 if ~isempty(remains)
                     error('HORACE:data_block:invalid_argument', ...
-                        'Unrecognized properties/values are provided to the block constructor %s',...
+                        'Unrecognised properties/values are provided to the block constructor %s',...
                         disp2str(remains));
                 end
             end
@@ -251,16 +252,16 @@ classdef data_block < serializable
     end
     methods(Access=protected)
         function move_to_position(obj,fid,pos)
-            % move write point to the position, specified by class
+            % move read or write point to the position, specified by class
             % properties.
             %
             % Inputs:
             % obj  -- initialized instance of data_block,
             %
             % Optional:
-            % pos -- specify potition to move as input argument
+            % pos -- specify position to move as input argument
             %
-            % Throw, HORACE:data_block:io_error if the movement have not sucseeded.
+            % Throw, HORACE:data_block:io_error if the movement have not succeeded.
             %
             if nargin<3
                 pos = [];
@@ -268,7 +269,7 @@ classdef data_block < serializable
             move_to_position_(obj,fid,pos);
         end
         function check_write_error(obj,fid,add_info)
-            % check if write operation have completed sucsesfully.
+            % check if write operation have completed successfully.
             %
             % Throw HORACE:data_block:io_error if there were write errors.
             %
@@ -280,7 +281,7 @@ classdef data_block < serializable
             check_write_error_(obj,fid,add_info);
         end
         function check_read_error(obj,fid,add_info)
-            % check if read operation have completed sucsesfully.
+            % check if read operation have completed successfully.
             %
             % Throw HORACE:data_block:io_error if there were read errors.
             %
@@ -315,7 +316,7 @@ classdef data_block < serializable
             % bindata -- array of uint8 elements containing serialized
             %            information to recover
             % Optional:
-            % pos     -- the position of data to revover in the input
+            % pos     -- the position of data to recover in the input
             %            array. If missing, assumed that the data are
             %            located at the beginning of the array
             if ~exist('pos','var')

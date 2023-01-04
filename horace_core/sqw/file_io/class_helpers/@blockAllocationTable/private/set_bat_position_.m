@@ -1,6 +1,10 @@
 function obj = set_bat_position_(obj,val)
-% The body of block allocation table setter
-% containing validator and
+% The body of block allocation table setter.
+%
+% containing validator for the acceptable position value
+% and modifies the positions of the data blocks and free spaces blocks 
+% stored in the BAT to account for the changes in the BAT position.
+%
 if ~(isnumeric(val)&&isscalar(val)&&val>=0)
     error('HORACE:blockAllocationTable:invalid_argument', ...
         'Allocation block position should be defined by non-negative scalar. It is %s', ...

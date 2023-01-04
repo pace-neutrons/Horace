@@ -1,9 +1,11 @@
 classdef sqw_serializer
     % Helper class to serialize-deserialize sqw object's data
-    % using predefined format structures, provided by loader
+    % using predefined format structures, provided by faccess
+    % classes.
     %
-    %
-    %
+    % Used mainly by old sqw file formatters while more modern file formatters
+    % inherit serializable class and deploy separate Horace serializer.
+    % 
     properties(Constant,Access=private)
         base_classes_ = {'double','single','int8','uint8','int16','uint16',...
             'int32','uint32','int64','uint64','float64'};
@@ -63,12 +65,12 @@ classdef sqw_serializer
             %
             % Inputs:
             % format_struc
-            %        -- the structure, defining the way to analyze data
+            %        -- the structure, defining the way to analyse data
             %           the names of the structure fields represent the
-            %           names of the properies of class or structure to
+            %           names of the properties of class or structure to
             %           transform, and the types of values of these
             %           structures
-            % input  -- Data to analyze. Three types of input are possible:
+            % input  -- Data to analyse. Three types of input are possible:
             %          1) class or structure to serialize
             %          2) array of bytes
             %          3) the handle related to open binary file to read.
@@ -82,7 +84,7 @@ classdef sqw_serializer
             %             and values equal to calculated positions of these
             %             fields in stream
             % pos      -- first position after the all data positions
-            % eof      -- if input is filehandle, true when  positions
+            % eof      -- if input is file-handle, true when  positions
             %             calculated from stream and end of the stream
             %             reached before all format fields were processed.
             %          size_str in this case contains only the positions of
@@ -149,7 +151,11 @@ classdef sqw_serializer
     end
     methods
         function bytes = saveobj(~)
-            % no point to serialize or save this class
+            % no point to serialize or save this class as it does not
+            % contains any useful data. Just convert to bytes the name
+            % of the class and recover new instance of this class at
+            % deserialization.
+            %
             bytes = hlp_serialize('sqw_serializer');
         end
     end

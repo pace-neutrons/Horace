@@ -1,6 +1,6 @@
 classdef dnd_data_block < data_block
     % DND_DATA_BLOCK describes the binary data, corresponding to DnD object
-    % arrrays (extracted by  dnd_data class) and used for storing/restoring
+    % arrays (extracted by  dnd_data class) and used for storing/restoring
     % DnD object on HDD in a binary form.
     %
     % The special form of data_block binary data format is caused by need
@@ -8,11 +8,11 @@ classdef dnd_data_block < data_block
     %
     properties(Dependent)
         % properties defile the location of the appropriate arrays in
-        % binary file. The positions are defined in bytes and canuted from
-        % the begining of the file.
+        % binary file. The positions are defined in bytes and counted from
+        % the beginning of the file.
         sig_position;   % signal array position
         err_position;   % error array position
-        npix_position;  % npix array positio
+        npix_position;  % npix array position
     end
     properties(Access=protected)
         dimensions_=[]; % number dimensions, the dnd arrays have
@@ -49,7 +49,7 @@ classdef dnd_data_block < data_block
             end
         end
         function obj =calc_obj_size(obj,sqw_obj,varargin)
-            % Overloaded: -- caclculate size of the serialized object and
+            % Overloaded: -- calculate size of the serialized object and
             % put the serialized object into data cache for subsequent put
             % operation(s)
             subobj = obj.get_subobj(sqw_obj);
@@ -65,7 +65,7 @@ classdef dnd_data_block < data_block
     methods(Access=protected)
         %-----------------------------------------------------------------
         function obj = put_bindata_in_file(obj,fid,obj_data)
-            % Overloaded: -- store data containing in dnd_data_block class
+            % Overloaded: -- store data contained in dnd_data_block class
             % into binary file
             % Inputs:
             % fid      -- opened file handle
@@ -73,7 +73,7 @@ classdef dnd_data_block < data_block
             %
             % Returns:
             % obj      -- unchanged
-            % Eroror: HORACE:data_block:io_error is thrhown in case of
+            % Error:  HORACE:data_block:io_error is thrown in case of
             %         problem with writing data fields
             obj = put_bindata_in_file_(obj,fid,obj_data);
         end
@@ -88,8 +88,8 @@ classdef dnd_data_block < data_block
             % dnd_data_obj
             %          -- instance of dnd_data read from file.
             %
-            % Eroror: HORACE:data_block:io_error is thrhown in case of
-            %         problem with redading data fields
+            % Error: HORACE:data_block:io_error is thrown in case of
+            %         problem with reading data fields
             dnd_data_obj = get_bindata_from_file_(obj,fid);
         end
     end

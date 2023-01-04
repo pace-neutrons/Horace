@@ -1,5 +1,5 @@
 function check_read_error_(obj,fid,add_info)
-% check if write operation have completed sucsesfully.
+% check if read operation have completed successfully.
 % Throw HORACE:data_block:io_error if it has not
 
 try

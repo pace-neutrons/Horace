@@ -4,12 +4,14 @@ function [size_str,pos,err,template_struc] = calculate_positions_(obj,template_s
 %
 % Inputs:
 % format_struc
-%        -- the structure, defining the way to analyze data
-%           the names of the structure fields represent the
-%           names of the properies of class or structure to
-%           transform, and the types of values of these
-%           structures
-% input  -- Data to analyze. Three types of input are possible:
+%        -- the structure, defining the way to analyse data.
+%           The names of the structure' fields represent the
+%           names of the properties of class or structure to
+%           transform, and the values of these structure fields
+%           define the types and, as the consequence,
+%           the sizes of data containing in the stream.
+%
+% input  -- Data to analyse. Three types of input are possible:
 %          1) class or structure to serialize
 %          2) array of bytes
 %          3) the handle related to open binary file to read.
@@ -19,15 +21,17 @@ function [size_str,pos,err,template_struc] = calculate_positions_(obj,template_s
 %               provided, default is 0 if input/output is a file
 %               handle or 1 if it is sequence of bytes
 % Returns:
-% size_str -- the structure with the names of format_struc
+% size_str -- the structure with the names of format_struc fields
 %             and values equal to calculated positions of these
-%             fields in stream
+%             fields in the input stream
 % pos      -- first position after the all data positions
-% eof      -- if input is filehandle, true when  positions
-%             calculated from stream and end of the stream
-%             reached before all format fields were processed.
-%          size_str in this case contains only the positions of
-%             the fields which were processed from stream
+% eof      -- if input is a file-handle, 
+%         true - if  positions calculated from the stream 
+%             and end of the stream is reached before all
+%             format fields were processed.
+%             size_str in this case contains only the positions
+%             of the fields which were processed from the stream.
+%         false - in all other situations.
 % format_struc
 %          -- the copy of the input format structure with
 %             appropriate fields values calculated from

@@ -15,7 +15,7 @@ if isempty(missing) % source and target are the same class. Invoke copy construc
 end
 acc = new_obj.io_mode;
 if ~ismember(acc,{'wb+','rb+'})
-    new_obj = new_obj.fclose();  % in case the previous does not work, and if it does, makes no harm
+    new_obj = new_obj.fclose();  % in case the file is still open, and if it does not, makes no harm
 end
 new_obj = new_obj.set_file_to_update();
 

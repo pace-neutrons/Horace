@@ -47,7 +47,7 @@ classdef sqw_formats_factory < handle
         %
         % Rules for saving different classes, defines the preferred loader 
         % for saving the class from the list:
-        % sqw2 corresponds to sqw file in indirect mode with efixed beeing
+        % sqw2 corresponds to sqw file in indirect mode with efixed being
         % array
         written_types_ = {'DnDBase','sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders above to use for saving
@@ -110,7 +110,8 @@ classdef sqw_formats_factory < handle
             %                     cellarray of loaders.
             % Optional:
             % '-update'        -- if provided, open file for
-            %                     read/write/update operations
+            %                     read/write/update operations, unlike defaults
+            %                     opening file for read access only
             %
             %
             % On error throws SQW_FILE_IO:runtime_error exception with
@@ -204,6 +205,8 @@ classdef sqw_formats_factory < handle
             %            is not among the types specified above.
             %
             if nargin <2
+                % TODO: #893 default accessor would be the second one until faccess_sqw_v4 is completed
+                % When it is completed, return most functional accessor.
                 loader = obj.supported_accessors_{2};
                 return
             end

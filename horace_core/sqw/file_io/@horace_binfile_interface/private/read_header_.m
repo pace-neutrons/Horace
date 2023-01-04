@@ -1,24 +1,24 @@
 function [stream,fid,mess] = read_header_(file_name,buf_size,varargin)
-% open (reopen) file for acces read the header, which allows to identify
-% the filie version.
+% open (reopen) file for access and read the header which allows to identify
+% the file version.
 % Inputs:
 % file_name    -- the name of the input file to read
-% buf_size     -- the number of bytes the file header may have to read from
+% buf_size     -- the number of bytes the file reader may have to read from
 %                 binary file. May read more then header for further
-%                 analysis
+%                 analysis for very old versions of binary sqw files
 % Optional
 % '-update'   -- if provided, read file in update mode.
 %
 % returns:
 % stream      -- buf_size uint8 array of bytes of size buf_size containing 
 %                binary file header contents
-% fid         -- Matlab identified of the opened file with binary data
+% fid         -- Matlab identifier of the opened file with binary data
 % mess        -- empty if opening and initial read of the file was
-%                successfull. If problem happened with operations, contains
+%                successful. If problem happened with operations, contains
 %                message, providing information about the problem.
 
 %
-% Check if the read/write permission are requred
+% Check if the read/write permission are required
 [ok,mess,open_for_update] = parse_char_options(varargin,{'-update'});
 if ~ok
     error('HORACE:horace_binfile_interface:invalid_argument',mess)
