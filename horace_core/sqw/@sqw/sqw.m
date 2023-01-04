@@ -10,25 +10,25 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %
     properties(Dependent)
         npixels     % common with loaders interface to pix.num_pixels property
-        %           % describing number of pixels (neutron events) stored
-        %           % in sqw object
-        %
+                    % describing number of pixels (neutron events) stored
+                    % in sqw object
+
         runid_map   % the map which connects header number
-        %           % with run_id stored in pixels, e.g. map contains
-        %           % connection runid_pixel->header_number
+                    % with run_id stored in pixels, e.g. map contains
+                    % connection runid_pixel->header_number
 
         main_header % Generic information about contributed files
-        %           % and the sqw file creation date.
+                    % and the sqw file creation date.
         experiment_info
         detpar
 
         data; % The information about the N-D neutron image, containing
-        %       combined and bin-averaged information about the
-        %       neutron experiment.
-        %
+              % combined and bin-averaged information about the
+              % neutron experiment.
+
         pix % access to pixel information, if any such information is
-        %     stored within an object. May also return pix_combine_info or
-        %     filebased pixels. (TODO -- this should be modified)
+            % stored within an object. May also return pix_combine_info or
+            % filebased pixels. (TODO -- this should be modified)
     end
 
     properties(Hidden,Dependent)
@@ -47,21 +47,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         pix_ = PixelDataBase.create()      % Object containing data for each pixe
     end
 
-    properties(Access=private)
+    properties(Access=protected)
         main_header_ = main_header_cl();
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
 
-    properties(Constant,Access=protected)
-        fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
-    end
-
+    %======================================================================
+    % Various sqw methods
     methods
         has = has_pixels(w);          % returns true if a sqw object has pixels
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         wout = smooth(win, varargin)  % smooth sqw object or array of sqw
-        %                             % objects containing no pixels
+                                      % objects containing no pixels
         function [val, n] = data_bin_limits (obj)
             % Get limits of the data in an n-dimensional dataset, that is,
             % find the coordinates along each of the axes of the smallest
@@ -105,18 +103,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         varargout = multifit (varargin);
 
 
-        % TOBYFIT interface
-        %------------------------------------------------------------------
-        %TODO: Something in this interface looks dodgy. Should it be just
-        %      TOBYFIT interface, or should it go out of here?
-        varargout = tobyfit (varargin);
-        [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
-            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
-        [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
-            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
-        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
-
         %------------------------------------------------------------------
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
 
@@ -147,15 +133,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = replicate (win,wref);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
-        %
-        function  save_xye(obj,varargin)
-            save_xye(obj.data,varargin{:});
-        end
-        function  s=xye(w, varargin)
-            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
-            s = w.data.xye(varargin{:});
-        end
     end
+
     %======================================================================
     % ACCESSORS TO OBJECT PROPERTIES and construction
     methods
@@ -206,7 +185,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
             end
         end
-
+        %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
@@ -235,20 +214,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 obj.pix_ = PixelDataBase.create();
             else
                 obj.pix_ = PixelDataBase.create(val);
-            end
-        end
-
-        function hdr = get.header(obj)
-            % return old (legacy) header(s) providing short experiment info
-            %
-            if isempty(obj.experiment_info_)
-                hdr = IX_experiment().to_bare_struct();
-                hdr.alatt = [];
-                hdr.angdeg = [];
-            else
-                hdr = obj.experiment_info_.convert_to_old_headers();
-                hdr = [hdr{:}];
-                hdr = rmfield(hdr,{'instrument','sample'});
             end
         end
 
@@ -295,16 +260,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
         end
 
-        function val = get.detpar_x(obj)
-            % obsolete interface
-            val = obj.detpar_;
-        end
-
-        function obj = set.detpar_x(obj,val)
-            % obsolete interface
-            obj.detpar_ = val;
-        end
-
         function  save_xye(obj,varargin)
             save_xye(obj.data,varargin{:});
         end
@@ -316,18 +271,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
-        end
-
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
-            ver = 4;
-        end
-
-        function flds = saveableFields(~)
-            flds = sqw.fields_to_save_;
         end
 
         function map = get.runid_map(obj)
@@ -343,20 +286,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             [nd,sz] = obj(1).data_.dimensions();
         end
 
-        function str = saveobj(obj)
-            if ~obj.main_header_.creation_date_defined
-                % support old files, which do not have creation date defined
-                obj.main_header_.creation_date = datetime('now');
-            end
-            str = saveobj@serializable(obj);
-        end
-
         function is = dnd_type(obj)
             is = isempty(obj.pix_);
         end
     end
+
     %======================================================================
-    % REDUNDANT and compartibility ACCESSORS
+    % REDUNDANT and compatibility ACCESSORS
     methods
         function obj = change_header(obj,hdr)
             obj.experiment_info = hdr;
@@ -365,14 +301,17 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function obj = change_detpar(obj,dtp)
             obj.detpar_x = dtp;
         end
+
         function val = get.detpar_x(obj)
             % obsolete interface
             val = obj.detpar_;
         end
+
         function obj = set.detpar_x(obj,val)
             % obsolete interface
             obj.detpar_ = val;
         end
+
         function hdr = get.header(obj)
             % return old (legacy) header(s) providing short experiment info
             %
@@ -424,7 +363,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
 
     end
+
     %======================================================================
+
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
@@ -494,6 +435,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.data = data_struct.data;
             obj.pix = data_struct.pix;
         end
+
         function  [set_single,set_per_obj,n_runs_in_obj]=find_set_mode(obj,varargin)
             % Helper function for various set component for Tobyfit methods
             % Given array of values to set on array of objects, identify how these
@@ -515,9 +457,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % number
             ver = 4;
         end
+
         function flds = saveableFields(~)
             flds = sqw.fields_to_save_;
         end
+
         function str = saveobj(obj)
             if ~obj.main_header_.creation_date_defined
                 % support old files, which do not have creation date defined
