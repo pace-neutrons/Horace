@@ -4,6 +4,8 @@ function [page_idx, global_idx] = get_pg_idx_from_absolute_(~, abs_indices, ~)
 %
 % Indices that do not exist in the given page are ignored.
 %
+% Provided for compatibility, since PixelDataMemory only has one page.
+%
 % Example:
 % --------
 % If the PixelData object has 10 pixels, has a page size of 4, page_number is
@@ -26,6 +28,6 @@ function [page_idx, global_idx] = get_pg_idx_from_absolute_(~, abs_indices, ~)
 %              will be a subset of `abs_indices`.
 %
 page_idx = 1;
-global_idx = abs_indices;
+global_idx = abs_indices(abs_indices < obj.page_size);
 
 end

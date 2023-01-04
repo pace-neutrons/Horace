@@ -2,10 +2,6 @@ function pix_out = append(obj, pix)
 % Join the pixels in the given PixelData object to the end of this
 % object.
 %
-% The pixels to append must all be in memory and you cannot append pixels if
-% the inputted PixelData object has more pixels than are allowed in a single
-% page.
-%
 % Input
 % -----
 % pix    A PixelData object containing the pixels to append

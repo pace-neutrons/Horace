@@ -124,7 +124,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 upgrade = true;
             end
 
-            obj.object_id_ = randi([10, 99999], 1, 1);
+            obj.object_id_ = randi([1, 99999], 1, 1);
             obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
 
             if exist('mem_alloc', 'var') && ~isempty(mem_alloc)
