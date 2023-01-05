@@ -57,120 +57,10 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         % filenames. Stored in file
         contains_runid_in_header_ =[];
     end
-    properties(Dependent)
-        % the position of pixels information in the file. Used to organize
-        % separate access to pixel data;
-        pix_position
-    end
     properties(Constant)
         % size of a pixel (in bytes) written on HDD
         FILE_PIX_SIZE = 4*9;
     end
-    %
-    methods(Access = protected)
-        function obj=init_from_sqw_obj(obj,varargin)
-            % initialize the structure of sqw file using sqw object as input
-            %
-            % method should be overloaded or expanded by children if more
-            % complex then common logic is used
-            if nargin < 2
-                error('HORACE:sqw_binfile_common:runtime_error',...
-                    'init_from_sqw_obj method should be invoked with an existing sqw object as first input argument');
-            end
-            if ~(isa(varargin{1},'sqw') || is_sqw_struct(varargin{1}))
-                error('HORACE:sqw_binfile_common:invalid_argument',...
-                    'init_from_sqw_obj method should be initiated by an sqw object');
-            end
-            %
-            [obj,sqw_obj] = init_headers_from_sqw_(obj,varargin{1});
-            % initialize data fields
-            % assume max data type which will be reduced if some fields are
-            % missing (how they when initialized from sqw?)
-            obj.data_type_ = 'a'; % should it always be 'a'?
-            obj = init_from_sqw_obj@binfile_v2_common(obj,varargin{:});
-            obj.sqw_holder_ = sqw_obj;
-
-            obj = init_pix_info_(obj);            
-        end
-        %
-        function obj=init_from_sqw_file(obj,varargin)
-            % initialize the structure of faccess class using sqw file as input
-            %
-            % method should be overloaded or expanded by children if more
-            % complex then common logic is used
-            obj= init_sqw_structure_field_by_field_(obj,varargin{:});
-        end
-        %
-        function [sub_obj,external] = extract_correct_subobj(obj,obj_name,varargin)
-            % auxiliary function helping to extract correct subobject from
-            % input or internal object
-            [sub_obj,external]  = extract_correct_subobj_(obj,obj_name,varargin{:});
-        end
-        %
-        %
-        function bl_map = const_blocks_map(obj)
-            bl_map  = obj.const_block_map_;
-        end
-        %
-        function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals,varargin)
-            % the main part of the copy constructor, copying the contents
-            % of the one class into another.
-            %
-            % Copied of binfile_v2_common to support overloading as
-            % private properties are not accessible from parents
-            %
-            % keep_internals -- if true, do not overwrite service fields
-            %                   not related to position information
-            %
-            if ~exist('keep_internals','var') || ischar(keep_internals)
-                keep_internals = false;
-            end
-            [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
-        end
-        %
-        function obj = check_header_mangilig(obj,head_pos)
-            % verify if the filename stored in the header is mangled with
-            % run_id information or is it stored without this information.
-
-            fn_size = head_pos(1).filepath_pos_ - head_pos(1).filename_pos_;
-            fseek(obj.file_id_,head_pos(1).filename_pos_,'bof');
-            [mess,res] = ferror(obj.file_id_);
-            if res ~= 0
-                error('HORACE:sqw_binfile_common:io_error',...
-                    '%s: Reason:  Error moving to the header filename location',mess)
-            end
-
-            bytes = fread(obj.file_id_,fn_size,'char');
-            fname = char(bytes');
-            mangle_pos = strfind(fname,'$id$');
-            if isempty(mangle_pos) %contains is available from 16b only
-                obj.contains_runid_in_header_ = false;
-            else
-                obj.contains_runid_in_header_ = true;
-            end
-        end
-        %
-        function varargout = init_v3_specific(~)
-            % Initialize position information specific for sqw v3.1 object.
-            % Interface function here. Generic is not implemented and
-            % actual implementation in faccess_sqw_v3
-            error('SQW_FILE_IO:runtime_error',...
-                'init_v3_specific: generic method is not implemented')
-        end
-        %
-        function is_sqw = get_sqw_type(~)
-            % Main part of get.sqw_type accessor
-            % return true if the loader is intended for processing sqw file
-            % format and false otherwise
-            is_sqw = true;
-        end
-        function   obj_type = get_format_for_object(~)
-            % main part of the format_for_object getter, specifying for
-            % what class saving the file format is intended
-            obj_type = 'sqw';
-        end        
-        
-    end % end protected
     %
     methods % defined by this class
         % ---------   File Accessors:
@@ -253,14 +143,6 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
                 obj.file_version);
 
         end
-        %
-        function pix_pos = get.pix_position(obj)
-            % the position of pixels information in the file. Used to organize
-            % class independent binary access to pixel data;
-            pix_pos = obj.pix_pos_;
-        end
-        %
-        %
         % return structure, containing position of every data field in the
         % file (when object is initialized)
         function   pos_info = get_pos_info(obj)
@@ -277,17 +159,6 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         end
         %
         % ------- Interface stubs and helpers:
-        function [inst,obj] = get_instrument(obj,varargin)
-            % get instrument, stored in a file. If no instrument is
-            % defined, return empty structure.
-            inst = IX_null_inst();
-        end
-        %
-        function [samp,obj] = get_sample(obj,varargin)
-            % get sample, stored in a file. If no sample is defined, return
-            % empty structure.
-            samp = IX_samp();
-        end
         %
         function pix_form = get_pix_form(~)
             %   data.img_range     The range of the data along each axis.
@@ -309,6 +180,16 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             % returns byte-position from the start of the file
             % where pix range is stored
             img_db_range_pos  = obj.img_db_range_pos_;
+        end
+        %-------------------------
+        function obj = delete(obj)
+            % destructor, which is not fully functioning
+            % operation for normal(non-handle) Matlab classes.
+            % Usually needs the class on lhs of delete expression or
+            % understanding when this can be omitted
+            %
+            obj = delete@binfile_v2_common(obj);
+            obj = delete@sqw_file_interface(obj);
         end
     end
     %
@@ -409,17 +290,141 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         end
     end
     %======================================================================
+    methods(Access = protected)
+        function obj=init_from_sqw_obj(obj,varargin)
+            % initialize the structure of sqw file using sqw object as input
+            %
+            % method should be overloaded or expanded by children if more
+            % complex then common logic is used
+            if nargin < 2
+                error('HORACE:sqw_binfile_common:runtime_error',...
+                    'init_from_sqw_obj method should be invoked with an existing sqw object as first input argument');
+            end
+            if ~(isa(varargin{1},'sqw') || is_sqw_struct(varargin{1}))
+                error('HORACE:sqw_binfile_common:invalid_argument',...
+                    'init_from_sqw_obj method should be initiated by an sqw object');
+            end
+            %
+            [obj,sqw_obj] = init_headers_from_sqw_(obj,varargin{1});
+            % initialize data fields
+            % assume max data type which will be reduced if some fields are
+            % missing (how they when initialized from sqw?)
+            obj.data_type_ = 'a'; % should it always be 'a'?
+            obj = init_from_sqw_obj@binfile_v2_common(obj,varargin{:});
+            obj.sqw_holder_ = sqw_obj;
+
+            obj = init_pix_info_(obj);
+        end
+        %
+        function obj=init_from_sqw_file(obj,varargin)
+            % initialize the structure of faccess class using sqw file as input
+            %
+            % method should be overloaded or expanded by children if more
+            % complex then common logic is used
+            obj= init_sqw_structure_field_by_field_(obj,varargin{:});
+        end
+        %
+        function [sub_obj,external] = extract_correct_subobj(obj,obj_name,varargin)
+            % auxiliary function helping to extract correct subobject from
+            % input or internal object
+            [sub_obj,external]  = extract_correct_subobj_(obj,obj_name,varargin{:});
+        end
+        %
+        %
+        function bl_map = const_blocks_map(obj)
+            bl_map  = obj.const_block_map_;
+        end
+        %
+        function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals,varargin)
+            % the main part of the copy constructor, copying the contents
+            % of the one class into another.
+            %
+            % Copied of binfile_v2_common to support overloading as
+            % private properties are not accessible from parents
+            %
+            % keep_internals -- if true, do not overwrite service fields
+            %                   not related to position information
+            %
+            if ~exist('keep_internals','var') || ischar(keep_internals)
+                keep_internals = false;
+            end
+            [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
+        end
+        %
+        function obj = check_header_mangilig(obj,head_pos)
+            % verify if the filename stored in the header is mangled with
+            % run_id information or is it stored without this information.
+
+            fn_size = head_pos(1).filepath_pos_ - head_pos(1).filename_pos_;
+            fseek(obj.file_id_,head_pos(1).filename_pos_,'bof');
+            [mess,res] = ferror(obj.file_id_);
+            if res ~= 0
+                error('HORACE:sqw_binfile_common:io_error',...
+                    '%s: Reason:  Error moving to the header filename location',mess)
+            end
+
+            bytes = fread(obj.file_id_,fn_size,'char');
+            fname = char(bytes');
+            mangle_pos = strfind(fname,'$id$');
+            if isempty(mangle_pos) %contains is available from 16b only
+                obj.contains_runid_in_header_ = false;
+            else
+                obj.contains_runid_in_header_ = true;
+            end
+        end
+        %
+        function varargout = init_v3_specific(~)
+            % Initialize position information specific for sqw v3.1 object.
+            % Interface function here. Generic is not implemented and
+            % actual implementation in faccess_sqw_v3
+            error('SQW_FILE_IO:runtime_error',...
+                'init_v3_specific: generic method is not implemented')
+        end
+        %
+        function is_sqw = get_sqw_type(~)
+            % Main part of get.sqw_type accessor
+            % return true if the loader is intended for processing sqw file
+            % format and false otherwise
+            is_sqw = true;
+        end
+        function   obj_type = get_format_for_object(~)
+            % main part of the format_for_object getter, specifying for
+            % what class saving the file format is intended
+            obj_type = 'sqw';
+        end
+        %
+        function date = get_creation_date(obj)
+            % overload accessor to creation_date on the main file
+            % interface, to retrieve creation date, stored in recent
+            % versions of the sqw files
+            main_head = obj.get_main_header();
+            date = main_head.creation_date;
+        end
+        %
+        function  pix_pos = get_pix_position(obj)
+            % the position of pixels information in the file. Used to organize
+            % class independent binary access to pixel data;
+            pix_pos = obj.pix_pos_;
+        end
+    end % end protected
+
+    %======================================================================
     % SERIALIZABLE INTERFACE
+    %----------------------------------------------------------------------
     properties(Constant,Access=private,Hidden=true)
         % list of field names to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
-        fields_to_save_ = {'num_contrib_files_';'npixels_'};
+        data_fields_to_save_ = {'main_header_pos_';'main_head_pos_info_';'header_pos_';...
+            'header_pos_info_';'detpar_pos_';'detpar_pos_info_'};
+        pixel_fields_to_save_ = {'num_contrib_files_';'npixels_';'img_db_range_pos_';...
+            'pix_pos_';'eof_pix_pos_'};
     end
     %----------------------------------------------------------------------
     methods
         function strc = to_bare_struct(obj,varargin)
             base_cont = to_bare_struct@binfile_v2_common(obj,varargin{:});
-            flds = sqw_file_interface.fields_to_save_;
+            flds = [obj.data_fields_to_save_(:);obj.pixel_fields_to_save_(:)];
+
             cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
 
             base_flds = fieldnames(base_cont);
@@ -433,7 +438,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         function obj=from_bare_struct(obj,indata)
             obj = from_bare_struct@binfile_v2_common(obj,indata);
             %
-            flds = sqw_file_interface.fields_to_save_;
+            flds = [obj.data_fields_to_save_(:);obj.pixel_fields_to_save_(:)];
             for i=1:numel(flds)
                 name = flds{i};
                 obj.(name) = indata.(name);
@@ -444,55 +449,6 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             % return list of fileldnames to save on hdd to be able to recover
             % all substantial parts of appropriate sqw file.
             flds = saveableFields@binfile_v2_common(obj);
-            flds = [obj.fields_to_save_(:);flds(:)];
-        end
-    end
-    methods(Static)
-        function obj = loadobj(inputs,varargin)
-            inobj = sqw_file_interface();
-            obj = loadobj@serializable(inputs,inobj,varargin{:});
-        end
-    end
-    
-    % SERIALIZABLE INTERFACE
-    properties(Constant,Access=private,Hidden=true)
-        % list of field names to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file
-        data_fields_to_save_ = {'main_header_pos_';'main_head_pos_info_';'header_pos_';...
-            'header_pos_info_';'detpar_pos_';'detpar_pos_info_'};
-        pixel_fields_to_save_ = {'img_db_range_pos_';...
-            'pix_pos_';'eof_pix_pos_'};
-    end
-    %----------------------------------------------------------------------
-    methods
-        function strc = to_bare_struct(obj,varargin)
-            base_cont = to_bare_struct@sqw_file_interface(obj,varargin{:});
-            flds = [obj.data_fields_to_save_(:);obj.pixel_fields_to_save_(:)];
-
-            cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
-
-            base_flds = fieldnames(base_cont);
-            base_cont = struct2cell(base_cont);
-            flds  = [base_flds(:);flds(:)];
-            cont = [base_cont(:);cont(:)];
-            %
-            strc = cell2struct(cont,flds);
-        end
-
-        function obj=from_bare_struct(obj,indata)
-            obj = from_bare_struct@sqw_file_interface(obj,indata);
-            %
-            flds = [obj.data_fields_to_save_(:);obj.pixel_fields_to_save_(:)];
-            for i=1:numel(flds)
-                name = flds{i};
-                obj.(name) = indata.(name);
-            end
-        end
-
-        function flds = saveableFields(obj)
-            % return list of fileldnames to save on hdd to be able to recover
-            % all substantial parts of appropriate sqw file.
-            flds = saveableFields@sqw_file_interface(obj);
             flds = [obj.data_fields_to_save_(:);...
                 obj.pixel_fields_to_save_(:);...
                 flds(:)];

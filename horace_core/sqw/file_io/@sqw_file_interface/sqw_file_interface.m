@@ -1,4 +1,4 @@
-classdef sqw_file_interface < binfile_v2_common
+classdef sqw_file_interface
     % Class describes interface to access sqw files. The whole public
     % interface to access files, containing sqw objects consists of
     % horace_binfile_interface and sqw_file_interface.
@@ -33,16 +33,9 @@ classdef sqw_file_interface < binfile_v2_common
     % put_instruments   -  store instruments information
     % put_samples       -  store sample's information
     %
-    % upgrade_file_format - upgrade current sqw file to recent file format.
-    %                       May change the sqw file and always opens it in
-    %                       write or upgrade mode.
-
-    %
-    %
-    properties(Access=protected,Hidden=true)
+    properties(Access=protected)
         %
         num_contrib_files_= 'undefined'
-        %
         npixels_ = 'undefined';
     end
     %
@@ -52,23 +45,22 @@ classdef sqw_file_interface < binfile_v2_common
         %
         % number of pixels, contributing into this file.
         npixels
+        % the position of pixels information in the file. Used to organize
+        % separate access to pixel data;
+        pix_position        
 
         % size of a pixel (in bytes) stored in binary file,
         % for the loader to read
         pixel_size;
     end
     methods(Access = protected,Hidden=true)
-        function date = get_creation_date(obj)
-            % overload accessor to creation_date on the main file
-            % interface, to retrieve creation date, stored in recent
-            % versions of the sqw files
-            main_head = obj.get_main_header();
-            date = main_head.creation_date;
-        end
     end
 
     %----------------------------------------------------------------------
     methods
+        function pos = get.pix_position(obj)
+            pos = get_pix_position(obj);
+        end
         function nfiles = get.num_contrib_files(obj)
             % return number of run-files contributed into sqw object
             % provided
@@ -92,8 +84,6 @@ classdef sqw_file_interface < binfile_v2_common
             %
             obj.num_contrib_files_ = 'undefined';
             obj.npixels_ = 'undefined';
-            obj.num_dim_ = 'undefined';
-            obj = delete@binfile_v2_common(obj);
         end
         %
     end
@@ -120,6 +110,9 @@ classdef sqw_file_interface < binfile_v2_common
         % extended interface:
         obj = put_instruments(obj,varargin);
         obj = put_samples(obj,varargin);
+    end
+    methods(Abstract,Access=protected)
+          pos = get_pix_position(obj);        
     end
 end
 

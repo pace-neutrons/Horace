@@ -257,7 +257,6 @@ classdef test_faccess_sqw_v2< TestCase
 
 
             sqw1 = tob.get_sqw();
-
             tob.delete();
 
             to = sqw_formats_factory.instance().get_loader(tf);
@@ -284,9 +283,7 @@ classdef test_faccess_sqw_v2< TestCase
             tob = tob.upgrade_file_format();
             assertTrue(isa(tob,'faccess_sqw_v3'));
 
-
             sqw1 = tob.get_sqw();
-
             tob.delete();
 
             to = sqw_formats_factory.instance().get_loader(tf);
