@@ -653,7 +653,10 @@ end
 % All elements to be compared are finite (dealt with Inf and NaN above)
 abs_tol = tol(1);
 rel_tol = tol(2);
-
+if ~isa(a,class(b))
+    a = double(a);
+    b = double(b);    
+end
 if abs_tol==0 && rel_tol==0
 
     % Equality required

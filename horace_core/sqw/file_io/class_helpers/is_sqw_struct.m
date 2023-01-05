@@ -1,12 +1,11 @@
 function is = is_sqw_struct(input)
-% Check if input structure can be considered an sqw structure.
+% Check if input structure contans everything necessary to be used 
+% as sqw obuect in some situiations e.g. 
 %
-if ~isstruct(input)
-    is = false;
-    return
-end
-if ~isfield(input,{'main_header','header','detpar','data'})
-    is = false;
-else
-    is = true;
-end
+% either: 
+%       provides information to define a real sqw object
+% or 
+%       define the object, which may be used as sqw object in some tests
+%
+is = isa(input,'binfile_v4_block_tester') || ... % this is for testing new file format
+    (isstruct(input) && all(isfield(input,{'main_header','header','detpar','data'})));

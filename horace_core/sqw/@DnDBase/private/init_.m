@@ -2,42 +2,52 @@ function obj = init_(obj,varargin)
 % Initialization procedure for empty DnD-type object or reinitialize one
 % defined previously.
 
+
 args = parse_args_(obj,varargin{:});
 %
 if args.array_numel>1
-    obj = repmat(obj,args.array_size);
+    obj_in = cell(args.array_size);
+    %obj = repmat(obj,);
 elseif args.array_numel==0
     obj = obj.from_bare_struct(args.data_struct);
+    return;
 end
 for i=1:args.array_numel
     % i) copy
     if ~isempty(args.dnd_obj)
         if args.dnd_obj.dimensions == obj.dimensions
-            obj(i) = copy(args.dnd_obj(i));
+            obj_in{i} = copy(args.dnd_obj(i));
         else % rebin the input object to the object
             %  with the dimensionality, smaller then the
             %  dimensionalify of the input object.
             %  Bigger dimensionality will be rejected.
             %
-            obj(i) = rebin(obj(i),args.dnd_obj(i));
+            obj_in{i} = rebin(obj(i),args.dnd_obj(i));
         end
         % ii) struct
     elseif ~isempty(args.data_struct)
-        obj(i) = obj(i).from_bare_struct(args.data_struct(i));
+        obj_in{i} = obj(i).from_bare_struct(args.data_struct{i});
     elseif ~isempty(args.set_of_fields)
-        keys = obj.saveableFields();
-        obj(i) = set_positional_and_key_val_arguments(obj,...
-            keys,false,args.set_of_fields{:});
-        % copy label from projection to axes block in case it
-        % has been redefined on projection
-        is_proj = cellfun(@(x)isa(x,'aProjection'),args.set_of_fields);
-        if any(is_proj)
-            obj(i).axes.label = args.set_of_fields{is_proj}.label;
+        if isempty(args.keys)
+            keys = obj.saveableFields();
+            obj_in{i} = set_positional_and_key_val_arguments(obj,...
+                keys,false,args.set_of_fields{:});
+            % copy label from projection to axes block in case it
+            % has been redefined on projection
+            is_proj = cellfun(@(x)isa(x,'aProjection'),args.set_of_fields);
+            if any(is_proj)
+                obj_in{i}.axes.label = args.set_of_fields{is_proj}.label;
+            end
+        else
+            obj_in{i} = set_positional_and_key_val_arguments(obj,...
+                args.keys,false,args.set_of_fields{:});
         end
     elseif ~isempty(args.sqw_obj)
-        obj(i) = args.sqw_obj(i).data;
+        obj_in{i} = args.sqw_obj(i).data;
     end
 end
+obj = [obj_in{:}];
+obj = reshape(obj,args.array_size);
 
 function args = parse_args_(obj, varargin)
 % Parse the argument passed to the DnD constructor.
@@ -56,7 +66,8 @@ args = struct(...
     'dnd_obj',              [], ...
     'sqw_obj',              [], ...
     'set_of_fields',        [], ...
-    'data_struct',          [] ...
+    'data_struct',          [], ...
+    'keys',                 [] ...
     );
 
 if isempty(input_data)
@@ -91,7 +102,7 @@ elseif isa(input_data{1}, 'SQWDnDBase')
             args.sqw_obj = input_data{1};
         end
     elseif input_data{1}.dimensions() >= obj.dimensions
-           args.dnd_obj = input_data{1};
+        args.dnd_obj = input_data{1};
     else
         error(['HORACE:', class(obj),':invalid_argument'], ...
             'Class %s cannot be constructed from an instance of object %s',...
@@ -105,10 +116,18 @@ elseif iscellstr(input_data)||isstring(input_data)
 elseif isstruct(input_data{1}) && ~isempty(input_data{1})
     args.data_struct = input_data;
 elseif numel(input_data) > 1
-    if numel(input_data) == 2 && isa(input_data{1},'axes_block') && isa(input_data{2},'aProjection')
-        sz = input_data{1}.dims_as_ssize;
-        strc = init_arrays_(struct(),sz);
-        args.set_of_fields = [varargin(:);struct2cell(strc)];
+    if numel(input_data) == 2
+        if isa(input_data{1},'axes_block') && isa(input_data{2},'aProjection')
+            sz = input_data{1}.dims_as_ssize;
+            strc = init_arrays_(struct(),sz);
+            args.set_of_fields = [varargin(:);struct2cell(strc)];
+        elseif isa(varargin{1},'dnd_metadata') && isa(varargin{2},'dnd_data')
+            args.set_of_fields = varargin;
+            args.keys = {'metadata','nd_data'};
+        else
+            error(['HORACE:', class(obj),':invalid_argument'], ...
+                'Class constructor invoked with two unrecognized input arguments')
+        end
     elseif numel(input_data) >= 5
         args.set_of_fields = input_data;
     else

@@ -61,17 +61,33 @@ classdef horace_binfile_interface < serializable
         num_dim;
 
         % In old style sqw files returns timestamp of the file, Recent
-        % format files return real creation time, files store real
-        % creation time within
+        % format files return real creation time, as files store real
+        % creation time within.
         creation_date
+        % The property indicates if the data are stored in file the loader
+        % is connected to.
+        data_in_file;
+
         %
-        % get access to internal sqw object if any is defined for testing
-        % purposes
+        % get access to internal sqw object to store/resrore from hdd
+        % if any is defined.
+        % Normally it is necessary for testing purposes
         sqw_holder
     end
     properties(Dependent)
         % the property which sets/gets full file name (with path);
+        % Duplicates filename/filepath information. Provided for
+        % flexibility/simplicity.
         full_filename;
+    end
+    properties(Dependent,Hidden=true)
+        % HELPER/convenience PROPERTIES. hidden not to clutter main interface.
+        %
+        % property used in upgrading file format and specifying
+        % for what class IO operations (sqw or dnd) the file accessor
+        format_for_object; % is intended for
+        % Read-only accessor to the mode, current source file
+        io_mode % is opened in. Empty if the file is not opened
     end
 
     properties(Access=protected)
@@ -94,6 +110,9 @@ classdef horace_binfile_interface < serializable
         % holder for the object which surely closes open sqw file on class
         % deletion
         file_closer_ = [];
+        % The property indicates if the data are stored in file the loader
+        % is connected with.
+        data_in_file_ = false;
     end
     %
     properties(Constant,Access=protected)
@@ -114,6 +133,7 @@ classdef horace_binfile_interface < serializable
         [header,fid] = get_file_header(file,varargin)
         %
     end
+    % Main class methods & constructor
     methods
         function obj = horace_binfile_interface(varargin)
             % constructor. All operations are performed througn init
@@ -132,7 +152,7 @@ classdef horace_binfile_interface < serializable
         % faccessors level
         app_header = build_app_header(obj,varargin)
         % store application header which describes the sqw binary file
-        obj = put_app_header(obj);
+        obj = put_app_header(obj,varargin);
         %
         % initialize the loader, to be ready to read or write binary data.
         % Usage:
@@ -177,6 +197,8 @@ classdef horace_binfile_interface < serializable
             % information, containing opened file handle.
             obj = init_input_stream_(obj,objinit);
         end
+        % upgrade file format to new current preferred file format
+        new_obj = upgrade_file_format(obj,varargin);
     end
     %----------------------------------------------------------------------
     methods(Access = protected)
@@ -203,6 +225,14 @@ classdef horace_binfile_interface < serializable
     %======================================================================
     % ACCESSORS & MUTATORS
     methods
+        function is = get.data_in_file(obj)
+            is = obj.data_in_file_;
+        end
+        %
+        function mode = get.io_mode(obj)
+            [~,mode] = fopen(obj.file_id_);
+        end
+        %
         function sh = get.sqw_holder(obj)
             sh = obj.sqw_holder_;
         end
@@ -241,10 +271,17 @@ classdef horace_binfile_interface < serializable
         %------------------------------------------------
         function ndims = get.num_dim(obj)
             % get number of dimensions the image part of the object has.
-            ndims = obj.num_dim_;
+            if ischar(obj.num_dim_)
+                ndims = obj.num_dim_;
+            else
+                ndims = double(obj.num_dim_);
+            end
         end
         %------------------------------------------------------------------
         %OVERLOADABLE ACCESSORS
+        function obj_type = get.format_for_object(obj)
+            obj_type = get_format_for_object(obj);
+        end
         function type = get.sqw_type(obj)
             % return true if the object to load is sqw-type (contains pixels) or
             % false if not.
@@ -301,7 +338,6 @@ classdef horace_binfile_interface < serializable
     end
     methods(Abstract,Access=protected)
         % init file accessors from sqw object in memory
-        %
         obj=init_from_sqw_obj(obj,varargin);
         % init file accessors from sqw file on hdd
         obj=init_from_sqw_file(obj,varargin);
@@ -315,16 +351,88 @@ classdef horace_binfile_interface < serializable
         ver = get_faccess_version(~);
         % true, if loader processes sqw file and false if dnd.
         is_sqw = get_sqw_type(~)
+        % getter for the object type
+        obj_type = get_format_for_object(obj);
+        % main part of upgrade file format, which conputes and transforms missing
+        % properties from old file format to the new file format
+        new_obj = do_class_dependent_updates(new_obj,old_obj);
+    end
+    methods(Static) % helper methods used for binary IO
+        function move_to_position(fid,pos)
+            % move write point to the position, specified by input
+            %
+            % Inputs:
+            % fid -- open file id
+            % pos -- potition from beginning of the file
+            % error_message
+            %     -- text to add to the error message in case of failure to
+            %        identify the code, attempting the move
+            %
+            % Throw, HORACE:data_block:io_error if the movement have not
+            % been successful.
+            %
+            move_to_position_(fid,pos);
+        end
+        function check_write_error(fid)
+            % check if write operation have completed sucsesfully.
+            %
+            % Inputs:
+            % fid -- open file id for write operation
+            % Throw HORACE:data_block:io_error if there were write errors.
+            %
+            % If add_info is not empty, it added to the error message and
+            % used for clarification of the error location.
+            check_io_error_(fid,'writing');
+        end
+        function check_read_error(fid)
+            % check if read operation have completed sucsesfully.
+            %
+            % Inputs:
+            % fid -- open file id for write operation
+
+            % Throw HORACE:data_block:io_error if there were read errors.
+            %
+            % If add_info is not empty, it added to the error message and
+            % used for clarification of the error location.
+            check_io_error_(fid,'reading');
+        end
+
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
+    % Unlike usual serializable, this class is serialized through
+    % protected and private properties values. Because of this, the class
+    % have unusual overloads, which may not support chain of serializable
+    % objects. This is unnecessary, because this object do not contain
+    % serializable properties.
     properties(Constant,Access=private)
         % list of fieldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file accessor
         fields_to_save_ = {'filename_';'filepath_';...
             'num_dim_'};
     end
-    methods
+    properties(Dependent,Hidden=true)
+        % accessor to number of dimensions, hidden for use with
+        % serializable only and used by faccess_v4 to save/restore num_dim
+        % as old faccess_v<4 use protected "num_dim_" property
+        num_dims_to_save;
+    end
+
+    methods % to satisfy serializable interface
+        function nd = get.num_dims_to_save(obj)
+            nd = obj.num_dim_;
+        end
+        function obj = set.num_dims_to_save(obj,val)
+            if ~(isnumeric(val) && (val>-1 && val<5))
+                if ~((ischar(val)||isstring(val))&&strcmp(val,'undefined'))
+                    error('HORACE:horace_binfile_interface:invalid_argument', ...
+                        'num_dim variable can be only number in the range [0:5]. It is: %s', ...
+                        disp2str(val));
+                end
+            end
+            obj.num_dim_ = val;
+        end
+
         function strc = to_bare_struct(obj,varargin)
             flds = horace_binfile_interface.fields_to_save_;
             cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);

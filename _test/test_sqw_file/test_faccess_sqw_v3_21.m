@@ -91,6 +91,7 @@ classdef test_faccess_sqw_v3_21< TestCase
             test_file=fullfile(obj.working_dir,'test_read_wr_upd_indirect_v3_2.sqw');
             co2 = onCleanup(@()delete(test_file));
             save(sqw_obj,test_file,faccess_sqw_v3_2());
+            fl_acc.delete();
 
             ldr =sqw_formats_factory.instance().get_loader(test_file);
             assertTrue(isa(ldr,'faccess_sqw_v3_2'));

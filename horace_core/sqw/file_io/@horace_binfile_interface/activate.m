@@ -23,12 +23,12 @@ if ~isempty(obj.file_closer_)
 end
 
 obj.file_id_ = fopen(obj.full_filename, permission);
-if obj.file_id_ <=0
+if obj.file_id_ < 1
     error('HORACE:horace_binfile_interface:runtime_error',...
         'Can not open file %s at location %s',...
         obj.filename,obj.filepath);
 end
-%obj.file_closer_ = onCleanup(@()obj.fclose());
+obj.file_closer_ = onCleanup(@()fclose(obj));
 
 
 function permission = get_fopen_permission_(permission)

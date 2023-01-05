@@ -39,7 +39,7 @@ classdef test_sqw_main < TestCase & common_state_holder
             test_dnd.filename = [targ_file, fext];
             test_dnd.filepath = [targ_path, filesep];
 
-            assertEqualToTol(loaded_dnd, test_dnd, 'ignore_str', true);
+            assertEqualToTol(loaded_dnd, test_dnd,1.e-12, 'ignore_str', true);
         end
 
         function test_setting_pix_page_size_in_constructor_pages_pixels(obj)

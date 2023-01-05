@@ -27,16 +27,18 @@ classdef d3d < DnDBase
         function obj = d3d(varargin)
             obj = obj@DnDBase(varargin{:});
             if nargin == 0
+                obj.do_check_combo_arg = false;
                 obj.axes.single_bin_defines_iax = [false,false,false,true];
                 obj.axes.dax= [1,2,3];
                 obj.s_ = 0;
                 obj.e_ = 0;
                 obj.npix_ = 0;
+                obj.do_check_combo_arg = true;
             end
         end
         function nd = get.NUM_DIMS(~)
             nd =3;
-        end        
+        end
         function [nd,sz] = dimensions(obj)
             nd = 3;
             sz = obj.axes_.data_nbins;

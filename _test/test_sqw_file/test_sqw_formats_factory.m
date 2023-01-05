@@ -131,7 +131,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
 
             dob = d1d();
             ld2 = sqw_formats_factory.instance().get_pref_access(dob);
-            assertTrue(isa(ld2,'faccess_dnd_v2'));
+            assertTrue(isa(ld2,'faccess_dnd_v4'));
 
         end
         function obj= test_load_range(obj)
