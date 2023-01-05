@@ -87,6 +87,12 @@ else
             range = [range(1),range(3)];
         end
     end
+    if numel(range) == 2
+        if range(1)==range(2) && range(1)==0 % some old file formats do not store proper img_range
+            range(1) = -realmax('single');   % and store 0,0 for integration ranges
+            range(2) =  realmax('single');
+        end
+    end
 end
 if numel(range)==3 % check if min+step >= max, so it is actually integration range
     % regardless of anything
