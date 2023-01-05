@@ -51,7 +51,7 @@ classdef sqw_formats_factory < handle
         % array
         written_types_ = {'DnDBase','sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders above to use for saving
-        % correspondent class
+        % correspondent class.
         access_to_type_ind_ = {1,2,4,1,1,1,1,1,1};
         types_map_ ;
     end
@@ -109,15 +109,16 @@ classdef sqw_formats_factory < handle
             %                     If cellarray of the names provided, the method returns
             %                     cellarray of loaders.
             % Optional:
-            % '-update'        -- if provided, open file for
-            %                     read/write/update operations, unlike defaults
-            %                     opening file for read access only
+            % '-update'        -- if provided, open file for read/write/update
+            %                     operations, unlike default opening file
+            %                     for read access only
             %
             %
-            % On error throws SQW_FILE_IO:runtime_error exception with
+            % On error:      throws
+            % HORACE:file_io:runtime_error exception with
             %                message, explaining the reason for error.
             %                The errors are usually caused by missing or
-            %                 not-recognized (non-sqw) input files.
+            %                not-recognized (non-sqw) input files.
             %
             if iscell(sqw_file_name) % process range of files
                 loader = cellfun(@(x)(obj.get_loader(x)),sqw_file_name,...
@@ -140,7 +141,7 @@ classdef sqw_formats_factory < handle
             for i=1:numel(obj.supported_accessors_)
                 loader = obj.supported_accessors_{i};
                 % check if loader should load the file. Initiate loaders
-                % with open file handle if loader recognizes file format
+                % with open file handle if loader recognizes the file format
                 % as its own.
                 [ok,objinit] = loader.should_load_stream(head_struc,fh);
                 if ok
@@ -177,7 +178,7 @@ classdef sqw_formats_factory < handle
             else
                 error('HORACE:file_io:runtime_error',...
                     ['get_loader: Existing readers can not understand format of file: %s\n',...
-                    ' Is it not a sqw file?'],...
+                    ' Is it a sqw file at all?'],...
                     full_data_name);
             end
 
