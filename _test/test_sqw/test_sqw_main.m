@@ -3,12 +3,14 @@ classdef test_sqw_main < TestCase & common_state_holder
 
     properties
         out_dir = tmp_dir();
-        tests_dir = fileparts(fileparts(mfilename('fullpath')));
+        tests_dir;
     end
 
     methods
         function obj = test_sqw_main(name)
             obj = obj@TestCase(name);
+            pths = horace_paths();
+            obj.tests_dir = pths.test;
         end
 
         function test_sqw_constructor(~)
@@ -18,9 +20,8 @@ classdef test_sqw_main < TestCase & common_state_holder
         end
 
         function test_read_sqw(obj)
-            pths = horace_paths();
 
-            test_data = fullfile(pths.test, 'test_change_crystal', 'wref.sqw');
+            test_data = fullfile(obj.tests_dir, 'test_change_crystal', 'wref.sqw');
             out_dnd_file = fullfile(obj.out_dir, 'test_sqw_main_test_read_sqw_dnd.sqw');
             cleanup_obj = onCleanup(@()delete(out_dnd_file));
 

@@ -67,9 +67,6 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
                 obj.sqw_obj = obj.sqw_obj{1};
             end
 
-
-            obj.save()
-
         end
 
         function obj=test_build_rundata_from_sqw_keeps_lattice_and_detectors(obj)
