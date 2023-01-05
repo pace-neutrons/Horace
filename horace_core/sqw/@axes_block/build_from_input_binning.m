@@ -88,9 +88,17 @@ else
         end
     end
     if numel(range) == 2
-        if range(1)==range(2) && range(1)==0 % some old file formats do not store proper img_range
-            range(1) = -realmax('single');   % and store 0,0 for integration ranges
-            range(2) =  realmax('single');
+        if range(1)==range(2)  % some old file formats do not store proper img_range
+            % and store 0,0 for integration ranges. Here we try to mitigate
+            % this
+            av_pt = 0.5*(range(1)+range(2));
+            if abs(av_pt)<abs(SQWDnDBase.border_size)
+                range(1) = -abs(SQWDnDBase.border_size);
+                range(2) =  abs(SQWDnDBase.border_size);
+            else
+                range(1) = av_pt*(1-abs(SQWDnDBase.border_size));
+                range(2) = av_pt*(1+abs(SQWDnDBase.border_size));
+            end
         end
     end
 end
