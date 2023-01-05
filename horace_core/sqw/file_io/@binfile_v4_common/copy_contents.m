@@ -43,5 +43,4 @@ if ~(isempty(facc_mode) && isempty(obj.full_filename))
             'Can not open file %s in mode %s', ...
             obj.full_filename,facc_mode);
     end
-
 end

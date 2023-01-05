@@ -1,4 +1,4 @@
-classdef faccess_sqw_v4 < faccess_dnd_v4 & sqw_file_interface
+classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
     % Class to access Horace dnd files written by Horace v4
     %
     % Main of class properties and methods are inherited from
@@ -54,14 +54,19 @@ classdef faccess_sqw_v4 < faccess_dnd_v4 & sqw_file_interface
         npix_position;
     end
     properties(Dependent,Hidden)
-        % old data type, not relevant any more. Always b+ for dnd and ? for
+        % old data type, not relevant any more. Always b+ for dnd and 'a' for
         % sqw
         data_type
     end
     properties(Constant,Access=protected)
         % list of data blocks, this class maintains
-        dnd_blocks_list_ = {data_block('data','metadata'),...
-            dnd_data_block()}
+        sqw_blocks_list_ = {data_block('','main_header'),...
+            data_block('','detpar'),...
+            data_block('data','metadata'),dnd_data_block(),...
+            data_block('experiment_info','instruments'),...
+            data_block('experiment_info','samples'),...
+            data_block('experiment_info','expdata'),...
+            data_block('pix','pix_metadata'),pix_data_block()}
     end
     methods
         function obj=faccess_sqw_v4(varargin)
@@ -76,9 +81,9 @@ classdef faccess_sqw_v4 < faccess_dnd_v4 & sqw_file_interface
             %                       version 4  to load sqw file version 4.
             %                       Throw error if the file version is not
             %                       sqw version 4.
-            % ld = faccess_sqw_v4(dnd_object) % initialize sqw
+            % ld = faccess_sqw_v4(dnd_object,[filename]) % initialize sqw
             %                       reader/writer version 4
-            %                       to save dnd object provided. The name
+            %                       to save sqw object provided. The name
             %                       of the file to save the object should
             %                       be provided separately or as the second
             %                       argument of the constructor in this
@@ -153,14 +158,9 @@ classdef faccess_sqw_v4 < faccess_dnd_v4 & sqw_file_interface
         [samp,obj]  = get_sample(obj,varargin);     % return sample stored
         % with sqw file or IX_samp containing lattice only if nothing is
         % stored. Always IX_samp for dnd objects
-        function [sqw_obj,varargout] = get_sqw(obj,varargin)
-            % retrieve the whole sqw or dnd object from properly initialized sqw file
-            if nargout > 1
-                [sqw_obj,varargout{1}] = obj.get_dnd(varargin{:});
-            else
-                sqw_obj = obj.get_dnd(varargin{:});
-            end
-        end
+
+        % retrieve the whole sqw or dnd object from properly initialized sqw file        
+        [sqw_obj,varargout] = get_sqw(obj,varargin)
         function  [data,obj] =  get_data(obj,varargin)
             % equivalend to get_dnd('-noclass)
             is_key = cellfun(@(x)(ischar(x)||isstring(x))&&startsWith(x,'-'), ...
@@ -207,19 +207,28 @@ classdef faccess_sqw_v4 < faccess_dnd_v4 & sqw_file_interface
     methods(Access=protected)
         function  dt = get_data_type(~)
             % overloadable accessor for the class datatype function
-            dt  = 'b+';
+            dt  = 'a';
         end
         function bll = get_data_blocks(~)
             % Return list of data blocks, defined on this class
             % main bat of data_blocks getter. Protected for possibility to
             % overload
-            bll = faccess_dnd_v4.dnd_blocks_list_;
+            bll = faccess_sqw_v4.sqw_blocks_list_;
         end
         function is_sqw = get_sqw_type(~)
             % Main part of get.sqw_type accessor
             % return true if the loader is intended for processing sqw file
             % format and false otherwise
-            is_sqw = false;
+            is_sqw = true;
+        end        
+        obj=init_from_sqw_obj(obj,varargin);
+        % init file accessors from sqw file on hdd
+        obj=init_from_sqw_file(obj,varargin);
+        %
+        function   obj_type = get_format_for_object(~)
+            % main part of the format_for_object getter, specifying for
+            % what class saving the file format is intended
+            obj_type = 'sqw';
         end
     end
     %======================================================================

@@ -19,8 +19,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         main_header % Generic information about contributed files
         %           % and the sqw file creation date.
-        experiment_info
         detpar
+        %
+        experiment_info
         %
         data; % The information about the N-D neutron image, containing
         %       combined and bin-averaged information about the

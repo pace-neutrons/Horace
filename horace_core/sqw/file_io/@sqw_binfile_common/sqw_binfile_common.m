@@ -377,7 +377,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             % Initialize position information specific for sqw v3.1 object.
             % Interface function here. Generic is not implemented and
             % actual implementation in faccess_sqw_v3
-            error('SQW_FILE_IO:runtime_error',...
+            error('HORACE:sqw_binfile_common:runtime_error',...
                 'init_v3_specific: generic method is not implemented')
         end
         %

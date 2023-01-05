@@ -89,7 +89,7 @@ classdef faccess_dnd_v4 < binfile_v4_common
         %
     end
     %======================================================================
-    % Define old interface, still relevant and usefule
+    % Define old interface, still relevant and useful
     methods
         function pos = get.npix_position(obj)
             if isempty(obj.bat_) || ~obj.bat_.initialized

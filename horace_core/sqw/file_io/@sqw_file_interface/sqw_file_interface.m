@@ -47,15 +47,12 @@ classdef sqw_file_interface
         npixels
         % the position of pixels information in the file. Used to organize
         % separate access to pixel data;
-        pix_position        
+        pix_position
 
         % size of a pixel (in bytes) stored in binary file,
         % for the loader to read
         pixel_size;
     end
-    methods(Access = protected,Hidden=true)
-    end
-
     %----------------------------------------------------------------------
     methods
         function pos = get.pix_position(obj)
@@ -70,10 +67,8 @@ classdef sqw_file_interface
         function npix = get.npixels(obj)
             npix = obj.npixels_;
         end
-        function pix_size = get.pixel_size(~)
-            % 4 bytes x 9 columns -- default pixel size.
-            %
-            pix_size = 4*9;
+        function pix_size = get.pixel_size(obj)
+            pix_size = get_pix_size(obj);
         end
         %-------------------------
         function obj = delete(obj)
@@ -97,6 +92,10 @@ classdef sqw_file_interface
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
         pix         = get_raw_pix(obj,varargin);
+        % read pixels at the given indices
+        pix         = get_pix_at_indices(obj,indices);
+        % read pixels in the given index ranges
+        pix         = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation,keep_precision);
         range       = get_pix_range(obj);
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
@@ -112,7 +111,14 @@ classdef sqw_file_interface
         obj = put_samples(obj,varargin);
     end
     methods(Abstract,Access=protected)
-          pos = get_pix_position(obj);        
+        pos = get_pix_position(obj);
+    end
+    methods(Access=protected)
+        function pix_size = get_pix_size(~)
+            % 4 bytes x 9 columns -- default pixel size.
+            %
+            pix_size = 4*9;
+        end
     end
 end
 
