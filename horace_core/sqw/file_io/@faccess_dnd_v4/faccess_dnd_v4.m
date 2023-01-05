@@ -48,16 +48,6 @@ classdef faccess_dnd_v4 < binfile_v4_common
     %
     %
     %
-    properties(Dependent)
-        % interfaces to binary access outside of this class:
-        % initial location of npix fields
-        npix_position;
-    end
-    properties(Dependent,Hidden)
-        % old data type, not relevant any more. Always b+ for dnd and ? for
-        % sqw
-        data_type
-    end
     properties(Constant,Access=protected)
         % list of data blocks, this class maintains
         dnd_blocks_list_ = {data_block('data','metadata'),...
@@ -91,34 +81,7 @@ classdef faccess_dnd_v4 < binfile_v4_common
     %======================================================================
     % Define old interface, still relevant and useful
     methods
-        function pos = get.npix_position(obj)
-            if isempty(obj.bat_) || ~obj.bat_.initialized
-                pos = [];
-                return
-            end
-            bl = obj.bat_.get_data_block(faccess_dnd_v4.dnd_blocks_list{2});
-            pos = bl.npix_position;
-        end
-        %
-        %---------------------------------------------------------
-        % equivalent to get_dnd_data but returning dnd_data structure,
-        % rather then
-        [dnd_dat,obj]  = get_dnd_data(obj,varargin);
-        [dnd_info,obj] = get_dnd_metadata(obj,varargin);
-
-        [dnd_obj,obj]  = get_dnd(obj,varargin); % retrieve any sqw/dnd object as dnd object
-
-        %
         % ----------------------------------------------------------------
-        % save sqw/dnd object stored in memory into binary sqw file as dnd object.
-        % it always reduced data in memory into dnd object on hdd
-        obj = put_dnd(obj,varargin);
-        % write indofmation, describing dnd object
-        obj = put_dnd_metadata(obj,varargin);
-        % write dnd image data, namely s, err and npix
-        obj = put_dnd_data(obj,varargin);
-
-        %
         function [obj,file_exist,old_ldr] = set_file_to_update(obj,filename)
             % open existing file for update its format and/or data blocks
             % stored in it.
@@ -144,9 +107,6 @@ classdef faccess_dnd_v4 < binfile_v4_common
     %----------------------------------------------------------------------
     % Old, partially redundant interface
     methods
-        function dt = get.data_type(obj)
-            dt = get_data_type(obj);
-        end
         [inst,obj]  = get_instrument(obj,varargin); % return instrument
         % stored with sqw file or IX_null_inst if nothing is stored.
         % Always IX_null_inst for dnd objects.

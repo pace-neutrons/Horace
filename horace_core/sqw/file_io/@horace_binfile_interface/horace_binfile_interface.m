@@ -73,6 +73,9 @@ classdef horace_binfile_interface < serializable
         % if any is defined.
         % Normally it is necessary for testing purposes
         sqw_holder
+        % interfaces to binary access outside of this class:
+        % initial location of npix array
+        npix_position;        
     end
     properties(Dependent)
         % the property which sets/gets full file name (with path);
@@ -199,6 +202,7 @@ classdef horace_binfile_interface < serializable
         end
         % upgrade file format to new current preferred file format
         new_obj = upgrade_file_format(obj,varargin);
+        %
     end
     %----------------------------------------------------------------------
     methods(Access = protected)
@@ -295,6 +299,11 @@ classdef horace_binfile_interface < serializable
             % of data, stored in the file.  Overloadable by children.
             ver = get_faccess_version(obj);
         end
+        function pos = get.npix_position(obj)
+            % retrieve the position of npix array in a binary file
+            % for accessing it using 
+            pos = get_npix_position(obj);
+        end                
     end
     %======================================================================
     methods(Abstract)
@@ -356,6 +365,9 @@ classdef horace_binfile_interface < serializable
         % main part of upgrade file format, which conputes and transforms missing
         % properties from old file format to the new file format
         new_obj = do_class_dependent_updates(new_obj,old_obj);
+
+        % main part of the accessor to the npix array postion on hdd        
+        pos = get_npix_position(obj);        
     end
     methods(Static) % helper methods used for binary IO
         function move_to_position(fid,pos)

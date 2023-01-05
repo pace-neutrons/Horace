@@ -29,4 +29,8 @@ if ~sqh.creation_date_defined
     obj.bat_ = obj.bat_.init_obj_info(sqh);
 end
 
-obj = obj.put_all_blocks();
+obj=obj.put_app_header();
+obj.bat_.put_bat(obj.file_id_);
+
+obj = obj.put_dnd_metadata();
+obj = obj.put_dnd_data();

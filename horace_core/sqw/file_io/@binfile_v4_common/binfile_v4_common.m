@@ -12,7 +12,13 @@ classdef binfile_v4_common < horace_binfile_interface
         % list of data blocks to read/write on hdd, defined by the class
         data_blocks_list;
     end
-    %
+    properties(Dependent,Hidden)
+        % old data type, not relevant any more. Always "b+" for dnd and "a" for
+        % sqw
+        data_type
+    end    
+    %======================================================================
+    % GENERIC FACCESS METHODS
     methods
         function obj = binfile_v4_common(varargin)
             obj = obj@horace_binfile_interface();
@@ -180,6 +186,40 @@ classdef binfile_v4_common < horace_binfile_interface
             warning('HORACE:binfile_v4_common:not_implemented', ...
                 'binary file compression have not been implemented yet')
         end
+        %
+        function dt = get.data_type(obj)
+            dt = get_data_type(obj);
+        end        
+    end
+    %======================================================================
+    % DND access methods common for dnd and sqw objects
+    methods
+        %------------------------------------------------------------------
+        function [dnd_dat,obj]  = get_dnd_data(obj,varargin)
+            % return DND data class, containing n-d arrays, describing N-D image
+            [dnd_dat,obj] = obj.get_dnd_block('bl_data_nd_data',varargin{:});
+        end
+        function [dnd_info,obj] = get_dnd_metadata(obj,varargin)
+            % return dnd metadata class, containing general information,
+            % describing dnd object
+            [dnd_info,obj] =  obj.get_dnd_block('bl_data_metadata',varargin{:});
+        end
+        % retrieve any dnd object or dnd part of sqw object
+        [dnd_obj,obj]  = get_dnd(obj,varargin);
+        %------------------------------------------------------------------
+        function obj = put_dnd_metadata(obj,varargin)
+            % write information, describing dnd object
+            obj = obj.put_dnd_block('bl_data_metadata',varargin{:});
+        end
+
+        function obj = put_dnd_data(obj,varargin)
+            % write dnd image data, namely s, err and npix
+            obj = obj.put_dnd_block('bl_data_nd_data',varargin{:});
+        end
+        % save sqw/dnd object stored in memory into binary sqw file as dnd object.
+        % it always reduced data in memory into dnd object on hdd
+        obj = put_dnd(obj,varargin);
+
     end
     %======================================================================
     methods(Access=protected)
@@ -207,25 +247,56 @@ classdef binfile_v4_common < horace_binfile_interface
             % this function takes this file accessor and modify it with
             % data necessary to access file with new file accessor
             %
-            % Currently this form does nothing as v4 is recent binary 
+            % Currently this form does nothing as v4 is recent binary
             % file format
+        end
+        %------------------------------------------------------------------
+        function [dnd_block,obj] = get_dnd_block(obj,block_name_or_instance,varargin)
+            % Retrieve the binary data described by the data_block provided as input
+            %
+            % uses get_sqw_block and adds file initialization if info is
+            % provided
+            %
+            % Differs from get_sqw_block as it may initialize input file if
+            % the file is not initialized and appropriate data are
+            % available
+            [dnd_block,obj] = get_dnd_block_(obj,block_name_or_instance,varargin{:});
+        end
+        function obj = put_dnd_block(obj, block_name_or_instance,varargin)
+            % store the data described by the block provided as input
+            %
+            % uses put_sqw_block and adds file initialization if info is
+            % provided
+            %
+            obj = put_dnd_block_(obj, block_name_or_instance,varargin{:});
+        end
+        %
+        function pos = get_npix_position(obj)
+            % Main part of npix position getter
+            if isempty(obj.bat_) || ~obj.bat_.initialized
+                pos = [];
+                return
+            end
+            bl = obj.bat_.get_data_block('bl_data_nd_data');
+            pos = bl.npix_position;
         end
     end
     methods(Abstract,Access=protected)
         % return the list of (non-iniialized) data blocks, defined for
         % given file format
         bll = get_data_blocks(obj);
+        % main part of data_type accessor
+        dt = get_data_type(obj)        
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
-
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         fields_to_save_ = {'full_filename','num_dims_to_save','bat'};
     end
 
-    methods                
+    methods
         function strc = to_bare_struct(obj,varargin)
             % Return default implementation from serializable as
             % binfile version overloads it to support expose of protected

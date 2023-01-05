@@ -48,16 +48,6 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
     %
     %
     %
-    properties(Dependent)
-        % interfaces to binary access outside of this class:
-        % initial location of npix fields
-        npix_position;
-    end
-    properties(Dependent,Hidden)
-        % old data type, not relevant any more. Always b+ for dnd and 'a' for
-        % sqw
-        data_type
-    end
     properties(Constant,Access=protected)
         % list of data blocks, this class maintains
         sqw_blocks_list_ = {data_block('','main_header'),...
@@ -94,36 +84,8 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         %
     end
     %======================================================================
-    % Define old interface, still relevant and usefule
+    % Reddefine faccess_dnd_v4 methods using old DND interface
     methods
-        function pos = get.npix_position(obj)
-            if isempty(obj.bat_) || ~obj.bat_.initialized
-                pos = [];
-                return
-            end
-            bl = obj.bat_.get_data_block(faccess_dnd_v4.dnd_blocks_list{2});
-            pos = bl.npix_position;
-        end
-        %
-        %---------------------------------------------------------
-        % equivalent to get_dnd_data but returning dnd_data structure,
-        % rather then
-        [dnd_dat,obj]  = get_dnd_data(obj,varargin);
-        [dnd_info,obj] = get_dnd_metadata(obj,varargin);
-
-        [dnd_obj,obj]  = get_dnd(obj,varargin); % retrieve any sqw/dnd object as dnd object
-
-        %
-        % ----------------------------------------------------------------
-        % save sqw/dnd object stored in memory into binary sqw file as dnd object.
-        % it always reduced data in memory into dnd object on hdd
-        obj = put_dnd(obj,varargin);
-        % write indofmation, describing dnd object
-        obj = put_dnd_metadata(obj,varargin);
-        % write dnd image data, namely s, err and npix
-        obj = put_dnd_data(obj,varargin);
-
-        %
         function [obj,file_exist,old_ldr] = set_file_to_update(obj,filename)
             % open existing file for update its format and/or data blocks
             % stored in it.
@@ -133,25 +95,23 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
                 filename = obj.full_filename;
             end
             [obj,file_exist,old_ldr] = set_file_to_update@horace_binfile_interface(obj,filename,nargout);
-            if old_ldr.sqw_type
-                error('HORACE:faccess_dnd_v4:invalid_argument', ...
-                    'Can not update file %s containing full sqw object using dnd accessor', ...
+            if ~old_ldr.sqw_type
+                error('HORACE:faccess_sqw_v4:invalid_argument', ...
+                    'Can not update file %s containing dnd object using sqw accessor', ...
                     filename)
             end
             if file_exist && old_ldr.faccess_version ~= obj.faccess_version
-                dnd_obj = old_ldr.get_dnd();
-                obj.sqw_holder = dnd_obj;
-                obj = obj.put_dnd();
+                % #893 REWRITE THIS
+                sqw_obj = old_ldr.get_sqw('-nopix');
+                obj.sqw_holder = sqw_obj;
+                obj = obj.sqw_obj();
                 old_ldr.delete();
             end
         end
     end
-    %----------------------------------------------------------------------
+    %======================================================================
     % Old, partially redundant interface
     methods
-        function dt = get.data_type(obj)
-            dt = get_data_type(obj);
-        end
         [inst,obj]  = get_instrument(obj,varargin); % return instrument
         % stored with sqw file or IX_null_inst if nothing is stored.
         % Always IX_null_inst for dnd objects.
@@ -159,7 +119,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         % with sqw file or IX_samp containing lattice only if nothing is
         % stored. Always IX_samp for dnd objects
 
-        % retrieve the whole sqw or dnd object from properly initialized sqw file        
+        % retrieve the whole sqw or dnd object from properly initialized sqw file
         [sqw_obj,varargout] = get_sqw(obj,varargin)
         function  [data,obj] =  get_data(obj,varargin)
             % equivalend to get_dnd('-noclass)
@@ -220,10 +180,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % return true if the loader is intended for processing sqw file
             % format and false otherwise
             is_sqw = true;
-        end        
-        obj=init_from_sqw_obj(obj,varargin);
-        % init file accessors from sqw file on hdd
-        obj=init_from_sqw_file(obj,varargin);
+        end
         %
         function   obj_type = get_format_for_object(~)
             % main part of the format_for_object getter, specifying for

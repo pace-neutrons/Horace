@@ -55,11 +55,14 @@ if ischar(obj.num_dim)|| isempty(obj.num_dim)
         'get_data method called on un-initialized loader')
 end
 
-dnd_obj = DnDBase.dnd(obj.num_dim);
+% get dnd object itself
+
+[dnd_obj_meta,obj] = obj.get_dnd_metadata();
 if header_only
-    [dnd_obj,obj] = obj.get_dnd_metadata();
+    dnd_obj = dnd_obj_meta;
 else
-    [obj,dnd_obj] = obj.get_all_blocks(dnd_obj);
+    [dnd_obj_data,obj] = obj.get_dnd_data();
+    dnd_obj = DnDBase.dnd(dnd_obj_meta,dnd_obj_data);
 end
 %
 if ~verbatim

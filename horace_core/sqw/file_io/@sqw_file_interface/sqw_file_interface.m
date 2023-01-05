@@ -46,7 +46,7 @@ classdef sqw_file_interface
         % number of pixels, contributing into this file.
         npixels
         % the position of pixels information in the file. Used to organize
-        % separate access to pixel data;
+        % separate access to the pixel data;
         pix_position
 
         % size of a pixel (in bytes) stored in binary file,

@@ -107,8 +107,6 @@ classdef binfile_v2_common < horace_binfile_interface
         % interfaces to binary access outside of this class:
         % initial location of dnd data fields
         data_position;
-        % initial location of npix fields
-        npix_position;
     end
     methods(Static)
         % convert all numerical types of a structure into double
@@ -227,12 +225,19 @@ classdef binfile_v2_common < horace_binfile_interface
             obj_type = 'dnd';
         end
         function new_obj = do_class_dependent_updates(~,new_obj,varargin)
-            % method does nothing for modern file format as all changes have been done 
+            % method does nothing for modern file format as all changes have been done
             % elsewhere.
-            % 
-            % Also it is used for supporting modern file format for recent 
+            %
+            % Also it is used for supporting modern file format for recent
             % format v3 files and these files do not change
             %
+        end
+        %
+        function pos = get_npix_position(obj)
+            % overloadable accessor to npix position
+            %
+            % return the position of the npix field in the file
+            pos = obj.npix_pos_;
         end
     end
     % ACCESSORS AND CONSTRUCTOR
@@ -253,10 +258,6 @@ classdef binfile_v2_common < horace_binfile_interface
             % in the file (usually its start of main header for sqw or  filename
             % filename for dnd file)
             pos = obj.data_pos_;
-        end
-        function  pos = get.npix_position(obj)
-            % return the position of the npix field in the file
-            pos = obj.npix_pos_;
         end
         function ff=get.data_type(obj)
             ff = obj.data_type_;
