@@ -121,50 +121,5 @@ classdef sqw_file_interface < binfile_v2_common
         obj = put_instruments(obj,varargin);
         obj = put_samples(obj,varargin);
     end
-    %======================================================================
-    % SERIALIZABLE INTERFACE
-    properties(Constant,Access=private,Hidden=true)
-        % list of field names to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file
-        fields_to_save_ = {'num_contrib_files_';'npixels_'};
-    end
-    %----------------------------------------------------------------------
-    methods
-        function strc = to_bare_struct(obj,varargin)
-            base_cont = to_bare_struct@binfile_v2_common(obj,varargin{:});
-            flds = sqw_file_interface.fields_to_save_;
-            cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
-
-            base_flds = fieldnames(base_cont);
-            base_cont = struct2cell(base_cont);
-            flds  = [base_flds(:);flds(:)];
-            cont = [base_cont(:);cont(:)];
-            %
-            strc = cell2struct(cont,flds);
-        end
-
-        function obj=from_bare_struct(obj,indata)
-            obj = from_bare_struct@binfile_v2_common(obj,indata);
-            %
-            flds = sqw_file_interface.fields_to_save_;
-            for i=1:numel(flds)
-                name = flds{i};
-                obj.(name) = indata.(name);
-            end
-        end
-
-        function flds = saveableFields(obj)
-            % return list of fileldnames to save on hdd to be able to recover
-            % all substantial parts of appropriate sqw file.
-            flds = saveableFields@binfile_v2_common(obj);
-            flds = [obj.fields_to_save_(:);flds(:)];
-        end
-    end
-    methods(Static)
-        function obj = loadobj(inputs,varargin)
-            inobj = sqw_file_interface();
-            obj = loadobj@serializable(inputs,inobj,varargin{:});
-        end
-    end
 end
 
