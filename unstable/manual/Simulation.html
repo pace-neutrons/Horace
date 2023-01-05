@@ -1,37 +1,73 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>Simulation &mdash; Horace  documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Multifit" href="Multifit.html" />
     <link rel="prev" title="Plotting" href="Plotting.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../index.html" class="icon icon-home"> Horace
-            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -39,7 +75,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
@@ -81,40 +128,82 @@
 <li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Horace</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
-      <li class="breadcrumb-item active">Simulation</li>
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../Horace_manual.html">Horace Manual</a> &raquo;</li>
+        
+      <li>Simulation</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
+          
             <a href="../_sources/manual/Simulation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <section id="simulation">
-<h1>Simulation<a class="headerlink" href="#simulation" title="Permalink to this heading"></a></h1>
+<h1>Simulation<a class="headerlink" href="#simulation" title="Permalink to this heading">¶</a></h1>
 <p>There are a variety of simulation tools available in Horace, so that if you have a theoretical model to describe your data you can simulate the results for the specific data points that you measured.</p>
 <p><strong>IMPORTANT</strong> When simulating an S(Q,w) model (see sqw_eval below), bear in mind the difference between what is calculated for equivalent dnd and sqw datasets. See <a class="reference internal" href="FAQ.html#faq"><span class="std std-ref">FAQ</span></a>.</p>
 <section id="func-eval">
-<h2>func_eval<a class="headerlink" href="#func-eval" title="Permalink to this heading"></a></h2>
+<h2>func_eval<a class="headerlink" href="#func-eval" title="Permalink to this heading">¶</a></h2>
 <p>This evaluates a user-supplied function at the x, y, z, … values of an n-dimensional dataset, or array of datasets. The syntax is as follows:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">func_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">myfunc</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span><span class="w"></span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">func_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">myfunc</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;all&#39;</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">func_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">myfunc</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">func_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">myfunc</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;all&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -124,36 +213,36 @@
 <p>The optional keyword <code class="docutils literal notranslate"><span class="pre">'all'</span></code> is used if you wish to calculate the intensity from the function over the whole domain covered by the input dataset. In other words, your dataset may contain gaps due to the trajectory of the detectors through reciprocal space, but you may wish to simulate the scattering even in the gaps. This option applies in the case of dnd objects, but not sqw objects.</p>
 </section>
 <section id="sqw-eval">
-<h2>sqw_eval<a class="headerlink" href="#sqw-eval" title="Permalink to this heading"></a></h2>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">my_sqw_func</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span><span class="w"></span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">my_sqw_func</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;all&#39;</span><span class="p">);</span><span class="w"></span>
+<h2>sqw_eval<a class="headerlink" href="#sqw-eval" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">my_sqw_func</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">my_sqw_func</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;all&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>The syntax for <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> is almost identical to that of <code class="docutils literal notranslate"><span class="pre">func_eval</span></code>. The only difference is the form of the function required <code class="docutils literal notranslate"><span class="pre">my_sqw_func</span></code>, which <strong>must</strong> be of the form</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_sqw_func</span><span class="p">(</span><span class="n">qh</span><span class="p">,</span><span class="w"> </span><span class="n">qk</span><span class="p">,</span><span class="w"> </span><span class="n">ql</span><span class="p">,</span><span class="w"> </span><span class="n">en</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_sqw_func</span><span class="p">(</span><span class="n">qh</span><span class="p">,</span><span class="w"> </span><span class="n">qk</span><span class="p">,</span><span class="w"> </span><span class="n">ql</span><span class="p">,</span><span class="w"> </span><span class="n">en</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">qh,</span> <span class="pre">qk,</span> <span class="pre">ql,</span> <span class="pre">en</span></code> area arrays that contain the co-ordinates in h, k, l and energy of every point in the dataset, irrespective of the dimensionality of that dataset. As before, <code class="docutils literal notranslate"><span class="pre">p</span></code> is a row-vector containing the parameters required by the function. These could be the values of exchange constants, intensity scale factor, or temperature, for example.</p>
 <p>One would generally use <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> in preference to <code class="docutils literal notranslate"><span class="pre">func_eval</span></code> if, for example, one had a model of the spin-wave cross-section for magnetic scattering.</p>
 </section>
 <section id="dispersion">
-<h2>dispersion<a class="headerlink" href="#dispersion" title="Permalink to this heading"></a></h2>
+<h2>dispersion<a class="headerlink" href="#dispersion" title="Permalink to this heading">¶</a></h2>
 <p>Calculate dispersion relation for dataset or array of datasets.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wdisp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dispersion</span><span class="w"> </span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">dispreln</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w">            </span><span class="c">% dispersion only</span><span class="w"></span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wdisp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dispersion</span><span class="w"> </span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">dispreln</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w">            </span><span class="c">% dispersion only</span>
 
-<span class="p">[</span><span class="n">wdisp</span><span class="p">,</span><span class="n">weight</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dispersion</span><span class="w"> </span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">dispreln</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w">   </span><span class="c">% dispersion and spectral weight</span><span class="w"></span>
+<span class="p">[</span><span class="n">wdisp</span><span class="p">,</span><span class="n">weight</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dispersion</span><span class="w"> </span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">dispreln</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w">   </span><span class="c">% dispersion and spectral weight</span>
 </pre></div>
 </div>
 <p>The output dataset (or array of data sets), <code class="docutils literal notranslate"><span class="pre">wdisp</span></code>, will retain only the Q axes, and the signal array(s) will contain the values of energy along the Q axes. If the dispersion relation returns the spectral weight, this will be placed in the error array (actually the square of the spectral weight is put in the error array). In the case when the dispersion has been calculated on a plane in momentum (i.e. wdisp is IX_datset_2d) then the plot function</p>
 <p><code class="docutils literal notranslate"><span class="pre">ds2</span></code> (for draw surface from two arrays)</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ds2</span><span class="p">(</span><span class="n">wdisp</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">ds2</span><span class="p">(</span><span class="n">wdisp</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>will plot a surface with the z axis as energy and coloured according to the spectral weight.</p>
 <p><strong>If you wish to overplot a dispersion relation on top of, for example, a Q-E slice from your data, then you would use:</strong></p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">plot</span><span class="p">(</span><span class="n">my_qe_slice</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">plot</span><span class="p">(</span><span class="n">my_qe_slice</span><span class="p">)</span>
 
-<span class="n">ploc</span><span class="p">(</span><span class="n">wdisp</span><span class="p">)</span><span class="w">       </span><span class="c">% for plot line on current</span><span class="w"></span>
+<span class="n">ploc</span><span class="p">(</span><span class="n">wdisp</span><span class="p">)</span><span class="w">       </span><span class="c">% for plot line on current</span>
 </pre></div>
 </div>
 <p>Note that in the above there must not be a <em>keep</em> command between plotting the Q-E slice and plotting the dispersion, since the <code class="docutils literal notranslate"><span class="pre">ploc</span></code> command works on the <em>current</em> figure.</p>
@@ -187,9 +276,9 @@
 <p>e.g. If <code class="docutils literal notranslate"><span class="pre">win</span></code> is a 2D dataset with Q and E axes, then <code class="docutils literal notranslate"><span class="pre">wdisp</span></code> is a 1D dataset with just the Q axis</p>
 </section>
 <section id="disp2sqw-eval">
-<h2>disp2sqw_eval<a class="headerlink" href="#disp2sqw-eval" title="Permalink to this heading"></a></h2>
+<h2>disp2sqw_eval<a class="headerlink" href="#disp2sqw-eval" title="Permalink to this heading">¶</a></h2>
 <p>Similar to <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code>, but takes as the input function a routine that calculates both the dispersion and the spectral weight, and only requires as its inputs h, k, l and some model parameters.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">disp2sqw_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">fwhh</span><span class="p">,</span><span class="o">&lt;</span><span class="n">Optional</span><span class="w"> </span><span class="nb">input</span><span class="w"> </span><span class="n">parameters</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">disp2sqw_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">fwhh</span><span class="p">,</span><span class="o">&lt;</span><span class="n">Optional</span><span class="w"> </span><span class="nb">input</span><span class="w"> </span><span class="n">parameters</span><span class="o">&gt;</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -209,23 +298,23 @@
 </ul>
 </section>
 <section id="dispersion-plot">
-<h2>dispersion_plot<a class="headerlink" href="#dispersion-plot" title="Permalink to this heading"></a></h2>
+<h2>dispersion_plot<a class="headerlink" href="#dispersion-plot" title="Permalink to this heading">¶</a></h2>
 <p>Plot dispersion relation or array of dispersion relations along a path in reciprocal space. It can be called in the following ways, with or without outputs, as below:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dispersion_plot</span><span class="p">(</span><span class="n">rlp</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dispersion_plot</span><span class="p">(</span><span class="n">rlp</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">)</span>
 
-<span class="n">dispersion_plot</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span><span class="n">rlp</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">)</span><span class="w"></span>
+<span class="n">dispersion_plot</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span><span class="n">rlp</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">)</span>
 
-<span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;dispersion&#39;) % plot dispersion only</span><span class="w"></span>
+<span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;dispersion&#39;) % plot dispersion only</span>
 
-<span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;weight&#39;) % plot spectral weight only</span><span class="w"></span>
+<span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;weight&#39;) % plot spectral weight only</span>
 
-<span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;labels&#39;,{&#39;G&#39;,&#39;X&#39;,...})  % customised labels at the positions of the rlp</span><span class="w"></span>
+<span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;labels&#39;,{&#39;G&#39;,&#39;X&#39;,...})  % customised labels at the positions of the rlp</span>
 
-<span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;ndiv&#39;,n)   % plot with number of points per interval other than the default</span><span class="w"></span>
+<span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;ndiv&#39;,n)   % plot with number of points per interval other than the default</span>
 
-<span class="p">[</span><span class="n">wdisp</span><span class="p">,</span><span class="n">weight</span><span class="p">]=</span><span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">)  % output arrays of IX_dataset_1d with dispersion and spectral weight</span><span class="w"></span>
+<span class="p">[</span><span class="n">wdisp</span><span class="p">,</span><span class="n">weight</span><span class="p">]=</span><span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">)  % output arrays of IX_dataset_1d with dispersion and spectral weight</span>
 
-<span class="p">[</span><span class="n">wdisp</span><span class="p">,</span><span class="n">weight</span><span class="p">]=</span><span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;noplot&#39;) % output arrays without plotting</span><span class="w"></span>
+<span class="p">[</span><span class="n">wdisp</span><span class="p">,</span><span class="n">weight</span><span class="p">]=</span><span class="n">dispersion_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;noplot&#39;) % output arrays without plotting</span>
 </pre></div>
 </div>
 <p>The inputs are as follows:</p>
@@ -270,19 +359,19 @@
 </ul>
 </section>
 <section id="disp2sqw-plot">
-<h2>disp2sqw_plot<a class="headerlink" href="#disp2sqw-plot" title="Permalink to this heading"></a></h2>
+<h2>disp2sqw_plot<a class="headerlink" href="#disp2sqw-plot" title="Permalink to this heading">¶</a></h2>
 <p>Generate an Q-E intensity plot for a dispersion relation along a path in reciprocal space. The function is very closely related to <code class="docutils literal notranslate"><span class="pre">dispersion_plot</span></code>), and most of the input arguments and options are the same for the two functions.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">disp2sqw_plot</span><span class="p">(</span><span class="n">rlp</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">ebins</span><span class="p">,</span><span class="n">fwhh</span><span class="p">)</span><span class="w"></span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">disp2sqw_plot</span><span class="p">(</span><span class="n">rlp</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">ebins</span><span class="p">,</span><span class="n">fwhh</span><span class="p">)</span>
 
-<span class="n">disp2sqw_plot</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span><span class="n">rlp</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">ebins</span><span class="p">,</span><span class="n">fwhh</span><span class="p">)</span><span class="w"></span>
+<span class="n">disp2sqw_plot</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span><span class="n">rlp</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">ebins</span><span class="p">,</span><span class="n">fwhh</span><span class="p">)</span>
 
-<span class="n">disp2sqw_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;labels&#39;,{&#39;G&#39;,&#39;X&#39;,...})  % customised labels at the positions of the rlp</span><span class="w"></span>
+<span class="n">disp2sqw_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;labels&#39;,{&#39;G&#39;,&#39;X&#39;,...})  % customised labels at the positions of the rlp</span>
 
-<span class="n">disp2sqw_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;ndiv&#39;,n)   % plot with number of points per interval other than the default</span><span class="w"></span>
+<span class="n">disp2sqw_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;ndiv&#39;,n)   % plot with number of points per interval other than the default</span>
 
-<span class="n">weight</span><span class="p">=</span><span class="n">disp2sqw_plot</span><span class="p">(</span><span class="k">...</span><span class="c">)  % output IX_dataset_2d with spectral weight</span><span class="w"></span>
+<span class="n">weight</span><span class="p">=</span><span class="n">disp2sqw_plot</span><span class="p">(</span><span class="k">...</span><span class="c">)  % output IX_dataset_2d with spectral weight</span>
 
-<span class="n">weight</span><span class="p">=</span><span class="n">disp2sqw_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;noplot&#39;) % output array without plotting</span><span class="w"></span>
+<span class="n">weight</span><span class="p">=</span><span class="n">disp2sqw_plot</span><span class="p">(</span><span class="k">...</span><span class="c">,&#39;noplot&#39;) % output array without plotting</span>
 </pre></div>
 </div>
 <p>The inputs are as follows:</p>
@@ -325,11 +414,11 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">weight</span></code> IX_dataset_2d containing the spectra weight. The x-axis is the distance in Ang^-1 along the path described</p></li>
 </ul>
 <p>The image intensity, as the function of <strong>Q</strong> along the rlp path alonx x-axis and the energy transfer along y-axis is determined by the equation:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="p">(</span><span class="n">energy</span><span class="p">)=</span><span class="w"> </span><span class="n">sfact</span><span class="o">.*</span><span class="nb">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">w</span><span class="p">(</span><span class="o">**</span><span class="n">Q</span><span class="o">**</span><span class="p">,</span><span class="o">\</span><span class="w"> </span><span class="o">**</span><span class="n">p</span><span class="o">**</span><span class="p">)</span><span class="o">-</span><span class="n">energy</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sig</span><span class="o">.^</span><span class="mi">2</span><span class="p">))</span><span class="o">./</span><span class="p">(</span><span class="n">sig</span><span class="o">*</span><span class="nb">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="p">(</span><span class="n">energy</span><span class="p">)=</span><span class="w"> </span><span class="n">sfact</span><span class="o">.*</span><span class="nb">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">w</span><span class="p">(</span><span class="o">**</span><span class="n">Q</span><span class="o">**</span><span class="p">,</span><span class="o">\</span><span class="w"> </span><span class="o">**</span><span class="n">p</span><span class="o">**</span><span class="p">)</span><span class="o">-</span><span class="n">energy</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sig</span><span class="o">.^</span><span class="mi">2</span><span class="p">))</span><span class="o">./</span><span class="p">(</span><span class="n">sig</span><span class="o">*</span><span class="nb">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>where</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sig</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">fwhh</span><span class="o">/</span><span class="nb">sqrt</span><span class="p">(</span><span class="nb">log</span><span class="p">(</span><span class="mi">256</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sig</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">fwhh</span><span class="o">/</span><span class="nb">sqrt</span><span class="p">(</span><span class="nb">log</span><span class="p">(</span><span class="mi">256</span><span class="p">));</span>
 </pre></div>
 </div>
 </section>
@@ -337,24 +426,33 @@
 
 
            </div>
+           
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Plotting.html" class="btn btn-neutral float-left" title="Plotting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="Multifit.html" class="btn btn-neutral float-right" title="Multifit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Plotting.html" class="btn btn-neutral float-left" title="Plotting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2006-2022, STFC RAL.
-      <span class="lastupdated">Last updated on Dec 9, 2022, 9:49:58 AM.
-      </span></p>
-  </div>
+    <p>
+        &#169; Copyright 2006-2023, STFC RAL.
+      <span class="lastupdated">
+        Last updated on Jan 5, 2023, 3:38:40 PM.
+      </span>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
     provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
 <br><br>
 <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/manual/Simulation.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
 <br>
@@ -364,13 +462,22 @@ For more info on editing <a href="../Contributing.html">click here</a>.
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
