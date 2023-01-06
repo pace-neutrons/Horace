@@ -88,16 +88,18 @@ else
         end
     end
     if numel(range) == 2
-        if range(1)==range(2)  % some old file formats do not store proper img_range
-            % and store 0,0 for integration ranges. Here we try to mitigate
-            % this
+        border = abs(SQWDnDBase.border_size);
+        % we need correct integration range for cut to work but some old file 
+        if abs(range(2)-range(1))<2*border  % formats do not store proper
+            % img_range and store [centerpoint, centerpoint] for 
+            % integration ranges. Here we try to mitigate this.
             av_pt = 0.5*(range(1)+range(2));
-            if abs(av_pt)<abs(SQWDnDBase.border_size)
-                range(1) = -abs(SQWDnDBase.border_size);
-                range(2) =  abs(SQWDnDBase.border_size);
+            if abs(av_pt) < border
+                range(1) = -border;
+                range(2) =  border;
             else
-                range(1) = av_pt*(1-abs(SQWDnDBase.border_size));
-                range(2) = av_pt*(1+abs(SQWDnDBase.border_size));
+                range(1) = av_pt*(1 - border);
+                range(2) = av_pt*(1 + border);
             end
         end
     end
