@@ -72,14 +72,23 @@ f_pass_caller = obj.wrapfun_.f_pass_caller;
 bf_pass_caller = obj.wrapfun_.bf_pass_caller;
 
 selected = obj.options_.selected;
+
+pm = get(hpc_config, 'parallel_multifit');
 if selected
     % Get wrapped functions and parameters after performing initialisation if required
     [fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
         wrap_functions_and_parameters (obj.wrapfun_, wmask, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
 
     % Now compute output
-    wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        f_pass_caller, bf_pass_caller, pfin, p_info, output_type);
+
+    if (pm)
+        wout = parallel_call(@multifit_func_eval, ...
+                             {wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap, ...
+                              f_pass_caller, bf_pass_caller, pfin, p_info, output_type});
+    else
+        wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
+                                   f_pass_caller, bf_pass_caller, pfin, p_info, output_type);
+    end
     squeeze_xye = obj.options_.squeeze_xye;
     if ~opt.components
         data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
@@ -95,8 +104,14 @@ else
         wrap_functions_and_parameters (obj.wrapfun_, obj.w_, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
 
     % Now compute output
-    wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        f_pass_caller, bf_pass_caller, pfin, p_info, output_type);
+    if (pm)
+        wout = parallel_call(@multifit_func_eval, ...
+                             {obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap, ...
+                              f_pass_caller, bf_pass_caller, pfin, p_info, output_type});
+    else
+        wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
+                                   f_pass_caller, bf_pass_caller, pfin, p_info, output_type);
+    end
     squeeze_xye = false;
     msk_none = cellfun(@(x)true(size(x)),obj.msk_,'UniformOutput',false);   % no masking
     if ~opt.components
