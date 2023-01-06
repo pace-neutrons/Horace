@@ -43,4 +43,4 @@ end
 wout=w;
 wout.data.s=svals;
 wout.data.e=svar;
-wout.pix = PixelData([wout.pix.data(1:7,:);spix';sdevsqr']);
+wout.pix = PixelDataBase.create([wout.pix.data(1:7,:);spix';sdevsqr']);

@@ -46,6 +46,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             % retrieve sqw-file version the particular loader works with
             ver = 0;
         end
+
         function is_sqw = get_sqw_type(~)
             is_sqw = true;
         end
@@ -55,6 +56,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             error('SQW_FILE_IO:runtime_error',...
                 'FACCESS_SQW_PROTOTYOE::init_from_sqw_obj: method is not implemented for prototype files as you can not currently write prototype files');
         end
+
         function obj=init_from_sqw_file(obj,varargin)
             % initialize the structure of faccess class using sqw file as input
             try
@@ -92,7 +94,8 @@ classdef faccess_sqw_prototype < sqw_binfile_common
                 obj = obj.init(varargin{:});
             end
         end
-        function [should,initob,mess] =should_load_stream(obj,header,fid)
+
+        function [should,initob,mess] = should_load_stream(obj,header,fid)
             % Check if faccess_sqw_prototype loader should process selected
             % data file.
             %Usage:
@@ -118,7 +121,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             if header.version == 0 && strcmp(header.name,'horace')
                 if header.uncertain
                     do_fseek(fid,0,'bof');
-                    header = dnd_file_interface.get_file_header(fid,4098+22);
+                    header = horace_binfile_interface.get_file_header(fid,4098+22);
                 end
             end
 
@@ -128,7 +131,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
                 warning('SQW_FILE_IO:legacy_data',...
                     'FACCESS_SQW_PROTOTYPE::should_load_stream: trying to load legacy Horace prototype data format');
             end
-        
+
         end
         %
         function data_form = get_dnd_form(obj,varargin)
@@ -269,7 +272,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %                               projection conversion
 
         end
-        %
+
         function sqw_data = get_se_npix(obj,varargin)
             % get signal,error and npix data only
             sqw_data = get_se_npix@binfile_v2_common(obj,varargin{:});
@@ -277,7 +280,6 @@ classdef faccess_sqw_prototype < sqw_binfile_common
                 convert_signal_error_(sqw_data.s,sqw_data.e,sqw_data.npix);
         end
 
-        %
         function new_obj = upgrade_file_format(obj)
             error('SQW_FILE_IO:legacy_data',...
                 ['FACCESS_SQW_PROTOTYPE::upgrade_file_format: can not upgrade file from prototype to other file format.\n',...
