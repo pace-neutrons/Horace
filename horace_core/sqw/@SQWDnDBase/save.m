@@ -120,7 +120,8 @@ for i=1:numel(w)
     %             ldw = ldw.put_dnd('-update','-nopix');
     %         end
     %     else
-    if sqw_type   %TODO:  OOP violation -- save dnd should be associated with dnd class
+    if sqw_type  % Actually, can be removed, as put_sqw for dnd does put dnd
+        %
         ldw = ldw.put_sqw(argi{:});
     else
         ldw = ldw.put_dnd();
