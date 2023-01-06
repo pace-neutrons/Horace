@@ -84,7 +84,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         %
     end
     %======================================================================
-    % Reddefine faccess_dnd_v4 methods using old DND interface
+    % Main interface
     methods
         function [obj,file_exist,old_ldr] = set_file_to_update(obj,filename)
             % open existing file for update its format and/or data blocks
@@ -108,6 +108,13 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
                 old_ldr.delete();
             end
         end
+        % retrieve the whole or partial sqw object from properly initialized sqw file
+        [sqw_obj,obj] = get_sqw(obj,varargin)
+        function obj = put_sqw(obj,varargin)
+            % save sqw object stored in memory into binary sqw file
+
+        end
+        
     end
     %======================================================================
     % Old, partially redundant interface
@@ -121,22 +128,6 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
 
         % retrieve the whole sqw or dnd object from properly initialized sqw file
         [sqw_obj,varargout] = get_sqw(obj,varargin)
-        function  [data,obj] =  get_data(obj,varargin)
-            % equivalend to get_dnd('-noclass)
-            is_key = cellfun(@(x)(ischar(x)||isstring(x))&&startsWith(x,'-'), ...
-                varargin);
-            if any(is_key)
-                is_noclass = ismember('-noclass',varargin(is_key));
-                if is_noclass
-                    argi = varargin;
-                else
-                    argi = [varargin(:);'-noclass'];
-                end
-            else
-                argi = varargin;
-            end
-            [data,obj] = obj.get_dnd(argi{:});
-        end
         % -----------------------------------------------------------------
         function pix_range = get_pix_range(~)
             % get [2x4] array of min/max ranges of the pixels contributing
@@ -145,11 +136,6 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         end
 
         %
-        function obj = put_sqw(obj,varargin)
-            % save sqw object stored in memory into binary sqw file as dnd
-            % file
-            obj = obj.put_dnd(obj,varargin{:});
-        end
         function img_db_range = get_img_db_range(obj,varargin)
             % get [2x4] array of min/max ranges of the image where pixels
             % are rebinned into

@@ -1,4 +1,4 @@
-function [dnd_block,obj] = get_dnd_block_(obj,block_name_or_instance,varargin)
+function [dnd_block,obj] = get_block_data_(obj,block_name_or_instance,varargin)
 %GET_DND_BLOCK_  Retrieve the data described by the block provided as input
 
 if nargin>2

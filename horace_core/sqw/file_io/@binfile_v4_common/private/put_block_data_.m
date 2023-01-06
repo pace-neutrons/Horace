@@ -1,4 +1,4 @@
-function obj = put_dnd_block_(obj, block_name_or_instance,varargin)
+function obj = put_block_data_(obj, block_name_or_instance,varargin)
 %PUT_DND_BLOCK_  store the data described by the block provided as input
 
 if nargin>2

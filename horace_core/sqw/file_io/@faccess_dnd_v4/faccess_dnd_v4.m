@@ -81,6 +81,15 @@ classdef faccess_dnd_v4 < binfile_v4_common
     %======================================================================
     % Define old interface, still relevant and useful
     methods
+        function [sqw_obj,varargout] = get_sqw(obj,varargin)
+            % retrieve the whole sqw or dnd object from properly initialized sqw file
+            if nargout > 1
+                [sqw_obj,varargout{1}] = obj.get_dnd(varargin{:});
+            else
+                sqw_obj = obj.get_dnd(varargin{:});
+            end
+        end
+        
         % ----------------------------------------------------------------
         function [obj,file_exist,old_ldr] = set_file_to_update(obj,filename)
             % open existing file for update its format and/or data blocks
@@ -113,30 +122,6 @@ classdef faccess_dnd_v4 < binfile_v4_common
         [samp,obj]  = get_sample(obj,varargin);     % return sample stored
         % with sqw file or IX_samp containing lattice only if nothing is
         % stored. Always IX_samp for dnd objects
-        function [sqw_obj,varargout] = get_sqw(obj,varargin)
-            % retrieve the whole sqw or dnd object from properly initialized sqw file
-            if nargout > 1
-                [sqw_obj,varargout{1}] = obj.get_dnd(varargin{:});
-            else
-                sqw_obj = obj.get_dnd(varargin{:});
-            end
-        end
-        function  [data,obj] =  get_data(obj,varargin)
-            % equivalend to get_dnd('-noclass)
-            is_key = cellfun(@(x)(ischar(x)||isstring(x))&&startsWith(x,'-'), ...
-                varargin);
-            if any(is_key)
-                is_noclass = ismember('-noclass',varargin(is_key));
-                if is_noclass
-                    argi = varargin;
-                else
-                    argi = [varargin(:);'-noclass'];
-                end
-            else
-                argi = varargin;
-            end
-            [data,obj] = obj.get_dnd(argi{:});
-        end
         % -----------------------------------------------------------------
         function pix_range = get_pix_range(~)
             % get [2x4] array of min/max ranges of the pixels contributing

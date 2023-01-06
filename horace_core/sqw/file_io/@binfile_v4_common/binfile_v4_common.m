@@ -97,7 +97,7 @@ classdef binfile_v4_common < horace_binfile_interface
             %                 object.
             %
             [obj,obj_to_set,is_serializable] = check_get_all_blocks_inputs_(obj,varargin{:});
-            % This have happened during intialization:
+            % This have happened during faccessor intialization:
             %obj.bat_ = obj.bat_.get_bat(obj.file_id_);
             fl = obj.bat.blocks_list;
             n_blocks = obj.bat_.n_blocks;
@@ -197,28 +197,36 @@ classdef binfile_v4_common < horace_binfile_interface
         %------------------------------------------------------------------
         function [dnd_dat,obj]  = get_dnd_data(obj,varargin)
             % return DND data class, containing n-d arrays, describing N-D image
-            [dnd_dat,obj] = obj.get_dnd_block('bl_data_nd_data',varargin{:});
+            [dnd_dat,obj] = obj.get_block_data('bl_data_nd_data',varargin{:});
         end
         function [dnd_info,obj] = get_dnd_metadata(obj,varargin)
             % return dnd metadata class, containing general information,
             % describing dnd object
-            [dnd_info,obj] =  obj.get_dnd_block('bl_data_metadata',varargin{:});
+            [dnd_info,obj] =  obj.get_block_data('bl_data_metadata',varargin{:});
         end
         % retrieve any dnd object or dnd part of sqw object
         [dnd_obj,obj]  = get_dnd(obj,varargin);
         %------------------------------------------------------------------
         function obj = put_dnd_metadata(obj,varargin)
             % write information, describing dnd object
-            obj = obj.put_dnd_block('bl_data_metadata',varargin{:});
+            obj = obj.put_block_data('bl_data_metadata',varargin{:});
         end
 
         function obj = put_dnd_data(obj,varargin)
             % write dnd image data, namely s, err and npix
-            obj = obj.put_dnd_block('bl_data_nd_data',varargin{:});
+            obj = obj.put_block_data('bl_data_nd_data',varargin{:});
         end
         % save sqw/dnd object stored in memory into binary sqw file as dnd object.
         % it always reduced data in memory into dnd object on hdd
         obj = put_dnd(obj,varargin);
+        %
+        function  [data,obj] =  get_data(obj,varargin)
+            % equivalend to get_dnd('-noclass). Should it also return pix
+            % if worning on sqw object? No this at the moment
+            argi = parse_get_data_inputs_(varargin{:});
+            [data,obj] = obj.get_dnd(argi{:});
+        end
+        
 
     end
     %======================================================================
@@ -251,7 +259,7 @@ classdef binfile_v4_common < horace_binfile_interface
             % file format
         end
         %------------------------------------------------------------------
-        function [dnd_block,obj] = get_dnd_block(obj,block_name_or_instance,varargin)
+        function [dnd_block,obj] = get_block_data(obj,block_name_or_instance,varargin)
             % Retrieve the binary data described by the data_block provided as input
             %
             % uses get_sqw_block and adds file initialization if info is
@@ -260,15 +268,15 @@ classdef binfile_v4_common < horace_binfile_interface
             % Differs from get_sqw_block as it may initialize input file if
             % the file is not initialized and appropriate data are
             % available
-            [dnd_block,obj] = get_dnd_block_(obj,block_name_or_instance,varargin{:});
+            [dnd_block,obj] = get_block_data_(obj,block_name_or_instance,varargin{:});
         end
-        function obj = put_dnd_block(obj, block_name_or_instance,varargin)
+        function obj = put_block_data(obj, block_name_or_instance,varargin)
             % store the data described by the block provided as input
             %
-            % uses put_sqw_block and adds file initialization if info is
-            % provided
+            % uses put_sqw_block and adds file initialization if initialization
+            % info is provided
             %
-            obj = put_dnd_block_(obj, block_name_or_instance,varargin{:});
+            obj = put_block_data_(obj, block_name_or_instance,varargin{:});
         end
         %
         function pos = get_npix_position(obj)
