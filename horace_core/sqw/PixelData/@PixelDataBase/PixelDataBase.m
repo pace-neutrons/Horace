@@ -30,7 +30,7 @@ classdef (Abstract) PixelDataBase < handle
     %
     % Properties:
     %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
-    %                    Cartesian coordinates in projection axes, units are per Angstrom (1 x n arrays)
+    %                    Cartesian coordinates in projection axes, units are per Angstroms (1 x n arrays)
     %   dE             - The energy transfer value for each pixel in meV (1 x n array)
     %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
     %   q_coordinates  - The spacial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
@@ -303,7 +303,7 @@ classdef (Abstract) PixelDataBase < handle
             %>> obj = PixelDataBase.loadobj(S)
             % Input:
             % ------
-            %   S       A data, produeced by saveobj operation and stored
+            %   S       A data, produced by saveobj operation and stored
             %           in .mat file
             % Output:
             % -------
@@ -378,99 +378,99 @@ classdef (Abstract) PixelDataBase < handle
         end
 
         function data = get.data(obj)
-            data = obj.get_prop("all");
+            data = obj.get_prop('all');
         end
 
         function set.data(obj, val)
-            obj.set_prop("all", val);
+            obj.set_prop('all', val);
         end
 
         function u1 = get.u1(obj)
-            u1 = obj.get_prop("u1");
+            u1 = obj.get_prop('u1');
         end
 
         function set.u1(obj, val)
-            obj.set_prop("u1", val);
+            obj.set_prop('u1', val);
         end
 
         function u2 = get.u2(obj)
-            u2 = obj.get_prop("u2");
+            u2 = obj.get_prop('u2');
         end
 
         function set.u2(obj, val)
-            obj.set_prop("u2", val);
+            obj.set_prop('u2', val);
         end
 
         function u3 = get.u3(obj)
-            u3 = obj.get_prop("u3");
+            u3 = obj.get_prop('u3');
         end
 
         function set.u3(obj, val)
-            obj.set_prop("u3", val);
+            obj.set_prop('u3', val);
         end
 
         function dE = get.dE(obj)
-            dE = obj.get_prop("dE");
+            dE = obj.get_prop('dE');
         end
 
         function set.dE(obj, val)
-            obj.set_prop("dE", val);
+            obj.set_prop('dE', val);
         end
 
         function q_coordinates = get.q_coordinates(obj)
-            q_coordinates = obj.get_prop("q_coordinates");
+            q_coordinates = obj.get_prop('q_coordinates');
         end
 
         function set.q_coordinates(obj, val)
-            obj.set_prop("q_coordinates", val);
+            obj.set_prop('q_coordinates', val);
         end
 
         function coordinates = get.coordinates(obj)
-            coordinates = obj.get_prop("coordinates");
+            coordinates = obj.get_prop('coordinates');
         end
 
         function set.coordinates(obj, val)
-            obj.set_prop("coordinates", val);
+            obj.set_prop('coordinates', val);
         end
 
         function run_idx = get.run_idx(obj)
-            run_idx = obj.get_prop("run_idx");
+            run_idx = obj.get_prop('run_idx');
         end
 
         function set.run_idx(obj, val)
-            obj.set_prop("run_idx", val);
+            obj.set_prop('run_idx', val);
         end
 
         function detector_idx = get.detector_idx(obj)
-            detector_idx = obj.get_prop("detector_idx");
+            detector_idx = obj.get_prop('detector_idx');
         end
 
         function set.detector_idx(obj, val)
-            obj.set_prop("detector_idx", val);
+            obj.set_prop('detector_idx', val);
         end
 
         function energy_idx = get.energy_idx(obj)
-            energy_idx = obj.get_prop("energy_idx");
+            energy_idx = obj.get_prop('energy_idx');
         end
 
         function set.energy_idx(obj, val)
-            obj.set_prop("energy_idx", val);
+            obj.set_prop('energy_idx', val);
         end
 
         function signal = get.signal(obj)
-            signal = obj.get_prop("signal");
+            signal = obj.get_prop('signal');
         end
 
         function set.signal(obj, val)
-            obj.set_prop("signal", val);
+            obj.set_prop('signal', val);
         end
 
         function variance = get.variance(obj)
-            variance = obj.get_prop("variance");
+            variance = obj.get_prop('variance');
         end
 
         function set.variance(obj, val)
-            obj.set_prop("variance", val);
+            obj.set_prop('variance', val);
         end
 
         function range = get.pix_range(obj)
@@ -510,7 +510,7 @@ classdef (Abstract) PixelDataBase < handle
             %  This method simply constructs a new PixelData instance by calling
             %  the constructor with the input object as an argument. Because of
             %  this, any properties that need to be explicitly copied must be
-            %  copied within this class' "copy-constructor".
+            %  copied within this class' 'copy-constructor'.
             pix_copy = PixelDataBase.create(obj, obj.page_memory_size_, false, obj.is_filebacked);
         end
 
