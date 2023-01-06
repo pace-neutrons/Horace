@@ -45,7 +45,7 @@ if get_dnd && force_sqw
           'only one option allowed i.e. -get_dnd and -force_sqw cannot be provided simultaneously');
 end
 
-if ~any(strcmp(argi, 'file_backed')) % Default to flag status if kwarg not present
+if file_backed && ~get_dnd
     argi = [argi, 'file_backed', file_backed];
 end
 
