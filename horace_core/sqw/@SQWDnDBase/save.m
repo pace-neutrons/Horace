@@ -120,8 +120,9 @@ for i=1:numel(w)
     %             ldw = ldw.put_dnd('-update','-nopix');
     %         end
     %     else
-    if sqw_type  % Actually, can be removed, as put_sqw for dnd does put dnd
-        %
+    if sqw_type  % Actually, can be removed, as put_sqw for dnd does put dnd for faccess_dnd
+        % only the possible issue that is currently put_dnd and put_sqw do not
+        % accept the same key set. Should it be reconsicled?
         ldw = ldw.put_sqw(argi{:});
     else
         ldw = ldw.put_dnd();

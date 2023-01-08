@@ -59,7 +59,9 @@ classdef (Abstract) PixelDataBase < handle
     properties (Constant, Hidden)
         DATA_POINT_SIZE = 8;  % num bytes in a double
         DEFAULT_NUM_PIX_FIELDS = 9;
-        DEFAULT_PAGE_SIZE = get(hor_config, 'mem_chunk_size');
+    end
+    properties(Dependent,Hidden)
+        DEFAULT_PAGE_SIZE;
     end
 
     properties (Constant,Hidden)
@@ -100,9 +102,9 @@ classdef (Abstract) PixelDataBase < handle
         dE; % The array of energy deltas of the pixels (1 x n array) [meV]
 
         q_coordinates; % The spatial dimensions of the Crystal Cartesian
-                       %  orientation (3 x n array)
+        %              % orientation (3 x n array)
         coordinates;   % The coordinates of the pixels in the projection axes, i.e.: u1,
-                       %  u2, u3 and dE (4 x n array)
+        %              % u2, u3 and dE (4 x n array)
 
         run_idx; % The run index the pixel originated from (1 x n array)
         detector_idx; % The detector group number in the detector listing for the pixels (1 x n array)
@@ -110,7 +112,7 @@ classdef (Abstract) PixelDataBase < handle
 
         signal;   % The signal array (1 x n array)
         variance; % The variance on the signal array
-                  %  (variance i.e. error bar squared) (1 x n array)
+        %  (variance i.e. error bar squared) (1 x n array)
         num_pixels;         % The number of pixels in the data block
 
         pix_range; % The range of pixels coordinates in Crystal Cartesian
@@ -200,10 +202,10 @@ classdef (Abstract) PixelDataBase < handle
                 if ~isfield(init,'version')
                     fnms = fieldnames(init);
                     if all(ismember(PixelDataBase.fields_to_save_,fnms)) % the current pixdata structure
-                                                                         % provided as input
+                        % provided as input
                         if numel(init) > 1 % the same as saveobj
                             init = struct('version',PixelDataBase.version,...
-                                         'array_data',init);
+                                'array_data',init);
                         else
                             init.version = PixelDataBase.version;
                         end
@@ -249,7 +251,7 @@ classdef (Abstract) PixelDataBase < handle
                 % input is a file path
                 if ~is_file(init)
                     error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                          'Cannot find file to load (%s)', init)
+                        'Cannot find file to load (%s)', init)
                 end
                 init = sqw_formats_factory.instance().get_loader(init);
                 if (isempty(file_backed) && init.npixels*9 < mem_alloc) || (~isempty(file_backed) && ~file_backed)
@@ -267,8 +269,8 @@ classdef (Abstract) PixelDataBase < handle
                 end
             else
                 error('HORACE:PixelDataBase:invalid_argument', ...
-                      'Cannot create a PixelData object from class (%s)', ...
-                      class(init))
+                    'Cannot create a PixelData object from class (%s)', ...
+                    class(init))
 
             end
 
@@ -480,6 +482,10 @@ classdef (Abstract) PixelDataBase < handle
         function set.pix_range(obj, pix_range)
             set_range(obj, pix_range);
         end
+
+        function ps = get.DEFAULT_PAGE_SIZE(~)
+            ps = config_store.instance().get_value('hor_config', 'mem_chunk_size');
+        end
     end
 
     methods
@@ -582,7 +588,7 @@ classdef (Abstract) PixelDataBase < handle
                     'Invalid pixel field(s) {''%s''}.\nValid keys are: {''%s''}', ...
                     strjoin(fields(bad_fields), ''', '''), ...
                     strjoin(valid_fields, ''', ''') ...
-                     );
+                    );
             end
 
             indices = cellfun(@(field) poss_fields(field), fields, 'UniformOutput', false);

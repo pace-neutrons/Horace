@@ -78,7 +78,7 @@ classdef PixelDataMemory < PixelDataBase
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         pix_out = get_data(obj, fields, abs_pix_indices);
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
-                                    recalculate_pix_ranges,keep_precision);
+            recalculate_pix_ranges,keep_precision);
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
@@ -114,7 +114,7 @@ classdef PixelDataMemory < PixelDataBase
                 elseif ischar(init) || isstring(init)
                     if ~is_file(init)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                              'Cannot find file to load (%s)', init)
+                            'Cannot find file to load (%s)', init)
                     end
 
                     init = sqw_formats_factory.instance().get_loader(init);
@@ -152,7 +152,7 @@ classdef PixelDataMemory < PixelDataBase
                     obj.num_pixels_ = obj.num_pixels;
                 else
                     error('HORACE:PixelDataMemory:invalid_argument', ...
-                          'Cannot construct PixelDataMemory from class (%s)', class(init))
+                        'Cannot construct PixelDataMemory from class (%s)', class(init))
                 end
             end
 
@@ -204,8 +204,8 @@ classdef PixelDataMemory < PixelDataBase
             total_num_pages = 1;
             if page_number ~= 1
                 error('HORACE:PIXELDATA:move_to_page', ...
-                      'Cannot advance to page %i only %i pages of data found.', ...
-                      page_number, 1);
+                    'Cannot advance to page %i only %i pages of data found.', ...
+                    page_number, 1);
             end
 
         end
@@ -291,7 +291,7 @@ classdef PixelDataMemory < PixelDataBase
 
     methods (Access = ?PixelDataBase)
         function obj = init_from_file_accessor_(obj, f_accessor)
-        % Initialise a PixelData object from a file accessor
+            % Initialise a PixelData object from a file accessor
             obj.num_pixels_ = double(f_accessor.npixels);
             obj.pix_range_ = f_accessor.get_pix_range();
             obj.data_ = f_accessor.get_raw_pix();

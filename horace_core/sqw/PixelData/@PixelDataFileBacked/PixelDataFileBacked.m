@@ -149,7 +149,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 elseif ischar(init) || isstring(init)
                     if ~is_file(init)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                              'Cannot find file to load (%s)', init)
+                            'Cannot find file to load (%s)', init)
                     end
 
                     init = sqw_formats_factory.instance().get_loader(init);
@@ -161,7 +161,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 elseif isnumeric(init)
                     if obj.base_page_size < size(init, 2)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                              'Cannot create file-backed with data larger than a page')
+                            'Cannot create file-backed with data larger than a page')
                     end
                     obj.set_raw_data(init);
                     obj.data_ = init;
@@ -171,13 +171,13 @@ classdef PixelDataFileBacked < PixelDataBase
                     end
                 else
                     error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                          'Cannot construct PixelDataFileBacked from class (%s)', class(init))
+                        'Cannot construct PixelDataFileBacked from class (%s)', class(init))
                 end
 
                 if any(obj.pix_range == obj.EMPTY_RANGE_, 'all') && upgrade
                     if get(herbert_config, 'log_level') > 0
                         fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
-                                init.filename);
+                            init.filename);
                     end
                     obj.recalc_pix_range();
                 end
@@ -233,7 +233,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
         % --- Operator overrides ---
         function delete(obj)
-        % Class destructor to delete any temporary file
+            % Class destructor to delete any temporary file
             if ~isempty(obj.tmp_io_handler_)
                 obj.tmp_io_handler_.delete_file();
             end
@@ -241,39 +241,39 @@ classdef PixelDataFileBacked < PixelDataBase
 
         function saveobj(~)
             error('HORACE:PixelData:runtime_error',...
-                  'Can not save filebacked PixelData object');
+                'Can not save filebacked PixelData object');
         end
 
         function has_more = has_more(obj)
-        % Returns true if there are subsequent pixels stored in the file that
-        % are not held in the current page
-        %
-        %    >> has_more = pix.has_more();
-        %
+            % Returns true if there are subsequent pixels stored in the file that
+            % are not held in the current page
+            %
+            %    >> has_more = pix.has_more();
+            %
             has_more = obj.pix_position_ + obj.base_page_size <= obj.num_pixels;
         end
 
         function [current_page_num, total_num_pages] = advance(obj, varargin)
-        % Load the next page of pixel data from the file backing the object
-        %
-        % This function will throw a PIXELDATA:advance error if attempting to
-        % advance past the final page of data in the file.
-        %
-        % This function does nothing if the pixel data is not file-backed.
-        %
-        %  >> obj.advance()
-        %  >> obj.advance('nosave', true)
-        %
-        % Inputs:
-        % -------
-        % nosave  Keyword argument. Set to true to discard changes to cache.
-        %         (default: false)
-        %
-        % Outputs:
-        % --------
-        % current_page_number  The new page and total number of pages advance will
-        % walk through to complete the algorithm
-        %
+            % Load the next page of pixel data from the file backing the object
+            %
+            % This function will throw a PIXELDATA:advance error if attempting to
+            % advance past the final page of data in the file.
+            %
+            % This function does nothing if the pixel data is not file-backed.
+            %
+            %  >> obj.advance()
+            %  >> obj.advance('nosave', true)
+            %
+            % Inputs:
+            % -------
+            % nosave  Keyword argument. Set to true to discard changes to cache.
+            %         (default: false)
+            %
+            % Outputs:
+            % --------
+            % current_page_number  The new page and total number of pages advance will
+            % walk through to complete the algorithm
+            %
 
             [current_page_num,total_num_pages]=obj.move_to_page(obj.page_number_ + 1, varargin{:});
         end
@@ -312,7 +312,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
         function set.page_memory_size(obj, val)
             validateattributes(val, {'numeric'}, {'scalar', 'nonnan', ...
-                                                  '>', PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS})
+                '>', PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS})
             obj.page_memory_size_ = round(val);
             % Keep synchronised
             obj.tmp_io_handler_.page_size = obj.page_memory_size_;
@@ -348,7 +348,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function obj = load_page_(obj, page_number)
-        % Load the data for the given page index
+            % Load the data for the given page index
             if ~obj.tmp_io_handler_.has_tmp_file_
                 obj.data_ = obj.load_clean_page_(page_number);
             else
@@ -358,7 +358,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function data = load_clean_page_(obj, page_number)
-        % Load the given page of data from the sqw file backing this object
+            % Load the given page of data from the sqw file backing this object
             [pix_idx_start, pix_idx_end] = obj.get_page_idx_(page_number);
             data = obj.f_accessor_.get_raw_pix(pix_idx_start, pix_idx_end);
         end
@@ -386,8 +386,8 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function obj = dump_all_pixels_(obj)
-        % Dump all pixels to tmp_file used for initialising tmp file
-        % most operations operate and change the entire file
+            % Dump all pixels to tmp_file used for initialising tmp file
+            % most operations operate and change the entire file
             if obj.num_pixels == 0
                 return
             end
@@ -421,10 +421,10 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function obj = init_from_file_accessor_(obj, f_accessor)
-        % Initialise a PixelData object from a file accessor
+            % Initialise a PixelData object from a file accessor
             obj.f_accessor_ = f_accessor;
             obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
-                                      obj.f_accessor_.filename);
+                obj.f_accessor_.filename);
             obj.page_number_ = 1;
             obj.num_pixels_ = double(obj.f_accessor_.npixels);
             obj.data();
@@ -455,7 +455,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.page_range(:,ind) = loc_range;
 
             range = [min(obj.pix_range_(1,ind),loc_range(1,:));...
-                     max(obj.pix_range_(2,ind),loc_range(2,:))];
+                max(obj.pix_range_(2,ind),loc_range(2,:))];
             obj.pix_range_(:,ind) = range;
         end
     end
