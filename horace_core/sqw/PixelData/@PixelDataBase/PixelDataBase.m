@@ -185,8 +185,8 @@ classdef (Abstract) PixelDataBase < handle
                 return
             end
 
-            if ~exist('file_backed', 'var')
-                file_backed = [];
+            if ~exist('file_backed', 'var') || isempty(file_backed)
+                file_backed = false;
             end
 
             if ~exist('mem_alloc', 'var')
@@ -216,15 +216,15 @@ classdef (Abstract) PixelDataBase < handle
                 obj = PixelDataBase.loadobj(init);
 
             elseif isa(init, 'PixelDataMemory')
-                if isempty(file_backed) || ~file_backed
-                    obj = PixelDataMemory(init);
+                if file_backed
+                    obj = PixelDataFileBacked(init, mem_alloc);                    
                 else
-                    obj = PixelDataFileBacked(init, mem_alloc);
+                    obj = PixelDataMemory(init);
                 end
 
                 % if the file exists we can create a file-backed instance
             elseif isa(init, 'PixelDataFileBacked')
-                if isempty(file_backed) || file_backed
+                if file_backed
                     obj = PixelDataFileBacked(init, mem_alloc);
                 else
                     obj = PixelDataMemory(init);
@@ -232,18 +232,18 @@ classdef (Abstract) PixelDataBase < handle
 
             elseif numel(init) == 1 && isnumeric(init) && floor(init) == init
                 % input is an integer
-                if isempty(file_backed) || ~file_backed
-                    obj = PixelDataMemory(init);
+                if file_backed
+                    obj = PixelDataFileBacked(init, mem_alloc);                    
                 else
-                    obj = PixelDataFileBacked(init, mem_alloc);
+                    obj = PixelDataMemory(init);
                 end
 
             elseif isnumeric(init)
                 % Input is data array
-                if isempty(file_backed) || ~file_backed
-                    obj = PixelDataMemory(init);
+                if  file_backed
+                    obj = PixelDataFileBacked(init, mem_alloc);                    
                 else
-                    obj = PixelDataFileBacked(init, mem_alloc);
+                    obj = PixelDataMemory(init);                    
                 end
 
                 % File-backed construction
@@ -254,24 +254,23 @@ classdef (Abstract) PixelDataBase < handle
                         'Cannot find file to load (%s)', init)
                 end
                 init = sqw_formats_factory.instance().get_loader(init);
-                if (isempty(file_backed) && init.npixels*9 < mem_alloc) || (~isempty(file_backed) && ~file_backed)
-                    obj = PixelDataMemory(init);
+                if (init.npixels > 9*mem_alloc) || file_backed
+                    obj = PixelDataFileBacked(init, mem_alloc);                    
                 else
-                    obj = PixelDataFileBacked(init, mem_alloc);
+                    obj = PixelDataMemory(init);                    
                 end
 
             elseif isa(init, 'sqw_file_interface')
                 % input is a file accessor
-                if (isempty(file_backed) && init.npixels*9 < mem_alloc) || (~isempty(file_backed) && ~file_backed)
-                    obj = PixelDataMemory(init);
+                if (init.npixels > 9*mem_alloc) || file_backed
+                    obj = PixelDataFileBacked(init, mem_alloc);                    
                 else
-                    obj = PixelDataFileBacked(init, mem_alloc);
+                    obj = PixelDataMemory(init);
                 end
             else
                 error('HORACE:PixelDataBase:invalid_argument', ...
                     'Cannot create a PixelData object from class (%s)', ...
                     class(init))
-
             end
 
             if upgrade
