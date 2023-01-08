@@ -116,7 +116,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
 
-            if ~exist('init', 'var') || isempty(init)
+            if ~exist('init', 'var') || isempty(init)              
                 init = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);
             end
 

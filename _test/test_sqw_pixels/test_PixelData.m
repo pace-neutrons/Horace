@@ -436,7 +436,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
         function test_page_size_is_set_after_getter_call_when_given_as_argument(obj)
             mem_alloc = obj.SMALL_PG_SIZE;  % 1Mb
-            expected_page_size = floor(mem_alloc/sqw_binfile_common.FILE_PIX_SIZE);
+            expected_page_size = mem_alloc;
             % the first page is loaded on access, so this first assert which accesses
             % .variance is necessary to set pix.page_size
             assertEqual(size(obj.pix_data_small_page.variance), ...
@@ -937,7 +937,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_you_can_append_to_partially_full_PixelData_page(obj)
             npix_in_page = 11;
             nexisting_pix = 5;
-            mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
+            mem_alloc = npix_in_page;
             existing_data = rand(9, nexisting_pix);
             pix = PixelDataFileBacked(existing_data, mem_alloc);
             minmax = obj.get_ref_range(existing_data);
@@ -966,7 +966,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_you_can_append_to_PixelData_with_full_page(obj)
             npix_in_page = 11;
             nexisting_pix = 11;
-            mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
+            mem_alloc = npix_in_page;
             existing_data = rand(9, nexisting_pix);
             pix = PixelDataFileBacked(existing_data, mem_alloc);
             minmax = pix.pix_range;
@@ -1062,7 +1062,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_append_returns_edited_pix_if_nargout_eq_1(obj)
-            skipTest('test for filebased pix_range. Has a problem')
+            skipTest('Re #893 test for filebased pix_range. Has a problem')
             pix = PixelDataFileBacked(obj.tst_sqw_file_full_path);
             range1 = pix.pix_range;
             npix_to_append = 5;
@@ -1115,7 +1115,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
         function test_has_more_is_true_after_appending_page_to_non_file_backed(~)
             num_pix = 10;
-            mem_alloc = (num_pix + 1)*sqw_binfile_common.FILE_PIX_SIZE;
+            mem_alloc = (num_pix + 1);
             pix = PixelDataFileBacked(rand(9, 10), mem_alloc);
             range1 = pix.pix_range;
 
@@ -1135,8 +1135,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_error_when_setting_mem_alloc_lt_one_pixel(~)
-            pix_size = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
-
+            pix_size = 0;
             f = @() PixelDataFileBacked(rand(9, 10), pix_size - 1);
             assertExceptionThrown(f, 'MATLAB:notGreater');
         end
@@ -1607,8 +1606,8 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
         function test_base_page_size_is_DEFAULT_PAGE_SIZE_by_default(~)
             pix = PixelDataFileBacked();
-            bytes_in_pixel = sqw_binfile_common.FILE_PIX_SIZE;
-            expected_num_pix = floor(PixelDataBase.DEFAULT_PAGE_SIZE/bytes_in_pixel);
+            
+            expected_num_pix = get(hor_config,'mem_chunk_size');
             assertEqual(pix.base_page_size, expected_num_pix);
         end
 
@@ -1757,7 +1756,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             faccess = FakeFAccess(data);
             % give it a real file path to trick code into thinking it exists
             faccess = faccess.set_filepath(obj.tst_sqw_file_full_path);
-            mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
+            mem_alloc = npix_in_page;
             pix = PixelDataFileBacked(faccess, mem_alloc);
         end
 
