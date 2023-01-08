@@ -530,9 +530,7 @@ classdef (Abstract) PixelDataBase < handle
 
         function page_size = calculate_page_size_(obj, mem_alloc)
             % Calculate number of pixels that fit in the given memory allocation
-            num_bytes_in_pixel = sqw_binfile_common.FILE_PIX_SIZE;
-            page_size = floor(mem_alloc/num_bytes_in_pixel);
-            page_size = max(page_size, size(obj.raw_data_, 2));
+            page_size = max(mem_alloc, size(obj.raw_data_, 2));
         end
 
         function page_size = get.base_page_size(obj)

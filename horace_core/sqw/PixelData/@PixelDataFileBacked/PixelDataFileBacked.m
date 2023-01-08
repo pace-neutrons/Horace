@@ -292,7 +292,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function np = get.n_pages(obj)
-            np = max(ceil(obj.num_pixels_*sqw_binfile_common.FILE_PIX_SIZE/obj.page_memory_size_),1);
+            np = max(ceil(obj.num_pixels_/obj.page_memory_size_),1);
         end
 
         function page_size = get.page_size(obj)
@@ -312,7 +312,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
         function set.page_memory_size(obj, val)
             validateattributes(val, {'numeric'}, {'scalar', 'nonnan', ...
-                '>', PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS})
+                '>', 1})
             obj.page_memory_size_ = round(val);
             % Keep synchronised
             obj.tmp_io_handler_.page_size = obj.page_memory_size_;

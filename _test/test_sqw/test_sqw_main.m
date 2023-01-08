@@ -52,17 +52,16 @@ classdef test_sqw_main < TestCase & common_state_holder
             fpath = fullfile(pths.test_common, 'sqw_1d_2.sqw');
 
             % set page size accepting half of the pixels
-            page_size_bytes = 4324/2*sqw_binfile_common.FILE_PIX_SIZE;
-            sqw_obj = sqw(fpath, 'pixel_page_size', page_size_bytes);
+            page_size = 4324/2;
+            sqw_obj = sqw(fpath, 'pixel_page_size', page_size, ...
+                'file_backed',true);
             sqw_pix_pg_size = sqw_obj.pix.page_size;
 
             % check we're actually paging pixels
             assertTrue(sqw_obj.pix.num_pixels > sqw_pix_pg_size);
 
             % check the page size is what we set it to
-            pix_size = sqw_binfile_common.FILE_PIX_SIZE;
-            expected_pg_size = floor(page_size_bytes/pix_size);
-            assertEqual(sqw_pix_pg_size, expected_pg_size);
+            assertEqual(sqw_pix_pg_size, page_size);
         end
 
         function test_pixels_not_paged_if_pixel_page_size_arg_not_given(obj)

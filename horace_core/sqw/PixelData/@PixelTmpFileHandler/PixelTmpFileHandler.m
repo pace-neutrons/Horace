@@ -197,11 +197,11 @@ classdef PixelTmpFileHandler
         end
 
         function pix_per_page = get.pix_per_page(obj)
-            pix_per_page = floor(obj.page_size / (obj.SIZE_OF_FLOAT * obj.NUM_COLS));
+            pix_per_page = obj.page_size;
         end
 
         function obj = set.page_size(obj, val)
-            if val < obj.SIZE_OF_FLOAT
+            if val < 1
                 error('PIXELTMPFILEHANDLER:invalid_argument', 'Page cannot be smaller than 1 float')
             end
             obj.page_size_ = val;
