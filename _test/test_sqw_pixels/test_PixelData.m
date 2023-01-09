@@ -2,7 +2,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
     properties
 
-        SMALL_PG_SIZE = 1e6;  % 1Mb
+        SMALL_PG_SIZE = 1e5;  % 100Kb
         ALL_IN_MEM_PG_SIZE = 1e12;
 
         raw_pix_data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
@@ -605,16 +605,17 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             old_rng_state = rng();
             clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;
-            rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 53805
+            rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 53801
             expected_tmp_file = fullfile( ...
                 get(parallel_config, 'working_directory'), ...
-                'sqw_pix000053805.tmp_sqw' ...
+                'sqw_pix000053801.tmp_sqw' ...
                 );
 
             function do_pix_creation_and_delete()
                 data = rand(9, 30);
                 npix_in_page = 11;
                 pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
                 pix.u1 = 1;
                 pix.advance();  % creates tmp file for first page
                 assertTrue( ...
@@ -714,7 +715,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
        function test_copy_on_same_page_as_original_when_more_than_1_page(obj)
-            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e6);
+            pix_original = PixelDataBase.create(obj.tst_sqw_file_full_path, 1e6);
             pix_original.signal = 1;
             pix_original.advance();
 
@@ -886,11 +887,11 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_unedited_dirty_pages_are_not_rewritten(obj)
             old_rng_state = rng();
             clean_up = onCleanup(@() rng(old_rng_state));
-            fixed_seed = 774015;  % this seed gives an expected object_id_ = 03862
+            fixed_seed = 774015;  % this seed gives an expected object_id_ = 03853
             rng(fixed_seed, 'twister');
             expected_tmp_file = fullfile( ...
                 get(parallel_config, 'working_directory'), ...
-                'sqw_pix000003862.tmp_sqw' ...
+                'sqw_pix000003853.tmp_sqw' ...
                 );
 
             data = rand(9, 10);
@@ -1606,7 +1607,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
         function test_base_page_size_is_DEFAULT_PAGE_SIZE_by_default(~)
             pix = PixelDataFileBacked();
-            
+
             expected_num_pix = get(hor_config,'mem_chunk_size');
             assertEqual(pix.base_page_size, expected_num_pix);
         end
