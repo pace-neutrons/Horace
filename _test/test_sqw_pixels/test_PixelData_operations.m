@@ -49,7 +49,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             end
         end
 
-        function test_do_unary_op_with_nargout_1_doesnt_affect_called_instance(obj)
+        function test_do_unary_op_with_nargout_1_doesnt_affect_called_instance(~)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix = PixelDataBase.create(data);
             sin_pix = pix.do_unary_op(@sin);
@@ -368,8 +368,11 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertFalse(equal_to_tol(pix1, pix2, 'nan_equal', false));
         end
 
+    end
+
+    methods (Static)
         % -- Helpers --
-        function [pix,pix_range] = get_pix_with_fake_faccess(obj, data, npix_in_page)
+        function [pix,pix_range] = get_pix_with_fake_faccess(data, npix_in_page)
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
             faccess = FakeFAccess(data);
             % give it a real file path to trick code into thinking it exists
@@ -378,9 +381,6 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix = PixelDataFileBacked(faccess, mem_alloc);
         end
 
-    end
-
-    methods (Static)
         function ref_range = get_ref_range(data)
             ref_range = [
                 min(data(1:4, :),[],2),...
