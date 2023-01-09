@@ -1,7 +1,7 @@
 classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
     properties
-        BYTES_PER_PIX = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
+        BYTES_PER_PIX ;
         SIGNAL_IDX = 8;
         VARIANCE_IDX = 9;
 
@@ -28,6 +28,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
                 name = 'test_PixelData_binary_ops';
             end
             obj = obj@TestCase(name);
+            obj.BYTES_PER_PIX = 4*9;
 
             pths = horace_paths();
             obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_1d_1.sqw');
@@ -37,10 +38,10 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             sqw_test_obj = sqw(obj.test_sqw_file_path);
             obj.ref_raw_pix_data = sqw_test_obj.pix.data;
 
-            page_size = floor(sqw_test_obj.pix.num_pixels/6)*obj.BYTES_PER_PIX;
+            page_size = floor(sqw_test_obj.pix.num_pixels/10);
             obj.pix_in_memory_base = sqw_test_obj.pix;
             obj.pix_with_pages_base = PixelDataBase.create(obj.test_sqw_file_path, page_size);
-            obj.pix_with_pages_base
+            %obj.pix_with_pages_base
         end
 
         function setUp(obj)

@@ -2,7 +2,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
     properties
 
-        SMALL_PG_SIZE = 1e6;  % 1Mb
+        SMALL_PG_SIZE = 10000; 
         ALL_IN_MEM_PG_SIZE = 1e12;
 
         raw_pix_data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
