@@ -261,14 +261,14 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         function test_PixelData_and_raw_arrays_are_not_equal_to_tol(~)
             raw_array = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix = PixelDataBase.create(raw_array);
-            [ok, ~] = pix.equal_to_tol(raw_array);
+            [ok, ~] = equal_to_tol(pix, raw_array);
             assertFalse(ok);
         end
 
         function test_equal_to_tol_err_msg_contains_argument_classes(~)
             raw_array = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix = PixelDataBase.create(raw_array);
-            [~, mess] = pix.equal_to_tol(raw_array);
+            [~, mess] = equal_to_tol(pix, raw_array);
             assertTrue(contains(mess, 'PixelData'));
             assertTrue(contains(mess, 'double'));
         end
@@ -277,15 +277,15 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             data = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix1 = PixelDataBase.create(data);
             pix2 = PixelDataBase.create(data(:, 1:9));
-            assertFalse(pix1.equal_to_tol(pix2));
+            assertFalse(equal_to_tol(pix1, pix2));
         end
 
         function test_equal_to_tol_true_if_PixelData_objects_contain_same_data(~)
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix1 = PixelDataBase.create(data);
             pix2 = PixelDataBase.create(data);
-            assertTrue(pix1.equal_to_tol(pix2));
-            assertTrue(pix2.equal_to_tol(pix1));
+            assertTrue(equal_to_tol(pix1, pix2));
+            assertTrue(equal_to_tol(pix2, pix1));
         end
 
         function test_equal_to_tol_true_if_pixels_paged_and_contain_same_data(obj)
@@ -293,8 +293,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             npix_in_page = 10;
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            assertTrue(pix1.equal_to_tol(pix2));
-            assertTrue(pix2.equal_to_tol(pix1));
+            assertTrue(equal_to_tol(pix1, pix2));
+            assertTrue(equal_to_tol(pix2, pix1));
         end
 
         function test_equal_to_tol_true_if_pixels_differ_less_than_tolerance(obj)
@@ -303,8 +303,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             tol = 0.1;
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
-            assertTrue(pix1.equal_to_tol(pix2, tol));
-            assertTrue(pix2.equal_to_tol(pix1, tol));
+            assertTrue(equal_to_tol(pix1, pix2, tol));
+            assertTrue(equal_to_tol(pix2, pix1, tol));
         end
 
         function test_equal_to_tol_false_if_pix_paged_and_contain_unequal_data(obj)
@@ -315,8 +315,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page);
-            assertFalse(pix1.equal_to_tol(pix2));
-            assertFalse(pix2.equal_to_tol(pix1));
+            assertFalse(equal_to_tol(pix1, pix2));
+            assertFalse(equal_to_tol(pix2, pix1));
         end
 
         function test_equal_to_tol_true_if_only_1_arg_paged_but_data_is_equal(obj)
@@ -325,8 +325,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             pix1 = PixelDataBase.create(data);
             pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            assertTrue(pix1.equal_to_tol(pix2));
-            assertTrue(pix2.equal_to_tol(pix1));
+            assertTrue(equal_to_tol(pix1, pix2));
+            assertTrue(equal_to_tol(pix2, pix1));
         end
 
         function test_equal_to_tol_false_if_only_1_arg_paged_and_data_not_equal(obj)
@@ -335,8 +335,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             pix1 = PixelDataBase.create(data);
             pix2 = obj.get_pix_with_fake_faccess(data - 1, npix_in_page);
-            assertFalse(pix1.equal_to_tol(pix2));
-            assertFalse(pix2.equal_to_tol(pix1));
+            assertFalse(equal_to_tol(pix1, pix2));
+            assertFalse(equal_to_tol(pix2, pix1));
         end
 
         function test_equal_to_tol_throws_if_paged_pix_but_page_sizes_not_equal(obj)
@@ -347,8 +347,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page - 1);
 
-            f = @() pix1.equal_to_tol(pix2);
-            assertExceptionThrown(f, 'HORACE:PixelData:equal_to_tol');
+            assertFalse(equal_to_tol(pix1, pix2));
         end
 
         function test_equal_to_tol_true_when_comparing_NaNs_if_nan_equal_true(~)
@@ -357,7 +356,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix1 = PixelDataBase.create(data);
             pix2 = PixelDataBase.create(data);
 
-            assertTrue(pix1.equal_to_tol(pix2, 'nan_equal', true));
+            assertTrue(equal_to_tol(pix1, pix2, 'nan_equal', true));
         end
 
         function test_equal_to_tol_false_when_comparing_NaNs_if_nan_equal_false(~)
@@ -366,7 +365,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix1 = PixelDataBase.create(data);
             pix2 = PixelDataBase.create(data);
 
-            assertFalse(pix1.equal_to_tol(pix2, 'nan_equal', false));
+            assertFalse(equal_to_tol(pix1, pix2, 'nan_equal', false));
         end
 
         % -- Helpers --
@@ -375,7 +374,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             faccess = FakeFAccess(data);
             % give it a real file path to trick code into thinking it exists
             faccess = faccess.set_filepath('fake_file');
-            mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
+            mem_alloc = npix_in_page;
             pix = PixelDataFileBacked(faccess, mem_alloc);
         end
 
