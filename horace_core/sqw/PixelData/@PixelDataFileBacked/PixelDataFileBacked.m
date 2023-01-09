@@ -177,9 +177,11 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
 
                 if any(obj.pix_range == obj.EMPTY_RANGE_, 'all') && upgrade
-                    if get(herbert_config, 'log_level') > 0
-                        fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
-                            init.filename);
+                    if get(herbert_config, 'log_level') > 0 
+                        if any(isprop(init,'filename'))
+                            fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
+                                init.filename);
+                        end
                     end
                     obj.recalc_pix_range();
                 end
