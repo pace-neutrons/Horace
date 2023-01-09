@@ -25,20 +25,22 @@ classdef PixelTmpFileHandler
     end
 
     properties (Access=private)
-        page_size_ = get(hor_config, 'mem_chunk_size');
+        page_size_
         file_id_ = -1;
     end
 
     methods
 
         function obj = PixelTmpFileHandler(pix_id, has_tmp_file, offset, page_size)
-        % Construct a PixelTmpFileHandler object
-        %
-        % Input
-        % -----
-        % pix_id   The ID of the PixelData instance this object is linked to.
-        %          This sets the tmp directory name
-        % has_tmp_file  Logical array saying if tmp exist for the given page
+            % Construct a PixelTmpFileHandler object
+            %
+            % Input
+            % -----
+            % pix_id   The ID of the PixelData instance this object is linked to.
+            %          This sets the tmp directory name
+            % has_tmp_file  Logical array saying if tmp exist for the given page
+            obj.page_size_= ...
+                config_store.instance().get_value('hor_config','mem_chunk_size');
             obj.pix_id_ = pix_id;
             obj.file_path_ = obj.generate_tmp_pix_file_path_();
             if exist('has_tmp_file', 'var')
@@ -61,14 +63,14 @@ classdef PixelTmpFileHandler
         end
 
         function raw_pix = load_pix(obj, pix_start, pix_end)
-        % Load a page of data from the tmp file with the given page number
-        %
-        % Input
-        % -----
-        % page_number   The number of the page to read data from
-        % ncols         The number of columns in the page, used for reshaping
-        %               (default = 1)
-        %
+            % Load a page of data from the tmp file with the given page number
+            %
+            % Input
+            % -----
+            % page_number   The number of the page to read data from
+            % ncols         The number of columns in the page, used for reshaping
+            %               (default = 1)
+            %
             start_idx = sub2ind([obj.NUM_COLS, obj.num_pixels], 1, pix_start);
             end_idx = start_idx - 1 + (pix_end-pix_start+1)*obj.NUM_COLS;
 
@@ -112,13 +114,13 @@ classdef PixelTmpFileHandler
 
 
         function obj = write_pixels(obj, page_number, raw_pix)
-        % Write the given pixel data to tmp file with the given page number
-        %
-        % Inputs
-        % ------
-        % page_number   The number of the page being written, this sets the tmp file name
-        % raw_pix       The raw pixel data array to write
-        %
+            % Write the given pixel data to tmp file with the given page number
+            %
+            % Inputs
+            % ------
+            % page_number   The number of the page being written, this sets the tmp file name
+            % raw_pix       The raw pixel data array to write
+            %
 
             start_idx = (page_number-1)*obj.pix_per_page+1;
             raw_pix = single(raw_pix);
@@ -127,38 +129,38 @@ classdef PixelTmpFileHandler
         end
 
         function tmp_file = copy_file(obj, target_pix_id)
-        % Copy the temporary file managed by this class instance to a new folder
-        %
-        % Input
-        % -----
-        % target_pix_id   The ID of the PixelData instance the new tmp folder
-        %                 will be linked to
-        %
-        % Output
-        % ------
-        % new_path        New location of moved file
-        %
+            % Copy the temporary file managed by this class instance to a new folder
+            %
+            % Input
+            % -----
+            % target_pix_id   The ID of the PixelData instance the new tmp folder
+            %                 will be linked to
+            %
+            % Output
+            % ------
+            % new_path        New location of moved file
+            %
             tmp_file = obj.has_tmp_file_;
             if tmp_file
                 new_path = obj.generate_tmp_pix_file_path_(target_pix_id);
                 [status, err_msg] = copyfile(obj.file_path_, new_path);
                 if status == 0
                     error('PIXELDATA:copy_file', ...
-                          'Could not copy PixelData tmp file from ''%s'' to ''%s'':\n%s', ...
-                          obj.file_path_, new_path, err_msg);
+                        'Could not copy PixelData tmp file from ''%s'' to ''%s'':\n%s', ...
+                        obj.file_path_, new_path, err_msg);
                 end
             end
         end
 
         function obj = move_file(obj, target_file, is_perm)
-        % Move the temporary file generally to become permanent sqw when done
-        %
-        % Input
-        % -----
-        % target_file  new location to move file to
-        %
-        % is_perm      whether to treat the move as a relocation, default: true
-        %
+            % Move the temporary file generally to become permanent sqw when done
+            %
+            % Input
+            % -----
+            % target_file  new location to move file to
+            %
+            % is_perm      whether to treat the move as a relocation, default: true
+            %
 
             if ~exist('is_perm', 'var')
                 is_perm = true;
@@ -180,7 +182,7 @@ classdef PixelTmpFileHandler
         end
 
         function obj = delete_file(obj)
-        % Delete the tmp file
+            % Delete the tmp file
             if obj.has_tmp_file_
                 delete(obj.file_path_);
             end
@@ -188,7 +190,7 @@ classdef PixelTmpFileHandler
         end
 
         function has = has_tmp_file(obj)
-        % Return true if a tmp file exists
+            % Return true if a tmp file exists
             has = obj.has_tmp_file_;
         end
 
@@ -233,9 +235,9 @@ classdef PixelTmpFileHandler
             end
 
             obj.file_id_ = memmapfile(obj.file_path_, ...
-                                      'Format', obj.FILE_DATA_FORMAT_, ...
-                                      'Writable', true ...
-                                     );
+                'Format', obj.FILE_DATA_FORMAT_, ...
+                'Writable', true ...
+                );
             obj.has_tmp_file_ = true;
         end
 
@@ -244,7 +246,7 @@ classdef PixelTmpFileHandler
     methods (Access=private)
 
         function file_path = generate_tmp_pix_file_path_(obj, pix_id)
-        % Generate the file path to a tmp file with the given page number
+            % Generate the file path to a tmp file with the given page number
             if ~exist('pix_id', 'var')
                 pix_id = obj.pix_id_;
             end

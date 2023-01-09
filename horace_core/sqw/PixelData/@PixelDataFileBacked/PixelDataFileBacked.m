@@ -94,7 +94,7 @@ classdef PixelDataFileBacked < PixelDataBase
         % coordinate setters to calculate and set-up correct global pixels
         % range in conjunction with set_range method at the end of the loop.
         page_range;
-        page_memory_size_ = get(hor_config, 'mem_chunk_size');  % the maximum amount of memory a page can use
+        page_memory_size_ 
         page_edited = false;
     end
 
@@ -116,7 +116,8 @@ classdef PixelDataFileBacked < PixelDataBase
             % Construct a File-backed PixelData object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
-
+            obj.page_memory_size_ = ...
+            config_store.instance().get_value('hor_config','mem_chunk_size');
             if ~exist('init', 'var') || isempty(init)              
                 init = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);
             end
