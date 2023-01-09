@@ -14,7 +14,7 @@ function [page_number,total_num_pages] = move_to_page(obj, page_number, varargin
 
 if obj.page_number_ ~= page_number || obj.page_edited
     if ~nosave && obj.page_edited
-        if ~obj.tmp_io_handler_.has_tmp_file_
+        if ~obj.has_tmp_file
             obj = obj.dump_all_pixels_();
         end
         obj = obj.write_dirty_page_();

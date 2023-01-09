@@ -2,7 +2,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
     properties
 
-        SMALL_PG_SIZE = 1e5;  % 100Kb
+        SMALL_PG_SIZE = 1e5;  % 100,000 pix
         ALL_IN_MEM_PG_SIZE = 1e12;
 
         raw_pix_data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
@@ -435,8 +435,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_page_size_is_set_after_getter_call_when_given_as_argument(obj)
-            mem_alloc = obj.SMALL_PG_SIZE;  % 1Mb
-            expected_page_size = floor(mem_alloc/sqw_binfile_common.FILE_PIX_SIZE);
+            expected_page_size = obj.SMALL_PG_SIZE;
             % the first page is loaded on access, so this first assert which accesses
             % .variance is necessary to set pix.page_size
             assertEqual(size(obj.pix_data_small_page.variance), ...
@@ -924,8 +923,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
         function test_you_can_append_to_empty_PixelData_object(obj)
             npix_in_page = 11;
-            mem_alloc = npix_in_page*obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
-            pix = PixelDataFileBacked(zeros(9, 0), mem_alloc);
+            pix = PixelDataFileBacked(zeros(9, 0), npix_in_page);
 
             data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
             pix_to_append = PixelDataFileBacked(data);
@@ -938,9 +936,8 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_you_can_append_to_partially_full_PixelData_page(obj)
             npix_in_page = 11;
             nexisting_pix = 5;
-            mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
             existing_data = rand(9, nexisting_pix);
-            pix = PixelDataFileBacked(existing_data, mem_alloc);
+            pix = PixelDataFileBacked(existing_data, npix_in_page);
             minmax = obj.get_ref_range(existing_data);
             assertEqual(pix.pix_range,minmax);
 
@@ -967,9 +964,8 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_you_can_append_to_PixelData_with_full_page(obj)
             npix_in_page = 11;
             nexisting_pix = 11;
-            mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
             existing_data = rand(9, nexisting_pix);
-            pix = PixelDataFileBacked(existing_data, mem_alloc);
+            pix = PixelDataFileBacked(existing_data, npix_in_page);
             minmax = pix.pix_range;
 
             appended_data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
@@ -1115,7 +1111,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
         function test_has_more_is_true_after_appending_page_to_non_file_backed(~)
             num_pix = 10;
-            mem_alloc = (num_pix + 1)*sqw_binfile_common.FILE_PIX_SIZE;
+            mem_alloc = (num_pix + 1);
             pix = PixelDataFileBacked(rand(9, 10), mem_alloc);
             range1 = pix.pix_range;
 
@@ -1137,7 +1133,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_error_when_setting_mem_alloc_lt_one_pixel(~)
             pix_size = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
 
-            f = @() PixelDataFileBacked(rand(9, 10), pix_size - 1);
+            f = @() PixelDataFileBacked(rand(9, 10), 0);
             assertExceptionThrown(f, 'MATLAB:notGreater');
         end
 
@@ -1757,8 +1753,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             faccess = FakeFAccess(data);
             % give it a real file path to trick code into thinking it exists
             faccess = faccess.set_filepath(obj.tst_sqw_file_full_path);
-            mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
-            pix = PixelDataFileBacked(faccess, mem_alloc);
+            pix = PixelDataFileBacked(faccess, npix_in_page);
         end
 
         function do_pixel_data_loop_with_f(obj, func, data)
@@ -1766,9 +1761,8 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             % while-advance block over some pixel data
             faccess = FakeFAccess(data);
 
-            pix_in_page = 11;
-            mem_alloc = pix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
-            pix = PixelDataFileBacked(faccess, mem_alloc);
+            npix_in_page = 11;
+            pix = PixelDataFileBacked(faccess, npix_in_page);
 
             func(pix, 0)
             iter = 1;

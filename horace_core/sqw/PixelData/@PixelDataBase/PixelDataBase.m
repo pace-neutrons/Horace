@@ -190,7 +190,8 @@ classdef (Abstract) PixelDataBase < handle
             end
 
             if ~exist('mem_alloc', 'var')
-                mem_alloc = get(hor_config, 'mem_chunk_size');
+                mem_alloc = get(hor_config, 'mem_chunk_size') / ...
+                    (PixelDataBase.DATA_POINT_SIZE * PixelDataBase.DEFAULT_NUM_PIX_FIELDS);
             end
 
             if ~exist('upgrade', 'var')
@@ -217,7 +218,7 @@ classdef (Abstract) PixelDataBase < handle
 
             elseif isa(init, 'PixelDataMemory')
                 if file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);                    
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 else
                     obj = PixelDataMemory(init);
                 end
@@ -233,17 +234,17 @@ classdef (Abstract) PixelDataBase < handle
             elseif numel(init) == 1 && isnumeric(init) && floor(init) == init
                 % input is an integer
                 if file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);                    
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 else
                     obj = PixelDataMemory(init);
                 end
 
             elseif isnumeric(init)
                 % Input is data array
-                if  file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);                    
+                if file_backed
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 else
-                    obj = PixelDataMemory(init);                    
+                    obj = PixelDataMemory(init);
                 end
 
                 % File-backed construction
@@ -254,16 +255,16 @@ classdef (Abstract) PixelDataBase < handle
                         'Cannot find file to load (%s)', init)
                 end
                 init = sqw_formats_factory.instance().get_loader(init);
-                if (init.npixels > 9*mem_alloc) || file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);                    
+                if (init.npixels > mem_alloc) || file_backed
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 else
-                    obj = PixelDataMemory(init);                    
+                    obj = PixelDataMemory(init);
                 end
 
             elseif isa(init, 'sqw_file_interface')
                 % input is a file accessor
-                if (init.npixels > 9*mem_alloc) || file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);                    
+                if (init.npixels > mem_alloc) || file_backed
+                    obj = PixelDataFileBacked(init, mem_alloc);
                 else
                     obj = PixelDataMemory(init);
                 end

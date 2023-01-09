@@ -24,7 +24,7 @@ NO_INPUT_INDICES = -1;
 
 base_pg_size = obj.base_page_size;
 
-if ~obj.tmp_io_handler_.has_tmp_file_
+if ~obj.has_tmp_file
     obj = obj.dump_all_pixels_();
 end
 

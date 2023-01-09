@@ -34,7 +34,7 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 
 abs_pix_indices = parse_args(obj, abs_pix_indices);
 
-if obj.tmp_io_handler_.has_tmp_file_ || obj.page_edited
+if obj.has_tmp_file || obj.page_edited
     % At least some pixels sit in temporary files
 
     % Allocate output array

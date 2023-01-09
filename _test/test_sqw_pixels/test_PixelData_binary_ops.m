@@ -1,7 +1,6 @@
 classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
     properties
-        BYTES_PER_PIX = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         SIGNAL_IDX = 8;
         VARIANCE_IDX = 9;
 
@@ -37,10 +36,9 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             sqw_test_obj = sqw(obj.test_sqw_file_path);
             obj.ref_raw_pix_data = sqw_test_obj.pix.data;
 
-            page_size = floor(sqw_test_obj.pix.num_pixels/6)*obj.BYTES_PER_PIX;
+            page_size = floor(sqw_test_obj.pix.num_pixels/6);
             obj.pix_in_memory_base = sqw_test_obj.pix;
             obj.pix_with_pages_base = PixelDataBase.create(obj.test_sqw_file_path, page_size);
-            obj.pix_with_pages_base
         end
 
         function setUp(obj)
@@ -340,7 +338,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             npix = dnd_obj.npix;
 
             pix_per_page = floor(sum(npix)/6);
-            pix = PixelDataBase.create(obj.test_sqw_file_path, pix_per_page*obj.BYTES_PER_PIX);
+            pix = PixelDataBase.create(obj.test_sqw_file_path, pix_per_page);
 
             new_pix = pix.do_binary_op(dnd_obj, @plus, 'flip', false, ...
                 'npix', npix);
@@ -363,8 +361,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             svar = sigvar(dnd_obj.s, dnd_obj.e);
 
             pix_per_page = floor(sum(npix)/6);
-            mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
-            pix = PixelDataBase.create(obj.test_sqw_file_path, mem_alloc);
+            pix = PixelDataBase.create(obj.test_sqw_file_path, pix_per_page);
 
             new_pix = pix.do_binary_op(svar, @plus, 'flip', false, ...
                 'npix', npix);
@@ -398,8 +395,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             svar = sigvar(dnd_obj.s, dnd_obj.e);
 
             pix_per_page = floor(sum(npix(:)/6));
-            mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
-            pix = PixelDataBase.create(obj.test_sqw_2d_file_path, mem_alloc);
+            pix = PixelDataBase.create(obj.test_sqw_2d_file_path, pix_per_page);
 
             new_pix = pix.do_binary_op(svar, @plus, 'flip', false, ...
                 'npix', npix);
@@ -420,8 +416,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             npix = dnd_obj.npix;
 
             pix_per_page = floor(sum(npix(:)/6));
-            mem_alloc = pix_per_page*obj.BYTES_PER_PIX;
-            pix = PixelDataBase.create(obj.test_sqw_2d_file_path, mem_alloc);
+            pix = PixelDataBase.create(obj.test_sqw_2d_file_path, pix_per_page);
 
             new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false, ...
                 'npix', npix);
@@ -447,8 +442,8 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         % -- Helpers --
         function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
             faccess = FakeFAccess(data);
-            pix_size = obj.BYTES_PER_PIX;
-            pix = PixelDataBase.create(faccess, npix_in_page*pix_size);
+            faccess = faccess.set_filepath('Fake file');
+            pix = PixelDataBase.create(faccess, npix_in_page);
         end
 
     end
