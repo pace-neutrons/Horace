@@ -103,6 +103,7 @@ classdef PixelDataFileBacked < PixelDataBase
         file_path;  % The file that the pixel data has been read from, empty if no file
         n_pages;
         page_size;  % The number of pixels in the current page
+        has_tmp_file;
     end
 
     properties(Dependent, Access=protected)
@@ -221,7 +222,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 validateattributes(val, {'numeric'}, {'scalar'})
             end
             obj = obj.load_current_page_if_data_empty_();
-            if ~obj.tmp_io_handler_.has_tmp_file_
+            if ~obj.has_tmp_file
                 obj = obj.dump_all_pixels_();
             end
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
@@ -287,6 +288,10 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.file_path_ = val;
         end
 
+        function has = get.has_tmp_file(obj)
+            has = obj.tmp_io_handler_.has_tmp_file_;
+        end
+
         function pix_position = get.pix_position_(obj)
             pix_position = obj.get_page_start_(obj.page_number_);
         end
@@ -349,7 +354,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
         function obj = load_page_(obj, page_number)
             % Load the data for the given page index
-            if ~obj.tmp_io_handler_.has_tmp_file_
+            if ~obj.has_tmp_file
                 obj.data_ = obj.load_clean_page_(page_number);
             else
                 obj.data_ = obj.load_dirty_page_(page_number);

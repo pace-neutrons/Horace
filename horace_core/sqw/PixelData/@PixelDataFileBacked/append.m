@@ -22,7 +22,7 @@ if isempty(pix)
     return;
 end
 
-if ~obj.tmp_io_handler_.has_tmp_file_
+if ~obj.has_tmp_file
     pix_out.dump_all_pixels_();
 end
 

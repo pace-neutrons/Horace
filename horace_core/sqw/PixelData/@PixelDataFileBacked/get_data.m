@@ -30,7 +30,7 @@ NO_INPUT_INDICES = -1;
 [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, varargin{:});
 field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
-if obj.tmp_io_handler_.has_tmp_file_
+if obj.has_tmp_file
     if abs_pix_indices == NO_INPUT_INDICES
         abs_pix_indices = 1:obj.num_pixels;
     end
