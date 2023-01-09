@@ -989,7 +989,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_appending_pixels_after_page_edited_preserves_changes(obj)
             npix_in_page = 11;
             num_pix = 24;
-            mem_alloc = npix_in_page*sqw_binfile_common.FILE_PIX_SIZE;
             original_data = rand(9, num_pix);
 
             pix = get_pix_with_fake_faccess(obj, original_data(:, 1:npix_in_page), npix_in_page);
