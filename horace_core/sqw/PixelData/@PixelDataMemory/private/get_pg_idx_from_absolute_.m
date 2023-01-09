@@ -1,10 +1,10 @@
-function [page_idx, global_idx] = get_pg_idx_from_absolute_(~, abs_indices, ~)
+function [page_idx, global_idx] = get_pg_idx_from_absolute_(obj, abs_indices, ~)
+% Provided for compatibility, since PixelDataMemory only has one page.
+%
 % Extract the indices from abs_indices that lie within the bounds of the
 % given page and the corresponding page indices.
 %
 % Indices that do not exist in the given page are ignored.
-%
-% Provided for compatibility, since PixelDataMemory only has one page.
 %
 % Example:
 % --------
@@ -18,7 +18,7 @@ function [page_idx, global_idx] = get_pg_idx_from_absolute_(~, abs_indices, ~)
 % ------
 % obj          This PixelData object.
 % abs_indices  The absolute indices of the desired pixels.
-% page_number  The page number to get the indices relative to.
+% page_number  Provided for interface compatibility, ignored since only one page.
 %
 % Output:
 % -------
@@ -27,7 +27,8 @@ function [page_idx, global_idx] = get_pg_idx_from_absolute_(~, abs_indices, ~)
 %  global_idx  The absolute indices that exist within the given page. This
 %              will be a subset of `abs_indices`.
 %
-page_idx = 1;
+
+page_idx = 1; % Only one page for MemoryBacked objects
 global_idx = abs_indices(abs_indices < obj.page_size);
 
 end
