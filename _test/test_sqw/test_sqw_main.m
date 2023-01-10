@@ -47,8 +47,8 @@ classdef test_sqw_main < TestCase & common_state_holder
 
             fpath = fullfile(obj.tests_dir, 'common_data', 'sqw_1d_2.sqw');
             % set page size accepting half of the pixels
-            page_size_bytes = 4324/2*sqw_binfile_common.FILE_PIX_SIZE;
-            sqw_obj = sqw(fpath, 'pixel_page_size', page_size_bytes);
+            page_size = 4324/2;
+            sqw_obj = sqw(fpath, 'pixel_page_size', page_size);
             sqw_pix_pg_size = sqw_obj.pix.page_size;
 
             % check we're actually paging pixels
