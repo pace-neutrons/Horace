@@ -1077,7 +1077,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(out_pix_data, horzcat(original_pix_data, pix_to_append.data));
         end
 
-
         function test_calling_append_with_empty_pixel_data_does_nothing(~)
             pix = PixelDataFileBacked(rand(9, 5));
             range = pix.pix_range;
