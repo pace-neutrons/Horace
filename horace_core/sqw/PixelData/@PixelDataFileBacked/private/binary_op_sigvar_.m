@@ -4,6 +4,15 @@ function obj = binary_op_sigvar_(obj, operand, binary_op, flip, npix)
 validate_inputs(obj, operand, npix);
 
 obj.move_to_first_page();
+
+inplace_write = ~obj.has_tmp_file;
+if inplace_write
+    fid = obj.get_append_handle();
+    tosave = {'nosave', true};
+else
+    tosave = {};
+end
+
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 for page_number = 1:numel(npix_chunks)
     npix_for_page = npix_chunks{page_number};
@@ -20,11 +29,19 @@ for page_number = 1:numel(npix_chunks)
     [obj.signal, obj.variance] = ...
             sigvar_binary_op_(sigvar_pix, sigvar_obj, binary_op, flip);
 
+    if inplace_write
+        fwrite(fid, obj.data, 'single');
+    end
+
     if obj.has_more()
-        obj.advance();
+        obj.advance(tosave{:});
     else
         break;
     end
+end
+
+if inplace_write
+    obj.finalise_append(fid);
 end
 
 end % function

@@ -37,10 +37,6 @@ else
     pix_out = copy(obj);
 end
 
-if ~pix_out.has_tmp_file
-    pix_out.dump_all_pixels_();
-end
-
 if isscalar(operand) && isa(operand, 'double')
     pix_out = binary_op_scalar_(pix_out, operand, binary_op, flip);
 elseif isa(operand, 'double')

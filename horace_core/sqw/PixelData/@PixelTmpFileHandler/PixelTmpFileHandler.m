@@ -112,7 +112,6 @@ classdef PixelTmpFileHandler
             end
         end
 
-
         function obj = write_pixels(obj, page_number, raw_pix)
             % Write the given pixel data to tmp file with the given page number
             %
@@ -176,7 +175,6 @@ classdef PixelTmpFileHandler
             % if it's not permenent, we now point to our new temp file
             if ~is_perm
                 obj.file_path_ = target_file;
-                fclose(obj.file_id_);
                 obj = obj.open_file_();
             end
         end
@@ -184,6 +182,7 @@ classdef PixelTmpFileHandler
         function obj = delete_file(obj)
             % Delete the tmp file
             if obj.has_tmp_file_
+                clear obj.file_id_;
                 delete(obj.file_path_);
             end
             obj.has_tmp_file_ = false;
@@ -220,6 +219,15 @@ classdef PixelTmpFileHandler
     end
 
     methods (Hidden)
+        function fid = get_append_handle(obj)
+            fid = fopen(obj.file_path_,'a');
+        end
+
+        function obj = finalise_append(obj, fid)
+            fclose(fid);
+            obj = obj.open_file_();
+        end
+
         function obj = append_pixels(obj, pixels)
 
             fid = fopen(obj.file_path_,'a');

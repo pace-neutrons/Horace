@@ -94,7 +94,7 @@ classdef PixelDataFileBacked < PixelDataBase
         % coordinate setters to calculate and set-up correct global pixels
         % range in conjunction with set_range method at the end of the loop.
         page_range;
-        page_memory_size_ 
+        page_memory_size_;
         page_edited = false;
     end
 
@@ -118,7 +118,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % array.
             obj.page_memory_size_ = ...
             config_store.instance().get_value('hor_config','mem_chunk_size');
-            if ~exist('init', 'var') || isempty(init)              
+            if ~exist('init', 'var') || isempty(init)
                 init = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);
             end
 
@@ -177,7 +177,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
 
                 if any(obj.pix_range == obj.EMPTY_RANGE_, 'all') && upgrade
-                    if get(herbert_config, 'log_level') > 0 
+                    if get(herbert_config, 'log_level') > 0
                         if any(isprop(init,'filename'))
                             fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
                                 init.filename);
@@ -225,9 +225,9 @@ classdef PixelDataFileBacked < PixelDataBase
                 validateattributes(val, {'numeric'}, {'scalar'})
             end
             obj = obj.load_current_page_if_data_empty_();
-            if ~obj.has_tmp_file
-                obj = obj.dump_all_pixels_();
-            end
+%             if ~obj.has_tmp_file
+%                 obj = obj.dump_all_pixels_();
+%             end
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
             obj.page_edited = true;
             if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
@@ -279,7 +279,8 @@ classdef PixelDataFileBacked < PixelDataBase
             % walk through to complete the algorithm
             %
 
-            [current_page_num,total_num_pages]=obj.move_to_page(obj.page_number_ + 1, varargin{:});
+            [current_page_num,total_num_pages] = ...
+                obj.move_to_page(obj.page_number_ + 1, varargin{:});
         end
 
         function path = get.file_path(obj)
@@ -325,6 +326,15 @@ classdef PixelDataFileBacked < PixelDataBase
             % Keep synchronised
             obj.tmp_io_handler_.page_size = obj.page_memory_size_;
         end
+
+        function fid = get_append_handle(obj)
+            fid = obj.tmp_io_handler_.get_append_handle();
+        end
+
+        function finalise_append(obj, fid)
+            obj.tmp_io_handler_ = obj.tmp_io_handler_.finalise_append(fid);
+        end
+
     end
 
     methods (Access = private)
@@ -400,7 +410,6 @@ classdef PixelDataFileBacked < PixelDataBase
                 return
             end
             if isempty(obj.file_path)
-                obj.tmp_io_handler_ = obj.tmp_io_handler_.open_file_();
                 obj.tmp_io_handler_ = obj.tmp_io_handler_.append_pixels(obj.data);
             else
                 pn = obj.page_number_;
@@ -408,13 +417,13 @@ classdef PixelDataFileBacked < PixelDataBase
                 tmp_data = obj.data_;
                 obj.page_number_ = 1;
                 obj.data_ = obj.load_clean_page_(1);
-                obj.tmp_io_handler_ = obj.tmp_io_handler_.open_file_();
-                obj.tmp_io_handler_ = obj.tmp_io_handler_.append_pixels(obj.data);
+                fid = obj.get_append_handle();
+                fwrite(fid, obj.data, 'single');
                 while obj.has_more()
-                    obj.page_number_ = obj.page_number_+1;
-                    obj.data_ = obj.load_clean_page_(obj.page_number_);
-                    obj.tmp_io_handler_ = obj.tmp_io_handler_.append_pixels(obj.data);
+                    obj.advance('nosave', true);
+                    fwrite(fid, obj.data, 'single');
                 end
+                obj.finalise_append(fid);
                 obj.data_ = tmp_data;
                 obj.page_number_ = pn;
             end
