@@ -5,7 +5,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
         ALL_IN_MEM_PG_SIZE = 1e12;
 
-        test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
+        test_sqw_file_path;
         sqw_2d;
         sqw_2d_paged;
     end
@@ -13,19 +13,21 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
     methods
 
         function obj = test_pixels_equal(~)
-            obj = obj@TestCase('test_equal_to_tol');
-
+            obj = obj@TestCase('test_pixels_equal');
 
             hc = hor_config();
             obj.old_config = hc.get_data_to_store();
+
+            pths = horace_paths;
+            obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
 
             % sqw_2d_1.sqw has ~1.8 MB of pixels, a 400 kB page size gives us 5
             % pages of pixel data
             pixel_page_size = 400e3;
             obj.sqw_2d_paged = sqw(obj.test_sqw_file_path, 'pixel_page_size', ...
-                pixel_page_size);
+                pixel_page_size, 'file_backed', true);
             pix = obj.sqw_2d_paged.pix;
-            assertTrue(pix.num_pixels > pix.page_size);
+            assertTrue(pix.is_filebacked);
 
             obj.sqw_2d = sqw(obj.test_sqw_file_path);
         end
@@ -33,18 +35,19 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
         function delete(obj)
             set(hor_config, obj.old_config);
         end
+
         function setUp(~)
             hc = hor_config();
             hc.saveable = false;
             hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
         end
+
         function tearDown(obj)
             hc = hor_config();
             obj.old_config = hc.get_data_to_store();
             hc.saveable = true;
             set(hc,obj.old_config);
         end
-
 
         function test_the_same_sqw_objects_are_equal(obj)
             sqw_copy = obj.sqw_2d;
@@ -76,8 +79,8 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
 
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
-            shuffled_data = obj.shuffle_pixel_bin_rows(PixelData(data), npix).data;
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
+            shuffled_data = obj.shuffle_pixel_bin_rows(PixelDataBase.create(data), npix).data;
 
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -97,15 +100,15 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
 
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
-            shuffled_data = obj.shuffle_pixel_bin_rows(PixelData(data), npix).data;
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
+            shuffled_data = obj.shuffle_pixel_bin_rows(PixelDataBase.create(data), npix).data;
 
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data, npix_in_page);
 
             % Replace sqw objects' npix and pix arrays
-            original_sqw.data.do_check_combo_arg = false;            
+            original_sqw.data.do_check_combo_arg = false;
             original_sqw.data.npix = npix;
             original_sqw.pix = pix;
             shuffled_sqw = copy(original_sqw);
@@ -160,7 +163,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             % of those bins, there will be a mismatch.
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             edited_data = data;
 
             fraction = 0.5;
@@ -211,14 +214,8 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
         function test_equal_to_tol_true_for_eq_sqw_reorder_false_with_fraction(obj)
             sqw_copy = copy(obj.sqw_2d_paged);
-            assertTrue( ...
-                equal_to_tol( ...
-                obj.sqw_2d_paged, ...
-                sqw_copy, ...
-                'fraction', 0.5, ...
-                'reorder', false ...
-                ) ...
-                );
+            assertEqualToTol(obj.sqw_2d_paged, sqw_copy, 'fraction', 0.5, ...
+                'reorder', false);
         end
 
         function test_equal_to_tol_can_be_called_with_negative_tol_for_rel_tol(obj)
@@ -249,7 +246,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             % Shuffle the pixels in the bins defined by the npix array
             %
             npix_non_empty = npix(npix ~= 0);
-            shuffled_pix = PixelData(pix.num_pixels);
+            shuffled_pix = PixelDataBase.create(pix.num_pixels);
 
             bin_end_idxs = cumsum(npix_non_empty(:));
             bin_start_idxs = bin_end_idxs - npix_non_empty(:) + 1;
@@ -268,8 +265,8 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
         function pix = get_pix_with_fake_faccess(data, npix_in_page)
             faccess = FakeFAccess(data);
-            bytes_in_pixel = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
-            pix = PixelData(faccess, npix_in_page*bytes_in_pixel);
+            bytes_in_pixel = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
+            pix = PixelDataBase.create(faccess, npix_in_page*bytes_in_pixel);
         end
 
     end

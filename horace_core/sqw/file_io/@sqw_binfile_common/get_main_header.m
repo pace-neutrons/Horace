@@ -49,14 +49,14 @@ end
 
 sz = obj.header_pos_(1)-obj.main_header_pos_;
 
-%
-fseek(obj.file_id_,obj.main_header_pos_,'bof');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('HORACE:sqw_binfile_common:runtime_error',...
-        'can not move to the start of the main header, reason: %s',mess);
+try
+    do_fseek(obj.file_id_,obj.main_header_pos_,'bof');
+catch ME
+    exc = MException('HORACE:sqw_binfile_common:runtime_error',...
+                     'can not move to the start of the main header');
+    throw(exc.addCause(ME))
 end
-%
+
 bytes = fread(obj.file_id_,sz,'*uint8');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0

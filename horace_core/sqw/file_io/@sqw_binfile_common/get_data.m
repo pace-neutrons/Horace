@@ -140,7 +140,8 @@ end  % function
 % -----------------------------------------------------------------------------
 function opts = parse_args(varargin)
 flags = {'header','verbatim','hverbatim','nopix', 'noclass'};
-kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+page_size = config_store.instance().get_value('hor_config','mem_chunk_size');
+kwargs = struct('pixel_page_size', page_size);
 for flag_idx = 1:numel(flags)
     kwargs.(flags{flag_idx}) = false;
 end

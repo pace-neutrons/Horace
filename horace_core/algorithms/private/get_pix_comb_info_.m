@@ -73,7 +73,7 @@ end
 %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs]
 [~,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
     accumulate_headers_job.read_input_headers(infiles);
-if all(all(pix_range == PixelData.EMPTY_RANGE_))
+if all(all(pix_range == PixelDataBase.EMPTY_RANGE_))
     pix_range = pix_combine_info.recalc_pix_range_from_loaders(ldrs);
     pix_range_calculated = true;
 else

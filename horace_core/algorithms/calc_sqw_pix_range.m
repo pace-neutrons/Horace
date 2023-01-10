@@ -66,7 +66,7 @@ end
 rd_list = rundatah.gen_runfiles(cell(1,numel(efix)),det,...
     efix,emode,lattice,'-allow_missing');
 ndet = numel(det.group);
-pix_range=PixelData.EMPTY_RANGE_;
+pix_range=PixelDataBase.EMPTY_RANGE_;
 for i=1:numel(rd_list)
     S = zeros(numel(en{i}),ndet);
     ERR = S;

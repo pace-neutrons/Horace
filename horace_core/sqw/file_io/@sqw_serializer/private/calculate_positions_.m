@@ -161,9 +161,9 @@ function [sz,err] = get_size(obj,input,pos)
 
 err = false;
 if obj.input_is_file_  %file stream
-    fseek(input,pos,'bof');
-    [~,res] = ferror(input);
-    if res ~= 0
+    try
+        do_fseek(input,pos,'bof');
+    catch
         sz = inf;
         err = true;
         return;
@@ -178,4 +178,3 @@ if obj.input_is_file_  %file stream
 else  % bytes
     sz = double(typecast(input(pos:pos+4-1),'uint32'));
 end
-

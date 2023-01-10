@@ -72,7 +72,7 @@ classdef test_sigvar_set < TestCase
             sqw_obj.data.s = zeros(1,3);
             sqw_obj.data.e = zeros(1,3);
             sqw_obj.data.npix = [3, 5, 1];
-            sqw_obj.pix = PixelData(9);
+            sqw_obj.pix = PixelDataBase.create(9);
 
             sigvar_obj = sigvar(struct('s', [1, 2, 3], 'e', [44, 55, 66]));
 
@@ -93,7 +93,7 @@ classdef test_sigvar_set < TestCase
             sqw_obj.data.s = zeros(1,3);
             sqw_obj.data.e = zeros(1,3);
             sqw_obj.data.npix = [3, 0, 1];
-            sqw_obj.pix = PixelData(4);
+            sqw_obj.pix = PixelDataBase.create(4);
 
             sigvar_obj = sigvar(struct('s', [1, 2, 3], 'e', [44, 55, 66]));
 

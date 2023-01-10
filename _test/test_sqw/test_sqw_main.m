@@ -3,21 +3,24 @@ classdef test_sqw_main < TestCase & common_state_holder
 
     properties
         out_dir = tmp_dir();
-        tests_dir = fileparts(fileparts(mfilename('fullpath')));
+        tests_dir;
     end
 
     methods
         function obj = test_sqw_main(name)
             obj = obj@TestCase(name);
+            pths = horace_paths();
+            obj.tests_dir = pths.test;
         end
-        
+
         function test_sqw_constructor(~)
             data = d2d();
             sqw_obj = sqw(data);
             assertTrue(sqw_obj.dnd_type)
         end
-        
+
         function test_read_sqw(obj)
+
             test_data = fullfile(obj.tests_dir, 'test_change_crystal', 'wref.sqw');
             out_dnd_file = fullfile(obj.out_dir, 'test_sqw_main_test_read_sqw_dnd.sqw');
             cleanup_obj = onCleanup(@()delete(out_dnd_file));
@@ -35,7 +38,7 @@ classdef test_sqw_main < TestCase & common_state_holder
             save(test_dnd,out_dnd_file);
             loaded_dnd = read_dnd(out_dnd_file);
             assertTrue(isa(loaded_dnd,'d2d'));
-            %
+
             test_dnd.filename = [targ_file, fext];
             test_dnd.filepath = [targ_path, filesep];
 
@@ -45,19 +48,20 @@ classdef test_sqw_main < TestCase & common_state_holder
         function test_setting_pix_page_size_in_constructor_pages_pixels(obj)
             % hide warnings when setting pixel page size very small
 
-            fpath = fullfile(obj.tests_dir, 'common_data', 'sqw_1d_2.sqw');
+            pths = horace_paths();
+            fpath = fullfile(pths.test_common, 'sqw_1d_2.sqw');
+
             % set page size accepting half of the pixels
             page_size = 4324/2;
-            sqw_obj = sqw(fpath, 'pixel_page_size', page_size);
+            sqw_obj = sqw(fpath, 'pixel_page_size', page_size, ...
+                'file_backed',true);
             sqw_pix_pg_size = sqw_obj.pix.page_size;
 
             % check we're actually paging pixels
             assertTrue(sqw_obj.pix.num_pixels > sqw_pix_pg_size);
 
             % check the page size is what we set it to
-            pix_size = sqw_binfile_common.FILE_PIX_SIZE;
-            expected_pg_size = floor(page_size_bytes/pix_size);
-            assertEqual(sqw_pix_pg_size, expected_pg_size);
+            assertEqual(sqw_pix_pg_size, page_size);
         end
 
         function test_pixels_not_paged_if_pixel_page_size_arg_not_given(obj)

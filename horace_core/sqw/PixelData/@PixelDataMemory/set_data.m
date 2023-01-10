@@ -22,35 +22,17 @@ NO_INPUT_INDICES = -1;
 
 [field_indices, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin{:});
 
-
-if obj.is_filebacked()
-    base_pg_size = obj.base_page_size;
-
-    if abs_pix_indices == NO_INPUT_INDICES
-        first_required_page = 1;
+if abs_pix_indices == NO_INPUT_INDICES
+    if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && ...
+            ischar(pix_fields) && strcmp(pix_fields,'all')
+        obj.raw_data_   = data; % all arguments have been already verified,
+                                %            no point of using data_ setter
+        obj.num_pixels_ = size(data,2);
     else
-        first_required_page = ceil(min(abs_pix_indices)/base_pg_size);
-    end
-    obj.move_to_page(first_required_page);
-
-    set_page_data(obj, field_indices, data, abs_pix_indices);
-    while obj.has_more()
-        obj.advance();
-        set_page_data(obj, field_indices, data, abs_pix_indices);
+        obj.data_(field_indices, 1:end) = data;
     end
 else
-    if abs_pix_indices == NO_INPUT_INDICES
-        if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && ...
-                ischar(pix_fields) && strcmp(pix_fields,'all')
-            obj.raw_data_   = data; % all arguments have been already verified,
-            %            no point of using data_ setter
-            obj.num_pixels_ = size(data,2);
-        else
-            obj.data_(field_indices, 1:end) = data;
-        end
-    else
-        obj.data_(field_indices, abs_pix_indices) = data;
-    end
+    obj.data_(field_indices, abs_pix_indices) = data;
 end
 
 end  % function
@@ -60,8 +42,8 @@ end  % function
 function [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin)
     NO_INPUT_INDICES = -1;
 
-    validateattributes(pix_fields, {'cell', 'char', 'string'}, {'nonempty'});
-    validateattributes(data, {'numeric'}, {});
+    validateattributes(pix_fields, {'cell', 'char', 'string'}, {'nonempty'}, 'pix_fields');
+    validateattributes(data, {'numeric'}, {}, 'data');
 
     parser = inputParser();
     parser.addOptional( ...
@@ -94,25 +76,5 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, data, varar
             'number of rows in ''data''.\nFound %i and %i.'], ...
             numel(abs_pix_indices), size(data, 2) ...
         );
-    end
-end
-
-
-function set_page_data(obj, field_indices, data, abs_indices)
-    % Set the values on the given fields on the current page of data.
-    NO_INPUT_INDICES = -1;
-    base_pg_size = obj.base_page_size;
-
-    if abs_indices == NO_INPUT_INDICES
-        start_idx = (obj.page_number_ - 1)*base_pg_size + 1;
-        end_idx = min(obj.page_number_*base_pg_size, obj.num_pixels);
-        obj.data(field_indices, :) = data(:, start_idx:end_idx);
-    else
-        [pg_idxs, data_idxs] = get_pg_idx_from_absolute_( ...
-            obj, abs_indices, obj.page_number_ ...
-        );
-        if ~isempty(pg_idxs)
-            obj.data(field_indices, pg_idxs) = data(:, data_idxs);
-        end
     end
 end

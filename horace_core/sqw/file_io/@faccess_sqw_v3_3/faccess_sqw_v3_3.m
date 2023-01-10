@@ -63,7 +63,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
     properties(Access=public,Hidden=true)
         % the transient class stores pix range together with the data
         % footer.
-        pix_range_ = PixelData.EMPTY_RANGE_;
+        pix_range_ = PixelDataBase.EMPTY_RANGE_;
     end
 
     methods
@@ -156,7 +156,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             obj.pix_range_ = pix.pix_range;
             num_pix = obj.npixels;
 
-            if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && num_pix > 0
+            if any(any(obj.pix_range_ == PixelDataBase.EMPTY_RANGE_)) && num_pix > 0
                 hc           = hor_config;
                 ll           = hc.log_level;
                 page_size    = pix.page_size;

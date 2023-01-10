@@ -32,7 +32,7 @@ n_blocks = numel(offsets_to_read);
 tmp_stor = cell(1,n_blocks);
 
 for i=1:n_blocks
-    ok = fseek (fid, (4*ndatpix)*offsets_to_read(i), 'cof'); % initial offset is from end of previous range; ndatpix x float32 per pixel in the file
+    ok = do_fseek (fid, (4*ndatpix)*offsets_to_read(i), 'cof'); % initial offset is from end of previous range; ndatpix x float32 per pixel in the file
     if ok~=0; fclose(fid); error('CUT_SQW:io_error','Unable to jump to required location in file'); end;
     try
         [tmp_stor{i},~,~,mess] = fread_catch(fid, [ndatpix,ranges_to_read(i)], '*float32');

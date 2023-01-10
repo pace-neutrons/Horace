@@ -34,3 +34,5 @@ page_idx = abs_indices(abs_idx_in_page) - (page_number - 1)*obj.base_page_size;
 if nargout == 2
     global_idx = find(abs_idx_in_page);
 end
+
+end

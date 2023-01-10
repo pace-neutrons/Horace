@@ -120,7 +120,7 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
-            test_obj = PixelData();
+            test_obj = PixelDataBase.create();
 
             ser = c_serialise(test_obj);
             test_obj_rec = c_deserialise(ser);

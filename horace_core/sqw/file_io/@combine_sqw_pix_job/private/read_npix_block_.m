@@ -23,13 +23,14 @@ nfiles = numel(fid);
 npix_section = int64(zeros(nbin_buf_size,nfiles));
 
 for i=1:nfiles
-    status=fseek(fid(i),pos_npixstart(i)+8*(ibin_start-1),'bof'); % location of npix for bin number ibin_start
-    % (recall written as int64)
-    if status<0
-        filename = fopen(fid);
-        mess = ['Unable to find location of npix data in ',filename];
-        error('SQW_BINFILE_IO:runtime_error',mess);
+    try
+        status=do_fseek(fid(i),pos_npixstart(i)+8*(ibin_start-1),'bof'); % location of npix for bin number ibin_start
+    catch ME
+        exc = MException('SQW_BINFILE_IO:io_error', ...
+                         'Unable to find location of npix data');
+        throw(exc.addCause(ME))
     end
+    % (recall written as int64)
     npix_section(:,i) = fread(fid(i),nbin_buf_size,'*int64');
     %
     [f_message,f_errnum] = ferror(fid(i));
@@ -37,3 +38,6 @@ for i=1:nfiles
         error('SQW_BINFILE_IO:runtime_error',f_message);
     end
 end
+
+end
+

@@ -76,8 +76,8 @@ classdef test_fix_magnetic_ff< TestCase
             inv_sqw_s= struct(inv_sqw);
             fsqw_s.data.s = [];
             inv_sqw_s.data.s=[];
-            fsqw_s.data.pix = PixelData();
-            inv_sqw_s.data.pix = PixelData();
+            fsqw_s.data.pix = PixelDataBase.create();
+            inv_sqw_s.data.pix = PixelDataBase.create();
 
             tol = 1e-6; % added to get signal comparison to pass
             % now fails with different dirty page flag

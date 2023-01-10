@@ -63,15 +63,13 @@ if obj.page_size == other_pix.page_size
         other_pix.advance();
         [ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
     end
-elseif ~obj.is_filebacked()
-    [ok, mess] = pix_paged_and_in_mem_equal_to_tol(other_pix, obj, varargin{:});
-elseif ~other_pix.is_filebacked()
+elseif ~other_pix.is_filebacked
     [ok, mess] = pix_paged_and_in_mem_equal_to_tol(obj, other_pix, varargin{:});
 else
-    error('HORACE:PixelData:equal_to_tol', ...
-          ['Cannot compare PixelData objects that have different page ' ...
-           'sizes.\nFound page sizes %i and %i.'], obj.page_size, ...
-          other_pix.page_size);
+    ok = false;
+    mess = sprintf(['PixelData objects have different page ' ...
+                    'sizes.\nFound page sizes %i and %i.'], obj.page_size, ...
+                   other_pix.page_size);
 end
 
 end
@@ -98,7 +96,7 @@ function [ok, mess] = validate_other_pix(obj, other_pix)
     ok = true;
     mess = '';
 
-    if ~isa(other_pix, 'PixelData')
+    if ~isa(other_pix, 'PixelDataBase')
         ok = false;
         mess = sprintf('Objects of class ''%s'' and ''%s'' cannot be equal.', ...
                        class(obj), class(other_pix));

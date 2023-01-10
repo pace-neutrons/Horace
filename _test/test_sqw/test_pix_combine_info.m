@@ -15,7 +15,7 @@ classdef test_pix_combine_info < TestCase
             obj = obj@TestCase(name);
 
         end
-        %
+
         function test_serialize_deserialize(~)
             files = {'file_a','file_b','file_c'};
             nbins = 10000;
@@ -30,6 +30,7 @@ classdef test_pix_combine_info < TestCase
 
             assertEqual(pc,pcr);
         end
+
         function test_wrong_constructor_inconsistent_positions(~)
             files = {'file_a','file_b','file_c'};
             nbins = 10000;
@@ -74,7 +75,7 @@ classdef test_pix_combine_info < TestCase
             assertEqual(pc.run_label,'nochange');
             assertFalse(pc.change_fileno)
             assertFalse(pc.relabel_with_fnum)
-            assertEqual(pc.pix_range,PixelData.EMPTY_RANGE_);
+            assertEqual(pc.pix_range,PixelDataBase.EMPTY_RANGE_);
 
         end
 
@@ -92,7 +93,7 @@ classdef test_pix_combine_info < TestCase
             assertEqual(pc.run_label,'nochange');
             assertFalse(pc.change_fileno)
             assertFalse(pc.relabel_with_fnum)
-            assertEqual(pc.pix_range,PixelData.EMPTY_RANGE_);
+            assertEqual(pc.pix_range,PixelDataBase.EMPTY_RANGE_);
 
         end
 
@@ -111,7 +112,7 @@ classdef test_pix_combine_info < TestCase
             assertFalse(pc.change_fileno);
             assertFalse(pc.relabel_with_fnum);
 
-            assertEqual(pc.pix_range,PixelData.EMPTY_RANGE_);
+            assertEqual(pc.pix_range,PixelDataBase.EMPTY_RANGE_);
 
         end
     end

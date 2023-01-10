@@ -23,17 +23,17 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
         sqw_obj=[];
         clob_ = [];
     end
+
     methods(Static)
         function rm_sqw(filename)
-            if exist(filename,'file')
+            if is_file(filename)
                 delete(filename);
             end
         end
-
     end
 
     methods
-        function this=test_rundata_vs_sqw(varargin)
+        function obj=test_rundata_vs_sqw(varargin)
             if nargin==0
                 name = 'test_rundata_vs_sqw';
             else
@@ -41,33 +41,31 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             end
             this_folder = fileparts(mfilename('fullpath'));
             ref_data = fullfile(fileparts(this_folder),'common_data','rundata_vs_sqw_refdata.mat');
-            this = this@TestCaseWithSave(name,ref_data);
-            %
+            obj = obj@TestCaseWithSave(name,ref_data);
+
             pths = horace_paths;
             data_dir = pths.test_common;
-            this.sqw_file_single = fullfile(this.out_dir,this.sqw_file_single);
-            this.par_file = fullfile(data_dir,this.par_file);
-            if this.save_file
-                fn =this.sqw_file_single;
-                this.clob_ = onCleanup(@()this.rm_sqw(fn));
+            obj.sqw_file_single = fullfile(obj.out_dir,obj.sqw_file_single);
+            obj.par_file = fullfile(data_dir,obj.par_file);
+            if obj.save_file
+                fn =obj.sqw_file_single;
+                obj.clob_ = onCleanup(@()obj.rm_sqw(fn));
 
-                if ~exist(this.sqw_file_single,'file')
-                    dummy_sqw(this.en, this.par_file, this.sqw_file_single, this.efix,...
-                        this.emode, this.alatt, this.angdeg,...
-                        this.u, this.v, this.psi, this.omega, this.dpsi, this.gl, this.gs,...
+                if ~is_file(obj.sqw_file_single)
+                    dummy_sqw(obj.en, obj.par_file, obj.sqw_file_single, obj.efix,...
+                        obj.emode, obj.alatt, obj.angdeg,...
+                        obj.u, obj.v, obj.psi, obj.omega, obj.dpsi, obj.gl, obj.gs,...
                         [10,5,5,5]);
                 end
-                this.sqw_obj = read_sqw(this.sqw_file_single);
+                obj.sqw_obj = read_sqw(obj.sqw_file_single);
 
             else
-                this.sqw_obj = dummy_sqw(this.en, this.par_file, '', this.efix,...
-                    this.emode, this.alatt, this.angdeg,...
-                    this.u, this.v, this.psi, this.omega, this.dpsi, this.gl, this.gs,...
+                obj.sqw_obj = dummy_sqw(obj.en, obj.par_file, '', obj.efix,...
+                    obj.emode, obj.alatt, obj.angdeg,...
+                    obj.u, obj.v, obj.psi, obj.omega, obj.dpsi, obj.gl, obj.gs,...
                     [10,5,5,5]);
-                this.sqw_obj = this.sqw_obj{1};
+                obj.sqw_obj = obj.sqw_obj{1};
             end
-
-
 
         end
 
@@ -91,7 +89,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
             det = get_par(obj.par_file);
             det_par = rd.det_par;
-            %
+
             assertElementsAlmostEqual(det_par.azim,det.azim,'absolute',7.7e-6);
             assertElementsAlmostEqual(det_par.group,det.group,'absolute',1.e-12);
             assertElementsAlmostEqual(det_par.height,det.height,'absolute',1.e-9);
@@ -100,7 +98,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertElementsAlmostEqual(det_par.x2,det.x2,'absolute',2.e-6);
             assertEqual(det_par.filename,det.filename)
         end
-        %
+
         function obj=test_build_rundata(obj)
             rd = rundatah(obj.sqw_obj);
 
@@ -119,6 +117,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             sqw_rev.main_header.creation_date = obj.sqw_obj.main_header.creation_date;
             assertEqualToTol(obj.sqw_obj,sqw_rev,'tol',[1.e-12,1.e-12]);
         end
+
         function test_bounding_object_provides_correct_img_range(obj)
             rd = rundatah(obj.sqw_obj);
 
@@ -133,32 +132,30 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             pix_range =[min(bos.pix.coordinates,[],2)'; max(bos.pix.coordinates,[],2)'];
             assertElementsAlmostEqual(bos.data.img_range,pix_range,'relative',1.e-6);
         end
-        %
-        function  this=test_serialize_deserialize_rundatah(this)
 
-            rd = rundatah(this.sqw_obj);
+        function  obj=test_serialize_deserialize_rundatah(obj)
+
+            rd = rundatah(obj.sqw_obj);
 
             by = rd.serialize();
 
             fa = rundatah.deserialize(by);
             [~,fa] = fa.get_par;
             assertTrue(isa(fa,'rundatah'));
-            [ok,mess]=equal_to_tol(rd.S,fa.S);
-            assertTrue(ok,mess);
-            [ok,mess]=equal_to_tol(rd.det_par,fa.det_par,1.e-4);
-            assertTrue(ok,mess);
+            assertEqualToTol(rd.S,fa.S);
+            assertEqualToTol(rd.det_par,fa.det_par,'tol', [1.e-4, 0]);
             rd = rd.unload();
             fa = fa.unload();
             assertEqual(rd,fa);
         end
-        %
+
         function sqw_build = rd_convert_checker(~,rundata_to_test,grid_size,img_db_range)
             % function used in test_serialize_deserialize_rundatah_with_op
             % test to ensure that imput parameters of the serialized function
             % are not picked up from the same variables subspace;
-            sqw_build  = rundata_to_test.calc_sqw(grid_size,img_db_range);
+            sqw_build = rundata_to_test.calc_sqw(grid_size,img_db_range);
         end
-        %
+
         function  test_serialize_deserialize_rundatah_with_op(obj)
             % test checks if transofrmation is serialized/recovered correctly.
             rd = rundatah(obj.sqw_obj);
@@ -181,7 +178,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertEqual(sqw_o,sqw_r);
 
         end
-        %
+
         function test_rundata_sqw(obj)
             pths = horace_paths;
             test_file = fullfile(pths.test_common,'MAP11014.nxspe');
@@ -190,7 +187,6 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
             rd = rundatah(test_file,ds);
             rd = rd.load();
-
             hc = hor_config;
             dts = hc.get_data_to_store();
             clob = onCleanup(@()set(hc,dts));
@@ -208,7 +204,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertEqualToTol(rdr.saveobj(),rd.saveobj(),'ignore_str',true,'tol',1.e-7);
 
         end
-        %
+
         function test_rundata_mex_nomex(~)
             pths = horace_paths;
             test_file = fullfile(pths.test_common,'MAP11014.nxspe');
@@ -229,8 +225,8 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertEqual(grid_mex,grid_nom);
             assertEqual(pix_range_mex,pix_range_nom);
 
-            assertElementsAlmostEqual(sort(sq4_mex.pix.data'),...
-                sort(sq4_nom.pix.data'));
+            assertElementsAlmostEqual(sort(sq4_mex.pix.data),...
+                sort(sq4_nom.pix.data));
             % Binning here is substantially different. TODO: decrease the
             % differebce
             assertEqual(sq4_nom.pix.pix_range,sq4_mex.pix.pix_range);

@@ -3,6 +3,8 @@ function pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
 %%GET_PIX_IN_RANGES read pixels in the specified ranges
 % Ranges are inclusive.
 %
+%  E.g. for 3 sets of pixels (1-6, 12, 25-27)
+%
 %   >> pix = get_pix_in_ranges([1, 12, 25], [6, 12, 27])
 %
 % Input:
@@ -30,33 +32,20 @@ if ~exist('keep_precision','var')
 end
 validate_ranges(abs_indices_starts, block_sizes);
 
-if obj.is_filebacked()
-    if any(obj.page_dirty_)
-        % At least some pixels sit in temporary files
-        abs_indices = get_ind_from_ranges(abs_indices_starts, block_sizes);
-        pix_out = obj.get_pixels(abs_indices);
-        return
-    else
-        skip_arg_validation = true;  % no point validating inputs again in faccess
-        raw_pix = obj.f_accessor_.get_pix_in_ranges( ...
-            abs_indices_starts, block_sizes, skip_arg_validation,keep_precision);
-    end
+% All pixels in memory
+indices = get_ind_from_ranges(abs_indices_starts, block_sizes);
+if keep_precision
+    raw_pix = obj.data(:, indices);
 else
-    % All pixels in memory
-    indices = get_ind_from_ranges(abs_indices_starts, block_sizes);
-    if keep_precision
-        raw_pix = obj.data(:, indices);
-    else
-        raw_pix  = double(obj.data(:, indices));
-    end
+    raw_pix  = double(obj.data(:, indices));
 end
+
 if recalculate_pix_range
-    pix_out = PixelData(raw_pix);
+    pix_out = PixelDataBase.create(raw_pix);
 else
-    pix_out = PixelData();
+    pix_out = PixelDataBase.create();
     set_data(pix_out,'all',raw_pix);
 end
 
 
-end  % function
-% -----------------------------------------------------------------------------
+end

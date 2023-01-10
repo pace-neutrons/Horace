@@ -14,8 +14,7 @@ if nargin < 3
 % TODO, drop internal page size, revert everything to configuration
 %     [n_threads,buf_size] = config_store.instance().get_value(...
 %         'hor_config','threads','mem_chunk_size');
-    n_threads = config_store.instance().get_value(...
-        'parallel_config','threads');
+     [n_threads] = get(parallel_config,'threads');
 
 end
 
