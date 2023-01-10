@@ -47,7 +47,7 @@ for i=1:nobj
                 'Sample can only be set or changed in sqw-type data. File N%d, name: %s does not contain sqw object', ...
                 i,win)
         end
-        exper = ldr.get_header('-all');
+        exper = ldr.get_exp_info('-all');
         if set_multi
             exper = exper.set_sample(sample(i));
         else

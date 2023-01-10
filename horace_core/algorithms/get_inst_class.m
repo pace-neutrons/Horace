@@ -53,7 +53,7 @@ if ischar(win)||isstring(win)
             'Instrument can only be retrieved from sqw-type data. File N%d, name: %s does not contain sqw object', ...
             i,win)
     end
-    exper = ldr.get_header('-all');
+    exper = ldr.get_exp_info('-all');
     [inst,all_inst] = exper.get_inst_class();
 elseif isa(win,'sqw')
     exper = win.experiment_info;

@@ -16,11 +16,11 @@ classdef unique_objects_container < serializable
         % (default respecified in constructor inputParser)
         n_duplicates_ = zeros(1,0);
 
-        % hashify  defaults to this undocumented java function handle 
-        % if you try to store objects non-children for serializable and 
+        % hashify  defaults to this undocumented java function handle
+        % if you try to store objects non-children for serializable and
         % the function to convert objects to bytes has not been set
         % explicitly
-        convert_to_stream_f_ = @getByteStreamFromArray; 
+        convert_to_stream_f_ = @getByteStreamFromArray;
     end
     properties(Access = private)
         % is set to true if we decide not to use default stream conversion
@@ -39,9 +39,11 @@ classdef unique_objects_container < serializable
         n_duplicates;
     end
     properties(Dependent,Hidden)
-        %string representation of the function, used to produce hashes from
-        % the object. Needed for simple saveobj/loadob into not-Matlab binary
-        % files
+        % string representation of the function, used to serialize
+        % input objects which can not serialize themselves.
+        % (I.e. are not the children of "serializable" class).
+        % The representation used for simple saveobj/loadob conversion
+        % of the container into not-Matlab binary files.
         conv_func_string;
         % handle to the function, used for conversion of objects into
         % bytestream if default serialization is not available. May be set
@@ -128,6 +130,9 @@ classdef unique_objects_container < serializable
                 error('HERBERT:unique_objects_container:invalid_argument',...
                     'this method accepts function handles for serializing obhects only')
             end
+            if isequal(self.convert_to_stream_f_,val)
+                return;
+            end
             self.convert_to_stream_f_ = val;
             self.non_default_f_conversion_set_  = true;
             if self.do_check_combo_arg_
@@ -207,7 +212,7 @@ classdef unique_objects_container < serializable
             % value  -- the sample, to verify presence in the container
             % Outputs:
             % is      -- true if the sample is present in the container and
-            %            false -- otherwise. 
+            %            false -- otherwise.
             % unique_ind
             %         -- if requested, the positions of the sample in the
             %            unique objects container

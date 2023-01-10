@@ -33,9 +33,10 @@ classdef sqw_formats_factory < handle
     %
     properties(Access=private) %
         % List of registered file accessors:
-        % Add all new file readers which inherit from sqw_file_interface and dnd_file_interface
+        % Add all new file readers which inherit from sqw_file_interface and horace_binfile_interface
         % to this list in the order of expected frequency of their appearance.
         supported_accessors_ = { ...
+            faccess_dnd_v4(),...
             faccess_sqw_v3_3(), ...
             faccess_sqw_v3(), ...
             faccess_sqw_v3_21(), ...
@@ -44,12 +45,14 @@ classdef sqw_formats_factory < handle
             faccess_sqw_v3_2(), ...
             faccess_sqw_prototype()};
         %
-        % Rules to load/save different classes:
-        % sqw2 corresponds to sqw file in indirect mode with varying efixed
-        written_types_ = {'sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
+        % Rules for saving different classes, defines the preferred loader 
+        % for saving the class from the list:
+        % sqw2 corresponds to sqw file in indirect mode with efixed being
+        % array
+        written_types_ = {'DnDBase','sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders above to use for saving
         % correspondent class
-        access_to_type_ind_ = {1,3,5,5,5,5,5,5};
+        access_to_type_ind_ = {1,2,4,1,1,1,1,1,1};
         types_map_ ;
     end
     properties(Dependent)
@@ -98,15 +101,23 @@ classdef sqw_formats_factory < handle
             %
             %Usage:
             %>>loader=loaders_factory.instance().get_loader(sqw_file_name);
+            %>>loader=loaders_factory.instance().get_loader(sqw_file_name,'-update');
             %
             % where:
             %>>data_file_name  -- the name of the file, which is the source of the data
             %                     or the cellarray of such names.
             %                     If cellarray of the names provided, the method returns
             %                     cellarray of loaders.
+            % Optional:
+            % '-update'        -- if provided, open file for
+            %                     read/write/update operations, unlike defaults
+            %                     opening file for read access only
             %
-            % On error throws SQW_FILE_IO:runtime_error exception with message, explaining the reason for error.
-            %                    The errors are usually caused by missing or not-recognized (non-sqw) input files.
+            %
+            % On error throws SQW_FILE_IO:runtime_error exception with
+            %                message, explaining the reason for error.
+            %                The errors are usually caused by missing or
+            %                 not-recognized (non-sqw) input files.
             %
             if iscell(sqw_file_name) % process range of files
                 loader = cellfun(@(x)(obj.get_loader(x)),sqw_file_name,...
@@ -124,7 +135,7 @@ classdef sqw_formats_factory < handle
             end
             % read initial bytes of binary file and interpret them as Horace headers to identify file format.
             % Returns header block and open file handle not to open file again
-            [head_struc,fh] = dnd_file_interface.get_file_header(full_data_name);
+            [head_struc,fh] = horace_binfile_interface.get_file_header(full_data_name,varargin{:});
 
             for i=1:numel(obj.supported_accessors_)
                 loader = obj.supported_accessors_{i};
@@ -194,7 +205,9 @@ classdef sqw_formats_factory < handle
             %            is not among the types specified above.
             %
             if nargin <2
-                loader = obj.supported_accessors_{1};
+                % TODO: #893 default accessor would be the second one until faccess_sqw_v4 is completed
+                % When it is completed, return most functional accessor.
+                loader = obj.supported_accessors_{2};
                 return
             end
             if ischar(varargin{1})

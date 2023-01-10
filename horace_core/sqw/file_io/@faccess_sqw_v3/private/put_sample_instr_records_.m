@@ -19,7 +19,7 @@ if isempty(old_matlab)
     old_matlab = verLessThan('matlab','8.3');
 end
 
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 setting_sample = true;
 setting_instr  = true;
 % extract sqw header from various sources, including sqw provided as input,

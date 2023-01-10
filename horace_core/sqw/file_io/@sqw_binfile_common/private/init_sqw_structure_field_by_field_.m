@@ -5,7 +5,7 @@ function obj = init_sqw_structure_field_by_field_(obj,varargin)
 %
 %
 %
-[ok,mess,init_for_upgrade] = parse_char_options(varargin,{'-upgrade'});
+[ok,mess,init_for_upgrade,upgrade] = parse_char_options(varargin,{'-update','-upgrade'});
 if ~ok
     error('HORACE:sqw_binfile_common:invalid_argument',mess);
 end
@@ -134,9 +134,8 @@ obj=set_filepath(obj);
 
 function obj=set_filepath(obj)
 
-[path,name,ext]=fileparts(fopen(obj.file_id_));
-obj.filename_=[name,ext];
-obj.filepath_=[path,filesep];
+file = fopen(obj.file_id_);
+obj.full_filename = file;
 
 function check_and_throw_error(obj,mess_pos)
 [mess,res] = ferror(obj.file_id_);

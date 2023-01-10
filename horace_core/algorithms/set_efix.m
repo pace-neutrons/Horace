@@ -111,7 +111,7 @@ for i=1:n_obj
     if isa(the_obj,'sqw')
         exp_inf  = the_obj.experiment_info;
     else
-        exp_inf   = the_obj.get_header('-all','-no_sampinst');
+        exp_inf   = the_obj.get_exp_info('-all','-no_sampinst');
     end
     exp_inf   = exp_inf.set_efix_emode(efix_split{i},emode_split{i});%
 

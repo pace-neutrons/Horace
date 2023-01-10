@@ -18,7 +18,7 @@ if ~ok
         'SQW_BINFILE_COMMON:put_main_header: %s',mess);
 end
 %
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 %
 [main_header,new_obj] = obj.extract_correct_subobj('main_header',argi{:});
 current_creation_date_defined = main_header.creation_date_defined;

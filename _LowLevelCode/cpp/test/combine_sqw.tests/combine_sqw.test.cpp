@@ -13,7 +13,7 @@ using namespace Horace::Utility;
 const std::string HORACE_ROOT{
     Environment::get_env_variable(Environment::HORACE_ROOT, ".")};
 const std::string TEST_FILE_NAME{HORACE_ROOT +
-                                 "/_test/test_symmetrisation/w3d_sqw.sqw"};
+                                 "/_test/common_data/w3d_sqw.sqw"};
 
 const std::size_t NUM_BINS_IN_FILE{472392};
 const std::size_t BIN_POS_IN_FILE{5194471};

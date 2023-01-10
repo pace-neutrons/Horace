@@ -75,7 +75,7 @@ for i=1:nobj
                 'Instrument can only be set or changed in sqw-type data. File N%d, name: %s does not contain sqw object', ...
                 i,win)
         end
-        exper = ldr.get_header('-all');
+        exper = ldr.get_exp_info('-all');
         exper = exper.set_instrument(inst_or_fun,varargin{:});
         ldr= ldr.upgrade_file_format(); % also reopens file in update mode if format is already the latest one
         ldr.put_instruments(exper.instruments);

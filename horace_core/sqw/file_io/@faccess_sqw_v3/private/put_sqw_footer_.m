@@ -8,7 +8,7 @@ if isempty(old_matlab)
     old_matlab = verLessThan('matlab','8.3');
 end
 
-fields2save = obj.fields_to_save();
+fields2save = obj.saveableFields();
 pos_info  = struct();
 for i=1:numel(fields2save)
     fld = fields2save{i};

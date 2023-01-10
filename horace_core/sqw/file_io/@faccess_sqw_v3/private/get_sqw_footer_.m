@@ -5,17 +5,15 @@ function  obj= get_sqw_footer_(obj,varargin)
 %
 %
 %
-[ok,mess,init_for_upgrade] = parse_char_options(varargin,{'-upgrade'});
+[ok,mess,init_for_upgrade,for_update] = parse_char_options(varargin,{'-upgrade','-update'});
 if ~ok
     error('HORACE:faccess_sqw_v3:invalid_argument',mess);
 end
 
 obj = get_sqw_file_footer(obj);
 %
-if ~init_for_upgrade
-    [fp,fn,ext]=fileparts(fopen(obj.file_id_));
-    obj.filename_ =[fn,ext];
-    obj.filepath_ =[fp,filesep];
+if ~(init_for_upgrade||for_update)
+    obj.full_filename = fopen(obj.file_id_);
 end
 
 % read the number of files contributing into this sqw file
@@ -91,7 +89,7 @@ obj.position_info_pos_ = pos_info_location;
 obj.eof_pos_  = eof_pos;
 obj.real_eof_pos_ = eof_pos;
 
-obj = obj.init_from_structure(fd_struct);
+obj = obj.from_bare_struct(fd_struct);
 obj.data_type_ = char(obj.data_type_);
 
 % debug and sanity options@

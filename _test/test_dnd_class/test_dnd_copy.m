@@ -32,7 +32,7 @@ classdef test_dnd_copy < TestCase
             sqw_2d = sqw(obj.test_sqw_2d_fullpath);
             [ok, mess] = equal_to_tol(dnd_2d, sqw_2d);
             assertFalse(ok);
-            assertEqual(mess, 'Objects being compared are not both sqw-type or both dnd-type');
+            assertEqual(mess, 'Objects being compared are not the same type');
         end
 
         function test_copy_returns_distinct_object(obj)

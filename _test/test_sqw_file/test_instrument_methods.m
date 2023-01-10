@@ -62,7 +62,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             set_efix_horace(obj.test_file_,ei)
 
             ldr = sqw_formats_factory.instance().get_loader(obj.test_file_);
-            expi_10 = ldr.get_header(10);
+            expi_10 = ldr.get_exp_info(10);
             ldr.delete(); % clear existing loader not to hold test file in case of further modifications
 
             assertEqual(expi_10.expdata.efix,1010)
@@ -74,7 +74,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             % ASSIGNMENT IN MATLAB 2015b is broken. if I assign to the previous
             % (deleted) loader ldr, the file will close!!!
             ldr1 = sqw_formats_factory.instance().get_loader(obj.test_file_);
-            expi_10 = ldr1.get_header(10);
+            expi_10 = ldr1.get_exp_info(10);
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
 
             assertEqual(expi_10.expdata.efix,110)

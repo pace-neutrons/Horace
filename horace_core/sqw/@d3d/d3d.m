@@ -7,7 +7,7 @@ classdef d3d < DnDBase
     %   >> w = d3d(filename)       % Create a D3D object from a file
     %   >> w = d3d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent,Access = protected)
+    properties (Dependent,Hidden=true)
         NUM_DIMS;
     end
 
@@ -27,12 +27,17 @@ classdef d3d < DnDBase
         function obj = d3d(varargin)
             obj = obj@DnDBase(varargin{:});
             if nargin == 0
+                obj.do_check_combo_arg = false;
                 obj.axes.single_bin_defines_iax = [false,false,false,true];
                 obj.axes.dax= [1,2,3];
                 obj.s_ = 0;
                 obj.e_ = 0;
                 obj.npix_ = 0;
+                obj.do_check_combo_arg = true;
             end
+        end
+        function nd = get.NUM_DIMS(~)
+            nd =3;
         end
         function [nd,sz] = dimensions(obj)
             nd = 3;
@@ -43,9 +48,6 @@ classdef d3d < DnDBase
         % PLOT:
         [figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
         [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargin);
-        function nd = get.NUM_DIMS(~)
-            nd =3;
-        end
 
     end
 end

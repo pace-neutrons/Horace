@@ -8,11 +8,24 @@ classdef (Abstract=true) serializable
     % The class is necessary to provide common interface to loading and
     % saving classes to Matlab .mat files and Horace sqw objects and to
     % support old versions of the classes
+    %
+    % A class needs to have two features to be able to become serializable:
+    % 1) An empty constructor which creates valid empty instance
+    %    of the class
+    % 2) A public interface (list of properties) which can fully define
+    %    the class contents by setting values of these properties to an
+    %    empty class instance.
+    %
+    % The public interface request (No 2) can be weakened by accurate
+    % overloading of to_bare_struct/from_bare_struct methods.
+    % (expert usage only)
+    %
     %----------------------------------------------------------------------
     % VALIDATION interface:
     %----------------------------------------------------------------------
     % In addition to save/load interface the class defines and uses
     % validation interface.
+    %
     % one property and one method, namely protected property "do_check_combo_arg_"
     % and "check_combo_arg" method are defined on this public interface.
     %
@@ -234,7 +247,7 @@ classdef (Abstract=true) serializable
             do = obj.do_check_combo_arg_;
         end
         function obj = set.do_check_combo_arg(obj,val)
-            %use function to be able to overload on children
+            %use set function to be able to overload this method by children
             obj = set_do_check_combo_arg(obj,val);
         end
         function [is,mess] = eq(obj,other_obj,varargin)
@@ -399,6 +412,18 @@ classdef (Abstract=true) serializable
             [obj,remains] = ...
                 set_positional_and_key_val_arguments_(obj,...
                 positinal_param_names_list,old_keyval_compat,varargin{:});
+            %
+            % Code sample to insert into new object constructor to use generic constructor:
+            %
+            % flds = obj.saveableFields();
+            % [obj,remains] = obj.set_positional_and_key_val_arguments(...
+            %        flds,false,varargin{:});
+            %  if ~isempty(remains) % process the parameters not recognized
+            %                       % as positional or key-value arguments
+            %      error('HORACE:class_name:invalid_argument',...
+            %           ' Class constructor has been invoked with non-recognized parameters: %s',...
+            %                         disp2str(remains));
+            %  end
         end
     end
 end

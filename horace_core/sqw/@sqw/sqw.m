@@ -169,7 +169,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 % iii) struct or data loader - a struct, pass to the struct
                 % loader
             elseif ~isempty(args.data_struct)
-                if isa(args.data_struct,'dnd_file_interface')
+                if isa(args.data_struct,'horace_binfile_interface')
                     args.data_struct = obj.get_loader_struct_(...
                         args.data_struct,args.pixel_page_size);
                     obj = from_bare_struct(obj,args.data_struct);
@@ -186,14 +186,16 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
             end
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
         end
         function obj = set.data(obj, d)
-            if isa(d,'DnDBase') || isempty(d)
+            if isa(d,'DnDBase')
                 obj.data_ = d;
+            elseif isempty(d)
+                obj.data_ = d0d();
             else
                 error('HORACE:sqw:invalid_argument',...
                     'Only instance of dnd class or empty value may be used as data value. Trying to set up: %s',...
@@ -277,14 +279,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
     end
     %======================================================================
-    % REDUNDANT and compartibility ACCESSORS    
+    % REDUNDANT and compartibility ACCESSORS
     methods
         function obj = change_header(obj,hdr)
             obj.experiment_info = hdr;
-        end
-
-        function dtp = my_detpar(obj)
-            dtp = obj.detpar_x;
         end
 
         function obj = change_detpar(obj,dtp)
@@ -330,14 +328,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         % Return the mean fixed neutron energy and emode for an array of sqw objects.
         [efix,emode,ok,mess,en] = get_efix(obj,tol);
-        % Set the fixed neutron energy for an array of sqw objects.        
-        obj = set_efix(obj,efix,emode);        
+        % Set the fixed neutron energy for an array of sqw objects.
+        obj = set_efix(obj,efix,emode);
 
         % Change the crystal lattice and orientation of an sqw object or array of objects
         wout = change_crystal (obj,varargin)
 
         %TODO: Special call on interface for different type of instruments
-        %      from generic object, which may contain any instrument is 
+        %      from generic object, which may contain any instrument is
         %      incorrect. It should be resfun covariance here, if it is needs
         %      to be here at all.
         varargout = tobyfit (varargin);
@@ -467,7 +465,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     methods(Static)
         function obj = loadobj(S)
             % loadobj method, calling generic method of
-            % saveable class. Provides empty sqw class instance to 
+            % saveable class. Provides empty sqw class instance to
             obj = sqw();
             obj = loadobj@serializable(S,obj);
         end

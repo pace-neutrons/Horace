@@ -10,7 +10,7 @@ parser = inputParser();
 parser.KeepUnmatched = true;  % ignore unmatched parameters
 parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || ...
     is_string(x) || ...
-    isa(x,'dnd_file_interface') || ...
+    isa(x,'horace_binfile_interface') || ...
     isstruct(x)));
 parser.addParameter('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE, ...
     @PixelData.validate_mem_alloc);
@@ -29,7 +29,7 @@ if isa(input, 'SQWDnDBase')
     end
 elseif is_string(parser.Results.input)
     args.filename = input;
-elseif (isstruct(input)||isa(input,'dnd_file_interface')) && ~isempty(input)
+elseif (isstruct(input)||isa(input,'horace_binfile_interface')) && ~isempty(input)
     args.data_struct = input;
 else
     % create struct holding default instance

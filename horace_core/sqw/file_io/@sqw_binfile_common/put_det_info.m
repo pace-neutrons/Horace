@@ -15,7 +15,7 @@ if ~ok
     error('SQW_BINFILE_COMMON:invalid_argument',mess);
 end
 %
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 %
 [detpar,new_obj] = obj.extract_correct_subobj('detpar',argi{:});
 if new_obj

@@ -187,16 +187,7 @@ classdef main_header_cl < serializable
 
         function obj = set.creation_date(obj,val)
             % explicitly set up creation date and make it "known"
-            if ischar(val)
-                dt = obj.convert_datetime_from_str(val);
-            elseif isa(val,'datetime')
-                dt  = val;
-            else
-                error('HORACE:main_header:invalid_argument', ...
-                    'Bad creation date (%s). File creation date must be datetime class or string, compatible with datetime function according to format %s.', ...
-                    evalc('disp(val)'), obj.dt_format);
-            end
-
+            dt = main_header_cl.check_datetime_valid(val);
             obj.creation_date_    = dt;
             obj.creation_date_defined_ = true;
         end
@@ -241,7 +232,7 @@ classdef main_header_cl < serializable
             obj = set_filename_with_cdate_(obj,val);
         end
     end
-    %------------------------------------------------------------------    
+    %------------------------------------------------------------------
     % SERIALIZABLE INTERFACE
     properties(Constant,Access = protected)
         % fields used with serializable interface. Keep order of fields
@@ -252,7 +243,7 @@ classdef main_header_cl < serializable
         fields_to_save_ = {'filename','filepath','title','nfiles',...
             'creation_date','creation_date_defined_privately'};
     end
-    
+
     methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
@@ -281,6 +272,19 @@ classdef main_header_cl < serializable
             % convert datetime class into main_header_cl's specific string,
             % containing date and time.
             tstr = main_header_cl.DT_out_transf_(date_time);
+        end
+        function dt = check_datetime_valid(val)
+            % check if the input value represents correct datetime and
+            % convert it in datetime if it does
+            if ischar(val)
+                dt = main_header_cl.convert_datetime_from_str(val);
+            elseif isa(val,'datetime')
+                dt  = val;
+            else
+                error('HORACE:main_header:invalid_argument', ...
+                    'Bad creation date: "%s".\n File creation date must be either datetime class or string, convertable to datetime according to format %s.', ...
+                    evalc('disp(val)'), main_header_cl.dt_format);
+            end
         end
     end
 

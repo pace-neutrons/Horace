@@ -599,7 +599,7 @@ for i=1:numel(files_to_check)
 
     % Get header information to check other fields
     % --------------------------------------------
-    header = ldr.get_header('-all');
+    header = ldr.get_exp_info('-all');
     data   = ldr.get_data('-head');
     pix1  = ldr.get_raw_pix(1,1);
     run_ids(i) = pix1(5);
@@ -866,7 +866,8 @@ function verify_pix_range_est(pix_range,pix_range_est,log_level)
 if isempty(pix_range_est)
     pix_range_est = pix_range;
 end
-if any(abs(pix_range-pix_range_est)>1.e-4, 'all') && log_level>0
+dif = abs(pix_range-pix_range_est)>1.e-4;
+if any(dif(:)) && log_level>0
     args = arrayfun(@(x)x,[pix_range_est(1,:),pix_range_est(2,:),...
         pix_range(1,:),pix_range(2,:)],'UniformOutput',false);
     warning('gen_sqw:runtime_logic',...
@@ -896,6 +897,6 @@ tol = 4*eps(single(pix_db_range)); % double of difference between single and dou
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
 img_range = ldr.read_img_range();
 
-present_and_valid = ~any(abs(img_range-pix_db_range)>tol)
+present_and_valid = ~any(abs(img_range-pix_db_range)>tol);
 
 end

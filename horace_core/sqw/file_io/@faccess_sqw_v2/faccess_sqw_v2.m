@@ -25,7 +25,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     % sqw_formats_factory will return instance of this class, initialized for reading this file.
     %
     % The initialized object allows to use all get/read methods described by sqw_file_interface
-    % and dnd_file_interface
+    % and horace_binfile_interface
     %
     % 2)
     % Second form used to initialize the operation of writing new or updating existing sqw file.
@@ -40,7 +40,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     % If existing file can not be updated, it will be open in write mode.
     % If file with filename does not exist, the object will be open in write mode.
     %
-    % Initialized faccess_sqw_v2 object allows to use write/update methods of dnd_file_interface
+    % Initialized faccess_sqw_v2 object allows to use write/update methods of horace_binfile_interface
     % or sqw_file_interface and all read methods of these interfaces if the proper information
     % already exists in the file.
     %
@@ -57,12 +57,18 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     %
     properties(Access = protected)
     end
-    methods(Access=protected,Hidden=true)
+    methods(Access=protected)
         function obj = put_sqw_footer(obj)
             % does nothing as v3 does not have sqw footer
         end
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            ver = 2;
+        end
+        % update file format to a recent file form
+        new_obj = do_class_dependent_updates(obj,new_obj);
     end
-    
+
     methods
         function obj=faccess_sqw_v2(varargin)
             % constructor, to build sqw reader/writer version 2
@@ -80,7 +86,6 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             %                       of the file to save the object should
             %                       be provided separately.
             %
-            obj.sqw_type_ = true;
             if nargin >0
                 obj = obj.init(varargin{:});
             end
@@ -93,12 +98,12 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             %Usage:
             %>> [should,objinit,mess] = obj.should_load_stream(head_struc,fid)
             % where:
-            % head_struc:  structure returned by dnd_file_interface.get_file_header
+            % head_struc:  structure returned by horace_binfile_interface.get_file_header
             %              static method and containing sqw/dnd file info, stored in
             %              the file header
             % fid       :: file identifier of already opened binary sqw/dnd file where
             %              head_struct has been read from.
-            
+
             %
             % Returns:
             % should  :: boolean equal to true if the loader can load these data,
@@ -108,32 +113,25 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             % message :: if false, contains detailed information on the reason
             %            why this file should not be loaded by this loader.
             %            Empty, if should == true.
-            mess = '';
-            if isstruct(header) && all(isfield(header,{'sqw_type','version'}))
-                if header.sqw_type && ( header.version == 2 || header.version == 3 || header.version==1)
-                    objinit = obj_init(fid,double(header.num_dim));
-                    should = true;
-                    if header.version == 3
-                        warning('SQW_FILE_IO:legacy_data',...
-                            ['should_load_stream -- Legacy sqw file version 3.0 has been discovered.\n'...
-                            'Loading it as sqw version 2 file with instrument/sample block ignored'])
-                    end
-                else
-                    should = false;
-                    objinit  = obj_init();
-                    mess = ['not Horace sqw  ',obj.file_version,' file'];
+            if header.version == 3 || header.version==1
+                if header.version == 3
+                    warning('SQW_FILE_IO:legacy_data',...
+                        ['Legacy sqw file version 3.0 has been discovered.\n'...
+                        'Loading it as sqw version 2 file with instrument/sample block ignored']);
+
                 end
-            else
-                error('SQW_FILE_IO:invalid_argument',...
-                    'should_load_stream -- The input structure does not have correct format');
+                header.version = 2;
             end
+            [should,objinit,mess] = should_load_stream@horace_binfile_interface(obj,header,fid);
         end
         %
-        function new_obj = upgrade_file_format(obj,varargin)
-            % Upgrade file from format 2 to format 3
-            new_obj = upgrade_file_format_(obj);
+    end
+    %==================================================================
+    % SERIALIZABLE INTERFACE
+    methods(Static)
+        function obj = loadobj(inputs,varargin)
+            inobj = faccess_sqw_v2();
+            obj = loadobj@serializable(inputs,inobj,varargin{:});
         end
     end
-    
 end
-

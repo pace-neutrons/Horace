@@ -1,6 +1,20 @@
 function obj = check_combo_arg_(obj)
 % Check contents of interdependent fields
 % ------------------------
+
+if obj.NUM_DIMS ~= obj.axes_.dimensions
+    if ~isa(obj,'data_sqw_dnd') % can be any dimensions
+        if obj.NUM_DIMS == 0  % special case of presumably empty d0d object modified
+            % to become other object:
+            obj = DnDBase.dnd(obj.axes_,obj.proj_,obj.s_,obj.e_,obj.npix_);
+            return;
+        else
+            error('HORACE:DnDBase:invalid_argument',...
+                'number of axes dimensions is different from the number of dnd-object dimension')
+        end
+    end
+end
+
 sz = size(obj.s_);
 if any(sz ~= size(obj.e_))
     error('HORACE:DnDBase:invalid_argument', ...

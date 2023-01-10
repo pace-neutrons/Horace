@@ -18,6 +18,7 @@ function assertEqualToTol(A, B, varargin)
 %              see <a href="matlab:help('equal_to_tol');">equal_to_tol</a>
 %              or class specific implementations of equal_to_tol, for example
 %              see <a href="matlab:help('equal_to_tol');">equal_to_tol</a>
+%
 
 
 in_name = cell(1,2);
