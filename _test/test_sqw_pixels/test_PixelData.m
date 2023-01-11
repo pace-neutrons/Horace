@@ -624,6 +624,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             end
 
             do_pix_creation_and_delete();
+            pause(0.2)  % let the file system catch up
             assertFalse(is_file(expected_tmp_file), ...
                 'Temp file not deleted');
         end
