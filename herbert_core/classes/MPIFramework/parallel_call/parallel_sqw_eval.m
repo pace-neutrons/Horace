@@ -15,7 +15,7 @@ function wout = parallel_sqw_eval(w, args)
 
     common_data = struct('func', {func}, ...
                          'args', {args}, ...
-                         'merge_data', {merge_data});
+                         'merge_data', []);
 
     jd = JobDispatcher('ParallelSQWEval');
     res = jd.start_job('ParallelSQWEval', common_data, loop_data, true, nWorkers);

@@ -35,7 +35,7 @@ classdef test_parallel_call < TestCase
         function test_parallel_call_herbert_sqw_eval(obj)
             pc = parallel_config();
             pc.parallel_cluster = 'herbert';
-            pc.parallel_workers_number = 2;
+            pc.parallel_workers_number = 4;
 
             ser = obj.sqw_obj.sqw_eval(@obj.sqw_eval_tester, {});
             par = parallel_call(@sqw_eval, {obj.sqw_obj, @obj.sqw_eval_tester, {}});
@@ -47,7 +47,7 @@ classdef test_parallel_call < TestCase
         function test_parallel_call_parpool_sqw_eval(obj)
             pc = parallel_config();
             pc.parallel_cluster = 'parpool';
-            pc.parallel_workers_number = 2;
+            pc.parallel_workers_number = 4;
 
             ser = obj.sqw_obj.sqw_eval(@obj.sqw_eval_tester, {});
             par = parallel_call(@sqw_eval, {obj.sqw_obj, @obj.sqw_eval_tester, {}});
@@ -59,7 +59,7 @@ classdef test_parallel_call < TestCase
         function test_parallel_call_mpiexec_mpi_sqw_eval(obj)
             pc = parallel_config();
             pc.parallel_cluster = 'mpiexec_mpi';
-            pc.parallel_workers_number = 2;
+            pc.parallel_workers_number = 4;
 
             ser = obj.sqw_obj.sqw_eval(@obj.sqw_eval_tester, {});
             par = parallel_call(@sqw_eval, {obj.sqw_obj, @obj.sqw_eval_tester, {}});
