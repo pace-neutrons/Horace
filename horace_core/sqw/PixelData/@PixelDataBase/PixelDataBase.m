@@ -1,4 +1,4 @@
-classdef (Abstract) PixelDataBase < handle
+classdef (Abstract) PixelDataBase < serializable
     % PixelDataBase provides an abstract base-class interface for pixel data objects
     %
     %   This class provides getters and setters for each data column in an SQW
@@ -47,33 +47,26 @@ classdef (Abstract) PixelDataBase < handle
     %                    of the return value is not guaranteed.
     %   page_size      - The number of pixels in the currently loaded page.
     %
-    properties(Hidden)
+    properties(Access=protected)
         PIXEL_BLOCK_COLS_ = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         num_pixels_ = 0;  % the number of pixels in the object
-        raw_data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
+        data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
         pix_range_ = PixelDataBase.EMPTY_RANGE_; % range of pixels in Crystal Cartesian coordinate system
         object_id_;  % random unique identifier for this object, used for tmp file names
         file_path_ = '';
     end
-
-    properties (Constant, Hidden)
-        DATA_POINT_SIZE = 8;  % num bytes in a double
-        DEFAULT_NUM_PIX_FIELDS = 9;
-    end
     properties(Dependent,Hidden)
         DEFAULT_PAGE_SIZE;
+        % The property, which describes the pixel data layout on disk or in
+        % memory and all additional properties describing pix array
+        metadata;
+        data_wrap;
     end
 
     properties (Constant,Hidden)
+        DEFAULT_NUM_PIX_FIELDS = 9;
         % the coordinate range, an empty pixel class has
         EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];
-        % the version of the class to store/restore data in Matlab files
-        version = 1;
-    end
-
-    properties(Dependent, Hidden)
-        % points to raw_data_ but with a layer of validation for setting correct array sizes
-        data_;
     end
 
     properties(Constant,Access=protected)
@@ -88,14 +81,10 @@ classdef (Abstract) PixelDataBase < handle
             'variance',...
             'all'}, ...
             {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,1:9});
-        % list of the fields, used for exporting PixelData class to
-        % structure
-        % Does not properly support filebased data. The decision is not to
-        % save filebased data into mat files
-        fields_to_save_ = {'data','num_pixels','pix_range','file_path'};
     end
 
     properties (Dependent)
+        file_path;
         u1; % The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u2; % The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u3; % The 3rd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
@@ -190,8 +179,8 @@ classdef (Abstract) PixelDataBase < handle
             end
 
             if ~exist('mem_alloc', 'var')
-                mem_alloc = get(hor_config, 'mem_chunk_size') / ...
-                    (PixelDataBase.DATA_POINT_SIZE * PixelDataBase.DEFAULT_NUM_PIX_FIELDS);
+                mem_alloc = config_store.instance().get_value(...
+                    'hor_config','mem_chunk_size');
             end
 
             if ~exist('upgrade', 'var')
@@ -299,21 +288,6 @@ classdef (Abstract) PixelDataBase < handle
             obj = PixelDataBase.create(data);
         end
 
-        function obj = loadobj(S)
-            % Load a PixelData object from a .mat file
-            %
-            %>> obj = PixelDataBase.loadobj(S)
-            % Input:
-            % ------
-            %   S       Data, produced by saveobj operation and stored
-            %           in .mat file
-            % Output:
-            % -------
-            %   obj     An instance of PixelData object or array of objects
-            %
-            obj = loadobj_(S);
-        end
-
         function validate_mem_alloc(mem_alloc)
             if ~isnumeric(mem_alloc)
                 error('HORACE:PixelData:invalid_argument', ...
@@ -355,91 +329,88 @@ classdef (Abstract) PixelDataBase < handle
         [page_num, total_number_of_pages] = move_to_page(obj, page_number, varargin);
         pix_out = noisify(obj, varargin);
         obj = recalc_pix_range(obj);
-        set_data(obj, fields, data, abs_pix_indices);
+        obj  =set_data(obj, fields, data, abs_pix_indices);
 
-        data=saveobj(obj);
+
         has_more = has_more(obj);
         [current_page_num, total_num_pages] = advance(obj, varargin);
 
+    end
+    methods(Abstract,Access=protected)
+
+        obj = set_raw_data(obj, val);
+
         prp = get_prop(obj, ind);
-        set_prop(obj, ind, val);
+        obj = set_prop(obj, ind, val);
+        %
+        obj = set_file_path(obj,val);
 
-        data = get_raw_data(obj);
-        set_raw_data(obj, val);
-
+        val = get_data_wrap(obj);
+        obj = set_data_wrap(obj,val);
     end
 
     methods
 
-        function data = get.data_(obj)
-            data = obj.get_raw_data();
-        end
-
-        function set.data_(obj, val)
-            obj.set_raw_data(val);
-        end
-
         function data = get.data(obj)
-            data = obj.get_prop('all');
+            data = obj.data_;
         end
-
-        function set.data(obj, val)
-            obj.set_prop('all', val);
+        function obj=set.data(obj, pixel_data)
+            obj=set_raw_data(obj, pixel_data);
         end
 
         function u1 = get.u1(obj)
             u1 = obj.get_prop('u1');
         end
 
-        function set.u1(obj, val)
-            obj.set_prop('u1', val);
+        function obj= set.u1(obj, val)
+            obj= obj.set_prop('u1', val);
         end
 
         function u2 = get.u2(obj)
             u2 = obj.get_prop('u2');
         end
 
-        function set.u2(obj, val)
-            obj.set_prop('u2', val);
+        function obj= set.u2(obj, val)
+            obj= obj.set_prop('u2', val);
         end
 
         function u3 = get.u3(obj)
             u3 = obj.get_prop('u3');
         end
 
-        function set.u3(obj, val)
-            obj.set_prop('u3', val);
+        function obj= set.u3(obj, val)
+            obj= obj.set_prop('u3', val);
         end
 
         function dE = get.dE(obj)
             dE = obj.get_prop('dE');
         end
 
-        function set.dE(obj, val)
-            obj.set_prop('dE', val);
+        function obj= set.dE(obj, val)
+            obj= obj.set_prop('dE', val);
         end
 
         function q_coordinates = get.q_coordinates(obj)
             q_coordinates = obj.get_prop('q_coordinates');
         end
 
-        function set.q_coordinates(obj, val)
-            obj.set_prop('q_coordinates', val);
+        function obj= set.q_coordinates(obj, val)
+            obj= obj.set_prop('q_coordinates', val);
         end
 
         function coordinates = get.coordinates(obj)
             coordinates = obj.get_prop('coordinates');
         end
 
-        function set.coordinates(obj, val)
-            obj.set_prop('coordinates', val);
+        function obj= set.coordinates(obj, val)
+            obj= obj.set_prop('coordinates', val);
         end
 
         function run_idx = get.run_idx(obj)
             run_idx = obj.get_prop('run_idx');
         end
 
-        function set.run_idx(obj, val)
+        function obj= set.run_idx(obj, val)
             obj.set_prop('run_idx', val);
         end
 
@@ -447,15 +418,15 @@ classdef (Abstract) PixelDataBase < handle
             detector_idx = obj.get_prop('detector_idx');
         end
 
-        function set.detector_idx(obj, val)
-            obj.set_prop('detector_idx', val);
+        function obj= set.detector_idx(obj, val)
+            obj= obj.set_prop('detector_idx', val);
         end
 
         function energy_idx = get.energy_idx(obj)
             energy_idx = obj.get_prop('energy_idx');
         end
 
-        function set.energy_idx(obj, val)
+        function obj= set.energy_idx(obj, val)
             obj.set_prop('energy_idx', val);
         end
 
@@ -463,7 +434,7 @@ classdef (Abstract) PixelDataBase < handle
             signal = obj.get_prop('signal');
         end
 
-        function set.signal(obj, val)
+        function obj= set.signal(obj, val)
             obj.set_prop('signal', val);
         end
 
@@ -471,7 +442,7 @@ classdef (Abstract) PixelDataBase < handle
             variance = obj.get_prop('variance');
         end
 
-        function set.variance(obj, val)
+        function obj= set.variance(obj, val)
             obj.set_prop('variance', val);
         end
 
@@ -479,17 +450,31 @@ classdef (Abstract) PixelDataBase < handle
             range = obj.pix_range_;
         end
 
-        function set.pix_range(obj, pix_range)
-            set_range(obj, pix_range);
+        function obj= set.pix_range(obj, pix_range)
+            obj= set_range(obj, pix_range);
         end
 
         function ps = get.DEFAULT_PAGE_SIZE(~)
             ps = config_store.instance().get_value('hor_config', 'mem_chunk_size');
         end
+        %
+        function obj = set.file_path(obj, val)
+            obj = set_file_path(obj,val);
+        end
+        function val = get.file_path(obj)
+            val = obj.file_path_;
+        end
+        %
+        function val = get.data_wrap(obj)
+            val = get_data_wrap(obj);
+        end
+        function obj = set.data_wrap(obj,val)
+            obj = set_data_wrap(obj,val);
+        end
     end
 
     methods
-        function set_range(obj,pix_range)
+        function obj=set_range(obj,pix_range)
             % Function allows to set the pixels range (min/max values of
             % pixels coordinates)
             %
@@ -546,24 +531,6 @@ classdef (Abstract) PixelDataBase < handle
             obj.move_to_page(1);
         end
 
-        function st = struct(obj)
-            % convert object into saveable and serializable structure
-            %
-            flds = obj.fields_to_save_;
-
-            cell_dat = cell(numel(flds),numel(obj));
-            for j=1:numel(obj)
-                for i=1:numel(flds)
-                    fldn = flds{i};
-                    cell_dat{i,j} = obj(j).(fldn);
-                end
-            end
-            st = cell2struct(cell_dat,flds,1);
-            if numel(obj)>1
-                st = reshape(st,size(obj));
-            end
-        end
-
         function indices = check_pixel_fields_(obj, fields)
             %CHECK_PIXEL_FIELDS_ Check the given field names are valid pixel data fields
             % Raises error with ID 'HORACE:PIXELDATA:invalid_field' if any fields not valid.
@@ -591,9 +558,57 @@ classdef (Abstract) PixelDataBase < handle
 
             indices = cellfun(@(field) poss_fields(field), fields, 'UniformOutput', false);
             indices = unique([indices{:}]);
-
         end
-
+    end
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access=private)
+        % list of fileldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        % Does not properly support filebased data. The decision is not to
+        % save filebased data into mat files
+        %fields_to_save_ = {'data','num_pixels','pix_range','file_path'};
+        fields_to_save_ = {'data','metadata'};
     end
 
+    methods
+        function  ver  = classVersion(~)
+            % serializable fields version
+            ver = 2;
+        end
+        function flds = saveableFields(obj)
+            flds = binfile_v4_common.fields_to_save_;
+            if ~isempty(obj.sqw_holder)
+                flds = [flds(:),'sqw_holder'];
+            end
+        end
+        %------------------------------------------------------------------
+    end
+    methods(Access=protected)
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadob to recover new structure from an old structure.
+            %
+            if isfield(inputs,'num_pixels') % this is probably old pixels stored
+                obj = build_from_old_pix_data_(obj,{inputs});
+            elseif isa(inputs,'PixelData')
+                % build from old PixelData stored in the file
+                obj = build_from_old_pix_data_(obj,inputs);
+            else
+                if isfield(inputs,'array_dat')
+                    obj = obj.from_bare_struct(inputs.array_dat);
+                else
+                    obj = obj.from_bare_struct(inputs);
+                end
+            end
+        end
+    end
 end

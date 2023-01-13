@@ -108,7 +108,7 @@ try
     do_fseek(obj.file_id_,obj.data_pos_,'bof');
 catch ME
     exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
-                     'Can not move to the start of the main data block');
+        'Can not move to the start of the main data block');
     throw(exc.addCause(ME))
 end
 

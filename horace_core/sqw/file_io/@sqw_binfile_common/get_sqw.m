@@ -144,7 +144,7 @@ flags = { ...
 %
 page_size = config_store.instance().get_value('hor_config','mem_chunk_size');
 kwargs = struct('pixel_page_size', page_size, ...
-                'file_backed', false);
+    'file_backed', false);
 
 for flag_idx = 1:numel(flags)
     kwargs.(flags{flag_idx}) = false;
@@ -155,7 +155,7 @@ parser_opts = struct('prefix', '-', 'prefix_req', false);
     parser_opts);
 
 if ~ok
-    error('SQW_FILE_IO:invalid_argument', mess);
+    error('HORACE:sqw_binfile_common:invalid_argument', mess);
 end
 
 opts.verbatim = opts.verbatim || opts.hverbatim;

@@ -77,6 +77,9 @@ classdef binfile_v4_common_tester < binfile_v4_common
     end
 
     methods(Access=protected)
+        function type =  get_data_type(~)
+            type  = 'b';
+        end
         function is_sqw = get_sqw_type(~)
             is_sqw = false;
         end

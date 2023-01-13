@@ -1,5 +1,4 @@
 classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & sqw_plot_interface
-
     %SQW Create an sqw object
     %
     % Syntax:
@@ -10,26 +9,26 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %
     properties(Dependent)
         npixels     % common with loaders interface to pix.num_pixels property
-                    % describing number of pixels (neutron events) stored
-                    % in sqw object
+        % describing number of pixels (neutron events) stored
+        % in sqw object
 
         runid_map   % the map which connects header number
-                    % with run_id stored in pixels, e.g. map contains
-                    % connection runid_pixel->header_number
+        % with run_id stored in pixels, e.g. map contains
+        % connection runid_pixel->header_number
 
         main_header % Generic information about contributed files
-                    % and the sqw file creation date.
+        % and the sqw file creation date.
         detpar
 
         experiment_info
         %
         data; % The information about the N-D neutron image, containing
-              % combined and bin-averaged information about the
-              % neutron experiment.
+        % combined and bin-averaged information about the
+        % neutron experiment.
 
         pix % access to pixel information, if any such information is
-            % stored within an object. May also return pix_combine_info or
-            % filebased pixels. (TODO -- this should be modified)
+        % stored within an object. May also return pix_combine_info or
+        % filebased pixels. (TODO -- this should be modified)
     end
 
     properties(Hidden,Dependent)
@@ -39,6 +38,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % experiment_info class. Returns array of IX_experiment
         % from Experiment class. Conversion to old header is not performed
         header;
+        % the name of the file, used to store sqw first time
+        full_filename
     end
 
     properties(Access=protected)
@@ -60,7 +61,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         has = has_pixels(w);          % returns true if a sqw object has pixels
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         wout = smooth(win, varargin)  % smooth sqw object or array of sqw
-                                      % objects containing no pixels
+        % objects containing no pixels
         function [val, n] = data_bin_limits (obj)
             % Get limits of the data in an n-dimensional dataset, that is,
             % find the coordinates along each of the axes of the smallest
@@ -290,6 +291,23 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function is = dnd_type(obj)
             is = isempty(obj.pix_);
         end
+        %
+        function fn = get.full_filename(obj)
+            fn = fullfile(obj.main_header.filepath,obj.main_header.filename);
+        end
+        function obj = set.full_filename(obj,val)
+            if ~(issring(val)||ischar(val))
+                error('HORACE:sqw:invalid_argument', ...
+                    ' Full filename can be only string, describing input file together with the path to this file. It is: %s', ...
+                    disp2str(val));
+            end
+            [fp,fn,fex]= fileparts(val);
+            obj.main_header.filename = [fn,fex];
+            obj.main_header.filepath = fp;
+            obj.data.filename = [fn,fex];
+            obj.data.filepath = fp;
+        end
+
     end
 
     %======================================================================
@@ -372,7 +390,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = binary_op_manager_single(w1, w2, binary_op);
         wout = recompute_bin_data(w);
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
-                                            % binning of an sqw or dnd object
+        % binning of an sqw or dnd object
 
 
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
@@ -400,7 +418,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             [ld_str.main_header, ld_str.experiment_info, ld_str.detpar,...
                 ld_str.data,ld_str.pix] = ...
                 ldr.get_sqw('-legacy','-noupgrade', ...
-                            'pixel_page_size', pixel_page_size, 'file_backed', file_backed);
+                'pixel_page_size', pixel_page_size, 'file_backed', file_backed);
         end
 
 

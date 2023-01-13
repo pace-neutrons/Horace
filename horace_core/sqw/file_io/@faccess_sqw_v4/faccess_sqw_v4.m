@@ -56,8 +56,17 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             data_block('experiment_info','instruments'),...
             data_block('experiment_info','samples'),...
             data_block('experiment_info','expdata'),...
-            data_block('pix','pix_metadata'),pix_data_block()}
+            data_block('pix','metadata'),pix_data_block()}
     end
+    properties(Dependent)
+        % return the number of fields, pixel data stored on hdd have
+        num_pix_fields
+    end
+    properties(Access=private)
+        clear_caches_ = true;
+    end
+    %======================================================================
+    % ACCESSORS & constructor
     methods
         function obj=faccess_sqw_v4(varargin)
             % constructor, to build sqw reader/writer version 4
@@ -82,6 +91,24 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             obj = obj@binfile_v4_common(varargin{:});
         end
         %
+        function npf = get.num_pix_fields(~)
+            npf = 9;
+            % THIS ALL FOR THE FUTURE DIFFERENT PIX FORMAT
+            %             persistent mbb_cache;
+            %             if obj.clear_caches_
+            %                 mbb_cache = [];
+            %             end
+            %             if isempty(mbb_cache)
+            %                 if obj.bat_.initialized
+            %                     mbb_cache = obj.get_sqw_block('bl_pix_metadata');
+            %                     npf = mbb_cache.num_pix_fields;
+            %                 else
+            %                     npf = 9; % default number of num_pix_fields
+            %                 end
+            %             else
+            %                 npf = mbb_cache.num_pix_fields;
+            %             end
+        end
     end
     %======================================================================
     % Main interface
@@ -104,38 +131,43 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
                 % #893 REWRITE THIS
                 sqw_obj = old_ldr.get_sqw('-nopix');
                 obj.sqw_holder = sqw_obj;
-                obj = obj.sqw_obj();
+                obj = obj.put_sqw('-nopix');
                 old_ldr.delete();
             end
         end
+        %==================================================================
         % retrieve the whole or partial sqw object from properly initialized sqw file
-        [sqw_obj,obj] = get_sqw(obj,varargin)
-        function obj = put_sqw(obj,varargin)
-            % save sqw object stored in memory into binary sqw file
+        [sqwobj,obj] = get_sqw(obj,varargin)
+        [mn_hdr,obj] = get_main_header(obj,varargin);
+        [expinf,obj] = get_exp_info(obj,varargin);
+        [detpar,obj] = get_detpar(obj,varargin);
+        [pix,obj]    = get_pix(obj,varargin);
+        [pix,obj]    = get_raw_pix(obj,varargin);
+        % read pixels at the given indices
+        pix         = get_pix_at_indices(obj,indices);
+        % read pixels in the given index ranges
+        pix         = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation,keep_precision);
+        %------------------------------------------------------------------
+        [pix_range,obj]   = get_pix_range(obj,varargin)
+        [samp,obj]  = get_sample(obj,varargin)
+        [inst,obj]  = get_instrument(obj,varargin)
+        %==================================================================
+        % common write interface for v4
+        obj = put_main_header(obj,varargin);
+        obj = put_headers(obj,varargin);
+        obj = put_det_info(obj,varargin);
+        obj = put_pix(obj,varargin);
+        obj = put_sqw(obj,varargin);
+        obj = put_instruments(obj,varargin);
+        obj = put_samples(obj,varargin);
 
-        end
-        
+    end
+    methods
     end
     %======================================================================
     % Old, partially redundant interface
     methods
-        [inst,obj]  = get_instrument(obj,varargin); % return instrument
-        % stored with sqw file or IX_null_inst if nothing is stored.
-        % Always IX_null_inst for dnd objects.
-        [samp,obj]  = get_sample(obj,varargin);     % return sample stored
-        % with sqw file or IX_samp containing lattice only if nothing is
-        % stored. Always IX_samp for dnd objects
-
-        % retrieve the whole sqw or dnd object from properly initialized sqw file
-        [sqw_obj,varargout] = get_sqw(obj,varargin)
         % -----------------------------------------------------------------
-        function pix_range = get_pix_range(~)
-            % get [2x4] array of min/max ranges of the pixels contributing
-            % into an object. Empty for DND object
-            pix_range = double.empty(0,4);
-        end
-
-        %
         function img_db_range = get_img_db_range(obj,varargin)
             % get [2x4] array of min/max ranges of the image where pixels
             % are rebinned into
@@ -173,6 +205,18 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % what class saving the file format is intended
             obj_type = 'sqw';
         end
+        function cd = get_creation_date(obj)
+            % main accessor for creation date for sqw object
+            % The creation data is defined in main header
+            %
+            mh = obj.get_main_header();
+            cd = mh.creation_date;
+        end
+        function  pos = get_pix_position(obj)
+            pix_block = obj.blocks_list{end};
+            pos = pix_block.position;
+        end
+
     end
     %======================================================================
     % SERIALIZABLE INTERFACE FULLY INHERITED FROM binfile_v4_common

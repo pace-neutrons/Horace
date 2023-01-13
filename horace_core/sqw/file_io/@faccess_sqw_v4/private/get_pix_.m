@@ -11,9 +11,9 @@ function pix  = get_pix_(obj,npix_lo,npix_hi)
 %                                    -- try to read pixels from pixel N npix_lo
 %                                    to the end of pixels or from npix_lo
 %                                    to the pixel N npix_hi
-% pix = obj.get_pix(___,'-raw_output') -- return raw pixel data and do not
-%                                     wrap pixels into PixelData class
+
 %
+% CODE HERE EXPECTS pixel value to be 4 bytes long
 %
 if ischar(obj.num_contrib_files)
     error('HORACE:sqw_binfile_common:runtime_error',...
@@ -23,10 +23,10 @@ end
 if ~obj.is_activated('read')
     obj = obj.activate('read');
 end
-
+pix_width = obj.num_pix_fields;
 npix_tot = obj.npixels;
 if isempty(npix_tot) % dnd object
-    pix = zeros(9,0);
+    pix = zeros(pix_width,0);
     return
 end
 
@@ -40,19 +40,20 @@ if npix_lo> npix_hi+1   % replaces the following line
         npix_lo,npix_lo);
 end
 
-stride = (npix_lo-1)*9*4;
+stride = (npix_lo-1)*pix_width*4;
 size = npix_hi-npix_lo+1;
 
 try
-    do_fseek(obj.file_id_,obj.pix_pos_+stride,'bof');
+    do_fseek(obj.file_id_,obj.pix_position+stride,'bof');
 catch ME
     exc = MException('HORACE:sqw_binfile_common:io_error',...
-                     'get_pix: Can not move to the beginning of the pixel block requested');
+        'get_pix: Can not move to the beginning of the pixel block requested');
     throw(exc.addCause(ME))
 end
 
+
 if size>0
-    pix = fread(obj.file_id_,[9,size],'float32');
+    pix = fread(obj.file_id_,[pix_width,size],'float32');
     [mess,res] = ferror(obj.file_id_);
     if res ~= 0
         error('HORACE:sqw_binfile_common:io_error',...
@@ -60,5 +61,5 @@ if size>0
     end
 else
     % *** T.G.Perring 5 Sep 2018: allow for size=0
-    pix = zeros(9,0);
+    pix = zeros(pix_width,0);
 end

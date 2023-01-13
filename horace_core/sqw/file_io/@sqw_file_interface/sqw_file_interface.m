@@ -11,7 +11,7 @@ classdef sqw_file_interface
     % Abstract accessors:
     % get_main_header - obtain information stored in main header
     %
-    % get_exp_info      - obtain information stored in one of the
+    % get_exp_info    - obtain information stored in one of the
     %                   contributing file's header
     % get_detpar      - retrieve detectors information.
     % get_pix         - get PixelData object, containing pixels data
@@ -68,7 +68,7 @@ classdef sqw_file_interface
             npix = obj.npixels_;
         end
         function pix_size = get.pixel_size(obj)
-            pix_size = get_pix_size(obj);
+            pix_size = get_filepix_size(obj);
         end
         %-------------------------
         function obj = delete(obj)
@@ -88,7 +88,7 @@ classdef sqw_file_interface
         % retrieve different parts of sqw data
         %------------------------------------------------------------------
         main_header = get_main_header(obj,varargin);
-        [header,pos]= get_exp_info(obj,varargin);
+        exper       = get_exp_info(obj,varargin);
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
         pix         = get_raw_pix(obj,varargin);
@@ -114,9 +114,12 @@ classdef sqw_file_interface
         pos = get_pix_position(obj);
     end
     methods(Access=protected)
-        function pix_size = get_pix_size(~)
-            % 4 bytes x 9 columns -- default pixel size.
-            %
+        function pix_size = get_filepix_size(~)
+            % 4 bytes x 9 columns -- default pixel size in bytes when
+            % stored on hdd
+            % 
+            % May be overloaded in some new file formats, but pretty 
+            % stable for now
             pix_size = 4*9;
         end
     end

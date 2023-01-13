@@ -16,7 +16,7 @@ classdef binfile_v4_common < horace_binfile_interface
         % old data type, not relevant any more. Always "b+" for dnd and "a" for
         % sqw
         data_type
-    end    
+    end
     %======================================================================
     % GENERIC FACCESS METHODS
     methods
@@ -48,6 +48,17 @@ classdef binfile_v4_common < horace_binfile_interface
             % Put all blocks containing in the input data object and defined
             % in BAT into Horace binary file
             %
+            % Inputs:
+            % obj   -- initialized for writing instance of faccess object
+            % Optional:
+            %  sqw_dnd_data    -- instance of sqw or dnd object to write
+            % 'ignored_blocks' -- key followed by cellarray of names or
+            %                     single name to ignore and do not write to
+            %                     the disk at this stage.
+            % NOTE:
+            % If faccess is initialized for a new file and the intermediate
+            % block is ignored, it will fail. TODO: ? should it be fixed?
+            %
             % The faccess object have to be initialized
             if exist('sqw_dnd_data','var')
                 obj.sqw_holder_ = sqw_dnd_data;
@@ -55,6 +66,7 @@ classdef binfile_v4_common < horace_binfile_interface
             else
                 sqw_dnd_data = obj.sqw_holder;
             end
+            [ignored_blocks_list,~] = extract_ignored_blocks_arg_(varargin{:});
             %
             obj=obj.put_app_header();
 
@@ -62,6 +74,9 @@ classdef binfile_v4_common < horace_binfile_interface
             bl = obj.bat.blocks_list;
             n_blocks = obj.bat_.n_blocks;
             for i=1:n_blocks
+                if ismember(bl{i}.block_name,ignored_blocks_list)
+                    continue;
+                end
                 bl{i} = bl{i}.put_sqw_block(obj.file_id_,sqw_dnd_data);
             end
             obj.bat.blocks_list = bl;
@@ -87,6 +102,11 @@ classdef binfile_v4_common < horace_binfile_interface
             %                 parameter defines the object, to modify the
             %                 data using faccessor, initialized by file
             %                 above
+            % 'ignore_blocks'     ! the keyword which identifies that some
+            %                     ! blocks should not be loaded
+            % list of block names ! following the the first keyword the
+            %                     ! list of block banes to ignore
+
             % if none of additinal parameters is specified, result is
             % returnded in sqw object
             % Output:
@@ -96,12 +116,16 @@ classdef binfile_v4_common < horace_binfile_interface
             %                 not specified as input, this object is sqw
             %                 object.
             %
-            [obj,obj_to_set,is_serializable] = check_get_all_blocks_inputs_(obj,varargin{:});
+            [obj,obj_to_set,is_serializable,ignore_block_list] = ...
+                check_get_all_blocks_inputs_(obj,varargin{:});
             % This have happened during faccessor intialization:
             %obj.bat_ = obj.bat_.get_bat(obj.file_id_);
             fl = obj.bat.blocks_list;
             n_blocks = obj.bat_.n_blocks;
             for i=1:n_blocks
+                if ismember(fl{i}.block_name,ignore_block_list)
+                    continue;
+                end
                 [~,obj_to_set] = fl{i}.get_sqw_block(obj.file_id_,obj_to_set);
             end
             if is_serializable
@@ -189,7 +213,7 @@ classdef binfile_v4_common < horace_binfile_interface
         %
         function dt = get.data_type(obj)
             dt = get_data_type(obj);
-        end        
+        end
     end
     %======================================================================
     % DND access methods common for dnd and sqw objects
@@ -226,7 +250,7 @@ classdef binfile_v4_common < horace_binfile_interface
             argi = parse_get_data_inputs_(varargin{:});
             [data,obj] = obj.get_dnd(argi{:});
         end
-        
+
 
     end
     %======================================================================
@@ -288,13 +312,18 @@ classdef binfile_v4_common < horace_binfile_interface
             bl = obj.bat_.get_data_block('bl_data_nd_data');
             pos = bl.npix_position;
         end
+        function cd = get_creation_date(obj)
+            % main accessor for creation date for dnd object
+            meta = obj.get_dnd_metadata();
+            cd = meta.creation_date_str;
+        end
     end
     methods(Abstract,Access=protected)
         % return the list of (non-iniialized) data blocks, defined for
         % given file format
         bll = get_data_blocks(obj);
         % main part of data_type accessor
-        dt = get_data_type(obj)        
+        dt = get_data_type(obj)
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

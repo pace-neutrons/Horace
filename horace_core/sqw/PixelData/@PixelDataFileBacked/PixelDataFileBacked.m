@@ -94,7 +94,7 @@ classdef PixelDataFileBacked < PixelDataBase
         % coordinate setters to calculate and set-up correct global pixels
         % range in conjunction with set_range method at the end of the loop.
         page_range;
-        page_memory_size_ 
+        page_memory_size_
         page_edited = false;
     end
 
@@ -117,8 +117,8 @@ classdef PixelDataFileBacked < PixelDataBase
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
             obj.page_memory_size_ = ...
-            config_store.instance().get_value('hor_config','mem_chunk_size');
-            if ~exist('init', 'var') || isempty(init)              
+                config_store.instance().get_value('hor_config','mem_chunk_size');
+            if ~exist('init', 'var') || isempty(init)
                 init = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);
             end
 
@@ -147,7 +147,7 @@ classdef PixelDataFileBacked < PixelDataBase
                     obj.page_edited = init.page_edited;
                     obj.num_pixels_ = init.num_pixels;
                     obj.tmp_io_handler_ = init.tmp_io_handler_.copy(obj.object_id_);
-                    obj.move_to_page(init.page_number_);
+                    obj=obj.move_to_page(init.page_number_);
                 elseif ischar(init) || isstring(init)
                     if ~is_file(init)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -165,11 +165,11 @@ classdef PixelDataFileBacked < PixelDataBase
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
                             'Cannot create file-backed with data larger than a page')
                     end
-                    obj.set_raw_data(init);
+                    obj=obj.set_raw_data(init);
                     obj.data_ = init;
                     obj.num_pixels_ = size(init, 2);
                     if ~obj.cache_is_empty_()
-                        obj.reset_changed_coord_range('coordinates');
+                        obj=obj.reset_changed_coord_range('coordinates');
                     end
                 else
                     error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -177,13 +177,13 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
 
                 if any(obj.pix_range == obj.EMPTY_RANGE_, 'all') && upgrade
-                    if get(herbert_config, 'log_level') > 0 
+                    if get(herbert_config, 'log_level') > 0
                         if any(isprop(init,'filename'))
                             fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
                                 init.filename);
                         end
                     end
-                    obj.recalc_pix_range();
+                    obj=obj.recalc_pix_range();
                 end
 
             end
@@ -194,7 +194,7 @@ classdef PixelDataFileBacked < PixelDataBase
             data = obj.raw_data_;
         end
 
-        function set_raw_data(obj, pixel_data)
+        function obj=set_raw_data(obj, pixel_data)
             % This setter provides rules for internally setting cached data
             %  This is the only method that should ever touch obj.raw_data_
 
@@ -218,7 +218,7 @@ classdef PixelDataFileBacked < PixelDataBase
             prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
         end
 
-        function set_prop(obj, fld, val)
+        function obj=set_prop(obj, fld, val)
             if ~isscalar(val)
                 validateattributes(val, {'numeric'}, {'size', [numel(obj.FIELD_INDEX_MAP_(fld)), obj.page_size]})
             else
@@ -231,7 +231,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
             obj.page_edited = true;
             if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
-                obj.reset_changed_coord_range(fld);
+                obj=obj.reset_changed_coord_range(fld);
             end
         end
 
@@ -281,16 +281,6 @@ classdef PixelDataFileBacked < PixelDataBase
 
             [current_page_num,total_num_pages]=obj.move_to_page(obj.page_number_ + 1, varargin{:});
         end
-
-        function path = get.file_path(obj)
-            path = obj.file_path_;
-        end
-
-        function set.file_path(obj,val)
-            obj.tmp_io_handler_.move_file(val);
-            obj.file_path_ = val;
-        end
-
         function has = get.has_tmp_file(obj)
             has = obj.tmp_io_handler_.has_tmp_file_;
         end
@@ -421,12 +411,21 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
     end
+    methods(Access=protected)
+        function obj = set_file_path(obj,val)
+            % main part of filepath setter. Need checks/modification
+            obj.tmp_io_handler_.move_file(val);
+            obj.file_path_ = val;
+        end
+    end
+
 
     methods (Access = ?PixelDataBase)
         function is = cache_is_empty_(obj)
             % Return true if no pixels are currently held in memory
             is = isempty(obj.data_);
         end
+
 
         function obj = init_from_file_accessor_(obj, f_accessor)
             % Initialise a PixelData object from a file accessor
@@ -439,7 +438,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.pix_range_ = obj.f_accessor_.get_pix_range();
         end
 
-        function reset_changed_coord_range(obj,field_name)
+        function obj=reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %

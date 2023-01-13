@@ -59,7 +59,6 @@ classdef PixelDataMemory < PixelDataBase
     end
 
     properties(Dependent)
-        file_path;
         page_size;  % The number of pixels in the current page
         page_range;
     end
@@ -82,7 +81,8 @@ classdef PixelDataMemory < PixelDataBase
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
-        set_data(obj, fields, data, abs_pix_indices);
+        %
+        obj=set_data(obj, fields, data, abs_pix_indices);                
 
         function obj = recalc_pix_range(obj)
             % Recalculate pixels range in the situations, where the
@@ -96,7 +96,7 @@ classdef PixelDataMemory < PixelDataBase
             % recalc_pix_range is a normal Matlab value object (not a handle object),
             % returning its changes in LHS
 
-            obj.reset_changed_coord_range('coordinates');
+            obj=obj.reset_changed_coord_range('coordinates');
 
         end
 
@@ -156,18 +156,6 @@ classdef PixelDataMemory < PixelDataBase
                 end
             end
 
-        end
-
-
-        function data=saveobj(obj)
-            data = struct(obj);
-
-            if numel(obj)>1
-                data = struct('version',PixelDataBase.version,...
-                    'array_data',data);
-            else
-                data.version = obj.version;
-            end
         end
 
         % --- Data management ---
@@ -236,26 +224,23 @@ classdef PixelDataMemory < PixelDataBase
         end
 
         % --- Getters / Setters ---
-        function data = get_raw_data(obj)
-            data = obj.raw_data_;
+
+        function page_size = get.page_size(obj)
+            % The number of pixels that are held in the current page.
+            page_size = obj.num_pixels;
         end
-
-        function set_raw_data(obj, pixel_data)
-            % This setter provides rules for internally setting cached data
-            %  This is the only method that should ever touch obj.raw_data_
-
-            % The need for multiple layers of getters/setters for the raw data
-            % should be removed when the public facing getters/setters are removed.
-            validateattributes(pixel_data, {'numeric'}, {'nrows', obj.PIXEL_BLOCK_COLS_})
-            obj.raw_data_ = pixel_data;
-            obj.num_pixels_ = size(pixel_data,2);
+        function val = get.page_range(obj)
+            val = obj.pix_range;
         end
-
-        function prp = get_prop(obj, fld)
-            prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
+    end
+    %
+    methods(Access=protected)
+        function obj = set_file_path(obj,val)
+            % main part of filepath setter. Need checks/modification
+            obj.file_path_ = val;
         end
-
-        function set_prop(obj, fld, val)
+        %
+        function obj=set_prop(obj, fld, val)
             if ~isscalar(val)
                 if isvector(val) && ~isrow(val)
                     val = val';
@@ -266,30 +251,26 @@ classdef PixelDataMemory < PixelDataBase
             end
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
             if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
-                obj.reset_changed_coord_range(fld);
+                obj=obj.reset_changed_coord_range(fld);
             end
         end
 
-        function page_size = get.page_size(obj)
-            % The number of pixels that are held in the current page.
-            page_size = obj.num_pixels;
+        function obj=set_raw_data(obj, pixel_data)
+            % This setter provides rules for internally setting cached data
+            %  This is the only method that should ever touch obj.raw_data_
+
+            % The need for multiple layers of getters/setters for the raw data
+            % should be removed when the public facing getters/setters are removed.
+            validateattributes(pixel_data, {'numeric'}, {'nrows', obj.PIXEL_BLOCK_COLS_})
+            obj.data_ = pixel_data;
+            obj.num_pixels_ = size(pixel_data,2);
         end
-
-        function set.file_path(obj, val)
-            obj.file_path_ = val;
+        
+        %
+        function prp = get_prop(obj, fld)
+            prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
         end
-
-        function val = get.file_path(obj)
-            val = obj.file_path_;
-        end
-
-        function val = get.page_range(obj)
-            val = obj.pix_range;
-        end
-
-    end
-
-    methods (Access = ?PixelDataBase)
+        %
         function obj = init_from_file_accessor_(obj, f_accessor)
             % Initialise a PixelData object from a file accessor
             obj.num_pixels_ = double(f_accessor.npixels);
@@ -297,8 +278,7 @@ classdef PixelDataMemory < PixelDataBase
             obj.data_ = f_accessor.get_raw_pix();
             obj.file_path = fullfile(f_accessor.filepath, f_accessor.filename);
         end
-
-        function reset_changed_coord_range(obj,field_name)
+        function obj=reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
@@ -319,6 +299,17 @@ classdef PixelDataMemory < PixelDataBase
             range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
             obj.pix_range_(:,ind) = range;
         end
+        %         function data=saveobj(obj)
+        %             data = struct(obj);
+        %
+        %             if numel(obj)>1
+        %                 data = struct('version',PixelDataBase.version,...
+        %                     'array_data',data);
+        %             else
+        %                 data.version = obj.version;
+        %             end
+        %         end
+
     end
 
 end

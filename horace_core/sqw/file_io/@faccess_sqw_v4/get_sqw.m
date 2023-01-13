@@ -51,74 +51,63 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %
 opts = parse_args(obj, varargin{:});
 
-sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[], ...
+
+sqw_skel = struct('main_header',[],'experiment_info',[],'detpar',[], ...
     'data',[],'pix',[]);
 
-% Get main header
-% ---------------
-if opts.keep_original || opts.verbatim
-    sqw_struc.main_header =  obj.get_main_header('-keep_original');
+if opt.head || opts.his
+    skip_blocks = {'bl__det_par','bl_data_nd_data','bl_pix_data'};
 else
-    sqw_struc.main_header =  obj.get_main_header();
+    skip_blocks = {'bl_pix_data'};
 end
+[obj,sqw_skel] = obj.get_all_blocks(obj,sqw_skel,'ignore_blocks',skip_blocks);
 
-% Get cell array of headers for each contributing spe file
-% ------------------------------------------
-[exp_info,~]  = obj.get_exp_info('-all');
-
-% Get detector parameters
-% -----------------------
-if ~(opts.head||opts.his)
-    sqw_struc.detpar = obj.get_detpar();
-end
-
-% Get data
-% --------
-if opts.verbatim || opts.keep_original
-    opt1 = {'-verbatim'};
-else
-    opt1 = {};
-end
-if (opts.head || opts.his)
-    opt2 = {'-head'};
-else
-    opt2 = {};
+if ~(opts.head || opts.his)
+    sqw_skel.data = DnDBase.dnd(sqw_skel.data.metadata,sqw_skel.data.nd_data);
 end
 
 
-data_opt= [opt1, opt2];
-sqw_struc.data = obj.get_data(data_opt{:});
-proj = sqw_struc.data.proj;
-header_av = exp_info.header_average();
-sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+% CRYSTAL ALIGNMENT FIXTURE: #TODO: #892 modify  and remove!
+proj = sqw_skel.data.proj;
+header_av = sqw_skel.experiment_info.header_average();
+sqw_skel.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 
+if opt.nopix
+    sqw_skel = rmfield(sqw_skel,'pix');
+end
 if ~opts.nopix && obj.npixels > 0
-    sqw_struc.pix = PixelData(obj, opts.pixel_page_size,~opts.noupgrade);
+    sqw_skel.pix = PixelDataBase.create(obj, opts.pixel_page_size,~opts.noupgrade);
 end
 
-sqw_struc.experiment_info = exp_info;
-old_file = ~sqw_struc.main_header.creation_date_defined;
+old_file = ~sqw_skel.main_header.creation_date_defined;
 % run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
-if (sqw_struc.pix.num_pixels > 0) && old_file
+if isfield(sqw_skel,'pix') && (sqw_skel.pix.num_pixels > 0) && old_file
     % try to update pixels run id-s
-    sqw_struc = update_pixels_run_id(sqw_struc);
+    sqw_skel = update_pixels_run_id(sqw_skel);
 end
 
 if opts.legacy
-    sqw_object = sqw_struc.main_header;
-    varargout{1} = sqw_struc.experiment_info;
-    varargout{2} = sqw_struc.detpar;
-    varargout{3} = sqw_struc.data;
-    varargout{4} = sqw_struc.pix;
+    sqw_object   = sqw_skel.main_header;
+    varargout{1} = sqw_skel.experiment_info;
+    varargout{2} = sqw_skel.detpar;
+    varargout{3} = sqw_skel.data;
+    if isfield(sqw_skel,'pix')
+        varargout{4} = sqw_skel.pix;
+    else
+        varargout{4} = [];
+    end
 elseif opts.head || opts.his
-    sqw_object  = sqw_struc;
+    sqw_object             = sqw_skel;
+    sqw_object.num_pixels  = sqw_skel.pix.npix;
 else
-    sqw_object = sqw(sqw_struc);
-end
+    sqw_object = sqw(sqw_skel);
+    if  ~(opts.keep_original || opts.verbatim)
+        sqw_object.full_filename = obj.full_filename;
+    end
 
-end  % function
+end
 
 
 % -----------------------------------------------------------------------------
@@ -140,9 +129,10 @@ flags = { ...
     'keep_original',...
     'nopix', ...
     'legacy' ...
-        };
+    };
 
-kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+defailt_page_size = config_store.instance().get_value('hor_config','mem_chunk_size');
+kwargs = struct('pixel_page_size', defailt_page_size);
 
 for flag_idx = 1:numel(flags)
     kwargs.(flags{flag_idx}) = false;
@@ -153,17 +143,15 @@ parser_opts = struct('prefix', '-', 'prefix_req', false);
     parser_opts);
 
 if ~ok
-    error('SQW_FILE_IO:invalid_argument', mess);
+    error('HORACE:faccess_sqw_v3_:invalid_argument', mess);
 end
 
 opts.verbatim = opts.verbatim || opts.hverbatim;
 
-end
 
 function out = replace_h(inp)
 if strcmp(inp,'-h')
     out = '-his';
 else
     out  = inp;
-end
 end
