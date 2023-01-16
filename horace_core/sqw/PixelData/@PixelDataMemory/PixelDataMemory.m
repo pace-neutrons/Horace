@@ -82,7 +82,7 @@ classdef PixelDataMemory < PixelDataBase
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
         %
-        obj=set_data(obj, fields, data, abs_pix_indices);                
+        obj=set_data(obj, fields, data, abs_pix_indices);
 
         function obj = recalc_pix_range(obj)
             % Recalculate pixels range in the situations, where the
@@ -124,32 +124,25 @@ classdef PixelDataMemory < PixelDataBase
                     obj = obj.init_from_file_accessor_(init);
 
                 elseif isa(init, 'PixelDataMemory')
-                    obj.num_pixels_ = size(init.data, 2);
-                    obj.data_ = init.data;
-                    obj.reset_changed_coord_range('coordinates');
+                    obj.data = init.data;
 
                 elseif isscalar(init) && isnumeric(init) && floor(init) == init
                     % input is an integer
-                    obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, init);
-                    obj.num_pixels_ = init;
-                    obj.pix_range_ = zeros(2,4);
+                    obj.data = zeros(obj.PIXEL_BLOCK_COLS_, init);
 
                 elseif isnumeric(init)
-                    obj.data_ = init;
-                    obj.num_pixels_ = size(init, 2);
-                    obj.reset_changed_coord_range('coordinates');
+                    obj.data = init;
 
                 elseif isa(init, 'PixelDataFileBacked')
-                    init.move_to_first_page();
+                    init=init.move_to_first_page();
                     obj.data_ = init.data;
                     while init.has_more()
                         init.advance();
-                        obj.data_ = horzcat(obj.data, init.data);
+                        obj.data_ = horzcat(obj.data_, init.data);
                     end
 
                     obj.file_path = init.file_path;
-                    obj.reset_changed_coord_range('coordinates');
-                    obj.num_pixels_ = obj.num_pixels;
+                    obj=obj.reset_changed_coord_range('coordinates');
                 else
                     error('HORACE:PixelDataMemory:invalid_argument', ...
                         'Cannot construct PixelDataMemory from class (%s)', class(init))
@@ -264,8 +257,9 @@ classdef PixelDataMemory < PixelDataBase
             validateattributes(pixel_data, {'numeric'}, {'nrows', obj.PIXEL_BLOCK_COLS_})
             obj.data_ = pixel_data;
             obj.num_pixels_ = size(pixel_data,2);
+            obj=obj.reset_changed_coord_range('coordinates');
         end
-        
+
         %
         function prp = get_prop(obj, fld)
             prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
@@ -285,7 +279,7 @@ classdef PixelDataMemory < PixelDataBase
             % Sets up the property page_range defining the range of block
             % of pixels chaned at current iteration.
 
-            if isempty(obj.raw_data_)
+            if isempty(obj.data_)
                 obj.pix_range_   = PixelDataBase.EMPTY_RANGE_;
                 return
             end
@@ -296,8 +290,25 @@ classdef PixelDataMemory < PixelDataBase
 
             ind = obj.FIELD_INDEX_MAP_(field_name);
 
-            range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
+            range = [min(obj.data_(ind,:),[],2),max(obj.data_(ind,:),[],2)]';
             obj.pix_range_(:,ind) = range;
+        end
+        %------------------------------------------------------------------
+        function obj=set_data_wrap(obj,val)
+            % main parf ot pix_data_wrap setter overloaded for
+            % PixDataMemory class
+            if ~isa(val,'pix_data')
+                error('HORACE:PixelDataMemory:invalid_argument', ...
+                    'pix_data_wrap property can be set by pix_data class instance only. Provided class is: %s', ...
+                    class(val));
+            end
+            obj.data_ = val.data;
+        end
+        function val = get_data_wrap(obj)
+            % main parf ot pix_data_wrap getter overloaded for
+            % PixDataMemory class
+            val = pix_data();
+            val.data = obj.data;
         end
         %         function data=saveobj(obj)
         %             data = struct(obj);

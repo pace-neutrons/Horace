@@ -60,7 +60,7 @@ classdef (Abstract) PixelDataBase < serializable
         % The property, which describes the pixel data layout on disk or in
         % memory and all additional properties describing pix array
         metadata;
-        data_wrap;
+        pix_data_wrap;
     end
 
     properties (Constant,Hidden)
@@ -264,7 +264,9 @@ classdef (Abstract) PixelDataBase < serializable
             end
 
             if upgrade
-                arrayfun(@(x) x.reset_changed_coord_range('coordinates'), obj);
+                for i=1:numel(obj)
+                    obj(i) = obj(i).reset_changed_coord_range('coordinates');
+                end
             end
 
         end
@@ -344,7 +346,10 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_prop(obj, ind, val);
         %
         obj = set_file_path(obj,val);
+        %
+        obj = reset_changed_coord_range(obj,range_type);
 
+        % setters/getters for serializable interface properties
         val = get_data_wrap(obj);
         obj = set_data_wrap(obj,val);
     end
@@ -464,13 +469,25 @@ classdef (Abstract) PixelDataBase < serializable
         function val = get.file_path(obj)
             val = obj.file_path_;
         end
-        %
-        function val = get.data_wrap(obj)
+        %------------------------------------------------------------------
+        % data/metadata construction
+        function val = get.pix_data_wrap(obj)
             val = get_data_wrap(obj);
         end
-        function obj = set.data_wrap(obj,val)
+        function obj = set.pix_data_wrap(obj,val)
             obj = set_data_wrap(obj,val);
+            if obj.do_check_combo_arg
+                obj = obj.check_combo_arg();
+            end
         end
+        %
+        function val = get.metadata(obj)
+            val = pix_metadata(obj);
+        end
+        function obj = set.metadata(obj,val)
+            obj = obj.set_metadata(val);
+        end
+
     end
 
     methods
@@ -490,7 +507,7 @@ classdef (Abstract) PixelDataBase < serializable
             % calculations are expensive
             %
             if any(size(pix_range) ~= [2,4])
-                error('HORACE:PixelData:InvalidArgument',...
+                error('HORACE:PixelDataBase:invalid_argument',...
                     'pixel_range should be [2x4] array');
             end
             obj.pix_range_ = pix_range;
@@ -505,10 +522,10 @@ classdef (Abstract) PixelDataBase < serializable
             pix_copy = PixelDataBase.create(obj, obj.page_memory_size_, false, obj.is_filebacked);
         end
 
-        function is_empty = isempty(obj)
-            % Return true if the PixelData object holds no pixel data
-            is_empty = obj.num_pixels == 0;
-        end
+        %         function is_empty = isempty(obj)
+        %             % Return true if the PixelData object holds no pixel data
+        %             is_empty = obj.num_pixels == 0;
+        %         end
 
         function num_pix = get.num_pixels(obj)
             num_pix = obj.num_pixels_;
@@ -567,7 +584,7 @@ classdef (Abstract) PixelDataBase < serializable
         % Does not properly support filebased data. The decision is not to
         % save filebased data into mat files
         %fields_to_save_ = {'data','num_pixels','pix_range','file_path'};
-        fields_to_save_ = {'data','metadata'};
+        fields_to_save_ = {'pix_data_wrap','metadata'};
     end
 
     methods
@@ -575,15 +592,26 @@ classdef (Abstract) PixelDataBase < serializable
             % serializable fields version
             ver = 2;
         end
-        function flds = saveableFields(obj)
-            flds = binfile_v4_common.fields_to_save_;
-            if ~isempty(obj.sqw_holder)
-                flds = [flds(:),'sqw_holder'];
-            end
+        function flds = saveableFields(~)
+            flds = PixelDataBase.fields_to_save_;
         end
         %------------------------------------------------------------------
     end
     methods(Access=protected)
+        function obj =  set_metadata(obj,val)
+            % main part of set from metadata setter
+            if ~isa(val,'pix_metadata')
+                error('HORACE:PixelDataBase:invalid_argument',...
+                    'metadata can be set by the instance of pix_metadata class only. Provided class: %s', ...
+                    class(val))
+            end
+            obj.file_path_   = val.full_filename;
+            obj.pix_range    = val.pix_range;
+            obj.num_pixels_  = val.npix;
+            if obj.do_check_combo_arg
+                obj = obj.check_combo_arg();
+            end
+        end
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
             % previous version of the object.
