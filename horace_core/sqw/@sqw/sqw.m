@@ -296,7 +296,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             fn = fullfile(obj.main_header.filepath,obj.main_header.filename);
         end
         function obj = set.full_filename(obj,val)
-            if ~(issring(val)||ischar(val))
+            if ~(isstring(val)||ischar(val))
                 error('HORACE:sqw:invalid_argument', ...
                     ' Full filename can be only string, describing input file together with the path to this file. It is: %s', ...
                     disp2str(val));
@@ -306,6 +306,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.main_header.filepath = fp;
             obj.data.filename = [fn,fex];
             obj.data.filepath = fp;
+            obj.pix.filepath = val;
         end
 
     end

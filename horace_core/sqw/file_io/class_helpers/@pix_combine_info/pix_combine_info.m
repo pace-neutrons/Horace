@@ -53,6 +53,12 @@ classdef pix_combine_info < serializable
         % true if pixel id for each pixel from contributing files should be changed.
         change_fileno
     end
+    properties(Dependent,Hidden)
+        % The property, which describes the pixel data layout on disk or in
+        % memory and all additional properties describing pix array
+        metadata;
+        pix_data_wrap;
+    end
     %
     properties(Access=public)
         npix_cumsum = [];  % auxiliary propery used by cut_sqw operating

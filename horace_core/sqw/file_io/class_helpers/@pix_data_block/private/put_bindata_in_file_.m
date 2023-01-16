@@ -1,10 +1,10 @@
 function obj = put_bindata_in_file_(obj,fid,obj_data)
-% Overloaded: -- store data containing in dnd_data_block class
+% Overloaded: -- store data containing in pix_data_block class
 % into binary file
 %
 % Inputs:
 % fid      -- opened file handle
-% obj_data -- full instance of dnd_data_block class
+% obj_data -- full instance of pix_data_block class
 %
 % Returns:
 % obj      -- unchanged
@@ -12,15 +12,14 @@ function obj = put_bindata_in_file_(obj,fid,obj_data)
 %         problem with writing data fields
 
 obj.move_to_position(fid)
-head_data = uint32([obj_data.dimensions,obj_data.data_size]);
-fwrite(fid,head_data,'uint32');
-obj.check_write_error(fid,'header');
+n_rows = uint32(obj_data.n_rows);
+fwrite(fid,n_rows,'uint32');
+obj.check_write_error(fid,'num pix rows');
 %
-fwrite(fid,double(obj_data.sig(:)),'double');
-obj.check_write_error(fid,'signal');
+npix  = uint64(obj_data.npix);
+fwrite(fid,npix,'uint64');
+obj.check_write_error(fid,'num_pixels');
 %
-fwrite(fid,double(obj_data.err(:)),'double');
-obj.check_write_error(fid,'error');
+fwrite(fid,single(obj_data.data(:)),'single');
+obj.check_write_error(fid,'pixel data');
 %
-fwrite(fid,uint64(obj_data.npix(:)),'uint64');
-obj.check_write_error(fid,'npixel');

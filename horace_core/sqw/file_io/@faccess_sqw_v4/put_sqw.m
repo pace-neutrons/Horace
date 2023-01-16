@@ -4,10 +4,10 @@ function    obj = put_sqw(obj,varargin)
 %
 %
 %
-[ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
+[ok,mess,~,argi]=parse_char_options(varargin,{'-update'});
 if ~ok
-    error('HORACE:sqw_binfile_common:invalid_artgument',...
-        ['put_sqw: Invalid argument: ',mess]);
+    error('HORACE:faccess_sqw_v4:invalid_artgument', ...
+        mess);
 end
 %
 jobDispatcher = [];
@@ -30,39 +30,21 @@ if ~isempty(argi)
         argi = argi(~is_jd);
     end
 end
-%
-if update
-    if ~obj.upgrade_mode % set up info for upgrade mode and the mode itself
-        obj.upgrade_mode = true;
-    end
-    %return update option to argument list
-    argi{end+1} = '-update';
+if ~obj.sqw_holder.main_header.creation_date_defined
+    cd = datetime('now');
+    sqw_obj = obj.sqw_holder;
+    sqw_obj.main_header.creation_date= cd;
+    sqw_obj.data.creation_date = cd;
+    obj.sqw_holder = sqw_obj;
+end
+if ~isa(obj.sqw_holder.pix,'pix_combine_info')
+    obj = obj.put_all_blocks();
+    return
 end
 
-
-% store header, which describes file as sqw file
-obj=obj.put_app_header();
-%
-obj=obj.put_main_header(argi{:});
-%
-obj=obj.put_headers(argi{:});
-%
-obj=obj.put_det_info(argi{:});
-%
-% write dnd image metadata
-obj=obj.put_dnd_metadata(argi{:});
-% write dnd image data
-obj=obj.put_dnd_data(argi{:});
+obj = obj.put_all_blocks('ignore_blocks','bl_pix_pix_data_wrap');
 %
 if ~isempty(jobDispatcher)
     argi = [{jobDispatcher},argi];
 end
-
 obj=obj.put_pix(argi{:});
-
-%
-if ~update
-    do_fseek(obj.file_id_,0,'eof');
-    obj.real_eof_pos_ = ftell(obj.file_id_);
-end
-

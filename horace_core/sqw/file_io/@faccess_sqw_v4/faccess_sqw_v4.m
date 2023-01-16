@@ -213,8 +213,33 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             cd = mh.creation_date;
         end
         function  pos = get_pix_position(obj)
-            pix_block = obj.blocks_list{end};
-            pos = pix_block.position;
+            pix_block = obj.bat_.blocks_list{end};
+            % pix
+            pos = pix_block.pix_position;
+        end
+        %
+        function  obj=init_from_sqw_obj(obj,varargin)
+            % initalize faccessor using sqw object as input
+            %
+            % initialize binfile_v4 interface
+            obj = init_from_sqw_obj@binfile_v4_common(obj,varargin{:});
+            % intialize sqw_file_interface.
+            % sqw holder now contains sqw object by definition
+            obj.num_contrib_files_ = obj.sqw_holder.main_header.nfiles;
+            obj.npixels_           = obj.sqw_holder.npixels;
+        end
+        function  obj=init_from_sqw_file(obj,varargin)
+            % initalize faccessor using sqw file as input
+            %
+            % initialize binfile_v4 interface
+            obj = init_from_sqw_file@binfile_v4_common(obj,varargin{:});
+            % intialize sqw_file_interface.
+            nfil_bl = obj.bat_.blocks_list{1}; % block responsible for main header
+            [~,mhb] = nfil_bl.get_sqw_block(obj.file_id_);
+            obj.num_contrib_files_ = mhb.nfiles;
+            npix_bl = obj.bat_.blocks_list{end-1}; % block responsible for pix metadata;
+            [~,pix_md] = npix_bl.get_sqw_block(obj.file_id_);
+            obj.npixels_          = pix_md.npix;
         end
 
     end

@@ -55,38 +55,34 @@ opts = parse_args(obj, varargin{:});
 sqw_skel = struct('main_header',[],'experiment_info',[],'detpar',[], ...
     'data',[],'pix',[]);
 
-if opt.head || opts.his
-    skip_blocks = {'bl__det_par','bl_data_nd_data','bl_pix_data'};
+if opts.head || opts.his
+    skip_blocks = {'bl__det_par','bl_data_nd_data',...
+        'bl_pix_metadata','bl_pix_data_wrap'};
 else
-    skip_blocks = {'bl_pix_data'};
+    skip_blocks = {'bl_pix_metadata','bl_pix_data_wrap'};
 end
-[obj,sqw_skel] = obj.get_all_blocks(obj,sqw_skel,'ignore_blocks',skip_blocks);
+[obj,sqw_skel] = obj.get_all_blocks(sqw_skel,'ignore_blocks',skip_blocks);
 
 if ~(opts.head || opts.his)
     sqw_skel.data = DnDBase.dnd(sqw_skel.data.metadata,sqw_skel.data.nd_data);
+    sqw_skel.experiment_info = Experiment([],sqw_skel.experiment_info.instruments, ...
+        sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);    
 end
 
 
 % CRYSTAL ALIGNMENT FIXTURE: #TODO: #892 modify  and remove!
 proj = sqw_skel.data.proj;
-header_av = sqw_skel.experiment_info.header_average();
-sqw_skel.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+if isa(proj,'ortho_proj')
+    header_av = sqw_skel.experiment_info.header_average();
+    sqw_skel.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+end
 
-if opt.nopix
+if opts.nopix
     sqw_skel = rmfield(sqw_skel,'pix');
-end
-if ~opts.nopix && obj.npixels > 0
-    sqw_skel.pix = PixelDataBase.create(obj, opts.pixel_page_size,~opts.noupgrade);
+else
+    sqw_skel.pix = PixelDataBase.create(obj, opts.pixel_page_size,opts.noupgrade);
 end
 
-old_file = ~sqw_skel.main_header.creation_date_defined;
-% run_id map in any form, so it is often tried to be restored from filename.
-% here we try to verify, if this restoration is correct if we can do that
-% without critical drop in performance.
-if isfield(sqw_skel,'pix') && (sqw_skel.pix.num_pixels > 0) && old_file
-    % try to update pixels run id-s
-    sqw_skel = update_pixels_run_id(sqw_skel);
-end
 
 if opts.legacy
     sqw_object   = sqw_skel.main_header;
@@ -104,9 +100,8 @@ elseif opts.head || opts.his
 else
     sqw_object = sqw(sqw_skel);
     if  ~(opts.keep_original || opts.verbatim)
-        sqw_object.full_filename = obj.full_filename;
+        sqw_object.pix.file_path = obj.full_filename;
     end
-
 end
 
 

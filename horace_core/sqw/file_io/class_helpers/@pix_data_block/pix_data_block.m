@@ -22,14 +22,14 @@ classdef pix_data_block < data_block
             %DND_DATA_BLOCK constructor
             obj = obj@data_block(varargin{:});
             obj.sqw_prop_name = 'pix';
-            obj.level2_prop_name = 'pix_data';
+            obj.level2_prop_name = 'data_wrap';
         end
         %
         function pos = get.npix_position(obj)
-            pos = obj.position_;
+            pos = obj.position_+4;
         end
         function pos = get.pix_position(obj)
-            pos = obj.position_+8;
+            pos = obj.position_+12;
         end
         %
         function [obj,sqw_obj_to_set] = get_sqw_block(obj,fid,sqw_obj_to_set)
@@ -43,18 +43,23 @@ classdef pix_data_block < data_block
                 sqw_obj_to_set = obj.set_subobj(sqw_obj_to_set,subobj);
             end
         end
-        function obj =calc_obj_size(obj,sqw_obj,varargin)
+        function obj =calc_obj_size(obj,sqw_obj,nocache)
             % Overloaded: -- calculate size of the serialized object and
             % put the serialized object into data cache for subsequent put
             % operation(s)
+            if ~exist('nocache','var')
+                nocache = false;
+            end
             subobj = obj.get_subobj(sqw_obj);
-            obj.dimensions_ = subobj.dimensions();
-            obj.data_size_  = subobj.data_size();
+            npix = subobj.npix;
+            n_rows = subobj.n_rows;
 
-            % num_dim,+ size(arrays)*4+3 data arrays 2-single precision,
-            % 4--uint64 each of prop(subobj.data_size) elements
-            obj.size_ = 4+obj.dimensions_*4+(3*8)*prod(obj.data_size_);
-            obj.serialized_obj_cache_ = subobj;
+            % 4 bytes for n_rows (9), 8 bytes for npixels + (nrows*n_cols)*4 
+            % (4 - for single precision)
+            obj.size_ = 4+8+npix*n_rows*4;
+            if ~nocache
+                obj.serialized_obj_cache_ = subobj;
+            end
         end
     end
     methods(Access=protected)

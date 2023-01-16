@@ -60,7 +60,7 @@ classdef (Abstract) PixelDataBase < serializable
         % The property, which describes the pixel data layout on disk or in
         % memory and all additional properties describing pix array
         metadata;
-        pix_data_wrap;
+        data_wrap;
     end
 
     properties (Constant,Hidden)
@@ -256,6 +256,9 @@ classdef (Abstract) PixelDataBase < serializable
                     obj = PixelDataFileBacked(init, mem_alloc);
                 else
                     obj = PixelDataMemory(init);
+                end
+                if ~any(obj.pix_range == obj.EMPTY_RANGE_)
+                    return;
                 end
             else
                 error('HORACE:PixelDataBase:invalid_argument', ...
@@ -471,10 +474,10 @@ classdef (Abstract) PixelDataBase < serializable
         end
         %------------------------------------------------------------------
         % data/metadata construction
-        function val = get.pix_data_wrap(obj)
+        function val = get.data_wrap(obj)
             val = get_data_wrap(obj);
         end
-        function obj = set.pix_data_wrap(obj,val)
+        function obj = set.data_wrap(obj,val)
             obj = set_data_wrap(obj,val);
             if obj.do_check_combo_arg
                 obj = obj.check_combo_arg();
@@ -584,7 +587,7 @@ classdef (Abstract) PixelDataBase < serializable
         % Does not properly support filebased data. The decision is not to
         % save filebased data into mat files
         %fields_to_save_ = {'data','num_pixels','pix_range','file_path'};
-        fields_to_save_ = {'pix_data_wrap','metadata'};
+        fields_to_save_ = {'data_wrap','metadata'};
     end
 
     methods

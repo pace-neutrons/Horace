@@ -10,16 +10,12 @@ classdef pix_metadata < serializable
         full_filename;   % full file name of the sqw file containing the pixels
         npix;
         pix_range;
-        % metadata, which describe the pixel file format
-
-        num_pix_fields; % number of rows in pixel data array
     end
     properties(Access=protected)
         full_filename_;
         npix_;
         pix_range_ = PixelDataBase.EMPTY_RANGE_;
         %
-        num_pix_fields_ = 9;
     end
 
 
@@ -38,7 +34,6 @@ classdef pix_metadata < serializable
                 remains = varargin(2:end);
                 obj.npix = inputs.num_pixels;
                 obj.pix_range      = inputs.pix_range;
-                obj.num_pix_fields = inputs.DEFAULT_NUM_PIX_FIELDS;
                 obj.full_filename = inputs.file_path; % Check this #893
             else
                 flds = obj.saveableFields();
@@ -90,17 +85,6 @@ classdef pix_metadata < serializable
             obj.pix_range_ = val;
         end
         %
-        function npf = get.num_pix_fields(obj)
-            npf = obj.num_pix_fields_;
-        end
-        function obj = set.num_pix_fields(obj,val)
-            if ~(isnumeric(val)&&isscalar(val)&&val > 0)
-                error('HORACE:pix_metadata:invalid_argument', ...
-                    'The number of pixels fields should be single positive number. It is: %s', ...
-                    disp2str(val));
-            end
-            obj.num_pix_fields_ = val;
-        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
@@ -113,7 +97,7 @@ classdef pix_metadata < serializable
             % the state of a serializable object, so when the field values are
             % provided, the object can be fully restored from these values.
             %
-            flds = {'full_filename','npix','pix_range','num_pix_fields'};
+            flds = {'full_filename','npix','pix_range'};
         end
     end
 end

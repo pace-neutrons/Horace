@@ -1,19 +1,19 @@
 classdef pix_data < serializable
-    %PIX_DATA The class wraps pixel_data arrays and uses for serializing
+    %PIX_DATA The class wraps pixel_data arrays and is used for serializing
     % PixelData into sqw binary files or matlab .mat files
     %
-    % The purpose of this class is help in storing/restoring pixel data
-    % into custom bindary file using different pixel file formats.
+    % The purpose of this class is to help in storing/restoring pixel data
+    % into custom binary file using different pixel file formats.
     %
     properties(Dependent)
-        % Actual information, describing particular pixel data
-        npix;
-        % metadata, which describe the pixel file format
+        npix;   % Number of pixels, stored in the the pixels data block
+        n_rows  % Number of rows in pixel data array 
 
-        data; % number of rows in pixel data array
+        data;  % data array block
     end
     properties(Access=protected)
         npix_;
+        num_pix_fields_ = 9;       
         data_;
     end
 
@@ -45,10 +45,24 @@ classdef pix_data < serializable
             end
 
         end
+        % 
+        function rd = get.n_rows(obj)
+            rd = obj.num_pix_fields_;
+        end
+        function obj = set.n_rows(obj,val)
+            if ~(isnumeric(val)&&isscalar(val)&&val>=0)
+                error('HORACE:pix_metadata:invalid_argument', ...
+                    'The number of pixels rows should be single non-negative number. It is: %s', ...
+                    disp2str(val));
+            end
+            
+            obj.num_pix_fields_ = val;
+        end
+        
         %
         function np = get.npix(obj)
             np = obj.npix_;
-        end
+        end        
         function obj = set.npix(obj,val)
             if ~(isnumeric(val)&&isscalar(val)&&val>=0)
                 error('HORACE:pix_metadata:invalid_argument', ...
@@ -71,10 +85,10 @@ classdef pix_data < serializable
                     class(val),disp2str(size(val)));
             end
             obj.data_ = val;
-            obj.npix_ = size(val,2);
+            %
+            obj.num_pix_fields_ = size(val,1);                        
+            obj.npix_           = size(val,2);
         end
-
-
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

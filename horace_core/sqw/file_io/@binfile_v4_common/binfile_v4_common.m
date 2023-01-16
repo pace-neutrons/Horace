@@ -51,10 +51,10 @@ classdef binfile_v4_common < horace_binfile_interface
             % Inputs:
             % obj   -- initialized for writing instance of faccess object
             % Optional:
-            %  sqw_dnd_data    -- instance of sqw or dnd object to write
-            % 'ignored_blocks' -- key followed by cellarray of names or
-            %                     single name to ignore and do not write to
-            %                     the disk at this stage.
+            %  sqw_dnd_data   -- instance of sqw or dnd object to write
+            % 'ignore_blocks' -- key followed by cellarray of names or
+            %                    single name to ignore and do not write to
+            %                    the disk at this stage.
             % NOTE:
             % If faccess is initialized for a new file and the intermediate
             % block is ignored, it will fail. TODO: ? should it be fixed?
@@ -105,8 +105,9 @@ classdef binfile_v4_common < horace_binfile_interface
             % 'ignore_blocks'     ! the keyword which identifies that some
             %                     ! blocks should not be loaded
             % list of block names ! following the the first keyword the
-            %                     ! list of block banes to ignore
-
+            %                     ! list of block banes to ignore and do
+            %                       not read from hdd at this stage
+            %
             % if none of additinal parameters is specified, result is
             % returnded in sqw object
             % Output:
