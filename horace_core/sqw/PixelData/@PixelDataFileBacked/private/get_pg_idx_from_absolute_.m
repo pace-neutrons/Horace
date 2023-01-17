@@ -25,10 +25,9 @@ function [page_idx, global_idx] = get_pg_idx_from_absolute_(obj, abs_indices, pa
 %  global_idx  The absolute indices that exist within the given page. This
 %              will be a subset of `abs_indices`.
 %
-pg_start_idx = (page_number - 1)*obj.base_page_size + 1;
-pg_end_idx = pg_start_idx + obj.base_page_size;
 
-abs_idx_in_page = (abs_indices >= pg_start_idx) & (abs_indices < pg_end_idx);
+[pg_start_idx, pg_end_idx] = obj.get_page_idx_(page_number);
+abs_idx_in_page = (abs_indices >= pg_start_idx) & (abs_indices <= pg_end_idx);
 page_idx = abs_indices(abs_idx_in_page) - (page_number - 1)*obj.base_page_size;
 
 if nargout == 2

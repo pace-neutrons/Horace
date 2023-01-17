@@ -22,40 +22,24 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
 % The double array must have length equal to the number of pixels.
 %
 base_page_size = obj.page_size;
-inplace_write = ~obj.has_tmp_file;
-if inplace_write
-    fid = obj.get_append_handle();
-    tosave = {'nosave', true};
-else
-    tosave = {};
-end
 
-while true
+fid = obj.get_new_handle();
 
+for i = 1:obj.n_pages
+    obj.load_page(i);
     pix_sigvar = sigvar(obj.signal, obj.variance);
 
-    start_idx = (obj.page_number_ - 1)*base_page_size + 1;
-    end_idx = min(start_idx + base_page_size - 1, obj.num_pixels);
+    [start_idx, end_idx] = obj.get_page_idx_(i);
 
-    %double_sigvar = sigvar(double_array(start_idx:end_idx), []);
     double_sigvar = double_array(start_idx:end_idx);     % TGP 2021-04-11: to work with new classdef sigvar
     [obj.signal, obj.variance] = ...
         sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
 
-    if inplace_write
-        fwrite(fid, obj.data, 'single');
-    end
+    obj.format_dump_data(fid);
 
-    if obj.has_more()
-        obj.advance(tosave{:});
-    else
-        break;
-    end
 end
 
-if inplace_write
-    obj.finalise_append(fid);
-end
+obj.finalise(fid);
 
 end
 
@@ -74,18 +58,13 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
 % object.
 %
 
-inplace_write = ~obj.has_tmp_file;
-if inplace_write
-    fid = obj.get_append_handle();
-    tosave = {'nosave', true};
-else
-    tosave = {};
-end
+fid = obj.get_new_handle();
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
-for page_number = 1:numel(npix_chunks)
-    npix_for_page = npix_chunks{page_number};
-    idx = idxs(:, page_number);
+for i = 1:obj.n_pages
+    obj.load_page(i);
+    npix_for_page = npix_chunks{i};
+    idx = idxs(:, i);
 
     sig_chunk = repelem(double_array(idx(1):idx(2)), npix_for_page)';
 
@@ -95,21 +74,10 @@ for page_number = 1:numel(npix_chunks)
     [obj.signal, obj.variance] = ...
         sigvar_binary_op_(this_sigvar, double_sigvar, binary_op, flip);
 
-    if inplace_write
-        fwrite(fid, obj.data, 'single');
-    end
-
-    if obj.has_more()
-        obj.advance(tosave{:});
-    else
-        break;
-    end
-
+    obj.format_dump_data(fid);
 end
 
-if inplace_write
-    obj.finalise_append(fid);
-end
+obj.finalise(fid);
 
 end
 

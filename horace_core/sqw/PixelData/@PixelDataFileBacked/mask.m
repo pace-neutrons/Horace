@@ -33,9 +33,9 @@ function pix_out = mask(obj, mask_array, varargin)
 if nargout ~= 1
     error('PIXELDATA:mask', ['Bad number of output arguments.\n''mask'' must be ' ...
         'called with exactly one output argument.']);
-else
-    [mask_array, npix] = validate_input_args(obj, mask_array, varargin{:});
 end
+
+[mask_array, npix] = validate_input_args(obj, mask_array, varargin{:});
 
 if numel(mask_array) == obj.num_pixels && all(mask_array)
     pix_out = obj;
@@ -61,23 +61,21 @@ function pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array)
 % Perfrom a mask of a file-backed PixelData object with a mask array as
 % long as the full PixelData array i.e. numel(mask_array) == pix.num_pixels
 %
-obj.move_to_first_page();
 
 pix_out = PixelDataFileBacked();
-end_idx = 0;
-while true
-    start_idx = end_idx + 1;
-    end_idx = start_idx + obj.page_size - 1;
+fid = pix_out.get_new_handle();
+
+for i = 1:obj.n_pages
+    obj.load_page(i);
+    [start_idx, end_idx] = obj.get_page_idx_(i);
     mask_array_chunk = mask_array(start_idx:end_idx);
 
-    pix_out.append(PixelDataMemory(obj.data(:, mask_array_chunk)));
+    fwrite(fid, obj.data(:, mask_array_chunk), obj.FILE_DATA_FORMAT_);
 
-    if obj.has_more()
-        obj = obj.advance();
-    else
-        break;
-    end
 end
+
+pix_out.num_pixels_ = sum(mask_array);
+pix_out.finalise(fid);
 
 end
 
@@ -88,25 +86,28 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
 %
 % The mask_array and npix array should have equal dimensions.
 %
-obj.move_to_first_page();
+
 pix_out = PixelDataFileBacked();
+fid = pix_out.get_new_handle();
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
-page_number = 1;
-while true
-    npix_for_page = npix_chunks{page_number};
-    idx = idxs(:, page_number);
+pix_out.num_pixels_ = 0;
 
+for i = 1:obj.n_pages
+    npix_for_page = npix_chunks{i};
+    idx = idxs(:, i);
+
+    obj.load_page(i);
     mask_array_chunk = repelem(mask_array(idx(1):idx(2)), npix_for_page);
-    pix_out.append(PixelDataMemory(obj.data(:, mask_array_chunk)));
 
-    if obj.has_more()
-        obj.advance();
-        page_number = page_number + 1;
-    else
-        break;
-    end
+    pix_out.num_pixels_ = pix_out.num_pixels + sum(mask_array_chunk);
+
+    fwrite(fid, obj.data(:, mask_array_chunk), obj.FILE_DATA_FORMAT_);
+
 end
+
+pix_out.finalise(fid);
+
 end
 
 function [mask_array, npix] = validate_input_args(obj, mask_array, varargin)

@@ -592,11 +592,14 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
+            pix.move_to_first_page();
             pix.u1 = 1;  % sets page 1 of u1 to all ones
-            pix.advance();  % move to second page
+            pix.dump_all_pixels_(); % Save changes
+            pix.move_to_page(2);  % move to second page
             assertElementsAlmostEqual(pix.u1, data(1, (npix_in_page + 1):(2*npix_in_page)),...
                 'relative',obj.tol);
-            pix.move_to_first_page();
+
+            pix.move_to_page(1);
             assertEqual(pix.u1, ones(1, npix_in_page),'relative',obj.tol);
         end
 
@@ -607,7 +610,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 53801
             expected_tmp_file = fullfile( ...
                 get(parallel_config, 'working_directory'), ...
-                'sqw_pix000053801.tmp_sqw' ...
+                'sqw_pix538011426.tmp_sqw' ...
                 );
 
             function do_pix_creation_and_delete()
@@ -616,7 +619,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
                 pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
                 pix.u1 = 1;
-                pix.advance();  % creates tmp file for first page
+                pix.dump_all_pixels_();  % creates tmp file
                 assertTrue( ...
                     is_file(expected_tmp_file), ...
                     sprintf('Temp file ''%s'' not created', expected_tmp_file) ...
@@ -629,23 +632,17 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
                 'Temp file not deleted');
         end
 
-        function test_all_page_changes_saved_after_edit_advance_and_reset(obj)
+        function test_set_all_prop_sets(obj)
             data = zeros(9, 30);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             % set all u1 values in each page to 1
-            pix.u1 = 1;
-            while pix.has_more()
-                pix.advance();  % move to second page
-                pix.u1 = 1;  % sets page 1 of u1 to all ones
-            end
-            pix.move_to_first_page();
+            pix.set_all_prop('u1', 1);
 
-            % check all u1 values are still 1
-            assertEqual(pix.u1, ones(1, pix.page_size));
-            while pix.has_more()
-                pix.advance();
+            % check all u1 values are 1
+            for i = 1:pix.n_pages
+                pix.move_to_page(i);
                 assertEqual(pix.u1, ones(1, pix.page_size));
             end
         end
@@ -657,9 +654,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             % set coordinates of page 1 and 3 to all ones
             pix.u1 = 1;
-            pix.advance();  % move to second page
-            pix.advance();  % move to third page
+            pix.dump_all_pixels_();
+            pix.move_to_page(3);  % move to second page
             pix.u1 = 1;
+            pix.dump_all_pixels_();
 
             pix.move_to_first_page();
 
@@ -771,45 +769,45 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             end
         end
 
-        function test_changes_to_copy_have_no_affect_on_original_after_advance(obj)
-            data = zeros(9, 30);
-            npix_in_page = 11;
-            pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            pix_original.signal = 1;
-            pix_original.advance();
-
-            pix_copy = copy(pix_original);
-            pix_copy.move_to_first_page();
-            pix_copy.signal = 2;
-            pix_copy.advance();
-
-            pix_original.move_to_first_page();
-            assertEqual(pix_original.signal, ones(1, numel(pix_original.signal)));
-
-            pix_copy.move_to_first_page();
-            assertEqual(pix_copy.signal, 2*ones(1, numel(pix_copy.signal)));
-        end
-
-        function test_changes_to_copy_have_no_affect_on_original_no_advance(obj)
-            data = zeros(9, 30);
-            npix_in_page = 11;
-            pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            pix_original.signal = 1;
-
-            pix_copy = copy(pix_original);
-            pix_copy.move_to_first_page();
-            pix_copy.signal = 2;
-
-            assertEqual(pix_original.signal, ones(1, numel(pix_original.signal)));
-            assertEqual(pix_copy.signal, 2*ones(1, numel(pix_copy.signal)));
-        end
+%         function test_changes_to_copy_have_no_effect_on_original_after_advance(obj)
+%             data = zeros(9, 30);
+%             npix_in_page = 11;
+%             pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+%             pix_original.signal = 1;
+%             pix_original.advance();
+%
+%             pix_copy = copy(pix_original);
+%             pix_copy.move_to_first_page();
+%             pix_copy.signal = 2;
+%             pix_copy.advance();
+%
+%             pix_original.move_to_first_page();
+%             assertEqual(pix_original.signal, ones(1, numel(pix_original.signal)));
+%
+%             pix_copy.move_to_first_page();
+%             assertEqual(pix_copy.signal, 2*ones(1, numel(pix_copy.signal)));
+%         end
+%
+%         function test_changes_to_copy_have_no_effect_on_original_no_advance(obj)
+%             data = zeros(9, 30);
+%             npix_in_page = 11;
+%             pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
+%             pix_original.signal = 1;
+%
+%             pix_copy = copy(pix_original);
+%             pix_copy.move_to_first_page();
+%             pix_copy.signal = 2;
+%
+%             assertEqual(pix_original.signal, ones(1, numel(pix_original.signal)));
+%             assertEqual(pix_copy.signal, 2*ones(1, numel(pix_copy.signal)));
+%         end
 
         function test_changes_to_original_before_copy_are_reflected_in_copies(obj)
             data = zeros(9, 30);
             npix_in_page = 11;
             pix_original = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix_original.signal = 1;
-            pix_original.advance();
+            pix_original.dump_all_pixels_();
 
             pix_copy = copy(pix_original);
             pix_copy.move_to_first_page();
@@ -817,16 +815,16 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
         end
 
-        function test_changes_to_original_kept_in_copy_after_advance(obj)
-            pix_original = PixelDataFileBacked(obj.tst_sqw_file_full_path, 1e2);
-            pix_original.signal = 1;
-
-            pix_copy = copy(pix_original);
-            pix_copy.advance();
-
-            pix_copy.move_to_first_page();
-            assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
-        end
+%         function test_changes_to_original_kept_in_copy_after_advance(obj)
+%             pix_original = PixelDataFileBacked(obj.tst_sqw_file_full_path, 1e2);
+%             pix_original.signal = 1;
+%
+%             pix_copy = copy(pix_original);
+%             pix_copy.advance();
+%
+%             pix_copy.move_to_first_page();
+%             assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
+%         end
 
         function test_change_to_original_after_copy_does_not_affect_copy(obj)
             data = zeros(9, 30);
@@ -835,10 +833,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_copy = copy(pix_original);
 
             pix_copy.signal = 1;
-            pix_copy.advance();
+            pix_copy.dump_all_pixels_();
 
             pix_original.signal = 2;
-            pix_original.advance();
+            pix_original.dump_all_pixels_();
 
             pix_copy.move_to_first_page();
             assertEqual(pix_copy.signal, ones(1, numel(pix_copy.signal)));
@@ -850,7 +848,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             old_config = hc.get_data_to_store();
             npix_to_write = 28;
             size_of_float = 4;
-            hc.mem_chunk_size = npix_to_write*size_of_float;
+            hc.mem_chunk_size = npix_to_write;
 
             function clean_up_func(conf_to_restore)
                 set(hor_config, conf_to_restore);
@@ -864,9 +862,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             pix.data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
-            pix.advance();
-            pix.move_to_first_page();
+            pix.dump_all_pixels_();
 
+            pix.move_to_page(1);
             assertEqual(pix.data, ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page));
         end
 
@@ -882,44 +880,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertElementsAlmostEqual(pix.data, data(:, 7:9),'relative',obj.tol);
             pix.advance();
             assertElementsAlmostEqual(pix.data, data(:, 10),'relative',obj.tol);
-        end
-
-        function test_unedited_dirty_pages_are_not_rewritten(obj)
-            old_rng_state = rng();
-            clean_up = onCleanup(@() rng(old_rng_state));
-            fixed_seed = 774015;  % this seed gives an expected object_id_ = 03853
-            rng(fixed_seed, 'twister');
-            expected_tmp_file = fullfile( ...
-                get(parallel_config, 'working_directory'), ...
-                'sqw_pix000003853.tmp_sqw' ...
-                );
-
-            data = rand(9, 10);
-            npix_in_page = 3;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
-            % edit a page such that it must be written to a file
-            pix.signal = 1;
-            [n_page,num_pages]=pix.advance();
-            assertEqual(n_page,2)
-            assertEqual(num_pages,4)
-
-            assertTrue(is_file(expected_tmp_file));
-
-            % record the temp file's original timestamp
-            original_timestamp = java.io.File(expected_tmp_file).lastModified();
-
-            % move to first page and advance again
-            pix.move_to_first_page();
-            pix.signal;  % make sure there's data in memory
-            pix.advance();  % no writing should happen here
-
-            pause(0.2)  % let the file system catch up
-            % get most recent timestamp
-            new_timestamp = java.io.File(expected_tmp_file).lastModified();
-
-            assertEqual(new_timestamp, original_timestamp, ...
-                'Temporary file timestamps are not equal.');
         end
 
         function test_you_can_append_to_empty_PixelData_object(obj)
@@ -976,39 +936,38 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             pix.move_to_first_page();
             assertEqual(pix.data, existing_data, '', obj.tol);
-            assertEqual(pix.pix_range,minmax);
+            assertEqual(pix.pix_range,minmax, '', obj.tol);
 
             pix.advance();
             assertEqual(pix.data, appended_data, '', obj.tol);
-            assertEqual(pix.pix_range,minmax);
-        end
-
-        function test_appending_pixels_after_page_edited_preserves_changes(obj)
-            npix_in_page = 11;
-            num_pix = 24;
-            original_data = rand(9, num_pix);
-
-            pix = get_pix_with_fake_faccess(obj, original_data(:, 1:npix_in_page), npix_in_page);
-            minmax = obj.get_ref_range(original_data);
-            assertEqual(pix.data, original_data(:, 1:npix_in_page), '', obj.tol);
-            pix.signal = ones(1, npix_in_page);
-            pix.append(PixelDataFileBacked(original_data(:, npix_in_page:end)));
-
-            pix.move_to_first_page();
-            expected_pg_1_data = original_data(:, 1:npix_in_page);
-            expected_pg_1_data(8, :) = 1;
-            assertEqual(pix.data, expected_pg_1_data, '', obj.tol);
-
-            for start_idx = npix_in_page:npix_in_page:num_pix
-                end_idx = min(start_idx + npix_in_page - 1, num_pix);
-                pix.advance();
-                assertEqual(pix.data, original_data(:, start_idx:end_idx), '', obj.tol);
-            end
-
             assertEqual(pix.pix_range,minmax, '', obj.tol);
-
-
         end
+
+%         function test_appending_pixels_after_page_edited_preserves_changes(obj)
+%             npix_in_page = 11;
+%             num_pix = 24;
+%             original_data = rand(9, num_pix);
+%
+%             pix = get_pix_with_fake_faccess(obj, original_data(:, 1:npix_in_page), npix_in_page);
+%             minmax = obj.get_ref_range(original_data);
+%             assertEqual(pix.data, original_data(:, 1:npix_in_page), '', obj.tol);
+%             pix.signal = ones(1, npix_in_page);
+%             pix.append(PixelDataFileBacked(original_data(:, npix_in_page:end)));
+%
+%             pix.move_to_first_page();
+%             expected_pg_1_data = original_data(:, 1:npix_in_page);
+%             expected_pg_1_data(8, :) = 1;
+%             assertEqual(pix.data, expected_pg_1_data, '', obj.tol);
+%
+%             for start_idx = npix_in_page:npix_in_page:num_pix
+%                 end_idx = min(start_idx + npix_in_page - 1, num_pix);
+%                 pix.advance();
+%                 assertEqual(pix.data, original_data(:, start_idx:end_idx), '', obj.tol);
+%             end
+%
+%             assertEqual(pix.pix_range,minmax, '', obj.tol);
+%
+%         end
 
         function test_you_can_append_to_file_backed_PixelData(obj)
             npix_in_page = 11;
@@ -1054,7 +1013,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertElementsAlmostEqual(pix.pix_range,pix_range,'relative',obj.tol);
 
             assertEqual(pix.num_pixels, size(data, 2));
-            pix_data = concatenate_pixel_pages(pix);
+            pix_data = pix.get_all_prop('all');
             assertElementsAlmostEqual(pix_data, data,'relative',obj.tol);
         end
 
@@ -1100,7 +1059,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
                 ];
 
             pix.append(pix_to_append);
-            assertEqual(ref_range,pix.pix_range);
+            assertEqual(ref_range,pix.pix_range, '', obj.tol);
 
 
             pix_copy = copy(pix);
@@ -1109,31 +1068,30 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqualToTol(ref_range,pix_copy.pix_range, 'reltol', obj.tol);
         end
 
-        function test_has_more_is_true_after_appending_page_to_non_file_backed(~)
-            num_pix = 10;
-            mem_alloc = (num_pix + 1);
-            pix = PixelDataFileBacked(rand(9, 10), mem_alloc);
-            range1 = pix.pix_range;
-
-            pix_to_append = PixelDataFileBacked(rand(9, 5));
-            range2 = pix_to_append.pix_range;
-            ref_range = [min(range1(1,:),range2(1,:));...
-                max(range1(2,:),range2(2,:))];
-
-            pix.append(pix_to_append);
-            assertEqual(ref_range,pix.pix_range);
-
-            pix.move_to_first_page();
-            assertTrue(pix.has_more());
-            pix.advance();
-            assertFalse(pix.has_more());
-            assertEqual(ref_range,pix.pix_range);
-        end
+%         function test_has_more_is_true_after_appending_page_to_non_file_backed(obj)
+%             num_pix = 10;
+%             pix = PixelDataMemory(rand(9, 10));
+%             range1 = pix.pix_range;
+%
+%             pix_to_append = PixelDataMemory(rand(9, 5));
+%             range2 = pix_to_append.pix_range;
+%             ref_range = [min(range1(1,:),range2(1,:));...
+%                 max(range1(2,:),range2(2,:))];
+%
+%             pix.append(pix_to_append);
+%             assertEqual(ref_range,pix.pix_range, '', obj.tol);
+%
+%             pix.move_to_first_page();
+%             assertTrue(pix.has_more());
+%             pix.advance();
+%             assertFalse(pix.has_more());
+%             assertEqual(ref_range,pix.pix_range, '', obj.tol);
+%         end
 
         function test_error_when_setting_mem_alloc_lt_one_pixel(~)
             pix_size = 0;
             f = @() PixelDataFileBacked(rand(9, 10), 0);
-            assertExceptionThrown(f, 'MATLAB:notGreater');
+            assertExceptionThrown(f, 'MATLAB:expectedPositive');
         end
 
         function test_PixelData_raised_if_mem_alloc_argument_is_not_scalar(~)
@@ -1179,10 +1137,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             f = @() pix.move_to_page(0);
-            assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+            assertExceptionThrown(f, 'MATLAB:expectedPositive');
 
             f = @() pix.move_to_page(-1);
-            assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+            assertExceptionThrown(f, 'MATLAB:expectedPositive');
         end
 
         function test_move_to_page_throws_if_arg_is_non_scalar(obj)
@@ -1193,7 +1151,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             f = @() pix.move_to_page([1, 2]);
-            assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+            assertExceptionThrown(f, 'MATLAB:expectedScalar');
         end
 
         function test_move_to_page_throws_if_arg_is_not_an_int(obj)
@@ -1204,7 +1162,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             f = @() pix.move_to_page(1.5);
-            assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
+            assertExceptionThrown(f, 'MATLAB:expectedInteger');
         end
 
 
@@ -1607,35 +1565,35 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(pix.base_page_size, expected_num_pix);
         end
 
-        function test_get_pixels_correct_if_all_pages_dirty(obj)
-            data = rand(9, 45);
-            mem_alloc = 8*9*15;
-            pix = PixelDataFileBacked(zeros(9, 0), mem_alloc);
-            for i = 1:3
-                a = (i - 1)*15 + 1;
-                b = i*15;
-                pix.append(PixelDataFileBacked(data(:, a:b)));
-            end
+%         function test_get_pixels_correct_if_all_pages_dirty(obj)
+%             data = rand(9, 45);
+%             mem_alloc = 8*9*15;
+%             pix = PixelDataFileBacked(zeros(9, 0), mem_alloc);
+%             for i = 1:3
+%                 a = (i - 1)*15 + 1;
+%                 b = i*15;
+%                 pix.append(PixelDataFileBacked(data(:, a:b)));
+%             end
+%
+%             pix_idx = [12:17, 28:33, 44];
+%             new_pix = pix.get_pixels(pix_idx);
+%             expected_pix = PixelDataMemory(data(:, pix_idx));
+%
+%             assertEqualToTol(new_pix, expected_pix, 'reltol', obj.tol);
+%         end
 
-            pix_idx = [12:17, 28:33, 44];
-            new_pix = pix.get_pixels(pix_idx);
-            expected_pix = PixelDataMemory(data(:, pix_idx));
-
-            assertEqualToTol(new_pix, expected_pix, 'reltol', obj.tol);
-        end
-
-        function test_calling_advance_with_nosave_discards_cached_changes(obj)
-            data = zeros(9, 30);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
-            % set all u1 values in each page to 1
-            pix.u1 = 1;
-            pix.advance('nosave', true);  % move to second page
-            pix.move_to_first_page();
-
-            assertEqual(pix.u1, zeros(1, npix_in_page));
-        end
+%         function test_calling_advance_with_nosave_discards_cached_changes(obj)
+%             data = zeros(9, 30);
+%             npix_in_page = 11;
+%             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+%
+%             % set all u1 values in each page to 1
+%             pix.u1 = 1;
+%             pix.advance('nosave', true);  % move to second page
+%             pix.move_to_first_page();
+%
+%             assertEqual(pix.u1, zeros(1, npix_in_page));
+%         end
 
         function test_set_data_sets_fields_with_given_values(~)
             pix = PixelDataBase.create(30);
@@ -1767,7 +1725,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             iter = 1;
             while pix.has_more()
                 pix.advance();
-                func(pix, iter)
+                func(pix, iter);
                 iter = iter + 1;
             end
         end

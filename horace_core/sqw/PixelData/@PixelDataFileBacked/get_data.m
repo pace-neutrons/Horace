@@ -26,59 +26,32 @@ function data_out = get_data(obj, pix_fields, varargin)
 %                    property.
 %
 
+
 NO_INPUT_INDICES = -1;
 [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, varargin{:});
 field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
+if abs_pix_indices == NO_INPUT_INDICES
+    abs_pix_indices = 1:obj.num_pixels;
+end
+
+%% TODO: Check should go once SQW object defined and block-getters can locate pixeldata
 if obj.has_tmp_file
-    if abs_pix_indices == NO_INPUT_INDICES
-        abs_pix_indices = 1:obj.num_pixels;
-    end
-    if obj.page_edited
-        obj = obj.write_dirty_page_;
-    end
-    data_out = obj.tmp_io_handler_.load_cols_at_indices(abs_pix_indices, field_indices);
-
+    data_map = obj.get_memmap_handle();
+    data_out = double(data_map.data.data(field_indices, abs_pix_indices));
 else
+    data_out = zeros(numel(field_indices), numel(abs_pix_indices));
+    for i=1:obj.n_pages
+        obj.load_page(i);
+        [pg_idxs, data_idxs] = obj.get_pg_idx_from_absolute_(abs_pix_indices, i);
 
-    if abs_pix_indices == NO_INPUT_INDICES
-        obj.move_to_page(1);
-        data_out = zeros(numel(field_indices), obj.num_pixels);
-    else
-        obj.move_to_page(ceil(min(abs_pix_indices)/obj.base_page_size));
-        data_out = zeros(numel(field_indices), numel(abs_pix_indices));
-    end
-    base_pg_size = obj.base_page_size;
-
-
-    data_out = assign_page_values(...
-        obj, data_out, abs_pix_indices, field_indices, base_pg_size);
-    while obj.has_more()
-        obj.advance();
-        data_out = assign_page_values(...
-            obj, data_out, abs_pix_indices, field_indices, base_pg_size);
+        if ~isempty(pg_idxs)
+            data_out(:, data_idxs) = obj.data(field_indices, pg_idxs);
+        end
     end
 end
 
 end
-
-
-function data_out = assign_page_values(...
-        obj, data_out, abs_pix_indices, field_indices, base_pg_size ...
-    )
-    NO_INPUT_INDICES = -1;
-
-    start_idx = obj.get_page_start_(obj.page_number_);
-    end_idx = start_idx + obj.get_npix_on_page_(obj.page_number_) - 1;
-    if abs_pix_indices == NO_INPUT_INDICES
-        data_out(:, start_idx:end_idx) = obj.data(field_indices, 1:end);
-    else
-        [pg_idxs, global_idxs] = ...
-            get_pg_idx_from_absolute_(obj, abs_pix_indices, obj.page_number_);
-        data_out(:, global_idxs) = obj.data(field_indices, pg_idxs);
-    end
-end
-
 
 function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
     NO_INPUT_INDICES = -1;

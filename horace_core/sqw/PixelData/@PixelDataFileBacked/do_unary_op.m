@@ -14,15 +14,15 @@ else
     pix_out = obj;
 end
 
-pix_out.move_to_first_page();
-while true
+fid = pix_out.get_new_handle();
+
+for i = 1:pix_out.n_pages
+    pix_out.load_page(i);
     pg_result = unary_op(sigvar(pix_out.signal, pix_out.variance));
     pix_out.signal = pg_result.s;
     pix_out.variance = pg_result.e;
 
-    if pix_out.has_more()
-        pix_out.advance();
-    else
-        break;
-    end
+    pix_out.format_dump_data(fid);
 end
+
+pix_out.finalise(fid)
