@@ -36,6 +36,7 @@ classdef sqw_formats_factory < handle
         % Add all new file readers which inherit from sqw_file_interface and horace_binfile_interface
         % to this list in the order of expected frequency of their appearance.
         supported_accessors_ = { ...
+            faccess_sqw_v4(),...
             faccess_dnd_v4(),...
             faccess_sqw_v3_3(), ...
             faccess_sqw_v3(), ...
@@ -45,14 +46,14 @@ classdef sqw_formats_factory < handle
             faccess_sqw_v3_2(), ...
             faccess_sqw_prototype()};
         %
-        % Rules for saving different classes, defines the preferred loader 
+        % Rules for saving different classes, defines the preferred loader
         % for saving the class from the list:
         % sqw2 corresponds to sqw file in indirect mode with efixed being
         % array
         written_types_ = {'DnDBase','sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders above to use for saving
         % correspondent class.
-        access_to_type_ind_ = {1,2,4,1,1,1,1,1,1};
+        access_to_type_ind_ = {2,1,1,2,2,2,2,2,2};
         types_map_ ;
     end
     properties(Dependent)
@@ -255,15 +256,11 @@ classdef sqw_formats_factory < handle
                 is_compartible = true;
                 return
             end
-            if isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3_3') || ...
-                    isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3') || ...
-                    isa(obj1,'faccess_sqw_v3') && isa(obj2,'faccess_sqw_v3_3')
-                is_compartible = true;
-            elseif isa(obj1,'faccess_sqw_v3_2') && isa(obj2,'faccess_sqw_v3_21') || ...
-                    isa(obj2,'faccess_sqw_v3_2') && isa(obj1,'faccess_sqw_v3_21')
-                is_compartible = true;
-            else
+            if (isa(obj1,'faccess_sqw_v3')||isa(obj1,'faccess_sqw_v3.3')) ...
+                    && isa(obj2,'faccess_sqw_v3_2')
                 is_compartible = false;
+            else
+                is_compartible = true;
             end
         end
 

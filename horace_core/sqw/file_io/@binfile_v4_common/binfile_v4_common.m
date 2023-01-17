@@ -247,7 +247,7 @@ classdef binfile_v4_common < horace_binfile_interface
         %
         function  [data,obj] =  get_data(obj,varargin)
             % equivalend to get_dnd('-noclass). Should it also return pix
-            % if worning on sqw object? No this at the moment
+            % if warning on sqw object? No this at the moment
             argi = parse_get_data_inputs_(varargin{:});
             [data,obj] = obj.get_dnd(argi{:});
         end

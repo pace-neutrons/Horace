@@ -120,6 +120,14 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     methods (Static)
+        function isfb = do_filebacked(num_pixels)
+            % function defines the rule to make pixels filebased or memory
+            % based
+            mem_chunk_size = config_store.instance().get_value('hor_config','mem_chunk_size');
+            % 3 should go to configuration too
+            isfb = num_pixels > 3*mem_chunk_size;
+        end
+
         function obj = create(init, mem_alloc, upgrade, file_backed)
             % Factory to construct a PixelData object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
@@ -252,7 +260,7 @@ classdef (Abstract) PixelDataBase < serializable
 
             elseif isa(init, 'sqw_file_interface')
                 % input is a file accessor
-                if (init.npixels > mem_alloc) || file_backed
+                if PixelDataBase.do_filebacked(init.npixels) || file_backed
                     obj = PixelDataFileBacked(init, mem_alloc);
                 else
                     obj = PixelDataMemory(init);
@@ -492,7 +500,6 @@ classdef (Abstract) PixelDataBase < serializable
         end
 
     end
-
     methods
         function obj=set_range(obj,pix_range)
             % Function allows to set the pixels range (min/max values of

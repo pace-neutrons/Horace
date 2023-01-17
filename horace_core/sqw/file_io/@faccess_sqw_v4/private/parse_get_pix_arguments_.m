@@ -27,9 +27,9 @@ if isempty(npix_tot) % dnd object
 end
 
 nargi = numel(argi);
-if nargi >1
+if nargi >0
     npix_lo = argi{1};
-    if nargi > 2
+    if nargi > 1
         npix_hi = argi{2};
     else
         npix_hi = npix_tot;

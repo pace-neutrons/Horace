@@ -315,6 +315,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     % REDUNDANT and compatibility ACCESSORS
     methods
         function obj = change_header(obj,hdr)
+            if obj.experiment_info.n_runs ~= hdr.n_runs
+                error('HORACE:sqw:invalid_argument', ...
+                    'Existing experiment info describes %d runs and new experiment info describes %d runs. N-runs have to be the same', ...
+                    obj.experiment_info.n_runs,hdr.n_runs)
+            end
             obj.experiment_info = hdr;
         end
 

@@ -89,7 +89,7 @@ pix = [blocks{:}];
 end  % function
 
 function block = read_block(obj,NUM_FIELS,pix_start,block_size,format)
-seek_pos = obj.pix_pos_ + (pix_start - 1)*obj.pixel_size;
+seek_pos = obj.pix_position + (pix_start - 1)*obj.pixel_size;
 do_fseek(obj.file_id_, seek_pos, 'bof');
 read_size = [NUM_FIELS,block_size];
 block  = fread(obj.file_id_,read_size, format);

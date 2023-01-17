@@ -35,8 +35,8 @@ if no_isamp_inst
     exper = Experiment([],IX_null_inst(),IX_null_sample,exp_data);
     return;
 end
-[obj,Inst] = obj.get_sqw_block('bl_experiment_instruments');
-[obj,samp] = obj.get_sqw_block('bl_experiment_samples');
+[obj,Inst] = obj.get_sqw_block('bl_experiment_info_instruments');
+[obj,samp] = obj.get_sqw_block('bl_experiment_info_samples');
 
 if ~isinf(samp_inst_number)
     exp_data = exp_data(samp_inst_number);
