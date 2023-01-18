@@ -66,6 +66,6 @@ for i = 1:pix_out.n_pages
     pix_out.load_page(i);
     [pix_out.signal, pix_out.variance] = noisify( ...
         pix_out.signal, pix_out.variance, varargin{:});
-    obj.format_dump_data(fid);
+    pix_out.format_dump_data(fid);
 end
-obj.finalise(fid);
+pix_out.finalise(fid);
