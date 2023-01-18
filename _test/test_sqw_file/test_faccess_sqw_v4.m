@@ -13,7 +13,6 @@ classdef test_faccess_sqw_v4< TestCase
     end
 
     methods
-
         %The above can now be read into the test routine directly.
         function obj=test_faccess_sqw_v4(varargin)
             if nargin > 0
@@ -34,7 +33,16 @@ classdef test_faccess_sqw_v4< TestCase
         % tests
         %
         %
-        function obj = test_init_and_get(obj)
+        function test_upgrdate_v2_to_v4_membased(obj)
+            tf = fullfile(tmp_dir,'test_upgrade_v2tov4_mem.sqw');
+            clOb = onCleanup(@()delete(tf));
+            copyfile(obj.old_origin,tf,'f');
+
+            fac = faccess_sqw_v4();
+            fac = fac.set_file_to_update(tf);
+
+        end
+        function test_init_and_get(obj)
             to = faccess_sqw_v4();
 
             [ok,initobj] = to.should_load(obj.sample_file);
