@@ -22,9 +22,10 @@ NO_INPUT_INDICES = -1;
 
 [field_indices, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin{:});
 
+fid = obj.get_new_handle();
+
 if abs_pix_indices == NO_INPUT_INDICES
 
-    fid = obj.get_new_handle();
     for i=1:obj.n_pages
         obj.load_page(i);
         [start_idx, end_idx] = obj.get_page_idx_(i);
@@ -32,10 +33,8 @@ if abs_pix_indices == NO_INPUT_INDICES
         obj.format_dump_data(fid);
     end
 
-    obj.finalise(fid);
 else
 
-    fid = obj.get_new_handle();
     for i=1:obj.n_pages
         [pg_idxs, data_idxs] = obj.get_pg_idx_from_absolute_(abs_pix_indices, i);
         obj.load_page(i);
@@ -47,13 +46,14 @@ else
         obj.format_dump_data(fid);
     end
 
-    obj.finalise(fid);
-
 end
+
+obj.finalise(fid);
 
 end  % function
 
 function [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin)
+
 NO_INPUT_INDICES = -1;
 
 validateattributes(pix_fields, {'cell', 'char', 'string'}, {'nonempty'});

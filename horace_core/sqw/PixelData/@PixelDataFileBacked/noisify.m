@@ -2,12 +2,12 @@ function pix_out = noisify(obj, varargin)
 %=========================================================================
 % This is a method of the PixelData class.
 % It is called from the noisify(sqw_object,[options]) function to allow
-% the noisify functionality to be applied on a per-page basis to the 
+% the noisify functionality to be applied on a per-page basis to the
 % sqw object's pixel data.
 % See noisify(sqw_object,...) for details of the input and the
 % Herbert noisify function for details of how the input is used.
 % This noisify adds random noise to the object's signal array, and a fixed
-% error bar to the variance array, paging as required. The options in 
+% error bar to the variance array, paging as required. The options in
 % varargin specify how that is done; see the above functions for details.
 % For options where the signal absolute maximum is used in the noise
 % scaling, a paged pre-scan of the signal provides the maximum over all
@@ -27,7 +27,7 @@ function pix_out = noisify(obj, varargin)
 %=========================================================================
 
 % Output specification determines object copying behaviour.
-% Only perform the operation on a copy if a return argument exists, 
+% Only perform the operation on a copy if a return argument exists,
 % otherwise perform the operation on obj itself.
 if nargout == 1
     pix_out = copy(obj);
@@ -40,21 +40,16 @@ uses_poisson_distribution = (   ...
     && ischar(varargin{1}) ...                  % arg is string
     && is_stringmatchi(varargin{1},'poisson')); % string is poisson
 
-if ~(uses_poisson_distribution)
+if ~uses_poisson_distribution
     % Other options than poisson require the signal maximum.
     % As we are paging, we need to get the overall max signal out of pix_out
     % before applying noisify to the individual pages.
-    max_sig = 0.0;
-    pix_out.move_to_first_page();
-    while true
-        max_sig_page = max(abs(pix_out.signal(:)));
-        max_sig = max(max_sig, max_sig_page);
+    max_sig = 0;
 
-        if pix_out.has_more()
-            pix_out.advance();
-        else
-            break;
-        end
+    for i = 1:pix_out.n_pages
+        pix_out.load_page(i);
+        max_sig_page = max(abs(pix_out.signal));
+        max_sig = max(max_sig, max_sig_page);
     end
 
     % tell the Herbert noisify that we are providing a max signal value
@@ -65,18 +60,12 @@ end
 
 % page over pix_out noisifying each page using either Poisson or the max
 % value extracted above
-pix_out.move_to_first_page();
-while true
-    % This call is to the Herbert utilities/maths version of noisify, which
-    % processes the (signal,error) data pair.
-    [pg_result_s, pg_result_e] = noisify( ...
-        pix_out.signal, pix_out.variance, varargin{:});
-    pix_out.signal = pg_result_s;
-    pix_out.variance = pg_result_e;
+fid = pix_out.get_new_handle();
 
-    if pix_out.has_more()
-        pix_out.advance();
-    else
-        break;
-    end
+for i = 1:pix_out.n_pages
+    pix_out.load_page(i);
+    [pix_out.signal, pix_out.variance] = noisify( ...
+        pix_out.signal, pix_out.variance, varargin{:});
+    obj.format_dump_data(fid);
 end
+obj.finalise(fid);

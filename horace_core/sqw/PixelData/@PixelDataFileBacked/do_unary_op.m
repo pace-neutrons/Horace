@@ -26,3 +26,5 @@ for i = 1:pix_out.n_pages
 end
 
 pix_out.finalise(fid)
+
+end

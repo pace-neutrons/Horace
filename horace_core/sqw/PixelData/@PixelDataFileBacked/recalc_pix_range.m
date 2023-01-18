@@ -10,28 +10,25 @@ function obj = recalc_pix_range(obj)
 % recalc_pix_range is a normal Matlab value object (not a handle object),
 % returning its changes in LHS
 %
-obj.move_to_first_page();
-obj.load_current_page_if_data_empty_();
+
 obj.set_range(obj.EMPTY_RANGE_);
-obj.reset_changed_coord_range('coordinates');
-if obj.has_more
-    hc = hor_config;
-    ll = hc.log_level;
-    
-    ic = 1;
+ll = get(hor_config, 'log_level');
+if ll > 0
     display_every_nth_iteration = 10;
-    while obj.has_more
-        [current_page_num,total_num_pages] = obj.advance();
-        ic = ic+1;
-        if ll>0 && ic>=display_every_nth_iteration
-            ic = 0;
-            fprintf( ...
-                '*** Processing page #%d/of#%d\n', ...
-                current_page_num, ...
-                total_num_pages ...
-                );
-        end
+else
+    display_every_nth_iteration = obj.n_pages;
+end
+
+for lp = 1:display_every_nth_iteration:obj.n_pages
+    for i = 1:display_every_nth_iteration
+        obj.move_to_page(i);
         obj.reset_changed_coord_range('coordinates');
     end
+
+    if ll > 0
+        fprintf('*** Processing page #%d of #%d \n', lp, obj.n_pages);
+    end
+
 end
-obj.move_to_first_page();
+
+end

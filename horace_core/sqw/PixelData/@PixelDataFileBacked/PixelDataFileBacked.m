@@ -86,7 +86,6 @@ classdef PixelDataFileBacked < PixelDataBase
 
     properties (Access=private)
         f_accessor_;  % instance of faccess object to access pixel data from file
-        %%         tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
         page_number_ = 1;  % the index of the currently loaded page
         has_tmp_file = false;
         offset_ = 0;

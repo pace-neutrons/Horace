@@ -21,7 +21,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             pths = horace_paths;
             obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
 
-            % sqw_2d_1.sqw has ~25,000 pixels, a 5000 pixels gives us 5
+            % sqw_2d_1.sqw has ~25,000 pixels, at 5000 pixels per page gives us 5
             % pages of pixel data
             pixel_page_size = 5000;
             obj.sqw_2d_paged = sqw(obj.test_sqw_file_path, 'pixel_page_size', ...
