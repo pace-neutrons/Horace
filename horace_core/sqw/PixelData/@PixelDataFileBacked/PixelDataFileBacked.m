@@ -153,19 +153,17 @@ classdef PixelDataFileBacked < PixelDataBase
                     obj = obj.loadobj(init);
                 elseif isa(init, 'PixelDataFileBacked')
                     %% TODO: Cleanup when tmp_file concept obsolete
-                    if init.has_tmp_file
+                    obj.has_tmp_file = init.has_tmp_file;
+                    if obj.has_tmp_file
                         %%                         obj.file_path_ = init.tmp_file_path_;
                         copyfile(init.pix_file_path_, obj.pix_file_path_);
-                        obj.num_pixels_ = init.num_pixels;
-                        obj.pix_range = init.pix_range;
-                        obj.data_ = init.get_raw_data();
-                        obj.has_tmp_file = true;
                     elseif ~isempty(init.f_accessor_)
                         obj = obj.init_from_file_accessor_(init.f_accessor_);
-                    else
-                        obj.data_ = init.data;
                     end
 
+                    obj.num_pixels_ = init.num_pixels;
+                    obj.pix_range = init.pix_range;
+                    obj.data_ = init.get_raw_data();
                 elseif ischar(init) || isstring(init)
                     if ~is_file(init)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -227,7 +225,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function prp = get_prop(obj, fld)
         %% TODO: Check can go once finalise complete as tmpfile becomes realfile immediately
             if ~obj.has_tmp_file
-                obj = obj.load_page(obj.page_number_);
+                obj.load_page(obj.page_number_);
                 prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
                 if ~isempty(obj.f_accessor_)
                     obj.data_ = [];
