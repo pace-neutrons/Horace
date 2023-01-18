@@ -19,14 +19,15 @@ else
     display_every_nth_iteration = obj.n_pages;
 end
 
-for lp = 1:display_every_nth_iteration:obj.n_pages
-    for i = 1:display_every_nth_iteration
-        obj.move_to_page(i);
+for lp = 0:display_every_nth_iteration:obj.n_pages
+    to_do = min(obj.n_pages - lp, display_every_nth_iteration);
+    for i = 1:to_do
+        obj.move_to_page(lp+i);
         obj.reset_changed_coord_range('coordinates');
     end
 
     if ll > 0
-        fprintf('*** Processing page #%d of #%d \n', lp, obj.n_pages);
+        fprintf('*** Processing page #%d of #%d \n', lp+display_every_nth_iteration, obj.n_pages);
     end
 
 end
