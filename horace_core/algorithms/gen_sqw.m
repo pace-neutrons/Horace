@@ -897,6 +897,6 @@ tol = 4*eps(single(pix_db_range)); % double of difference between single and dou
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
 img_range = ldr.read_img_range();
 
-present_and_valid = ~any(abs(img_range-pix_db_range)>tol)
+present_and_valid = ~any(abs(img_range-pix_db_range)>tol);
 
 end

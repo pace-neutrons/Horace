@@ -72,7 +72,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     end
     %
     %
-    methods(Access=protected,Hidden=true)
+    methods(Access=protected)
         function ver = get_faccess_version(~)
             % Main part of get.faccess_version accessor
             % retrieve sqw-file version the particular loader works with
@@ -115,7 +115,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % keep_internals -- if true, do not overwrite service fields
             %                   not related to the position information
             %
-            if ~exist('keep_internals','var')
+            if ~exist('keep_internals','var') || ischar(keep_internals)
                 keep_internals = false;
             end
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
@@ -141,6 +141,9 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         function obj = init_sqw_footer(obj)
             obj = init_sqw_footer_(obj);
         end
+        % Method does class dependent changes while updating from sqw file
+        % format v3.1 to file format version 3.3
+        new_obj = do_class_dependent_updates(obj,new_obj,varargin);        
     end
     %
     methods
@@ -273,15 +276,6 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         function obj = put_sample_and_instrument(obj)
             obj = put_sample_instr_records_(obj);
             obj.position_info_pos_= obj.instr_sample_end_pos_;
-        end
-        %
-        function new_obj = upgrade_file_format(obj,varargin)
-            % upgrade the file to recent write format and open this file
-            % for writing/updating
-            %
-            % v3.1 was from (01/01/2017) to 10/01/2021 recent file format
-            % it superseeded by v3.3
-            new_obj = upgrade_file_format_(obj);
         end
         %
         function obj = put_sqw_footer(obj)

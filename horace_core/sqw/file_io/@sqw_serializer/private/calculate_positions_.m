@@ -1,8 +1,50 @@
 function [size_str,pos,err,template_struc] = calculate_positions_(obj,template_struc,input,pos)
-% calculate the positions, the fields of the input templated_structure
-% occupy in an input or outpupt data file.
+% Calculate the positions, the fields of the input templated_structure
+% occupy in an input stream.
 %
-% pos at the end -- the final position
+% Inputs:
+% format_struc
+%        -- the structure, defining the way to analyse data.
+%           The names of the structure' fields represent the
+%           names of the properties of class or structure to
+%           transform, and the values of these structure fields
+%           define the types and, as the consequence,
+%           the sizes of data containing in the stream.
+%
+% input  -- Data to analyse. Three types of input are possible:
+%          1) class or structure to serialize
+%          2) array of bytes
+%          3) the handle related to open binary file to read.
+% Optional:
+% start_pos  -- if provided, the initial position of the
+%               data, described  by format_struct. If not
+%               provided, default is 0 if input/output is a file
+%               handle or 1 if it is sequence of bytes
+% Returns:
+% size_str -- the structure with the names of format_struc fields
+%             and values equal to calculated positions of these
+%             fields in the input stream
+% pos      -- first position after the all data positions
+% eof      -- if input is a file-handle, 
+%         true - if  positions calculated from the stream 
+%             and end of the stream is reached before all
+%             format fields were processed.
+%             size_str in this case contains only the positions
+%             of the fields which were processed from the stream.
+%         false - in all other situations.
+% format_struc
+%          -- the copy of the input format structure with
+%             appropriate fields values calculated from
+%             the input stream.
+%
+% The method calculates the positions each input data field
+% would occupy or is occupying (if converted) into/in a/the
+% sequence of  bytes.
+%
+% Usage:
+%>>[size_str,pos,eof,template_struc] = obj.calculate_positions(format_struc,input)
+%or
+%>>[size_str,pos,eof,template_struc] = obj.calculate_positions(format_struc,input,start_pos)
 %
 %
 err = false;
@@ -95,7 +137,7 @@ for i=1:numel(fn)
     end % end datatypes
     %
     pos = pos+length;
-
+    
     eof_reached = check_if_eof(obj,pos);
     if eof_reached
         pos = pos - length;
@@ -103,7 +145,7 @@ for i=1:numel(fn)
         err = true;
         break
     end
-
+    
 end
 
 function is = check_if_eof(obj,pos)
@@ -126,7 +168,7 @@ if obj.input_is_file_  %file stream
         err = true;
         return;
     end
-
+    
     sz = fread(input,1,'uint32');
     [~,res] = ferror(input);
     if res ~= 0

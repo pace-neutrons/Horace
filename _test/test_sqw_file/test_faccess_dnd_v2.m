@@ -102,7 +102,7 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
             [fd,fn,fe] = fileparts(obj.sample_file);
 
             assertEqual(to.filename,[fn,fe])
-            assertEqual(to.filepath,[fd,filesep])
+            assertEqual(to.filepath,fd)
             assertEqual(to.faccess_version,2)
             assertFalse(to.sqw_type)
             assertEqual(to.num_dim,2)

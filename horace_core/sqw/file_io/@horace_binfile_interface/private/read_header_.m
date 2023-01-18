@@ -1,31 +1,38 @@
-function [stream,fid,mess] = read_header_(file,varargin)
-% open (reopen) file for acces read the header, which allows to identify
-% the filie version
+function [stream,fid,mess] = read_header_(file_name,buf_size,varargin)
+% open (reopen) file for access and read the header which allows to identify
+% the file version.
+% Inputs:
+% file_name    -- the name of the input file to read
+% buf_size     -- the number of bytes the file reader may have to read from
+%                 binary file. May read more then header for further
+%                 analysis for very old versions of binary sqw files
+% Optional
+% '-update'   -- if provided, read file in update mode.
 %
 % returns:
-% uint8 array of bytes -- binary contents of the file
-%
+% stream      -- buf_size uint8 array of bytes of size buf_size containing 
+%                binary file header contents
+% fid         -- Matlab identifier of the opened file with binary data
+% mess        -- empty if opening and initial read of the file was
+%                successful. If problem happened with operations, contains
+%                message, providing information about the problem.
 
 %
-% Set the read/write permission that is required
-permission_req='rb';   % open for reading
-stream = [];
-if nargin> 1
-    num = cellfun(@isnumeric,varargin);
-    if any(num)
-        buf_size = varargin{num};
-    else
-        buf_size = horace_binfile_interface.max_header_size_; % default horace header size
-    end
-    argi = varargin(~num);
-    if numel(argi)> 0
-        permission_req = argi{1};
-    end
+% Check if the read/write permission are required
+[ok,mess,open_for_update] = parse_char_options(varargin,{'-update'});
+if ~ok
+    error('HORACE:horace_binfile_interface:invalid_argument',mess)
 end
+if open_for_update
+    permission_req='rb+';   % open for reading/writing
+else
+    permission_req='rb';   % open for reading
+end
+stream = [];
 
 % Check file and open
-if isnumeric(file)
-    [filename,permission]=fopen(file);
+if isnumeric(file_name)
+    [filename,permission]=fopen(file_name);
     if isempty(filename)
         mess='No open file with the given file identifier';
         return
@@ -33,12 +40,12 @@ if isnumeric(file)
         mess=['Read permission of file that is already open must be ',permission_req];
         return
     end
-    fid=file;  % copy fid
+    fid=file_name;  % copy fid
     fseek(fid,0,'bof');  % set the file position indicator to the start of the file
 else
-    fid=fopen(file,permission_req);
+    fid=fopen(file_name,permission_req);
     if fid<0
-        mess=['Unable to open file: ',file];
+        mess=['Unable to open file: ',file_name];
         return
     end
 end

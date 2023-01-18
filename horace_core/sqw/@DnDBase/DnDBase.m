@@ -50,6 +50,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         u_to_rlu;
         ulen;
         creation_date_defined;
+        %------------------------------------------------------------------
+        % Two properties, responsible for storing/restoring dnd information
+        % to/from binary hdd file format.
+        % The main purpose for the separation, is the possibility to access
+        % dnd-data from third party (non-Matlab) applications
+        %
+        metadata; % Full information describing dnd object
+        nd_data;     % N-D data arrays, describing DND image stored in dnd
+        %             % object
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == axes_block.dims_as_ssize)
@@ -69,8 +78,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         function w = dnd(varargin)
             % create dnd object with size and dimensions, defined by inputs
             %
-            ndims = found_dims_(varargin{:});
-            argi = varargin;
+            if nargin == 1 && isnumeric(varargin{1})
+                ndims = varargin{1};
+                argi  = {};
+            else
+                ndims = found_dims_(varargin{:});
+                argi = varargin;
+            end
             switch(ndims)
                 case(0)
                     w = d0d(argi{:});
@@ -111,7 +125,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
-        function obj=signal(obj,varargin)
+        function obj=signal(~,varargin)
             error('HORACE:DnDBase:runtime_error',...
                 'Call to signal function is possible for sqw objects only')
         end
@@ -266,7 +280,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         %
         function val = get.npix(obj)
-            val = obj.npix_;
+            val = double(obj.npix_);
         end
         function obj = set.npix(obj, npix)
             if any(npix(:)<0)
@@ -293,6 +307,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                     'input for proj property has to be an instance of aProjection class only. It is %s',...
                     class(val));
             end
+            % keep the state of the check_combo_arg synchronized with whole
+            % class check_cobo_arg state
             check_combo_ = obj.proj_.do_check_combo_arg;
             obj.proj_ = val;
             obj.proj_.do_check_combo_arg = check_combo_;
@@ -354,6 +370,39 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             def = obj.creation_date_defined_;
         end
     end
+    %======================================================================
+    % binfile IO interface
+    methods
+        function md = get.metadata(obj)
+            md = dnd_metadata(obj);
+        end
+        function obj = set.metadata(obj,val)
+            if ~isa(val,'dnd_metadata')
+                error('HORACE:DnDBase:invalid_argument',...
+                    'Metadata can be set by instance of dnd_metadata class only. Input class is: %s', ...
+                    class(val))
+            end
+            obj.axes = val.axes;
+            obj.proj = val.proj;
+            if val.creation_date_defined
+                obj.creation_date = val.creation_date_str;
+            end
+        end
+        %
+        function dat = get.nd_data(obj)
+            dat = dnd_data(obj);
+        end
+        function obj = set.nd_data(obj,val)
+            if ~isa(val,'dnd_data')
+                error('HORACE:DnDBase:invalid_argument',...
+                    'Whole dnd_data can be set by instance of dnd_data class only. Input class is: %s', ...
+                    class(val))
+            end
+            obj.s = val.sig;
+            obj.e = val.err;
+            obj.npix = val.npix;
+        end
+    end
 
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
@@ -372,15 +421,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
             [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
-        end
-        %
-        function obj = set_do_check_combo_arg(obj,val)
-            % set internal property do_check_combo_arg to all object
-            % components, which are serializable
-            val = logical(val);
-            obj.do_check_combo_arg_ = val;
-            obj.axes_.do_check_combo_arg  = val;
-            obj.proj_.do_check_combo_arg  = val;
         end
         %
         function obj = set_senpix(obj,val,field)
@@ -422,6 +462,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         function flds = saveableFields(obj)
             flds = obj.fields_to_save_;
+            % do not save creation data if it has not been defined
             if ~obj.creation_date_defined_
                 flds  = flds(1:end-1);
             end
@@ -435,7 +476,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             obj = check_combo_arg_(obj);
         end
     end
-    %----------------------------------------------------------------------    
+    %----------------------------------------------------------------------
     methods(Access = protected)
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
@@ -468,6 +509,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 out = modify_old_structure_(inputs);
             end
             obj = from_old_struct@serializable(obj,out);
+        end
+        %
+        function obj = set_do_check_combo_arg(obj,val)
+            % set internal property do_check_combo_arg to all object
+            % components, which are serializable
+            val = logical(val);
+            obj.do_check_combo_arg_ = val;
+            obj.axes_.do_check_combo_arg  = val;
+            obj.proj_.do_check_combo_arg  = val;
         end
     end
 end

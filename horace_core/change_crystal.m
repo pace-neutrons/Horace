@@ -59,11 +59,10 @@ end
 % Perform operations
 for i=1:numel(filenames)
     ld = sqw_formats_factory.instance().get_loader(filenames{i});
-    data    = ld.get_data();
-    target_file = fullfile(ld.filepath,ld.filename);
-    ld = ld.set_file_to_update(target_file);
+    data    = ld.get_dnd();
+    ld = ld.set_file_to_update();
     alatt0 = data.alatt;
-    angdeg0 = data.angdeg;
+    angdeg0 =data.angdeg;
     if ld.sqw_type
         exp_info= ld.get_exp_info('-all');
         [alatt,angdeg,rlu_corr]=SQWDnDBase.parse_change_crystal_arguments(alatt0,angdeg0,exp_info,varargin{:});
@@ -74,6 +73,11 @@ for i=1:numel(filenames)
         [alatt,angdeg,rlu_corr]=SQWDnDBase.parse_change_crystal_arguments(alatt0,angdeg0,[],varargin{:});
     end
     data= data.change_crystal(alatt,angdeg,rlu_corr,'-parsed');
-    ld = ld.put_dnd_metadata(data);
+    if ld.sqw_type %TODO: #993 Remove this after sqw loader is updated
+        ld = ld.put_dnd_metadata(data);
+    else
+        ld = ld.put_dnd_metadata(data.metadata);
+    end
     ld.delete();
+    clear ld;
 end

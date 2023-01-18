@@ -32,7 +32,7 @@ nout = nargout;
 if ~isempty(varargin) && isnumeric(varargin{1})
     nout = varargin{1};
 end
-
+obj.data_in_file_ = false;
 file_exist = false;
 
 if nout < 1
@@ -52,8 +52,9 @@ if nargin>1
     if exist(new_filename,'file')
         file_exist = true;
         try
-            old_ldr = sqw_formats_factory.instance().get_loader(new_filename,'-upgrade');
-        catch ME
+            old_ldr = sqw_formats_factory.instance().get_loader(new_filename,'-update');
+            obj.data_in_file_ = true;
+        catch ME % data_in_file == false anyway
             file_exist = false;
             if log_level > 1
                 fprintf(2,'*** WARNING: Existing file:  %s will be fully overwritten.\n', ...
@@ -61,10 +62,12 @@ if nargin>1
             end
         end
     end
-else % reopening existing file with old name
+else % reopening existing file with old name. Not used by new file format (after 01/01/2023)
+    % still may be used by previous file formatters
     if isempty(obj.filename)
         error('HORACE:horace_binfile_interface:invalid_argument',...
-            'Trying to reopen existing file for writing but its filename is empty')
+            'Trying to reopen loader %s-defined file for writing but loader"s filename is empty', ...
+            class(obj))
     end
     new_filename  = obj.full_filename;
     if obj.file_id_ > 0
@@ -73,10 +76,10 @@ else % reopening existing file with old name
         if strcmp(new_filename,old_filename)
             if ismember(access_rights,{'+wb','rb+'}) % nothing to do;
                 old_ldr = obj;
+                obj.data_in_file_ = true;
                 return;
             else
-                obj.file_closer_ = [];
-                obj = obj.fclose(); % this should not be necessary, unless Matlab delays clearing the memory above
+                obj = obj.fclose();
             end
         end
     else
@@ -88,14 +91,17 @@ end
 %
 
 if file_exist
+    obj.data_in_file_ = true;
     if ischar(obj.num_dim) % existing reader is not defined. Lets return loader,
+        obj.file_closer_ = [];
+        clear obj;
         obj = old_ldr.reopen_to_write(); %already selected as best for this file by loaders factory
-        %old_ldr = obj; % this closes the file, just opened above
         return
     end
     perm = 'rb+';
 else
     perm = 'wb+';
+    obj.data_in_file_ = false;
 end
 %-------------------------------------------------------------------------
 obj.full_filename = new_filename;
@@ -103,12 +109,14 @@ obj.full_filename = new_filename;
 if isempty(old_ldr)
     old_ldr = obj;
 end
-%
+obj = obj.fclose();
 obj.file_id_ = fopen(obj.full_filename,perm);
 
 if obj.file_id_ <=0
     error('HORACE:horace_binfile_interface:io_error',...
         'Can not open file %s to write data',obj.full_filename)
 end
-%obj.file_closer_ = onCleanup(@()fclose(obj));
+if isempty(obj.file_closer_)
+    obj.file_closer_ = onCleanup(@()fclose(obj));
+end
 %-------------------------------------------------------------------------

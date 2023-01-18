@@ -2,6 +2,18 @@ function [header,fid] = get_file_header(file,varargin)
 % Open existing file for rw access and get sqw file header,
 % allowing loaders to identify the type of the file format
 % stored within the file.
+% Inputs:
+% file       -- the name of the file to read header from
+% Optional:
+% max_buffer_size 
+%            -- the number which defines the maximal 
+%                    size  (in bytes) of the file header.
+% '-update'  -- if provided, request the file to be opened in read-write 
+%               mode allowing subsequent write operations
+%               
+% Retutns 
+% header     -- the structure, describing Horace sqw file header
+% fid        -- opened for read or read/write operations file header
 %
 % The header is the structure with the fields:
 % 'version'  -- version of the application
@@ -16,7 +28,8 @@ function [header,fid] = get_file_header(file,varargin)
 %
 % 'sqw_type'  -- if sqw file is sqw or dnd file
 % 'num_dim'   -- number of dimensions in sqw or dnd file
-%
+% 
+
 
 isnum = cellfun(@(x)isnumeric(x),varargin);
 if any(isnum)

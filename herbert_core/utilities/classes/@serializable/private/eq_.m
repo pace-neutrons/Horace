@@ -10,8 +10,10 @@ else % default tol for comparing serializable objects 1e-9
 end
 
 if numel(obj) ~= numel(other_obj)
+
     is = false;
     if nargout>1
+        [name1,name2] = check_and_extract_name(inputname(1),inputname(2),argi{:});            
         mess = sprintf('number of elements in %s (%d) is not equal to number of elements in %s (%d)',...
             name1,numel(obj),name2,numel(other_obj));
     end
@@ -20,6 +22,7 @@ end
 if any(size(obj) ~= size(other_obj))
     is = false;
     if nargout>1
+        [name1,name2] = check_and_extract_name(inputname(1),inputname(2),argi{:});                    
         mess = sprintf('Shape of %s is not equal to shape of %s', ...
             name1,name2);
     end
