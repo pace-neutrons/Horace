@@ -227,7 +227,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function prp = get_prop(obj, fld)
         %% TODO: Check can go once finalise complete as tmpfile becomes realfile immediately
             if ~obj.has_tmp_file
-                obj=obj.load_page(obj.page_number_);
+                obj = obj.load_page(obj.page_number_);
                 prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
                 if ~isempty(obj.f_accessor_)
                     obj.data_ = [];
