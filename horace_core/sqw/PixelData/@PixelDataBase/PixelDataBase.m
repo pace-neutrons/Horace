@@ -325,6 +325,10 @@ classdef (Abstract) PixelDataBase < serializable
             end
         end
 
+        function npix = bytes2pix(bytes)
+            npix = bytes / sqw_binfile_common.FILE_PIX_SIZE;
+        end
+
     end
 
     methods(Abstract)

@@ -38,12 +38,8 @@ if obj.has_tmp_file || obj.page_edited
     % At least some pixels sit in temporary files
 
     % Allocate output array
-    pix_out = PixelDataBase.create(numel(abs_pix_indices));
-
-    pixels = obj.tmp_io_handler_.load_pixels_at_indices( ...
-        abs_pix_indices);
-
-    pix_out.data = pixels;
+    data_map = obj.get_memmap_handle();
+    pix_out = PixelDataBase.create(double(data_map.data.data(:, abs_pix_indices)));
 
 else
     pix_out = PixelDataBase.create(read_clean_pix(obj, abs_pix_indices));

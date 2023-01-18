@@ -21,32 +21,18 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             pix = pix.do_unary_op(@cos);
             % Loop back through and validate values
-            pix.move_to_first_page();
-            iter = 0;
-            while true
-                start_idx = (iter*npix_in_page) + 1;
-                end_idx = min(start_idx + npix_in_page - 1, pix.num_pixels);
 
-                original_signal = data(obj.SIGNAL_IDX, start_idx:end_idx);
-                original_variance = data(obj.VARIANCE_IDX, start_idx:end_idx);
+            file_backed_data = pix.get_all_prop('all');
+            expected_data = data;
+            expected_data(obj.SIGNAL_IDX, :) = ...
+                cos(expected_data(obj.SIGNAL_IDX, :));
 
-                expected_data = data;
-                % Use the formulas used in sqw.cos to get the expected sig/var data
-                expected_data(obj.SIGNAL_IDX, start_idx:end_idx) = ...
-                    cos(original_signal);
-                expected_data(obj.VARIANCE_IDX, start_idx:end_idx) = ...
-                    abs(1 - pix.signal.^2).*original_variance;
+            expected_data(obj.VARIANCE_IDX, :) = ...
+                abs(1 - expected_data(obj.SIGNAL_IDX, :).^2) .* ...
+                expected_data(obj.VARIANCE_IDX, :);
 
-                assertEqual(pix.data, expected_data(:, start_idx:end_idx), '', ...
-                    obj.FLOAT_TOLERANCE);
+            assertEqual(file_backed_data, expected_data, '', obj.FLOAT_TOLERANCE);
 
-                if pix.has_more()
-                    pix.advance();
-                    iter = iter + 1;
-                else
-                    break;
-                end
-            end
         end
 
         function test_do_unary_op_with_nargout_1_doesnt_affect_called_instance(~)
@@ -111,7 +97,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
                 assertElementsAlmostEqual( ...
                     file_backed_data, in_memory_data, ...
-                    'relative',1e-5,... % Due to single precision errors
+                    'relative',1e-4,... % Due to single precision errors
                     sprintf(['In-memory and file-backed data do not match after ' ...
                     'operation: ''%s''.'], char(unary_op)) );
             end
@@ -185,7 +171,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             expected_data = data(:, logical(full_mask_array));
             ref_range = obj.get_ref_range(expected_data);
 
-            actual_data = pix.get_pixels(1:pix.num_pixels).data;
+            actual_data = pix.get_all_prop('all');
             assertElementsAlmostEqual(actual_data, expected_data,'relative',4e-8);
             assertElementsAlmostEqual(pix.pix_range, ref_range,'relative',4e-8);
         end

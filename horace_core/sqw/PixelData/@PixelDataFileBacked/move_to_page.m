@@ -12,14 +12,8 @@ function [page_number,total_num_pages] = move_to_page(obj, page_number, varargin
 %
 [page_number, total_num_pages, nosave] = parse_args(obj, page_number, varargin{:});
 
-if obj.page_number_ ~= page_number || obj.page_edited
-    if ~nosave && obj.page_edited
-        if ~obj.has_tmp_file
-            obj = obj.dump_all_pixels_();
-        end
-        obj = obj.write_dirty_page_();
-    end
-    obj = obj.load_page_(page_number);
+if obj.page_number_ ~= page_number
+    obj = obj.load_page(page_number);
 end
 
 end
@@ -30,7 +24,7 @@ function [page_number,total_num_pages, nosave] = parse_args(obj, varargin)
 persistent parser
 if isempty(parser)
     parser = inputParser();
-    parser.addRequired('page_number', @is_scalar_positive_int);
+    parser.addRequired('page_number', @(x) (validateattributes(x, {'numeric'}, {'scalar', 'positive', 'integer'})));
     parser.addParameter('nosave', false, @islognumscalar);
 end
 parser.parse(varargin{:});
@@ -44,9 +38,5 @@ if page_number > total_num_pages
         'Cannot advance to page %i only %i pages of data found.', ...
         page_number, total_num_pages);
 end
-end
 
-
-function is = is_scalar_positive_int(number)
-is = isscalar(number) && (number == floor(number)) && number >= 1;
 end

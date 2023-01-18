@@ -22,25 +22,16 @@ if isempty(pix)
     return;
 end
 
-if ~obj.has_tmp_file
-    pix_out.dump_all_pixels_();
-end
+fid = pix_out.dump_all_pixels_();
+fid = pix.dump_all_pixels_(fid);
 
-pix.move_to_page(1);
-pix_out.tmp_io_handler_ = pix_out.tmp_io_handler_.append_pixels(pix.data());
-
-
-while pix.has_more()
-    pix.advance();
-    pix_out.tmp_io_handler_ = pix_out.tmp_io_handler_.append_pixels(pix.data());
-end
+pix_out.num_pixels_ = pix_out.num_pixels + pix.num_pixels;
+pix_out.finalise(fid);
 
 new_range = [min(pix.pix_range(1,:),pix_out.pix_range(1,:));...
              max(pix.pix_range(2,:),pix_out.pix_range(2,:))];
 
-pix_out.num_pixels_ = pix_out.num_pixels_ + pix.num_pixels;
 pix_out.set_range(new_range);
 pix_out.reset_changed_coord_range('coordinates');
-pix_out.page_edited = true;
 
 end
