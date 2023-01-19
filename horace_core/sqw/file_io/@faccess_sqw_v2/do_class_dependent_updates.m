@@ -24,10 +24,10 @@ if isempty(new_obj.sqw_holder_) % all file positions except instrument and sampl
         end
         % Load the .sqw file using the sqw constructor so that we can pass the
         % pixel_page_size argument to get an sqw with file-backed pixels.
-        new_obj.sqw_holder_.pix = PixelData(obj,pix_page_size);
+        new_obj.sqw_holder_.pix = PixelDataBase.create(obj,pix_page_size);
     else
         % load everything in memory
-        new_obj.sqw_holder_.pix = PixelData(obj);
+        new_obj.sqw_holder_.pix = PixelDataBase.create(obj);
     end
     clear_sqw_holder = true; %
 

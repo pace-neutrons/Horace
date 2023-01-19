@@ -6,20 +6,20 @@ classdef field_var_array < sqw_field_format_interface
     %
     %
     %
-    
+
     properties(Access=private)
         n_dims_
         precision_ = 'single'
         n_prec_ = 4;
         %
     end
-    
+
     properties(Dependent)
         n_dims
         precision
         elem_byte_size % size of the array element in bytes
     end
-    
+
     methods
         function obj=field_var_array(varargin)
             % usage:
@@ -93,7 +93,7 @@ classdef field_var_array < sqw_field_format_interface
             end
             sz = numel(a_size)*4+nel*obj.n_prec_;
         end
-        
+
         %
         function [val,length] = field_from_bytes(obj,bytes,pos)
             % convert sequence of bytes into the array
@@ -122,27 +122,25 @@ classdef field_var_array < sqw_field_format_interface
         function  [sz,obj,err] = size_from_file(obj,fid,pos)
             err = false;
             size_length = obj.n_dims;
-            
-            fseek(fid,pos,'bof');
-            [~,res] = ferror(fid);
-            if res ~=0
+
+            try
+                do_fseek(fid,pos,'bof');
+            catch
                 err = true;
                 return;
             end
-            
+
             dims = fread(fid,obj.n_dims,'uint32');
             [~,res] = ferror(fid);
             if res ~=0
                 err = true;
                 return;
             end
-            
+
             nelem = prod(dims);
             sz = double(nelem*obj.n_prec_ +size_length*4);
         end
-        
+
     end
-    
+
 end
-
-

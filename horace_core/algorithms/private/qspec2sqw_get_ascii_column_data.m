@@ -85,7 +85,7 @@ if ~(numel(temp2)==ncol)
 end
 
 % Read data
-fstatus=fseek(fid,istart,'bof'); % step back one line
+fstatus=do_fseek(fid,istart,'bof'); % step back one line
 if (fstatus~=0)
     fclose(fid);
     error ('HORACE:write_qspec_to_sqw:invalid_argument', ...

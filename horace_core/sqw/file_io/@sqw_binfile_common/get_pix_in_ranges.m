@@ -44,7 +44,7 @@ else
 end
 
 %NUM_BYTES_IN_FLOAT = 4;
-%PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
+%PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;  % bytes
 
 % This decreases no. of calls needed to read data - big speed increase.
 % Should be done elsewhere
@@ -64,7 +64,7 @@ end
 %     do_fseek(obj.file_id_, seek_pos, 'bof');
 %     num_pix_to_read = pix_ends(i) - pix_starts(i) + 1;
 %
-%     read_size = [PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix_to_read];
+%     read_size = [PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix_to_read];
 %     %blocks{i} = fread_catch(obj.file_id_, read_size, '*float32');
 %     blocks{i} = fread(obj.file_id_,read_size, '*float32');
 %
@@ -79,7 +79,7 @@ end
 %     do_fseek(obj.file_id_, seek_size, 'cof');
 %end
 blocks = arrayfun(@(pix_start,bl_size)(read_block(obj, ...
-    PixelData.DEFAULT_NUM_PIX_FIELDS,pix_start,bl_size,format)),...
+    PixelDataBase.DEFAULT_NUM_PIX_FIELDS,pix_start,bl_size,format)),...
     pix_starts,pix_bl_sizes,'UniformOutput',false);
 pix = [blocks{:}];
 

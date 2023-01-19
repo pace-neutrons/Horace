@@ -15,7 +15,7 @@ if ~obj.is_activated('read')
 end
 
 NUM_BYTES_IN_FLOAT = 4;
-PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
+PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;  % bytes
 
 [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices(:)');
 
@@ -27,7 +27,7 @@ do_fseek(obj.file_id_, obj.pix_pos_, 'bof');
 blocks = cell(1, numel(read_sizes));
 for block_num = 1:numel(read_sizes)
     do_fseek(obj.file_id_, seek_sizes(block_num)*PIXEL_SIZE, 'cof');
-    read_size = [PixelData.DEFAULT_NUM_PIX_FIELDS, read_sizes(block_num)];
+    read_size = [PixelDataBase.DEFAULT_NUM_PIX_FIELDS, read_sizes(block_num)];
     blocks{block_num} = do_fread(obj.file_id_, read_size, 'float32');
 end
 pix = [blocks{:}];

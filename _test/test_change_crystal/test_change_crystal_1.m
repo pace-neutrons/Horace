@@ -46,6 +46,7 @@ rotvec=[10,10,0]*(pi/180);  % orientation of the true lattice w.r.t reference la
 
 % Create sqw file for refinement testing
 % --------------------------------------
+%if is_file(sim_sqw_file)
 pix_range = calc_sqw_pix_range (efix, emode, en(1), en(end), par_file, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
 sqw_file=cell(size(psi));

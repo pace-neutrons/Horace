@@ -48,7 +48,7 @@ classdef test_sqw_copy < TestCase
             sqw_copy = copy(sqw_obj, 'exclude_pix', true);
             
             % PixelData is not copied
-            assertEqual(sqw_copy.pix, PixelData());
+            assertEqual(sqw_copy.pix, PixelDataBase.create());
             
             % confirm selected other data is copied
             assertEqual(sqw_copy.main_header.title, sqw_obj.main_header.title);

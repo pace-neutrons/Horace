@@ -41,7 +41,7 @@ datafile='test_tobyfit_let_resfun_1_data.mat';      % filename where saved resul
 savefile='test_tobyfit_let_resfun_1_out.mat';       % filename where saved results are written
 
 pths = horace_paths;
-test_tobyfit_dir = fullfile(pths.test, 'test_tobyfit');
+test_tobyfit_dir = fullfile(pths.test, 'test_TF_let');
 addpath(test_tobyfit_dir)
 cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
@@ -58,6 +58,7 @@ sample = IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.012,0.012,0.04]);
 sample.alatt = [3.3000 3.3000 3.3000];
 sample.angdeg = [90 90 90];
 w_nb_qe = sqw(S.w_nb_qe);
+
 w_nb_qe=set_sample(w_nb_qe,sample);
 w_nb_qe=set_instrument(w_nb_qe,instru);
 

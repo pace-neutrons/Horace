@@ -46,10 +46,10 @@ methods
             data_range = unary_ops{i+1};
 
             data = get_random_data_in_range( ...
-                PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
+                PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
 
             sqw_obj = sqw();
-            sqw_obj.pix = PixelData(data);
+            sqw_obj.pix = PixelDataBase.create(data);
             sqw_obj.data.npix = num_pix;
             sqw_obj.data.s = -99;
             sqw_obj.data.e = 99;
@@ -71,7 +71,7 @@ methods
         sqw_obj = sqw();
         ax = axes_block('img_range',[-1,-1,-1,-1;1,1,1,1],'nbins_all_dims',[2,1,1,1]);
         sqw_obj.data = d1d(ax,ortho_proj());
-        sqw_obj.pix = PixelData();
+        sqw_obj.pix = PixelDataBase.create();
         sqw_obj.data.s = [2, 21951]; % simple dataset for ease of testing
         sqw_obj.data.e = [1.5, 4123];
         sqw_obj.data.npix = [1,1];
@@ -91,10 +91,10 @@ methods
     function test_unary_op_updates_image_signal_and_error(~)
         num_pix = 23; % create small, single bin dataset for test
         data = get_random_data_in_range( ...
-            PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
+            PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
-        sqw_obj.pix = PixelData(data);
+        sqw_obj.pix = PixelDataBase.create(data);
         sqw_obj.data.npix = num_pix;
         sqw_obj.data.s = -99; % fake data that will be overwritten
         sqw_obj.data.e = 99;
@@ -115,10 +115,10 @@ methods
     function test_unary_op_updates_pixel_signal_and_variance(obj)
         num_pix = 23; % create small, single bin dataset for test
         data = get_random_data_in_range( ...
-            PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
+            PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, [1, 3]);
 
         sqw_obj = sqw();
-        sqw_obj.pix = PixelData(data);
+        sqw_obj.pix = PixelDataBase.create(data);
         sqw_obj.data.npix = num_pix;
         sqw_obj.data.s = -99; % fake data that will be overwritten
         sqw_obj.data.e =  99;

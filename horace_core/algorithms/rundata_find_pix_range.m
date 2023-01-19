@@ -28,7 +28,7 @@ hc.log_level = -1;
 %
 nfiles = numel(run_files);
 % Get the maximum limits along the projection axes across all spe files
-pix_range=PixelData.EMPTY_RANGE_;
+pix_range=PixelDataBase.EMPTY_RANGE_;
 
 for i=1:nfiles
     pix_range1=...

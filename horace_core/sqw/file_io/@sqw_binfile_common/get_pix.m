@@ -15,13 +15,13 @@ function pix  = get_pix(obj,varargin)
 
 [obj,nothing_to_do,npix_lo,npix_hi] = parse_get_pix_arguments_(obj,varargin{:});
 if nothing_to_do
-    pix = PixelData();
+    pix = PixelDataBase.create();
     return
 end
 pix  = get_pix_(obj,npix_lo,npix_hi);
 if isempty(pix)
-    pix = PixelData();
+    pix = PixelDataBase.create();
 else
-    pix = PixelData(pix);
+    pix = PixelDataBase.create(pix);
     pix.file_path = fullfile(obj.filepath, obj.filename);
 end

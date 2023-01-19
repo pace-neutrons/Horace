@@ -25,39 +25,41 @@ function varargout = read_horace(files,varargin)
 %
 %
 
-%
-
 % Perform operations
 % ------------------
 % Check number of arguments
 n_outputs = nargout;
-if n_outputs>nargin
+if n_outputs > nargin
     error('HORACE:read_horace:invalid_argument',...
-        'number of output objects requested is bigger then the number of input files provided')
-end
-%
-[ok,mess,get_dnd,force_sqw,argi] = parse_char_options(varargin,{'-get_dnd','-force_sqw'});
-if ~ok
-    error('HORACE:read_horace:invalid_argument',...
-        mess);
-end
-%
-if get_dnd && force_sqw
-    error('HORACE:read_horace:invalid_argument',...
-        'only one option i.e. -get_dnd or -force_sqw can be provided simultaniously');
+          'number of output objects requested is bigger then the number of input files provided')
 end
 
-%
+[ok,mess,get_dnd,force_sqw,file_backed,argi] = parse_char_options(varargin,{'-get_dnd','-force_sqw','-file_backed'});
+if ~ok
+    error('HORACE:read_horace:invalid_argument',...
+          mess);
+end
+
+if get_dnd && force_sqw
+    error('HORACE:read_horace:invalid_argument',...
+          'only one option allowed i.e. -get_dnd and -force_sqw cannot be provided simultaneously');
+end
+
+if file_backed && ~get_dnd
+    argi = [argi, 'file_backed', file_backed];
+end
+
 loaders = get_loaders(files);
-%
+
 n_inputs = numel(loaders);
 if force_sqw
-    for i=1:n_inputs
-        if ~loaders{i}.sqw_type
-            error('HORACE:read_horace:invalid_argument',...
-                'File %s contains dnd information but only sqw file requested',...
-                fullfile(loaders{i}.filepath,loaders{i}.filename));
-        end
+    is_not_sqw = ~cellfun(@(x) x.sqw_type, loaders);
+    if any(is_not_sqw)
+        bad_files = cellfun(@(x) fullfile(x.filepath,x.filename), ...
+                            loaders(is_not_sqw), 'UniformOutput', false);
+        error('HORACE:read_horace:invalid_argument',...
+              'Files %s only contain dnd information but sqw file required.',...
+              strjoin(bad_files, ', '));
     end
 end
 
@@ -65,18 +67,13 @@ if n_outputs == 0 % do nothing but the check if all files present and
     return;       % are all sqw has been done
 end
 
-n_files2read = n_inputs;
-if n_outputs > 1 && n_outputs<n_inputs
-    n_files2read  = n_outputs;
-end
-trez = cell(1,n_files2read);
 % Now read data
-for i=1:n_files2read
-    if get_dnd
-        trez{i} = loaders{i}.get_dnd(argi{:});
-    else
-        trez{i} = loaders{i}.get_sqw(argi{:});
-    end
+if get_dnd
+    trez = cellfun(@(x) x.get_dnd(argi{:}), loaders, 'UniformOutput', false);
+else
+    trez = cellfun(@(x) x.get_sqw(argi{:}), loaders, 'UniformOutput', false);
 end
 
 varargout = pack_io_outputs(trez,n_inputs,n_outputs);
+
+end

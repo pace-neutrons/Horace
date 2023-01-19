@@ -90,7 +90,7 @@ if use_mex
         end
         raw_pix = cellfun(@(pix_data) pix_data.data, pix_retained, ...
             'UniformOutput', false);
-        pix = PixelData();
+        pix = PixelDataBase.create();
         if use_given_pix_range
             raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
@@ -128,11 +128,11 @@ if ~use_mex
     if numel(pix_retained) == 1
         pix = pix_retained{1};
     else
-        pix = PixelData.cat(pix_retained{:});
+        pix = PixelDataBase.cat(pix_retained{:});
     end
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
-        pix = PixelData();
+        pix = PixelDataBase.create();
         return;
     end
 
@@ -140,7 +140,7 @@ if ~use_mex
     clear ind;
     if force_double
         if ~isa(pix.data,'double')
-            pix = PixelData(double(pix.data));
+            pix = PixelDataBase.create(double(pix.data));
         end
     end
 end

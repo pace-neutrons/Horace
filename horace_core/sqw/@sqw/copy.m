@@ -19,7 +19,7 @@ for i = 1:numel(obj)
     if ~exclude_pix
         new_sqw(i).pix = copy(obj(i).pix);
     else
-        new_sqw(i).pix = PixelData();
+        new_sqw(i).pix = PixelDataBase.create();
     end
 end
 end
