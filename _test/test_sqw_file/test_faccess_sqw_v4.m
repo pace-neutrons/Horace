@@ -33,14 +33,52 @@ classdef test_faccess_sqw_v4< TestCase
         % tests
         %
         %
+        function test_upgrdate_v2_to_v4_filebacked(obj)
+            tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
+            clOb = onCleanup(@()delete(tf));
+            copyfile(obj.old_origin,tf,'f');
+            ldr = sqw_formats_factory.instance().get_loader(tf);
+            w_old = ldr.get_sqw('-ver');
+            %------------
+            hc = hor_config;
+            rec = hc.get_data_to_store();
+            clObConfig = onCleanup(@()set(hc,rec));
+            hc.saveable = false;
+            % 4324 pixels, let's ensure pixels in file are treated as filebacked
+            hc.mem_chunk_size = 500;
+            assertTrue(PixelDataBase.do_filebacked(4324));
+
+            fac = ldr.upgrade_file_format(tf);
+            ldr.delete()
+
+            assertEqual(fac.faccess_version,4.0)
+            w_new = fac.get_sqw('ver');
+
+            assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date')
+            fac.delete();
+
+            fac1 = sqw_formats_factory.instance().get_loader(tf);
+            assertEqual(fac1.faccess_version,4.0)
+        end
+
         function test_upgrdate_v2_to_v4_membased(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_mem.sqw');
             clOb = onCleanup(@()delete(tf));
             copyfile(obj.old_origin,tf,'f');
+            ldr = sqw_formats_factory.instance().get_loader(tf);
+            w_old = ldr.get_sqw('-ver');
 
-            fac = faccess_sqw_v4();
-            fac = fac.set_file_to_update(tf);
+            fac = ldr.upgrade_file_format(tf);
+            ldr.delete()
 
+            assertEqual(fac.faccess_version,4.0)
+            w_new = fac.get_sqw('ver');
+
+            assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date')
+            fac.delete();
+
+            fac1 = sqw_formats_factory.instance().get_loader(tf);
+            assertEqual(fac1.faccess_version,4.0)
         end
         function test_init_and_get(obj)
             to = faccess_sqw_v4();

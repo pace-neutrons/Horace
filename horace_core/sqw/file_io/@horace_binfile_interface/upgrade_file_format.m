@@ -17,8 +17,11 @@ acc = new_obj.io_mode;
 if ~ismember(acc,{'wb+','rb+'})
     new_obj = new_obj.fclose();  % in case the file is still open, and if it does not, makes no harm
 end
-new_obj = new_obj.set_file_to_update();
+[new_obj,file_exist,old_ldr] = new_obj.set_file_to_update();
+if ~file_exist
+    return
+end
 
-new_obj = obj.do_class_dependent_updates(new_obj,varargin{:});
+new_obj = old_ldr.do_class_dependent_updates(new_obj,varargin{:});
 %
 new_obj = new_obj.put_app_header();

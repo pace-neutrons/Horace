@@ -364,7 +364,7 @@ classdef horace_binfile_interface < serializable
         obj_type = get_format_for_object(obj);
         % main part of upgrade file format, which conputes and transforms missing
         % properties from old file format to the new file format
-        new_obj = do_class_dependent_updates(new_obj,old_obj);
+        new_obj = do_class_dependent_updates(new_obj,old_obj,varargin);
 
         % main part of the accessor to the npix array postion on hdd        
         pos = get_npix_position(obj);        

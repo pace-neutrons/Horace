@@ -151,6 +151,11 @@ classdef data_block < serializable
     end
     %======================================================================
     methods(Access=protected)
+        function size = get_size(obj)
+            % Main part of data_block size getter
+            size  =   obj.size_;
+        end
+
         function obj = put_bindata_in_file(obj,fid,bindata)
             % store array of bytes into selected and opened binary file
             % Inputs:
@@ -238,8 +243,8 @@ classdef data_block < serializable
             obj.position_ = uint64(val);
         end
         %
-        function pos = get.size(obj)
-            pos = obj.size_;
+        function size = get.size(obj)
+            size = get_size(obj);
         end
         function obj = set.size(obj,val)
             if ~(isscalar(val)&&isnumeric(val)&&val>=0)

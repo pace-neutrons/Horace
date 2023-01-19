@@ -266,6 +266,9 @@ classdef binfile_v4_common < horace_binfile_interface
         % init file accessors from sqw file on hdd
         obj=init_from_sqw_file(obj,varargin);
 
+        % get access for creation date of dnd object stored on hdd or
+        % attached to file loader
+        cd = get_creation_date(obj)        
         % the main part of the copy constructor, copying the contents
         % of the one class into another including opening the
         % corresponding file with the same access rights
@@ -275,13 +278,6 @@ classdef binfile_v4_common < horace_binfile_interface
             % main part of the format_for_object getter, specifying for
             % what class saving the file format is intended
             obj_type = 'dnd';
-        end
-        function obj = do_class_dependent_updates(obj,~)
-            % this function takes this file accessor and modify it with
-            % data necessary to access file with new file accessor
-            %
-            % Currently this form does nothing as v4 is recent binary
-            % file format
         end
         %------------------------------------------------------------------
         function [dnd_block,obj] = get_block_data(obj,block_name_or_instance,varargin)
@@ -313,12 +309,7 @@ classdef binfile_v4_common < horace_binfile_interface
             bl = obj.bat_.get_data_block('bl_data_nd_data');
             pos = bl.npix_position;
         end
-        function cd = get_creation_date(obj)
-            % main accessor for creation date for dnd object
-            meta = obj.get_dnd_metadata();
-            cd = meta.creation_date_str;
-        end
-    end
+     end
     methods(Abstract,Access=protected)
         % return the list of (non-iniialized) data blocks, defined for
         % given file format

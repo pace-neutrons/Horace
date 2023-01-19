@@ -89,7 +89,6 @@ classdef faccess_dnd_v4 < binfile_v4_common
                 sqw_obj = obj.get_dnd(varargin{:});
             end
         end
-        
         % ----------------------------------------------------------------
         function [obj,file_exist,old_ldr] = set_file_to_update(obj,filename)
             % open existing file for update its format and/or data blocks
@@ -104,12 +103,6 @@ classdef faccess_dnd_v4 < binfile_v4_common
                 error('HORACE:faccess_dnd_v4:invalid_argument', ...
                     'Can not update file %s containing full sqw object using dnd accessor', ...
                     filename)
-            end
-            if file_exist && old_ldr.faccess_version ~= obj.faccess_version
-                dnd_obj = old_ldr.get_dnd();
-                obj.sqw_holder = dnd_obj;
-                obj = obj.put_dnd();
-                old_ldr.delete();
             end
         end
     end
@@ -150,6 +143,10 @@ classdef faccess_dnd_v4 < binfile_v4_common
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function obj = do_class_dependent_updates(obj,old_ldr,varargin)
+            % function does nothing as this is recent file format
+        end
+
         function  dt = get_data_type(~)
             % overloadable accessor for the class datatype function
             dt  = 'b+';

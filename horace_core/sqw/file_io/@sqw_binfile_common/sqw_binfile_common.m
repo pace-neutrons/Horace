@@ -295,6 +295,35 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
     end
     %======================================================================
     methods(Access = protected)
+        function new_ldr = do_class_dependent_updates(old_ldr,new_ldr,varargin)
+            % this function takes old file accessor and modifies it with
+            % data necessary to access file with the new file accessor
+            %
+            if old_ldr.faccess_version ~= new_ldr.faccess_version
+                if PixelDataBase.do_filebacked(old_ldr.npixels)
+                    % get empty data block and assign existing pix position
+                    % to it
+                    pix_data_block = new_ldr.bat_.get_data_block('bl_pix_data_wrap');
+                    pix_data_block.pix_position = old_ldr.pix_position;
+                    % this defines the block size
+                    pix_data_block.npixels      = old_ldr.npixels;
+                    % allocate space in new data block
+                    new_ldr.bat_ = new_ldr.bat_.bat_set_data_block(pix_data_block);
+                    % this will build filebacked pixels block
+                    sqw_obj = old_ldr.get_sqw();
+                    % as pix data block position already allocated, 
+                    new_ldr.sqw_holder = sqw_obj;
+                    new_ldr = new_ldr.put_sqw();
+                    old_ldr.delete();
+                else
+                    sqw_obj = old_ldr.get_sqw('-verbatim');
+                    new_ldr.sqw_holder = sqw_obj;
+                    new_ldr = new_ldr.put_sqw();
+                    old_ldr.delete();
+                end
+            end
+        end
+
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of sqw file using sqw object as input
             %

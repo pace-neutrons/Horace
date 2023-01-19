@@ -58,7 +58,7 @@ switch typeID
         [v,pos] = obj_deserialize_itself(m,pos);
     otherwise
         error('HORACE:hlp_deserialise:invalid_argument', ...
-            'Cannot deserialise tag %s.', hlp_serial_types.type_details(type+1).name);
+            'Cannot deserialise tag with ID: %d at position %d.',typeID,pos);
 end
 end
 

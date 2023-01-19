@@ -127,13 +127,6 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
                     'Can not update file %s containing dnd object using sqw accessor', ...
                     filename)
             end
-            if file_exist && old_ldr.faccess_version ~= obj.faccess_version
-                % #893 REWRITE THIS
-                sqw_obj = old_ldr.get_sqw('-nopix');
-                obj.sqw_holder = sqw_obj;
-                obj = obj.put_sqw('-nopix');
-                old_ldr.delete();
-            end
         end
         %==================================================================
         % retrieve the whole or partial sqw object from properly initialized sqw file
@@ -149,7 +142,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         pix         = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation,keep_precision);
         %------------------------------------------------------------------
         [pix_range,obj]   = get_pix_range(obj,varargin)
-        [dat_range,obj]   = get_data_range(obj,varargin)        
+        [dat_range,obj]   = get_data_range(obj,varargin)
         [samp,obj]  = get_sample(obj,varargin)
         [inst,obj]  = get_instrument(obj,varargin)
         %==================================================================
@@ -184,6 +177,10 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function obj = do_class_dependent_updates(obj,old_ldr,varargin)
+            % function does nothing as this is recent file format
+        end
+
         function  dt = get_data_type(~)
             % overloadable accessor for the class datatype function
             dt  = 'a';
@@ -210,8 +207,12 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % main accessor for creation date for sqw object
             % The creation data is defined in main header
             %
-            mh = obj.get_main_header();
-            cd = mh.creation_date;
+            if obj.bat_.initialized
+                mh = obj.get_main_header();
+                cd = mh.creation_date;
+            else
+                cd = get_creation_date@binfile_v4_common(obj);
+            end
         end
         function  pos = get_pix_position(obj)
             pix_block = obj.bat_.blocks_list{end};

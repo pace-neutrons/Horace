@@ -1,21 +1,29 @@
 classdef pix_data_block < data_block
     % PIX_DATA_BLOCK describes the binary data, corresponding to pixelData
     % arrays (extracted by  pix_data class v0) and used for storing/restoring
-    % object on HDD in a binary form if it is possible or ogranizing
+    % pixel information on HDD in a binary form if it is possible or ogranizing
     % file-based access to the data on HDD.
     %
     % The special form of data_block binary data format is caused by need
     % to access pix_data_block from third party (non-Matlab) applications
+    % and the constrains of efficient binary access to this array.
     %
     properties(Dependent)
         % properties defile the location of the appropriate arrays in
         % binary file. The positions are defined in bytes and counted from
         % the beginning of the file.
-        npix_position;  % position of the uint64 variable describing the 
+        num_pix_position;  % position of the uint64 variable describing the
         %               % number of pixels contributed into sqw file
-        pix_position;   % position of the 
+        pix_position;   % position of the
+        % The parameters, which define the size of the pixel data block
+        npixels; % number of pixels, stored in the file
+        n_rows;  % number of pixel data rows. Either default (9) or something set from
+        %        % the subobject, used as input
+        bytes_pp % bytes per point -- how much every pixel value occupies on hdd
     end
     properties(Access=protected)
+        n_rows_   = 9;
+        bytes_pp_ = 4;
     end
     methods
         function obj = pix_data_block(varargin)
@@ -25,11 +33,45 @@ classdef pix_data_block < data_block
             obj.level2_prop_name = 'data_wrap';
         end
         %
-        function pos = get.npix_position(obj)
+        function pos = get.num_pix_position(obj)
             pos = obj.position_+4;
         end
         function pos = get.pix_position(obj)
             pos = obj.position_+12;
+        end
+        %
+        function nr = get.n_rows(obj)
+            nr  = obj.n_rows_;
+        end
+        function obj = set.n_rows(obj,nr)
+            if ~(isscalar(nr) && isnumeric(nr) && nr > 1)
+                error('HORACE:pix_data_block:invalid_argument', ...
+                    'Number of pix rows should define the size of the single pixel, so it should be numeric and at bigger then 1. In fact it is: %s', ...
+                    disp2str(nr))
+            end
+            obj.n_rows_ = nr;
+        end
+        %
+        function bpp = get.bytes_pp(obj)
+            bpp  = obj.bytes_pp_;
+        end
+        function obj = set.bytes_pp(obj,bpp)
+            if ~(isscalar(bpp) && isnumeric(bpp) && bpp >= 4)
+                error('HORACE:pix_data_block:invalid_argument', ...
+                    'Number of pix rows should define the size of the single pixel, so it should be numeric and at bigger then 3. In fact it is: %s', ...
+                    disp2str(bpp))
+            end
+            obj.n_rows_ = bpp;
+        end        
+        %
+        function obj = set.pix_position(obj,val)
+            % set block position from known pix position
+            if ~(isscalar(val) && isnumeric(val) && val>12)
+                error('HORACE:pix_data_block:invalid_argument', ...
+                    'pix position defines the location of pixel data block within a sqw file on hdd, so it should be positive number exceeding 12. In fact it is: %s', ...
+                    disp2str(val))
+            end
+            obj.position_ = val - 12;
         end
         %
         function [obj,sqw_obj_to_set] = get_sqw_block(obj,fid,sqw_obj_to_set)
@@ -51,18 +93,21 @@ classdef pix_data_block < data_block
                 nocache = false;
             end
             subobj = obj.get_subobj(sqw_obj);
-            npix = subobj.npix;
-            n_rows = subobj.n_rows;
-
-            % 4 bytes for n_rows (9), 8 bytes for npixels + (nrows*n_cols)*4 
-            % (4 - for single precision)
-            obj.size_ = 4+8+npix*n_rows*4;
+            obj.npixels = subobj.npix;
+            obj.n_rows  = subobj.n_rows;
             if ~nocache
                 obj.serialized_obj_cache_ = subobj;
             end
         end
     end
     methods(Access=protected)
+        function size = get_size(obj)
+            % Overloaded the Main part of data_block size getter
+
+            % 4 bytes for n_rows (9), 8 bytes for npixels + (nrows*n_cols)*4
+            % (4 - for single precision)
+            size  = 4+8+obj.npixels*obj.n_rows*obj.bytes_pp;
+        end
         %-----------------------------------------------------------------
         function obj = put_bindata_in_file(obj,fid,obj_data)
             % Overloaded: -- store data contained in dnd_data_block class
@@ -101,7 +146,7 @@ classdef pix_data_block < data_block
             ver = 1;
         end
         function flds = saveableFields(~)
-            flds = {'position','size'};
+            flds = {'position','npixels','n_rows','bytes_pp'};
         end
         %------------------------------------------------------------------
     end

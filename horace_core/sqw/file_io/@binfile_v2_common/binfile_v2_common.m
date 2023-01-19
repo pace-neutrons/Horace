@@ -219,18 +219,23 @@ classdef binfile_v2_common < horace_binfile_interface
         function is_sqw = get_sqw_type(~)
             is_sqw = false;
         end
-        function   obj_type = get_format_for_object(~)
+        function obj_type = get_format_for_object(~)
             % main part of the format_for_object getter, specifying for
             % what class saving the file format is intended
             obj_type = 'dnd';
         end
-        function new_obj = do_class_dependent_updates(~,new_obj,varargin)
-            % method does nothing for modern file format as all changes have been done
-            % elsewhere.
+        function new_ldr = do_class_dependent_updates(old_ldr,new_ldr,varargin)
+            % Update any binary file version < 4.0 to recent file version
+            % (version 4) using direct loading data into memory
             %
-            % Also it is used for supporting modern file format for recent
-            % format v3 files and these files do not change
-            %
+            % Common implementation is for dnd version. SQW version
+            % overloads this
+            if old_ldr.faccess_version ~= new_ldr.faccess_version
+                dnd_obj = old_ldr.get_dnd();
+                new_ldr.sqw_holder = dnd_obj;
+                new_ldr = new_ldr.put_dnd();
+                old_ldr.delete();
+            end            
         end
         %
         function pos = get_npix_position(obj)
@@ -262,7 +267,6 @@ classdef binfile_v2_common < horace_binfile_interface
         function ff=get.data_type(obj)
             ff = obj.data_type_;
         end
-
 
         function conv = get.convert_to_double(obj)
             % if true, convert all numerical values read from an sqw file

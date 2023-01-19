@@ -65,8 +65,8 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             % retrieve sqw-file version the particular loader works with
             ver = 2;
         end
-        % update file format to a recent file form
-        new_obj = do_class_dependent_updates(obj,new_obj);
+        % update file format to v3 file format
+        % new_obj = do_class_dependent_updates(obj,new_obj,varargin);
     end
 
     methods
