@@ -53,10 +53,10 @@ for chunk_num = 1:numel(npix_chunks)
         % the output file. We don't want to retain changes made to the
         % input PixelData object, so we discard edits to the cache when we
         % load the next page of pixels.
-        pix.advance('nosave', true);
+        pix = pix.advance('nosave', true);
     else
         % Make sure we discard the changes made to the final page's cache
-        pix.move_to_page(1, 'nosave', true);
+        pix = pix.move_to_page(1, 'nosave', true);
         break;
     end
 end

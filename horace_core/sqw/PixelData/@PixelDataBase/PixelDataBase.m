@@ -259,7 +259,8 @@ classdef (Abstract) PixelDataBase < serializable
                 else
                     obj = PixelDataMemory(init);
                 end
-                if ~any(obj.pix_range == obj.EMPTY_RANGE_)
+                undef = obj.data_range == obj.EMPTY_RANGE;
+                if ~any(undef(:))
                     return;
                 end
             else
@@ -339,12 +340,12 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = mask(obj, mask_array, npix);
         [page_num, total_number_of_pages] = move_to_page(obj, page_number, varargin);
         pix_out = noisify(obj, varargin);
-        obj = recalc_pix_range(obj);
+        obj = recalc_data_range(obj);
         obj  =set_data(obj, data, fields, abs_pix_indices);
 
 
         has_more = has_more(obj);
-        [current_page_num, total_num_pages] = advance(obj, varargin);
+        [obj,current_page_num, total_num_pages] = advance(obj, varargin);
 
     end
     methods(Abstract,Access=protected)

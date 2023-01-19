@@ -33,7 +33,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
         function test_sqw_with_paged_pix_not_on_1st_pg_saved_correctly(obj)
             sqw_obj = sqw(obj.test_sqw_file_path, ...
                 'pixel_page_size', obj.small_page_size);
-            sqw_obj.pix.advance();
+            sqw_obj.pix = sqw_obj.pix.advance();
             assertFalse(sqw_obj.main_header.creation_date_defined);
 
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
@@ -80,7 +80,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
         function test_sqw_w_pix_on_2nd_pg_saved_right_with_small_mem_chunk_size(obj)
             sqw_obj = sqw(obj.test_sqw_file_path, ...
                 'pixel_page_size', obj.small_page_size);
-            sqw_obj.pix.advance();
+            sqw_obj.pix = sqw_obj.pix.advance();
             assertFalse(sqw_obj.main_header.creation_date_defined);
 
             mem_chunk_conf_cleanup = set_temporary_config_options(...

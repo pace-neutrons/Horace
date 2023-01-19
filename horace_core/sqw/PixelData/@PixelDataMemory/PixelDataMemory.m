@@ -84,7 +84,7 @@ classdef PixelDataMemory < PixelDataBase
         %
         obj=set_data(obj, data, fields, abs_pix_indices);
 
-        function obj = recalc_pix_range(obj)
+        function obj = recalc_data_range(obj)
             % Recalculate pixels range in the situations, where the
             % range for some reason appeared to be missing (i.e. loading pixels from
             % old style files) or changed through private interface (for efficiency)
@@ -96,8 +96,7 @@ classdef PixelDataMemory < PixelDataBase
             % recalc_pix_range is a normal Matlab value object (not a handle object),
             % returning its changes in LHS
 
-            obj=obj.reset_changed_coord_range('coordinates');
-
+            obj=obj.reset_changed_coord_range('all');
         end
 
         function obj = PixelDataMemory(init, ~, ~)
@@ -137,12 +136,12 @@ classdef PixelDataMemory < PixelDataBase
                     init=init.move_to_first_page();
                     obj.data_ = init.data;
                     while init.has_more()
-                        init.advance();
+                        init = init.advance();
                         obj.data_ = horzcat(obj.data_, init.data);
                     end
 
                     obj.full_filename = init.full_filename;
-                    obj=obj.reset_changed_coord_range('coordinates');
+                    obj=obj.reset_changed_coord_range();
                 else
                     error('HORACE:PixelDataMemory:invalid_argument', ...
                         'Cannot construct PixelDataMemory from class (%s)', class(init))
@@ -257,9 +256,13 @@ classdef PixelDataMemory < PixelDataBase
         function obj = init_from_file_accessor_(obj, f_accessor)
             % Initialise a PixelData object from a file accessor
             obj.num_pixels_ = double(f_accessor.npixels);
-            obj.pix_range_ = f_accessor.get_pix_range();
+            obj.data_range_ = f_accessor.get_data_range();
             obj.data_ = f_accessor.get_raw_pix();
-            obj.full_filename = fullfile(f_accessor.filepath, f_accessor.filename);
+            obj.full_filename = f_accessor.full_filename;
+            undef = obj.data_range == PixelDataBase.EMPTY_RANGE;
+            if any(undef(:))
+                obj = obj.reset_changed_coord_range('all');
+            end
         end
         function obj=reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
@@ -269,8 +272,7 @@ classdef PixelDataMemory < PixelDataBase
             % of pixels changed at current iteration.
 
             if isempty(obj.data_)
-                obj.pix_range_   = PixelDataBase.EMPTY_RANGE_;
-                obj.sig_range_   = PixelDataBase.EMPTY_S_RANGE_;
+                obj.data_range_   = PixelDataBase.EMPTY_RANGE;
                 return
             end
             ind = obj.FIELD_INDEX_MAP_(field_name);

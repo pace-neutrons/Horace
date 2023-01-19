@@ -9,7 +9,7 @@ if isempty(obj)
     return
 end
 
-obj.move_to_first_page();
+obj = obj.move_to_first_page();
 npix_shape = size(npix);
 
 img_signal_sum = zeros(1, numel(npix));
@@ -34,7 +34,7 @@ for i = 1:numel(npix_chunks)
     img_variance_sum(idx(1):idx(2)) = img_variance_sum(idx(1):idx(2)) + var_increment';
 
     if obj.has_more()
-        obj.advance();
+        obj=obj.advance();
     else
         break
     end

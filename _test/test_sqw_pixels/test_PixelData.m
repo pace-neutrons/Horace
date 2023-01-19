@@ -517,7 +517,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_advance_does_nothing_if_PixelData_not_file_backed(~)
             data = rand(9, 10);
             pix = PixelDataMemory(data);
-            pix.advance();
+            pix = pix.advance();
             assertEqual(pix.data, data);
         end
 

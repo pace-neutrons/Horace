@@ -384,6 +384,25 @@ classdef test_faccess_sqw_v4< TestCase
 
             assertEqualToTol(sample,rdd)
         end
+        function test_build_correct(obj)
+            sample = read_sqw(obj.old_origin);            
+            %fac0 = faccess_sqw_v4(obj.sample_file);
+            %sample = fac0.get_sqw('-verbatim');
+
+            test_f = fullfile(tmp_dir,'write_read_sample_correct.sqw');
+            clOb = onCleanup(@()delete(test_f));
+            wo = faccess_sqw_v4(sample,test_f);
+            wo = wo.put_sqw();
+            wo.delete();
+            assertEqual(exist(test_f,'file'),2)
+
+            ro = faccess_sqw_v4(test_f);
+            rdd = ro.get_sqw('-verbatim');
+            wo.delete();
+
+            assertEqualToTol(sample,rdd)
+        end
+        
         function test_read_correct(obj)
             sample = read_sqw(obj.old_origin);
 

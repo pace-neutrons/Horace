@@ -224,7 +224,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             pix1 = obj.pix_with_pages;
             pix2 = copy(obj.pix_with_pages);
             % make sure we can deal with case where operand not on first page
-            pix2.advance();
+            pix2 = pix2.advance();
 
             pix_diff = pix1.do_binary_op(pix2, @minus);
             full_pix_diff = concatenate_pixel_pages(pix_diff);

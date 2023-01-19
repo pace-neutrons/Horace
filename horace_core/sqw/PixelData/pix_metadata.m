@@ -9,8 +9,8 @@ classdef pix_metadata < serializable
         % Actual information, describing particular pixel data
         full_filename;   % full file name of the sqw file containing the pixels
         npix;
-        pix_range;
-        data_range;
+        pix_range; % 2x4 range of pixel coordinates, first part of data_range, left for compartibility
+        data_range; % 2x9 range of all pixel data 
     end
     properties(Access=protected)
         full_filename_;

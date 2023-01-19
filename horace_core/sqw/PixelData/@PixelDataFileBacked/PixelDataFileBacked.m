@@ -54,7 +54,7 @@ classdef PixelDataFileBacked < PixelDataBase
     %   >> signal_sum = 0;
     %   >> while pix.has_more()
     %   >>     signal_sum = signal_sum + pix.signal;
-    %   >>     pix.advance();
+    %   >>     pix = pix.advance();
     %   >> end
     %
     % Properties:
@@ -156,7 +156,7 @@ classdef PixelDataFileBacked < PixelDataBase
                         %%                         obj.full_filename_ = init.tmp_full_filename_;
                         copyfile(init.pix_full_filename_, obj.pix_full_filename_);
                         obj.num_pixels_ = init.num_pixels;
-                        obj.pix_range = init.pix_range;
+                        obj.data_range_ = init.data_range;
                         obj.data_ = init.data_;
                         obj.has_tmp_file = true;
                     elseif ~isempty(init.f_accessor_)
@@ -194,7 +194,7 @@ classdef PixelDataFileBacked < PixelDataBase
                         'Cannot construct PixelDataFileBacked from class (%s)', class(init))
                 end
 
-                if any(obj.data_range == obj.EMPTY_RANGE_, 'all') && upgrade
+                if any(obj.data_range == obj.EMPTY_RANGE, 'all') && upgrade
                     if get(herbert_config, 'log_level') > 0
                         if any(isprop(init,'filename'))
                             fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
@@ -207,6 +207,25 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
         end
+        function obj = recalc_data_range(obj)
+            % Recalculate pixels range in the situations, where the
+            % range for some reason appeared to be missing (i.e. loading pixels from
+            % old style files) or changed through private interface (for efficiency)
+            % and the internal integrity of the object has been violated.
+            %
+            % returns obj for compatibility with recalc_pix_range method of
+            % combine_pixel_info class, which may be used instead of PixelData
+            % for the same purpose.
+            % recalc_data_range is a normal Matlab value object (not a handle object),
+            % returning its changes in LHS
+
+            obj = obj.move_to_first_page();
+            while obj.has_more()
+                obj=obj.reset_changed_coord_range('all');                
+                obj = obj.advance();
+            end
+        end
+
 
         function data = get_raw_data(obj)
             data = obj.data_;
@@ -223,22 +242,6 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             validateattributes(pixel_data, {'numeric'}, {'nrows', obj.PIXEL_BLOCK_COLS_})
             obj.data_ = pixel_data;
-        end
-
-        function prp = get_prop(obj, fld)
-        %% TODO: Check can go once finalise complete as tmpfile becomes realfile immediately
-            if ~obj.has_tmp_file
-                obj.load_page(obj.page_number_);
-                prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
-                if ~isempty(obj.f_accessor_)
-                    obj.data_ = [];
-                end
-            else
-                data_map = obj.get_memmap_handle();
-                [pix_idx_start, pix_idx_end] = obj.get_page_idx_(obj.page_number_);
-                prp = double(data_map.data.data(obj.FIELD_INDEX_MAP_(fld), ...
-                                    pix_idx_start:pix_idx_end));
-            end
         end
 
         function prp = get_all_prop(obj, fld)
@@ -326,7 +329,7 @@ classdef PixelDataFileBacked < PixelDataBase
             has_more = obj.pix_position_ + obj.base_page_size <= obj.num_pixels;
         end
 
-        function [current_page_num, total_num_pages] = advance(obj, varargin)
+        function [obj,current_page_num, total_num_pages] = advance(obj, varargin)
             % Load the next page of pixel data from the file backing the object
             %
             % This function will throw a PIXELDATA:advance error if attempting to
@@ -334,8 +337,8 @@ classdef PixelDataFileBacked < PixelDataBase
             %
             % This function does nothing if the pixel data is not file-backed.
             %
-            %  >> obj.advance()
-            %  >> obj.advance('nosave', true)
+            %  >>obj = obj.advance()
+            %  >>obj = obj.advance('nosave', true)
             %
             % Inputs:
             % -------
@@ -375,7 +378,7 @@ classdef PixelDataFileBacked < PixelDataBase
             page_size = obj.page_memory_size_;
         end
 
-        function set.page_memory_size(obj, val)
+        function obj=set.page_memory_size(obj, val)
             validateattributes(val, {'numeric'}, {'scalar', 'nonnan', 'positive'})
 
             obj.page_memory_size_ = round(val);
@@ -441,7 +444,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.has_tmp_file = true; % Must come first or will overwrite original
             movefile(obj.tmp_pix_full_filename_, obj.full_filename);
             % Clear data
-            obj.recalc_pix_range();
+            obj.recalc_data_range();
             obj.data_ = [];
             %% TODO: WITH HEADERS, RELOAD
             %             init = sqw_formats_factory.instance().get_loader(init);
@@ -590,10 +593,10 @@ classdef PixelDataFileBacked < PixelDataBase
             val.data = obj.data;
         end
 
-        function p = get_prop(obj, fld)
+        function prp = get_prop(obj, fld)
             %% TODO: Check can go once finalise complete as tmpfile becomes realfile immediately
             if ~obj.has_tmp_file
-                obj=obj.load_page(obj.page_number_);
+                obj.load_page(obj.page_number_);
                 prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
                 if ~isempty(obj.f_accessor_)
                     obj.data_ = [];
@@ -605,7 +608,6 @@ classdef PixelDataFileBacked < PixelDataBase
                     pix_idx_start:pix_idx_end));
             end
         end
-
         function obj=set_prop(obj, fld, val)
             flds = obj.FIELD_INDEX_MAP_(fld);
 
@@ -617,9 +619,8 @@ classdef PixelDataFileBacked < PixelDataBase
 
             obj=obj.load_current_page_if_data_empty_();
             obj.data_(flds, :) = val;
-            if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
-                obj=obj.reset_changed_coord_range(fld);
-            end
+            obj=obj.reset_changed_coord_range(fld);
+
 
         end
 
@@ -647,8 +648,8 @@ classdef PixelDataFileBacked < PixelDataBase
             %
             obj = obj.load_current_page_if_data_empty_();
             if isempty(obj.data_)
-                obj.pix_range_   = PixelDataBase.EMPTY_RANGE_;
-                obj.page_range = [PixelDataBase.EMPTY_RANGE_,PixelDataBase.EMPTY_S_RANGE_];
+                obj.data_range_   = PixelDataBase.EMPTY_RANGE;
+                obj.page_range_   = PixelDataBase.EMPTY_RANGE;
                 return
             end
             ind = obj.FIELD_INDEX_MAP_(field_name);
@@ -656,16 +657,10 @@ classdef PixelDataFileBacked < PixelDataBase
             loc_range = [min(obj.data_(ind,:),[],2),max(obj.data_(ind,:),[],2)]';
             obj.page_range(:,ind) = loc_range;
 
-            range = [min(glob_range(1,ind),loc_range(1,:));...
-                max(glob_range(2,ind),loc_range(2,:))]';
+            range = [min(obj.data_range_(1,ind),loc_range(1,:));...
+                max(obj.data_range_(2,ind),loc_range(2,:))]';
 
-
-            is_srange = ind>4;
-            coord_ind = ind(~is_srange);
-            sig_ind   = ind(is_srange);
-            obj.pix_range_(:,coord_ind) = range(:,~is_srange);
-            obj.sig_range_(:,sig_ind)   = range(:, is_srange);
-
+            obj.data_range_(ind,:)   = range(ind, :);
         end
     end
 

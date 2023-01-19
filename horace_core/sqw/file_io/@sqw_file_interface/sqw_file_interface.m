@@ -97,6 +97,7 @@ classdef sqw_file_interface
         % read pixels in the given index ranges
         pix         = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation,keep_precision);
         range       = get_pix_range(obj);
+        range       = get_data_range(obj);
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
         %------------------------------------------------------------------

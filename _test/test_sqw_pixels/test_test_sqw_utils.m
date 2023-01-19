@@ -22,7 +22,7 @@ classdef test_test_sqw_utils < TestCase & common_pix_class_state_holder
             faccess = FakeFAccess(data);
             pix = PixelDataBase.create(faccess, npix_in_page);
 
-            pix.advance();
+            pix = pix.advance();
 
             joined_pix_array = concatenate_pixel_pages(pix);
             assertElementsAlmostEqual(joined_pix_array, data,'relative',4.e-8);
