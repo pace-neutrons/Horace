@@ -278,7 +278,7 @@ classdef PixelDataMemory < PixelDataBase
             ind = obj.FIELD_INDEX_MAP_(field_name);
 
             range = [min(obj.data_(ind,:),[],2),max(obj.data_(ind,:),[],2)]';
-            obj.data_range_(ind,:)   = range(ind, :);
+            obj.data_range_(:,ind)   = range(:,ind);
         end
         %------------------------------------------------------------------
         function obj=set_data_wrap(obj,val)

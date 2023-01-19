@@ -58,7 +58,7 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqual(mheader.filename,'Fe_ei787.sqw');
             assertEqual(mheader.filepath,...
                 'c:\data\Fe\sqw\');
-            assertEqual(mheader.creation_date,'2023-01-16T23:14:44')
+            assertEqual(mheader.creation_date,'2023-01-19T13:48:04')
 
             [exp_info,~] = to.get_exp_info('-all');
 
@@ -100,7 +100,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             pix = to.get_pix();
             assertTrue(isa(pix, 'PixelDataBase'));
-            assertEqual(pix.file_path, obj.sample_file);
+            assertEqual(pix.full_filename, obj.sample_file);
             assertEqual(pix.num_pixels, 4324);
 
             raw_pix = to.get_raw_pix(1,20);
@@ -384,25 +384,26 @@ classdef test_faccess_sqw_v4< TestCase
 
             assertEqualToTol(sample,rdd)
         end
-        function test_build_correct(obj)
-            sample = read_sqw(obj.old_origin);            
-            %fac0 = faccess_sqw_v4(obj.sample_file);
-            %sample = fac0.get_sqw('-verbatim');
+        %         function test_build_correct(obj)
+        %             %TEST used in preparation of first v4 sample file and is not tests
+        %             %any other functionality. Left for references
+        %             sample = read_sqw(obj.old_origin,'-verbatim');
+        %             %fac0 = faccess_sqw_v4(obj.sample_file);
+        %             %sample = fac0.get_sqw('-verbatim');
+        %
+        %             test_f = fullfile(tmp_dir,'faccess_sqw_v4_sample.sqw');
+        %             wo = faccess_sqw_v4(sample,test_f);
+        %             wo = wo.put_sqw();
+        %             wo.delete();
+        %             assertEqual(exist(test_f,'file'),2)
+        %
+        %             ro = faccess_sqw_v4(test_f);
+        %             rdd = ro.get_sqw('-verbatim');
+        %             ro.delete();
+        %
+        %             assertEqualToTol(sample,rdd)
+        %         end
 
-            test_f = fullfile(tmp_dir,'write_read_sample_correct.sqw');
-            clOb = onCleanup(@()delete(test_f));
-            wo = faccess_sqw_v4(sample,test_f);
-            wo = wo.put_sqw();
-            wo.delete();
-            assertEqual(exist(test_f,'file'),2)
-
-            ro = faccess_sqw_v4(test_f);
-            rdd = ro.get_sqw('-verbatim');
-            wo.delete();
-
-            assertEqualToTol(sample,rdd)
-        end
-        
         function test_read_correct(obj)
             sample = read_sqw(obj.old_origin);
 

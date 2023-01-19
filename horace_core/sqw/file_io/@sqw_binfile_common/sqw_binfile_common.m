@@ -110,8 +110,8 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             pix_range = PixelData.EMPTY_RANGE_;
         end
         function data_range = get_data_range(~)
-            error('HORACE:sqw_binfile_common:not_implemented',...
-                'get_data_range is not implemented on the faccessors with version lover then 4')
+            % no data range for new files
+            data_range = PixelDataBase.EMPTY_RANGE;
         end
 
         % read pixels information

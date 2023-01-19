@@ -221,7 +221,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
             obj = obj.move_to_first_page();
             while obj.has_more()
-                obj=obj.reset_changed_coord_range('all');                
+                obj=obj.reset_changed_coord_range('all');
                 obj = obj.advance();
             end
         end
@@ -659,8 +659,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
             range = [min(obj.data_range_(1,ind),loc_range(1,:));...
                 max(obj.data_range_(2,ind),loc_range(2,:))]';
-
-            obj.data_range_(ind,:)   = range(ind, :);
+            obj.data_range_(:,ind)   = range(:,ind);
         end
     end
 
