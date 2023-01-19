@@ -59,7 +59,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
 
         function test_filename_constructor_sets_pixel_page_size_if_passed(obj)
             pagesize_pixels = 666; % test value
- 
+
 
             sqw_obj = sqw(obj.test_sqw_1d_fullpath, 'pixel_page_size', pagesize_pixels, ...
                 'file_backed',true);
@@ -67,7 +67,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertTrue(isa(sqw_obj, 'sqw'));
             assertTrue(sqw_obj.pix.num_pixels > pagesize_pixels);
             assertEqual(sqw_obj.pix.num_pixels, 100337); % expected value from test file
-            assertEqual(sqw_obj.pix.page_size, pagesize_pixels);
+            assertEqual(sqw_obj.pix.base_page_size, pagesize_pixels);
         end
 
         function test_filename_constructor_sets_all_data_default_pagesize(obj)

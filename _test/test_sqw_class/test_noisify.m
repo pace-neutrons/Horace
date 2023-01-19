@@ -20,7 +20,6 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
 
         function test_noisify_returns_equivalent_sqw_for_paged_pixel_data(obj)
             %TODO: this should not be necessary
-            skipTest('#893 filebased noisify is fundamentally broken as modified pages are not stored on disk. Needs to be fixed as part of new file format')
             hc = hor_config;
             dts = hc.get_data_to_store();
             clob = onCleanup(@()set(hc,dts));

@@ -86,7 +86,6 @@ classdef PixelDataFileBacked < PixelDataBase
 
     properties (Access=private)
         f_accessor_;  % instance of faccess object to access pixel data from file
-        %%         tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
         page_number_ = 1;  % the index of the currently loaded page
         has_tmp_file = false;
         offset_ = 0;
@@ -152,7 +151,8 @@ classdef PixelDataFileBacked < PixelDataBase
                     obj = obj.loadobj(init);
                 elseif isa(init, 'PixelDataFileBacked')
                     %% TODO: #928 Cleanup when tmp_file concept obsolete
-                    if init.has_tmp_file
+                    obj.has_tmp_file = init.has_tmp_file;
+                    if obj.has_tmp_file
                         %%                         obj.full_filename_ = init.tmp_full_filename_;
                         copyfile(init.pix_full_filename_, obj.pix_full_filename_);
                         obj.num_pixels_ = init.num_pixels;
@@ -161,15 +161,11 @@ classdef PixelDataFileBacked < PixelDataBase
                         obj.has_tmp_file = true;
                     elseif ~isempty(init.f_accessor_)
                         obj = obj.init_from_file_accessor_(init.f_accessor_);
-                    else
-                        obj.data_ = init.data;
                     end
 
-                    obj.data_ = init.data;
-                    obj.page_edited = init.page_edited;
                     obj.num_pixels_ = init.num_pixels;
-                    obj.tmp_io_handler_ = init.tmp_io_handler_.copy(obj.object_id_);
-                    obj=obj.move_to_page(init.page_number_);
+                    obj.pix_range = init.pix_range;
+                    obj.data_ = init.data;
                 elseif ischar(init) || isstring(init)
                     if ~is_file(init)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -227,6 +223,22 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             validateattributes(pixel_data, {'numeric'}, {'nrows', obj.PIXEL_BLOCK_COLS_})
             obj.data_ = pixel_data;
+        end
+
+        function prp = get_prop(obj, fld)
+        %% TODO: Check can go once finalise complete as tmpfile becomes realfile immediately
+            if ~obj.has_tmp_file
+                obj.load_page(obj.page_number_);
+                prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
+                if ~isempty(obj.f_accessor_)
+                    obj.data_ = [];
+                end
+            else
+                data_map = obj.get_memmap_handle();
+                [pix_idx_start, pix_idx_end] = obj.get_page_idx_(obj.page_number_);
+                prp = double(data_map.data.data(obj.FIELD_INDEX_MAP_(fld), ...
+                                    pix_idx_start:pix_idx_end));
+            end
         end
 
         function prp = get_all_prop(obj, fld)

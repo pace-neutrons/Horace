@@ -2,7 +2,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
     properties
 
-        SMALL_PG_SIZE = 1e5;  % 100,000 pix % This disables filebased access and makes tested files memory based. Not what is intended in tests
+        SMALL_PG_SIZE = 1e5;  % 10,000 pix
         ALL_IN_MEM_PG_SIZE = 1e12;
 
         raw_pix_data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
@@ -655,7 +655,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             % set coordinates of page 1 and 3 to all ones
             pix.u1 = 1;
             pix.dump_all_pixels_();
-            pix.move_to_page(3);  % move to second page
+            pix.move_to_page(3);
             pix.u1 = 1;
             pix.dump_all_pixels_();
 
