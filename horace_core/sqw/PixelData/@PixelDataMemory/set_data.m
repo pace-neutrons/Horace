@@ -1,4 +1,4 @@
-function set_data(obj, pix_fields, data, varargin)
+function obj=set_data(obj, data,pix_fields, varargin)
 %SET_PIXELS Update the data on the given pixel data fields
 %
 % The number of columns in 'data' must be equal to the number of fields in
@@ -18,6 +18,9 @@ function set_data(obj, pix_fields, data, varargin)
 % abs_pix_indices  The indices to set data on. If not specified all indices are
 %                  updated and 'size(data, 2)' must equal to obj.num_pixels.
 %
+if nargin == 2
+    pix_fields = 'all';
+end
 NO_INPUT_INDICES = -1;
 
 [field_indices, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin{:});
@@ -34,7 +37,7 @@ if abs_pix_indices == NO_INPUT_INDICES
 else
     obj.data_(field_indices, abs_pix_indices) = data;
 end
-
+obj=obj.reset_changed_coord_range('coordinates');
 end  % function
 
 

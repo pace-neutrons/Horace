@@ -1,5 +1,5 @@
 function new_obj = upgrade_file_format(obj,varargin)
-%UPGRADE_FILE_FORMAT upgrade file format to new current preferred file format
+%UPGRADE_FILE_FORMAT upgrade file format to the new current preferred file format
 
 ff_obj = obj.format_for_object;
 

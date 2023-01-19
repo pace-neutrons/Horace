@@ -12,7 +12,7 @@ function pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
 % pix_starts  Absolute indices of the starts of pixel ranges [Nx1 or 1xN array].
 % block_sizes The sizes of the blocks to read                [Nx1 or 1xN array].
 % Optional
-% recalculate_pix_range -- if true, recalulate q-dE range of obrained
+% recalculate_pix_range -- if true, recalculate q-dE range of obtained
 %                          pixels. Default -- true
 % keep_precision         --if true, load pixels in memory, as they are
 %                          stored on hdd (single precision pixels). If
@@ -44,7 +44,7 @@ if recalculate_pix_range
     pix_out = PixelDataBase.create(raw_pix);
 else
     pix_out = PixelDataBase.create();
-    set_data(pix_out,'all',raw_pix);
+    pix_out = pix_out.set_data(raw_pix);
 end
 
 

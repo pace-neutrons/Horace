@@ -1,7 +1,7 @@
 classdef (Abstract) PixelDataBase < serializable
     % PixelDataBase provides an abstract base-class interface for pixel data objects
     %
-    %   This class provides getters and setters for each data column in an SQW
+    %   This class provides etetters and setters for each data column in an SQW
     %   pixel array. Along with a creation mechanism for constructing the PixelData
     %   subclasses
     %
@@ -51,9 +51,9 @@ classdef (Abstract) PixelDataBase < serializable
         PIXEL_BLOCK_COLS_ = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         num_pixels_ = 0;  % the number of pixels in the object
         data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
-        pix_range_ = PixelDataBase.EMPTY_RANGE_; % range of pixels in Crystal Cartesian coordinate system
+        data_range_ = PixelDataBase.EMPTY_RANGE; % range of all other variables (signal, error, indexes)
         object_id_;  % random unique identifier for this object, used for tmp file names
-        file_path_ = '';
+        full_filename_ = '';
     end
     properties(Dependent,Hidden)
         DEFAULT_PAGE_SIZE;
@@ -65,8 +65,9 @@ classdef (Abstract) PixelDataBase < serializable
 
     properties (Constant,Hidden)
         DEFAULT_NUM_PIX_FIELDS = 9;
-        % the coordinate range, an empty pixel class has
-        EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];
+        % the data range, an empty pixel class has
+        EMPTY_RANGE= [inf,inf,inf,inf,inf,inf,inf,inf,inf;...
+            -inf,-inf,-inf,-inf,-inf,-inf,-inf,-inf,-inf];
     end
 
     properties(Constant,Access=protected)
@@ -84,7 +85,7 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     properties (Dependent)
-        file_path;
+        full_filename;
         u1; % The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u2; % The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u3; % The 3rd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
@@ -109,6 +110,8 @@ classdef (Abstract) PixelDataBase < serializable
         % coordinates field. If data are file-based and you are setting
         % pixels coordinates, this value may get invalid, as the range
         % never shrinks.
+        data_range  % the range of pix data. 2x9 array of [min;max] values
+        % of pixels data field
 
         data; % The full raw pixel data block. Usage of this attribute exposes
         % current pixels layout, so when the pixels layout changes in a
@@ -117,6 +120,12 @@ classdef (Abstract) PixelDataBase < serializable
         % value is not guaranteed in a future.
 
         base_page_size;  % The number of pixels that can fit in one page of data
+    end
+    methods(Static,Hidden)
+        function range = EMPTY_RANGE_()
+            range = PixelDataBase.EMPTY_RANGE(:,1:4);
+        end
+
     end
 
     methods (Static)
@@ -137,7 +146,7 @@ classdef (Abstract) PixelDataBase < serializable
             %
             %   >> obj = PixelDataBase.create(200)  % initialise 200 pixels with underlying data set to zero
             %
-            %   >> obj = PixelDataBase.create(file_path)  % initialise pixel data from an sqw file
+            %   >> obj = PixelDataBase.create(full_filename)  % initialise pixel data from an sqw file
             %
             %   >> obj = PixelDataBase.create(faccess_reader)  % initialise pixel data from an sqw file reader
             %
@@ -197,22 +206,7 @@ classdef (Abstract) PixelDataBase < serializable
 
             % In memory construction
             if isstruct(init)
-                if ~isfield(init,'version')
-                    fnms = fieldnames(init);
-                    if all(ismember(PixelDataBase.fields_to_save_,fnms)) % the current pixdata structure
-                        % provided as input
-                        if numel(init) > 1 % the same as saveobj
-                            init = struct('version',PixelDataBase.version,...
-                                'array_data',init);
-                        else
-                            init.version = PixelDataBase.version;
-                        end
-                    end
-                    %else: some unknown structure. May be saved earlier without version?
-                    % let loadobj check its validity
-                end
-                obj = PixelDataBase.loadobj(init);
-
+                obj = serializable.from_struct(init);
             elseif isa(init, 'PixelDataMemory')
                 if file_backed
                     obj = PixelDataFileBacked(init, mem_alloc);
@@ -346,7 +340,7 @@ classdef (Abstract) PixelDataBase < serializable
         [page_num, total_number_of_pages] = move_to_page(obj, page_number, varargin);
         pix_out = noisify(obj, varargin);
         obj = recalc_pix_range(obj);
-        obj  =set_data(obj, fields, data, abs_pix_indices);
+        obj  =set_data(obj, data, fields, abs_pix_indices);
 
 
         has_more = has_more(obj);
@@ -354,13 +348,11 @@ classdef (Abstract) PixelDataBase < serializable
 
     end
     methods(Abstract,Access=protected)
-
-        obj = set_raw_data(obj, val);
-
         prp = get_prop(obj, ind);
         obj = set_prop(obj, ind, val);
         %
-        obj = set_file_path(obj,val);
+        obj = set_full_filename(obj,val);
+        val = get_full_filename(obj);
         %
         obj = reset_changed_coord_range(obj,range_type);
 
@@ -375,7 +367,7 @@ classdef (Abstract) PixelDataBase < serializable
             data = obj.data_;
         end
         function obj=set.data(obj, pixel_data)
-            obj=set_raw_data(obj, pixel_data);
+            obj=set_data(obj, pixel_data);
         end
 
         function u1 = get.u1(obj)
@@ -467,22 +459,25 @@ classdef (Abstract) PixelDataBase < serializable
         end
 
         function range = get.pix_range(obj)
-            range = obj.pix_range_;
+            range = obj.data_range_(:,1:4);
         end
 
-        function obj= set.pix_range(obj, pix_range)
-            obj= set_range(obj, pix_range);
+      function srange = get.data_range(obj)
+            srange = obj.data_range_;
+        end
+        function obj = set.data_range(obj,val)
+            obj = obj.set_data_range(val);
         end
 
         function ps = get.DEFAULT_PAGE_SIZE(~)
             ps = config_store.instance().get_value('hor_config', 'mem_chunk_size');
         end
         %
-        function obj = set.file_path(obj, val)
-            obj = set_file_path(obj,val);
+        function obj = set.full_filename(obj, val)
+            obj = set_full_filename(obj,val);
         end
-        function val = get.file_path(obj)
-            val = obj.file_path_;
+        function val = get.full_filename(obj)
+            val = get_full_filename(obj);
         end
         %------------------------------------------------------------------
         % data/metadata construction
@@ -505,7 +500,7 @@ classdef (Abstract) PixelDataBase < serializable
 
     end
     methods
-        function obj=set_range(obj,pix_range)
+        function obj=set_data_range(obj,data_range)
             % Function allows to set the pixels range (min/max values of
             % pixels coordinates)
             %
@@ -520,11 +515,11 @@ classdef (Abstract) PixelDataBase < serializable
             % pixels are modified by algorithm and correct range
             % calculations are expensive
             %
-            if any(size(pix_range) ~= [2,4])
+            if any(size(data_range) ~= [2,9])
                 error('HORACE:PixelDataBase:invalid_argument',...
-                    'pixel_range should be [2x4] array');
+                    'data_range should be [2x9] array of data ranges');
             end
-            obj.pix_range_ = pix_range;
+            obj.data_range_ = data_range;
         end
 
         function pix_copy = copy(obj)
@@ -547,7 +542,7 @@ classdef (Abstract) PixelDataBase < serializable
 
         function page_size = calculate_page_size_(obj, mem_alloc)
             % Calculate number of pixels that fit in the given memory allocation
-            page_size = max(mem_alloc, size(obj.raw_data_, 2));
+            page_size = max(mem_alloc, size(obj.data_, 2));
         end
 
         function page_size = get.base_page_size(obj)
@@ -619,8 +614,8 @@ classdef (Abstract) PixelDataBase < serializable
                     'metadata can be set by the instance of pix_metadata class only. Provided class: %s', ...
                     class(val))
             end
-            obj.file_path_   = val.full_filename;
-            obj.pix_range    = val.pix_range;
+            obj.full_filename_   = val.full_filename;
+            obj.data_range_      = val.data_range;
             obj.num_pixels_  = val.npix;
             if obj.do_check_combo_arg
                 obj = obj.check_combo_arg();

@@ -9,7 +9,7 @@ function set_data(obj, pix_fields, data, varargin)
 % ---------
 %
 % Set the first 100 pixels' signal and variance to zero
-%   >> set_data({'signal', 'variance'}, zeros(2, 100), 1:100);
+%   >> set_data(zeros(2, 100),{'signal', 'variance'}, 1:100);
 %
 % Input:
 % ------

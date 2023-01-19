@@ -104,7 +104,7 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
             pix4 = PixelDataBase.create(data);
             pix = [pix1,pix2;pix3,pix4];
 
-            pic_strc = struct(pix);
+            pic_strc = pix.to_struct();
 
             rec_pix = PixelDataBase.create(pic_strc);
 
@@ -132,7 +132,7 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
             assertEqual(pix.num_pixels,100);
             assertEqual(pix.pix_range,pix_range);
 
-            pic_strc = struct(pix);
+            pic_strc = pix.to_struct();
 
             rec_pix = PixelDataBase.create(pic_strc);
 

@@ -100,7 +100,7 @@ elseif opts.head || opts.his
 else
     sqw_object = sqw(sqw_skel);
     if  ~(opts.keep_original || opts.verbatim)
-        sqw_object.pix.file_path = obj.full_filename;
+        sqw_object.pix.full_filename = obj.full_filename;
     end
 end
 

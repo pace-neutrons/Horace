@@ -1,5 +1,5 @@
 function pix  = get_pix(obj,varargin)
-% read full or partial pixel information using propertly initalized
+% read full or partial pixel information using properly initialized
 % sqw file information
 % Usage:
 % assuming that file accessor is properly initiated
@@ -31,5 +31,5 @@ if isempty(pix)
     pix = PixelDataBase.create();
 else
     pix = PixelDataBase.create(pix);
-    pix.file_path = obj.full_filename;
+    pix.full_filename = obj.full_filename;
 end

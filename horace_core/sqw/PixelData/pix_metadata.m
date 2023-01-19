@@ -3,21 +3,21 @@ classdef pix_metadata < serializable
     % including the way, pixels are stored on hdd
     %
     % The purpose of this class is help in storing pixel information
-    % into custom bindary file using different pixel file formats.
+    % into custom binary file using different pixel file formats.
     %
     properties(Dependent)
         % Actual information, describing particular pixel data
         full_filename;   % full file name of the sqw file containing the pixels
         npix;
         pix_range;
+        data_range;
     end
     properties(Access=protected)
         full_filename_;
         npix_;
-        pix_range_ = PixelDataBase.EMPTY_RANGE_;
+        data_range_ = PixelDataBase.EMPTY_RANGE;
         %
     end
-
 
     methods
         function obj = pix_metadata(varargin)
@@ -33,8 +33,8 @@ classdef pix_metadata < serializable
                 inputs = varargin{1};
                 remains = varargin(2:end);
                 obj.npix = inputs.num_pixels;
-                obj.pix_range      = inputs.pix_range;
-                obj.full_filename = inputs.file_path; % Check this #893
+                obj.data_range     = inputs.data_range;
+                obj.full_filename = inputs.full_filename;
             else
                 flds = obj.saveableFields();
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...
@@ -75,15 +75,26 @@ classdef pix_metadata < serializable
         end
         %
         function pr = get.pix_range(obj)
-            pr = obj.pix_range_;
+            pr = obj.data_range_(:,1:4);
         end
         function obj = set.pix_range(obj,val)
             if any(size(val) ~= [2,4])
                 error('HORACE:pix_metadata:invalid_argument',...
                     'pixel_range should be [2x4] array');
             end
-            obj.pix_range_ = val;
+            obj.data_range_(:,1:4) = val;
         end
+        function pr = get.data_range(obj)
+            pr = obj.data_range_;
+        end
+        function obj = set.data_range(obj,val)
+            if any(size(val) ~= [2,9])
+                error('HORACE:pix_metadata:invalid_argument',...
+                    'data_range should be [2x9] array');
+            end
+            obj.data_range_ = val;
+        end
+
         %
     end
     %======================================================================
@@ -97,7 +108,7 @@ classdef pix_metadata < serializable
             % the state of a serializable object, so when the field values are
             % provided, the object can be fully restored from these values.
             %
-            flds = {'full_filename','npix','pix_range'};
+            flds = {'full_filename','npix','data_range'};
         end
     end
 end

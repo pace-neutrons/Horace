@@ -82,7 +82,7 @@ classdef PixelDataMemory < PixelDataBase
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
         %
-        obj=set_data(obj, fields, data, abs_pix_indices);
+        obj=set_data(obj, data, fields, abs_pix_indices);
 
         function obj = recalc_pix_range(obj)
             % Recalculate pixels range in the situations, where the
@@ -141,7 +141,7 @@ classdef PixelDataMemory < PixelDataBase
                         obj.data_ = horzcat(obj.data_, init.data);
                     end
 
-                    obj.file_path = init.file_path;
+                    obj.full_filename = init.full_filename;
                     obj=obj.reset_changed_coord_range('coordinates');
                 else
                     error('HORACE:PixelDataMemory:invalid_argument', ...
@@ -228,10 +228,14 @@ classdef PixelDataMemory < PixelDataBase
     end
     %
     methods(Access=protected)
-        function obj = set_file_path(obj,val)
+        function obj = set_full_filename(obj,val)
             % main part of filepath setter. Need checks/modification
-            obj.file_path_ = val;
+            obj.full_filename_ = val;
         end
+        function full_filename = get_full_filename(obj)
+            full_filename = obj.full_filename_;
+        end
+
         %
         function obj=set_prop(obj, fld, val)
             if ~isscalar(val)
@@ -243,23 +247,8 @@ classdef PixelDataMemory < PixelDataBase
                 validateattributes(val, {'numeric'}, {'scalar'})
             end
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
-            if ismember(fld, ["u1", "u2", "u3", "dE", "q_coordinates", "coordinates", "all"])
-                obj=obj.reset_changed_coord_range(fld);
-            end
+            obj=obj.reset_changed_coord_range(fld);
         end
-
-        function obj=set_raw_data(obj, pixel_data)
-            % This setter provides rules for internally setting cached data
-            %  This is the only method that should ever touch obj.raw_data_
-
-            % The need for multiple layers of getters/setters for the raw data
-            % should be removed when the public facing getters/setters are removed.
-            validateattributes(pixel_data, {'numeric'}, {'nrows', obj.PIXEL_BLOCK_COLS_})
-            obj.data_ = pixel_data;
-            obj.num_pixels_ = size(pixel_data,2);
-            obj=obj.reset_changed_coord_range('coordinates');
-        end
-
         %
         function prp = get_prop(obj, fld)
             prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
@@ -270,32 +259,28 @@ classdef PixelDataMemory < PixelDataBase
             obj.num_pixels_ = double(f_accessor.npixels);
             obj.pix_range_ = f_accessor.get_pix_range();
             obj.data_ = f_accessor.get_raw_pix();
-            obj.file_path = fullfile(f_accessor.filepath, f_accessor.filename);
+            obj.full_filename = fullfile(f_accessor.filepath, f_accessor.filename);
         end
         function obj=reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
             % Sets up the property page_range defining the range of block
-            % of pixels chaned at current iteration.
+            % of pixels changed at current iteration.
 
             if isempty(obj.data_)
                 obj.pix_range_   = PixelDataBase.EMPTY_RANGE_;
+                obj.sig_range_   = PixelDataBase.EMPTY_S_RANGE_;
                 return
             end
-
-            if field_name == "all"
-                field_name = "coordinates";
-            end
-
             ind = obj.FIELD_INDEX_MAP_(field_name);
 
             range = [min(obj.data_(ind,:),[],2),max(obj.data_(ind,:),[],2)]';
-            obj.pix_range_(:,ind) = range;
+            obj.data_range_(ind,:)   = range(ind, :);
         end
         %------------------------------------------------------------------
         function obj=set_data_wrap(obj,val)
-            % main parf ot pix_data_wrap setter overloaded for
+            % main part of pix_data_wrap setter overloaded for
             % PixDataMemory class
             if ~isa(val,'pix_data')
                 error('HORACE:PixelDataMemory:invalid_argument', ...
@@ -305,7 +290,7 @@ classdef PixelDataMemory < PixelDataBase
             obj.data_ = val.data;
         end
         function val = get_data_wrap(obj)
-            % main parf ot pix_data_wrap getter overloaded for
+            % main part of pix_data_wrap getter overloaded for
             % PixDataMemory class
             val = pix_data();
             val.data = obj.data;
