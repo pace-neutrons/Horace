@@ -71,7 +71,7 @@ classdef pix_data_block < data_block
                     'Number of pix rows should define the size of the single pixel, so it should be numeric and at bigger then 3. In fact it is: %s', ...
                     disp2str(bpp))
             end
-            obj.n_rows_ = bpp;
+            obj.bytes_pp_ = bpp;
         end
         %
         function pos = get.pix_position(obj)

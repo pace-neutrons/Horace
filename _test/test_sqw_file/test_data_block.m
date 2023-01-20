@@ -32,6 +32,77 @@ classdef test_data_block < TestCase
             end
             delete(file);
         end
+        function test_pix_data_block_ser_deser(~)
+            pdb = pix_data_block(10,1000,12,12);
+            assertEqual(pdb.block_name,'bl_pix_data_wrap');
+            assertEqual(pdb.npixels,1000)
+            assertEqual(pdb.size,12+12*12*1000)
+
+            pdb_struc = pdb.to_struct();
+            pdb_rec = serializable.from_struct(pdb_struc);
+
+            assertEqual(pdb,pdb_rec);
+        end
+        function test_pix_data_block_size_params(~)
+            pdb = pix_data_block;
+            assertEqual(pdb.sqw_prop_name,'pix')
+            assertEqual(pdb.level2_prop_name,'data_wrap')
+            pdb.npixels = 100;
+            assertEqual(pdb.npixels,100)
+            assertEqual(pdb.size,12+4*9*100)
+
+            pdb.n_rows = 10;
+            assertEqual(pdb.n_rows,10);
+            assertEqual(pdb.npixels,100)
+            assertEqual(pdb.size,12+4*10*100)
+
+            pdb.bytes_pp = 8;
+            assertEqual(pdb.bytes_pp,8);
+            assertEqual(pdb.npixels,100)
+            assertEqual(pdb.size,12+8*10*100)
+        end
+
+        function test_set_size_pix_data_block_size(~)
+            pdb = pix_data_block;
+            assertEqual(pdb.sqw_prop_name,'pix')
+            assertEqual(pdb.level2_prop_name,'data_wrap')
+            pdb.size = 12+4*9*100;
+            assertEqual(pdb.npixels,uint64(100))
+            assertEqual(pdb.position,0)
+            assertEqual(pdb.size,uint64(12+4*9*100))
+            assertEqual(pdb.num_pix_position,4)
+            assertEqual(pdb.pix_position,12)
+            assertEqual(pdb.n_rows,9)
+            assertEqual(pdb.bytes_pp,4)
+        end
+
+        function test_npix_pix_data_block_size(~)
+            pdb = pix_data_block;
+            assertEqual(pdb.sqw_prop_name,'pix')
+            assertEqual(pdb.level2_prop_name,'data_wrap')
+            pdb.npixels = 100;
+            assertEqual(pdb.npixels,100)
+            assertEqual(pdb.position,0)
+            assertEqual(pdb.size,12+4*9*100)
+            assertEqual(pdb.num_pix_position,4)
+            assertEqual(pdb.pix_position,12)
+            assertEqual(pdb.n_rows,9)
+            assertEqual(pdb.bytes_pp,4)
+        end
+
+        function test_empty_pix_data_block_size(~)
+            pdb = pix_data_block;
+            assertEqual(pdb.sqw_prop_name,'pix')
+            assertEqual(pdb.level2_prop_name,'data_wrap')
+            assertEqual(pdb.npixels,0)
+            assertEqual(pdb.position,0)
+            assertEqual(pdb.size,12)
+            assertEqual(pdb.num_pix_position,4)
+            assertEqual(pdb.pix_position,12)
+            assertEqual(pdb.n_rows,9)
+            assertEqual(pdb.bytes_pp,4)
+        end
+
         function test_put_get_dnd_info_reverted(obj)
             dp1 = dnd_data_block();
             dp2 = data_block('data','metadata');
@@ -83,7 +154,7 @@ classdef test_data_block < TestCase
 
             assertEqualToTol(tob,rec_obj,1.e-12);
         end
-        
+
         function test_dnd_block_bat_record_serialize_deserialize(~)
             db = dnd_data_block(10,10000);
 
@@ -96,7 +167,7 @@ classdef test_data_block < TestCase
             assertEqual(db,db_recovered);
             assertEqual(pos,db_size+1);
         end
-        
+
         function test_data_block_bat_record_serialize_deserialize(~)
             db = data_block('my_sqw','my_property',10,10000);
 
@@ -231,7 +302,7 @@ classdef test_data_block < TestCase
 
             assertEqual(dp.block_name,'bl_data_proj');
         end
-        
+
         function test_get_proper_dnd_subobj_proj(obj)
             dp = data_block('data','proj');
 

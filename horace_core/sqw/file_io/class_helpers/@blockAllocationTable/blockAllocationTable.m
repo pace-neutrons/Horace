@@ -106,10 +106,11 @@ classdef blockAllocationTable < serializable
             list = obj.block_names_;
         end
         function pos = get.blocks_start_position(obj)
-            % the data blocks start after BAT position + 4 bytes describing
-            % the number of bytes in BAT binary representation
-            % + BAT binary representation itself
-            pos = uint64(obj.position + 4+ obj.bat_bin_size);
+            % the data blocks start after BAT position
+            % BAT size includes 4 bytes describing BAT binary block size,
+            % + BAT binary representation itself, which include sum of
+            % record sizes + 4 first bytes defining number of recors
+            pos = uint64(obj.position + 4 + obj.bat_bin_size);
         end
         function fsp = get.free_spaces_and_size(obj)
             fsp = obj.free_space_pos_and_size_;

@@ -38,6 +38,30 @@ classdef test_block_allocation_table < TestCase
             bac  = bac.init_obj_info(test_class);
             assertTrue(bac.initialized);
         end
+        function test_set_wrong_block_position_throws(~)
+            data_list = {data_block('','level2_a'),data_block('','level2_b')...
+                data_block('','level2_c'),dnd_data_block(),data_block('','level2_d'),...
+                pix_data_block()};
+            bac = blockAllocationTable(10,data_list);
+            assertFalse(bac.initialized);
+            first_free = bac.blocks_start_position;
+            assertEqual(first_free,bac.end_of_file_pos);
+            assertTrue(isempty(bac.free_spaces_and_size));
+
+            pdb = data_block('','level2_b');
+            pdb.position = 300;
+            pdb.size     = 1000;
+ 
+            block_size = 1000*9*4+12;
+
+
+            assertEqual(pdb.size,block_size)
+            bac = bac.set_data_block(pdb);
+            
+            assertEqual(bac.end_of_file_pos,pdb.position+block_size);
+            assertEqual(bac.free_spaces_and_size,[first_free;400-first_free]);
+        end
+        
 
         function test_set_const_block_position(~)
             data_list = {data_block('','level2_a'),data_block('','level2_b')...
@@ -60,9 +84,8 @@ classdef test_block_allocation_table < TestCase
             bac = bac.set_data_block(pdb);
             
             assertEqual(bac.end_of_file_pos,pdb.position+block_size);
-            assertEqual(bac.free_spaces_and_size,[first_free;100-first_free]);
+            assertEqual(bac.free_spaces_and_size,[first_free;400-first_free]);
         end
-
 
         function test_set_block_list_with_gaps(~)
             bat = blockAllocationTable();

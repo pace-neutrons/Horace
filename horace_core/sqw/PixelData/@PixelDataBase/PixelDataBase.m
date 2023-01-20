@@ -348,6 +348,9 @@ classdef (Abstract) PixelDataBase < serializable
 
     end
     methods(Abstract,Access=protected)
+        % Maitn part of get.num_pixels accessor
+        num_pix = get_num_pixels(obj);        
+        %
         prp = get_prop(obj, ind);
         obj = set_prop(obj, ind, val);
         %
@@ -536,7 +539,7 @@ classdef (Abstract) PixelDataBase < serializable
         %         end
 
         function num_pix = get.num_pixels(obj)
-                num_pix = get_num_pixels(obj);
+            num_pix = get_num_pixels(obj);
         end
 
         function page_size = calculate_page_size_(obj, mem_alloc)
