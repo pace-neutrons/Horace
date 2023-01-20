@@ -1,5 +1,5 @@
 classdef binfile_v4_common < horace_binfile_interface
-    % Class describes common binary operations avaliable on
+    % Class describes common binary operations available on
     % binary sqw file version 4
     %
     properties(Access=protected)
@@ -89,29 +89,30 @@ classdef binfile_v4_common < horace_binfile_interface
             % retrieve sqw/dnd object from hdd and return its values in
             % the object provided as input.
             % Inputs:
-            % obj             -- initialized instance of faccessor
+            % obj             -- initialized instance of f-accessor
             % Optional:
             % filename_or_obj
-            % Either       -- name of the file to initialize faccessor
+            % Either       -- name of the file to initialize f-accessor
             %                 from if the object have not been initialized
             %                 before
             % OR           -- the object to modify with the data,
-            %                 obtained using initialized faccessor
+            %                 obtained using initialized f-accessor
             % obj_to_set   -- if provided, previous parameter have to be
             %                 the file to read data from. Then this
             %                 parameter defines the object, to modify the
-            %                 data using faccessor, initialized by file
+            %                 data using f-accessor, initialized by file
             %                 above
             % 'ignore_blocks'     ! the keyword which identifies that some
             %                     ! blocks should not be loaded
             % list of block names ! following the the first keyword the
-            %                     ! list of block banes to ignore and do
-            %                       not read from hdd at this stage
+            %                     ! list of block names to ignore and do
+            %                       not read from hdd at this stage.
             %
-            % if none of additinal parameters is specified, result is
-            % returnded in sqw object
+            % if none of additional parameters is specified, result is
+            % returned in newly created sqw object if f-accessor is an sqw
+            % accessor or dnd object if the accessor is dnd accessor
             % Output:
-            % obj          -- initialized instance of faccessor.
+            % obj          -- initialized instance of f-accessor.
             % obj_to_set   -- the object, modified by the contents,
             %                 obtained from the file. If other objects are
             %                 not specified as input, this object is sqw
@@ -119,7 +120,7 @@ classdef binfile_v4_common < horace_binfile_interface
             %
             [obj,obj_to_set,is_serializable,ignore_block_list] = ...
                 check_get_all_blocks_inputs_(obj,varargin{:});
-            % This have happened during faccessor intialization:
+            % This have happened during f-accessor initialization:
             %obj.bat_ = obj.bat_.get_bat(obj.file_id_);
             fl = obj.bat.blocks_list;
             n_blocks = obj.bat_.n_blocks;
@@ -268,7 +269,7 @@ classdef binfile_v4_common < horace_binfile_interface
 
         % get access for creation date of dnd object stored on hdd or
         % attached to file loader
-        cd = get_creation_date(obj)        
+        cd = get_creation_date(obj)
         % the main part of the copy constructor, copying the contents
         % of the one class into another including opening the
         % corresponding file with the same access rights
@@ -309,7 +310,7 @@ classdef binfile_v4_common < horace_binfile_interface
             bl = obj.bat_.get_data_block('bl_data_nd_data');
             pos = bl.npix_position;
         end
-     end
+    end
     methods(Abstract,Access=protected)
         % return the list of (non-iniialized) data blocks, defined for
         % given file format

@@ -57,7 +57,12 @@ if inarg >1
     end
     obj_to_set = argi{2};
 elseif isempty(obj_to_set)
-    obj_to_set = sqw();
+    cln = class(obj);
+    if contains(cln,'dnd')
+        obj_to_set = d0d();
+    else
+        obj_to_set = sqw();        
+    end
 end
 if isa(obj_to_set,'serializable')
     is_serializable = true;

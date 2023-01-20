@@ -176,30 +176,46 @@ classdef blockAllocationTable < serializable
                 data_block_or_name,block_size);
         end
         %
-        function obj = init_obj_info(obj,obj_to_analyze,nocache)
+        function obj = init_obj_info(obj,obj_to_analyze,varargin)
             % Initialize block allocation table for the sqw/type object,
             % provided as input.
             % Inputs:
             % obj_to_analyze -- the object to split into sub-blocks and
             %                   create BAT for. The object has to be
-            %                   compartible with the data_block-s list,
-            %                   provided at construction of the BAT.
-            % nocache        -- if true or absent, cache serizalized
+            %                   compatible with the data_block-s list,
+            %                   provided at the construction of the BAT.
+            % Optional:
+            %
+            % '-nocache'   --  if absent, cache serialized
             %                   binary representation of obj_to_analyze
             %                   while calculating sizes of its blocks.
             %                   if false, the binary representation will be
             %                   recalculated when the object will be
-            %                   written on hdd, and method will just
+            %                   written on hdd, and the method will just
             %                   calculate sizes and future locations
             %                   of the blocks.
+            % '-insertion'   -- if present, calculate sizes of blocks only
+            %                   if they have not been calculated before,
+            %                   and insert these blocks in free BAT space
+            %                   assuming that other blocks have already
+            %                   been allocated.
+            %  Used for upgrade of the old sqw files into new file format
+            %  leaving pixels array in their place
+            %
             % Result:
             % The blocks defined in this BlockAllocationTable calculate
             % their sizes and their positions are calculated assuming that
-            % they will be placed one after another without gaps.
-            if nargin<3
-                nocache = false;
+            % they will be placed one after another without gaps, or, if
+            % '-insertion' is specified, calculate places of undefined
+            % blocks of BAT, assuming that blocks, which are already
+            % defined are staying at their initial position. 
+            %
+            [ok,mess,nocache,insertion] = parse_char_options(varargin, ...
+                {'-nocache','-insertion'});
+            if ~ok
+                error('HORACE:blockAllocationTable:invalid_argument', mess);
             end
-            obj = init_obj_info_(obj,obj_to_analyze,nocache);
+            obj = init_obj_info_(obj,obj_to_analyze,nocache,insertion);
         end
         function pos = get_block_pos(obj,block_name_or_class)
             % return the position of block defined by current BAT

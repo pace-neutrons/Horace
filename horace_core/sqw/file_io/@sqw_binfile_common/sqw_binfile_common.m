@@ -311,8 +311,10 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
                     new_ldr.bat_ = new_ldr.bat_.bat_set_data_block(pix_data_block);
                     % this will build filebacked pixels block
                     sqw_obj = old_ldr.get_sqw();
+                    mh = sqw_obj.main_header;
                     % as pix data block position already allocated, 
-                    new_ldr.sqw_holder = sqw_obj;
+                    new_ldr.bat_ = new_ldr.bat_.init_obj_info(sqw_obj,'-insert');
+                    new_ldr.sqw_holder_ = sqw_obj;
                     new_ldr = new_ldr.put_sqw();
                     old_ldr.delete();
                 else

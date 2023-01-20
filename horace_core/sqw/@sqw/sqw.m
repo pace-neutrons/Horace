@@ -29,6 +29,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         pix % access to pixel information, if any such information is
         % stored within an object. May also return pix_combine_info or
         % filebased pixels. (TODO -- this should be modified)
+
+        % The date of the sqw object file creatrion. As the date is defined both
+        % in sqw and dnd object parts, this property synchronize both
+        creation_date;        
     end
 
     properties(Hidden,Dependent)
@@ -308,7 +312,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.data.filepath = fp;
             obj.pix.filepath = val;
         end
-
+        %
+        function cd = get.creation_date(obj)
+            cd = obj.main_header.creation_date;
+        end
+        function obj = set.creation_date(obj,val)
+            obj.main_header.creation_date = val;
+            obj.data.creation_date = val;
+        end
+        
     end
 
     %======================================================================
