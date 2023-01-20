@@ -85,6 +85,8 @@ classdef PixelDataFileBacked < PixelDataBase
     end
 
     properties (Access=private)
+        % number of pixels, stored in the data file
+        num_pixels_;
         f_accessor_;  % instance of faccess object to access pixel data from file
         page_number_ = 1;  % the index of the currently loaded page
         has_tmp_file = false;
@@ -557,6 +559,12 @@ classdef PixelDataFileBacked < PixelDataBase
 
     end
     methods(Access=protected)
+        function  data =  get_data_(obj)
+            % 
+            data_map = obj.get_memmap_handle();            
+            [pix_idx_start, pix_idx_end] = obj.get_page_idx_(page_number);            
+            data = double(data_map.data.data(:,pix_idx_start:pix_idx_end));
+        end
         function obj = set_full_filename(obj,val)
             % main part of file setter. Need checks/modification
             obj.tmp_io_handler_.move_file(val);
@@ -575,24 +583,44 @@ classdef PixelDataFileBacked < PixelDataBase
 
 
     methods (Access = protected)
+        function num_pix = get_num_pixels(obj)
+            % num_pixels getter
+            num_pix = obj.num_pixels_;
+        end
+
         %------------------------------------------------------------------
         function obj=set_data_wrap(obj,val)
             % main part of pix_data_wrap setter overloaded for
             % PixDataMemory class
             if ~isa(val,'pix_data')
-                error('HORACE:PixelDataMemory:invalid_argument', ...
+                error('HORACE:PixelDataFileBacked:invalid_argument', ...
                     'pix_data_wrap property can be set by pix_data class instance only. Provided class is: %s', ...
                     class(val));
             end
-            obj.data_ = val.data;
-        end
-        function val = get_data_wrap(obj)
-            % main part of pix_data_wrap getter overloaded for
-            % PixDataMemory class
-            val = pix_data();
-            val.data = obj.data;
-        end
+            if ~(ischar(val.data)||isstring(val.data))
+                error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                    'Attempt to initialize PixelDataFileBacked using pix_data values obtained from PixelDataMemory class: %s', ...
+                    disp2str(val));
+            end
+            in_file = val.data;
+            if ~is_file(in_file)
+                if MPI_State.instance().is_deployed
+                    error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                        'Cannot find file-source of filebacked pixel data: %s', in_file)
+                else
+                    mess = sprintf('Cannot find file-source of filebacked pixels: %s. Select sqw file to get pixel data from', ...
+                        in_file);
+                    in_file = getfile(in_file,mess );
+                    if isempty(in_file)
+                        error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                            'File-source of filebacked pixel data: %s have not been found.', in_file)
+                    end
+                end
+            end
 
+            ldr = sqw_formats_factory.instance().get_loader(in_file);
+            obj = obj.init_from_file_accessor_(ldr);
+        end
         function prp = get_prop(obj, fld)
             %% TODO: Check can go once finalise complete as tmpfile becomes realfile immediately
             if ~obj.has_tmp_file
@@ -620,8 +648,6 @@ classdef PixelDataFileBacked < PixelDataBase
             obj=obj.load_current_page_if_data_empty_();
             obj.data_(flds, :) = val;
             obj=obj.reset_changed_coord_range(fld);
-
-
         end
 
         function is = cache_is_empty_(obj)
@@ -635,7 +661,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.full_filename_ = obj.f_accessor_.full_filename;
             obj.page_number_ = 1;
             obj.num_pixels_ = double(obj.f_accessor_.npixels);
-            obj.data();
+            obj = obj.data();
             obj.pix_range_ = obj.f_accessor_.get_pix_range();
         end
 

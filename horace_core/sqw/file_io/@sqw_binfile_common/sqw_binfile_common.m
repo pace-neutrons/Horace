@@ -308,10 +308,13 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
                     % this defines the block size
                     pix_data_block.npixels      = old_ldr.npixels;
                     % allocate space in new data block
-                    new_ldr.bat_ = new_ldr.bat_.bat_set_data_block(pix_data_block);
+                    new_ldr.bat_ = new_ldr.bat_.set_data_block(pix_data_block);
                     % this will build filebacked pixels block
                     sqw_obj = old_ldr.get_sqw();
                     mh = sqw_obj.main_header;
+                    if ~mh.creation_date_defined
+                        sqw_obj.creation_date = datetime('now');
+                    end
                     % as pix data block position already allocated, 
                     new_ldr.bat_ = new_ldr.bat_.init_obj_info(sqw_obj,'-insert');
                     new_ldr.sqw_holder_ = sqw_obj;

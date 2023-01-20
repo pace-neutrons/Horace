@@ -49,7 +49,6 @@ classdef (Abstract) PixelDataBase < serializable
     %
     properties(Access=protected)
         PIXEL_BLOCK_COLS_ = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
-        num_pixels_ = 0;  % the number of pixels in the object
         data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
         data_range_ = PixelDataBase.EMPTY_RANGE; % range of all other variables (signal, error, indexes)
         object_id_;  % random unique identifier for this object, used for tmp file names
@@ -356,16 +355,16 @@ classdef (Abstract) PixelDataBase < serializable
         val = get_full_filename(obj);
         %
         obj = reset_changed_coord_range(obj,range_type);
-
+        % main part of get.data accessor
+        data =  get_data_(obj)
         % setters/getters for serializable interface properties
-        val = get_data_wrap(obj);
         obj = set_data_wrap(obj,val);
     end
 
     methods
 
         function data = get.data(obj)
-            data = obj.data_;
+            data = get_data_(obj);
         end
         function obj=set.data(obj, pixel_data)
             obj=set_data(obj, pixel_data);
@@ -463,7 +462,7 @@ classdef (Abstract) PixelDataBase < serializable
             range = obj.data_range_(:,1:4);
         end
 
-      function srange = get.data_range(obj)
+        function srange = get.data_range(obj)
             srange = obj.data_range_;
         end
         function obj = set.data_range(obj,val)
@@ -498,7 +497,6 @@ classdef (Abstract) PixelDataBase < serializable
         function obj = set.metadata(obj,val)
             obj = obj.set_metadata(val);
         end
-
     end
     methods
         function obj=set_data_range(obj,data_range)
@@ -538,7 +536,7 @@ classdef (Abstract) PixelDataBase < serializable
         %         end
 
         function num_pix = get.num_pixels(obj)
-            num_pix = obj.num_pixels_;
+                num_pix = get_num_pixels(obj);
         end
 
         function page_size = calculate_page_size_(obj, mem_alloc)
@@ -608,6 +606,12 @@ classdef (Abstract) PixelDataBase < serializable
         %------------------------------------------------------------------
     end
     methods(Access=protected)
+        function val = get_data_wrap(obj)
+            % main part of pix_data_wrap getter which allows overload for
+            % different children
+            val = pix_data(obj);
+        end
+
         function obj =  set_metadata(obj,val)
             % main part of set from metadata setter
             if ~isa(val,'pix_metadata')
@@ -617,7 +621,6 @@ classdef (Abstract) PixelDataBase < serializable
             end
             obj.full_filename_   = val.full_filename;
             obj.data_range_      = val.data_range;
-            obj.num_pixels_  = val.npix;
             if obj.do_check_combo_arg
                 obj = obj.check_combo_arg();
             end

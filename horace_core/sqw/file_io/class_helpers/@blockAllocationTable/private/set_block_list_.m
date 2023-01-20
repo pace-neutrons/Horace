@@ -16,17 +16,20 @@ if ~all(is_db)
         first_non,class(val{first_non}));
 end
 obj.blocks_list_ = val;
-[total_bl_size,bat_size,block_names,eof_pos] = calculate_bat_size_and_free_spaces(obj);
+[total_bl_size,initialized,bat_size,block_names,eof_pos] = calculate_bat_size_and_free_spaces(obj);
 obj.bat_bin_size_ = bat_size;
 obj.block_names_  = block_names;
-obj.end_of_file_pos_ = eof_pos;
 
-if total_bl_size == 0 || obj.blocks_start_position+ total_bl_size==eof_pos
+
+if ~initialized || obj.blocks_start_position+total_bl_size==eof_pos
+    % only BAT
+    obj.end_of_file_pos_ = obj.position_+obj.bat_bin_size_ + 4;
     return % no free spaces between blocks, or block list is not initialized
 end
+obj.end_of_file_pos_ = eof_pos;
 obj = find_free_spaces(obj);
 
-function [total_bl_size,bat_size,name_list,eof_pos] = calculate_bat_size_and_free_spaces(obj)
+function [total_bl_size,initialized,bat_size,name_list,eof_pos] = calculate_bat_size_and_free_spaces(obj)
 % calculate the size of the block allocation table to store it on disk
 %
 bat_size = 4; % first 4 bytes of BAT is number of blocks in the record
@@ -34,12 +37,16 @@ n_blocks = numel(obj.blocks_list_);
 name_list = cell(1,n_blocks);
 eof_pos = 0;
 total_bl_size = 0;
+initialized = false;
 for i=1:n_blocks
     block = obj.blocks_list_{i};
+    initialized = initialized||block.initialized;
     total_bl_size = total_bl_size +block.size;
     bat_size = bat_size+block.bat_record_size;
     name_list{i} = block.block_name;
-    eof_pos = max(eof_pos,block.position+block.size);
+    if initialized
+        eof_pos = max(eof_pos,block.position+block.size);
+    end
 end
 
 function obj = find_free_spaces(obj)

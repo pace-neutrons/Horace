@@ -7,14 +7,14 @@ classdef pix_data < serializable
     %
     properties(Dependent)
         npix;   % Number of pixels, stored in the the pixels data block
-        n_rows  % Number of rows in pixel data array 
+        n_rows  % Number of rows in pixel data array
 
         data;  % data array block
     end
     properties(Access=protected)
         npix_;
-        num_pix_fields_ = 9;       
-        data_;
+        num_pix_fields_ = 9;
+        data_ = [];
     end
 
 
@@ -28,11 +28,18 @@ classdef pix_data < serializable
             if nargin == 0
                 return;
             end
-            if nargin == 1 && isa(varargin{1},'PixelDataBase')
+            if nargin == 1
+                remains = {};
                 inputs = varargin{1};
-                remains = varargin(2:end);
-                obj.npix = inputs.num_pixels;
-                obj.data = inputs.data;
+                if isa(varargin{1},'PixelDataMemory')
+
+                    obj.data = inputs.data;
+                elseif isa(varargin{1},'PixelDataFileBacked')
+                    obj.npix = inputs.num_pixels;
+                    obj.data = obj.full_filename;
+                else
+                    remains = inputs ;
+                end
             else
                 flds = obj.saveableFields();
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...
@@ -45,7 +52,7 @@ classdef pix_data < serializable
             end
 
         end
-        % 
+        %
         function rd = get.n_rows(obj)
             rd = obj.num_pix_fields_;
         end
@@ -55,14 +62,13 @@ classdef pix_data < serializable
                     'The number of pixels rows should be single non-negative number. It is: %s', ...
                     disp2str(val));
             end
-            
             obj.num_pix_fields_ = val;
         end
-        
+
         %
         function np = get.npix(obj)
             np = obj.npix_;
-        end        
+        end
         function obj = set.npix(obj,val)
             if ~(isnumeric(val)&&isscalar(val)&&val>=0)
                 error('HORACE:pix_metadata:invalid_argument', ...
@@ -79,15 +85,17 @@ classdef pix_data < serializable
         function obj = set.data(obj,val)
             % should be also setter from filename, used for setting
             % filebased data
-            if ~isnumeric(val)
+            if isnumeric(val)
+                obj.data_ = val;
+                %
+                obj.num_pix_fields_ = size(val,1);
+                obj.npix_           = size(val,2);
+            elseif ischar(val)||isstring(val)
+            else
                 error('HORACE:pix_metadata:invalid_argument', ...
-                    'The data field should be numeric array. Its class is: %s, size: %s', ...
+                    'The data field should be either numeric array describing pixel data in memory or character string, describing the location of filebased class. Actually, its class is: %s, size: %s', ...
                     class(val),disp2str(size(val)));
             end
-            obj.data_ = val;
-            %
-            obj.num_pix_fields_ = size(val,1);                        
-            obj.npix_           = size(val,2);
         end
     end
     %======================================================================
@@ -96,12 +104,16 @@ classdef pix_data < serializable
         function ver  = classVersion(~)
             ver = 1;
         end
-        function flds = saveableFields(~)
+        function flds = saveableFields(obj)
             % Return cellarray of public property names, which fully define
             % the state of a serializable object, so when the field values are
             % provided, the object can be fully restored from these values.
             %
-            flds = {'data'};
+            if isnumeric(obj.data_)
+                flds = {'data'};
+            else
+                flds = {'data','npix','n_rows'};
+            end
         end
     end
 end

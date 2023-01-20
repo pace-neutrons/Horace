@@ -26,7 +26,7 @@ classdef blockAllocationTable < serializable
         % described BAT and free spaces sizes
         free_spaces_and_size;
         % position of the end of file (size of all blocks stored on the
-        % disk)
+        % disk). Actually plus 1, so you may start writing there
         end_of_file_pos
     end
     properties(Dependent,Hidden)
@@ -109,13 +109,13 @@ classdef blockAllocationTable < serializable
             % the data blocks start after BAT position + 4 bytes describing
             % the number of bytes in BAT binary representation
             % + BAT binary representation itself
-            pos = uint64(obj.position + 4 + obj.bat_bin_size);
+            pos = uint64(obj.position + 4+ obj.bat_bin_size);
         end
         function fsp = get.free_spaces_and_size(obj)
             fsp = obj.free_space_pos_and_size_;
         end
         function pos = get.end_of_file_pos(obj)
-            pos = obj.end_of_file_pos_;
+            pos = uint64(obj.end_of_file_pos_);
         end
     end
     %======================================================================
@@ -134,6 +134,26 @@ classdef blockAllocationTable < serializable
             % bl_index              -- the position of the block in the BAT
             %                          list
             [data_bl_instance,bl_index] = get_data_block_(obj,block_name_or_instance);
+        end
+        function obj = set_data_block(obj,block_instance)
+            % set data block with defined position and size in the free
+            % space defined by current block allocation table. 
+            % 
+            % Input:
+            % block_instance: The instance of data_block already present in
+            %                BAT, with new position and size defined in the
+            %                block_instance
+            %
+            % Returns:
+            % modified BAT, containing new block at the position specified
+            % in input and free spaces list modified according to the
+            % changes, caused by placing the block in the specified
+            % position.            
+            % 
+            % Throws if the input block location overlaps with locations of
+            % any existing blocks
+            % 
+            obj = set_data_block_(obj,block_instance);
         end
         function [obj,new_pos,compress_bat] = find_block_place(obj, ...
                 data_block_or_name,block_size)

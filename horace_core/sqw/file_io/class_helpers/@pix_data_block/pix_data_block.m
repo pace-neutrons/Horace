@@ -22,6 +22,7 @@ classdef pix_data_block < data_block
         bytes_pp % bytes per point -- how much every pixel value occupies on hdd
     end
     properties(Access=protected)
+        npixels_  = 0;
         n_rows_   = 9;
         bytes_pp_ = 4;
     end
@@ -36,8 +37,17 @@ classdef pix_data_block < data_block
         function pos = get.num_pix_position(obj)
             pos = obj.position_+4;
         end
-        function pos = get.pix_position(obj)
-            pos = obj.position_+12;
+        %
+        function np = get.npixels(obj)
+            np = obj.npixels_;
+        end
+        function obj = set.npixels(obj,np)
+            if ~(isscalar(np) && isnumeric(np) && np >= 0 )
+                error('HORACE:pix_data_block:invalid_argument', ...
+                    'Number of pixels shoud be single non-negative number. In fact it is: %s', ...
+                    disp2str(np))
+            end
+            obj.npixels_ = np;
         end
         %
         function nr = get.n_rows(obj)
@@ -62,8 +72,11 @@ classdef pix_data_block < data_block
                     disp2str(bpp))
             end
             obj.n_rows_ = bpp;
-        end        
+        end
         %
+        function pos = get.pix_position(obj)
+            pos = obj.position_+12;
+        end
         function obj = set.pix_position(obj,val)
             % set block position from known pix position
             if ~(isscalar(val) && isnumeric(val) && val>12)
@@ -108,6 +121,25 @@ classdef pix_data_block < data_block
             % (4 - for single precision)
             size  = 4+8+obj.npixels*obj.n_rows*obj.bytes_pp;
         end
+        function obj = set_size(obj,val)
+            % Overloadable part of data_block size setter
+            if ~(isscalar(val)&&isnumeric(val)&&val>=0)
+                error('HORACE:data_block:invalid_argument', ...
+                    'block size can be only non-negative number. It is: %s',...
+                    disp2str(val));
+            end
+            all_pix_size = uint64(val - 12);
+            pix_size = uint64(obj.n_rows*obj.bytes_pp);
+            npix =  idivide(all_pix_size ,pix_size);
+            err = rem(all_pix_size,pix_size);
+            if err>eps("single")
+                error('HORACE:data_block:invalid_argument', ...
+                    'Provided size of pix_data block %d does not contans whole number of pixels (%d)', ...
+                    val,npix)
+            end
+            obj.npixels_ = npix;
+        end
+
         %-----------------------------------------------------------------
         function obj = put_bindata_in_file(obj,fid,obj_data)
             % Overloaded: -- store data contained in dnd_data_block class

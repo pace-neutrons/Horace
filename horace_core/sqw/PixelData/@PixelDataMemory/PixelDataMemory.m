@@ -227,6 +227,11 @@ classdef PixelDataMemory < PixelDataBase
     end
     %
     methods(Access=protected)
+        function data =  get_data_(obj)
+            % main part of get.data accessor
+            data = obj.data_;
+        end
+        %
         function obj = set_full_filename(obj,val)
             % main part of filepath setter. Need checks/modification
             obj.full_filename_ = val;
@@ -234,8 +239,12 @@ classdef PixelDataMemory < PixelDataBase
         function full_filename = get_full_filename(obj)
             full_filename = obj.full_filename_;
         end
-
         %
+        function num_pix = get_num_pixels(obj)
+            % num_pixels getter
+            num_pix = size(obj.data_,2);
+        end
+        %------------------------------------------------------------------
         function obj=set_prop(obj, fld, val)
             if ~isscalar(val)
                 if isvector(val) && ~isrow(val)
@@ -289,13 +298,12 @@ classdef PixelDataMemory < PixelDataBase
                     'pix_data_wrap property can be set by pix_data class instance only. Provided class is: %s', ...
                     class(val));
             end
+            if ~isnumeric(val.data)
+                error('HORACE:PixelDataMemory:invalid_argument', ...
+                    'Attempt to initialize PixelDataMemory using pix_data values obtained from PixelDataFilebacked class: %s', ...
+                    disp2str(val));
+            end
             obj.data_ = val.data;
-        end
-        function val = get_data_wrap(obj)
-            % main part of pix_data_wrap getter overloaded for
-            % PixDataMemory class
-            val = pix_data();
-            val.data = obj.data;
         end
         %         function data=saveobj(obj)
         %             data = struct(obj);
