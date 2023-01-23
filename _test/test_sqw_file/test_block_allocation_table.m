@@ -38,6 +38,23 @@ classdef test_block_allocation_table < TestCase
             bac  = bac.init_obj_info(test_class);
             assertTrue(bac.initialized);
         end
+        function test_init_with_insertion(~)
+            data_list =  {data_block('','level2_a'),data_block('','level2_b')...
+                data_block('','level2_c'),dnd_data_block(),data_block('','level2_d'),...
+                pix_data_block()};
+            bac = blockAllocationTable(0,data_list);            
+
+            assertFalse(bac.initialized);            
+            
+            pdb = pix_data_block();
+            pdb.npixels = 100;
+            pdb.position = 500;            
+            bac = bac.set_data_block(pdb);
+
+            test_class = binfile_v4_block_tester();            
+            bac = bac.init_obj_info(test_class,'-insertion','-test_mode');
+        end
+
         function test_set_overlapped_block_position_throws(~)
             data_list = {data_block('','level2_a'),data_block('','level2_b')...
                 data_block('','level2_c'),dnd_data_block(),data_block('','level2_d'),...

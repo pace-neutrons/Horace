@@ -1,4 +1,4 @@
-function obj = init_obj_info_(obj,obj_to_analyze,nocache,insertion)
+function obj = init_obj_info_(obj,obj_to_analyze,nocache,insertion,test_mode)
 % Initialize block allocation table for the object, provided as
 % input.
 % Inputs:
@@ -31,14 +31,17 @@ end
 for i=1:n_b
     db = obj.blocks_list_{i};
     if insertion
-        if db.position > 0 % block size and position are already calculated
+        if  db.initialized % block size and position are already calculated
             % just check them
             preallocated(i) = true;
             db_check = db.calc_obj_size(obj_to_analyze,true);
-            if db_check.size ~=db.size
+            if db_check.size ~=db.size && ~test_mode
                 error('HORACE:blockAllocationTable:runtime_error', ...
                     'Size of the pre-allocated block (%d) is different from the size of the same block calculated now (%d)', ...
                     db.size,db_check.size);
+            else
+                block_size(i) = db.size;
+                continue;
             end
         end
     end
@@ -47,12 +50,17 @@ for i=1:n_b
 
     obj.blocks_list_{i} = db;
 end
-if insertion
+if insertion && any(preallocated)
+    block_pos = 0;
     for i=1:n_b
-        if preallocated(i);   continue;
+        if preallocated(i)
+            db = obj.blocks_list_{i};
+            block_pos = max(block_pos,db.position+db.size);
+            continue;
         end
         db = obj.blocks_list_{i};
-        obj = obj.find_block_place(db,block_size(i));
+        [obj,new_pos] = obj.find_block_place(db,block_size(i));
+        block_pos = max(block_pos,new_pos+block_size(i));
     end
 else
     block_pos = uint64(cumsum(block_size));

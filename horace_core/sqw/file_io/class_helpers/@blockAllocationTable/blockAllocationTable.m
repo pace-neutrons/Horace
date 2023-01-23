@@ -123,7 +123,7 @@ classdef blockAllocationTable < serializable
     % Main BAT operations:
     methods
         function [data_bl_instance,bl_index] = get_data_block(obj,block_name_or_instance)
-            % get one data_block which is part of block allocation table. 
+            % get one data_block which is part of block allocation table.
             % Inputs:
             % block_name_or_instance -- the name of the block in the BAT or
             %                           the instance of the block, which
@@ -138,8 +138,8 @@ classdef blockAllocationTable < serializable
         end
         function obj = set_data_block(obj,block_instance)
             % set data block with defined position and size in the free
-            % space defined by current block allocation table. 
-            % 
+            % space defined by current block allocation table.
+            %
             % Input:
             % block_instance: The instance of data_block already present in
             %                BAT, with new position and size defined in the
@@ -149,11 +149,11 @@ classdef blockAllocationTable < serializable
             % modified BAT, containing new block at the position specified
             % in input and free spaces list modified according to the
             % changes, caused by placing the block in the specified
-            % position.            
-            % 
+            % position.
+            %
             % Throws if the input block location overlaps with locations of
             % any existing blocks
-            % 
+            %
             obj = set_data_block_(obj,block_instance);
         end
         function [obj,new_pos,compress_bat] = find_block_place(obj, ...
@@ -220,6 +220,10 @@ classdef blockAllocationTable < serializable
             %                   and insert these blocks in free BAT space
             %                   assuming that other blocks have already
             %                   been allocated.
+            % '-test_mode'   -- do not validate the size of the sub-objects
+            %                   of the initial object agains the size of
+            %                   these objects preallocated earlier. Should
+            %                   be used in tests only.
             %  Used for upgrade of the old sqw files into new file format
             %  leaving pixels array in their place
             %
@@ -229,14 +233,14 @@ classdef blockAllocationTable < serializable
             % they will be placed one after another without gaps, or, if
             % '-insertion' is specified, calculate places of undefined
             % blocks of BAT, assuming that blocks, which are already
-            % defined are staying at their initial position. 
+            % defined are staying at their initial position.
             %
-            [ok,mess,nocache,insertion] = parse_char_options(varargin, ...
-                {'-nocache','-insertion'});
+            [ok,mess,nocache,insertion,test_mode] = parse_char_options(varargin, ...
+                {'-nocache','-insertion','-test_mode'});
             if ~ok
                 error('HORACE:blockAllocationTable:invalid_argument', mess);
             end
-            obj = init_obj_info_(obj,obj_to_analyze,nocache,insertion);
+            obj = init_obj_info_(obj,obj_to_analyze,nocache,insertion,test_mode);
         end
         function pos = get_block_pos(obj,block_name_or_class)
             % return the position of block defined by current BAT

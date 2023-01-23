@@ -21,17 +21,20 @@ function[obj,new_pos,compress_bat] = find_block_place_(obj, ...
 %           together to save space
 
 [the_block,bl_ind] = obj.get_data_block(data_block_name_or_class);
-if block_size == the_block.size
+if block_size == the_block.size && the_block.initialized
     new_pos = the_block.position;
     compress_bat = false;
     return;
 end
-old_block_place = [the_block.position;the_block.size];
-% add the space freed after removing the current block to the list of
-% the free spaces
-fs = [obj.free_space_pos_and_size_,old_block_place];
-fs = merge_adjusent_blocks(fs);
-
+if the_block.initialized
+    old_block_place = [the_block.position;the_block.size];
+    % add the space freed after removing the current block to the list of
+    % the free spaces
+    fs = [obj.free_space_pos_and_size_,old_block_place];
+    fs = merge_adjusent_blocks(fs);
+else
+    fs = obj.free_space_pos_and_size_;
+end
 free_space_size = fs(2,:);
 will_fit = free_space_size>=block_size;
 

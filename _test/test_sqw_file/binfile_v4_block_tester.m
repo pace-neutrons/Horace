@@ -19,6 +19,7 @@ classdef binfile_v4_block_tester < serializable
         level2_c;
         data;
         level2_d;
+        pix;
     end
     properties(Access=protected)
         level2_a_;
@@ -102,6 +103,9 @@ classdef binfile_v4_block_tester < serializable
             obj.level2_d_ = val;
         end
         %
+        function pix = get.pix(~)
+            pix = PixelDataFileBacked();
+        end
 
         function [nd,b_size] = dimensions(obj)
             % this is common sqw interface used in preparing the sqw file
