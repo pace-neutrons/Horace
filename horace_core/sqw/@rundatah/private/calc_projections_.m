@@ -81,7 +81,11 @@ if use_mex
             [pix_range,pix] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             if proj_mode==2
                 pix = PixelDataBase.create(pix,[],false);
-                pix.set_range(pix_range);
+                %Re #928 TODO: calculate full range in mex file, modify
+                % PixelData constructor not to calculate range during
+                % construction and enable this method, setting 9xnpix range
+                % for performance reason.
+                %pix.set_range(pix_range);
             end
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex', ...
