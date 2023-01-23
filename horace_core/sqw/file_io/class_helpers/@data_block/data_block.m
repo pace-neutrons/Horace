@@ -40,7 +40,7 @@ classdef data_block < serializable
     properties(Access=protected)
         sqw_prop_name_ ='';
         level2_prop_name_ = '';
-        position_=0;
+        position_=uint64(0);
         size_ = 0;
         % The cache containing serialized object after estimating its size
         serialized_obj_cache_ = [];
@@ -90,7 +90,7 @@ classdef data_block < serializable
                         'Pre-calculated block size %d differs from obtained block size %d. Binary file will be probably corrupted',...
                         obj.block_size,numel(bindata))
                 else
-                    obj.size_=numel(bindata);
+                    obj.size_=uint64(numel(bindata));
                 end
             end
             obj = obj.put_bindata_in_file(fid,bindata);
@@ -259,7 +259,7 @@ classdef data_block < serializable
         end
         %
         function size = get.size(obj)
-            size = get_size(obj);
+            size = uint64(get_size(obj));
         end
         function obj = set.size(obj,val)
             obj = set_size(obj,val);

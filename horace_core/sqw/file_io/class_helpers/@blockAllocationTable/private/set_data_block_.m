@@ -31,7 +31,7 @@ if ~any(targ_found)
 end
 if targ_start<obj.blocks_start_position
     error('HORACE:blockAllocatinTable:invalid_argument', ...
-        'Block: %s requested position overlaps with location of BAT',targ_name);    
+        'Block: %s requested position overlaps with location of BAT',targ_name);
 end
 %
 initialized    = initialized(~targ_found);
@@ -40,7 +40,7 @@ size           = size(~targ_found);
 %
 first_pos = start_position(initialized);
 next_pos   = first_pos + size(initialized);
-targ_end = targ_start+targ_size;
+targ_end   = targ_start+targ_size;
 %
 overlap = (targ_start >= first_pos & targ_start < next_pos) | (targ_end >= first_pos & targ_end <  next_pos);
 if any(overlap)
@@ -48,26 +48,22 @@ if any(overlap)
         'Block %s location overlaps with location of existing blocks %s', ...
         targ_name, disp2str(obj.block_names(overlap)))
 end
+% find free spaces between blocks
 obj.blocks_list_{targ_found} = block_instance;
-first_pos = [obj.blocks_start_position,first_pos,targ_start];
-next_pos   = [next_pos,obj.end_of_file_pos,targ_end];
+obj.end_of_file_pos_ = max(obj.end_of_file_pos_,block_instance.position+block_instance.size);
+first_pos  = [0,first_pos,targ_start];
+next_pos   = [obj.blocks_start_position,next_pos,targ_end];
 [first_pos,s_ind] = sort(first_pos);
 next_pos          = next_pos(s_ind);
-free_spaces = first_pos(2:end) - next_pos(1:end-1);
-overlap = free_spaces < 0;
-if any(overlap)
-    ind = find(overlap);
-    error('HORACE:blockAllocatinTable:invalid_argument', ...
-    'free spaces between blocks N: %s are overlapping',disp2str(ind));
-end
+%
+free_spaces = first_pos(2:end)-next_pos(1:end-1)-1;
 valid = free_spaces>0;
-obj.end_of_file_pos_         = next_pos(end);
 obj.free_space_pos_and_size_ = [next_pos([valid,false]);free_spaces(valid)];
 
 
-function [is_init,is_the_one,position,size]=block_info(other_block,targ_block_name)
+function [is_init,is_requested,position,size]=block_info(other_block,targ_block_name)
 % retrieve statistical parameters of the block
 position = other_block.position;
 size     = other_block.size;
 is_init  = other_block.initialized;
-is_the_one = strcmp(other_block.block_name,targ_block_name);
+is_requested = strcmp(other_block.block_name,targ_block_name);
