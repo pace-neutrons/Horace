@@ -201,9 +201,17 @@ if hc.parallel_multifit
         f_pass_caller_info,bf_pass_caller_info,...
         pfin,p_info,listing,fcp,perform_fit, hc.parallel_workers_number);
 else
-    [p_best,sig,cor,chisqr_red,converged] = multifit_lsqr_ser(w,xye,func,bfunc,pin,bpin,...
+    [p_best] = multifit_lsqr_ser(w,xye,func,bfunc,pin,bpin,...
         f_pass_caller_info,bf_pass_caller_info,...
         pfin,p_info,listing,fcp,perform_fit);
+    [test_fit_1,test_fit_1_1, test_fit_2,test_fit_3] = multifit_curve(w,xye,func,bfunc,pin,bpin,...
+    f_pass_caller_info,bf_pass_caller_info,pfin,p_info,listing,fcp,perform_fit);
+    
+    test_fit_1
+    test_fit_1_1
+    test_fit_2
+    test_fit_3
+    p_best
 end
 
 end
