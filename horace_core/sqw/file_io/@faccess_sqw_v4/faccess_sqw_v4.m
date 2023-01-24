@@ -177,8 +177,46 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
-        function obj = do_class_dependent_updates(obj,old_ldr,varargin)
+        function [obj,missinig_fields] = copy_contents(obj,other_obj,varargin)
+            % Copy infromation, relevant to new file format from the old file format
+            [obj,missinig_fields] = copy_contents@binfile_v4_common(obj,other_obj,varargin{:});
+            if ~PixelDataBase.do_filebacked(other_obj.npixels)
+                return;
+            end
+            pix_data_block = obj.bat_.get_data_block('bl_pix_data_wrap');
+            pix_data_block.pix_position = other_obj.pix_position;
+            % this defines the block size
+            pix_data_block.npixels      = other_obj.npixels;
+            % allocate space in new data block
+            obj.bat_ = obj.bat_.set_data_block(pix_data_block);
+            sqw_obj = other_obj.get_sqw();
+            mh = sqw_obj.main_header;
+            if ~mh.creation_date_defined
+                sqw_obj.creation_date = datetime('now');
+            end
+            % build data range as if it has not been stored with
+            % majority of old data files
+            %
+            missing_range = sqw_obj.data_range == PixelDataBase.EMPTY_RANGE;
+            if any(missing_range(:))
+                log_level = config_store.instance().get_value('hor_config','log_level');
+                if log_level > 0
+                    fprintf(2,['*** Recalculating actual data range missing in file %s:\n', ...
+                        '*** This is one-off operation occuring during upgrade from file format version %d to file format version %d\n',...
+                        '*** Do not interrupt this operation after page count completeon, as the input data file may become corrupt\n'],...
+                        obj.full_filemame,other_obj.faccess_version,obj.faccess_version);
+                end
+                sqw_obj.pix = sqw_obj.pix.recalc_data_range();
+            end
+            % as pix data block position already allocated,
+            obj.bat_ = obj.bat_.init_obj_info(sqw_obj,'-insert');
+            obj.sqw_holder_ = sqw_obj;
+            missinig_fields = [];
+        end
+        function obj = do_class_dependent_updates(obj,~,varargin)
             % function does nothing as this is recent file format
+            % should not be actually called as the call checks for recent
+            % format, but overloaded just in case.
         end
 
         function  dt = get_data_type(~)

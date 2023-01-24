@@ -101,7 +101,7 @@ old_file = ~sqw_struc.main_header.creation_date_defined;
 % run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
-if (sqw_struc.pix.num_pixels > 0) && old_file
+if ~opts.nopix && (sqw_struc.pix.num_pixels > 0) && old_file
     % try to update pixels run id-s
     sqw_struc = update_pixels_run_id(sqw_struc);
 end

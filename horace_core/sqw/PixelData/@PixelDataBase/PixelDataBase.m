@@ -51,7 +51,6 @@ classdef (Abstract) PixelDataBase < serializable
         PIXEL_BLOCK_COLS_ = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
         data_range_ = PixelDataBase.EMPTY_RANGE; % range of all other variables (signal, error, indexes)
-        object_id_;  % random unique identifier for this object, used for tmp file names
         full_filename_ = '';
     end
     properties(Dependent,Hidden)
@@ -118,7 +117,9 @@ classdef (Abstract) PixelDataBase < serializable
         % of this attribute is discouraged as the structure of the return
         % value is not guaranteed in a future.
 
-        base_page_size;  % The number of pixels that can fit in one page of data
+        page_num    % current page number
+        num_pages   % number of pages in the whole data file
+        page_size;  % The number of pixels that can fit in one page of data
     end
     methods(Static,Hidden)
         function range = EMPTY_RANGE_()
@@ -136,7 +137,7 @@ classdef (Abstract) PixelDataBase < serializable
             isfb = num_pixels > 3*mem_chunk_size;
         end
 
-        function obj = create(init, mem_alloc, upgrade, file_backed)
+        function obj = create(varargin)
             % Factory to construct a PixelData object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
@@ -149,12 +150,9 @@ classdef (Abstract) PixelDataBase < serializable
             %
             %   >> obj = PixelDataBase.create(faccess_reader)  % initialise pixel data from an sqw file reader
             %
-            %   >> obj = PixelDataBase.create(faccess_reader, mem_alloc)  % set maximum memory allocation
-            %
             %>> obj = PixelDataBase.create(__,false) -- not upgrade class averages
             %         (pix_range) for old file format, if these averages
-            %         are not stored in the file. Default -- true. Pixel
-            %         averages are calculated on construction
+            %         are not stored in the file. Default -- false.
             %
             % Input:
             % ------
@@ -177,30 +175,31 @@ classdef (Abstract) PixelDataBase < serializable
             %
             %  init    An instance of an sqw_binfile_common file reader.
             %
-            %  mem_alloc    The maximum amount of memory allocated to hold pixel
-            %               data in bytes. If pixels cannot all be held in memory
-            %               at one time, they will be loaded from the file
-            %               (specified by 'init') when they are required. This
-            %               argument does nothing if the class is constructed with
-            %               in-memory data. (Optional)
-            %
-
+            %  '-filebacked' -- if present, request filebacked data (does
+            %                   not work currently work with array of data)
+            % '-upgrade'     -- if present, alow write access to filebased
+            %                   data
             if nargin == 0
                 obj = PixelDataMemory();
                 return
             end
-
-            if ~exist('file_backed', 'var') || isempty(file_backed)
-                file_backed = false;
+            [ok,mess,file_backed,upgrade,argi] = parse_char_options(varargin,{'-filebacked','-upgrade'});
+            if ~ok
+                error('HORACE:PixelDataBase:invalid_argument',mess);
             end
-
-            if ~exist('mem_alloc', 'var')
-                mem_alloc = config_store.instance().get_value(...
-                    'hor_config','mem_chunk_size');
-            end
-
-            if ~exist('upgrade', 'var')
-                upgrade = true;
+            if numel(argi) > 1 % build from metadata/data properties
+                is_md = cellfun(@(x)isa(x,'pix_data'),argi);
+                if any(is_md)
+                    pxd = argi{is_md};
+                    if ischar(pxd.data) || file_backed
+                        obj = PixelDataFileBacked(argi{:}, upgrade);
+                    else
+                        obj = PixelDataMemory(argi{:}, upgrade);
+                    end
+                end
+                return;
+            else
+                init = argi{1};
             end
 
             % In memory construction
@@ -208,53 +207,37 @@ classdef (Abstract) PixelDataBase < serializable
                 obj = serializable.from_struct(init);
             elseif isa(init, 'PixelDataMemory')
                 if file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);
+                    obj = PixelDataFileBacked(init, upgrade);
                 else
                     obj = PixelDataMemory(init);
                 end
-
                 % if the file exists we can create a file-backed instance
             elseif isa(init, 'PixelDataFileBacked')
                 if file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);
+                    obj = PixelDataFileBacked(init, upgrade);
                 else
                     obj = PixelDataMemory(init);
                 end
 
             elseif numel(init) == 1 && isnumeric(init) && floor(init) == init
                 % input is an integer
-                if file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);
-                else
-                    obj = PixelDataMemory(init);
-                end
-
+                obj = PixelDataMemory(init);
             elseif isnumeric(init)
                 % Input is data array
-                if file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);
-                else
-                    obj = PixelDataMemory(init);
+                obj = PixelDataMemory(init);
+                % File-backed/loader construction
+            elseif ischar(init) || isstring(init)|| isa(init, 'sqw_file_interface')
+                if ischar(init) || isstring(init)
+                    if ~is_file(init)
+                        error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                            'Cannot find file to load (%s)', init)
+                    end
+                    init = sqw_formats_factory.instance().get_loader(init);
                 end
-
-                % File-backed construction
-            elseif ischar(init)
                 % input is a file path
-                if ~is_file(init)
-                    error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                        'Cannot find file to load (%s)', init)
-                end
-                init = sqw_formats_factory.instance().get_loader(init);
-                if (init.npixels > mem_alloc) || file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);
-                else
-                    obj = PixelDataMemory(init);
-                end
 
-            elseif isa(init, 'sqw_file_interface')
-                % input is a file accessor
                 if PixelDataBase.do_filebacked(init.npixels) || file_backed
-                    obj = PixelDataFileBacked(init, mem_alloc);
+                    obj = PixelDataFileBacked(init, upgrade);
                 else
                     obj = PixelDataMemory(init);
                 end
@@ -262,18 +245,15 @@ classdef (Abstract) PixelDataBase < serializable
                 if ~any(undef(:))
                     return;
                 end
+                % may be long operation. Should be able to indofm/
+                for i=1:numel(obj)
+                    obj(i) = obj(i).reset_changed_coord_range('all');
+                end
             else
                 error('HORACE:PixelDataBase:invalid_argument', ...
                     'Cannot create a PixelData object from class (%s)', ...
                     class(init))
             end
-
-            if upgrade
-                for i=1:numel(obj)
-                    obj(i) = obj(i).reset_changed_coord_range('coordinates');
-                end
-            end
-
         end
 
         function obj = cat(varargin)
@@ -349,118 +329,111 @@ classdef (Abstract) PixelDataBase < serializable
     end
     methods(Abstract,Access=protected)
         % Maitn part of get.num_pixels accessor
-        num_pix = get_num_pixels(obj);        
+        num_pix = get_num_pixels(obj);
         %
         prp = get_prop(obj, ind);
         obj = set_prop(obj, ind, val);
-        %
-        obj = set_full_filename(obj,val);
-        val = get_full_filename(obj);
         %
         obj = reset_changed_coord_range(obj,range_type);
         % main part of get.data accessor
         data =  get_data_(obj)
         % setters/getters for serializable interface properties
         obj = set_data_wrap(obj,val);
+        %
+        % paging
+        page_size = get_page_size(obj);
+        np  = get_page_num(obj);
+        obj = set_page_num(obj,val);
+        np = get_num_pages(obj);
     end
-
+    %======================================================================
+    % GETTERS/SETTERS
     methods
-
+        % DATA accessors:
         function data = get.data(obj)
             data = get_data_(obj);
         end
         function obj=set.data(obj, pixel_data)
             obj=set_data(obj, pixel_data);
         end
-
+        %
         function u1 = get.u1(obj)
             u1 = obj.get_prop('u1');
         end
-
         function obj= set.u1(obj, val)
             obj= obj.set_prop('u1', val);
         end
-
+        %
         function u2 = get.u2(obj)
             u2 = obj.get_prop('u2');
         end
-
         function obj= set.u2(obj, val)
             obj= obj.set_prop('u2', val);
         end
-
+        %
         function u3 = get.u3(obj)
             u3 = obj.get_prop('u3');
         end
-
         function obj= set.u3(obj, val)
             obj= obj.set_prop('u3', val);
         end
-
+        %
         function dE = get.dE(obj)
             dE = obj.get_prop('dE');
         end
-
         function obj= set.dE(obj, val)
             obj= obj.set_prop('dE', val);
         end
-
+        %
         function q_coordinates = get.q_coordinates(obj)
             q_coordinates = obj.get_prop('q_coordinates');
         end
-
         function obj= set.q_coordinates(obj, val)
             obj= obj.set_prop('q_coordinates', val);
         end
-
+        %
         function coordinates = get.coordinates(obj)
             coordinates = obj.get_prop('coordinates');
         end
-
         function obj= set.coordinates(obj, val)
             obj= obj.set_prop('coordinates', val);
         end
-
+        %
         function run_idx = get.run_idx(obj)
             run_idx = obj.get_prop('run_idx');
         end
-
         function obj= set.run_idx(obj, val)
             obj.set_prop('run_idx', val);
         end
-
+        %
         function detector_idx = get.detector_idx(obj)
             detector_idx = obj.get_prop('detector_idx');
         end
-
         function obj= set.detector_idx(obj, val)
             obj= obj.set_prop('detector_idx', val);
         end
-
+        %
         function energy_idx = get.energy_idx(obj)
             energy_idx = obj.get_prop('energy_idx');
         end
-
         function obj= set.energy_idx(obj, val)
             obj.set_prop('energy_idx', val);
         end
-
+        %
         function signal = get.signal(obj)
             signal = obj.get_prop('signal');
         end
-
         function obj= set.signal(obj, val)
             obj.set_prop('signal', val);
         end
-
+        %
         function variance = get.variance(obj)
             variance = obj.get_prop('variance');
         end
-
         function obj= set.variance(obj, val)
             obj.set_prop('variance', val);
         end
-
+        %------------------------------------------------------------------
         function range = get.pix_range(obj)
             range = obj.data_range_(:,1:4);
         end
@@ -482,6 +455,9 @@ classdef (Abstract) PixelDataBase < serializable
         function val = get.full_filename(obj)
             val = get_full_filename(obj);
         end
+        function num_pix = get.num_pixels(obj)
+            num_pix = get_num_pixels(obj);
+        end
         %------------------------------------------------------------------
         % data/metadata construction
         function val = get.data_wrap(obj)
@@ -498,9 +474,25 @@ classdef (Abstract) PixelDataBase < serializable
             val = pix_metadata(obj);
         end
         function obj = set.metadata(obj,val)
-            obj = obj.set_metadata(val);
+            obj = set_metadata(obj,val);
+        end
+        %------------------------------------------------------------------
+        % paging
+        function page_size = get.page_size(obj)
+            page_size = get_page_size(obj);
+            %page_size = size(obj.data_,2);
+        end
+        function pn = get.page_num(obj)
+            pn = get_page_num(obj);
+        end
+        function obj = set.page_num(obj,val)
+            obj = set_page_num(obj,val);
+        end
+        function np = get.num_pages(obj)
+            np = get_num_pages(obj);
         end
     end
+    %--------------------------------------------------------------
     methods
         function obj=set_data_range(obj,data_range)
             % Function allows to set the pixels range (min/max values of
@@ -530,25 +522,7 @@ classdef (Abstract) PixelDataBase < serializable
             %  the constructor with the input object as an argument. Because of
             %  this, any properties that need to be explicitly copied must be
             %  copied within this class' 'copy-constructor'.
-            pix_copy = PixelDataBase.create(obj, obj.page_memory_size_, false, obj.is_filebacked);
-        end
-
-        %         function is_empty = isempty(obj)
-        %             % Return true if the PixelData object holds no pixel data
-        %             is_empty = obj.num_pixels == 0;
-        %         end
-
-        function num_pix = get.num_pixels(obj)
-            num_pix = get_num_pixels(obj);
-        end
-
-        function page_size = calculate_page_size_(obj, mem_alloc)
-            % Calculate number of pixels that fit in the given memory allocation
-            page_size = max(mem_alloc, size(obj.data_, 2));
-        end
-
-        function page_size = get.base_page_size(obj)
-            page_size = calculate_page_size_(obj,obj.page_memory_size_);
+            pix_copy = PixelDataBase.create(obj);
         end
 
         function obj = move_to_first_page(obj)
@@ -588,6 +562,7 @@ classdef (Abstract) PixelDataBase < serializable
             indices = unique([indices{:}]);
         end
     end
+    %======================================================================
     % SERIALIZABLE INTERFACE
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
@@ -595,7 +570,7 @@ classdef (Abstract) PixelDataBase < serializable
         % Does not properly support filebased data. The decision is not to
         % save filebased data into mat files
         %fields_to_save_ = {'data','num_pixels','pix_range','file_path'};
-        fields_to_save_ = {'data_wrap','metadata'};
+        fields_to_save_ = {'metadata','data_wrap'};
     end
 
     methods
@@ -608,7 +583,38 @@ classdef (Abstract) PixelDataBase < serializable
         end
         %------------------------------------------------------------------
     end
-    methods(Access=protected)
+    methods(Access=protected)                   
+        function val = check_set_prop(obj,fld,val)
+            if isscalar(val)
+                if ~isnumeric(val)
+                    error('HORACCE:PixelDataBase:invalid_argument', ...
+                        'single value for field %s have to be numeric scalar. It is %s', ...
+                        fld,disp2str(val))
+                end
+            else
+                if isvector(val) && ~isrow(val)
+                    val = val';
+                end
+                if ~isnumeric(val) || size(val,1) ~=numel(obj.FIELD_INDEX_MAP_(fld))
+                    error('HORACCE:PixelDataBase:invalid_argument', ...
+                        'number of columns while setting fields: %s have to be equal to %d. It is %d', ...
+                        fld,numel(obj.FIELD_INDEX_MAP_(fld)),size(val,1));
+                end
+            end
+        end
+        function obj = set_full_filename(obj,val)
+            % main part of filepath setter. Need checks/modification
+            if ~(ischar(val)||isstring(val))
+                error('HORACE:PixelDataBase:invalid_argument',...
+                    'full_filename should be a string, which describes file. It is: %s', ...
+                    dis2str(val));
+            end
+            obj.full_filename_ = val;
+        end
+        function full_filename = get_full_filename(obj)
+            full_filename = obj.full_filename_;
+        end
+
         function val = get_data_wrap(obj)
             % main part of pix_data_wrap getter which allows overload for
             % different children

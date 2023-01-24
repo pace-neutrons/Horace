@@ -33,7 +33,12 @@ classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
             assertEqual(pdm.page_size,0);
             assertFalse(pdm.is_filebacked);
 
+            assertTrue(isempty(pdm.u1))
+            assertEqual(size(pdm.u1),[1,0])
+            assertEqual(size(pdm.q_coordinates),[3,0])
+            assertEqual(size(pdm.coordinates),[4,0])
             assertEqual(pdm.pix_range,PixelDataBase.EMPTY_RANGE_)
+            assertEqual(pdm.data_range,PixelDataBase.EMPTY_RANGE)
         end
     end
 end

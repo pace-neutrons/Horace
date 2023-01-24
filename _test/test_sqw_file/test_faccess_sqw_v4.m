@@ -33,6 +33,9 @@ classdef test_faccess_sqw_v4< TestCase
         % tests
         %
         %
+        function test_put_pix(~)
+            
+        end
         function test_upgrdate_v2_to_v4_filebacked(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
             clOb = onCleanup(@()delete(tf));
@@ -52,7 +55,7 @@ classdef test_faccess_sqw_v4< TestCase
             ldr.delete()
 
             assertEqual(fac.faccess_version,4.0)
-            w_new = fac.get_sqw('ver');
+            w_new = fac.get_sqw('-ver');
 
             assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date')
             fac.delete();
@@ -68,11 +71,12 @@ classdef test_faccess_sqw_v4< TestCase
             ldr = sqw_formats_factory.instance().get_loader(tf);
             w_old = ldr.get_sqw('-ver');
 
+            assertFalse(PixelDataBase.do_filebacked(4324));
             fac = ldr.upgrade_file_format(tf);
             ldr.delete()
 
             assertEqual(fac.faccess_version,4.0)
-            w_new = fac.get_sqw('ver');
+            w_new = fac.get_sqw('-ver');
 
             assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date')
             fac.delete();

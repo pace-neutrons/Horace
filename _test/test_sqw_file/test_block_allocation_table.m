@@ -53,6 +53,11 @@ classdef test_block_allocation_table < TestCase
 
             test_class = binfile_v4_block_tester();            
             bac = bac.init_obj_info(test_class,'-insertion','-test_mode');
+
+            assertEqual(bac.free_spaces_and_size,uint64([439;60]));
+
+            db = bac.get_data_block(dnd_data_block);
+            assertEqual(db.position+db.size,bac.end_of_file_pos);
         end
 
         function test_set_overlapped_block_position_throws(~)

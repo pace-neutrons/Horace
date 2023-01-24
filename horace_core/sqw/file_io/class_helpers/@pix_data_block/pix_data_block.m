@@ -6,7 +6,8 @@ classdef pix_data_block < data_block
     %
     % The special form of data_block binary data format is caused by need
     % to access pix_data_block from third party (non-Matlab) applications
-    % and the constrains of efficient binary access to this array.
+    % and the constrains of efficient binary access to this array for the
+    % arrays which are impossible to load in memory
     %
     properties(Dependent)
         % properties defile the location of the appropriate arrays in

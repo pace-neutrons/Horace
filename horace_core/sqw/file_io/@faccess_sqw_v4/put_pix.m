@@ -3,8 +3,12 @@ function   obj = put_pix(obj,varargin)
 %
 %Usage:
 %>>obj = obj.put_pix();
-% Available options:
+%>>obj = obj.put_pix(sqw_obj);
+%>>obj = obj.put_pix(pix_obj);
+%>>obj = obj.put_pix(pix_obj.data);
+% Modifiers:
 % '-update' -- update existing data rather then (over)writing new file
+%             (deprecated, ignored, update occurs)
 % '-nopix'  -- do not write pixels
 % '-reserve' -- if applied together with nopix, pixel information is not
 %               written but the space dedicated for pixels is filled in with zeros.
@@ -12,17 +16,15 @@ function   obj = put_pix(obj,varargin)
 %
 % If update options is selected, file header have to exist. This option keeps
 % existing file information untouched;
-[ok,mess,update,nopix,reserve,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve'});
+[ok,mess,~,nopix,reserve,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve'});
 if ~ok
-    error('SQW_FILE_IO:invalid_argument',...
+    error('HORACE:faccess_sqw_v4:invalid_argument',...
         'SQW_BINFILE_COMMON::put_pix: %s',mess);
 end
 
 if ~obj.is_activated('write')
     obj = obj.activate('write');
 end
-
-obj=obj.check_obj_initated_properly();
 
 
 if ~isempty(argi) % parse inputs which may or may not contain any
@@ -58,7 +60,6 @@ if ~isempty(argi) % parse inputs which may or may not contain any
         if isa(input_obj,'sqw')
             input_obj = input_obj.pix;
         end
-        update = true;
     else
         input_obj = obj.sqw_holder_.pix;
     end

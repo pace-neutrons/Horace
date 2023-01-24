@@ -32,9 +32,9 @@ field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
 if abs_pix_indices == NO_INPUT_INDICES
     % No pixel indices given, return them all
-    data_out = obj.data(field_indices, :);
+    data_out = obj.data_(field_indices, :);
 else
-    data_out = obj.data(field_indices, abs_pix_indices);
+    data_out = obj.data_(field_indices, abs_pix_indices);
 end
 
 end  % function

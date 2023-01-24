@@ -300,32 +300,13 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             % data necessary to access file with the new file accessor
             %
             if old_ldr.faccess_version ~= new_ldr.faccess_version
-                if PixelDataBase.do_filebacked(old_ldr.npixels)
-                    % get empty data block and assign existing pix position
-                    % to it
-                    pix_data_block = new_ldr.bat_.get_data_block('bl_pix_data_wrap');
-                    pix_data_block.pix_position = old_ldr.pix_position;
-                    % this defines the block size
-                    pix_data_block.npixels      = old_ldr.npixels;
-                    % allocate space in new data block
-                    new_ldr.bat_ = new_ldr.bat_.set_data_block(pix_data_block);
-                    % this will build filebacked pixels block
-                    sqw_obj = old_ldr.get_sqw();
-                    mh = sqw_obj.main_header;
-                    if ~mh.creation_date_defined
-                        sqw_obj.creation_date = datetime('now');
-                    end
-                    % as pix data block position already allocated, 
-                    new_ldr.bat_ = new_ldr.bat_.init_obj_info(sqw_obj,'-insert');
-                    new_ldr.sqw_holder_ = sqw_obj;
-                    new_ldr = new_ldr.put_sqw();
-                    old_ldr.delete();
-                else
+                if ~PixelDataBase.do_filebacked(old_ldr.npixels)
                     sqw_obj = old_ldr.get_sqw('-verbatim');
                     new_ldr.sqw_holder = sqw_obj;
-                    new_ldr = new_ldr.put_sqw();
-                    old_ldr.delete();
                 end
+                new_ldr = new_ldr.put_sqw();
+                old_ldr.delete();
+
             end
         end
 

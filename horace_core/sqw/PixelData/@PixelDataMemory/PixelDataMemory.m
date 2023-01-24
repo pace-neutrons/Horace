@@ -57,12 +57,6 @@ classdef PixelDataMemory < PixelDataBase
     properties
         page_memory_size_ = inf;
     end
-
-    properties(Dependent)
-        page_size;  % The number of pixels in the current page
-        page_range;
-    end
-
     properties(Constant)
         is_filebacked = false;
         n_pages = 1;
@@ -99,55 +93,62 @@ classdef PixelDataMemory < PixelDataBase
             obj=obj.reset_changed_coord_range('all');
         end
 
-        function obj = PixelDataMemory(init, ~, ~)
+        function obj = PixelDataMemory(varargin)
             % Construct a PixelDataMemory object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
             %
-            % Transform filebacked to memory backed
-
-            obj.object_id_ = randi([10, 99999], 1, 1);
-            if exist('init', 'var')
-                if isstruct(init)
-                    obj = obj.loadobj(init);
-                elseif ischar(init) || isstring(init)
-                    if ~is_file(init)
-                        error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                            'Cannot find file to load (%s)', init)
-                    end
-
-                    init = sqw_formats_factory.instance().get_loader(init);
-                    obj = obj.init_from_file_accessor_(init);
-
-                elseif isa(init, 'sqw_file_interface')
-                    obj = obj.init_from_file_accessor_(init);
-
-                elseif isa(init, 'PixelDataMemory')
-                    obj.data = init.data;
-
-                elseif isscalar(init) && isnumeric(init) && floor(init) == init
-                    % input is an integer
-                    obj.data = zeros(obj.PIXEL_BLOCK_COLS_, init);
-
-                elseif isnumeric(init)
-                    obj.data = init;
-
-                elseif isa(init, 'PixelDataFileBacked')
-                    init=init.move_to_first_page();
-                    obj.data_ = init.data;
-                    while init.has_more()
-                        init = init.advance();
-                        obj.data_ = horzcat(obj.data_, init.data);
-                    end
-
-                    obj.full_filename = init.full_filename;
-                    obj=obj.reset_changed_coord_range();
-                else
-                    error('HORACE:PixelDataMemory:invalid_argument', ...
-                        'Cannot construct PixelDataMemory from class (%s)', class(init))
-                end
+            if nargin == 0
+                return
+            end
+            if nargin > 1
+                % build from data/metadata pair
+                flds = obj.saveableFields();
+                obj = obj.set_positional_and_key_val_arguments(...
+                            flds,false,varargin);
+                return
+            else
+                init = varargin{1};
             end
 
+
+            if isstruct(init)
+                obj = obj.loadobj(init);
+            elseif ischar(init) || isstring(init)
+                if ~is_file(init)
+                    error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                        'Cannot find file to load (%s)', init)
+                end
+                init = sqw_formats_factory.instance().get_loader(init);
+                obj = obj.init_from_file_accessor_(init);
+
+            elseif isa(init, 'sqw_file_interface')
+                obj = obj.init_from_file_accessor_(init);
+
+            elseif isa(init, 'PixelDataMemory')
+                obj.data = init.data;
+
+            elseif isscalar(init) && isnumeric(init) && floor(init) == init
+                % input is an integer
+                obj.data = zeros(obj.PIXEL_BLOCK_COLS_, init);
+
+            elseif isnumeric(init)
+                obj.data = init;
+
+            elseif isa(init, 'PixelDataFileBacked')
+                init=init.move_to_first_page();
+                obj.data_ = init.data;
+                while init.has_more()
+                    init = init.advance();
+                    obj.data_ = horzcat(obj.data_, init.data);
+                end
+
+                obj.full_filename = init.full_filename;
+                obj=obj.reset_changed_coord_range();
+            else
+                error('HORACE:PixelDataMemory:invalid_argument', ...
+                    'Cannot construct PixelDataMemory from class (%s)', class(init))
+            end
         end
 
         % --- Data management ---
@@ -160,14 +161,6 @@ classdef PixelDataMemory < PixelDataBase
             has_more = false;
         end
 
-        function empty = cache_is_empty_(~)
-            % Returns true if there are subsequent pixels stored in the file that
-            % are not held in the current page
-            %
-            %    >> has_more = pix.has_more();
-            %
-            empty = false;
-        end
 
         function [page_number,total_num_pages] = move_to_page(~, page_number, varargin)
             % Set the object to point at the given page number
@@ -214,31 +207,26 @@ classdef PixelDataMemory < PixelDataBase
             current_page_num = 1;
             total_num_pages = 1;
         end
-
-        % --- Getters / Setters ---
-
-        function page_size = get.page_size(obj)
-            % The number of pixels that are held in the current page.
-            page_size = obj.num_pixels;
-        end
-        function val = get.page_range(obj)
-            val = obj.pix_range;
-        end
     end
     %
     methods(Access=protected)
+        function np = get_page_num(~)
+            np = 1;
+        end
+        function obj = set_page_num(obj,varargin)
+            % do nothing. Only 1 is pagenum in pixel_data
+        end
+        function  page_size = get_page_size(obj)
+            page_size = size(obj.data_,2);
+        end
+        function np = get_num_pages(~)
+            np = 1;
+        end
         function data =  get_data_(obj)
             % main part of get.data accessor
             data = obj.data_;
         end
         %
-        function obj = set_full_filename(obj,val)
-            % main part of filepath setter. Need checks/modification
-            obj.full_filename_ = val;
-        end
-        function full_filename = get_full_filename(obj)
-            full_filename = obj.full_filename_;
-        end
         %
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
@@ -246,14 +234,7 @@ classdef PixelDataMemory < PixelDataBase
         end
         %------------------------------------------------------------------
         function obj=set_prop(obj, fld, val)
-            if ~isscalar(val)
-                if isvector(val) && ~isrow(val)
-                    val = val';
-                end
-                validateattributes(val, {'numeric'}, {'size', [numel(obj.FIELD_INDEX_MAP_(fld)), obj.page_size]})
-            else
-                validateattributes(val, {'numeric'}, {'scalar'})
-            end
+            val = check_set_prop(obj,fld,val);
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
             obj=obj.reset_changed_coord_range(fld);
         end
@@ -264,7 +245,6 @@ classdef PixelDataMemory < PixelDataBase
         %
         function obj = init_from_file_accessor_(obj, f_accessor)
             % Initialise a PixelData object from a file accessor
-            obj.num_pixels_ = double(f_accessor.npixels);
             obj.data_range_ = f_accessor.get_data_range();
             obj.data_ = f_accessor.get_raw_pix();
             obj.full_filename = f_accessor.full_filename;
@@ -305,17 +285,5 @@ classdef PixelDataMemory < PixelDataBase
             end
             obj.data_ = val.data;
         end
-        %         function data=saveobj(obj)
-        %             data = struct(obj);
-        %
-        %             if numel(obj)>1
-        %                 data = struct('version',PixelDataBase.version,...
-        %                     'array_data',data);
-        %             else
-        %                 data.version = obj.version;
-        %             end
-        %         end
-
     end
-
 end

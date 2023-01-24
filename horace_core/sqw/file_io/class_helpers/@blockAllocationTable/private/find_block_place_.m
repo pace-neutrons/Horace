@@ -27,9 +27,9 @@ if block_size == the_block.size && the_block.initialized
     return;
 end
 if the_block.initialized
-    old_block_place = [the_block.position;the_block.size];
     % add the space freed after removing the current block to the list of
-    % the free spaces
+    % the free spaces    
+    old_block_place = [the_block.position;the_block.size];
     fs = [obj.free_space_pos_and_size_,old_block_place];
     fs = merge_adjusent_blocks(fs);
 else
