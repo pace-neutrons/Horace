@@ -56,7 +56,7 @@ if numel(argi)==0
             'No file given to save result')
     end
 elseif numel(argi)>1
-    if isa(argi{2},'dnd_binfile_common') % specific loader provided
+    if isa(argi{2},'horace_binfile_interface') % specific loader provided
         file_internal = argi{1};
         ldw  = argi{2};
         n_found = 2;
