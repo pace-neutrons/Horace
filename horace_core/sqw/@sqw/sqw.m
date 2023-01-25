@@ -32,7 +32,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         % The date of the sqw object file creatrion. As the date is defined both
         % in sqw and dnd object parts, this property synchronize both
-        creation_date;        
+        creation_date;
     end
 
     properties(Hidden,Dependent)
@@ -188,7 +188,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     error('HORACE:sqw:invalid_argument',...
                         'Unidentified input data structure');
                 end
-
             end
         end
         %------------------------------------------------------------------
@@ -320,7 +319,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.main_header.creation_date = val;
             obj.data.creation_date = val;
         end
-        
+
     end
 
     %======================================================================

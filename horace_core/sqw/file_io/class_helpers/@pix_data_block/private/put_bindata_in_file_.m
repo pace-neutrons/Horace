@@ -20,6 +20,8 @@ npix  = uint64(obj_data.npix);
 fwrite(fid,npix,'uint64');
 obj.check_write_error(fid,'num_pixels');
 %
-fwrite(fid,single(obj_data.data(:)),'single');
-obj.check_write_error(fid,'pixel data');
+if isnumeric(obj_data.data)&&~isempty(obj_data.data)
+    fwrite(fid,single(obj_data.data(:)),'single');
+    obj.check_write_error(fid,'pixel data');
+end
 %

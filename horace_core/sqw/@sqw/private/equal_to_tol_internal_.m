@@ -37,16 +37,23 @@ class_fields = class_fields(keep);
 for idx = 1:numel(class_fields)
     field_name = class_fields{idx};
     if strcmp(field_name,'pix') %pixels compared separately at the end
-        continue; 
+        continue;
     end
-    if strcmp(field_name,'runid_map') % runid maps will be compared as part of experiment
+    if ismember(field_name,{'runid_map','creation_date'}) % runid maps will
+        %  be compared as part of experiment and creation date  as part of 
+        % components comparison
         continue;
     end
     tmp1 = w1.(field_name);
     tmp2 = w2.(field_name);
-    if strcmp(field_name,'main_header') && isa(tmp1,'main_header_cl') && ignore_date
-        tmp1.creation_date = tmp2.creation_date;
-        tmp1.creation_date_defined_privately= tmp2.creation_date_defined_privately;
+    if ignore_date
+        if strcmp(field_name,'main_header') && isa(tmp1,'main_header_cl')
+            tmp1.creation_date = tmp2.creation_date;
+            tmp1.creation_date_defined_privately= tmp2.creation_date_defined_privately;
+        end
+        if strcmp(field_name,'data') && isa(tmp1,'SQWDnDBase')
+            tmp1.creation_date = tmp2.creation_date;
+        end
     end
     name1 = [name_a,'.',field_name];
     name2 = [name_b,'.',field_name];

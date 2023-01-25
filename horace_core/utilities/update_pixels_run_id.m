@@ -15,7 +15,7 @@ pix_runid = unique(sqw_type_struc.pix.run_idx);
 exp_info = sqw_type_struc.experiment_info;
 file_id = exp_info.runid_map.keys;
 file_id = [file_id{:}];
-if sqw_type_struc.pix.n_pages == 1 % all pixels are in memory and we
+if sqw_type_struc.pix.num_pages == 1 % all pixels are in memory and we
     % can properly analyse run-ids
 
     if ~all(ismember(pix_runid,file_id))  % old style pixel data, run_id-s

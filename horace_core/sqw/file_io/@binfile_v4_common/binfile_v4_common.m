@@ -70,7 +70,6 @@ classdef binfile_v4_common < horace_binfile_interface
             %
             obj=obj.put_app_header();
 
-            obj.bat_.put_bat(obj.file_id_);
             bl = obj.bat.blocks_list;
             n_blocks = obj.bat_.n_blocks;
             for i=1:n_blocks
@@ -186,13 +185,13 @@ classdef binfile_v4_common < horace_binfile_interface
             %Optional:
             % 1) Either:
             % sqw_object   -- the instance of SQWDnDBase class to extract
-            %                 modified subobject from
+            %                 modified sub-object from
             % OR:
-            % subobj       -- the subobject of sqw object to store using selected
+            % subobj       -- the sub-object of sqw object to store using selected
             %                 data_block
             % 2) filename  -- if provided, the name of file to modify and
             %                 store the data block in. Any other
-            %                 information (subblock to store) is not
+            %                 information (sub-block to store) is not
             %                 acceptable in this situation
             %
             if nargin>2 % otherwise have to assume that the object is initialized
@@ -220,6 +219,18 @@ classdef binfile_v4_common < horace_binfile_interface
     %======================================================================
     % DND access methods common for dnd and sqw objects
     methods
+        function  obj = put_app_header(obj,varargin)
+            % store application header which distinguish and describes
+            % the sqw binary file.
+            % 
+            % Overloaded for file format 4 to store BAT immediately after 
+            % horace sqw file header
+            obj = put_app_header@horace_binfile_interface(obj,varargin{:});
+            if ~isempty(obj.bat_)
+                obj.bat_.put_bat(obj.file_id_);
+            end
+
+        end
         %------------------------------------------------------------------
         function [dnd_dat,obj]  = get_dnd_data(obj,varargin)
             % return DND data class, containing n-d arrays, describing N-D image

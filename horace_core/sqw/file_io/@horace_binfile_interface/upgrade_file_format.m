@@ -24,4 +24,3 @@ end
 
 new_obj = old_ldr.do_class_dependent_updates(new_obj,varargin{:});
 %
-new_obj = new_obj.put_app_header();

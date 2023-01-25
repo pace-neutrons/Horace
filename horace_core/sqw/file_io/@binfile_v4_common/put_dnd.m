@@ -30,7 +30,6 @@ if ~sqh.creation_date_defined
 end
 
 obj=obj.put_app_header();
-obj.bat_.put_bat(obj.file_id_);
 
 obj = obj.put_dnd_metadata();
 obj = obj.put_dnd_data();

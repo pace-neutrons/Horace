@@ -150,9 +150,6 @@ classdef (Abstract) PixelDataBase < serializable
             %
             %   >> obj = PixelDataBase.create(faccess_reader)  % initialise pixel data from an sqw file reader
             %
-            %>> obj = PixelDataBase.create(__,false) -- not upgrade class averages
-            %         (pix_range) for old file format, if these averages
-            %         are not stored in the file. Default -- false.
             %
             % Input:
             % ------
@@ -174,28 +171,36 @@ classdef (Abstract) PixelDataBase < serializable
             %  init    A path to an SQW file.
             %
             %  init    An instance of an sqw_binfile_common file reader.
-            %
+            % Options:
             %  '-filebacked' -- if present, request filebacked data (does
             %                   not work currently work with array of data)
-            % '-upgrade'     -- if present, alow write access to filebased
-            %                   data
+            %  '-upgrade'    -- if present, alow write access to filebased
+            %  '-writable'      data
+            %  '-norange'    -- if present, do not calculate the range of 
+            %                   pix data if this range is missing. Should
+            %                   be selected during file-format upgrade
             if nargin == 0
                 obj = PixelDataMemory();
                 return
             end
-            [ok,mess,file_backed,upgrade,argi] = parse_char_options(varargin,{'-filebacked','-upgrade'});
+            [ok,mess,file_backed_requested,upgrade,writable,norange,argi] = parse_char_options(varargin, ...
+                {'-filebacked','-upgrade','-writable','-norange'});
             if ~ok
                 error('HORACE:PixelDataBase:invalid_argument',mess);
             end
+            upgrade = upgrade||writable;
             if numel(argi) > 1 % build from metadata/data properties
                 is_md = cellfun(@(x)isa(x,'pix_data'),argi);
                 if any(is_md)
                     pxd = argi{is_md};
-                    if ischar(pxd.data) || file_backed
+                    if ischar(pxd.data) || file_backed_requested
                         obj = PixelDataFileBacked(argi{:}, upgrade);
                     else
                         obj = PixelDataMemory(argi{:}, upgrade);
                     end
+                else
+                    error('HORACE:PixelDataBase:invalid_argument', ...
+                        'Some input parameters of the PixelDataBase.create operation are not recoginized');
                 end
                 return;
             else
@@ -206,14 +211,14 @@ classdef (Abstract) PixelDataBase < serializable
             if isstruct(init)
                 obj = serializable.from_struct(init);
             elseif isa(init, 'PixelDataMemory')
-                if file_backed
+                if file_backed_requested
                     obj = PixelDataFileBacked(init, upgrade);
                 else
                     obj = PixelDataMemory(init);
                 end
                 % if the file exists we can create a file-backed instance
             elseif isa(init, 'PixelDataFileBacked')
-                if file_backed
+                if file_backed_requested
                     obj = PixelDataFileBacked(init, upgrade);
                 else
                     obj = PixelDataMemory(init);
@@ -225,18 +230,14 @@ classdef (Abstract) PixelDataBase < serializable
             elseif isnumeric(init)
                 % Input is data array
                 obj = PixelDataMemory(init);
-                % File-backed/loader construction
+                % File-backed or loader construction
             elseif ischar(init) || isstring(init)|| isa(init, 'sqw_file_interface')
                 if ischar(init) || isstring(init)
-                    if ~is_file(init)
-                        error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                            'Cannot find file to load (%s)', init)
-                    end
+                    % input is a file path
                     init = sqw_formats_factory.instance().get_loader(init);
                 end
-                % input is a file path
 
-                if PixelDataBase.do_filebacked(init.npixels) || file_backed
+                if PixelDataBase.do_filebacked(init.npixels) || file_backed_requested
                     obj = PixelDataFileBacked(init, upgrade);
                 else
                     obj = PixelDataMemory(init);
@@ -245,9 +246,18 @@ classdef (Abstract) PixelDataBase < serializable
                 if ~any(undef(:))
                     return;
                 end
-                % may be long operation. Should be able to indofm/
-                for i=1:numel(obj)
-                    obj(i) = obj(i).reset_changed_coord_range('all');
+                % may be long operation. Should be able to indofm about
+                % these intentions
+                if ~norange
+                    for i=1:numel(obj)
+                        if obj.is_filebacked
+                            warning('HORACE:old_file_format', ...
+                                ['sqw file %s is written in old file format, which does not contain all necessary pixel averages.\n', ...
+                                ' Update file format to the recent vesion to avoid recalculating these averages each time the file is loaded from disk'], ...
+                                init.full_filename);
+                        end
+                        obj(i) = obj(i).recalc_data_range();
+                    end
                 end
             else
                 error('HORACE:PixelDataBase:invalid_argument', ...
@@ -583,7 +593,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
         %------------------------------------------------------------------
     end
-    methods(Access=protected)                   
+    methods(Access=protected)
         function val = check_set_prop(obj,fld,val)
             if isscalar(val)
                 if ~isnumeric(val)

@@ -87,9 +87,11 @@ classdef PixelDataFileBacked < PixelDataBase
     properties (Constant)
         is_filebacked = true;
     end
-    % from interface
+    % =====================================================================
+    % Overloaded operations interface
     methods
         pix_out = do_unary_op(obj, unary_op);
+        [mean_signal, mean_variance] = compute_bin_data(obj, npix);
     end
 
     %
@@ -105,7 +107,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % process possible update paraemter
             is_update = cellfun(@(x)islogical(x),varargin);
             if any(is_update)
-                update = true;
+                update = varargin{is_update};
                 argi = varargin(~is_update);
             else
                 update = false;
@@ -169,7 +171,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % and clear the current cache
             %  This function does nothing if pixels are not file-backed.
             %
-            obj.num_page_ = 1;
+            obj.page_num_ = 1;
         end
 
         function obj = recalc_data_range(obj)
@@ -184,7 +186,6 @@ classdef PixelDataFileBacked < PixelDataBase
             % recalc_data_range is a normal Matlab value object (not a handle object),
             % returning its changes in LHS
 
-            obj.page_range_ = PixelDataBase.EMPTY_RANGE;
             obj.data_range_ = PixelDataBase.EMPTY_RANGE;
             obj = obj.move_to_first_page();
             ic = 0;
@@ -320,6 +321,8 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
     end
+    %======================================================================
+    % PAGING
     methods(Access=protected)
         function np = get_page_num(obj)
             np = obj.page_num_;
@@ -358,7 +361,8 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
     end
-
+    %======================================================================
+    % other getter/setter
     methods (Access = protected)
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
@@ -441,11 +445,10 @@ classdef PixelDataFileBacked < PixelDataBase
             %
             ind = obj.FIELD_INDEX_MAP_(field_name);
 
-            loc_range = [min(obj.data_(ind,:),[],2),max(obj.data_(ind,:),[],2)]';
-            obj.page_range_(:,ind) = loc_range;
+            loc_range = [min(obj.data(ind,:),[],2),max(obj.data(ind,:),[],2)]';
 
             range = [min(obj.data_range_(1,ind),loc_range(1,:));...
-                max(obj.data_range_(2,ind),loc_range(2,:))]';
+                max(obj.data_range_(2,ind),loc_range(2,:))];
             obj.data_range_(:,ind)   = range(:,ind);
         end
     end

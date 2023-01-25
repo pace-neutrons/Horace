@@ -12,28 +12,32 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 % --------
 %   infile      File name, or file identifier of open file, from which to read data
 %
-%   opt         [optional] Determines which fields to read:
-%                   '-h'            - header block without instrument and sample information, and
-%                                   - data block fields: filename, filepath, title, alatt, angdeg,...
-%                                                          uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,img_db_range]
-%                                    (If the file was written from a structure of type 'b' or 'b+', then
-%                                    img_db_range does not exist, and the output field will not be created)
-%                   '-his'          - header block in full i.e. without instrument and sample information, and
-%                                   - data block fields as for '-h'
-%                   '-hverbatim'   Same as '-h' except that the file name as stored in the main_header and
-%                                  data sections are returned as stored, not constructed from the
-%                                  value of fopen(fid). This is needed in some applications where
-%                                  data is written back to the file with a few altered fields.
-%                   '-hisverbatim'  Similarly as for '-his'
-%                   '-nopix'        Pixel information not read (only meaningful for sqw data type 'a')
-%                   '-legacy'       Return result in legacy format, e.g. 4
-%                                   fields, namely: main_header, header,
-%                                   detpar and data
-%                   '-noupgrade'    if it is old file format, do not do
-%                                   expensive calculations, necessary for
-%                                   upgrading file format to recent version
+% infile      File name, or file identifier of open file, from which to read data
 %
-%               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
+% Optional:  Specify what parts of sqw to read and how to tread ouptput
+%
+%  '-h'            - header block without instrument and sample information, and
+%                  - data block fields: filename, filepath, title, alatt, angdeg,...
+%                    uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,img_db_range]
+%                    (If the file was written from a structure of type 'b' or 'b+', then
+%                    img_db_range does not exist, and the output field will not be created)
+%  '-his'          - header block in full i.e. without instrument and sample information, and
+%                  - data block fields as for '-h'
+%  '-hverbatim'    - Same as '-h' except that the file name as stored in the main_header and
+%                    data sections are returned as stored, not constructed from the
+%                    value of fopen(fid). This is needed in some applications where
+%                    data is written back to the file with a few altered fields.
+%  '-hisverbatim'  - Similarly as for '-his'
+%  '-nopix'          Pixel information not read (only meaningful for sqw data type 'a')
+%  '-legacy'         Return result in legacy format, e.g. 4
+%                    fields, namely: main_header, header,
+%                    detpar and data
+%  '-noupgrade' or - if it is old file format, do not do
+%  '-norange'        expensive calculations, necessary for
+%                    upgrading file format to recent version
+%
+% Default: read all fields of whatever is the sqw data type contained in the file
+% and return constructed sqw object
 %
 % Keyword Arguments:
 % ------------------
@@ -66,7 +70,7 @@ end
 if ~(opts.head || opts.his)
     sqw_skel.data = DnDBase.dnd(sqw_skel.data.metadata,sqw_skel.data.nd_data);
     sqw_skel.experiment_info = Experiment([],sqw_skel.experiment_info.instruments, ...
-        sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);    
+        sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);
 end
 
 
@@ -80,7 +84,12 @@ end
 if opts.nopix
     sqw_skel = rmfield(sqw_skel,'pix');
 else
-    sqw_skel.pix = PixelDataBase.create(obj, opts.pixel_page_size,opts.noupgrade);
+    if opts.noupgrade || opts.norange
+        argi = {'-norange'};
+    else
+        argi = {};
+    end
+    sqw_skel.pix = PixelDataBase.create(obj,argi{:});
 end
 
 
@@ -121,6 +130,7 @@ flags = { ...
     'hverbatim', ...
     'hisverbatim', ...
     'noupgrade',...
+    'norange',...
     'keep_original',...
     'nopix', ...
     'legacy' ...

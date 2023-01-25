@@ -183,13 +183,14 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             if ~PixelDataBase.do_filebacked(other_obj.npixels)
                 return;
             end
+            % Fix and freeze the position of the pixels data block
             pix_data_block = obj.bat_.get_data_block('bl_pix_data_wrap');
             pix_data_block.pix_position = other_obj.pix_position;
             % this defines the block size
             pix_data_block.npixels      = other_obj.npixels;
             % allocate space in new data block
             obj.bat_ = obj.bat_.set_data_block(pix_data_block);
-            sqw_obj = other_obj.get_sqw();
+            sqw_obj = other_obj.get_sqw('-norange');
             mh = sqw_obj.main_header;
             if ~mh.creation_date_defined
                 sqw_obj.creation_date = datetime('now');
@@ -197,13 +198,15 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % build data range as if it has not been stored with
             % majority of old data files
             %
-            missing_range = sqw_obj.data_range == PixelDataBase.EMPTY_RANGE;
+            missing_range = sqw_obj.pix.data_range == PixelDataBase.EMPTY_RANGE;
             if any(missing_range(:))
-                log_level = config_store.instance().get_value('hor_config','log_level');
+                hc = hor_config;
+                log_level = hc.log_level;
+                %log_level = config_store.instance().get_value('hor_config','log_level');
                 if log_level > 0
                     fprintf(2,['*** Recalculating actual data range missing in file %s:\n', ...
                         '*** This is one-off operation occuring during upgrade from file format version %d to file format version %d\n',...
-                        '*** Do not interrupt this operation after page count completeon, as the input data file may become corrupt\n'],...
+                        '*** Do not interrupt this operation after page count completeon, as the input data file may become corrupted\n'],...
                         obj.full_filemame,other_obj.faccess_version,obj.faccess_version);
                 end
                 sqw_obj.pix = sqw_obj.pix.recalc_data_range();
@@ -211,7 +214,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % as pix data block position already allocated,
             obj.bat_ = obj.bat_.init_obj_info(sqw_obj,'-insert');
             obj.sqw_holder_ = sqw_obj;
-            missinig_fields = [];
+            missinig_fields = 'data_in_memory_write_result';
         end
         function obj = do_class_dependent_updates(obj,~,varargin)
             % function does nothing as this is recent file format
@@ -246,7 +249,17 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % The creation data is defined in main header
             %
             if obj.bat_.initialized
-                mh = obj.get_main_header();
+                if ~isempty(obj.sqw_holder) 
+                    if isa(obj.sqw_holder,'sqw') || is_sqw_struct(obj.sqw_holder)
+                        mh = obj.sqw_holder.main_header;
+                    elseif isa(obj.sqw_holder,"DnDBase")
+                        mh = obj.sqw_holder;
+                    else
+                        mh = obj.get_main_header();                        
+                    end
+                else
+                    mh = obj.get_main_header();
+                end
                 cd = mh.creation_date;
             else
                 cd = get_creation_date@binfile_v4_common(obj);

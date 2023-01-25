@@ -33,13 +33,35 @@ classdef test_faccess_sqw_v4< TestCase
         % tests
         %
         %
-        function test_put_pix(~)
-            
+        function test_put_pix_get_pix_no_sqw(~)
+            tf = fullfile(tmp_dir,'test_put_pix_get_pix_no_sqw.sqw');
+            clOb = onCleanup(@()delete(tf));            
+            assertFalse(is_file(tf));
+
+            rng(1);
+            sample = rand(9,100000);
+            pix = PixelDataMemory(sample);
+
+            fac = faccess_sqw_v4();
+            fac.full_filename = tf;
+            fac = fac.put_pix(pix);
+            fac.delete();
+
+            assertTrue(is_file(tf));
+            far = faccess_sqw_v4(tf);
+            [pix_rec,far] = far.get_pix();
+            far.delete();
+
+            assertEqual(pix,pix_rec);
+
         end
         function test_upgrdate_v2_to_v4_filebacked(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
-            clOb = onCleanup(@()delete(tf));
+            clObF = onCleanup(@()delete(tf));
             copyfile(obj.old_origin,tf,'f');
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clObW = onCleanup(@()warning(ws));
+
             ldr = sqw_formats_factory.instance().get_loader(tf);
             w_old = ldr.get_sqw('-ver');
             %------------
@@ -71,18 +93,20 @@ classdef test_faccess_sqw_v4< TestCase
             ldr = sqw_formats_factory.instance().get_loader(tf);
             w_old = ldr.get_sqw('-ver');
 
+            % ensure we are testing memory backed update
             assertFalse(PixelDataBase.do_filebacked(4324));
             fac = ldr.upgrade_file_format(tf);
             ldr.delete()
 
             assertEqual(fac.faccess_version,4.0)
             w_new = fac.get_sqw('-ver');
+            fac.delete();            
 
             assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date')
-            fac.delete();
 
             fac1 = sqw_formats_factory.instance().get_loader(tf);
             assertEqual(fac1.faccess_version,4.0)
+            fac1.delete();
         end
         function test_init_and_get(obj)
             to = faccess_sqw_v4();
