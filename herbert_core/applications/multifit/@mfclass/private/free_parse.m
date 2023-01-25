@@ -1,7 +1,7 @@
 function free=free_parse(free_in,np)
 % Determine if an argument is a valid free and expand input argument to full argument
 %
-%   >> [ok,mess,free]=free_parse(free_in,np)
+%   >> free=free_parse(free_in,np)
 %
 % Input:
 % ------
@@ -27,8 +27,6 @@ function free=free_parse(free_in,np)
 %
 % Output:
 % -------
-%   ok          Status flag: =true if all OK; =false if not
-%   mess        Error message: empty if OK, non-empty otherwise
 %   free       Cell array with same size as input argument np, of logical
 %              row vectors, where the number of elements of the ith vector
 %              equals the number of parameters for the ith function, and with
@@ -91,7 +89,7 @@ end
 function free=free_parse_single(free_in,np)
 % Determine if an argument is a valid free and expand input argument to full argument
 %
-%   >> [ok,mess,free]=free_parse_single(free_in,np)
+%   >> free=free_parse_single(free_in,np)
 %
 % Input:
 % ------
@@ -102,8 +100,6 @@ function free=free_parse_single(free_in,np)
 %
 % Output:
 % -------
-%   ok          Status flag: =true if all OK; =false if not
-%   mess        Error message: empty if OK, non-empty otherwise
 %   free        Logical row vector length np with elements =true for free parameters,
 %              and =false for fixed parameters
 

@@ -57,8 +57,7 @@ else
 end
 
 if present.free
-    [ok,mess,free]=free_parse(free,np);
-    if ~ok, return, end
+    free=free_parse(free,np);
 end
 
 % All arguments are valid, so populate the output object
