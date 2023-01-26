@@ -1,25 +1,24 @@
 classdef job_dispatcher_common_tests < MPI_Test_Common
     % The tests used by any parallel job dispatchers
-    %
-    properties
-    end
 
     methods
-
-        function this = job_dispatcher_common_tests(test_name, cluster_name)
-            this = this@MPI_Test_Common(test_name, cluster_name);
+        function obj = job_dispatcher_common_tests(test_name, cluster_name)
+            obj = obj@MPI_Test_Common(test_name, cluster_name);
         end
 
         function test_job_fail_restart(obj, varargin)
             if obj.ignore_test
                 skipTest('test_job_fail_restart is disabled');
             end
+
             fprintf('test_job_dispatcher_%s:test_job_fail_restart\n', ...
                 obj.cluster_name)
+
             if nargin > 1
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
+
             function my_delete(varargin)
                 for ii = 1:numel(varargin)
                     filename = varargin{ii};
@@ -28,6 +27,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                     end
                 end
             end
+
             % overloaded to empty test -- nothing new for this JD
             display_fail_log = false;
 
@@ -60,7 +60,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 disp('************* 3 workers run : failed  outputs :')
                 disp(outputs);
             end
-
 
             function is = is_err(x)
                 if isa(x, 'MException') || isa(x, 'ParallelException')
@@ -226,7 +225,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 obj.setUp();
                 clob0 = onCleanup(@()tearDown(obj));
             end
-            hc = herbert_config;
+            hc = hor_config;
             display_ouptut = hc.log_level>0;
             % overloaded to empty test -- nothing new for this JD
             % JETester specific control parameters
@@ -313,7 +312,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 assertEqualToTol(outputs{i},(n_steps+1)*n_steps/2);
             end
         end
-        %
+
         function test_job_with_logs_2workers(obj, varargin)
             if obj.ignore_test
                 skipTest('test_job_with_logs_2workers is disabled');
@@ -325,7 +324,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 clob0 = onCleanup(@()tearDown(obj));
             end
             clear mex;
-            hc = herbert_config;
+            hc = hor_config;
             display_ouptut = hc.log_level>0;
 
             % overloaded to empty test -- nothing new for this JD
@@ -423,6 +422,5 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(is_file(file2));
             assertTrue(is_file(file3));
         end
-        %
     end
 end

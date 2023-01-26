@@ -88,9 +88,7 @@ if numel(file_internal)~=numel(w)
         'Number of data objects in array does not match number of file names')
 end
 
-hor_log_level = ...
-    config_store.instance().get_value('herbert_config','log_level');
-
+hor_log_level = get(hor_config,'log_level');
 
 for i=1:numel(w)
     if isempty(ldw)

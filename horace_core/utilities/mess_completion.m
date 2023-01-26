@@ -24,7 +24,7 @@ function mess_completion (varargin)
 
 persistent  initialised itimer ntot t_thresh n_ratio_thresh t_start t_prev_msg n_ratio_prev_msg
 
-hor_log_level=config_store.instance().get_value('herbert_config','log_level');
+hor_log_level = get(hor_config, 'log_level');
 % Initialise
 if nargin==3
     ntot = varargin{1};
@@ -35,10 +35,10 @@ if nargin==3
     t_prev_msg = 0;
     n_ratio_prev_msg = 0;
     initialised = true;
-    if hor_log_level>1    
-        fprintf(' Task started on  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));        
+    if hor_log_level>1
+        fprintf(' Task started on  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
     end
-    
+
     return
 end
 
@@ -71,4 +71,3 @@ else
         n_ratio_prev_msg = n/ntot;
     end
 end
-

@@ -44,12 +44,12 @@ filename=strtrim(filename);
 %     error('LOAD_ASCII:load_ASCII_par',' file %s has to be an ascii file but it is hdf5 file\n',filename);
 % end
 
-use_mex = get(herbert_config,'use_mex');
+use_mex = get(hor_config,'use_mex');
 if use_mex
     try     %using C routine
         par=get_ascii_file(filename,'par');
     catch   %using matlab routine
-        force_mex = get(herbert_config,'force_mex_if_use_mex');
+        force_mex = get(hor_config,'force_mex_if_use_mex');
         if ~force_mex
             warning('ASCIIPAR_LOADER:load_par','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
             use_mex = false;
@@ -69,8 +69,7 @@ par(3,:) = -par(3,:);
 % missing digits differently
 par = round(par,accuracy);
 
-
-
+end
 
 function par=get_par_matlab(filename)
 % Load data from ASCII Tobyfit .par file using matlab
@@ -81,7 +80,7 @@ if fid==-1
 end
 
 n=fscanf(fid,'%d \n',1);
-if get(herbert_config,'log_level')>0
+if get(hor_config,'log_level')>0
     disp(['Loading .par file with ' num2str(n) ' detectors : ' filename]);
 end
 temp=fgetl(fid);
@@ -91,3 +90,4 @@ par=[par;fscanf(fid,'%f')];
 fclose(fid);
 par=reshape(par,cols,n);
 
+end

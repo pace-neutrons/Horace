@@ -1,5 +1,5 @@
 classdef test_job_dispatcher_common_methods < TestCase & FakeJenkins4Tests
-    
+
     properties
         working_dir
         current_config
@@ -34,25 +34,25 @@ classdef test_job_dispatcher_common_methods < TestCase & FakeJenkins4Tests
             % clear fake Jenkins configuration, for is_jenkins routine
             % returning false
             clear_jenkins_var@FakeJenkins4Tests(obj);
-            
+
             config_store.instance().clear_all();
-            hc= herbert_config;
+            hc= hor_config;
             set(hc,obj.fjenkins_herbert_cobnfig);
             hc.init_tests = true;
-            
+
             obj.working_dir = tmp_dir();
         end
-        
+
         function set_up_fake_jenkins(obj)
             % set up fake Jenkins configuration, for is_jenkins routine
             % returning true
             set_up_fake_jenkins@FakeJenkins4Tests(obj,'test_jenkins_dispatcher_common');
-            
-            hrc = herbert_config;
+
+            hrc = hor_config;
             obj.fjenkins_herbert_cobnfig = hrc.get_data_to_store();
             obj.working_dir = tmp_dir();
         end
-        
+
         function tearDown(obj)
             % Here we restore the initial configuration as the previous
             % configuration may be restored on remote machine
@@ -333,29 +333,29 @@ classdef test_job_dispatcher_common_methods < TestCase & FakeJenkins4Tests
             end
             obj.set_up_fake_jenkins();
             clearJenkinsSignature = onCleanup(@()clear_jenkins_var(obj));
-            %
+
             assertTrue(is_jenkins);
             % clear configuration from memory to ensure the configuration
             % will be rebuild as Jenkins configuration
             config_store.instance().clear_all();
-            %
-            %
+
+
             obj.test_transfer_init_and_config()
-            %
+
             clear clearJenkinsSignature;
             assertFalse(is_jenkins);
-            
+
         end
 
         function test_transfer_init_and_config(obj, varargin)
             % testing the transfer of the initial information for a Herbert
             % job through a data exchange folder
-            %
-            
+
+
             % ensure tests are enabled
-            hc = herbert_config;
+            hc = hor_config;
             hc.init_tests= true;
-            
+
             % Prepare current configuration to be able to restore it after
             % the test finishes
 
@@ -383,7 +383,7 @@ classdef test_job_dispatcher_common_methods < TestCase & FakeJenkins4Tests
             % the operation above copies config files to the folder
             % calculated by assign operation
             config_exchange = fileparts(fileparts(mpi.mess_exchange_folder));
-            assertTrue(is_file(fullfile(config_exchange, 'herbert_config.mat')));
+            assertTrue(is_file(fullfile(config_exchange, 'hor_config.mat')));
 
             jt = JETester();
             initMess = jt.get_worker_init();
@@ -419,7 +419,7 @@ classdef test_job_dispatcher_common_methods < TestCase & FakeJenkins4Tests
             % ensure default configuration location will be restored after
             % the test
             clob5 = onCleanup(@()config_store.instance('clear'));
-            %
+
             cfn = config_store.instance().config_folder_name;
             remote_config_folder = fullfile(pc.shared_folder_on_remote, ...
                 cfn);

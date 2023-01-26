@@ -169,7 +169,7 @@ else       % needed the fields requested by varargin, they have been selected ab
 end
 %
 if is_undef== 2&& ~return_this % run can not be defined by the arguments
-    if get(herbert_config,'log_level')>-1
+    if get(hor_config,'log_level')>-1
         fprintf('ERROR: ->field:  %s requested but is not defined by the run\n',undef_fields{:});
     end
     error('HERBERT:get_rundata:invalid_argument',...
@@ -262,4 +262,3 @@ else % return cell array of output variables, defined by the list of
     end
 
 end
-
