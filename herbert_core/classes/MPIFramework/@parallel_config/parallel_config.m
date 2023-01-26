@@ -455,7 +455,7 @@ classdef parallel_config<config_base
 
         function obj = set.debug(obj,val)
             debug = val>0;
-            config_store.instance().store_config(obj,'parallel_multifit',debug);
+            config_store.instance().store_config(obj,'debug',debug);
         end
 
         function obj = set.cluster_config(obj,val)
