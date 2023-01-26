@@ -56,6 +56,8 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         % with headers are mangled with run_id-s. If false, they are clean
         % filenames. Stored in file
         contains_runid_in_header_ =[];
+        % holder for the number of pixels, contributed into sqw file
+        npixels_ = 'undefined';        
     end
     properties(Constant)
         % size of a pixel (in bytes) written on HDD
@@ -194,6 +196,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             %
             obj = delete@binfile_v2_common(obj);
             obj = delete@sqw_file_interface(obj);
+            obj.npixels_ = 'undefined';        
         end
     end
     %
@@ -384,8 +387,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
 
             bytes = fread(obj.file_id_,fn_size,'char');
             fname = char(bytes');
-            mangle_pos = strfind(fname,'$id$');
-            if isempty(mangle_pos) %contains is available from 16b only
+            if contains(fname,'$id$') %contains is available from 16b only
                 obj.contains_runid_in_header_ = false;
             else
                 obj.contains_runid_in_header_ = true;
@@ -424,6 +426,10 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             % the position of pixels information in the file. Used to organize
             % class independent binary access to pixel data;
             pix_pos = obj.pix_pos_;
+        end
+        %
+        function  npix = get_npixels(obj)
+            npix = obj.npixels_;
         end
     end % end protected
 

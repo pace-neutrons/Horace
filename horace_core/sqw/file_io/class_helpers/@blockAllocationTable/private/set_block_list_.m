@@ -21,14 +21,16 @@ obj.bat_bin_size_ = bat_size;
 obj.block_names_  = block_names;
 
 
-if ~initialized || obj.blocks_start_position+total_bl_size==eof_pos
+if ~initialized
     % EOF position in empty file -- first position+ 4 bytes BAT size +
     % binary BAT representation itself
     obj.end_of_file_pos_ = obj.position_+ 4 + obj.bat_bin_size_;
-    return % no free spaces between blocks, or block list is not initialized
+    return % block list is not initialized
 end
 obj.end_of_file_pos_ = eof_pos;
-obj = find_free_spaces(obj);
+if obj.blocks_start_position+total_bl_size ~=eof_pos  % free spaces between blocks
+    obj = find_free_spaces(obj);
+end
 
 function [total_bl_size,initialized,bat_size,name_list,eof_pos] = calculate_bat_size_and_free_spaces(obj)
 % calculate the size of the block allocation table to store it on disk

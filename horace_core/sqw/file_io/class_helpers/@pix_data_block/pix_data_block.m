@@ -23,9 +23,8 @@ classdef pix_data_block < data_block
         bytes_pp % bytes per point -- how much every pixel value occupies on hdd
     end
     properties(Access=protected)
-        npixels_  = 0;
+        npixels_  = 'undefined'; % ugly but to keep compartibility with previous file format
         n_rows_   = 9;
-        bytes_pp_ = 4;
     end
     methods
         function obj = pix_data_block(varargin)
@@ -33,6 +32,14 @@ classdef pix_data_block < data_block
             obj = obj@data_block(varargin{:});
             obj.sqw_prop_name = 'pix';
             obj.level2_prop_name = 'data_wrap';
+            if nargin == 0
+                return
+            end
+            % recover from BAT record
+            if nargin == 1 && isstruct(varargin{1}) && isfield(varargin{1},'size')
+                obj.size = varargin{1}.size;
+            end
+
         end
         %
         function pos = get.num_pix_position(obj)
@@ -43,7 +50,10 @@ classdef pix_data_block < data_block
             np = obj.npixels_;
         end
         function obj = set.npixels(obj,np)
-            if ~(isscalar(np) && isnumeric(np) && np >= 0 )
+            if isempty(np)
+                obj.npixels_ = 'undefined';
+                return
+            elseif ~(isscalar(np) && isnumeric(np) && np >= 0 )
                 error('HORACE:pix_data_block:invalid_argument', ...
                     'Number of pixels shoud be single non-negative number. In fact it is: %s', ...
                     disp2str(np))
@@ -61,18 +71,6 @@ classdef pix_data_block < data_block
                     disp2str(nr))
             end
             obj.n_rows_ = nr;
-        end
-        %
-        function bpp = get.bytes_pp(obj)
-            bpp  = obj.bytes_pp_;
-        end
-        function obj = set.bytes_pp(obj,bpp)
-            if ~(isscalar(bpp) && isnumeric(bpp) && bpp >= 4)
-                error('HORACE:pix_data_block:invalid_argument', ...
-                    'Number of pix rows should define the size of the single pixel, so it should be numeric and at bigger then 3. In fact it is: %s', ...
-                    disp2str(bpp))
-            end
-            obj.bytes_pp_ = bpp;
         end
         %
         function pos = get.pix_position(obj)
@@ -120,7 +118,12 @@ classdef pix_data_block < data_block
 
             % 4 bytes for n_rows (9), 8 bytes for npixels + (nrows*n_cols)*4
             % (4 - for single precision)
-            size  = 4+8+obj.npixels*obj.n_rows*obj.bytes_pp;
+            if ischar(obj.npixels)
+                npix = 0;
+            else
+                npix  = obj.npixels;
+            end
+            size  = 4+8+npix*obj.n_rows*4;
         end
         function obj = set_size(obj,val)
             % Overloadable part of data_block size setter
@@ -130,7 +133,7 @@ classdef pix_data_block < data_block
                     disp2str(val));
             end
             all_pix_size = uint64(val - 12);
-            pix_size = uint64(obj.n_rows*obj.bytes_pp);
+            pix_size = uint64(obj.n_rows*4);
             npix =  idivide(all_pix_size ,pix_size);
             err = rem(all_pix_size,pix_size);
             if err>eps("single")
@@ -179,7 +182,7 @@ classdef pix_data_block < data_block
             ver = 1;
         end
         function flds = saveableFields(~)
-            flds = {'position','npixels','n_rows','bytes_pp'};
+            flds = {'position','npixels','n_rows'};
         end
         %------------------------------------------------------------------
     end

@@ -14,7 +14,7 @@ npix_shape = size(npix);
 
 img_signal_sum = zeros(1, numel(npix));
 img_variance_sum = zeros(1, numel(npix));
-[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.page_size);
 for i = 1:numel(npix_chunks)
     npix_chunk = npix_chunks{i};
     idx = idxs(:, i);

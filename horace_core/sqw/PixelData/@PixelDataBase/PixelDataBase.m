@@ -132,6 +132,11 @@ classdef (Abstract) PixelDataBase < serializable
         function isfb = do_filebacked(num_pixels)
             % function defines the rule to make pixels filebased or memory
             % based
+            if ~(isnumeric(num_pixels)&&isscalar(num_pixels)&&num_pixels>=0)
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                    'Input number of pixels should have single non-negative value. It is %s', ...
+                    disp2str(num_pixels))
+            end
             mem_chunk_size = config_store.instance().get_value('hor_config','mem_chunk_size');
             % 3 should go to configuration too
             isfb = num_pixels > 3*mem_chunk_size;
@@ -344,7 +349,7 @@ classdef (Abstract) PixelDataBase < serializable
         prp = get_prop(obj, ind);
         obj = set_prop(obj, ind, val);
         %
-        obj = reset_changed_coord_range(obj,range_type);
+        [obj,varargout] = reset_changed_coord_range(obj,range_type);
         % main part of get.data accessor
         data =  get_data_(obj)
         % setters/getters for serializable interface properties

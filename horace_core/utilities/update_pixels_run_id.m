@@ -1,4 +1,4 @@
-function sqw_type_struc = update_pixels_run_id(sqw_type_struc)
+function sqw_type_struc = update_pixels_run_id(sqw_type_struc,unique_pix_id)
 % The routine is used in loading old binary sqw data where run-id-s stored
 % in headers may or may not be consistent with the run-id(s) stored in
 % pixels.
@@ -11,11 +11,17 @@ function sqw_type_struc = update_pixels_run_id(sqw_type_struc)
 % run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
-pix_runid = unique(sqw_type_struc.pix.run_idx);
+if ~exist('unique_pix_id','var')
+    pix_runid = unique(sqw_type_struc.pix.run_idx);
+    pix_runid_known = sqw_type_struc.pix.num_pages == 1;
+else
+    pix_runid = unique_pix_id;
+    pix_runid_known = true;    
+end
 exp_info = sqw_type_struc.experiment_info;
 file_id = exp_info.runid_map.keys;
 file_id = [file_id{:}];
-if sqw_type_struc.pix.num_pages == 1 % all pixels are in memory and we
+if pix_runid_known  % all pixels are in memory and we
     % can properly analyse run-ids
 
     if ~all(ismember(pix_runid,file_id))  % old style pixel data, run_id-s
@@ -35,7 +41,7 @@ if sqw_type_struc.pix.num_pages == 1 % all pixels are in memory and we
         %
     end
 
-else % not all pixels are loaded into memory
+else % not all pixels are loaded into memory or pre-calculated
     if ~any(ismember(pix_runid,file_id))  % old style pixel data, run_id-s
         % have been recalculated
         id=1:exp_info.n_runs;

@@ -174,7 +174,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.page_num_ = 1;
         end
 
-        function obj = recalc_data_range(obj)
+        function [obj,unique_pix_id] = recalc_data_range(obj)
             % Recalculate pixels range in the situations, where the
             % range for some reason appeared to be missing (i.e. loading pixels from
             % old style files) or changed through private interface (for efficiency)
@@ -189,6 +189,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.data_range_ = PixelDataBase.EMPTY_RANGE;
             obj = obj.move_to_first_page();
             ic = 0;
+            unique_pix_id = [];
             while obj.has_more()
                 ic = ic+1;
                 if ic >= 10
@@ -196,7 +197,12 @@ classdef PixelDataFileBacked < PixelDataBase
                     fprintf(2,'*** processing block N:%d/%d\n', ...
                         obj.page_num_,obj.n_pages)
                 end
-                obj=obj.reset_changed_coord_range('all');
+                if nargout > 1
+                    [obj,unique_id]=obj.reset_changed_coord_range('all');
+                    unique_pix_id = unique([unique_pix_id,unique_id]);
+                else
+                    obj=obj.reset_changed_coord_range('all');
+                end
                 obj = obj.advance();
             end
         end
@@ -436,7 +442,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 'writable', update, 'offset', obj.offset_ );
         end
 
-        function obj=reset_changed_coord_range(obj,field_name)
+        function [obj,varargout]=reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
@@ -450,6 +456,9 @@ classdef PixelDataFileBacked < PixelDataBase
             range = [min(obj.data_range_(1,ind),loc_range(1,:));...
                 max(obj.data_range_(2,ind),loc_range(2,:))];
             obj.data_range_(:,ind)   = range(:,ind);
+            if nargout > 1
+                varargout{1} = unique(obj.run_idx);
+            end
         end
     end
 

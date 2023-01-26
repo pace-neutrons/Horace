@@ -173,10 +173,14 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             data_dnd = obj.get_dnd_data(varargin{:});
             data_str = struct('s',data_dnd.sig,'e',data_dnd.err, ...
                 'npix',data_dnd.npix);
-        end
+        end        
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function npix = get_npixels(obj)
+            pix_data_bl = obj.bat_.blocks_list{end};
+            npix =  pix_data_bl.npixels;
+        end
         function [obj,missinig_fields] = copy_contents(obj,other_obj,varargin)
             % Copy infromation, relevant to new file format from the old file format
             [obj,missinig_fields] = copy_contents@binfile_v4_common(obj,other_obj,varargin{:});
@@ -195,6 +199,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             if ~mh.creation_date_defined
                 sqw_obj.creation_date = datetime('now');
             end
+
             % build data range as if it has not been stored with
             % majority of old data files
             %
@@ -209,8 +214,15 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
                         '*** Do not interrupt this operation after page count completeon, as the input data file may become corrupted\n'],...
                         obj.full_filemame,other_obj.faccess_version,obj.faccess_version);
                 end
-                sqw_obj.pix = sqw_obj.pix.recalc_data_range();
+                [pix,unique_pix_id] = sqw_obj.pix.recalc_data_range();
+                sqw_obj.pix = pix;
+                sqw_obj = update_pixels_run_id(sqw_obj,unique_pix_id);
             end
+            % define number of confrinuting files, which is stored in sqw
+            % object header, but necessary for sqw_file_interface (not any
+            % more but historically to be able to recover headers)
+            obj.num_contrib_files_ = sqw_obj.main_header.nfiles;
+
             % as pix data block position already allocated,
             obj.bat_ = obj.bat_.init_obj_info(sqw_obj,'-insert');
             obj.sqw_holder_ = sqw_obj;
@@ -249,13 +261,13 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % The creation data is defined in main header
             %
             if obj.bat_.initialized
-                if ~isempty(obj.sqw_holder) 
+                if ~isempty(obj.sqw_holder)
                     if isa(obj.sqw_holder,'sqw') || is_sqw_struct(obj.sqw_holder)
                         mh = obj.sqw_holder.main_header;
                     elseif isa(obj.sqw_holder,"DnDBase")
                         mh = obj.sqw_holder;
                     else
-                        mh = obj.get_main_header();                        
+                        mh = obj.get_main_header();
                     end
                 else
                     mh = obj.get_main_header();
@@ -270,6 +282,10 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % pix
             pos = pix_block.pix_position;
         end
+        function  npix = get_npix(obj)
+            pix_data_bl = obj.bat_.blocks_list{end-1}; % block responsible for pix metadata;
+            npix = pix_data_bl.npix;
+        end
         %
         function  obj=init_from_sqw_obj(obj,varargin)
             % initalize faccessor using sqw object as input
@@ -279,7 +295,6 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % intialize sqw_file_interface.
             % sqw holder now contains sqw object by definition
             obj.num_contrib_files_ = obj.sqw_holder.main_header.nfiles;
-            obj.npixels_           = obj.sqw_holder.npixels;
         end
         function  obj=init_from_sqw_file(obj,varargin)
             % initalize faccessor using sqw file as input
@@ -290,12 +305,16 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             nfil_bl = obj.bat_.blocks_list{1}; % block responsible for main header
             [~,mhb] = nfil_bl.get_sqw_block(obj.file_id_);
             obj.num_contrib_files_ = mhb.nfiles;
-            npix_bl = obj.bat_.blocks_list{end-1}; % block responsible for pix metadata;
-            [~,pix_md] = npix_bl.get_sqw_block(obj.file_id_);
-            obj.npixels_          = pix_md.npix;
         end
 
     end
     %======================================================================
-    % SERIALIZABLE INTERFACE FULLY INHERITED FROM binfile_v4_common
+    % SERIALIZABLE INTERFACE MAINLY INHERITED FROM binfile_v4_common
+    %======================================================================
+    methods
+        function flds = saveableFields(obj)
+            flds = saveableFields@binfile_v4_common(obj);
+            flds = [flds(:)','num_contrib_files'];
+        end
+    end
 end

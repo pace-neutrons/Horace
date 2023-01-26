@@ -78,7 +78,7 @@ classdef PixelDataMemory < PixelDataBase
         %
         obj=set_data(obj, data, fields, abs_pix_indices);
 
-        function obj = recalc_data_range(obj)
+        function [obj,unique_pix_id] = recalc_data_range(obj)
             % Recalculate pixels range in the situations, where the
             % range for some reason appeared to be missing (i.e. loading pixels from
             % old style files) or changed through private interface (for efficiency)
@@ -91,6 +91,9 @@ classdef PixelDataMemory < PixelDataBase
             % returning its changes in LHS
 
             obj=obj.reset_changed_coord_range('all');
+            if nargout == 2
+                unique_pix_id = unique(obj.run_idx);
+            end
         end
 
         function obj = PixelDataMemory(varargin)
@@ -253,7 +256,7 @@ classdef PixelDataMemory < PixelDataBase
                 obj = obj.reset_changed_coord_range('all');
             end
         end
-        function obj=reset_changed_coord_range(obj,field_name)
+        function [obj,varargout]=reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
@@ -268,6 +271,9 @@ classdef PixelDataMemory < PixelDataBase
 
             range = [min(obj.data_(ind,:),[],2),max(obj.data_(ind,:),[],2)]';
             obj.data_range_(:,ind)   = range(:,ind);
+            if nargout>1
+                varargout{1} =  unique(obj.run_idx);
+            end
         end
         %------------------------------------------------------------------
         function obj=set_data_wrap(obj,val)

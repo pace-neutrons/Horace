@@ -59,7 +59,7 @@ function w = unary_op_manager (w1, unary_op)
 % -----------------------------------------------------------------------------
 
 
-w = w1;
+w = (w1);
 for i=1:numel(w1)
     if has_pixels(w1(i))
         w(i).pix = w(i).pix.do_unary_op(unary_op);

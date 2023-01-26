@@ -14,13 +14,15 @@ if isempty(missing) % source and target are the same class. Invoke copy construc
     return;
 end
 acc = new_obj.io_mode;
+file_exist = is_file(obj.full_filename);
 if ~ismember(acc,{'wb+','rb+'})
     new_obj = new_obj.fclose();  % in case the file is still open, and if it does not, makes no harm
+    new_obj = new_obj.reopen_to_write(obj.full_filename);
 end
-[new_obj,file_exist,old_ldr] = new_obj.set_file_to_update();
+
 if ~file_exist
     return
 end
 
-new_obj = old_ldr.do_class_dependent_updates(new_obj,varargin{:});
+new_obj = obj.do_class_dependent_updates(new_obj,varargin{:});
 %

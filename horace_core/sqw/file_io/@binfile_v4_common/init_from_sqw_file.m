@@ -21,3 +21,4 @@ obj.bat_ = obj.bat_.get_bat(obj.file_id_);
 if isempty(obj.full_filename)
     obj.full_filename = fopen(obj.file_id_);
 end
+obj.data_in_file_ = true;

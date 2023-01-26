@@ -35,7 +35,7 @@ classdef test_faccess_sqw_v4< TestCase
         %
         function test_put_pix_get_pix_no_sqw(~)
             tf = fullfile(tmp_dir,'test_put_pix_get_pix_no_sqw.sqw');
-            clOb = onCleanup(@()delete(tf));            
+            clOb = onCleanup(@()delete(tf));
             assertFalse(is_file(tf));
 
             rng(1);
@@ -64,7 +64,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             ldr = sqw_formats_factory.instance().get_loader(tf);
             w_old = ldr.get_sqw('-ver');
-            %------------
+            %------------ Now the test setting and test
             hc = hor_config;
             rec = hc.get_data_to_store();
             clObConfig = onCleanup(@()set(hc,rec));
@@ -74,9 +74,12 @@ classdef test_faccess_sqw_v4< TestCase
             assertTrue(PixelDataBase.do_filebacked(4324));
 
             fac = ldr.upgrade_file_format(tf);
-            ldr.delete()
+            ldr.delete();
 
             assertEqual(fac.faccess_version,4.0)
+            assertEqual(fac.npixels,4324)
+            assertEqual(fac.num_contrib_files,109);
+
             w_new = fac.get_sqw('-ver');
 
             assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date')
@@ -84,6 +87,9 @@ classdef test_faccess_sqw_v4< TestCase
 
             fac1 = sqw_formats_factory.instance().get_loader(tf);
             assertEqual(fac1.faccess_version,4.0)
+            w_new_new = fac1.get_sqw('-ver');
+            fac1.delete();
+            assertEqualToTol(w_new,w_new_new)
         end
 
         function test_upgrdate_v2_to_v4_membased(obj)
@@ -96,17 +102,21 @@ classdef test_faccess_sqw_v4< TestCase
             % ensure we are testing memory backed update
             assertFalse(PixelDataBase.do_filebacked(4324));
             fac = ldr.upgrade_file_format(tf);
-            ldr.delete()
+            ldr.delete();
 
             assertEqual(fac.faccess_version,4.0)
+            assertEqual(fac.npixels,4324)
+            assertEqual(fac.num_contrib_files,109);
             w_new = fac.get_sqw('-ver');
-            fac.delete();            
+            fac.delete();
 
             assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date')
 
             fac1 = sqw_formats_factory.instance().get_loader(tf);
             assertEqual(fac1.faccess_version,4.0)
+            w_new_new = fac1.get_sqw('-ver');
             fac1.delete();
+            assertEqualToTol(w_new,w_new_new)
         end
         function test_init_and_get(obj)
             to = faccess_sqw_v4();

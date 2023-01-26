@@ -34,9 +34,10 @@ classdef sqw_file_interface
     % put_samples       -  store sample's information
     %
     properties(Access=protected)
-        %
+        % holdef for the number of contributing files contributed into sqw
+        % file. Not necessary for modern file formats but was used in old
+        % file formats to recover headers
         num_contrib_files_= 'undefined'
-        npixels_ = 'undefined';
     end
     %
     properties(Dependent)
@@ -60,12 +61,32 @@ classdef sqw_file_interface
         end
         function nfiles = get.num_contrib_files(obj)
             % return number of run-files contributed into sqw object
-            % provided
+            % provided as input of
             nfiles = obj.num_contrib_files_;
         end
+        function obj = set.num_contrib_files(obj,val)
+            % set number of run-files contributed into sqw object.
+            %
+            % Request serializable interface applied on new faccessor
+            % format. Old faccessors have this property strictly private
+            % but this contradicts the need to set up object from the
+            % serializable interface
+            %
+            if isempty(val)
+                obj.num_contrib_files_ = 'undefined';
+                return;
+            end
+            if ~(isnumeric(val)&&isscalar(val)&&val > 0)
+                error('HORACE:sqw_file_inteface:invalid_argument', ...
+                    'number of contriburing files have to be a single positive number. It is: %s',...
+                    disp2str(val))
+            end
+            obj.num_contrib_files_ = round(val);
+        end
+
         %
         function npix = get.npixels(obj)
-            npix = obj.npixels_;
+            npix = get_npixels(obj);
         end
         function pix_size = get.pixel_size(obj)
             pix_size = get_filepix_size(obj);
@@ -78,7 +99,6 @@ classdef sqw_file_interface
             % understanding when this can be omitted
             %
             obj.num_contrib_files_ = 'undefined';
-            obj.npixels_ = 'undefined';
         end
         %
     end
@@ -113,13 +133,14 @@ classdef sqw_file_interface
     end
     methods(Abstract,Access=protected)
         pos = get_pix_position(obj);
+        npix = get_npixels(obj);
     end
     methods(Access=protected)
         function pix_size = get_filepix_size(~)
             % 4 bytes x 9 columns -- default pixel size in bytes when
             % stored on hdd
-            % 
-            % May be overloaded in some new file formats, but pretty 
+            %
+            % May be overloaded in some new file formats, but pretty
             % stable for now
             pix_size = 4*9;
         end

@@ -226,9 +226,7 @@ classdef binfile_v4_common < horace_binfile_interface
             % Overloaded for file format 4 to store BAT immediately after 
             % horace sqw file header
             obj = put_app_header@horace_binfile_interface(obj,varargin{:});
-            if ~isempty(obj.bat_)
-                obj.bat_.put_bat(obj.file_id_);
-            end
+            obj.bat_.put_bat(obj.file_id_);
 
         end
         %------------------------------------------------------------------
