@@ -90,8 +90,16 @@ classdef PixelDataFileBacked < PixelDataBase
     % =====================================================================
     % Overloaded operations interface
     methods
-        pix_out = do_unary_op(obj, unary_op);
+
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
+
+        pix_out = do_unary_op(obj, unary_op);
+        pix_out = do_binary_op(obj, operand, binary_op, varargin);
+        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
+
+
+        pix_out = get_data(obj, fields, abs_pix_indices);
+        obj=set_data(obj, data, fields, abs_pix_indices);
     end
 
     %
@@ -281,7 +289,7 @@ classdef PixelDataFileBacked < PixelDataBase
             %
             %    >> has_more = pix.has_more();
             %
-            has_more = obj.page_num_*obj.page_size  <= obj.num_pixels;
+            has_more = (obj.page_num_-1)*obj.page_size  <  obj.num_pixels;
         end
 
         function [obj,current_page_num, total_num_pages] = advance(obj, varargin)
@@ -302,9 +310,6 @@ classdef PixelDataFileBacked < PixelDataBase
             % walk through to complete the algorithm
             %
             obj.page_num_ = obj.page_num_+1;
-            if obj.page_num_>obj.num_pages
-                obj.page_num_ = obj.num_pages;
-            end
             if nargout >1
                 current_page_num = obj.page_num_;
                 total_num_pages  = obj.n_pages;

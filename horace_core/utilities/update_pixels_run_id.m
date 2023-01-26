@@ -21,7 +21,7 @@ end
 exp_info = sqw_type_struc.experiment_info;
 file_id = exp_info.runid_map.keys;
 file_id = [file_id{:}];
-if pix_runid_known  % all pixels are in memory and we
+if pix_runid_known  % all pixels are in memory or pix_runid are knownd and we
     % can properly analyse run-ids
 
     if ~all(ismember(pix_runid,file_id))  % old style pixel data, run_id-s
@@ -36,14 +36,17 @@ if pix_runid_known  % all pixels are in memory and we
         % reset run-ids and runid_map stored in current experiment info.
         exp_info.runid_map = id;
         %
+    end
+    if numel(pix_runid)< numel(file_id)
         exp_info = exp_info.get_subobj(pix_runid);
-        sqw_type_struc.main_header.nfiles = exp_info.n_runs;
-        %
+        sqw_type_struc.main_header.nfiles = exp_info.n_runs;        
     end
 
-else % not all pixels are loaded into memory or pre-calculated
+else % not all pixels are loaded into memory or pre-calculated and run-id-s may be wrong
+    % 
     if ~any(ismember(pix_runid,file_id))  % old style pixel data, run_id-s
-        % have been recalculated
+        % have been recalculated for pixels and our only hope is that 
+        % headers are in the order of run-id
         id=1:exp_info.n_runs;
         exp_info.runid_map = id;
     end

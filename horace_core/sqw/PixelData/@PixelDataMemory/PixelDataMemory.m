@@ -65,19 +65,23 @@ classdef PixelDataMemory < PixelDataBase
     methods
         % --- Pixel operations ---
         pix_out = append(obj, pix);
+        %
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         pix_out = do_unary_op(obj, unary_op);
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
-        pix_out = get_data(obj, fields, abs_pix_indices);
+
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
         %
+        pix_out = get_data(obj, fields, abs_pix_indices);
         obj=set_data(obj, data, fields, abs_pix_indices);
+    end
 
+    methods
         function [obj,unique_pix_id] = recalc_data_range(obj)
             % Recalculate pixels range in the situations, where the
             % range for some reason appeared to be missing (i.e. loading pixels from
@@ -108,7 +112,7 @@ classdef PixelDataMemory < PixelDataBase
                 % build from data/metadata pair
                 flds = obj.saveableFields();
                 obj = obj.set_positional_and_key_val_arguments(...
-                            flds,false,varargin);
+                    flds,false,varargin);
                 return
             else
                 init = varargin{1};

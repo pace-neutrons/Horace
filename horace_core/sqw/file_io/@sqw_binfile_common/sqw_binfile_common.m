@@ -309,7 +309,6 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
                 end
                 new_ldr = new_ldr.put_sqw();
                 old_ldr.delete();
-
             end
         end
 

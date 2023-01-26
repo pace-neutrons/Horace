@@ -36,7 +36,7 @@ if abs_pix_indices == NO_INPUT_INDICES
 else
     obj.data_(field_indices, abs_pix_indices) = data;
 end
-obj=obj.reset_changed_coord_range('coordinates');
+obj=obj.reset_changed_coord_range('all');
 end  % function
 
 

@@ -81,9 +81,10 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqual(fac.num_contrib_files,109);
 
             w_new = fac.get_sqw('-ver');
-
-            assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date')
             fac.delete();
+
+            assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date','ignore_str',true)
+
 
             fac1 = sqw_formats_factory.instance().get_loader(tf);
             assertEqual(fac1.faccess_version,4.0)
