@@ -58,7 +58,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             test_sqw_file_full_path = fullfile(tmp_dir, 'sqw_1d_1.sqw');
             copyfile(source_sqw_file,test_sqw_file_full_path);
 
-            modify_pix_ranges(test_sqw_file_full_path);
+            %modify_pix_ranges(test_sqw_file_full_path);
             obj.tst_sqw_file_full_path = test_sqw_file_full_path;
 
             % Construct an object from raw data

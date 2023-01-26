@@ -497,7 +497,6 @@ classdef (Abstract) PixelDataBase < serializable
         % paging
         function page_size = get.page_size(obj)
             page_size = get_page_size(obj);
-            %page_size = size(obj.data_,2);
         end
         function pn = get.page_num(obj)
             pn = get_page_num(obj);
@@ -549,7 +548,8 @@ classdef (Abstract) PixelDataBase < serializable
             %
             obj.move_to_page(1);
         end
-
+    end
+    methods(Access=protected)
         function indices = check_pixel_fields_(obj, fields)
             %CHECK_PIXEL_FIELDS_ Check the given field names are valid pixel data fields
             % Raises error with ID 'HORACE:PIXELDATA:invalid_field' if any fields not valid.
@@ -578,29 +578,7 @@ classdef (Abstract) PixelDataBase < serializable
             indices = cellfun(@(field) poss_fields(field), fields, 'UniformOutput', false);
             indices = unique([indices{:}]);
         end
-    end
-    %======================================================================
-    % SERIALIZABLE INTERFACE
-    properties(Constant,Access=private)
-        % list of fileldnames to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file
-        % Does not properly support filebased data. The decision is not to
-        % save filebased data into mat files
-        %fields_to_save_ = {'data','num_pixels','pix_range','file_path'};
-        fields_to_save_ = {'metadata','data_wrap'};
-    end
-
-    methods
-        function  ver  = classVersion(~)
-            % serializable fields version
-            ver = 2;
-        end
-        function flds = saveableFields(~)
-            flds = PixelDataBase.fields_to_save_;
-        end
-        %------------------------------------------------------------------
-    end
-    methods(Access=protected)
+        %
         function val = check_set_prop(obj,fld,val)
             if isscalar(val)
                 if ~isnumeric(val)
@@ -651,6 +629,30 @@ classdef (Abstract) PixelDataBase < serializable
                 obj = obj.check_combo_arg();
             end
         end
+    end
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access=private)
+        % list of fileldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        % Does not properly support filebased data. The decision is not to
+        % save filebased data into mat files
+        %fields_to_save_ = {'data','num_pixels','pix_range','file_path'};
+        fields_to_save_ = {'metadata','data_wrap'};
+    end
+
+    methods
+        function  ver  = classVersion(~)
+            % serializable fields version
+            ver = 2;
+        end
+        function flds = saveableFields(~)
+            flds = PixelDataBase.fields_to_save_;
+        end
+        %------------------------------------------------------------------
+    end
+    methods(Access=protected)
+        %
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
             % previous version of the object.

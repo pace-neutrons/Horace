@@ -34,18 +34,15 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
                 bl_size    = mchs;
                 if read_start+bl_size>ldr.npixels
                     bl_size = ldr.npixels-read_start+1;
-                    assertFalse(pdf.has_more)
-                else
-                    assertTrue(pdf.has_more)
                 end
+                assertTrue(pdf.has_more)                            
                 ref_data = double(ldr.get_pix_in_ranges(read_start,bl_size));
                 check_data = pdf.data;
                 assertEqual(check_data,ref_data);
                 pdf = pdf.advance;
             end
+            assertFalse(pdf.has_more)            
 
-            ref_data = double(ldr.get_pix_in_ranges(10*mchs+1,ldr.npixels-10*mchs));
-            assertEqual(pdf.data,ref_data);
 
             ldr.delete();
         end

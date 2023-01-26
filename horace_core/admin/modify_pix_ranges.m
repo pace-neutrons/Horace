@@ -64,7 +64,7 @@ for i=1:n_inputs
         pix_range = ld.get_img_db_range();
     else
         pix = ld.get_pix();
-        pix.recalc_pix_range();
+        pix = pix.recalc_data_range();
         pix_range = pix.pix_range;
     end
     ld = ld.store_pix_range(pix_range);

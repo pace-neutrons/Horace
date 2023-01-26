@@ -32,10 +32,12 @@ NO_INPUT_INDICES = -1;
 field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
 if abs_pix_indices == NO_INPUT_INDICES
-    abs_pix_indices = 1:obj.num_pixels;
+    data_out = double(obj.f_accessor_.Data.data(field_indices, :));    
+else
+    data_out = double(obj.f_accessor_.Data.data(field_indices, abs_pix_indices'));    
 end
 
-data_out = double(obj.f_accessor_.Data.data(field_indices, abs_pix_indices'));
+
 %--------------------------------------------------------------------------
 function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
 NO_INPUT_INDICES = -1;
