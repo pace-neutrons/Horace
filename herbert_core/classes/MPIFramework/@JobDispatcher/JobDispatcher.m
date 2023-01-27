@@ -105,7 +105,7 @@ classdef JobDispatcher
         job_is_starting_ = true;
     end
 
-    methods
+    methods(Access=private)
         function jd = JobDispatcher(varargin)
             % Initialize job dispatcher.
             % If provided with parameters, the first parameter should be
@@ -127,15 +127,31 @@ classdef JobDispatcher
             jd.mess_framework_ = mf;
         end
 
-        function [outputs,n_failed,task_ids,this]=start_job(this,...
+    end
+
+    methods (Static)
+        function jd = instance(clear)
+            persistent jobdisp
+
+            if isempty(jobdisp) || (exist('clear', 'var') && clear)
+                jobdisp = JobDispatcher('Parallel');
+                jd = jobdisp;
+            else
+                jd = jobdisp;
+            end
+        end
+    end
+
+    methods
+        function [outputs,n_failed,task_ids,obj]=start_job(obj,...
                 job_class_name,common_params,loop_params,return_results,...
-                number_of_workers,keep_workers_running,task_query_time)
+                number_of_workers,task_query_time)
             % Starts the cluster and sends parallel job to be executed by
             % Matlab cluster.
             %
             % Usage:
-            % [n_failed,outputs,task_ids,this] = ...
-            %     this.start_job(job_class_name,common_params,loop_params,...
+            % [n_failed,outputs,task_ids,obj] = ...
+            %     obj.start_job(job_class_name,common_params,loop_params,...
             %    [number_of_workers,[job_query_time]])
             %
             %Where:
@@ -155,11 +171,6 @@ classdef JobDispatcher
             %
             %
             % Optional:
-            % keep_workers_running -- true if workers should not finish
-            %                    after the task is completed and wait for
-            %                    the task to be resubmitted. Necessary if
-            %                    one needs to run another job to the
-            %                    cluster.
             %
             % task_query_time -- if present -- time interval in seconds to
             %                    check if tasks are completed. By default,
@@ -176,24 +187,29 @@ classdef JobDispatcher
             if ~exist('task_query_time', 'var')
                 task_query_time = 4;
             end
-            if ~exist('keep_workers_running', 'var')
-                keep_workers_running = false;
+
+            if isempty(obj.cluster_)
+                [outputs,n_failed,task_ids,obj] = send_tasks_to_workers_(obj, ...
+                     job_class_name,common_params,loop_params,return_results, ...
+                     number_of_workers,task_query_time);
+            else
+                [outputs,n_failed,task_ids,obj]=resend_tasks_to_workers_(obj,...
+                    job_class_name,common_params,loop_params,return_results,...
+                    task_query_time);
+
             end
-            [outputs,n_failed,task_ids,this]=send_tasks_to_workers_(this,...
-                job_class_name,common_params,loop_params,return_results,...
-                number_of_workers,keep_workers_running,task_query_time);
         end
 
-        function [outputs,n_failed,task_ids,this]=restart_job(this,...
+        function [outputs,n_failed,task_ids,obj]=restart_job(obj,...
                 job_class_name,common_params,loop_params,return_results,...
-                keep_workers_running,task_query_time)
+                task_query_time)
             % Restart parallel Matlab job started earlier by start_job command,
             % providing it with new data. The cluster to do the job must be running.
             %
             % Usage:
-            % [n_failed,outputs,task_ids,this] = ...
-            %     this.restart_job(this,job_class_name,common_params,loop_params,...
-            %     [return_results,[keep_workers_running,[job_query_time]]])
+            % [n_failed,outputs,task_ids,obj] = ...
+            %     obj.restart_job(obj,job_class_name,common_params,loop_params,...
+            %     [return_results,[job_query_time]])
             %
             %Where:
             % job_class_name -- name of the class - child of JobExecutor,
@@ -209,12 +225,6 @@ classdef JobDispatcher
             %                   some results
             %
             % Optional:
-            % keep_workers_running -- true if workers should not finish
-            %                    after the task is completed and wait for
-            %                    the task to be resubmitted. Necessary if
-            %                    one needs to run another job to the
-            %                    cluster.
-            %
             % task_query_time -- if present -- time interval in seconds to
             %                    check if tasks are completed. By default,
             %                    check every 4 seconds
@@ -229,77 +239,78 @@ classdef JobDispatcher
             if ~exist('task_query_time', 'var')
                 task_query_time = 4;
             end
-            [outputs,n_failed,task_ids,this]=resend_tasks_to_workers_(this,...
+            [outputs,n_failed,task_ids,obj]=resend_tasks_to_workers_(obj,...
                 job_class_name,common_params,loop_params,return_results,...
-                keep_workers_running,task_query_time);
+                task_query_time);
         end
 
         %------------------------------------------------------------------
 
-        function limit = get.fail_limit(this)
-            limit  = this.fail_limit_;
+        function limit = get.fail_limit(obj)
+            limit  = obj.fail_limit_;
         end
 
-        function time = get.task_check_time(this)
-            time = this.task_check_time_;
+        function time = get.task_check_time(obj)
+            time = obj.task_check_time_;
         end
 
 
-        function this = set.task_check_time(this,val)
+        function obj = set.task_check_time(obj,val)
             if val<=0
                 error('JOB_DISPATCHER:invalid_argument',...
                     'time to check jobs has to be positive');
             end
-            this.task_check_time_ =val;
-            this = reset_fail_limit_(this,this.time_to_fail/val);
+            obj.task_check_time_ =val;
+            obj = reset_fail_limit_(obj,obj.time_to_fail/val);
         end
 
-
-        function time = get.time_to_fail(this)
-            time = this.time_to_fail_;
+        function time = get.task_wait_time(obj)
+            time = obj.task_wait_time_;
         end
 
-        function this = set.time_to_fail(this,val)
+        function obj = set.task_wait_time(obj,val)
+            if val<=0
+                error('JOB_DISPATCHER:invalid_argument',...
+                    'time to wait jobs has to be positive');
+            end
+            obj.task_wait_time_ =val;
+        end
+
+        function time = get.time_to_fail(obj)
+            time = obj.time_to_fail_;
+        end
+
+        function obj = set.time_to_fail(obj,val)
             if val<0
                 error('JOB_DISPATCHER:set_time_to_fail','time to fail can not be negative');
             end
-            this.time_to_fail_ =val;
-            this = reset_fail_limit_(this,val/this.task_check_time);
+            obj.time_to_fail_ =val;
+            obj = reset_fail_limit_(obj,val/obj.task_check_time);
         end
 
-        function mf = get.mess_framework(this)
+        function mf = get.mess_framework(obj)
             % return class used to communicate with the cluster
-            mf = this.mess_framework_;
+            mf = obj.mess_framework_;
         end
 
-        function id = get.job_id(this)
+        function id = get.job_id(obj)
             % Return unique string describing the job
-            id = this.mess_framework_.job_id;
+            id = obj.mess_framework_.job_id;
         end
 
-        function is = get.is_initialized(this)
+        function is = get.is_initialized(obj)
             % Return true if job dispatcher is initialized,
-            % i.e. this controls a parallel cluster
+            % i.e. obj controls a parallel cluster
 
-            is = ~isempty(this.cluster_);
+            is = ~isempty(obj.cluster_);
         end
 
-        function cl = get.cluster(this)
+        function cl = get.cluster(obj)
             % get access to the cluster used to run parallel job by this
-            cl = this.cluster_;
+            cl = obj.cluster_;
         end
 
-        function this = finalize_all(this)
-            % Stop cluster and parallel processes and clear all messages.
-            %
-            % As this is not a handle class, invalid cluster
-            % object may persist if delete is not reassigned a new object.
-            %
-            this.cluster_ = [];
-            this.job_destroyer_ = [];
-        end
-
-        function display_fail_job_results(this,outputs,n_failed,n_workers,varargin)
+        function display_fail_job_results(obj,outputs,n_failed,n_workers,varargin)
             % Display job results if the job has failed.
             % Auxiliary method.
             %
@@ -325,26 +336,27 @@ classdef JobDispatcher
             else
                 err_code = varargin{1};
             end
-            display_fail_jobs_(this,outputs,n_failed,n_workers,err_code);
+            display_fail_jobs_(obj,outputs,n_failed,n_workers,err_code);
         end
 
-        function this = migrate_exchange_folder(this)
+        function obj = migrate_exchange_folder(obj)
             % the function used to change location of message exchange
             % folder when task is completed and new task should start.
             %
             % used to bypass issues with NFS caching when changing subtasks
             %
-            if isempty(this.mess_framework_)
+            if isempty(obj.mess_framework_)
                 return;
             end
-            this.mess_framework_.migrate_message_folder();
+            obj.mess_framework_.migrate_message_folder();
 
-            if ~isempty(this.cluster_)
-                this.cluster_ = this.cluster_.set_mess_exchange(this.mess_framework_);
+            if ~isempty(obj.cluster_)
+                obj.cluster_ = obj.cluster_.set_mess_exchange(obj.mess_framework_);
             end
         end
 
     end
+
     methods(Static)
         function [task_id_list,init_mess]=split_tasks(common_par,loop_par,return_outputs,n_workers)
             % Divide list of job parameters among given number of workers

@@ -1,16 +1,19 @@
-classdef test_job_executor< MPI_Test_Common
+classdef test_job_executor < MPI_Test_Common
     % TODO -- modify these tests to run with every frameworks
     %
+
     properties
         current_config_folder;
         worker_h = @(str)parallel_worker(str,false);
     end
+
     methods
 
         function this=test_job_executor(name)
             if ~exist('name', 'var')
                 name = 'test_job_executor';
             end
+
             % testing this on file-based framework only
             this = this@MPI_Test_Common(name,'herbert');
             this.working_dir = tmp_dir;
@@ -19,7 +22,6 @@ classdef test_job_executor< MPI_Test_Common
         function setUp(~)
             mis = MPI_State.instance();
             mis.is_tested = true;
-
         end
 
         function tearDown(~)

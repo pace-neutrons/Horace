@@ -1,7 +1,7 @@
 function [outputs,n_failed,task_ids,obj]=...
     send_tasks_to_workers_(obj,...
     task_class_name,common_params,loop_params,return_results,...
-    n_workers,keep_workers_running,task_query_time)
+    n_workers,task_query_time)
 % send parallel job to be executed by Matlab cluster
 %
 % Usage:
@@ -20,9 +20,6 @@ function [outputs,n_failed,task_ids,obj]=...
 %                   iteration number)
 % number_of_workers -- number of Matlab sessions to
 %                    process the tasks
-% keep_workers_running -- if true, workers do not finish when job executors
-%                   complete their jobs and stay active waiting for the next
-%                   task submission.
 % task_query_time    -- if present -- time interval to check if
 %                   jobs are completed. By default, check every
 %                   4 seconds
@@ -36,9 +33,6 @@ function [outputs,n_failed,task_ids,obj]=...
 %              number) and task parameters from
 %              task_param_list, assigned to this job
 %
-if ~exist('keep_workers_running', 'var')
-    keep_workers_running = false;
-end
 
 if exist('task_query_time', 'var') && ~isempty(task_query_time)
     obj.task_check_time  = task_query_time;
@@ -68,12 +62,13 @@ else
     ok = false;
     pause(obj.task_check_time);
 end
+
 if ~ok
     n_restart_attempts = 5;
     ic = 0;
     pc = parallel_config;
 
-    while ~ok && ic <n_restart_attempts
+    while ~ok && ic < n_restart_attempts
         if isempty(cluster_wrp)
             fprintf(2,'*** Trying to restart parallel cluster for the %d time\n',ic+1);
         else
@@ -106,20 +101,12 @@ if ~ok
     end
 end
 
-if keep_workers_running % store cluster pointer for job resubmission
-    obj.cluster_       = cluster_wrp;
-    obj.job_destroyer_ = onCleanup(@()finalize_all(cluster_wrp));
-else % clear cluster on exit
-    clob_mf = onCleanup(@()finalize_all(cluster_wrp));
-end
+obj.cluster_       = cluster_wrp;
+obj.job_destroyer_ = onCleanup(@()finalize_all(cluster_wrp));
 
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...
-    cluster_wrp,keep_workers_running);
-if exist('clob_mf', 'var')
-    clear clob_mf;
-end
-
+    cluster_wrp);
 
 end
 
@@ -145,8 +132,6 @@ else
 end
 
 % Clip workers to number of jobs
-if n_wk > n_jobs
-    n_wk = n_jobs;
-end
+n_wk = min(n_jobs, n_wk);
 
 end

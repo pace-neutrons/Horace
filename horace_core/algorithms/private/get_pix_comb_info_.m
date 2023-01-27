@@ -73,6 +73,85 @@ end
     job_disp,hor_log_level);
 
 
+img_range=datahdr{1}.img_range;
+for i=2:nfiles
+    img_range=[min(img_range(1,:),datahdr{i}.img_range(1,:));max(img_range(2,:),datahdr{i}.img_range(2,:))];
+end
+if pix_range_calculated
+    %TODO: THIS SHOULD WORK BUT IT DOES NOT. What is the problem?
+    %     if any(abs(pix_range(:)-img_range(:))> eps(single(1)))
+    %         error('HORACE:write_nsqw_to_sqw:runtime_error', ...
+    %             'Calculated pix range is different from calculated img_range -- this should not happen')
+    %     end
+end
+
+
+%  Build combined header
+if drop_subzone_headers
+    nfiles_2keep = nspe>0;
+    nspec = nspe(nfiles_2keep);
+    nfiles_tot=sum(nspec);
+else
+    nfiles_tot=sum(nspe);
+end
+mhc = main_header_cl('nfiles',nfiles_tot);
+
+ab = axes_block.get_from_old_data(datahdr{1});
+proj = ortho_proj.get_from_old_data(datahdr{1});
+sqw_data = DnDBase.dnd(ab,proj);
+sqw_data.filename=mhc.filename;
+sqw_data.filepath=mhc.filepath;
+sqw_data.title=mhc.title;
+
+% Now read in binning information
+% ---------------------------------
+% We did not read in the arrays s, e, npix from the files because if have a 50^4 grid then the size of the three
+% arrays is is total 24*50^4 bytes = 150MB. Firstly, we cannot afford to read all of these arrays as it would
+% require too much RAM (30GB if 200 spe files); also if we just want to check the consistency of the header information
+% in the files first we do not want to spend lots of time reading and accumulating the s,e,npix arrays. We can do
+% that now, as we have checked the consistency.
+if hor_log_level>-1
+    disp(' ')
+    disp('Reading and accumulating binning information of input file(s)...')
+end
+
+if combine_in_parallel
+    %TODO:  check config for appropriate ways of combining the tmp and what
+    %to do with cluster
+    comb_using = config_store.instance().get_value('hpc_config','combine_sqw_using');
+    [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);
+    if isempty(job_disp)
+        n_workers = config_store.instance().get_value('hpc_config','parallel_workers_number');
+        [outputs,n_failed,~,job_disp]=job_disp.start_job(...
+            'accumulate_headers_job',common_par,loop_par,true,n_workers);
+    else
+        [outputs,n_failed,~,job_disp]=job_disp.restart_job(...
+            'accumulate_headers_job',common_par,loop_par,true);
+        n_workers = job_disp.cluster.n_workers;
+    end
+
+    if n_failed == 0
+        s_accum = outputs{1}.s;
+        e_accum = outputs{1}.e;
+        npix_accum = outputs{1}.npix;
+    else
+        job_disp.display_fail_job_results(outputs,n_failed,n_workers, ...
+            'HORACE:write_nsqw_to_sqw:runtime_error');
+    end
+
+
+else
+    % read arrays and accumulate headers directly
+    [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
+end
+[s_accum,e_accum] = normalize_signal(s_accum,e_accum,npix_accum);
+
+sqw_data.s=s_accum;
+sqw_data.e=e_accum;
+sqw_data.npix=uint64(npix_accum);
+
+clear nopix
+
 % Prepare writing to output file
 % ---------------------------
 if keep_runid

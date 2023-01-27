@@ -390,7 +390,6 @@ classdef test_job_dispatcher_common_methods < TestCase & FakeJenkins4Tests
             assertTrue(isa(initMess, 'aMessage'));
             data = initMess.payload;
             assertTrue(data.exit_on_compl);
-            assertFalse(data.keep_worker_running);
 
             % simulate the configuration operations happening on a remote machine side
             mis = MPI_State.instance();

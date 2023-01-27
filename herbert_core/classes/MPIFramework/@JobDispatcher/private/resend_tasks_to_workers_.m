@@ -1,10 +1,8 @@
-function [outputs,n_failed,task_ids,obj]=...
+function [outputs,n_failed,task_ids,obj] = ...
     resend_tasks_to_workers_(obj,...
-    task_class_name,common_params,loop_params,return_results,...
-    keep_workers_running,task_query_time)
+    task_class_name,common_params,loop_params,return_results,task_query_time)
 % restart parallel Matlab job started earlier by start_job command,
 % providing it with new data. The cluster must be running
-
 %
 % Usage:
 %>>jd = JobDispatcher();
@@ -22,9 +20,6 @@ function [outputs,n_failed,task_ids,obj]=...
 %                   iteration number)
 % number_of_workers -- number of Matlab sessions to
 %                    process the tasks
-% keep_workers_running -- if true, workers do not finish when job executors
-%                   complete their jobs and stay active waiting for the next
-%                   task submission.
 % task_query_time    -- if present -- time interval to check if
 %                   jobs are completed. By default, check every
 %                   4 seconds
@@ -39,37 +34,30 @@ function [outputs,n_failed,task_ids,obj]=...
 %              task_param_list, assigned to this job
 %
 %
-if ~exist('keep_workers_running', 'var')
-    keep_workers_running = false;
-end
 if exist('task_query_time', 'var') && ~isempty(task_query_time)
     obj.task_check_time  = task_query_time;
 end
+
 if isempty(obj.cluster_)
     error('JOB_DISPATCHER:runtime_error',...
         'Attempt to restart job when the cluster is not running');
 end
-if ~keep_workers_running
-    clob = onCleanup(@()finalize_all(obj));
-end
-%
+
 % clear all messages may be send to JD from the previous job.
 obj.mess_framework.clear_messages();
+
 % and change data exchange folder to avoid issue with caching and to work
 % together with parallel worker who also changes this folder
 obj = obj.migrate_exchange_folder();
+
 % indicate old cluster reused
 obj.job_is_starting_ = false;
+
 % take the old cluster
 cluster_wrp = obj.cluster_;
-%
-%
+
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...
-    cluster_wrp,keep_workers_running);
-% repeat finalize_all in case of dead clean-up objects stuck in class
-% properties (issue with value class)
-if ~keep_workers_running
-    clear clob;
-end
+    cluster_wrp);
 
+end
