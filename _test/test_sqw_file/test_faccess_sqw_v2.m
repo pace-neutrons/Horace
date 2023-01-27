@@ -178,7 +178,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(data.filepath,data_dnd.filepath)
             pix = to.get_pix();
             assertTrue(isa(pix, 'PixelDataBase'));
-            assertEqual(pix.file_path, sample);
+            assertEqual(pix.full_filename, sample);
             assertEqual(pix.num_pixels, 8031);
         end
 
@@ -253,19 +253,19 @@ classdef test_faccess_sqw_v2< TestCase
 
             tob = faccess_sqw_v2(tf);
             tob = tob.upgrade_file_format();
-            assertTrue(isa(tob,'faccess_sqw_v3'));
+            assertTrue(isa(tob,'faccess_sqw_v4'));
 
 
             sqw1 = tob.get_sqw();
             tob.delete();
 
             to = sqw_formats_factory.instance().get_loader(tf);
-            assertTrue(isa(to,'faccess_sqw_v3'));
+            assertTrue(isa(to,'faccess_sqw_v4'));
 
             sqw2 = to.get_sqw();
             to.delete();
 
-            assertEqualToTol(sqw1,sqw2,'-ignore_date','ignore_str',true);
+            assertEqualToTol(sqw1,sqw2,1.e-12,'-ignore_date','ignore_str',true);
             %
             %fclose all;
         end
@@ -281,19 +281,18 @@ classdef test_faccess_sqw_v2< TestCase
 
             tob = faccess_sqw_v2(tf);
             tob = tob.upgrade_file_format();
-            assertTrue(isa(tob,'faccess_sqw_v3'));
+            assertTrue(isa(tob,'faccess_sqw_v4'));
 
             sqw1 = tob.get_sqw();
             tob.delete();
 
             to = sqw_formats_factory.instance().get_loader(tf);
-            assertTrue(isa(to,'faccess_sqw_v3'));
-            assertTrue(isa(to,'faccess_sqw_v3_3'));
+            assertTrue(isa(to,'faccess_sqw_v4'));
 
             sqw2 = to.get_sqw();
             to.delete();
 
-            assertEqualToTol(sqw1,sqw2,'-ignore_date','ignore_str',true);
+            assertEqualToTol(sqw1,sqw2,1.e-12,'-ignore_date','ignore_str',true);
             %
             %fclose all;
         end
@@ -312,19 +311,20 @@ classdef test_faccess_sqw_v2< TestCase
             tob = faccess_sqw_v2(sqwob,tf);
             tob = tob.put_sqw();
 
-            tobV3 = tob.upgrade_file_format();
-            assertTrue(isa(tobV3,'faccess_sqw_v3'));
+            tobV4 = tob.upgrade_file_format();
+            assertTrue(isa(tobV4,'faccess_sqw_v4'));
 
+            sqw1 = tobV4.get_sqw();
+            tobV4.delete();                        
+            tob.delete();
 
-            sqw1 = tobV3.get_sqw();
+            
             % file was written afresh so have chreation date defined
             assertTrue(sqw1.main_header.creation_date_defined);
 
-            tob.delete();
-            tobV3.delete();
 
             to = sqw_formats_factory.instance().get_loader(tf);
-            assertTrue(isa(to,'faccess_sqw_v3_3'));
+            assertTrue(isa(to,'faccess_sqw_v4'));
 
             sqw2 = to.get_sqw();
             to.delete();
@@ -332,7 +332,7 @@ classdef test_faccess_sqw_v2< TestCase
 
             assertEqualToTol(sqw1,sqw2,'ignore_str',true);
 
-            assertEqualToTol(sqwob,sqw2,'ignore_str',true,'-ignore_date')
+            assertEqualToTol(sqwob,sqw2,1.e-12,'ignore_str',true,'-ignore_date')
 
             %
         end

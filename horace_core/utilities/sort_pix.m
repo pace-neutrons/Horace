@@ -94,13 +94,13 @@ if use_mex
         if use_given_pix_range
             raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
-            pix.set_data('all',raw_pix);
-            pix.set_range(pix_range);
+            pix= pix.set_raw_data(raw_pix,'all');
+            pix = pix.set_data_range(pix_range);
         else
             [raw_pix,pix_range_l] = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
-            pix.set_data('all',raw_pix);
-            pix.set_range(pix_range_l);
+            pix = pix.set_raw_data(raw_pix,'all');
+            pix = pix.set_data_range(pix_range_l);
         end
         clear pix_retained pix_ix_retained;  % clear big arrays
     catch ME
@@ -132,7 +132,7 @@ if ~use_mex
     end
     clear pix_retained;
     if isempty(pix)  % return early if no pixels
-        pix = PixelDataBase.create();
+        pix = PixelDataMemory();
         return;
     end
 
@@ -140,7 +140,7 @@ if ~use_mex
     clear ind;
     if force_double
         if ~isa(pix.data,'double')
-            pix = PixelDataBase.create(double(pix.data));
+            pix = PixelDataMemory(double(pix.data));
         end
     end
 end

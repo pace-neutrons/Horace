@@ -115,7 +115,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             
             pix = file_accessor.get_pix();
             assertTrue(isa(pix, 'PixelDataBase'));
-            assertEqual(pix.file_path, obj.sample_file);
+            assertEqual(pix.full_filename, obj.sample_file);
             assertEqual(pix.num_pixels, 7680);
 
             raw_pix = file_accessor.get_raw_pix(1,20);

@@ -30,11 +30,13 @@ if ~isempty(argi)
         argi = argi(~is_jd);
     end
 end
-if ~obj.sqw_holder.main_header.creation_date_defined
+if ~obj.sqw_holder.main_header.creation_date_defined ||...
+        isempty(obj.sqw_holder.main_header.filename)
     cd = datetime('now');
     sqw_obj = obj.sqw_holder;
     sqw_obj.main_header.creation_date= cd;
     sqw_obj.data.creation_date = cd;
+    sqw_obj.full_filename = obj.full_filename;
     obj.sqw_holder = sqw_obj;
 end
 if ~isa(obj.sqw_holder.pix,'pix_combine_info')

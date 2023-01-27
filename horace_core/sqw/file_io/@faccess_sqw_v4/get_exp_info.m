@@ -22,7 +22,7 @@ function [exper,obj]  = get_exp_info(obj,varargin)
 %
 [argi,samp_inst_number] = parse_get_inst_sample_arg_(obj,varargin{:});
 % after that, the only parameters may 
-[ok,mess,no_isamp_inst,argi]= parse_char_options(argi,{'-no_samp_inst'});
+[ok,mess,no_isamp_inst,argi]= parse_char_options(argi,{'-no_sampinst'});
 if ~ok
     error('HORACE:faccess_sqw_v4:invalid_argument',mess);
 end

@@ -55,6 +55,52 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqual(pix,pix_rec);
 
         end
+        function obj = test_save_load_sqwV4_crossbuf(obj)
+            hc    = hor_config;
+            mchs  = hc.mem_chunk_size;
+            hc.mem_chunk_size = 1000;
+            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
+
+            samp_f = fullfile(obj.sample_dir,...
+                'test_sqw_file_read_write_v3_1.sqw');
+
+            so = faccess_sqw_v3(samp_f);
+            sqw_ob = so.get_sqw();
+            % old sqw file
+            assertFalse(sqw_ob.main_header.creation_date_defined);
+
+            assertTrue(isa(sqw_ob,'sqw'));
+
+            inst1=create_test_instrument(95,250,'s');
+            hdr = sqw_ob.experiment_info;
+            hdr.instruments{1} = inst1;
+            sqw_ob = sqw_ob.change_header(hdr);
+
+            tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
+            clob = onCleanup(@()delete(tf));
+
+            tob = faccess_sqw_v3();
+            tob = tob.init(sqw_ob,tf);
+
+            tob=tob.put_sqw();
+            assertTrue(exist(tf,'file')==2)
+            tob = tob.delete();
+
+            tob=tob.init(tf);
+            ver_obj =tob.get_sqw('-verbatim');
+            tob.delete();
+            assertTrue(ver_obj.main_header.creation_date_defined);
+
+            sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
+            assertEqual(sqw_ob.main_header,ver_obj.main_header);
+
+            assertTrue(sqw_ob.experiment_info.runid_recalculated);
+            assertFalse(ver_obj.experiment_info.runid_recalculated);
+
+            ver_obj.experiment_info.runid_recalculated = true;
+            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date');
+        end
+        
         function test_upgrdate_v2_to_v4_filebacked(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
             clObF = onCleanup(@()delete(tf));

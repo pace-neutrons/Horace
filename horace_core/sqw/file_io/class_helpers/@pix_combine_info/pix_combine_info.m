@@ -43,6 +43,7 @@ classdef pix_combine_info < serializable
 
 
         pix_range    % Global range of all pixels, intended for combining
+        data_range   % Global range of all pixel data, i.e. coordinates, signal error and other pixel parameters
 
         % numbers of files used as run_label for pixels if relabel_with_fnum
         % and change_fileno are set to true
@@ -84,7 +85,7 @@ classdef pix_combine_info < serializable
         %
         filenum_ = [];
         % Global range of all pixels, intended for combining
-        pix_range_ = PixelDataBase.EMPTY_RANGE_;
+        data_range_ = PixelDataBase.EMPTY_RANGE;
 
     end
     properties(Constant,Access=protected)
@@ -257,14 +258,17 @@ classdef pix_combine_info < serializable
         end
         %
         function range = get.pix_range(obj)
-            range = obj.pix_range_;
+            range = obj.data_range_(:,1:4);
         end
-        function obj = set.pix_range(obj,val)
-            if ~all(size(val) == [2,4])
+        function range = get.data_range(obj)
+            range = obj.data_range_;
+        end        
+        function obj = set.data_range(obj,val)
+            if ~all(size(val) == [2,9])
                 error('HORACE:pix_combine_info:invalid_argument',...
-                    'pix_range size has to be array of 2x4');
+                    'data_range size has to be array of 2x9 elements');
             end
-            obj.pix_range_ = val;
+            obj.data_range_ = val;
         end
         %
         function rl= get.run_label(obj)
@@ -364,7 +368,7 @@ classdef pix_combine_info < serializable
         end
         %
         %
-        function obj = recalc_pix_range(obj)
+        function obj = recalc_data_range(obj)
             % recalculate common range for all pixels analysing pix ranges
             % from all contributing files
             %
@@ -432,16 +436,16 @@ classdef pix_combine_info < serializable
         end
     end
     methods(Static)
-        function pix_range = recalc_pix_range_from_loaders(ldrs)
+        function data_range = recalc_data_range_from_loaders(ldrs)
             % Recalculate pixels range using list of defined loaders
             n_files = numel(ldrs);
             ldr = ldrs{1};
-            pix_range= ldr.get_pix_range();
+            data_range= ldr.get_data_range();
             for i=2:n_files
                 ldr = ldrs{i};
-                loc_range = ldr.get_pix_range();
-                pix_range = [min([loc_range(1,:);pix_range(1,:)],[],1);
-                    max([loc_range(2,:);pix_range(2,:)],[],1)];
+                loc_range = ldr.get_data_range();
+                data_range = [min([loc_range(1,:);data_range(1,:)],[],1);
+                    max([loc_range(2,:);data_range(2,:)],[],1)];
             end
         end
     end

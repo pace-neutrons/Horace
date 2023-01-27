@@ -309,7 +309,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.main_header.filepath = fp;
             obj.data.filename = [fn,fex];
             obj.data.filepath = fp;
-            obj.pix.filepath = val;
+            obj.pix.full_filename = val;
         end
         %
         function cd = get.creation_date(obj)

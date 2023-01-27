@@ -78,7 +78,7 @@ classdef PixelDataMemory < PixelDataBase
         pix_out = noisify(obj, varargin);
         %
         pix_out = get_data(obj, fields, abs_pix_indices);
-        obj=set_data(obj, data, fields, abs_pix_indices);
+        obj     = set_raw_data(obj, data, fields, abs_pix_indices);        
     end
 
     methods

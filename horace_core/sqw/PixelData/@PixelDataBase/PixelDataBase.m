@@ -121,13 +121,14 @@ classdef (Abstract) PixelDataBase < serializable
         num_pages   % number of pages in the whole data file
         page_size;  % The number of pixels that can fit in one page of data
     end
+   %
     methods(Static,Hidden)
         function range = EMPTY_RANGE_()
             range = PixelDataBase.EMPTY_RANGE(:,1:4);
         end
 
     end
-
+%
     methods (Static)
         function isfb = do_filebacked(num_pixels)
             % function defines the rule to make pixels filebased or memory
@@ -262,6 +263,7 @@ classdef (Abstract) PixelDataBase < serializable
                                 init.full_filename);
                         end
                         obj(i) = obj(i).recalc_data_range();
+                        obj(i) = obj(i).move_to_first_page();
                     end
                 end
             else
@@ -319,7 +321,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
 
     end
-
+%
     methods(Abstract)
         % --- Pixel operations ---
         pix_out = append(obj, pix);
@@ -337,12 +339,16 @@ classdef (Abstract) PixelDataBase < serializable
         obj = recalc_data_range(obj);
 
         pix_out = get_data(obj, fields, abs_pix_indices);
-        obj  =set_data(obj, data, fields, abs_pix_indices);
+        obj  = set_raw_data(obj, data, fields, abs_pix_indices);                
 
 
         has_more = has_more(obj);
         [obj,current_page_num, total_num_pages] = advance(obj, varargin);
 
+    end
+    % working the same way on FB and MB files
+    methods
+        obj  = set_data(obj, data, fields, abs_pix_indices);        
     end
     methods(Abstract,Access=protected)
         % Maitn part of get.num_pixels accessor
@@ -371,7 +377,7 @@ classdef (Abstract) PixelDataBase < serializable
             data = get_data_(obj);
         end
         function obj=set.data(obj, pixel_data)
-            obj=set_data(obj, pixel_data);
+            obj=set_data(obj, pixel_data,'all');
         end
         %
         function u1 = get.u1(obj)

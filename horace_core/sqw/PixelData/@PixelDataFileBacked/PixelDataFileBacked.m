@@ -90,6 +90,10 @@ classdef PixelDataFileBacked < PixelDataBase
     % =====================================================================
     % Overloaded operations interface
     methods
+        function obj = append(obj, ~)
+            error('HORACE:PixelDataFileBacked:runtime_error',...
+                'append does not work on file-based pixels')
+        end
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
 
@@ -99,7 +103,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
 
         pix_out = get_data(obj, fields, abs_pix_indices);
-        obj=set_data(obj, data, fields, abs_pix_indices);
+        obj=set_raw_data(obj, data, fields, abs_pix_indices);        
     end
 
     %

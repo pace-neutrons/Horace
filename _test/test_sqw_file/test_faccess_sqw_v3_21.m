@@ -62,36 +62,23 @@ classdef test_faccess_sqw_v3_21< TestCase
 
         % tests
         function obj = test_read_write_upgrade_sqw(obj)
-            % mushrum file had been generated in v3_21 format -- the
+            % mushrum file had been generated in recent file  format -- the
             % preference for indirect
-            fl_acc = faccess_sqw_v3_21();
-            assertEqual(fl_acc.faccess_version,3.21);
-            %--------------------------------------------------------------
-            % by default, test file has been creaded by constructor as
-            % v3.21
-            [stream,fid] = fl_acc.get_file_header(obj.sqw_file);
-            [ok,initobj] = fl_acc.should_load_stream(stream,fid);
-            co = onCleanup(@()delete(fl_acc));
-            assertTrue(ok);
-            assertTrue(initobj.file_id>0);
-            % we can read and access these data using loader v3.21
-            fl_acc = fl_acc.init(initobj);
-            co1 = onCleanup(@()delete(fl_acc));
+
+            sqw_obj = read_sqw(obj.sqw_file);
             %--------------------------------------------------------------
             % we can get proper sqw object
-            sqw_obj = fl_acc.get_sqw();
             pix_range = sqw_obj.pix.pix_range;
             assertFalse(any(any(pix_range == PixelDataBase.EMPTY_RANGE_)));
-
-            assertTrue(isa(sqw_obj,'sqw'));
-            assertEqual(sqw_obj.main_header.filename,fl_acc.filename)
-            assertEqual(sqw_obj.main_header.filepath,[fl_acc.filepath,filesep])
+            data_range = sqw_obj.pix.data_range;
+            assertFalse(any(any(data_range == PixelDataBase.EMPTY_RANGE)));
+            
 
             % we can save the object as previous version of the file
             test_file=fullfile(obj.working_dir,'test_read_wr_upd_indirect_v3_2.sqw');
             co2 = onCleanup(@()delete(test_file));
             save(sqw_obj,test_file,faccess_sqw_v3_2());
-            fl_acc.delete();
+
 
             ldr =sqw_formats_factory.instance().get_loader(test_file);
             assertTrue(isa(ldr,'faccess_sqw_v3_2'));
@@ -100,7 +87,7 @@ classdef test_faccess_sqw_v3_21< TestCase
             % format, containing pixel range
             ldr = ldr.upgrade_file_format();
 
-            assertTrue(isa(ldr,'faccess_sqw_v3_21'));
+            assertTrue(isa(ldr,'faccess_sqw_v4'));
 
             pix_range1 = ldr.get_pix_range();
             % 3e-7 -- conversion from double to single
@@ -109,13 +96,14 @@ classdef test_faccess_sqw_v3_21< TestCase
             %--------------------------------------------------------------
             % the file has been upgraded properly
             ldr =sqw_formats_factory.instance().get_loader(test_file);
-            assertTrue(isa(ldr,'faccess_sqw_v3_21'));
+
             sqw1 = ldr.get_sqw();
             ldr.delete();
             % the recovered sqw object is equivalent to the generated sqw
-            % object
-            [ok,mess]=sqw_obj.equal_to_tol(sqw1,'tol',3.e-7,'ignore_str',true);
-            assertTrue(ok,mess);
+            % object. Detpar accuacy is 5 digits
+            assertEqualToTol(sqw1,sqw_obj,1e-5)
+%             [ok,mess]=sqw_obj.equal_to_tol(sqw1,'tol',3.e-7,'ignore_str',true);
+%             assertTrue(ok,mess);
         end
         %
 

@@ -29,7 +29,7 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, double *
     bool calc_pix_range(false);
     if (pPixRange) {
         calc_pix_range = true;
-        for (size_t i = 0; i < 4; i++) {
+        for (size_t i = 0; i < PIXEL_DATA_WIDTH; i++) {
             pPixRange[2 * i]     =  std::numeric_limits<double>::max();
             pPixRange[2 * i + 1] = -std::numeric_limits<double>::max();
         }
@@ -52,7 +52,7 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, double *
             size_t jBase = ppInd[ind] * pix_fields::PIX_WIDTH;
             ppInd[ind]++;
             if (calc_pix_range) {
-                for (size_t i = 0; i < 4; i++) {
+                for (size_t i = 0; i < PIXEL_DATA_WIDTH; i++) {
                     double pix_val = static_cast<double>(pPixData[i0 + i]);
                     pPixRange[2 * i]     = std::min(pPixRange[2 * i], pix_val);
                     pPixRange[2 * i + 1] = std::max(pPixRange[2 * i + 1], pix_val);

@@ -65,11 +65,13 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
         function test_pix_range(obj)
             tester = pix_combine_info(obj.test_souce_files);
 
-            assertEqual(tester.pix_range,PixelDataBase.EMPTY_RANGE_);
+            assertEqual(tester.data_range,PixelDataBase.EMPTY_RANGE);
 
-            tester = tester.recalc_pix_range();
+            tester = tester.recalc_data_range();
 
             assertElementsAlmostEqual(tester.pix_range,obj.ref_pix_range,'relative',1.e-6);
+            is_undef = tester.data_range == PixelDataBase.EMPTY_RANGE;
+            assertFalse(any(is_undef(:)));
         end
         %
 

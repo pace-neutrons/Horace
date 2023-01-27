@@ -71,7 +71,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     size_t nDataPoints(0), nEnShed(0), nEfixed(0);
     mwSize nDetectors, nEnergies;
     double *pEfix(nullptr), k_to_e;
-    urangeModes uRange_mode;
+    urangeModes uRange_mode(urangeModes::noUrange);
 
     if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
 #ifdef _OPENMP
@@ -85,7 +85,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     if (nrhs < NUM_IN_args - 1) {
         if (nrhs == NUM_IN_args - 2) { // uRangeMode is not specified; default urange mode, return pixel information
-            uRange_mode = urangePixels;
+            uRange_mode = urangeModes::urangePixels;
         }
         else {
             std::stringstream buf;
@@ -97,7 +97,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     bool forceNoUrange(false);
     if (nlhs != 2) {
         if (nlhs == 1) {
-            uRange_mode = noUrange;
+            uRange_mode = urangeModes::noUrange;
             forceNoUrange = true; // no urange is forced if no place for output array is provided. No point of allocating it then.
         }
         else {
@@ -153,9 +153,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             uRange_mode = static_cast<urangeModes>(iMode);
         }
         else {
-            uRange_mode = urangePixels;
+            uRange_mode = urangeModes::urangePixels;
         }
-        if (forceNoUrange)uRange_mode = noUrange;
+        if (forceNoUrange)uRange_mode = urangeModes::noUrange;
     }
 
     if (mxGetM(prhs[Spec_to_proj]) != 3 || mxGetN(prhs[Spec_to_proj]) != 3) {
@@ -216,7 +216,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 
-    mwSize dims[2], nEnPoints;
+    mwSize nEnPoints;
     double *pEnPoints;
     if (nEnergies == nEnShed) {     // energy is calculated on edges of energy bins
         nEnPoints = nEnergies;
@@ -250,45 +250,49 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         if (clearTmpDet) delete[] pDetGroup;
         mexErrMsgTxt("Energies in data spectrum and in energy spectrum are not consistent");
     }
-    dims[0] = 2;
-    dims[1] = 4;
-    plhs[0] = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
-    if (!plhs[0]) {
-        if (clearTmpDet) delete[] pDetGroup;
 
-        mexErrMsgTxt("Can not allocate memory for output data");
-    }
 
     // Allocate output array of pixels if requested by urangeMode
+    mwSize range_dims[2], pix_dims[2];
+    range_dims[0] = 2;
     switch (uRange_mode)
     {
     case noUrange:
     {
         if (!forceNoUrange)
         {
-            dims[0] = 9;
-            dims[1] = 0;
-            plhs[1] = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
+            range_dims[1] = 4;
+            pix_dims[0] = 9;
+            pix_dims[1] = 0;
+            plhs[1] = mxCreateNumericArray(2, pix_dims, mxDOUBLE_CLASS, mxREAL);
         }
         break;
     }
     case urangeCoord:
     {
-        dims[0] = 4;
-        dims[1] = nDetectors * nEnPoints;
-        plhs[1] = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
+        range_dims[1] = 4;
+        pix_dims[0] = 4;
+        pix_dims[1] = nDetectors * nEnPoints;
+        plhs[1] = mxCreateNumericArray(2, pix_dims, mxDOUBLE_CLASS, mxREAL);
         break;
     }
     case urangePixels:
     {
-        dims[0] = 9;
-        dims[1] = nDetectors * nEnPoints;
-        plhs[1] = mxCreateNumericArray(2, dims, mxDOUBLE_CLASS, mxREAL);
+        range_dims[1] = pix_fields::PIX_WIDTH;
+        pix_dims[0] = 9;
+        pix_dims[1] = nDetectors * nEnPoints;
+        plhs[1] = mxCreateNumericArray(2, pix_dims, mxDOUBLE_CLASS, mxREAL);
 
     }
     default:
         break;
     }
+    plhs[0] = mxCreateNumericArray(2, range_dims, mxDOUBLE_CLASS, mxREAL);
+    if (!plhs[0]) {
+        if (clearTmpDet) delete[] pDetGroup;
+        mexErrMsgTxt("Can not allocate memory for output data");
+    }
+
     //
     if (!plhs[1] && !forceNoUrange) {
         if (clearTmpDet) delete[] pDetGroup;
@@ -379,9 +383,20 @@ void calc_projections_emode(double * const pMinMax,
     }
 
     omp_set_num_threads(nThreads);
-
-    std::vector<double> qe_min(4 * nThreads, FLT_MAX);
-    std::vector<double> qe_max(4 * nThreads, -FLT_MAX);
+    std::vector<double> qe_min, qe_max;
+    mwSize pix_width;
+    switch (urange_mode) {
+    case (urangePixels):
+    {
+        pix_width = 9;
+        qe_min.assign(pix_width * nThreads, FLT_MAX);
+        qe_max.assign(pix_width * nThreads, -FLT_MAX);
+    }default: {
+        pix_width = 4;
+        qe_min.assign(pix_width * nThreads, FLT_MAX);
+        qe_max.assign(pix_width * nThreads, -FLT_MAX);
+    }
+    }
 #pragma omp parallel default(none)  \
     shared(pKf,qe_min,qe_max) \
     firstprivate(nDetectors,nEnergies,ki,urange_mode,emode,singleEfixed, \
@@ -483,9 +498,6 @@ void calc_projections_emode(double * const pMinMax,
                     int n_cur = 4 * omp_get_thread_num();
                     for (int ike = 0; ike < 4; ike++)
                     {
-                        // min-max values;
-                        if (qe[ike] < qe_min[n_cur + ike])qe_min[n_cur + ike] = qe[ike];
-                        if (qe[ike] > qe_max[n_cur + ike])qe_max[n_cur + ike] = qe[ike];
                         pTransfDetectors[j0 + ike] = qe[ike];
                     }
 
@@ -499,25 +511,29 @@ void calc_projections_emode(double * const pMinMax,
                     pTransfDetectors[j0 + 7] = pSignal[i0 + j];
                     //pix(9,:)=((data.ERR(:)).^2)';
                     pTransfDetectors[j0 + 8] = pError[i0 + j] * pError[i0 + j];
+                    // min-max values;
+                    for (int ike = 0; ike < 9; ike++) {
+                        if (pTransfDetectors[j0 + ike] < qe_min[n_cur + ike])qe_min[n_cur + ike] = pTransfDetectors[j0 + ike];
+                        if (pTransfDetectors[j0 + ike] > qe_max[n_cur + ike])qe_max[n_cur + ike] = pTransfDetectors[j0 + ike];
+                    }
+
                 }
                 }
-
-
             }
         } // end omp for
 
     }  // end parallel block
     if (pKf)mxFree(pKf);
     // mvs do not support reduction min/max Shame! Calculate single threaded here
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < pix_width; i++) {
         pMinMax[2 * i + 0] = 1.e+38;
         pMinMax[2 * i + 1] = -1.e+38;
     }
 
     for (int ii = 0; ii < nThreads; ii++) {
-        for (int ike = 0; ike < 4; ike++) {
-            if (qe_min[4 * ii + ike] < pMinMax[2 * ike + 0])pMinMax[2 * ike + 0] = qe_min[4 * ii + ike];
-            if (qe_max[4 * ii + ike] > pMinMax[2 * ike + 1])pMinMax[2 * ike + 1] = qe_max[4 * ii + ike];
+        for (int ike = 0; ike < pix_width; ike++) {
+            if (qe_min[pix_width * ii + ike] < pMinMax[2 * ike + 0])pMinMax[2 * ike + 0] = qe_min[pix_width * ii + ike];
+            if (qe_max[pix_width * ii + ike] > pMinMax[2 * ike + 1])pMinMax[2 * ike + 1] = qe_max[pix_width * ii + ike];
         }
     }
 

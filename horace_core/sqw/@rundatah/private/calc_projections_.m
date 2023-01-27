@@ -78,14 +78,13 @@ if use_mex
             emode = obj.emode;
             %proj_mode = 2;
             %nThreads = 1;
-            [pix_range,pix] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
+            [pix_range,pix_arr] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             if proj_mode==2
-                pix = PixelDataMemory(pix);
-                %Re #928 TODO: calculate full range in mex file, modify
-                % PixelData constructor not to calculate range during
-                % construction and enable this method, setting 9xnpix range
-                % for performance reason.
-                %pix.set_range(pix_range);
+                pix = PixelDataMemory();
+                pix = pix.set_raw_data(pix_arr);
+                pix = pix.set_data_range(pix_range);
+            else
+                pix = pix_arr;
             end
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex', ...
@@ -110,30 +109,30 @@ if ~use_mex
 
     % Return without filling the pixel array if pix_range only is requested
     switch proj_mode
-      case 0
-        pix_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
-        pix = [];
-      case 1
-        pix_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
-        pix = ucoords;
-      case 2
-        % Fill in pixel data object
-        if ~qspec_provided
-            det = obj.det_par;
-            if isfield(det,'group')
-                detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+        case 0
+            pix_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
+            pix = [];
+        case 1
+            pix_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
+            pix = ucoords;
+        case 2
+            % Fill in pixel data object
+            if ~qspec_provided
+                det = obj.det_par;
+                if isfield(det,'group')
+                    detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+                else
+                    group = 1:ndet;
+                    detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
+                end
+                energy_idx=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
             else
-                group = 1:ndet;
-                detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
+                detector_idx = ones(1,ne*ndet);
+                energy_idx = ones(1,ne*ndet);
             end
-            energy_idx=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
-        else
-            detector_idx = ones(1,ne*ndet);
-            energy_idx = ones(1,ne*ndet);
-        end
-        sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
-        run_id = ones(1,numel(detector_idx))*obj.run_id;
-        pix = PixelDataBase.create([ucoords;run_id;detector_idx;energy_idx;sig_var]);
-        pix_range=pix.pix_range;
+            sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
+            run_id = ones(1,numel(detector_idx))*obj.run_id;
+            pix = PixelDataBase.create([ucoords;run_id;detector_idx;energy_idx;sig_var]);
+            pix_range=pix.pix_range;
     end
 end

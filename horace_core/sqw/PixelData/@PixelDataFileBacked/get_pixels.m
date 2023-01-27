@@ -34,6 +34,9 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 
 abs_pix_indices = parse_args(obj, abs_pix_indices);
 
+pix_out = PixelDataBase.create(read_clean_pix(obj, abs_pix_indices));
+
+
 if obj.has_tmp_file || obj.page_edited
     % At least some pixels sit in temporary files
 
@@ -42,7 +45,7 @@ if obj.has_tmp_file || obj.page_edited
     pix_out = PixelDataBase.create(double(data_map.data.data(:, abs_pix_indices)));
 
 else
-    pix_out = PixelDataBase.create(read_clean_pix(obj, abs_pix_indices));
+
 end
 
 end

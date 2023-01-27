@@ -31,7 +31,8 @@ obj = obj.check_combo_arg();
 %
 %
 facc_mode = other_obj.io_mode;
-if write_mode && strcmp(facc_mode,'rb')
+if write_mode && (strcmp(facc_mode,'rb') || (strcmp(facc_mode,'wb+')&&other_obj.data_in_file))
+    obj.data_in_file_ = true;
     facc_mode = 'rb+';
 end
 
