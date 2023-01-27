@@ -48,26 +48,17 @@ addgenpath_message (herbert_path,'applications')
 % set up multi-users computer specific settings,
 % namely settings which are common for all new users of the specific computer
 % e.g.:
-hec = herbert_config();
 parc = parallel_config();
-if hec.is_default || parc.is_default
+if parc.is_default
     warning(['Found Herbert is not configured. ',...
         ' Setting up the configuration, identified as optimal for this type of the machine.',...
         ' Please, check configurations (typing:',...
-        ' >>herbert_config and ',...
         ' >>parallel_config)',...
-        ' to ensure these configurations are correct.'])
+        ' to ensure this configuration is correct.'])
     ocp = opt_config_manager();
     ocp.load_configuration('-set_config','-change_only_default','-force_save');
 end
-%
 
-if hec.init_tests % this is developer version
-    % set unit tests to the Matlab search path, to overwrite the unit tests
-    % routines, added to Matlab after Matlab 2017b, as new routines have
-    % signatures, different from the standard unit tests routines.
-    hec.set_unit_test_path();
-end
 
 print_banner();
 

@@ -26,7 +26,7 @@ data.filepath=[dir_path,filesep];
 
 % Read spe file
 try
-    if get(herbert_config,'log_level')>-1
+    if get(hor_config,'log_level')>-1
         disp(['Matlab loading of .spe file : ' file_tmp]);
     end
     [data.S,data.ERR,data.en]=read_spe_(file_tmp);
@@ -46,7 +46,7 @@ if sum(index(:)>0)
 end
 
 [ne,ndet]=size(data.S);
-if get(herbert_config,'log_level')>-1
-	disp(['Loaded spe data ( ' num2str(ndet) ' detector(s) and ' num2str(ne) ' energy bin(s)) from file : ']);
-	disp(file_tmp);
+if get(hor_config,'log_level')>-1
+        disp(['Loaded spe data ( ' num2str(ndet) ' detector(s) and ' num2str(ne) ' energy bin(s)) from file : ']);
+        disp(file_tmp);
 end

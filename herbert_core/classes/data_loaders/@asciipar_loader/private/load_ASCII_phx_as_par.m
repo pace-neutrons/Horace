@@ -43,14 +43,14 @@ end
 
 filename=strtrim(filename);
 
-use_mex = get(herbert_config,'use_mex');
+use_mex = get(hor_config,'use_mex');
 if use_mex
     try     %using C routine
         phx=get_ascii_file(filename,'phx');
         [ncol,ndata]=size(phx);
         phx=[phx(1,:);phx(3:6,:);1:ndata];
     catch   %using matlab routine
-        force_mex = get(herbert_config,'force_mex_if_use_mex');
+        force_mex = get(hor_config,'force_mex_if_use_mex');
         if ~force_mex
             warning('A_LOADER:get_phx','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
             use_mex = false;
@@ -111,5 +111,3 @@ end
 %     phx.azim=arr(4,:);
 %     phx.dphi=arr(5,:);
 %     phx.danght=arr(6,:);
-
-

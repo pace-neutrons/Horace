@@ -52,7 +52,7 @@ end
 %
 size_par = size(rez);
 ndet=size_par(2);
-if get(herbert_config,'log_level')>0
+if get(hor_config,'log_level')>0
     disp(['ASCIIPAR_LOADER:load_ascii_par::loaded ' num2str(ndet) ' detector(s)']);
 end
 %
@@ -101,7 +101,7 @@ if nargout >1 && ~loader_defined
                 par = a_detpar_loader_interface.convert_phx2par(rez);
             else
                 par = det;
-            end            
+            end
         else
             par =rez;
         end
@@ -109,6 +109,6 @@ if nargout >1 && ~loader_defined
     end
     obj.det_par_    = det_i;
     obj.n_det_in_par_ = ndet;
-    
+
 end
 %

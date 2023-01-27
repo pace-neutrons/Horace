@@ -17,7 +17,7 @@ function [mean_signal, mean_variance] = compute_bin_data(obj, npix)
 %                 size(mean_variance) = size(npix)
 %
 use_mex = get(hor_config,'use_mex');
-log_level = get(herbert_config,'log_level');
+log_level = get(hor_config,'log_level');
 
 if use_mex
     try

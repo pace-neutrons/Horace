@@ -2,6 +2,7 @@ classdef test_serialise < TestCase
     properties
         use_mex;
     end
+
     methods
         function this=test_serialise(varargin)
             if nargin>0
@@ -11,22 +12,23 @@ classdef test_serialise < TestCase
             end
             this = this@TestCase(name);
 
-            this.use_mex = herbert_config().use_mex;
+            this.use_mex = hor_config().use_mex;
 
         end
 
         function this = setUp(this)
-            hbc = herbert_config;
+            hbc = hor_config;
             hbc.use_mex = false;
         end
 
 
         function this = tearDown(this)
-            hbc = herbert_config;
+            hbc = hor_config;
             hbc.use_mex = this.use_mex;
         end
 
         %------------------------------------------------------------------
+
         function test_ser_sample(~)
             sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
 

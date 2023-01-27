@@ -1,4 +1,4 @@
-classdef test_config_classes< TestCase
+classdef test_config_classes < TestCase
     % Test basic functionality of configuration classes
     %
     %   > >test_config_classes
@@ -104,9 +104,9 @@ classdef test_config_classes< TestCase
             config_store.instance().clear_config(tgp_test_class2,'-files');
         end
 
-        function obj = test_set_herbert_tests(obj)
+        function obj = test_set_tests(obj)
             % Use presence or otherwise of TestCaseWithSave as a proxy for xunit tests on
-            hc = herbert_config;
+            hc = hor_config;
             old_config = hc.get_data_to_store();
             clob = onCleanup(@()set(hc,old_config));
             % Tests should be found as we are currently in a test suite
@@ -114,11 +114,11 @@ classdef test_config_classes< TestCase
             assertTrue(found_on_entry);
 
             % Turn off tests
-            set(herbert_config,'init_tests',0,'-buffer');
+            set(hor_config,'init_tests',0,'-buffer');
             found_when_init_tests_off = ~isempty(which('TestCaseWithSave.m'));
 
             % Turn tests back on
-            set(herbert_config,'init_tests',1,'-buffer');
+            set(hor_config,'init_tests',1,'-buffer');
             found_when_init_tests_on = ~isempty(which('TestCaseWithSave.m'));
 
             % Can only use assertTrue, assertFalse etc when tests are on

@@ -9,7 +9,7 @@ if ~this.save_output
     return
 end
 
-hc = herbert_config;
+hc = hor_config;
 
 % Find unit test methods (begin 'test' or 'Test', excluding the constructor)
 if isempty(this.test_method_to_save_)

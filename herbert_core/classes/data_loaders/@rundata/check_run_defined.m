@@ -90,7 +90,7 @@ fields_undef = fields_undef(~is_in_loader);
 % necessary fields are still undefined by the run
 if ~isempty(fields_undef)
     undefined = 2;
-    if config_store.instance().get_value('herbert_config','log_level') > 1 && ~isempty(run.loader)
+    if get(hor_config,'log_level') > 1 && ~isempty(run.loader)
         undef_field_names = strjoin(fields_undef,'; ');
         sprintf('The fields: %s are needed but neither defined on interface nor can be provided in loader %s\n',...
             undef_field_names,class(run.loader));
@@ -101,13 +101,5 @@ end
 function isit=is_empty_field(data,field)
 % the function which is applied to each element of cell array verifying if
 % it is empty
-isit=false;
 val = data.(field);
-if isempty(val)
-    isit=true;
-else
-    if ischar(val) && strncmp('undef',val,5)
-        isit = true;
-    end
-end
-
+isit= isempty(val) || (ischar(val) && strncmp('undef', val, 5));

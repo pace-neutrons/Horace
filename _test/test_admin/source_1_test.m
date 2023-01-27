@@ -1,8 +1,8 @@
 function c=source_1_test(arg)
 %
-%  Function to test herbert to mslcie synchronization
+%  Function to test herbert to mslice synchronization
 
 a=arg;
-b=get(herbert_config,'use_mex');
+b=get(hor_config,'use_mex');
 c=a+b;
 end

@@ -1,23 +1,23 @@
-classdef test_rundata_isvalid<TestCase
-
+classdef test_rundata_isvalid < TestCase
     properties
         log_level;
     end
 
     methods
-        function this=test_rundata_isvalid(name)
-            this = this@TestCase(name);
-        end
-        function this=setUp(this)
-            this.log_level = get(herbert_config,'log_level');
-            set(herbert_config,'log_level',-1,'-buffer');
-        end
-        function this=tearDown(this)
-            set(herbert_config,'log_level',this.log_level,'-buffer');
+        function obj=test_rundata_isvalid(name)
+            obj = obj@TestCase(name);
         end
 
-        %
-        function this=test_SERR(this)
+        function obj=setUp(obj)
+            obj.log_level = get(hor_config,'log_level');
+            set(hor_config,'log_level',-1,'-buffer');
+        end
+
+        function obj=tearDown(obj)
+            set(hor_config,'log_level',obj.log_level,'-buffer');
+        end
+
+        function obj=test_SERR(obj)
             rd = rundata();
             rd.S = ones(3,5);
             assertFalse(rd.isvalid);
@@ -32,7 +32,8 @@ classdef test_rundata_isvalid<TestCase
             assertTrue(strncmp(base_mess,rd.reason_for_invalid,numel(base_mess)));
 
         end
-        function this = test_Sen(this)
+
+        function obj = test_Sen(obj)
             rd=rundata();
             rd.en = ones(5,1);
             assertFalse(rd.isvalid);
@@ -56,7 +57,8 @@ classdef test_rundata_isvalid<TestCase
             rd.det_par = ones(6,6);
             assertTrue(rd.isvalid);
         end
-        function this = test_enEfix(this)
+
+        function obj = test_enEfix(obj)
             rd=rundata();
             rd.efix = 6;
             assertFalse(rd.isvalid);
@@ -80,7 +82,8 @@ classdef test_rundata_isvalid<TestCase
             assertTrue(strncmp(rd.reason_for_invalid,base_mess,numel(base_mess)));
 
         end
-        function this = test_det_par(this)
+
+        function obj = test_det_par(obj)
             rd=rundata();
             rd.det_par = ones(6,3);
             assertTrue(rd.isvalid);
@@ -103,7 +106,8 @@ classdef test_rundata_isvalid<TestCase
             rd.en      = 1:4;
             assertTrue(rd.isvalid);
         end
-        function this = test_set_lattice(this)
+
+        function obj = test_set_lattice(obj)
             rd=rundata();
             assertFalse(rd.isvalid);
 
@@ -112,7 +116,8 @@ classdef test_rundata_isvalid<TestCase
 
             assertEqual(rd.lattice,oriented_lattice);
         end
-        function this = test_3vectors(this)
+
+        function obj = test_3vectors(obj)
             rd=rundata();
 
             rd = set_lattice_field(rd,'u',[1,2,3]);
@@ -128,7 +133,7 @@ classdef test_rundata_isvalid<TestCase
             assertTrue(strncmp(rd.reason_for_invalid,'Run is undefined',16));
         end
 
-        function this = test_1vectors(this)
+        function obj = test_1vectors(obj)
             rd=rundata();
 
             rd.lattice.alatt = 3;
@@ -145,7 +150,8 @@ classdef test_rundata_isvalid<TestCase
             assertFalse(rd.isvalid);
             assertTrue(strncmp(rd.reason_for_invalid,'Run is undefined',16));
         end
-        function this = test_degrees(this)
+
+        function obj = test_degrees(obj)
             rd=rundata();
             rd.lattice.alatt=3.2;          % lattice,
             rd.lattice.angdeg=[45,90,50];  % angles

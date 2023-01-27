@@ -80,7 +80,7 @@ warning('off', 'MATLAB:class:DestructorError');
 % Set Herbert configuration to the default (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
-hc = herbert_config();
+hc = hor_config();
 current_conf = hc.get_data_to_store();
 hc.init_tests = 1; % initialize unit tests
 hc.log_level = 1;
@@ -161,9 +161,9 @@ if exit_on_completion
 end
 
 %==============================================================================
-function herbert_test_cleanup(old_her_config,old_pc_config,test_folders, initial_warn_state)
+function herbert_test_cleanup(old_hor_config,old_pc_config,test_folders, initial_warn_state)
 % Reset the configuration
-set(herbert_config, old_her_config);
+set(hor_config, old_hor_config);
 set(parallel_config,old_pc_config);
 % clear up the test folders, previously placed on the path
 warning('off', 'all'); % avoid varnings on deleting non-existent path

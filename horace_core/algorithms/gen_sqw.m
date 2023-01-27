@@ -196,12 +196,8 @@ accumulate_old_sqw=false;   % true if want to accumulate spe data to an existing
 accumulate_new_sqw=false;   % true if want to accumulate spe data to a new sqw file (not all spe data files need exist)
 use_partial_tmp = false;    % true to generate a combined sqw file during accumulate sqw using tmp files calculated at
 % previous accumulation steps
-log_level=...
-    config_store.instance().get_value('herbert_config','log_level');
-delete_tmp=...
-    config_store.instance().get_value('hor_config','delete_tmp');
-combine_algorithm =...
-    config_store.instance().get_value('hpc_config','combine_sqw_using');
+[delete_tmp, log_level] = get(hor_config,'delete_tmp', 'log_level');
+combine_algorithm = get(hpc_config,'combine_sqw_using');
 
 if opt.accumulate
     if sqw_exist && ~opt.clean  % accumulate onto an existing sqw file
@@ -753,9 +749,9 @@ function  [grid_size,pix_range,update_runids,tmp_generated,jd]=convert_to_tmp_fi
     % if further operations are necessary to perform with generated tmp files,
     % keep parallel pool running to save time on restarting it.
 
-log_level = config_store.instance().get_value('herbert_config','log_level');
-use_separate_matlab = config_store.instance().get_value('hpc_config','build_sqw_in_parallel');
-num_matlab_sessions = config_store.instance().get_value('parallel_config','parallel_workers_number');
+log_level = get(hor_config,'log_level');
+use_separate_matlab = get(hpc_config,'build_sqw_in_parallel');
+num_matlab_sessions = get(parallel_config,'parallel_workers_number');
 
 % build names for tmp files to generate
 spe_file = cellfun(@(x)(x.loader.file_name),run_files,...

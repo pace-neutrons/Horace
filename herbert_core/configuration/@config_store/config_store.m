@@ -271,11 +271,11 @@ classdef config_store < handle
 
             %Usage:
             %
-            % obj = conifg_store.instance().restore_config(herbert_config)
+            % obj = conifg_store.instance().restore_config(hor_config)
             %       unusual instance of Herbert config, with modified
             %       defaults. Should not be used
             %
-            % [use_mex,log_level]=conifg_store.instance().restore_config(herbert_config,...
+            % [use_mex,log_level]=conifg_store.instance().restore_config(hor_config,...
             %                     'use_mex','log_level')
             %                      returns current Herbert config settings for fields
             %                      'use_mex' and 'log_level'

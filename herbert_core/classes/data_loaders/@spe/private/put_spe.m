@@ -34,7 +34,7 @@ if sum(index(:)>0)
 end
 
 % Prepare data for Matlab: - must ensure no data has exponents outside range -99 to +99
-% The problem is that Matlab sees -1.234-008 as two numbers, and C++ sees this 
+% The problem is that Matlab sees -1.234-008 as two numbers, and C++ sees this
 % as one number, but does not interpreet the exponent.
 small_data=1.0e-30;
 data.S(abs(data.S)<small_data)=0;
@@ -42,7 +42,7 @@ data.ERR(abs(data.ERR)<small_data)=0;
 
 % Write to file
 try     % matlab write
-    if get(herbert_config,'log_level')>-1	
+    if get(hor_config,'log_level')>-1
         disp(['Matlab writing of .spe file : ' file_tmp]);
     end
     [ok,mess] = write_spe_(data,file_tmp);
