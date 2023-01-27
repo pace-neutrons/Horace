@@ -387,9 +387,9 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             bytes = fread(obj.file_id_,fn_size,'char');
             fname = char(bytes');
             if contains(fname,'$id$') %contains is available from 16b only
-                obj.contains_runid_in_header_ = false;
-            else
                 obj.contains_runid_in_header_ = true;
+            else
+                obj.contains_runid_in_header_ = false;
             end
         end
         %

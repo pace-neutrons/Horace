@@ -14,7 +14,7 @@ try
     do_fseek(obj.file_id_,obj.main_header_pos_,'bof');
 catch ME
     exc = MException('HORACE:sqw_binfile_common:io_error',...
-                     'Error moving to main data header position')
+                     'Error moving to main data header position');
     throw(exc.addCause(ME))
 end
 
