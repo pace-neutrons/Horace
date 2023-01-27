@@ -139,7 +139,7 @@ classdef MPI_clusters_factory<handle
 
         %-----------------------------------------------------------------
 
-        function cl = get_initialized_cluster(obj,n_workers,cluster_to_host_exch_fmwork)
+        function cluster = get_initialized_cluster(obj,n_workers,cluster_to_host_exch_fmwork)
             % return the initialized and running MPI cluster, selected as default
             % Inputs:
             % n_workers -- number of running workers
@@ -147,32 +147,46 @@ classdef MPI_clusters_factory<handle
             %              framework, used for initial communication with
             %              the cluster. Currently FileBased only
             % Returns:
-            % cl -- the initialized instance of the cluster,
-            %       selected as current in parallel_config. The
-            %       cluster controls the requested number of the
-            %       parallel workers, communicating between each
-            %       other using the method, chosen for the
-            %       cluster.
+            % cluseter -- the initialized instance of the cluster,
+            %             selected as current in parallel_config. The
+            %             cluster controls the requested number of the
+            %             parallel workers, communicating between each
+            %             other using the method, chosen for the
+            %             cluster.
+            persistent cl
+
             log_level = config_store.instance().get_value('hor_config','log_level');
-            cl      = obj.parallel_cluster;
-            if isempty(cl)
-                error('HERBERT:MPI_clusters_factory:not_available',...
-                    ' Can not run jobs in parallel. Any parallel framework is not available. Worker may be not installed.')
-            end
 
-            try
-                cl= cl.init(n_workers,cluster_to_host_exch_fmwork,log_level);
-            catch ME
-                if strcmp(ME.identifier,'HERBERT:ClusterWrapper:runtime_error')
-                    if log_level > -1
-                        fprintf(2,'**** Cluster Initialization failure: %s\n',ME.message);
-                    end
-                    cl=[];
-                else
-                    rethrow(ME);
+            % If cluster not initialised or requirements have changed
+            % rebuild cluster
+            if isempty(cl) || ~strcmpi(class(cl), ['cluster' obj.parallel_cluster_name_]) || n_workers ~= cl.n_workers
+
+                cl = obj.parallel_cluster;
+                if isempty(cl)
+                    error('HERBERT:MPI_clusters_factory:not_available',...
+                          ' Can not run jobs in parallel. Any parallel framework is not available. Worker may be not installed.')
                 end
+
+                try
+                    cl = cl.init(n_workers,cluster_to_host_exch_fmwork,log_level);
+                catch ME
+                    switch ME.identifier
+                      case 'HERBERT:ClusterWrapper:runtime_error'
+                        if log_level > -1
+                            fprintf(2,'**** Cluster Initialization failure: %s\n',ME.message);
+                        end
+                        cl=[];
+                      otherwise
+                        rethrow(ME);
+                    end
+
+                end
+            else
+                cluster_to_host_exch_fmwork
+                cl = cl.set_mess_exchange(cluster_to_host_exch_fmwork)
             end
 
+            cluster = cl;
         end
 
     end

@@ -172,7 +172,6 @@ while keep_worker_running
             end
         else
             worker_init_data = mess.payload;
-            keep_worker_running = worker_init_data.keep_worker_running;
         end
 
 
@@ -445,9 +444,8 @@ end
     function log_worker_init_received()
         fprintf(fh,['Received starting message with parameters: \n',...
             '         JobExecutor: %s;\n',...
-            '         keep_running %d;\n',...
             '         exit lab on completion %d\n'],...
-            worker_init_data.JobExecutorClassName,keep_worker_running,exit_at_the_end);
+            worker_init_data.JobExecutorClassName,exit_at_the_end);
     end
 
     function log_init_received()
