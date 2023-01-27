@@ -38,7 +38,7 @@ classdef test_pdf_table_lookup < TestCaseWithSave
         end
 
         function test_lookup_table(obj)
-            hc = herbert_config;
+            hc = hor_config;
             log_level = hc.log_level;
 
 

@@ -15,7 +15,7 @@ function [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices)
 %   >> data = cell(1, numel(read_sizes));
 %   >> fid = fopen('mybinary_file', 'r');
 %   >> for i = 1:numel(read_sizes)
-%          fseek(fid, seek_sizes(i), 'cof');
+%          do_fseek(fid, seek_sizes(i), 'cof');
 %          data{i} = fread(fid, read_sizes(i));
 %      end
 %
@@ -25,13 +25,7 @@ if isempty(indices)
     return
 end
 
-if any(indices < 1)
-    error('HORACE:get_read_and_seek_sizes', ...
-          'Indices less than 1 are not allowed.');
-elseif any(floor(indices) ~= indices)
-    error('HORACE:get_read_and_seek_sizes', ...
-          'Non-integer indices are not allowed.');
-end
+validateattributes(indices, {'numeric'}, {'positive', 'integer'})
 
 % Get the difference between neighboring array elements, a difference of
 % more than one suggests we should seek by that many bytes, consecutive 1s
@@ -44,3 +38,5 @@ read_ends = [indices(ind_diff ~= 1), indices(end)];
 % The read blocks start where the last seek blocks end
 read_starts = [seek_sizes(1), seek_sizes(2:end) + read_ends(1:(end - 1))];
 read_sizes = read_ends - read_starts;
+
+end

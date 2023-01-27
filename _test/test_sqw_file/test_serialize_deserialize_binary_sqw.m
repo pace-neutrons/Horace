@@ -464,7 +464,7 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             assertEqual(pos-1,pos1);
             assertEqual(struc_pos,test_pos);
 
-            fseek(fid,0,'bof');
+            do_fseek(fid,0,'bof');
             sz = pos1;
             r_bytes = fread(fid,sz,'*uint8');
             assertEqual(bytes,r_bytes');

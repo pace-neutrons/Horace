@@ -21,7 +21,7 @@ end
 data = obj.get_data();
 if isempty(pix_range)
     pix = obj.get_pix();
-    if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
+    if any(any(pix.pix_range == PixelDataBase.EMPTY_RANGE_))
         pix.recalc_pix_range();
     end
 else

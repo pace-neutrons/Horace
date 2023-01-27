@@ -242,7 +242,7 @@ if ~data_found
 end
 
 % Step back one line now that number of columns found and any format ambiguities resolved:
-fstatus=fseek(fid,istart,'bof'); % step back one line
+fstatus=do_fseek(fid,istart,'bof'); % step back one line
 if (fstatus~=0)
     ok=false; mess=['Problem reading from file ' file_full]; return
 end

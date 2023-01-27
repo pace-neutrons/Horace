@@ -13,18 +13,18 @@ classdef test_cpp_deserialise < TestCase
                 name  = 'test_cpp_deserialise';
             end
             this = this@TestCase(name);
-            this.warned = get(herbert_config, 'log_level') > 0;
-            this.old_mex = get(herbert_config, 'use_mex');
+            this.warned = get(hor_config, 'log_level') > 0;
+            this.old_mex = get(hor_config, 'use_mex');
             [~,nerr] = check_herbert_mex();
             this.use_mex = nerr == 0;
         end
 
         function setUp(this)
-            set(herbert_config, 'use_mex', true);
+            set(hor_config, 'use_mex', true);
         end
 
         function tearDown(this)
-            set(herbert_config, 'use_mex', this.old_mex);
+            set(hor_config, 'use_mex', this.old_mex);
         end
 
         %------------------------------------------------------------------
@@ -120,7 +120,7 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
-            test_obj = PixelData();
+            test_obj = PixelDataBase.create();
 
             ser = c_serialise(test_obj);
             test_obj_rec = c_deserialise(ser);

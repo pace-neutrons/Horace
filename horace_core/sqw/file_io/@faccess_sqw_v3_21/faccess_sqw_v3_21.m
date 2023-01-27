@@ -132,8 +132,8 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             pix = obj.extract_correct_subobj('pix');
             obj.pix_range_ = pix.pix_range;
             num_pix = pix.num_pixels;
-
-            if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && num_pix > 0
+            
+            if any(any(obj.pix_range_ == PixelDataBase.EMPTY_RANGE_)) && num_pix > 0
                 pix = pix.recalc_pix_range();
                 obj.pix_range_ = pix.pix_range;
             end

@@ -83,7 +83,7 @@ function [data_str,obj] = get_data (obj,varargin)
 %
 
 % Initialise output arguments
-[ok,mess,header_only,verbatim,hverbatim,noclass,noupgrade]=...
+[ok,mess,header_only,verbatim,hverbatim,noclass,noupgrade,~]=...
     parse_char_options(varargin, ...
     {'-head','-verbatim','-hverbatim','-noclass','-noupgrade'});
 if ~ok
@@ -103,10 +103,14 @@ if ischar(obj.num_dim)
     error('HORACE:binfile_v2_common:runtime_error',...
         'get_data: method called on un-initialized loader')
 end
-%
-fseek(obj.file_id_,obj.data_pos_,'bof');
-check_error_report_fail_(obj,...
-    'get_data: Can not move to the start of the main data block');
+
+try
+    do_fseek(obj.file_id_,obj.data_pos_,'bof');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                     'Can not move to the start of the main data block');
+    throw(exc.addCause(ME))
+end
 
 sz = obj.s_pos_ - obj.data_pos_+1;
 bytes = fread(obj.file_id_,sz,'*uint8');
@@ -161,3 +165,5 @@ ax   = axes_block.get_from_old_data(data_str);
 
 data_str = DnDBase.dnd(ax,proj,data_str.s,data_str.e,data_str.npix);
 obj.sqw_holder_ = data_str;
+
+end

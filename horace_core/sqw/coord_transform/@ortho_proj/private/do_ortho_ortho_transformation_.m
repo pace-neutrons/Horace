@@ -13,7 +13,7 @@ else
     shift_ei = false;
 end
 
-if isa(pix_input,'PixelData')
+if isa(pix_input, 'PixelDataBase')
     pix_coord = pix_input.q_coordinates;
     input_is_obj = true;
 else

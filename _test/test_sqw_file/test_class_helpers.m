@@ -36,13 +36,13 @@ methods
     function test_get_read_seek_sizes_throws_for_non_int_indices(~)
         indices = [3:7, 12:19, 25.5];
         f = @() get_read_and_seek_sizes(indices);
-        assertExceptionThrown(f, 'HORACE:get_read_and_seek_sizes');
+        assertExceptionThrown(f, 'MATLAB:expectedInteger');
     end
 
     function test_get_read_seek_sizes_throws_for_negative_indices(~)
         indices = [-3:7, 40:41, 12:19];
         f = @() get_read_and_seek_sizes(indices);
-        assertExceptionThrown(f, 'HORACE:get_read_and_seek_sizes');
+        assertExceptionThrown(f, 'MATLAB:expectedPositive');
     end
 
     function test_get_read_seek_sizes_can_handle_repeated_indices(~)

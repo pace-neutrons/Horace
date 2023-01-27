@@ -182,12 +182,11 @@ if isempty(grid_size)
     npix=ne*ndet;
     grid_size=ceil(sqrt(sqrt(npix/av_npix_per_bin)));
 end
-hor_log_level = ...
-    config_store.instance().get_value('herbert_config','log_level');
+hor_log_level = get(hor_config, 'log_level');
 
 % Determine pix_range
 if isempty(img_db_range)
-    img_db_range = PixelData.EMPTY_RANGE_;
+    img_db_range = PixelDataBase.EMPTY_RANGE_;
     for i=1:numel(run_files)
         [pix_range_l,run_files{i}] = run_files{i}.calc_pix_range(en_lo(i),en_hi(i));
         img_db_range = [min(pix_range_l(1,:),img_db_range(1,:));max(pix_range_l(2,:),img_db_range(2,:))];

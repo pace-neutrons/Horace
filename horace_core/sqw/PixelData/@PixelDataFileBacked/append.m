@@ -1,0 +1,37 @@
+function pix_out = append(obj, pix)
+% Join the pixels in the given PixelData object to the end of this
+% object.
+%
+% Input
+% -----
+% pix    A PixelData object containing the pixels to append
+%
+if nargout == 1
+    pix_out = copy(obj);
+else
+    pix_out = obj;
+end
+
+if ~isa(pix, 'PixelDataBase')
+    error('PIXELDATA:append:invalid_argument', ...
+          'Input object must be subclass of ''PixelDataBase''. Found ''%s''', ...
+          class(pix));
+end
+
+if isempty(pix)
+    return;
+end
+
+fid = pix_out.dump_all_pixels_();
+fid = pix.dump_all_pixels_(fid);
+
+pix_out.num_pixels_ = pix_out.num_pixels + pix.num_pixels;
+pix_out.finalise(fid);
+
+new_range = [min(pix.pix_range(1,:),pix_out.pix_range(1,:));...
+             max(pix.pix_range(2,:),pix_out.pix_range(2,:))];
+
+pix_out.set_range(new_range);
+pix_out.reset_changed_coord_range('coordinates');
+
+end

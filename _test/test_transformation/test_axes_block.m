@@ -46,7 +46,7 @@ classdef test_axes_block < TestCase
             pix_dat_full(8,line2)=pix_dat_full(8,line2)+1;
             pix_dat_full(9,line2)=1;
 
-            pix = PixelData(pix_dat_full);
+            pix = PixelDataBase.create(pix_dat_full);
 
             assertExceptionThrown(@()bin_pixels(ab,pix_data,[],[]),'HORACE:axes_block:invalid_argument');
             assertExceptionThrown(@()bin_pixels(ab,pix_data,[],[],[]),'HORACE:axes_block:invalid_argument');
@@ -95,7 +95,7 @@ classdef test_axes_block < TestCase
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
             pix_dat_full = [pix_data;ones(5,numel(X))];
-            pix = PixelData(pix_dat_full);
+            pix = PixelDataBase.create(pix_dat_full);
 
             [npix1] = ab.bin_pixels(pix_data);
             [npix2] = ab.bin_pixels(pix_data,npix1);
@@ -136,7 +136,7 @@ classdef test_axes_block < TestCase
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
             pix_dat_full = [pix_data;ones(5,numel(X))];
-            pix = PixelData(pix_dat_full);
+            pix = PixelDataBase.create(pix_dat_full);
 
             [npix,s,e,pix_ok,uniq_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
             assertEqual(uniq_runid,1)
@@ -172,7 +172,7 @@ classdef test_axes_block < TestCase
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
             pix_dat_full = [pix_data;ones(5,numel(X))];
-            pix = PixelData(pix_dat_full);
+            pix = PixelDataBase.create(pix_dat_full);
 
             [npix,s,e,pix_ok] = ab.bin_pixels(pix_data,[],[],[],pix);
 
@@ -206,7 +206,7 @@ classdef test_axes_block < TestCase
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
 
             pix_dat_full = [pix_data;ones(5,numel(X))];
-            pix = PixelData(pix_dat_full);
+            pix = PixelDataBase.create(pix_dat_full);
 
             [npix,s,e] = ab.bin_pixels(pix_data,[],[],[],pix);
 
@@ -239,7 +239,7 @@ classdef test_axes_block < TestCase
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
 
             pix_dat_full = [pix_data;ones(5,numel(X))];
-            pix = PixelData(pix_dat_full);
+            pix = PixelDataBase.create(pix_dat_full);
 
             [npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
 
@@ -272,7 +272,7 @@ classdef test_axes_block < TestCase
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
             pix_dat_full = [pix_data;ones(5,numel(X))];
-            pix = PixelData(pix_dat_full);
+            pix = PixelDataBase.create(pix_dat_full);
 
             [npix,s,e,pix_ok,uniq_runid,pix_indx] = ab.bin_pixels(pix_data,[],[],[],pix);
 
@@ -305,7 +305,7 @@ classdef test_axes_block < TestCase
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
             pix_dat_full = [pix_data;ones(5,numel(X))];
-            pix = PixelData(pix_dat_full);
+            pix = PixelDataBase.create(pix_dat_full);
 
             [npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
 
@@ -337,7 +337,7 @@ classdef test_axes_block < TestCase
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
             pix_dat_full = [pix_data;ones(5,numel(X))];
-            pix = PixelData(pix_dat_full);
+            pix = PixelDataBase.create(pix_dat_full);
 
             [npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
 
@@ -480,7 +480,7 @@ classdef test_axes_block < TestCase
             ab = axes_blockTester(bin0{:});
 
             pix_data = ones(4,10);
-            pix = PixelData();
+            pix = PixelDataBase.create();
             npix = zeros(11,1);
             s =  zeros(11,1);
             e =  zeros(11,1);
@@ -504,7 +504,7 @@ classdef test_axes_block < TestCase
             ab = axes_blockTester(bin0{:});
 
             pix_data = ones(4,10);
-            pix = PixelData();
+            pix = PixelDataBase.create();
 
             [npix,s,e,pix_candidates,argi]= ...
                 ab.get_bin_inputs(pix_data,3,[],[],[],pix);
@@ -553,7 +553,7 @@ classdef test_axes_block < TestCase
         function test_0Dbin_inputs_3par_provided(~)
             ab = axes_blockTester(4);
             pix_data = ones(4,10);
-            pix = PixelData();
+            pix = PixelDataBase.create();
             npix = 0;
             s = 0;
             e = 0;
@@ -573,7 +573,7 @@ classdef test_axes_block < TestCase
         function test_0Dbin_inputs_3par(~)
             ab = axes_blockTester(4);
             pix_data = ones(4,10);
-            pix = PixelData();
+            pix = PixelDataBase.create();
 
             [npix,s,e,pix_candidates,argi]= ...
                 ab.get_bin_inputs(pix_data,3,[],[],[],pix);

@@ -35,11 +35,12 @@ if ischar(obj.num_contrib_files)
 end
 sz = obj.data_pos_-obj.detpar_pos_;
 
-fseek(obj.file_id_,obj.detpar_pos_,'bof');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('SQW_FILE_INTERFACE:runtime_error',...
-        'can not move to the start of the detectors data, Reason: %s',mess);
+try
+    do_fseek(obj.file_id_,obj.detpar_pos_,'bof');
+catch ME
+    exc = MException('SQW_FILE_INTERFACE:runtime_error',...
+                     'can not move to the start of the detectors data');
+    throw(exc.addCause(ME))
 end
 bytes = fread(obj.file_id_,sz,'*uint8');
 [mess,res] = ferror(obj.file_id_);
@@ -56,6 +57,3 @@ det = obj.sqw_serializer_.deserialize_bytes(bytes,det_format,1);
 if obj.convert_to_double
     det = obj.do_convert_to_double(det);
 end
-
-
-

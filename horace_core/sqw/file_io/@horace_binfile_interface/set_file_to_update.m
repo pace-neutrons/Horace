@@ -40,7 +40,7 @@ if nout < 1
         'set_file_to_update has to return its value in output object')
 end
 
-log_level = config_store.instance().get_value('herbert_config','log_level');
+log_level = config_store.instance().get_value('hor_config','log_level');
 
 old_ldr = [];
 if nargin>1

@@ -102,8 +102,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
 
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
-            shuffled_data = obj.shuffle_pixel_bin_rows(PixelData(data), npix).data;
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
+            shuffled_data = obj.shuffle_pixel_bin_rows(PixelDataBase.create(data), npix).data;
 
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -127,8 +127,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
 
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
-            shuffled_data = obj.shuffle_pixel_bin_rows(PixelData(data), npix).data;
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
+            shuffled_data = obj.shuffle_pixel_bin_rows(PixelDataBase.create(data), npix).data;
 
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -195,7 +195,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             % of those bins, there will be a mismatch.
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             edited_data = data;
 
             fraction = 0.5;
@@ -286,7 +286,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         function test_objects_are_not_equal_if_one_has_empty_pixeldata(obj)
             non_empty_sqw = obj.sqw_2d;
             empty_sqw = obj.sqw_2d;
-            empty_sqw.pix = PixelData();
+            empty_sqw.pix = PixelDataBase.create();
 
             assertFalse(equal_to_tol(empty_sqw, non_empty_sqw));
             assertFalse(equal_to_tol(non_empty_sqw, empty_sqw));
@@ -299,7 +299,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             % Shuffle the pixels in the bins defined by the npix array
             %
             npix_non_empty = npix(npix ~= 0);
-            shuffled_pix = PixelData(pix.num_pixels);
+            shuffled_pix = PixelDataBase.create(pix.num_pixels);
 
             bin_end_idxs = cumsum(npix_non_empty(:));
             bin_start_idxs = bin_end_idxs - npix_non_empty(:) + 1;
@@ -318,8 +318,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         %
         function pix = get_pix_with_fake_faccess(data, npix_in_page)
             faccess = FakeFAccess(data);
-            bytes_in_pixel = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
-            pix = PixelData(faccess, npix_in_page*bytes_in_pixel);
+            bytes_in_pixel = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
+            pix = PixelDataBase.create(faccess, npix_in_page*bytes_in_pixel);
         end
 
     end

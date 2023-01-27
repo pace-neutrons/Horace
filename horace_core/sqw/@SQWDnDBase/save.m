@@ -88,9 +88,7 @@ if numel(file_internal)~=numel(w)
         'Number of data objects in array does not match number of file names')
 end
 
-hor_log_level = ...
-    config_store.instance().get_value('herbert_config','log_level');
-
+hor_log_level = get(hor_config,'log_level');
 
 for i=1:numel(w)
     if isempty(ldw)
@@ -120,7 +118,9 @@ for i=1:numel(w)
     %             ldw = ldw.put_dnd('-update','-nopix');
     %         end
     %     else
-    if sqw_type   %TODO:  OOP violation -- save dnd should be associated with dnd class
+    if sqw_type  % Actually, can be removed, as put_sqw for dnd does put dnd for faccess_dnd
+        % only the possible issue that is currently put_dnd and put_sqw do not
+        % accept the same key set. Should it be reconsicled?
         ldw = ldw.put_sqw(argi{:});
     else
         ldw = ldw.put_dnd();

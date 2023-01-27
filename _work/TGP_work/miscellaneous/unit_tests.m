@@ -24,11 +24,11 @@ end
 % Enable or disable unit test utilities
 xunit_path = fullfile(rootpath, '_test', 'shared', 'matlab_xunit','xunit');
 if switch_on
-    set(herbert_config,'init_tests', 1);
+    set(hor_config,'init_tests', 1);
     addpath(xunit_path);
     cd(fullfile(rootpath,'_test'));
 else
-    set(herbert_config,'init_tests', 0);
+    set(hor_config,'init_tests', 0);
     the_path=genpath_special(xunit_path);
     rmpath(the_path);
 end

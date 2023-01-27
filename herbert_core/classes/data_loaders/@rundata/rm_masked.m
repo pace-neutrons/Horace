@@ -49,7 +49,7 @@ elseif ignore_inf
 end
 line_notmasked= ~any(index_masked,1);   % masked detectors (for any energy)
 
-if get(herbert_config,'log_level')> 1
+if get(hor_config,'log_level')> 1
     [ne,ndet]=size(obj.S);
     nnotmasked = sum(line_notmasked);
     if nnotmasked<ndet

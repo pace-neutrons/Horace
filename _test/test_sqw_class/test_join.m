@@ -18,7 +18,7 @@ classdef test_join < TestCase
             reformed_obj = join(split_obj);
 
             sqw_obj_copy = sqw_obj;
-            sqw_obj_copy.pix = PixelData();
+            sqw_obj_copy.pix = PixelDataBase.create();
 
             assertEqualToTol(sqw_obj_copy, reformed_obj);
         end

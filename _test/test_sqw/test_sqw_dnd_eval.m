@@ -22,7 +22,6 @@ classdef test_sqw_dnd_eval < TestCase
         end
 
         function test_tobyfit(obj)
-            %
             sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
             sample.alatt = [2.8700 2.8700 2.8700];
             sample.angdeg = [90 90 90];
@@ -44,7 +43,8 @@ classdef test_sqw_dnd_eval < TestCase
 
             sig = ds.data.s;
             pix = ds.pix;
-            assertEqual(pix.signal(2), numel(sig) + 1);
+
+            assertEqual(pix.signal(2), numel(sig)+1);
             assertEqual(pix.num_pixels + numel(sig), pix.signal(1));
 
             assertEqual(sig(2),2);
@@ -52,11 +52,9 @@ classdef test_sqw_dnd_eval < TestCase
 
         end
 
-
-
         function test_dispersion_sqw(obj)
             skipTest("New dnd objects to caclulate dispersion are not implemented");
-            %
+
             ds = dispersion(obj.sqw_4_test,@obj.sqw_disp_tester,[]);
 
             sig = ds.data.s;
@@ -70,17 +68,18 @@ classdef test_sqw_dnd_eval < TestCase
         end
 
         function test_fit_sqw_sqw(obj)
-            %
+
             kk = multifit_sqw_sqw(obj.sqw_4_test);
             kk = kk.set_fun (@obj.sqw_eval_tester);
             kk = kk.set_pin(1);
             kk = kk.set_bfun (@obj.sqw_eval_tester);
-            kk = kk.set_bpin (1);
+            kk = kk.set_bpin(1);
 
             ds = kk.simulate();
 
             sig = ds.data.s;
             pix = ds.pix;
+
             assertEqual(pix.signal(2),2);
             assertEqual(2*pix.num_pixels, pix.signal(1));
 
@@ -89,9 +88,8 @@ classdef test_sqw_dnd_eval < TestCase
 
         end
 
-        %
         function test_fit_sqw(obj)
-            %
+
             kk = multifit_sqw(obj.sqw_4_test);
             kk = kk.set_fun (@obj.sqw_eval_tester);
             kk = kk.set_pin(1);
@@ -156,7 +154,6 @@ classdef test_sqw_dnd_eval < TestCase
             assertEqual(sig(1),pix.signal(1));
         end
 
-
         function test_sqw_eval(obj)
             ds = sqw_eval(obj.sqw_4_test,@test_sqw_dnd_eval.sqw_eval_tester,[]);
 
@@ -174,17 +171,16 @@ classdef test_sqw_dnd_eval < TestCase
 
         end
     end
+
     methods(Static)
         function dis = sqw_disp_tester(h,k,l,~)
             sz = size(h);
             if any(sz ~= size(k)) || any(sz ~=size(l))
                 error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
-            end
-            if size(h,2) ~=1
+            elseif sz(2) ~=1
                 error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
-            else
-                dis = ones(size(h));
             end
+            dis = ones(sz);
             dis(1) = numel(h);
         end
 
@@ -192,12 +188,10 @@ classdef test_sqw_dnd_eval < TestCase
             sz = size(h);
             if any(sz ~= size(k)) || any(sz ~=size(l)) || any(sz ~= size(en))
                 error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
-            end
-            if size(h,2) ~=1
+            elseif sz(2) ~=1
                 error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
-            else
-                dis = ones(size(h));
             end
+            dis = ones(sz);
             dis(1) = numel(h);
         end
 
@@ -205,12 +199,10 @@ classdef test_sqw_dnd_eval < TestCase
             sz = size(x);
             if any(sz ~= size(en))
                 error('FUNC_EVAL:runtime_error','incorrect shape of input arrays');
-            end
-            if size(x,2) ~=1
+            elseif sz(2) ~=1
                 error('FUNC_EVAL:runtime_error','incorrect shape of input arrays');
-            else
-                dis = ones(size(x));
             end
+            dis = ones(sz);
             dis(1) = numel(x);
         end
     end

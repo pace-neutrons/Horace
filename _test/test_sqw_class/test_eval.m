@@ -94,7 +94,7 @@ classdef test_eval < TestCase
             %
             err_message = '';
             sqw_nopix = copy(obj.sqw_obj);
-            sqw_nopix.pix = PixelData();
+            sqw_nopix.pix = PixelDataBase.create();
             try
                 ds = sqw_eval(obj.sqw_obj, ...
                     @test_eval.sqw_eval_tester, []);

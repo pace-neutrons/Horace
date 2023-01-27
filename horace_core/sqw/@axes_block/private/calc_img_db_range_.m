@@ -34,7 +34,7 @@ function  img_db_range = calc_img_db_range_(ax_data)
 %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
 %
 if isfield(ax_data,'img_range')
-    inf_range = ax_data.img_range ==PixelData.EMPTY_RANGE_;
+    inf_range = ax_data.img_range ==PixelDataBase.EMPTY_RANGE_;
     if ~any(inf_range(:))
         img_db_range  = ax_data.img_range;
         return

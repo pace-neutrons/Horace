@@ -10,7 +10,7 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 % pix_out -- the pixels coordinates transformed into coordinate
 %             system, related to image (e.g. hkl system)
 %
-if isa(pix_input,'PixelData')
+if isa(pix_input,'PixelDataBase')
     pix_cc = pix_input.q_coordinates;
     if obj.offset(4) ~=0
         shift_ei = true;
@@ -38,4 +38,3 @@ if input_is_obj
     end
     pix_transf = [pix_transf;ei];
 end
-

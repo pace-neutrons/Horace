@@ -7,8 +7,8 @@ if ~isnumeric(val)
         'Image range has to be numeric. Attempting to set type: %s',...
         class(val));
 end
-if isempty(val) || all(all(val == PixelData.EMPTY_RANGE_))
-    obj.img_range_ = PixelData.EMPTY_RANGE_;
+if isempty(val) || all(all(val == PixelDataBase.EMPTY_RANGE_))
+    obj.img_range_ = PixelDataBase.EMPTY_RANGE_;
     return;
 end
 if any(size(val)~=[2,4])

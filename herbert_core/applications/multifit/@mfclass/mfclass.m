@@ -341,15 +341,15 @@ classdef mfclass
         options
 
     end
-    properties(Dependent,Hidden) %
+    properties(Dependent,Hidden) % 
         % Hide excessive interface to avoid confusion but keep it if
         % some external programs use it
         %
         % Foreground is local if true, or global if false
-        global_foreground
+        global_foreground 
         % Background is local if true, or global if false
         local_background
-
+        
     end
 
     methods
@@ -378,18 +378,21 @@ classdef mfclass
             %                  the fitting function
             %
             % See also set_data mfclass_wrapfun
-            [nopt,ind_dataset_class,ind_wrapfun] = strip_trailing_opts_(varargin{:});
-            obj = set_data(obj,varargin{1:end-nopt});
-
-            if ~isempty(ind_dataset_class)
-                obj.dataset_class_ = varargin{ind_dataset_class};
+            [ok,mess,nopt,ind_dataset_class,ind_wrapfun] = strip_trailing_opts_(varargin{:});
+            if ok
+                obj = set_data(obj,varargin{1:end-nopt});
+                if ~isempty(ind_dataset_class)
+                    obj.dataset_class_ = varargin{ind_dataset_class};
+                end
+                if ~isempty(ind_wrapfun)
+                    obj.wrapfun_ = varargin{ind_wrapfun};
+                end
+            else
+                error('HERBERT:mf_class:invalid_argument',mess)
             end
-
-            if ~isempty(ind_wrapfun)
-                obj.wrapfun_ = varargin{ind_wrapfun};
-            end
-
             obj = set_options(obj,'-default');
+            %--------------------------------------------------------------------------------------
+            %--------------------------------------------------------------------------------------
         end
 
         %------------------------------------------------------------------
@@ -672,3 +675,4 @@ classdef mfclass
     end
 
 end
+

@@ -28,7 +28,7 @@ datetm = [':: ',char(datetime('now','timezone','local','Format',...
 cont = regexprep(cont,'(?<=\$Date)(.*?)(?=\$)',datetm);
 
 
-fseek(fh,0,'bof');
+do_fseek(fh,0,'bof');
 fwrite(fh,cont);
 clear clob;
 

@@ -1,65 +1,43 @@
 classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
     properties
-        BYTES_PER_PIX = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+        BYTES_PER_PIX = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         SIGNAL_IDX = 8;
         VARIANCE_IDX = 9;
         ALL_IN_MEM_PG_SIZE = 1e12;
         FLOAT_TOLERANCE = 4.75e-4;
-
     end
 
     methods
 
         function obj = test_PixelData_operations(~)
             obj = obj@TestCase('test_PixelData_operations');
-
         end
 
         function test_do_unary_op_returns_correct_output_with_cosine_gt_1_page(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 50);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 50);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            % TODO: as pixels are loaded as single, tests are broken:
 
             pix = pix.do_unary_op(@cos);
-
             % Loop back through and validate values
-            pix.move_to_first_page();
-            iter = 0;
-            while true
-                start_idx = (iter*2*npix_in_page) + 1;
-                %TODO: mess. Pixels in memory are usually double of pixels
-                %on file but this is not always the case. Need to be
-                %clarified, simplified and fixed as part of file-access
-                %refactoring.
-                end_idx = min(start_idx + 2*npix_in_page - 1, pix.num_pixels);
 
-                original_signal = data(obj.SIGNAL_IDX, start_idx:end_idx);
-                original_variance = data(obj.VARIANCE_IDX, start_idx:end_idx);
+            file_backed_data = pix.get_all_prop('all');
+            expected_data = data;
+            expected_data(obj.SIGNAL_IDX, :) = ...
+                cos(expected_data(obj.SIGNAL_IDX, :));
 
-                expected_data = data;
-                % Use the formulas used in sqw.cos to get the expected sig/var data
-                expected_data(obj.SIGNAL_IDX, start_idx:end_idx) = ...
-                    cos(original_signal);
-                expected_data(obj.VARIANCE_IDX, start_idx:end_idx) = ...
-                    abs(1 - pix.signal.^2).*original_variance;
+            expected_data(obj.VARIANCE_IDX, :) = ...
+                abs(1 - expected_data(obj.SIGNAL_IDX, :).^2) .* ...
+                expected_data(obj.VARIANCE_IDX, :);
 
-                assertEqual(pix.data, expected_data(:, start_idx:end_idx), '', ...
-                    obj.FLOAT_TOLERANCE);
+            assertEqual(file_backed_data, expected_data, '', obj.FLOAT_TOLERANCE);
 
-                if pix.has_more()
-                    pix = pix.advance();
-                    iter = iter + 1;
-                else
-                    break;
-                end
-            end
         end
 
-        function test_do_unary_op_with_nargout_1_doesnt_affect_called_instance(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix = PixelData(data);
+        function test_do_unary_op_with_nargout_1_doesnt_affect_called_instance(~)
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
+            pix = PixelDataBase.create(data);
             sin_pix = pix.do_unary_op(@sin);
             assertEqual(pix.data, data);
         end
@@ -102,33 +80,33 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             % data all held in memory
             num_pix = 7;
             npix_in_page = 3;
-            for i = 1:numel(unary_ops)/2
-                unary_op = unary_ops{2*i - 1};
-                data_range = unary_ops{2*i};
+            for i = 1:2:numel(unary_ops)
+                unary_op = unary_ops{i};
+                data_range = unary_ops{i+1};
 
                 data = get_random_data_in_range( ...
-                    PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
+                    PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
                 pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
                 pix.do_unary_op(unary_op);
 
-                file_backed_data = pix.get_pixels(1:pix.num_pixels).data;
+                file_backed_data = pix.get_data('all');
 
-                pix_in_mem = PixelData(data);
+                pix_in_mem = PixelDataBase.create(data);
                 pix_in_mem = pix_in_mem.do_unary_op(unary_op);
                 in_memory_data = pix_in_mem.data;
 
                 assertElementsAlmostEqual( ...
                     file_backed_data, in_memory_data, ...
-                    'relative',obj.FLOAT_TOLERANCE,...
+                    'relative',1e-4,... % Due to single precision errors
                     sprintf(['In-memory and file-backed data do not match after ' ...
                     'operation: ''%s''.'], char(unary_op)) );
             end
         end
 
         function test_mask_does_nothing_if_mask_array_eq_ones_when_pix_in_memory(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11);
             ref_range = obj.get_ref_range(data);
-            pix = PixelData(data);
+            pix = PixelDataBase.create(data);
             mask_array = ones(1, pix.num_pixels);
             pix_out = pix.mask(mask_array);
             assertEqual(pix_out.data, data);
@@ -136,17 +114,17 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_returns_empty_PixelData_if_mask_array_all_zeros(~)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
-            pix = PixelData(data);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11);
+            pix = PixelDataBase.create(data);
             mask_array = zeros(1, pix.num_pixels);
             pix_out = pix.mask(mask_array);
-            assertTrue(isa(pix_out, 'PixelData'));
+            assertTrue(isa(pix_out, 'PixelDataBase'));
             assertTrue(isempty(pix_out));
-            assertEqual(pix_out.pix_range,PixelData.EMPTY_RANGE_);
+            assertEqual(pix_out.pix_range,PixelDataBase.EMPTY_RANGE_);
         end
 
         function test_mask_raises_if_mask_array_len_neq_to_pg_size_or_num_pixels(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 30);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             npix_in_page = 10;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             mask_array = zeros(5);
@@ -155,8 +133,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_removes_in_memory_pix_if_len_mask_array_eq_num_pixels(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 11);
-            pix = PixelData(data);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11);
+            pix = PixelDataBase.create(data);
 
             mask_array = ones(1, pix.num_pixels);
             pix_to_remove = [3, 6, 7];
@@ -174,13 +152,13 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_throws_PIXELDATA_if_called_with_no_output_args(~)
-            pix = PixelData(5);
+            pix = PixelDataBase.create(5);
             f = @() pix.mask(zeros(1, pix.num_pixels), 'logical');
             assertExceptionThrown(f, 'PIXELDATA:mask');
         end
 
         function test_mask_deletes_pixels_when_given_npix_argument_pix_in_pages(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
@@ -193,13 +171,13 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             expected_data = data(:, logical(full_mask_array));
             ref_range = obj.get_ref_range(expected_data);
 
-            actual_data = pix.get_pixels(1:pix.num_pixels).data;
+            actual_data = pix.get_all_prop('all');
             assertElementsAlmostEqual(actual_data, expected_data,'relative',4e-8);
             assertElementsAlmostEqual(pix.pix_range, ref_range,'relative',4e-8);
         end
 
         function test_mask_deletes_pix_with_npix_argument_all_pages_full(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 10;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
@@ -218,8 +196,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
-            pix = PixelData(data, obj.ALL_IN_MEM_PG_SIZE);
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
+            pix = PixelDataBase.create(data, obj.ALL_IN_MEM_PG_SIZE);
 
             mask_array = [0, 1, 1, 0, 1, 0];
             npix = [4, 5, 1, 2, 3, 5];
@@ -237,7 +215,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_PIXELDATA_thrown_if_sum_of_npix_ne_to_num_pixels(~)
-            pix = PixelData(5);
+            pix = PixelDataBase.create(5);
             npix = [1, 2];
             f = @() pix.mask([0, 1], npix);
             assertExceptionThrown(f, 'PIXELDATA:mask');
@@ -247,7 +225,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
             function out = f()
                 num_pix = 10;
-                pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix));
+                pix = PixelDataBase.create(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix));
                 mask_array = randi([0, 1], [1, num_pix]);
                 npix = rand(1, 4);
                 out = pix.mask(mask_array, npix);
@@ -259,7 +237,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         function test_not_enough_args_error_if_calling_mask_with_no_args(~)
 
             function pix = f()
-                pix = PixelData(rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10));
+                pix = PixelDataBase.create(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10));
                 pix = pix.mask();
             end
 
@@ -267,124 +245,128 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_PixelData_and_raw_arrays_are_not_equal_to_tol(~)
-            raw_array = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix = PixelData(raw_array);
-            [ok, ~] = pix.equal_to_tol(raw_array);
+            raw_array = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
+            pix = PixelDataBase.create(raw_array);
+            [ok, ~] = equal_to_tol(pix, raw_array);
             assertFalse(ok);
         end
 
         function test_equal_to_tol_err_msg_contains_argument_classes(~)
-            raw_array = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix = PixelData(raw_array);
-            [~, mess] = pix.equal_to_tol(raw_array);
+            raw_array = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
+            pix = PixelDataBase.create(raw_array);
+            [~, mess] = equal_to_tol(pix, raw_array);
             assertTrue(contains(mess, 'PixelData'));
             assertTrue(contains(mess, 'double'));
         end
 
         function test_equal_to_tol_is_false_for_objects_with_unequal_num_pixels(~)
-            data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix1 = PixelData(data);
-            pix2 = PixelData(data(:, 1:9));
-            assertFalse(pix1.equal_to_tol(pix2));
+            data = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
+            pix1 = PixelDataBase.create(data);
+            pix2 = PixelDataBase.create(data(:, 1:9));
+            assertFalse(equal_to_tol(pix1, pix2));
         end
 
         function test_equal_to_tol_true_if_PixelData_objects_contain_same_data(~)
-            data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix1 = PixelData(data);
-            pix2 = PixelData(data);
-            assertTrue(pix1.equal_to_tol(pix2));
-            assertTrue(pix2.equal_to_tol(pix1));
+            data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
+            pix1 = PixelDataBase.create(data);
+            pix2 = PixelDataBase.create(data);
+            assertTrue(equal_to_tol(pix1, pix2));
+            assertTrue(equal_to_tol(pix2, pix1));
         end
 
         function test_equal_to_tol_true_if_pixels_paged_and_contain_same_data(obj)
-            data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+            data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 10;
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            assertTrue(pix1.equal_to_tol(pix2));
-            assertTrue(pix2.equal_to_tol(pix1));
+            assertTrue(equal_to_tol(pix1, pix2));
+            assertTrue(equal_to_tol(pix2, pix1));
         end
 
         function test_equal_to_tol_true_if_pixels_differ_less_than_tolerance(obj)
-            data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+            data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 10;
             tol = 0.1;
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
-            assertTrue(pix1.equal_to_tol(pix2, tol));
-            assertTrue(pix2.equal_to_tol(pix1, tol));
+            assertTrue(equal_to_tol(pix1, pix2, tol));
+            assertTrue(equal_to_tol(pix2, pix1, tol));
         end
 
         function test_equal_to_tol_false_if_pix_paged_and_contain_unequal_data(obj)
-            data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+            data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             data2 = data;
             data2(11) = 0.9;
             npix_in_page = 10;
 
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page);
-            assertFalse(pix1.equal_to_tol(pix2));
-            assertFalse(pix2.equal_to_tol(pix1));
+            assertFalse(equal_to_tol(pix1, pix2));
+            assertFalse(equal_to_tol(pix2, pix1));
         end
 
         function test_equal_to_tol_true_if_only_1_arg_paged_but_data_is_equal(obj)
-            data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+            data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 6;
 
-            pix1 = PixelData(data);
+            pix1 = PixelDataBase.create(data);
             pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            assertTrue(pix1.equal_to_tol(pix2));
-            assertTrue(pix2.equal_to_tol(pix1));
+            assertTrue(equal_to_tol(pix1, pix2));
+            assertTrue(equal_to_tol(pix2, pix1));
         end
 
         function test_equal_to_tol_false_if_only_1_arg_paged_and_data_not_equal(obj)
-            data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+            data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 6;
 
-            pix1 = PixelData(data);
+            pix1 = PixelDataBase.create(data);
             pix2 = obj.get_pix_with_fake_faccess(data - 1, npix_in_page);
-            assertFalse(pix1.equal_to_tol(pix2));
-            assertFalse(pix2.equal_to_tol(pix1));
+            assertFalse(equal_to_tol(pix1, pix2));
+            assertFalse(equal_to_tol(pix2, pix1));
         end
 
         function test_equal_to_tol_throws_if_paged_pix_but_page_sizes_not_equal(obj)
-            data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+            data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             data2 = data;
             npix_in_page = 5;
 
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page - 1);
-            f = @() pix1.equal_to_tol(pix2);
-            assertExceptionThrown(f, 'HORACE:PixelData:equal_to_tol');
+
+            assertFalse(equal_to_tol(pix1, pix2));
         end
 
         function test_equal_to_tol_true_when_comparing_NaNs_if_nan_equal_true(~)
-            data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+            data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             data(:, [5, 10, 15]) = nan;
-            pix1 = PixelData(data);
-            pix2 = PixelData(data);
+            pix1 = PixelDataBase.create(data);
+            pix2 = PixelDataBase.create(data);
 
-            assertTrue(pix1.equal_to_tol(pix2, 'nan_equal', true));
+            assertTrue(equal_to_tol(pix1, pix2, 'nan_equal', true));
         end
 
         function test_equal_to_tol_false_when_comparing_NaNs_if_nan_equal_false(~)
-            data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
+            data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             data(:, [5, 10, 15]) = nan;
-            pix1 = PixelData(data);
-            pix2 = PixelData(data);
+            pix1 = PixelDataBase.create(data);
+            pix2 = PixelDataBase.create(data);
 
-            assertFalse(pix1.equal_to_tol(pix2, 'nan_equal', false));
-        end
-
-        % -- Helpers --
-        function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
-            faccess = FakeFAccess(data);
-            pix = PixelData(faccess, npix_in_page*obj.BYTES_PER_PIX);
+            assertFalse(equal_to_tol(pix1, pix2, 'nan_equal', false));
         end
 
     end
 
     methods (Static)
+        % -- Helpers --
+        function [pix,pix_range] = get_pix_with_fake_faccess(data, npix_in_page)
+            pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
+            faccess = FakeFAccess(data);
+            % give it a real file path to trick code into thinking it exists
+            faccess = faccess.set_filepath('fake_file');
+            mem_alloc = npix_in_page;
+            pix = PixelDataFileBacked(faccess, mem_alloc);
+        end
+
         function ref_range = get_ref_range(data)
             ref_range = [
                 min(data(1:4, :),[],2),...

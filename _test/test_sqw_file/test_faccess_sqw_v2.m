@@ -15,7 +15,7 @@ classdef test_faccess_sqw_v2< TestCase
         function sz = fl_size(filename)
             fh = fopen(filename,'rb');
             p0 = ftell(fh);
-            fseek(fh,0,'eof');
+            do_fseek(fh,0,'eof');
             p1 = ftell(fh);
             sz = p1-p0;
             fclose(fh);
@@ -177,7 +177,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
             pix = to.get_pix();
-            assertTrue(isa(pix, 'PixelData'));
+            assertTrue(isa(pix, 'PixelDataBase'));
             assertEqual(pix.file_path, sample);
             assertEqual(pix.num_pixels, 8031);
         end

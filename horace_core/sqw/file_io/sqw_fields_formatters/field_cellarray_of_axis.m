@@ -1,10 +1,10 @@
 classdef field_cellarray_of_axis < field_const_array_dependent
     % transform cellarray of different size arrays
-    
-    
+
+
     properties
     end
-    
+
     methods
         function obj=field_cellarray_of_axis(varargin)
             obj= obj@field_const_array_dependent(varargin{:});
@@ -22,7 +22,7 @@ classdef field_cellarray_of_axis < field_const_array_dependent
                     typecast(single(val{i}(:)'),'uint8')];
             end
             bytes = [tBytes{:}];
-            
+
         end
         function sz = size_of_field(obj,val)
             % calculate length of the array in bytes
@@ -34,7 +34,7 @@ classdef field_cellarray_of_axis < field_const_array_dependent
             sz1 = cellfun(@(x)numel(x),val);
             sz = nel*4+sum(sz1)*obj.elem_byte_size;
         end
-        
+
         %
         function [val,sz] = field_from_bytes(obj,bytes,pos)
             % convert sequence of bytes into the array
@@ -69,42 +69,41 @@ classdef field_cellarray_of_axis < field_const_array_dependent
                 pos = pos+sz+size_i;
             end
             sz = double(pos- pos0);
-            
+
         end
         %
         function  [sz,obj,err] = size_from_file(obj,fid,pos)
             err = false;
             n_cells = obj.process_host_value();
             sz = 0;
-            if n_cells  ==0
+            if n_cells == 0
                 return
             end
             sz = 4;
             pos0 = pos;
             %
             for i=1:n_cells
-                fseek(fid,pos,'bof');
-                [~,res] = ferror(fid);
-                if res ~=0
+                try
+                    do_fseek(fid,pos,'bof');
+                catch
                     err = true;
                     return;
                 end
-                
+
                 size_i = fread(fid,1,'int32')*obj.elem_byte_size;
                 [~,res] = ferror(fid);
                 if res ~=0
                     err = true;
                     return;
                 end
-                
+
                 pos = pos+sz+size_i;
             end
             sz = double(pos- pos0);
-            
-        end
-        
-        
-    end
-    
-end
 
+        end
+
+
+    end
+
+end

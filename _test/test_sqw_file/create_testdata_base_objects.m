@@ -70,12 +70,12 @@ f2_3=read_sqw(fullfile(tmp,'f2_3.sqw'));
 % The objects were written from Horace v2.1.1, so need to add dummy instrument and sample fields
 f1_1=convert_to_v3(f1_1);
 
-f1_1.data.pix = PixelData(f1_1.data.pix);
-f2_1.data.pix = PixelData(f2_1.data.pix);
-f1_2.data.pix = PixelData(f1_2.data.pix);
-f2_2.data.pix = PixelData(f2_2.data.pix);
-f1_3.data.pix = PixelData(f1_3.data.pix);
-f2_3.data.pix = PixelData(f2_3.data.pix);
+f1_1.data.pix = PixelDataBase.create(f1_1.data.pix);
+f2_1.data.pix = PixelDataBase.create(f2_1.data.pix);
+f1_2.data.pix = PixelDataBase.create(f1_2.data.pix);
+f2_2.data.pix = PixelDataBase.create(f2_2.data.pix);
+f1_3.data.pix = PixelDataBase.create(f1_3.data.pix);
+f2_3.data.pix = PixelDataBase.create(f2_3.data.pix);
 
 save('testdata_base_objects.mat','f1_1','f2_1','f1_2','f2_2','f1_3','f2_3')
 

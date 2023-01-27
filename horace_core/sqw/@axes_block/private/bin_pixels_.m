@@ -103,11 +103,12 @@ if isempty(coord)
         if iscell(pix_cand)
             pix_ok = zeros(size(s));
         else
-            pix_ok = PixelData();
+            pix_ok = PixelDataBase.create();
         end
         return;
     end
 end
+
 % bin only points in dimensions, containing more then one bin
 n_bins  = bin_array_size(pax);
 
@@ -120,7 +121,6 @@ else
 
     coord   = coord(pax,:);
 
-    %
     bin_step = 1./step;
     pix_indx = floor((coord-r1)'.*bin_step')+1;
     % Due to round-off errors and general binning procedure, the
@@ -141,33 +141,38 @@ else
     npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
     npix = npix + npix1;
 end
+
 if nout<3
     return;
 end
+
 %--------------------------------------------------------------------------
 % more then 1 output
 % Calculating signal and error
 %--------------------------------------------------------------------------
-is_pix = isa(pix_cand,'PixelData');
+
+is_pix = isa(pix_cand,'PixelDataBase');
 if is_pix
-    ndata = 2;    
+    ndata = 2;
 else % cell with data array
-    ndata = numel(pix_cand);    
+    ndata = numel(pix_cand);
 end
-  
+
 out = cell(1,ndata);
 out{1} = s;
 out{2} = e;
+
 if is_pix
     bin_values = {pix_cand.signal;pix_cand.variance};
 else % cellarray of arrays to accumulate
-    bin_values = pix_cand;    
+    bin_values = pix_cand;
     if ndata>=3 % Output changes type and meaning. Nasty.
         % Needs something better in a future
         pix_ok = zeros(size(s));
-        out{3} = pix_ok;        
+        out{3} = pix_ok;
     end
 end
+
 if ndims == 0
     for i=1:ndata
         out{i} = out{i}+sum(bin_values{i});
@@ -177,28 +182,33 @@ else
         out{i} = out{i}+accumarray(pix_indx,bin_values{i}(ok),n_bins);
     end
 end
+
 s = out{1};
 e = out{2};
 if nout<4 || ~is_pix
-    if ndata>=3; pix_ok = out{3}; % redefine pix_ok to be npix accumulated
+    if ndata>=3
+        pix_ok = out{3}; % redefine pix_ok to be npix accumulated
     end
     return;
 end
+
 %--------------------------------------------------------------------------
 % more than 4 outputs requested
 % Get unsorted pixels, contributed to the bins
 %--------------------------------------------------------------------------
 % s,e,pix_ok,unique_runid,pix_indx
-pix_ok    = pix_cand.get_pixels(ok);
+pix_ok = pix_cand.get_pixels(ok);
 if nout<5
     return;
 end
+
 %--------------------------------------------------------------------------
 % find unique indexes,
 % more then 5 outputs apparently requested to obtain sorted pixels
 loc_unique = unique(pix_ok.run_idx);
 unique_runid = unique([unique_runid,loc_unique]);
 clear ok;
+
 %-------------------------------------------------------------------------
 % sort pixels according to bins
 if ndims > 1 % convert to 1D indexes
@@ -206,20 +216,24 @@ if ndims > 1 % convert to 1D indexes
     pix_indx =(pix_indx-1)*[1,stride(1:end-1)]'+1;
 end
 pix = pix_ok;
+
 if ndims > 0
-    if nout ==6
+    if nout == 6
         if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
-            pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
+            pix = PixelDataBase.create(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
         end
     else % sort will make pix double if requested  TODO: this should be moved to get_pixels
         pix = sort_pix(pix,pix_indx,npix1,varargin{:}); % when PixelData is separated into file accessor and memory accessor
     end
 elseif ndims == 0
     if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
-        pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
+        pix = PixelDataBase.create(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
     end
+
     if nout == 6
         pix_indx = ones(pix.num_pixels,1);
     end
 end
 pix_ok = pix;
+
+end

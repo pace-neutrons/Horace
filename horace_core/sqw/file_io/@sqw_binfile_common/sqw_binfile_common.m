@@ -133,11 +133,12 @@ classdef sqw_binfile_common < sqw_file_interface
             % run_id information or is it stored without this information.
 
             fn_size = head_pos(1).filepath_pos_ - head_pos(1).filename_pos_;
-            fseek(obj.file_id_,head_pos(1).filename_pos_,'bof');
-            [mess,res] = ferror(obj.file_id_);
-            if res ~= 0
-                error('HORACE:sqw_binfile_common:io_error',...
-                    '%s: Reason:  Error moving to the header filename location',mess)
+            try
+                do_fseek(obj.file_id_,head_pos(1).filename_pos_,'bof');
+            catch ME
+                exc = MException('HORACE:sqw_binfile_common:io_error',...
+                                 'Error moving to the header filename location')
+                throw(exc.addCause(ME))
             end
 
             bytes = fread(obj.file_id_,fn_size,'char');
@@ -200,11 +201,12 @@ classdef sqw_binfile_common < sqw_file_interface
         %
         function img_data_range = read_img_range(obj)
             % read real data range from disk
-            fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
-            [mess,res] = ferror(obj.file_id_);
-            if res ~= 0
-                error('HORACE:sqw_binfile_common:io_error',...
-                    'Can not move to the pix_range start position, Reason: %s',mess);
+            try
+                do_fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
+            catch ME
+                exc = MException('HORACE:sqw_binfile_common:io_error',...
+                                 'Can not move to the pix_range start position');
+                throw(exc.addCause(ME))
             end
             img_data_range = fread(obj.file_id_,[2,4],'float32');
 
@@ -217,7 +219,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % get [2x4] array of min/max ranges of the pixels contributing
             % into an object. Empty for DND object
             %
-            pix_range = PixelData.EMPTY_RANGE_;
+            pix_range = PixelDataBase.EMPTY_RANGE_;
         end
 
         % read pixels information
