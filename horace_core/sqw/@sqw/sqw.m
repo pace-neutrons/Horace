@@ -169,14 +169,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
                 % ii) filename - init from a file
             elseif ~isempty(args.filename)
-                obj = obj.init_from_file_(args.filename, args.pixel_page_size, args.file_backed);
+                obj = obj.init_from_file_(args.filename, args.file_backed);
 
                 % iii) struct or data loader - a struct, pass to the struct
                 % loader
             elseif ~isempty(args.data_struct)
                 if isa(args.data_struct,'horace_binfile_interface')
                     args.data_struct = obj.get_loader_struct_(...
-                        args.data_struct, args.pixel_page_size, args.file_backed);
+                        args.data_struct, args.file_backed);
                     obj = from_bare_struct(obj,args.data_struct);
                 elseif isfield(args.data_struct,'data')
                     if isfield(args.data_struct.data,'version')
@@ -428,14 +428,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
 
-        function ld_str = get_loader_struct_(ldr, pixel_page_size, file_backed)
+        function ld_str = get_loader_struct_(ldr, file_backed)
             % load sqw structure, using file loader
             ld_str = struct();
 
             [ld_str.main_header, ld_str.experiment_info, ld_str.detpar,...
                 ld_str.data,ld_str.pix] = ...
                 ldr.get_sqw('-legacy','-noupgrade', ...
-                'pixel_page_size', pixel_page_size, 'file_backed', file_backed);
+                'file_backed', file_backed);
         end
 
 
@@ -448,7 +448,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % standard output used in sqw construction
         args = parse_sqw_args_(obj,varargin)
 
-        function obj = init_from_file_(obj, in_filename, pixel_page_size, file_backed)
+        function obj = init_from_file_(obj, in_filename, file_backed)
             % Parse SQW from file
             %
             % An error is raised if the data file is identified not a SQW object
@@ -458,7 +458,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     'Data file: %s does not contain valid sqw-type object',...
                     in_filename);
             end
-            lds = obj.get_loader_struct_(ldr,pixel_page_size, file_backed);
+            lds = obj.get_loader_struct_(ldr,file_backed);
             obj = from_bare_struct(obj,lds);
         end
 

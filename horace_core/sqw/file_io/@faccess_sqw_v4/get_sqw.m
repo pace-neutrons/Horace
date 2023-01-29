@@ -41,10 +41,6 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %
 % Keyword Arguments:
 % ------------------
-%   pixel_page_size    The maximum amount of memory to allocate to holding
-%                      pixel data. This argument is passed to the PixelData
-%                      constructor's 'mem_alloc' argument.
-%                      The value should have units of bytes.
 %
 % Output:
 % --------
@@ -88,6 +84,9 @@ else
         argi = {'-norange'};
     else
         argi = {};
+    end
+    if opts.file_backed
+        argi = [argi(:),'-filebacked'];
     end
     sqw_skel.pix = PixelDataBase.create(obj,argi{:});
 end
@@ -133,11 +132,11 @@ flags = { ...
     'norange',...
     'keep_original',...
     'nopix', ...
-    'legacy' ...
+    'legacy', ...
     };
 
 defailt_page_size = config_store.instance().get_value('hor_config','mem_chunk_size');
-kwargs = struct('pixel_page_size', defailt_page_size);
+kwargs = struct('pixel_page_size', defailt_page_size,'file_backed',false);
 
 for flag_idx = 1:numel(flags)
     kwargs.(flags{flag_idx}) = false;

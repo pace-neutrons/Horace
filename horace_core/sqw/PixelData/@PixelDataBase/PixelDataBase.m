@@ -121,14 +121,14 @@ classdef (Abstract) PixelDataBase < serializable
         num_pages   % number of pages in the whole data file
         page_size;  % The number of pixels that can fit in one page of data
     end
-   %
+    %
     methods(Static,Hidden)
         function range = EMPTY_RANGE_()
             range = PixelDataBase.EMPTY_RANGE(:,1:4);
         end
 
     end
-%
+    %
     methods (Static)
         function isfb = do_filebacked(num_pixels)
             % function defines the rule to make pixels filebased or memory
@@ -189,11 +189,13 @@ classdef (Abstract) PixelDataBase < serializable
                 obj = PixelDataMemory();
                 return
             end
-            [ok,mess,file_backed_requested,upgrade,writable,norange,argi] = parse_char_options(varargin, ...
-                {'-filebacked','-upgrade','-writable','-norange'});
+            [ok,mess,file_backed_requested,file_backed,upgrade,writable,norange,...
+                argi] = parse_char_options(varargin, ...
+                {'-filebacked','-file_backed','-upgrade','-writable','-norange'});
             if ~ok
                 error('HORACE:PixelDataBase:invalid_argument',mess);
             end
+            file_backed_requested = file_backed_requested||file_backed;
             upgrade = upgrade||writable;
             if numel(argi) > 1 % build from metadata/data properties
                 is_md = cellfun(@(x)isa(x,'pix_data'),argi);
@@ -321,7 +323,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
 
     end
-%
+    %
     methods(Abstract)
         % --- Pixel operations ---
         pix_out = append(obj, pix);
@@ -339,7 +341,7 @@ classdef (Abstract) PixelDataBase < serializable
         obj = recalc_data_range(obj);
 
         pix_out = get_data(obj, fields, abs_pix_indices);
-        obj  = set_raw_data(obj, data, fields, abs_pix_indices);                
+        obj  = set_raw_data(obj, data, fields, abs_pix_indices);
 
 
         has_more = has_more(obj);
@@ -348,7 +350,7 @@ classdef (Abstract) PixelDataBase < serializable
     end
     % working the same way on FB and MB files
     methods
-        obj  = set_data(obj, data, fields, abs_pix_indices);        
+        obj  = set_data(obj, data, fields, abs_pix_indices);
     end
     methods(Abstract,Access=protected)
         % Maitn part of get.num_pixels accessor
@@ -676,7 +678,7 @@ classdef (Abstract) PixelDataBase < serializable
                 % build from old PixelData stored in the file
                 obj.data = inputs.data_;
             elseif isfield(inputs,'raw_data_')
-                obj.data = inputs.raw_data_;                
+                obj.data = inputs.raw_data_;
             else
                 if isfield(inputs,'array_dat')
                     obj = obj.from_bare_struct(inputs.array_dat);
