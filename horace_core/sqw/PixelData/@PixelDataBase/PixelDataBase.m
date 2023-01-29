@@ -672,11 +672,11 @@ classdef (Abstract) PixelDataBase < serializable
             % the modern structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
             %
-            if isfield(inputs,'num_pixels') % this is probably old pixels stored
-                obj = build_from_old_pix_data_(obj,{inputs});
-            elseif isa(inputs,'PixelData')
+            if isfield(inputs,'data_')
                 % build from old PixelData stored in the file
-                obj = build_from_old_pix_data_(obj,inputs);
+                obj.data = inputs.data_;
+            elseif isfield(inputs,'raw_data_')
+                obj.data = inputs.raw_data_;                
             else
                 if isfield(inputs,'array_dat')
                     obj = obj.from_bare_struct(inputs.array_dat);

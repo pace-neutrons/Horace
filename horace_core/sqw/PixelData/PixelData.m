@@ -1,18 +1,20 @@
-classdef PixelData < PixelDataBase
-% Dummy class for legacy compatibility
+classdef PixelData < PixelDataMemory
+    % Dummy class for loading legacy .mat files containing old version of PixelData
     methods
         function obj = PixelData(varargin)
-        % Wrapper function to handle old-style scripts
-        % Creates a PixelData object as per new functionality
-            warning("PixelData constructor is deprecated. Please use PixelDataBase.create")
-            obj = PixelDataBase.create(varargin{:});
+            % Wrapper function to handle old-style scripts
+            % Creates a PixelData object as per new functionality
+            if nargin == 0
+                return;
+            end
         end
 
     end
 
     methods(Static)
         function obj = loadobj(S)
-            obj = loadobj@PixelDataBase(S);
+            obj = PixelDataMemory();
+            obj = loadobj@PixelDataMemory(S,obj);
         end
     end
 end

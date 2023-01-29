@@ -128,7 +128,8 @@ classdef PixelDataMemory < PixelDataBase
                 end
                 init = sqw_formats_factory.instance().get_loader(init);
                 obj = obj.init_from_file_accessor_(init);
-
+            elseif isa(init,'PixelData')
+                obj.data = init.data;
             elseif isa(init, 'sqw_file_interface')
                 obj = obj.init_from_file_accessor_(init);
 
