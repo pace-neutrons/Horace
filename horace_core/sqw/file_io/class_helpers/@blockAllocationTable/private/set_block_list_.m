@@ -25,8 +25,10 @@ if ~initialized
     % EOF position in empty file -- first position+ 4 bytes BAT size +
     % binary BAT representation itself
     obj.end_of_file_pos_ = obj.position_+ 4 + obj.bat_bin_size_;
+    obj.initialized_ = false;
     return % block list is not initialized
 end
+obj.initialized_ = true;
 obj.end_of_file_pos_ = eof_pos;
 if obj.blocks_start_position+total_bl_size ~=eof_pos  % free spaces between blocks
     obj = find_free_spaces(obj);

@@ -327,6 +327,9 @@ classdef (Abstract) PixelDataBase < serializable
     methods(Abstract)
         % --- Pixel operations ---
         pix_out = append(obj, pix);
+        pix     = set_data(obj,pix);
+        obj     = set_fields(obj, data, fields, abs_pix_indices);        
+
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         pix_out = do_unary_op(obj, unary_op);
@@ -350,7 +353,7 @@ classdef (Abstract) PixelDataBase < serializable
     end
     % working the same way on FB and MB files
     methods
-        obj  = set_data(obj, data, fields, abs_pix_indices);
+        data_out = get_fields(obj, pix_fields, varargin)
     end
     methods(Abstract,Access=protected)
         % Maitn part of get.num_pixels accessor
@@ -379,7 +382,8 @@ classdef (Abstract) PixelDataBase < serializable
             data = get_data_(obj);
         end
         function obj=set.data(obj, pixel_data)
-            obj=set_data(obj, pixel_data,'all');
+            obj=set_data(obj, pixel_data);
+            obj = obj.recalc_data_range();
         end
         %
         function u1 = get.u1(obj)

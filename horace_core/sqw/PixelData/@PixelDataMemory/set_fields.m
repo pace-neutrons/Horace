@@ -1,4 +1,4 @@
-function obj=set_data(obj, data,pix_fields, varargin)
+function obj=set_fields(obj, data,pix_fields, varargin)
 %SET_PIXELS Update the data on the given pixel data fields
 %
 % The number of columns in 'data' must be equal to the number of fields in

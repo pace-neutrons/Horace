@@ -65,6 +65,7 @@ classdef PixelDataMemory < PixelDataBase
     methods
         % --- Pixel operations ---
         pix_out = append(obj, pix);
+        pix = set_data(obj,pix);
         %
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
@@ -108,55 +109,11 @@ classdef PixelDataMemory < PixelDataBase
             if nargin == 0
                 return
             end
-            if nargin > 1
-                % build from data/metadata pair
-                flds = obj.saveableFields();
-                obj = obj.set_positional_and_key_val_arguments(...
-                    flds,false,varargin);
-                return
-            else
-                init = varargin{1};
-            end
-
-
-            if isstruct(init)
-                obj = obj.loadobj(init);
-            elseif ischar(init) || isstring(init)
-                if ~is_file(init)
-                    error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                        'Cannot find file to load (%s)', init)
-                end
-                init = sqw_formats_factory.instance().get_loader(init);
-                obj = obj.init_from_file_accessor_(init);
-            elseif isa(init,'PixelData')
-                obj.data = init.data;
-            elseif isa(init, 'sqw_file_interface')
-                obj = obj.init_from_file_accessor_(init);
-
-            elseif isa(init, 'PixelDataMemory')
-                obj.data = init.data;
-
-            elseif isscalar(init) && isnumeric(init) && floor(init) == init
-                % input is an integer
-                obj.data = zeros(obj.PIXEL_BLOCK_COLS_, init);
-
-            elseif isnumeric(init)
-                obj.data = init;
-
-            elseif isa(init, 'PixelDataFileBacked')
-                init=init.move_to_first_page();
-                obj.data_ = init.data;
-                while init.has_more()
-                    init = init.advance();
-                    obj.data_ = horzcat(obj.data_, init.data);
-                end
-
-                obj.full_filename = init.full_filename;
-                obj=obj.reset_changed_coord_range();
-            else
-                error('HORACE:PixelDataMemory:invalid_argument', ...
-                    'Cannot construct PixelDataMemory from class (%s)', class(init))
-            end
+            obj = obj.init(varargin{:});
+        end
+        function obj = init(obj,varargin)
+            % Main part of PixelDataMemory constructor.
+            obj = init_(obj,varargin{:});
         end
 
         % --- Data management ---
@@ -251,16 +208,6 @@ classdef PixelDataMemory < PixelDataBase
             prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
         end
         %
-        function obj = init_from_file_accessor_(obj, f_accessor)
-            % Initialise a PixelData object from a file accessor
-            obj.data_range_ = f_accessor.get_data_range();
-            obj.data_ = f_accessor.get_raw_pix();
-            obj.full_filename = f_accessor.full_filename;
-            undef = obj.data_range == PixelDataBase.EMPTY_RANGE;
-            if any(undef(:))
-                obj = obj.reset_changed_coord_range('all');
-            end
-        end
         function [obj,varargout]=reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field

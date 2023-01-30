@@ -90,6 +90,7 @@ classdef pix_data < serializable
                 obj.num_pix_fields_ = size(val,1);
                 obj.npix_           = size(val,2);
             elseif ischar(val)||isstring(val)
+                obj.data_ = val;
             else
                 error('HORACE:pix_metadata:invalid_argument', ...
                     'The data field should be either numeric array describing pixel data in memory or character string, describing the location of filebased class. Actually, its class is: %s, size: %s', ...

@@ -307,7 +307,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
                     sqw_obj = old_ldr.get_sqw('-verbatim');
                     new_ldr.sqw_holder = sqw_obj;
                 end
-                new_ldr = new_ldr.put_sqw();
+                new_ldr = new_ldr.put_sqw('-verbatim');
                 old_ldr.delete();
             end
         end

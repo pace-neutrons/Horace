@@ -1,5 +1,5 @@
-function data_out = get_data(obj, pix_fields, varargin)
-% GET_DATA Retrieve data for a field, or fields, for the given pixel indices in
+function data_out = get_fields(obj, pix_fields, varargin)
+% GET_FIELDS Retrieve data for a field, or fields, for the given pixel indices in
 % the full pixel block. If no pixel indices are given, the full range of pixels
 % is returned.
 %

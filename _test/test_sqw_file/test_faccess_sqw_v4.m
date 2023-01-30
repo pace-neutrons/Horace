@@ -152,7 +152,7 @@ classdef test_faccess_sqw_v4< TestCase
             ldr.delete();
 
             assertEqual(fac.faccess_version,4.0)
-            assertEqual(fac.npixels,4324)
+            assertEqual(fac.npixels,uint64(4324))
             assertEqual(fac.num_contrib_files,109);
             w_new = fac.get_sqw('-ver');
             fac.delete();
@@ -173,7 +173,7 @@ classdef test_faccess_sqw_v4< TestCase
             assertTrue(initobj.file_id>0);
 
             to = to.init(initobj);
-            assertEqual(to.npixels,4324);
+            assertEqual(to.npixels,uint64(4324));
             assertEqual(to.num_contrib_files,109);
 
             mheader = to.get_main_header('-keep_');

@@ -13,6 +13,26 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             obj.sample_dir = hc.test_common;
             obj.sample_file  = fullfile(obj.sample_dir,'w2d_qe_sqw.sqw');
         end
+        function test_serialize_deserialize_full(obj)
+            sw = warning('off','HORACE:olf_file_format');
+            clOb = onCleanup(@()warning(sw));
+            
+            df = PixelDataFileBacked(obj.sample_file);
+            assertEqual(df.num_pixels,107130)
+            df_struc = df.to_struct();
+
+            df_rec = serializable.from_struct(df_struc);
+            assertEqual(df,df_rec);
+        end
+        
+        
+        function test_serialize_deserialize_empty(~)
+            df = PixelDataFileBacked();
+            df_struc = df.to_struct();
+
+            df_rec = serializable.from_struct(df_struc);
+            assertEqual(df,df_rec);
+        end
         %
         function test_construct_from_data_loader_check_advance(obj)
             hc = hor_config;

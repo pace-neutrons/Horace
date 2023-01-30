@@ -4,7 +4,7 @@ function    obj = put_sqw(obj,varargin)
 %
 %
 %
-[ok,mess,~,argi]=parse_char_options(varargin,{'-update'});
+[ok,mess,~,verbatim,argi]=parse_char_options(varargin,{'-update','-verbatim'});
 if ~ok
     error('HORACE:faccess_sqw_v4:invalid_artgument', ...
         mess);
@@ -36,7 +36,9 @@ if ~obj.sqw_holder.main_header.creation_date_defined ||...
     sqw_obj = obj.sqw_holder;
     sqw_obj.main_header.creation_date= cd;
     sqw_obj.data.creation_date = cd;
-    sqw_obj.full_filename = obj.full_filename;
+    if ~verbatim
+        sqw_obj.full_filename = obj.full_filename;
+    end
     obj.sqw_holder = sqw_obj;
 end
 if ~isa(obj.sqw_holder.pix,'pix_combine_info')

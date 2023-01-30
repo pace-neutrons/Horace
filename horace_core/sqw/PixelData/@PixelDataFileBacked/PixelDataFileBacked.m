@@ -94,6 +94,14 @@ classdef PixelDataFileBacked < PixelDataBase
             error('HORACE:PixelDataFileBacked:runtime_error',...
                 'append does not work on file-based pixels')
         end
+        function pix = set_data(obj,~)
+            error('HORACE:PixelDataFileBacked:runtime_error',...
+                'set_data is not currently implemented on file-based pixels')
+        end
+        function obj  = set_fields(obj, data, fields, abs_pix_indices)
+            error('HORACE:PixelDataFileBacked:runtime_error',...
+                'set_fields is not currently implemented on file-based pixels')
+        end
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
 
@@ -103,7 +111,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
 
         pix_out = get_data(obj, fields, abs_pix_indices);
-        obj=set_raw_data(obj, data, fields, abs_pix_indices);        
+        obj=set_raw_data(obj, data, fields, abs_pix_indices);
     end
 
     %
@@ -116,67 +124,12 @@ classdef PixelDataFileBacked < PixelDataBase
             if nargin == 0
                 return
             end
-            % process possible update paraemter
-            is_update = cellfun(@(x)islogical(x),varargin);
-            if any(is_update)
-                update = varargin{is_update};
-                argi = varargin(~is_update);
-            else
-                update = false;
-                argi = varargin;
-            end
-
-            if numel(argi) > 1
-                % build from data/metadata pair
-                flds = obj.saveableFields();
-                obj = obj.set_positional_and_key_val_arguments(...
-                    flds,false,argi);
-                return
-            else
-                init = varargin{1};
-            end
-
-            if isstruct(init)
-                obj = obj.loadobj(init);
-            elseif isa(init, 'PixelDataFileBacked')
-                obj.offset_       = init.offset;
-                obj.full_filename = init.full_filename;
-                obj.num_pixels_   = init.num_pixels;
-                obj.data_range    = init.data_range;
-                obj.f_accessor_   = memmapfile(obj.full_filename,'format', ...
-                    {'single',[9,init.num_pixels_],'data'}, ...
-                    'writable', update, 'offset', obj.offset_ );
-            elseif ischar(init) || isstring(init)
-                if ~is_file(init)
-                    error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                        'Cannot find file to load (%s)', init)
-                end
-
-                init = sqw_formats_factory.instance().get_loader(init);
-                obj = obj.init_from_file_accessor_(init,update);
-
-            elseif isa(init, 'sqw_file_interface')
-                obj = obj.init_from_file_accessor_(init,update);
-
-            elseif isnumeric(init)
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'filebacked pixels can not be initialized by data')
-                %
-                %                     if obj.base_page_size < size(init, 2)
-                %                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                %                             'Cannot create file-backed with data larger than a page')
-                %                     end
-                %                     obj=obj.set_raw_data(init);
-                %                     obj.data_ = init;
-                %                     obj.num_pixels_ = size(init, 2);
-                %                     if ~obj.cache_is_empty_()
-                %                         obj=obj.reset_changed_coord_range('coordinates');
-                %                     end
-            else
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'Cannot construct PixelDataFileBacked from class (%s)', class(init))
-            end
-
+            obj = obj.init(varargin{:});
+        end
+        function obj = init(obj, varargin)
+            % Main part of the fileBacked constructor
+            %
+            obj = init_(obj,varargin{:});
         end
         function obj = move_to_first_page(obj)
             % Reset the object to point to the first page of pixel data in the file
@@ -393,12 +346,15 @@ classdef PixelDataFileBacked < PixelDataBase
                     'pix_data_wrap property can be set by pix_data class instance only. Provided class is: %s', ...
                     class(val));
             end
-            if ~(ischar(val.data)||isstring(val.data))
+            if ~(ischar(val.data)||isstring(val.data)||isempty(val.data))
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
                     'Attempt to initialize PixelDataFileBacked using pix_data values obtained from PixelDataMemory class: %s', ...
                     disp2str(val));
             end
             in_file = val.data;
+            if isempty(in_file)
+                return;
+            end
             if ~is_file(in_file)
                 if MPI_State.instance().is_deployed
                     error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -414,7 +370,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
             end
             ldr = sqw_formats_factory.instance().get_loader(in_file);
-            obj = obj.init_from_file_accessor_(ldr,false);
+            obj = init_from_file_accessor_(obj,ldr,false);
         end
 
         function prp = get_prop(obj, fld)
@@ -433,22 +389,6 @@ classdef PixelDataFileBacked < PixelDataBase
             indx = pix_idx_start:pix_idx_start+size(val,2);
             obj.f_accessor_.Data.data(flds, indx) = single(val);
             obj=obj.reset_changed_coord_range(fld);
-        end
-
-        function obj = init_from_file_accessor_(obj, faccessor,update)
-            % Initialise a PixelData object from a file accessor
-            if ~faccessor.sqw_type
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'f_accessor for file: %s is not sqw-file accessor',faccessor.full_filename);
-            end
-            obj.full_filename = faccessor.full_filename;
-            obj.offset_       = faccessor.pix_position;
-            obj.page_num_  = 1;
-            obj.num_pixels_ = double(faccessor.npixels);
-            obj.data_range_ = faccessor.get_data_range();
-            obj.f_accessor_ = memmapfile(obj.full_filename,'format', ...
-                {'single',[9,faccessor.npixels],'data'}, ...
-                'writable', update, 'offset', obj.offset_ );
         end
 
         function [obj,varargout]=reset_changed_coord_range(obj,field_name)
