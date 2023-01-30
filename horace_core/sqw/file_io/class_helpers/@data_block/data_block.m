@@ -255,7 +255,9 @@ classdef data_block < serializable
                     disp2str(val));
             end
             obj.position_ = uint64(val);
-            obj.initialized_ = true;
+            if obj.position_ > 0
+                obj.initialized_ = true;
+            end
         end
         %
         function size = get.size(obj)

@@ -345,7 +345,6 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqualToTol(sqw_ob,ver_obj,1.e-7);
         end
         %
-        %
         function test_serialize_deserialise_faccess(obj)
             fo = faccess_sqw_v4();
             fo = fo.init(obj.sample_file);
@@ -355,6 +354,19 @@ classdef test_faccess_sqw_v4< TestCase
 
             assertEqual(fo,fr);
         end
+        %
+        function test_serialize_deserialise_empty_faccess(~)
+            fo = faccess_sqw_v4();
+
+            bys = fo.to_struct();
+            forb = serializable.from_struct(bys);
+            assertEqual(fo,forb);            
+
+            by = fo.serialize();
+            fr = serializable.deserialize(by);
+
+            assertEqual(fo,fr);
+        end                
         %
         function test_wrong_file_name_activated(obj)
             ld = sqw_formats_factory.instance.get_loader(obj.sample_file);

@@ -72,7 +72,7 @@ classdef sqw_file_interface
             % but this contradicts the need to set up object from the
             % serializable interface
             %
-            if isempty(val)
+            if isempty(val) || ischar(val)&&(strcmp(val,'undefined'))
                 obj.num_contrib_files_ = 'undefined';
                 return;
             end
