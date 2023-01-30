@@ -51,7 +51,7 @@ elseif isnumeric(init)
     %                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
     %                             'Cannot create file-backed with data larger than a page')
     %                     end
-    %                     obj=obj.set_raw_data(init);
+    %                     obj=obj.set_data(init);
     %                     obj.data_ = init;
     %                     obj.num_pixels_ = size(init, 2);
     %                     if ~obj.cache_is_empty_()

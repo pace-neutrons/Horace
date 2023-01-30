@@ -89,7 +89,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
                 pix.do_unary_op(unary_op);
 
-                file_backed_data = pix.get_data('all');
+                file_backed_data = pix.data;
 
                 pix_in_mem = PixelDataBase.create(data);
                 pix_in_mem = pix_in_mem.do_unary_op(unary_op);

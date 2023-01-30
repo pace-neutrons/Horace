@@ -1,82 +1,14 @@
-function obj=set_raw_data(obj, data,pix_fields, varargin)
-%SET_PIXELS Update the data on the given pixel data fields
+function obj = set_raw_data(obj,pix)
+%SET_DATA set internal data array without comprehensive checks for data integrity
 %
-% The number of columns in 'data' must be equal to the number of fields in
-% 'pix_fields'. The number of rows in 'data' must be equal to the number of
-% elements in 'abs_pix_indices'.
-%
-% Examples:
-% ---------
-%
-% Set the first 100 pixels' signal and variance to zero
-%   >> set_data({'signal', 'variance'}, zeros(2, 100), 1:100);
-%
-% Input:
-% ------
-% pix_fields       The name of a field, or a cell array of field names.
-% data             The data with which to set the given fields.
-% abs_pix_indices  The indices to set data on. If not specified all indices are
-%                  updated and 'size(data, 2)' must equal to obj.num_pixels.
-%
-if nargin == 2
-    pix_fields = 'all';
-end
-NO_INPUT_INDICES = -1;
-
-[field_indices, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin{:});
-
-if abs_pix_indices == NO_INPUT_INDICES
-    if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && ...
-            ischar(pix_fields) && strcmp(pix_fields,'all')
-        obj.data_   = data; % all arguments have been already verified,
-        %            no point of using data_ setter
-    else
-        obj.data_(field_indices, 1:end) = data;
-    end
-else
-    obj.data_(field_indices, abs_pix_indices) = data;
+if isempty(pix)
+    obj.data_ = zeros(obj.DEFAULT_NUM_PIX_FIELDS,0);
+    return
 end
 
-end  % function
-
-
-% -----------------------------------------------------------------------------
-function [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin)
-NO_INPUT_INDICES = -1;
-
-validateattributes(pix_fields, {'cell', 'char', 'string'}, {'nonempty'}, 'pix_fields');
-validateattributes(data, {'numeric'}, {}, 'data');
-
-parser = inputParser();
-parser.addOptional( ...
-    'abs_pix_indices', ...
-    NO_INPUT_INDICES, ...
-    @(x) validateattributes(x, {'numeric', 'logical'}, {'integer', 'nonnegative'}) ...
-    );
-parser.parse(varargin{:});
-abs_pix_indices = parser.Results.abs_pix_indices;
-
-pix_fields = cellstr(pix_fields);
-pix_fields = check_pixel_fields_(obj, pix_fields);
-
-if islogical(abs_pix_indices)
-    abs_pix_indices = logical_to_normal_index_(obj, abs_pix_indices);
+if ~isnumeric(pix) || size(pix,1) ~= obj.DEFAULT_NUM_PIX_FIELDS
+    error('HORACE:PixelDataMemory:invalid_argument', ...
+        'pixel data should be numeric array of [%d,npix] size.\n In fact, the class of input is %s and its size is: %s\n', ...
+        obj.DEFAULT_NUM_PIX_FIELDS,class(pix),disp2str(size(pix)));
 end
-
-if size(data, 1) ~= numel(pix_fields)
-    error( ...
-        'HORACE:PixelData:invalid_argument', ...
-        ['Number of fields in ''pix_fields'' must be equal to number ' ...
-        'of columns in ''data''.\nn_pix_fields: %i n_data_columns: %i.'], ...
-        numel(pix_fields), size(data, 1) ...
-        );
-end
-if ~isequal(abs_pix_indices, NO_INPUT_INDICES) && size(data, 2) ~= numel(abs_pix_indices)
-    error( ...
-        'HORACE:PixelData:invalid_argument', ...
-        ['Number of indices in ''abs_pix_indices'' must be equal to ' ...
-        'number of rows in ''data''.\nFound %i and %i.'], ...
-        numel(abs_pix_indices), size(data, 2) ...
-        );
-end
-end
+obj.data_ = pix;

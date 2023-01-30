@@ -10,8 +10,8 @@ obj.page_num_  = 1;
 obj.num_pixels_ = double(faccessor.npixels);
 obj.data_range_ = faccessor.get_data_range();
 obj.f_accessor_ = memmapfile(obj.full_filename,'format', ...
-    {'single',[9,faccessor.npixels],'data'}, ...
-    'writable', update, 'offset', obj.offset_ );
+    {'single',double([9,faccessor.npixels]),'data'}, ...
+    'writable', update, 'offset', obj.offset_);
 
 obj.data_range_ = faccessor.get_data_range();
 undefined = obj.data_range == PixelDataBase.EMPTY_RANGE;

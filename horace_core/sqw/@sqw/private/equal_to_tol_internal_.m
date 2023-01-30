@@ -103,11 +103,11 @@ else
         if opt.reorder
             % Sort retained pixels by bin and then run,det,energy bin indicies
             sort_by = {'run_idx', 'detector_idx', 'energy_idx'};
-            [~, ix] = sortrows([ibinarr, pix1.get_data(sort_by, ipix)']);
+            [~, ix] = sortrows([ibinarr, pix1.get_fields(sort_by, ipix)']);
             s1 = pix1.get_pixels(ipix);
             s1 = s1.get_pixels(ix);
 
-            [~, ix] = sortrows([ibinarr, pix2.get_data(sort_by, ipix)']);
+            [~, ix] = sortrows([ibinarr, pix2.get_fields(sort_by, ipix)']);
             s2 = pix2.get_pixels(ipix);
             s2 = s2.get_pixels(ix);
 

@@ -8,10 +8,10 @@ function data_out = get_fields(obj, pix_fields, varargin)
 % columns of data will be ordered corresponding to the order the fields
 % appear in the inputted cell array.
 %
-%   >> sig_and_err = pix.get_data({'signal', 'variance'})
+%   >> sig_and_err = pix.get_fields({'signal', 'variance'})
 %        retrieves the signal and variance over the whole range of pixels
 %
-%   >> run_det_id_range = pix.get_data({'run_idx', 'detector_idx'}, 15640:19244);
+%   >> run_det_id_range = pix.get_fields({'run_idx', 'detector_idx'}, 15640:19244);
 %        retrieves the run and detector IDs for pixels 15640 to 19244
 %
 % Input:

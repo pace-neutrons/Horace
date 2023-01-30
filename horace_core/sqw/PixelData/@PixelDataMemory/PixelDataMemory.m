@@ -22,12 +22,12 @@ classdef PixelDataMemory < PixelDataBase
     %
     %   >> pix_data = PixelDataMemory();
     %   >> pix_data.data = data;
-    %   >> signal = pix_data.get_data('signal');
+    %   >> signal = pix_data.get_fields('signal');
     %
     %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
     %
     %   >> pix_data = PixelDataMemory(data);
-    %   >> signal = pix_data.get_data({'run_idx', 'energy_idx'}, 1:10);
+    %   >> signal = pix_data.get_fields({'run_idx', 'energy_idx'}, 1:10);
     %
     %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
     %
@@ -65,21 +65,23 @@ classdef PixelDataMemory < PixelDataBase
     methods
         % --- Pixel operations ---
         pix_out = append(obj, pix);
-        pix = set_data(obj,pix);
+        pix     = set_raw_data(obj,pix);
+        obj     = set_fields(obj, data, fields, abs_pix_indices);                
         %
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         pix_out = do_unary_op(obj, unary_op);
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
 
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
-        pix_out = get_pixels(obj, abs_pix_indices);
+        
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
         %
-        pix_out = get_data(obj, fields, abs_pix_indices);
-        obj     = set_raw_data(obj, data, fields, abs_pix_indices);        
+        pix_out = get_fields(obj, fields, abs_pix_indices);
+        obj     = set_raw_fields(obj, data, fields, abs_pix_indices);        
     end
 
     methods
@@ -187,10 +189,10 @@ classdef PixelDataMemory < PixelDataBase
         function np = get_num_pages(~)
             np = 1;
         end
-        function data =  get_data_(obj)
+        function data =  get_raw_data(obj)
             % main part of get.data accessor
             data = obj.data_;
-        end
+        end        
         %
         %
         function num_pix = get_num_pixels(obj)

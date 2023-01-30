@@ -1,7 +1,7 @@
 function benchmark_func_eval(nDims,dataInfo,dataSet,func_handle,params,nProcs,filename)
 %BENCHMARK_FUNC_EVAL This function initiates the benchmarks for
 %func_eval()
-% This function is used to run all the individual benchamrks in the 3
+% This function is used to run all the individual benchmarks in the 3
 % test_func_eval classes.
 % This function generates cuts from sqw and uses the profiler to generate
 % a csv file of timing data.
@@ -28,7 +28,7 @@ function benchmark_func_eval(nDims,dataInfo,dataSet,func_handle,params,nProcs,fi
 % >>> benchmark_func_eval(1,'saved.sqw','7',@slow_func,{[175,1,0.05],@gauss,10^0},1,'custom.csv')
 % >>> benchmark_func_eval(1,'medium','7',@slow_func,{[175,1,0.05],@gauss,10^0},1,'custom.csv')
 
-%% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
+%% Setup nprocs and other config info with hpc_config() (save initial config details for later)
     do_profile = exist('filename', 'var');
 
     hpc = hpc_config();

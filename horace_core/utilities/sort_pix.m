@@ -94,12 +94,12 @@ if use_mex
         if use_given_pix_range
             raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
-            pix= pix.set_raw_data(raw_pix,'all');
+            pix = pix.set_raw_data(raw_pix);
             pix = pix.set_data_range(pix_range);
         else
             [raw_pix,pix_range_l] = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
-            pix = pix.set_raw_data(raw_pix,'all');
+            pix = pix.set_raw_data(raw_pix);
             pix = pix.set_data_range(pix_range_l);
         end
         clear pix_retained pix_ix_retained;  % clear big arrays

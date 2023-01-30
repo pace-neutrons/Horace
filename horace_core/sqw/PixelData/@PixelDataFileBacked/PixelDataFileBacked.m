@@ -35,12 +35,12 @@ classdef PixelDataFileBacked < PixelDataBase
     %
     %   >> pix_data = PixelDataFileBacked();
     %   >> pix_data.data = data;
-    %   >> signal = pix_data.get_data('signal');
+    %   >> signal = pix_data.get_fields('signal');
     %
     %  To retrieve multiple fields of data, e.g. run_idx and energy_idx, for pixels 1 to 10:
     %
     %   >> pix_data = PixelDataFileBacked(data);
-    %   >> signal = pix_data.get_data({'run_idx', 'energy_idx'}, 1:10);
+    %   >> signal = pix_data.get_fields({'run_idx', 'energy_idx'}, 1:10);
     %
     %  To retrieve data for pixels 1, 4 and 10 (returning another PixelData object):
     %
@@ -94,9 +94,9 @@ classdef PixelDataFileBacked < PixelDataBase
             error('HORACE:PixelDataFileBacked:runtime_error',...
                 'append does not work on file-based pixels')
         end
-        function pix = set_data(obj,~)
+        function pix = set_raw_data(obj,~)
             error('HORACE:PixelDataFileBacked:runtime_error',...
-                'set_data is not currently implemented on file-based pixels')
+                'set_raw_data is not currently implemented on file-based pixels')
         end
         function obj  = set_fields(obj, data, fields, abs_pix_indices)
             error('HORACE:PixelDataFileBacked:runtime_error',...
@@ -110,8 +110,10 @@ classdef PixelDataFileBacked < PixelDataBase
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
 
 
-        pix_out = get_data(obj, fields, abs_pix_indices);
-        obj=set_raw_data(obj, data, fields, abs_pix_indices);
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);
+
+        pix_out = get_fields(obj, fields, abs_pix_indices);
+        obj=set_raw_fields(obj, data, fields, abs_pix_indices);
     end
 
     %
@@ -314,7 +316,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function np = get_num_pages(obj)
             np = max(ceil(obj.num_pixels/obj.page_size),1);
         end
-        function  data =  get_data_(obj,varargin)
+        function  data =  get_raw_data(obj,varargin)
             %
             if nargin == 1
                 page_number = obj.page_num_;

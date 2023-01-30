@@ -1,5 +1,5 @@
-function data_out = get_data(obj, pix_fields, varargin)
-% GET_DATA Retrieve data for a field, or fields, for the given pixel indices in
+function data_out = get_fields(obj, pix_fields, varargin)
+% GET_FIELDS Retrieve data for a field, or fields, for the given pixel indices in
 % the full pixel block. If no pixel indices are given, the full range of pixels
 % is returned.
 %
@@ -8,7 +8,7 @@ function data_out = get_data(obj, pix_fields, varargin)
 % columns of data will be ordered corresponding to the order the fields
 % appear in the inputted cell array.
 %
-%   >> sig_and_err = pix.get_data({'signal', 'variance'})
+%   >> sig_and_err = pix.get_fields({'signal', 'variance'})
 %        retrieves the signal and variance over the whole range of pixels
 %
 %   >> run_det_id_range = pix.get_data({'run_idx', 'detector_idx'}, 15640:19244);

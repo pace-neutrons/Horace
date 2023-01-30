@@ -1,7 +1,7 @@
 classdef (Abstract) PixelDataBase < serializable
     % PixelDataBase provides an abstract base-class interface for pixel data objects
     %
-    %   This class provides etetters and setters for each data column in an SQW
+    %   This class provides getetters and setters for each data column in an SQW
     %   pixel array. Along with a creation mechanism for constructing the PixelData
     %   subclasses
     %
@@ -327,8 +327,8 @@ classdef (Abstract) PixelDataBase < serializable
     methods(Abstract)
         % --- Pixel operations ---
         pix_out = append(obj, pix);
-        pix     = set_data(obj,pix);
-        obj     = set_fields(obj, data, fields, abs_pix_indices);        
+        pix     = set_raw_data(obj,pix);
+        obj     = set_fields(obj, data, fields, abs_pix_indices);
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
@@ -337,26 +337,28 @@ classdef (Abstract) PixelDataBase < serializable
 
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
-        pix_out = get_pixels(obj, abs_pix_indices);
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);
         pix_out = mask(obj, mask_array, npix);
         [page_num, total_number_of_pages] = move_to_page(obj, page_number, varargin);
         pix_out = noisify(obj, varargin);
-        obj = recalc_data_range(obj);
 
-        pix_out = get_data(obj, fields, abs_pix_indices);
-        obj  = set_raw_data(obj, data, fields, abs_pix_indices);
+        obj = recalc_data_range(obj);
+        obj   = set_raw_fields(obj, data, fields, abs_pix_indices);
 
 
         has_more = has_more(obj);
         [obj,current_page_num, total_num_pages] = advance(obj, varargin);
 
     end
-    % working the same way on FB and MB files
+    % the same interface on FB and MB files, bit works on PixelDataBase
     methods
         data_out = get_fields(obj, pix_fields, varargin)
+        function data  = get_data(obj)
+            data = get_raw_data(obj);
+        end
     end
     methods(Abstract,Access=protected)
-        % Maitn part of get.num_pixels accessor
+        % Main part of get.num_pixels accessor
         num_pix = get_num_pixels(obj);
         %
         prp = get_prop(obj, ind);
@@ -364,7 +366,7 @@ classdef (Abstract) PixelDataBase < serializable
         %
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
         % main part of get.data accessor
-        data =  get_data_(obj)
+        data =  get_raw_data(obj)
         % setters/getters for serializable interface properties
         obj = set_data_wrap(obj,val);
         %
@@ -379,10 +381,10 @@ classdef (Abstract) PixelDataBase < serializable
     methods
         % DATA accessors:
         function data = get.data(obj)
-            data = get_data_(obj);
+            data = get_raw_data(obj);
         end
         function obj=set.data(obj, pixel_data)
-            obj=set_data(obj, pixel_data);
+            obj=set_raw_data(obj, pixel_data);
             obj = obj.recalc_data_range();
         end
         %
@@ -562,6 +564,12 @@ classdef (Abstract) PixelDataBase < serializable
         end
     end
     methods(Access=protected)
+        function [abs_pix_indices,ignore_range,raw_data] = parse_get_pix_args(obj,abs_pix_indices,varargin)
+            % process get_pix arguments and return them in standard form suitable for
+            % usage in filebased and memory based classes
+
+            [abs_pix_indices,ignore_range,raw_data] = parse_get_pix_args_(obj,abs_pix_indices,varargin{:});
+        end
         function indices = check_pixel_fields_(obj, fields)
             %CHECK_PIXEL_FIELDS_ Check the given field names are valid pixel data fields
             % Raises error with ID 'HORACE:PIXELDATA:invalid_field' if any fields not valid.

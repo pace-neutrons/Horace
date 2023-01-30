@@ -1,4 +1,4 @@
-function obj=set_raw_data(obj, pix_fields, data, varargin)
+function obj=set_raw_fields(obj, pix_fields, data, varargin)
 %SET_PIXELS Update the data on the given pixel data fields
 %
 % The number of columns in 'data' must be equal to the number of fields in
@@ -19,8 +19,8 @@ function obj=set_raw_data(obj, pix_fields, data, varargin)
 %                  updated and 'size(data, 2)' must equal to obj.num_pixels.
 %
 
-%TODO: Re #928 This probably does not make sence, or should be naturally
-%implemented trohgy memmapfile for existing files
+%TODO: Re #928 This probably does not make sense, or should be naturally
+%implemented trough memmapfile for existing files
 NO_INPUT_INDICES = -1;
 
 [field_indices, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin{:});

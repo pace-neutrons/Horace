@@ -298,52 +298,8 @@ classdef test_faccess_sqw_v4< TestCase
             tob=tob.init(tf);
             assertEqual(tob.faccess_version,4);
             tob.delete();
-        end
-        %
-        function obj = test_save_load_sqwV4_filebacked(obj)
-            %
-            skipTest('#893 wating for filebacked completeon')
-            hc    = hor_config;
-            mchs  = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
-
-            samp_f = obj.sample_file;
-
-            so = faccess_sqw_v4(samp_f);
-            sqw_ob = so.get_sqw();
-            % new sqw file
-            assertTrue(sqw_ob.main_header.creation_date_defined);
-            assertTrue(isa(sqw_ob,'sqw'));
-
-            inst1=create_test_instrument(95,250,'s');
-            hdr = sqw_ob.experiment_info;
-            hdr.instruments{1} = inst1;
-            sqw_ob = sqw_ob.change_header(hdr);
-
-            tf = fullfile(tmp_dir,'test_save_load_sqwV4.sqw');
-            clob = onCleanup(@()delete(tf));
-
-            tob = faccess_sqw_v4();
-            tob = tob.init(sqw_ob,tf);
-
-            tob=tob.put_sqw();
-            assertTrue(exist(tf,'file')==2)
-            tob = tob.delete();
-
-            tob=tob.init(tf);
-            ver_obj =tob.get_sqw('-verbatim');
-            tob.delete();
-
-            assertTrue(ver_obj.main_header.creation_date_defined);
-            assertEqual(sqw_ob.main_header,ver_obj.main_header);
-
-            assertTrue(sqw_ob.experiment_info.runid_recalculated);
-            assertFalse(ver_obj.experiment_info.runid_recalculated);
-
-            ver_obj.experiment_info.runid_recalculated = true;
-            assertEqualToTol(sqw_ob,ver_obj,1.e-7);
-        end
+        end  
+        
         %
         function test_serialize_deserialise_faccess(obj)
             fo = faccess_sqw_v4();
@@ -501,10 +457,45 @@ classdef test_faccess_sqw_v4< TestCase
             f = @() faccess.get_pix_in_ranges(pix_starts, bl_sizes);
             assertExceptionThrown(f, 'HORACE:validate_ranges:invalid_argument');
         end
+        function obj = test_write_read_correctV4_filebacked(obj)
+            %
+            hc    = hor_config;
+            mchs  = hc.mem_chunk_size;
+            hc.mem_chunk_size = 1000;
+            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
 
-        function test_write_read_correct(obj)
+            samp_f = obj.sample_file;
+            assertTrue(PixelDataBase.do_filebacked(4000))
+            so = faccess_sqw_v4(samp_f);
+            sqw_ob = so.get_sqw();
+            % new sqw file
+            assertTrue(sqw_ob.main_header.creation_date_defined);
+            assertTrue(isa(sqw_ob,'sqw'));
+
+
+            tf = fullfile(tmp_dir,'test_save_load_sqwV4.sqw');
+            clob = onCleanup(@()delete(tf));
+
+            tob = faccess_sqw_v4();
+            tob = tob.init(sqw_ob,tf);
+
+            tob=tob.put_sqw();
+            assertTrue(exist(tf,'file')==2)
+            tob = tob.delete();
+
+            tob=tob.init(tf);
+            ver_obj =tob.get_sqw('-verbatim');
+            tob.delete();
+
+            assertEqualToTol(sqw_ob,ver_obj,1.e-12);
+        end
+
+        function test_write_read_correctV4_membased(obj)
+            assertFalse(PixelDataBase.do_filebacked(4000))            
+
             fac0 = faccess_sqw_v4(obj.sample_file);
             sample = fac0.get_sqw('-verbatim');
+
 
             test_f = fullfile(tmp_dir,'write_read_sample_correct.sqw');
             clOb = onCleanup(@()delete(test_f));

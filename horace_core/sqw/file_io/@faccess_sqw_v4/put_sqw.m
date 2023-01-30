@@ -41,7 +41,7 @@ if ~obj.sqw_holder.main_header.creation_date_defined ||...
     end
     obj.sqw_holder = sqw_obj;
 end
-if ~isa(obj.sqw_holder.pix,'pix_combine_info')
+if ~isa(obj.sqw_holder.pix,'pix_combine_info')|| obj.sqw_holder.pix.is_filebacked
     obj = obj.put_all_blocks();
     return
 end

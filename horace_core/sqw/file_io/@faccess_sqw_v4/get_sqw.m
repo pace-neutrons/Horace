@@ -107,9 +107,6 @@ elseif opts.head || opts.his
     sqw_object.num_pixels  = sqw_skel.pix.npix;
 else
     sqw_object = sqw(sqw_skel);
-    if  ~(opts.keep_original || opts.verbatim)
-        sqw_object.pix.full_filename = obj.full_filename;
-    end
 end
 
 

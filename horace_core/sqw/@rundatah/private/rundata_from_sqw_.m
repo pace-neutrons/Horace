@@ -11,7 +11,7 @@ function rd=rundata_from_sqw_(sqw_obj)
 
 detpar = sqw_obj.detpar();
 %
-tmp=sqw_obj.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
+tmp=sqw_obj.pix.get_fields({'detector_idx', 'energy_idx', 'signal', 'variance'})';
 run_id = unique(sqw_obj.pix.run_idx);
 if numel(run_id)>1
     warning('HORACE:rundata_from_sqw:invalid_argument',...
