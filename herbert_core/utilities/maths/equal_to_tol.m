@@ -259,7 +259,7 @@ else
         end
     else
         error('HERBERT:equal_to_tol:invalid_argument',...
-            'Check number and type of non-keyword input arguments')
+            'Unrecognized input argument(s): %s',disp2str(par));
     end
 
     % Strip away temporary fields
@@ -389,7 +389,7 @@ elseif isobject(a) && isobject(b)
             '%s and %s: Sizes of arrays of objects being compared are not equal',...
             name_a,name_b);
     end
-    if ismethod(a,'eq') && ~isa(a,'PixelData')
+    if ismethod(a,'eq') && ~isa(a, 'PixelDataBase')
         try
             opt.name_a = name_a;
             opt.name_b = name_b;
@@ -653,7 +653,10 @@ end
 % All elements to be compared are finite (dealt with Inf and NaN above)
 abs_tol = tol(1);
 rel_tol = tol(2);
-
+if ~isa(a,class(b))
+    a = double(a);
+    b = double(b);    
+end
 if abs_tol==0 && rel_tol==0
 
     % Equality required

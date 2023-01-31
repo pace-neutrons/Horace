@@ -18,7 +18,7 @@ if ~ok
         'SQW_BINFILE_COMMON:put_main_header: %s',mess);
 end
 %
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 %
 [main_header,new_obj] = obj.extract_correct_subobj('main_header',argi{:});
 current_creation_date_defined = main_header.creation_date_defined;
@@ -41,7 +41,7 @@ if update && ~obj.upgrade_mode
     error('SQW_FILE_IO:runtime_error',...
         'put_main_header : input object has not been initiated for update mode');
 end
-% support upgrade mode. Do not modify main header creation date if it has 
+% support upgrade mode. Do not modify main header creation date if it has
 % not been modified before
 if (update || ~obj.upgrade_headers_ ) && ~current_creation_date_defined
     head_form = struct('filename','','filepath','',...
@@ -61,9 +61,13 @@ if update
 else
     start_pos = obj.main_header_pos_;
 end
-fseek(obj.file_id_,start_pos ,'bof');
-check_error_report_fail_(obj,'Error moving to the start of the main header position');
+
+try
+    do_fseek(obj.file_id_,start_pos ,'bof');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                     'Error moving to the start of the main header position');
+    throw(exc.addCause(ME))
+end
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the main header information');
-
-

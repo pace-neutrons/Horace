@@ -268,7 +268,7 @@ ax.label = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 
 wres.data = DnDBase.dnd(ax,proj, ...
     [0,0,0; 0,NaN,0; 0,0,0],[0,0,0; 0,NaN,0; 0,0,0],[0,0,0; 0,1,0; 0,0,0]);
-wres.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but this is OK
+wres.pix = PixelDataBase.create([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but this is OK
 
 % Make the sqw object. The defining qualities of this sqw object that mean it can be
 % picked out as special are that it is:

@@ -259,8 +259,8 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
 
             assertEqualToTol(d1_d,d1_d_h)
             assertEqualToTol(d1_d,d1_d_d)
-            assertEqualToTol(d1_d,d1_f_h,'ignore_str',true)
-            assertEqualToTol(d1_d,d1_f_d,'ignore_str',true)
+            assertEqualToTol(d1_d,d1_f_h,1.e-12,'ignore_str',true)
+            assertEqualToTol(d1_d,d1_f_d,1.e-12,'ignore_str',true)
 
         end
         %
@@ -283,17 +283,13 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             % Checking there isn't something here I've missed which makes
             % read a necessity, or whether it can be removed.
             tmp=sqw(obj.sqw2d_name{2});
-            [ok,mess] = equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1);
-            assertTrue(ok,['Error in functionality: ',mess])
+            assertEqualToTol(obj.sqw2d_arr(2),tmp,1.e-12,'ignore_str',1)                        
 
             tmp=sqw(obj.sqw2d_name{2});
-            [ok,mess] = equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1);
-            assertTrue(ok,['Error in functionality: ',mess])
-
+            assertEqualToTol(obj.sqw2d_arr(2),tmp,1.e-12,'ignore_str',1)                        
 
             tmp=read_horace(obj.sqw2d_name{2});
-            [ok,mess] = equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1);
-            assertTrue(ok,['Error in functionality: ',mess])
+            assertEqualToTol(obj.sqw2d_arr(2),tmp,1.e-12,'ignore_str',1)            
         end
 
         function test_dnd_constructor_equal_to_read_dnd(obj)
@@ -311,13 +307,10 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             % TODO: disabled - read does not work for dnd objects, an SQW is returned
             %tmp=read(d2d, obj.d2d_name{2});
             tmp=read_dnd(obj.d2d_name{2});
-            [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
-            assertTrue(ok,['Error in functionality: ',mess])
-
+            assertEqualToTol(obj.d2d_arr(2),tmp,1.e-12,'ignore_str',1)
 
             tmp=read_horace(obj.d2d_name{2});
-            [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
-            assertTrue(ok,['Error in functionality: ',mess])
+            assertEqualToTol(obj.d2d_arr(2),tmp,1.e-12,'ignore_str',1)
         end
         %
         function obj = test_read_horace_multifiled_reads_array_of_sqw(obj)

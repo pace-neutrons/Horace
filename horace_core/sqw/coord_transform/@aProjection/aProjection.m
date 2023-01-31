@@ -424,7 +424,7 @@ classdef aProjection < serializable
             % targ_range  -- the range of the pixels, transformed to target
             %                coordinate system.
             pix_transformed = obj.transform_pix_to_img(pix_origin,varargin{:});
-            if isa(pix_origin,'PixelData')
+            if isa(pix_origin, 'PixelDataBase')
                 targ_range = pix_transformed.pixel_range;
             else %Input is array and we want to know its ranges
                 targ_range = [min(pix_transformed,[],2),...

@@ -23,7 +23,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
     % initialized for reading this file.
     %
     % The initialized object allows to use all get/read methods described
-    % by sqw_file_interface and dnd_file_interface
+    % by sqw_file_interface and horace_binfile_interface
     %
     % Prototype file format does not allow writing into it. After
     % retrieving all necessary data from the file, its necessary to set
@@ -42,23 +42,33 @@ classdef faccess_sqw_prototype < sqw_binfile_common
     properties
     end
     methods(Access=protected)
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            ver = 0;
+        end
+
+        function is_sqw = get_sqw_type(~)
+            is_sqw = true;
+        end
+
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of sqw file using sqw object as input
             error('SQW_FILE_IO:runtime_error',...
                 'FACCESS_SQW_PROTOTYOE::init_from_sqw_obj: method is not implemented for prototype files as you can not currently write prototype files');
         end
+
         function obj=init_from_sqw_file(obj,varargin)
             % initialize the structure of faccess class using sqw file as input
-            fseek(obj.file_id_,0,'bof');
-            [mess,res] = ferror(obj.file_id_);
-            if res ~= 0
-                error('SQW_FILE_IO:io_error',...
-                    'FACCESS_SQW_PROTOTYOE::init_from_sqw_file: IO error locating number of contributing files field: Reason %s',mess)
+            try
+                do_fseek(obj.file_id_,0,'bof');
+            catch ME
+                exc = MException('SQW_FILE_IO:io_error',...
+                                 'FACCESS_SQW_PROTOTYPE:init_from_sqw_file: IO error locating number of contributing files field')
+                throw(exc.addCause(ME))
             end
             obj.main_header_pos_ = 0;
 
             obj = init_from_sqw_file@sqw_binfile_common(obj,varargin{:});
-            obj.sqw_type_ = true;
         end
     end
 
@@ -80,21 +90,19 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %                       saving in prototype format is not
             %                       supported
             %
-            obj.file_ver_ = 0;
-            obj.sqw_type_ = true;
             if nargin>0
                 obj = obj.init(varargin{:});
             end
         end
-        %
-        function [should,initob,mess] =should_load_stream(obj,header,fid)
+
+        function [should,initob,mess] = should_load_stream(obj,header,fid)
             % Check if faccess_sqw_prototype loader should process selected
             % data file.
             %Usage:
             %
             %>> [should,objinit,mess] = obj.should_load_stream(head_struc,fid)
             % where:
-            % head_struc:  structure returned by dnd_file_interface.get_file_header
+            % head_struc:  structure returned by horace_binfile_interface.get_file_header
             %              static method and containing sqw/dnd file info, stored in
             %              the file header.
             % fid       :: file identifier of already opened binary sqw/dnd file where
@@ -112,17 +120,18 @@ classdef faccess_sqw_prototype < sqw_binfile_common
 
             if header.version == 0 && strcmp(header.name,'horace')
                 if header.uncertain
-                    fseek(fid,0,'bof');
-                    header = dnd_file_interface.get_file_header(fid,4098+22);
+                    do_fseek(fid,0,'bof');
+                    header = horace_binfile_interface.get_file_header(fid,4098+22);
                 end
             end
 
 
-            [should,initob,mess]= should_load_stream@dnd_binfile_common(obj,header,fid);
+            [should,initob,mess]= should_load_stream@binfile_v2_common(obj,header,fid);
             if should
                 warning('SQW_FILE_IO:legacy_data',...
                     'FACCESS_SQW_PROTOTYPE::should_load_stream: trying to load legacy Horace prototype data format');
             end
+
         end
         %
         function data_form = get_dnd_form(obj,varargin)
@@ -161,7 +170,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %   data.pix        A PixelData object
 
             %
-            data_form = get_dnd_form@dnd_binfile_common(obj,varargin{:});
+            data_form = get_dnd_form@binfile_v2_common(obj,varargin{:});
             data_form = rmfield(data_form,{'filename','filepath','title','alatt','angdeg'});
         end
         %
@@ -263,15 +272,14 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %                               projection conversion
 
         end
-        %
+
         function sqw_data = get_se_npix(obj,varargin)
             % get signal,error and npix data only
-            sqw_data = get_se_npix@dnd_binfile_common(obj,varargin{:});
+            sqw_data = get_se_npix@binfile_v2_common(obj,varargin{:});
             [sqw_data.s,sqw_data.e] = ...
                 convert_signal_error_(sqw_data.s,sqw_data.e,sqw_data.npix);
         end
 
-        %
         function new_obj = upgrade_file_format(obj)
             error('SQW_FILE_IO:legacy_data',...
                 ['FACCESS_SQW_PROTOTYPE::upgrade_file_format: can not upgrade file from prototype to other file format.\n',...
@@ -281,5 +289,3 @@ classdef faccess_sqw_prototype < sqw_binfile_common
     end
 
 end
-
-

@@ -44,7 +44,7 @@ if isempty(obj.sqw_holder_)
 
 else
     pix = obj.sqw_holder_.pix;
-    if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
+    if any(any(pix.pix_range == PixelDataBase.EMPTY_RANGE_))
         pix.recalc_pix_range();
     end
 end

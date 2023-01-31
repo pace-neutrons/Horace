@@ -8,14 +8,14 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
     %
     % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
-    
+
     properties(Access=protected)
         precision_ = ''
         n_prec_ = [];
         % map of simple classes, which have standard conversion
         sclass_map_;
     end
-    
+
     properties(Dependent)
         precision
         elem_byte_size % size of the array element in bytes
@@ -59,11 +59,14 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
             % 8 -- size of the shape array
             % (shape array elements) x 8
             % elements of the array itself
-            fseek(fid,pos,'bof');
-            [mess,res] = ferror(fid);
-            if res ~=0; error('FIELD_SIMPLE_CLASS:io_error',...
-                    'Error moving to start of a class header %s',mess); end
-            
+            try
+                do_fseek(fid,pos,'bof');
+            catch ME
+                exc = MException('FIELD_SIMPLE_CLASS:io_error',...
+                                 'Error moving to start of a class header');
+                throw(exc.addCause(ME))
+            end
+
             class_size = fread(fid,1,'float64');
             [mess,res] = ferror(fid);
             if res ~=0; error('FIELD_SIMPLE_CLASS:io_error',...
@@ -73,7 +76,7 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
             [mess,res] = ferror(fid);
             if res ~=0; error('FIELD_SIMPLE_CLASS:io_error',...
                     'Error reading the class name: %s',mess); end
-            
+
             sz = class_size+8;
             %
             shape_size = fread(fid,1,'float64');
@@ -86,9 +89,9 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
             if res ~=0; error('FIELD_SIMPLE_CLASS:io_error',...
                     'Error reading the class shape array %s',mess); end
         end
-        
+
     end
-    
+
     methods
         function obj=field_simple_class_hv3()
             % constructor
@@ -131,7 +134,7 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
             bl_size = obj.sclass_map_(type);
             sz = field_simple_class_hv3.head_size(type,shape)+nel*bl_size;
         end
-        
+
         %
         function [val,length] = field_from_bytes(obj,bytes,pos)
             % convert sequence of bytes into the array
@@ -141,13 +144,13 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
                     'field_from_bytes: Class %s can not be converted as simple class',...
                     type);
             end
-            
+
             cl_size = obj.sclass_map_(type);
             nel = prod(shape);
             if strcmp(type,'logical')
                 val = logical(bytes(pos+sz:pos+sz+nel-1));
             elseif strcmp(type,'char')
-                val = char(bytes(pos+sz:pos+sz+nel-1));                
+                val = char(bytes(pos+sz:pos+sz+nel-1));
             else
                 val  = typecast(bytes(pos+sz:pos+sz+nel*cl_size-1),type);
             end
@@ -157,7 +160,7 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
         %
         function [sz,obj] = size_from_bytes(obj,bytes,pos)
             [type,shape,sz] = obj.head_sz_from_bytes(bytes,pos);
-            
+
             if ~obj.sclass_map_.isKey(type)
                 error('FIELD_SIMPLE_CLASS_HV3:invalid_argument',...
                     'size_from_bytes: Class %s can not be converted as simple class',...
@@ -182,7 +185,7 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
                     rethrow(ME);
                 end
             end
-            
+
             if ~obj.sclass_map_.isKey(type)
                 error('FIELD_SIMPLE_CLASS_HV3:invalid_argument',...
                     'size_from_file: Class %s can not be converted as simple class',...
@@ -193,8 +196,7 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
             obj.precision_ = type;
             obj.n_prec_ = elem_size;
         end
-        
-    end
-    
-end
 
+    end
+
+end

@@ -45,7 +45,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             end
             assertExceptionThrown( @() throwinst(),'HERBERT:unique_references_container:invalid_argument');
             assertEqual(sqw_obj.detpar, struct([]));
-            assertEqual(sqw_obj.pix, PixelData());
+            assertEqual(sqw_obj.pix, PixelDataBase.create());
             assertEqual(numel(sqw_obj.data.pax), 0);
         end
 
@@ -65,14 +65,15 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
 
         function test_filename_constructor_sets_pixel_page_size_if_passed(obj)
             pagesize_pixels = 666; % test value
-            pagesize_bytes = pagesize_pixels * sqw_binfile_common.FILE_PIX_SIZE;
 
-            sqw_obj = sqw(obj.test_sqw_1d_fullpath, 'pixel_page_size', pagesize_bytes);
+
+            sqw_obj = sqw(obj.test_sqw_1d_fullpath, 'pixel_page_size', pagesize_pixels, ...
+                'file_backed',true);
 
             assertTrue(isa(sqw_obj, 'sqw'));
             assertTrue(sqw_obj.pix.num_pixels > pagesize_pixels);
             assertEqual(sqw_obj.pix.num_pixels, 100337); % expected value from test file
-            assertEqual(sqw_obj.pix.page_size, pagesize_pixels);
+            assertEqual(sqw_obj.pix.base_page_size, pagesize_pixels);
         end
 
         function test_filename_constructor_sets_all_data_default_pagesize(obj)

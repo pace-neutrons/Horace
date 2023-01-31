@@ -5,17 +5,15 @@ function  obj= get_sqw_footer_(obj,varargin)
 %
 %
 %
-[ok,mess,init_for_upgrade] = parse_char_options(varargin,{'-upgrade'});
+[ok,mess,init_for_upgrade,for_update] = parse_char_options(varargin,{'-upgrade','-update'});
 if ~ok
     error('HORACE:faccess_sqw_v3:invalid_argument',mess);
 end
 
 obj = get_sqw_file_footer(obj);
 %
-if ~init_for_upgrade
-    [fp,fn,ext]=fileparts(fopen(obj.file_id_));
-    obj.filename_ =[fn,ext];
-    obj.filepath_ =[fp,filesep];
+if ~(init_for_upgrade||for_update)
+    obj.full_filename = fopen(obj.file_id_);
 end
 
 % read the number of files contributing into this sqw file
@@ -54,20 +52,29 @@ function obj = get_sqw_file_footer(obj)
 
 % Read data from file:
 
-fseek(obj.file_id_,-4,'eof');  % move to the end of the file minus 4 bytes
-test_error(obj.file_id_,'Unable to move to the position of the sqw_v3 file descriptor size. ErrorMessave: %s')
-%
+try
+    do_fseek(obj.file_id_,-4,'eof');  % move to the end of the file minus 4 bytes
+catch ME
+    exc = MException('HORACE:faccess_sqw_v3:io_error',...
+                     'Unable to move to the position of the sqw_v3 file descriptor size.');
+    throw(exc.addCause(ME))
+end
 
 foot_sz = fread(obj.file_id_,1,'int32');
 test_error(obj.file_id_,'Unable to read the location of the sqw_v3 file descriptor. ErrorMessave: %s')
 eof_pos  = ftell(obj.file_id_);
 
-fseek(obj.file_id_,-foot_sz-4,'eof');   % move to start of the block of data (8-byte position + n-byte string + 4-byte string length)
-test_error(obj.file_id_,'Unable to move to the location of the sqw_v3 file descriptor. ErrorMessave: %s')
+try
+    do_fseek(obj.file_id_,-foot_sz-4,'eof');   % move to start of the block of data (8-byte position + n-byte string + 4-byte string length)
+catch ME
+    exc = MException('HORACE:faccess_sqw_v3:io_error',...
+                     'Unable to move to the position of the sqw_v3 file descriptor size.');
+    throw(exc.addCause(ME))
+end
 %
 
 pos_info_location = ftell(obj.file_id_);
-%fseek(obj.file_id_,pos_info_location,'bof');  % move to the start of the
+%do_fseek(obj.file_id_,pos_info_location,'bof');  % move to the start of the
 %descriptor (which should already be there)
 %test_error(obj.file_id_,'Unable to move to the start of the sqw_v3 file descriptor');
 
@@ -91,7 +98,7 @@ obj.position_info_pos_ = pos_info_location;
 obj.eof_pos_  = eof_pos;
 obj.real_eof_pos_ = eof_pos;
 
-obj = obj.init_from_structure(fd_struct);
+obj = obj.from_bare_struct(fd_struct);
 obj.data_type_ = char(obj.data_type_);
 
 % debug and sanity options@
@@ -104,13 +111,9 @@ if npixels_ ~= obj.npixels
 end
 
 
-
 function test_error(fid,error_header)
 [mess,res] = ferror(fid);
 if res ~= 0
     error('HORACE:faccess_sqw_v3:io_error',...
         error_header,mess);
 end
-
-
-

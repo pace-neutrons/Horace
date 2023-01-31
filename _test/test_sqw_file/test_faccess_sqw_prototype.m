@@ -28,7 +28,7 @@ classdef test_faccess_sqw_prototype< TestCase
         function obj = test_should_load_stream(obj)
             to = faccess_sqw_prototype();
             co = onCleanup(@()to.delete());
-            assertEqual(to.file_version,'-v0');
+            assertEqual(to.faccess_version,0);
 
             [stream,fid] = to.get_file_header(obj.sample_file);
             co1 = onCleanup(@()(fclose(fid)));
@@ -45,7 +45,7 @@ classdef test_faccess_sqw_prototype< TestCase
         end
         function obj = test_should_load_file(obj)
             to = faccess_sqw_prototype();
-            assertEqual(to.file_version,'-v0');
+            assertEqual(to.faccess_version,0);
             co = onCleanup(@()to.delete());
 
             warning('off','SQW_FILE_IO:legacy_data')
@@ -58,19 +58,10 @@ classdef test_faccess_sqw_prototype< TestCase
             assertTrue(inob.file_id>0);
 
         end
-        function test_init_invalid_object_throws(~)
-            to = faccess_sqw_prototype();
-            assertEqual(to.file_version,'-v0');
-
-            %access to incorrect object
-            f = @()(to.init());
-            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
-
-        end
 
         function obj = test_init(obj)
             to = faccess_sqw_prototype();
-            assertEqual(to.file_version,'-v0');
+            assertEqual(to.faccess_version,0);
 
             warning('off','SQW_FILE_IO:legacy_data')
             this.clob = onCleanup(@()(warning('on','SQW_FILE_IO:legacy_data')));
@@ -83,7 +74,7 @@ classdef test_faccess_sqw_prototype< TestCase
             to = to.init(inob);
             assertEqual(to.npixels,16);
 
-            header = to.get_header();
+            header = to.get_exp_info();
             assertTrue(isa(header,'Experiment'));
             expdata = header.expdata();
             assertTrue(isa(expdata,'IX_experiment'));
@@ -104,7 +95,7 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
 
             pix = to.get_pix();
-            assertTrue(isa(pix, 'PixelData'));
+            assertTrue(isa(pix, 'PixelDataBase'));
             assertEqual(pix.num_pixels,16)
 
         end
@@ -118,7 +109,7 @@ classdef test_faccess_sqw_prototype< TestCase
             data_h = to.get_data('-he');
             assertTrue(isstruct(data_h))
             assertEqual(data_h.filename,to.filename)
-            assertEqual(data_h.filepath,to.filepath)
+            assertEqual(data_h.filepath,[to.filepath,filesep])
 
             data_dnd = to.get_data('-ver');
             assertTrue(isa(data_dnd,'DnDBase'));
@@ -128,7 +119,7 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
             pix = to.get_pix();
-            assertTrue(isa(pix, 'PixelData'));
+            assertTrue(isa(pix, 'PixelDataBase'));
             assertEqual(pix.file_path, obj.sample_file);
             assertEqual(pix.num_pixels, 16);
         end

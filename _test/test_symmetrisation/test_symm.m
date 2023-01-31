@@ -14,6 +14,8 @@ classdef test_symm < TestCase
         function this=test_symm(name)
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
+            hp = horace_paths;
+            this.testdir = hp.test_common;
         end
 
         function this=prepare_test_data(this)

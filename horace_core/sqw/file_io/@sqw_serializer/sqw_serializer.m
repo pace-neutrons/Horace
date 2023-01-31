@@ -1,18 +1,25 @@
 classdef sqw_serializer
     % Helper class to serialize-deserialize sqw object's data
-    % using predefined format structures, provided by loader
+    % using predefined format structures, provided by faccess
+    % classes.
     %
-    %
-    %
+    % Used mainly by old sqw file formatters while more modern file formatters
+    % inherit serializable class and deploy separate Horace serializer.
+    % 
+    properties(Constant,Access=private)
+        base_classes_ = {'double','single','int8','uint8','int16','uint16',...
+            'int32','uint32','int64','uint64','float64'};
+        class_sizes_ =  [8,4,1,1,2,2,4,4,8,8,8]; % in bytes
+
+        % map to associate class name and class size
+        class_map_ = containers.Map(sqw_serializer.base_classes_, ...
+            sqw_serializer.class_sizes_);
+    end
     properties(Access=private,Hidden=true)
         sqw_holder_ = []; % reference to sqw object to serialize (if any)
         n_header_ = 1; % number of header to process
         %
-        base_classes_ = {'double','single','int8','uint8','int16','uint16',...
-            'int32','uint32','int64','uint64','float64'};
-        class_sizes_ =  [8,4,1,1,2,2,4,4,8,8,8]; % in bytes
-        class_map_; % map to associate class name and class size
-        
+
         % helper property to calculate size of a structure
         input_is_stuct_= false;
         % helper property to calculate positions of a file
@@ -29,10 +36,9 @@ classdef sqw_serializer
         % an array of bytes.
         input_is_struct;
     end
-    
+
     methods
         function obj = sqw_serializer()
-            obj.class_map_ = containers.Map(obj.base_classes_,obj.class_sizes_);
         end
         %
         function is = get.input_is_file(obj)
@@ -43,27 +49,52 @@ classdef sqw_serializer
         end
         %---------------------------------------------------------------------
         function stream = serialize(obj,struct,format_struct)
-            % serialize struct into the form, usually written by Horace
+            % serialize structure into the form, usually written by Horace
             % and defined by format_struct
             %
             if nargin == 1 % object tries to serialize themselves
-                stream = obj.saveobj();
+                stream = obj.serialize();
                 return;
             end
             stream = serialize_(obj,struct,format_struct);
         end
-        function bytes = saveobj(~)
-            bytes = []; %hlp_serialize('sqw_serializer');
-        end
-        function [size_str,pos,eof,template_struc] = calculate_positions(obj,template_struc,input,varargin)
-            % calculate the positions, the fields of the input templated_structure
+        function [size_str,pos,eof,format_struc] = calculate_positions(obj, ...
+                format_struc,input,varargin)
+            % Calculate the positions, the fields of the input templated_structure
             % occupy in an input stream.
             %
-            % Three types of input are possible:
-            % 1) class or structure to serialize
-            % 2) array of bytes
-            % 3) the handle related to open binary file to read.
-            % The method calcuates the positions each input data field
+            % Inputs:
+            % format_struc
+            %        -- the structure, defining the way to analyse data
+            %           the names of the structure fields represent the
+            %           names of the properties of class or structure to
+            %           transform, and the types of values of these
+            %           structures
+            % input  -- Data to analyse. Three types of input are possible:
+            %          1) class or structure to serialize
+            %          2) array of bytes
+            %          3) the handle related to open binary file to read.
+            % Optional:
+            % start_pos  -- if provided, the initial position of the
+            %               data, described  by format_struct. If not
+            %               provided, default is 0 if input/output is a file
+            %               handle or 1 if it is sequence of bytes
+            % Returns:
+            % size_str -- the structure with the names of format_struc
+            %             and values equal to calculated positions of these
+            %             fields in stream
+            % pos      -- first position after the all data positions
+            % eof      -- if input is file-handle, true when  positions
+            %             calculated from stream and end of the stream
+            %             reached before all format fields were processed.
+            %          size_str in this case contains only the positions of
+            %             the fields which were processed from stream
+            % format_struc
+            %          -- the copy of the input format structure with
+            %             appropriate fields values calculated from
+            %             the input stream.
+            %
+            % The method calculates the positions each input data field
             % would occupy or is occupying (if converted) into/in a/the
             % sequence of  bytes.
             %
@@ -72,38 +103,11 @@ classdef sqw_serializer
             %or
             %>>[size_str,pos,eof,template_struc] = obj.calculate_positions(format_struc,input,start_pos)
             %
-            % where
-            % obj           ::  an instance of sqw serializer
-            % format_struc  ::  structure with sqw_field_formatters values
-            %                   defining the format of the structure to
-            %                   save/restore.
-            % input         ::  input data in various formats to find
-            %                   locations of different parts of the data
-            % start_pos     ::  if provided, the initial position of the
-            %                   data, described  by format_struct. If not
-            %                   provided, default is 0 if input/output is a file
-            %                   handle or 1 if it is sequence of bytes
-            %
-            % Returns:
-            % size_str       :: the structure with the names of
-            %                   template_structure and values equal to
-            %                   calculated positions of these fields in
-            %                   stream
-            % pos            :: first position after the all data positions
-            % eof            :: true when  positions calculated on stream
-            %                   and end of a stream reached before all
-            %                   format fields were processed. size_str in
-            %                   this case contains only the positions of
-            %                   the fields which were processed from stream
-            % template_struc  :: is the copy of the input format structure with
-            %                    appropriate fields values calculated from
-            %                    the input stream.
-            %
             %
             [obj,pos] = calc_pos_check_input_set_defaults_(obj,input,varargin{:});
             %
-            [size_str,pos,eof,template_struc] = calculate_positions_(obj,template_struc,input,pos);
-            
+            [size_str,pos,eof,format_struc] = calculate_positions_(obj,format_struc,input,pos);
+
         end
         %
         function [targ_struc,pos] = deserialize_bytes(obj,input,template_str,varargin)
@@ -144,13 +148,22 @@ classdef sqw_serializer
             end
             [targ_struc,pos] = deserialize_bytes_(obj,input,template_str,varargin{:});
         end
-        
+    end
+    methods
+        function bytes = saveobj(~)
+            % no point to serialize or save this class as it does not
+            % contains any useful data. Just convert to bytes the name
+            % of the class and recover new instance of this class at
+            % deserialization.
+            %
+            bytes = hlp_serialize('sqw_serializer');
+        end
     end
     methods(Static)
         function obj = loadobj(ls)
-            % Retrieve message object from sequnce of bytes
+            % Retrieve message object from sequence of bytes
             % produced by saveobj method.
-            
+
             ser_struc = hlp_deserialize(ls);
             if strcmp(ser_struc,'sqw_serializer')
                 obj = sqw_serializer();
@@ -158,11 +171,11 @@ classdef sqw_serializer
                 error('HORACE:sqw_serializer:runtime_error',...
                     'Attempt to recover sqw serializer from incorrect data')
             end
-            
+
         end
     end
-    
-    
+
+
 end
 
 

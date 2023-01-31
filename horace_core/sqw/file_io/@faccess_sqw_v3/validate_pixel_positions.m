@@ -7,10 +7,10 @@ function obj = validate_pixel_positions(obj)
 % throw an FACCESS error.
 %
 BYTES_IN_FLOAT = 4;
-PIX_COLS = PixelData.DEFAULT_NUM_PIX_FIELDS;
+PIX_COLS = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
 
 pix_end = obj.eof_pix_pos_;  % position in file we should be in
-fseek(obj.file_id_,0,'eof');
+do_fseek(obj.file_id_,0,'eof');
 file_end = ftell(obj.file_id_);  % actual position of end of file
 if uint64(pix_end) > uint64(file_end)
     npix_expected = obj.npixels;
@@ -33,7 +33,7 @@ if uint64(pix_end) > uint64(file_end)
     for i=1:10
         fprintf('.')
         pause(1);
-        fseek(obj.file_id_,0,'eof');
+        do_fseek(obj.file_id_,0,'eof');
         file_end = ftell(obj.file_id_);
         if uint64(pix_end) == uint64(file_end)
             break;

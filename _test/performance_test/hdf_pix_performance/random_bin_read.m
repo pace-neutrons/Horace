@@ -21,7 +21,7 @@ if fh<1
     error('PARALLEL_WRITER:io_error','Can not open file %s',f_name);
 end
 clob = onCleanup(@()fclose(fh));
-%fseek(fh,0,'eof');
+%do_fseek(fh,0,'eof');
 %fsize = ftell(fh);
 
 
@@ -35,7 +35,7 @@ pos = pos*(9*4);
 n_blocks = numel(pos);
 read_sz = 0;
 for i=1:n_blocks
-    stat=fseek(fh,pos(i),'bof');
+    stat=do_fseek(fh,pos(i),'bof');
     if stat ~=0
         mess=ferror(fh,'clear');
         warning('can not move to the requested random position Err: %s',mess)

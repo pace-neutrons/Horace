@@ -34,7 +34,7 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
     % reading this file.
     % The initialized object allows to use all get/read methods described
     % by sqw_file_interface,
-    % dnd_file_interface and additional methods to read instrument and
+    % horace_binfile_interface and additional methods to read instrument and
     % sample, specific for v3.2 file format.
     %
     % 2)
@@ -54,7 +54,7 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
     % If file with filename does not exist, the object will be open in write mode.
     %
     % Initialized faccess_sqw_v3 object allows to use write/update methods of
-    % dnd_file_interface, sqw_file_interface + writing instrument and sample
+    % horace_binfile_interface, sqw_file_interface + writing instrument and sample
     % and all read methods of these interfaces if the proper information
     % already exists in the file.
     %
@@ -62,7 +62,14 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
     %
 
     %
-    methods(Access=protected,Hidden=true)
+    methods(Access=protected)
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            ver = 3.2;
+        end
+        % Method does class dependent changes while updating from sqw file
+        % format v3.2 to file format version 3.21
+        new_obj = do_class_dependent_updates(obj,new_obj);
     end
     %
     %
@@ -96,19 +103,15 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
             %
             % set up fields, which define appropriate file version
             obj = obj@faccess_sqw_v3(varargin{:});
-            obj.file_ver_ = 3.2;
+        end
+    end
+    methods(Access=protected)
+        function   obj_type = get_format_for_object(~)
+            % main part of the format_for_object getter, specifying for
+            % what class saving the file format is intended
+            obj_type = 'sqw2';
         end
 
-        %
-        function new_obj = upgrade_file_format(obj,varargin)
-            % upgrade the file to recent write format and open this file
-            % for writing/updating
-            %
-            % The operation upgrades format 3.2 to format 3.21, containing
-            % pix_range information
-            new_obj = upgrade_file_format_(obj,varargin{:});
-        end
-        %
     end
     methods(Static,Hidden=true)
         function header = get_header_form(varargin)
@@ -145,6 +148,15 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
             header = get_header_form_(varargin{:});
         end
     end
+    %==================================================================
+    % SERIALIZABLE INTERFACE
+    methods(Static)
+        function obj = loadobj(inputs,varargin)
+            inobj = faccess_sqw_v3_2();
+            obj = loadobj@serializable(inputs,inobj,varargin{:});
+        end
+    end
+
     %
 end
 

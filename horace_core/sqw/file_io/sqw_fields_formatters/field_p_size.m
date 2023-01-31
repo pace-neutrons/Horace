@@ -12,7 +12,7 @@ classdef field_p_size < field_const_array_dependent & iVirt_field
             obj = obj@field_const_array_dependent('npax');
             %
         end
-        
+
         %
         function bytes = bytes_from_field(obj,struct)
             % convert variable into invertible sequence of bytes to store
@@ -23,7 +23,7 @@ classdef field_p_size < field_const_array_dependent & iVirt_field
             % calculate size of the field on HDD
              sz = 0;
         end
-        
+
         %
         function [val,length] = field_from_bytes(obj,bytes,pos)
             % convert sequence of bytes into the variable
@@ -58,12 +58,14 @@ classdef field_p_size < field_const_array_dependent & iVirt_field
             val  = zeros(1,n_cells);
             sz = 4;
             for i=1:n_cells
-                fseek(fid,pos,'bof');
-                [~,res] = ferror(fid);
-                if res ~=0
+
+                try
+                    do_fseek(fid,pos,'bof');
+                catch
                     err = true;
                     return;
                 end
+
                 ndims = fread(fid,1,'int32');
                 [~,res] = ferror(fid);
                 if res ~=0
@@ -76,9 +78,7 @@ classdef field_p_size < field_const_array_dependent & iVirt_field
             end
             obj.field_value = val;
         end
-        
+
     end
-    
+
 end
-
-

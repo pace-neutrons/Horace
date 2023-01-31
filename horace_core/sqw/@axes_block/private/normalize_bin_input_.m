@@ -68,7 +68,6 @@ function [npix,s,e,pix_cand,unique_runid,argi]=...
 % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates,unque_runid)
 %                                        8(inputs)
 %                      normalize_bin_input_(obj,coord,mod,npix,s,e,pix_candidates,unque_runid)
-
 if ~isnumeric(pix_coord)
     error('HORACE:axes_block:invalid_argument',...
         'first argument of the routine have to be 4xNpix or 3xNpix numeric array of pixel coordinates')
@@ -103,7 +102,7 @@ else
             'Calculating signal and error requests providing full pixel information, and this information is missing')
     end
     pix_cand  = varargin{4};
-    if ~(isa(pix_cand,'PixelData') || (iscell(pix_cand) && numel(pix_cand{1}) == size(pix_coord,2)))
+    if ~(isa(pix_cand,'PixelDataBase') || (iscell(pix_cand) && numel(pix_cand{1}) == size(pix_coord,2)))
         error('HORACE:axes_block:invalid_argument',...
             '7-th argument of the function must be instance of PixelData class or cell array thereof. It is: %s',...
             class(pix_coord));

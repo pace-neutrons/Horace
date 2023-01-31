@@ -13,8 +13,8 @@
 %                       in memory.
 %
 % File access interface description:
-% dnd_file_interface - class describes main public methods, used to read/write
-%                      dnd image information.
+% horace_binfile_interface - class describes main public methods, used to read/write
+%                      Horace image information.
 % sqw_file_interface - class describes main public methods, used to read/write
 %                      all remaining (non-dnd) information found in sqw files,
 %                      particularly metadata describing each file
@@ -23,7 +23,7 @@
 %                      the contributing pixels.
 %
 % File access main code:
-% dnd_binfile_common - class implements common part of dnd_file_interface
+% binfile_v2_common  - class implements common part of horace_binfile_interface
 %                      and contains main code, used to read/write dnd image
 %                      information stored in binary dnd/sqw files.
 % sqw_binfile_common - class implements common part of sqw_file_interface
@@ -76,7 +76,7 @@
 % Read all sqw data:
 %>>sqw_object = accessor.get_sqw();
 % To read partial sqw data one can use any get methods from
-% sqw_file_interface or dnd_file_interface.
+% sqw_file_interface or horace_binfile_interface.
 %
 % To reopen this file to modify all sqw data or its parts one should
 % execute:
@@ -99,7 +99,7 @@
 % Then one can write the whole data:
 %>>accessor = accessor.put_sqw();
 % or any part of the data, using correspondent put methods of
-% sqw_file_interface or dnd_file_interface. If file is open for upgrade, 
+% sqw_file_interface or horace_binfile_interface. If file is open for upgrade, 
 % accessor = accessor.put_sqw() command does not modify the class pixels.
 % Separate put_pix command should be used to do this if requested.
 %

@@ -31,11 +31,11 @@ has_defaults = cellfun(@(x)(x~=0),has_defaults);
 
 default_values=default_values(has_defaults);
 if nargin>1
-    
+
     undef_fields = fields_needed(~has_defaults);
     n_undef=numel(undef_fields);
     if n_undef>0
-        if get(herbert_config,'log_level')>-1
+        if get(hor_config,'log_level')>-1
             for i=1:n_undef
                 disp(['HERBERT:get_defaults:field: ',undef_fields{i},' is not among fields which have defaults']);
             end
@@ -61,5 +61,3 @@ catch
 end
 
 has_default = true;
-
-

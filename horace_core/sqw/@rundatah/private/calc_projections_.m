@@ -80,7 +80,7 @@ if use_mex
             %nThreads = 1;
             [pix_range,pix] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             if proj_mode==2
-                pix = PixelData(pix,[],false);
+                pix = PixelDataBase.create(pix,[],false);
                 pix.set_range(pix_range);
             end
         catch  ERR % use Matlab routine
@@ -129,7 +129,7 @@ if ~use_mex
         end
         sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
         run_id = ones(1,numel(detector_idx))*obj.run_id;
-        pix = PixelData([ucoords;run_id;detector_idx;energy_idx;sig_var]);
+        pix = PixelDataBase.create([ucoords;run_id;detector_idx;energy_idx;sig_var]);
         pix_range=pix.pix_range;
     end
 end

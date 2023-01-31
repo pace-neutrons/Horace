@@ -3,7 +3,7 @@ classdef test_upgrade_pix_pixrange< TestCase
     % Validate if the update works
     %
     properties
-        test_dir;
+        tests_dir;
     end
 
     methods
@@ -17,14 +17,14 @@ classdef test_upgrade_pix_pixrange< TestCase
             end
             this=this@TestCase(name);
 
-            this.test_dir = fullfile(fileparts(mfilename('fullpath')));
+            hc = horace_paths;
+            this.tests_dir = hc.test;
         end
 
         % tests
-        function obj = test_upgrade_v3_1_toV3_3(obj)
-            test_source = fileparts(obj.test_dir);
+        function obj = test_upgrade_v3_1_toV3_3(obj)            
             test_fname = 'test_cut_sqw_sym.sqw'; % v3.1 source test file
-            source_file = fullfile(test_source,'test_sym_op',test_fname );
+            source_file = fullfile(obj.tests_dir,'test_sym_op',test_fname );
             test_file   = fullfile(tmp_dir(),test_fname);
             copyfile(source_file ,test_file);
             clob = onCleanup(@()delete(test_file));
@@ -38,7 +38,7 @@ classdef test_upgrade_pix_pixrange< TestCase
             ld0 = ld0.init(source_file);
 
             assertEqual(ld1.get_main_header('-keep_original'),ld0.get_main_header('-keep_original'));
-            assertEqual(ld1.get_header(),ld0.get_header());
+            assertEqual(ld1.get_exp_info(),ld0.get_exp_info());
             d1 = ld1.get_data();
             d2 = ld0.get_data();
             d1.filepath = '';
@@ -54,12 +54,12 @@ classdef test_upgrade_pix_pixrange< TestCase
             assertEqual(pix1.pix_range,pix2.pix_range);
             ld1.delete();
             ld0.delete();
+            fclose all;
         end
 
         function obj = test_upgrade_v2_toV3_3(obj)
-            test_source = fileparts(obj.test_dir);
             test_fname = 'w3d_sqw.sqw'; % v2 source test file
-            source_file = fullfile(test_source,'test_symmetrisation',test_fname );
+            source_file = fullfile(obj.tests_dir,'common_data',test_fname );
             test_file   = fullfile(tmp_dir(),test_fname);
             copyfile(source_file ,test_file);
             clob = onCleanup(@()delete(test_file));
@@ -75,7 +75,7 @@ classdef test_upgrade_pix_pixrange< TestCase
             assertEqual(ld1.get_main_header('-keep_original'),ld0.get_main_header('-keep_original'));
             %THIS IS OFFICIALLY NO LONGER EQUAL BECAUSE v2 HAS RAW STRUCTS
             %FOR INST, SAMPLE, WHILE V33 HAS IX_NULL TYPES
-            %assertEqual(ld1.get_header(),ld0.get_header());
+            %assertEqual(ld1.get_exp_info(),ld0.get_exp_info());
             d1 = ld1.get_data();
             d2 = ld0.get_data();
             d1.filepath = '';

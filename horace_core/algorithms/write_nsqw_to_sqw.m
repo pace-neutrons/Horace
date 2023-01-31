@@ -128,7 +128,7 @@ data_sum.main_header.filepath = [fp,filesep];
 ds = sqw(data_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access(ds);
 %
-hor_log_level=config_store.instance().get_value('herbert_config','log_level');
+hor_log_level = get(hor_config,'log_level');
 if hor_log_level>-1
     disp(' ')
     disp(['Writing to output file ',outfile,' ...'])
@@ -149,7 +149,7 @@ function [pix_range,job_disp,jd_initialized]= parse_additional_input(argi)
 % parse input to extract pixel range and initialized job dispatcher if any
 % of them provided as input arguments
 %
-pix_range = PixelData.EMPTY_RANGE_;
+pix_range = PixelDataBase.EMPTY_RANGE_;
 job_disp = [];
 jd_initialized = false;
 %

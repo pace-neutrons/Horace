@@ -29,7 +29,7 @@ function [w, pix_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
 %                  is equivalent to image range
 
 
-hor_log_level=config_store.instance().get_value('herbert_config','log_level');
+hor_log_level = get(hor_config,'log_level');
 
 % Fill header and data blocks
 % ---------------------------

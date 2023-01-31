@@ -3,6 +3,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
     %
     properties
         test_folder
+        test_data_folder
     end
 
     methods
@@ -15,16 +16,18 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             %obj = obj@TestCaseWithSave(name,sample_file);
             obj = obj@TestCase(name);
             obj.test_folder=fileparts(mfilename('fullpath'));
+            hc = horace_paths;
+            obj.test_data_folder  = hc.test_common;
         end
         %-----------------------------------------------------------------
         function test_selection_v3_3(obj)
 
-            file_v3_3 = fullfile(fileparts(obj.test_folder),...
-                'test_sqw_file','test_sqw_file_read_write_v3_3.sqw');
+            file_v3_3 = fullfile(obj.test_folder,...
+                'test_sqw_file_read_write_v3_3.sqw');
 
             loader = sqw_formats_factory.instance().get_loader(file_v3_3 );
             assertTrue(isa(loader,'faccess_sqw_v3_3'));
-            assertEqual(loader.file_version,'-v3.3');
+            assertEqual(loader.faccess_version,3.3);
             assertEqual(loader.filename,'test_sqw_file_read_write_v3_3.sqw')
             assertEqual(loader.npixels,7680)
         end
@@ -32,12 +35,12 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
         function obj = test_selection_v2(obj)
 
 
-            file_v2 = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_sqw.sqw');
+            file_v2 = fullfile(obj.test_data_folder,'w1d_sqw.sqw');
+
             loader = sqw_formats_factory.instance().get_loader(file_v2);
 
             assertTrue(isa(loader,'faccess_sqw_v2'));
-            assertEqual(loader.file_version,'-v2');
+            assertEqual(loader.faccess_version,2);
             assertEqual(loader.filename,'w1d_sqw.sqw')
             assertEqual(loader.npixels,8031)
         end
@@ -46,52 +49,56 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
 
             warning('off','SQW_FILE_IO:legacy_data')
             clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
-            file_v3_old = fullfile(fileparts(obj.test_folder),...
-                'test_sqw_file','test_sqw_file_read_write_v3.sqw');
+            file_v3_old = fullfile(obj.test_folder,...
+                'test_sqw_file_read_write_v3.sqw');
 
             loader = sqw_formats_factory.instance().get_loader(file_v3_old);
             assertTrue(isa(loader,'faccess_sqw_v2'));
-            assertEqual(loader.file_version,'-v2');
+            assertEqual(loader.faccess_version,2);
             assertEqual(loader.filename,'test_sqw_file_read_write_v3.sqw')
             assertEqual(loader.npixels,7680)
         end
         %
         function test_selection_v3(obj)
 
-            file_v3 = fullfile(fileparts(obj.test_folder),...
-                'test_sqw_file','test_sqw_file_read_write_v3_1.sqw');
+            file_v3 = fullfile(obj.test_folder,...
+                'test_sqw_file_read_write_v3_1.sqw');
 
             loader = sqw_formats_factory.instance().get_loader(file_v3);
             assertTrue(isa(loader,'faccess_sqw_v3'));
-            assertEqual(loader.file_version,'-v3.1');
+            assertEqual(loader.faccess_version,3.1);
             assertEqual(loader.filename,'test_sqw_file_read_write_v3_1.sqw')
             assertEqual(loader.npixels,7680)
         end
         function test_wrong_selection_wrong_format(obj)
             % not an sqw file
-            file_nonHor = fullfile(fileparts(obj.test_folder),...
-                'test_sqw_file','testdata_base_objects.mat');
+            file_nonHor = fullfile(obj.test_folder,...
+                'pos_to_test.mat');
             fl = @()(sqw_formats_factory.instance().get_loader(file_nonHor));
-            assertExceptionThrown(fl,'HORACE:file_io:runtime_error');
+            ME = assertExceptionThrown(fl,'HORACE:horace_binfile_interface:runtime_error');
+
+            err_message = sprintf( ...
+                'File: %s  is not recognized as Horace binary file',file_nonHor);
+            assertEqual(ME.message,err_message )
         end
         function test_selection_v0(obj)
-            file_v0 = fullfile(fileparts(obj.test_folder),...
-                'test_sqw_file','test_sqw_read_write_v0_t.sqw');
+            file_v0 = fullfile(obj.test_folder,...
+                'test_sqw_read_write_v0_t.sqw');
             warning('off','SQW_FILE_IO:legacy_data')
             clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
 
             loader = sqw_formats_factory.instance().get_loader(file_v0);
             assertTrue(isa(loader,'faccess_sqw_prototype'));
-            assertEqual(loader.file_version,'-v0');
+            assertEqual(loader.faccess_version,0);
             assertEqual(loader.filename,'test_sqw_read_write_v0_t.sqw')
             assertEqual(loader.npixels,16)
         end
         function test_selection_dnd(obj)
-            file_dndv2 = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w2d_qe_d2d.sqw');
+            file_dndv2 = fullfile(obj.test_data_folder,...
+                'w2d_qe_d2d.sqw');
             loader = sqw_formats_factory.instance().get_loader(file_dndv2);
             assertTrue(isa(loader,'faccess_dnd_v2'));
-            assertEqual(loader.file_version,'-v2');
+            assertEqual(loader.faccess_version,2);
             assertFalse(loader.sqw_type);
             assertEqual(loader.filename,'w2d_qe_d2d.sqw')
             assertEqual(loader.data_type,'b+')
@@ -106,12 +113,12 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
         end
         %
         function test_selection_v1(obj)
-            file_v1 = fullfile(fileparts(obj.test_folder),...
-                'test_sqw_file','w2_small_v1.sqw');
+            file_v1 = fullfile(obj.test_folder,...
+                'w2_small_v1.sqw');
             loader = sqw_formats_factory.instance().get_loader(file_v1);
 
             assertTrue(isa(loader,'faccess_sqw_v2'));
-            assertEqual(loader.file_version,'-v2');
+            assertEqual(loader.faccess_version,2);
             assertEqual(loader.filename,'w2_small_v1.sqw')
             assertEqual(loader.npixels,179024)
 
@@ -124,12 +131,12 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
 
             dob = d1d();
             ld2 = sqw_formats_factory.instance().get_pref_access(dob);
-            assertTrue(isa(ld2,'faccess_dnd_v2'));
+            assertTrue(isa(ld2,'faccess_dnd_v4'));
 
         end
         function obj= test_load_range(obj)
-            file_v2 = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_sqw.sqw');
+            file_v2 = fullfile(obj.test_data_folder,...
+                'w1d_sqw.sqw');
             file_v3 = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','test_sqw_file_read_write_v3_1.sqw');
             files = {file_v2,file_v3};

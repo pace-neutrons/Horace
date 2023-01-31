@@ -15,7 +15,7 @@ if ~ok
     error('SQW_BINFILE_COMMON:invalid_argument',mess);
 end
 %
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 %
 [detpar,new_obj] = obj.extract_correct_subobj('detpar',argi{:});
 if new_obj
@@ -45,8 +45,13 @@ if update
 else
     start_pos = obj.detpar_pos_;
 end
-fseek(obj.file_id_,start_pos ,'bof');
-check_error_report_fail_(obj,'Error moving to the start of the detectors record');
+
+try
+    do_fseek(obj.file_id_,start_pos ,'bof');
+catch ME
+    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                     'Error moving to the start of the detectors record');
+    throw(exc.addCause(ME))
+end
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the detectors information');
-

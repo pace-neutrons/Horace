@@ -25,19 +25,26 @@ end
 fields_to_set = obj(1).saveableFields();
 fields_present = fieldnames(inputs);
 is_present = ismember(fields_to_set,fields_present);
+if ~any(is_present)
+    return;
+end
 if ~all(is_present)
     fields_to_set = fields_to_set(is_present);
 end
 %--------------------------------------------------------------------------
 %
-
+obj_in = cell(nobj,1);
 for i=1:nobj
     obj(i).do_check_combo_arg_ = false;    
     obj(i) = set_obj(obj(i),inputs(i),fields_to_set);
     obj(i).do_check_combo_arg_ = true;        
     % check interdependent properties. If the object is invalid, 
     % it throws the exception   
-    obj(i) = obj(i).check_combo_arg();
+    obj_in{i} = obj(i).check_combo_arg();
+end
+obj = [obj_in{:}];
+if nobj > 1
+    obj = reshape(obj,size(inputs));
 end
 
 end % function from_bare_struct_

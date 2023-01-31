@@ -56,7 +56,7 @@ if isempty(bloc_starts)
     report_cut_type(obj,log_level-1,false,keep_pixels,'no_pixels');
 
     % No pixels in range, we can return early
-    pix_out = PixelData();
+    pix_out = PixelDataBase.create();
     unique_runid = [];
     return
 end
@@ -200,7 +200,7 @@ if keep_pixels
         end
     end
 else
-    pix_out = PixelData();
+    pix_out = PixelDataBase.create();
 end
 
 [s, e] = normalize_signal(s, e, npix);

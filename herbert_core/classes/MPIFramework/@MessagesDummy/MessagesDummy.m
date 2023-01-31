@@ -15,6 +15,10 @@ classdef MessagesDummy < iMessagesFramework
 
     %----------------------------------------------------------------------
 
+    properties(Constant)
+        mess_exchange_folder = pwd();
+    end
+
     properties(Access=protected,Hidden=true)
         % equivalent to labNum in MPI
         task_id_ = 1;

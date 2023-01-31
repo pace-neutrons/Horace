@@ -3,7 +3,7 @@ function sqw_type_struc = update_pixels_run_id(sqw_type_struc)
 % in headers may or may not be consistent with the run-id(s) stored in
 % pixels.
 %
-% The routine tries to analyze pixels run_id(s) and check if the id-s are
+% The routine tries to analyse pixels run_id(s) and check if the id-s are
 % consistent with the run-id numbers, defined in headers. If
 % inconsistencies are found, the routine updates runid map and drops the
 % headers, not contributing into pixels any more.

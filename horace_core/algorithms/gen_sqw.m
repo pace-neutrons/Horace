@@ -196,12 +196,8 @@ accumulate_old_sqw=false;   % true if want to accumulate spe data to an existing
 accumulate_new_sqw=false;   % true if want to accumulate spe data to a new sqw file (not all spe data files need exist)
 use_partial_tmp = false;    % true to generate a combined sqw file during accumulate sqw using tmp files calculated at
 % previous accumulation steps
-log_level=...
-    config_store.instance().get_value('herbert_config','log_level');
-delete_tmp=...
-    config_store.instance().get_value('hor_config','delete_tmp');
-combine_algorithm =...
-    config_store.instance().get_value('hpc_config','combine_sqw_using');
+[delete_tmp, log_level] = get(hor_config,'delete_tmp', 'log_level');
+combine_algorithm = get(hpc_config,'combine_sqw_using');
 
 if opt.accumulate
     if sqw_exist && ~opt.clean  % accumulate onto an existing sqw file
@@ -576,7 +572,7 @@ multiheaders = false;
 ic = 1;
 img_db_range_sqw = [];
 grid_size_sqw = [];
-pix_range = PixelData.EMPTY_RANGE_;
+pix_range = PixelDataBase.EMPTY_RANGE_;
 
 run_ids = zeros(1,numel(files_to_check));
 for i=1:numel(files_to_check)
@@ -599,7 +595,7 @@ for i=1:numel(files_to_check)
 
     % Get header information to check other fields
     % --------------------------------------------
-    header = ldr.get_header('-all');
+    header = ldr.get_exp_info('-all');
     data   = ldr.get_data('-head');
     pix1  = ldr.get_raw_pix(1,1);
     run_ids(i) = pix1(5);
@@ -753,9 +749,9 @@ function  [grid_size,pix_range,update_runids,tmp_generated,jd]=convert_to_tmp_fi
     % if further operations are necessary to perform with generated tmp files,
     % keep parallel pool running to save time on restarting it.
 
-log_level = config_store.instance().get_value('herbert_config','log_level');
-use_separate_matlab = config_store.instance().get_value('hpc_config','build_sqw_in_parallel');
-num_matlab_sessions = config_store.instance().get_value('parallel_config','parallel_workers_number');
+log_level = get(hor_config,'log_level');
+use_separate_matlab = get(hpc_config,'build_sqw_in_parallel');
+num_matlab_sessions = get(parallel_config,'parallel_workers_number');
 
 % build names for tmp files to generate
 spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
@@ -866,7 +862,8 @@ function verify_pix_range_est(pix_range,pix_range_est,log_level)
 if isempty(pix_range_est)
     pix_range_est = pix_range;
 end
-if any(abs(pix_range-pix_range_est)>1.e-4, 'all') && log_level>0
+dif = abs(pix_range-pix_range_est)>1.e-4;
+if any(dif(:)) && log_level>0
     args = arrayfun(@(x)x,[pix_range_est(1,:),pix_range_est(2,:),...
         pix_range(1,:),pix_range(2,:)],'UniformOutput',false);
     warning('gen_sqw:runtime_logic',...
@@ -896,6 +893,6 @@ tol = 4*eps(single(pix_db_range)); % double of difference between single and dou
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
 img_range = ldr.read_img_range();
 
-present_and_valid = ~any(abs(img_range-pix_db_range)>tol)
+present_and_valid = ~any(abs(img_range-pix_db_range)>tol);
 
 end

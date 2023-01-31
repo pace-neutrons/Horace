@@ -1,10 +1,10 @@
 classdef test_sqw_binfile_common <  TestCase
     %Testing common part of the code used to access binary sqw files
-    % and various auxliary methods, availble on this class
+    % and various auxiliary methods, available on this class
     %
     properties
-        test_folder
-        root_tests_folder
+        this_test_folder
+        tests_data_folder
     end
 
     methods
@@ -16,14 +16,15 @@ classdef test_sqw_binfile_common <  TestCase
             end
             %obj = obj@TestCaseWithSave(name,sample_file);
             obj = obj@TestCase(name);
-            obj.test_folder=fileparts(mfilename('fullpath'));
-            obj.root_tests_folder = fullfile(fileparts(fileparts(mfilename('fullpath'))));
+            hc = horace_paths;
+            obj.this_test_folder=fileparts(mfilename('fullpath'));
+            obj.tests_data_folder =hc.test_common;
         end
         function test_header_no_mangling_no_mangle_update_v3file(obj)
             %
-            sample_V3_file = fullfile(obj.root_tests_folder, ...
-                'test_sqw_file','test_sqw_file_read_write_v3_1.sqw');
-            out_file = fullfile(obj.test_folder,'test_no_mangling_update_v3.sqw');
+            sample_V3_file = fullfile(obj.this_test_folder, ...
+                'test_sqw_file_read_write_v3_1.sqw');
+            out_file = fullfile(tmp_dir(),'test_no_mangling_update_v3.sqw');
             clOb = onCleanup(@()delete(out_file));
             copyfile(sample_V3_file,out_file,'f');
 
@@ -42,8 +43,8 @@ classdef test_sqw_binfile_common <  TestCase
 
 
         function test_header_no_mangling_mangle_on_write_v3file(obj)
-            sample_V3_file = fullfile(obj.root_tests_folder, ...
-                'test_sqw_file','test_sqw_file_read_write_v3_1.sqw');
+            sample_V3_file = fullfile(obj.this_test_folder, ...
+                'test_sqw_file_read_write_v3_1.sqw');
             v3reader = faccess_sqw_v3(sample_V3_file);
 
             v3_tester = sqw_binfile_common_tester();
@@ -55,7 +56,7 @@ classdef test_sqw_binfile_common <  TestCase
             v3_tester.delete();
 
 
-            out_file = fullfile(obj.test_folder,'test_mangling_v3.sqw');
+            out_file = fullfile(tmp_dir(),'test_mangling_v3.sqw');
             clOb = onCleanup(@()delete(out_file));
 
             v3wr = faccess_sqw_v3(sq_obj,out_file);
@@ -74,9 +75,9 @@ classdef test_sqw_binfile_common <  TestCase
 
         function test_header_no_mangling_no_mangle_update_v2file(obj)
             %
-            sample_V2_file = fullfile(obj.root_tests_folder, ...
-                'test_symmetrisation','w3d_sqw.sqw');
-            out_file = fullfile(obj.test_folder,'test_no_mangling_updata_v2.sqw');
+            sample_V2_file = fullfile(obj.tests_data_folder, ...
+                'w3d_sqw.sqw');
+            out_file = fullfile(obj.this_test_folder,'test_no_mangling_updata_v2.sqw');
             clOb = onCleanup(@()delete(out_file));
             copyfile(sample_V2_file,out_file,'f');
 
@@ -94,8 +95,8 @@ classdef test_sqw_binfile_common <  TestCase
         end
 
         function test_header_no_mangling_mangle_on_write_v2file(obj)
-            sample_V2_file = fullfile(obj.root_tests_folder, ...
-                'test_symmetrisation','w3d_sqw.sqw');
+            sample_V2_file = fullfile(obj.tests_data_folder, ...
+               'w3d_sqw.sqw');
             v2reader = faccess_sqw_v2(sample_V2_file);
 
             v2r_tester = sqw_binfile_common_tester();
@@ -107,7 +108,7 @@ classdef test_sqw_binfile_common <  TestCase
             v2reader.delete();
 
 
-            out_file = fullfile(obj.test_folder,'test_mangling_v2.sqw');
+            out_file = fullfile(tmp_dir(),'test_mangling_v2.sqw');
             clOb = onCleanup(@()delete(out_file));
 
             v2wr = faccess_sqw_v2(sq_obj,out_file);

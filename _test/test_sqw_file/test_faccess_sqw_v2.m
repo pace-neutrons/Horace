@@ -15,7 +15,7 @@ classdef test_faccess_sqw_v2< TestCase
         function sz = fl_size(filename)
             fh = fopen(filename,'rb');
             p0 = ftell(fh);
-            fseek(fh,0,'eof');
+            do_fseek(fh,0,'eof');
             p1 = ftell(fh);
             sz = p1-p0;
             fclose(fh);
@@ -34,7 +34,8 @@ classdef test_faccess_sqw_v2< TestCase
             end
             this=this@TestCase(name);
 
-            this.sample_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_symmetrisation');
+            hc = horace_paths;
+            this.sample_dir = hc.test_common;
             this.sample_file = fullfile(this.sample_dir,'w3d_sqw.sqw');
             this.test_folder=fileparts(mfilename('fullpath'));
         end
@@ -65,15 +66,20 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(initob.file_id>0);
         end
 
+        function test_empty_init_does_nothing(~)
+            to = faccess_sqw_v2();
+
+            % does nothing
+            to = to.init();
+
+            assertEqual(to.num_dim,'undefined')
+            assertEqual(to.data_type,'undefined')
+
+        end
+
         function obj = test_init(obj)
             to = faccess_sqw_v2();
-            assertEqual(to.file_version,'-v2');
-
-
-            % access to incorrect object
-            f = @()(to.init());
-            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
-
+            assertEqual(to.faccess_version,2);
 
             [ok,initob] = to.should_load(obj.sample_file);
 
@@ -83,7 +89,7 @@ classdef test_faccess_sqw_v2< TestCase
             to = to.init(initob);
             assertEqual(to.npixels,1164180);
 
-            exper = to.get_header();
+            exper = to.get_exp_info();
             exp_info = exper.expdata;
             assertEqual(exp_info.filename,'slice_n_c_m1_ei140')
             assertEqual(exp_info .ulabel{4},'E')
@@ -105,7 +111,7 @@ classdef test_faccess_sqw_v2< TestCase
         end
         function obj = test_read_v1(obj)
             to = faccess_sqw_v2();
-            assertEqual(to.file_version,'-v2');
+            assertEqual(to.faccess_version,2);
 
             [ok,initob] = to.should_load(fullfile(obj.test_folder,'w2_small_v1.sqw'));
 
@@ -115,7 +121,7 @@ classdef test_faccess_sqw_v2< TestCase
             to = to.init(initob);
             assertEqual(to.npixels,179024);
 
-            exper = to.get_header();
+            exper = to.get_exp_info();
             header = exper.expdata;
             assertEqual(header.filename,'map11014.spe;1')
             assertEqual(header.ulabel{4},'E')
@@ -133,7 +139,7 @@ classdef test_faccess_sqw_v2< TestCase
             pix = to.get_pix();
             assertEqual(pix.num_pixels,179024)
 
-            exp_info = to.get_header('-all');
+            exp_info = to.get_exp_info('-all');
             assertTrue(isa(exp_info,'Experiment'));
             assertEqual(exp_info.n_runs,186)
 
@@ -171,7 +177,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
             pix = to.get_pix();
-            assertTrue(isa(pix, 'PixelData'));
+            assertTrue(isa(pix, 'PixelDataBase'));
             assertEqual(pix.file_path, sample);
             assertEqual(pix.num_pixels, 8031);
         end
@@ -187,7 +193,7 @@ classdef test_faccess_sqw_v2< TestCase
 
             assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fo.filename)
-            assertEqual(sqw_obj.main_header.filepath,fo.filepath)
+            assertEqual(sqw_obj.main_header.filepath,[fo.filepath,filesep])
 
             sqw_obj1 = fo.get_sqw('-hverbatim');
             assertTrue(isa(sqw_obj1,'sqw'));
@@ -258,10 +264,11 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(to,'faccess_sqw_v3'));
 
             sqw2 = to.get_sqw();
-
-            assertEqual(sqw1,sqw2);
             to.delete();
+
+            assertEqualToTol(sqw1,sqw2,'-ignore_date','ignore_str',true);
             %
+            %fclose all;
         end
         %
         function obj = test_upgrade_sqw_multiheader(obj)
@@ -289,8 +296,9 @@ classdef test_faccess_sqw_v2< TestCase
             sqw2 = to.get_sqw();
             to.delete();
 
-            assertEqualToTol(sqw1,sqw2,'-ignore_date');
+            assertEqualToTol(sqw1,sqw2,'-ignore_date','ignore_str',true);
             %
+            %fclose all;
         end
 
         %
@@ -325,11 +333,9 @@ classdef test_faccess_sqw_v2< TestCase
             to.delete();
             assertTrue(sqw2.main_header.creation_date_defined);
 
-            assertEqual(sqw1,sqw2);
+            assertEqualToTol(sqw1,sqw2,'ignore_str',true);
 
-            sqwob.main_header.creation_date = sqw1.main_header.creation_date;
-            [ok,mess]=equal_to_tol(sqwob,sqw2,'ignore_str',true);
-            assertTrue(ok,mess)
+            assertEqualToTol(sqwob,sqw2,'ignore_str',true,'-ignore_date')
 
             %
         end
@@ -354,8 +360,7 @@ classdef test_faccess_sqw_v2< TestCase
             to.delete();
             assertTrue(isa(sqw2,'d2d'));
 
-            [ok,mess]=equal_to_tol(d2d(sqwob),sqw2,'ignore_str',true);
-            assertTrue(ok,mess)
+            assertEqualToTol(d2d(sqwob),sqw2,'ignore_str',true)
             %
         end
         %
@@ -388,8 +393,7 @@ classdef test_faccess_sqw_v2< TestCase
         %
         function obj = test_sqw_reopen_to_write(obj)
 
-            samp = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_sqw.sqw');
+            samp = fullfile(obj.sample_dir,'w1d_sqw.sqw');
             ttob = faccess_sqw_v2(samp);
             % important! -keep_original is critical here! without it we should
             % reinitialize object to for upgrade, as file fields change!
@@ -413,11 +417,8 @@ classdef test_faccess_sqw_v2< TestCase
             tsq_obj = chob.get_sqw();
             chob.delete();
 
-            isdef = sq_obj.main_header.creation_date_defined_privately;
-            sq_obj.main_header.creation_date = tsq_obj.main_header.creation_date;
-            sq_obj.main_header.creation_date_defined_privately = isdef; % it was undefined here
-            [ok,mess]=equal_to_tol(sq_obj,tsq_obj,'ignore_str',true);
-            assertTrue(ok,mess)
+            assertEqualToTol(sq_obj,tsq_obj,'ignore_str',true,'-ignore_date');
+
 
         end
     end

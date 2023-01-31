@@ -1,7 +1,7 @@
-classdef faccess_dnd_v2 < dnd_binfile_common
+classdef faccess_dnd_v2 < binfile_v2_common
     % Class to access Horace dnd files written by Horace v1-v2
     %
-    % Majority of class properties and methods are inherited from <a href="matlab:help('dnd_binfile_common');">dnd_binfile_common</a>
+    % Majority of class properties and methods are inherited from <a href="matlab:help('binfile_v2_common');">binfile_v2_common</a>
     % class.
     %
     % Usage:
@@ -26,7 +26,7 @@ classdef faccess_dnd_v2 < dnd_binfile_common
     %
     % If the sqw file with filename is dnd v1 or v2 sqw file, the sqw format factory will
     % return instance of this class, initialized for reading the file.
-    % The initialized object allows to use all get/read methods described by dnd_file_interface.
+    % The initialized object allows to use all get/read methods described by horace_binfile_interface.
     %
     % 2)------------------------------------------------------------
     % Second form used to initialize the operation of writing new or updating existing dnd file.
@@ -69,44 +69,19 @@ classdef faccess_dnd_v2 < dnd_binfile_common
             end
         end
         %
-        function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
-            % Check if faccess_dnd_v2 loader should process selected input data
-            % file.
-            %
-            %Usage:
-            %>> [should,objinit,mess] = obj.should_load_stream(head_struc,fid)
-            % where:
-            % head_struc:: structure returned by dnd_file_interface.get_file_header
-            %              static method and containing sqw/dnd file info, stored in
-            %              the file header.
-            % fid       :: file identifier of already opened binary sqw/dnd file where
-            %              head_struct has been read from.
-            %
-            % Returns:
-            % should  :: boolean equal to true if the loader can load these data,
-            %            or false if not.
-            % objinit :: initialized helper obj_init class, containing information,
-            %            necessary to initialize the loader.
-            % message :: if false, contains detailed information on the reason
-            %            why this file should not be loaded by this loader.
-            %            Empty, if should == true.
-            mess = '';
-            if isstruct(head_struc) && all(isfield(head_struc,{'sqw_type','version'}))
-                if ~head_struc.sqw_type
-                    objinit = obj_init(fid,double(head_struc.num_dim));
-                    should = true;
-                else
-                    should = false;
-                    mess = ['not Horace dnd  ',obj.file_version,' file'];
-                    objinit  =obj_init();
-                end
-            else
-                error('SQW_FILE_IO:invalid_argument',...
-                    'should_load_stream: the input structure for this function does not have correct format');
-            end
-        end
-        %
-        %
     end
-    
+    methods(Access=protected)
+        function ver = get_faccess_version(~)
+            % retrieve sqw-file version the particular loader works with
+            ver = 2;
+        end
+    end
+    %==================================================================
+    % SERIALIZABLE INTERFACE
+    methods(Static)
+        function obj = loadobj(inputs,varargin)
+            inobj = faccess_dnd_v2();
+            obj = loadobj@serializable(inputs,inobj,varargin{:});
+        end
+    end
 end

@@ -32,8 +32,8 @@ if on
     addpath(fullfile(rootpath,'make_data'));
     addpath(fullfile(rootpath,'utilities'));
     % Herbert to force mex only if use_mex
-    set(herbert_config,'force_mex_if_use_mex',true);
+    set(hor_config,'force_mex_if_use_mex',true);
 else
     % Return Herbert to catching mex failure as matlab function
-    set(herbert_config,'force_mex_if_use_mex',false);
+    set(hor_config,'force_mex_if_use_mex',false);
 end

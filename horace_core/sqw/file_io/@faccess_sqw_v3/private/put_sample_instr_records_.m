@@ -14,12 +14,8 @@ function obj = put_sample_instr_records_(obj,varargin)
 %
 %
 %
-persistent old_matlab;
-if isempty(old_matlab)
-    old_matlab = verLessThan('matlab','8.3');
-end
 
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 setting_sample = true;
 setting_instr  = true;
 % extract sqw header from various sources, including sqw provided as input,
@@ -47,32 +43,34 @@ else % should be header of an sqw file provided, possibly converted from an Expe
     error('HORACE:faccess_sqw_v3:runtime_error',...
         'Unknown type of header (experimen_info) subobject');
 end
-%
+
 if setting_instr
-    %
+
     % serialize instrument(s)
     [bytes,instr_size] = serialize_si_block_(obj,instr_str,'instrument');
-    %
+
     % recalculate instrument positions (just in case)
     instr_head_size = numel(bytes)-instr_size;
     obj.instrument_pos_  = obj.instrument_head_pos_ + instr_head_size;
     obj.sample_head_pos_ = obj.instrument_pos_+ instr_size;
-    %
+
     if ~isempty(obj.upgrade_map_) % for consistency and diagnostics.  Never been used
         um = obj.upgrade_map_;
         um = um.set_cblock_param('instr_head',obj.instrument_head_pos_,instr_head_size);
         um = um.set_cblock_param('instrument',obj.instrument_pos_,instr_size);
         obj.upgrade_map_ = um;
     end
-    %
+
     start = obj.instrument_head_pos_;
-    if old_matlab % some MATLAB problems with moving to correct eof
-        fseek(obj.file_id_,double(start),'bof');
-    else
-        fseek(obj.file_id_,start,'bof');
+
+    try
+        do_fseek(obj.file_id_,start,'bof');
+    catch ME
+        exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                         'Can not move to the instrument(s) start position');
+        throw(exc.addCause(ME))
     end
 
-    check_error_report_fail_(obj,'can not move to the instrument(s) start position');
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,'error writing serialized instrument(s)');
 end
@@ -93,16 +91,16 @@ if setting_sample
         obj.upgrade_map_ = um;
     end
 
-    %
-    if old_matlab % some MATLAB problems with moving to correct eof
-        fseek(obj.file_id_,double(obj.sample_head_pos_),'bof');
-    else
-        fseek(obj.file_id_,obj.sample_head_pos_,'bof');
+    try
+        do_fseek(obj.file_id_,obj.sample_head_pos_,'bof');
+    catch ME
+        exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                         'can not move to the sample(s) start position');
+        throw(exc.addCause(ME))
     end
-    check_error_report_fail_(obj,'can not move to the sample(s) start position');
+
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,'error writing  serialized sample(s)');
-    %
+
     obj.real_eof_pos_ = ftell(obj.file_id_);
 end
-

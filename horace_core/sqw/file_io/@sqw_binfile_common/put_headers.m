@@ -1,5 +1,5 @@
 function   obj = put_headers(obj,varargin)
-% put or replace header information into the  properly initalized
+% put or replace header information into the  properly initialized
 % binary sqw file
 %
 %Usage:
@@ -10,7 +10,7 @@ function   obj = put_headers(obj,varargin)
 %>>obj.put_header(___,sqw_obj_new_source_for_update)
 %
 % If update options is selected, header have to exist. This option replaces
-% only constatnt header's information
+% only constant header's information
 %
 %
 
@@ -19,7 +19,7 @@ if ~ok
     error('HORACE:put_headers:invalid_argument',mess);
 end
 %
-obj.check_obj_initated_properly();
+obj=obj.check_obj_initated_properly();
 %
 header_num =[];  % by default, return all headers
 if ~isempty(argi)
@@ -28,7 +28,7 @@ if ~isempty(argi)
     if any(numeric_pos)
         if sum(numeric_pos)>1
             error('HORACE:put_headers:invalid_argument',...
-                'put_headers: you can only request all or one header number to save, but got %d numerical agruments',...
+                'put_headers: you can only request all or one header number to save, but got %d numerical arguments',...
                 sum(numeric_pos));
         end
         argi = argi(~numeric_pos);
@@ -104,8 +104,14 @@ for i=1:n_files2_process
         end
     end
     start_pos  = pos_list(i);
-    fseek(obj.file_id_,start_pos ,'bof');
-    check_error_report_fail_(obj,sprintf('Error moving to the start of the header N%d',i));
+
+    try
+        do_fseek(obj.file_id_,start_pos ,'bof');
+    catch ME
+        exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
+                         sprintf('Error moving to the start of the header N%d',i));
+        throw(exc.addCause(ME))
+    end
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,sprintf('Error writing data for the header N%d',i));
 end

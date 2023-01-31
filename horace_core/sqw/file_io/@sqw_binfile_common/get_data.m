@@ -97,7 +97,7 @@ function [data,obj] = get_data(obj,varargin)
 
 % Initialise output arguments
 
-% remove options unrelated to get_data@dnd_binfile_common
+% remove options unrelated to get_data@binfile_v2_common
 [ok,mess,noclass,noupgrade,nopix,argi]=...
     parse_char_options(varargin,{'-noclass','-noupgrade','-nopix'});
 if ~ok
@@ -109,7 +109,7 @@ if nopix
         '-nopix option in get_data is deprecated. New data do not contain pixel information. Use get_pix to obtain pixel data')
 end
 
-[data_str,obj] = get_data@dnd_binfile_common(obj,argi{:});
+[data_str,obj] = get_data@binfile_v2_common(obj,argi{:});
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
 %
@@ -140,7 +140,8 @@ end  % function
 % -----------------------------------------------------------------------------
 function opts = parse_args(varargin)
 flags = {'header','verbatim','hverbatim','nopix', 'noclass'};
-kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+page_size = config_store.instance().get_value('hor_config','mem_chunk_size');
+kwargs = struct('pixel_page_size', page_size);
 for flag_idx = 1:numel(flags)
     kwargs.(flags{flag_idx}) = false;
 end

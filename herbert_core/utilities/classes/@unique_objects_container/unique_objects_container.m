@@ -16,11 +16,11 @@ classdef unique_objects_container < serializable
         % (default respecified in constructor inputParser)
         n_duplicates_ = zeros(1,0);
 
-        % hashify  defaults to this undocumented java function handle 
-        % if you try to store objects non-children for serializable and 
+        % hashify  defaults to this undocumented java function handle
+        % if you try to store objects non-children for serializable and
         % the function to convert objects to bytes has not been set
         % explicitly
-        convert_to_stream_f_ = @getByteStreamFromArray; 
+        convert_to_stream_f_ = @getByteStreamFromArray;
     end
     properties(Access = private)
         % is set to true if we decide not to use default stream conversion
@@ -39,9 +39,11 @@ classdef unique_objects_container < serializable
         n_duplicates;
     end
     properties(Dependent,Hidden)
-        %string representation of the function, used to produce hashes from
-        % the object. Needed for simple saveobj/loadob into not-Matlab binary
-        % files
+        % string representation of the function, used to serialize
+        % input objects which can not serialize themselves.
+        % (I.e. are not the children of "serializable" class).
+        % The representation used for simple saveobj/loadob conversion
+        % of the container into not-Matlab binary files.
         conv_func_string;
         % handle to the function, used for conversion of objects into
         % bytestream if default serialization is not available. May be set
@@ -128,6 +130,9 @@ classdef unique_objects_container < serializable
                 error('HERBERT:unique_objects_container:invalid_argument',...
                     'this method accepts function handles for serializing obhects only')
             end
+            if isequal(self.convert_to_stream_f_,val)
+                return;
+            end
             self.convert_to_stream_f_ = val;
             self.non_default_f_conversion_set_  = true;
             if self.do_check_combo_arg_
@@ -207,31 +212,28 @@ classdef unique_objects_container < serializable
             % value  -- the sample, to verify presence in the container
             % Outputs:
             % is      -- true if the sample is present in the container and
-            %            false -- otherwise. 
+            %            false -- otherwise.
             % unique_ind
             %         -- if requested, the positions of the sample in the
             %            unique objects container
             [is,unique_ind] = contains_(obj,value,nargout);
         end
+
         function obj = replicate_runs(obj,n_runs)
             % function expands container onto specified number of runs.
             % only single unique object allowed to be present in the
             % container initially
-            if ~isnumeric(n_runs) || n_runs<1 || ~isscalar(n_runs)
+            validateattributes(n_runs, {'numeric'}, {'>', 0, 'scalar'})
+            if obj.n_unique ~= 1
                 error('HERBERT:unique_objects_container:invalid_argument',...
-                    'n_runs can be numeric positive scalar only. It is %s', ...
-                    class(n_runs))
-            end
-            if obj.n_unique>1
-                error('HERBERT:unique_objects_container:invalid_argument',...
-                    'The method works only on container containing single unique object and single run. This container contains %d objects and %d runs', ...
-                    obj.n_unique,obj.n_runs);
+                      'The method works only on containers containing a single unique run. This container contains %d unique runs.', ...
+                      obj.n_unique);
             end
 
             obj.idx_ = ones(1,n_runs);
             obj.n_duplicates_(1) = n_runs;
         end
-        %
+
         function newself = rename_all_blank(self)
             newself = unique_objects_container('baseclass',self.baseclass);
             for i=1:numel(self.idx)
@@ -242,7 +244,7 @@ classdef unique_objects_container < serializable
                 newself = newself.add(item);
             end
         end
-        %
+
         function hash = hashify(self,obj)
             % makes a hash from the argument object
             % which will be unique to any identical object
@@ -330,14 +332,13 @@ classdef unique_objects_container < serializable
                 flds,false,varargin{:});
         end
 
-
         function n = get.n_runs(self)
             n = numel(self.idx_);
         end
+
         function n = get.n_unique(self)
             n = numel(self.unique_objects_);
         end
-
 
         function sset = get_subset(self,indices)
             sset = unique_objects_container('baseclass',self.baseclass);
@@ -562,6 +563,7 @@ classdef unique_objects_container < serializable
             'idx',           ...
             'conv_func_string'};
     end
+
     methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
@@ -570,7 +572,7 @@ classdef unique_objects_container < serializable
             % number
             ver = 1;
         end
-        %
+
         function flds = saveableFields(obj)
             % get independent fields, which fully define the state of the
             % serializable object.
@@ -580,6 +582,7 @@ classdef unique_objects_container < serializable
                 flds = unique_objects_container.fields_to_save_(1:end-1);
             end
         end
+
         function obj = check_combo_arg(obj,do_rehashify,with_checks)
             % runs after changing property or number of properties to check
             % the consistency of the changes against all other relevant
@@ -602,6 +605,7 @@ classdef unique_objects_container < serializable
             obj = check_combo_arg_(obj,do_rehashify,with_checks);
         end
     end
+
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of

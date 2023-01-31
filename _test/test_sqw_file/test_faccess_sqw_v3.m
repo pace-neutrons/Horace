@@ -30,7 +30,7 @@ classdef test_faccess_sqw_v3< TestCase
         % tests
         function obj = test_should_load_stream(obj)
             to = faccess_sqw_v3();
-            assertEqual(to.file_version,'-v3.1');
+            assertEqual(to.faccess_version,3.1);
             co = onCleanup(@()to.delete());
 
 
@@ -53,14 +53,6 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(initobj.file_id>0);
 
         end
-        function test_init_invalid_arg(~)
-            to = faccess_sqw_v3();
-
-            % access to incorrect object
-            f = @()(to.init());
-            assertExceptionThrown(f, ...
-                'HORACE:dnd_binfile_common:invalid_argument');
-        end
         %
         function obj = test_init_and_get(obj)
             to = faccess_sqw_v3();
@@ -79,7 +71,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(mheader.filepath,...
                 'd:\Users\abuts\Data\ExcitDev\ISIS_svn\Hor#162\_test\test_sqw_file\');
 
-            [exp_info,~] = to.get_header();
+            [exp_info,~] = to.get_exp_info();
 
             assertEqual(exp_info.runid_map.keys(),{1})
             assertEqual(exp_info.runid_map.values(),{1})
@@ -122,7 +114,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(data.filepath,data_dnd.filepath)
 
             pix = to.get_pix();
-            assertTrue(isa(pix, 'PixelData'));
+            assertTrue(isa(pix, 'PixelDataBase'));
             assertEqual(pix.file_path, obj.sample_file);
             assertEqual(pix.num_pixels, 7680);
 
@@ -151,7 +143,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fo.filename)
-            assertEqual(sqw_obj.main_header.filepath,fo.filepath)
+            assertEqual(sqw_obj.main_header.filepath,[fo.filepath,filesep])
 
             sqw_obj1 = fo.get_sqw('-hverbatim');
             assertTrue(isa(sqw_obj1,'sqw'));
@@ -192,7 +184,7 @@ classdef test_faccess_sqw_v3< TestCase
             tob=tob.delete();
 
             tob=tob.init(tf);
-            assertEqual(tob.file_version,'-v3.1');
+            assertEqual(tob.faccess_version,3.1);
         end
         %
         function obj = test_save_load_sqwV31(obj)
@@ -280,7 +272,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertFalse(ver_obj.experiment_info.runid_recalculated);
 
             ver_obj.experiment_info.runid_recalculated = true;
-            assertEqualToTol(sqw_ob,ver_obj,1.e-7);
+            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date');
         end
         %
         function test_save_sqwV3toV2(obj)
@@ -306,7 +298,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(exist(tf,'file')==2)
 
             tob1=faccess_sqw_v2(tf);
-            assertEqual(tob1.file_version,'-v2');
+            assertEqual(tob1.faccess_version,2);
             % this may fail in furute versions of the code as delete was
             % invoked over tob
             assertEqual(tob.npixels,tob1.npixels);
@@ -348,7 +340,7 @@ classdef test_faccess_sqw_v3< TestCase
             % test file has been recovered with the name test_name_2.
             ld = sqw_formats_factory.instance.get_loader(targ_file_2);
             assertEqual(ld.filename,test_name_2);
-            assertEqual(ld.filepath,tmp_dir());
+            assertEqual([ld.filepath,filesep],tmp_dir());
             ld.delete();
         end
         %
@@ -361,7 +353,7 @@ classdef test_faccess_sqw_v3< TestCase
             fo = faccess_sqw_v3();
             fo = fo.init(targ_file);
             assertEqual(fo.filename,test_name);
-            assertEqual(fo.filepath,tmp_dir());
+            assertEqual([fo.filepath,filesep],tmp_dir());
             fo.delete();
         end
 

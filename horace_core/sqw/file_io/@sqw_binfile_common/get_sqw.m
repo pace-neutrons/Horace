@@ -64,7 +64,7 @@ end
 
 % Get cell array of headers for each contributing spe file
 % ------------------------------------------
-[exp_info,~]  = obj.get_header('-all');
+[exp_info,~]  = obj.get_exp_info('-all');
 
 % Get detector parameters
 % -----------------------
@@ -92,8 +92,8 @@ proj = sqw_struc.data.proj;
 header_av = exp_info.header_average();
 sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 
-if ~opts.nopix && obj.npixels > 0
-    sqw_struc.pix = PixelData(obj, opts.pixel_page_size,~opts.noupgrade);
+if ~opts.nopix && obj.npixels>0
+    sqw_struc.pix = PixelDataBase.create(obj, opts.pixel_page_size,~opts.noupgrade, opts.file_backed);
 end
 
 sqw_struc.experiment_info = exp_info;
@@ -140,9 +140,11 @@ flags = { ...
     'keep_original',...
     'nopix', ...
     'legacy' ...
-        };
-
-kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+    };
+%
+page_size = config_store.instance().get_value('hor_config','mem_chunk_size');
+kwargs = struct('pixel_page_size', page_size, ...
+                'file_backed', false);
 
 for flag_idx = 1:numel(flags)
     kwargs.(flags{flag_idx}) = false;

@@ -18,7 +18,6 @@ function vout = replicate_iarray (v, npix)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 if numel(npix)==numel(v)
     if ~isempty(npix)

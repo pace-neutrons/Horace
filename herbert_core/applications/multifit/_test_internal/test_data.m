@@ -48,9 +48,6 @@ warr3=[w1,w2,w3];
 
 cbad={x1,y2,e2};
 sbad=struct('x',x1,'y',y2);
-wbad=herbert_config;
-
-
 
 % Some 2D data sets
 % -----------------
@@ -107,7 +104,3 @@ ssxarr3=[ssx1,ssx2,ssx3];
 % for i=1:nd
 %     zarr(i)=IX_dataset_1d(sort(rand(1,np)),rand(1,np),rand(1,np));
 % end
-
-
-
-

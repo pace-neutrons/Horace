@@ -2,23 +2,22 @@ function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
 % Copy constructor with possibility to set up the data positions directly.
 %
 % Due to constrains of Matlab Object Model (or some misunderstanding),
-% exactly the same routine  has to be present in dnd_binfile_common\private
+% exactly the same routine  has to be present in binfile_v2_common\private
 % folder.
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 %
 this_pos = obj.get_pos_info();
-if isa(other_obj,'dnd_file_interface')
+if isa(other_obj,'horace_binfile_interface')
     other_pos = other_obj.get_pos_info();
     input_is_class = true;
-elseif isstruct(other_obj) % we assume that there is sturcute, containing the positions
+elseif isstruct(other_obj) % we assume that there is structure, containing the positions
     keep_internals = true;
     input_is_class = false;
     other_pos = other_obj;
 else
     error('SQW_FILE_IO:invalid_argument',...
-        'The second argument of copy_contents funtion has to be a faccess class or stucute, containing fields positions');
+        'The second argument of copy_contents function has to be a faccess class or structure, containing fields positions');
 end
 
 flds = fieldnames(this_pos);
@@ -62,7 +61,7 @@ obj.convert_to_double_ = other_obj.convert_to_double_;
 
 
 function obj= open_obj_file(obj,file,mode)
-% open object's file with apporpriate access rights.
+% open object's file with appropriate access rights.
 [fp,fn,fe] = fileparts(file);
 obj.filename_ = [fn,fe];
 obj.filepath_ = [fp,filesep];
@@ -71,5 +70,7 @@ if obj.file_id_ <= 0
     error('SQW_FILE_IO:io_error',...
         'Can not open file %s in %s mode',file,mode)
 end
-obj.file_closer_ = onCleanup(@()obj.fclose());
+if isempty(obj.file_closer_)
+    %obj.file_closer_ = onCleanup(@()obj.fclose());
+end
 

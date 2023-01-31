@@ -7,7 +7,7 @@ classdef d1d < DnDBase
     %   >> w = d1d(filename)       % Create a D1D object from a file
     %   >> w = d1d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent,Access = protected)
+    properties (Dependent,Hidden=true)
         NUM_DIMS;
     end
 
@@ -15,11 +15,13 @@ classdef d1d < DnDBase
         function obj = d1d(varargin)
             obj = obj@DnDBase(varargin{:});
             if nargin == 0
+                obj.do_check_combo_arg = false;
                 obj.axes.single_bin_defines_iax = [false,true,true,true];
                 obj.axes.dax= 1;
                 obj.s_ = 0;
                 obj.e_ = 0;
-                obj.npix_ = 0;                
+                obj.npix_ = 0;
+                obj.do_check_combo_arg = true;
             end
         end
         dat = IX_dataset_1d(obj);
