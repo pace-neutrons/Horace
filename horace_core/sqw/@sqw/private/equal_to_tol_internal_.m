@@ -100,6 +100,7 @@ else
         pix2 = w2.pix;
         name_a = [name_a, '.pix'];
         name_b = [name_b, '.pix'];
+
         if opt.reorder
             % Sort retained pixels by bin and then run,det,energy bin indicies
             sort_by = {'run_idx', 'detector_idx', 'energy_idx'};

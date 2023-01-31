@@ -123,7 +123,7 @@ classdef test_faccess_sqw_v4< TestCase
             ldr.delete();
 
             assertEqual(fac.faccess_version,4.0)
-            assertEqual(fac.npixels,4324)
+            assertEqual(fac.npixels,uint64(4324))
             assertEqual(fac.num_contrib_files,109);
 
             w_new = fac.get_sqw('-ver');

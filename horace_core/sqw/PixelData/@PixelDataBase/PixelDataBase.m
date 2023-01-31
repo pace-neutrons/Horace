@@ -375,6 +375,8 @@ classdef (Abstract) PixelDataBase < serializable
         np  = get_page_num(obj);
         obj = set_page_num(obj,val);
         np = get_num_pages(obj);
+
+        [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
     end
     %======================================================================
     % GETTERS/SETTERS
@@ -564,12 +566,15 @@ classdef (Abstract) PixelDataBase < serializable
         end
     end
     methods(Access=protected)
-        function [abs_pix_indices,ignore_range,raw_data] = parse_get_pix_args(obj,abs_pix_indices,varargin)
+        function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
+                parse_get_pix_args(obj,abs_pix_indices,varargin)
             % process get_pix arguments and return them in standard form suitable for
             % usage in filebased and memory based classes
 
-            [abs_pix_indices,ignore_range,raw_data] = parse_get_pix_args_(obj,abs_pix_indices,varargin{:});
+            [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
+                parse_get_pix_args_(obj,abs_pix_indices,varargin{:});
         end
+
         function indices = check_pixel_fields_(obj, fields)
             %CHECK_PIXEL_FIELDS_ Check the given field names are valid pixel data fields
             % Raises error with ID 'HORACE:PIXELDATA:invalid_field' if any fields not valid.

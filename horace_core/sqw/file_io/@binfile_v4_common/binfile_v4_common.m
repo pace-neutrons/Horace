@@ -44,7 +44,7 @@ classdef binfile_v4_common < horace_binfile_interface
             bll = get_data_blocks(obj);
         end
         %------------------------------------------------------------------
-        function obj = put_all_blocks(obj,sqw_dnd_data,varargin)
+        function obj = put_all_blocks(obj,varargin)
             % Put all blocks containing in the input data object and defined
             % in BAT into Horace binary file
             %
@@ -60,13 +60,16 @@ classdef binfile_v4_common < horace_binfile_interface
             % block is ignored, it will fail. TODO: ? should it be fixed?
             %
             % The faccess object have to be initialized
-            if exist('sqw_dnd_data','var')
+            if numel(varargin)>0 && (isa(varargin{1},'SQWDnDBase') || is_sqw_struct(varargin{1}))
+                sqw_dnd_data = varargin{1};
                 obj.sqw_holder_ = sqw_dnd_data;
                 obj.bat_ = obj.bat_.init_obj_info(sqw_dnd_data);
+                argi = varargin{2:end};
             else
                 sqw_dnd_data = obj.sqw_holder;
+                argi = varargin;
             end
-            [ignored_blocks_list,~] = extract_ignored_blocks_arg_(varargin{:});
+            [ignored_blocks_list,~] = extract_ignored_blocks_arg_(argi{:});
             %
             obj=obj.put_app_header();
 

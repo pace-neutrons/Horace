@@ -47,7 +47,11 @@ classdef pix_data_block < data_block
         end
         %
         function np = get.npixels(obj)
-            np = uint64(obj.npixels_);
+            if ischar(obj.npixels_)
+                np = obj.npixels_;
+            else
+                np = uint64(obj.npixels_);
+            end
         end
         function obj = set.npixels(obj,np)
             if isempty(np)

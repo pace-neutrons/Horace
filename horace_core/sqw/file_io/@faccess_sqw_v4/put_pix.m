@@ -6,7 +6,8 @@ function   obj = put_pix(obj,varargin)
 %>>obj = obj.put_pix(sqw_obj);
 %>>obj = obj.put_pix(pix_obj);
 %>>obj = obj.put_pix(pix_obj.data);
-% Modifiers:
+%
+% Optional:
 % '-update' -- update existing data rather then (over)writing new file
 %             (deprecated, ignored, update occurs)
 % '-nopix'  -- do not write pixels
@@ -69,25 +70,39 @@ else
 end
 
 obj = obj.put_block_data('bl_pix_metadata',input_obj);
-obj = obj.put_block_data('bl_pix_data_wrap',input_obj);
+if ~(isa(input_obj,'pix_combine_info')|| input_obj.is_filebacked)
+    obj = obj.put_block_data('bl_pix_data_wrap',input_obj);
+    return;
+elseif ~isnumeric(obj)
+    %
+    pdb = obj.bat_.blocks_list{end};
+    pbl = pdb.get_subobj(input_obj);
+    n_rows = uint32(pbl.n_rows);
+    npix   = uint64(pbl.npix);
+
+    % HACK. Extracted from pix_data_blockl write subobj
+    do_fseek(obj.file_id_,pdb.position ,'bof');
+    %
+    fwrite(obj.file_id_,n_rows,'uint32');
+    check_error_report_fail_(obj,'Error writing numbef of pixels rows');
+    %
+    fwrite(obj.file_id_,npix,'uint64');
+    check_error_report_fail_(obj,'Error writing numbef of pixels');
+end
 
 try
-    do_fseek(obj.file_id_,start_pos ,'bof');
+    do_fseek(obj.file_id_,obj.pix_position,'bof');
 catch ME
-    exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
-                     'Error moving to the start of the pixels info');
+    exc = MException('HORACE:put_pix:io_error',...
+        'Error moving to the start of the pixels info');
     throw(exc.addCause(ME))
 end
-%
-% npix = input_obj.num_pixels;
-% fwrite(obj.file_id_,npix,'uint64');
-%
-obj.eof_pix_pos_ = obj.pix_pos_ + npix * 9*4;
+
 if nopix
     if reserve
         block_size= config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
 
-        do_fseek(obj.file_id_,obj.pix_pos_ ,'bof');
+        do_fseek(obj.file_id_,obj.pix_position ,'bof');
         if block_size >= npix
             res_data = single(zeros(9,npix));
             fwrite(obj.file_id_,res_data,'float32');
@@ -104,13 +119,6 @@ if nopix
             end
         end
         clear res_data;
-
-    else %TODO: Copied from prototype. Does this make any sense?
-        try
-            do_fseek(obj.file_id_,obj.eof_pix_pos_ ,'bof');
-        catch
-            ferror(obj.file_id_, 'clear'); % clear error in case if pixels have never been written
-        end
     end
     return;
 end
@@ -123,38 +131,18 @@ if isa(input_obj,'pix_combine_info') % pix field contains info to read &
     %combine pixels from sequence of files. There is special sub-algorithm
     %to do that.
     obj = put_sqw_data_pix_from_file_(obj,input_obj, jobDispatcher);
-else % write pixels directly
+elseif isa(input_obj,'PixelDataBase')  % write pixels stored in other file
 
-    % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
-    % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
-    % could have no pixels because none contributed to the given data range.
-    block_size = config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
-
-    try
-        do_fseek(obj.file_id_, obj.pix_pos_ , 'bof');
-    catch ME
-        exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
-                         'Error moving to the start of the pixels record');
-        throw(exc.addCause(ME))
+    n_pages = input_obj.num_pages;
+    for i = 1:n_pages
+        input_obj.page_num = i;
+        pix_data = input_obj.get_pixels('-keep_precision','-raw_data');
+        fwrite(obj.file_id_, single(pix_data), 'float32');
+        check_error_report_fail_(obj,...
+            sprintf('Error writing input pixels array for page N%d out of %d',i,n_pages));
     end
-
-    npix_to_write = obj.npixels;
-    if npix_to_write <= block_size
-        input_obj = input_obj.move_to_first_page();
-        fwrite(obj.file_id_, single(input_obj.data), 'float32');
-        while input_obj.has_more()
-            input_obj = input_obj.advance();
-            fwrite(obj.file_id_, single(input_obj.data), 'float32');
-        end
-        check_error_report_fail_(obj,'Error writing pixels array');
-    else
-        for ipix=1:block_size:npix_to_write
-            istart = ipix;
-            iend   = min(ipix+block_size-1, npix_to_write);
-            fwrite(obj.file_id_, single(input_obj.get_pixels(istart:iend).data), 'float32');
-            check_error_report_fail_(obj,...
-                sprintf('Error writing pixels array, npix from: %d to: %d in the rage from: %d to: %d',...
-                istart,iend,1,npix_to_write));
-        end
-    end
+else % pixel data array. As it is in memory, write it as a sigle block
+    fwrite(obj.file_id_, single(input_obj), 'float32');
+    check_error_report_fail_(obj,...
+        sprintf('Error writing input pixels array'));
 end

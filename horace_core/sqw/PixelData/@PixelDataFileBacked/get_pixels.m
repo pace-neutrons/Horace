@@ -26,7 +26,9 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %  '-ignore_range'  -- if provided, new pix_object will not contain correct
 %                      pixel ranges
 %  '-raw_data'      -- do not wrap the data into PixelData class and return
-%                   array of pixel_data as they are
+%                      array of pixel_data as they are.
+%  '-keep_precision'-- keep the precision of output raw data as it is (not
+%                      doubling it if possible)
 
 % Output:
 % -------
@@ -34,12 +36,17 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %                  specified in the abs_pix_indices argument.
 %
 
-[abs_pix_indices,ignore_range,raw_data] = obj.parse_get_pix_args(abs_pix_indices,varargin{:});
+[abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
+    obj.parse_get_pix_args(abs_pix_indices,varargin{:});
 
 
 mmf = obj.f_accessor_;
 pix_out = mmf.Data.data(:,abs_pix_indices);
 
+
+if ~keep_precision
+    pix_out = double(pix_out);
+end
 
 if raw_data
     return;
@@ -47,8 +54,8 @@ end
 
 if ignore_range
     pix_out = PixelDataMemory();
-    pix_out = pix_out.set_raw_data(double(pix_out));
+    pix_out = pix_out.set_raw_data(pix_out);
 else
-    pix_out = PixelDataMemory(double(pix_out));
+    pix_out = PixelDataMemory(pix_out);
 end
 

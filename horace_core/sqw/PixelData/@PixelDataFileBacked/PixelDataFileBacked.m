@@ -276,8 +276,13 @@ classdef PixelDataFileBacked < PixelDataBase
         end
     end
 
-    methods (Access = private)
+    %======================================================================
+    % PAGING
+    methods(Access=protected)
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, page_number)
+            if nargin == 1
+                page_number = obj.page_num_;
+            end
             pgs = obj.page_size;
             pix_idx_start = (page_number -1)*pgs+1;
             if obj.num_pixels > 0 && pix_idx_start > obj.num_pixels
@@ -289,11 +294,7 @@ classdef PixelDataFileBacked < PixelDataBase
             pix_idx_end = min(pix_idx_start + pgs - 1, ...
                 obj.num_pixels);
         end
-
-    end
-    %======================================================================
-    % PAGING
-    methods(Access=protected)
+        
         function np = get_page_num(obj)
             np = obj.page_num_;
         end

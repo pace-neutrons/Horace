@@ -1,10 +1,20 @@
-function [abs_pix_indices,ignore_range,raw_data] = parse_get_pix_args_(obj,abs_pix_indices,varargin)
+function [abs_pix_indices,ignore_range,raw_data,keep_precision] = parse_get_pix_args_(obj,abs_pix_indices,varargin)
 % process get_pix arguments and return them in standard form suitable for
 % usage in filebased and memory based classes
-
-if ~is_positive_int_vector_or_logical_vector(abs_pix_indices)
-    error('HORACE:PixelDataFilebacked:invalid_argument',...
+if nargin>1 && isnumeric(abs_pix_indices)
+    if ~is_positive_int_vector_or_logical_vector(abs_pix_indices)
+        error('HORACE:PixelDataFilebacked:invalid_argument',...
         'pixel indexes should be an array of numeric positive numbers, which define intexes or vector of logical values')
+    end
+    argi = varargin;
+else
+    if nargin >= 2
+        argi = [abs_pix_indices,varargin(:)];
+    else
+        argi = varargin;
+    end
+    [ind_min,ind_max] = obj.get_page_idx_();
+    abs_pix_indices = [ind_min:ind_max];    
 end
 
 if islogical(abs_pix_indices)
@@ -25,7 +35,8 @@ else
     end
 end
 
-[ok,mess,ignore_range,raw_data] = parse_char_options(varargin,{'-ignore_range','-raw_data'});
+[ok,mess,ignore_range,raw_data,keep_precision] = parse_char_options(argi , ...
+    {'-ignore_range','-raw_data','-keep_precision'});
 if ~ok
     error('HORACE:PixelDataFilebacked:invalid_argument',mess);
 end

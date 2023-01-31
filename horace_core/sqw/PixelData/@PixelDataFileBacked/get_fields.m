@@ -31,10 +31,12 @@ NO_INPUT_INDICES = -1;
 [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, varargin{:});
 field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
+mmf = obj.f_accessor_;
 if abs_pix_indices == NO_INPUT_INDICES
-    data_out = double(obj.f_accessor_.Data.data(field_indices, :));    
+    [pix_idx_start, pix_idx_end] = obj.get_page_idx_(obj.page_num_);
+    data_out = double(mmf.Data.data(field_indices,(pix_idx_start:pix_idx_end)'));
 else
-    data_out = double(obj.f_accessor_.Data.data(field_indices, abs_pix_indices'));    
+   data_out = double(mmf.Data.data(field_indices,abs_pix_indices));
 end
 
 
