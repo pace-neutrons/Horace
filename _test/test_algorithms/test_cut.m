@@ -89,6 +89,7 @@ classdef test_cut < TestCase & common_state_holder
 
             ref_sqw = read_sqw(obj.ref_cut_file);
 			
+            cut_instr = sqw_cut.experiment_info.instruments;
             sqw_cut.experiment_info.instruments = cut_instr;
             
             ref_instr = ref_sqw.experiment_info.instruments;
