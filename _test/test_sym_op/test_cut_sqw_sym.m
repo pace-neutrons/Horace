@@ -208,7 +208,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             
             w2 = cut_sqw (this.data_source, this.proj, this.bin,...
                 this.width, this.width, this.ebins, '-pix');
-            w2.experiment_info.instruments = w2.experiment_info.instruments.rename_all_blank();
             this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
         end
         

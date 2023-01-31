@@ -1,12 +1,24 @@
 classdef test_experiment_cnstrct_and_properties < TestCase
 
     methods
-        function test_default_constructor_creates_object_of_empty_arrays(~)
+        function test_default_constructor_creates_appropriate_objects(~)
             expt = Experiment();
             assertEqual(expt.n_runs,0);
 
-            assertTrue(isempty(expt.samples{1}));
-            assertTrue(isempty(expt.instruments{1}));
+            assertTrue( isa( expt.samples, 'unique_references_container' ) );
+            assertTrue( strcmp(expt.samples.global_name, 'Samps' ));
+            assertEqual( expt.samples.n_runs, 0 );
+            function throw1()
+                expt.samples{1};
+            end
+            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
+            assertTrue( isa( expt.instruments, 'unique_references_container' ) );
+            assertTrue( strcmp(expt.instruments.global_name, 'Insts' ));
+            assertEqual( expt.instruments.n_runs, 0 );
+            function throw2()
+                expt.instruments{1};
+            end
+            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
             assertTrue(isempty(expt.detector_arrays));
             assertTrue(isempty(expt.expdata));
         end
@@ -156,8 +168,20 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             clear('expt');
 
             load(tmpfile, 'expt');
-            assertTrue(isempty(expt.instruments(1)));
-            assertTrue(isempty(expt.samples(1)));
+            assertTrue( isa( expt.samples, 'unique_references_container' ) );
+            assertTrue( strcmp(expt.samples.global_name, 'Samps' ));
+            assertEqual( expt.samples.n_runs, 0 );
+            function throw1()
+                expt.samples{1};
+            end
+            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
+            assertTrue( isa( expt.instruments, 'unique_references_container' ) );
+            assertTrue( strcmp(expt.instruments.global_name, 'Insts' ));
+            assertEqual( expt.instruments.n_runs, 0 );
+            function throw2()
+                expt.instruments{1};
+            end
+            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
             assertEqual(expt.detector_arrays, []);
         end
 
@@ -188,9 +212,9 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             expt.samples = {samples};
 
             assertEqual(expt.samples{1}, samples);
-            uoc = unique_objects_container('baseclass','IX_samp');
-            uoc = uoc.add(samples);
-            assertEqual(expt.samples,  uoc);
+            urc = unique_references_container('Samps','IX_samp');
+            urc = urc.add(samples);
+            assertEqual(expt.samples,  urc);
         end
 
         function test_samples_setter_raises_error_for_invalid_value(~)

@@ -16,12 +16,14 @@ function obj = set_mod_pulse(obj,pulse_model,pm_par)
 %
 
 inst = obj.instruments;
-if inst.n_unique == size(pm_par,1)
-    unique_inst = inst.unique_objects;
-    for i=1:numel(unique_inst)
-        unique_inst{i} = unique_inst{i}.set_mod_pulse(pulse_model,pm_par(i,:));
+% case where a single parameter row is provided for instruments in all runs
+if 1 == size(pm_par,1)
+    for i=1:inst.n_runs
+        inst_mod = inst(i);
+        inst(i)  = inst_mod.set_mod_pulse(pulse_model,pm_par(1,:));
     end
-    inst.unique_objects = unique_inst;    
+% case where a separate parameter row is provided for the instrument in
+% each run
 elseif inst.n_runs == size(pm_par,1)
     for i=1:inst.n_runs
         inst_mod = inst(i);
@@ -30,8 +32,8 @@ elseif inst.n_runs == size(pm_par,1)
 else
     error('HORACE:Experiment:invalid_argument', ...
         ['The number of moderator pulse parameters=%d.\n', ...
-        ' It is equal neither to the number of unique instruments: (%d)\n', ...
+        ' It is equal neither to one (shared with all runs)\n', ...
         ' nor to the total number of contributed runs: %d'],...
-        size(pm_par,1),inst.n_unique,inst.n_runs);
+        size(pm_par,1),inst.n_runs);
 end
 obj.instruments = inst;

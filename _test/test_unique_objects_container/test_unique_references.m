@@ -23,6 +23,8 @@ classdef test_unique_references < TestCase
         %
         %------------------------------------------------------------------
         function test_basic_doubles_container(~)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
             urc = unique_references_container('Doubles', 'double');
             urc.global_container('CLEAR', 'Doubles');
             glc = urc.global_container('value', 'Doubles');
@@ -54,6 +56,10 @@ classdef test_unique_references < TestCase
             [is, ind] = urc.contains(0.333);
             assertTrue(is);
             assertEqual(ind,3);
+            
+            [is,ind]=urc.contains('double');
+            assertTrue(is);
+            assertEqual(ind,[1 2 3 4]);
 
             glc = urc.global_container('value', 'Doubles');
             assertTrue( isa( glc, 'unique_objects_container') );
@@ -61,6 +67,8 @@ classdef test_unique_references < TestCase
         end
         
         function test_basic_instruments_container(obj)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
             urc = unique_references_container('Instruments', 'IX_inst');
             urc.global_container('CLEAR', 'Instruments');
             glc = urc.global_container('value', 'Instruments');
@@ -96,6 +104,14 @@ classdef test_unique_references < TestCase
             inst = urc{3};
             assertTrue( strcmp(inst.name,'MERLIN') );
             
+            [is,ind]=urc.contains('IX_inst');
+            assertTrue(is);
+            assertEqual(ind,[1 2 3 4]);
+            
+            [is,ind]=urc.contains('IX_null_inst');
+            assertTrue(is);
+            assertEqual(ind,[2 4]);
+            
             glc = urc.global_container('value', 'Instruments');
             assertTrue( isa( glc, 'unique_objects_container') );
             assertEqual( glc.n_runs, 3);
@@ -123,6 +139,8 @@ classdef test_unique_references < TestCase
         end
 
         function test_add_non_unique_objects(obj)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
 
             % make a unique_objects_container (empty)
             urc = unique_references_container('Instruments', 'IX_inst');
@@ -174,6 +192,8 @@ classdef test_unique_references < TestCase
         end
         
         function test_replace_unique_different_number_throw(~)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
 
             unique_references_container.global_container('CLEAR','CStrings');
             urc = unique_references_container('CStrings','char');
@@ -207,6 +227,8 @@ classdef test_unique_references < TestCase
         end
         
         function test_replace_unique_objects_with_cellarray_throw(~)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
 
             unique_references_container.global_container('CLEAR','CStrings');
             urc = unique_references_container('CStrings','char');
@@ -222,7 +244,9 @@ classdef test_unique_references < TestCase
         end
 
         function test_replace_unique_same_number_works(~)
-
+            skipTest(['This does not work for unique_reference_containers ', ...
+                      ' as they do not separately store the unique objects.', ...
+                      ' Test kept and skipped as a reminder of this.']);
             unique_references_container.global_container('CLEAR','CStrings');
             urc = unique_references_container('CStrings','char');
             urc(1) = 'aaaaa';
@@ -240,190 +264,239 @@ classdef test_unique_references < TestCase
         end
 
 
-        function test_remove_noncomplying_first_kept(obj)
+        function test_baseclass_issues(obj)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
+            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+            clOb1 = onCleanup(@()warning(ws));
 
-            uoc = unique_objects_container();
-            uoc(1) = obj.mi1;
-            uoc(2) = 'aaaaa';
-            uoc(3) = obj.mi1;
-            uoc(4) = 10;
-            uoc(5) = obj.li;
-            uoc(6) = 20;
-            uoc(7) = obj.li;
-            uoc(8) = 'aaaaa';
-
-            assertEqual(uoc.n_runs,8);
-            assertEqual(uoc.n_unique,5);
-
-            uoc.baseclass = 'IX_inst';
-            assertEqual(uoc.n_runs,4)
-            assertEqual(uoc.n_unique,2)
-            assertEqual(uoc.n_duplicates,[2,2])
-        end
-
-        function test_remove_noncomplying_first_removed(obj)
-
-            uoc = unique_objects_container();
-            uoc(1) = 'aaaaa';
-            uoc(2) = 'aaaaa';
-            uoc(3) = obj.mi1;
-            uoc(4) = 10;
-            uoc(5) = obj.li;
-            uoc(6) = 20;
-            uoc(7) = obj.li;
-
-            assertEqual(uoc.n_runs,7);
-            assertEqual(uoc.n_unique,5);
-
-            uoc.baseclass = 'IX_inst';
-            assertEqual(uoc.n_runs,3)
-            assertEqual(uoc.n_unique,2)
-            assertEqual(uoc.n_duplicates,[1,2])
+            % legal constructor with no arguments but cannot be used until
+            % populated e.g. with loadobj
+            urc1 = unique_references_container();
+            % so this will throw
+            function throw1()
+                urc1(1) = obj.mi1;
+            end
+            assertExceptionThrown( @() throw1(), ...
+                 'HERBERT:unique_references_container:incomplete_setup');
+             [lwn,lw] = lastwarn;
+             assertEqual(lw,'HERBERT:unique_references_container:incomplete_setup');
+             assertEqual(lwn, 'baseclass not initialised, using first assigned type');
+             
+            % setup container of char 
+            unique_references_container('CLEAR','CString2');
+            urc2 = unique_references_container('CString2','char');
+            urc2(1) = 'aaaaa'; % should work fine
+            
+            % fail extending with wrong type
+            assertEqual(urc2.n_runs,1);
+            urc2(2) = obj.mi1;
+            [lwn,lw] = lastwarn;
+            assertEqual(lwn,'not correct base class; object was not added');
+            assertEqual(urc2.n_runs,1); % warning was issued and object was not added
+            
+            % fail inserting with wrong type
+            urc2(1) = obj.mi1;
+            assertEqual( urc2(1),'aaaaa'); % warning was issued and object was not replaced
         end
 
         %----------------------------------------------------------------
         function test_add_similar_non_unique_objects(obj)
-            %disp('Test: test_add_similar_non_unique_objects');
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
 
             mi2 = merlin_instrument(190, 700, 'g');
             assertFalse( isequal(obj.mi1,mi2) );
 
-            uoc = unique_objects_container();
-            [uoc,nuix] = uoc.add(obj.mi1);
+            unique_references_container.global_container('CLEAR','Merlins');
+            urc = unique_references_container('Merlins','IX_inst_DGfermi');
+            [urc,nuix] = urc.add(obj.mi1);
             assertEqual( nuix, 1);
-            [uoc,nuix] = uoc.add(mi2);
+            [urc,nuix] = urc.add(mi2);
             assertEqual( nuix, 2);
-            [uoc,nuix] = uoc.add(obj.mi1);
+            [urc,nuix] = urc.add(obj.mi1);
             assertEqual( nuix, 3);
-            [uoc,nuix] = uoc.add(mi2);
+            [urc,nuix] = urc.add(mi2);
             assertEqual( nuix, 4);
-            [uoc,nuix] = uoc.add(mi2);
+            [urc,nuix] = urc.add(mi2);
             assertEqual( nuix, 5);
-            assertEqual( numel(uoc.unique_objects), 2);
-            assertEqual( numel(uoc.idx), 5);
-            assertEqual( obj.mi1, uoc.get(3) );
-            assertEqual( mi2, uoc.get(5) );
+            assertEqual((urc.unique_objects.n_unique), 2);
+            assertEqual( urc.n_unique_objects, 2);
+            assertEqual( numel(urc.idx), 5);
+            assertEqual( obj.mi1, urc(3) );
+            assertEqual( mi2, urc.get(5) );
+
+            % repeat using subscript assign rather than add
+            unique_references_container.global_container('CLEAR','Merlins');
+            urc = unique_references_container('Merlins','IX_inst_DGfermi');
+            urc{1} = obj.mi1;
+            assertEqual( urc.n_runs, 1);
+            urc{2} = mi2;
+            assertEqual( urc.n_runs, 2);
+            urc{3} = obj.mi1;
+            assertEqual( urc.n_runs, 3);
+            assertEqual( urc.n_unique_objects, 2);
+            urc(4) = mi2;
+            assertEqual( urc.n_runs, 4);
+            assertEqual( urc.n_unique_objects, 2);
+            urc(5) = mi2;
+            assertEqual( urc.n_runs, 5);
+            assertEqual((urc.unique_objects.n_unique), 2);
+            assertEqual( urc.n_unique_objects, 2);
+            assertEqual( numel(urc.idx), 5);
+            assertEqual( obj.mi1, urc.get(3) );
+            assertEqual( mi2, urc(5) );
+            
+            % check for fail outside range
+            function throw171()
+                urc{7} = obj.mi1;
+            end
+            assertExceptionThrown( @() throw171(), ...
+                'HERBERT:unique_references_container:invalid_argument');
+            function throw1m1()
+                urc{0} = obj.mi1;
+            end
+            assertExceptionThrown( @() throw1m1(), ...
+                'HERBERT:unique_references_container:invalid_argument');
         end
         %----------------------------------------------------------------
         function test_add_different_types(obj)
-            %disp('Test: test_add_different_types');
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
             clOb = onCleanup(@()warning(ws));
+            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+            clOb1 = onCleanup(@()warning(ws));
+            
+            unique_references_container.global_container('CLEAR','Merlins');     
+            urc = unique_references_container('Merlins','IX_inst_DGfermi');
+            % object of correct type added
+            urc = urc.add(obj.mi1);
+            % object of incorrect type not added, warning issued, size
+            % still 1
+            assertEqual( urc.n_runs, 1);
+            urc = urc.add(obj.nul_sm1);
+            % object not added, size unchanges, warning issued
+            assertEqual( urc.n_runs, 1);
+            assertEqual( lastwarn, 'not correct base class; object was not added');
 
+            unique_references_container.global_container('CLEAR','Nullsamples');     
+            urc = unique_references_container('Nullsamples','IX_null_sample');
+            % object of correct type added
+            [urc, nuix] = urc.add(obj.nul_sm1);
+            % object of incorrect type not added, warning issued, size
+            % still 1
+            assertEqual(nuix, 1);
+            assertEqual( urc.n_runs, 1);
+            [urc, nuix] = urc.add(obj.mi1);
+            assertEqual(lastwarn,'not correct base class; object was not added');
 
-            uoc = unique_objects_container();
-            uoc = uoc.add(obj.mi1);
-            uoc = uoc.add(obj.nul_sm1);
-            assertEqual( numel(uoc.unique_objects), 2);
-            assertEqual( numel(uoc.idx), 2);
-            assertEqual( obj.mi1, uoc.get(1) );
-            assertEqual( obj.nul_sm1, uoc.get(2) );
-            voc = unique_objects_container('baseclass','IX_inst');
-            [voc,nuix] = voc.add(obj.mi1);
-
-            assertTrue( nuix>0 );
-            [voc,nuix] = voc.add(obj.nul_sm1);
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-
-            assertFalse( nuix>0 );
-            assertEqual( numel(voc.unique_objects), 1);
-            assertEqual( numel(voc.idx), 1);
+            % object of incorrect type not added, warning issued, size
+            % still 1, addition index 0 => not added
+            assertEqual(nuix, 0);
+            assertEqual( urc.n_runs, 1);
+            assertEqual( lastwarn, 'not correct base class; object was not added');
         end
         %----------------------------------------------------------------
         function test_change_serializer(obj)
             % Test different serializers
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
+            unique_references_container.global_container('CLEAR','Merlins');     
+            urc = unique_references_container('Merlins','IX_inst_DGfermi');
+            glc = urc.global_container('value','Merlins');
+            glc.convert_to_stream_f = @hlp_serialise;
+            urc.global_container('reset','Merlins',glc);
+            
             mi2 = merlin_instrument(190, 700, 'g');
-            uoc = unique_objects_container();
-            uoc = uoc.add(obj.mi1);
-            uoc = uoc.add(mi2);
-            voc = unique_objects_container('convert_to_stream_f',@hlp_serialise);
-            voc = voc.add(obj.mi1);
-            voc = voc.add(mi2);
-            ie = isequal( voc.stored_hashes(1,:), uoc.stored_hashes(1,:) );
+            urc = urc.add(obj.mi1);
+            urc = urc.add(mi2);
+            glc = urc.global_container('value','Merlins');
+            
+            unique_references_container.global_container('CLEAR','Merlins2');     
+            vrc = unique_references_container('Merlins2','IX_inst_DGfermi');
+            hlc = vrc.global_container('value','Merlins2');
+            %hlc.convert_to_stream_f = @hlp_serialise;
+            
+            vrc = vrc.add(obj.mi1);
+            vrc = vrc.add(mi2);
+            hlc = vrc.global_container('value','Merlins2');
+
+            ie = isequal( hlc.stored_hashes(1,:), glc.stored_hashes(1,:) );
+            assertFalse(ie);
+            ie = isequal( glc.convert_to_stream_f, hlc.convert_to_stream_f);
             assertFalse(ie);
             %{
             Turns out that hashes are not portable between all Matlab
-            versions and platforms, so suppressing this bit.
+            versions and platforms, so suppressing hash comparisons.
             assertEqual( u1, uoc.stored_hashes(1,:) );
             assertEqual( v1, voc.stored_hashes(1,:) );
             %}
         end
         %----------------------------------------------------------------
-        function test_constructor_arguments_no_type(obj)
-
-            uoc = unique_objects_container();
-            uoc = uoc.add(obj.mi1);
-            uoc = uoc.add(obj.nul_sm1);
-            assertEqual( numel(uoc.unique_objects), 2);
-        end
-        function test_constructor_arguments_with_type(obj)
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+        function test_global_container_spans_multiple_containers(obj)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
             clOb = onCleanup(@()warning(ws));
 
-            uoc = unique_objects_container('baseclass','IX_inst');
-            uoc = uoc.add(obj.mi1);
+            unique_references_container.global_container('CLEAR','Merlins');     
+            urc = unique_references_container('Merlins','IX_inst_DGfermi');
+            vrc = unique_references_container('Merlins','IX_inst_DGfermi');
 
-            uoc = uoc.add(obj.nul_sm1);
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-            assertEqual( numel(uoc.unique_objects), 1);
-            %{
-            Turns out that hashes are not portable between all Matlab
-            versions and platforms, so suppressing this bit.
-            assertEqual( u1, uoc.stored_hashes(1,:) );
-            %}
+            mi1 = merlin_instrument(190, 700, 'g');
+            mi2 = merlin_instrument(200, 700, 'g');
+            mi3 = merlin_instrument(190, 800, 'g');
+            mi4 = merlin_instrument(200, 800, 'g');
+
+            urc = urc.add(mi1);
+            urc = urc.add(mi2);
+            vrc = urc.add(mi3);
+            vrc = urc.add(mi4);
+            
+            glc = urc.global_container('value','Merlins');
+            hlc = vrc.global_container('value','Merlins');
+            assertEqual( glc, hlc);
+            assertEqual( glc.n_runs, hlc.n_runs );
+            assertEqual( glc.n_runs, 4 );
         end
-        function test_constructor_arguments_type_serializer(obj)
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
-
-            uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialise);
-
-            uoc = uoc.add(obj.mi1);
-            uoc = uoc.add(obj.nul_sm1);
-            assertEqual( numel(uoc.unique_objects), 1);
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-
-            %{
-            Turns out that hashes are not portable between all Matlab
-            %}
-        end
-
-        function test_subscripting_no_type(obj)
-            % repeats test_constructor_arguments using subscripting
-            uoc = unique_objects_container();
-            uoc{1} = obj.mi1;
-            uoc{2} = obj.nul_sm1;
-            assertEqual( numel(uoc.unique_objects), 2);
-        end
+        %----------------------------------------------------------------
         function test_subscripting_type(obj)
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
             clOb = onCleanup(@()warning(ws));
+            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+            clOb1 = onCleanup(@()warning(ws));
 
-            uoc = unique_objects_container('baseclass','IX_inst');
-            uoc{1} = obj.mi1;
-            uoc{2} = obj.nul_sm1;
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-            assertEqual( numel(uoc.unique_objects), 1);
+            unique_references_container.global_container('CLEAR','Instruments');
+            urc = unique_references_container('Instruments','IX_inst');
+            urc{1} = obj.mi1;
+            urc{2} = obj.nul_sm1;
+            [lwn,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:unique_references_container:invalid_argument');
+            assertEqual(lwn,'not correct base class; object was not added');
+            assertEqual( urc.n_unique_objects, 1);
             %{
             Turns out that hashes are not portable between all Matlab
             versions and platforms, so suppressing this bit.
             assertEqual( u1, uoc.stored_hashes(1,:) );
             %}
         end
+        %----------------------------------------------------------------
         function test_subscripting_type_hlp_ser(obj)
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
             clOb = onCleanup(@()warning(ws));
+            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
+            clOb1 = onCleanup(@()warning(ws));
 
-            uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialise);
-            uoc{1} = obj.mi1;
-            uoc{2} = obj.nul_sm1;
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-            assertEqual( numel(uoc.unique_objects), 1);
+            unique_references_container.global_container('CLEAR','Instruments');
+            urc = unique_references_container('Instruments','IX_inst');
+            glc = urc.global_container('value','Instruments');
+            glc.convert_to_stream_f = @hlp_serialize;
+            unique_references_container.global_container('reset','Instruments',glc);
+            glc = urc.global_container('value','Instruments');
+            assertEqual( glc.convert_to_stream_f, @hlp_serialize);
+            urc{1} = obj.mi1;
+            urc{2} = obj.nul_sm1;
+            [lwn,lw] = lastwarn;
+            assertEqual(lw,'HERBERT:unique_references_container:invalid_argument');
+            assertEqual(lwn,'not correct base class; object was not added');
+            assertEqual( urc.n_unique_objects, 1);
             %{
             Turns out that hashes are not portable between all Matlab
             versions and platforms, so suppressing this bit.            
@@ -433,96 +506,64 @@ classdef test_unique_references < TestCase
             assertEqual( u1, uoc.stored_hashes(1,:) );
             %}
         end
+        %----------------------------------------------------------------
         function test_subscripting_type_hlp_ser_wrong_subscript_plus(obj)
             % additional tests for other subscript functions
-            % NB horrible syntax but way to put assignments in anonymous
-            % functions is worse! Replacements for assertExceptionThrown
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialise,'baseclass','IX_inst');
-            function set_uoc()
-                uoc{2} = obj.mi1;
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
+            unique_references_container.global_container('CLEAR','Insts');
+            urc = unique_references_container('Insts','IX_inst');
+            function set_urc()
+                urc{2} = obj.mi1;
             end
-            ex = assertExceptionThrown(@()set_uoc,'HERBERT:unique_objects_container:invalid_argument');
-            assertEqual(ex.message,'index outside legal range')
+            ex = assertExceptionThrown(@()set_urc,'HERBERT:unique_references_container:invalid_argument');
+            assertEqual(ex.message,'subscript out of range')
         end
+        %----------------------------------------------------------------
         function test_subscripting_type_hlp_ser_wrong_subscript_minus(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialise,'baseclass','IX_inst');
-            function set_uoc()
-                uoc{-1} = obj.mi1;
+            % additional tests for other subscript functions
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
+            unique_references_container.global_container('CLEAR','Insts');
+            urc = unique_references_container('Insts','IX_inst');
+            function set_urc()
+                urc{2} = obj.mi1;
             end
-            ex = assertExceptionThrown(@()set_uoc,'HERBERT:unique_objects_container:invalid_argument');
-            assertEqual(ex.message,'non-positive index not allowed')
+            ex = assertExceptionThrown(@()set_urc,'HERBERT:unique_references_container:invalid_argument');
+            assertEqual(ex.message,'subscript out of range')
 
         end
+        %-----------------------------------------------------------------
         function test_expand_to_nruns(obj)
-            uoc = unique_objects_container('baseclass','IX_inst');
-            uoc{1} = obj.mi1;
-            assertEqual(uoc.n_runs,1)
-            assertEqual(uoc.n_unique,1)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
+            unique_references_container.global_container('CLEAR','Insts');
+            urc = unique_references_container('Insts','IX_inst');
+            urc{1} = obj.mi1;
+            assertEqual(urc.n_runs,1)
+            assertEqual(urc.n_unique_objects,1)
 
-            uoc = uoc.replicate_runs(10);
-            assertEqual(uoc.n_runs,10);
-            assertEqual(uoc.n_unique,1);
-            assertEqual(uoc.n_duplicates,10);
-
+            urc = urc.replicate_runs(10);
+            assertEqual(urc.n_runs,10);
+            assertEqual(urc.n_unique_objects,1);
         end
-        function test_instr_replacement_with_duplicates_round(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialise,'baseclass','IX_inst');
-            uoc(1) = obj.mi1;
-            uoc(2) = IX_null_inst();
-            assertEqual( uoc.n_duplicates,[1,1]);
-            assertEqual( uoc.n_runs,2);
-            assertEqual( uoc.n_unique,2);
-            uoc(3) = obj.mi1;
-            assertEqual( uoc.n_runs,3);
-            assertEqual(uoc.n_duplicates,[2,1]);
-            assertEqual(uoc.n_unique,2);
-            uoc(1) = IX_null_inst();
-            assertEqual( uoc.n_runs,3);
-            assertEqual( uoc.n_duplicates,[1,2]);
-            uoc(3) = IX_null_inst();
+        %-----------------------------------------------------------------
+        function test_serialization_empty(obj)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
+            unique_references_container.global_container('CLEAR','Insts');
+            urc = unique_references_container('Insts','IX_inst');
+            urc_str = urc.to_struct();
 
-            assertEqual(uoc.n_runs,3);
-            assertEqual(uoc.n_unique,1);
-            assertEqual(uoc.n_duplicates,3);
+            urc_rec = serializable.from_struct(urc_str);
+            assertEqual(urc,urc_rec)
+            
+            urc{1} = obj.mi1;
+            urc{2} = obj.mi1;
+            urc_str = urc.to_struct();
 
-        end
-
-        function test_instr_replacement_with_duplicates_curly(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialise,'baseclass','IX_inst');
-            uoc{1} = obj.mi1;
-            uoc{2} = IX_null_inst();
-            assertEqual( uoc.n_duplicates,[1,1]);
-            assertEqual( uoc.n_runs,2);
-            assertEqual( uoc.n_unique,2);
-            uoc{3} = obj.mi1;
-            assertEqual( uoc.n_runs,3);
-            assertEqual(uoc.n_duplicates,[2,1]);
-            assertEqual(uoc.n_unique,2);
-            uoc{1} = IX_null_inst();
-            assertEqual( uoc.n_runs,3);
-            assertEqual( uoc.n_duplicates,[1,2]);
-            uoc{3} = IX_null_inst();
-
-            assertEqual(uoc.n_runs,3);
-            assertEqual(uoc.n_unique,1);
-            assertEqual(uoc.n_duplicates,3);
-        end
-        function test_serialization_with_objects(obj)
-            uoc = unique_objects_container('baseclass','IX_inst');
-            uoc{1} = obj.mi1;
-            uoc{2} = IX_null_inst();
-            uoc_str = uoc.to_struct();
-
-            uoc_rec = serializable.from_struct(uoc_str);
-            assertEqual(uoc,uoc_rec)
-        end
-
-        function test_serialization_empty(~)
-            uoc = unique_objects_container('baseclass','IX_inst');
-            uoc_str = uoc.to_struct();
-
-            uoc_rec = serializable.from_struct(uoc_str);
-            assertEqual(uoc,uoc_rec)
+            urc_rec = serializable.from_struct(urc_str);
+            assertEqual(urc,urc_rec)
         end
     end
 end

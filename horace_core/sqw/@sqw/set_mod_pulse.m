@@ -26,7 +26,7 @@ if size(pm_par,1) == 1
 else
     set_single_par = false;
     n_tot_runs = arrayfun(@(x)x.experiment_info.n_runs,obj);
-    n_unique_runs = arrayfun(@(x)x.experiment_info.instruments.n_unique,obj);
+    n_unique_runs = arrayfun(@(x)x.experiment_info.instruments.n_unique_objects,obj);
     n_tot_runs = sum(n_tot_runs);
     n_unique_runs = sum(n_unique_runs);
     num_params = size(pm_par,1);
@@ -50,7 +50,7 @@ for i=1:numel(obj)
         if set_total
             n_runs = obj(i).experiment_info.n_runs;
         else % split unique
-            n_runs = obj(i).experiment_info.instruments.n_unique;
+            n_runs = obj(i).experiment_info.instruments.n_unique_objects;
         end
         obj(i).experiment_info = obj(i).experiment_info.set_mod_pulse( ...
             pulse_model,pm_par(n_run_set+1:n_run_set+n_runs,:));

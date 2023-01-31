@@ -145,8 +145,11 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         function [instr_str,sampl_str] = get_instr_sample_to_save(~,exp_info)
             % get instrument and sample data in the form they would be written
             % on hdd.
-            instr = exp_info.instruments.unique_objects; % get_unique_instruments();
-            sampl = exp_info.samples.unique_objects; % get_unique_samples();
+            % get_unique_instruments as a cell array;
+            instr = exp_info.instruments.unique_objects.unique_objects; 
+            % get_unique_samples as a cell array;
+            sampl = exp_info.samples.unique_objects.unique_objects; 
+            % convert to structs
             instr_str = cellfun(@(x)(x.to_struct()),instr,'UniformOutput',false);
             sampl_str = cellfun(@(x)(x.to_struct()),sampl,'UniformOutput',false);            
         end

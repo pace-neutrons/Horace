@@ -35,11 +35,15 @@ classdef test_experiment_methods < TestCase
 
             sample = IX_sample();
             sample.name = 'ugly_sample';
-            uoc = unique_objects_container('IX_samp');
-            uoc = uoc.add(sample);
-            uoc = uoc.replicate_runs(3);
+            % Note that the 'Samps' global container has NOT been cleared
+            % here so this container refers to whatever is already in the
+            % global container and so is also a test of keeping all
+            % unique items of 'Samps' regardless of where created.
+            urc = unique_references_container('Samps','IX_samp');
+            urc = urc.add(sample);
+            urc = urc.replicate_runs(3);
 
-            exp.samples = uoc;
+            exp.samples = urc;
 
             ts = exp.samples(3);
             assertEqual(ts.alatt,[1.2,2.3,3.3]);
