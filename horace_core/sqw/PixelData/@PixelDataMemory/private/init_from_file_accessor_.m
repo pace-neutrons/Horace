@@ -6,6 +6,6 @@ obj.data_ = f_accessor.get_raw_pix();
 obj.full_filename = f_accessor.full_filename;
 undef = obj.data_range == PixelDataBase.EMPTY_RANGE;
 if any(undef(:))
-    obj = obj.reset_changed_coord_range('all');
+    obj = recalc_data_range(obj);
 end
 

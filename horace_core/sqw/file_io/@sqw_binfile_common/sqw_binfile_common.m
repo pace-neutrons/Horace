@@ -57,7 +57,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         % filenames. Stored in file
         contains_runid_in_header_ =[];
         % holder for the number of pixels, contributed into sqw file
-        npixels_ = 'undefined';        
+        npixels_ = 'undefined';
     end
     properties(Constant)
         % size of a pixel (in bytes) written on HDD
@@ -196,7 +196,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             %
             obj = delete@binfile_v2_common(obj);
             obj = delete@sqw_file_interface(obj);
-            obj.npixels_ = 'undefined';        
+            obj.npixels_ = 'undefined';
         end
     end
     %
@@ -298,16 +298,24 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
     end
     %======================================================================
     methods(Access = protected)
+        function obj = update_sqw_keep_pix(~)
+            error('HORACE:sqw_binfile_common:runtime_error',...
+                'This method does not work on faccessors with version lower then 4');
+        end
         function new_ldr = do_class_dependent_updates(old_ldr,new_ldr,varargin)
             % this function takes old file accessor and modifies it with
             % data necessary to access file with the new file accessor
             %
+            % It is class specific part of update_file_format method
+            %
             if old_ldr.faccess_version ~= new_ldr.faccess_version
-                if ~PixelDataBase.do_filebacked(old_ldr.npixels)
+                if PixelDataBase.do_filebacked(old_ldr.npixels)
+                    new_ldr = new_ldr.update_sqw_keep_pix();
+                else
                     sqw_obj = old_ldr.get_sqw('-verbatim');
                     new_ldr.sqw_holder = sqw_obj;
+                    new_ldr = new_ldr.put_sqw('-verbatim');
                 end
-                new_ldr = new_ldr.put_sqw('-verbatim');
                 old_ldr.delete();
             end
         end

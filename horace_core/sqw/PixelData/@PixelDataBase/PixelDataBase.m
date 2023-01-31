@@ -202,7 +202,7 @@ classdef (Abstract) PixelDataBase < serializable
                 if any(is_md)
                     pxd = argi{is_md};
                     if ischar(pxd.data) || file_backed_requested
-                        obj = PixelDataFileBacked(argi{:}, upgrade);
+                        obj = PixelDataFileBacked(argi{:}, upgrade,norange);
                     else
                         obj = PixelDataMemory(argi{:}, upgrade);
                     end
@@ -220,14 +220,14 @@ classdef (Abstract) PixelDataBase < serializable
                 obj = serializable.from_struct(init);
             elseif isa(init, 'PixelDataMemory')
                 if file_backed_requested
-                    obj = PixelDataFileBacked(init, upgrade);
+                    obj = PixelDataFileBacked(init, upgrade,norange);
                 else
                     obj = PixelDataMemory(init);
                 end
                 % if the file exists we can create a file-backed instance
             elseif isa(init, 'PixelDataFileBacked')
                 if file_backed_requested
-                    obj = PixelDataFileBacked(init, upgrade);
+                    obj = PixelDataFileBacked(init, upgrade,norange);  
                 else
                     obj = PixelDataMemory(init);
                 end
@@ -246,7 +246,7 @@ classdef (Abstract) PixelDataBase < serializable
                 end
 
                 if PixelDataBase.do_filebacked(init.npixels) || file_backed_requested
-                    obj = PixelDataFileBacked(init, upgrade);
+                    obj = PixelDataFileBacked(init, upgrade,norange);
                 else
                     obj = PixelDataMemory(init);
                 end

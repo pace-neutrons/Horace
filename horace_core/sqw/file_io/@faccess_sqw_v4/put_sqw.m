@@ -5,19 +5,19 @@ function    obj = put_sqw(obj,varargin)
 % obj = obj.put_sqw()         % Put sqw object which have been already
 %                             % intialized with this file-accessor and is
 %                             % assigned to sqw_holder;
-% obj = obj.put_sqw(sqw_obj)  % Put sqw object provided as input of the 
+% obj = obj.put_sqw(sqw_obj)  % Put sqw object provided as input of the
 %                             % method. The file to put object should be
-%                             already set 
+%                             already set
 % Options:
 % '-update'        -- write to existing sqw file. Currently redundant.
 %                     Writing to existing file occurs if file is provides
-%                     as input. 
+%                     as input.
 %                    TODO: Check if existing file contains sqw object,
 %                    writing fails without this argument
-% '-verbatim'      -- do not change filenames and file-path-es, stored in 
+% '-verbatim'      -- do not change filenames and file-path-es, stored in
 %                     cuttent sqw object headers to the name and path
 %                     of the current file to write data into
-% '-nopix'         -- do not store pixel array within the sqw object. 
+% '-nopix'         -- do not store pixel array within the sqw object.
 %                     Write sqw object with empty pixels record
 %
 %
@@ -62,19 +62,23 @@ end
 if ~(isa(obj.sqw_holder.pix,'pix_combine_info')|| obj.sqw_holder.pix.is_filebacked||nopix)
     obj = obj.put_all_blocks();
     return
+else
+    sqw_obj = obj.sqw_holder;    
+    sqw_obj.pix.full_filename =obj.full_filename;
+    obj.sqw_holder = sqw_obj;    
 end
 
-if nopix 
+if nopix % Modify writable object to contain no pixels
     sqw_obj  = obj.sqw_holder;
     old_pix = sqw_obj.pix;
     sqw_obj.pix = PixelDataMemory();
     if ~verbatim
         sqw_obj.full_filename = obj.full_filename;
     end
-    obj.sqw_holder = sqw_obj;    
-    obj = obj.put_all_blocks();    
+    obj.sqw_holder = sqw_obj;
+    obj = obj.put_all_blocks();
     sqw_obj.pix = old_pix;
-    obj.sqw_holder = sqw_obj;        
+    obj.sqw_holder = sqw_obj;
     return;
 end
 obj = obj.put_all_blocks('ignore_blocks','bl_pix_data_wrap');

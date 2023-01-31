@@ -36,7 +36,7 @@ if abs_pix_indices == NO_INPUT_INDICES
     [pix_idx_start, pix_idx_end] = obj.get_page_idx_(obj.page_num_);
     data_out = double(mmf.Data.data(field_indices,(pix_idx_start:pix_idx_end)'));
 else
-   data_out = double(mmf.Data.data(field_indices,abs_pix_indices));
+    data_out = double(mmf.Data.data(field_indices,abs_pix_indices));
 end
 
 

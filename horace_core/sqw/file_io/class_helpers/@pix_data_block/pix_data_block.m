@@ -88,6 +88,7 @@ classdef pix_data_block < data_block
                     disp2str(val))
             end
             obj.position_ = val - 12;
+            obj.initialized_ = true;
         end
         %
         function [obj,sqw_obj_to_set] = get_sqw_block(obj,fid,sqw_obj_to_set)
@@ -115,6 +116,25 @@ classdef pix_data_block < data_block
                 obj.serialized_obj_cache_ = subobj;
             end
         end
+        function obj = put_data_header(obj,fid)
+            % store pixel information which describes pixel data block
+
+            nrows = uint32(obj.n_rows_);
+            if ischar(obj.npixels_)
+                error('HORACE:pix_data_block:runtime_error', ...
+                    'attempt to write pixel data header block while the BAT have not been initialized')
+            end
+            npix   = uint64(obj.npixels_);
+
+            obj.move_to_position(fid)
+
+            fwrite(fid,nrows,'uint32');
+            obj.check_write_error(fid,'num pix rows');
+            %
+            fwrite(fid,npix,'uint64');
+            obj.check_write_error(fid,'num_pixels');
+        end
+
     end
     methods(Access=protected)
         function size = get_size(obj)

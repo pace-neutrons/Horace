@@ -1,13 +1,23 @@
 function obj = init_(obj,varargin)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%INIT_ initialize PixelDataFileBacked object with set of any input
+%parametes
+
 % process possible update parameter
-is_update = cellfun(@(x)islogical(x),varargin);
-if any(is_update)
-    update = varargin{is_update};
-    argi = varargin(~is_update);
+is_bool = cellfun(@(x)islogical(x),varargin);
+if any(is_bool)
+    log_par = [varargin{is_bool}];
+    if numel(log_par) == 2
+        update  = log_par(1);
+        norange = log_par(2);
+    else
+        update = log_par(1);
+        norange = false;
+    end
+
+    argi = varargin(~is_bool);
 else
     update = false;
+    norange = false;
     argi = varargin;
 end
 
@@ -38,10 +48,10 @@ elseif ischar(init) || isstring(init)
     end
 
     init = sqw_formats_factory.instance().get_loader(init);
-    obj = init_from_file_accessor_(obj,init,update);
+    obj = init_from_file_accessor_(obj,init,update,norange);
 
 elseif isa(init, 'sqw_file_interface')
-    obj = init_from_file_accessor_(obj,init,update);
+    obj = init_from_file_accessor_(obj,init,update,norange);
 
 elseif isnumeric(init)
     error('HORACE:PixelDataFileBacked:invalid_argument', ...

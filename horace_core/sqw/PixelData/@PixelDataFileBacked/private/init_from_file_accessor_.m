@@ -1,4 +1,4 @@
-function obj = init_from_file_accessor_(obj, faccessor,update)
+function obj = init_from_file_accessor_(obj, faccessor,update,norange)
 % Initialise a PixelData object from a file accessor
 if ~faccessor.sqw_type
     error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -14,6 +14,9 @@ obj.f_accessor_ = memmapfile(obj.full_filename,'format', ...
     'writable', update, 'offset', obj.offset_);
 
 obj.data_range_ = faccessor.get_data_range();
+if norange
+    return;
+end
 undefined = obj.data_range == PixelDataBase.EMPTY_RANGE;
 if any(undefined(:))
     warning('HORACE:old_file_format',....

@@ -134,6 +134,8 @@ classdef sqw_file_interface
     methods(Abstract,Access=protected)
         pos = get_pix_position(obj);
         npix = get_npixels(obj);
+        % used in updates of old file format to file format v4
+        obj = update_sqw_keep_pix(obj)        
     end
     methods(Access=protected)
         function pix_size = get_filepix_size(~)

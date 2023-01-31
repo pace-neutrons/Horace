@@ -154,9 +154,6 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         obj = put_sqw(obj,varargin);
         obj = put_instruments(obj,varargin);
         obj = put_samples(obj,varargin);
-
-    end
-    methods
     end
     %======================================================================
     % Old, partially redundant interface
@@ -173,10 +170,15 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             data_dnd = obj.get_dnd_data(varargin{:});
             data_str = struct('s',data_dnd.sig,'e',data_dnd.err, ...
                 'npix',data_dnd.npix);
-        end        
+        end
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        % Given initialized sqw object in memory, initialized BAT and sqw file
+        % written in old file format, write everything in memory to proper places
+        % in file keeping pixels data on their original place.
+        obj = update_sqw_keep_pix(obj)
+        
         function npix = get_npixels(obj)
             pix_data_bl = obj.bat_.blocks_list{end};
             npix =  pix_data_bl.npixels;
@@ -211,7 +213,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
                 if log_level > 0
                     fprintf(2,['*** Recalculating actual data range missing in file %s:\n', ...
                         '*** This is one-off operation occuring during upgrade from file format version %d to file format version %d\n',...
-                        '*** Do not interrupt this operation after page count completeon, as the input data file may become corrupted\n'],...
+                        '*** Do not interrupt this operation after the page count completeon, as the input data file may become corrupted\n'],...
                         obj.full_filename,other_obj.faccess_version,obj.faccess_version);
                 end
                 [pix,unique_pix_id] = sqw_obj.pix.recalc_data_range();

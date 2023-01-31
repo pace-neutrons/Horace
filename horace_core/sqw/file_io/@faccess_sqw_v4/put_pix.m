@@ -74,20 +74,9 @@ if ~(isa(input_obj,'pix_combine_info')|| input_obj.is_filebacked)
     obj = obj.put_block_data('bl_pix_data_wrap',input_obj);
     return;
 elseif ~isnumeric(obj)
-    %
+    % write pixel data block information
     pdb = obj.bat_.blocks_list{end};
-    pbl = pdb.get_subobj(input_obj);
-    n_rows = uint32(pbl.n_rows);
-    npix   = uint64(pbl.npix);
-
-    % HACK. Extracted from pix_data_blockl write subobj
-    do_fseek(obj.file_id_,pdb.position ,'bof');
-    %
-    fwrite(obj.file_id_,n_rows,'uint32');
-    check_error_report_fail_(obj,'Error writing numbef of pixels rows');
-    %
-    fwrite(obj.file_id_,npix,'uint64');
-    check_error_report_fail_(obj,'Error writing numbef of pixels');
+    pdb.put_data_header(obj.file_id_);
 end
 
 try

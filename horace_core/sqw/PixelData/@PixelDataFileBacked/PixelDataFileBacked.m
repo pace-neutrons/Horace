@@ -172,6 +172,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
                 obj = obj.advance();
             end
+            obj = obj.move_to_first_page();
         end
 
 
