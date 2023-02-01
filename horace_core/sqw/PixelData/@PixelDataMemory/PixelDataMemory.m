@@ -53,7 +53,9 @@ classdef PixelDataMemory < PixelDataBase
     %                    of the return value is not guaranteed.
     %   page_size      - The number of pixels in the currently loaded page.
     %
-
+    properties(Access=protected)
+        data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
+    end
     properties
         page_memory_size_ = inf;
     end
@@ -66,7 +68,7 @@ classdef PixelDataMemory < PixelDataBase
         % --- Pixel operations ---
         pix_out = append(obj, pix);
         pix     = set_raw_data(obj,pix);
-        obj     = set_fields(obj, data, fields, abs_pix_indices);                
+        obj     = set_fields(obj, data, fields, abs_pix_indices);
         %
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
@@ -76,15 +78,29 @@ classdef PixelDataMemory < PixelDataBase
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
-        
+
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
         %
         pix_out = get_fields(obj, fields, abs_pix_indices);
-        obj     = set_raw_fields(obj, data, fields, abs_pix_indices);        
+        obj     = set_raw_fields(obj, data, fields, abs_pix_indices);
     end
 
     methods
+        function obj = PixelDataMemory(varargin)
+            % Construct a PixelDataMemory object from the given data. Default
+            % construction initialises the underlying data as an empty (9 x 0)
+            % array.
+            %
+            if nargin == 0
+                return
+            end
+            obj = obj.init(varargin{:});
+        end
+        function obj = init(obj,varargin)
+            % Main part of PixelDataMemory constructor.
+            obj = init_(obj,varargin{:});
+        end
         function [obj,unique_pix_id] = recalc_data_range(obj)
             % Recalculate pixels range in the situations, where the
             % range for some reason appeared to be missing (i.e. loading pixels from
@@ -103,20 +119,6 @@ classdef PixelDataMemory < PixelDataBase
             end
         end
 
-        function obj = PixelDataMemory(varargin)
-            % Construct a PixelDataMemory object from the given data. Default
-            % construction initialises the underlying data as an empty (9 x 0)
-            % array.
-            %
-            if nargin == 0
-                return
-            end
-            obj = obj.init(varargin{:});
-        end
-        function obj = init(obj,varargin)
-            % Main part of PixelDataMemory constructor.
-            obj = init_(obj,varargin{:});
-        end
 
         % --- Data management ---
         function has_more = has_more(~)
@@ -126,6 +128,9 @@ classdef PixelDataMemory < PixelDataBase
             %    >> has_more = pix.has_more();
             %
             has_more = false;
+        end
+        function obj = delete(obj)
+            obj.data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,0);
         end
 
 
@@ -181,7 +186,7 @@ classdef PixelDataMemory < PixelDataBase
             pix_idx_start = 1;
             pix_idx_end   = obj.num_pixels;
         end
-        
+
         function np = get_page_num(~)
             np = 1;
         end
@@ -197,7 +202,7 @@ classdef PixelDataMemory < PixelDataBase
         function data =  get_raw_data(obj)
             % main part of get.data accessor
             data = obj.data_;
-        end        
+        end
         %
         %
         function num_pix = get_num_pixels(obj)

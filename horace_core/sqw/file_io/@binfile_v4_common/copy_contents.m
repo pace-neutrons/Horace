@@ -45,6 +45,6 @@ if ~(isempty(facc_mode) && isempty(obj.full_filename))
             obj.full_filename,facc_mode);
     end
     if isempty(obj.file_closer_)
-        obj.file_closer_ = onCleanup(@()fclose(obj.file_id_));
+        obj.file_closer_ = onCleanup(@()fclose(obj));
     end
 end

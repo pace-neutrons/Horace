@@ -8,4 +8,3 @@ undef = obj.data_range == PixelDataBase.EMPTY_RANGE;
 if any(undef(:))
     obj = recalc_data_range(obj);
 end
-

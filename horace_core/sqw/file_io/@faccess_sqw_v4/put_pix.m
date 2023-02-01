@@ -68,6 +68,11 @@ else
     input_obj = obj.sqw_holder_.pix;
     jobDispatcher = [];
 end
+if isnumeric(input_obj)
+    num_pixels = size(input_obj,2);
+else
+    num_pixels = input_obj.num_pixels;
+end
 
 obj = obj.put_block_data('bl_pix_metadata',input_obj);
 if ~(isa(input_obj,'pix_combine_info')|| input_obj.is_filebacked)
@@ -92,17 +97,17 @@ if nopix
         block_size= config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
 
         do_fseek(obj.file_id_,obj.pix_position ,'bof');
-        if block_size >= npix
-            res_data = single(zeros(9,npix));
+        if block_size >= num_pixels
+            res_data = single(zeros(9,num_pixels));
             fwrite(obj.file_id_,res_data,'float32');
         else
             written = 0;
             res_data = single(zeros(9,block_size));
-            while written < npix
+            while written < num_pixels
                 fwrite(obj.file_id_,res_data,'float32');
                 written = written+block_size;
-                if written+block_size > npix
-                    block_size = npix-written;
+                if written+block_size > num_pixels
+                    block_size = num_pixels-written;
                     res_data = single(zeros(9,block_size));
                 end
             end
@@ -112,7 +117,7 @@ if nopix
     return;
 end
 
-if npix == 0
+if num_pixels == 0
     return % nothing to do.
 end
 %

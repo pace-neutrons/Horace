@@ -49,7 +49,6 @@ classdef (Abstract) PixelDataBase < serializable
     %
     properties(Access=protected)
         PIXEL_BLOCK_COLS_ = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
-        data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
         data_range_ = PixelDataBase.EMPTY_RANGE; % range of all other variables (signal, error, indexes)
         full_filename_ = '';
     end
@@ -348,6 +347,7 @@ classdef (Abstract) PixelDataBase < serializable
 
         has_more = has_more(obj);
         [obj,current_page_num, total_num_pages] = advance(obj, varargin);
+        obj = delete(obj);
 
     end
     % the same interface on FB and MB files, bit works on PixelDataBase

@@ -235,6 +235,8 @@ classdef PixelDataFileBacked < PixelDataBase
 
         % --- Operator overrides ---
         function obj=delete(obj)
+            mmf = obj.f_accessor_;
+            clear mmf;
             obj.f_accessor_ = [];
         end
 

@@ -54,6 +54,15 @@ classdef sqw_file_interface
         % for the loader to read
         pixel_size;
     end
+    properties(Dependent,Hidden)
+        % service property, necessary for proper memmapfile class
+        % construction. Calculates the position of the end of pixel dataset
+        % (position of the first byte after pixel data)
+        pixel_data_end
+        % service property, necessary for proper memmapfile class
+        % construction. Calculates the actual position of sqw eof.
+        eof_position;
+    end
     %----------------------------------------------------------------------
     methods
         function pos = get.pix_position(obj)
@@ -90,6 +99,23 @@ classdef sqw_file_interface
         end
         function pix_size = get.pixel_size(obj)
             pix_size = get_filepix_size(obj);
+        end
+        %
+        function pos = get.eof_position(obj)
+            if isempty(obj.file_id) || obj.file_id <1
+                pos = [];
+            else
+                fseek(obj.file_id,0,'eof');
+                pos  = ftell(obj.file_id);
+            end
+        end
+        function pos = get.pixel_data_end(obj)
+            if ischar(obj.pix_position) ||isempty(obj.pix_position) || ...
+                    ischar(obj.npixels)||isempty(obj.npixels)
+                pos  = [];
+            else
+                pos = obj.pix_position+obj.npixels*obj.pixel_size;
+            end
         end
         %-------------------------
         function obj = delete(obj)
@@ -135,7 +161,7 @@ classdef sqw_file_interface
         pos = get_pix_position(obj);
         npix = get_npixels(obj);
         % used in updates of old file format to file format v4
-        obj = update_sqw_keep_pix(obj)        
+        obj = update_sqw_keep_pix(obj)
     end
     methods(Access=protected)
         function pix_size = get_filepix_size(~)

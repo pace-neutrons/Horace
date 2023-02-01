@@ -75,9 +75,7 @@ classdef horace_binfile_interface < serializable
         sqw_holder
         % interfaces to binary access outside of this class:
         % initial location of npix array
-        npix_position;        
-    end
-    properties(Dependent)
+        npix_position;
         % the property which sets/gets full file name (with path);
         % Duplicates filename/filepath information. Provided for
         % flexibility/simplicity.
@@ -91,6 +89,8 @@ classdef horace_binfile_interface < serializable
         format_for_object; % is intended for
         % Read-only accessor to the mode, current source file
         io_mode % is opened in. Empty if the file is not opened
+        % access to the file_id of the f-accessor
+        file_id
     end
 
     properties(Access=protected)
@@ -281,6 +281,9 @@ classdef horace_binfile_interface < serializable
                 ndims = double(obj.num_dim_);
             end
         end
+        function id = get.file_id(obj)
+            id = obj.file_id_;
+        end
         %------------------------------------------------------------------
         %OVERLOADABLE ACCESSORS
         function obj_type = get.format_for_object(obj)
@@ -301,9 +304,9 @@ classdef horace_binfile_interface < serializable
         end
         function pos = get.npix_position(obj)
             % retrieve the position of npix array in a binary file
-            % for accessing it using 
+            % for accessing it using
             pos = get_npix_position(obj);
-        end                
+        end
     end
     %======================================================================
     methods(Abstract)
@@ -366,8 +369,8 @@ classdef horace_binfile_interface < serializable
         % properties from old file format to the new file format
         new_obj = do_class_dependent_updates(new_obj,old_obj,varargin);
 
-        % main part of the accessor to the npix array postion on hdd        
-        pos = get_npix_position(obj);        
+        % main part of the accessor to the npix array postion on hdd
+        pos = get_npix_position(obj);
     end
     methods(Static) % helper methods used for binary IO
         function move_to_position(fid,pos)

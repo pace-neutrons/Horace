@@ -100,7 +100,7 @@ classdef test_faccess_sqw_v4< TestCase
             ver_obj.experiment_info.runid_recalculated = true;
             assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date');
         end
-        
+
         function test_upgrdate_v2_to_v4_filebacked(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
             clObF = onCleanup(@()delete(tf));
@@ -129,6 +129,7 @@ classdef test_faccess_sqw_v4< TestCase
             w_new = fac.get_sqw('-ver');
             fac.delete();
 
+
             assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date','ignore_str',true)
 
 
@@ -137,6 +138,12 @@ classdef test_faccess_sqw_v4< TestCase
             w_new_new = fac1.get_sqw('-ver');
             fac1.delete();
             assertEqualToTol(w_new,w_new_new)
+            % do clean-up as pixels hold access to the file, which can not
+            % be deleted as memmapfile holds it
+            w_new.pix = [];
+            w_new_new.pix = [];
+            clear w_new;
+            clear w_new_new;
         end
 
         function test_upgrdate_v2_to_v4_membased(obj)
@@ -298,8 +305,8 @@ classdef test_faccess_sqw_v4< TestCase
             tob=tob.init(tf);
             assertEqual(tob.faccess_version,4);
             tob.delete();
-        end  
-        
+        end
+
         %
         function test_serialize_deserialise_faccess(obj)
             fo = faccess_sqw_v4();
@@ -316,13 +323,13 @@ classdef test_faccess_sqw_v4< TestCase
 
             bys = fo.to_struct();
             forb = serializable.from_struct(bys);
-            assertEqual(fo,forb);            
+            assertEqual(fo,forb);
 
             by = fo.serialize();
             fr = serializable.deserialize(by);
 
             assertEqual(fo,fr);
-        end                
+        end
         %
         function test_wrong_file_name_activated(obj)
             ld = sqw_formats_factory.instance.get_loader(obj.sample_file);
@@ -462,7 +469,7 @@ classdef test_faccess_sqw_v4< TestCase
             hc    = hor_config;
             mchs  = hc.mem_chunk_size;
             hc.mem_chunk_size = 1000;
-            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
+            clobC = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
 
             samp_f = obj.sample_file;
             assertTrue(PixelDataBase.do_filebacked(4000))
@@ -473,25 +480,28 @@ classdef test_faccess_sqw_v4< TestCase
             assertTrue(isa(sqw_ob,'sqw'));
 
 
-            tf = fullfile(tmp_dir,'test_save_load_sqwV4.sqw');
-            clob = onCleanup(@()delete(tf));
+            tf = fullfile(tmp_dir,'write_read_correctV4_filebacked.sqw');
+            clobF = onCleanup(@()delete(tf));
 
             tob = faccess_sqw_v4();
             tob = tob.init(sqw_ob,tf);
 
             tob=tob.put_sqw();
-            assertTrue(exist(tf,'file')==2)
             tob = tob.delete();
+            so.delete();
+
+            assertTrue(exist(tf,'file')==2)
 
             tob=tob.init(tf);
             ver_obj =tob.get_sqw('-verbatim');
             tob.delete();
 
             assertEqualToTol(sqw_ob,ver_obj,1.e-12);
+            clear ver_obj; % need to delete memmapfile associated with tf.
         end
 
         function test_write_read_correctV4_membased(obj)
-            assertFalse(PixelDataBase.do_filebacked(4000))            
+            assertFalse(PixelDataBase.do_filebacked(4000))
 
             fac0 = faccess_sqw_v4(obj.sample_file);
             sample = fac0.get_sqw('-verbatim');
