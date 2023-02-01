@@ -102,7 +102,7 @@ if ~ok
 end
 
 obj.cluster_       = cluster_wrp;
-obj.job_destroyer_ = onCleanup(@()finalize_all(cluster_wrp));
+% obj.job_destroyer_ = onCleanup(@()finalize_all(cluster_wrp));
 
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...

@@ -1,4 +1,4 @@
-classdef JobDispatcher
+classdef JobDispatcher < handle
     % The class to run and control Herbert MPI jobs which are the children
     % of JobExecutor class.
     %
@@ -187,7 +187,6 @@ classdef JobDispatcher
             if ~exist('task_query_time', 'var')
                 task_query_time = 4;
             end
-
             if isempty(obj.cluster_)
                 [outputs,n_failed,task_ids,obj] = send_tasks_to_workers_(obj, ...
                      job_class_name,common_params,loop_params,return_results, ...
@@ -200,50 +199,6 @@ classdef JobDispatcher
             end
         end
 
-        function [outputs,n_failed,task_ids,obj]=restart_job(obj,...
-                job_class_name,common_params,loop_params,return_results,...
-                task_query_time)
-            % Restart parallel Matlab job started earlier by start_job command,
-            % providing it with new data. The cluster to do the job must be running.
-            %
-            % Usage:
-            % [n_failed,outputs,task_ids,obj] = ...
-            %     obj.restart_job(obj,job_class_name,common_params,loop_params,...
-            %     [return_results,[job_query_time]])
-            %
-            %Where:
-            % job_class_name -- name of the class - child of JobExecutor,
-            %                   which will process task on a separate worker
-            % common_params  -- a structure, containing the parameters, common
-            %                   to every loop iteration
-            % loop_params    -- either cell array of structures,
-            %                   with each cell specific to a loop iteration
-            %                   or the number of iterations to do over
-            %                   common_params (which may depend on the
-            %                   iteration number defined in JobExecutor)
-            % return_results -- set to true if the job is expected to return
-            %                   some results
-            %
-            % Optional:
-            % task_query_time -- if present -- time interval in seconds to
-            %                    check if tasks are completed. By default,
-            %                    check every 4 seconds
-            %
-            % Returns:
-            % outputs   -- cell array of outputs from each task.
-            %              Empty if tasks do not return anything
-            % n_failed  -- number of tasks that has failed.
-            % task_ids   -- cell array containing relation between task_id
-            %              (task number) and task parameters from
-            %               tasks_param_list, assigned to this task
-            if ~exist('task_query_time', 'var')
-                task_query_time = 4;
-            end
-            [outputs,n_failed,task_ids,obj]=resend_tasks_to_workers_(obj,...
-                job_class_name,common_params,loop_params,return_results,...
-                task_query_time);
-        end
-
         %------------------------------------------------------------------
 
         function limit = get.fail_limit(obj)
@@ -253,7 +208,6 @@ classdef JobDispatcher
         function time = get.task_check_time(obj)
             time = obj.task_check_time_;
         end
-
 
         function obj = set.task_check_time(obj,val)
             if val<=0

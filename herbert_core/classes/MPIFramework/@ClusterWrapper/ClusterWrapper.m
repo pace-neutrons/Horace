@@ -771,7 +771,7 @@ classdef ClusterWrapper
             % function defines desired completion of the workers.
             % should be true for java-controlled worker and false for parallel
             % computing toolbox controlled one.
-            ex  = true;
+            ex  = false;
         end
 
         function [running,failed,mess] = is_java_process_running(obj,task_handle)

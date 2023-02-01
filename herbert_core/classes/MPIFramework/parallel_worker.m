@@ -146,9 +146,9 @@ while keep_worker_running
 
     num_of_runs = num_of_runs+1;
     if do_logging; log_num_runs(num_of_runs); end
-    fprintf('   *******************************************\n');
-    fprintf('   ******  LabN %d  : RUN N : %d  Task: %s *\n',intercomm.labIndex,num_of_runs,fbMPI.job_id);
-    fprintf('   *******************************************\n');
+%     fprintf('   *******************************************\n');
+%     fprintf('   ******  LabN %d  : RUN N : %d  Task: %s *\n',intercomm.labIndex,num_of_runs,fbMPI.job_id);
+%     fprintf('   *******************************************\n');
 
 
     %% --------------------------------------------------------------------
@@ -266,6 +266,7 @@ while keep_worker_running
                 profile('on')
             end
         end
+
         if do_logging; log_disp_message('Logging start and checking for job cancellation before loop je.is_completed loop\n'); end
         mis.do_logging(0,n_steps);
 
