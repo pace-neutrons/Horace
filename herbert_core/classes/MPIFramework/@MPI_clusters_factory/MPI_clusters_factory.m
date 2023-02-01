@@ -182,8 +182,11 @@ classdef MPI_clusters_factory<handle
 
                 end
             else
-                cluster_to_host_exch_fmwork
-                cl = cl.set_mess_exchange(cluster_to_host_exch_fmwork)
+                cl = cl.set_mess_exchange(cluster_to_host_exch_fmwork);
+                if ~is_folder(cluster_to_host_exch_fmwork.mess_exchange_folder) % Ensure folder isn't deleted
+                   mkdir(cluster_to_host_exch_fmwork.mess_exchange_folder)
+                end
+
             end
 
             cluster = cl;
