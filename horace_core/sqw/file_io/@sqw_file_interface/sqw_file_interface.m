@@ -157,6 +157,7 @@ classdef sqw_file_interface
         % extended interface:
         obj = put_instruments(obj,varargin);
         obj = put_samples(obj,varargin);
+
     end
     methods(Abstract,Access=protected)
         pos = get_pix_position(obj);

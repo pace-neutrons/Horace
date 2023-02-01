@@ -81,7 +81,7 @@ if use_mex
             [pix_range,pix_arr] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             if proj_mode==2
                 pix = PixelDataMemory();
-                pix = pix.set_data(pix_arr);
+                pix = pix.set_raw_data(pix_arr);
                 pix = pix.set_data_range(pix_range);
             else
                 pix = pix_arr;

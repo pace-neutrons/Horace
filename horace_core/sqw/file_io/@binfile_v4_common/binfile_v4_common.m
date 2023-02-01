@@ -196,14 +196,20 @@ classdef binfile_v4_common < horace_binfile_interface
             %                 store the data block in. Any other
             %                 information (sub-block to store) is not
             %                 acceptable in this situation
+            % '-noinit'    -- do not initialize file accessor, even if it
+            %                 is possible
             %
             if nargin>2 % otherwise have to assume that the object is initialized
-                if (isa(varargin{1},'SQWDnDBase')||is_sqw_struct(varargin{1}))
-                    obj = obj.init(varargin{:});
+                [ok,mess,no_initialization,argi] = parse_char_options(varargin,{'-noinit'});
+                if ~ok
+                    error('HORACE:binfile_v4_common:invalid_argument',mess)
+                end
+                if ~no_initialization && (isa(argi{1},'SQWDnDBase')||is_sqw_struct(argi{1}))
+                    obj = obj.init(argi{:});
                     obj  = put_sqw_block_(obj,block_name_or_class);
                     return;
                 end
-                obj  = put_sqw_block_(obj,block_name_or_class,varargin{1});
+                obj  = put_sqw_block_(obj,block_name_or_class,argi{1});
             else
                 obj  = put_sqw_block_(obj,block_name_or_class);
             end
@@ -243,20 +249,16 @@ classdef binfile_v4_common < horace_binfile_interface
             [dnd_info,obj] =  obj.get_block_data('bl_data_metadata',varargin{:});
         end
         % retrieve any dnd object or dnd part of sqw object
-        [dnd_obj,obj]  = get_dnd(obj,varargin);
-        %------------------------------------------------------------------
-        function obj = put_dnd_metadata(obj,varargin)
-            % write information, describing dnd object
-            obj = obj.put_block_data('bl_data_metadata',varargin{:});
-        end
+        [dnd_obj,obj]  = get_dnd(obj,varargin);        
+        % 
 
-        function obj = put_dnd_data(obj,varargin)
-            % write dnd image data, namely s, err and npix
-            obj = obj.put_block_data('bl_data_nd_data',varargin{:});
-        end
+        %------------------------------------------------------------------
         % save sqw/dnd object stored in memory into binary sqw file as dnd object.
         % it always reduced data in memory into dnd object on hdd
         obj = put_dnd(obj,varargin);
+        % 
+        obj = put_dnd_data(obj,dnd_obh);        
+        obj = put_dnd_metadata(obj,varargin)        
         %
         function  [data,obj] =  get_data(obj,varargin)
             % equivalent to get_dnd('-noclass). Should it also return pix

@@ -61,28 +61,39 @@ classdef test_faccess_sqw_v4< TestCase
             % Get access to pixels.
             pix = source.pix;
             pix_pos = 1;
+            data_range = PixelDataBase.EMPTY_RANGE;
             for i=1:pix.num_pages
                 pix.page_num = i;
                 pix_data = pix.get_pixels('-keep_precision','-raw_data');
                 % Transform pixels according to requested operation here
-                % and do appropriate image averages
+                % and do appropriate image averages. E.g.
+                %pix_data(8,:) = 2*pix_data(8,:); % Operations with PixelData clas may be beneficial
+                loc_range = [min(pix_data,[],2),max(pix_data,[],2)]';
+
+                data_range = [min(data_range(1,:),loc_range(1,:));...
+                    max(data_range(2,:),loc_range(2,:))];
                 targ_fac = targ_fac.put_raw_pix(pix_data,pix_pos);
                 pix_pos = pix_pos + size(pix_data,2);
             end
-            % modify accomulated signal and error. Ensure the size of the
-            % sqw object's dnd object remains unchaged.
+            pix.full_filename = targ_fac.full_filename; % this is questionable. What if the file is renamed?
+            pix.data_range = data_range;
+            targ_fac = targ_fac.put_pix_metadata(pix);
+            % modify accomulated signal and error.
             data = targ_fac.sqw_holder.data;
-            data.s = 2*data.s; % sample modifications, eqivalent to image averages
+            data.s = 2*data.s; % test modifications, eqivalent to image averages
             % add modified data to file accessor
-            targ_fac.sqw_holder.data = data;
             % Store modified dnd data
-            targ_fac = targ_fac.put_dnd_data();
+            targ_fac = targ_fac.put_dnd_data(data);
             % complete io operations and finalize target file
             targ_fac.delete();
 
             % check result
             assertTrue(is_file(tf));
             res_sqw = read_sqw(tf);
+
+            assertEqual(res_sqw.pix.full_filename,tf);
+            % this actually spurious, data range have not changed
+            assertEqual(res_sqw.pix.data_range,data_range);
 
             assertEqualToTol(ref_sqw,res_sqw,1.e-12,'ignore_str',true)
             %

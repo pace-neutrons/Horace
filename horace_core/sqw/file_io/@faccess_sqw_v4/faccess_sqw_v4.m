@@ -153,8 +153,10 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         obj = put_pix(obj,varargin);
         obj = put_raw_pix(obj,pix_data,pix_idx,varargin);        
         obj = put_sqw(obj,varargin);
+        %
         obj = put_instruments(obj,varargin);
         obj = put_samples(obj,varargin);
+        obj = put_pix_metadata(ob,pix_class)        
     end
     %======================================================================
     % Old, partially redundant interface
