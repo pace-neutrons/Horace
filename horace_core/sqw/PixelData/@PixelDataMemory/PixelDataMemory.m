@@ -4,7 +4,7 @@ classdef PixelDataMemory < PixelDataBase
     %   This class provides getters and setters for each data column in an SQW
     %   pixel array. You can access the data using the attributes listed below,
     %   using the get_data() method (to retrieve column data) or using the
-    %   get_pixels() method (retrieve row data).
+    %   get_pixels() method (retrieve raw data).
     %
     %   Construct this class with an 9 x N array, a file path to an SQW object or
     %   an instance of sqw_binfile_common.

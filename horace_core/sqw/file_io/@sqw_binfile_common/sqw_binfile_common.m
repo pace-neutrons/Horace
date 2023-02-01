@@ -134,6 +134,10 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         obj = put_det_info(obj,varargin);
         %
         obj = put_pix(obj,varargin);
+        function obj = put_raw_pix(obj,vararing)
+            error('HORACE:sqw_binfile_common:not_implemented', ...
+                'This is the function, used by new file interface and not implemented on old file interface')
+        end
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
         %

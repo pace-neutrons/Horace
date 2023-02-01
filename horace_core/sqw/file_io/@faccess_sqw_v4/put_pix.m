@@ -5,7 +5,6 @@ function   obj = put_pix(obj,varargin)
 %>>obj = obj.put_pix();
 %>>obj = obj.put_pix(sqw_obj);
 %>>obj = obj.put_pix(pix_obj);
-%>>obj = obj.put_pix(pix_obj.data);
 %
 % Optional:
 % '-update' -- update existing data rather then (over)writing new file
@@ -78,7 +77,7 @@ obj = obj.put_block_data('bl_pix_metadata',input_obj);
 if ~(isa(input_obj,'pix_combine_info')|| input_obj.is_filebacked)
     obj = obj.put_block_data('bl_pix_data_wrap',input_obj);
     return;
-elseif ~isnumeric(obj)
+else
     % write pixel data block information
     pdb = obj.bat_.blocks_list{end};
     pdb.put_data_header(obj.file_id_);
@@ -131,12 +130,17 @@ elseif isa(input_obj,'PixelDataBase')  % write pixels stored in other file
     for i = 1:n_pages
         input_obj.page_num = i;
         pix_data = input_obj.get_pixels('-keep_precision','-raw_data');
-        fwrite(obj.file_id_, single(pix_data), 'float32');
-        check_error_report_fail_(obj,...
-            sprintf('Error writing input pixels array for page N%d out of %d',i,n_pages));
+        try
+            fwrite(obj.file_id_, single(pix_data), 'float32');
+            obj.check_write_error(obj.file_id_);
+        catch ME
+            exc = MException('HORACE:put_pix:io_error',...
+                sprintf('Error writing input pixels for page N%d out of %d',i,n_pages));
+            throw(exc.addCause(ME))
+        end
+
     end
 else % pixel data array. As it is in memory, write it as a sigle block
     fwrite(obj.file_id_, single(input_obj), 'float32');
-    check_error_report_fail_(obj,...
-        sprintf('Error writing input pixels array'));
+    obj.check_write_error(obj.file_id_);
 end

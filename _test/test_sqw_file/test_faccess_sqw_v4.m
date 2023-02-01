@@ -33,27 +33,62 @@ classdef test_faccess_sqw_v4< TestCase
         % tests
         %
         %
-        function test_put_pix_get_pix_no_sqw(~)
-            tf = fullfile(tmp_dir,'test_put_pix_get_pix_no_sqw.sqw');
-            clOb = onCleanup(@()delete(tf));
+        function test_fb_operations_pattern(obj)
+            tf = fullfile(tmp_dir,'test_fb_operations_pattern.sqw');
+            clObF = onCleanup(@()delete(tf));
+            if is_file(tf)
+                delete(tf);
+            end
             assertFalse(is_file(tf));
+            %
+            ws = warning('off','HORACE:old_file_format');
+            clOnConf = onCleanup(@()warning(ws));
+            %
+            ref_sqw = read_sqw(obj.sample_file);
+            ref_sqw.data.s = ref_sqw.data.s*2; % do sample modification
+            hc    = hor_config;
+            mchs  = hc.mem_chunk_size;
+            hc.mem_chunk_size = 1000;
+            clobConf = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
 
-            rng(1);
-            sample = rand(9,100000);
-            pix = PixelDataMemory(sample);
+            % ensure filebacked operations for tests. Interface is generic
+            assertTrue(PixelDataBase.do_filebacked(ref_sqw.npixels))
+            % copy source to target. May be implemented in internal copy operation
+            source = sqw(obj.sample_file);
+            targ_fac = sqw_formats_factory.instance().get_pref_access('sqw');
+            targ_fac = targ_fac.init(source,tf);
+            targ_fac = targ_fac.put_sqw('-nopix');
+            % Get access to pixels.
+            pix = source.pix;
+            pix_pos = 1;
+            for i=1:pix.num_pages
+                pix.page_num = i;
+                pix_data = pix.get_pixels('-keep_precision','-raw_data');
+                % Transform pixels according to requested operation here
+                % and do appropriate image averages
+                targ_fac = targ_fac.put_raw_pix(pix_data,pix_pos);
+                pix_pos = pix_pos + size(pix_data,2);
+            end
+            % modify accomulated signal and error. Ensure the size of the
+            % sqw object's dnd object remains unchaged.
+            data = targ_fac.sqw_holder.data;
+            data.s = 2*data.s; % sample modifications, eqivalent to image averages
+            % add modified data to file accessor
+            targ_fac.sqw_holder.data = data;
+            % Store modified dnd data
+            targ_fac = targ_fac.put_dnd_data();
+            % complete io operations and finalize target file
+            targ_fac.delete();
 
-            fac = faccess_sqw_v4();
-            fac.full_filename = tf;
-            fac = fac.put_pix(pix);
-            fac.delete();
-
+            % check result
             assertTrue(is_file(tf));
-            far = faccess_sqw_v4(tf);
-            [pix_rec,far] = far.get_pix();
-            far.delete();
+            res_sqw = read_sqw(tf);
 
-            assertEqual(pix,pix_rec);
-
+            assertEqualToTol(ref_sqw,res_sqw,1.e-12,'ignore_str',true)
+            %
+            res_sqw.pix = [];
+            clear res_sqw; % try to delete memmapfile to be able to delete
+            % test file
         end
         function obj = test_save_load_sqwV4_crossbuf(obj)
             hc    = hor_config;
