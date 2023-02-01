@@ -91,15 +91,15 @@ classdef PixelDataFileBacked < PixelDataBase
     % Overloaded operations interface
     methods
         function obj = append(obj, ~)
-            error('HORACE:PixelDataFileBacked:runtime_error',...
+            error('HORACE:PixelDataFileBacked:not_impmemented',...
                 'append does not work on file-based pixels')
         end
         function pix = set_raw_data(obj,~)
-            error('HORACE:PixelDataFileBacked:runtime_error',...
+            error('HORACE:PixelDataFileBacked:not_impmemented',...
                 'set_raw_data is not currently implemented on file-based pixels')
         end
         function obj  = set_fields(obj, data, fields, abs_pix_indices)
-            error('HORACE:PixelDataFileBacked:runtime_error',...
+            error('HORACE:PixelDataFileBacked:not_impmemented',...
                 'set_fields is not currently implemented on file-based pixels')
         end
 
@@ -113,7 +113,10 @@ classdef PixelDataFileBacked < PixelDataBase
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
 
         pix_out = get_fields(obj, fields, abs_pix_indices);
-        obj=set_raw_fields(obj, data, fields, abs_pix_indices);
+        function  obj=set_raw_fields(obj, data, fields, abs_pix_indices)
+            error('HORACE:PixelDataFileBacked:not_impmemented',...
+                'set_raw_fields is not currently implemented on file-based pixels')
+        end
     end
 
     %
@@ -297,7 +300,7 @@ classdef PixelDataFileBacked < PixelDataBase
             pix_idx_end = min(pix_idx_start + pgs - 1, ...
                 obj.num_pixels);
         end
-        
+
         function np = get_page_num(obj)
             np = obj.page_num_;
         end

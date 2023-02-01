@@ -97,7 +97,9 @@ else
         ibinarr = replicate_iarray(ibin, npix(ibin)); % bin index for each retained pixel
         % Now test contents for equality
         pix1 = w1.pix;
+        pix1 = pix1.move_to_first_page();
         pix2 = w2.pix;
+        pix2 = pix2.move_to_first_page();
         name_a = [name_a, '.pix'];
         name_b = [name_b, '.pix'];
 

@@ -6,10 +6,9 @@ function  obj = put_dnd_data(obj,dnd_obj)
 % value stored in sqw_holder
 
 if exist('dnd_obj','var')
-
-    if ~isa(dnd_obj,'DnDBase')
+    if ~(isa(dnd_obj,'DnDBase')||isa(dnd_obj,'dnd_data'))
         error('HORACE:faccess_sqw_v4:invalid_argument',...
-            'This method accepts instance of DnD object as input. In fact you provieded object of class %s',...
+            'This method accepts instance of DnD object or dnd_data as input. In fact you provieded object of class %s',...
             class(dnd_obh));
     end
     obj = obj.put_sqw_block('bl_data_nd_data',dnd_obj,'-noinit');

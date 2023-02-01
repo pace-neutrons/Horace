@@ -18,7 +18,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
 
         function test_sqw_with_paged_pix_saved_is_eq_to_original_with_all_pix(obj)
             sqw_obj = sqw(obj.test_sqw_file_path, ...
-                'pixel_page_size', obj.small_page_size);
+                'file_backed', true);
             assertFalse(sqw_obj.main_header.creation_date_defined);
 
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
@@ -32,7 +32,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
 
         function test_sqw_with_paged_pix_not_on_1st_pg_saved_correctly(obj)
             sqw_obj = sqw(obj.test_sqw_file_path, ...
-                'pixel_page_size', obj.small_page_size);
+                'file_backed', true);
             sqw_obj.pix = sqw_obj.pix.advance();
             assertFalse(sqw_obj.main_header.creation_date_defined);
 
@@ -47,7 +47,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
 
         function test_saved_sqw_with_paged_pix_equal_to_original_sqw(obj)
             sqw_obj = sqw(obj.test_sqw_file_path, ...
-                'pixel_page_size', obj.small_page_size);
+                'file_backed', true);
             assertFalse(sqw_obj.main_header.creation_date_defined);
 
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
@@ -65,7 +65,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
                 'mem_chunk_size', floor(obj.npixels_in_file/2) ...
                 );
             sqw_obj = sqw(obj.test_sqw_file_path, ...
-                'pixel_page_size', obj.small_page_size);
+               'file_backed', true);
             assertFalse(sqw_obj.main_header.creation_date_defined);
 
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
@@ -79,7 +79,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
 
         function test_sqw_w_pix_on_2nd_pg_saved_right_with_small_mem_chunk_size(obj)
             sqw_obj = sqw(obj.test_sqw_file_path, ...
-                'pixel_page_size', obj.small_page_size);
+                'file_backed', true);
             sqw_obj.pix = sqw_obj.pix.advance();
             assertFalse(sqw_obj.main_header.creation_date_defined);
 

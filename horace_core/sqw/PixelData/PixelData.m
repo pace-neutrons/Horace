@@ -1,14 +1,11 @@
 classdef PixelData < PixelDataMemory
-    % Dummy class for loading legacy .mat files containing old version of 
+    % Dummy class for loading legacy .mat files containing old version of
     % PixelData (PixelDataMemory now)
     methods
         function obj = PixelData(varargin)
             % Wrapper function to handle old-style scripts
             % Creates a PixelData object as per new functionality
-            if nargin == 0
-                return;
-            end
-            obj = obj@PixelDataMemory(varargin{:});            
+            obj = obj@PixelDataMemory(varargin{:});
         end
 
     end

@@ -64,14 +64,22 @@ classdef test_faccess_sqw_v4< TestCase
             data_range = PixelDataBase.EMPTY_RANGE;
             for i=1:pix.num_pages
                 pix.page_num = i;
+                % this may be operation specific, depending on we want
+                % access to pixel class or not. For speed, in any case may
+                % be beneficial to do pix_h = PixelDataMemory();
+                % pix_h.data = pix.get_pixels('-raw_data');
+                %
                 pix_data = pix.get_pixels('-keep_precision','-raw_data');
                 % Transform pixels according to requested operation here
                 % and do appropriate image averages. E.g.
                 %pix_data(8,:) = 2*pix_data(8,:); % Operations with PixelData clas may be beneficial
-                loc_range = [min(pix_data,[],2),max(pix_data,[],2)]';
 
+                % calculate ranges:
+                loc_range = [min(pix_data,[],2),max(pix_data,[],2)]';
                 data_range = [min(data_range(1,:),loc_range(1,:));...
                     max(data_range(2,:),loc_range(2,:))];
+                %
+                % store result
                 targ_fac = targ_fac.put_raw_pix(pix_data,pix_pos);
                 pix_pos = pix_pos + size(pix_data,2);
             end

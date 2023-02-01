@@ -35,7 +35,7 @@ classdef test_data_block < TestCase
         function test_pix_data_block_fron_to_bat_rec(~)
             pdb = pix_data_block(10,1000);
             assertEqual(pdb.block_name,'bl_pix_data_wrap');
-            assertEqual(pdb.npixels,1000)
+            assertEqual(pdb.npixels,uint64(1000))
             assertEqual(pdb.size,uint64(12+9*4*1000))
 
             batr_array = pdb.bat_record();
@@ -49,7 +49,7 @@ classdef test_data_block < TestCase
         function test_pix_data_block_ser_deser(~)
             pdb = pix_data_block(10,1000,12);
             assertEqual(pdb.block_name,'bl_pix_data_wrap');
-            assertEqual(pdb.npixels,1000)
+            assertEqual(pdb.npixels,uint64(1000))
             assertEqual(pdb.size,uint64(12+12*4*1000))
 
             pdb_struc = pdb.to_struct();
@@ -62,12 +62,12 @@ classdef test_data_block < TestCase
             assertEqual(pdb.sqw_prop_name,'pix')
             assertEqual(pdb.level2_prop_name,'data_wrap')
             pdb.npixels = 100;
-            assertEqual(pdb.npixels,100)
+            assertEqual(pdb.npixels,uint64(100))
             assertEqual(pdb.size,uint64(12+4*9*100))
 
             pdb.n_rows = 10;
             assertEqual(pdb.n_rows,10);
-            assertEqual(pdb.npixels,100)
+            assertEqual(pdb.npixels,uint64(100))
             assertEqual(pdb.size,uint64(12+4*10*100))
 
         end
@@ -90,7 +90,7 @@ classdef test_data_block < TestCase
             assertEqual(pdb.sqw_prop_name,'pix')
             assertEqual(pdb.level2_prop_name,'data_wrap')
             pdb.npixels = 100;
-            assertEqual(pdb.npixels,100)
+            assertEqual(pdb.npixels,uint64(100))
             assertEqual(pdb.position,uint64(0))
             assertEqual(pdb.size,uint64(12+4*9*100))
             assertEqual(pdb.num_pix_position,uint64(4))

@@ -106,6 +106,9 @@ if ~opts.nopix && obj.npixels>0
     else
         argi = {};
     end
+    if opts.file_backed
+        argi = [argi(:),'-file_backed'];
+    end
     sqw_struc.pix = PixelDataBase.create(obj,argi{:});
 end
 
