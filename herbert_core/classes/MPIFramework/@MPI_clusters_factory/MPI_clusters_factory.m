@@ -1,4 +1,4 @@
-classdef MPI_clusters_factory<handle
+classdef MPI_clusters_factory < handle
     % The class, providing the subscription factory for
     % various type of MPI frameworks, available to users.
     %
@@ -23,7 +23,6 @@ classdef MPI_clusters_factory<handle
         % The framework has to be defined and subscribed via the
         % algorithms factory.
         known_cluster_names
-        %
     end
 
     properties(Access=protected)
@@ -36,9 +35,11 @@ classdef MPI_clusters_factory<handle
         % Subscription factory:
         % the list of the known framework names.
         known_cluster_names_ = {'herbert','parpool','mpiexec_mpi','slurm_mpi','dummy'};
+
         % The map to existing parallel frameworks clusters
         known_clusters_ = containers.Map(MPI_clusters_factory.known_cluster_names_,...
             {ClusterHerbert(),ClusterParpoolWrapper(),ClusterMPI(),ClusterSlurm(),ClusterDummy()});
+
         % the map of the framework indexes
         cluster_ids_ = containers.Map(MPI_clusters_factory.known_cluster_names_,...
             num2cell(1:5));
@@ -153,43 +154,46 @@ classdef MPI_clusters_factory<handle
             %             parallel workers, communicating between each
             %             other using the method, chosen for the
             %             cluster.
-            persistent cl
 
-            log_level = config_store.instance().get_value('hor_config','log_level');
+            mis = MPI_State.instance();
 
             % If cluster not initialised or requirements have changed
             % rebuild cluster
-            if isempty(cl) || ~strcmpi(class(cl), ['cluster' obj.parallel_cluster_name_]) || n_workers ~= cl.n_workers
+            if isempty(mis.cluster) || ...
+                    ~strcmpi(class(mis.cluster), ['cluster' obj.parallel_cluster_name_]) || ...
+                    n_workers ~= mis.cluster.n_workers
 
-                cl = obj.parallel_cluster;
-                if isempty(cl)
+                log_level = config_store.instance().get_value('hor_config','log_level');
+
+                mis.cluster = obj.parallel_cluster;
+                if isempty(mis.cluster)
                     error('HERBERT:MPI_clusters_factory:not_available',...
                           ' Can not run jobs in parallel. Any parallel framework is not available. Worker may be not installed.')
                 end
 
                 try
-                    cl = cl.init(n_workers,cluster_to_host_exch_fmwork,log_level);
+                    mis.cluster = mis.cluster.init(n_workers,cluster_to_host_exch_fmwork,log_level);
                 catch ME
                     switch ME.identifier
                       case 'HERBERT:ClusterWrapper:runtime_error'
                         if log_level > -1
                             fprintf(2,'**** Cluster Initialization failure: %s\n',ME.message);
                         end
-                        cl=[];
+                        mis.cluster=[];
                       otherwise
                         rethrow(ME);
                     end
 
                 end
             else
-                cl = cl.set_mess_exchange(cluster_to_host_exch_fmwork);
+                mis.cluster = mis.cluster.set_mess_exchange(cluster_to_host_exch_fmwork);
                 if ~is_folder(cluster_to_host_exch_fmwork.mess_exchange_folder) % Ensure folder isn't deleted
                    mkdir(cluster_to_host_exch_fmwork.mess_exchange_folder)
                 end
 
             end
 
-            cluster = cl;
+            cluster = mis.cluster;
         end
 
     end

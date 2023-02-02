@@ -14,37 +14,44 @@ function obj = init_framework_(obj,framework_info)
 %      main process flow (not parallel)
 
 test_mode = false;
-if exist('framework_info', 'var')
-    if isstruct(framework_info) && isfield(framework_info,'job_id')
-        obj.job_id = framework_info.job_id;
-        if isfield(framework_info,'test_mode')
-            test_mode = true;
-        end
-        if isfield(framework_info,'labID')
-            cluster_range = int32([framework_info.labID,...
-                framework_info.numLabs]);
-        else
-            cluster_range =int32([1,10]);
-        end
-    elseif(is_string(framework_info))
-        obj.job_id = framework_info;
-        if strcmpi(framework_info,'test_mode')
-            test_mode = true;
-            cluster_range =int32([1,10]);
-        end
+
+if ~exist('framework_info', 'var')
+    error('MPI_MESSAGES:invalid_argument',...
+          'inputs for init_framework function is missing')
+end
+
+if isstruct(framework_info) && isfield(framework_info,'job_id')
+    obj.job_id = framework_info.job_id;
+
+    if isfield(framework_info,'test_mode')
+        test_mode = true;
+    end
+
+    if isfield(framework_info,'labID')
+        cluster_range = int32([framework_info.labID,...
+                               framework_info.numLabs]);
     else
-        error('MPI_MESSAGES:invalid_argument',...
-            'inputs for init_framework function does not have correct structure')
+        cluster_range = int32([1,10]);
+    end
+
+elseif(is_string(framework_info))
+    obj.job_id = framework_info;
+
+    if strcmpi(framework_info,'test_mode')
+        test_mode = true;
+        cluster_range = int32([1,10]);
     end
 else
     error('MPI_MESSAGES:invalid_argument',...
-        'inputs for init_framework function is missing')
+          'inputs for init_framework function does not have correct structure')
 end
+
 mpi_com_path = which('cpp_communicator');
 if isempty(mpi_com_path)
     error('MPI_MESSAGES:runtime_error',...
         'Can not find CPP MPI communicator on Matlab routines search path')
 end
+
 try
     mex_ver = cpp_communicator();
     if ~is_valid_version(mex_ver)
@@ -57,17 +64,20 @@ catch Err
         'Can not initialize MPI communicator, err message: %s',...
         Err.message);
 end
+
 obj.data_message_tag_ = MESS_NAMES.mess_id('data');
+
 if ~isempty(obj.mpi_framework_holder_)
     cpp_communicator('finalize',obj.mpi_framework_holder_);
 end
-mis =MPI_State.instance();
+
+mis = MPI_State.instance();
 if mis.trace_log_enabled
     fh = mis.debug_log_handle;
     fwrite(fh,sprintf('In MessagesCppMPI initialization.\n Test mode %d\n', ...
         test_mode));
-
 end
+
 if test_mode
     [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_,obj.node_names_ ]= ...
         cpp_communicator('init_test_mode',...
@@ -75,6 +85,7 @@ if test_mode
         obj.interrupt_chan_tag_,cluster_range);
     obj.is_tested_ = true;
 else
+
     if mis.trace_log_enabled
         inputs = sprintf(['**** Ass_mess_queue_len: %d\n,',...
             '*** data_message_tag: %d;\n*** Interrupt chan tag: %d\n'],...
@@ -82,6 +93,7 @@ else
             obj.interrupt_chan_tag_);
         fwrite(fh,inputs);
     end
+
     try
         [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_,obj.node_names_]= ...
             cpp_communicator('init',...
@@ -96,11 +108,15 @@ else
             fwrite(fh,sprintf('Err:%n %s\n',ME.getReport()));
         end
     end
+
     if mis.trace_log_enabled
         fwrite(fh,sprintf('initialized\n'));
     end
+
     obj.is_tested_ = false;
 end
+
 obj.task_id_  = double(obj.task_id_);
 obj.numLabs_  = double(obj.numLabs_);
 
+end

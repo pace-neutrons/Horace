@@ -1,4 +1,4 @@
-classdef JobDispatcher < handle
+classdef JobDispatcher
     % The class to run and control Herbert MPI jobs which are the children
     % of JobExecutor class.
     %
@@ -82,7 +82,7 @@ classdef JobDispatcher < handle
         time_to_fail;
     end
 
-    properties(Access=protected, Hidden = true)
+    properties(Access=protected, Hidden=true)
         % How often (in seconds) JobDispatcher should display the task status
         task_check_time_ = 4;
 
@@ -93,9 +93,6 @@ classdef JobDispatcher < handle
         mess_framework_;
 
         time_to_fail_  = 300; %300sec, 5 min
-
-        % Holder for initiated cluster for resubmitting jobs
-        cluster_ = [];
 
         % The holder for the object performing job clean-up operations
         job_destroyer_ = [];
@@ -187,7 +184,8 @@ classdef JobDispatcher < handle
             if ~exist('task_query_time', 'var')
                 task_query_time = 4;
             end
-            if isempty(obj.cluster_)
+
+            if isempty(obj.cluster)
                 [outputs,n_failed,task_ids,obj] = send_tasks_to_workers_(obj, ...
                      job_class_name,common_params,loop_params,return_results, ...
                      number_of_workers,task_query_time);
@@ -255,13 +253,18 @@ classdef JobDispatcher < handle
         function is = get.is_initialized(obj)
             % Return true if job dispatcher is initialized,
             % i.e. obj controls a parallel cluster
-
-            is = ~isempty(obj.cluster_);
+            is = ~isempty(obj.cluster);
         end
 
         function cl = get.cluster(obj)
             % get access to the cluster used to run parallel job by this
-            cl = obj.cluster_;
+            cl = MPI_State.instance.cluster();
+        end
+
+        function obj = set.cluster(obj, val)
+            % We may need to override the MPI_State's cluster
+            mis = MPI_State.instance();
+            mis.cluster = val;
         end
 
         function display_fail_job_results(obj,outputs,n_failed,n_workers,varargin)
@@ -304,8 +307,8 @@ classdef JobDispatcher < handle
             end
             obj.mess_framework_.migrate_message_folder();
 
-            if ~isempty(obj.cluster_)
-                obj.cluster_ = obj.cluster_.set_mess_exchange(obj.mess_framework_);
+            if ~isempty(obj.cluster)
+                obj.cluster = obj.cluster.set_mess_exchange(obj.mess_framework_);
             end
         end
 

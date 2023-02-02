@@ -1,4 +1,4 @@
-classdef MPI_State<handle
+classdef MPI_State < handle
     % Helper class, to identify status of Matlab job, namely if current
     % Matlab session is independent session or is deployed by Herbert MPI
     % framework, and to help to deploy methods, which would depend on such
@@ -14,22 +14,29 @@ classdef MPI_State<handle
 
     properties(Dependent)
         % report if the Matlab session is deployed on a remote worker
-        is_deployed
+        is_deployed;
+
         % logger function to use to log activities of an mpi worker
-        logger
+        logger;
+
         % the function to run verifying if job has been cancelled
         check_cancelled;
+
         % method helps to identify that the framework is tested and to
         % disable some framework capabilities, which should be used in this
         % situation
-        is_tested
+        is_tested;
+
         % current active message exchange framework for advanced messages
         % exchange.
         mpi_framework;
+
         % index of the running lab
         labIndex;
+
         % Total number of labs in parallel pool.
         numLabs;
+
         % the property, used to assign handle for logging the progress of
         % MPI job during debugging. To be asigned to file handle of a
         % log file, specific for the specific worker and kept here to be
@@ -37,16 +44,22 @@ classdef MPI_State<handle
         % file is located in tempdir and named worker_log_XXXXXXXXXX.log
         % where XXXXXXXXXX is the selection of 10 random ASCII characters
         % selected from capital letters.
-        debug_log_handle
+        debug_log_handle;
+
         % property returning true if debug_log_handle is initialized and
         % can be used
-        trace_log_enabled
+        trace_log_enabled;
+
+        % Currently running cluster
+        cluster;
     end
+
     properties(Access=protected)
         is_deployed_=false;
         logger_ = [];
         check_cancelled_=[];
         is_tested_ = false;
+        cluster_ = [];
         % variables, used to identify time intervals between subsequent
         % calls to logging function
         start_time_=[];
@@ -56,18 +69,23 @@ classdef MPI_State<handle
         % counter for number of calls, this class is invoked
         ref_conter_ = 0;
     end
+
     properties(Constant, Access=protected)
         % methods to set using setattr method
         field_names_ = {'is_deployed','is_tested',...
             'logger','check_cancelled',...
             'mpi_framework'}
     end
+
     %----------------------------------------------------------------------
+
     methods(Access=private)
         function obj=MPI_State()
         end
     end
+
     %----------------------------------------------------------------------
+
     methods(Static)
         function obj = instance(varargin)
             persistent obj_state;
@@ -84,18 +102,23 @@ classdef MPI_State<handle
             obj=obj_state;
         end
     end
+
     %----------------------------------------------------------------------
+
     methods
-        %------------------------------------------------------
+
         function is = get.is_deployed(obj)
             is = obj.is_deployed_;
         end
+
         function is = get.is_tested(obj)
             is = obj.is_tested_;
         end
+
         function flog = get.logger(obj)
             flog = obj.logger_;
         end
+
         function  li = get.labIndex(obj)
             if isempty(obj.mpi_framework_)
                 li = 0;
@@ -103,6 +126,7 @@ classdef MPI_State<handle
                 li = obj.mpi_framework_.labIndex;
             end
         end
+
         function  nl = get.numLabs(obj)
             if isempty(obj.mpi_framework_)
                 nl = 0;
@@ -110,6 +134,7 @@ classdef MPI_State<handle
                 nl = obj.mpi_framework_.numLabs;
             end
         end
+
         function fh = get.debug_log_handle(obj)
             % opend debug_log_file on the first access
             if isempty(obj.debug_log_handle_)
@@ -120,22 +145,27 @@ classdef MPI_State<handle
             end
             fh = obj.debug_log_handle_;
         end
+
         function is = get.trace_log_enabled(obj)
-            is  = false;
-            if ~isempty(obj.debug_log_handle_) && obj.debug_log_handle_>1
-                fn = fopen(obj.debug_log_handle_);
-                if ~isempty(fn)
-                    is = true;
-                end
-            end
+            is = ~isempty(obj.debug_log_handle_) && ...
+                 obj.debug_log_handle_ > 1 && ...
+                 ~isempty(fopen(obj.debug_log_handle_));
         end
+
+        function cl = get.cluster(obj)
+            cl = obj.cluster_;
+        end
+
         %------------------------------------------------------
+
         function set.is_deployed(obj,val)
             obj.is_deployed_=val;
         end
+
         function set.is_tested(obj,val)
             obj.is_tested_=val;
         end
+
         function set.logger(obj,fun)
             if ~isa(fun, 'function_handle')
                 error('MPI_STATE:invalid_argument',...
@@ -145,7 +175,17 @@ classdef MPI_State<handle
             %clear start time as setting this to empty resets timers
             obj.start_time_ = [];
         end
+
+        function set.cluster(obj, val)
+            if ~isempty(val) && ~isa(val, 'ClusterWrapper')
+                error('MPI_STATE:invalid_argument',...
+                    ' value assigned to cluster has to be a child of ClusterWrapper')
+            end
+            obj.cluster_ = val;
+        end
+
         %-------------------------------------------------------
+
         function set.check_cancelled(obj,fun)
             if ~isa(fun, 'function_handle')
                 error('MPI_STATE:invalid_argument',...
@@ -153,6 +193,7 @@ classdef MPI_State<handle
             end
             obj.check_cancelled_=fun;
         end
+
         function check_cancellation(obj)
             % method runs check_cancelled function to verify if MPI
             % calculations were cancelled.
@@ -160,9 +201,11 @@ classdef MPI_State<handle
                 obj.check_cancelled_();
             end
         end
+
         function fw = get.mpi_framework(obj)
             fw = obj.mpi_framework_;
         end
+
         function set.mpi_framework(obj,val)
             if ~isa(val,'iMessagesFramework')
                 error('MPI_STATE:invalid_argument',...
@@ -170,7 +213,9 @@ classdef MPI_State<handle
             end
             obj.mpi_framework_ = val;
         end
+
         %-------------------------------------------------------
+
         function setattr(obj,varargin)
             par=varargin(1:2:nargin-1);
             val=varargin(2:2:nargin-1);
@@ -186,6 +231,7 @@ classdef MPI_State<handle
                 end
             end
         end
+
         %-----------------------------------------------------------------
 
         function do_logging(obj,step,n_steps,tps,additional_info)
@@ -246,7 +292,7 @@ classdef MPI_State<handle
                 obj.(varargin{i}) = varargin{i+1};
             end
         end
-        %
+
         function delete(obj)
             obj.ref_conter_ = obj.ref_conter_ -1;
             if obj.ref_conter_ > 0
@@ -257,5 +303,6 @@ classdef MPI_State<handle
             end
             obj.instance('delete');
         end
+
     end
 end

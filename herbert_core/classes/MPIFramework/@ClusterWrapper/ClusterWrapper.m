@@ -8,6 +8,7 @@ classdef ClusterWrapper
         % exceeded,
         % the cluster reports failure and parallel job will not start.
         cluster_startup_time = 120 % 2min
+
         % If true, write logs containing information about each parallel
         % executor (sets DO_LOGGING=true) in parallel worker
         DEBUG_REMOTE = false;
@@ -18,8 +19,10 @@ classdef ClusterWrapper
         % accessor for mess_exchange_framework.job_id if mess exchange
         % framework is defined
         job_id
+
         % number of workers (numLabs) in the cluster
         n_workers;
+
         % Cluster configuration contains the information about the cluster
         % one needs to provide to run mpi job on the appropriate
         % MPI cluster.  If the mpi job is run on a single node, the cluster
@@ -31,19 +34,24 @@ classdef ClusterWrapper
         % the current cluster status, usually defined by status message,
         % e.g. The string which describes the current status
         status;
+
         % short abbreviation of the status property.
         status_name;
+
         % the property identifies that wrapper received the message that
         % the cluster status have changed.
         status_changed;
+
         % the string to display to user the current state of the cluster
         log_value
+
         % defines the behavior of each worker when the particular task is
         % finished.
         % for parpool worker this should be false as MPI framework
         % reports failure, while for Java worker this should be true, as
         % Matlab workers should finish when parallel job ends.
         exit_worker_when_job_ends;
+
         % The name of the framework, used for message exchange within the
         % cluster. Property used in debugging to change default framework
         pool_exchange_frmwk_name
@@ -58,16 +66,20 @@ classdef ClusterWrapper
         % to run a remote job. The function itself must be
         % on the Matlab data search path before Horace is initialized.
         % Can be redefined in parallel_config.
-        worker_name_ = 'worker_v4';
+        worker_name_ = 'worker_v2';
+
         % if the worker is compiled Matlab application or Matlab script
         is_compiled_script_ = false;
+
         %------------------------------------------------------------------
 
         % number of workers in the pool
         n_workers_   = 0;
+
         % the holder for class, responsible for the communications between
         % the pool and control node
         mess_exchange_ =[];
+
         % The name of the class, responsible for message exchange
         % between the workers within the pool (cluster)
         pool_exchange_frmwk_name_ = '';
@@ -75,17 +87,22 @@ classdef ClusterWrapper
         % the holder for the string, which describes the current pool
         % status.
         log_value_ = '';
+
         % Definition for various cluster configuration. Will be overridden
         % by children as different type of children have different types of
         % configuration.
         cluster_config_ = 'local'
+
         %------------------------------------------------------------------
+
         % the string, describing the operations to launch Matlab or
         % compiled Matlab job
         matlab_starter_  = [];
+
         % The name of the cluster to print in logs to inform about parallel
         % program execution
         starting_cluster_name_;
+
         % the map containing the enviroment variables, common for all
         % clusters
         common_env_var_= containers.Map(...
@@ -94,12 +111,15 @@ classdef ClusterWrapper
             'HERBERT_PARALLEL_WORKER',... the parameters string used as input arguments for the parallel job. If its Matlab, it is the worker name and the run parameters.
             'WORKER_CONTROL_STRING',...  input for the script, containing encoded info about the location of the exchange folder
             'DO_PARALLEL_MATLAB_LOGGING',...  if 'true' each parallel process will write progress log
-            }, {'','matlab','worker_v4','','false'});
+            }, {'','matlab','worker_v2','','false'});
+
         %------------------------------------------------------------------
+
         % properties, indicating changes in the pool status and used by
         % display_progress to build nuce progress logs
         current_status_ = [];  %  message, describing the current status
         status_changed_ = false; % if the current_status_ differs from prev_status_
+
         % messages to display if corresponding cluster is starting.
         starting_info_message_ ='';
         started_info_message_ ='';
@@ -113,12 +133,13 @@ classdef ClusterWrapper
         % counter of the attempts to receive status message from cluster which
         % were unsuccessful
         display_results_count_ = 0;
+
         % the length of the log message envelope (redefined in constructor)
         LOG_MESSAGE_WRAP_LENGTH =10;
+
         % total length of the string with log message to display (redefined in constructor)
         LOG_MESSAGE_LENGTH=40;
 
-        %
         % running process Java exception message contents, used to identify
         % if java process report it has been completed
         running_mess_contents_= 'process has not exited';
@@ -559,6 +580,7 @@ classdef ClusterWrapper
         function obj=finalize_all(obj)
             % Close parallel framework, delete filebased exchange folders
             % and complete parallel job
+
             if ~isempty(obj.mess_exchange_)
                 obj.mess_exchange_.finalize_all();
                 new_mess_exchange_folder = obj.mess_exchange_.next_message_folder_name;
@@ -575,6 +597,10 @@ classdef ClusterWrapper
             % possible interference
             vars = obj.common_env_var_.keys;
             cellfun(@(var)setenv(var,''),vars);
+
+            % Clear persistent state
+            mis = MPI_State.instance();
+            mis.cluster = [];
         end
 
         function [outputs,n_failed,obj]=  retrieve_results(obj)
