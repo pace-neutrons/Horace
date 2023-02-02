@@ -38,7 +38,7 @@ if exist('task_query_time', 'var') && ~isempty(task_query_time)
     obj.task_check_time  = task_query_time;
 end
 
-if isempty(obj.cluster_)
+if isempty(obj.cluster)
     error('JOB_DISPATCHER:runtime_error',...
         'Attempt to restart job when the cluster is not running');
 end
@@ -54,7 +54,7 @@ obj = obj.migrate_exchange_folder();
 obj.job_is_starting_ = false;
 
 % take the old cluster
-cluster_wrp = obj.cluster_;
+cluster_wrp = obj.cluster;
 
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...

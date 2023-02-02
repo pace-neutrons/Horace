@@ -85,7 +85,6 @@ if ~ok
 
         obj.mess_framework_ = mf;
 
-
         cluster_wrp = par_fc.get_initialized_cluster(n_workers,mf);
         if isempty(cluster_wrp)
             pause(obj.task_check_time);
@@ -101,8 +100,8 @@ if ~ok
     end
 end
 
-obj.cluster_       = cluster_wrp;
-% obj.job_destroyer_ = onCleanup(@()finalize_all(cluster_wrp));
+% In case it's changed
+obj.cluster = cluster_wrp;
 
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...
