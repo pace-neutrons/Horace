@@ -221,7 +221,7 @@ if fcp(2)<0
     error('HERBERT:mfclass:multifit_lsqr','Number of iterations must be >=0')
 end
 
-jd = JobDispatcher('ParallelMF');
+jd = JobDispatcher.instance();
 
 pars = arrayfun(@(x) x.plist, pin, 'UniformOutput', false);
 while any(cellfun(@iscell,pars)) % Flatten pars

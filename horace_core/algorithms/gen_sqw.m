@@ -510,6 +510,119 @@ end
 end
 %---------------------------------------------------------------------------------------
 
+function  [grid_size,pix_range,update_runids,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
+    pix_db_range,grid_size_in,gen_tmp_files_only,keep_parallel_pool_running)
+    % if further operations are necessary to perform with generated tmp files,
+    % keep parallel pool running to save time on restarting it.
+
+log_level = get(hor_config,'log_level');
+use_separate_matlab = get(hpc_config,'build_sqw_in_parallel');
+num_matlab_sessions = get(parallel_config,'parallel_workers_number');
+
+% build names for tmp files to generate
+spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
+    'UniformOutput',false);
+tmp_file=gen_tmp_filenames(spe_file,sqw_file);
+tmp_generated = tmp_file;
+if gen_tmp_files_only
+    [f_valid_exist,pix_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,pix_db_range,grid_size_in)),...
+                                         tmp_file,'UniformOutput',false);
+    f_valid_exist = [f_valid_exist{:}];
+    if any(f_valid_exist)
+        if log_level >0
+            warning([' some tmp files exist while generating tmp files only.'...
+                ' Generating only new tmp files.'...
+                ' Delete all existing tmp files to avoid this'])
+        end
+        run_files  = run_files(~f_valid_exist);
+        tmp_file  = tmp_file(~f_valid_exist);
+        pix_ranges = pix_ranges(f_valid_exist);
+        pix_range = pix_ranges{1};
+        for i=2:numel(pix_ranges)
+            pix_range = [min([pix_range(1,:);pix_ranges{i}(1,:)]);...
+                max([pix_range(2,:);pix_ranges{i}(2,:)])];
+        end
+        if isempty(run_files)
+            grid_size = grid_size_in;
+            update_runids= false;
+            jd = [];
+            return;
+        end
+    else
+        pix_range = [];
+    end
+else
+    pix_range = [];
+end
+
+nt=bigtic();
+%write_banner=true;
+
+if use_separate_matlab
+    %
+    % name parallel job by sqw file name
+    [~,fn] = fileparts(sqw_file);
+    if numel(fn) > 8
+        fn = fn(1:8);
+    end
+    %
+    job_name = ['gen_sqw_',fn];
+    %
+    jd = JobDispatcher.instance();
+
+    % aggregate the conversion parameters into array of structures,
+    % suitable for splitting jobs between workers
+    [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
+        grid_size_in,pix_db_range);
+    %
+    [outputs,n_failed,~,jd] = jd.start_job('gen_sqw_files_job',...
+        common_par,loop_par,true,num_matlab_sessions,keep_parallel_pool_running);
+    %
+    if n_failed == 0
+        outputs   = outputs{1};
+        grid_size = outputs.grid_size;
+        pix_range1 = outputs.pix_range;
+        update_runids =outputs.update_runid;
+    else
+        jd.display_fail_job_results(outputs,n_failed,num_matlab_sessions,'GEN_SQW:runtime_error');
+    end
+    if ~keep_parallel_pool_running % clear job dispatcher
+        jd = [];
+    end
+else
+    jd = [];
+    %---------------------------------------------------------------------
+    % serial rundata to sqw transformation
+    % equivalent of:
+    %[grid_size,pix_range] = rundata_write_to_sqw (run_files,tmp_file,...
+    %    grid_size_in,pix_range_in,instrument,sample,write_banner,opt);
+    %
+    % make it look like a parallel transformation. A bit less
+    % effective but much easier to identify problem with
+    % failing parallel job
+
+    [grid_size,pix_range1,update_runids]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
+        grid_size_in,pix_db_range,true);
+    %---------------------------------------------------------------------
+end
+
+if isempty(pix_range)
+    pix_range = pix_range1;
+else
+    pix_range = [min([pix_range(1,:);pix_range1(1,:)]);...
+        max([pix_range(2,:);pix_range1(2,:)])];
+
+end
+
+if log_level>-1
+    disp('--------------------------------------------------------------------------------')
+    bigtoc(nt,'Time to create all temporary sqw files:',log_level);
+    % Create single sqw file combining all intermediate sqw files
+    disp('--------------------------------------------------------------------------------')
+end
+
+end
+
 function verify_pix_range_est(pix_range,pix_range_est,log_level)
 % check if any pixels in from the actual pixel ranges range are outside
 % of the range, evaluated or provided earlier.
@@ -532,4 +645,24 @@ if ~is_range_wider(pix_range_est(:,1:4),pix_range(:,1:4)) && log_level>0
         '*** **************************************************************************************************\n'],...
         args{:});
 end
+end
+
+function [present_and_valid,img_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
+% TODO:
+% write check for grid_size_in which has to be equal to grid_size of head.
+% but head (without s,e,npix) does not have method to idnentify grid_size
+% (it should be written and tested)
+if ~is_file(tmp_file)
+    present_and_valid  = false;
+    img_range = [];
+    return;
+end
+
+tol = 4*eps(single(pix_db_range)); % double of difference between single and double precision
+
+ldr = sqw_formats_factory.instance().get_loader(tmp_file);
+img_range = ldr.read_img_range();
+
+present_and_valid = ~any(abs(img_range-pix_db_range)>tol);
+
 end
