@@ -802,7 +802,7 @@ if use_separate_matlab
     %
     job_name = ['gen_sqw_',fn];
     %
-    jd = JobDispatcher(job_name);
+    jd = JobDispatcher.instance();
 
     % aggregate the conversion parameters into array of structures,
     % suitable for splitting jobs between workers

@@ -133,22 +133,17 @@ if combine_in_parallel
     %TODO:  check config for appropriate ways of combining the tmp and what
     %to do with cluster
     comb_using = config_store.instance().get_value('hpc_config','combine_sqw_using');
-    if strcmp(comb_using,'mpi_code') % keep cluster running for combining procedure
-        keep_workers_running = true;
-    else
-        keep_workers_running = false;
-    end
     [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);
     if isempty(job_disp)
         n_workers = config_store.instance().get_value('hpc_config','parallel_workers_number');
         [outputs,n_failed,~,job_disp]=job_disp.start_job(...
-            'accumulate_headers_job',common_par,loop_par,true,n_workers,keep_workers_running );
+            'accumulate_headers_job',common_par,loop_par,true,n_workers);
     else
         [outputs,n_failed,~,job_disp]=job_disp.restart_job(...
-            'accumulate_headers_job',common_par,loop_par,true,keep_workers_running );
+            'accumulate_headers_job',common_par,loop_par,true);
         n_workers = job_disp.cluster.n_workers;
     end
-    %
+
     if n_failed == 0
         s_accum = outputs{1}.s;
         e_accum = outputs{1}.e;
@@ -164,7 +159,7 @@ else
     [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
 end
 [s_accum,e_accum] = normalize_signal(s_accum,e_accum,npix_accum);
-%
+
 sqw_data.s=s_accum;
 sqw_data.e=e_accum;
 sqw_data.npix=uint64(npix_accum);

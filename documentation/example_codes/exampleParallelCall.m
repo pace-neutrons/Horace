@@ -1,6 +1,6 @@
 % Runnable Example Code
 %{
-jd = JobDispatcher('JobName');              % Create job dispatcher
+jd = JobDispatcher.instance()('JobName');              % Create job dispatcher
 
 [outputs, ...                               % Cell array of results from each worker
  n_failed,...                               % Count of failed workers
@@ -20,7 +20,7 @@ jd = JobDispatcher('JobName');              % Create job dispatcher
 %%------------------------------------------------------------------
 
 % Run with int loop count
-jd = JobDispatcher('RunWithInt');
+jd = JobDispatcher.instance();
 [outputs, n_failed, task_ids, jd] = jd.start_job('ExampleRealJobExecutor', [1,2], 10, true, 4);
 
 celldisp(outputs);
@@ -31,7 +31,7 @@ disp(jd);
 %%------------------------------------------------------------------
 
 % Run with cell array of data
-jd = JobDispatcher('RunWithCellStruct');
+jd = JobDispatcher.instance();
 data = {struct('a',1), struct('a',2), struct('a',3), struct('a',4)};
 [outputs, n_failed, task_ids, jd] = jd.start_job('ExampleRealJobExecutor', [1,2], data, true, 4);
 
@@ -43,7 +43,7 @@ disp(jd);
 %%------------------------------------------------------------------
 
 % Run with struct whose first field denotes job count(?)
-jd = JobDispatcher('RunWithStruct');
+jd = JobDispatcher.instance();
 data = struct('a',{{1,2,3,4}},'b',{{2,2,3,4}}); % Cell arrs must be same size
 [outputs, n_failed, task_ids, jd] = jd.start_job('ExampleRealJobExecutor', [1,2], data, true, 4);
 

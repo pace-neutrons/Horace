@@ -146,9 +146,9 @@ while keep_worker_running
 
     num_of_runs = num_of_runs+1;
     if do_logging; log_num_runs(num_of_runs); end
-    fprintf('   *******************************************\n');
-    fprintf('   ******  LabN %d  : RUN N : %d  Task: %s *\n',intercomm.labIndex,num_of_runs,fbMPI.job_id);
-    fprintf('   *******************************************\n');
+%     fprintf('   *******************************************\n');
+%     fprintf('   ******  LabN %d  : RUN N : %d  Task: %s *\n',intercomm.labIndex,num_of_runs,fbMPI.job_id);
+%     fprintf('   *******************************************\n');
 
 
     %% --------------------------------------------------------------------
@@ -172,7 +172,6 @@ while keep_worker_running
             end
         else
             worker_init_data = mess.payload;
-            keep_worker_running = worker_init_data.keep_worker_running;
         end
 
 
@@ -267,6 +266,7 @@ while keep_worker_running
                 profile('on')
             end
         end
+
         if do_logging; log_disp_message('Logging start and checking for job cancellation before loop je.is_completed loop\n'); end
         mis.do_logging(0,n_steps);
 
@@ -445,9 +445,8 @@ end
     function log_worker_init_received()
         fprintf(fh,['Received starting message with parameters: \n',...
             '         JobExecutor: %s;\n',...
-            '         keep_running %d;\n',...
             '         exit lab on completion %d\n'],...
-            worker_init_data.JobExecutorClassName,keep_worker_running,exit_at_the_end);
+            worker_init_data.JobExecutorClassName,exit_at_the_end);
     end
 
     function log_init_received()

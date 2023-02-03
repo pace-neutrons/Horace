@@ -82,7 +82,7 @@ switch combine_algorithm
     pool_exist = exist('jobDispatcher','var') && ~isempty(jobDispatcher);
     if pool_exist
         % reuse existing parallel pool
-        jd = jobDispatcher;
+        jd = jobDispatcher.instance();
         pool_exist  = jd.is_initialized;
         if pool_exist
             n_workers = jd.cluster.n_workers;
@@ -97,7 +97,7 @@ switch combine_algorithm
         end
 
         job_name = ['combine_sqw_',fn];
-        jd = JobDispatcher(job_name);
+        jd = JobDispatcher.instance();
         n_workers = get(hpc_config,'parallel_workers_number');
     end
 

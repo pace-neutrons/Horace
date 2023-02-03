@@ -90,7 +90,7 @@ if combine_in_parallel && isempty(job_disp) % define name of new parallel job an
     end
     job_name = ['job_nsqw2sqw_',fn];
     %
-    job_disp = JobDispatcher(job_name);
+    job_disp = JobDispatcher.instance();
 end
 
 % check if writing to output file is possible so that all further

@@ -65,7 +65,7 @@ classdef test_symm_equivalent_zones< TestCase
             job_param_list  = cellfun(job_par_fun,ranges);
 
 
-            jd = JobDispatcher('test_sym_equiv_zones_worker');
+            jd = JobDispatcher.instance();
             mpi = jd.mess_framework;
             wk_control = mpi.build_control(1);
             mess = aMessage('starting');

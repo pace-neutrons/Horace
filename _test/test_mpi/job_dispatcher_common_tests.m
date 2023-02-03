@@ -47,7 +47,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             files = {file1, file3, file3a};
             co = onCleanup(@()(my_delete(files{:})));
 
-            jd = JobDispatcher(['test_job_', obj.cluster_name, '_fail_restart']);
+            jd = JobDispatcher.instance();
             disp('*********************************************************')
             disp('**************FAIL-1 Lab2 Fails *************************')
             disp('*********************************************************')
@@ -240,7 +240,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             files = {file1, file2, file3};
             co = onCleanup(@()(delete(files{:})));
 
-            jd = JobDispatcher(['test_', obj.cluster_name, '_3workers']);
+            jd = JobDispatcher.instance();
             n_workers = 3;
 
             [outputs, n_failed,~,jd] = jd.start_job('JETester', common_param, 3, true, n_workers, true, 1);
@@ -341,7 +341,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             files = {file1, file2, file3};
             co = onCleanup(@()(delete(files{:})));
 
-            jd = JobDispatcher(['test_', obj.cluster_name, '_2workers']);
+            jd = JobDispatcher.instance();
             n_workers = 2;
 
 
@@ -408,7 +408,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             files = {file1, file2, file3};
             co = onCleanup(@()(delete(files{:})));
 
-            jd = JobDispatcher(['test_', obj.cluster_name, '_1worker']);
+            jd = JobDispatcher.instance();
 
             [outputs, n_failed] = jd.start_job('JETester', common_param, 3, true, 1, false, 1);
             if n_failed>0

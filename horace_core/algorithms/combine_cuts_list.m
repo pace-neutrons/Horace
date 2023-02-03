@@ -105,7 +105,7 @@ zone_files =cell(numel(transf_list),1);
 if use_separate_matlab
     % combine job parameters into list of structures,
     % suitable for serialization
-    
+
     job_par = cellfun(job_par_fun,transf_list);
     %
     %----------------------------------------------------------------------
@@ -113,10 +113,10 @@ if use_separate_matlab
     if numel(job_par)<n_workers;
         n_workers = numel(job_par);
     end
-    jm = JobDispatcher(source_name);
+    jm = JobDispatcher.instance();
     [n_failed,outputs,job_distr_by_id] = ...
         jm.start_tasks('combine_equivalent_zones_job',job_par,n_workers);
-    
+
     zone_files = analyze_and_combine_job_outputs(n_failed,outputs,...
         job_distr_by_id,job_par);
     %----------------------------------------------------------------------
@@ -151,7 +151,7 @@ if isempty(zone_fnames_list)
     disp('  No data found within the combined zones Nothing to do --------');
     disp('                    Symmetrisation finished                     ');
     disp('----------------------------------------------------------------');
-    
+
 end
 
 %We need to work out how each of the Brillouin zones in zone list relate to
@@ -186,7 +186,7 @@ n_workers = numel(outputs);
 if n_failed>0 % Try to recalculate failed parallel jobs serially
     warning('COMBINE_ZONES:separate_process_combining',' %d out of %d jobs to generate tmp files reported failure',...
         n_failed,n_workers);
-    
+
     if isempty(outputs)
         outputs = cell(n_workers,1);
         not_failed= false(n_workers,1);
@@ -223,4 +223,3 @@ else
 end
 end
 %
-

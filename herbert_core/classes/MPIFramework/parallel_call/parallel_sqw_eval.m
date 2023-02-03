@@ -17,7 +17,7 @@ function wout = parallel_sqw_eval(w, args)
                          'args', {args}, ...
                          'merge_data', []);
 
-    jd = JobDispatcher('ParallelSQWEval');
+    jd = JobDispatcher.instance();
     res = jd.start_job('ParallelSQWEval', common_data, loop_data, true, nWorkers);
 
     wout = cellfun(@copy, w, 'UniformOutput', false);
