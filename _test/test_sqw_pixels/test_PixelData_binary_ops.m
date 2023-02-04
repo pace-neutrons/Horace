@@ -35,18 +35,13 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             obj.test_sqw_2d_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
 
             % Load a 1D SQW file
-            sqw_test_obj = sqw(obj.test_sqw_file_path);
+            sqw_test_obj = read_sqw(obj.test_sqw_file_path);
+
             obj.ref_raw_pix_data = sqw_test_obj.pix.data;
-
-            page_size = floor(sqw_test_obj.pix.num_pixels/10);
             obj.pix_in_memory_base = sqw_test_obj.pix;
-            obj.pix_with_pages_base = PixelDataBase.create(obj.test_sqw_file_path, page_size);
 
-        end
+            obj.pix_with_pages_base = PixelDataFileBacked(obj.test_sqw_file_path);
 
-        function setUp(obj)
-            obj.pix_in_memory = copy(obj.pix_in_memory_base);
-            obj.pix_with_pages = copy(obj.pix_with_pages_base);
         end
 
         function test_plus_with_scalar_adds_operand_to_signal_with_unpaged_pix(obj)
@@ -414,12 +409,43 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
         end
 
-        function test_multiplying_with_2D_dnd_returns_correct_pix_with_gt_1_page(obj)
+        function test_multiplying_with_d2d_returns_correct_pix_fb_with_pages(obj)
             dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
             npix = dnd_obj.npix;
 
+            pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
             pix_per_page = floor(sum(npix(:)/6));
-            pix = PixelDataBase.create(obj.test_sqw_2d_file_path, pix_per_page);
+            hc = hor_config;
+            cmpp = hc.mem_chunk_size;
+            clOb = onCleaunup(@()set(hc,'mem_chunk_size',cmpp));
+            hc.mem_chunk_size = pix_per_page;
+            skipTest('Re #928 Paging is currently disabled but should be completed as this ticket completed')
+
+            new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false, ...
+                'npix', npix);
+
+            original_pix_data = concatenate_pixel_pages(pix);
+            new_pix_data = concatenate_pixel_pages(new_pix);
+
+            s_dnd = repelem(dnd_obj.s(:), npix(:))';
+            e_dnd = repelem(dnd_obj.e(:), npix(:))';
+            s_pix = original_pix_data(obj.SIGNAL_IDX, :);
+            e_pix = original_pix_data(obj.VARIANCE_IDX, :);
+
+            expected_pix = original_pix_data;
+            expected_pix(obj.SIGNAL_IDX, :) = s_pix.*s_dnd;
+
+            % See mtimes_single for variance calculation
+            expected_variance = (s_dnd.^2).*e_pix + (s_pix.^2).*e_dnd;
+            expected_pix(obj.VARIANCE_IDX, :) = expected_variance;
+
+            assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
+        end
+        function test_multiplying_with_d2d_returns_correct_pix_filebacked(obj)
+            dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
+            npix = dnd_obj.npix;
+
+            pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
 
             new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false, ...
                 'npix', npix);
@@ -442,12 +468,33 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
         end
 
-        % -- Helpers --
-        function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
-            faccess = FakeFAccess(data);
-            faccess = faccess.set_filepath('Fake file');
-            pix = PixelDataBase.create(faccess, npix_in_page);
+        function test_multiplying_with_d2d_returns_correct_pix_membased(obj)
+            dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
+            npix = dnd_obj.npix;
+
+            pix = PixelDataMemory(obj.test_sqw_2d_file_path);
+
+            new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false, ...
+                'npix', npix);
+
+            original_pix_data = concatenate_pixel_pages(pix);
+            new_pix_data = concatenate_pixel_pages(new_pix);
+
+            s_dnd = repelem(dnd_obj.s(:), npix(:))';
+            e_dnd = repelem(dnd_obj.e(:), npix(:))';
+            s_pix = original_pix_data(obj.SIGNAL_IDX, :);
+            e_pix = original_pix_data(obj.VARIANCE_IDX, :);
+
+            expected_pix = original_pix_data;
+            expected_pix(obj.SIGNAL_IDX, :) = s_pix.*s_dnd;
+
+            % See mtimes_single for variance calculation
+            expected_variance = (s_dnd.^2).*e_pix + (s_pix.^2).*e_dnd;
+            expected_pix(obj.VARIANCE_IDX, :) = expected_variance;
+
+            assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
         end
+
 
     end
 

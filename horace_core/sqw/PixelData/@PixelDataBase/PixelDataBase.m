@@ -207,7 +207,8 @@ classdef (Abstract) PixelDataBase < serializable
                     end
                 else
                     error('HORACE:PixelDataBase:invalid_argument', ...
-                        'Some input parameters of the PixelDataBase.create operation are not recoginized');
+                        'Some input parameters (%s)  of the PixelDataBase.create operation are not recoginized', ...
+                        disp2str(argi));
                 end
                 return;
             else

@@ -238,6 +238,9 @@ classdef PixelDataFileBacked < PixelDataBase
 
         % --- Operator overrides ---
         function obj=delete(obj)
+            % method tries to clear up the class instance to allow
+            % class file beeing deleted. Depending on Matlab version, it
+            % may not work.
             mmf = obj.f_accessor_;
             clear mmf;
             obj.f_accessor_ = [];
