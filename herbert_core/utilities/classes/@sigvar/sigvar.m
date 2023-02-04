@@ -52,29 +52,32 @@ classdef sigvar < serializable
             %           If scalar (and signal non-empty) then all elements assumed to be same
 
             narg = numel(varargin);
-            if narg>=1
-                if numel(varargin)==1
-                    if isa(varargin{1},'sigvar')
-                        % Need to catch the case of input being a sigvar object for
-                        % generic binary and unary operations to work (they require
-                        % that a sigvar object be returned from an instance of the
-                        % class; in this case that a sigvar object be returned from
-                        % a signvar object - a dummy operation)
-                        obj = varargin{1};
-                    elseif isstruct(varargin{1})
-                        % local copy of input struct to fill in with missing
-                        % items as needed
-                        obj = serializable.from_struct(varargin{1});
-                    end
-                else
-                    flds = obj.saveableFields('return_all');
-                    [obj,remains] = obj.set_positional_and_key_val_arguments(...
-                        flds,false,varargin{:});
-                    if ~isempty(remains)
-                        error('HERBERT:sigvar:invalid_argument', ...
-                            'Sigval constructor inputs: %s have not been recognized',...
-                            disp2str(remains));
-                    end
+            if narg == 0
+                return;
+            end
+            if numel(varargin)==1
+                if isa(varargin{1},'sigvar')
+                    % Need to catch the case of input being a sigvar object for
+                    % generic binary and unary operations to work (they require
+                    % that a sigvar object be returned from an instance of the
+                    % class; in this case that a sigvar object be returned from
+                    % a signvar object - a dummy operation)
+                    obj = varargin{1};
+                elseif isstruct(varargin{1})
+                    % local copy of input struct to fill in with missing
+                    % items as needed
+                    obj = serializable.from_struct(varargin{1});
+                else % probably only signal given
+                    obj.s = varargin{1};
+                end
+            else
+                flds = obj.saveableFields('return_all');
+                [obj,remains] = obj.set_positional_and_key_val_arguments(...
+                    flds,false,varargin{:});
+                if ~isempty(remains)
+                    error('HERBERT:sigvar:invalid_argument', ...
+                        'Sigval constructor inputs: %s have not been recognized',...
+                        disp2str(remains));
                 end
             end
 
@@ -138,7 +141,7 @@ classdef sigvar < serializable
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function nm = get.n_elements(obj)
-            if isempty(obj.signal)
+            if isempty(obj.signal_)
                 nm = 0;
             else
                 nm = numel(obj.signal_);

@@ -36,15 +36,23 @@ elseif isnumeric(init)
     obj.data = init;
 
 elseif isa(init, 'PixelDataFileBacked')
+    n_pages = init.num_pages;
+    pg_hoder = cell(1,n_pages);
+    for i=1:n_pages
+        init.page_num=i;
+        pg_hoder{i} = init.data;
+    end
+    obj.data_ = [pg_hoder{:}];
     init=init.move_to_first_page();
-    obj.data_ = init.data;
-    while init.has_more()
-        init = init.advance();
-        obj.data_ = horzcat(obj.data_, init.data);
+    undef = init.data_range == PixelDataBase.EMPTY_RANGE;
+    if any(undef(:))
+        obj=obj.recalc_data_range();
+    else
+        obj.data_range_ = init.data_range;
     end
 
     obj.full_filename = init.full_filename;
-    obj=obj.reset_changed_coord_range();
+
 else
     error('HORACE:PixelDataMemory:invalid_argument', ...
         'Cannot construct PixelDataMemory from class (%s)', class(init))

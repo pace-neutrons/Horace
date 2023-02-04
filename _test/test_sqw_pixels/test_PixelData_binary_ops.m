@@ -11,14 +11,13 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         test_sqw_2d_file_path;
         ref_raw_pix_data = [];
 
-        pix_in_memory_base;
         pix_in_memory;
-        pix_with_pages_base;
         pix_with_pages;
 
-        old_warn_state;
         %
         call_count_transfer_;
+
+        ws_cache
     end
 
     methods
@@ -31,17 +30,20 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             obj.BYTES_PER_PIX = 4*9;
 
             pths = horace_paths();
-            obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_1d_1.sqw');
+            obj.test_sqw_file_path    = fullfile(pths.test_common, 'sqw_1d_1.sqw');
             obj.test_sqw_2d_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
 
             % Load a 1D SQW file
             sqw_test_obj = read_sqw(obj.test_sqw_file_path);
 
-            obj.ref_raw_pix_data = sqw_test_obj.pix.data;
-            obj.pix_in_memory_base = sqw_test_obj.pix;
+            obj.ref_raw_pix_data   = sqw_test_obj.pix.data;
+            obj.ws_cache = warning('off','HORACE:old_file_format');
 
-            obj.pix_with_pages_base = PixelDataFileBacked(obj.test_sqw_file_path);
-
+            obj.pix_with_pages = PixelDataFileBacked(obj.test_sqw_file_path);
+            obj.pix_in_memory  = sqw_test_obj.pix;
+        end
+        function delete(obj)
+            warning(obj.ws_cache);
         end
 
         function test_plus_with_scalar_adds_operand_to_signal_with_unpaged_pix(obj)
@@ -194,17 +196,17 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         end
 
         function test_error_two_PixelData_with_different_num_pixels(~)
-            pix1 = PixelDataBase.create(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10));
-            pix2 = PixelDataBase.create(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11));
+            pix1 = PixelDataMemory(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10));
+            pix2 = PixelDataMemory(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11));
             f = @() pix1.do_binary_op(pix2, @plus);
             assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
         end
 
         function test_minus_two_in_memory_PixelData_objects(obj)
             data1 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix1 = PixelDataBase.create(data1);
+            pix1 = PixelDataMemory(data1);
             data2 = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix2 = PixelDataBase.create(data2);
+            pix2 = PixelDataMemory(data2);
 
             pix_diff = pix1.do_binary_op(pix2, @minus);
 
@@ -213,21 +215,6 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             expected_diff(obj.VARIANCE_IDX, :) = pix1.variance + pix2.variance;
 
             assertElementsAlmostEqual(pix_diff.data, expected_diff);
-        end
-
-        function test_subtracting_two_PixelData_objects_with_multiple_pages(obj)
-            pix1 = obj.pix_with_pages;
-            pix2 = copy(obj.pix_with_pages);
-            % make sure we can deal with case where operand not on first page
-            pix2 = pix2.advance();
-
-            pix_diff = pix1.do_binary_op(pix2, @minus);
-            full_pix_diff = concatenate_pixel_pages(pix_diff);
-
-            expected_diff = obj.ref_raw_pix_data;
-            expected_diff(obj.SIGNAL_IDX, :) = 0;
-            expected_diff(obj.VARIANCE_IDX, :) = 2*obj.ref_raw_pix_data(obj.VARIANCE_IDX, :);
-            assertEqual(full_pix_diff, expected_diff);
         end
 
         function test_minus_2_PixelData_objects_1_in_mem_1_with_pages(obj)
@@ -243,26 +230,9 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             assertEqual(full_pix_diff, expected_diff);
         end
 
-        function test_plus_with_signal_array_and_npix_multiple_pages(obj)
-            data = rand(obj.VARIANCE_IDX, 10);
-            npix_in_page = 3;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
-            npix = [1, 3, 0; 1, 1, 2; 0, 1, 1];
-            sig_array = npix*rand(3);
-
-            pix.do_binary_op(sig_array, @plus, 'npix', npix);
-            new_pix_data = concatenate_pixel_pages(pix);
-
-            expected_pix = data;
-            expected_pix(obj.SIGNAL_IDX, :) = ...
-                expected_pix(obj.SIGNAL_IDX, :) + repelem(sig_array(:), npix(:))';
-            assertEqual(new_pix_data, expected_pix, '', obj.FLOAT_TOLERANCE);
-        end
-
-        function test_plus_with_signal_array_and_npix_1_page(obj)
+        function test_plus_with_signal_array_and_npix_membased(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix = PixelDataBase.create(data);
+            pix = PixelDataMemory(data);
 
             npix = [1, 3, 0; 1, 1, 2; 0, 1, 1];
             sig_array = npix*rand(3);
@@ -273,70 +243,33 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
                 expected_pix(obj.SIGNAL_IDX, :) + repelem(sig_array(:), npix(:))';
             assertEqual(new_pix.data, expected_pix);
         end
-
+        %------------------------------------------------------------------
         function test_PIXELDATA_error_on_where_npix_ne_num_pixels(~)
             num_pixels = 11;
-            pix = PixelDataBase.create(num_pixels);
+            pix = PixelDataMemory(num_pixels);
             npix = [3, 4, 3];
             sig = [0.5, 0.6, 0.7];
 
             f = @() pix.do_binary_op(sig, @plus, 'npix', npix);
-            assertExceptionThrown(f, 'PIXELDATA:binary_op_double_');
+            assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
         end
 
-        function test_PIXELDATA_error_on_with_dnd_of_wrong_size(obj)
+        function test_PIXELDATA_error_on_with_dnd_of_wrong_size_filebacked(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
-            pix = PixelDataBase.create(zeros(9, 2));
+            pix = PixelDataMemory(obj.test_sqw_2d_file_path);
             f = @() pix.do_binary_op(dnd_obj, @plus);
-            assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
+            assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
         end
 
-        function test_with_1d_dnd_returns_correct_pix_with_single_page(obj)
+        function test_PIXELDATA_error_on_with_dnd_of_wrong_size_memorybased(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
-            npix = dnd_obj.npix;
-            pix = PixelDataBase.create(ones(9, sum(npix)));
-
-            new_pix = pix.do_binary_op(dnd_obj, @plus, 'flip', false, ...
-                'npix', npix);
-
-            original_pix_data = concatenate_pixel_pages(pix);
-            new_pix_data = concatenate_pixel_pages(new_pix);
-
-            expected_pix = original_pix_data;
-            expected_pix(obj.SIGNAL_IDX, :) = ...
-                expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
-            expected_pix(obj.VARIANCE_IDX, :) = ...
-                expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
-            assertEqual(new_pix_data, expected_pix);
+            pix = PixelDataMemory(zeros(9, 2));
+            f = @() pix.do_binary_op(dnd_obj, @plus);
+            assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
         end
-
-        function test_with_sigvar_returns_correct_pix_with_single_page(obj)
-            dnd_obj = read_dnd(obj.test_sqw_file_path);
+        %------------------------------------------------------------------
+        function check_with_1d_dnd_returns_correct_pix_filebacked(obj,pix,dnd_obj)
             npix = dnd_obj.npix;
-            svar = sigvar(dnd_obj.s, dnd_obj.e);
-
-            pix = PixelDataBase.create(ones(9, sum(dnd_obj.npix)));
-
-            new_pix = pix.do_binary_op(svar, @plus, 'flip', false, ...
-                'npix', npix);
-
-            original_pix_data = concatenate_pixel_pages(pix);
-            new_pix_data = concatenate_pixel_pages(new_pix);
-
-            expected_pix = original_pix_data;
-            expected_pix(obj.SIGNAL_IDX, :) = ...
-                expected_pix(obj.SIGNAL_IDX, :) + repelem(svar.s(:), npix(:))';
-            expected_pix(obj.VARIANCE_IDX, :) = ...
-                expected_pix(obj.VARIANCE_IDX, :) + repelem(svar.e(:), npix(:))';
-            assertEqual(new_pix_data, expected_pix);
-        end
-
-        function test_with_1d_dnd_returns_correct_pix_with_gt_1_page(obj)
-            dnd_obj = read_dnd(obj.test_sqw_file_path);
-            npix = dnd_obj.npix;
-
-            pix_per_page = floor(sum(npix)/6);
-            pix = PixelDataBase.create(obj.test_sqw_file_path, pix_per_page);
 
             new_pix = pix.do_binary_op(dnd_obj, @plus, 'flip', false, ...
                 'npix', npix);
@@ -353,47 +286,49 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
                 obj.FLOAT_TOLERANCE);
         end
 
-        function test_with_sigvar_returns_correct_pix_with_gt_1_page(obj)
+        function test_with_1d_dnd_returns_correct_pix_with_pages(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
-            npix = dnd_obj.npix;
-            svar = sigvar(dnd_obj.s, dnd_obj.e);
+            pix = PixelDataFileBacked(obj.test_sqw_file_path);
 
-            pix_per_page = floor(sum(npix)/6);
-            pix = PixelDataBase.create(obj.test_sqw_file_path, pix_per_page);
+            pix_per_page = floor(pix.num_pixels/6);
+            hc = hor_config;
+            cmpp = hc.mem_chunk_size;
+            clOb = onCleanup(@()set(hc,'mem_chunk_size',cmpp));
+            hc.mem_chunk_size = pix_per_page;
+            skipTest('Re #928 Filebacked operations are currently disabled. Does it make any sence to do operation on pixels only? pixels will  not normally work without sqw')
 
-            new_pix = pix.do_binary_op(svar, @plus, 'flip', false, ...
-                'npix', npix);
-
-            original_pix_data = concatenate_pixel_pages(pix);
-            new_pix_data = concatenate_pixel_pages(new_pix);
-
-            expected_pix = original_pix_data;
-            expected_pix(obj.SIGNAL_IDX, :) = ...
-                expected_pix(obj.SIGNAL_IDX, :) + repelem(dnd_obj.s(:), npix(:))';
-            expected_pix(obj.VARIANCE_IDX, :) = ...
-                expected_pix(obj.VARIANCE_IDX, :) + repelem(dnd_obj.e(:), npix(:))';
-            assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', ...
-                obj.FLOAT_TOLERANCE);
+            obj.check_with_1d_dnd_returns_correct_pix_filebacked(pix,dnd_obj)
         end
 
+        function test_with_1d_dnd_returns_correct_pix_filebacked(obj)
+            dnd_obj = read_dnd(obj.test_sqw_file_path);
+            skipTest('Re #928 Filebacked operations are currently disabled. Does it make any sence to do operation on pixels only? pixels will not normally work without sqw')
+
+            pix = PixelDataFileBacked(obj.test_sqw_file_path);
+            obj.check_with_1d_dnd_returns_correct_pix_filebacked(pix,dnd_obj)
+        end
+
+        function test_with_1d_dnd_returns_correct_pix_membased(obj)
+            dnd_obj = read_dnd(obj.test_sqw_file_path);
+            pix = PixelDataMemory(obj.test_sqw_file_path);
+            %
+            obj.check_with_1d_dnd_returns_correct_pix_filebacked(pix,dnd_obj)
+        end
+        %------------------------------------------------------------------
         function test_PIXELDATA_error_in_sigvar_if_sum_npix_ne_num_pix(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
             svar = sigvar(dnd_obj.s, dnd_obj.e);
 
-            pix = PixelDataBase.create(ones(9, sum(dnd_obj.npix) + 1));
+            pix = PixelDataMemory(ones(9, sum(dnd_obj.npix) + 1));
 
             f = @() pix.do_binary_op(svar, @plus, 'flip', false, ...
                 'npix', dnd_obj.npix);
-            assertExceptionThrown(f, 'PIXELDATA:binary_op_sigvar_');
+            assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
         end
-
-        function test_adding_2Dsigvar_returns_correct_pix_with_gt_1_page(obj)
-            dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
+        %------------------------------------------------------------------
+        function check_adding_2Dsigvar_returns_correct_pix_filebased(obj,pix,dnd_obj)
             npix = dnd_obj.npix;
             svar = sigvar(dnd_obj.s, dnd_obj.e);
-
-            pix_per_page = floor(sum(npix(:)/6));
-            pix = PixelDataBase.create(obj.test_sqw_2d_file_path, pix_per_page);
 
             new_pix = pix.do_binary_op(svar, @plus, 'flip', false, ...
                 'npix', npix);
@@ -406,6 +341,62 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
                 expected_pix(obj.SIGNAL_IDX, :) + repelem(svar.s(:), npix(:))';
             expected_pix(obj.VARIANCE_IDX, :) = ...
                 expected_pix(obj.VARIANCE_IDX, :) + repelem(svar.e(:), npix(:))';
+            assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
+        end
+
+        function test_adding_2Dsigvar_returns_correct_pix_with_pages(obj)
+            dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
+
+            pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
+            pix_per_page = pix.num_pixels/6;
+            hc = hor_config;
+            cmpp = hc.mem_chunk_size;
+            clOb = onCleanup(@()set(hc,'mem_chunk_size',cmpp));
+            hc.mem_chunk_size = pix_per_page;
+            skipTest('Re #928 Filebacked operations are currently disabled. Does it make any sence to do operation on pixels only? pixels will not normally work without sqw')
+
+            obj.check_adding_2Dsigvar_returns_correct_pix_filebased(pix,dnd_obj)
+
+        end
+
+
+        function test_adding_2Dsigvar_returns_correct_pix_filebased(obj)
+            dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
+            pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
+            skipTest('Re #928 Filebacked operations are currently disabled. Does it make any sence to do operation on pixels only? pixels will not normally work without sqw')
+
+            obj.check_adding_2Dsigvar_returns_correct_pix_filebased(pix,dnd_obj)
+        end
+
+
+        function test_adding_2Dsigvar_returns_correct_pix_membased(obj)
+            dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
+
+            pix = PixelDataMemory(obj.test_sqw_2d_file_path);
+            obj.check_adding_2Dsigvar_returns_correct_pix_filebased(pix,dnd_obj)
+        end
+        %------------------------------------------------------------------
+        function check_mult_with_d2d_returns_correct_pix(obj,pix,dnd_obj)
+
+            npix = dnd_obj.npix;
+            new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false, ...
+                'npix', npix);
+
+            original_pix_data = concatenate_pixel_pages(pix);
+            new_pix_data = concatenate_pixel_pages(new_pix);
+
+            s_dnd = repelem(dnd_obj.s(:), npix(:))';
+            e_dnd = repelem(dnd_obj.e(:), npix(:))';
+            s_pix = original_pix_data(obj.SIGNAL_IDX, :);
+            e_pix = original_pix_data(obj.VARIANCE_IDX, :);
+
+            expected_pix = original_pix_data;
+            expected_pix(obj.SIGNAL_IDX, :) = s_pix.*s_dnd;
+
+            % See mtimes_single for variance calculation
+            expected_variance = (s_dnd.^2).*e_pix + (s_pix.^2).*e_dnd;
+            expected_pix(obj.VARIANCE_IDX, :) = expected_variance;
+
             assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
         end
 
@@ -417,82 +408,27 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             pix_per_page = floor(sum(npix(:)/6));
             hc = hor_config;
             cmpp = hc.mem_chunk_size;
-            clOb = onCleaunup(@()set(hc,'mem_chunk_size',cmpp));
+            clOb = onCleanup(@()set(hc,'mem_chunk_size',cmpp));
             hc.mem_chunk_size = pix_per_page;
-            skipTest('Re #928 Paging is currently disabled but should be completed as this ticket completed')
+            skipTest('Re #928 Paging is currently disabled but should be completed as this ticket completed. Does it make any sence? pixels will work within sqw')
 
-            new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false, ...
-                'npix', npix);
-
-            original_pix_data = concatenate_pixel_pages(pix);
-            new_pix_data = concatenate_pixel_pages(new_pix);
-
-            s_dnd = repelem(dnd_obj.s(:), npix(:))';
-            e_dnd = repelem(dnd_obj.e(:), npix(:))';
-            s_pix = original_pix_data(obj.SIGNAL_IDX, :);
-            e_pix = original_pix_data(obj.VARIANCE_IDX, :);
-
-            expected_pix = original_pix_data;
-            expected_pix(obj.SIGNAL_IDX, :) = s_pix.*s_dnd;
-
-            % See mtimes_single for variance calculation
-            expected_variance = (s_dnd.^2).*e_pix + (s_pix.^2).*e_dnd;
-            expected_pix(obj.VARIANCE_IDX, :) = expected_variance;
-
-            assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
+            obj.check_mult_with_d2d_returns_correct_pix(pix,dnd_obj)
         end
         function test_multiplying_with_d2d_returns_correct_pix_filebacked(obj)
             dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
-            npix = dnd_obj.npix;
 
             pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
+            skipTest('Re #928 Filebacked operations are currently disabled. Does it make any sence to do operation on pixels only? pixels will work within sqw')
 
-            new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false, ...
-                'npix', npix);
-
-            original_pix_data = concatenate_pixel_pages(pix);
-            new_pix_data = concatenate_pixel_pages(new_pix);
-
-            s_dnd = repelem(dnd_obj.s(:), npix(:))';
-            e_dnd = repelem(dnd_obj.e(:), npix(:))';
-            s_pix = original_pix_data(obj.SIGNAL_IDX, :);
-            e_pix = original_pix_data(obj.VARIANCE_IDX, :);
-
-            expected_pix = original_pix_data;
-            expected_pix(obj.SIGNAL_IDX, :) = s_pix.*s_dnd;
-
-            % See mtimes_single for variance calculation
-            expected_variance = (s_dnd.^2).*e_pix + (s_pix.^2).*e_dnd;
-            expected_pix(obj.VARIANCE_IDX, :) = expected_variance;
-
-            assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
+            obj.check_mult_with_d2d_returns_correct_pix(pix,dnd_obj)
         end
 
         function test_multiplying_with_d2d_returns_correct_pix_membased(obj)
             dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
-            npix = dnd_obj.npix;
 
             pix = PixelDataMemory(obj.test_sqw_2d_file_path);
 
-            new_pix = pix.do_binary_op(dnd_obj, @mtimes, 'flip', false, ...
-                'npix', npix);
-
-            original_pix_data = concatenate_pixel_pages(pix);
-            new_pix_data = concatenate_pixel_pages(new_pix);
-
-            s_dnd = repelem(dnd_obj.s(:), npix(:))';
-            e_dnd = repelem(dnd_obj.e(:), npix(:))';
-            s_pix = original_pix_data(obj.SIGNAL_IDX, :);
-            e_pix = original_pix_data(obj.VARIANCE_IDX, :);
-
-            expected_pix = original_pix_data;
-            expected_pix(obj.SIGNAL_IDX, :) = s_pix.*s_dnd;
-
-            % See mtimes_single for variance calculation
-            expected_variance = (s_dnd.^2).*e_pix + (s_pix.^2).*e_dnd;
-            expected_pix(obj.VARIANCE_IDX, :) = expected_variance;
-
-            assertElementsAlmostEqual(new_pix_data, expected_pix, 'relative', 1e-7);
+            obj.check_mult_with_d2d_returns_correct_pix(pix,dnd_obj)
         end
 
 

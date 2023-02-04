@@ -437,7 +437,7 @@ classdef (Abstract) PixelDataBase < serializable
             run_idx = obj.get_prop('run_idx');
         end
         function obj= set.run_idx(obj, val)
-            obj.set_prop('run_idx', val);
+            obj=obj.set_prop('run_idx', val);
         end
         %
         function detector_idx = get.detector_idx(obj)
@@ -451,21 +451,21 @@ classdef (Abstract) PixelDataBase < serializable
             energy_idx = obj.get_prop('energy_idx');
         end
         function obj= set.energy_idx(obj, val)
-            obj.set_prop('energy_idx', val);
+            obj=obj.set_prop('energy_idx', val);
         end
         %
         function signal = get.signal(obj)
             signal = obj.get_prop('signal');
         end
         function obj= set.signal(obj, val)
-            obj.set_prop('signal', val);
+            obj=obj.set_prop('signal', val);
         end
         %
         function variance = get.variance(obj)
             variance = obj.get_prop('variance');
         end
         function obj= set.variance(obj, val)
-            obj.set_prop('variance', val);
+            obj=obj.set_prop('variance', val);
         end
         %------------------------------------------------------------------
         function range = get.pix_range(obj)
