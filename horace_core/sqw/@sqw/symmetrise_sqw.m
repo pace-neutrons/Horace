@@ -160,7 +160,7 @@ coords_new=bsxfun(@plus, coords_new, vec3); % MP
 % Clear existing pages range not to extend new range with existing.
 % Take care if this method is extended to file-based data -- needs careful
 % thinking
-wout.pix.set_range(PixelDataBase.EMPTY_RANGE_);
+
 wout.pix.q_coordinates=coords_new;
 % real pix range, calculated at the assignment of new coordinates to the
 % pixels coordinates
