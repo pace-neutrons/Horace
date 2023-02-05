@@ -1,7 +1,7 @@
 classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_holder
 
     properties
-        BYTES_PER_PIX = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
+        BYTES_PER_PIX = 4*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         SIGNAL_IDX = 8;
         VARIANCE_IDX = 9;
 
@@ -38,25 +38,24 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
             obj = obj@TestCase(name);
 
             % Load a 1D SQW file
-            sqw_test_obj = sqw(obj.test_sqw_file_path);
+            sqw_test_obj = read_sqw(obj.test_sqw_file_path);
             obj.ref_npix_data = sqw_test_obj.data.npix;
             obj.ref_s_data = sqw_test_obj.data.s;
             obj.ref_e_data = sqw_test_obj.data.e;
 
             num_pix_pages = 6;
-            page_size = floor(sqw_test_obj.pix.num_pixels/num_pix_pages)*obj.BYTES_PER_PIX;
             obj.pix_in_memory_base = sqw_test_obj.pix;
-            obj.pix_with_pages_base = PixelDataBase.create(obj.test_sqw_file_path, page_size);
+            obj.pix_with_pages_base = PixelDataFileBacked(obj.test_sqw_file_path);
 
             % Load 2D SQW file
-            sqw_2d_test_object = sqw(obj.test_sqw_2d_file_path);
+            sqw_2d_test_object = read_sqw(obj.test_sqw_2d_file_path);
             obj.ref_npix_data_2d = sqw_2d_test_object.data.npix;
             obj.ref_s_data_2d = sqw_2d_test_object.data.s;
             obj.ref_e_data_2d = sqw_2d_test_object.data.e;
 
             num_pix = sqw_2d_test_object.pix.num_pixels;
-            page_size_2d = floor(num_pix/num_pix_pages)*obj.BYTES_PER_PIX;
-            obj.pix_with_pages_2d = PixelDataBase.create(obj.test_sqw_2d_file_path, page_size_2d);
+            %page_size_2d = floor(num_pix/num_pix_pages)*obj.BYTES_PER_PIX;
+            obj.pix_with_pages_2d = PixelDataFileBacked(obj.test_sqw_2d_file_path);
 
             obj.use_mex = get(hor_config, 'use_mex');
             obj.threads = get(parallel_config, 'threads');
@@ -117,7 +116,7 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
 
             file_info = dir(obj.test_sqw_file_path);
             pg_size = file_info.bytes/5;
-            pix = PixelDataBase.create(obj.test_sqw_file_path, pg_size);
+            pix = PixelDataBase.create(obj.test_sqw_file_path);
             [s, e] = pix.compute_bin_data(obj.ref_npix_data);
 
             assertEqual(s, obj.ref_s_data, '', obj.FLOAT_TOLERANCE);

@@ -183,7 +183,9 @@ classdef (Abstract) PixelDataBase < serializable
             %  '-writable'      data
             %  '-norange'    -- if present, do not calculate the range of
             %                   pix data if this range is missing. Should
-            %                   be selected during file-format upgrade
+            %                   be selected during file-format upgrade, as
+            %                   the range calculations are performed in
+            %                   create
             if nargin == 0
                 obj = PixelDataMemory();
                 return
@@ -227,7 +229,7 @@ classdef (Abstract) PixelDataBase < serializable
                 % if the file exists we can create a file-backed instance
             elseif isa(init, 'PixelDataFileBacked')
                 if file_backed_requested
-                    obj = PixelDataFileBacked(init, upgrade,norange);  
+                    obj = PixelDataFileBacked(init, upgrade,norange);
                 else
                     obj = PixelDataMemory(init);
                 end
@@ -621,6 +623,11 @@ classdef (Abstract) PixelDataBase < serializable
                         'number of columns while setting fields: %s have to be equal to %d. It is %d', ...
                         fld,numel(obj.FIELD_INDEX_MAP_(fld)),size(val,1));
                 end
+                if size(val,1) ~= obj.PIXEL_BLOCK_COLS_ &&  size(val,2) ~= obj.page_size
+                    error('HORACCE:PixelDataBase:invalid_argument', ...
+                        'If you are setting values for %s, its size have to be equal to page size (%d). In fact it is %d ', ...
+                        fld,obj.page_size,size(val,2))
+                end
             end
         end
         function obj = set_full_filename(obj,val)
@@ -664,7 +671,12 @@ classdef (Abstract) PixelDataBase < serializable
         % Does not properly support filebased data. The decision is not to
         % save filebased data into mat files
         %fields_to_save_ = {'data','num_pixels','pix_range','file_path'};
-        fields_to_save_ = {'metadata','data_wrap'};
+
+        % ORDERF OF fields is important! data wrap defines data, and
+        % metadata contains data_range. If data_range have been set
+        % directly, data may recaluclate range, and metadata would override
+        % it.
+        fields_to_save_ = {'data_wrap','metadata'};
     end
 
     methods

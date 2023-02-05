@@ -165,7 +165,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 if ic >= 10
                     ic = 0;
                     fprintf(2,'*** processing block N:%d/%d\n', ...
-                        obj.page_num_,obj.n_pages)
+                        obj.page_num_,obj.num_pages)
                 end
                 if nargout > 1
                     [obj,unique_id]=obj.reset_changed_coord_range('all');
@@ -382,7 +382,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
             end
             ldr = sqw_formats_factory.instance().get_loader(in_file);
-            obj = init_from_file_accessor_(obj,ldr,false);
+            obj = init_from_file_accessor_(obj,ldr,false,true);
         end
 
         function prp = get_prop(obj, fld)
@@ -396,9 +396,14 @@ classdef PixelDataFileBacked < PixelDataBase
         end
         function obj=set_prop(obj, fld, val)
             val = check_set_prop(obj,fld,val);
+            if ~obj.f_accessor_.Writable
+                error('HORACE:PixelDataFileBacked:invalid_argument',...
+                    'File %s is opened in read-only mode',obj.full_filename);
+            end
 
             pix_idx_start = obj.get_page_idx_(obj.page_num_);
             indx = pix_idx_start:pix_idx_start+size(val,2);
+            flds = obj.FIELD_INDEX_MAP_(fld);
             obj.f_accessor_.Data.data(flds, indx) = single(val);
             obj=obj.reset_changed_coord_range(fld);
         end

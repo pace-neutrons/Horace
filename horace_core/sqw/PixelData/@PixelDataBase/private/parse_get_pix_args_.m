@@ -16,7 +16,7 @@ if nargin>1
         if isnumeric(abs_pix_indices) && is_positive_int_vector(abs_pix_indices)
             if numel(abs_pix_indices) > obj.num_pixels
                 error('HORACE:PixelDataFilebacked:invalid_argument', ...
-                    'Total numner of input indexes exceed the toltal number of pixels')
+                    'Total number of input indexes exceed the toltal number of pixels')
 
             end
             if max(abs_pix_indices) > obj.num_pixels

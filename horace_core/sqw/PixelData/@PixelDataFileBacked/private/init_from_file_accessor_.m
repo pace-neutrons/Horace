@@ -22,7 +22,11 @@ obj.f_accessor_ = memmapfile(obj.full_filename,'format', ...
     'writable', update, 'offset', obj.offset_);
 %
 %
-obj.data_range_ = faccessor.get_data_range();
+fac_range  = faccessor.get_data_range();
+undefined = fac_range == PixelDataBase.EMPTY_RANGE;
+if ~any(undefined(:))
+    obj.data_range_ = fac_range;
+end
 if norange
     return;
 end

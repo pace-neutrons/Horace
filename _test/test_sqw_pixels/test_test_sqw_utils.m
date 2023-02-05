@@ -11,6 +11,7 @@ classdef test_test_sqw_utils < TestCase & common_pix_class_state_holder
         end
 
         function test_concatenate_pixel_pages(~)
+            skipTest('Re #928 The concept of FakeFAccess needs clarification and probably replacement')            
             % This test gives confidence in 'concatenate_pixel_pages' which several
             % other tests depend upon
             NUM_BYTES_IN_VALUE = 8;
@@ -20,7 +21,7 @@ classdef test_test_sqw_utils < TestCase & common_pix_class_state_holder
             npix_in_page = 11;
 
             faccess = FakeFAccess(data);
-            pix = PixelDataBase.create(faccess, npix_in_page);
+            pix = PixelDataBase.create(faccess);
 
             pix = pix.advance();
 
