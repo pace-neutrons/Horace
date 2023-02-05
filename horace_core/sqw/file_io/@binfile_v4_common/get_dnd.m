@@ -75,5 +75,6 @@ if noclass
     dnd_struc.title = dnd_obj.title;
     dnd_struc.filename = dnd_obj.filename;
     dnd_struc.filepath = dnd_obj.filepath;
+    dnd_struc.img_range = dnd_obj.img_range;
     dnd_obj = dnd_struc;
 end

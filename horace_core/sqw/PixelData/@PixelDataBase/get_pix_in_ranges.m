@@ -35,17 +35,16 @@ validate_ranges(abs_indices_starts, block_sizes);
 % All pixels in memory
 indices = get_ind_from_ranges(abs_indices_starts, block_sizes);
 if keep_precision
-    raw_pix = obj.data(:, indices);
+    raw_pix = obj.get_pixels(indices,'-keep','-raw');
 else
-    raw_pix  = double(obj.data(:, indices));
+    raw_pix = obj.get_pixels(indices,'-raw');
 end
 
 if recalculate_pix_range
     pix_out = PixelDataBase.create(raw_pix);
 else
     pix_out = PixelDataBase.create();
-    pix_out = pix_out.set_data(raw_pix);
+    pix_out = pix_out.set_raw_data(raw_pix);
 end
 
 
-end

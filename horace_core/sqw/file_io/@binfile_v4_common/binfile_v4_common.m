@@ -321,7 +321,11 @@ classdef binfile_v4_common < horace_binfile_interface
                 pos = [];
                 return
             end
-            bl = obj.bat_.get_data_block('bl_data_nd_data');
+            [bl,bl_indx] = obj.bat_.get_data_block('bl_data_nd_data');
+            if ~bl.dnd_info_defined
+                bl = bl.read_dnd_info(obj.file_id_);
+                obj.bat_ = obj.bat_.set_changed_block(bl,bl_indx);
+            end
             pos = bl.npix_position;
         end
     end

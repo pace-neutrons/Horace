@@ -101,6 +101,25 @@ classdef blockAllocationTable < serializable
             % initialize BAT by assigning to it list of data blocks
             obj = set_block_list_(obj,val);
         end
+        function obj = set_changed_block(obj,bl_instance,bl_index)
+            % set data block without recalculating bat. Used when
+            % data_block child contains additional information, not stored
+            % in BAT.
+            bl_name = bl_instance.block_name;
+            bl_ind_present = find(ismember(obj.block_names_,bl_name));
+            if isempty(bl_ind_present)
+                error('HORACE:blockAllocationTable:invalid_argument', ...
+                    'Block with name %s is not registered in BAT',bl_name );                
+            end
+            bl_present = obj.blocks_list_{bl_ind_present};
+            if bl_ind_present ~= bl_index || bl_present.position ~= bl_instance.position ||...
+                bl_present.size ~= bl_instance.size
+                error('HORACE:blockAllocationTable:invalid_argument', ...                
+                    'The block %s have changed its size or postion. This is not allowed without recalculating BAT', ...
+                    bl_name);
+            end
+            obj.blocks_list_{bl_index} = bl_instance;
+        end
         %------------------------------------------------------------------
         function list = get.block_names(obj)
             list = obj.block_names_;

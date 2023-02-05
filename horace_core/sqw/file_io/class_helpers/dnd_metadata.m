@@ -16,6 +16,7 @@ classdef dnd_metadata < serializable
         dimensions;
         axes;
         proj;
+        img_range
         creation_date_str;
         creation_date_defined
     end
@@ -54,6 +55,9 @@ classdef dnd_metadata < serializable
                         disp2str(remains));
                 end
             end
+        end
+        function range= get.img_range(obj)
+            range = obj.axes_.img_range;
         end
         %------------------------------------------------------------------
         % Re-wiring for old dnd metadata methods

@@ -110,8 +110,13 @@ else
 end
 mhc = main_header_cl('nfiles',nfiles_tot);
 
-ab = axes_block.get_from_old_data(datahdr{1});
-proj = ortho_proj.get_from_old_data(datahdr{1});
+if isa(datahdr{1},'dnd_metadata')
+    ab = datahdr{1}.axes;
+    proj = datahdr{1}.proj;
+else
+    ab = axes_block.get_from_old_data(datahdr{1});
+    proj = ortho_proj.get_from_old_data(datahdr{1});
+end
 sqw_data = DnDBase.dnd(ab,proj);
 sqw_data.filename=mhc.filename;
 sqw_data.filepath=mhc.filepath;

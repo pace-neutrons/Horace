@@ -337,15 +337,13 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = do_unary_op(obj, unary_op);
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
 
-        pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
-            recalculate_pix_ranges,keep_precision);
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
         pix_out = mask(obj, mask_array, npix);
         [page_num, total_number_of_pages] = move_to_page(obj, page_number, varargin);
         pix_out = noisify(obj, varargin);
 
         obj = recalc_data_range(obj);
-        obj   = set_raw_fields(obj, data, fields, abs_pix_indices);
+        obj = set_raw_fields(obj, data, fields, abs_pix_indices);
 
 
         has_more = has_more(obj);
@@ -359,6 +357,8 @@ classdef (Abstract) PixelDataBase < serializable
         function data  = get_data(obj)
             data = get_raw_data(obj);
         end
+        pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
+            recalculate_pix_ranges,keep_precision);        
     end
     methods(Abstract,Access=protected)
         % Main part of get.num_pixels accessor
@@ -472,6 +472,17 @@ classdef (Abstract) PixelDataBase < serializable
         %------------------------------------------------------------------
         function range = get.pix_range(obj)
             range = obj.data_range_(:,1:4);
+        end
+        function obj = set.pix_range(obj,range)
+            obj = set_pix_range(obj,range);
+        end
+        
+        function obj = set_pix_range(obj,range)
+            if ~(isnumeric(range) && isequal(size(range),[2,4]))
+                error('HORACE:PixelDataBase:invalid_argument',...
+                    'pixel range have to be array of size 2x4')
+            end
+            obj.data_range_(:,1:4) = range;
         end
 
         function srange = get.data_range(obj)

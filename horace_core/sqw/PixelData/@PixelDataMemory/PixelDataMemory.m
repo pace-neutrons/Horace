@@ -76,8 +76,6 @@ classdef PixelDataMemory < PixelDataBase
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
 
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
-        pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
-            recalculate_pix_ranges,keep_precision);
 
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
