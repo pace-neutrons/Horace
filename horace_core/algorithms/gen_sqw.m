@@ -1,4 +1,4 @@
-function [tmp_file,grid_size,pix_range,varargout] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_file,grid_size,data_range,varargout] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
 %
@@ -87,9 +87,10 @@ function [tmp_file,grid_size,pix_range,varargout] = gen_sqw (spe_file, par_file,
 %                  is an empty cell array.
 %   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   pix_range      The actual range of pixels (in crystal cartesian),
-%                  contributing into sqw file. Different from pix_db_range_in
-%                  as shows
+%   data_range     The actual range of pixels contributing into sqw file
+%                  constisting of 4 first elements of pixel coordinates 
+%                   (min/max coordinates in crystal cartesian)
+%                   and 5 elements of min/max values of pixel signal/error/etc.
 %
 %  parallel_cluster if job is executed in parallel and nargout >3, this
 %                  variable would return the initialized instance of the
@@ -300,7 +301,7 @@ if accumulate_old_sqw    % combine with existing sqw file
                 wnsq_argi = {'-keep_runid'};
             end
             % will recaluclate pixel_range
-            [~,pix_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_range_present,wnsq_argi{:});
+            [~,data_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_range_present,wnsq_argi{:});
 
             if numel(tmp_file) == numel(all_tmp_files)
                 tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
@@ -311,7 +312,7 @@ if accumulate_old_sqw    % combine with existing sqw file
                 report_nothing_to_do(spe_only,spe_exist);
             end
             tmp_file={};
-            pix_range=pix_range_present;
+            data_range=pix_range_present;
         end
         grid_size=grid_size_sqw;
 
@@ -424,8 +425,8 @@ if ~accumulate_old_sqw && nindx==1
     if isnan(run_files{1}.run_id)
         run_files{1}.run_id = 1;
     end
-    [w,grid_size,pix_range] = run_files{1}.calc_sqw(grid_size_in,pix_db_range);
-    verify_pix_range_est(pix_range,pix_range_est,log_level);
+    [w,grid_size,data_range] = run_files{1}.calc_sqw(grid_size_in,pix_db_range);
+    verify_pix_range_est(data_range,pix_range_est,log_level);
     save(w,sqw_file);
 
     %grid_size_in,pix_db_range_in,write_banner,opt);
@@ -515,7 +516,7 @@ end
 % Clear output arguments if nargout==0 to have a silent return
 % ------------------------------------------------------------
 if nargout==0
-    clear tmp_file grid_size pix_range
+    clear tmp_file grid_size pix_db_range
 end
 
 end
@@ -866,10 +867,10 @@ function verify_pix_range_est(pix_range,pix_range_est,log_level)
 if isempty(pix_range_est)
     pix_range_est = pix_range;
 end
-dif = abs(pix_range-pix_range_est)>1.e-4;
+dif = abs(pix_range(:,1:4)-pix_range_est(:,1:4))>1.e-4;
 if any(dif(:)) && log_level>0
-    args = arrayfun(@(x)x,[pix_range_est(1,:),pix_range_est(2,:),...
-        pix_range(1,:),pix_range(2,:)],'UniformOutput',false);
+    args = arrayfun(@(x)x,[pix_range_est(1,1:4),pix_range_est(2,1:4),...
+        pix_range(1,1:4),pix_range(2,1:4)],'UniformOutput',false);
     warning('gen_sqw:runtime_logic',...
         ['\nEstimated range of contributed pixels differs from the actual calculated range,\n',...
         'Est  min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n',...
@@ -882,10 +883,8 @@ end
 end
 
 function [present_and_valid,img_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
-% TODO:
-% write check for grid_size_in which has to be equal to grid_size of head.
-% but head (without s,e,npix) does not have method to idnentify grid_size
-% (it should be written and tested)
+% Verify if the tmp files are present and their binning ranges are the same
+% as requested by input parameters
 if ~is_file(tmp_file)
     present_and_valid  = false;
     img_range = [];
@@ -895,8 +894,17 @@ end
 tol = 4*eps(single(pix_db_range)); % double of difference between single and double precision
 
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
-img_range = ldr.read_img_range();
 
-present_and_valid = ~any(abs(img_range-pix_db_range)>tol);
+img_md  = ldr.get_dnd_metadata();
+img_range = img_md.img_range;
+
+err =  abs(img_range-pix_db_range)>tol;
+present_and_valid = ~any(err(:));
+if ~present_and_valid
+    return
+end
+grid_size = img_md.axes.nbins_all_dims;
+err = abs(grid_size-grid_size_in)>tol;
+present_and_valid = ~any(err(:));
 
 end

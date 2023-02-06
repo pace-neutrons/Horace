@@ -128,18 +128,6 @@ classdef faccess_dnd_v4 < binfile_v4_common
             % file
             obj = obj.put_dnd(obj,varargin{:});
         end
-        function img_db_range = get_img_db_range(obj,varargin)
-            % get [2x4] array of min/max ranges of the image where pixels
-            % are rebinned into
-            ds = obj.get_dnd_metadata();
-            img_db_range  = ds.axes.img_range;
-        end
-        function [data_str,obj] = get_se_npix(obj,varargin)
-            % get only dnd image data, namely s, err and npix
-            data_dnd = obj.get_dnd_data(varargin{:});
-            data_str = struct('s',data_dnd.sig,'e',data_dnd.err, ...
-                'npix',data_dnd.npix);
-        end
     end
     %----------------------------------------------------------------------
     methods(Access=protected)

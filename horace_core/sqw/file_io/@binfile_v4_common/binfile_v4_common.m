@@ -231,8 +231,8 @@ classdef binfile_v4_common < horace_binfile_interface
         function  obj = put_app_header(obj,varargin)
             % store application header which distinguish and describes
             % the sqw binary file.
-            % 
-            % Overloaded for file format 4 to store BAT immediately after 
+            %
+            % Overloaded for file format 4 to store BAT immediately after
             % horace sqw file header
             obj = put_app_header@horace_binfile_interface(obj,varargin{:});
             obj.bat_.put_bat(obj.file_id_);
@@ -249,16 +249,16 @@ classdef binfile_v4_common < horace_binfile_interface
             [dnd_info,obj] =  obj.get_block_data('bl_data_metadata',varargin{:});
         end
         % retrieve any dnd object or dnd part of sqw object
-        [dnd_obj,obj]  = get_dnd(obj,varargin);        
-        % 
+        [dnd_obj,obj]  = get_dnd(obj,varargin);
+        %
 
         %------------------------------------------------------------------
         % save sqw/dnd object stored in memory into binary sqw file as dnd object.
         % it always reduced data in memory into dnd object on hdd
         obj = put_dnd(obj,varargin);
-        % 
-        obj = put_dnd_data(obj,dnd_obh);        
-        obj = put_dnd_metadata(obj,varargin)        
+        %
+        obj = put_dnd_data(obj,dnd_obh);
+        obj = put_dnd_metadata(obj,varargin)
         %
         function  [data,obj] =  get_data(obj,varargin)
             % equivalent to get_dnd('-noclass). Should it also return pix
@@ -266,7 +266,21 @@ classdef binfile_v4_common < horace_binfile_interface
             argi = parse_get_data_inputs_(varargin{:});
             [data,obj] = obj.get_dnd(argi{:});
         end
+        % OLD DND INTERFACE
+        %------------------------------------------------------------------
+        function [data_str,obj] = get_se_npix(obj,varargin)
+            % get only dnd image data, namely s, err and npix
+            data_dnd = obj.get_dnd_data(varargin{:});
+            data_str = struct('s',data_dnd.sig,'e',data_dnd.err, ...
+                'npix',double(data_dnd.npix));
+        end
 
+        function img_db_range = get_img_db_range(obj,varargin)
+            % get [2x4] array of min/max ranges of the image where pixels
+            % are rebinned into
+            ds = obj.get_dnd_metadata();
+            img_db_range  = ds.axes.img_range;
+        end
 
     end
     %======================================================================
