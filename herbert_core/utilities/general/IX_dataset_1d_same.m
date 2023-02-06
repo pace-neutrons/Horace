@@ -32,16 +32,22 @@ function [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1,w2,varargin)
 %               >> ... IX_dataset_1d_same (w1,w2,'tol',tol)
 %           are identical.
 %
-%  'rebin' If true, rebin w2 to the same x values as w1 if they do not match
+%  'rebin'  If true, rebin w2 to the same x values as w1 if they do not match
 %           Default: false
 %
 %  'xtol'   Tolerance on x-axis value matching; format same as tol above.
 %           Default: [0,0].
 %           Only applies if 'rebin' is false.
 % 
+%  'norm'   Normalise w1 and w2 to unit area before comparing
+%
 %  'chisqr' Comparison of signal is done on the value of chisqr for (w1-w2)
 %           The tolerance 'tol' appies to the average value of
 %           (signal./error)^2 with respect to unity.
+%
+%  'nozeros'Eliminate points which have zero signal and error bar
+%           Only applies in the case of 'chisqr' comparison; ignored otherwise
+%
 %
 % Output:
 % -------
@@ -56,8 +62,9 @@ function [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (w1,w2,varargin)
 wdiff = IX_dataset_1d;
 chisqr = NaN;
 
-keyval_def = struct('rebin',false,'xtol',0,'chisqr',false,'tol',0);
-flags = {'rebin','chisqr'};
+keyval_def = struct('rebin',false,'norm',false,'chisqr',false,'nozeros',false,...
+    'xtol',0,'tol',0);
+flags = {'rebin','norm','chisqr','nozeros'};
 [par, keyval, present] = parse_arguments (varargin, keyval_def, flags);
 if numel(par)==1 && ~present.tol
     keyval.tol = par{1};
@@ -95,12 +102,33 @@ end
 % Check that signal and error are finite, infinite or NaN in the same places
 
 
-% Check signals or chisqr:
-wdiff = w2 - w1;
+% Normalise if requested
+if keyval.norm
+    area1 = integrate(w1);
+    w1 = w1/area1.val;
+    area2 = integrate(w2);
+    w2 = w2/area2.val;
+end
 
+% Remove zero points, defined as those 
+
+% Check signals or chisqr:
 if keyval.chisqr
+    wdiff = w2 - w1;
     s = wdiff.signal(:)';
     e = wdiff.error(:)';
+    if keyval.nozeros
+        % Set signal and error to zero if that was the case for *either*
+        s1 = w1.signal(:)';
+        e1 = w1.error(:)';
+        rem1 = (s1==0 & e1==0);
+        s2 = w2.signal(:)';
+        e2 = w2.error(:)';
+        rem2 = (s2==0 & e2==0);
+        rem = (rem1 | rem2);
+        s(rem) = 0;
+        e(rem) = 0;
+    end
     if all(s(e==0)==0)  % if s and e are zero, then this is OK
         chisqr_sum = (s./e).^2;
         chisqr_sum = chisqr_sum(isfinite(chisqr_sum));
@@ -112,7 +140,7 @@ if keyval.chisqr
         end
     else
         ok = false;
-        mess = 'chisqr: non-zero residual where the standard deviation is non-zero, for one or more points';
+        mess = 'chisqr: non-zero residual where the standard deviation is zero, for one or more points';
         return
     end
     

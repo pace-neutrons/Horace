@@ -345,6 +345,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                 end
             end
         end
+        
         %------------------------------------------------------------------
         function val = get.test_results_file(this)
             % Retrieve the name of the file, where the test results will be
@@ -356,17 +357,20 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Retrieve the data to compare tests against
             val = this.ref_data_;
         end
+        
         function set.ref_data(this,val)
             % Set up reference dataset from outside source.
             this.ref_data_ = val;
         end
-        %
+        
         function val = get.save_output(obj)
             val = obj.save_output_;
         end
+        
         function set.save_output(obj,val)
             obj.save_output_ = logical(val);
         end
+        
         %------------------------------------------------------------------
         function this=add_to_files_cleanList (this, varargin)
             % Add names of files to be deleted once the test case is run
@@ -398,6 +402,48 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
         end
 
         %------------------------------------------------------------------
+        function assertTestWithSave (this, var, funcHandle, varargin)
+            % Wrapper to a user assertion method to enable test or save functionality
+            %
+            %   >> assertTestWithSave (this, var, funcHandle, arg1, arg2,...)
+            %
+            % Input:
+            % ------
+            %   this            test class object
+            %   var             variable to test or save
+            %   funcHandle      handle to assertion function
+            %   arg1, arg2,...  arguments to pass to assertion function
+            %
+            %   The assertion function must have the form e.g.
+            %       my_test_func (A, Aref, arg1 ,arg2,...)   
+            %
+            %   which must throw an error if the test fails, or the variant
+            %       ok = my_other_test_func (A, Aref, arg1 ,arg2,...)
+            %    or:
+            %       [ok, out1, out2,..] = my_other_test_func (A, Aref, arg1 ,arg2,...)
+            %
+            %   where the return argument ok is a logical value that indicates
+            %   whether or not the test has passed. The function should print an
+            %   message to be useful. Additional return arguments out1, out2,...can be
+            %   passed but these are ignored by the unit testing framework. This
+            %   alternative form allows many pre-existing validity check functions
+            %   to be used without modification.
+            %
+            %   The input arguments to your test function are:
+            %       A           test variable
+            %       Aref        reference value for test variable
+            %       arg1,arg2,..arguments that may be needed by
+            %                  the assertion function to control
+            %                  the test of the assertion.
+            %
+            %                   Often a test will be symmetric in A and Aref,
+            %                  but depending on the complexity of the test this
+            %                  need not be the case. 
+
+            assertMethodWithSave (this, var, inputname(2), funcHandle, varargin{:});
+        end
+
+        %------------------------------------------------------------------
         function assertEqualWithSave (this, var, varargin)
             % Assert that input and saved value are equal
             %
@@ -417,10 +463,8 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %
             % See also assertEqual
 
-
             assertMethodWithSave (this, var, inputname(2),...
                 @assertEqual, varargin{:});
-
         end
 
         %------------------------------------------------------------------
@@ -453,10 +497,8 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %
             % See also assertElementsAlmostEqual
 
-
             assertMethodWithSave (this, var, inputname(2),...
                 @assertElementsAlmostEqual, varargin{:});
-
         end
 
         %------------------------------------------------------------------
@@ -488,7 +530,6 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % This is the 'WithSave' extension of the xUnit unit test assertVectorsAlmostEqual
             %
             % See also assertVectorsAlmostEqual
-
 
             assertMethodWithSave (this, var, inputname(2),...
                 @assertVectorsAlmostEqual, varargin{:});
@@ -552,7 +593,6 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Output:
             %   data        Stored dataset retrieved for comparison with
             %               its current value
-
 
             data = this.get_ref_dataset_(var_name, test_name);
         end
@@ -647,7 +687,14 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %   var_name    Name under which the variable will be saved
             %   funcHandle  Handle to assertion function
             %   varargin{:} Arguments to pass to assertion function, which must have
-            %               the form e.g. assertVectorsAlmostEqual(A,B,varargin{:})
+            %               the form e.g.
+            %                   assert_some_test (A,B,varargin{:})
+            %
+            %               where an error is thrown if the test fails, or
+            %                   [ok,...] = some_other_test (A,B,varargin{:})
+            %
+            %               where ok is true if the test passes or false if it
+            %               fails. To be useful, a 
 
             % Get the name of the test method. Determine this as the highest
             % method of the class in the call stack that begins with 'test'
@@ -690,7 +737,39 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                         var(i).main_header.creation_date = stored_reference(i).main_header.creation_date;
                     end
                 end
-                funcHandle(var, stored_reference, varargin{:})
+                % Get name of test function (also catch error in case of user supplied test)
+                if isa(funcHandle,'function_handle')
+                    try
+                        % Use matlab function that carries warning not to use programmatically
+                        % as syntax may change in later Matlab versions - but no other option
+                        tmp = functions(funcHandle);
+                        fName = tmp.function;
+                    catch
+                        fName = '';
+                    end
+                else
+                    error('TEST_CASE_WITH_SAVE:assertMethodWithSave:invalid_argument',...
+                        'Assertion function argument must be a function handle - please check') 
+                end
+                
+                if nargout(funcHandle)==0
+                    % Case of no return arguments specified. The test function is
+                    % required to throw an error if the test fails
+                    funcHandle(var, stored_reference, varargin{:})
+                else
+                    % Case of one or more return arguments. The test function is
+                    % required to have the first argument as a scalar logical status
+                    % or scalar numeric (which will be converted to logical)
+                    ok = funcHandle(var, stored_reference, varargin{:});
+                    if ~(isscalar(ok) && (isnumeric(ok) || islogical(ok)))
+                        error('TEST_CASE_WITH_SAVE:assertMethodWithSave:invalid_argument',...
+                            ['Return argument from test function ''',fName,''' must a scalar logical or numeric'])
+                    end
+                    if ~ok
+                        error('TEST_CASE_WITH_SAVE:assertMethodWithSave:testFailure',...
+                            ['Assertion test ''',fName,''' has failed'])
+                    end
+                end
             else
                 this.set_ref_dataset_ (var, var_name, test_name);
             end
