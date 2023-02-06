@@ -54,7 +54,7 @@ function [wout,ok,mess] = rebin_IX_dataset_(win, integrate_data, point_integrati
 %   mess                Error message; empty if ok
 
 
-%[use_mex,force_mex]=get(herbert_config,'use_mex','force_mex_if_use_mex');
+%[use_mex,force_mex]=get(hor_config,'use_mex','force_mex_if_use_mex');
 use_mex = false; % no FORTRAN code to rebin data any more
 force_mex = false;
 nax=numel(iax); % number of axes to be rebinned
@@ -108,7 +108,7 @@ if numel(args)==1 && isa(args{1},class(win))
         end
     end
     is_descriptor=false(1,nax);
-    
+
 else
     % Use rebin description to define new bin boundaries
     [ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=rebin_boundaries_description_parse_(nax,descriptor_opt,args{:});
@@ -117,7 +117,7 @@ else
     for i=find(true_values&is_descriptor)
         xbounds{i}=bin_boundaries_from_descriptor_(xbounds{i});
     end
-    
+
 end
 
 
@@ -127,7 +127,7 @@ if numel(win)==1
     [wout,ok,mess] = rebin_IX_dataset_single_(win,iax,xbounds,true_values,is_descriptor,integrate_data,point_integration,use_mex,force_mex);
     if ~ok, wout=[]; return, end
 else
-    % --> Code that depends on data input class    
+    % --> Code that depends on data input class
     ndim=dimensions(win(1));
     wout=repmat(IX_dataset_nd(ndim),size(win));
     % <--
@@ -136,4 +136,3 @@ else
         if ~ok, wout=[]; return, end
     end
 end
-

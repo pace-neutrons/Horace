@@ -8,8 +8,6 @@ classdef ClusterSlurmTester < ClusterSlurm
         sacct_command_output
     end
 
-
-
     methods
         function obj = ClusterSlurmTester(n_workers,mess_exchange_framework,log_level)
             % Constructor, which initiates Slurm wrapper
@@ -34,7 +32,7 @@ classdef ClusterSlurmTester < ClusterSlurm
             obj.time_to_wait_for_job_running_ = 0;
 
             if ~exist('log_level', 'var')
-                hc = herbert_config;
+                hc = hor_config;
                 log_level = hc.log_level;
                 obj.log_level = log_level;
             end

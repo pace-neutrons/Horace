@@ -1,9 +1,5 @@
 classdef MFParallel_Job < JobExecutor
 
-    properties(Dependent)
-        is_root;
-    end
-
     properties
         yval;
         wt;
@@ -40,10 +36,6 @@ classdef MFParallel_Job < JobExecutor
         % Constructor cannot take args as constructed by JobDispatcher
         function obj = MFParallel_Job()
             obj = obj@JobExecutor();
-        end
-
-        function out = get.is_root(obj)
-            out = obj.labIndex == 1;
         end
 
         function obj=reduce_data(obj)
@@ -459,144 +451,6 @@ classdef MFParallel_Job < JobExecutor
     end
 
     methods(Hidden)
-        function varargout = bcast(obj, root, varargin)
-
-            if obj.numLabs == 1
-                varargout = varargin;
-                return
-            end
-
-            if obj.labIndex == root
-                % Send data
-                varargout = varargin;
-                send_data = DataMessage(varargin);
-                to = 1:obj.numLabs;
-                to = to(to ~= root);
-                for i=1:obj.numLabs-1
-                    [ok, err_mess] = obj.mess_framework.send_message(to(i), send_data);
-                    if ~ok
-                        error('HORACE:MFParallel_Job:send_error', err_mess)
-                    end
-                end
-
-            else
-
-                % Receive the data
-                [ok, err_mess, data] = obj.mess_framework.receive_message(root, 'data');
-                if ~ok
-                    error('HORACE:MFParallel_Job:receive_error', err_mess)
-                end
-                varargout = data.payload;
-            end
-
-        end
-
-        function val = scatter(obj, root, val_in, nData, dim)
-
-            if obj.numLabs == 1
-                val = val_in;
-                return
-            end
-
-            if obj.labIndex == root
-                if numel(nData) ~= obj.numLabs
-                    error('HORACE:MFParallel_Job:send_error', "nData does not match nWorkers")
-                end
-
-                if (dim~= 0 && sum(nData) ~= size(val_in, dim)) || ...
-                          (dim == 0 && sum(nData) ~= numel(val_in))
-                    error('HORACE:MFParallel_Job:send_error', "nData does not match data size")
-                end
-
-                slices = [0; cumsum(nData)];
-
-                % Send data
-                for i=1:obj.numLabs
-                    switch dim
-                      case 0
-                        to_send = val_in(slices(i)+1:slices(i+1));
-                      case 1
-                        to_send = val_in(slices(i)+1:slices(i+1), :);
-                      case 2
-                        to_send = val_in(:, slices(i)+1:slices(i+1));
-                      otherwise
-                        error('HORACE:MFParallel_Job:send_error', "Dim %d not supported", dim)
-                    end
-                    if i ~= root
-                        send_data = DataMessage(to_send);
-                        [ok, err_mess] = obj.mess_framework.send_message(i, send_data);
-                        if ~ok
-                            error('HORACE:MFParallel_Job:send_error', err_mess)
-                        end
-                    else
-                        val = to_send;
-                    end
-                end
-
-            else
-
-                % Receive the data
-                [ok, err_mess, recv_data] = obj.mess_framework.receive_message(root, 'data');
-                if ~ok
-                    error('HORACE:MFParallel_Job:receive_error', err_mess)
-                end
-                val = recv_data.payload;
-            end
-
-        end
-
-
-        function val = reduce(obj, root, val, op, opt, varargin)
-            % Reduce data (val) from all processors on lab root using operation op
-            % If op requires a list rather than array
-
-            if ~exist('opt', 'var')
-                opt = 'mat';
-            end
-
-            if obj.numLabs == 1
-                recv_data = {val};
-                switch opt
-                    case 'mat'
-                      recv_data = cell2mat(recv_data);
-                      val = op(recv_data, varargin{:});
-                    case 'cell'
-                      val = op(recv_data, varargin{:});
-                    case 'args'
-                      val = op(recv_data{:}, varargin{:});
-                end
-                return
-            end
-
-            if obj.labIndex == root
-                [recv_data, ids] = obj.mess_framework.receive_all('all', 'data');
-                [~,ind] = sort(ids);
-
-                recv_data = recv_data(ind);
-                recv_data = cellfun(@(x) (x.payload), recv_data, 'UniformOutput', false);
-                recv_data = {val, recv_data{:}};
-                switch opt
-                  case 'mat'
-                    recv_data = cell2mat(recv_data);
-                    val = op(recv_data, varargin{:});
-                  case 'cell'
-                    val = op(recv_data, varargin{:});
-                  case 'args'
-                    val = op(recv_data{:}, varargin{:});
-                end
-
-            else
-                send_data = DataMessage(val);
-
-                [ok, err_mess] = obj.mess_framework.send_message(root, send_data);
-                if ~ok
-                    error('HORACE:MFParallel_Job:send_error', err_mess)
-                end
-
-                val = [];
-            end
-        end
-
 
         function data = merge_section(obj, data)
             merge_data = obj.common_data_.merge_data;

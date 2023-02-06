@@ -93,6 +93,10 @@ classdef JobExecutor
         % processing exception, as the barrier after do_job have been
         % bypassed.
         do_job_completed
+
+        % Whether process is root (1)
+        is_root
+
     end
 
     properties(Hidden=true)
@@ -215,6 +219,10 @@ classdef JobExecutor
             else
                 id = obj.mess_framework_.labIndex;
             end
+        end
+
+        function out = get.is_root(obj)
+            out = obj.labIndex == 1;
         end
 
         function id = get.numLabs(obj)
@@ -472,6 +480,218 @@ classdef JobExecutor
                 delete_old_folder = true;
             end
             obj.control_node_exch.migrate_message_folder(delete_old_folder);
+        end
+    end
+
+    methods % Common parallel operations
+        function varargout = bcast(obj, root, varargin)
+            % Send a copy of data from root to each process
+            %
+            % Usage :
+            %
+            %  Send my_val to each process
+            %  my_val = obj.bcast(1, my_val)
+            %  Send both my_val1 and my_val2 to each process (only one send)
+            %  [my_val1, myval2] = obj.bcast(1, my_val1, my_val2)
+            %
+            %  Inputs
+            %  ------
+            %  root       Process to send data
+            %
+            %  varargin   Values to be scattered
+            %
+            %  Outputs
+            %  -------
+            %  varargout  Received values
+
+            if obj.numLabs == 1
+                varargout = varargin;
+                return
+            end
+
+            if obj.labIndex == root
+                % Send data
+                varargout = varargin;
+                send_data = DataMessage(varargin);
+                to = 1:obj.numLabs;
+                to = to(to ~= root);
+                for i=1:obj.numLabs-1
+                    [ok, err_mess] = obj.mess_framework.send_message(to(i), send_data);
+                    if ~ok
+                        error('HORACE:MFParallel_Job:send_error', err_mess)
+                    end
+                end
+
+            else
+
+                % Receive the data
+                [ok, err_mess, data] = obj.mess_framework.receive_message(root, 'data');
+                if ~ok
+                    error('HORACE:MFParallel_Job:receive_error', err_mess)
+                end
+                varargout = data.payload;
+            end
+
+        end
+
+        function val = scatter(obj, root, val_in, nData, dim)
+            % Split data and send section to each process
+            %
+            % Usage :
+            %
+            %  Split a vector into chunks and send element to each process
+            %  val = obj.scatter(1, [1 2 3 4], [1 1 1 1], 0)
+            %
+            %  Inputs
+            %  ------
+            %  root     Process to send data
+            %
+            %  val_in   Value to be scattered
+            %
+            %  nData    Vector [nWorkers x 1] of number of elements to send to each process
+            %
+            %  dim      Dimension of data to scatter
+            %           One of:
+            %             - 0   Treat as vector
+            %             - 1   Split across rows
+            %             - 2   Split across columns
+            %
+            %  Outputs
+            %  -------
+            %  val      Section of data on this process
+
+            if obj.numLabs == 1
+                val = val_in;
+                return
+            end
+
+            if obj.labIndex == root
+                if numel(nData) ~= obj.numLabs
+                    error('HORACE:MFParallel_Job:send_error', 'nData does not match nWorkers')
+                end
+
+                if (dim~= 0 && sum(nData) ~= size(val_in, dim)) || ...
+                          (dim == 0 && sum(nData) ~= numel(val_in))
+                    error('HORACE:MFParallel_Job:send_error', 'nData does not match data size')
+                end
+
+                slices = [0; cumsum(nData)];
+
+                % Send data
+                for i=1:obj.numLabs
+                    switch dim
+                      case 0
+                        to_send = val_in(slices(i)+1:slices(i+1));
+                      case 1
+                        to_send = val_in(slices(i)+1:slices(i+1), :);
+                      case 2
+                        to_send = val_in(:, slices(i)+1:slices(i+1));
+                      otherwise
+                        error('HORACE:MFParallel_Job:send_error', 'Dim %d not supported', dim)
+                    end
+                    if i ~= root
+                        send_data = DataMessage(to_send);
+                        [ok, err_mess] = obj.mess_framework.send_message(i, send_data);
+                        if ~ok
+                            error('HORACE:MFParallel_Job:send_error', err_mess)
+                        end
+                    else
+                        val = to_send;
+                    end
+                end
+
+            else
+
+                % Receive the data
+                [ok, err_mess, recv_data] = obj.mess_framework.receive_message(root, 'data');
+                if ~ok
+                    error('HORACE:MFParallel_Job:receive_error', err_mess)
+                end
+                val = recv_data.payload;
+            end
+
+        end
+
+
+        function val = reduce(obj, root, val, op, opt, varargin)
+            % Reduce data (val) from all processors on lab root using operation op
+            % If op requires a list rather than array
+            %
+            % Usage :
+            %
+            %  Sum my_val and set on process 1
+            %  >> my_val = obj.reduce(1, my_val, @sum)
+            %  Return each my_val incremented by 3
+            %  >> my_val = obj.reduce(1, my_val, @plus, 'mat', 3)
+            %  Return my_val from each proc as cell array
+            %  >> my_val = obj.reduce(1, my_val, @(x) x, 'cell')
+            %
+            %  Inputs
+            %  ------
+            %  root     Process to receive and operate on data
+            %           (note that val will only be set on this process)
+            %
+            %  val      Value to be reduced
+            %
+            %  op       Operation to perform as reduction
+            %
+            %  opt      Means by which to perform operation (default: mat)
+            %           One of:
+            %             - mat   Treat received data as elements of a matrix     : op([1 2 3 4], extras)
+            %             - cell  Treat received data as elements of a cell array : op({1 2 3 4}, extras)
+            %             - args  Expand received data as arguments to op         : op(1, 2, 3, 4, extras)
+            %
+            %  extras   Extra arguments to pass to op (after received data
+            %
+            %  Outputs
+            %  -------
+            %  val      Reduced data after op
+
+            if ~exist('opt', 'var')
+                opt = 'mat';
+            end
+
+            if obj.numLabs == 1
+                recv_data = {val};
+                switch opt
+                    case 'mat'
+                      recv_data = cell2mat(recv_data);
+                      val = op(recv_data, varargin{:});
+                    case 'cell'
+                      val = op(recv_data, varargin{:});
+                    case 'args'
+                      val = op(recv_data{:}, varargin{:});
+                end
+                return
+            end
+
+            if obj.labIndex == root
+                [recv_data, ids] = obj.mess_framework.receive_all('all', 'data');
+                [~,ind] = sort(ids);
+
+                recv_data = recv_data(ind);
+                recv_data = cellfun(@(x) (x.payload), recv_data, 'UniformOutput', false);
+                recv_data = {val, recv_data{:}};
+                switch opt
+                  case 'mat'
+                    recv_data = cell2mat(recv_data);
+                    val = op(recv_data, varargin{:});
+                  case 'cell'
+                    val = op(recv_data, varargin{:});
+                  case 'args'
+                    val = op(recv_data{:}, varargin{:});
+                end
+
+            else
+                send_data = DataMessage(val);
+
+                [ok, err_mess] = obj.mess_framework.send_message(root, send_data);
+                if ~ok
+                    error('HORACE:MFParallel_Job:send_error', err_mess)
+                end
+
+                val = [];
+            end
         end
     end
 

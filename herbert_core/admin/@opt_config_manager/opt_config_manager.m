@@ -62,7 +62,7 @@ classdef opt_config_manager
     properties(Access=private)
         % the configurations, which may be optimized for a particular pc so
         % should be stored
-        known_configs_ = {'herbert_config','hor_config','hpc_config','parallel_config'}
+        known_configs_ = {'hor_config','hpc_config','parallel_config'}
         % different pc types, one may optimize Horace/Herbert for. The
         % order of the types is hard-written in the find_comp_type function,
         % so should not be changed without changing find_comp_type.
@@ -91,7 +91,7 @@ classdef opt_config_manager
             %    is Herbert configuration, which does not know anything
             %    about Horace.
             if isempty(which('hor_config')) % then it is Herbert
-                obj.known_configs_ = {'herbert_config','parallel_config'};
+                obj.known_configs_ = {'parallel_config'};
             end
             % 3) When it comes to Horace configuration, Herbert will be
             %    configured, so its configurations would not be default any
@@ -178,6 +178,7 @@ classdef opt_config_manager
             % return the list of the configurations, defined to the class
             conf  = obj.all_known_configurations_;
         end
+
         function obj = set_known_configurations(obj,configs)
             % function allows to set configurations, known to the class.
             % It does not offer any protection to input data, so shoule be
@@ -253,7 +254,7 @@ classdef opt_config_manager
 
     methods(Access=private)
         function print_help(obj)
-            ll = get(herbert_config,'log_level');
+            ll = get(hor_config,'log_level');
             if ll>0
                 types = obj.known_pc_types_;
                 fprintf('**** Known pc types are:\n');

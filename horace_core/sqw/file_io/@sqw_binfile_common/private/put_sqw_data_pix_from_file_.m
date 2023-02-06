@@ -68,14 +68,10 @@ switch combine_algorithm
     obj = obj.reopen_to_write();
     if ~isempty(mess)
         fout = obj.file_id_;
-        try
-            do_fseek(fout,pix_out_position,'bof');
-        catch ME
-            exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
-                             ['Unable to move to the start of the pixel record in target file ', ...
-                              ' after mex-combine failed']);
-            throw(exc.addCause(ME))
-        end
+        fseek(fout,pix_out_position,'bof');
+        check_error_report_fail_(obj,...
+                                 ['Unable to move to the start of the pixel record in target file ',...
+                                  obj.filename,' after mex-combine failed']);
 
         je = combine_sqw_pix_job();
         je.write_npix_to_pix_blocks(fout,pix_out_position,pix_comb_info);
@@ -176,13 +172,8 @@ end
 out_param = struct('file_name',fout_name ,...
     'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
 
-log_level = ...
-    config_store.instance().get_value('herbert_config','log_level');
-out_buf_size = ...
-    config_store.instance().get_value('hor_config','mem_chunk_size');
-[buf_size,multithreaded_combining] = ...
-    config_store.instance().get_value('hpc_config',...
-    'mex_combine_buffer_size','mex_combine_thread_mode');
+[out_buf_size,log_level] = get(hor_config,'mem_chunk_size','log_level');
+[buf_size,multithreaded_combining] = get(hpc_config,'mex_combine_buffer_size','mex_combine_thread_mode');
 
 % conversion parameters include:
 % n_bin        -- number of bins in the image array

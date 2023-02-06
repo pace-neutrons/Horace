@@ -19,12 +19,12 @@ function banner_to_screen(varargin)
 %                        that separate from the surrounding banner lines (default 1)
 %
 % Examples:
-%   >> 
+%   >>
 
 
 % Parse input
 % -----------
-if get(herbert_config,'log_level')<0
+if get(hor_config,'log_level')<0
     return;
 end
 str=varargin{1};

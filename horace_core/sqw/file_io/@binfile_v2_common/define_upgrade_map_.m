@@ -6,7 +6,7 @@ function obj=define_upgrade_map_(obj,file_exist,old_ldr)
 % such blocks are usually various data arrays, as it contents may change
 % but the size and position in the binary file would remain the same.
 %
-log_level = config_store.instance().get_value('herbert_config','log_level');
+log_level = config_store.instance().get_value('hor_config','log_level');
 new_filename = obj.full_filename;
 %
 if file_exist
