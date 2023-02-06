@@ -68,7 +68,7 @@ classdef PixelDataMemory < PixelDataBase
         % --- Pixel operations ---
         pix_out = append(obj, pix);
         pix     = set_raw_data(obj,pix);
-        obj     = set_raw_fields(obj, data, fields, abs_pix_indices);        
+        obj     = set_raw_fields(obj, data, fields, abs_pix_indices);
         %
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
@@ -229,7 +229,11 @@ classdef PixelDataMemory < PixelDataBase
                 obj.data_range_   = PixelDataBase.EMPTY_RANGE;
                 return
             end
-            ind = obj.FIELD_INDEX_MAP_(field_name);
+            if iscell(field_name)
+                ind = obj.check_pixel_fields(field_name);
+            else
+                ind = obj.FIELD_INDEX_MAP_(field_name);
+            end
 
             range = [min(obj.data_(ind,:),[],2),max(obj.data_(ind,:),[],2)]';
             obj.data_range_(:,ind)   = range;

@@ -55,7 +55,7 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
     abs_pix_indices = parser.Results.abs_pix_indices;
 
     pix_fields = cellstr(pix_fields);
-    check_pixel_fields_(obj, pix_fields);
+    check_pixel_fields(obj, pix_fields);
 
     if abs_pix_indices ~= NO_INPUT_INDICES
         if islogical(abs_pix_indices)

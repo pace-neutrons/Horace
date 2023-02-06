@@ -143,7 +143,7 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
         function test_empty_constructor(~)
             hc = hor_config;
             pdf = PixelDataFileBacked();
-            assertEqual(pdf.page_size,hc.mem_chunk_size);
+            assertEqual(pdf.page_size,0);
             assertTrue(pdf.is_filebacked);
 
             assertTrue(isempty(pdf.u1))

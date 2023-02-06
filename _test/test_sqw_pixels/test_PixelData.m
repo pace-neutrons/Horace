@@ -1518,14 +1518,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
 
-        function test_base_page_size_is_DEFAULT_PAGE_SIZE_by_default(~)
-            pix = PixelDataFileBacked();
-
-            expected_num_pix = get(hor_config,'mem_chunk_size');
-            assertEqual(pix.page_size, expected_num_pix);
-        end
-
-
         function test_get_pixels_correct_if_all_pages_dirty(obj)
             skipTest('Re #928 This does not currently work. Do we actually need this functionality?')
             data = rand(9, 45);

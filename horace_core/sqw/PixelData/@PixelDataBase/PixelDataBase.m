@@ -220,7 +220,7 @@ classdef (Abstract) PixelDataBase < serializable
 
             % In memory construction
             if isstruct(init)
-                obj = serializable.from_struct(init);
+                obj = serializable.loadobj(init);
             elseif isa(init, 'PixelDataMemory')
                 if file_backed_requested
                     obj = PixelDataFileBacked(init, upgrade,norange);
@@ -596,11 +596,11 @@ classdef (Abstract) PixelDataBase < serializable
         end
         function [pix_fields, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, varargin)
             % process inputs for set_raw_fields function            
-            [pix_fields, abs_pix_indices] = parse_set_fields_args_(obj, pix_fields, data, varargin);        
+            [pix_fields, abs_pix_indices] = parse_set_fields_args_(obj, pix_fields, data, varargin{:});        
         end
 
-        function indices = check_pixel_fields_(obj, fields)
-            %CHECK_PIXEL_FIELDS_ Check the given field names are valid pixel data fields
+        function indices = check_pixel_fields(obj, fields)
+            %CHECK_PIXEL_FIELDS Check the given field names are valid pixel data fields
             % Raises error with ID 'HORACE:PIXELDATA:invalid_field' if any fields not valid.
             %
             %
@@ -611,45 +611,13 @@ classdef (Abstract) PixelDataBase < serializable
             % Output:
             % indices   -- the indices corresponding to the fields
             %
-
-            poss_fields = obj.FIELD_INDEX_MAP_;
-            bad_fields = ~cellfun(@poss_fields.isKey, fields);
-            if any(bad_fields)
-                valid_fields = poss_fields.keys();
-                error( ...
-                    'HORACE:PixelData:invalid_argument', ...
-                    'Invalid pixel field(s) {''%s''}.\nValid keys are: {''%s''}', ...
-                    strjoin(fields(bad_fields), ''', '''), ...
-                    strjoin(valid_fields, ''', ''') ...
-                    );
-            end
-
-            indices = cellfun(@(field) poss_fields(field), fields, 'UniformOutput', false);
-            indices = unique([indices{:}]);
+            indices = check_pixel_fields_(obj, fields);
         end
         %
         function val = check_set_prop(obj,fld,val)
-            if isscalar(val)
-                if ~isnumeric(val)
-                    error('HORACCE:PixelDataBase:invalid_argument', ...
-                        'single value for field %s have to be numeric scalar. It is %s', ...
-                        fld,disp2str(val))
-                end
-            else
-                if isvector(val) && ~isrow(val)
-                    val = val';
-                end
-                if ~isnumeric(val) || size(val,1) ~=numel(obj.FIELD_INDEX_MAP_(fld))
-                    error('HORACCE:PixelDataBase:invalid_argument', ...
-                        'number of columns while setting fields: %s have to be equal to %d. It is %d', ...
-                        fld,numel(obj.FIELD_INDEX_MAP_(fld)),size(val,1));
-                end
-                if size(val,2) ~= obj.page_size
-                    error('HORACCE:PixelDataBase:invalid_argument', ...
-                        'If you are setting values for %s, its size have to be equal to page size (%d). In fact it is %d ', ...
-                        fld,obj.page_size,size(val,2))
-                end
-            end
+            % check input parameters of set_propery function
+            %
+            val = check_set_prop_(obj,fld,val);
         end
         function obj = set_full_filename(obj,val)
             % main part of filepath setter. Need checks/modification

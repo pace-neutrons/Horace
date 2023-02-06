@@ -434,9 +434,15 @@ classdef PixelDataFileBacked < PixelDataBase
             % Sets up the property page_range defining the range of block
             % of pixels chaned at current iteration.
 
-            %NOTE: This range calculations are probably incorrect!
+            %NOTE: This range calculations are probably incorrect unless
+            % performed in a loop over all pix pages!
             %
-            ind = obj.FIELD_INDEX_MAP_(field_name);
+            if iscell(field_name)
+                ind = obj.check_pixel_fields(field_name);
+            else
+                ind = obj.FIELD_INDEX_MAP_(field_name);
+            end
+
 
             loc_range = [min(obj.data(ind,:),[],2),max(obj.data(ind,:),[],2)]';
 

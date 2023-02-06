@@ -16,7 +16,7 @@ parser.parse(varargin{:});
 abs_pix_indices = parser.Results.abs_pix_indices;
 
 pix_fields = cellstr(pix_fields);
-pix_fields = check_pixel_fields_(obj, pix_fields);
+pix_fields = obj.check_pixel_fields(pix_fields);
 
 if islogical(abs_pix_indices)
     abs_pix_indices = logical_to_normal_index_(obj, abs_pix_indices);
