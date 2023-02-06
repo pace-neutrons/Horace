@@ -223,7 +223,7 @@ classdef TestRunDisplay < TestRunMonitor
                 end
             end
             if ~did_pass
-                fprintf(2,'==== FOUND %d FAILED TESTS ==== \n',n_faults)
+                fprintf(2,'===== FOUND %d FAILED TESTS ===== \n',n_faults)
                 for k = 1:numel(self.Faults)
                     faultData = self.Faults(k);
                     if strcmp(faultData.Type, 'failure')

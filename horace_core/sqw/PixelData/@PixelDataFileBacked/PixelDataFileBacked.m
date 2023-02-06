@@ -91,16 +91,22 @@ classdef PixelDataFileBacked < PixelDataBase
     % Overloaded operations interface
     methods
         function obj = append(obj, ~)
-            error('HORACE:PixelDataFileBacked:not_impmemented',...
+            error('HORACE:PixelDataFileBacked:not_implemented',...
                 'append does not work on file-based pixels')
         end
-        function pix = set_raw_data(obj,~)
-            error('HORACE:PixelDataFileBacked:not_impmemented',...
-                'set_raw_data is not currently implemented on file-based pixels')
+        function obj = set_raw_data(obj,pix)
+            if obj.read_only
+                error('HORACE:PixelDataFileBacked:runtime_error',...
+                    'set_raw_data is not currently implemented on file-based pixels')
+            end
+            obj = set_raw_data_(obj,pix);
         end
         function obj  = set_fields(obj, data, fields, abs_pix_indices)
-            error('HORACE:PixelDataFileBacked:not_impmemented',...
-                'set_fields is not currently implemented on file-based pixels')
+            if obj.read_only
+                error('HORACE:PixelDataFileBacked:runtime_error',...
+                    'set_fields can not run on read-only PixelDataFileBacked')
+            end
+            obj = set_fields@PixelDataBased(obj,data, fields, abs_pix_indices);
         end
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
@@ -111,11 +117,14 @@ classdef PixelDataFileBacked < PixelDataBase
 
 
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
-
         pix_out = get_fields(obj, fields, abs_pix_indices);
+
         function  obj=set_raw_fields(obj, data, fields, abs_pix_indices)
-            error('HORACE:PixelDataFileBacked:not_impmemented',...
-                'set_raw_fields is not currently implemented on file-based pixels')
+            if obj.read_only
+                error('HORACE:PixelDataFileBacked:not_impmemented',...
+                    'set_raw_fields can not run on read-only PixelDataFileBacked')
+            end
+            obj = set_raw_fields_(obj, data, fields, abs_pix_indices);
         end
     end
 
@@ -239,11 +248,12 @@ classdef PixelDataFileBacked < PixelDataBase
         % --- Operator overrides ---
         function obj=delete(obj)
             % method tries to clear up the class instance to allow
-            % class file beeing deleted. Depending on Matlab version, it
-            % may not work.
+            % class file beeing deleted when this class goes out of scope.
+            % Depending on Matlab version, it may not work.
             mmf = obj.f_accessor_;
             clear mmf;
             obj.f_accessor_ = [];
+            clear obj.f_accessor_;
         end
 
         function saveobj(~)
@@ -320,8 +330,8 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             obj.page_num_ = val;
         end
-        function page_size = get_page_size(~)
-            page_size = config_store.instance().get_value('hor_config','mem_chunk_size');
+        function page_size = get_page_size(obj)
+            page_size = min(config_store.instance().get_value('hor_config','mem_chunk_size'),obj.num_pixels);
         end
         function np = get_num_pages(obj)
             np = max(ceil(obj.num_pixels/obj.page_size),1);
@@ -347,6 +357,13 @@ classdef PixelDataFileBacked < PixelDataBase
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
             num_pix = obj.num_pixels_;
+        end
+        function ro = get_read_only(obj)
+            if isempty(obj.f_accessor_)
+                ro = true;
+            else
+                ro = ~obj.f_accessor_.Writable;
+            end
         end
 
         %------------------------------------------------------------------
@@ -401,10 +418,12 @@ classdef PixelDataFileBacked < PixelDataBase
                     'File %s is opened in read-only mode',obj.full_filename);
             end
 
-            pix_idx_start = obj.get_page_idx_(obj.page_num_);
-            indx = pix_idx_start:pix_idx_start+size(val,2);
+            [pix_idx_start,pix_idx_end] = obj.get_page_idx_(obj.page_num_);
+            pix_idx_end = min(pix_idx_end,pix_idx_start-1+size(val,2));
+            indx = pix_idx_start:pix_idx_end;
             flds = obj.FIELD_INDEX_MAP_(fld);
             obj.f_accessor_.Data.data(flds, indx) = single(val);
+            % this operation will probably lead to invalid results.
             obj=obj.reset_changed_coord_range(fld);
         end
 
@@ -414,6 +433,8 @@ classdef PixelDataFileBacked < PixelDataBase
             %
             % Sets up the property page_range defining the range of block
             % of pixels chaned at current iteration.
+
+            %NOTE: This range calculations are probably incorrect!
             %
             ind = obj.FIELD_INDEX_MAP_(field_name);
 
@@ -421,7 +442,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
             range = [min(obj.data_range_(1,ind),loc_range(1,:));...
                 max(obj.data_range_(2,ind),loc_range(2,:))];
-            obj.data_range_(:,ind)   = range(:,ind);
+            obj.data_range_(:,ind)   = range;
             if nargout > 1
                 varargout{1} = unique(obj.run_idx);
             end

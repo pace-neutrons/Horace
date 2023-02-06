@@ -90,17 +90,6 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             end
         end
         %
-        function img_data_range = read_img_range(obj)
-            % read real data range from disk
-            fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
-            [mess,res] = ferror(obj.file_id_);
-            if res ~= 0
-                error('HORACE:sqw_binfile_common:io_error',...
-                    'Can not move to the pix_range start position, Reason: %s',mess);
-            end
-            img_data_range = fread(obj.file_id_,[2,4],'float32');
-
-        end
         %
         % read main sqw data  from properly initialized binary file.
         [sqw_data,obj] = get_data(obj,varargin);
@@ -174,7 +163,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             %   data.img_range     The range of the data along each axis.
             %                      Belongs to image, but written only when
             %                      pixels are written
-            %   data.dummy         4-byte field kept for compartibility
+            %   data.dummy         4-byte field kept for compatibility
             %                      with old data formats
             %   data.pix_block     A field containing information about
             %                      contents of PixelData object. npixels
@@ -302,6 +291,17 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
     end
     %======================================================================
     methods(Access = protected)
+        function img_data_range = read_img_range(obj)
+            % read real data range from disk
+            fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
+            [mess,res] = ferror(obj.file_id_);
+            if res ~= 0
+                error('HORACE:sqw_binfile_common:io_error',...
+                    'Can not move to the pix_range start position, Reason: %s',mess);
+            end
+            img_data_range = fread(obj.file_id_,[2,4],'float32');
+
+        end    
         function obj = update_sqw_keep_pix(~)
             error('HORACE:sqw_binfile_common:runtime_error',...
                 'This method does not work on faccessors with version lower then 4');

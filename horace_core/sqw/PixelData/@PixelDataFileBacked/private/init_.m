@@ -38,9 +38,10 @@ elseif isa(init, 'PixelDataFileBacked')
     obj.full_filename = init.full_filename;
     obj.num_pixels_   = init.num_pixels;
     obj.data_range    = init.data_range;
+    % TODO: #928 tailed source here will not work
     obj.f_accessor_   = memmapfile(obj.full_filename,'format', ...
-        {'single',[9,init.num_pixels_],'data'}, ...
-        'writable', update, 'offset', obj.offset_ );
+        {'single',[PixelDataBase.DEFAULT_NUM_PIX_FIELDS,init.num_pixels_],'data'}, ...
+        'Writable', update, 'offset', obj.offset_ );
 elseif ischar(init) || isstring(init)
     if ~is_file(init)
         error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -53,20 +54,16 @@ elseif ischar(init) || isstring(init)
 elseif isa(init, 'sqw_file_interface')
     obj = init_from_file_accessor_(obj,init,update,norange);
 
-elseif isnumeric(init)
-    error('HORACE:PixelDataFileBacked:invalid_argument', ...
-        'filebacked pixels can not be initialized by data')
-    %
-    %                     if obj.base_page_size < size(init, 2)
-    %                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
-    %                             'Cannot create file-backed with data larger than a page')
-    %                     end
-    %                     obj=obj.set_data(init);
-    %                     obj.data_ = init;
-    %                     obj.num_pixels_ = size(init, 2);
-    %                     if ~obj.cache_is_empty_()
-    %                         obj=obj.reset_changed_coord_range('coordinates');
-    %                     end
+elseif isnumeric(init) %
+    % this is usually option for testing filebacked operations
+    if isscalar(init)
+        init = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,abs(floor(init)));
+    end
+    if isempty(obj.full_filename_)
+        file_name =fullfile(tmp_dir,['PixFileBacked_',str_random,'.sqw']);
+        obj.full_filename = file_name;
+    end
+    obj = set_raw_data_(obj,init);
 else
     error('HORACE:PixelDataFileBacked:invalid_argument', ...
         'Cannot construct PixelDataFileBacked from class (%s)', class(init))

@@ -1,5 +1,5 @@
 function obj=set_fields(obj, data,pix_fields, varargin)
-%SET_PIXELS Update the data on the given pixel data fields
+%SET_FIELDS Update the data on the given pixel data fields
 %
 % The number of columns in 'data' must be equal to the number of fields in
 % 'pix_fields'. The number of rows in 'data' must be equal to the number of
@@ -20,4 +20,4 @@ function obj=set_fields(obj, data,pix_fields, varargin)
 %
 
 obj = obj.set_raw_fields(data,pix_fields, varargin{:});
-obj = obj.reset_changed_coord_range('all');
+obj = obj.reset_changed_coord_range(pix_fields);

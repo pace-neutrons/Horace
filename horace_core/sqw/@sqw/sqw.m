@@ -294,7 +294,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
 
         function is = dnd_type(obj)
-            is = isempty(obj.pix_);
+            is = obj.pix_.num_pixels == 0;
         end
         %
         function fn = get.full_filename(obj)

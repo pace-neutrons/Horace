@@ -1,4 +1,4 @@
-function obj=set_raw_fields(obj, data,pix_fields, varargin)
+function obj=set_raw_fields_(obj, data,pix_fields, varargin)
 %SET_RAW_PIXELS Update the data on the given pixel data fields
 %
 % The number of columns in 'data' must be equal to the number of fields in
@@ -25,16 +25,17 @@ NO_INPUT_INDICES = -1;
 
 [field_indices, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, varargin{:});
 
+mmf = obj.f_accessor_;
 if abs_pix_indices == NO_INPUT_INDICES
     if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && ...
             ischar(pix_fields) && strcmp(pix_fields,'all')
-        obj.data_   = data; % all arguments have been already verified,
-        %            no point of using data_ setter
+        mmf.Data.data(field_indices,abs_pix_indices) = single(data);
     else
-        obj.data_(field_indices, 1:end) = data;
+        ind = 1:size(data,2);
+        mmf.Data.data(field_indices,ind) = single(data);
     end
 else
-    obj.data_(field_indices, abs_pix_indices) = data;
+    mmf.Data.data(field_indices,abs_pix_indices) = single(data);
 end
 
 end  % function

@@ -28,9 +28,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
             % sqw_2d_1.sqw has ~1.8 MB of pixels, a 400 kB page size gives us 5
             % pages of pixel data
-            pixel_page_size = 400e3;
             obj.sqw_2d_paged = sqw(obj.test_sqw_file_path, ...
-                'pixel_page_size',pixel_page_size);
+                'file_backed',true);
 
             obj.sqw_2d = sqw(obj.test_sqw_file_path);
         end
@@ -316,10 +315,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             end
         end
         %
-        function pix = get_pix_with_fake_faccess(data, npix_in_page)
-            faccess = FakeFAccess(data);
-            bytes_in_pixel = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
-            pix = PixelDataBase.create(faccess, npix_in_page*bytes_in_pixel);
+        function pix = get_pix_with_fake_faccess(data)
+            pix = PixelDataFileBacked(data);
         end
 
     end

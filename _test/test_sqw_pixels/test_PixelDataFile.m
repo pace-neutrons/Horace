@@ -27,6 +27,20 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             assertTrue(isnumeric(pix_data_f))
             assertEqual(pix_data_f ,pix_data_m );
         end
+        function test_filebacked_pixels_from_data(~)
+            data = rand(9,1000);
+            pd = PixelDataFileBacked(data);
+            assertEqualToTol(pd.data,data,3.e-7)
+
+            pdm = PixelDataMemory(pd);
+
+            assertEqual(pdm.data,pd.data);
+            pdm.signal = 1:1000;
+            pd.signal = 1:1000;
+
+            assertEqual(pdm.signal,pd.signal);
+            assertEqual(pdm.data,pd.data);            
+        end
         
 
         function test_get_pix(obj)

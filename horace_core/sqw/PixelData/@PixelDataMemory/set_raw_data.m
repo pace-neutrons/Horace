@@ -1,5 +1,6 @@
 function obj = set_raw_data(obj,pix)
-%SET_DATA set internal data array without comprehensive checks for data integrity
+%SET_RAW_DATA sets internal data array without comprehensive checks for 
+% data integrity
 %
 if isempty(pix)
     obj.data_ = zeros(obj.DEFAULT_NUM_PIX_FIELDS,0);

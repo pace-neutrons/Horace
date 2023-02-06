@@ -119,6 +119,7 @@ classdef (Abstract) PixelDataBase < serializable
         page_num    % current page number
         num_pages   % number of pages in the whole data file
         page_size;  % The number of pixels that can fit in one page of data
+        read_only   % Specify if you can modify the data of your pixels
     end
     %
     methods(Static,Hidden)
@@ -330,7 +331,7 @@ classdef (Abstract) PixelDataBase < serializable
         % --- Pixel operations ---
         pix_out = append(obj, pix);
         pix     = set_raw_data(obj,pix);
-        obj     = set_fields(obj, data, fields, abs_pix_indices);
+        obj = set_raw_fields(obj, data, fields, abs_pix_indices);        
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
@@ -343,7 +344,7 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = noisify(obj, varargin);
 
         obj = recalc_data_range(obj);
-        obj = set_raw_fields(obj, data, fields, abs_pix_indices);
+
 
 
         has_more = has_more(obj);
@@ -353,6 +354,7 @@ classdef (Abstract) PixelDataBase < serializable
     end
     % the same interface on FB and MB files, bit works on PixelDataBase
     methods
+        obj      = set_fields(obj, data, fields, abs_pix_indices);        
         data_out = get_fields(obj, pix_fields, varargin)
         function data  = get_data(obj)
             data = get_raw_data(obj);
@@ -360,6 +362,7 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);        
     end
+    %----------------------------------------------------------------------
     methods(Abstract,Access=protected)
         % Main part of get.num_pixels accessor
         num_pix = get_num_pixels(obj);
@@ -524,7 +527,7 @@ classdef (Abstract) PixelDataBase < serializable
             obj = set_metadata(obj,val);
         end
         %------------------------------------------------------------------
-        % paging
+        % paging, readonly access
         function page_size = get.page_size(obj)
             page_size = get_page_size(obj);
         end
@@ -536,6 +539,9 @@ classdef (Abstract) PixelDataBase < serializable
         end
         function np = get.num_pages(obj)
             np = get_num_pages(obj);
+        end
+        function ro = get.read_only(obj)
+            ro = get_read_only(obj);
         end
     end
     %--------------------------------------------------------------
@@ -586,7 +592,11 @@ classdef (Abstract) PixelDataBase < serializable
             % usage in filebased and memory based classes
 
             [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
-                parse_get_pix_args_(obj,abs_pix_indices,varargin{:});
+                parse_get_pix_args_(obj,abs_pix_indices,varargin{:});       
+        end
+        function [pix_fields, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, varargin)
+            % process inputs for set_raw_fields function            
+            [pix_fields, abs_pix_indices] = parse_set_fields_args_(obj, pix_fields, data, varargin);        
         end
 
         function indices = check_pixel_fields_(obj, fields)
@@ -634,7 +644,7 @@ classdef (Abstract) PixelDataBase < serializable
                         'number of columns while setting fields: %s have to be equal to %d. It is %d', ...
                         fld,numel(obj.FIELD_INDEX_MAP_(fld)),size(val,1));
                 end
-                if size(val,1) ~= obj.PIXEL_BLOCK_COLS_ &&  size(val,2) ~= obj.page_size
+                if size(val,2) ~= obj.page_size
                     error('HORACCE:PixelDataBase:invalid_argument', ...
                         'If you are setting values for %s, its size have to be equal to page size (%d). In fact it is %d ', ...
                         fld,obj.page_size,size(val,2))
@@ -672,6 +682,9 @@ classdef (Abstract) PixelDataBase < serializable
             if obj.do_check_combo_arg
                 obj = obj.check_combo_arg();
             end
+        end
+        function ro = get_read_only(~)
+            ro = false;
         end
     end
     %======================================================================
