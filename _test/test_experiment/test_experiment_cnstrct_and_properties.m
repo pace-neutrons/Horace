@@ -6,14 +6,14 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertEqual(expt.n_runs,0);
 
             assertTrue( isa( expt.samples, 'unique_references_container' ) );
-            assertTrue( strcmp(expt.samples.global_name, 'Samps' ));
+            assertEqual( expt.samples.global_name, 'GLOBAL_NAME_SAMPLES_CONTAINER' );
             assertEqual( expt.samples.n_runs, 0 );
             function throw1()
                 expt.samples{1};
             end
             assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
             assertTrue( isa( expt.instruments, 'unique_references_container' ) );
-            assertTrue( strcmp(expt.instruments.global_name, 'Insts' ));
+            assertEqual( expt.instruments.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
             assertEqual( expt.instruments.n_runs, 0 );
             function throw2()
                 expt.instruments{1};
@@ -169,14 +169,14 @@ classdef test_experiment_cnstrct_and_properties < TestCase
 
             load(tmpfile, 'expt');
             assertTrue( isa( expt.samples, 'unique_references_container' ) );
-            assertTrue( strcmp(expt.samples.global_name, 'Samps' ));
+            assertEqual( expt.samples.global_name, 'GLOBAL_NAME_SAMPLES_CONTAINER' );
             assertEqual( expt.samples.n_runs, 0 );
             function throw1()
                 expt.samples{1};
             end
             assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
             assertTrue( isa( expt.instruments, 'unique_references_container' ) );
-            assertTrue( strcmp(expt.instruments.global_name, 'Insts' ));
+            assertEqual( expt.instruments.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
             assertEqual( expt.instruments.n_runs, 0 );
             function throw2()
                 expt.instruments{1};
@@ -212,7 +212,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             expt.samples = {samples};
 
             assertEqual(expt.samples{1}, samples);
-            urc = unique_references_container('Samps','IX_samp');
+            urc = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
             urc = urc.add(samples);
             assertEqual(expt.samples,  urc);
         end

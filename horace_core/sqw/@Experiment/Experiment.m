@@ -4,9 +4,9 @@ classdef Experiment < serializable
     properties(Access=private)
         % if no other instrument input is provided Exeriment instrument
         % remain empty.
-        instruments_ = unique_references_container('Insts','IX_inst');
+        instruments_ = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
         detector_arrays_ = []
-        samples_ = unique_references_container('Samps','IX_samp');
+        samples_ = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
         samples_set_ = false; % Two prperties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set
@@ -482,8 +482,8 @@ classdef Experiment < serializable
                 nspe(i) = exp_cellarray{i}.n_runs;
             end
             n_tot = sum(nspe);
-            instr  = unique_references_container('Insts','IX_inst'); %cell(1,n_tot);
-            sampl  = unique_references_container('Samps','IX_samp'); %cell(1,n_tot);
+            instr  = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst'); %cell(1,n_tot);
+            sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp'); %cell(1,n_tot);
             %warning('stop here so you can check that instr and sampl should no longer be set as cells');
             expinfo= repmat(IX_experiment(),1,n_tot);
             ic = 1;

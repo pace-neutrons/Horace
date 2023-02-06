@@ -58,8 +58,9 @@ classdef unique_references_container < serializable
     
     methods % property (and method) set/get
         
-        % property add - used to reset the whole container to a single
-        % value
+        % function to set all - used to reset the whole container to a single
+        % value (NB decided not to use property set.all as all has other
+        % meanings)
         function self = set_all(self,v)
             if numel(v)==self.n_runs
                 for i=1:self.n_runs
@@ -98,10 +99,22 @@ classdef unique_references_container < serializable
             val = self.baseclass_;
         end
         function self = set.baseclass(self,val)
-            if ~(ischar(val)||isstring(val))
+            % this is really only to be used by loadobj.
+            % otherwise the code below permissively resets the baseclass
+            % only if the container has not been populated. But really
+            % better to set this on construction outside of loadobj
+ 
+             if ~(ischar(val)||isstring(val))
                 val = class(val);
             end
-            self.baseclass_ = val;
+            if self.n_runs == 0 && isempty(self.baseclass_)
+                self.baseclass_ = val;
+            elseif strcmp(val,self.baseclass_)
+                % silently ignore resetting baseclass to the same value
+            else
+                error('HERBERT:unique_references_container:invalid_argument', ...
+                      'baseclass cannot be reset differently once set');
+            end
         end
         
         % property n_runs - number of non-unique items in the container
@@ -120,6 +133,10 @@ classdef unique_references_container < serializable
                 error('HERBERT:unique_references_container:invalid_argument', ...
                       'global name must be char');
             end
+            if ~isempty(self.global_name)
+                error('HERBERT:unique_references_container:invalid_argument', ...
+                      'global name cannot be reset once set');
+            end
             self.global_name_ = val;
         end
             
@@ -132,7 +149,6 @@ classdef unique_references_container < serializable
             for i=1:self.n_runs
                 uoc = uoc.add( glc{ self.idx_(i) } );
             end
-            %uoc = uoc.unique_objects;
         end
         
         % this is assumed to be called from loadobj when restoring a
@@ -156,7 +172,7 @@ classdef unique_references_container < serializable
         end
         
         function n = get.n_unique_objects(self)
-            n = numel( unique(self.idx_) );
+           n = numel( unique(self.idx_) );
         end
         
         function [unique_objects, unique_indices] = get_unique_objects_and_indices(self)
@@ -175,6 +191,7 @@ classdef unique_references_container < serializable
             end
             self.global_container('reset', self.global_name_, glc);
         end
+        %}
     end
     
      
@@ -186,11 +203,16 @@ classdef unique_references_container < serializable
                 glname = varargin{1};
                 basecl = varargin{2};
                 obj = obj.init(glname,basecl);
+            elseif nargin==0
+                % leave as-is, to be used in loadobj only
+            else
+                error('HERBERT:unique_references_container:invalid_argument', ...
+                 'unique_references_container requires either 0 or 2 arguments.');
             end
         end
         
         function self = init(self, glname, basecl)
-            self.global_name_ = glname;
+           self.global_name_ = glname;
             self.baseclass_ = basecl;
             self.global_container('init',glname,basecl);
         end
@@ -198,12 +220,12 @@ classdef unique_references_container < serializable
        
     methods % overloaded indexers, subsets, find functions
         function varargout = subsref(self, idxstr)
-            switch idxstr(1).type
+          switch idxstr(1).type
                 case {'()','{}'}
                     b = idxstr(1).subs{:};
                     if b<1 || b>numel(self.idx_)
                         error('HERBERT:unique_references_container:invalid_argument',...
-                            'subscript out  of range');
+                            'subscript %d out of range 1..%d', b, numel(self.idx_));
                     end
                     glindex = self.idx_(b);
                     glc = self.global_container('value',self.global_name_);
@@ -215,14 +237,14 @@ classdef unique_references_container < serializable
         
         %  replacement for self{nuix}=val which does not work inside the class
         function self = local_assign_(self,val,nuix)
-            if isempty(self.baseclass_)
+          if isempty(self.baseclass_)
                 self.baseclass = class(val);
                 warning('HERBERT:unique_references_container:incomplete_setup', ...
                         'baseclass not initialised, using first assigned type');
             end
             if nuix<1 || nuix>self.n_runs+1
                 error('HERBERT:unique_references_container:invalid_argument', ...
-                      'subscript out of range');
+                      'subscript %d out of range 1..%d', nuix, numel(self.idx_));
             elseif nuix == self.n_runs+1
                 self = self.add(val);
                 return;
@@ -231,7 +253,7 @@ classdef unique_references_container < serializable
         end
         
         function self = subsasgn(self,idxstr,varargin)
-            if strcmp(idxstr(1).type,'.')
+           if strcmp(idxstr(1).type,'.')
                 self = builtin('subsasgn',self,idxstr,varargin{:});
             else
                 val = varargin{1}; % value to assign
@@ -241,7 +263,7 @@ classdef unique_references_container < serializable
         end
         
         function sset = get_subset(self, indices)
-            sset = unique_objects_container('baseclass', self.baseclass);
+          sset = unique_objects_container('baseclass', self.baseclass);
             for i=indices
                 item = self.get(i);
                 [sset,~] = sset.add(item);
@@ -249,7 +271,7 @@ classdef unique_references_container < serializable
         end
         
         function obj_loc = find_in_container(self, obj)
-            glc = self.global_container('value',self.global_name_);
+           glc = self.global_container('value',self.global_name_);
             [ix,~] = glc.find_in_container(obj);
             inglc = ismember(ix, self.idx_);
             if ~any(inglc)
@@ -267,12 +289,22 @@ classdef unique_references_container < serializable
         
         % alternative access method
         function val = get(self,index)
-            glc = self.global_container('value',self.global_name_);
+           glc = self.global_container('value',self.global_name_);
             val = glc{ self.idx(index) };
         end
         
         % add a single object obj at the end of the container
         function [self, nuix] = add_single_(self,obj)
+          if isempty(self.baseclass_)
+                error('HERBERT:unique_references_container:incomplete_setup', ...
+                      'baseclass unset');
+            end
+            if ~isa(obj,self.baseclass_)
+                warning('HERBERT:unique_references_container:invalid_argument', ...
+                        'not correct base class; object was not added');
+                nuix = 0;
+                return;
+            end
             if isempty(self.global_name_)
                 error('HERBERT:unique_references_container:incomplete_setup', ...
                       'global name unset');
@@ -295,14 +327,32 @@ classdef unique_references_container < serializable
         % add (possibly contents of multiple) objects at the end of the
         % container
         function [self, nuix] = add(self, obj)
+            % obj or elements within obj must match the base class - this
+            % will be tested for in add_single rather than here
+            
+            % Process case that obj is a matlab container or
+            % cell or unique objects container. 
+            % - Char objects are excluded as they are implicitly arrays of 
+            %   single characters but will be treated as a single object. 
+            % - Cells are included as even if they have only one element as
+            %   they will be split up into their elements to be added here;
+            %   a single element cell is thus converted to that element.
+            
             if ~ischar(obj) && (numel(obj)>1 || iscell(obj) || ...
                                 isa(obj, 'unique_objects_container'))
+                            
+                % Set flag that there are no elements
                 nobj = 0;
+                
+                % find number of elements to process for the different
+                % types of containers
                 if isa(obj, 'unique_objects_container')
                     nobj = obj.n_runs;
                 elseif numel(obj)>1 || iscell(obj)
                     nobj = numel(obj);
                 end
+                
+                % if there are elements to process, add them
                 if nobj>0
                     nuix = zeros(1,nobj);
                     if iscell(obj)
@@ -314,20 +364,19 @@ classdef unique_references_container < serializable
                             [self,nuix(i)] = self.add_single_(obj(i));
                         end
                     end
-                    return;
                 end
-            end
-            if ~isa(obj,self.baseclass_)
-                warning('HERBERT:unique_references_container:invalid_argument', ...
-                        'not correct base class; object was not added');
-                nuix = 0;
                 return;
             end
+            
+            % otherwise we have a single object or char array
+            % add it to the container. Failure will return nuix==0 and
+            % produce a warning.
+            
             [self,nuix] = self.add_single_(obj);
         end         
                     
         function self = replicate_runs(self, n_runs)
-            if ~isnumeric(n_runs) || n_runs<1 || ~isscalar(n_runs)
+           if ~isnumeric(n_runs) || n_runs<1 || ~isscalar(n_runs)
                 error('HERBERT:unique_references_container:invalid_argument', ...
                       ['n_runs can only be a positive numeric scalar; ', ...
                       ' instead it is %d, class %s'], n_runs, class(n_runs));
@@ -349,7 +398,7 @@ classdef unique_references_container < serializable
         
         % substitute object obj at position nuix in container
         function [self] = replace(self,obj,nuix)
-            [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(obj);
+           [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(obj);
             if isempty(glindex)
                 [glcont,glindex] = ...
                     self.global_container('value',self.global_name_).add(obj);
@@ -368,7 +417,7 @@ classdef unique_references_container < serializable
         function [is, unique_index] = contains(self, item)
             
             % get out the global container for this container
-            glc = self.global_container('value', self.global_name_);
+          glc = self.global_container('value', self.global_name_);
 
             % check if item is a class name - i.e. is char-type unless
             % the container contains char-type items

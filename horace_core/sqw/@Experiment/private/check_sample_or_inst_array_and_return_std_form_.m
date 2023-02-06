@@ -31,10 +31,10 @@ if isa(sample_or_instrument,'unique_references_container')
     end
     global_name = sample_or_instrument.global_name;
     if strcmp(class_base, 'IX_samp') && ...
-            ~strcmp(sample_or_instrument.global_name, 'Samps')
+            ~strcmp(sample_or_instrument.global_name, 'GLOBAL_NAME_SAMPLES_CONTAINER')
         error('container is for samples but global container is not');
     elseif strcmp(class_base, 'IX_inst') && ...
-            ~strcmp(sample_or_instrument.global_name, 'Insts')
+            ~strcmp(sample_or_instrument.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER')
         error('container is for instruments but global container is not');
     end
     std_form = sample_or_instrument;
@@ -45,9 +45,11 @@ end
 % on the base class type and start a unique_references_container of the
 % right category.
 if strcmp(class_base,'IX_samp')
-    global_name = 'Samps';
+    global_name = 'GLOBAL_NAME_SAMPLES_CONTAINER';
+elseif strcmp(class_base, 'IX_inst')
+    global_name = 'GLOBAL_NAME_INSTRUMENTS_CONTAINER';
 else
-    global_name = 'Insts';
+    error('BAD');
 end
 std_form = unique_references_container(global_name,class_base);
 

@@ -35,11 +35,11 @@ classdef test_experiment_methods < TestCase
 
             sample = IX_sample();
             sample.name = 'ugly_sample';
-            % Note that the 'Samps' global container has NOT been cleared
+            % Note that the 'GLOBAL_NAME_SAMPLES_CONTAINER' global container has NOT been cleared
             % here so this container refers to whatever is already in the
             % global container and so is also a test of keeping all
-            % unique items of 'Samps' regardless of where created.
-            urc = unique_references_container('Samps','IX_samp');
+            % unique items of 'GLOBAL_NAME_SAMPLES_CONTAINER' regardless of where created.
+            urc = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
             urc = urc.add(sample);
             urc = urc.replicate_runs(3);
 
