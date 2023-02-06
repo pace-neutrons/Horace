@@ -28,6 +28,12 @@ function range=range_add_border(range_in, tol)
 if nargin == 1 % add epsilon-sized border
     tol = -eps;
 end
+if size(range_in,2)>4 % add border for first 4 ranges only
+    range_store = range_in;
+    range_in = range_in(:,1:4);
+else
+    range_store = [];    
+end
 %
 ndim=size(range_in,2);
 if tol==0
@@ -58,6 +64,10 @@ else
         'input tol must be a numeric value. Actually: %s',...
         evalc('tol'));
 end
+if ~isempty(range_store)
+    range = [range,range_store(:,5:end)];
+end
+
 function range = get_relative_range(range_in,tol)
 % Add relative-sized border to the range.
 %

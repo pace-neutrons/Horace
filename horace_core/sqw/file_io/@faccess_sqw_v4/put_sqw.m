@@ -52,8 +52,7 @@ if ~obj.sqw_holder.main_header.creation_date_defined ||...
         isempty(obj.sqw_holder.main_header.filename)
     cd = datetime('now');
     sqw_obj = obj.sqw_holder;
-    sqw_obj.main_header.creation_date= cd;
-    sqw_obj.data.creation_date = cd;
+    sqw_obj.creation_date= cd;
     if ~verbatim
         sqw_obj.full_filename = obj.full_filename;
     end
@@ -62,7 +61,7 @@ end
 if ~(isa(obj.sqw_holder.pix,'pix_combine_info')|| obj.sqw_holder.pix.is_filebacked||nopix)
     obj = obj.put_all_blocks();
     return
-else
+elseif ~verbatim
     sqw_obj = obj.sqw_holder;    
     sqw_obj.pix.full_filename =obj.full_filename;
     obj.sqw_holder = sqw_obj;    
@@ -81,7 +80,7 @@ if nopix % Modify writable object to contain no pixels
     obj.sqw_holder = sqw_obj;
     return;
 end
-obj = obj.put_all_blocks('ignore_blocks','bl_pix_data_wrap');
+obj = obj.put_all_blocks('ignore_blocks',{'bl_pix_metadata','bl_pix_data_wrap'});
 %
 if ~isempty(jobDispatcher)
     argi = [{jobDispatcher},argi];

@@ -1,4 +1,4 @@
-function [w, pix_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
+function [w, pix_data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
 % Create an sqw object, optionally keeping only those data points within
 % the defined data range.
 %
@@ -21,12 +21,10 @@ function [w, pix_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
 %
 % Output:
 % --------
-%   w             - Output sqw object
-%   grid_size     - Actual size of grid used (size is unity along dimensions
-%                  where there is zero range of the data points)
-%   pix_db_range  - Actual range of grid - the specified range if it was given,
-%                  or the range of the pixels if not. In this case, pix range
-%                  is equivalent to image range
+%   w              - Output sqw object
+%   pix_data_range - Actual range of pixels and pixels data (2x9 array of min/max values.
+%                    The pixels coordinates (first 4 columns) are inside of 
+%                    the input coordinate range.
 
 
 hor_log_level = get(hor_config,'log_level');
@@ -51,7 +49,7 @@ data.axes.img_range = axes_bl.img_range;
 
 exp_info.expdata(1).run_id = run_id;
 
-pix_range = pix.pix_range;
+pix_data_range = pix.data_range;
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------

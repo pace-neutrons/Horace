@@ -155,7 +155,7 @@ classdef rundatah < rundata
             [qspec,en]=calc_qspec_(detdcn,obj.efix,en,obj.emode);
         end
 
-        function [pix_range,pix,obj] = calc_projections(obj,detdcn)
+        function [data_range,pix,obj] = calc_projections(obj,detdcn)
             % main function to transform rundatah information into
             % crystal Cartesian coordinate system
             %
@@ -163,8 +163,8 @@ classdef rundatah < rundata
             %                         set up too)
             %
             % Usage:
-            %>> [pix_range,u_to_rlu,pix,obj] = rh.calc_projections()
-            %>> [pix_range,u_to_rlu,pix,obj] = rh.calc_projections(detchn)
+            %>> [data_range,u_to_rlu,pix,obj] = rh.calc_projections()
+            %>> [data_range,u_to_rlu,pix,obj] = rh.calc_projections(detchn)
             %
             % Inputs:
             % rh       -- fully defined (valid) rundatah object
@@ -201,7 +201,7 @@ classdef rundatah < rundata
                 detdcn = [];
             end
             % Calculate projections
-            [pix_range,pix,obj] = obj.calc_projections_(detdcn,proj_mode);
+            [data_range,pix,obj] = obj.calc_projections_(detdcn,proj_mode);
         end
         %
         function flds = saveableFields(obj)

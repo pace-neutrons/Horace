@@ -73,16 +73,24 @@ else
     num_pixels = input_obj.num_pixels;
 end
 
-obj = obj.put_block_data('bl_pix_metadata',input_obj);
-if ~(isa(input_obj,'pix_combine_info')|| input_obj.is_filebacked)
-    obj = obj.put_block_data('bl_pix_data_wrap',input_obj);
-    return;
-else
-    % write pixel data block information
-    pdb = obj.bat_.blocks_list{end};
-    pdb.put_data_header(obj.file_id_);
-end
 
+if ~(isa(input_obj,'pix_combine_info')|| input_obj.is_filebacked)
+    obj = obj.put_sqw_block('bl_pix_metadata',input_obj);
+    obj = obj.put_sqw_block('bl_pix_data_wrap',input_obj);
+    return;
+end
+obj = obj.put_sqw_block('bl_pix_metadata',input_obj.metadata);
+
+% get block responsible for writing pix_data
+pdb = obj.bat_.blocks_list{end};
+if nopix && ~reserve
+    pdb.npix = 0;
+end
+% write pixel data block information; number of dimensions and number of pixels
+pdb.put_data_header(obj.file_id_);
+
+
+% write pixels themselves
 try
     do_fseek(obj.file_id_,obj.pix_position,'bof');
 catch ME
@@ -91,28 +99,25 @@ catch ME
     throw(exc.addCause(ME))
 end
 
-if nopix
-    if reserve
-        block_size= config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
+if nopix && reserve
+    block_size= config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
 
-        do_fseek(obj.file_id_,obj.pix_position ,'bof');
-        if block_size >= num_pixels
-            res_data = single(zeros(9,num_pixels));
+    if block_size >= num_pixels
+        res_data = single(zeros(9,num_pixels));
+        fwrite(obj.file_id_,res_data,'float32');
+    else
+        written = 0;
+        res_data = single(zeros(9,block_size));
+        while written < num_pixels
             fwrite(obj.file_id_,res_data,'float32');
-        else
-            written = 0;
-            res_data = single(zeros(9,block_size));
-            while written < num_pixels
-                fwrite(obj.file_id_,res_data,'float32');
-                written = written+block_size;
-                if written+block_size > num_pixels
-                    block_size = num_pixels-written;
-                    res_data = single(zeros(9,block_size));
-                end
+            written = written+block_size;
+            if written+block_size > num_pixels
+                block_size = num_pixels-written;
+                res_data = single(zeros(9,block_size));
             end
         end
-        clear res_data;
     end
+    clear res_data;
     return;
 end
 
@@ -123,7 +128,7 @@ end
 if isa(input_obj,'pix_combine_info') % pix field contains info to read &
     %combine pixels from sequence of files. There is special sub-algorithm
     %to do that.
-    obj = put_sqw_data_pix_from_file_(obj,input_obj, jobDispatcher);
+    obj = obj.put_sqw_data_pix_from_file(input_obj, jobDispatcher);
 elseif isa(input_obj,'PixelDataBase')  % write pixels stored in other file
 
     n_pages = input_obj.num_pages;

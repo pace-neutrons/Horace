@@ -10,7 +10,7 @@ classdef pix_metadata < serializable
         full_filename;   % full file name of the sqw file containing the pixels
         npix;
         pix_range; % 2x4 range of pixel coordinates, first part of data_range, left for compartibility
-        data_range; % 2x9 range of all pixel data 
+        data_range; % 2x9 range of all pixel data
     end
     properties(Access=protected)
         full_filename_;
@@ -29,12 +29,16 @@ classdef pix_metadata < serializable
             if nargin == 0
                 return;
             end
-            if nargin == 1 && isa(varargin{1},'PixelDataBase')
-                inputs = varargin{1};
-                remains = varargin(2:end);
-                obj.npix = inputs.num_pixels;
-                obj.data_range     = inputs.data_range;
-                obj.full_filename = inputs.full_filename;
+            if nargin == 1
+                if isa(varargin{1},'PixelDataBase') || isa(varargin{1},'pix_combine_info')
+                    inputs = varargin{1};
+                    remains = {};
+                    obj.npix = inputs.num_pixels;
+                    obj.data_range    = inputs.data_range;
+                    obj.full_filename = inputs.full_filename;
+                else
+                    remains = varargin{1};
+                end
             else
                 flds = obj.saveableFields();
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...

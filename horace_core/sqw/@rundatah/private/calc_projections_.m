@@ -1,4 +1,4 @@
-function [pix_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
+function [data_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
 % project detector positions into Crystal Cartesian coordinate system
 %
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
@@ -78,13 +78,14 @@ if use_mex
             emode = obj.emode;
             %proj_mode = 2;
             %nThreads = 1;
-            [pix_range,pix_arr] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
+            [data_range,pix_arr] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             if proj_mode==2
                 pix = PixelDataMemory();
                 pix = pix.set_raw_data(pix_arr);
-                pix = pix.set_data_range(pix_range);
+                pix = pix.set_data_range(data_range);
             else
                 pix = pix_arr;
+                data_range = data_range(:,1:4);
             end
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex', ...
@@ -110,10 +111,10 @@ if ~use_mex
     % Return without filling the pixel array if pix_range only is requested
     switch proj_mode
         case 0
-            pix_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
+            data_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
             pix = [];
         case 1
-            pix_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
+            data_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
             pix = ucoords;
         case 2
             % Fill in pixel data object
@@ -133,6 +134,6 @@ if ~use_mex
             sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
             run_id = ones(1,numel(detector_idx))*obj.run_id;
             pix = PixelDataBase.create([ucoords;run_id;detector_idx;energy_idx;sig_var]);
-            pix_range=pix.pix_range;
+            data_range=pix.data_range;
     end
 end

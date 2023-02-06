@@ -51,6 +51,8 @@ classdef main_header_cl < serializable
         % hidden property allowing save/restore creation_date_defined
         % property used by loadobj/saveobj methods only
         creation_date_defined_privately;
+        % Convenience property, providing full file path and file name
+        full_filename;
     end
 
     properties(Access = protected)
@@ -231,6 +233,21 @@ classdef main_header_cl < serializable
             % creation date becomes "known";
             obj = set_filename_with_cdate_(obj,val);
         end
+        %
+        function fn = get.full_filename(obj)
+            fn = fullfile(obj.filepath_,obj.filename_);
+        end
+        function obj = set.full_filename(obj,val)
+            if ~(ischar(val)||isstring(val))
+                error('HORACE:main_header_cl:invalid_argument', ...
+                    'fill_filename should be a string, describing full name of the file on disk. It is %s', ...
+                    disp2str(val));
+            end
+            [fp,fn,fe] = fileparts(val);
+            obj.filepath_ = fp;
+            obj.filename_ = [fn,fe];
+        end
+
     end
     %------------------------------------------------------------------
     % SERIALIZABLE INTERFACE

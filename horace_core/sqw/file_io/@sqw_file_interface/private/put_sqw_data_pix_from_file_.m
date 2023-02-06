@@ -48,7 +48,7 @@ function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher)
 
 combine_algorithm = get(hpc_config,'combine_sqw_using');
 
-pix_out_position = obj.pix_pos_;
+pix_out_position = obj.pix_position;
 
 switch combine_algorithm
   case 'mex_code'
@@ -131,7 +131,7 @@ switch combine_algorithm
 
   case 'matlab'
 
-    fout = obj.file_id_;
+    fout = obj.file_id;
     je = combine_sqw_pix_job();
     je.write_npix_to_pix_blocks(fout,pix_out_position,pix_comb_info);
 end

@@ -128,13 +128,13 @@ if present.transform_sqw
     end
 
     if numel(opt.transform_sqw)>1 && ...
-       numel(opt.transform_sqw) ~= numel(psi)
-            error('HORACE:gen_sqw:invalid_argument', ...
-                  ['When more then one sqw file transformation is provided', ...
-                   ' number of transformations should be equal to number of spe ',...
-                   'files to transform\n.',...
-                   ' In fact have %d files and %d transformations defined.'],...
-                  numel(opt.transform_sqw),numel(psi))
+            numel(opt.transform_sqw) ~= numel(psi)
+        error('HORACE:gen_sqw:invalid_argument', ...
+            ['When more then one sqw file transformation is provided', ...
+            ' number of transformations should be equal to number of spe ',...
+            'files to transform\n.',...
+            ' In fact have %d files and %d transformations defined.'],...
+            numel(opt.transform_sqw),numel(psi))
     end
 end
 
@@ -442,9 +442,9 @@ else
     keep_par_cl_running = ~opt.tmp_only || nargout>3;
 
     % Generate unique temporary sqw files, one for each of the spe files
-    [grid_size,pix_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
+    [grid_size,data_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
         pix_db_range,grid_size_in,opt.tmp_only,keep_par_cl_running);
-    verify_pix_range_est(pix_range,pix_range_est,log_level);
+    verify_pix_range_est(data_range(:,1:4),pix_range_est,log_level);
 
     if keep_par_cl_running
         varargout{1} = parallel_job_dispatcher;
@@ -462,31 +462,35 @@ else
             delete_tmp = numel(tmp_file) == n_all_spe_files; % final step in combining tmp files, all tmp files will be generated;
 
         end
-        pix_range = [min(pix_range(1,:),pix_range_present(1,:));...
-            max(pix_range(2,:),pix_range_present(2,:))];
+        data_range = [min(data_range(1,:),pix_range_present(1,:));...
+            max(data_range(2,:),pix_range_present(2,:))];
     end
 
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
     if ~opt.tmp_only
-        if require_spe_unique
-            wsqw_arg = {parallel_job_dispatcher};
+        if isempty(parallel_job_dispatcher)
+            wsqw_arg  = {};
         else
-            wsqw_arg = {'-allow_equal_headers',parallel_job_dispatcher};
+            wsqw_arg = {parallel_job_dispatcher};
+        end
+
+        if ~require_spe_unique
+            wsqw_arg = ['-allow_equal_headers';wsqw_arg(:)];
         end
         if ~update_runid
-            wsqw_arg = {wsqw_arg{:},'-keep_runid'};
+            wsqw_arg = [wsqw_arg(:);'-keep_runid'];
         end
         if ~accumulate_old_sqw || use_partial_tmp
             if log_level>-1
                 disp('Creating output sqw file:')
             end
-            write_nsqw_to_sqw (tmp_file, sqw_file,pix_range,wsqw_arg{:});
+            write_nsqw_to_sqw (tmp_file, sqw_file,data_range,wsqw_arg{:});
         else
             if log_level>-1
                 disp('Accumulating in temporary output sqw file:')
             end
             sqw_file_tmp = [sqw_file,'.tmp'];
-            write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp,pix_range,wsqw_arg{:});
+            write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp,data_range,wsqw_arg{:});
             if log_level>-1
                 disp(' ')
                 disp(['Renaming sqw file to ',sqw_file])
@@ -538,7 +542,7 @@ end
 function check_transf_input(input, i)
 if ~isa(input,'function_handle')
     error('HORACE:gen_sqw:invalid_argument', ...
-          'transform_sqw param N %d \n Error: expecting function handle as value for transform_sqw', i)
+        'transform_sqw param N %d \n Error: expecting function handle as value for transform_sqw', i)
 end
 
 end
@@ -550,7 +554,7 @@ end
 
 %------------------------------------------------------------------------------------------------
 
-function [header_sqw,grid_size_sqw,img_db_range_sqw,pix_range,tmp_present,update_runid] = get_tmp_file_headers(tmp_file_names)
+function [header_sqw,grid_size_sqw,pix_data_range_sqw,data_range,tmp_present,update_runid] = get_tmp_file_headers(tmp_file_names)
 % get sqw header for prospective sqw file from range of tmp files
 %
 % Input:
@@ -570,9 +574,9 @@ files_to_check = tmp_file_names(tmp_present);
 header_sqw = cell(numel(files_to_check),1);
 multiheaders = false;
 ic = 1;
-img_db_range_sqw = [];
+pix_data_range_sqw = [];
 grid_size_sqw = [];
-pix_range = PixelDataBase.EMPTY_RANGE_;
+data_range = PixelDataBase.EMPTY_RANGE;
 
 run_ids = zeros(1,numel(files_to_check));
 for i=1:numel(files_to_check)
@@ -596,20 +600,19 @@ for i=1:numel(files_to_check)
     % Get header information to check other fields
     % --------------------------------------------
     header = ldr.get_exp_info('-all');
-    data   = ldr.get_data('-head');
-    pix1  = ldr.get_raw_pix(1,1);
-    run_ids(i) = pix1(5);
+    data   = ldr.get_dnd_metadata();
 
-    pix_range_l = ldr.get_pix_range();
-    pix_range = [min(pix_range(1,:),pix_range_l(1,:));...
-        max(pix_range(2,:),pix_range_l(2,:))];
+
+    pix_data_range_l = ldr.get_data_range();
+    run_ids(i) = pix_data_range_l(1,5);
+    data_range = [min(data_range(1,:),pix_data_range_l(1,:));...
+        max(data_range(2,:),pix_data_range_l(2,:))];
 
     img_db_range_l = data.img_db_range;
-    grid_size_l = [numel(data.p{1})-1,numel(data.p{2})-1,...
-        numel(data.p{3})-1,numel(data.p{4})-1];
+    grid_size_l    = data.axes.nbins_all_dims;
 
-    if isempty(img_db_range_sqw)
-        img_db_range_sqw = img_db_range_l;
+    if isempty(pix_data_range_sqw)
+        pix_data_range_sqw = img_db_range_l;
         grid_size_sqw = grid_size_l;
         data_ref = data;
     else
@@ -617,7 +620,7 @@ for i=1:numel(files_to_check)
         tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
         % TGP (15/5/2015) I am not sure if this is necessary: both the header and data sections are saved as float32, so
         % should be rounded identically.
-        if ~equal_to_relerr(img_db_range_sqw, img_db_range_l, tol, 1)
+        if ~equal_to_relerr(pix_data_range_sqw, img_db_range_l, tol, 1)
             error('GEN_SQW:invalid_argument',...
                 'the tmp file to combine: %s does not have the same range as first tmp file',...
                 ldr.filename)
@@ -640,6 +643,7 @@ for i=1:numel(files_to_check)
         end
 
     end
+    % TODO: Re #748 Check if this is correct when fixing accumulate sqw
     if iscell(header) % if tmp files contain more than one header. This is not normal situation
         multiheaders = true;
         if ic<i; ic = i; end
@@ -746,8 +750,8 @@ end
 
 function  [grid_size,pix_range,update_runids,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
     pix_db_range,grid_size_in,gen_tmp_files_only,keep_parallel_pool_running)
-    % if further operations are necessary to perform with generated tmp files,
-    % keep parallel pool running to save time on restarting it.
+% if further operations are necessary to perform with generated tmp files,
+% keep parallel pool running to save time on restarting it.
 
 log_level = get(hor_config,'log_level');
 use_separate_matlab = get(hpc_config,'build_sqw_in_parallel');
@@ -760,7 +764,7 @@ tmp_file=gen_tmp_filenames(spe_file,sqw_file);
 tmp_generated = tmp_file;
 if gen_tmp_files_only
     [f_valid_exist,pix_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,pix_db_range,grid_size_in)),...
-                                         tmp_file,'UniformOutput',false);
+        tmp_file,'UniformOutput',false);
     f_valid_exist = [f_valid_exist{:}];
     if any(f_valid_exist)
         if log_level >0

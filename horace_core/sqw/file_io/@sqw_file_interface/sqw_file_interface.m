@@ -166,6 +166,15 @@ classdef sqw_file_interface
         obj = update_sqw_keep_pix(obj)
     end
     methods(Access=protected)
+        function obj = put_sqw_data_pix_from_file(obj, pix_comb_info,jobDispatcher)
+            % Write pixel information to file, reading that pixel information from a collection of other files
+            %
+            %   >> obj = put_sqw_data_pix_from_file (obj, pix_comb_info,jobDispatcher)
+            %
+
+            obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher);
+        end
+        
         function pix_size = get_filepix_size(~)
             % 4 bytes x 9 columns -- default pixel size in bytes when
             % stored on hdd

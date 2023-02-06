@@ -172,7 +172,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % get only dnd image data, namely s, err and npix
             data_dnd = obj.get_dnd_data(varargin{:});
             data_str = struct('s',data_dnd.sig,'e',data_dnd.err, ...
-                'npix',data_dnd.npix);
+                'npix',double(data_dnd.npix));
         end
     end
     %----------------------------------------------------------------------
