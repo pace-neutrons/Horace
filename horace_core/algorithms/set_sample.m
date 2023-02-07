@@ -47,6 +47,8 @@ for i=1:nobj
                 'Sample can only be set or changed in sqw-type data. File N%d, name: %s does not contain sqw object', ...
                 i,win)
         end
+        ldr= ldr.upgrade_file_format(); % also reopens file in update mode if format is already the latest one        
+        ldr.sqw_holder = [];
         exper = ldr.get_exp_info('-all');
         if set_multi
             exper = exper.set_sample(sample(i));
@@ -56,7 +58,6 @@ for i=1:nobj
             end
             exper = exper.set_sample(sample(1));
         end
-        ldr= ldr.upgrade_file_format(); % also reopens file in update mode if format is already the latest one
         ldr.put_samples(exper.samples);
         ldr.delete();
     elseif isa(win,'sqw')

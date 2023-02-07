@@ -268,7 +268,7 @@ classdef horace_binfile_interface < serializable
 
         % main part of the accessor to the npix array postion on hdd
         pos = get_npix_position(obj);
-    end    
+    end
     %======================================================================
     % GENERAL ACCESSORS & MUTATORS
     methods
@@ -285,9 +285,14 @@ classdef horace_binfile_interface < serializable
         end
         function obj = set.sqw_holder(obj,val)
             if ~isa(val,'SQWDnDBase')
-                error('HORACE:horace_binfile_interface:invalid_argument', ...
-                    'sqw_holder can be initialized by an sqw family of objects only. Trying to assign: %s',...
-                    class(val));
+                if isempty(val)
+                    obj.sqw_holder_ = [];
+                    return;
+                else
+                    error('HORACE:horace_binfile_interface:invalid_argument', ...
+                        'sqw_holder can be initialized by an sqw family of objects only. Trying to assign: %s',...
+                        class(val));
+                end
             end
             obj = obj.init_from_sqw_obj(val);
         end
@@ -331,7 +336,7 @@ classdef horace_binfile_interface < serializable
         function obj = fclose(obj)
             % Close existing file header if it has been opened
             obj = fclose_(obj);
-        end        
+        end
         %------------------------------------------------------------------
         %OVERLOADABLE ACCESSORS
         function obj_type = get.format_for_object(obj)
@@ -381,7 +386,7 @@ classdef horace_binfile_interface < serializable
             opts = parse_get_sqw_args_(varargin{:});
         end
     end
-    %======================================================================    
+    %======================================================================
     methods(Static) % helper methods used for binary IO
         function move_to_position(fid,pos)
             % move write point to the position, specified by input

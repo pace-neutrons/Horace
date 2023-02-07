@@ -221,10 +221,10 @@ classdef test_sqw_eval < TestCase & common_state_holder
                 out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date' ...
                 );
-            skipTest('PAGED SQW: this test uses paged sqw file, which then saved into final SQW. This needs to be fixed')
+            skipTest('PAGED SQW: this test uses paged sqw file, which then saved into final SQW. This needs to be fixed; Ticket #928')
         end
 
-        function test_output_is_given_outfile_if_filebacked_true(obj)            
+        function test_output_is_given_outfile_if_filebacked_true(obj)
             conf_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size ...
                 );
@@ -258,7 +258,7 @@ classdef test_sqw_eval < TestCase & common_state_holder
         end
 
         function test_gauss_on_sqw_w_filebacked_and_ave_equal_to_in_memory(obj)
-            skipTest('The functionality is currently broken. Ticket #844')
+            skipTest('The functionality is currently broken. Ticket #844, may be #928')
             conf_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size ...
                 );

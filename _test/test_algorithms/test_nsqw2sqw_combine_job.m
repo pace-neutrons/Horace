@@ -63,10 +63,11 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             pix_comb = data_sum.pix;
 
             ds = sqw(data_sum);
-            wrtr = sqw_formats_factory.instance().get_pref_access('sqw');
+            wrtr = sqw_formats_factory.instance().get_pref_access(ds);
             wrtr = wrtr.init(ds,obj.test_targ_file);
             % write all sqw data except pixels
             wrtr = wrtr.put_sqw('-nopix','-reserve');
+            %wrtr = wrtr.put_raw_pix(zeros(9,0),1);
             %
             pix_out_pos = wrtr.pix_position;
             wrtr.delete();

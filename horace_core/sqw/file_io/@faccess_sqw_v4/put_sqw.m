@@ -21,8 +21,8 @@ function    obj = put_sqw(obj,varargin)
 %                     Write sqw object with empty pixels record
 %
 %
-[ok,mess,~,verbatim,nopix,argi]=parse_char_options(varargin, ...
-    {'-update','-verbatim','-nopix'});
+[ok,mess,~,verbatim,nopix,reserve,argi]=parse_char_options(varargin, ...
+    {'-update','-verbatim','-nopix','-reserve'});
 if ~ok
     error('HORACE:faccess_sqw_v4:invalid_artgument', ...
         mess);
@@ -67,7 +67,7 @@ elseif ~verbatim
     obj.sqw_holder = sqw_obj;    
 end
 
-if nopix % Modify writable object to contain no pixels
+if nopix && ~reserve % Modify writable object to contain no pixels
     sqw_obj  = obj.sqw_holder;
     old_pix = sqw_obj.pix;
     sqw_obj.pix = PixelDataMemory();
@@ -79,6 +79,11 @@ if nopix % Modify writable object to contain no pixels
     sqw_obj.pix = old_pix;
     obj.sqw_holder = sqw_obj;
     return;
+elseif reserve
+    argi = [argi(:),'-reserve'];
+end
+if nopix
+     argi = [argi(:),'-nopix'];
 end
 obj = obj.put_all_blocks('ignore_blocks',{'bl_pix_metadata','bl_pix_data_wrap'});
 %
