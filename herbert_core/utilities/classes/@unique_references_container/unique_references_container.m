@@ -19,14 +19,14 @@ classdef unique_references_container < serializable
     
     properties (Access = protected)
         idx_ = zeros(1,0); %  array of unique global indices for each object stored
-        baseclass_ = ''; % the baseclass
+        stored_baseclass_ = ''; % the baseclass
         global_name_; % name of category referencing a global container backing this one
     end
     
     properties (Dependent)
         
         % saveable fields for save/loadobj
-        baseclass;
+        stored_baseclass;
         global_name;    % category name for singleton storage
         unique_objects; % returns unique_objects_container
         
@@ -39,7 +39,7 @@ classdef unique_references_container < serializable
     
     properties (Constant, Access=private) % serializable interface
         fields_to_save_ = { ...
-            'baseclass', ...
+            'stored_baseclass', ...
             'global_name', ... 5 must come before unique_objects
             'unique_objects', ...
          };
@@ -94,11 +94,11 @@ classdef unique_references_container < serializable
         end
         %}
         
-        % property baseclass - base class for all objects in the container
-        function val = get.baseclass(self)
-            val = self.baseclass_;
+        % property stored_baseclass - base class for all objects in the container
+        function val = get.stored_baseclass(self)
+            val = self.stored_baseclass_;
         end
-        function self = set.baseclass(self,val)
+        function self = set.stored_baseclass(self,val)
             % this is really only to be used by loadobj.
             % otherwise the code below permissively resets the baseclass
             % only if the container has not been populated. But really
@@ -107,13 +107,13 @@ classdef unique_references_container < serializable
              if ~(ischar(val)||isstring(val))
                 val = class(val);
             end
-            if self.n_runs == 0 && isempty(self.baseclass_)
-                self.baseclass_ = val;
-            elseif strcmp(val,self.baseclass_)
+            if self.n_runs == 0 && isempty(self.stored_baseclass_)
+                self.stored_baseclass_ = val;
+            elseif strcmp(val,self.stored_baseclass_)
                 % silently ignore resetting baseclass to the same value
             else
                 error('HERBERT:unique_references_container:invalid_argument', ...
-                      'baseclass cannot be reset differently once set');
+                      'stored baseclass cannot be reset differently once set');
             end
         end
         
@@ -144,7 +144,7 @@ classdef unique_references_container < serializable
         %                           this container, principally used for
         %                           load/save to disc
         function uoc = get.unique_objects(self)
-            uoc = unique_objects_container('baseclass', self.baseclass);
+            uoc = unique_objects_container('baseclass', self.stored_baseclass);
             glc = self.global_container('value', self.global_name_);
             for i=1:self.n_runs
                 uoc = uoc.add( glc{ self.idx_(i) } );
@@ -159,11 +159,11 @@ classdef unique_references_container < serializable
                       'unique_objects must be a unique_objects_container');
             end
             % global_name should already have been set when loading
-            self = self.init( self.global_name, self.baseclass );
+            self = self.init( self.global_name, self.stored_baseclass );
             % baseclass should already have been set when loading
-            if ~strcmp( val.baseclass, self.baseclass )
+            if ~strcmp( val.baseclass, self.stored_baseclass )
                 error('HERBERT:unique_references_container:invalid_argument', ...
-                      'set unique objects with wrong baseclass');
+                      'set unique objects with wrong stored baseclass');
             end
             for i=1:val.n_runs
                 v = val{i};
@@ -213,7 +213,7 @@ classdef unique_references_container < serializable
         
         function self = init(self, glname, basecl)
            self.global_name_ = glname;
-            self.baseclass_ = basecl;
+            self.stored_baseclass_ = basecl;
             self.global_container('init',glname,basecl);
         end
     end
@@ -237,8 +237,8 @@ classdef unique_references_container < serializable
         
         %  replacement for self{nuix}=val which does not work inside the class
         function self = local_assign_(self,val,nuix)
-          if isempty(self.baseclass_)
-                self.baseclass = class(val);
+          if isempty(self.stored_baseclass_)
+                self.stored_baseclass = class(val);
                 warning('HERBERT:unique_references_container:incomplete_setup', ...
                         'baseclass not initialised, using first assigned type');
             end
@@ -263,7 +263,7 @@ classdef unique_references_container < serializable
         end
         
         function sset = get_subset(self, indices)
-          sset = unique_objects_container('baseclass', self.baseclass);
+          sset = unique_objects_container('baseclass', self.stored_baseclass);
             for i=indices
                 item = self.get(i);
                 [sset,~] = sset.add(item);
@@ -295,13 +295,13 @@ classdef unique_references_container < serializable
         
         % add a single object obj at the end of the container
         function [self, nuix] = add_single_(self,obj)
-          if isempty(self.baseclass_)
+          if isempty(self.stored_baseclass_)
                 error('HERBERT:unique_references_container:incomplete_setup', ...
-                      'baseclass unset');
+                      'stored baseclass unset');
             end
-            if ~isa(obj,self.baseclass_)
+            if ~isa(obj,self.stored_baseclass_)
                 warning('HERBERT:unique_references_container:invalid_argument', ...
-                        'not correct base class; object was not added');
+                        'not correct stored base class; object was not added');
                 nuix = 0;
                 return;
             end
@@ -421,8 +421,8 @@ classdef unique_references_container < serializable
 
             % check if item is a class name - i.e. is char-type unless
             % the container contains char-type items
-            if (ischar(item)   && ~strcmp(self.baseclass, 'char')) || ...
-               (isstring(item) && ~strcmp(self.baseclass, 'string'))
+            if (ischar(item)   && ~strcmp(self.stored_baseclass, 'char')) || ...
+               (isstring(item) && ~strcmp(self.stored_baseclass, 'string'))
                belongs = arrayfun( @(i) isa ( glc{i}, item), self.idx_ );
                is = any(belongs);
                unique_index = find(belongs);
@@ -543,7 +543,7 @@ classdef unique_references_container < serializable
                     case 'init'
                         if nargin < 3
                             error('HERBERT:unique_references_container:invalid_argument', ...
-                                  'missing arg3 == baseclass');
+                                  'missing arg3 == stored baseclass');
                         end
                         baseclass = arg3;
                         glcontainer.(glname) = ...

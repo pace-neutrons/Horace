@@ -24,7 +24,7 @@ function std_form = check_sample_or_inst_array_and_return_std_form_(...
 % type, then just copy it into place, amking sure it is the right base
 % type.
 if isa(sample_or_instrument,'unique_references_container')
-    is = strcmp(class_base, sample_or_instrument.baseclass);
+    is = strcmp(class_base, sample_or_instrument.stored_baseclass);
     if ~is
         error('HORACE:Experiment:invalid_argument',...
             'unique_references_container of wrong type');
@@ -49,7 +49,8 @@ if strcmp(class_base,'IX_samp')
 elseif strcmp(class_base, 'IX_inst')
     global_name = 'GLOBAL_NAME_INSTRUMENTS_CONTAINER';
 else
-    error('BAD');
+    error('HORACE:check_sample_or_inst_array_and_return_std_form:invalid_argument', ...
+          'storage base class specified is not IX_samp or IX_inst');
 end
 std_form = unique_references_container(global_name,class_base);
 
@@ -67,7 +68,7 @@ elseif iscell(sample_or_instrument)
     end
     std_form = std_form.add(sample_or_instrument);
 elseif isa(sample_or_instrument,'unique_objects_container');
-    is = strcmp( sample_or_instrument.baseclass, std_form.baseclass);
+    is = strcmp( sample_or_instrument.baseclass, std_form.stored_baseclass);
     if ~all(is)
         error('HORACE:Experiment:invalid_argument', ...
             'must be inst or sample but the input container is not');

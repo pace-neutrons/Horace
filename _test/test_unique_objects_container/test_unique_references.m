@@ -69,6 +69,8 @@ classdef test_unique_references < TestCase
         function test_basic_instruments_container(obj)
             ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
             clOb = onCleanup(@()warning(ws));
+            
+            
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER', 'IX_inst');
             urc.global_container('CLEAR', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             glc = urc.global_container('value', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
@@ -78,10 +80,15 @@ classdef test_unique_references < TestCase
             
             urc = urc.add(obj.mi1);
             urc = urc.add(IX_null_inst());
+            % testing a different merlin instrument from obj.mi1 above
             urc = urc.add(merlin_instrument(185, 600, 'g'));
+            % testing the same merlin instrument as obj.mi1 above, using
+            % explicit construction
+            urc = urc.add(merlin_instrument(180, 600, 'g'));
             urc = urc.add(IX_null_inst());
 
-            assertEqual(urc.n_runs,4)
+            assertEqual(urc.n_runs,5)
+            assertEqual(urc.n_unique_objects,3);
 
             % with nargout==2
             [is,ind] = urc.contains(obj.mi1);
@@ -106,11 +113,11 @@ classdef test_unique_references < TestCase
             
             [is,ind]=urc.contains('IX_inst');
             assertTrue(is);
-            assertEqual(ind,[1 2 3 4]);
+            assertEqual(ind,[1 2 3 4 5]);
             
             [is,ind]=urc.contains('IX_null_inst');
             assertTrue(is);
-            assertEqual(ind,[2 4]);
+            assertEqual(ind,[2 5]);
             
             glc = urc.global_container('value', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             assertTrue( isa( glc, 'unique_objects_container') );
@@ -135,7 +142,7 @@ classdef test_unique_references < TestCase
             % test contains for a class name instead of an object value
             [is,ind] = urc.contains('IX_null_inst');
             assertTrue(is);
-            assertEqual(ind, [2 4]);
+            assertEqual(ind, [2 4 5]);
         end
 
         function test_add_non_unique_objects(obj)
@@ -295,7 +302,7 @@ classdef test_unique_references < TestCase
             assertEqual(urc2.n_runs,1);
             urc2(2) = obj.mi1;
             [lwn,lw] = lastwarn;
-            assertEqual(lwn,'not correct base class; object was not added');
+            assertEqual(lwn,'not correct stored base class; object was not added');
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             
             % fail inserting with wrong type
@@ -379,7 +386,7 @@ classdef test_unique_references < TestCase
             urc = urc.add(obj.nul_sm1);
             % object not added, size unchanges, warning issued
             assertEqual( urc.n_runs, 1);
-            assertEqual( lastwarn, 'not correct base class; object was not added');
+            assertEqual( lastwarn, 'not correct stored base class; object was not added');
 
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_NULLSAMPLES');     
             urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_NULLSAMPLES','IX_null_sample');
@@ -390,13 +397,13 @@ classdef test_unique_references < TestCase
             assertEqual(nuix, 1);
             assertEqual( urc.n_runs, 1 );
             [urc, nuix] = urc.add(obj.mi1);
-            assertEqual(lastwarn,'not correct base class; object was not added');
+            assertEqual(lastwarn,'not correct stored base class; object was not added');
 
             % object of incorrect type not added, warning issued, size
             % still 1, addition index 0 => not added
             assertEqual(nuix, 0);
             assertEqual( urc.n_runs, 1 );
-            assertEqual( lastwarn, 'not correct base class; object was not added');
+            assertEqual( lastwarn, 'not correct stored base class; object was not added');
         end
         %----------------------------------------------------------------
         function test_change_serializer(obj)
@@ -472,7 +479,7 @@ classdef test_unique_references < TestCase
             urc{2} = obj.nul_sm1;
             [lwn,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_references_container:invalid_argument');
-            assertEqual(lwn,'not correct base class; object was not added');
+            assertEqual(lwn,'not correct stored base class; object was not added');
             assertEqual( urc.n_unique_objects, 1);
             %{
             Turns out that hashes are not portable between all Matlab
@@ -498,7 +505,7 @@ classdef test_unique_references < TestCase
             urc{2} = obj.nul_sm1;
             [lwn,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_references_container:invalid_argument');
-            assertEqual(lwn,'not correct base class; object was not added');
+            assertEqual(lwn,'not correct stored base class; object was not added');
             assertEqual( urc.n_unique_objects, 1);
             %{
             Turns out that hashes are not portable between all Matlab
@@ -573,10 +580,10 @@ classdef test_unique_references < TestCase
             urc = unique_references_container('Joby','double');
             urc = urc.add([3,4,5]);
             function throw()
-                urc.baseclass = 'IX_inst';
+                urc.stored_baseclass = 'IX_inst';
             end
             assertExceptionThrown(@throw, 'HERBERT:unique_references_container:invalid_argument');
-            urc.baseclass = 'double';
+            urc.stored_baseclass = 'double';
             urc2 = unique_references_container('Joby2','');
             function throw2()
                 urc2.add([3,4,5]);
