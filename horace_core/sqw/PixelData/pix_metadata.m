@@ -59,9 +59,13 @@ classdef pix_metadata < serializable
         function obj = set.full_filename(obj,val)
             % Name of sqw file that is being read, excluding path.
             if ~(ischar(val)||isstring(val))
-                error('HORACE:pix_metadata:invalid_argument', ...
-                    'The full_filename should be a string, describing path to the file. It is: %s', ...
-                    disp2str(val));
+                if isempty(val)
+                    val = '';
+                else
+                    error('HORACE:pix_metadata:invalid_argument', ...
+                        'The full_filename should be a string, describing path to the file. It is: %s', ...
+                        disp2str(val));
+                end
             end
             obj.full_filename_ = val;
         end

@@ -48,11 +48,11 @@ if isempty(argi)
     use_given_pix_range = false;
 else
     use_given_pix_range =true;
-    pix_range = argi{:};
-    if any(size(pix_range) ~= [2,4])
+    data_range = argi{:};
+    if any(size(data_range) ~= [2,9])
         error('HORACE:utilities:invalid_argument',...
-            'if pix_range is provided, it has to be 2x4 array. Actually its size is: %',...
-            evalc('disp(size(pix_range))'))
+            'if data_range is provided, it has to be 2x9 array. Actually its size is: %s',...
+            disp2str(size(data_range)))
     end
 end
 
@@ -95,12 +95,12 @@ if use_mex
             raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
             pix = pix.set_raw_data(raw_pix);
-            pix = pix.set_data_range(pix_range);
+            pix = pix.set_data_range(data_range);
         else
-            [raw_pix,pix_range_l] = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
+            [raw_pix,data_range_l] = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
                 npix,keep_type);
             pix = pix.set_raw_data(raw_pix);
-            pix = pix.set_data_range(pix_range_l);
+            pix = pix.set_data_range(data_range_l);
         end
         clear pix_retained pix_ix_retained;  % clear big arrays
     catch ME
@@ -138,9 +138,4 @@ if ~use_mex
 
     pix=pix.get_pixels(ind); % reorders pix according to pix indexes within bins
     clear ind;
-    if force_double
-        if ~isa(pix.data,'double')
-            pix = PixelDataMemory(double(pix.data));
-        end
-    end
 end

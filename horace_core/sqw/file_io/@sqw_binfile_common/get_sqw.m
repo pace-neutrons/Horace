@@ -7,6 +7,7 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %   >> sqw_object = obj.get_sqw('-keep_original')
 %   >> sqw_object = obj.get_sqw('-hisverbatim')
 %   >> sqw_object = obj.get_sqw('-nopix')
+%   >> sqw_object = obj.get_sqw('-file_backed')
 %
 % Input:
 % --------
@@ -37,13 +38,7 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %
 % Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
-% Keyword Arguments:
-% ------------------
-%   pixel_page_size    The maximum amount of memory to allocate to holding
-%                      pixel data. This argument is passed to the PixelData
-%                      constructor's 'mem_alloc' argument.
-%                      The value should have units of bytes.
-%
+
 % Output:
 % --------
 %  fully formed sqw object
@@ -51,13 +46,7 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %
 % Original author: T.G.Perring
 %
-opts = parse_args(obj, varargin{:});
-cur_memchunk_size = config_store.instance().get_value('hor_config','mem_chunk_size');
-if opts.pixel_page_size ~= cur_memchunk_size
-    hc = hor_config;
-    clOb = onCleanup(@()set(hc,'mem_chunk_size',cur_memchunk_size));
-    hc.mem_chunk_size = opt.pixel_page_size;
-end
+opts = obj.parse_get_sqw_args(varargin{:});
 
 sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[], ...
     'data',[],'pix',[]);
@@ -134,55 +123,4 @@ else
     sqw_object = sqw(sqw_struc);
 end
 
-end  % function
 
-
-% -----------------------------------------------------------------------------
-function opts = parse_args(varargin)
-if nargin > 1
-    % replace single '-h' with his
-    argi = cellfun(@replace_h, varargin, 'UniformOutput', false);
-else
-    argi = {};
-end
-
-flags = { ...
-    'head', ...
-    'his', ...
-    'verbatim', ...
-    'hverbatim', ...
-    'hisverbatim', ...
-    'noupgrade',...
-    'norange',...
-    'keep_original',...
-    'nopix', ...
-    'legacy' ...
-    };
-%
-page_size = config_store.instance().get_value('hor_config','mem_chunk_size');
-kwargs = struct('pixel_page_size', page_size, ...
-    'file_backed', false);
-
-for flag_idx = 1:numel(flags)
-    kwargs.(flags{flag_idx}) = false;
-end
-
-parser_opts = struct('prefix', '-', 'prefix_req', false);
-[~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwargs, flags, ...
-    parser_opts);
-
-if ~ok
-    error('HORACE:sqw_binfile_common:invalid_argument', mess);
-end
-
-opts.verbatim = opts.verbatim || opts.hverbatim;
-
-end
-
-function out = replace_h(inp)
-if strcmp(inp,'-h')
-    out = '-his';
-else
-    out  = inp;
-end
-end

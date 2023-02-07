@@ -7,6 +7,7 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %   >> sqw_object = obj.get_sqw('-keep_original')
 %   >> sqw_object = obj.get_sqw('-hisverbatim')
 %   >> sqw_object = obj.get_sqw('-nopix')
+%   >> sqw_object = obj.get_sqw('-file_backed')
 %
 % Input:
 % --------
@@ -35,6 +36,8 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %  '-noupgrade' or - if it is old file format, do not do
 %  '-norange'        expensive calculations, necessary for
 %                    upgrading file format to recent version
+%  '-file_backed'    request the resulting sqw object to be file backed
+%
 %
 % Default: read all fields of whatever is the sqw data type contained in the file
 % and return constructed sqw object
@@ -49,7 +52,7 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %
 % Original author: T.G.Perring
 %
-opts = parse_args(obj, varargin{:});
+opts = obj.parse_get_sqw_args(varargin{:});
 
 
 sqw_skel = struct('main_header',[],'experiment_info',[],'detpar',[], ...
@@ -107,52 +110,4 @@ elseif opts.head || opts.his
     sqw_object.num_pixels  = sqw_skel.pix.npix;
 else
     sqw_object = sqw(sqw_skel);
-end
-
-
-% -----------------------------------------------------------------------------
-function opts = parse_args(varargin)
-if nargin > 1
-    % replace single '-h' with his
-    argi = cellfun(@replace_h, varargin, 'UniformOutput', false);
-else
-    argi = {};
-end
-
-flags = { ...
-    'head', ...
-    'his', ...
-    'verbatim', ...
-    'hverbatim', ...
-    'hisverbatim', ...
-    'noupgrade',...
-    'norange',...
-    'keep_original',...
-    'nopix', ...
-    'legacy', ...
-    };
-
-defailt_page_size = config_store.instance().get_value('hor_config','mem_chunk_size');
-kwargs = struct('pixel_page_size', defailt_page_size,'file_backed',false);
-
-for flag_idx = 1:numel(flags)
-    kwargs.(flags{flag_idx}) = false;
-end
-
-parser_opts = struct('prefix', '-', 'prefix_req', false);
-[~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwargs, flags, ...
-    parser_opts);
-
-if ~ok
-    error('HORACE:faccess_sqw_v3_:invalid_argument', mess);
-end
-
-opts.verbatim = opts.verbatim || opts.hverbatim;
-
-
-function out = replace_h(inp)
-if strcmp(inp,'-h')
-    out = '-his';
-else
-    out  = inp;
 end

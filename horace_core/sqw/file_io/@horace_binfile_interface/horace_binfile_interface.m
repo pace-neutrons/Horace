@@ -204,111 +204,8 @@ classdef horace_binfile_interface < serializable
         new_obj = upgrade_file_format(obj,varargin);
         %
     end
-    %----------------------------------------------------------------------
-    methods(Access = protected)
-        function obj=check_obj_initated_properly(obj)
-            % helper function to check the state of put and update functions
-            % if put methods are invoked separately
-            obj=check_obj_initiated_properly_(obj);
-        end
-        % Get the creation date of the file, associated with loader
-        tm = get_creation_date(obj)
-
-        function obj = fclose(obj)
-            % Close existing file header if it has been opened
-            obj = fclose_(obj);
-        end
-        function check_error_report_fail_(obj,pos_mess)
-            % check if error occurred during io operation and throw if it does happened
-            [mess,res] = ferror(obj.file_id_);
-            if res ~= 0; error('HORACE:sqw_file_insterface:io_error',...
-                    '%s -- Reason: %s',pos_mess,mess);
-            end
-        end
-    end
     %======================================================================
-    % ACCESSORS & MUTATORS
-    methods
-        function is = get.data_in_file(obj)
-            is = obj.data_in_file_;
-        end
-        %
-        function mode = get.io_mode(obj)
-            [~,mode] = fopen(obj.file_id_);
-        end
-        %
-        function sh = get.sqw_holder(obj)
-            sh = obj.sqw_holder_;
-        end
-        function obj = set.sqw_holder(obj,val)
-            if ~isa(val,'SQWDnDBase')
-                error('HORACE:horace_binfile_interface:invalid_argument', ...
-                    'sqw_holder can be initialized by an sqw family of objects only. Trying to assign: %s',...
-                    class(val));
-            end
-            obj = obj.init_from_sqw_obj(val);
-        end
-        %------------------------------------------------
-        function fn  = get.filename(obj)
-            % the name of the file, this object is associated with
-            fn = obj.filename_;
-        end
-        %
-        function fp  = get.filepath(obj)
-            % the path to the file, this object is associated with
-            fp = obj.filepath_;
-        end
-
-        function fp = get.full_filename(obj)
-            fp = fullfile(obj.filepath_,obj.filename_);
-        end
-        function obj = set.full_filename(obj,val)
-            if ~ischar(val) || isstring(val)
-                error('HORACE:horace_binfile_interface:invalid_argument', ...
-                    'The full filename can be only string or char array. It is: %s',...
-                    class(val));
-            end
-            [fp,fn,fe] = fileparts(val);
-            obj.filepath_ = fp;
-            obj.filename_  = [fn,lower(fe)];
-        end
-        %------------------------------------------------
-        function ndims = get.num_dim(obj)
-            % get number of dimensions the image part of the object has.
-            if ischar(obj.num_dim_)
-                ndims = obj.num_dim_;
-            else
-                ndims = double(obj.num_dim_);
-            end
-        end
-        function id = get.file_id(obj)
-            id = obj.file_id_;
-        end
-        %------------------------------------------------------------------
-        %OVERLOADABLE ACCESSORS
-        function obj_type = get.format_for_object(obj)
-            obj_type = get_format_for_object(obj);
-        end
-        function type = get.sqw_type(obj)
-            % return true if the object to load is sqw-type (contains pixels) or
-            % false if not.
-            type = get_sqw_type(obj);
-        end
-        function tm = get.creation_date(obj)
-            tm = get_creation_date(obj);
-        end
-        function ver = get.faccess_version(obj)
-            % return the version of the loader corresponding to the format
-            % of data, stored in the file.  Overloadable by children.
-            ver = get_faccess_version(obj);
-        end
-        function pos = get.npix_position(obj)
-            % retrieve the position of npix array in a binary file
-            % for accessing it using
-            pos = get_npix_position(obj);
-        end
-    end
-    %======================================================================
+    % MAIN INTERFACE
     methods(Abstract)
         %
         %---------------------------------------------------------
@@ -371,7 +268,120 @@ classdef horace_binfile_interface < serializable
 
         % main part of the accessor to the npix array postion on hdd
         pos = get_npix_position(obj);
+    end    
+    %======================================================================
+    % GENERAL ACCESSORS & MUTATORS
+    methods
+        function is = get.data_in_file(obj)
+            is = obj.data_in_file_;
+        end
+        %
+        function mode = get.io_mode(obj)
+            [~,mode] = fopen(obj.file_id_);
+        end
+        %
+        function sh = get.sqw_holder(obj)
+            sh = obj.sqw_holder_;
+        end
+        function obj = set.sqw_holder(obj,val)
+            if ~isa(val,'SQWDnDBase')
+                error('HORACE:horace_binfile_interface:invalid_argument', ...
+                    'sqw_holder can be initialized by an sqw family of objects only. Trying to assign: %s',...
+                    class(val));
+            end
+            obj = obj.init_from_sqw_obj(val);
+        end
+        %------------------------------------------------
+        function fn  = get.filename(obj)
+            % the name of the file, this object is associated with
+            fn = obj.filename_;
+        end
+        %
+        function fp  = get.filepath(obj)
+            % the path to the file, this object is associated with
+            fp = obj.filepath_;
+        end
+
+        function fp = get.full_filename(obj)
+            fp = fullfile(obj.filepath_,obj.filename_);
+        end
+        function obj = set.full_filename(obj,val)
+            if ~ischar(val) || isstring(val)
+                error('HORACE:horace_binfile_interface:invalid_argument', ...
+                    'The full filename can be only string or char array. It is: %s',...
+                    class(val));
+            end
+            [fp,fn,fe] = fileparts(val);
+            obj.filepath_ = fp;
+            obj.filename_  = [fn,lower(fe)];
+        end
+        %------------------------------------------------
+        function ndims = get.num_dim(obj)
+            % get number of dimensions the image part of the object has.
+            if ischar(obj.num_dim_)
+                ndims = obj.num_dim_;
+            else
+                ndims = double(obj.num_dim_);
+            end
+        end
+        function id = get.file_id(obj)
+            id = obj.file_id_;
+        end
+        %
+        function obj = fclose(obj)
+            % Close existing file header if it has been opened
+            obj = fclose_(obj);
+        end        
+        %------------------------------------------------------------------
+        %OVERLOADABLE ACCESSORS
+        function obj_type = get.format_for_object(obj)
+            obj_type = get_format_for_object(obj);
+        end
+        function type = get.sqw_type(obj)
+            % return true if the object to load is sqw-type (contains pixels) or
+            % false if not.
+            type = get_sqw_type(obj);
+        end
+        function tm = get.creation_date(obj)
+            tm = get_creation_date(obj);
+        end
+        function ver = get.faccess_version(obj)
+            % return the version of the loader corresponding to the format
+            % of data, stored in the file.  Overloadable by children.
+            ver = get_faccess_version(obj);
+        end
+        function pos = get.npix_position(obj)
+            % retrieve the position of npix array in a binary file
+            % for accessing it using
+            pos = get_npix_position(obj);
+        end
     end
+    %======================================================================
+    % COMMON PROTECTED METHODS.
+    methods(Access = protected)
+        function obj=check_obj_initated_properly(obj)
+            % helper function to check the state of put and update functions
+            % if put methods are invoked separately
+            obj=check_obj_initiated_properly_(obj);
+        end
+        % Get the creation date of the file, associated with loader
+        tm = get_creation_date(obj)
+
+        function check_error_report_fail_(obj,pos_mess)
+            % check if error occurred during io operation and throw if it does happened
+            [mess,res] = ferror(obj.file_id_);
+            if res ~= 0; error('HORACE:sqw_file_insterface:io_error',...
+                    '%s -- Reason: %s',pos_mess,mess);
+            end
+        end
+        function  opts = parse_get_sqw_args(varargin)
+            % processes keywords and input options of get_sqw function.
+            % See get_sqw function for the description of the options
+            % available
+            opts = parse_get_sqw_args_(varargin{:});
+        end
+    end
+    %======================================================================    
     methods(Static) % helper methods used for binary IO
         function move_to_position(fid,pos)
             % move write point to the position, specified by input
@@ -411,7 +421,6 @@ classdef horace_binfile_interface < serializable
             % used for clarification of the error location.
             check_io_error_(fid,'reading');
         end
-
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
@@ -479,4 +488,3 @@ classdef horace_binfile_interface < serializable
         %------------------------------------------------------------------
     end
 end
-

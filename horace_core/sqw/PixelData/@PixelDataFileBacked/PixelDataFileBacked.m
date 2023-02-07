@@ -435,7 +435,8 @@ classdef PixelDataFileBacked < PixelDataBase
             % of pixels chaned at current iteration.
 
             %NOTE: This range calculations are probably incorrect unless
-            % performed in a loop over all pix pages!
+            % performed in a loop over all pix pages where initial range is
+            % set to empty!
             %
             if iscell(field_name)
                 ind = obj.check_pixel_fields(field_name);
