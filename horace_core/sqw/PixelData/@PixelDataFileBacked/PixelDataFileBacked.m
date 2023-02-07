@@ -454,5 +454,21 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
     end
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    methods(Static)
+        function obj = loadobj(S,varargin)
+            % loadobj method, calling generic method of
+            % serializable class if modern instance of data is provided.
+            % or calling parent class, to recalculate old data
+            if isfield(S,'serial_name')
+                obj = PixelDataFileBacked();
+                obj = loadobj@serializable(S,obj);
+            else
+                obj = loadobj@PixelDataBase(S);
+            end
+
+        end        
+    end    
 
 end

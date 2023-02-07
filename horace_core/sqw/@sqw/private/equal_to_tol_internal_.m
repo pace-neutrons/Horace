@@ -51,8 +51,9 @@ for idx = 1:numel(class_fields)
             tmp1.creation_date = tmp2.creation_date;
             tmp1.creation_date_defined_privately= tmp2.creation_date_defined_privately;
         end
-        if strcmp(field_name,'data') && isa(tmp1,'SQWDnDBase')
+        if strcmp(field_name,'data') && isa(tmp1,'DnDBase')
             tmp1.creation_date = tmp2.creation_date;
+            tmp2.creation_date = tmp1.creation_date;            
         end
     end
     name1 = [name_a,'.',field_name];

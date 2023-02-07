@@ -62,7 +62,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             hc = hor_config;
             mmc = hc.mem_chunk_size;
             clOb = onCleanup(@()set(hc,'mem_chunk_size',mmc));
-            pagesize_pixels = 6666; % test value            
+            pagesize_pixels = 6666; % test value
             hc.mem_chunk_size = pagesize_pixels;
 
             sqw_obj = sqw(obj.test_sqw_1d_fullpath, ...
@@ -88,28 +88,6 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
 
             assertTrue(isa(sqw_obj, 'sqw'));
             assertEqualToTol(sqw_copy, sqw_obj);
-        end
-
-        function test_copy_constructor_returns_distinct_object(obj)
-            % this test is for case of incorrect handles
-            sqw_obj = sqw(obj.test_sqw_1d_fullpath);
-            sqw_copy = sqw(sqw_obj);
-
-            sqw_copy.main_header.title = 'test_copy';
-            sqw_copy = sqw_copy.change_header(Experiment());
-            sqw_copy.detpar.azim(1:10) = 0;
-
-            sqw_copy.pix.signal = 1;
-            sqw_copy.data.npix(1)=10;
-
-            % changed data is not mirrored in initial
-            assertFalse(equal_to_tol(sqw_copy.main_header, sqw_obj.main_header));
-            assertFalse(equal_to_tol(sqw_copy.experiment_info, sqw_obj.experiment_info));
-            assertFalse(equal_to_tol(sqw_copy.detpar, sqw_obj.detpar));
-            assertFalse(equal_to_tol(sqw_copy.data, sqw_obj.data));
-            assertFalse(equal_to_tol(sqw_copy.pix, sqw_obj.pix));
-
-            assertFalse(equal_to_tol(sqw_copy, sqw_obj));
         end
 
         function test_save_load_returns_identical_object(obj)

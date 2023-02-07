@@ -220,7 +220,7 @@ classdef (Abstract) PixelDataBase < serializable
 
             % In memory construction
             if isstruct(init)
-                obj = serializable.loadobj(init);
+                obj = PixelDataBase.loadobj(init);
             elseif isa(init, 'PixelDataMemory')
                 if file_backed_requested
                     obj = PixelDataFileBacked(init, upgrade,norange);
@@ -658,7 +658,7 @@ classdef (Abstract) PixelDataBase < serializable
     %======================================================================
     % SERIALIZABLE INTERFACE
     properties(Constant,Access=private)
-        % list of fileldnames to save on hdd to be able to recover
+        % list of filenames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         % Does not properly support filebased data. The decision is not to
         % save filebased data into mat files
@@ -666,9 +666,40 @@ classdef (Abstract) PixelDataBase < serializable
 
         % ORDERF OF fields is important! data wrap defines data, and
         % metadata contains data_range. If data_range have been set
-        % directly, data may recaluclate range, and metadata would override
+        % directly, data may recalculate range, and metadata would override
         % it.
         fields_to_save_ = {'data_wrap','metadata'};
+    end
+    methods(Static)
+        function obj = loadobj(S,varargin)
+            % Generic method, used by particular class loadobj method
+            % to recover any serializable class
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       Either (1) an object of the class, or (2) a structure
+            %           or structure array previously obtained by saveobj
+            %           method
+            %  class_instance -- the instance of a serializable class to
+            %          recover from input S
+            %
+            % Output:
+            % -------
+            %   obj     Either (1) the object passed without change, or (2) an
+            %           object (or object array) created from the input structure
+            %           or structure array)
+            if isfield(S,'data_')
+                S.data = S.data_;
+            end
+            if ischar(S.data)|| isstring(S.data)
+                obj = PixelDataFileBacked();                
+            else
+                obj = PixelDataMemory();                                
+            end
+            obj = loadobj@serializable(S,obj);
+        end
+        
     end
 
     methods
@@ -699,6 +730,11 @@ classdef (Abstract) PixelDataBase < serializable
             if isfield(inputs,'data_')
                 % build from old PixelData stored in the file
                 obj.data = inputs.data_;
+            elseif isfield(inputs,'data')
+                obj.data = inputs.data;
+                if isfield(inputs,'file_path')
+                   obj.full_filename = inputs.file_path;
+                end
             elseif isfield(inputs,'raw_data_')
                 obj.data = inputs.raw_data_;
             else

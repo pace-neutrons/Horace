@@ -533,7 +533,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     methods(Static)
         function obj = loadobj(S)
             % loadobj method, calling generic method of
-            % saveable class. Provides empty sqw class instance to
+            % saveable class. Provides empty sqw class instance to set up
+            % the data on
             obj = sqw();
             obj = loadobj@serializable(S,obj);
         end
