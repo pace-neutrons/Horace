@@ -15,6 +15,8 @@ classdef sigvar < serializable
         % Logical array same size as signal array (0 = mask, 1 = retain)
         % If all elements are retained then = [] (to save memory)
         mask_ = []
+        %
+        initialized_ = false;
     end
 
     properties (Dependent)
@@ -66,12 +68,12 @@ classdef sigvar < serializable
                 elseif isstruct(varargin{1})
                     % local copy of input struct to fill in with missing
                     % items as needed
-                    obj = serializable.from_struct(varargin{1});
+                    obj = sigvar.loadobj(varargin{1});
                 else % probably only signal given
                     obj.s = varargin{1};
                 end
             else
-                flds = obj.saveableFields('return_all');
+                flds = obj.saveableFields();
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...
                     flds,false,varargin{:});
                 if ~isempty(remains)
@@ -94,6 +96,7 @@ classdef sigvar < serializable
                     'signal has to be numeric')
             end
             obj.signal_ = val;
+            obj.initialized_ = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -217,9 +220,9 @@ classdef sigvar < serializable
             ver = 2;
         end
 
-        function flds = saveableFields(obj,return_all)
+        function flds = saveableFields(obj)
             flds = {'s','e','msk'};
-            if nargin > 1
+            if ~obj.initialized_
                 return;
             end
             fld_keep = [true,~isempty(obj.variance_),~isempty(obj.mask_)];
@@ -227,7 +230,7 @@ classdef sigvar < serializable
         end
     end
     methods(Access = protected)
-        function obj = from_old_struct(obj,S)
+        function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the
             % previous version(s) of the object.
             %
@@ -243,10 +246,10 @@ classdef sigvar < serializable
             % the modern structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
             %
-            if isfield(S,'signal_')
-                S.s = S.signal_;
-                S.e = S.variance_;
-                S.msk = S.mask_;
+            if isfield(inputs,'signal_')
+                inputs.s = inputs.signal_;
+                inputs.e = inputs.variance_;
+                inputs.msk = inputs.mask_;
             end
             if isfield(inputs,'array_dat')
                 obj = obj.from_bare_struct(inputs.array_dat);
