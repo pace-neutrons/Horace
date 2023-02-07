@@ -151,12 +151,12 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         obj = put_headers(obj,varargin);
         obj = put_det_info(obj,varargin);
         obj = put_pix(obj,varargin);
-        obj = put_raw_pix(obj,pix_data,pix_idx,varargin);        
+        obj = put_raw_pix(obj,pix_data,pix_idx,varargin);
         obj = put_sqw(obj,varargin);
         %
         obj = put_instruments(obj,varargin);
         obj = put_samples(obj,varargin);
-        obj = put_pix_metadata(ob,pix_class)        
+        obj = put_pix_metadata(ob,pix_class)
     end
     %======================================================================
     % Old, partially redundant interface
@@ -169,7 +169,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         % written in old file format, write everything in memory to proper places
         % in file keeping pixels data on their original place.
         obj = update_sqw_keep_pix(obj)
-        
+
         function npix = get_npixels(obj)
             pix_data_bl = obj.bat_.blocks_list{end};
             npix =  pix_data_bl.npixels;

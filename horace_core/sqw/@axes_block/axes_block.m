@@ -119,6 +119,8 @@ classdef axes_block < serializable
     properties(Dependent,Hidden)
         % old interface to label
         ulabel
+        full_filename % convenience property as fullfile(filepath, filename)
+        % are often used
     end
 
     methods
@@ -488,7 +490,7 @@ classdef axes_block < serializable
             fn = obj.filename_;
         end
         function obj = set.filename(obj,fn)
-            if ~ischar(fn) || isstring(fn)
+            if ~(ischar(fn) || isstring(fn))
                 error('HORACE:axes_block:invalid_argument',...
                     'filename should be defined of array of characters or by a string')
             end
@@ -500,12 +502,26 @@ classdef axes_block < serializable
             fp = obj.filepath_;
         end
         function obj = set.filepath(obj,fp)
-            if ~ischar(fp) || isstring(fp)
+            if ~(ischar(fp) || isstring(fp))
                 error('HORACE:axes_block:invalid_argument',...
                     'filepath should be defined of array of characters or by a string')
             end
             obj.filepath_ = fp;
         end
+        function fn = get.full_filename(obj)
+            fn = fullfile(obj.filepath_,obj.filename_);
+        end
+        function obj = set.full_filename(obj,fn)
+            if ~(ischar(fn) || isstring(fn))
+                error('HORACE:axes_block:invalid_argument',...
+                    'full_filename should be defined of array of characters or by a string. It is %s', ...
+                    disp2str(fn));
+            end
+            [fp,fn,fe] = fileparts(fn);
+            obj.filename_ = [fn,fe];
+            obj.filepath_ = fp;
+        end
+
         %------------------------------------------------------------------
         % MUTATORS/ACCESSORS to methods in modern API
         %------------------------------------------------------------------

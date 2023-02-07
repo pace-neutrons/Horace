@@ -59,6 +59,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         metadata; % Full information describing dnd object
         nd_data;     % N-D data arrays, describing DND image stored in dnd
         %             % object
+        full_filename % convenience property as fullfile(filepath, filename)
+        % are often used
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == axes_block.dims_as_ssize)
@@ -336,6 +338,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             obj.creation_date_defined_ = true;
 
         end
+        %
+        function fn = get.full_filename(obj)
+            fn = obj.axes_.full_filename;
+        end
+        function obj = set.full_filename(obj,val)
+            obj.axes_.full_filename = val;
+        end
+
         %
         function val = get.filename(obj)
             val = obj.axes_.filename;

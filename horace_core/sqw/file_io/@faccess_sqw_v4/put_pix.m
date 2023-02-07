@@ -60,6 +60,8 @@ if ~isempty(argi) % parse inputs which may or may not contain any
         if isa(input_obj,'sqw')
             input_obj = input_obj.pix;
         end
+    elseif isempty(numeric_pos)
+        input_obj = argi{numeric_pos};
     else
         input_obj = obj.sqw_holder_.pix;
     end
@@ -74,7 +76,7 @@ else
 end
 
 
-if ~(isa(input_obj,'pix_combine_info')|| input_obj.is_filebacked)
+if ~(isa(input_obj,'pix_combine_info')|| (~isnumeric(input_obj)&&input_obj.is_filebacked))
     obj = obj.put_sqw_block('bl_pix_metadata',input_obj);
     obj = obj.put_sqw_block('bl_pix_data_wrap',input_obj);
     return;

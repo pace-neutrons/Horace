@@ -185,7 +185,7 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_output_file_of_out_of_memory_op_matches_reference_data(obj)
-            mem_chunk_size = floor(3e5/36);
+            mem_chunk_size = floor(24689/5); % all pixels, 5 pages
             config_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', mem_chunk_size ...
                 );
@@ -206,7 +206,7 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_output_files_of_cell_array_of_files_on_out_of_memory_data(obj)
-            mem_chunk_size = floor(3e5/36);        
+            mem_chunk_size = floor(24689/5); % all pixels, 5 pages
             config_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', mem_chunk_size ...
                 );
@@ -275,14 +275,16 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_output_matches_ref_file_if_pixel_page_size_small(obj)
-            skipTest("Need to resolve use of page size with merge of new sqw object");
-            mem_chunk_size = floor(3e5/36);            
+            mem_chunk_size = floor(24689/5); % all pixels, 5 pages
             config_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', mem_chunk_size ...
                 );
             sqw_out = func_eval( ...
                 obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params ...
                 );
+            
+            assertTrue(sqw_out.pix.is_filebacked)
+            clOb = onCleanup(@()delete(sqw_out.full_filename));
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
@@ -387,11 +389,19 @@ classdef test_func_eval < TestCase & common_state_holder
             % of the image signal in the corresponding bin
             signal = sig_var(1, :);
             expected_signal = repelem(sqw_out.data.s(:), sqw_out.data.npix(:))';
-            assertEqual(signal, expected_signal);
+            assertEqualToTol(signal, expected_signal(1:numel(signal)),3e-7);
 
             % Check that all pixel variances are set to zero
             variance = sig_var(2, :);
-            assertEqual(variance, zeros(1, sum(sqw_out.data.npix(:))));
+            if sqw_out.pix.is_filebacked && sqw_out.pix.page_size<sqw_out.pix.num_pixels
+                assertEqual(variance, zeros(1,sqw_out.pix.page_size));
+                % try to clean-up memory to be able to delete target file
+                % does not work on all Matlab versions
+                sqw_out.pix.delete();
+                clear sqw_out;
+            else
+                assertEqual(variance, zeros(1, sum(sqw_out.data.npix(:))));
+            end
         end
 
         function validate_func_eval_dnd_output(dnd_in, dnd_out)

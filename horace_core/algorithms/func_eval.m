@@ -68,10 +68,9 @@ if is_string(source)
     ldr = sqw_formats_factory.instance().get_loader(source);
     try
         if ldr.sqw_type
-            % Load the .sqw file using the sqw constructor so that we can pass the
-            % pixel_page_size argument to get an sqw with file-backed pixels.
-            pixel_page_size = get(hor_config, 'pixel_page_size');
-            sqw_dnd_obj = sqw(ldr, 'pixel_page_size', pixel_page_size);
+            % Load the .sqw file using the sqw constructor which decides if
+            % the files are file-backed or not according to criteria
+            sqw_dnd_obj = sqw(ldr);
         else
             % In contrast to the above case, we can use the loader to get the dnd
             % as no extra constructor arguments are required.

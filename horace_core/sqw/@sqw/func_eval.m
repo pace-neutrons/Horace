@@ -95,16 +95,8 @@ if numel(win) > 1
     end
 end
 
-wout = copy(win);
-% This has not been implemented but should
-% for i=1:numel(wout)
-%     if isa(wout(i),'sqw')
-%         if wout(i).pix.is_filebacked()
-%             opts.filebacked = true;
-%             break
-%         end
-%     end
-% end
+wout = cell(1,numel(win));
+%
 
 % Check if any objects are zero dimensional before evaluating function
 if any(arrayfun(@(x) (x.dimensions()==0), win))
@@ -113,6 +105,14 @@ if any(arrayfun(@(x) (x.dimensions()==0), win))
         'func_eval not supported for zero dimensional objects.' ...
         );
 end
+if numel(opts.outfile) < numel(win)
+    out_tmp_file = gen_unique_file_paths( ...
+        numel(win), 'horace_func_eval', tmp_dir(), 'tmp');
+    opts.outfile = out_tmp_file;
+    empty_outfile = true;
+else
+    empty_outfile = false;    
+end
 
 % Evaluate function for each element of the array of sqw objects
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
@@ -120,124 +120,92 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     if sqw_type
         opts.all = false;
     end
-    wout(i).data = func_eval(win(i).data,func_handle, pars,opts);
+    wout_i = win(i);
+    wout_i.data = func_eval(win(i).data,func_handle, pars,opts);
     %
 
     % If sqw object, fill every pixel with the value of its corresponding bin
     if sqw_type
-        if ~opts.filebacked
-            s = repelem(wout(i).data.s(:), win(i).data.npix(:));
-            wout(i).pix.signal = s;
-            wout(i).pix.variance = zeros(size(s));
+        if ~wout_i.pix.is_filebacked
+            s = repelem(wout_i.data.s(:), wout_i.data.npix(:));
+            wout_i.pix.signal = s;
+            wout_i.pix.variance = zeros(size(s));
         else
-            write_sqw_with_out_of_mem_pix(wout(i), opts.outfile{i});
+            out_file = opts.outfile{i};
+            wout_i = write_sqw_with_out_of_mem_pix(wout_i,out_file);
         end
     elseif opts.all
         % in this case, must set npix>0 to be plotted
-        wout(i).data.npix=ones(size(wout(i).data.npix));
+        wout_i.data.npix=ones(size(wout_i.data.npix));
     end
 
     % Save to file if outfile argument is given
-    if ~isempty(opts.outfile) && ~isempty(opts.outfile{i}) && ~opts.filebacked
-        save(wout(i), opts.outfile{i});
+    if ~empty_outfile && ~opts.filebacked
+        save(wout_i, opts.outfile{i});
+    end
+    if opts.filebacked
+        % Return file names so we're not leaking file-backed objects
+        out_file = opts.outfile{i};        
+        if ~wout_i.pix.is_filebacked
+            save(wout_i, out_file);
+        end
+        wout{i} = out_file;
+    else
+        wout{i} = wout_i;
     end
 end  % end loop over input objects
-
-if opts.filebacked
-    % Return file names so we're not leaking file-backed objects
-    if numel(opts.outfile) > 1
-        wout = opts.outfile;
-    else
-        wout = opts.outfile{1};
+% form desired output
+if numel(wout) == 1
+    wout = wout{1};
+else
+    is_sqw = cellfun(@(x)isa(x,'sqw'),wout);
+    if all(is_sqw)
+        wout = [wout{:}];
+        wout = reshape(wout,size(win));
     end
 end
 
 % -----------------------------------------------------------------------------
-function [func_handle, pars, opts] = parse_funceval_args(win, func_handle, pars, varargin)
-[~, ~, all_flag, args] = parse_char_options(varargin, {'-all'});
-
-parser = inputParser();
-parser.addRequired('func_handle', @(x) isa(x, 'function_handle'));
-parser.addRequired('pars');
-parser.addParameter('outfile', {}, @(x) iscellstr(x) || ischar(x) || isstring(x));
-parser.addParameter('all', all_flag, @islognumscalar);
-parser.addParameter('filebacked', false, @islognumscalar);
-parser.parse(func_handle, pars, args{:});
-opts = parser.Results;
-
-if ~iscell(opts.pars)
-    opts.pars = {opts.pars};
-end
-if ~iscell(opts.outfile)
-    opts.outfile = {opts.outfile};
-end
-
-outfiles_empty = all(cellfun(@(x) isempty(x), opts.outfile));
-if ~outfiles_empty && (numel(win) ~= numel(opts.outfile))
-    error( ...
-        'HORACE:sqw:invalid_argument', ...
-        ['Number of outfiles specified must match number of input objects.\n' ...
-        'Found %i outfile(s), but %i sqw object(s).'], ...
-        numel(opts.outfile), numel(win) ...
-        );
-end
-if outfiles_empty && opts.filebacked
-    opts.outfile = gen_unique_file_paths( ...
-        numel(win), 'horace_func_eval', tmp_dir(), 'sqw' ...
-        );
-end
-
-func_handle = opts.func_handle;
-pars = opts.pars;
-
-
-
-
-% -----------------------------------------------------------------------------
-function write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
+function sqw_obj = write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
 % Write the given SQW object to the given file.
 % The pixels of the SQW object will be derived from the image signal array
 % and npix array, saving in chunks so they do not need to be held in memory.
 %
+sqw_obj.full_filename = outfile;
 ldr = sqw_formats_factory.instance().get_pref_access(sqw_obj);
 ldr = ldr.init(sqw_obj, outfile);
-ldr.put_sqw('-nopix');
+ldr = ldr.put_sqw('-nopix');
 ldr = write_out_of_mem_pix(sqw_obj.pix, sqw_obj.data.npix, sqw_obj.data.s, ldr);
-ldr = ldr.validate_pixel_positions();
-ldr = ldr.put_footers();
+sqw_obj = sqw(ldr);
 ldr.delete();
 
 
 
-function loader = write_out_of_mem_pix(pix, npix, img_signal, loader)
+function facc = write_out_of_mem_pix(pix, npix, img_signal, facc)
 % Smear the given image signal values over a file-backed PixelData object
 % Set each pixel's signal to the value of the average signal of the bin
 % that pixel belongs to. Set all variances to zero.
 %
-pix.move_to_first_page();
-[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), pix.base_page_size);
-page_number = 1;
-while true
-    npix_chunk = npix_chunks{page_number};
-    idx = idxs(:, page_number);
 
-    pix.signal = repelem(img_signal(idx(1):idx(2)), npix_chunk);
-    pix.variance = 0;
-    loader = loader.put_bytes(pix.data);
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), pix.page_size);
+n_pages = pix.num_pages;
+data_range = PixelDataBase.EMPTY_RANGE;
+pix_pos = 1;
+pix_out = PixelDataMemory();
+for i=1:n_pages
+    pix.page_num = i;
+    npix_chunk = npix_chunks{i};
+    idx = idxs(:, i);
+    pix_out.data = pix.data;
 
-    if pix.has_more()
-        % Do not save cached changes to pixels.
-        % We avoid copying pixels by just editing the signal/variance of
-        % the current page of the input pixels, then saving that page to
-        % the output file. We don't want to retain changes made to the
-        % input PixelData object, so we discard edits to the cache when we
-        % load the next page of pixels.
-        pix.advance('nosave', true);
-        page_number = page_number + 1;
-    else
-        % Make sure we discard the changes made to the final page's cache
-        pix.move_to_page(1, 'nosave', true);
-        break;
-    end
+    pix_out.signal = repelem(img_signal(idx(1):idx(2)), npix_chunk);
+    pix_out.variance = 0;
+    data_range = [min(data_range(1,:),pix_out.data_range(1,:));...
+        max(data_range(2,:),pix_out.data_range(2,:))];
+
+    facc= facc.put_raw_pix(pix_out.data,pix_pos);
+    pix_pos = pix_pos + pix.page_size;
+
 end
-
+pix.data_range = data_range;
+facc = facc.put_pix_metadata(pix);

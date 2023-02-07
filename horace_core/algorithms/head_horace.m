@@ -84,15 +84,15 @@ end
 
 if n_outputs==0
     for i=1:n_inputs
-        data = loaders{i}.get_data('-hverbatim');
+        data = loaders{i}.get_dnd('-verbatim');
         if loaders{i}.sqw_type
             npixtot  = loaders{i}.npixels;
             nfiles = loaders{i}.num_contrib_files;
             sqw_display_single(data,npixtot,nfiles,'a');
         else
             npixtot=1;    % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
-            nfiles =1;
-            sqw_display_single(data,npixtot,nfiles ,'b+');
+            data.n_files = 1;
+            sqw_display_single(data,npixtot,'b+');
         end
     end
 else
