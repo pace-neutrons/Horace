@@ -54,7 +54,7 @@ end
 % Get header information to check other fields
 % --------------------------------------------
 header = ldr.get_exp_info('-all');
-data   = ldr.get_data('-head');
+data   = ldr.get_dnd_metadata();
 %[mess,main_header,header,detpar,data]=get_sqw (sqw_file,'-h');
 header_ave=header.header_average();
 
