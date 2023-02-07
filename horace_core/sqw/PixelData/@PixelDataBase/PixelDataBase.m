@@ -692,7 +692,10 @@ classdef (Abstract) PixelDataBase < serializable
             if isfield(S,'data_')
                 S.data = S.data_;
             end
-            if ischar(S.data)|| isstring(S.data)
+            if isfield(S,'raw_data_')
+                S.data = S.raw_data_;
+            end
+            if isfield(S,'data') && (ischar(S.data)|| isstring(S.data))
                 obj = PixelDataFileBacked();                
             else
                 obj = PixelDataMemory();                                
@@ -734,6 +737,9 @@ classdef (Abstract) PixelDataBase < serializable
                 obj.data = inputs.data;
                 if isfield(inputs,'file_path')
                    obj.full_filename = inputs.file_path;
+                end
+                if isfield(inputs,'file_path_')
+                   obj.full_filename = inputs.file_path_;                    
                 end
             elseif isfield(inputs,'raw_data_')
                 obj.data = inputs.raw_data_;
