@@ -1,13 +1,12 @@
-function wout = parallel_mf_func_eval(func, nWorkers, args)
+function wout = parallel_mf_func_eval(w, nWorkers, args)
 
     w = args{1};
     args = args(2:end);
 
-    has_fgnd = ~isempty(args{2}{1});
-
-    if has_fgnd
-        call_func = args{2}{1};
-        finfo = functions(call_func);
+  case 'sqw'
+    wout = parallel_sqw_eval(w, nWorkers, args);
+    if ~iscell(wout)
+        wout = {wout}
     end
     pin = args{4};
 
@@ -72,6 +71,9 @@ function wout = parallel_mf_func_eval(func, nWorkers, args)
         wout{i}.pix.data = horzcat(pix{:});
         [wout{i}.data.s, wout{i}.data.e] = wout{i}.pix.compute_bin_data(wout{i}.data.npix);
     end
+
+
+end
 
 
 end

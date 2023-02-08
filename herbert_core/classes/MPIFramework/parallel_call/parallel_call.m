@@ -7,7 +7,10 @@ function varargout = parallel_call(func, args, varargin)
     switch func_info.function
       case 'sqw_eval'
 
-        varargout{1} = parallel_sqw_eval(func, nWorkers, args);
+        w = args{1};
+        args = args(2:end);
+
+        varargout{1} = parallel_sqw_eval(w, nWorkers, args);
 
       case 'multifit_func_eval'
 
@@ -15,28 +18,7 @@ function varargout = parallel_call(func, args, varargin)
         %multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         %    f_pass_caller, bf_pass_caller, pfin, p_info, output_type)
 
-        varargout{1} = parallel_mf_func_eval(func, nWorkers, args);
-
-      case 'cut'
-
-        varargout{1} = parallel_cut_eval(nWorkers, args);
-
-      case 'fit'
-
-        if numel(args) ~= 1 || ~isa(args{1}, 'mfclass')
-            error('HERBERT:parallel_call:invalid_argument', ...
-                  'Attempted to call "fit" with non-mfclass argument')
-        end
-
-        hc = hpc_config;
-        pm = hc.parallel_multifit;
-
-        hc.parallel_multifit = true;
-        [data_out, fit_data] = varargin{1}.fit();
-        hc.parallel_multifit = pm;
-
-        varargout{1} = data_out;
-        varargout{2} = fit_data;
+        varargout{1} = parallel_mf_func_eval(w, nWorkers, args);
 
       otherwise
         error('HERBERT:parallel_call:invalid_argument', ...
