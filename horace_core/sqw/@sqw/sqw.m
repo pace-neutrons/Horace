@@ -64,7 +64,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % head function
             %
             %
-            form_fields = {'nfiles','npixels','creation_date'};
+            form_fields = {'nfiles','npixels','data_range','creation_date'};
             if nargin == 0
                 sqw_only = false;
                 keep_data_arrays = false;

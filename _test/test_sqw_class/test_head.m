@@ -93,6 +93,8 @@ classdef test_head < TestCaseWithSave
             % old format contains all headers, but only some contributed to
             % pixels. loader ignores those headers, so nfiles change
             hdd.nfiles = hd.nfiles;
+            % old file format does not contain data range
+            hd.data_range = hdd.data_range;
             assertEqualToTol(hd,hdd,1.e-8)
         end
         
@@ -108,6 +110,9 @@ classdef test_head < TestCaseWithSave
             % old format contains all headers, but only some contributed to
             % pixels. loader ignores those headers, so nfiles change
             hdd.nfiles = hd.nfiles;
+            % old file format does not contain data range
+            hd.data_range = hdd.data_range;
+            
             assertEqualToTol(hd,hdd,1.e-8)
         end
         function test_head_dnd_old_file_full(obj)

@@ -205,7 +205,8 @@ classdef sqw_file_interface
             else
                 data_val  = {};
             end
-            sqw_val = {obj.num_contrib_files,obj.npixels,obj.creation_date};
+            sqw_val = {obj.num_contrib_files,obj.npixels,...
+                   obj.get_data_range(),obj.creation_date};
             all_val = [dnd_val(1:end-1);sqw_val(:);data_val(:)];
             head_struc = cell2struct(all_val,fields_req);
 
