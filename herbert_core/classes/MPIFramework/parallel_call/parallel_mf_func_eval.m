@@ -1,10 +1,10 @@
-function wout = parallel_mf_func_eval(w, nWorkers, args)
+function wout = parallel_mf_func_eval(func, w, nWorkers, args)
 
     w = args{1};
     args = args(2:end);
 
   case 'sqw'
-    wout = parallel_sqw_eval(w, nWorkers, args);
+    wout = parallel_sqw_eval(func, w, nWorkers, args);
     if ~iscell(wout)
         wout = {wout}
     end
