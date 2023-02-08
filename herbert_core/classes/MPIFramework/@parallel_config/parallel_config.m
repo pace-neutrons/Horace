@@ -39,7 +39,7 @@ classdef parallel_config<config_base
     % shared_folder_on_local - The folder on your working machine containing
     %                          the job input and output data.
     %
-    % shared_folder_on_remote - The place where job input and ouptut data
+    % shared_folder_on_remote - The place where job input and output data
     %                           should be found on (shared_folder_on_local)
     %                           a remote worker.
     %
@@ -209,7 +209,7 @@ classdef parallel_config<config_base
 
     properties(Dependent,Hidden)
         % the property used to store is_compiled value not allowing to set
-        % is_compiled porerty directly
+        % is_compiled property directly
         is_compiled_;
 
         % Redirect IO to host and other debug features
@@ -222,18 +222,18 @@ classdef parallel_config<config_base
         % storing/restoring it after the main property, allows to redefine
         % hidden is_compiled_ property independently
         saved_properties_list_={'worker', ...
-                                'is_compiled_',...
-                                'parallel_cluster', ...
-                                'cluster_config', ...
-                                'parallel_workers_number',...
-                                'threads', ...
-                                'par_threads', ...
-                                'shared_folder_on_local', ...
-                                'shared_folder_on_remote', ...
-                                'working_directory', ...
-                                'external_mpiexec', ...
-                                'slurm_commands', ...
-                                'debug'};
+            'is_compiled_',...
+            'parallel_cluster', ...
+            'cluster_config', ...
+            'parallel_workers_number',...
+            'threads', ...
+            'par_threads', ...
+            'shared_folder_on_local', ...
+            'shared_folder_on_remote', ...
+            'working_directory', ...
+            'external_mpiexec', ...
+            'slurm_commands', ...
+            'debug'};
     end
 
     %-------------------------------------------------------------------
@@ -252,7 +252,7 @@ classdef parallel_config<config_base
         % Default parallel workers
         parallel_workers_number_ = 2;
         % default auto threads
-        threads_ = 0;
+        threads_ = 1;
         % default auto threads
         par_threads_ = 0;
 
@@ -304,7 +304,6 @@ classdef parallel_config<config_base
         end
 
         function frmw = get.parallel_cluster(obj)
-
             wrkr = config_store.instance.get_value(obj,'worker');
             frmw = 'none';
             if ~isempty(which(wrkr)) || exist(wrkr, 'file')
@@ -331,23 +330,10 @@ classdef parallel_config<config_base
 
         function n_threads=get.threads(obj)
             n_threads = get_or_restore_field(obj,'threads');
-            if n_threads < 1
-                n_threads = obj.n_cores;
-            elseif n_threads > obj.n_cores
-                warning('HERBERT:parallel_config:threads', 'Number of threads (%d) might exceed computer capacity (%d)', n_threads, obj.n_cores)
-            end
         end
 
         function n_threads=get.par_threads(obj)
             n_threads = get_or_restore_field(obj, 'par_threads');
-            n_workers = get_or_restore_field(obj, 'parallel_workers_number');
-            n_poss_threads = floor(obj.n_cores/n_workers);
-
-            if n_threads < 1
-                n_threads = n_poss_threads;
-            elseif n_threads > n_poss_threads
-                warning('HERBERT:parallel_config:par_threads', 'Number of par threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
-            end
         end
 
         function commands = get.slurm_commands(obj)
@@ -454,8 +440,8 @@ classdef parallel_config<config_base
         end
 
         function obj = set.debug(obj,val)
-            debug = val>0;
-            config_store.instance().store_config(obj,'debug',debug);
+            deb = val>0;
+            config_store.instance().store_config(obj,'debug',deb);
         end
 
         function obj = set.cluster_config(obj,val)
@@ -485,14 +471,30 @@ classdef parallel_config<config_base
             config_store.instance().store_config(obj,'parallel_workers_number',val);
         end
 
-        function obj = set.threads(obj,val)
-            val = max(floor(val), 0);
-            config_store.instance().store_config(obj,'threads',val);
+        function obj = set.threads(obj,n_threads)
+            n_threads = max(floor(n_threads), 0);
+            if n_threads < 1
+                n_threads = obj.n_cores;
+            elseif n_threads > obj.n_cores
+                warning('HERBERT:parallel_config:threads',...
+                    'Number of threads (%d) might exceed computer capacity (%d)', n_threads, obj.n_cores)
+            end
+            config_store.instance().store_config(obj,'threads',n_threads);
         end
 
-        function obj = set.par_threads(obj,val)
-            val = max(floor(val), 0);
-            config_store.instance().store_config(obj,'par_threads',val);
+        function obj = set.par_threads(obj,n_threads)
+            n_threads = max(floor(n_threads), 0);
+            n_workers = get_or_restore_field(obj, 'parallel_workers_number');
+            n_poss_threads = floor(obj.n_cores/n_workers);
+
+            if n_threads < 1
+                n_threads = n_poss_threads;
+            elseif n_threads > n_poss_threads
+                warning('HERBERT:parallel_config:par_threads',...
+                    'Number of par threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
+            end
+
+            config_store.instance().store_config(obj,'par_threads',n_threads);
         end
 
         function obj = set.slurm_commands(obj,val)
@@ -601,7 +603,7 @@ classdef parallel_config<config_base
         function obj = load_slurm_commands_from_file(obj, filename, append)
             if ~is_file(filename)
                 error('HERBERT:parallel_config:invalid_argument', ...
-                      'File (%s) does not exist', filename);
+                    'File (%s) does not exist', filename);
             end
 
             if exist('append', 'var') && append
@@ -671,8 +673,8 @@ classdef parallel_config<config_base
         end
 
         function [keys, vals] = parse_slurm_commands(val)
-        % Parse slurm commands into keys and values for building a map
-        % or updating one
+            % Parse slurm commands into keys and values for building a map
+            % or updating one
             if isstring(val) || ischar(val)
                 val = strsplit(val, {' ', '\t', '='});
             end
@@ -700,7 +702,7 @@ classdef parallel_config<config_base
 
             else
                 error('HERBERT:parallel_config:invalid_argument', ...
-                      'slurm_commands must be string or cell array of strings')
+                    'slurm_commands must be string or cell array of strings')
             end
 
         end

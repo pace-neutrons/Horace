@@ -71,11 +71,6 @@ horace_plot.name_sliceomatic = 'Sliceomatic';
 set_global_var('horace_plot',horace_plot);
 
 hc = hor_config;
-check_mex = false;
-if hc.is_default
-    check_mex = true;
-end
-
 if hc.init_tests % this is developer version
     % set unit tests to the Matlab search path, to overwrite the unit tests
     % routines, added to Matlab after Matlab 2017b, as new routines have
@@ -98,7 +93,10 @@ if hc.is_default || hpcc.is_default
     conf_c = opt_config_manager();
     conf_c.load_configuration('-set_config','-change_only_default','-force_save');
 end
-
+check_mex = false;
+if hc.is_default
+    check_mex = true;
+end
 if check_mex
     [~, n_mex_errors] = check_horace_mex();
     hc.use_mex = n_mex_errors < 1;

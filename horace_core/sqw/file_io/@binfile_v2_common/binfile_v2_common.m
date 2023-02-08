@@ -17,7 +17,7 @@ classdef binfile_v2_common < horace_binfile_interface
     % ----------------------------------------------------------------
     % reopen_to_write    - open new or reopen existing file in write mode
     %                      (all existing contents will be ignored, though
-    %                       may be mainained if the file exists, but additional
+    %                       may be maintained if the file exists, but additional
     %                      measure to be taken)
     % set_file_to_update - open new or reopen existing file for updating
     %                      existing information in  it (where possible)
