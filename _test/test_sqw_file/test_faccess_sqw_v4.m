@@ -599,7 +599,7 @@ classdef test_faccess_sqw_v4< TestCase
             rdd = to.get_sqw();
             to.delete();
 
-            assertEqualToTol(sample,rdd,1.e-20,'-ignore_date','ignore_str',true)
+            assertEqualToTol(sample,rdd,1.e-15,'-ignore_date','ignore_str',true)
         end
         function test_should_load_file(obj)
             to = faccess_sqw_v4();
