@@ -2,12 +2,6 @@
 <data_struct>
    <win_small>
       <info>Typical configuration for Windows small machine assumes no MPI settings and use OMP if possible</info>
-      <herbert_config>
-         <use_mex>[true]</use_mex>
-         <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
-         <log_level>1</log_level>
-         <init_tests>[false]</init_tests>
-      </herbert_config>
       <hor_config>
          <mem_chunk_size>5000000</mem_chunk_size>
          <ignore_nan>[true]</ignore_nan>
@@ -36,12 +30,6 @@
    </win_small>
    <a_mac>
       <info>Typical configuration for MAC machine assumes no MPI settings and no mex code</info>
-      <herbert_config>
-         <use_mex>[false]</use_mex>
-         <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
-         <log_level>1</log_level>
-         <init_tests>[false]</init_tests>
-      </herbert_config>
       <hor_config>
          <mem_chunk_size>5000000</mem_chunk_size>
          <ignore_nan>[true]</ignore_nan>
@@ -70,12 +58,6 @@
    </a_mac>
    <win_large>
       <info>Typical configuration for Windows large machine assumes use some MPI use OMP</info>
-      <herbert_config>
-         <use_mex>[true]</use_mex>
-         <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
-         <log_level>1</log_level>
-         <init_tests>[false]</init_tests>
-      </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
          <ignore_nan>[true]</ignore_nan>
@@ -104,12 +86,6 @@
    </win_large>
    <idaaas_small>
       <info>iDaaaS small machine should have mex code but would not benefit from MPI</info>
-      <herbert_config>
-         <use_mex>[true]</use_mex>
-         <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
-         <log_level>1</log_level>
-         <init_tests>[false]</init_tests>
-      </herbert_config>
       <hor_config>
          <mem_chunk_size>5000000</mem_chunk_size>
          <ignore_nan>[true]</ignore_nan>
@@ -138,12 +114,6 @@
    </idaaas_small>
    <idaaas_large>
       <info>iDaaaS large machine benefit from mex code and can run some MPI</info>
-      <herbert_config>
-         <use_mex>[true]</use_mex>
-         <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
-         <log_level>1</log_level>
-         <init_tests>[false]</init_tests>
-      </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
          <ignore_nan>[true]</ignore_nan>
@@ -172,12 +142,6 @@
    </idaaas_large>
    <unix_small>
       <info>General Unix pc would not have mex code so, user should set it up after compiling it himself</info>
-      <herbert_config>
-         <use_mex>[false]</use_mex>
-         <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
-         <log_level>1</log_level>
-         <init_tests>[false]</init_tests>
-      </herbert_config>
       <hor_config>
          <mem_chunk_size>5000000</mem_chunk_size>
          <ignore_nan>[true]</ignore_nan>
@@ -206,12 +170,6 @@
    </unix_small>
    <unix_large>
       <info>Unix large is our isiscompute machine which uses OMP and MPI and everything is present</info>
-      <herbert_config>
-         <use_mex>[true]</use_mex>
-         <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
-         <log_level>1</log_level>
-         <init_tests>[false]</init_tests>
-      </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
          <ignore_nan>[true]</ignore_nan>
@@ -240,12 +198,6 @@
    </unix_large>
    <jenkins_win>
       <info>Settings for running on Jenkins Windows build servers</info>
-      <herbert_config>
-         <use_mex>[true]</use_mex>
-         <force_mex_if_use_mex>[false]</force_mex_if_use_mex>
-         <log_level>1</log_level>
-         <init_tests>[true]</init_tests>
-      </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
          <ignore_nan>[true]</ignore_nan>
@@ -274,12 +226,6 @@
    </jenkins_win>
    <jenkins_unix>
       <info>Settings for running on Jenkins Unix ANVIL build servers</info>
-      <herbert_config>
-         <use_mex>[true]</use_mex>
-         <force_mex_if_use_mex>[true]</force_mex_if_use_mex>
-         <log_level>1</log_level>
-         <init_tests>[true]</init_tests>
-      </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
          <ignore_nan>[true]</ignore_nan>
