@@ -1,4 +1,4 @@
-function varargout=head_horace(files,varargin)
+function varargout=head_horace(fnames_or_loaders,varargin)
 % Display a summary of a file or set of files containing sqw information
 %
 %   >> head_sqw          % Prompts for file and display summary of contents
@@ -31,16 +31,16 @@ function varargout=head_horace(files,varargin)
 % Check number of arguments
 
 n_outputs = nargout;
-if iscell(files)
-    n_inputs = numel(files);
-    argi = files;
+if iscell(fnames_or_loaders)
+    n_inputs = numel(fnames_or_loaders);
+    inputs = fnames_or_loaders;
 else
-    if ischar(files)|| isstring(files)
-        argi = {files};
+    if ischar(fnames_or_loaders)|| isstring(fnames_or_loaders)
+        inputs = {fnames_or_loaders};
         n_inputs = 1;
     else
-        argi = num2cell(files);
-        n_inputs = numel(argi);
+        inputs = num2cell(fnames_or_loaders);
+        n_inputs = numel(inputs);
     end
 end
 if n_outputs>n_inputs
@@ -48,21 +48,22 @@ if n_outputs>n_inputs
         'number of output objects requested is bigger then the number of input files provided')
 end
 %
-all_fnames = cellfun(@ischar,argi,'UniformOutput',true);
-all_ldrs    = cellfun(@(x)isa(x,'horace_binfile_interface'),argi,'UniformOutput',true);
-if ~any(all_fnames|all_ldrs)
+all_fnames = cellfun(@ischar,inputs,'UniformOutput',true);
+all_ldrs    = cellfun(@(x)isa(x,'horace_binfile_interface'),inputs,'UniformOutput',true);
+all_obj     = cellfun(@(x)isa(x,'SQWDnDBase'),inputs,'UniformOutput',true);
+if ~any(all_fnames|all_ldrs|all_obj)
     error('HORACE:head:invalid_argument',...
-        'read_sqw: not all input arguments represent filenames or loaders')
+        'Not all input arguments represent filenames, sqw/dnd objects or loaders')
 end
 
-fnames = argi(all_fnames);
+fnames = inputs(all_fnames);
 if ~isempty(fnames)
     loaders = sqw_formats_factory.instance.get_loader(fnames);
 else
     loaders  = {};
 end
-if any(all_ldrs)
-    loaders = {loaders{:},argi{all_ldrs}};
+if ~isempty(loaders)
+    inputs(all_fnames) = loaders;
 end
 
 % if ~iscell(loaders)
@@ -71,13 +72,11 @@ end
 
 if n_outputs==0
     for i=1:n_inputs
-        data = loaders{i}.head(varargin{:});
-        if loaders{i}.sqw_type
-            sqw_display_single(data,npixtot,nfiles,'a');
+        data = inputs{i}.head(varargin{:});
+        if isfield(data,'npixtot')
+            sqw_display_single(data,npixtot,nfiles,'a');            
         else
-            npixtot=1;    % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
-            data.n_files = 1;
-            sqw_display_single(data,npixtot,1,'b+');
+            sqw_display_single(data,1,1,'b+');            
         end
     end
     return
@@ -95,11 +94,13 @@ else
 end
 
 for i=1:nfi
-    vout{i} = loaders{i}.head(varargin{:});
+    vout{i} = inputs{i}.head(varargin{:});
 end
 
 if cell_out
-    varargout{1} = {vout};
+    varargout{1} = vout;
 else
-    varargout = vout(1:n_outputs);
+    for i=1:nargout
+        varargout{i} = vout{i};
+    end
 end
