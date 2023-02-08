@@ -493,7 +493,7 @@ classdef test_axes_block < TestCase
             assertEqual(npix,npix_r)
             assertEqual(s,sr)
             assertEqual(e,er)
-            assertTrue(isempty(pix_candidates));
+            assertEqual(pix_candidates.num_pixels,0);
             assertTrue(isempty(argi));
         end
         %

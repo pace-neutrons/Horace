@@ -63,11 +63,11 @@ classdef gen_sqw_files_job < JobExecutor
                 end
             end
             % Do conversion
-            [grid_size,pix_range,update_runid] = obj.runfiles_to_sqw(run_files,tmp_fnames,...
+            [grid_size,data_range,update_runid] = obj.runfiles_to_sqw(run_files,tmp_fnames,...
                 grid_size_in,pix_range_in,false);
             % return results
             obj.task_outputs  = struct('grid_size',grid_size,...
-                'pix_range',pix_range,'update_runid',update_runid);
+                'data_range',data_range,'update_runid',update_runid);
             
         end
         %
@@ -79,15 +79,15 @@ classdef gen_sqw_files_job < JobExecutor
             end
             if mf.labIndex == 1
                 [all_messages,tid_from] = mf.receive_all('all','data');
-                pix_range = obj.task_outputs.pix_range;
+                data_range = obj.task_outputs.data_range;
                 grid_size = obj.task_outputs.grid_size;
                 keep_runid= ~obj.task_outputs.update_runid;
                 
                 for i=1:numel(all_messages)
-                    pix_range_tmp = all_messages{i}.payload.pix_range;
+                    data_range_tmp = all_messages{i}.payload.data_range;
                     grid_size_tmp = all_messages{i}.payload.grid_size;
-                    pix_range = [min(pix_range(1,:),pix_range_tmp(1,:));...
-                        max(pix_range(2,:),pix_range_tmp(2,:))];
+                    data_range = [min(data_range(1,:),data_range_tmp(1,:));...
+                        max(data_range(2,:),data_range_tmp(2,:))];
                     % if any blocks needs runid update, all blocks need runid
                     % update
                     keep_runid = ~all_messages{i}.payload.update_runid && keep_runid;
@@ -99,7 +99,7 @@ classdef gen_sqw_files_job < JobExecutor
                 end
                 % return results
                 obj.task_outputs = struct('grid_size',grid_size,...
-                    'pix_range',pix_range,'update_runid',~keep_runid);
+                    'data_range',data_range,'update_runid',~keep_runid);
             else
                 %
                 the_mess = DataMessage(obj.task_outputs);
@@ -180,7 +180,7 @@ classdef gen_sqw_files_job < JobExecutor
             % -------
             % grid_size       -  Actual grid size used (size is unity along dimensions
             %                    where there is zero range of the data points)
-            % pix_range       -  Actual range of grid, should be different from
+            % data_range       -  Actual range of grid, should be different from
             %                    pix_range_in only if pix_range_in is not provided
             % update_runlabels -  if true, each run-id for every runfile has to be
             %                    modified as some runfiles have the same run-id(s).
