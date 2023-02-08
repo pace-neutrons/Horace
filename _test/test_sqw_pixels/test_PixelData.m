@@ -271,10 +271,11 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(pix_data_obj.num_pixels,0);
         end
 
-        function test_error_if_constructed_with_struct(~)
+        function test_empty_structure_creates_empty_membased(~)
             s = struct();
-            f = @() PixelDataBase.create(s);
-            assertExceptionThrown(f, 'HERBERT:serializable:invalid_argument');
+            to = PixelDataBase.create(s);
+            assertTrue(isa(to,'PixelDataMemory'))
+            assertEqual(to.num_pixels,0)
         end
 
         function test_PixelData_error_if_constructed_with_cell_array(~)
