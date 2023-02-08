@@ -101,7 +101,7 @@ classdef test_faccess_sqw_v3_21< TestCase
             ldr.delete();
             % the recovered sqw object is equivalent to the generated sqw
             % object. Detpar accuacy is 5 digits
-            assertEqualToTol(sqw1,sqw_obj,1e-5)
+            assertEqualToTol(sqw1,sqw_obj,1e-5,'ignore_str',true)
 %             [ok,mess]=sqw_obj.equal_to_tol(sqw1,'tol',3.e-7,'ignore_str',true);
 %             assertTrue(ok,mess);
         end

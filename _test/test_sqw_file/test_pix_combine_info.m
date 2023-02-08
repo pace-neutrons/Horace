@@ -6,7 +6,7 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
         % properties to use as input for data
         data_path;
         test_souce_files
-        ref_pix_range
+        ref_data_range
         cleanup_ob1
     end
 
@@ -54,7 +54,7 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
                 'combine_sqw_using',combine_sqw_using));
 
 
-            [temp_files,~,obj.ref_pix_range]=gen_sqw(source_test_file,'',targ_file,...
+            [temp_files,~,obj.ref_data_range]=gen_sqw(source_test_file,'',targ_file,...
                 787.,1,[2.87,2.87,2.87],[90,90,90],...
                 [1,0,0],[0,1,0],psi,0,0,0,0,'replicate','tmp_only');
             obj.test_souce_files = temp_files;
@@ -69,7 +69,7 @@ classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
 
             tester = tester.recalc_data_range();
 
-            assertElementsAlmostEqual(tester.pix_range,obj.ref_pix_range,'relative',1.e-6);
+            assertElementsAlmostEqual(tester.data_range,obj.ref_data_range,'relative',1.e-6);
             is_undef = tester.data_range == PixelDataBase.EMPTY_RANGE;
             assertFalse(any(is_undef(:)));
         end

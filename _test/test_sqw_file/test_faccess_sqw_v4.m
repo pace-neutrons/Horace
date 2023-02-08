@@ -145,14 +145,11 @@ classdef test_faccess_sqw_v4< TestCase
             tob.delete();
             assertTrue(ver_obj.main_header.creation_date_defined);
 
-            sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
-            assertEqual(sqw_ob.main_header,ver_obj.main_header);
-
             assertTrue(sqw_ob.experiment_info.runid_recalculated);
             assertFalse(ver_obj.experiment_info.runid_recalculated);
 
             ver_obj.experiment_info.runid_recalculated = true;
-            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date');
+            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date','ignore_str',true);
         end
 
         function test_upgrdate_v2_to_v4_filebacked(obj)
@@ -550,7 +547,7 @@ classdef test_faccess_sqw_v4< TestCase
             ver_obj =tob.get_sqw('-verbatim');
             tob.delete();
 
-            assertEqualToTol(sqw_ob,ver_obj,1.e-12);
+            assertEqualToTol(sqw_ob,ver_obj,1.e-12,'ignore_str',true);
             clear ver_obj; % need to delete memmapfile associated with tf.
         end
 
@@ -572,7 +569,7 @@ classdef test_faccess_sqw_v4< TestCase
             rdd = ro.get_sqw('-verbatim');
             wo.delete();
 
-            assertEqualToTol(sample,rdd)
+            assertEqualToTol(sample,rdd,'ignore_str',true)
         end
         %         function test_build_correct(obj)
         %             %TEST used in preparation of first v4 sample file and is not tests

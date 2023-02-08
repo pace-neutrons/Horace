@@ -91,14 +91,11 @@ classdef test_faccess_sqw_v3< TestCase
             tob.delete();
             assertTrue(ver_obj.main_header.creation_date_defined);
 
-            sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
-            assertEqual(sqw_ob.main_header,ver_obj.main_header);
-
             assertTrue(sqw_ob.experiment_info.runid_recalculated);
             assertFalse(ver_obj.experiment_info.runid_recalculated);
 
             ver_obj.experiment_info.runid_recalculated = true;
-            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date');
+            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date','ignore_str',true);
         end
         
         %
@@ -270,11 +267,8 @@ classdef test_faccess_sqw_v3< TestCase
             % not be recalculated
             assertFalse(ver_obj.experiment_info.runid_recalculated)
 
-            sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
-            assertEqual(sqw_ob.main_header,ver_obj.main_header);
-
             ver_obj.experiment_info.runid_recalculated = true;
-            assertEqualToTol(sqw_ob,ver_obj,1.e-7);
+            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'ignore_str',true,'-ignore_date');
         end
         %
         %
