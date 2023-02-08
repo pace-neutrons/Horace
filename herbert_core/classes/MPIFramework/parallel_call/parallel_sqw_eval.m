@@ -1,4 +1,4 @@
-function wout = parallel_sqw_eval(w, nWorkers, args)
+function wout = parallel_sqw_eval(func, w, nWorkers, args)
     if ~iscell(w)
         w = {w};
     end
