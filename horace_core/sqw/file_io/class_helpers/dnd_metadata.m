@@ -20,12 +20,75 @@ classdef dnd_metadata < serializable
         creation_date_str;
         creation_date_defined
     end
+    properties(Dependent,Hidden)
+        % dnd interface present on old dnd files and used in header
+        alatt % Lattice parameters for data field (Ang^-1)
+        angdeg % Lattice angles for data field (degrees)
+
+        offset % Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+        u_to_rlu % Matrix (4x4) of projection axes in hkle representation
+        %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
+        %ulen % Length of projection axes vectors in Ang^-1 or meV [row vector]
+        label  % Labels of the projection axes [1x4 cell array of character strings]
+        iax % Index of integration axes into the projection axes  [row vector]
+        %     Always in increasing numerical order, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+        iint % Integration range along each of the integration axes. [iint(2,length(iax))]
+        %     e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
+        dax %Index into data.pax of the axes for display purposes. [row vector]
+        p % Cell array containing bin boundaries along the plot axes [column vectors]
+        %                       i.e. row cell array{data.p{1}, data.p{2} ...}
+        pax % Index of plot axes into the projection axes  [row vector]
+        %
+        ulen;
+        %
+        creation_date;
+    end
     properties(Access=protected)
         axes_ = axes_block();
         proj_ = ortho_proj();
         %
-        creation_date_;
+        creation_date_ = '';
         creation_date_defined_ = false;
+    end
+    %======================================================================
+    % OLD Interface
+    methods
+        function alat = get.alatt(obj)
+            alat = obj.proj_.alatt;
+        end
+        function ad = get.angdeg(obj)
+            ad = obj.proj_.angdeg;
+        end
+        function off = get.offset(obj)
+            off = obj.proj_.offset;
+        end
+        function urlu = get.u_to_rlu(obj)
+            urlu = obj.proj_.u_to_rlu;
+        end
+        function ulen = get.ulen(obj)
+            ulen = obj.axes_.ulen;
+        end
+        function lbl = get.label(obj)
+            lbl = obj.axes_.label;
+        end
+        function iax = get.iax(obj)
+            iax= obj.axes_.iax;
+        end
+        function iint = get.iint(obj)
+            iint = obj.axes_.iint;
+        end
+        function dax= get.dax(obj)
+            dax = obj.axes_.dax;
+        end
+        function p = get.p(obj)
+            p = obj.axes_.p;
+        end
+        function pax = get.pax(obj)
+            pax = obj.axes_.pax;
+        end
+        function cd = get.creation_date(obj)
+            cd = obj.creation_date_;
+        end
     end
 
 

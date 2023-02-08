@@ -1,4 +1,4 @@
-function varargout=head_horace(varargin)
+function varargout=head_horace(files,varargin)
 % Display a summary of a file or set of files containing sqw information
 %
 %   >> head_sqw          % Prompts for file and display summary of contents
@@ -30,35 +30,22 @@ function varargout=head_horace(varargin)
 %
 % Check number of arguments
 
-if isempty(varargin)
-    error('HORACE:head:invalid_argument',...
-        'read: Invalid number of input arguments')
-end
-
-[ok,mess,hfull,argi] = parse_char_options(varargin,{'-full'});
-if ~ok
-    error('HORACE:head:invalid_argument',...
-        mess);
-end
-
 n_outputs = nargout;
-if iscell(argi{1})
-    n_inputs = numel(argi{1});
+if iscell(files)
+    n_inputs = numel(files);
+    argi = files;
 else
-    n_inputs = numel(argi);
+    if ischar(files)|| isstring(files)
+        argi = {files};
+        n_inputs = 1;
+    else
+        argi = num2cell(files);
+        n_inputs = numel(argi);
+    end
 end
 if n_outputs>n_inputs
     error('HORACE:head:invalid_argument',...
         'number of output objects requested is bigger then the number of input files provided')
-end
-
-files = argi{1}; % check if all files are provided in single cellarray
-if iscell(files)
-    argi = files;
-else
-    if numel(argi) ==1
-        argi = {files};
-    end
 end
 %
 all_fnames = cellfun(@ischar,argi,'UniformOutput',true);
@@ -84,48 +71,35 @@ end
 
 if n_outputs==0
     for i=1:n_inputs
-        data = loaders{i}.get_dnd('-verbatim');
+        data = loaders{i}.head(varargin{:});
         if loaders{i}.sqw_type
-            npixtot  = loaders{i}.npixels;
-            nfiles = loaders{i}.num_contrib_files;
             sqw_display_single(data,npixtot,nfiles,'a');
         else
             npixtot=1;    % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
             data.n_files = 1;
-            sqw_display_single(data,npixtot,'b+');
+            sqw_display_single(data,npixtot,1,'b+');
         end
+    end
+    return
+end
+
+cell_out = false;
+if n_outputs == 1
+    nfi = n_inputs;
+    vout = cell(1,nfi);
+    if nfi>1
+        cell_out  = true;
     end
 else
-    cell_out = false;
-    if n_outputs == 1
-        nfi = n_inputs;
-        vout = cell(1,nfi);
-        if nfi>1
-            cell_out  = true;
-        end
-    else
-        nfi = min(n_inputs,nargout);
-    end
-    for i=1:nfi
-        data      = loaders{i}.get_data('-verbatim','-head');
-        if hfull
-            data_d    = loaders{i}.get_se_npix();
-            flds = {'s','e','npix'};
-            for j = 1:numel(flds)
-                data.(flds{j}) = data_d.(flds{j});
-            end
-        end
-        if loaders{i}.sqw_type
-            data.pix_range = loaders{i}.get_pix_range();
-            data.npixels = loaders{i}.npixels;
-            data.nfiles  = loaders{i}.num_contrib_files;
-            data.creatrion_date = loaders{i}.creation_date;
-        end
-        vout{i} = data;
-    end
-    if cell_out
-        varargout{1} = {vout};
-    else
-        varargout = vout(1:n_outputs);
-    end
+    nfi = min(n_inputs,nargout);
+end
+
+for i=1:nfi
+    vout{i} = loaders{i}.head(varargin{:});
+end
+
+if cell_out
+    varargout{1} = {vout};
+else
+    varargout = vout(1:n_outputs);
 end

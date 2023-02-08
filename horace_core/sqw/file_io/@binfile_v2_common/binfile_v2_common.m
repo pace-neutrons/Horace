@@ -235,7 +235,7 @@ classdef binfile_v2_common < horace_binfile_interface
                 new_ldr.sqw_holder = dnd_obj;
                 new_ldr = new_ldr.put_dnd();
                 old_ldr.delete();
-            end            
+            end
         end
         %
         function pos = get_npix_position(obj)
@@ -372,6 +372,36 @@ classdef binfile_v2_common < horace_binfile_interface
                 img_db_range = axes_block.calc_img_db_range(ds);
             end
         end
+        function hd = head(obj,varargin)
+            % the function returns standard head information about sqw/dnd file
+            [ok,mess,full] = parse_char_options(varargin,'-full');
+            if ~ok
+                error('HORACE:binfile_v2_common:invalid_argument',mess);
+            end
+            if full
+                data = obj.get_data('-verbatim');
+            else
+                data = obj.get_data('-verbatim','-head');
+            end
+            flds = DnDBase.head_form(full);
+            cdi = ismember(flds,'creation_date');
+            flds = flds(~cdi);
+            hd = struct();
+            for i=1:numel(flds)
+                fld = flds{i};
+                hd.(fld) = data.(fld);
+            end
+            if isstruct(data)
+                hd.creation_date = datetime('now');
+                hd.offset = hd.offset';
+                for i=1:numel(hd.p)
+                    hd.p{i} = hd.p{i}';
+                end
+            else
+                hd.creation_date = data.creation_date;
+            end
+        end
+
         %
         %------   Mutators:
         % Save new or fully overwrite existing sqw file

@@ -104,6 +104,21 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                         ndims);
             end
         end
+        function [form_fields,data_fields] = head_form(keep_data_arrays)
+            % the method returns list of fields, which need to be filled by
+            % head function
+            if nargin == 0
+                keep_data_arrays = false;
+            end
+            form_fields  = {'filename','filepath','title','alatt','angdeg',...
+                'offset','u_to_rlu','ulen','label',...
+                'iax','iint','pax','p',...
+                'dax','img_range','dimensions','creation_date'};
+            data_fields= {'s','e','npix'};
+            if keep_data_arrays
+                form_fields   = [form_fields(:);data_fields(:)];
+            end
+        end
     end
     %======================================================================
     methods
@@ -368,12 +383,16 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             obj.axes_.title = title;
         end
         %
-        function struct = to_head_struct(obj,keep_data_arrays)
+        function struct = to_head_struct(obj,keep_data_arrays,data_arrays_only)
             %convert dnd data into structure, obtained by head operation
             if nargin == 1
                 keep_data_arrays = true;
+                data_arrays_only = false;
             end
-            struct = to_head_struct_(obj,keep_data_arrays);
+            if nargin == 2
+                data_arrays_only = false;
+            end
+            struct = to_head_struct_(obj,keep_data_arrays,data_arrays_only);
         end
         %
         function def = get.creation_date_defined(obj)

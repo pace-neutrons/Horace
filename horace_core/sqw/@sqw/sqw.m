@@ -58,6 +58,31 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
+    methods(Static)
+        function form_fields = head_form(sqw_only,keep_data_arrays)
+            % the method returns list of fields, which need to be filled by
+            % head function
+            %
+            %
+            form_fields = {'nfiles','npixels','creation_date'};
+            if nargin == 0
+                sqw_only = false;
+                keep_data_arrays = false;
+            end
+            if nargin == 1
+                keep_data_arrays = false;
+            end
+
+            if sqw_only;  return;    end
+            %
+            [dnd_fields,data_fields] = DnDBase.head_form(false);
+            if keep_data_arrays
+                form_fields   = [dnd_fields(1:end-1)';form_fields(:);data_fields(:)];
+            else
+                form_fields   = [dnd_fields(1:end-1)';form_fields(:)];
+            end
+        end
+    end
 
     %======================================================================
     % Various sqw methods

@@ -174,7 +174,7 @@ classdef sqw_file_interface
 
             obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher);
         end
-        
+
         function pix_size = get_filepix_size(~)
             % 4 bytes x 9 columns -- default pixel size in bytes when
             % stored on hdd
@@ -183,6 +183,34 @@ classdef sqw_file_interface
             % stable for now
             pix_size = 4*9;
         end
+
+        function head_struc = shuffle_fields_form_sqw_head(obj,head_struc,full_data)
+            % take the head structure, obtained from dnd_head operation and
+            % modify it shifting appropriate fields and adding fields,
+            % specific for sqw header
+            % Inputs:
+            % head_struc  -- the structure obtained from head applied on
+            %                 dnd object
+            % full_data   -- true/false indicating if full dnd header
+            %                structure is requested
+            %
+            % Produce head of sqw file in a standard form
+            fields_req = sqw.head_form(false,full_data);
+            dnd_val = struct2cell(head_struc);
+            if full_data
+                [~,data_fields] = DnDBase.head_form();
+                data_ind = ismember(fieldnames(head_struc),data_fields);
+                data_val = dnd_val(data_ind);
+                dnd_val  = dnd_val(~data_ind);
+            else
+                data_val  = {};
+            end
+            sqw_val = {obj.num_contrib_files,obj.npixels,obj.creation_date};
+            all_val = [dnd_val(1:end-1);sqw_val(:);data_val(:)];
+            head_struc = cell2struct(all_val,fields_req);
+
+        end
+
     end
 end
 

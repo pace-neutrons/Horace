@@ -282,6 +282,25 @@ classdef binfile_v4_common < horace_binfile_interface
             img_db_range  = ds.axes.img_range;
         end
 
+        function hd = head(obj,varargin)
+            % the function returns standard head information about sqw/dnd file
+            [ok,mess,full] = parse_char_options(varargin,'-full');
+            if ~ok
+                error('HORACE:binfile_v4_common:invalid_argument',mess);
+            end
+            if full
+                data = obj.get_dnd('-verbatim');
+            else
+                data = obj.get_dnd_metadata();
+            end
+            flds = DnDBase.head_form(full);
+            hd = struct();
+            for i=1:numel(flds)
+                fld = flds{i};
+                hd.(fld) = data.(fld);
+            end
+        end
+
     end
     %======================================================================
     methods(Access=protected)

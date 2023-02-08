@@ -47,11 +47,17 @@ end
 nout = nargout;
 nw = numel(obj);
 hout = cell(1,nw);
+fields_req = sqw.head_form(false,full_data);
 for i=1:nw
-    hout{i} =obj(i).data.to_head_struct(full_data);
-    hout{i}.npixels = obj(i).pix.num_pixels;
-    hout{i}.nfiles   = obj(i).main_header.nfiles;
-    hout{i}.creation_date= obj(i).main_header.creation_date;
+    dnd_val = struct2cell(obj(i).data.to_head_struct(false,false));
+    if full_data 
+        data_val = struct2cell(obj(i).data.to_head_struct(false,true));
+    else
+        data_val  = {};
+    end
+    sqw_val = {obj(i).main_header.nfiles,obj(i).pix.num_pixels,obj(i).main_header.creation_date};
+    all_val = [dnd_val(1:end-1);sqw_val(:);data_val(:)];
+    hout{i} = cell2struct(all_val,fields_req);
 end
 
 if nout>0

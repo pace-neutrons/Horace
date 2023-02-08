@@ -157,6 +157,7 @@ end
 
 if header_only || noclass
     data_str.img_range = axes_block.calc_img_db_range(data_str );
+    data_str.dimensions = numel(data_str.p);
     return;
 end
 %

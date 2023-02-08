@@ -191,6 +191,18 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             obj = delete@sqw_file_interface(obj);
             obj.npixels_ = 'undefined';
         end
+        %
+        function hd = head(obj,varargin)
+            % Return the information, which describes sqw file in a standard form
+            % 
+            [ok,mess,full_data] = parse_char_options(varargin,'-full');
+            if ~ok
+                error('HORACE:sqw_binfile_common:invalid_argument',mess);
+            end
+            hd =head@binfile_v2_common(obj,varargin{:});
+
+            hd = obj.shuffle_fields_form_sqw_head(hd,full_data);
+        end
     end
     %
     methods(Static,Hidden=true)
@@ -301,7 +313,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             end
             img_data_range = fread(obj.file_id_,[2,4],'float32');
 
-        end    
+        end
         function obj = update_sqw_keep_pix(~)
             error('HORACE:sqw_binfile_common:runtime_error',...
                 'This method does not work on faccessors with version lower then 4');

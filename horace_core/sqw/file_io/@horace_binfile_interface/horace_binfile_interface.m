@@ -244,6 +244,10 @@ classdef horace_binfile_interface < serializable
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
         obj = put_dnd_data(obj,varargin);
+
+        % the function returns standard head information about sqw/dnd file
+        hd = head(obj,varargin)
+
     end
     methods(Abstract,Access=protected)
         % init file accessors from sqw object in memory

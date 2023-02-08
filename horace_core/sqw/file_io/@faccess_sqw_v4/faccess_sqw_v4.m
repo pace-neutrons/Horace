@@ -159,8 +159,20 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         obj = put_pix_metadata(ob,pix_class)
     end
     %======================================================================
-    % Old, partially redundant interface
+    % Old, interface
     methods
+        function hd = head(obj,varargin)
+            % Return the information, which describes sqw file in a standard form
+            %
+            [ok,mess,full_data] = parse_char_options(varargin,'-full');
+            if ~ok
+                error('HORACE:sqw_binfile_common:invalid_argument',mess);
+            end
+            hd =head@binfile_v4_common(obj,varargin{:});
+
+            hd = obj.shuffle_fields_form_sqw_head(hd,full_data);
+        end
+
         % -----------------------------------------------------------------
     end
     %----------------------------------------------------------------------
