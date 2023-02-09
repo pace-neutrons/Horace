@@ -40,7 +40,11 @@ classdef test_unique_references < TestCase
             assertEqual(urc{2}, 0.222);
             assertEqual(urc{3}, 0.333);
             assertEqual(urc{4}, 0.222);
+            % n_runs and n_objects perform the same function
+            % n_objects provides a domain-agnostic interface
+            % n_runs provides a SQW-specific domain interface
             assertEqual( urc.n_runs, 4);
+            assertEqual( urc.n_objects, 4);
             
             urc{1} = 0.555;
             assertEqual(urc{1}, 0.555);    
@@ -88,6 +92,7 @@ classdef test_unique_references < TestCase
             urc = urc.add(IX_null_inst());
 
             assertEqual(urc.n_runs,5)
+            assertEqual(urc.n_objects,5)
             assertEqual(urc.n_unique_objects,3);
 
             % with nargout==2
@@ -300,10 +305,12 @@ classdef test_unique_references < TestCase
             
             % fail extending with wrong type
             assertEqual(urc2.n_runs,1);
+            assertEqual(urc2.n_objects,1);
             urc2(2) = obj.mi1;
             [lwn,lw] = lastwarn;
             assertEqual(lwn,'not correct stored base class; object was not added');
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
+            assertEqual(urc2.n_objects,1); % warning was issued and object was not added
             
             % fail inserting with wrong type
             urc2(1) = obj.mi1;
@@ -341,16 +348,21 @@ classdef test_unique_references < TestCase
             urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
             urc{1} = obj.mi1;
             assertEqual( urc.n_runs, 1);
+            assertEqual( urc.n_objects, 1);
             urc{2} = mi2;
             assertEqual( urc.n_runs, 2);
+            assertEqual( urc.n_objects, 2);
             urc{3} = obj.mi1;
             assertEqual( urc.n_runs, 3);
+            assertEqual( urc.n_objects, 3);
             assertEqual( urc.n_unique_objects, 2);
             urc(4) = mi2;
             assertEqual( urc.n_runs, 4);
+            assertEqual( urc.n_objects, 4);
             assertEqual( urc.n_unique_objects, 2);
             urc(5) = mi2;
             assertEqual( urc.n_runs, 5);
+            assertEqual( urc.n_objects, 5);
             assertEqual((urc.unique_objects.n_unique), 2);
             assertEqual( urc.n_unique_objects, 2);
             assertEqual( numel(urc.idx), 5);
@@ -383,9 +395,11 @@ classdef test_unique_references < TestCase
             % object of incorrect type not added, warning issued, size
             % still 1
             assertEqual( urc.n_runs, 1);
+            assertEqual( urc.n_objects, 1);
             urc = urc.add(obj.nul_sm1);
             % object not added, size unchanges, warning issued
             assertEqual( urc.n_runs, 1);
+            assertEqual( urc.n_objects, 1);
             assertEqual( lastwarn, 'not correct stored base class; object was not added');
 
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_NULLSAMPLES');     
@@ -396,6 +410,7 @@ classdef test_unique_references < TestCase
             % still 1
             assertEqual(nuix, 1);
             assertEqual( urc.n_runs, 1 );
+            assertEqual( urc.n_objects, 1 );
             [urc, nuix] = urc.add(obj.mi1);
             assertEqual(lastwarn,'not correct stored base class; object was not added');
 
@@ -403,6 +418,7 @@ classdef test_unique_references < TestCase
             % still 1, addition index 0 => not added
             assertEqual(nuix, 0);
             assertEqual( urc.n_runs, 1 );
+            assertEqual( urc.n_objects, 1 );
             assertEqual( lastwarn, 'not correct stored base class; object was not added');
         end
         %----------------------------------------------------------------
@@ -551,10 +567,12 @@ classdef test_unique_references < TestCase
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
             urc{1} = obj.mi1;
             assertEqual(urc.n_runs,1)
+            assertEqual(urc.n_objects,1)
             assertEqual(urc.n_unique_objects,1)
 
             urc = urc.replicate_runs(10);
             assertEqual(urc.n_runs,10);
+            assertEqual(urc.n_objects,10);
             assertEqual(urc.n_unique_objects,1);
         end
         %-----------------------------------------------------------------

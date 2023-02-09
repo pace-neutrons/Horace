@@ -33,7 +33,10 @@ classdef unique_references_container < serializable
         % other dependent properties
         n_unique_objects; % size of unique_objects (without creating it)
         idx; % object indices into the global unique objects container.
-        n_runs; % numel(idx)
+        n_objects; % numel(idx)
+        n_runs;    % same as n_objects, provides a domain-specific interface
+                   % to the number of objects for SQW-Experiment
+                   % instruments and samples
         %all;
     end
     
@@ -62,12 +65,12 @@ classdef unique_references_container < serializable
         % value (NB decided not to use property set.all as all has other
         % meanings)
         function self = set_all(self,v)
-            if numel(v)==self.n_runs
-                for i=1:self.n_runs
+            if numel(v)==self.n_objects
+                for i=1:self.n_objects
                     self = self.local_assign_(v(i),i); % self{i}=v does not work inside class
                 end
             elseif numel(v)==1
-                for i=1:self.n_runs
+                for i=1:self.n_objects
                     self = self.local_assign_(v,i); % self{i}=v does not work inside class
                 end
             else
@@ -107,7 +110,7 @@ classdef unique_references_container < serializable
              if ~(ischar(val)||isstring(val))
                 val = class(val);
             end
-            if self.n_runs == 0 && isempty(self.stored_baseclass_)
+            if self.n_objects == 0 && isempty(self.stored_baseclass_)
                 self.stored_baseclass_ = val;
             elseif strcmp(val,self.stored_baseclass_)
                 % silently ignore resetting baseclass to the same value
@@ -117,11 +120,17 @@ classdef unique_references_container < serializable
             end
         end
         
-        % property n_runs - number of non-unique items in the container
-        function val = get.n_runs(self)
+        function val = get.n_objects(self) 
+        %N_OBJECTS property - number of non-unique items in the container
             val = numel(self.idx_);
         end
-        % n_runs only set by adding objects to the container
+        function val = get.n_runs(self)
+        %N_RUNS property - number of non-unique items in the container
+        % Identical to n_objects - provides an interface using domain
+        % nomenclature for instruments and samples in the Experiment class
+            val = numel(self.idx_);
+        end
+        % n_objects only set by adding objects to the container
         
         % property global_name - the category name for this container where
         %                        the actual objects are stored
@@ -146,7 +155,7 @@ classdef unique_references_container < serializable
         function uoc = get.unique_objects(self)
             uoc = unique_objects_container('baseclass', self.stored_baseclass);
             glc = self.global_container('value', self.global_name_);
-            for i=1:self.n_runs
+            for i=1:self.n_objects
                 uoc = uoc.add( glc{ self.idx_(i) } );
             end
         end
@@ -242,10 +251,10 @@ classdef unique_references_container < serializable
                 warning('HERBERT:unique_references_container:incomplete_setup', ...
                         'baseclass not initialised, using first assigned type');
             end
-            if nuix<1 || nuix>self.n_runs+1
+            if nuix<1 || nuix>self.n_objects+1
                 error('HERBERT:unique_references_container:invalid_argument', ...
                       'subscript %d out of range 1..%d', nuix, numel(self.idx_));
-            elseif nuix == self.n_runs+1
+            elseif nuix == self.n_objects+1
                 self = self.add(val);
                 return;
             end
@@ -375,24 +384,24 @@ classdef unique_references_container < serializable
             [self,nuix] = self.add_single_(obj);
         end         
                     
-        function self = replicate_runs(self, n_runs)
-           if ~isnumeric(n_runs) || n_runs<1 || ~isscalar(n_runs)
+        function self = replicate_runs(self, n_objects)
+           if ~isnumeric(n_objects) || n_objects<1 || ~isscalar(n_objects)
                 error('HERBERT:unique_references_container:invalid_argument', ...
-                      ['n_runs can only be a positive numeric scalar; ', ...
-                      ' instead it is %d, class %s'], n_runs, class(n_runs));
+                      ['n_objects can only be a positive numeric scalar; ', ...
+                      ' instead it is %d, class %s'], n_objects, class(n_objects));
             end
             if self.n_unique_objects>1
                 error('HERBERT:unique_references_container:invalid_argument', ...
                       ['existing container must hold only one unique object; ', ...
                       ' instead it is %d'], self.n_unique_objects);
             end
-            if n_runs<self.n_runs
+            if n_objects<self.n_objects
                 error('HERBERT:unique_references_container:invalid_argument', ...
-                      ['n_runs cannot reduce the size of the container ', ...
-                      ' but it is %d, smaller than container size %s'], n_runs, self.n_runs);
+                      ['n_objects cannot reduce the size of the container ', ...
+                      ' but it is %d, smaller than container size %s'], n_objects, self.n_objects);
             end
             uix = self.idx(1);
-            self.idx_ = zeros( n_runs, 1 )+uix;
+            self.idx_ = zeros( n_objects, 1 )+uix;
         end
                 
         
