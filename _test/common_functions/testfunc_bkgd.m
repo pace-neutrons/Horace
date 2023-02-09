@@ -1,22 +1,21 @@
-function y = testfunc_bkgd(x, p)
-% Straight line
-% 
-%   >> y = mftest_bkgd(x,p)
+function y=testfunc_bkgd(x,p)
+% Linear background function
+%
+%   >> y = testfunc_bkgd (x,p)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
-%   p   vector or parameters needed by the function:
-%           p = [const, grad]
+%   x   Array of x-axis values at which to evaluate function
+%   p   Vector of parameters needed by the function:
+%           y = p(1) + p(2)*x
 %
 % Output:
 % ========
-%   y       Vector of calculated y-axis values
+%   y   Array of calculated y-axis values
 
-% T.G.Perring
 
-% Simply calculate function at input values
-const=p(1);
-grad=p(2);
+if length(p)~=2
+    error('Input parameters must be a vector of length 2');
+end
 
-y=const+x*grad;
+y=p(1) + p(2).*x;
