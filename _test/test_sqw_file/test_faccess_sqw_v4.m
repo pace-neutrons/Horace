@@ -76,7 +76,7 @@ classdef test_faccess_sqw_v4< TestCase
 
                 % calculate ranges:
                 loc_range = [min(pix_data,[],2),max(pix_data,[],2)]';
-                data_range = minmax_range(data_range,loc_range);
+                data_range = minmax_ranges(data_range,loc_range);
                 %
                 % store result
                 targ_fac = targ_fac.put_raw_pix(pix_data,pix_pos);
