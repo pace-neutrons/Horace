@@ -22,7 +22,7 @@ end
 ib_ind = find(is_ignore_kw,1);
 if ib_ind == nargin
    error('HORACE:binfile_v4_common:invalid_argument', ...    
-       'ignore_block keword is provided without the list to ignore which should follow the key-word')
+       'ignore_block keyword is provided without the list to ignore which should follow the keyword')
 end
 ignored_blocks_list = varargin{ib_ind+1};
 if ~iscell(ignored_blocks_list) 
@@ -30,7 +30,7 @@ if ~iscell(ignored_blocks_list)
         ignored_blocks_list = {ignored_blocks_list};
     else
         error('HORACE:binfile_v4_common:invalid_argument', ...            
-            'Ignored block list should be celarray of block names to ignore. It is: %s',...
+            'Ignored block list should be cellarray of block names to ignore. It is: %s',...
         disp2str(ignored_blocks_list));
     end
 end

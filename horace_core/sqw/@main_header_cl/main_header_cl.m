@@ -5,7 +5,7 @@ classdef main_header_cl < serializable
     % In addition to containing the file creation information, the class
     % is designed to maintain the proper file creation date.
     % To set up file creation date, actual creation date have to be
-    % assigned to the obj.creation_date  property. Then the date becames
+    % assigned to the obj.creation_date  property. Then the date becomes
     % defined and maintained in various class load/save operations.
     %
     % e.g:
@@ -16,7 +16,7 @@ classdef main_header_cl < serializable
     % The pattern should be used to set up the file creation date in all
     % algorithms, intended to create new sqw files
     %
-    % Construct an instanciation of main header class
+    % Construct an instantiation of main header class
     %
     % obj = main_header_cl();
     % obj = main_header_cl(filename);
@@ -26,7 +26,7 @@ classdef main_header_cl < serializable
     %OR:
     % obj = main_header_cl(cl_struc);
     % where cl_struc is the structure, containing any set of public
-    % properties available to contructor with their correspondent values
+    % properties available to constructor with their correspondent values
     %
 
     properties(Dependent)
@@ -95,8 +95,8 @@ classdef main_header_cl < serializable
                         obj.filename = arg;
                     else
                         error('HORACE:main_header:invalid_argument',...
-                            'Can not construct main header from parameter %s',...
-                            evalc('disp(arg))'))
+                            'Can not construct main header from parameter: %s',...
+                            disp2str(arg))
                     end
                 otherwise
                     param_names_list = obj.saveableFields();
@@ -105,7 +105,8 @@ classdef main_header_cl < serializable
 
                     if ~isempty(remains)
                         error('HORACE:main_header:invalid_argument',...
-                            'Too many arguments provided on instantiation, excess args: %s', evalc('disp(remains)'))
+                            'Too many arguments provided on instantiation, excess args: %s',...
+                            disp2str(remains))
                     end
             end
         end
@@ -240,7 +241,7 @@ classdef main_header_cl < serializable
         function obj = set.full_filename(obj,val)
             if ~(ischar(val)||isstring(val))
                 error('HORACE:main_header_cl:invalid_argument', ...
-                    'fill_filename should be a string, describing full name of the file on disk. It is %s', ...
+                    'full_filename should be a string, describing full name of the file on disk. It is: %s', ...
                     disp2str(val));
             end
             [fp,fn,fe] = fileparts(val);
@@ -256,7 +257,7 @@ classdef main_header_cl < serializable
         % unchanged, as setting creation_date sets also creation_date_defined_
         % and creation_date_defined_privately sets/reads creation_date_defined_
         % (contrary to usual convention, but necessary for supporting old
-        % mat and sqw files, which do not have these proerties stored within them)
+        % mat and sqw files, which do not have these properties stored within them)
         fields_to_save_ = {'filename','filepath','title','nfiles',...
             'creation_date','creation_date_defined_privately'};
     end
@@ -299,7 +300,7 @@ classdef main_header_cl < serializable
                 dt  = val;
             else
                 error('HORACE:main_header:invalid_argument', ...
-                    'Bad creation date: "%s".\n File creation date must be either datetime class or string, convertable to datetime according to format %s.', ...
+                    'Bad creation date: "%s".\n File creation date must be either datetime class or a string, convertible to datetime according to format %s.', ...
                     evalc('disp(val)'), main_header_cl.dt_format);
             end
         end

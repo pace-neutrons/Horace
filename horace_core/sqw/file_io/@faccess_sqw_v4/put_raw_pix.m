@@ -9,11 +9,11 @@ function  obj= put_raw_pix(obj,pix_data,pix_idx,varargin)
 %
 % pix_data 
 %     -- array of pixel data. Normally 9xNpix but can be different if different 
-%        pixel format is selected.
+%        pixel format is selected (not tested).
 % pix_idx 
 %     -- the position in the pixel array to put the data block in. Has to point
 %        to the position after last pixel written 
-%        or inside the pixel array (overwriting existing pixels on disk);
+%        or inside the pixel array (for overwriting existing pixels on disk);
 %
 % Method used by file-accessor for modifying or writing new block of pixel
 % data in the binary data file or in a loop writing the pixels in a new binary file.

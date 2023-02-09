@@ -8,8 +8,8 @@ function varargout = read_horace(files,varargin)
 %                                            only.
 %   >> w=read_horace(file(s),'-force_sqw')-- fail if the input file
 %                                            contains a dnd object.
-%   >> w=read_horace(file(s),'-filebacked')-- force pixels data beeing
-%                                             filebacked even if they fit
+%   >> w=read_horace(file(s),'-filebacked')-- force pixels data being
+%                                             file-backed even if they fit
 %                                             the memory
 
 % Additional possible options are transferred to sqw or dnd loader directly

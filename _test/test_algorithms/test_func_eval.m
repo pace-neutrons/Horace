@@ -185,7 +185,8 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_output_file_of_out_of_memory_op_matches_reference_data(obj)
-            mem_chunk_size = floor(24689/5); % all pixels, 5 pages
+            mem_chunk_size = floor(24689/5); % all pixels from ref file (24689),
+            % split in 5-6 pages
             config_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', mem_chunk_size ...
                 );
@@ -206,7 +207,8 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_output_files_of_cell_array_of_files_on_out_of_memory_data(obj)
-            mem_chunk_size = floor(24689/5); % all pixels 24689, divide in 5-6 pages
+            mem_chunk_size = floor(24689/5);% all pixels from ref file (24689),
+            % split in 5-6 pages            
             config_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', mem_chunk_size ...
                 );

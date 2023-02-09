@@ -10,7 +10,7 @@ pix_comb_info = obj.pix_combine_info_;
 filename = pix_comb_info.fout_name;
 fout = fopen(filename,'rb+');
 if fout<=0
-    error('COMBINE_PIX_JOB:runtime_error',...
+    error('HORACE:combine_sqw_pix_job:runtime_error',...
         'Can not open target file %s for writing',filename);
 end
 
@@ -18,11 +18,12 @@ pix_out_position = pix_comb_info.pix_out_pos;
 try
     do_fseek(fout,pix_out_position,'bof');
 catch ME
-    exc = MException('COMBINE_SQW_PIX_JOB:io_error', ...
+    exc = MException('HORACE:combine_sqw_pix_job:io_error', ...
                      ['Unable to move to the start of the pixel'...
                       ' record to write the target file '...
                       'to start writing combined pixels']);
-    exc.addCause(ME)
+    ME=ME.addCause(exc);
+    rethrow(ME)
 end
 
 obj.fout_ = fout;

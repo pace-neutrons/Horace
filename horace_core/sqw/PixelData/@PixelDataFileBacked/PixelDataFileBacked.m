@@ -106,7 +106,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 error('HORACE:PixelDataFileBacked:runtime_error',...
                     'set_fields can not run on read-only PixelDataFileBacked')
             end
-            obj = set_fields@PixelDataBased(obj,data, fields, abs_pix_indices);
+            obj = set_fields@PixelDataBase(obj,data, fields, abs_pix_indices);
         end
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
@@ -186,63 +186,6 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             obj = obj.move_to_first_page();
         end
-
-
-        %         function prp = get_all_prop(obj, fld)
-        %             if iscellstr(fld)
-        %                 flds = cellfun(@(x) obj.FIELD_INDEX_MAP_(x), fld, 'UniformOutput', false);
-        %                 flds = unique([flds{:}]);
-        %             else
-        %                 flds = obj.FIELD_INDEX_MAP_(fld);
-        %             end
-        %             %% TODO: Check can go once finalise complete as tmpfile becomes realfile immediately
-        %             if ~obj.has_tmp_file
-        %                 prp = zeros(numel(flds), obj.num_pixels);
-        %                 for i = 1:obj.n_pages
-        %                     [pix_idx_start, pix_idx_end] = obj.get_page_idx_(i);
-        %                     obj.load_page(i);
-        %                     prp(1:numel(flds), pix_idx_start:pix_idx_end) = obj.data(flds, :);
-        %                 end
-        %             else
-        %                 data_map = obj.get_memmap_handle();
-        %                 prp = double(data_map.data.data(flds, :));
-        %             end
-        %         end
-        %
-        %         function obj=set_all_prop(obj, fld, val)
-        %             flds = obj.FIELD_INDEX_MAP_(fld);
-        %             fid = obj.get_new_handle();
-        %             try
-        %                 if ~isscalar(val)
-        %                     validateattributes(val, {'numeric'}, {'size', [numel(flds), obj.num_pixels]})
-        %                     for i = 1:obj.n_pages
-        %                         obj.load_page(i);
-        %                         [start_idx, end_idx] = obj.get_page_idx_(i);
-        %                         obj.data_(flds, :) = val(start_idx:end_idx);
-        %                         obj.format_dump_data(fid);
-        %                     end
-        %
-        %
-        %                 else
-        %                     validateattributes(val, {'numeric'}, {'scalar'})
-        %
-        %                     for i = 1:obj.n_pages
-        %                         obj.load_page(i);
-        %                         obj.data_(flds, :) = val;
-        %                         obj.format_dump_data(fid);
-        %                     end
-        %
-        %                 end
-        %                 obj.finalise(fid);
-        %
-        %             catch ME
-        %                 fclose(fid);
-        %                 delete(obj.tmp_pix_full_filename_);
-        %                 rethrow(ME);
-        %             end
-        %
-        %             obj=obj.reset_changed_coord_range(fld);
-        %         end
 
 
         % --- Operator overrides ---
@@ -359,6 +302,8 @@ classdef PixelDataFileBacked < PixelDataBase
             num_pix = obj.num_pixels_;
         end
         function ro = get_read_only(obj)
+            % report if the file allows to be modified.
+            % Main overloadable part of read_only property
             if isempty(obj.f_accessor_)
                 ro = true;
             else
@@ -369,7 +314,7 @@ classdef PixelDataFileBacked < PixelDataBase
         %------------------------------------------------------------------
         function obj=set_data_wrap(obj,val)
             % main part of pix_data_wrap setter overloaded for
-            % PixDataMemory class
+            % PixDataFileBacked class
             if ~isa(val,'pix_data')
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
                     'pix_data_wrap property can be set by pix_data class instance only. Provided class is: %s', ...
@@ -385,16 +330,17 @@ classdef PixelDataFileBacked < PixelDataBase
                 return;
             end
             if ~is_file(in_file)
+                % 
                 if MPI_State.instance().is_deployed
                     error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                        'Cannot find file-source of filebacked pixel data: %s', in_file)
+                        'Cannot find file-source of file-backed pixel data: %s', in_file)
                 else
-                    mess = sprintf('Cannot find file-source of filebacked pixels: %s. Select sqw file to get pixel data from', ...
+                    mess = sprintf('Cannot find file-source of file-backed pixels: %s. Select sqw file to get pixel data from', ...
                         in_file);
                     in_file = getfile(in_file,mess );
                     if isempty(in_file)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                            'File-source of filebacked pixel data: %s have not been found.', in_file)
+                            'File-source of file-backed pixel data: %s have not been found.', in_file)
                     end
                 end
             end
@@ -432,11 +378,11 @@ classdef PixelDataFileBacked < PixelDataBase
             % The coordinates are defined by the selected field
             %
             % Sets up the property page_range defining the range of block
-            % of pixels chaned at current iteration.
+            % of pixels changed at current iteration.
 
-            %NOTE: This range calculations are probably incorrect unless
-            % performed in a loop over all pix pages where initial range is
-            % set to empty!
+            %NOTE:  This range calculations are incorrect unless
+            %       performed in a loop over all pix pages where initial
+            %       range is set to empty!
             %
             if iscell(field_name)
                 ind = obj.check_pixel_fields(field_name);
@@ -447,8 +393,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
             loc_range = [min(obj.data(ind,:),[],2),max(obj.data(ind,:),[],2)]';
 
-            range = [min(obj.data_range_(1,ind),loc_range(1,:));...
-                max(obj.data_range_(2,ind),loc_range(2,:))];
+            range = minmax_ranges(obj.data_range_(:,ind),loc_range);
             obj.data_range_(:,ind)   = range;
             if nargout > 1
                 varargout{1} = unique(obj.run_idx);

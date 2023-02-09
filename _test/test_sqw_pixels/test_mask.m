@@ -68,7 +68,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
                 obj.masked_2d_pix_range = masked_2d.pix.pix_range;
                 obj.masked_2d_img_range = masked_2d.data.img_range;
             end
-            skipTest('Re #928 fileacked masking is not currently implemented')
+            skipTest('Re #928 file-backed masking is not currently implemented')
             if isempty(obj.masked_2d_paged_cache)
                 [~, masked_2d_paged] = ...
                     obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);

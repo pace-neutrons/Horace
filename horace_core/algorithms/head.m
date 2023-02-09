@@ -44,15 +44,6 @@ function varargout = head (in_obj,varargin)
 
 % Parse input
 % -----------
-if ~iscell(in_obj)
-    in_obj = {in_obj};
-end
-valid = cellfun(@(x)(ischar(x)||isstring(x)||isa(x,'SQWDnDBase')||isa(x,'horace_binfile_interface')),in_obj);
-if ~any(valid) %TODO: allow sqw objects to be provided among with filenames
-    error('HORACE:head:invalid_argument',...
-        'algorithm "head" accepts only array of strings describing filenames and options as input. Some input are not string or char type');
-end
-
 if nargout == 0
     head_horace(in_obj,varargin{:});
 else

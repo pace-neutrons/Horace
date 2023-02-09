@@ -1,7 +1,7 @@
 classdef (Abstract) PixelDataBase < serializable
     % PixelDataBase provides an abstract base-class interface for pixel data objects
     %
-    %   This class provides getetters and setters for each data column in an SQW
+    %   This class provides getters and setters for each data column in an SQW
     %   pixel array. Along with a creation mechanism for constructing the PixelData
     %   subclasses
     %
@@ -30,7 +30,7 @@ classdef (Abstract) PixelDataBase < serializable
     %
     % Properties:
     %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
-    %                    Cartesian coordinates in projection axes, units are per Angstrom (1 x n arrays)
+    %                    Cartesian coordinates in projection axes, units are per Angstroms (1 x n arrays)
     %   dE             - The energy transfer value for each pixel in meV (1 x n array)
     %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
     %   q_coordinates  - The spacial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
@@ -63,8 +63,7 @@ classdef (Abstract) PixelDataBase < serializable
     properties (Constant,Hidden)
         DEFAULT_NUM_PIX_FIELDS = 9;
         % the data range, an empty pixel class has
-        EMPTY_RANGE= [inf,inf,inf,inf,inf,inf,inf,inf,inf;...
-            -inf,-inf,-inf,-inf,-inf,-inf,-inf,-inf,-inf];
+        EMPTY_RANGE= [inf(1,9);-inf(1,9)];
     end
 
     properties(Constant,Access=protected)
@@ -210,7 +209,7 @@ classdef (Abstract) PixelDataBase < serializable
                     end
                 else
                     error('HORACE:PixelDataBase:invalid_argument', ...
-                        'Some input parameters (%s)  of the PixelDataBase.create operation are not recoginized', ...
+                        'Some input parameters (%s)  of the PixelDataBase.create operation are not recognized', ...
                         disp2str(argi));
                 end
                 return;
@@ -257,14 +256,14 @@ classdef (Abstract) PixelDataBase < serializable
                 if ~any(undef(:))
                     return;
                 end
-                % may be long operation. Should be able to indofm about
+                % may be long operation. Should be able to inform about
                 % these intentions
                 if ~norange
                     for i=1:numel(obj)
                         if obj.is_filebacked
                             warning('HORACE:old_file_format', ...
                                 ['sqw file %s is written in old file format, which does not contain all necessary pixel averages.\n', ...
-                                ' Update file format to the recent vesion to avoid recalculating these averages each time the file is loaded from disk'], ...
+                                ' Update file format to the recent version to avoid recalculating these averages each time the file is loaded from disk'], ...
                                 init.full_filename);
                         end
                         obj(i) = obj(i).recalc_data_range();
@@ -527,7 +526,7 @@ classdef (Abstract) PixelDataBase < serializable
             obj = set_metadata(obj,val);
         end
         %------------------------------------------------------------------
-        % paging, readonly access
+        % paging, read-only access
         function page_size = get.page_size(obj)
             page_size = get_page_size(obj);
         end
@@ -550,9 +549,9 @@ classdef (Abstract) PixelDataBase < serializable
             % Function allows to set the pixels range (min/max values of
             % pixels coordinates)
             %
-            % Use with caution!!! As this is performance function,
+            % WARNING: Use with caution!!! As this is performance function,
             % no checks that the set range is the
-            % correct range for pixels, holded by the class are
+            % correct range for pixels, hold by the class are
             % performed, while subsequent algorithms may rely on pix range
             % to be correct. A out-of memory assignment can occur during
             % rebinning if the range is smaller, then the actual range.
@@ -561,7 +560,7 @@ classdef (Abstract) PixelDataBase < serializable
             % pixels are modified by algorithm and correct range
             % calculations are expensive
             %
-            if any(size(data_range) ~= [2,9])
+            if ~isequal(size(data_range) ~= [2,9])
                 error('HORACE:PixelDataBase:invalid_argument',...
                     'data_range should be [2x9] array of data ranges');
             end
@@ -574,6 +573,9 @@ classdef (Abstract) PixelDataBase < serializable
             %  the constructor with the input object as an argument. Because of
             %  this, any properties that need to be explicitly copied must be
             %  copied within this class' 'copy-constructor'.
+            % 
+            % TODO: Re #928 is this function relevant when pixel array become
+            % cow-pointer handled?
             pix_copy = PixelDataBase.create(obj);
         end
 
@@ -728,7 +730,7 @@ classdef (Abstract) PixelDataBase < serializable
             % By default, this function interfaces the default from_bare_struct
             % method, but when the old structure substantially differs from
             % the modern structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+            % to allow loadobj to recover new structure from an old structure.
             %
             if isfield(inputs,'data_')
                 % build from old PixelData stored in the file

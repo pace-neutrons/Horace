@@ -72,12 +72,11 @@ classdef test_faccess_sqw_v4< TestCase
                 pix_data = pix.get_pixels('-keep_precision','-raw_data');
                 % Transform pixels according to requested operation here
                 % and do appropriate image averages. E.g.
-                %pix_data(8,:) = 2*pix_data(8,:); % Operations with PixelData clas may be beneficial
+                %pix_data(8,:) = 2*pix_data(8,:); % Operations with PixelData class may be beneficial
 
                 % calculate ranges:
                 loc_range = [min(pix_data,[],2),max(pix_data,[],2)]';
-                data_range = [min(data_range(1,:),loc_range(1,:));...
-                    max(data_range(2,:),loc_range(2,:))];
+                data_range = minmax_range(data_range,loc_range);
                 %
                 % store result
                 targ_fac = targ_fac.put_raw_pix(pix_data,pix_pos);
@@ -86,9 +85,9 @@ classdef test_faccess_sqw_v4< TestCase
             pix.full_filename = targ_fac.full_filename; % this is questionable. What if the file is renamed?
             pix.data_range = data_range;
             targ_fac = targ_fac.put_pix_metadata(pix);
-            % modify accomulated signal and error.
+            % modify accumulated signal and error.
             data = targ_fac.sqw_holder.data;
-            data.s = 2*data.s; % test modifications, eqivalent to image averages
+            data.s = 2*data.s; % test modifications, equivalent to image averages
             % add modified data to file accessor
             % Store modified dnd data
             targ_fac = targ_fac.put_dnd_data(data);
@@ -137,7 +136,7 @@ classdef test_faccess_sqw_v4< TestCase
             tob = tob.init(sqw_ob,tf);
 
             tob=tob.put_sqw();
-            assertTrue(exist(tf,'file')==2)
+            assertTrue(is_file(tf))
             tob = tob.delete();
 
             tob=tob.init(tf);

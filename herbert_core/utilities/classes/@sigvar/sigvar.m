@@ -57,7 +57,7 @@ classdef sigvar < serializable
             if narg == 0
                 return;
             end
-            if numel(varargin)==1
+            if narg ==1
                 if isa(varargin{1},'sigvar')
                     % Need to catch the case of input being a sigvar object for
                     % generic binary and unary operations to work (they require

@@ -1,6 +1,6 @@
 function indices = check_pixel_fields_(obj, fields)
 %CHECK_PIXEL_FIELDS_ Check the given field names are valid pixel data fields
-% Raises error with ID 'HORACE:PIXELDATA:invalid_field' if any fields not valid.
+% Raises error with ID 'HORACE:PixelData:invalid_argument' if any fields not valid.
 %
 %
 % Input:

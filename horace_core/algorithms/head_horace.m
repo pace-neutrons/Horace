@@ -1,25 +1,27 @@
 function varargout=head_horace(fnames_or_loaders,varargin)
 % Display a summary of a file or set of files containing sqw information
 %
-%   >> head_sqw          % Prompts for file and display summary of contents
-%   >> head_sqw (file)   % Display summary for named file or for cell array of file names
+%   >> head_horace(file)   % Display summary for object provided or
+%                            cell array of objects
 %
 % To return header information in a structure, without displaying to screen:
 %
-%   >> h = head_horace
+%   >> head_horace(file)
 %   >> h = head_horace (file)           % Fetch principal header information
 %   >> h = head_horace (file,'-full')   % Fetch full header information
-%
+%   >> h = head_horace ({file1,file2})  % Fetch information for cellarray
+%                                         of objects
 %
 % Input:
 % -----
-%   file        File name, or cell array of file names. In latter case, displays
-%               summary for each sqw object
+%   file        File name,faccess loader or sqw/dnd object or cell array of
+%               such objects. If cellarray provided, produces summary for
+%               each input object
 %
 % Optional keyword:
-%   '-full'     Keyword option; if sqw type data in file, then returns all header and the
-%              detector information. In fact, it returns the full data structure
-%              except for the signal, error and pixel arrays.
+%   '-full'  Keyword option; if sqw type data in file, then returns all header and the
+%            detector information. In fact, it returns the full data structure
+%            except for the signal, error and pixel arrays.
 %
 % Output (optional):
 % ------------------
@@ -35,7 +37,9 @@ if iscell(fnames_or_loaders)
     n_inputs = numel(fnames_or_loaders);
     inputs = fnames_or_loaders;
 else
-    if ischar(fnames_or_loaders)|| isstring(fnames_or_loaders)
+    if ischar(fnames_or_loaders)|| isstring(fnames_or_loaders)||...
+            isa(fnames_or_loaders,'horace_binfile_interface') || ...
+            isa(fnames_or_loaders,'SQWDnDBase')
         inputs = {fnames_or_loaders};
         n_inputs = 1;
     else
@@ -48,10 +52,10 @@ if n_outputs>n_inputs
         'number of output objects requested is bigger then the number of input files provided')
 end
 %
-all_fnames = cellfun(@ischar,inputs,'UniformOutput',true);
-all_ldrs    = cellfun(@(x)isa(x,'horace_binfile_interface'),inputs,'UniformOutput',true);
-all_obj     = cellfun(@(x)isa(x,'SQWDnDBase'),inputs,'UniformOutput',true);
-if ~any(all_fnames|all_ldrs|all_obj)
+all_fnames  = cellfun(@(x)(ischar(x)||isstring(x)),inputs);
+all_ldrs    = cellfun(@(x)isa(x,'horace_binfile_interface'),inputs);
+all_obj     = cellfun(@(x)isa(x,'SQWDnDBase'),inputs);
+if ~all(all_fnames|all_ldrs|all_obj)
     error('HORACE:head:invalid_argument',...
         'Not all input arguments represent filenames, sqw/dnd objects or loaders')
 end
@@ -66,17 +70,13 @@ if ~isempty(loaders)
     inputs(all_fnames) = loaders;
 end
 
-% if ~iscell(loaders)
-%     loaders  = {loaders};
-% end
-
 if n_outputs==0
     for i=1:n_inputs
         data = inputs{i}.head(varargin{:});
         if isfield(data,'npixtot')
-            sqw_display_single(data,npixtot,nfiles,'a');            
+            sqw_display_single(data,npixtot,nfiles,'a');
         else
-            sqw_display_single(data,1,1,'b+');            
+            sqw_display_single(data,1,1,'b+');
         end
     end
     return
