@@ -13,8 +13,8 @@ classdef binfile_v4_common < horace_binfile_interface
         data_blocks_list;
     end
     properties(Dependent,Hidden)
-        % old data type, not relevant any more. Always "b+" for dnd and "a" for
-        % sqw
+        % old data type, not relevant any more. Left for compartibility.
+        % Always "b+" for dnd and "a" for sqw objects.
         data_type
     end
     %======================================================================
@@ -41,6 +41,7 @@ classdef binfile_v4_common < horace_binfile_interface
             obj.bat_ = val;
         end
         function bll = get.data_blocks_list(obj)
+            % return list of data blocks defined in BAT.
             bll = get_data_blocks(obj);
         end
         %------------------------------------------------------------------
@@ -343,13 +344,19 @@ classdef binfile_v4_common < horace_binfile_interface
             % store the data described by the block provided as input
             %
             % uses put_sqw_block and adds file initialization if initialization
-            % info is provided
+            % info is provided.
+            %
+            % See more information about the routine within the private
+            % procedure invoked below.
             %
             obj = put_block_data_(obj, block_name_or_instance,varargin{:});
         end
         %
         function pos = get_npix_position(obj)
-            % Main part of npix position getter
+            % Main part of npix_position getter
+            % Returns location of the start of the pixel data block.
+            %
+            % Calculated in bytes from beginning of the file
             if isempty(obj.bat_) || ~obj.bat_.initialized
                 pos = [];
                 return
@@ -363,10 +370,11 @@ classdef binfile_v4_common < horace_binfile_interface
         end
     end
     methods(Abstract,Access=protected)
-        % return the list of (non-iniialized) data blocks, defined for
-        % given file format
+        % return the list of data blocks, defined for
+        % given file format regardless of their initialization.
         bll = get_data_blocks(obj);
-        % main part of data_type accessor
+        % main part of data_type accessor. Simply overloaded for sqw and
+        % dnd object(s) to return 'a' or 'b+'
         dt = get_data_type(obj)
     end
     %======================================================================
