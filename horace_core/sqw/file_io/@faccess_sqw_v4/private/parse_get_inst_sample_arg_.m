@@ -2,8 +2,13 @@ function  [argi,instr_number] = parse_get_inst_sample_arg_(obj,varargin)
 % Parse get_instrument or get_sample input parameters and return
 % the parameters, defining the treatment of the instrument/sample container
 %
-% path through the other parameters, assuming that those parameters define
+% ignores and returns the other parameters, assuming that those parameters define
 % sqw source to read
+% Outputs:
+% argi   -- the cellarray of parameters, not recognized as input of get_sample/instrument function
+% instr_number 
+%        -- number of instrument or sample to read or array of such numbers. Inf if one needs to read 
+%           all instruments or samples
 
 if isempty(varargin)
     argi = {};

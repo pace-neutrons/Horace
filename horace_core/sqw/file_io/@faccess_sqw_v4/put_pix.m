@@ -8,14 +8,13 @@ function   obj = put_pix(obj,varargin)
 %
 % Optional:
 % '-update' -- update existing data rather then (over)writing new file
-%             (deprecated, ignored, update occurs)
+%             (deprecated, ignored, update occurs automatically if proper file is 
+%              provided)
 % '-nopix'  -- do not write pixels
 % '-reserve' -- if applied together with nopix, pixel information is not
 %               written but the space dedicated for pixels is filled in with zeros.
-%                If -nopix is not used, the option is ignored.
+%               If -nopix is not used, the option is ignored.
 %
-% If update options is selected, file header have to exist. This option keeps
-% existing file information untouched;
 [ok,mess,~,nopix,reserve,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve'});
 if ~ok
     error('HORACE:faccess_sqw_v4:invalid_argument',...

@@ -5,7 +5,7 @@ function   obj = put_headers(obj,varargin)
 %Usage:
 %>>obj.put_header();
 %>>obj.put_headers(header_num);
-%>>obj.put_headers('-update');
+%>>obj.put_headers('-update'); %-- redundant property, not used any more
 %>>obj.put_headers('-no_sampinst'); % do not store instrument or sample
 
 %>>obj.put_header(___,new_source_for_update)
@@ -14,10 +14,10 @@ function   obj = put_headers(obj,varargin)
 % To work correctly, the file accessor have to be initialized by correct sqw v4 file
 %
 % Theoretically, it can be initialized on the fly if the input file is
-% provide but this mode have not been tested
+% provided but this mode have not been tested.
 %
 
-% Ignore input arumnets, possibly provided from previous interface
+% Ignore input arguments, possibly left from previous interface
 [ok,mess,~,no_samp_inst,argi] = parse_char_options(varargin,{'-update','-no_sampinst'});
 if ~ok
     error('HORACE:put_headers:invalid_argument',mess);

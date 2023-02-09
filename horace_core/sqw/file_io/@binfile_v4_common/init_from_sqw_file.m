@@ -19,14 +19,13 @@ end
 obj.bat_ = obj.bat_.get_bat(obj.file_id_);
 
 % retrieve the information about image arrays
-try
-    [bl,bl_indx] = obj.bat_.get_data_block('bl_data_nd_data');
-    if ~bl.dnd_info_defined
-        bl = bl.read_dnd_info(obj.file_id_);
-        obj.bat_ = obj.bat_.set_changed_block(bl,bl_indx);
-    end
-catch
+
+[bl,bl_indx] = obj.bat_.get_data_block('bl_data_nd_data');
+if ~bl.dnd_info_defined
+    bl = bl.read_dnd_info(obj.file_id_);
+    obj.bat_ = obj.bat_.set_changed_block(bl,bl_indx);
 end
+
 %
 if isempty(obj.full_filename)
     obj.full_filename = fopen(obj.file_id_);

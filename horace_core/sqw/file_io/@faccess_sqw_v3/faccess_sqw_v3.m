@@ -142,8 +142,11 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             obj = init_sqw_footer_(obj);
         end
         % Method does class dependent changes while updating from sqw file
-        % format v3.1 to file format version 3.3
-        % new_obj = do_class_dependent_updates(obj,new_obj,varargin);        
+        % format v3.1 to file format version 3.3. Recent file format defines 
+        % common transformations in sqw_binfile_common
+        % so this function is defined there and removed from here as 
+        % it was for v3.3 file formats.
+        % new_obj = do_class_dependent_updates(obj,new_obj,varargin);
     end
     %
     methods

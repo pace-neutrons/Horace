@@ -9,6 +9,9 @@ function [exper,obj]  = get_exp_info(obj,varargin)
 %>>exp_info = obj.get_exp_info();       -- get header number 1
 %>>exp_info = obj.get_exp_info(1);      -- get header number 1
 %>>exp_info = obj.get_exp_info(number); -- get header with specified number
+%>>exp_info = obj.get_exp_info(numbers);-- where numbers are array of numbers
+%                                          return headers with these numbers
+% 
 %>>exp_info = obj.get_exp_info('-all');
 %>>exp_info = obj.get_exp_info('-no_samp_inst'); % do not set up sample and instrument to header
 %                    even if they are defined in the file, except the basic sample and inst,

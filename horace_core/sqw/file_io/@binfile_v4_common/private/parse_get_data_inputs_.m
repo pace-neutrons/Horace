@@ -1,5 +1,8 @@
 function argi = parse_get_data_inputs_(varargin)
-% take get_data inputs and return them with '-noclass' key appended
+% Process inputs of get_data method.
+%
+% Verify inputs and return them with '-noclass' key appended if this key
+% was absent there before.
 %
 is_key = cellfun(@(x)(ischar(x)||isstring(x))&&startsWith(x,'-'), ...
     varargin);

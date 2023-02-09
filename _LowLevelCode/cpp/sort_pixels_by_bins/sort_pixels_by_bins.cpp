@@ -326,7 +326,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     double* pPixelRange(nullptr);
     if (nlhs == 2) {
         try {
-            plhs[Pixels_range] = mxCreateDoubleMatrix(2, PIXEL_DATA_WIDTH, mxREAL);
+            plhs[Pixels_range] = mxCreateDoubleMatrix(2, pix_fields::PIX_WIDTH, mxREAL);
             if (!plhs[Pixels_range]) {
                 mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error",
                     "Can not allocate memory for output pixels ranges");

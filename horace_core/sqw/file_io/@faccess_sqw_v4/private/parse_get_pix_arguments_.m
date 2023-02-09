@@ -46,7 +46,7 @@ if npix_lo < 1
 end
 if npix_hi > npix_tot
     warning('HORACE:faccess_sqw_v4:invalid_argument',...
-        ['get_pix: max pixel number requested is bigger than total numeber of pixesls %d.',...
-        ' using: %d'],npix_tot,npix_tot);
+        ['Max number of pixels requested is bigger than the total number of pixels: %d\n',...
+        ' Max number of pixels to read is reset to max number of pixels available'],npix_tot);
     npix_hi = npix_tot;
 end

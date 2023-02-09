@@ -1,5 +1,5 @@
 classdef blockAllocationTable < serializable
-    %blockAllocationTable  class responsible for maintaining coherent
+    % blockAllocationTable class (BAT) is responsible for maintaining coherent
     % location of binary blocks on HDD, identification of free spaces to
     % store updated blocks and storing/restoring information about block
     % sizes and block location on HDD
@@ -10,7 +10,8 @@ classdef blockAllocationTable < serializable
         initialized;
         %
         n_blocks      % Number of blocks the BAT table contains
-        blocks_list;  % list of all data_blck blocks, this BAT manages
+        blocks_list;  % list of all data blocks (data_block classes),
+        %               this BAT manages
         %
         position;     % position of the block allocation table within the
         %             % binary file
@@ -21,12 +22,13 @@ classdef blockAllocationTable < serializable
         blocks_start_position;
         % The list of the names of the blocks, controlled by
         % BlockAllocaionTable
-        block_names
+        block_names;
         % the positions of the free spaces blocks between binary blocks,
         % described BAT and free spaces sizes
         free_spaces_and_size;
         % position of the end of file (size of all blocks stored on the
-        % disk). Actually plus 1, so you may start writing there
+        % disk expressed in bytes). Actually plus 1, so you may start
+        % writing there
         end_of_file_pos
     end
     properties(Dependent,Hidden)
@@ -36,8 +38,8 @@ classdef blockAllocationTable < serializable
     end
     properties(Access=protected)
         position_=0;
-        % the size of empty BAT. recalculated as BAT list is assigned to
-        % BAT
+        % the size of empty BAT. recalculated as block list is assigned to
+        % block_list property.
         bat_bin_size_ = 4;
         % if the BAT is initialized with particular object or its image on
         % hdd

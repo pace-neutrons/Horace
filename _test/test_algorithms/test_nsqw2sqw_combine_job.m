@@ -67,7 +67,6 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             wrtr = wrtr.init(ds,obj.test_targ_file);
             % write all sqw data except pixels
             wrtr = wrtr.put_sqw('-nopix','-reserve');
-            %wrtr = wrtr.put_raw_pix(zeros(9,0),1);
             %
             pix_out_pos = wrtr.pix_position;
             wrtr.delete();

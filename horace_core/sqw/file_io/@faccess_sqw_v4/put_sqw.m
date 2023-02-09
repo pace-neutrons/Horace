@@ -2,20 +2,23 @@ function    obj = put_sqw(obj,varargin)
 % Save sqw data into new binary file or fully overwrite an existing file
 %
 % Usage:
-% obj = obj.put_sqw()         % Put sqw object which have been already
-%                             % intialized with this file-accessor and is
-%                             % assigned to sqw_holder;
-% obj = obj.put_sqw(sqw_obj)  % Put sqw object provided as input of the
-%                             % method. The file to put object should be
-%                             already set
+% obj = obj.put_sqw()         Put sqw object which have been already
+%                             initialized with this file-accessor and is
+%                             assigned to obj.sqw_holder;
+% obj = obj.put_sqw(sqw_obj)  Put sqw object provided as input of the
+%                             method. The file to put object should be
+%                             already set.
+% obj = obj.put_sqw(sqw_obj,filename) 
+%                             Put sqw object provided as input of the
+%                             method to the file provided as second parameter.
+%
 % Options:
-% '-update'        -- write to existing sqw file. Currently redundant.
-%                     Writing to existing file occurs if file is provides
-%                     as input.
+% '-update'        -- write to existing sqw file. Currently deprecated and does nothimg.
+%
 %                    TODO: Check if existing file contains sqw object,
-%                    writing fails without this argument
+%                    as currently such file is silently overwritten. 
 % '-verbatim'      -- do not change filenames and file-path-es, stored in
-%                     cuttent sqw object headers to the name and path
+%                     current sqw object headers to the name and path
 %                     of the current file to write data into
 % '-nopix'         -- do not store pixel array within the sqw object.
 %                     Write sqw object with empty pixels record
@@ -67,7 +70,7 @@ elseif ~verbatim
     obj.sqw_holder = sqw_obj;    
 end
 
-if nopix && ~reserve % Modify writable object to contain no pixels
+if nopix && ~reserve % Modify writeable object to contain no pixels
     sqw_obj  = obj.sqw_holder;
     old_pix = sqw_obj.pix;
     sqw_obj.pix = PixelDataMemory();
@@ -76,7 +79,7 @@ if nopix && ~reserve % Modify writable object to contain no pixels
     end
     obj.sqw_holder = sqw_obj;
     obj = obj.put_all_blocks();
-    sqw_obj.pix = old_pix;
+    sqw_obj.pix    = old_pix;
     obj.sqw_holder = sqw_obj;
     return;
 elseif reserve

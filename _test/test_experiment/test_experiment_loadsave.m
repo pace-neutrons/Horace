@@ -60,7 +60,11 @@ classdef test_experiment_loadsave < TestCase
             assertEqual( numel(ldd.sq3), 2);
             assertTrue( isa(ldd.sq3(1).experiment_info, 'Experiment') );
             assertTrue( isa(ldd.sq3(2).experiment_info, 'Experiment') );
-            % NEW FILE FORMAT: duplicated headers deleted at loading
+            % OLD file was generated doing duplicated headers. The run-id/s
+            % for these files were the same but same headers were
+            % duplicated.
+            % NEW FILE FORMAT: duplicated headers, which do not contain
+            % references to pixels were deleted at loading.
             assertEqual( numel(ldd.sq3(1).experiment_info.expdata), 1);
             assertEqual( ldd.sq3(1).experiment_info.instruments.n_runs, 1);
             assertEqual( ldd.sq3(1).experiment_info.samples.n_runs, 1);

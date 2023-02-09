@@ -1,7 +1,8 @@
 function [sqw_object,varargout] = get_sqw(obj, varargin)
-% Load an sqw file from disk
+% Load an sqw object from sqw file on disk
 %
 %   >> sqw_object = obj.get_sqw()
+%   >> sqw_object = obj.get_sqw(infile)
 %   >> sqw_object = obj.get_sqw('-h')
 %   >> sqw_object = obj.get_sqw('-his')
 %   >> sqw_object = obj.get_sqw('-keep_original')
@@ -11,11 +12,14 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %
 % Input:
 % --------
-%   infile      File name, or file identifier of open file, from which to read data
 %
-% infile      File name, or file identifier of open file, from which to read data
+% infile      If present, the file name, or file identifier of an open file, 
+%             from which to read data. If absent, the accessor (obj) should be 
+%             initialized. 
 %
-% Optional:  Specify what parts of sqw to read and how to tread ouptput
+% Keyword Arguments:
+% ------------------
+% Optional:  Specify what parts of sqw to read and how to tread output
 %
 %  '-h'            - header block without instrument and sample information, and
 %                  - data block fields: filename, filepath, title, alatt, angdeg,...
@@ -36,14 +40,11 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %  '-noupgrade' or - if it is old file format, do not do
 %  '-norange'        expensive calculations, necessary for
 %                    upgrading file format to recent version
-%  '-file_backed'    request the resulting sqw object to be file backed
+%  '-file_backed'    request the resulting sqw object to be file backed.
 %
 %
 % Default: read all fields of whatever is the sqw data type contained in the file
 % and return constructed sqw object
-%
-% Keyword Arguments:
-% ------------------
 %
 % Output:
 % --------
