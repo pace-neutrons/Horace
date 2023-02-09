@@ -560,7 +560,7 @@ classdef (Abstract) PixelDataBase < serializable
             % pixels are modified by algorithm and correct range
             % calculations are expensive
             %
-            if ~isequal(size(data_range) ~= [2,9])
+            if ~isequal(size(data_range),[2,9])
                 error('HORACE:PixelDataBase:invalid_argument',...
                     'data_range should be [2x9] array of data ranges');
             end
