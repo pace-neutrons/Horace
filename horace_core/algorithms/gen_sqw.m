@@ -881,6 +881,7 @@ function [present_and_valid,img_range,data_range] = check_tmp_files_range(tmp_fi
 if ~is_file(tmp_file)
     present_and_valid  = false;
     img_range = [];
+    data_range =[];
     return;
 end
 
