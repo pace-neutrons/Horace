@@ -69,10 +69,10 @@ if calc_all_pixels
     pix_or_pix_range = pix;
 
     if any(isinf(axes_bl.img_range(:)))
-        data_range = data_range(:,1:4);
-        data_range = range_add_border(data_range,obj.tol_);
+        pix_range = data_range(:,1:4);
+        pix_range = range_add_border(pix_range,obj.tol_);
         undef = isinf(axes_bl.img_range);
-        axes_bl.img_range(undef) =data_range(undef);
+        axes_bl.img_range(undef) =pix_range(undef);
     end
 else % pix are not calculated and we calculate range only
     pix_range = run_data.calc_projections(detdcn);

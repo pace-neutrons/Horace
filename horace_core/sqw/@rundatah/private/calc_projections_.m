@@ -1,4 +1,4 @@
-function [data_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
+function [pix_or_data_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
 % project detector positions into Crystal Cartesian coordinate system
 %
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
@@ -23,17 +23,23 @@ function [data_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
 %
 % Output:
 % -------
-%   pix_range  [2 x 4] array containing the full extent of the data in crystal Cartesian
-%              coordinates and energy transfer; first row the minima, second row the
+%   pix_or_data_range  [2 x 9] or [2 x 4] array containing the full
+%              extent of the data. Firstr 4 columns contain pixel 
+%              coordinates in crystal Cartesian
+%              coordinate system namely 3 momentum coordinates and 4-th -
+%              the energy transfer; first row the minima, second row the
 %              maxima.
+%              In modes 0 and 1 only 4 first columns contain usable
+%              information so the data_range is restricted by 4 columns.
 %   pix        PixelData object
-%              The order of the pixels is increasing energy dfor first detector, then
-%              increasing energy for the second detector, ....
+%              The order of the pixels is increasing energy for first
+%              detector, then increasing energy for the second detector, 
+%              etc....
 
-% Uses the following fiels of rundata opbject:
+% Uses the following fields of rundata opbject:
 % efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det
 % where  data  is the data structure of spe file (see get_spe)
-
+%
 % Original author: T.G.Perring
 %
 
@@ -78,14 +84,14 @@ if use_mex
             emode = obj.emode;
             %proj_mode = 2;
             %nThreads = 1;
-            [data_range,pix_arr] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
+            [pix_or_data_range,pix_arr] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             if proj_mode==2
                 pix = PixelDataMemory();
                 pix = pix.set_raw_data(pix_arr);
-                pix = pix.set_data_range(data_range);
+                pix = pix.set_data_range(pix_or_data_range);
             else
                 pix = pix_arr;
-                data_range = data_range(:,1:4);
+                pix_or_data_range = pix_or_data_range(:,1:4);
             end
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex', ...
@@ -111,10 +117,10 @@ if ~use_mex
     % Return without filling the pixel array if pix_range only is requested
     switch proj_mode
         case 0
-            data_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
+            pix_or_data_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
             pix = [];
         case 1
-            data_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
+            pix_or_data_range = [min(ucoords,[],2)';max(ucoords,[],2)'];
             pix = ucoords;
         case 2
             % Fill in pixel data object
@@ -134,6 +140,6 @@ if ~use_mex
             sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
             run_id = ones(1,numel(detector_idx))*obj.run_id;
             pix = PixelDataBase.create([ucoords;run_id;detector_idx;energy_idx;sig_var]);
-            data_range=pix.data_range;
+            pix_or_data_range=pix.data_range;
     end
 end

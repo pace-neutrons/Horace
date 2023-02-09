@@ -242,7 +242,7 @@ if accumulate_old_sqw    % combine with existing sqw file
         if log_level>0
             disp(' Analysing headers of existing tmp files:')
         end
-        [header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present,...
+        [header_sqw,grid_size_sqw,pix_db_range_sqw,data_range_present_sqw,...
             ind_tmp_files_present,update_runid] = get_tmp_file_headers(all_tmp_files);
         if sum(ind_tmp_files_present) == 0
             accumulate_old_sqw = false;
@@ -257,7 +257,7 @@ if accumulate_old_sqw    % combine with existing sqw file
 
     else
         % Check that the sqw file has the correct type to which to accumulate
-        [ok,mess,header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present]=...
+        [ok,mess,header_sqw,grid_size_sqw,pix_db_range_sqw,data_range_present_sqw]=...
             gen_sqw_check_sqwfile_valid(sqw_file);
         % Check that the input spe data are distinct
         if ~ok, error(mess), end
@@ -301,7 +301,7 @@ if accumulate_old_sqw    % combine with existing sqw file
                 wnsq_argi = {'-keep_runid'};
             end
             % will recaluclate pixel_range
-            [~,data_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_range_present,wnsq_argi{:});
+            [~,data_range]=write_nsqw_to_sqw (tmp_file, sqw_file,data_range_present_sqw,wnsq_argi{:});
 
             if numel(tmp_file) == numel(all_tmp_files)
                 tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
@@ -312,7 +312,7 @@ if accumulate_old_sqw    % combine with existing sqw file
                 report_nothing_to_do(spe_only,spe_exist);
             end
             tmp_file={};
-            data_range=pix_range_present;
+            data_range=data_range_present_sqw;
         end
         grid_size=grid_size_sqw;
 
@@ -426,7 +426,7 @@ if ~accumulate_old_sqw && nindx==1
         run_files{1}.run_id = 1;
     end
     [w,grid_size,data_range] = run_files{1}.calc_sqw(grid_size_in,pix_db_range);
-    verify_pix_range_est(data_range,pix_range_est,log_level);
+    verify_pix_range_est(data_range(:,1:4),pix_range_est,log_level);
     save(w,sqw_file);
 
     %grid_size_in,pix_db_range_in,write_banner,opt);
@@ -463,8 +463,7 @@ else
             delete_tmp = numel(tmp_file) == n_all_spe_files; % final step in combining tmp files, all tmp files will be generated;
 
         end
-        data_range = [min(data_range(1,:),pix_range_present(1,:));...
-            max(data_range(2,:),pix_range_present(2,:))];
+        data_range = minmax_ranges(data_range,data_range_present_sqw);
     end
 
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
@@ -749,7 +748,7 @@ end
 
 %---------------------------------------------------------------------------------------
 
-function  [grid_size,pix_range,update_runids,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
+function  [grid_size,data_range,update_runids,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
     pix_db_range,grid_size_in,gen_tmp_files_only,keep_parallel_pool_running)
 % if further operations are necessary to perform with generated tmp files,
 % keep parallel pool running to save time on restarting it.
@@ -764,7 +763,7 @@ spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
 tmp_file=gen_tmp_filenames(spe_file,sqw_file);
 tmp_generated = tmp_file;
 if gen_tmp_files_only
-    [f_valid_exist,pix_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,pix_db_range,grid_size_in)),...
+    [f_valid_exist,pix_ranges,data_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,pix_db_range,grid_size_in)),...
         tmp_file,'UniformOutput',false);
     f_valid_exist = [f_valid_exist{:}];
     if any(f_valid_exist)
@@ -775,11 +774,10 @@ if gen_tmp_files_only
         end
         run_files  = run_files(~f_valid_exist);
         tmp_file  = tmp_file(~f_valid_exist);
-        pix_ranges = pix_ranges(f_valid_exist);
-        pix_range = pix_ranges{1};
+        data_ranges = data_ranges(f_valid_exist);
+        data_range = data_ranges{1};
         for i=2:numel(pix_ranges)
-            pix_range = [min([pix_range(1,:);pix_ranges{i}(1,:)]);...
-                max([pix_range(2,:);pix_ranges{i}(2,:)])];
+            data_range = mimnax_ranges(data_range,data_ranges{i});
         end
         if isempty(run_files)
             grid_size = grid_size_in;
@@ -788,10 +786,10 @@ if gen_tmp_files_only
             return;
         end
     else
-        pix_range = [];
+        data_range = [];
     end
 else
-    pix_range = [];
+    data_range = [];
 end
 
 nt=bigtic();
@@ -820,7 +818,7 @@ if use_separate_matlab
     if n_failed == 0
         outputs   = outputs{1};
         grid_size = outputs.grid_size;
-        pix_range1 = outputs.pix_range;
+        data_range1 = outputs.data_range;
         update_runids =outputs.update_runid;
     else
         jd.display_fail_job_results(outputs,n_failed,num_matlab_sessions,'GEN_SQW:runtime_error');
@@ -840,18 +838,13 @@ else
     % effective but much easier to identify problem with
     % failing parallel job
 
-    [grid_size,pix_range1,update_runids]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
+    [grid_size,data_range1,update_runids]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
         grid_size_in,pix_db_range,true);
     %---------------------------------------------------------------------
 end
 
-if isempty(pix_range)
-    pix_range = pix_range1;
-else
-    pix_range = [min([pix_range(1,:);pix_range1(1,:)]);...
-        max([pix_range(2,:);pix_range1(2,:)])];
+data_range = minmax_ranges(data_range,data_range1);
 
-end
 
 if log_level>-1
     disp('--------------------------------------------------------------------------------')
@@ -882,7 +875,7 @@ end
 
 end
 
-function [present_and_valid,img_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
+function [present_and_valid,img_range,data_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
 % Verify if the tmp files are present and their binning ranges are the same
 % as requested by input parameters
 if ~is_file(tmp_file)
@@ -901,10 +894,12 @@ img_range = img_md.img_range;
 err =  abs(img_range-pix_db_range)>tol;
 present_and_valid = ~any(err(:));
 if ~present_and_valid
+    data_range = [];
     return
 end
 grid_size = img_md.axes.nbins_all_dims;
 err = abs(grid_size-grid_size_in)>tol;
 present_and_valid = ~any(err(:));
+data_range = ldr.get_data_range();
 
 end

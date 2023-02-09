@@ -1,4 +1,4 @@
-function [w, pix_data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
+function [w, data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
 % Create an sqw object, optionally keeping only those data points within
 % the defined data range.
 %
@@ -22,7 +22,7 @@ function [w, pix_data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
 % Output:
 % --------
 %   w              - Output sqw object
-%   pix_data_range - Actual range of pixels and pixels data (2x9 array of min/max values.
+%   data_range     - Actual range of pixels and pixels data (2x9 array of min/max values.
 %                    The pixels coordinates (first 4 columns) are inside of 
 %                    the input coordinate range.
 
@@ -49,7 +49,7 @@ data.axes.img_range = axes_bl.img_range;
 
 exp_info.expdata(1).run_id = run_id;
 
-pix_data_range = pix.data_range;
+data_range = pix.data_range;
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------

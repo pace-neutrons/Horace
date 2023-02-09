@@ -57,7 +57,7 @@ end
 %
 % Create sqw object
 %
-[w, data_range]=obj.calc_sqw_(grid_size, pix_db_range);
+[w, data_range]=calc_sqw_(obj,grid_size, pix_db_range);
 %
 if ~isempty(obj.transform_sqw_f_)
     % we should assume that transformation maintains correct data pix_range
