@@ -18,7 +18,13 @@ function wout = parallel_sqw_eval(func, w, nWorkers, args)
                          'merge_data', []);
 
     jd = JobDispatcher('ParallelSQWEval');
-    res = jd.start_job('ParallelSQWEval', common_data, loop_data, true, nWorkers);
+    [res, nFailed] = jd.start_job('ParallelSQWEval', common_data, loop_data, true, nWorkers);
+    if nFailed
+        jd.display_failed_jobs();
+        error('HERBERT:parallel_sqw_eval:runtime_error', ...
+              'Parallel execution of SQW eval failed');
+    end
+
 
     wout = cellfun(@copy, w, 'UniformOutput', false);
 
