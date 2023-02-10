@@ -46,7 +46,14 @@ if isstruct(S)
         elseif isfield(S,'raw_data_')
             for i=1:numel(S)
                 obj(i).set_data('all',S(i).raw_data_);
-                obj(i).set_range(S(i).pix_range_);
+                if isfield(S(i),'pix_range_')
+                    obj(i).set_range(S(i).pix_range_);
+                else
+                    if ~isempty(S(i).raw_data_)
+                        range = [min(S(i).raw_data_(1:4,:),[],2), max(S(i).raw_data_(1:4,:),[],2)]';
+                        obj(i).set_range(range);
+                    end
+                end
                 obj(i).file_path_ = S(i).file_path_;
             end
         else
