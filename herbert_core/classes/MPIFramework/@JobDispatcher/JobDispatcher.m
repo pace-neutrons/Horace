@@ -185,7 +185,9 @@ classdef JobDispatcher
                 task_query_time = 4;
             end
 
-            if isempty(obj.cluster)
+            mis = MPI_State.instance();
+
+            if mis.requirements_changed(number_of_workers)
                 [outputs,n_failed,task_ids,obj] = send_tasks_to_workers_(obj, ...
                      job_class_name,common_params,loop_params,return_results, ...
                      number_of_workers,task_query_time);
@@ -257,8 +259,9 @@ classdef JobDispatcher
         end
 
         function cl = get.cluster(obj)
-            % get access to the cluster used to run parallel job by this
-            cl = MPI_State.instance.cluster();
+        % get access to the cluster used to run parallel job by this
+            mis = MPI_State.instance();
+            cl = mis.cluster;
         end
 
         function obj = set.cluster(obj, val)

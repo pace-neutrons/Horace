@@ -359,17 +359,28 @@ else
         % expand run_ids for replicated files to make run_id-s unique
         run_files = update_duplicated_rf_id(run_files);
     end
-    keep_par_cl_running = ~opt.tmp_only || nargout>3;
 
     % Generate unique temporary sqw files, one for each of the spe files
-    [tmp_file,data_range,update_runid,grid_size,parallel_job_dispatcher]=...
-        convert_to_tmp_files(run_files,sqw_file,...
-        pix_db_range,grid_size_in,opt.accumulate,keep_par_cl_running);
-    if numel(ix) == numel(indx) % if all files are present, check if
-        % estimated pixel range is equal to the actual range of all
-        % contributing runfiles. Give warning about possibility to lose
-        % pixels if actual range differs from the expected range
-        verify_pix_range_est(data_range(:,1:4),pix_range_est,log_level);
+    [grid_size,pix_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
+        pix_db_range,grid_size_in,opt.tmp_only);
+    verify_pix_range_est(pix_range,pix_range_est,log_level);
+
+    varargout{1} = parallel_job_dispatcher;
+
+    if use_partial_tmp
+        delete_tmp = false;
+    end
+
+    if accumulate_old_sqw
+
+        if use_partial_tmp  % if necessary, add already generated and present tmp files
+            tmp_file = {all_tmp_files{ind_tmp_files_present},tmp_file{:}}';
+
+            delete_tmp = numel(tmp_file) == n_all_spe_files; % final step in combining tmp files, all tmp files will be generated;
+
+        end
+        pix_range = [min(pix_range(1,:),pix_range_present(1,:));...
+            max(pix_range(2,:),pix_range_present(2,:))];
     end
 
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
@@ -511,7 +522,7 @@ end
 %---------------------------------------------------------------------------------------
 
 function  [grid_size,pix_range,update_runids,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
-    pix_db_range,grid_size_in,gen_tmp_files_only,keep_parallel_pool_running)
+    pix_db_range,grid_size_in,gen_tmp_files_only)
     % if further operations are necessary to perform with generated tmp files,
     % keep parallel pool running to save time on restarting it.
 
@@ -576,7 +587,7 @@ if use_separate_matlab
         grid_size_in,pix_db_range);
     %
     [outputs,n_failed,~,jd] = jd.start_job('gen_sqw_files_job',...
-        common_par,loop_par,true,num_matlab_sessions,keep_parallel_pool_running);
+        common_par,loop_par,true,num_matlab_sessions);
     %
     if n_failed == 0
         outputs   = outputs{1};

@@ -159,40 +159,40 @@ classdef MPI_clusters_factory < handle
 
             % If cluster not initialised or requirements have changed
             % rebuild cluster
-            if isempty(mis.cluster) || ...
-                    ~strcmpi(class(mis.cluster), ['cluster' obj.parallel_cluster_name_]) || ...
-                    n_workers ~= mis.cluster.n_workers
+            if mis.requirements_changed(n_workers, ['cluster' obj.parallel_cluster_name_])
 
                 log_level = config_store.instance().get_value('hor_config','log_level');
 
-                mis.cluster = obj.parallel_cluster;
-                if isempty(mis.cluster)
+                cl = obj.parallel_cluster;
+
+                if isempty(cl)
                     error('HERBERT:MPI_clusters_factory:not_available',...
                           ' Can not run jobs in parallel. Any parallel framework is not available. Worker may be not installed.')
                 end
 
                 try
-                    mis.cluster = mis.cluster.init(n_workers,cluster_to_host_exch_fmwork,log_level);
+                    mis.cluster = cl.init(n_workers,cluster_to_host_exch_fmwork,log_level);
                 catch ME
+                    ME
                     switch ME.identifier
                       case 'HERBERT:ClusterWrapper:runtime_error'
-                        if log_level > -1
-                            fprintf(2,'**** Cluster Initialization failure: %s\n',ME.message);
-                        end
+                        fprintf(2,'**** Cluster Initialization failure: %s\n',ME.message);
                         mis.cluster=[];
                       otherwise
                         rethrow(ME);
                     end
 
                 end
-            else
-                mis.cluster = mis.cluster.set_mess_exchange(cluster_to_host_exch_fmwork);
-                if ~is_folder(cluster_to_host_exch_fmwork.mess_exchange_folder) % Ensure folder isn't deleted
-                   mkdir(cluster_to_host_exch_fmwork.mess_exchange_folder)
-                end
+
+%             else
+%                 mis.cluster = mis.cluster.set_mess_exchange(cluster_to_host_exch_fmwork);
 
             end
 
+            exch_folder = mis.cluster.get_exchange_framework().mess_exchange_folder;
+            if ~is_folder(exch_folder) % Ensure folder isn't deleted
+                mkdir(exch_folder)
+            end
             cluster = mis.cluster;
         end
 

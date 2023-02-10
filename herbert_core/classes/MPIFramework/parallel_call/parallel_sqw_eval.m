@@ -10,9 +10,15 @@ function wout = parallel_sqw_eval(func, w, nWorkers, args)
                          'merge_data', []);
 
     jd = JobDispatcher.instance();
-    res = jd.start_job('ParallelSQWEval', common_data, loop_data, true, nWorkers);
+    [res, n_failed] = jd.start_job('ParallelSQWEval', common_data, loop_data, true, nWorkers);
+    if n_failed
+        jd.display_fail_job_results(res, n_failed, 1);
+        error('HORACE:parallel_sqw_eval:job_failed', ...
+              'Failure in parallel job');
+    end
 
     wout = cellfun(@copy, w, 'UniformOutput', false);
+    res
 
     if iscell(res{1})
         extract = @(x, i) x{i}.pix;

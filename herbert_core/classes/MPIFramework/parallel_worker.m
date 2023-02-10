@@ -143,12 +143,9 @@ end
 
 num_of_runs = 0;
 while keep_worker_running
-
+    sprintf("Daaa %d", mis.labIndex)
     num_of_runs = num_of_runs+1;
     if do_logging; log_num_runs(num_of_runs); end
-%     fprintf('   *******************************************\n');
-%     fprintf('   ******  LabN %d  : RUN N : %d  Task: %s *\n',intercomm.labIndex,num_of_runs,fbMPI.job_id);
-%     fprintf('   *******************************************\n');
 
 
     %% --------------------------------------------------------------------
@@ -381,7 +378,10 @@ while keep_worker_running
 
     if do_logging;  fprintf(fh,'************* finishing subtask: %s \n',...
             fbMPI.job_id); end
+
+    sprintf("Dooo %d", mis.labIndex)
     [ok,err_mess,je] = je.finish_task();
+    sprintf("Deee %d", mis.labIndex)
     % migrate job folder for message exchange without deleting the old
     % one
     je=je.migrate_job_folder(false);
@@ -504,7 +504,8 @@ end
 end
 
 function check_cancellation_status(je, state)
-is_cancelled = je.is_job_cancelled();
+    is_cancelled = je.is_job_cancelled();
+    state
 if is_cancelled
     error('JOB_EXECUTOR:cancelled', 'Job cancelled %s.', state)
 end

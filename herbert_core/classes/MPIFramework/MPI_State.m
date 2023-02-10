@@ -179,9 +179,15 @@ classdef MPI_State < handle
         function set.cluster(obj, val)
             if ~isempty(val) && ~isa(val, 'ClusterWrapper')
                 error('MPI_STATE:invalid_argument',...
-                    ' value assigned to cluster has to be a child of ClusterWrapper')
+                      ' value assigned to cluster has to be a child of ClusterWrapper')
             end
-            obj.cluster_ = val;
+            if ~isequal(val, obj.cluster_)
+                tmp = obj.cluster_;
+                if ~isempty(obj.cluster_)
+                    tmp = tmp.finalize_all();
+                end
+                obj.cluster_ = val;
+            end
         end
 
         %-------------------------------------------------------
@@ -212,6 +218,16 @@ classdef MPI_State < handle
                     'input for MPI framework field should be instance of iMessageFramework class');
             end
             obj.mpi_framework_ = val;
+        end
+
+        function is = requirements_changed(obj, n_workers, cluster_name)
+            is = isempty(obj.cluster);
+            if ~is && exist('n_workers', 'var') && ~isempty(n_workers)
+                is = n_workers ~= obj.cluster.n_workers;
+            end
+            if ~is && exist('cluster_name', 'var') && ~isempty(cluster_name)
+                is = ~strcmpi(class(obj.cluster), cluster_name);
+            end
         end
 
         %-------------------------------------------------------
@@ -253,6 +269,7 @@ classdef MPI_State < handle
                 if ~exist('tps', 'var')
                     tps = [];
                 end
+
                 if isempty(tps)
                     if isempty(obj.start_time_)
                         obj.start_time_ = tic;
@@ -265,11 +282,13 @@ classdef MPI_State < handle
                         end
                     end
                 end
+
                 obj.time_per_step_ = tps;
+
                 if ~exist('additional_info', 'var')
                     additional_info = [];
                 end
-                %
+
                 obj.logger_(step,n_steps,tps,additional_info);
             end
         end
@@ -301,7 +320,15 @@ classdef MPI_State < handle
             if ~isempty(obj.debug_log_handle_)
                 fclose(obj.debug_log_handle_);
             end
-            obj.instance('delete');
+            obj.is_deployed_=false;
+            obj.logger_ = [];
+            obj.check_cancelled_=[];
+            obj.is_tested_ = false;
+            obj.start_time_=[];
+            obj.time_per_step_= 0;
+            obj.mpi_framework_ = [];
+            obj.debug_log_handle_ = [];
+            obj.cluster_ = [];
         end
 
     end

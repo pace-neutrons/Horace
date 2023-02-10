@@ -66,7 +66,7 @@ classdef ClusterWrapper
         % to run a remote job. The function itself must be
         % on the Matlab data search path before Horace is initialized.
         % Can be redefined in parallel_config.
-        worker_name_ = 'worker_v2';
+        worker_name_ = 'worker_v4';
 
         % if the worker is compiled Matlab application or Matlab script
         is_compiled_script_ = false;
@@ -111,7 +111,7 @@ classdef ClusterWrapper
             'HERBERT_PARALLEL_WORKER',... the parameters string used as input arguments for the parallel job. If its Matlab, it is the worker name and the run parameters.
             'WORKER_CONTROL_STRING',...  input for the script, containing encoded info about the location of the exchange folder
             'DO_PARALLEL_MATLAB_LOGGING',...  if 'true' each parallel process will write progress log
-            }, {'','matlab','worker_v2','','false'});
+            }, {'','matlab','worker_v4','','false'});
 
         %------------------------------------------------------------------
 
@@ -583,14 +583,6 @@ classdef ClusterWrapper
 
             if ~isempty(obj.mess_exchange_)
                 obj.mess_exchange_.finalize_all();
-                new_mess_exchange_folder = obj.mess_exchange_.next_message_folder_name;
-                if is_folder(new_mess_exchange_folder)
-                    [ok,mess]=rmdir(new_mess_exchange_folder,'s');
-                    if ~ok
-                        warning(' can not clean-up prospective message exchange folder %s Reason %s',...
-                            new_mess_exchange_folder,mess);
-                    end
-                end
                 obj.mess_exchange_ = [];
             end
             % clear enviromental variables set earlier to avoid
@@ -598,9 +590,6 @@ classdef ClusterWrapper
             vars = obj.common_env_var_.keys;
             cellfun(@(var)setenv(var,''),vars);
 
-            % Clear persistent state
-            mis = MPI_State.instance();
-            mis.cluster = [];
         end
 
         function [outputs,n_failed,obj]=  retrieve_results(obj)

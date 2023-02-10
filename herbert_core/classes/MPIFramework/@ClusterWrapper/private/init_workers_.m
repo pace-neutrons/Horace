@@ -4,6 +4,7 @@ function obj = init_workers_(obj,je_init_message,task_init_mess,log_prefix)
 %
 
 me = obj.mess_exchange_;
+
 n_workers = obj.n_workers;
 me = me.set_framework_range(0,n_workers);
 % clear up interactive pool if exist as this method will start
@@ -19,9 +20,9 @@ for tid=n_workers:-1:1
             n_locked = n_locked+1;
             wlock_obj_arr{n_locked}= wlock;
         else
-        error('CLUSTER_WRAPPER:runtime_error',...
-            ' Can not send starting message for job %s, worker %d; Error: %s',...
-            me.job_id,tid,err);
+            error('CLUSTER_WRAPPER:runtime_error',...
+                  ' Can not send starting message for job %s, worker %d; Error: %s',...
+                  me.job_id,tid,err);
         end
     end
 end
@@ -40,8 +41,3 @@ for tid=n_workers:-1:1
             me.job_id,tid,err);
     end
 end
-
-
-
-
-
