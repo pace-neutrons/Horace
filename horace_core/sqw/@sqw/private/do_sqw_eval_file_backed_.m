@@ -22,6 +22,8 @@ function wout = do_sqw_eval_file_backed_(wout, sqwfunc, pars, outfile)
 % whilst avoiding an extra loop over pixels.
 %
 %==============================================================================
+%
+%Re #928 this function should be fixed. It does not work any more (and did not work before the changes anyway)
 
 pg_size = wout.pix.base_page_size;
 pix = wout.pix;
@@ -53,10 +55,10 @@ for chunk_num = 1:numel(npix_chunks)
         % the output file. We don't want to retain changes made to the
         % input PixelData object, so we discard edits to the cache when we
         % load the next page of pixels.
-        pix.advance('nosave', true);
+        pix = pix.advance();
     else
         % Make sure we discard the changes made to the final page's cache
-        pix.move_to_page(1, 'nosave', true);
+        pix = pix.move_to_page(1, 'nosave', true);
         break;
     end
 end

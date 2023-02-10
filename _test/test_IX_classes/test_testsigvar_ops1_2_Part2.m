@@ -26,7 +26,7 @@ classdef test_testsigvar_ops1_2_Part2 < TestCaseWithSave
         % Test adding scalar objects
         % - tests the workings of binary_op_manager_single
         %--------------------------------------------------------------------------
-        function test_wscal_scal__wscal_scal (self)
+        function test_wscal_scal__wscal_scal (~)
             % Add scalar objects with scalar signal
             w1 = testsigvar(3,25);
             w2 = sigvar(4,144);
@@ -41,7 +41,7 @@ classdef test_testsigvar_ops1_2_Part2 < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_wscal_1by2__wscal_1by2 (self)
+        function test_wscal_1by2__wscal_1by2 (~)
             % Add scalar objects that have vector signal arrays
             w1 = testsigvar([31,5],[2,3]);
             w2 = sigvar([14,16],4);
@@ -56,7 +56,7 @@ classdef test_testsigvar_ops1_2_Part2 < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_wscal_1by2__wscal_2by1_FAIL (self)
+        function test_wscal_1by2__wscal_2by1_FAIL (~)
             % Add scalar objects that have different size signal arrays
             % *** Should throw an error
             w_1by2 = testsigvar([31,5],[2,3]);

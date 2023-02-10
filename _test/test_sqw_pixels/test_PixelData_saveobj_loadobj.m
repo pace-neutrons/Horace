@@ -7,16 +7,15 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
 
     methods (Access = private)
 
-        function [pix_data,pix_range] = get_random_pix_data_(~, rows)
+        function [pix_data,data_range] = get_random_pix_data_(~, rows)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, rows);
-            pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
             pix_data = PixelDataBase.create(data);
-            pix_data.pix_range = pix_range;
+            data_range = pix_data.data_range;
         end
 
         function ref_range = get_ref_range(~,data)
-            ref_range = [min(data(1:4, :),[],2),...
-                max(data(1:4, :),[],2)]';
+            ref_range = [min(data(1:9, :),[],2),...
+                max(data(1:9, :),[],2)]';
         end
 
     end
@@ -104,7 +103,7 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
             pix4 = PixelDataBase.create(data);
             pix = [pix1,pix2;pix3,pix4];
 
-            pic_strc = struct(pix);
+            pic_strc = pix.to_struct();
 
             rec_pix = PixelDataBase.create(pic_strc);
 
@@ -115,10 +114,10 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
         end
 
         function test_saveobj_loadobj(obj)
-            [data,pix_range] = obj.get_random_pix_data_(100);
+            [data,dat_range] = obj.get_random_pix_data_(100);
             pix = PixelDataBase.create(data);
             assertEqual(pix.num_pixels,100);
-            assertEqual(pix.pix_range,pix_range);
+            assertEqual(pix.data_range,dat_range);
 
             pic_strc = saveobj(pix);
             rec_pix = PixelDataBase.loadobj(pic_strc);
@@ -127,12 +126,12 @@ classdef test_PixelData_saveobj_loadobj < TestCase & common_pix_class_state_hold
         end
 
         function test_to_struct_from_struct(obj)
-            [data,pix_range] = obj.get_random_pix_data_(100);
+            [data,data_range] = obj.get_random_pix_data_(100);
             pix = PixelDataBase.create(data);
             assertEqual(pix.num_pixels,100);
-            assertEqual(pix.pix_range,pix_range);
+            assertEqual(pix.data_range,data_range);
 
-            pic_strc = struct(pix);
+            pic_strc = pix.to_struct();
 
             rec_pix = PixelDataBase.create(pic_strc);
 

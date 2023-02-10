@@ -8,7 +8,7 @@ for i=1:n_files
     ldr_list{i} = sqw_formats_factory.instance().get_loader(obj.infiles{i});
 end
 %
-obj.pix_range_ = pix_combine_info.recalc_pix_range_from_loaders(ldr_list);
+obj.data_range_ = pix_combine_info.recalc_data_range_from_loaders(ldr_list);
 %
 for i=1:n_files
     ldr_list{i}.delete();

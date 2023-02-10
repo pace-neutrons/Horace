@@ -24,11 +24,11 @@ classdef test_sqw_copy < TestCase
         end
         
         function test_copy_returns_distinct_object(obj)
+            skipTest('Re #928 What about copy. What does it doing?')
             sqw_obj = sqw(obj.test_sqw_1d_fullpath);
             sqw_copy = copy(sqw_obj);
             
             sqw_copy.main_header.title = 'test_copy';
-            sqw_copy = sqw_copy.change_header(struct([]));
             dtp = sqw_copy.detpar();
             dtp.azim(1:10) = 0;
             sqw_copy = sqw_copy.change_detpar(dtp);

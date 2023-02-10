@@ -23,13 +23,13 @@ if isstruct(S)
                 for i=1:numel(S)
                     obj(i).set_data('all',S(i).data);
                     obj(i).set_range(S(i).pix_range);
-                    obj(i).file_path = S(i).file_path;
+                    obj(i).full_filename = S(i).full_filename;
                 end
             elseif isfield(S, 'data') % Single object
                 obj = PixelDataBase.create();
                 obj.set_data('all',S.data);
                 obj.set_range(S.pix_range);
-                obj.file_path = S.file_path;
+                obj.full_filename = S.full_filename;
             else
                 error('HORACE:PixelData:invalid_argument',...
                       'Unknown PixelData input structure, missing data or array_data');
@@ -53,11 +53,11 @@ if isstruct(S)
                     obj(i).reset_changed_coord_range('coordinates');
                 end
 
-                obj(i).file_path = S(i).file_path_;
+                obj(i).full_filename = S(i).full_filename_;
             end
         else
             error('HORACE:PixelData:invalid_argument',...
-                'Unknown PixelData input structire version');
+                'Unknown PixelData input stricture version');
         end
     end
 else

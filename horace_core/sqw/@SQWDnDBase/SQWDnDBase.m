@@ -36,6 +36,8 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = cut(obj, varargin);    % take cut from a sqw or sqw/dnd object
         wout = cut_dnd(obj,varargin); % legacy entrance for cut for dnd objects
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
+        %
+        wout = func_eval(win, func_handle, pars, varargin);
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -134,7 +136,6 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % build dispersion relation
         %                             % on image of sqw or dnd object
         %------------------------------------------------------------------
-        wout = func_eval(win, func_handle, pars, varargin);
         wout = sqw_eval(win, sqwfunc, pars, varargin);
         %------------------------------------------------------------------
         varargout = multifit_func (varargin);
@@ -143,6 +144,10 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
     methods (Access = protected)
+        function [func_handle, pars, opts] = parse_funceval_args(win, func_handle, pars, varargin)
+            % Process arguments of func_eval function
+            [func_handle, pars, opts] = parse_funceval_args_(win, func_handle, pars, varargin{:});
+        end
         wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 

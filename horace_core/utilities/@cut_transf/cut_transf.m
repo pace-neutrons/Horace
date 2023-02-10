@@ -5,7 +5,6 @@ classdef cut_transf
     %
     % More generally, it used to describe cut to combine with another cut
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         zone_id  %a number, uniquely defining zone to combine
@@ -19,14 +18,14 @@ classdef cut_transf
         %
         zone_center   % hkl coordinates of the zone centre to transform
         %
-        target_center % hkl coorinates of the zones to make transformation to
+        target_center % hkl coordinates of the zones to make transformation to
         %
         %
-        transf_matrix % 3x3 matrix describing the symmentry transfornaton used
+        transf_matrix % 3x3 matrix describing the symmetry transformational used
         %  to convert coordinates of this zone into coordinates of target
         %  zone
-        shift % 3x1 vector, descibing the shift used to convert coordinates of
-        % this zone into coodinates of the target zone.
+        shift % 3x1 vector, describing the shift used to convert coordinates of
+        % this zone into coordinates of the target zone.
         
         correct_fun % handle to function, to apply to sqw object correcting
         % some object parameters (e.g. magnetic form factor or Boze factor)
@@ -79,13 +78,13 @@ classdef cut_transf
         %-----------------------------------------------------------------
         % Signatures of public methods, defined in class folder
         %
-        % caclculates and defines transformation, used by
+        % calculates and defines transformation, used by
         % combine_equivalent_zones algorithm (reflection)
         % Nullifies shift transformation if any was defined
         obj=set_sigma_transf(obj);
         % Define shift transformation, used by advanced combine_equivalent_zones
-        % algrithm
-        % resets any matrix transformations to unit transformaton if any
+        % algorithm
+        % resets any matrix transformations to unit transformation if any
         % was defined
         obj=set_shift_transf(obj);
         %-----------------------------------------------------------------

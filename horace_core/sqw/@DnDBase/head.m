@@ -25,9 +25,12 @@ function varargout = head(obj,varargin)
 %               summary for each sqw object
 %
 % Optional keyword:
-%   '-full'     Keyword option; if present, then returns all header and the
+%   '-full'     if present, then returns all header and the
+%               image information.
+%   '-data_only' if present, then returns all header and the
 %              detector information. In fact, it returns the full data structure
 %              except for the signal, error and pixel arrays.
+
 %
 % Output (optional):
 % ------------------
@@ -39,7 +42,7 @@ function varargout = head(obj,varargin)
 
 
 % Check input arguments
-[ok,mess,hfull] = parse_char_options(varargin,{'-full'});
+[ok,mess,hfull,data_only] = parse_char_options(varargin,{'-full','-data_only'});
 if ~ok
     error('HORACE:DnDBase:invalid_argument',mess);
 end
@@ -49,7 +52,7 @@ nw = numel(obj);
 
 hout = cell(1,nw);
 for i=1:nw
-    hout{i} =obj(i).to_head_struct(hfull);
+    hout{i} =obj(i).to_head_struct(hfull,data_only);
 end
 
 if nout>0

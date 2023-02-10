@@ -1,5 +1,5 @@
 function  [data_sum,img_range,job_disp]=get_pix_comb_info_(infiles, ...
-    pix_range,job_disp, ...
+    data_range,job_disp, ...
     allow_equal_headers,keep_runid,drop_subzone_headers)
 % The part of write_nsqw_to_sqw algorithm, responsible for preparing write
 % pix operation
@@ -49,7 +49,7 @@ nfiles=length(infiles);
 if ~all(cellfun(@is_file, infiles))
     exst = cellfun(@is_file, infiles);
     error('HORACE:write_nsqw_to_sqw:invalid_argument',...
-          'Can not find files: %s ',infiles{exst})
+        'Can not find files: %s ',infiles{exst})
 end
 
 % *** Check output file can be opened
@@ -69,11 +69,12 @@ end
 %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs]
 [~,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
     accumulate_headers_job.read_input_headers(infiles);
-if all(all(pix_range == PixelDataBase.EMPTY_RANGE_))
-    pix_range = pix_combine_info.recalc_pix_range_from_loaders(ldrs);
-    pix_range_calculated = true;
+undef = data_range == PixelDataBase.EMPTY_RANGE;
+if any(undef(:))
+    data_range = pix_combine_info.recalc_data_range_from_loaders(ldrs);
+    data_range_calculated = true;
 else
-    pix_range_calculated = false;
+    data_range_calculated = false;
 end
 
 % Check consistency:
@@ -91,7 +92,7 @@ img_range=datahdr{1}.img_range;
 for i=2:nfiles
     img_range=[min(img_range(1,:),datahdr{i}.img_range(1,:));max(img_range(2,:),datahdr{i}.img_range(2,:))];
 end
-if pix_range_calculated
+if data_range_calculated
     %TODO: THIS SHOULD WORK BUT IT DOES NOT. What is the problem?
     %     if any(abs(pix_range(:)-img_range(:))> eps(single(1)))
     %         error('HORACE:write_nsqw_to_sqw:runtime_error', ...
@@ -110,8 +111,13 @@ else
 end
 mhc = main_header_cl('nfiles',nfiles_tot);
 
-ab = axes_block.get_from_old_data(datahdr{1});
-proj = ortho_proj.get_from_old_data(datahdr{1});
+if isa(datahdr{1},'dnd_metadata')
+    ab = datahdr{1}.axes;
+    proj = datahdr{1}.proj;
+else
+    ab = axes_block.get_from_old_data(datahdr{1});
+    proj = ortho_proj.get_from_old_data(datahdr{1});
+end
 sqw_data = DnDBase.dnd(ab,proj);
 sqw_data.filename=mhc.filename;
 sqw_data.filepath=mhc.filepath;
@@ -187,7 +193,7 @@ end
 % instead of the real pixels to place in target sqw file, place in pix field the
 % information about the way to get the contributing pixels
 pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
-pix.pix_range = pix_range;
+pix.data_range = data_range;
 
 data_sum= struct('main_header',mhc,'experiment_info',[],'detpar',det);
 data_sum.data = sqw_data;

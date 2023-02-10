@@ -45,17 +45,23 @@ classdef test_sqw_main < TestCase & common_state_holder
             assertEqualToTol(loaded_dnd, test_dnd,1.e-12, 'ignore_str', true);
         end
 
-        function test_setting_pix_page_size_in_constructor_pages_pixels(obj)
+        function test_setting_pix_page_size_in_constructor_pages_pixels(~)
             % hide warnings when setting pixel page size very small
 
+            hc = hor_config;
+            mmc = hc.mem_chunk_size;
+            clOb = onCleanup(@()set(hc,'mem_chunk_size',mmc));
+            page_size = 1000;
+            hc.mem_chunk_size = page_size;
+            %
             pths = horace_paths();
             fpath = fullfile(pths.test_common, 'sqw_1d_2.sqw');
 
             % set page size accepting half of the pixels
-            page_size = 4324/2;
-            sqw_obj = sqw(fpath, 'pixel_page_size', page_size, ...
+            sqw_obj = sqw(fpath, ...
                 'file_backed',true);
             sqw_pix_pg_size = sqw_obj.pix.page_size;
+
 
             % check we're actually paging pixels
             assertTrue(sqw_obj.pix.num_pixels > sqw_pix_pg_size);
@@ -71,20 +77,5 @@ classdef test_sqw_main < TestCase & common_state_holder
             sqw_pix_pg_size = sqw_obj.pix.page_size;
             assertEqual(sqw_pix_pg_size, sqw_obj.pix.num_pixels);
         end
-
-        function test_error_setting_negative_pix_page_size_in_constructor(obj)
-            fpath = fullfile(obj.tests_dir, 'common_data', 'sqw_1d_2.sqw');
-            page_size_bytes = -1000;
-            f = @() sqw(fpath, 'pixel_page_size', page_size_bytes);
-            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
-        end
-
-        function test_error_setting_non_numeric_pix_page_size_in_constructor(obj)
-            fpath = fullfile(obj.tests_dir, 'common_data', 'sqw_1d_2.sqw');
-            s = struct();
-            f = @() sqw(fpath, 'pixel_page_size', s);
-            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
-        end
-
     end
 end

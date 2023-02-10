@@ -67,9 +67,11 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
             % retrieve sqw-file version the particular loader works with
             ver = 3.2;
         end
-        % Method does class dependent changes while updating from sqw file
-        % format v3.2 to file format version 3.21
-        new_obj = do_class_dependent_updates(obj,new_obj);
+        % updating to recent file format is defined in sqw_binfile_common, 
+        % so this function is defined there and removed from here as it was for 
+        % v3.2->v3.21 file formats.
+        % new_obj = do_class_dependent_updates(obj,new_obj,varargin);
+        % new_obj = do_class_dependent_updates(obj,new_obj,varargin);
     end
     %
     %

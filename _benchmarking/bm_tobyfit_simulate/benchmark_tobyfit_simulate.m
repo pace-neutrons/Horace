@@ -1,7 +1,7 @@
 function benchmark_tobyfit_simulate(nDims,dataInfo,dataSet,nProcs,func_handle,params,filename)
 %BENCHMARK_TOBYFIT_SIMULATE This function initiates the benchmarks for
 %simulate()
-% This function is used to run all the individual benchamrks in the 3
+% This function is used to run all the individual benchmarks in the 3
 % test_tobyfit_simulate classes.
 % This function generates cuts from sqw or dnd objects and uses the
 % profiler to generate a csv file of timing data.
@@ -26,7 +26,7 @@ function benchmark_tobyfit_simulate(nDims,dataInfo,dataSet,nProcs,func_handle,pa
 % Custom example:
 % >>> benchmark_tobyfit_simulate(1,'','medium',3,4,@slow_func,{[250 0 2.4 10 5],@demo_FM_spinwaves,10^0},'custom.csv')
 % >>> benchmark_tobyfit_simulate(1,'saved.sqw',9,3,4,@slow_func,{[250 0 2.4 10 5],@demo_FM_spinwaves,10^0},'custom.csv')
-%% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
+%% Setup nprocs and other config info with hpc_config() (save initial config details for later)
 
     do_profile = exist('filename', 'var');
 

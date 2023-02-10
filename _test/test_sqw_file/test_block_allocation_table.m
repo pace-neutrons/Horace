@@ -37,8 +37,102 @@ classdef test_block_allocation_table < TestCase
             test_class = binfile_v4_block_tester();
             bac  = bac.init_obj_info(test_class);
             assertTrue(bac.initialized);
-
         end
+        function test_init_with_insertion(~)
+            data_list =  {data_block('','level2_a'),data_block('','level2_b')...
+                data_block('','level2_c'),dnd_data_block(),data_block('','level2_d'),...
+                pix_data_block()};
+            bac = blockAllocationTable(0,data_list);            
+
+            assertFalse(bac.initialized);            
+            
+            pdb = pix_data_block();
+            pdb.npixels = 100;
+            pdb.position = 500;            
+            bac = bac.set_data_block(pdb);
+
+            test_class = binfile_v4_block_tester();            
+            bac = bac.init_obj_info(test_class,'-insertion','-test_mode');
+
+            assertEqual(bac.free_spaces_and_size,uint64([439;60]));
+
+            db = bac.get_data_block(dnd_data_block);
+            assertEqual(db.position+db.size,bac.end_of_file_pos);
+        end
+
+        function test_set_overlapped_block_position_throws(~)
+            data_list = {data_block('','level2_a'),data_block('','level2_b')...
+                data_block('','level2_c'),dnd_data_block(),data_block('','level2_d'),...
+                pix_data_block()};
+            bac = blockAllocationTable(10,data_list);
+            assertFalse(bac.initialized);
+            first_free = bac.blocks_start_position;
+            assertEqual(first_free,bac.end_of_file_pos);
+            assertTrue(isempty(bac.free_spaces_and_size));
+
+            % first block insertion
+            pdb = data_block('','level2_b');
+            block_size = 1000;
+            pdb.position = 200;
+            pdb.size     = block_size;
+
+            assertEqual(pdb.size,uint64(block_size));
+            assertExceptionThrown(@()set_data_block(bac,pdb), ...
+                'HORACE:blockAllocatinTable:invalid_argument');
+            pdb_w = data_block('missing_block','missing_prop');
+            assertExceptionThrown(@()set_data_block(bac,pdb_w), ...
+                'HORACE:blockAllocatinTable:invalid_argument');
+
+            pdb.position = 1000;
+            bac = bac.set_data_block(pdb);
+
+            % second block insertion
+            pdb2 = data_block('','level2_c');
+            pdb2.position = 500;
+            pdb2.size = 1000;
+            assertExceptionThrown(@()set_data_block(bac,pdb2), ...
+                'HORACE:blockAllocatinTable:invalid_argument');
+            pdb2.position = 2000;
+            bac = bac.set_data_block(pdb2);
+
+            % third block insertion
+            pdb = data_block('','level2_d');
+            pdb.position = 1000;
+            pdb.size = 500;
+            assertExceptionThrown(@()set_data_block(bac,pdb), ...
+                'HORACE:blockAllocatinTable:invalid_argument');
+            pdb.position = 400;
+            bac = bac.set_data_block(pdb);
+
+            assertEqual(bac.end_of_file_pos,pdb2.position+block_size);
+            assertEqual(bac.free_spaces_and_size,[first_free,900;400-first_free-1,99]);            
+        end
+
+
+        function test_set_const_block_position(~)
+            data_list = {data_block('','level2_a'),data_block('','level2_b')...
+                data_block('','level2_c'),dnd_data_block(),data_block('','level2_d'),...
+                pix_data_block()};
+            bac = blockAllocationTable(10,data_list);
+            assertFalse(bac.initialized);
+            first_free = bac.blocks_start_position;
+            assertEqual(first_free,bac.end_of_file_pos);
+            assertTrue(isempty(bac.free_spaces_and_size));
+
+            pdb = pix_data_block();
+            pdb.position = 400;
+            pdb.npixels = 1000;
+
+            block_size = 1000*9*4+12;
+
+
+            assertEqual(pdb.size,uint64(block_size))
+            bac = bac.set_data_block(pdb);
+
+            assertEqual(bac.end_of_file_pos,pdb.position+block_size);
+            assertEqual(bac.free_spaces_and_size,[first_free;400-first_free-1]);
+        end
+
         function test_set_block_list_with_gaps(~)
             bat = blockAllocationTable();
             blocks = {data_block('','a',174+5,10),...
@@ -208,15 +302,15 @@ classdef test_block_allocation_table < TestCase
 
             bll = bac.blocks_list;
             assertEqual(bll{1}.position,bac.blocks_start_position);
-            assertEqual(bll{1}.size,20);
+            assertEqual(bll{1}.size,uint64(20));
             assertEqual(bll{2}.position,bll{1}.position+bll{1}.size);
-            assertEqual(bll{2}.size,30);
+            assertEqual(bll{2}.size,uint64(30));
             assertEqual(bll{3}.position,bll{2}.position+bll{2}.size);
-            assertEqual(bll{3}.size,40);
+            assertEqual(bll{3}.size,uint64(40));
             assertEqual(bll{4}.position,bll{3}.position+bll{3}.size);
-            assertEqual(bll{4}.size,252);
+            assertEqual(bll{4}.size,uint64(252));
             assertEqual(bll{5}.position,bll{4}.position+bll{4}.size);
-            assertEqual(bll{5}.size,50);
+            assertEqual(bll{5}.size,uint64(50));
 
             %
             fs_s = bac.free_spaces_and_size;
@@ -234,7 +328,7 @@ classdef test_block_allocation_table < TestCase
             assertEqual(size(fs_s_new,2),1);
             % free space on place of the old bll{3};
             assertEqual(fs_s_new(1,1),bll{3}.position)
-            assertEqual(double(fs_s_new(2,1)),bll{3}.size)
+            assertEqual(fs_s_new(2,1),bll{3}.size)
             % end of file position
             assertEqual(bac.end_of_file_pos,old_eof_pos+50)
 

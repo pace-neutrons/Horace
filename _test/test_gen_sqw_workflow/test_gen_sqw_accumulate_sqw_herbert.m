@@ -168,13 +168,13 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
             [~,~,~,~,~,~,det,ldrs] = accumulate_headers_job.read_input_headers(tmp_files);
             %
-            pix_range = PixelDataBase.EMPTY_RANGE_;
+            data_range = PixelDataBase.EMPTY_RANGE;
             for i=1:numel(tmp_files)
-                loc_range = ldrs{i}.get_pix_range();
-                pix_range = [min(loc_range(1,:),pix_range(1,:));...
-                    max(loc_range(2,:),pix_range(2,:))];
+                loc_range = ldrs{i}.get_data_range();
+                data_range = [min(loc_range(1,:),data_range(1,:));...
+                    max(loc_range(2,:),data_range(2,:))];
             end
-            assertElementsAlmostEqual(res.pix_range,pix_range);
+            assertElementsAlmostEqual(res.data_range,data_range);
             
             assertEqual(numel(det.group),96);
             

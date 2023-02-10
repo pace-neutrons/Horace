@@ -23,9 +23,8 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
             % sqw_2d_1.sqw has ~25,000 pixels, at 5000 pixels per page gives us 5
             % pages of pixel data
-            pixel_page_size = 5000;
-            obj.sqw_2d_paged = sqw(obj.test_sqw_file_path, 'pixel_page_size', ...
-                                   pixel_page_size, 'file_backed', true);
+            %pixel_page_size = 5000; --> set page_size in configuration
+            obj.sqw_2d_paged = sqw(obj.test_sqw_file_path,'file_backed', true);
 
             pix = obj.sqw_2d_paged.pix;
             assertTrue(pix.is_filebacked);
@@ -83,9 +82,8 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             shuffled_data = obj.shuffle_pixel_bin_rows(PixelDataBase.create(data), npix).data;
 
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
+            shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data);
 
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.do_check_combo_arg = false;
@@ -104,9 +102,8 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             shuffled_data = obj.shuffle_pixel_bin_rows(PixelDataBase.create(data), npix).data;
 
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
+            shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data);
 
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.do_check_combo_arg = false;
@@ -162,6 +159,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             % equality of pixels. So, in one of the sqw objects, we zero out all
             % the bins we do not intend to compare. This way, if we do compare any
             % of those bins, there will be a mismatch.
+
             original_sqw = copy(obj.sqw_2d_paged);
             npix = [10, 5, 6, 3, 6];
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
@@ -178,9 +176,8 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
                 edited_data(:, bin_start_idxs(bin_num):bin_end_idxs(bin_num)) = 0;
             end
 
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            edited_pix = obj.get_pix_with_fake_faccess(edited_data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
+            edited_pix = obj.get_pix_with_fake_faccess(edited_data);
 
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.do_check_combo_arg = false;
@@ -264,10 +261,8 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             end
         end
 
-        function pix = get_pix_with_fake_faccess(data, npix_in_page)
-            faccess = FakeFAccess(data);
-            bytes_in_pixel = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
-            pix = PixelDataBase.create(faccess, npix_in_page*bytes_in_pixel);
+        function pix = get_pix_with_fake_faccess(data)
+            pix = PixelDataFileBacked(data);
         end
 
     end

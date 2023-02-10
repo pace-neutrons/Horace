@@ -1,15 +1,16 @@
-function sqw_display_single(din,npixtot,type)
+function sqw_display_single(din,npixtot,nfiles,type)
 % Display useful information from an sqw object
 %
 % Syntax:
 %
 %   >> sqw_display_single (din)
-%   >> sqw_display_single (din,npixtot,type)
+%   >> sqw_display_single (din,npixtot,nfiles,type)
 %
 %   din             Structure from sqw object (sqw-type or dnd-type)
 %
 % Optionally:
 %   npixtot         total number of pixels if sqw type
+%   nfiles          number of contribuging files
 %   type            data type: 'a' or 'b+'
 %                  
 %   If the optional parameters are given, then only the header information
@@ -46,7 +47,7 @@ if ~exist('type','var') || isempty(type)
     end
 end
 
-if strcmpi(type,'a')
+if isa(din,'sqw') || isfield(din,'main_header')
     sqw_type=true;  % object will be dnd type
     nfiles = din.main_header.nfiles;
 else
@@ -84,7 +85,7 @@ disp(['     alpha=',sprintf('%-11.4g',din.angdeg(1)),' beta=',sprintf('%-11.4g',
 disp(' ')
 
 
-if sqw_type
+if sqw_type || exist('nfiles','var') && isnumeric(nfiles)
     disp( ' Extent of data: ')
     disp(['     Number of spe files: ',num2str(nfiles)])
     disp(['        Number of pixels: ',num2str(npixtot)])

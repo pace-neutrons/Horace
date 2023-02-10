@@ -1,5 +1,5 @@
 classdef binfile_v4_common < horace_binfile_interface
-    % Class describes common binary operations avaliable on
+    % Class describes common binary operations available on
     % binary sqw file version 4
     %
     properties(Access=protected)
@@ -12,7 +12,13 @@ classdef binfile_v4_common < horace_binfile_interface
         % list of data blocks to read/write on hdd, defined by the class
         data_blocks_list;
     end
-    %
+    properties(Dependent,Hidden)
+        % old data type, not relevant any more. Left for compartibility.
+        % Always "b+" for dnd and "a" for sqw objects.
+        data_type
+    end
+    %======================================================================
+    % GENERIC FACCESS METHODS
     methods
         function obj = binfile_v4_common(varargin)
             obj = obj@horace_binfile_interface();
@@ -35,27 +41,45 @@ classdef binfile_v4_common < horace_binfile_interface
             obj.bat_ = val;
         end
         function bll = get.data_blocks_list(obj)
+            % return list of data blocks defined in BAT.
             bll = get_data_blocks(obj);
         end
         %------------------------------------------------------------------
-        function obj = put_all_blocks(obj,sqw_dnd_data,varargin)
+        function obj = put_all_blocks(obj,varargin)
             % Put all blocks containing in the input data object and defined
             % in BAT into Horace binary file
             %
+            % Inputs:
+            % obj   -- initialized for writing instance of faccess object
+            % Optional:
+            %  sqw_dnd_data   -- instance of sqw or dnd object to write
+            % 'ignore_blocks' -- key followed by cellarray of names or
+            %                    single name to ignore and do not write to
+            %                    the disk at this stage.
+            % NOTE:
+            % If faccess is initialized for a new file and the intermediate
+            % block is ignored, it will fail. TODO: ? should it be fixed?
+            %
             % The faccess object have to be initialized
-            if exist('sqw_dnd_data','var')
+            if numel(varargin)>0 && (isa(varargin{1},'SQWDnDBase') || is_sqw_struct(varargin{1}))
+                sqw_dnd_data = varargin{1};
                 obj.sqw_holder_ = sqw_dnd_data;
                 obj.bat_ = obj.bat_.init_obj_info(sqw_dnd_data);
+                argi = varargin{2:end};
             else
                 sqw_dnd_data = obj.sqw_holder;
+                argi = varargin;
             end
+            [ignored_blocks_list,~] = extract_ignored_blocks_arg_(argi{:});
             %
             obj=obj.put_app_header();
 
-            obj.bat_.put_bat(obj.file_id_);
             bl = obj.bat.blocks_list;
             n_blocks = obj.bat_.n_blocks;
             for i=1:n_blocks
+                if ismember(bl{i}.block_name,ignored_blocks_list)
+                    continue;
+                end
                 bl{i} = bl{i}.put_sqw_block(obj.file_id_,sqw_dnd_data);
             end
             obj.bat.blocks_list = bl;
@@ -68,34 +92,45 @@ classdef binfile_v4_common < horace_binfile_interface
             % retrieve sqw/dnd object from hdd and return its values in
             % the object provided as input.
             % Inputs:
-            % obj             -- initialized instance of faccessor
+            % obj             -- initialized instance of f-accessor
             % Optional:
             % filename_or_obj
-            % Either       -- name of the file to initialize faccessor
+            % Either       -- name of the file to initialize f-accessor
             %                 from if the object have not been initialized
             %                 before
             % OR           -- the object to modify with the data,
-            %                 obtained using initialized faccessor
+            %                 obtained using initialized f-accessor
             % obj_to_set   -- if provided, previous parameter have to be
             %                 the file to read data from. Then this
             %                 parameter defines the object, to modify the
-            %                 data using faccessor, initialized by file
+            %                 data using f-accessor, initialized by file
             %                 above
-            % if none of additinal parameters is specified, result is
-            % returnded in sqw object
+            % 'ignore_blocks'     ! the keyword which identifies that some
+            %                     ! blocks should not be loaded
+            % list of block names ! following the the first keyword the
+            %                     ! list of block names to ignore and do
+            %                       not read from hdd at this stage.
+            %
+            % if none of additional parameters is specified, result is
+            % returned in newly created sqw object if f-accessor is an sqw
+            % accessor or dnd object if the accessor is dnd accessor
             % Output:
-            % obj          -- initialized instance of faccessor.
+            % obj          -- initialized instance of f-accessor.
             % obj_to_set   -- the object, modified by the contents,
             %                 obtained from the file. If other objects are
             %                 not specified as input, this object is sqw
             %                 object.
             %
-            [obj,obj_to_set,is_serializable] = check_get_all_blocks_inputs_(obj,varargin{:});
-            % This have happened during intialization:
+            [obj,obj_to_set,is_serializable,ignore_block_list] = ...
+                check_get_all_blocks_inputs_(obj,varargin{:});
+            % This have happened during f-accessor initialization:
             %obj.bat_ = obj.bat_.get_bat(obj.file_id_);
             fl = obj.bat.blocks_list;
             n_blocks = obj.bat_.n_blocks;
             for i=1:n_blocks
+                if ismember(fl{i}.block_name,ignore_block_list)
+                    continue;
+                end
                 [~,obj_to_set] = fl{i}.get_sqw_block(obj.file_id_,obj_to_set);
             end
             if is_serializable
@@ -154,22 +189,28 @@ classdef binfile_v4_common < horace_binfile_interface
             %Optional:
             % 1) Either:
             % sqw_object   -- the instance of SQWDnDBase class to extract
-            %                 modified subobject from
+            %                 modified sub-object from
             % OR:
-            % subobj       -- the subobject of sqw object to store using selected
+            % subobj       -- the sub-object of sqw object to store using selected
             %                 data_block
             % 2) filename  -- if provided, the name of file to modify and
             %                 store the data block in. Any other
-            %                 information (subblock to store) is not
+            %                 information (sub-block to store) is not
             %                 acceptable in this situation
+            % '-noinit'    -- do not initialize file accessor, even if it
+            %                 is possible
             %
             if nargin>2 % otherwise have to assume that the object is initialized
-                if (isa(varargin{1},'SQWDnDBase')||is_sqw_struct(varargin{1}))
-                    obj = obj.init(varargin{:});
+                [ok,mess,no_initialization,argi] = parse_char_options(varargin,{'-noinit'});
+                if ~ok
+                    error('HORACE:binfile_v4_common:invalid_argument',mess)
+                end
+                if ~no_initialization && (isa(argi{1},'SQWDnDBase')||is_sqw_struct(argi{1}))
+                    obj = obj.init(argi{:});
                     obj  = put_sqw_block_(obj,block_name_or_class);
                     return;
                 end
-                obj  = put_sqw_block_(obj,block_name_or_class,varargin{1});
+                obj  = put_sqw_block_(obj,block_name_or_class,argi{1});
             else
                 obj  = put_sqw_block_(obj,block_name_or_class);
             end
@@ -180,6 +221,87 @@ classdef binfile_v4_common < horace_binfile_interface
             warning('HORACE:binfile_v4_common:not_implemented', ...
                 'binary file compression have not been implemented yet')
         end
+        %
+        function dt = get.data_type(obj)
+            dt = get_data_type(obj);
+        end
+    end
+    %======================================================================
+    % DND access methods common for dnd and sqw objects
+    methods
+        function  obj = put_app_header(obj,varargin)
+            % store application header which distinguish and describes
+            % the sqw binary file.
+            %
+            % Overloaded for file format 4 to store BAT immediately after
+            % horace sqw file header
+            obj = put_app_header@horace_binfile_interface(obj,varargin{:});
+            obj.bat_.put_bat(obj.file_id_);
+
+        end
+        %------------------------------------------------------------------
+        function [dnd_dat,obj]  = get_dnd_data(obj,varargin)
+            % return DND data class, containing n-d arrays, describing N-D image
+            [dnd_dat,obj] = obj.get_block_data('bl_data_nd_data',varargin{:});
+        end
+        function [dnd_info,obj] = get_dnd_metadata(obj,varargin)
+            % return dnd metadata class, containing general information,
+            % describing dnd object
+            [dnd_info,obj] =  obj.get_block_data('bl_data_metadata',varargin{:});
+        end
+        % retrieve any dnd object or dnd part of sqw object
+        [dnd_obj,obj]  = get_dnd(obj,varargin);
+        %
+
+        %------------------------------------------------------------------
+        % save sqw/dnd object stored in memory into binary sqw file as dnd object.
+        % it always reduced data in memory into dnd object on hdd
+        obj = put_dnd(obj,varargin);
+        %
+        obj = put_dnd_data(obj,dnd_obh);
+        obj = put_dnd_metadata(obj,varargin)
+        %
+        function  [data,obj] =  get_data(obj,varargin)
+            % equivalent to get_dnd('-noclass). Should it also return pix
+            % if warning on sqw object? No this at the moment
+            argi = parse_get_data_inputs_(varargin{:});
+            [data,obj] = obj.get_dnd(argi{:});
+        end
+        % OLD DND INTERFACE
+        %------------------------------------------------------------------
+        function [data_str,obj] = get_se_npix(obj,varargin)
+            % get only dnd image data, namely s, err and npix
+            data_dnd = obj.get_dnd_data(varargin{:});
+            data_str = struct('s',data_dnd.sig,'e',data_dnd.err, ...
+                'npix',double(data_dnd.npix));
+        end
+
+        function img_db_range = get_img_db_range(obj,varargin)
+            % get [2x4] array of min/max ranges of the image where pixels
+            % are rebinned into
+            ds = obj.get_dnd_metadata();
+            img_db_range  = ds.axes.img_range;
+        end
+
+        function hd = head(obj,varargin)
+            % the function returns standard head information about sqw/dnd file
+            [ok,mess,full] = parse_char_options(varargin,'-full');
+            if ~ok
+                error('HORACE:binfile_v4_common:invalid_argument',mess);
+            end
+            if full
+                data = obj.get_dnd('-verbatim');
+            else
+                data = obj.get_dnd_metadata();
+            end
+            flds = DnDBase.head_form(full);
+            hd = struct();
+            for i=1:numel(flds)
+                fld = flds{i};
+                hd.(fld) = data.(fld);
+            end
+        end
+
     end
     %======================================================================
     methods(Access=protected)
@@ -193,6 +315,9 @@ classdef binfile_v4_common < horace_binfile_interface
         % init file accessors from sqw file on hdd
         obj=init_from_sqw_file(obj,varargin);
 
+        % get access for creation date of dnd object stored on hdd or
+        % attached to file loader
+        cd = get_creation_date(obj)
         % the main part of the copy constructor, copying the contents
         % of the one class into another including opening the
         % corresponding file with the same access rights
@@ -203,29 +328,64 @@ classdef binfile_v4_common < horace_binfile_interface
             % what class saving the file format is intended
             obj_type = 'dnd';
         end
-        function obj = do_class_dependent_updates(obj,~)
-            % this function takes this file accessor and modify it with
-            % data necessary to access file with new file accessor
+        %------------------------------------------------------------------
+        function [dnd_block,obj] = get_block_data(obj,block_name_or_instance,varargin)
+            % Retrieve the binary data described by the data_block provided as input
             %
-            % Currently this form does nothing as v4 is recent binary 
-            % file format
+            % uses get_sqw_block and adds file initialization if info is
+            % provided
+            %
+            % Differs from get_sqw_block as it may initialize input file if
+            % the file is not initialized and appropriate data are
+            % available
+            [dnd_block,obj] = get_block_data_(obj,block_name_or_instance,varargin{:});
+        end
+        function obj = put_block_data(obj, block_name_or_instance,varargin)
+            % store the data described by the block provided as input
+            %
+            % uses put_sqw_block and adds file initialization if initialization
+            % info is provided.
+            %
+            % See more information about the routine within the private
+            % procedure invoked below.
+            %
+            obj = put_block_data_(obj, block_name_or_instance,varargin{:});
+        end
+        %
+        function pos = get_npix_position(obj)
+            % Main part of npix_position getter
+            % Returns location of the start of the pixel data block.
+            %
+            % Calculated in bytes from beginning of the file
+            if isempty(obj.bat_) || ~obj.bat_.initialized
+                pos = [];
+                return
+            end
+            [bl,bl_indx] = obj.bat_.get_data_block('bl_data_nd_data');
+            if ~bl.dnd_info_defined
+                bl = bl.read_dnd_info(obj.file_id_);
+                %obj.bat_ = obj.bat_.set_changed_block(bl,bl_indx);
+            end
+            pos = bl.npix_position;
         end
     end
     methods(Abstract,Access=protected)
-        % return the list of (non-iniialized) data blocks, defined for
-        % given file format
+        % return the list of data blocks, defined for
+        % given file format regardless of their initialization.
         bll = get_data_blocks(obj);
+        % main part of data_type accessor. Simply overloaded for sqw and
+        % dnd object(s) to return 'a' or 'b+'
+        dt = get_data_type(obj)
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
-
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         fields_to_save_ = {'full_filename','num_dims_to_save','bat'};
     end
 
-    methods                
+    methods
         function strc = to_bare_struct(obj,varargin)
             % Return default implementation from serializable as
             % binfile version overloads it to support expose of protected

@@ -105,6 +105,10 @@ end
 
 % Change efix and emode
 % ---------------------
+ws = warning('off','HORACE:Experiment:invalid_argument'); % Experiment is 
+% read without sample and lattice, so suppress the spurious waring about
+% lattice undefined
+clOb = onCleanup(@(x)warning(ws));
 out = cell(1,n_obj);
 for i=1:n_obj
     the_obj = obj_list{i};
@@ -120,7 +124,7 @@ for i=1:n_obj
         out{i} = the_obj;
     else
         the_obj  = the_obj.upgrade_file_format(); % also reopens file in update mode if format is already the latest one
-        the_obj.put_headers(exp_inf);
+        the_obj.put_headers(exp_inf,'-no_sampinst');
         the_obj.delete();
         out{i} = in_data{i};
     end

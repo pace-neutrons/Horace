@@ -1,4 +1,4 @@
-function varargout = head (varargin)
+function varargout = head (in_obj,varargin)
 % Display a summary of an sqw object or file containing sqw information.
 %
 %   >> head(w)          % Display summary for object (or array of objects)
@@ -44,29 +44,15 @@ function varargout = head (varargin)
 
 % Parse input
 % -----------
-if iscell(varargin{1})
-    argi = [varargin{1},varargin(2:end)];
-else
-    argi  = varargin;
-end
-
-valid = cellfun(@(x)(ischar(x)||isstring(x)),argi);
-if ~any(valid) %TODO: allow sqw objects to be provided among with filenames
-    error('HORACE:head:invalid_argument',...
-        'algorithm "head" accepts only array of strings describing filenames and options as input. Some input are not string or char type');
-end
-
 if nargout == 0
-    head_horace(argi{:});
+    head_horace(in_obj,varargin{:});
 else
-    vout = head_horace(argi{:});
-    if ~iscell(vout)
-        varargout = {vout};
-    else
-        if nargout > 1
-            varargout = vout{1}(1:nargout);
-        else
-            varargout = vout;
+    vout = head_horace(in_obj,varargin{:});
+    if nargout > 1
+        for i=1:nargout
+            varargout{i}  = vout{i};
         end
+    else
+        varargout{1} = vout;
     end
 end

@@ -17,7 +17,7 @@ classdef binfile_v2_common < horace_binfile_interface
     % ----------------------------------------------------------------
     % reopen_to_write    - open new or reopen existing file in write mode
     %                      (all existing contents will be ignored, though
-    %                       may be mainained if the file exists, but additional
+    %                       may be maintained if the file exists, but additional
     %                      measure to be taken)
     % set_file_to_update - open new or reopen existing file for updating
     %                      existing information in  it (where possible)
@@ -107,8 +107,6 @@ classdef binfile_v2_common < horace_binfile_interface
         % interfaces to binary access outside of this class:
         % initial location of dnd data fields
         data_position;
-        % initial location of npix fields
-        npix_position;
     end
     methods(Static)
         % convert all numerical types of a structure into double
@@ -221,18 +219,30 @@ classdef binfile_v2_common < horace_binfile_interface
         function is_sqw = get_sqw_type(~)
             is_sqw = false;
         end
-        function   obj_type = get_format_for_object(~)
+        function obj_type = get_format_for_object(~)
             % main part of the format_for_object getter, specifying for
             % what class saving the file format is intended
             obj_type = 'dnd';
         end
-        function new_obj = do_class_dependent_updates(~,new_obj,varargin)
-            % method does nothing for modern file format as all changes have been done 
-            % elsewhere.
-            % 
-            % Also it is used for supporting modern file format for recent 
-            % format v3 files and these files do not change
+        function new_ldr = do_class_dependent_updates(old_ldr,new_ldr,varargin)
+            % Update any binary file version < 4.0 to recent file version
+            % (version 4) using direct loading data into memory
             %
+            % Common implementation is for dnd version. SQW version
+            % overloads this
+            if old_ldr.faccess_version ~= new_ldr.faccess_version
+                dnd_obj = old_ldr.get_dnd();
+                new_ldr.sqw_holder = dnd_obj;
+                new_ldr = new_ldr.put_dnd();
+                old_ldr.delete();
+            end
+        end
+        %
+        function pos = get_npix_position(obj)
+            % overloadable accessor to npix position
+            %
+            % return the position of the npix field in the file
+            pos = obj.npix_pos_;
         end
     end
     % ACCESSORS AND CONSTRUCTOR
@@ -254,14 +264,9 @@ classdef binfile_v2_common < horace_binfile_interface
             % filename for dnd file)
             pos = obj.data_pos_;
         end
-        function  pos = get.npix_position(obj)
-            % return the position of the npix field in the file
-            pos = obj.npix_pos_;
-        end
         function ff=get.data_type(obj)
             ff = obj.data_type_;
         end
-
 
         function conv = get.convert_to_double(obj)
             % if true, convert all numerical values read from an sqw file
@@ -367,6 +372,36 @@ classdef binfile_v2_common < horace_binfile_interface
                 img_db_range = axes_block.calc_img_db_range(ds);
             end
         end
+        function hd = head(obj,varargin)
+            % the function returns standard head information about sqw/dnd file
+            [ok,mess,full] = parse_char_options(varargin,'-full');
+            if ~ok
+                error('HORACE:binfile_v2_common:invalid_argument',mess);
+            end
+            if full
+                data = obj.get_data('-verbatim');
+            else
+                data = obj.get_data('-verbatim','-head');
+            end
+            flds = DnDBase.head_form(full);
+            cdi = ismember(flds,'creation_date');
+            flds = flds(~cdi);
+            hd = struct();
+            for i=1:numel(flds)
+                fld = flds{i};
+                hd.(fld) = data.(fld);
+            end
+            if isstruct(data)
+                hd.creation_date = datetime('now');
+                hd.offset = hd.offset';
+                for i=1:numel(hd.p)
+                    hd.p{i} = hd.p{i}';
+                end
+            else
+                hd.creation_date = data.creation_date;
+            end
+        end
+
         %
         %------   Mutators:
         % Save new or fully overwrite existing sqw file

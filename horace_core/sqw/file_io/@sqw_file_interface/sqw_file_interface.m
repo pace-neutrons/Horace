@@ -1,4 +1,4 @@
-classdef sqw_file_interface < binfile_v2_common
+classdef sqw_file_interface
     % Class describes interface to access sqw files. The whole public
     % interface to access files, containing sqw objects consists of
     % horace_binfile_interface and sqw_file_interface.
@@ -11,7 +11,7 @@ classdef sqw_file_interface < binfile_v2_common
     % Abstract accessors:
     % get_main_header - obtain information stored in main header
     %
-    % get_exp_info      - obtain information stored in one of the
+    % get_exp_info    - obtain information stored in one of the
     %                   contributing file's header
     % get_detpar      - retrieve detectors information.
     % get_pix         - get PixelData object, containing pixels data
@@ -33,17 +33,11 @@ classdef sqw_file_interface < binfile_v2_common
     % put_instruments   -  store instruments information
     % put_samples       -  store sample's information
     %
-    % upgrade_file_format - upgrade current sqw file to recent file format.
-    %                       May change the sqw file and always opens it in
-    %                       write or upgrade mode.
-
-    %
-    %
-    properties(Access=protected,Hidden=true)
-        %
+    properties(Access=protected)
+        % holdef for the number of contributing files contributed into sqw
+        % file. Not necessary for modern file formats but was used in old
+        % file formats to recover headers
         num_contrib_files_= 'undefined'
-        %
-        npixels_ = 'undefined';
     end
     %
     properties(Dependent)
@@ -52,36 +46,76 @@ classdef sqw_file_interface < binfile_v2_common
         %
         % number of pixels, contributing into this file.
         npixels
+        % the position of pixels information in the file. Used to organize
+        % separate access to the pixel data;
+        pix_position
 
         % size of a pixel (in bytes) stored in binary file,
         % for the loader to read
         pixel_size;
     end
-    methods(Access = protected,Hidden=true)
-        function date = get_creation_date(obj)
-            % overload accessor to creation_date on the main file
-            % interface, to retrieve creation date, stored in recent
-            % versions of the sqw files
-            main_head = obj.get_main_header();
-            date = main_head.creation_date;
-        end
+    properties(Dependent,Hidden)
+        % service property, necessary for proper memmapfile class
+        % construction. Calculates the position of the end of pixel dataset
+        % (position of the first byte after pixel data)
+        pixel_data_end
+        % service property, necessary for proper memmapfile class
+        % construction. Calculates the actual position of sqw eof.
+        eof_position;
     end
-
     %----------------------------------------------------------------------
     methods
+        function pos = get.pix_position(obj)
+            pos = get_pix_position(obj);
+        end
         function nfiles = get.num_contrib_files(obj)
             % return number of run-files contributed into sqw object
-            % provided
+            % provided as input of
             nfiles = obj.num_contrib_files_;
         end
+        function obj = set.num_contrib_files(obj,val)
+            % set number of run-files contributed into sqw object.
+            %
+            % Request serializable interface applied on new faccessor
+            % format. Old faccessors have this property strictly private
+            % but this contradicts the need to set up object from the
+            % serializable interface
+            %
+            if isempty(val) || ischar(val)&&(strcmp(val,'undefined'))
+                obj.num_contrib_files_ = 'undefined';
+                return;
+            end
+            if ~(isnumeric(val)&&isscalar(val)&&val > 0)
+                error('HORACE:sqw_file_inteface:invalid_argument', ...
+                    'number of contriburing files have to be a single positive number. It is: %s',...
+                    disp2str(val))
+            end
+            obj.num_contrib_files_ = round(val);
+        end
+
         %
         function npix = get.npixels(obj)
-            npix = obj.npixels_;
+            npix = get_npixels(obj);
         end
-        function pix_size = get.pixel_size(~)
-            % 4 bytes x 9 columns -- default pixel size.
-            %
-            pix_size = 4*9;
+        function pix_size = get.pixel_size(obj)
+            pix_size = get_filepix_size(obj);
+        end
+        %
+        function pos = get.eof_position(obj)
+            if isempty(obj.file_id) || obj.file_id <1
+                pos = [];
+            else
+                fseek(obj.file_id,0,'eof');
+                pos  = ftell(obj.file_id);
+            end
+        end
+        function pos = get.pixel_data_end(obj)
+            if ischar(obj.pix_position) ||isempty(obj.pix_position) || ...
+                    ischar(obj.npixels)||isempty(obj.npixels)
+                pos  = [];
+            else
+                pos = obj.pix_position+obj.npixels*obj.pixel_size;
+            end
         end
         %-------------------------
         function obj = delete(obj)
@@ -91,9 +125,6 @@ classdef sqw_file_interface < binfile_v2_common
             % understanding when this can be omitted
             %
             obj.num_contrib_files_ = 'undefined';
-            obj.npixels_ = 'undefined';
-            obj.num_dim_ = 'undefined';
-            obj = delete@binfile_v2_common(obj);
         end
         %
     end
@@ -103,11 +134,16 @@ classdef sqw_file_interface < binfile_v2_common
         % retrieve different parts of sqw data
         %------------------------------------------------------------------
         main_header = get_main_header(obj,varargin);
-        [header,pos]= get_exp_info(obj,varargin);
+        exper       = get_exp_info(obj,varargin);
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
         pix         = get_raw_pix(obj,varargin);
+        % read pixels at the given indices
+        pix         = get_pix_at_indices(obj,indices);
+        % read pixels in the given index ranges
+        pix         = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation,keep_precision);
         range       = get_pix_range(obj);
+        range       = get_data_range(obj);
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
         %------------------------------------------------------------------
@@ -116,55 +152,66 @@ classdef sqw_file_interface < binfile_v2_common
         obj = put_headers(obj,varargin);
         obj = put_det_info(obj,varargin);
         obj = put_pix(obj,varargin);
+        obj = put_raw_pix(obj,pix_data,pix_idx,varargin);
         obj = put_sqw(obj,varargin);
         % extended interface:
         obj = put_instruments(obj,varargin);
         obj = put_samples(obj,varargin);
-    end
-    %======================================================================
-    % SERIALIZABLE INTERFACE
-    properties(Constant,Access=private,Hidden=true)
-        % list of field names to save on hdd to be able to recover
-        % all substantial parts of appropriate sqw file
-        fields_to_save_ = {'num_contrib_files_';'npixels_'};
-    end
-    %----------------------------------------------------------------------
-    methods
-        function strc = to_bare_struct(obj,varargin)
-            base_cont = to_bare_struct@binfile_v2_common(obj,varargin{:});
-            flds = sqw_file_interface.fields_to_save_;
-            cont = cellfun(@(x)obj.(x),flds,'UniformOutput',false);
 
-            base_flds = fieldnames(base_cont);
-            base_cont = struct2cell(base_cont);
-            flds  = [base_flds(:);flds(:)];
-            cont = [base_cont(:);cont(:)];
+    end
+    methods(Abstract,Access=protected)
+        pos = get_pix_position(obj);
+        npix = get_npixels(obj);
+        % used in updates of old file format to file format v4
+        obj = update_sqw_keep_pix(obj)
+    end
+    methods(Access=protected)
+        function obj = put_sqw_data_pix_from_file(obj, pix_comb_info,jobDispatcher)
+            % Write pixel information to file, reading that pixel information from a collection of other files
             %
-            strc = cell2struct(cont,flds);
+            %   >> obj = put_sqw_data_pix_from_file (obj, pix_comb_info,jobDispatcher)
+            %
+
+            obj = put_sqw_data_pix_from_file_(obj, pix_comb_info,jobDispatcher);
         end
 
-        function obj=from_bare_struct(obj,indata)
-            obj = from_bare_struct@binfile_v2_common(obj,indata);
+        function pix_size = get_filepix_size(~)
+            % 4 bytes x 9 columns -- default pixel size in bytes when
+            % stored on hdd
             %
-            flds = sqw_file_interface.fields_to_save_;
-            for i=1:numel(flds)
-                name = flds{i};
-                obj.(name) = indata.(name);
+            % May be overloaded in some new file formats, but pretty
+            % stable for now
+            pix_size = 4*9;
+        end
+
+        function head_struc = shuffle_fields_form_sqw_head(obj,head_struc,full_data)
+            % take the head structure, obtained from dnd_head operation and
+            % modify it shifting appropriate fields and adding fields,
+            % specific for sqw header
+            % Inputs:
+            % head_struc  -- the structure obtained from head applied on
+            %                 dnd object
+            % full_data   -- true/false indicating if full dnd header
+            %                structure is requested
+            %
+            % Produce head of sqw file in a standard form
+            fields_req = sqw.head_form(false,full_data);
+            dnd_val = struct2cell(head_struc);
+            if full_data
+                [~,data_fields] = DnDBase.head_form();
+                data_ind = ismember(fieldnames(head_struc),data_fields);
+                data_val = dnd_val(data_ind);
+                dnd_val  = dnd_val(~data_ind);
+            else
+                data_val  = {};
             end
+            sqw_val = {obj.num_contrib_files,obj.npixels,...
+                   obj.get_data_range(),obj.creation_date};
+            all_val = [dnd_val(1:end-1);sqw_val(:);data_val(:)];
+            head_struc = cell2struct(all_val,fields_req);
+
         end
 
-        function flds = saveableFields(obj)
-            % return list of fileldnames to save on hdd to be able to recover
-            % all substantial parts of appropriate sqw file.
-            flds = saveableFields@binfile_v2_common(obj);
-            flds = [obj.fields_to_save_(:);flds(:)];
-        end
-    end
-    methods(Static)
-        function obj = loadobj(inputs,varargin)
-            inobj = sqw_file_interface();
-            obj = loadobj@serializable(inputs,inobj,varargin{:});
-        end
     end
 end
 

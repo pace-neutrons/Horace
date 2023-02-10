@@ -25,7 +25,8 @@ for i=1:nfiles
             ['No pixel information in ',infiles{i}]); end
     main_header{i} = ldrs{i}.get_main_header();
     header{i}      = ldrs{i}.get_exp_info('-all');
-    datahdr{i}     = ldrs{i}.get_data('-head');
+    %datahdr{i}     = ldrs{i}.get_data('-head');
+    datahdr{i}     = ldrs{i}.get_dnd_metadata();
     det_tmp        = ldrs{i}.get_detpar();
     if i==1
         det=det_tmp;    % store the detector information for the first file

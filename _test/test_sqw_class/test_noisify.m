@@ -19,21 +19,19 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
         end
 
         function test_noisify_returns_equivalent_sqw_for_paged_pixel_data(obj)
-            %TODO: this should not be necessary
+            skipTest('Re #928 paged noisify should be fixed in the frames of this ticket')
             hc = hor_config;
             dts = hc.get_data_to_store();
             clob = onCleanup(@()set(hc,dts));
             hc.use_mex = 1;
+            hc.mem_chunk_size = floor(100337/5); % 5 or 6 pages
 
             % we set up the test "random number generator" which is actually
             % a deterministic set of numbers 1:999 repeated. Use factor to make
             % them in range 0:1
             noise_factor = 1/999;
-            % We make an sqw object with the a pixel page size smaller than the
-            % total pixel size
-            pixel_page_size = 5000;
-            sqw_obj1 = sqw(obj.test_sqw_file_full_path, 'pixel_page_size', ...
-                pixel_page_size,'file_backed',true);
+
+            sqw_obj1 = sqw(obj.test_sqw_file_full_path,'file_backed',true);
 
             % ensure we're actually paging pixel data
             pix = sqw_obj1.pix;

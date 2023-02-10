@@ -239,7 +239,6 @@ classdef test_sqw_file_read_write < TestCase
             save(wref,tmpsqwfile3);     % recreate reference file
             %set_instrument_horace(tmpsqwfile,@create_test_instrument,'-efix',500,'s');
             %assertTrue(isequal(wtmp_ref,read_sqw(tmpsqwfile)),'Incorrectly set instrument for sqw file')
-            wref.pix.delete();
             %----------------------------------------------------------------------------------------
         end
     end

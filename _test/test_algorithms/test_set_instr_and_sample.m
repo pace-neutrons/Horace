@@ -93,7 +93,9 @@ classdef test_set_instr_and_sample < TestCase
             % Dummy sample, empty sample
             set_sample_horace(tmpsqwfile,[]);
             tmp=sqw(tmpsqwfile);
-            assertEqualToTol(obj.ds.f1_1,tmp,[5.e-8,5.e-8], ...
+            ws = obj.ds.f1_1;
+            ws.experiment_info.samples = [];
+            assertEqualToTol(ws,tmp,[5.e-8,5.e-8], ...
                 '-ignore_date','ignore_str',1); 
 
         end

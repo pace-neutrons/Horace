@@ -1,5 +1,5 @@
 function new_obj = upgrade_file_format(obj,varargin)
-%UPGRADE_FILE_FORMAT upgrade file format to new current preferred file format
+%UPGRADE_FILE_FORMAT upgrade file format to the new current preferred file format
 
 ff_obj = obj.format_for_object;
 
@@ -14,11 +14,15 @@ if isempty(missing) % source and target are the same class. Invoke copy construc
     return;
 end
 acc = new_obj.io_mode;
+file_exist = is_file(obj.full_filename);
 if ~ismember(acc,{'wb+','rb+'})
     new_obj = new_obj.fclose();  % in case the file is still open, and if it does not, makes no harm
+    new_obj = new_obj.reopen_to_write(obj.full_filename);
 end
-new_obj = new_obj.set_file_to_update();
+
+if ~file_exist
+    return
+end
 
 new_obj = obj.do_class_dependent_updates(new_obj,varargin{:});
 %
-new_obj = new_obj.put_app_header();

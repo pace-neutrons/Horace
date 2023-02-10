@@ -33,19 +33,22 @@ classdef test_head < TestCase
 
         function test_head_horace_multiout(obj)
             [out1,out2,out3] = head_horace(obj.files,'-full');
-            assertEqual(numel(fields(out1)),22)
-            assertEqual(numel(fields(out2)),22)
-            assertEqual(numel(fields(out3)),18)
+            assertEqual(numel(fields(out1)),23)
+            assertEqual(numel(fields(out2)),23)
+            assertEqual(numel(fields(out3)),20)
         end
         function test_head_dnd_vs_head_horace(obj)
 
             out = head_dnd(obj.files{3});
             assertTrue(isstruct(out))
-            assertEqual(numel(fields(out)),15)
+            assertEqual(numel(fields(out)),17)
 
             out4 = head_horace(obj.files{3});
             assertTrue(isstruct(out4))
-            assertEqual(numel(fields(out4)),15)
+            assertEqual(numel(fields(out4)),17)
+            
+            % old files creation date is dynamic so may be different
+            out.creation_date = out4.creation_date;            
             assertEqual(out,out4);
         end
 
@@ -62,6 +65,8 @@ classdef test_head < TestCase
             assertEqual(numel(outc),3)
             assertEqual(outc{1},out1)
             assertEqual(outc{2},out2)
+            % old files creation date is dynamic so may be different
+            out3a.creation_date = outc{3}.creation_date;
             assertEqual(outc{3},out3a)
         end
         function test_head_horace_cell_output(obj)
@@ -71,11 +76,11 @@ classdef test_head < TestCase
 
             assertEqual(numel(out),3)
             assertTrue(isstruct(out{1}))
-            assertEqual(numel(fields(out{1})),19)
+            assertEqual(numel(fields(out{1})),20)
             assertTrue(isstruct(out{2}))
-            assertEqual(numel(fields(out{2})),19)
+            assertEqual(numel(fields(out{2})),20)
             assertTrue(isstruct(out{3}))
-            assertEqual(numel(fields(out{3})),15)
+            assertEqual(numel(fields(out{3})),17)
         end
 
     end

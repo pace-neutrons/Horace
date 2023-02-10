@@ -20,6 +20,57 @@ classdef test_binfile_v4_common <  TestCase %WithSave
             obj.test_data_folder=hp.test_common;
         end
         %-----------------------------------------------------------------
+        function test_put_all_ignore_two_blocks(~)
+            tob = binfile_v4_block_tester(10);
+            tob.level2_a = 'blablabla';
+            tob.level2_c = 'lalalalala';
+
+            t_file = fullfile(tmp_dir(),'binfile_v4_put_all_ignore_one.bin');
+            clOb = onCleanup(@()delete(t_file));
+            writ_obj = binfile_v4_common_tester(tob,t_file);
+            writ_obj = writ_obj.put_all_blocks();
+            writ_obj.delete();
+
+            assertTrue(is_file(t_file));
+
+            read_obj = binfile_v4_common_tester(t_file);
+            wob0 = binfile_v4_block_tester();
+            [read_obj,rec_obj] = read_obj.get_all_blocks(wob0, ...
+                'ignore_blocks',{'bl__level2_a','bl__level2_c'});
+            read_obj.delete();
+
+
+            assertEqual(rec_obj.level2_c,wob0.level2_c);
+            assertEqual(rec_obj.level2_a,wob0.level2_a);
+            assertEqual(rec_obj.data,tob.data);
+        end
+
+        function test_put_all_ignore_one_block(~)
+            tob = binfile_v4_block_tester(10);
+            tob.level2_a = 'blablabla';
+            tob.level2_c = 'lalalalala';
+
+            t_file = fullfile(tmp_dir(),'binfile_v4_put_all_ignore_one.bin');
+            clOb = onCleanup(@()delete(t_file));
+            writ_obj = binfile_v4_common_tester(tob,t_file);
+            writ_obj = writ_obj.put_all_blocks();
+            writ_obj.delete();
+
+            assertTrue(is_file(t_file));
+
+            read_obj = binfile_v4_common_tester();
+            wob0 = binfile_v4_block_tester();
+            [read_obj,rec_obj] = read_obj.get_all_blocks(t_file,wob0, ...
+                'ignore_blocks','bl__level2_a');
+            read_obj.delete();
+
+
+            assertEqual(rec_obj.level2_c,'lalalalala');
+            assertEqual(rec_obj.level2_a,wob0.level2_a);
+            assertEqual(rec_obj.data,tob.data);
+        end
+
+
         function test_put_signgle_sqw_block(~)
             tob = binfile_v4_block_tester(10);
             t_file = fullfile(tmp_dir(),'binfile_v4_common_put_block.bin');
