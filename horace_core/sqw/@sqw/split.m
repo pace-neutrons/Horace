@@ -45,14 +45,19 @@ else
     nend=[];
 end
 run_contributes=false(nfiles,1);
-run_contributes(irun(nbeg))=true;   % true for runs that contribute to the data
+if min(irun) > nfiles
+    run_contributes(arrayfun(@(v) w.runid_map(v), irun(nbeg)))=true;   % true for runs that contribute to the data
+else
+    run_contributes(irun(nbeg))=true;
+end
 ind=zeros(nfiles,1);
 ind(run_contributes)=1:numel(nbeg); % index of contributing runs into nbeg and nend
 
 % Put only the relevant pixels in each of the sqw objects
 main_header.nfiles=1;   % each output sqw object will have just one run
 sz=size(data.npix);     % size of signal error and npix arrays
-if sum(run_contributes)~=nfiles     % there is at least one run that does not contribute to the pixels
+%if sum(run_contributes)~=nfiles     % there is at least one run that does not contribute to the pixels
+if any(run_contributes == 0)
     datanull=data;
     datanull.s=zeros(sz);
     datanull.e=zeros(sz);
