@@ -21,12 +21,12 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
 % PixelData object with no npix array.
 % The double array must have length equal to the number of pixels.
 %
-base_page_size = obj.page_size;
-
-fid = obj.get_new_handle();
+%
+% Re  #928 fix this
+%fid = obj.get_new_handle();
 
 for i = 1:obj.n_pages
-    obj.load_page(i);
+    obj.page_num = i;
     pix_sigvar = sigvar(obj.signal, obj.variance);
 
     [start_idx, end_idx] = obj.get_page_idx_(i);
@@ -35,11 +35,12 @@ for i = 1:obj.n_pages
     [obj.signal, obj.variance] = ...
         sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
 
-    obj.format_dump_data(fid);
+% Re  #928 fix this
+%    obj.format_dump_data(fid);
 
 end
-
-obj.finalise(fid);
+% Re  #928 fix this
+%obj.finalise(fid);
 
 end
 
@@ -57,8 +58,8 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
 % The operation is performed whilst looping over the pages in the PixelData
 % object.
 %
-
-fid = obj.get_new_handle();
+% Re  #928 fix this
+%fid = obj.get_new_handle();
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 for i = 1:obj.n_pages
@@ -73,11 +74,11 @@ for i = 1:obj.n_pages
     double_sigvar = sig_chunk';     % TGP 2021-04-11: to work with new classdef sigvar
     [obj.signal, obj.variance] = ...
         sigvar_binary_op_(this_sigvar, double_sigvar, binary_op, flip);
-
-    obj.format_dump_data(fid);
+% Re  #928 fix this
+%    obj.format_dump_data(fid);
 end
-
-obj.finalise(fid);
+% Re  #928 fix this
+%obj.finalise(fid);
 
 end
 

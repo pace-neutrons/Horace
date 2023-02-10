@@ -54,13 +54,13 @@ if ~ok
 end
 
 obj.move_to_first_page();
-other_pix.move_to_first_page();
+other_pix = other_pix.move_to_first_page();
 
 if obj.page_size == other_pix.page_size
     [ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
     while ok && obj.has_more()
-        obj.advance();
-        other_pix.advance();
+        obj=obj.advance();
+        other_pix = other_pix.advance();
         [ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
     end
 elseif ~other_pix.is_filebacked
@@ -68,8 +68,8 @@ elseif ~other_pix.is_filebacked
 else
     ok = false;
     mess = sprintf(['PixelData objects have different page ' ...
-                    'sizes.\nFound page sizes %i and %i.'], obj.page_size, ...
-                   other_pix.page_size);
+        'sizes.\nFound page sizes %i and %i.'], obj.page_size, ...
+        other_pix.page_size);
 end
 
 end
@@ -77,50 +77,50 @@ end
 
 % -----------------------------------------------------------------------------
 function [ok, mess] = pix_paged_and_in_mem_equal_to_tol(...
-        paged_pix, in_mem_pix, varargin)
-    start_idx = 1;
-    end_idx = paged_pix.page_size;
+    paged_pix, in_mem_pix, varargin)
+start_idx = 1;
+[paged_pix,end_idx] = paged_pix.page_size;
+[ok, mess] = equal_to_tol(in_mem_pix.data(:, start_idx:end_idx), ...
+    paged_pix.data, varargin{:});
+while ok && paged_pix.has_more()
+    paged_pix = paged_pix.advance();
+    start_idx = end_idx + 1;
+    end_idx = end_idx + paged_pix.page_size;
     [ok, mess] = equal_to_tol(in_mem_pix.data(:, start_idx:end_idx), ...
-                              paged_pix.data, varargin{:});
-    while ok && paged_pix.has_more()
-        paged_pix.advance();
-        start_idx = end_idx + 1;
-        end_idx = end_idx + paged_pix.page_size;
-        [ok, mess] = equal_to_tol(in_mem_pix.data(:, start_idx:end_idx), ...
-                                  paged_pix.data, varargin{:});
-    end
+        paged_pix.data, varargin{:});
+end
 end
 
 
 function [ok, mess] = validate_other_pix(obj, other_pix)
-    ok = true;
-    mess = '';
+ok = true;
+mess = '';
 
-    if ~isa(other_pix, 'PixelDataBase')
-        ok = false;
-        mess = sprintf('Objects of class ''%s'' and ''%s'' cannot be equal.', ...
-                       class(obj), class(other_pix));
-        return
-    end
+if ~isa(other_pix, 'PixelDataBase')
+    ok = false;
+    mess = sprintf('Objects of class ''%s'' and ''%s'' cannot be equal.', ...
+        class(obj), class(other_pix));
+    return
+end
 
-    if obj.num_pixels ~= other_pix.num_pixels
-        ok = false;
-        mess = sprintf(['PixelData objects are not equal. ' ...
-                        'Argument 1 has %i pixels, argument 2 has %i'], ...
-                       obj.num_pixels, other_pix.num_pixels);
-        return
-    end
+if obj.num_pixels ~= other_pix.num_pixels
+    ok = false;
+    mess = sprintf(['PixelData objects are not equal. ' ...
+        'Argument 1 has %i pixels, argument 2 has %i'], ...
+        obj.num_pixels, other_pix.num_pixels);
+    return
+end
 end
 
 
 function parse_args(varargin)
-    parser = inputParser();
-    % these params are used for validation only, they will be passed to
-    % Herbert's equal_to_tol via varargin
-    parser.addOptional('tol', [0, 0], @(x) (numel(x) <= 2));
-    parser.addParameter('nan_equal', true, @(x) isscalar(x) && islogical(x));
-    parser.addParameter('name_a', 'input_1', @ischar);
-    parser.addParameter('name_b', 'input_2', @ischar);
-    parser.KeepUnmatched = true;  % ignore unmatched parameters
-    parser.parse(varargin{:});
+parser = inputParser();
+% these params are used for validation only, they will be passed to
+% Herbert's equal_to_tol via varargin
+parser.addOptional('tol', [0, 0], @(x) (numel(x) <= 2));
+parser.addParameter('nan_equal', true, @(x) isscalar(x) && islogical(x));
+parser.addParameter('name_a', 'input_1', @ischar);
+parser.addParameter('name_b', 'input_2', @ischar);
+parser.KeepUnmatched = true;  % ignore unmatched parameters
+parser.parse(varargin{:});
 end

@@ -8,3 +8,4 @@ if ~isempty(obj.file_closer_)
 end
 obj = obj.fclose();
 obj.sqw_holder_ = [];
+obj.num_dim_ = 'undefined';

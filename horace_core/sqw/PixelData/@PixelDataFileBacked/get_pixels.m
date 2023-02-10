@@ -25,6 +25,10 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %  Optional:
 %  '-ignore_range'  -- if provided, new pix_object will not contain correct
 %                      pixel ranges
+%  '-raw_data'      -- do not wrap the data into PixelData class and return
+%                      array of pixel_data as they are.
+%  '-keep_precision'-- keep the precision of output raw data as it is (not
+%                      doubling it if possible)
 
 % Output:
 % -------
@@ -32,66 +36,26 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %                  specified in the abs_pix_indices argument.
 %
 
-abs_pix_indices = parse_args(obj, abs_pix_indices);
+[abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
+    obj.parse_get_pix_args(abs_pix_indices,varargin{:});
 
-if obj.has_tmp_file || obj.page_edited
-    % At least some pixels sit in temporary files
 
-    % Allocate output array
-    data_map = obj.get_memmap_handle();
-    pix_out = PixelDataBase.create(double(data_map.data.data(:, abs_pix_indices)));
+mmf = obj.f_accessor_;
+pix_out = mmf.Data.data(:,abs_pix_indices);
 
+
+if ~keep_precision
+    pix_out = double(pix_out);
+end
+
+if raw_data
+    return;
+end
+
+if ignore_range
+    pix_out = PixelDataMemory();
+    pix_out = pix_out.set_raw_data(pix_out);
 else
-    pix_out = PixelDataBase.create(read_clean_pix(obj, abs_pix_indices));
+    pix_out = PixelDataMemory(pix_out);
 end
 
-end
-
-function abs_pix_indices = parse_args(obj, varargin)
-parser = inputParser();
-parser.addRequired('abs_pix_indices', @is_positive_int_vector_or_logical_vector);
-parser.parse(varargin{:});
-
-abs_pix_indices = parser.Results.abs_pix_indices;
-if islogical(abs_pix_indices)
-    if numel(abs_pix_indices) > obj.num_pixels
-        if any(abs_pix_indices(obj.num_pixels + 1:end))
-            error('PIXELDATA:get_pixels', ...
-                ['The logical indices contain a true value outside of ' ...
-                'the array bounds.']);
-        else
-            abs_pix_indices = abs_pix_indices(1:obj.num_pixels);
-        end
-    end
-    abs_pix_indices = find(abs_pix_indices);
-end
-
-max_idx = max(abs_pix_indices);
-if max_idx > obj.num_pixels
-    error('HORACE:PixelData:get_pixels', ...
-        'Pixel index out of range. Index must not exceed %i.', ...
-        obj.num_pixels);
-end
-
-end
-
-function is = is_positive_int_vector_or_logical_vector(vec)
-is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
-end
-
-function pix = read_clean_pix(obj, indices)
-% Read the pixels at the given indices from the .sqw file backing obj
-if issorted(indices, 'strictascend')
-    % Check if indices is monotonically increasing (as assumed by
-    % get_pix_at_indices), this is quicker than always sorting
-    pix = obj.f_accessor_.get_pix_at_indices(indices);
-else
-    % Sort the pixel indices and remove duplicates, the idx_map provides
-    % a way to map the indices back to their original order and
-    % re-introduce the duplicates after the reading is complete
-    [unique_sorted, ~, idx_map] = unique(indices);
-    pix = obj.f_accessor_.get_pix_at_indices(unique_sorted);
-    pix = pix(:, idx_map);
-end
-
-end

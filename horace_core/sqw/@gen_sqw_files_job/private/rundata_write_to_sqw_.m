@@ -1,4 +1,4 @@
-function [grid_size, pix_range,update_runlabels] = rundata_write_to_sqw_(run_files, sqw_file, ...
+function [grid_size, data_range,update_runlabels] = rundata_write_to_sqw_(run_files, sqw_file, ...
     grid_size_in, pix_db_range, write_banner)
 % Read a single rundata object, and create a single sqw file.
 %
@@ -32,7 +32,7 @@ function [grid_size, pix_range,update_runlabels] = rundata_write_to_sqw_(run_fil
 nfiles = numel(run_files);
 if nfiles == 0
     grid_size = grid_size_in;
-    pix_range = pix_db_range;
+    data_range = [pix_db_range,PixelDataBase.EMPTY_RANGE(:,5:end)];
     update_runlabels = false;
     return
 end
@@ -55,16 +55,16 @@ for i=1:nfiles
     end
     %
     run_id(i) = run_files{i}.run_id;
-    [w,grid_size_tmp,pix_range_tmp] = run_files{i}.calc_sqw(grid_size_in, pix_db_range);
+    [w,grid_size_tmp,data_range_tmp] = run_files{i}.calc_sqw(grid_size_in, pix_db_range);
     if i==1
         grid_size = grid_size_tmp;
-        pix_range = pix_range_tmp;
+        data_range = data_range_tmp;
     else
         if ~all(grid_size==grid_size_tmp)
             error('Logic error in calc_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
         end
-        pix_range = [min([pix_range_tmp(1,:);pix_range(1,:)],[],1);...
-            max([pix_range_tmp(2,:);pix_range(2,:)],[],1)];
+        data_range = [min([data_range_tmp(1,:);data_range(1,:)],[],1);...
+            max([data_range_tmp(2,:);data_range(2,:)],[],1)];
     end
 
 

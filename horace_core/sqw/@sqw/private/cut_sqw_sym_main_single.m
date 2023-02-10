@@ -171,12 +171,12 @@ pixind = zeros(npixtot_all,3);
 fields = {'run_idx', 'detector_idx', 'energy_idx'};
 % pix_range = PixelDataBase.EMPTY_RANGE_;
 for i=1:nw
-    pixind(nbeg(i):nend(i),:) = varargin{i}.data.pix.get_data(fields)';
+    pixind(nbeg(i):nend(i),:) = varargin{i}.data.pix.get_fields(fields)';
     %     loc_range = varargin{1}.data.img_range;
     %     pix_range  = [min(pix_range(1,:),loc_range(1,:));...
     %             max(pix_range(2,:),loc_range(2,:))];
 end
-[~,ix_all] = unique(pixind,'rows','first');     % indicies to first occurence
+[~,ix_all] = unique(pixind,'rows','first');     % indices to first occurrence
 clear pixind    % clear a large work array
 
 ibin = zeros(npixtot_all,1);

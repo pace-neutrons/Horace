@@ -53,6 +53,51 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(initobj.file_id>0);
 
         end
+        function obj = test_save_load_sqwV31_crossbuf(obj)
+            hc    = hor_config;
+            mchs  = hc.mem_chunk_size;
+            hc.mem_chunk_size = 1000;
+            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
+            ws = warning('off','HORACE:old_file_format');
+            clObW = onCleanup(@()warning(ws));
+
+            samp_f = fullfile(obj.sample_dir,...
+                'test_sqw_file_read_write_v3_1.sqw');
+
+            so = faccess_sqw_v3(samp_f);
+            sqw_ob = so.get_sqw();
+            % old sqw file
+            assertFalse(sqw_ob.main_header.creation_date_defined);
+
+            assertTrue(isa(sqw_ob,'sqw'));
+
+            inst1=create_test_instrument(95,250,'s');
+            hdr = sqw_ob.experiment_info;
+            hdr.instruments{1} = inst1;
+            sqw_ob = sqw_ob.change_header(hdr);
+
+            tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
+            clob = onCleanup(@()delete(tf));
+
+            tob = faccess_sqw_v3();
+            tob = tob.init(sqw_ob,tf);
+
+            tob=tob.put_sqw();
+            assertTrue(exist(tf,'file')==2)
+            tob = tob.delete();
+
+            tob=tob.init(tf);
+            ver_obj =tob.get_sqw('-verbatim');
+            tob.delete();
+            assertTrue(ver_obj.main_header.creation_date_defined);
+
+            assertTrue(sqw_ob.experiment_info.runid_recalculated);
+            assertFalse(ver_obj.experiment_info.runid_recalculated);
+
+            ver_obj.experiment_info.runid_recalculated = true;
+            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date','ignore_str',true);
+        end
+        
         %
         function obj = test_init_and_get(obj)
             to = faccess_sqw_v3();
@@ -115,7 +160,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             pix = to.get_pix();
             assertTrue(isa(pix, 'PixelDataBase'));
-            assertEqual(pix.file_path, obj.sample_file);
+            assertEqual(pix.full_filename, obj.sample_file);
             assertEqual(pix.num_pixels, 7680);
 
             raw_pix = to.get_raw_pix(1,20);
@@ -222,58 +267,10 @@ classdef test_faccess_sqw_v3< TestCase
             % not be recalculated
             assertFalse(ver_obj.experiment_info.runid_recalculated)
 
-            sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
-            assertEqual(sqw_ob.main_header,ver_obj.main_header);
-
             ver_obj.experiment_info.runid_recalculated = true;
-            assertEqualToTol(sqw_ob,ver_obj,1.e-7);
+            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'ignore_str',true,'-ignore_date');
         end
         %
-        function obj = test_save_load_sqwV31_crossbuf(obj)
-            hc    = hor_config;
-            mchs  = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
-
-            samp_f = fullfile(obj.sample_dir,...
-                'test_sqw_file_read_write_v3_1.sqw');
-
-            so = faccess_sqw_v3(samp_f);
-            sqw_ob = so.get_sqw();
-            % old sqw file
-            assertFalse(sqw_ob.main_header.creation_date_defined);
-
-            assertTrue(isa(sqw_ob,'sqw'));
-
-            inst1=create_test_instrument(95,250,'s');
-            hdr = sqw_ob.experiment_info;
-            hdr.instruments{1} = inst1;
-            sqw_ob = sqw_ob.change_header(hdr);
-
-            tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
-            clob = onCleanup(@()delete(tf));
-
-            tob = faccess_sqw_v3();
-            tob = tob.init(sqw_ob,tf);
-
-            tob=tob.put_sqw();
-            assertTrue(exist(tf,'file')==2)
-            tob = tob.delete();
-
-            tob=tob.init(tf);
-            ver_obj =tob.get_sqw('-verbatim');
-            tob.delete();
-            assertTrue(ver_obj.main_header.creation_date_defined);
-
-            sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
-            assertEqual(sqw_ob.main_header,ver_obj.main_header);
-
-            assertTrue(sqw_ob.experiment_info.runid_recalculated);
-            assertFalse(ver_obj.experiment_info.runid_recalculated);
-
-            ver_obj.experiment_info.runid_recalculated = true;
-            assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date');
-        end
         %
         function test_save_sqwV3toV2(obj)
             samp_f = fullfile(obj.sample_dir,...
@@ -404,7 +401,7 @@ classdef test_faccess_sqw_v3< TestCase
             bl_sizes = pix_ends-pix_starts+1;
 
             f = @() faccess.get_pix_in_ranges(pix_starts, bl_sizes);
-            assertExceptionThrown(f, 'HORACE:validate_ranges:invalid_range');
+            assertExceptionThrown(f, 'HORACE:validate_ranges:invalid_argument');
         end
 
         function test_get_pix_in_ranges_can_handle_out_of_order_ranges(obj)
@@ -449,7 +446,7 @@ classdef test_faccess_sqw_v3< TestCase
             bl_sizes = [2, 4, 6];
 
             f = @() faccess.get_pix_in_ranges(pix_starts, bl_sizes);
-            assertExceptionThrown(f, 'HORACE:validate_ranges:invalid_range');
+            assertExceptionThrown(f, 'HORACE:validate_ranges:invalid_argument');
         end
     end
 end

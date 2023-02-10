@@ -22,19 +22,19 @@ if isempty(pix)
     return;
 end
 
-pix.move_to_first_page();
+pix = pix.move_to_first_page();
 while true
 
     pix_out.data_ = horzcat(pix_out.data, pix.data);
 
     if pix_out.has_more()
-        pix_out.advance();
+        pix = pix_out.advance();
+        pix_out = pix_out.reset_changed_coord_range();
     else
         break;
     end
 end
 
-pix_out.reset_changed_coord_range('coordinates');
 pix_out.num_pixels_ = pix_out.num_pixels_ + pix.num_pixels;
 
 end

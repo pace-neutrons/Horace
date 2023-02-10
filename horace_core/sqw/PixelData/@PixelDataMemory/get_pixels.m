@@ -25,49 +25,33 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %  Optional:
 %  '-ignore_range'  -- if provided, new pix_object will not contain correct
 %                      pixel ranges
+%  '-raw_data'      -- do not wrap the data into PixelData class
+%
+%  '-keep_precision'-- keep the precision of output raw data as it is (not
+%                      doubling it if possible)
 
 % Output:
 % -------
 %   pix_out        Another PixelData object containing only the pixels
 %                  specified in the abs_pix_indices argument.
 %
+[abs_pix_indices,ignore_range,raw_data,keep_precision] =...
+    obj.parse_get_pix_args(abs_pix_indices,varargin{:});
 
-abs_pix_indices = parse_args(obj, abs_pix_indices);
 
-raw_pix = obj.data(:, abs_pix_indices);
-pix_out = PixelDataBase.create(raw_pix);
+pix_out = obj.data_(:, abs_pix_indices);
 
+if ~keep_precision
+    pix_out = double(pix_out);
 end
 
-function abs_pix_indices = parse_args(obj, varargin)
-parser = inputParser();
-parser.addRequired('abs_pix_indices', @is_positive_int_vector_or_logical_vector);
-parser.parse(varargin{:});
-
-abs_pix_indices = parser.Results.abs_pix_indices;
-if islogical(abs_pix_indices)
-    if numel(abs_pix_indices) > obj.num_pixels
-        if any(abs_pix_indices(obj.num_pixels + 1:end))
-            error('PIXELDATA:get_pixels', ...
-                ['The logical indices contain a true value outside of ' ...
-                'the array bounds.']);
-        else
-            abs_pix_indices = abs_pix_indices(1:obj.num_pixels);
-        end
-    end
-    abs_pix_indices = find(abs_pix_indices);
+if raw_data
+    return;
 end
+if ignore_range
+    pix_out = PixelDataMemory();
+    pix_out = pix_out.set_raw_data(pix_out);
 
-max_idx = max(abs_pix_indices);
-if max_idx > obj.num_pixels
-    error('HORACE:PixelData:get_pixels', ...
-        'Pixel index out of range. Index must not exceed %i.', ...
-        obj.num_pixels);
-end
-
-end
-
-function is = is_positive_int_vector_or_logical_vector(vec)
-is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
-
+else
+    pix_out = PixelDataMemory(pix_out);
 end

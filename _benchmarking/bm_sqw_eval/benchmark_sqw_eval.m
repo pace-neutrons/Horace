@@ -1,7 +1,7 @@
 function benchmark_sqw_eval(nDims,dataInfo,dataSet,objType,func_handle,params,nProcs,filename)
 %BENCHMARK_SQW_EVAL This function initiates the benchmarks for
 %sqw_eval()
-% This function is used to run all the individual benchamrks in the 3
+% This function is used to run all the individual benchmarks in the 3
 % test_sqw_eval classes.
 % This function generates cuts from sqw or dnd objects and uses the
 % profiler to generate a csv file of timing data.
@@ -30,7 +30,7 @@ function benchmark_sqw_eval(nDims,dataInfo,dataSet,objType,func_handle,params,nP
 % >>> benchmark_sqw_eval(1,'large',"sqw",@slow_func,{[250 0 2.4 10 5],@demo_FM_spinwaves,10^0},1,'custom.csv')
 
 
-%% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
+%% Setup nprocs and other config info with hpc_config() (save initial config details for later)
     do_profile = exist('filename', 'var');
 
     hpc = hpc_config();

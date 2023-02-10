@@ -53,7 +53,7 @@ else
 end
 ndet0=numel(w.detpar.group);% number of detectors
 
-tmp=w.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
+tmp=w.pix.get_fields({'detector_idx', 'energy_idx', 'signal', 'variance'})';
 tmp=sortrows(tmp,[1,2]);    % order by detector group number, then energy
 group=unique(tmp(:,1));    % unique detector group numbers in the data in numerical increasing order
 

@@ -13,7 +13,7 @@ end
 old_pos = obj.position_;
 obj.position_ = val;
 pos_shift = val-old_pos;
-if pos_shift == 0 || ~obj.initialized_
+if pos_shift == 0 || ~obj.initialized
     return
 end
 % modify the positions of the data blocks on hdd

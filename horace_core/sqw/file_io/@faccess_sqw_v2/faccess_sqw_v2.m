@@ -35,7 +35,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     %
     % Update mode is initialized if the file with name filename exists and can be updated,
     % i.e. has the same number of dimensions, binning axis and pixels. In this case you can modify
-    % dnd or sqw methadata or explicitly overwrite pixels.
+    % dnd or sqw metadata or explicitly overwrite pixels.
     %
     % If existing file can not be updated, it will be open in write mode.
     % If file with filename does not exist, the object will be open in write mode.
@@ -45,9 +45,9 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     % already exists in the file.
     %
     % Note:
-    % The current sqw file format comes in two variants:
+    % In 2023 there is the number of binary Horace file formats. This loader deals with: 
     %   - Horace version 1 and version 2: file format '-v2'
-    %   (Autumn 2008 onwards). Does not contain instrument and sample fields in the header block.
+    %   (Autumn 2008 onwards) which do not contain instrument and sample fields in the header block.
     %
     % There also transitional v3.0 sqw files, which contain the same as v2 files information and
     % are treated as v2 format files. sqw_formats_factory returns this loader to access such files.
@@ -62,11 +62,12 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             % does nothing as v3 does not have sqw footer
         end
         function ver = get_faccess_version(~)
-            % retrieve sqw-file version the particular loader works with
+            % retrieve sqw-file version this particular loader works with
             ver = 2;
         end
-        % update file format to a recent file form
-        new_obj = do_class_dependent_updates(obj,new_obj);
+        % updating to recent file format is defined in sqw_binfile_common, 
+        % so this function is defined there and removed from here as it was for v3.3 file formats.
+        % new_obj = do_class_dependent_updates(obj,new_obj,varargin);
     end
 
     methods

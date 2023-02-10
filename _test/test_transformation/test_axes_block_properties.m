@@ -55,7 +55,7 @@ classdef test_axes_block_properties < TestCase
             % (function returns current date -- this checked in main_header)
             % so we need to assign it explicitly:
             sq_sample.main_header.creation_date= sq_req.main_header.creation_date;
-            assertEqualToTol(sq_sample,sq_req,'ignore_str',true);
+            assertEqualToTol(sq_sample,sq_req,1.e-15,'ignore_str',true);
 
         end
         function test_save_load_prev_version(obj)
@@ -113,7 +113,8 @@ classdef test_axes_block_properties < TestCase
             assertEqual(ab.iax,1:3)
             assertEqual(ab.pax,4)
             %
-            assertEqual(ab.iint,PixelDataBase.EMPTY_RANGE_(:,1:3))
+            er = PixelDataBase.EMPTY_RANGE_();
+            assertEqual(ab.iint,er(:,1:3))
             assertEqual(ab.p{1},[inf,0,-inf])
             assertEqual(ab.ulen,ones(1,4));
         end

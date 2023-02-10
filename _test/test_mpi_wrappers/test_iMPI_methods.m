@@ -39,7 +39,7 @@ classdef test_iMPI_methods< TestCase
         function test_add_persistent(~)
             mf = MessagesFilebased();
             
-            mf.set_interrupt(FailedMessage('bad faulure'),1);
+            mf.set_interrupt(FailedMessage('bad failure'),1);
             mf.set_interrupt(FailedMessage(),10);
             mf.set_interrupt(FailedMessage(),5);
             

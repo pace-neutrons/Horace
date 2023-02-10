@@ -1,7 +1,7 @@
 function benchmark_cut_sqw(nDims,dataInfo,objType,nProcs,eRange,contiguous,filename)
 %BENCHMARK_CUT_SQW This function initiates the benchmarks for
 %cut_sqw()
-% This function is used to run all the individual benchamrks in the 3
+% This function is used to run all the individual benchmarks in the 3
 % test_cut_sqw classes.
 % This function generates cuts from sqw or dnd objects and uses the
 % profiler to generate a csv file of timing data.
@@ -12,7 +12,7 @@ function benchmark_cut_sqw(nDims,dataInfo,objType,nProcs,eRange,contiguous,filen
 %   nDims       dimensions of the sqw objects to combine: [int: 1,2 or 3]
 %   dataInfo    details of sqw object to cut:
 %               [char: 'small','medium' or 'large' (10^7,10^8 and 10^9
-%               pixels), an int from 6-10 or a filepath to exisiting sqw
+%               pixels), an int from 6-10 or a filepath to existing sqw
 %               file]
 %   objType     the type of object to cut [string: "sqw" or "dnd"]
 %   nProcs      the number of processors the benchmark will run on
@@ -27,12 +27,12 @@ function benchmark_cut_sqw(nDims,dataInfo,objType,nProcs,eRange,contiguous,filen
 % >>> benchmark_cut_sqw(1,'large',"sqw",1,[0,175],false,'custom.csv')
 % >>> benchmark_cut_sqw(1,'saved.sqw',"sqw",1,[0,175],false,'custom.csv')
 
-%% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
+%% Setup nprocs and other config info with hpc_config() (save initial config details for later)
     do_profile = exist('filename', 'var');
 
     hpc = hpc_config();
     cur_hpc_config = hpc.get_data_to_store();
-    % remove configurations from memory. Ensure only stored configurat  ions are
+    % remove configurations from memory. Ensure only stored configuration  ions are
     % stored
     clear config_store;
 

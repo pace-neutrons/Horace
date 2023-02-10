@@ -65,4 +65,5 @@ if ~update
     do_fseek(obj.file_id_,0,'eof');
     obj.real_eof_pos_ = ftell(obj.file_id_);
 end
+obj.data_in_file_ = true;
 

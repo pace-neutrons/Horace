@@ -75,6 +75,9 @@ else
             error('HORACE:binfile_v2_common:runtime_error',...
                 'Upgrade of existing object with new sqw/dnd object is not yet implemented')
         end
+        if nargin == 3 && isa(input,'sqw')
+            input.full_filename = argi{1};
+        end
         obj = obj.init_from_sqw_obj(input);
         if nargin == 3
             obj = obj.set_file_to_update(argi{:});

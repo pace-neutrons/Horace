@@ -33,14 +33,19 @@ classdef data_block < serializable
         % return array of bytes, necessary to store and/or recover data block
         % class from blockAllocationTable.
         bat_record;
+        % true if block size was initialized, i.e. its position
+        % have been set
+        initialized
     end
     properties(Access=protected)
         sqw_prop_name_ ='';
         level2_prop_name_ = '';
-        position_=0;
+        position_=uint64(0);
         size_ = 0;
         % The cache containing serialized object after estimating its size
         serialized_obj_cache_ = [];
+        %
+        initialized_ = false;
     end
     %======================================================================
     methods
@@ -85,7 +90,7 @@ classdef data_block < serializable
                         'Pre-calculated block size %d differs from obtained block size %d. Binary file will be probably corrupted',...
                         obj.block_size,numel(bindata))
                 else
-                    obj.size_=numel(bindata);
+                    obj.size_=uint64(numel(bindata));
                 end
             end
             obj = obj.put_bindata_in_file(fid,bindata);
@@ -151,6 +156,20 @@ classdef data_block < serializable
     end
     %======================================================================
     methods(Access=protected)
+        function size = get_size(obj)
+            % Overloadable part of data_block size getter
+            size  =   obj.size_;
+        end
+        function obj = set_size(obj,val)
+            % Overloadable part of data_block size setter
+            if ~(isscalar(val)&&isnumeric(val)&&val>=0)
+                error('HORACE:data_block:invalid_argument', ...
+                    'block size can be only non-negative number. It is %s',...
+                    disp2str(val));
+            end
+            obj.size_ = uint64(val);
+        end
+
         function obj = put_bindata_in_file(obj,fid,bindata)
             % store array of bytes into selected and opened binary file
             % Inputs:
@@ -236,18 +255,19 @@ classdef data_block < serializable
                     disp2str(val));
             end
             obj.position_ = uint64(val);
+            if obj.position_ > 0
+                obj.initialized_ = true;
+            end
         end
         %
-        function pos = get.size(obj)
-            pos = obj.size_;
+        function size = get.size(obj)
+            size = uint64(get_size(obj));
         end
         function obj = set.size(obj,val)
-            if ~(isscalar(val)&&isnumeric(val)&&val>=0)
-                error('HORACE:data_block:invalid_argument', ...
-                    'block size can be only non-negative number. It is %s',...
-                    disp2str(val));
-            end
-            obj.size_ = uint64(val);
+            obj = set_size(obj,val);
+        end
+        function is = get.initialized(obj)
+            is = obj.initialized_;
         end
     end
     methods(Access=protected)

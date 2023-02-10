@@ -95,7 +95,7 @@ classdef test_mushroom_sqw < TestCaseWithSave
                 2, [2*pi,2*pi,2*pi], [90,90,90], [0,0,1], [0,-1,0],0,0,0,0,0);
             
             ldr = sqw_formats_factory.instance().get_loader(sqw_file);
-            assertTrue(isa(ldr,'faccess_sqw_v3_21'));
+            assertTrue(isa(ldr,'faccess_sqw_v4'));
             
             sqo = read_sqw(sqw_file);
             

@@ -31,6 +31,6 @@ if isempty(obj.transform_sqw) || ignore_transf %
     [pix_range,det0] = proj.convert_rundata_to_pix(b_obj);
     obj.det_par = det0;
 else
-    [~,~,pix_range] = b_obj.calc_sqw(3,[],varargin{:});
+    [~,~,data_range] = b_obj.calc_sqw(3,[],varargin{:});
+    pix_range = data_range(:,1:4);
 end
-

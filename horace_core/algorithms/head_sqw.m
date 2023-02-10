@@ -30,11 +30,14 @@ function varargout=head_sqw(varargin)
 %
 
 if nargout>0
-    varargout = head_horace(varargin{:});
-    if ~iscell(varargout)
-        varargout = {varargout};
-    end
-    
+    out = head_horace(varargin{:});
+    if nargout == 1
+        varargout{1} = out;
+    else
+        for i=1:nargout
+            varargout{i} = out{i};            
+        end
+    end    
 else
     head_horace(varargin{:});
 end

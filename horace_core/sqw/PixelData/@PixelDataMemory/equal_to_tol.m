@@ -65,13 +65,13 @@ end
 % -----------------------------------------------------------------------------
 function [ok, mess] = pix_paged_and_in_mem_equal_to_tol(...
         paged_pix, in_mem_pix, varargin)
-    paged_pix.move_to_first_page();
+    paged_pix=paged_pix.move_to_first_page();
     start_idx = 1;
     end_idx = paged_pix.page_size;
     [ok, mess] = equal_to_tol(in_mem_pix.data(:, start_idx:end_idx), ...
                               paged_pix.data, varargin{:});
     while ok && paged_pix.has_more()
-        paged_pix.advance();
+        paged_pix = paged_pix.advance();
         start_idx = end_idx + 1;
         end_idx = end_idx + paged_pix.page_size;
         [ok, mess] = equal_to_tol(in_mem_pix.data(:, start_idx:end_idx), ...

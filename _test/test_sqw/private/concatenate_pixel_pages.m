@@ -16,7 +16,7 @@ while true
     iter = iter + 1;
 
     if pix.has_more()
-        pix.advance();
+        pix = pix.advance();
     else
         break;
     end

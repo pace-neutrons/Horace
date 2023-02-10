@@ -8,6 +8,10 @@ function varargout = read_horace(files,varargin)
 %                                            only.
 %   >> w=read_horace(file(s),'-force_sqw')-- fail if the input file
 %                                            contains a dnd object.
+%   >> w=read_horace(file(s),'-filebacked')-- force pixels data being
+%                                             file-backed even if they fit
+%                                             the memory
+
 % Additional possible options are transferred to sqw or dnd loader directly
 %
 % Original author: T.G.Perring
@@ -34,11 +38,13 @@ if n_outputs > nargin
           'number of output objects requested is bigger then the number of input files provided')
 end
 
-[ok,mess,get_dnd,force_sqw,file_backed,argi] = parse_char_options(varargin,{'-get_dnd','-force_sqw','-file_backed'});
+[ok,mess,get_dnd,force_sqw,file_backed,filebacked,argi] = parse_char_options(varargin, ...
+    {'-get_dnd','-force_sqw','-file_backed','-filebacked'});
 if ~ok
     error('HORACE:read_horace:invalid_argument',...
           mess);
 end
+file_backed = filebacked||file_backed;
 
 if get_dnd && force_sqw
     error('HORACE:read_horace:invalid_argument',...

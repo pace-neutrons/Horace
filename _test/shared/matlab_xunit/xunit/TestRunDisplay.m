@@ -1,26 +1,26 @@
 classdef TestRunDisplay < TestRunMonitor
-%TestRunDisplay Print test suite execution results.
-%   TestRunDisplay is a subclass of TestRunMonitor.  If a TestRunDisplay
-%   object is passed to the run method of a TestComponent, such as a
-%   TestSuite or a TestCase, it will print information to the Command
-%   Window (or specified file handle) as the test run proceeds.
-%
-%   TestRunDisplay methods:
-%       testComponentStarted  - Update Command Window display
-%       testComponentFinished - Update Command Window display
-%       testCaseFailure       - Log test failure information
-%       testCaseError         - Log test error information
-%
-%   TestRunDisplay properties:
-%       TestCaseCount         - Number of test cases executed
-%       Faults                - Struct array of test fault info
-%
-%   See also TestRunLogger, TestRunMonitor, TestSuite
+    %TestRunDisplay Print test suite execution results.
+    %   TestRunDisplay is a subclass of TestRunMonitor.  If a TestRunDisplay
+    %   object is passed to the run method of a TestComponent, such as a
+    %   TestSuite or a TestCase, it will print information to the Command
+    %   Window (or specified file handle) as the test run proceeds.
+    %
+    %   TestRunDisplay methods:
+    %       testComponentStarted  - Update Command Window display
+    %       testComponentFinished - Update Command Window display
+    %       testCaseFailure       - Log test failure information
+    %       testCaseError         - Log test error information
+    %
+    %   TestRunDisplay properties:
+    %       TestCaseCount         - Number of test cases executed
+    %       Faults                - Struct array of test fault info
+    %
+    %   See also TestRunLogger, TestRunMonitor, TestSuite
 
-%   Steven L. Eddins
-%   Modified J. Wilkins 19-01-2021
+    %   Steven L. Eddins
+    %   Modified J. Wilkins 19-01-2021
 
-%   Copyright 2008-2010 The MathWorks, Inc.
+    %   Copyright 2008-2010 The MathWorks, Inc.
     properties
         disp_fail_only = false;
     end
@@ -97,12 +97,12 @@ classdef TestRunDisplay < TestRunMonitor
             if isa(component, 'TestCase')
                 self.TestCaseCount = self.TestCaseCount + 1;
                 switch did_pass
-                  case component.passed
-                    fprintf(self.FileHandle, '.');
-                  case component.skipped
-                    fprintf(self.FileHandle, 'S');
-                  case component.failed
-                    fprintf(self.FileHandle, 'F');
+                    case component.passed
+                        fprintf(self.FileHandle, '.');
+                    case component.skipped
+                        fprintf(self.FileHandle, 'S');
+                    case component.failed
+                        fprintf(self.FileHandle, 'F');
                 end
                 line_length = 20;
                 if mod(self.TestCaseCount, line_length) == 0
@@ -139,7 +139,7 @@ classdef TestRunDisplay < TestRunMonitor
             %    case skip information.
 
             self.logFault('skip', test_case, ...
-                          skip_exception);
+                skip_exception);
             self.NumSkips = self.NumSkips + 1;
         end
     end
@@ -173,15 +173,13 @@ classdef TestRunDisplay < TestRunMonitor
                 result = 'FAILED';
             end
             if strcmp(result,'FAILED') && (self.FileHandle==1)
-                fprintf(2, '\n%s in %.3f seconds, %d tests skipped.\n', result, toc(self.InitialTic), self.NumSkips);                
+                fprintf(2, '\n%s in %.3f seconds, %d tests skipped.\n', result, toc(self.InitialTic), self.NumSkips);
             else
                 fprintf(self.FileHandle, '\n%s in %.3f seconds, %d tests skipped.\n', result, toc(self.InitialTic), self.NumSkips);
             end
 
-            self.displayFaults();
+            self.displayFaults(did_pass);
         end
-
-
 
         function logFault(self, type, test_case, exception)
             %logFault Log test fault information
@@ -194,38 +192,62 @@ classdef TestRunDisplay < TestRunMonitor
             self.Faults(end).Exception = exception;
         end
 
-        function displayFaults(self)
+        function displayFaults(self,did_pass)
             %displayFaults Display test fault info to Command Window
             %    obj.displayFaults() displays a summary of each test failure and
             %    test error to the command window.
-            for k = 1:numel(self.Faults)
-                faultData = self.Faults(k);
-                if strcmp(faultData.Type, 'failure')
-                    str = 'Failure';
-                elseif strcmp(faultData.Type, 'skip')
-                    % Only print if verbose
-                    %if ~isa(self, 'VerboseTestRunDisplay')
-                    %    continue                    
-                    %end
-                    if self.disp_fail_only
-                        continue;
-                    end                    
-                    str = 'Skipped';
-                else
-                    str = 'Error';
-                end
-                fprintf(self.FileHandle, '\n===== Test Case %s =====\nLocation: %s\nName:     %s\n\n', str, ...
-                    faultData.TestCase.Location, faultData.TestCase.Name);
-                displayStack(filterStack(faultData.Exception.stack), ...
-                    self.FileHandle);
-                fprintf(self.FileHandle, '\n%s\n', faultData.Exception.message);
 
-                fprintf(self.FileHandle, '\n');
+            if nargin == 1
+                did_pass = false;
+            end
+            %
+            if self.disp_fail_only
+                n_faults = numel(self.Faults);
+            else
+                n_faults = 0;
+                for k = 1:numel(self.Faults)
+                    faultData = self.Faults(k);
+                    if strcmp(faultData.Type, 'failure')
+                        n_faults  = n_faults+1;
+                        continue
+                    elseif strcmp(faultData.Type, 'skip')
+                        % Only print if verbose
+                        %if ~isa(self, 'VerboseTestRunDisplay')
+                        %    continue
+                        %end
+                        str = 'Skipped';
+                    else
+                        str = 'Error';
+                    end
+                    print_fault(self.FileHandle,str,faultData)
+                end
+            end
+            if ~did_pass
+                fprintf(2,'===== FOUND %d FAILED TESTS ===== \n',n_faults)
+                for k = 1:numel(self.Faults)
+                    faultData = self.Faults(k);
+                    if strcmp(faultData.Type, 'failure')
+                        str = 'Failure';
+                        n_faults  = n_faults+1;
+                        print_fault(self.FileHandle,str,faultData)
+                    end
+                end
             end
         end
 
     end
 
+end
+
+function print_fault(file_handle,fault_type,faultData)
+fprintf(file_handle, ...
+    '\n===== Test Case %s =====\nLocation: %s\nName:     %s\n\n', ...
+    fault_type, ...
+    faultData.TestCase.Location, faultData.TestCase.Name);
+displayStack(filterStack(faultData.Exception.stack), ...
+    file_handle);
+fprintf(file_handle, '\n%s\n', faultData.Exception.message);
+fprintf(file_handle, '\n');
 end
 
 function displayStack(stack, file_handle)

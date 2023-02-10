@@ -100,7 +100,7 @@ try
     do_fseek(obj.file_id_,start_pos ,'bof');
 catch ME
     exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
-                     'Error moving to the start of the pixels info');
+        'Error moving to the start of the pixels info');
     throw(exc.addCause(ME))
 end
 fwrite(obj.file_id_,bytes,'uint8');
@@ -150,7 +150,7 @@ end
 if isa(input_obj,'pix_combine_info') % pix field contains info to read &
     %combine pixels from sequence of files. There is special sub-algorithm
     %to do that.
-    obj = put_sqw_data_pix_from_file_(obj,input_obj, jobDispatcher);
+    obj = obj.put_sqw_data_pix_from_file(obj,input_obj, jobDispatcher);
 else % write pixels directly
 
     % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
@@ -162,16 +162,16 @@ else % write pixels directly
         do_fseek(obj.file_id_, obj.pix_pos_ , 'bof');
     catch ME
         exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
-                         'Error moving to the start of the pixels record');
+            'Error moving to the start of the pixels record');
         throw(exc.addCause(ME))
     end
 
     npix_to_write = obj.npixels;
     if npix_to_write <= block_size
-        input_obj.move_to_first_page();
+        input_obj= input_obj.move_to_first_page();
         fwrite(obj.file_id_, single(input_obj.data), 'float32');
         while input_obj.has_more()
-            input_obj.advance();
+            input_obj=input_obj.advance();
             fwrite(obj.file_id_, single(input_obj.data), 'float32');
         end
         check_error_report_fail_(obj,'Error writing pixels array');

@@ -88,8 +88,9 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
 %
 
 pix_out = PixelDataFileBacked();
-fid = pix_out.get_new_handle();
-
+% Re #928 filebacked masking shoule be completed there
+%fid = pix_out.get_new_handle();
+error('HORACE:mask:not_implemented','Filebacked masking is not currently implemented Re #928')
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 pix_out.num_pixels_ = 0;
 
@@ -97,16 +98,16 @@ for i = 1:obj.n_pages
     npix_for_page = npix_chunks{i};
     idx = idxs(:, i);
 
-    obj.load_page(i);
+    obj.page_num = i;
     mask_array_chunk = repelem(mask_array(idx(1):idx(2)), npix_for_page);
 
     pix_out.num_pixels_ = pix_out.num_pixels + sum(mask_array_chunk);
 
-    fwrite(fid, obj.data(:, mask_array_chunk), obj.FILE_DATA_FORMAT_);
+ %   fwrite(fid, obj.data(:, mask_array_chunk), obj.FILE_DATA_FORMAT_);
 
 end
 
-pix_out.finalise(fid);
+%pix_out.finalise(fid);
 
 end
 

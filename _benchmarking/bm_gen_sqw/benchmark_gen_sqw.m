@@ -1,6 +1,6 @@
 function benchmark_gen_sqw(dataSize,dataSet,par_file_data,nProcs,filename)
 %BENCHMARK_GEN_SQW This function initiates the benchmarks for gen_sqw()
-%   This function is used to run all the individual benchamrks in the 3
+%   This function is used to run all the individual benchmarks in the 3
 %   test_gen_sqw classes.
 %   The function checks if the benchmarks are to be run in serial or
 %   parallel as well as setting sample and detector parameters:

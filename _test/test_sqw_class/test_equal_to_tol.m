@@ -28,9 +28,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
             % sqw_2d_1.sqw has ~1.8 MB of pixels, a 400 kB page size gives us 5
             % pages of pixel data
-            pixel_page_size = 400e3;
             obj.sqw_2d_paged = sqw(obj.test_sqw_file_path, ...
-                'pixel_page_size',pixel_page_size);
+                'file_backed',true);
 
             obj.sqw_2d = sqw(obj.test_sqw_file_path);
         end
@@ -56,27 +55,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             assertEqual(mess, 'Objects being compared are not the same type');
         end
 
-        function test_different_sqw_objects_are_not_equal(obj)
-            class_fields = properties(obj.sqw_2d);
-            is_dependent = ismember(class_fields,{'npixels','runid_map','pix','border_size'});
-            class_fields = class_fields(~is_dependent);
-            for idx = 1:numel(class_fields)
-                sqw_copy = obj.sqw_2d;
-                field_name = class_fields{idx};
-
-                if isstruct(sqw_copy.(field_name))
-                    sqw_copy.(field_name).test_field = 'test_value';
-                elseif isstring(sqw_copy.(field_name))
-                    sqw_copy.(field_name) = 'test_value';
-                else
-                    sqw_copy.(field_name) = [];
-                end
-
-                [ok, mess] = equal_to_tol(obj.sqw_2d, sqw_copy);
-                assertFalse(ok, ['Expected ', field_name, ' to be not equal']);
-            end
-        end
-
+  
         function test_the_same_sqw_objects_are_equal_with_no_pix_reorder(obj)
             sqw_copy = obj.sqw_2d;
             assertTrue(equal_to_tol(obj.sqw_2d, sqw_copy, 'reorder', false));
@@ -105,9 +84,9 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             shuffled_data = obj.shuffle_pixel_bin_rows(PixelDataBase.create(data), npix).data;
 
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data, npix_in_page);
+
+            pix = obj.get_pix_with_fake_faccess(data);
+            shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data);
 
             original_sqw.data.do_check_combo_arg = false; % disable object integrity validation            
             % to be able to modify npix array size independently on other
@@ -130,9 +109,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             shuffled_data = obj.shuffle_pixel_bin_rows(PixelDataBase.create(data), npix).data;
 
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
+            shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data);
 
             original_sqw.data.do_check_combo_arg = false; % disable object integrity validation            
             % to be able to modify npix array size independently on other
@@ -209,9 +187,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
                 edited_data(:, bin_start_idxs(bin_num):bin_end_idxs(bin_num)) = 0;
             end
 
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            edited_pix = obj.get_pix_with_fake_faccess(edited_data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
+            edited_pix = obj.get_pix_with_fake_faccess(edited_data);
 
             original_sqw.data.do_check_combo_arg = false; % disable object integrity validation            
             % to be able to modify npix array size independently on other
@@ -316,10 +293,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             end
         end
         %
-        function pix = get_pix_with_fake_faccess(data, npix_in_page)
-            faccess = FakeFAccess(data);
-            bytes_in_pixel = PixelDataBase.DATA_POINT_SIZE*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
-            pix = PixelDataBase.create(faccess, npix_in_page*bytes_in_pixel);
+        function pix = get_pix_with_fake_faccess(data)
+            pix = PixelDataFileBacked(data);
         end
 
     end

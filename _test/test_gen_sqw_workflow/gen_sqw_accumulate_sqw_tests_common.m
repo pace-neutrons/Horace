@@ -628,11 +628,11 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 psi([1,4,5,6]), omega([1,4,5,6]), dpsi([1,4,5,6]), gl([1,4,5,6]), gs([1,4,5,6]));
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_1456);
             dat = ldr.get_data();
-            pix_range = ldr.get_pix_range();
+            data_range = ldr.get_data_range();
             clear ldr;
             img_db_range1 = dat.img_range;
-            assertEqual(pix_range1456,pix_range);
-            assertElementsAlmostEqual(pix_range,img_db_range1,'relative',1.e-4);
+            assertEqual(pix_range1456,data_range);
+            assertElementsAlmostEqual(data_range(:,1:4),img_db_range1,'relative',1.e-4);
 
 
             % Now use accumulate sqw ----------------------
@@ -643,8 +643,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
             dat = ldr.get_data();
-            pix_range = ldr.get_pix_range();
-            assertEqual(acc_pix_range1456,pix_range);
+            data_range = ldr.get_data_range();
+            assertEqual(acc_pix_range1456,data_range);
             clear ldr;
             img_db_range2 = dat.img_range;
             % img_db_range in second case is wider then in the first, as

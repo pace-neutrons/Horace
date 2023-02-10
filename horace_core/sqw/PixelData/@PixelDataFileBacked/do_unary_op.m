@@ -14,7 +14,7 @@ else
     pix_out = obj;
 end
 
-fid = pix_out.get_new_handle();
+%fid = pix_out.get_new_handle();
 
 for i = 1:pix_out.n_pages
     pix_out.load_page(i);
@@ -22,9 +22,9 @@ for i = 1:pix_out.n_pages
     pix_out.signal = pg_result.s;
     pix_out.variance = pg_result.e;
 
-    pix_out.format_dump_data(fid);
+    %pix_out.format_dump_data(fid);
 end
 
-pix_out.finalise(fid)
+%pix_out.finalise(fid)
 
 end

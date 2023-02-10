@@ -1,4 +1,4 @@
-function [img_db_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
+function [img_db_range,data_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
@@ -65,7 +65,7 @@ end
 if ~ok
     error('HORACE:write_nsqw_to_sqw:invalid_argument',mess);
 end
-[pix_range,job_disp,jd_initialized]= parse_additional_input(argi);
+[data_range,job_disp,jd_initialized]= parse_additional_input(argi);
 
 persistent old_matlab;
 if isempty(old_matlab)
@@ -113,7 +113,7 @@ end
 % construct target sqw object containing everything except pixel data.
 % Instead of PixelData, it will contain information about how to combine
 % PixelData
-[data_sum,img_db_range,job_disp_4head]=get_pix_comb_info_(infiles,pix_range,job_disp_4head, ...
+[data_sum,img_db_range,job_disp_4head]=get_pix_comb_info_(infiles,data_range,job_disp_4head, ...
     allow_equal_headers,keep_runid,drop_subzone_headers);
 if ~isempty(job_disp_4head)
     job_disp = job_disp_4head;
@@ -121,9 +121,8 @@ end
 %
 %
 %
-[fp,fn,fe] = fileparts(outfile);
-data_sum.main_header.filename = [fn,fe];
-data_sum.main_header.filepath = [fp,filesep];
+data_sum.main_header.full_filename = outfile;
+data_sum.pix.full_filename = outfile;
 %
 ds = sqw(data_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access(ds);
@@ -136,20 +135,22 @@ end
 % initialize sqw writer algorithm with sqw file to write, containing a normal sqw
 % object with pix field containing information about the way to assemble the
 % pixels
+ds.creation_date  = datetime('now');
+ds.full_filename = outfile;
 wrtr = wrtr.init(ds,outfile);
 if combine_in_parallel
-    wrtr = wrtr.put_sqw(job_disp);
+    wrtr = wrtr.put_sqw(job_disp,'-verbatim');
 else
-    wrtr = wrtr.put_sqw();
+    wrtr = wrtr.put_sqw('-verbatim');
 end
 wrtr.delete();
 %
 %
-function [pix_range,job_disp,jd_initialized]= parse_additional_input(argi)
+function [data_range,job_disp,jd_initialized]= parse_additional_input(argi)
 % parse input to extract pixel range and initialized job dispatcher if any
 % of them provided as input arguments
 %
-pix_range = PixelDataBase.EMPTY_RANGE_;
+data_range = PixelDataBase.EMPTY_RANGE;
 job_disp = [];
 jd_initialized = false;
 %
@@ -180,7 +181,7 @@ if isempty(argi)
     return;
 end
 %
-is_range = cellfun(@(x)(all(size(x) == [2,4])),argi,'UniformOutput',true);
+is_range = cellfun(@(x)(isequal(size(x),[2,9])),argi,'UniformOutput',true);
 if ~any(is_range)
     return;
 end
@@ -189,4 +190,4 @@ if sum(is_range) > 1
         ['More then one variable in input arguments is interpreted as range.',...
         ' This is not currently supported'])
 end
-pix_range  = argi{is_range};
+data_range  = argi{is_range};

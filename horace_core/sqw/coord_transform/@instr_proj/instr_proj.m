@@ -196,6 +196,9 @@ classdef instr_proj<aProjection
             % let the shape to be defined by input number of bins?
             ax_bl.single_bin_defines_iax = true(4,1); % here we assume that
             % object may be less then 4-dimensions
+            if ax_bl.dimensions ~= 4
+                ax_bl.dax = 1:ax_bl.dimensions;
+            end
             % other parameters
             ax_bl.ulen  = [1,1,1,1];
             % TODO, delete this, mutate axes_block
