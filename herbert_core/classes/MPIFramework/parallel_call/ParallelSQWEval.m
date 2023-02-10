@@ -21,7 +21,7 @@ classdef ParallelSQWEval < JobExecutor
             data = obj.loop_data_{1};
             common = obj.common_data_;
 
-            w_out = common.func(data.w, common.args{:})
+            w_out = common.func(data.w, common.args{:});
             obj.task_outputs = w_out;
 
         end
