@@ -81,6 +81,11 @@ for iw = 1:numel(win)
     else
         [~,~,irun,idet] = parse_pixel_indicies (wtmp,indx,iw);
     end
+    mir = max(irun);
+    if mir > wtmp.main_header.nfiles % 
+        [uir, ~, ic] = unique(irun); irun = arrayfun(@(v)wtmp.runid_map(v), uir); irun = irun(ic); clear ic uir;
+    end
+    
     npix = npix_arr(iw);
     
     % Simple pointers to items in lookup
