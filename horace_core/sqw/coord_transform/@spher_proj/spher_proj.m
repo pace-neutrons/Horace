@@ -2,23 +2,21 @@ classdef spher_proj<aProjection
     % Class defines spherical coordinate projection, used by cut_sqw
     % to make spherical cuts
     %
-    %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
-    %
-    properties(Dependent)
-        ex; %[1x3] Vector of axis in spherical coordinate system,
-        % where azimuthal angle phi is counted from (r.l.u.)
-        ez; %[1x3] Vector of axis in spherical coordinate system
+     properties(Dependent)
+        ez; %[1x3] Vector of Z axis in spherical coordinate system
+        % where azimuthal angle phi is counted from (rlu)
+        ex; %[1x3] Vector of axis in spherical coordinate system
         % where polar angle theta is counted from (r.l.u.)
-        ucentre; % [3x1] vector,defining of the centre of spherical projection
+        ucentre; % [4x1] vector,defining of the centre of spherical projection
         type; %='r' units of r;
         lab     %={'\ro','\theta','\phi','E'};
         %
     end
     properties(Access=private)
         %
-        ex_ = 'u-aligned';%[1,0,0]
-        ez_ = 'w-aligned';%[0,0,1]
+        ez_ = 'w-aligned';%[0,0,1]        
+        ex_ = [1,0,0]
+
         ucentre_ = [0;0;0]
         type_ = 'rdd' % rlu, degree, degree
         %------------------------------------
