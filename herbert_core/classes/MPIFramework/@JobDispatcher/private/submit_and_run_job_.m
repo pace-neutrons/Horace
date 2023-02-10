@@ -17,7 +17,6 @@ function [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,...
 %
 %
 
-
     exit_worker_when_job_ends = cluster_wrp.exit_worker_when_job_ends;
     n_workers                 = cluster_wrp.n_workers;
 
@@ -39,7 +38,6 @@ function [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,...
 
     % submit info to cluster and start job
     cluster_wrp = cluster_wrp.start_job(je_init_message,taskInitMessages,log_message_prefix);
-
 
     % wait until the job finishes
     waiting_time = obj.task_wait_time;

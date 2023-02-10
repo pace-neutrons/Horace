@@ -271,13 +271,13 @@ classdef ClusterSlurm < ClusterWrapper
             if completed
                 t = timer;
                 t.StartDelay = obj.keep_cluster_alive_;
-                t.TimerFcn = @() finalize_all(obj);
+                t.TimerFcn = @() finalize_all(obj, true);
                 obj.timer_ = t;
                 start(obj.timer_);
             end
         end
 
-        function obj = finalize_all(obj)
+        function obj = finalize_all(obj, clear_mpi_state)
             % complete parallel job execution
 
             % close exchange framework and delete exchange folder
@@ -293,6 +293,10 @@ classdef ClusterSlurm < ClusterWrapper
                           'Error cancelling Slurm job with ID %d, Reason: %s',...
                           obj.slurm_job_id_,mess);
                 end
+            end
+            if exist('clear_mpi_state', 'var') && clear_mpi_state
+                mis = MPI_State.instance();
+                mis.cluster = [];
             end
         end
 

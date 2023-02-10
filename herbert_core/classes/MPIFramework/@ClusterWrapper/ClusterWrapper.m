@@ -523,14 +523,6 @@ classdef ClusterWrapper
 
             if ~isempty(obj.mess_exchange_)
                 obj.mess_exchange_.finalize_all();
-                new_mess_exchange_folder = obj.mess_exchange_.next_message_folder_name;
-                if is_folder(new_mess_exchange_folder)
-                    [ok,mess]=rmdir(new_mess_exchange_folder,'s');
-                    if ~ok
-                        warning(' can not clean-up prospective message exchange folder %s Reason %s',...
-                            new_mess_exchange_folder,mess);
-                    end
-                end
                 obj.mess_exchange_ = [];
             end
             % clear enviromental variables set earlier to avoid
@@ -538,9 +530,6 @@ classdef ClusterWrapper
             vars = obj.common_env_var_.keys;
             cellfun(@(var)setenv(var,''),vars);
 
-            % Clear persistent state
-            mis = MPI_State.instance();
-            mis.cluster = [];
         end
 
         function [outputs,n_failed,obj]=  retrieve_results(obj)

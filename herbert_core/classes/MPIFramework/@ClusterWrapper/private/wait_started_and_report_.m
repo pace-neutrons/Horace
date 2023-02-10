@@ -21,7 +21,7 @@ if isa(obj.status,'FailedMessage')
     obj.status = state;
 else
     obj.status = state;
-    obj = obj.display_progress(info ,varargin{:});
+    obj = obj.display_progress(info, varargin{:});
     [obj,mess]=check_receive(obj);
     started = ~isempty(mess);
     t0 = tic();

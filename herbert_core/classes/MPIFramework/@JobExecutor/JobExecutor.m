@@ -376,7 +376,9 @@ classdef JobExecutor
             %
             [ok,err,the_mess,obj] = reduce_messages_(obj,mess,reduction_state_name,varargin{:});
             if obj.labIndex == 1
+                "HEE"
                 [ok,err] = obj.control_node_exch.send_message(0,the_mess);
+                "HOO"
             end
         end
 

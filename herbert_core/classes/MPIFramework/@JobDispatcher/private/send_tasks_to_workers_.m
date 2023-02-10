@@ -55,7 +55,7 @@ par_fc = MPI_clusters_factory.instance();
 
 cluster_wrp = par_fc.get_initialized_cluster(n_workers,mf);
 
-% verify if the cluster have started and report it was.
+% verify if the cluster has started and report it was.
 if ~isempty(cluster_wrp)
     [cluster_wrp,ok] = cluster_wrp.wait_started_and_report(obj.task_check_time);
 else
@@ -85,7 +85,9 @@ if ~ok
 
         obj.mess_framework_ = mf;
 
-        cluster_wrp = par_fc.get_initialized_cluster(n_workers,mf);
+        obj.cluster = par_fc.get_initialized_cluster(n_workers,mf);
+        cluster_wrp = obj.cluster;
+
         if isempty(cluster_wrp)
             pause(obj.task_check_time);
         else
@@ -99,9 +101,6 @@ if ~ok
             class(cluster_wrp),n_restart_attempts+1);
     end
 end
-
-% In case it's changed
-obj.cluster = cluster_wrp;
 
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...

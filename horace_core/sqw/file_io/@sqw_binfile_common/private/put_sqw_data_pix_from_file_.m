@@ -113,7 +113,7 @@ switch combine_algorithm
                                                  common_par,loop_par,true,false);
     else
         [outputs,n_failed,~,jd] = jd.start_job('combine_sqw_pix_job',...
-                                               common_par,loop_par,true,n_workers,false);
+                                               common_par,loop_par,true,n_workers);
     end
 
     if n_failed > 0
