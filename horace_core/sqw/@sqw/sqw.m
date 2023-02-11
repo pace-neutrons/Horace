@@ -245,6 +245,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             else % calculate runid map from header file names
                 obj.runid_map = recalculate_runid_map_(data_struct.header);
             end
+            obj= update_pixels_run_id(obj);            
         end
     end
 end
