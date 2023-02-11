@@ -11,6 +11,9 @@ function sqw_type_struc = update_pixels_run_id(sqw_type_struc,unique_pix_id)
 % run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
+if isempty(sqw_type_struc.data.pix)
+    return;
+end
 if ~exist('unique_pix_id','var')
     pix_runid = unique(sqw_type_struc.data.pix.run_idx);
     pix_runid_known = sqw_type_struc.data.pix.page_size >= sqw_type_struc.data.pix.num_pixels;
@@ -28,24 +31,23 @@ if pix_runid_known  % all pixels are in memory or pix_runid are known and we
         % have been recalculated
         % use the fact that the headers were recalculated as subsequent numbers
         % going from 1 to n_headers
-        head_id =1:numel(headers);        
-        if  max(pix_runid)>numel(headers)
-            warning('HORACE:old_file_format', ...
-                ['\n*** Can not identify direct correspondence between pixel run-id(s) and experiment info run-id(s)\n', ...
-                '*** Pixel run id(s): %s\n*** Header id(s): %s\n', ...
-                '*** Assigning pixel run-is(s) to the first file headers'], ...
-                disp2str(pix_runid),disp2str(head_id));
-
-            keys =  ones(1,headers.n_runs)*realmax('single');
-            n_unique_pix= numel(pix_runid);
-            for i=1:n_unique_pix
-                keys(i) = pix_runid(i);
+        head_id =1:numel(headers);
+        if max(pix_runid)>numel(headers)
+            if  numel(pix_runid)~=numel(headers)
+                warning('HORACE:old_file_format', ...
+                    ['\n*** Can not identify direct correspondence between pixel run-id(s) and experiment info run-id(s)\n', ...
+                    '*** Pixel run id(s): %s\n*** Header id(s): %s\n', ...
+                    '*** Assigning pixel run-is(s) to the first file headers'], ...
+                    disp2str(pix_runid),disp2str(head_id));
             end
+            keys =  ones(1,numel(headers))*realmax('single');
+            n_unique_pix= numel(pix_runid);
+            keys(1:n_unique_pix) = pix_runid;            
 
         else
             keys = head_id;
         end
-        % reset run-ids and runid_map stored in current experiment info.        
+        % reset run-ids and runid_map stored in current experiment info.
         sqw_type_struc.runid_map = containers.Map(keys ,head_id);
         %
     end
@@ -61,7 +63,7 @@ else % not all pixels are loaded into memory or pre-calculated and run-id-s may 
     if ~any(ismember(pix_runid,head_id))  % old style pixel data, run_id-s
         % have been recalculated for pixels and our only hope is that
         % headers are in the order of run-id
-        id=1:headers.n_runs;
+        id=1:numel(headers);
         sqw_type_struc.runid_map = containers.Map(id,id);
     end
 end
