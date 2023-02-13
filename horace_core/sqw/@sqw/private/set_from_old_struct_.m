@@ -75,6 +75,9 @@ if ~isfield(S,'version') || S.version<4
                     proj = ss.data.get_projection(hav);
                 end
                 ax   = ss.data.axes;
+                if isa(ss.data.pix,'PixelData')
+                    ss.data.pix = PixelDataMemory(ss.data.pix.data);
+                end
                 ss.pix = ss.data.pix;
                 ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
             end

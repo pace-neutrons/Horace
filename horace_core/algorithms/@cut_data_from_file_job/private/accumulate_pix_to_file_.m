@@ -45,10 +45,10 @@ if v.num_pixels > 0
     pix_mem_retained{n_mem_blocks} = v;    % accumulate pixels into buffer array
     pix_mem_ix_retained{n_mem_blocks} = ix_add;
 
-    new_range_min = min(pix_comb_info.pix_range(1, :), pix_mem_retained{n_mem_blocks}.pix_range(1, :));
-    new_range_max = max(pix_comb_info.pix_range(2, :), pix_mem_retained{n_mem_blocks}.pix_range(2, :));
-    pix_comb_info.pix_range(1, :) = new_range_min;
-    pix_comb_info.pix_range(2, :) = new_range_max;
+    new_range_min = min(pix_comb_info.data_range(1, :), pix_mem_retained{n_mem_blocks}.data_range(1, :));
+    new_range_max = max(pix_comb_info.data_range(2, :), pix_mem_retained{n_mem_blocks}.data_range(2, :));
+    pix_comb_info.data_range(1, :) = new_range_min;
+    pix_comb_info.data_range(2, :) = new_range_max;
 end
 
 if finish_accum
@@ -79,7 +79,7 @@ end
         npix_prev   = npix_now;
         clear npix_now;
         pix_2write = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
-            npix_in_mem,pix_comb_info.pix_range,'-keep_type');
+            npix_in_mem,pix_comb_info.data_range,'-keep_type');
         % clear current memory buffer state;
         n_mem_blocks = 0;
         clear pix_mem_retained pix_mem_ix_retained;

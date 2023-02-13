@@ -74,10 +74,14 @@ elseif stateMess.tag == MESS_NAMES.mess_id('failed')
     elseif isstruct(err) && isfield(err,'fail_reason')
         info = sprintf('***Job   : %s : state: %8s |\n***Reason: %s |\n',obj.job_id,name,err.fail_reason);
         if isfield(err,'error') && isa(err.error,'MException')
-            if contains(err.error.message,'automatic exception')
-                info = sprintf('%s\n',info);
-            else  % report only meaningful exceptions logs
-                info = sprintf('%s\n%s\n',info,err.error.getReport());
+            if isempty(err.error)
+                info = sprintf('%s\n***Unhandled exception. Possibly insufficient resources for the job\nErr contains: %s\n',info,disp2str(err));
+            else
+                if contains(err.error.message,'automatic exception')
+                    info = sprintf('%s\n',info);
+                else  % report only meaningful exceptions logs
+                    info = sprintf('%s\n%s\n',info,err.error.getReport());
+                end
             end
         end
 

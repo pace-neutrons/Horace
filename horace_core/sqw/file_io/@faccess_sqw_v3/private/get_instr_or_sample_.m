@@ -3,14 +3,14 @@ function [res,obj] = get_instr_or_sample_(obj,field_name,varargin)
 % containing instruments for all runs
 %
 % Usage:
-%>>inst = obj.get_instr_or_sample_('instrument')
+%>>inst = obj.get_instr_or_sample_	('instrument')
 % Returns first unique instrument, present in the file
 %
-%>>sample = obj.get_instrument('sample',number)
-% Returns first instrument with number, specified
+%>>sample = obj.get_instr_or_sample_('sample',number)
+% Returns first sample with number, specified
 %
-%>>inst = obj.get_instrument('instrument','-all')
-% Returns unique unique object container with all instruments stored in
+%>>inst = obj.get_instr_or_sample_('instrument','-all')
+% Returns unique object container with all instruments stored in
 % file
 %
 

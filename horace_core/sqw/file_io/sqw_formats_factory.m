@@ -36,6 +36,7 @@ classdef sqw_formats_factory < handle
         % Add all new file readers which inherit from sqw_file_interface and horace_binfile_interface
         % to this list in the order of expected frequency of their appearance.
         supported_accessors_ = { ...
+            faccess_sqw_v4(),...
             faccess_dnd_v4(),...
             faccess_sqw_v3_3(), ...
             faccess_sqw_v3(), ...
@@ -45,14 +46,14 @@ classdef sqw_formats_factory < handle
             faccess_sqw_v3_2(), ...
             faccess_sqw_prototype()};
         %
-        % Rules for saving different classes, defines the preferred loader 
+        % Rules for saving different classes, defines the preferred loader
         % for saving the class from the list:
         % sqw2 corresponds to sqw file in indirect mode with efixed being
         % array
         written_types_ = {'DnDBase','sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders above to use for saving
-        % correspondent class
-        access_to_type_ind_ = {1,2,4,1,1,1,1,1,1};
+        % correspondent class.
+        access_to_type_ind_ = {2,1,1,2,2,2,2,2,2};
         types_map_ ;
     end
     properties(Dependent)
@@ -109,15 +110,16 @@ classdef sqw_formats_factory < handle
             %                     If cellarray of the names provided, the method returns
             %                     cellarray of loaders.
             % Optional:
-            % '-update'        -- if provided, open file for
-            %                     read/write/update operations, unlike defaults
-            %                     opening file for read access only
+            % '-update'        -- if provided, open file for read/write/update
+            %                     operations, unlike default opening file
+            %                     for read access only
             %
             %
-            % On error throws SQW_FILE_IO:runtime_error exception with
+            % On error:      throws
+            % HORACE:file_io:runtime_error exception with
             %                message, explaining the reason for error.
             %                The errors are usually caused by missing or
-            %                 not-recognized (non-sqw) input files.
+            %                not-recognized (non-sqw) input files.
             %
             if iscell(sqw_file_name) % process range of files
                 loader = cellfun(@(x)(obj.get_loader(x)),sqw_file_name,...
@@ -140,7 +142,7 @@ classdef sqw_formats_factory < handle
             for i=1:numel(obj.supported_accessors_)
                 loader = obj.supported_accessors_{i};
                 % check if loader should load the file. Initiate loaders
-                % with open file handle if loader recognizes file format
+                % with open file handle if loader recognizes the file format
                 % as its own.
                 [ok,objinit] = loader.should_load_stream(head_struc,fh);
                 if ok
@@ -177,7 +179,7 @@ classdef sqw_formats_factory < handle
             else
                 error('HORACE:file_io:runtime_error',...
                     ['get_loader: Existing readers can not understand format of file: %s\n',...
-                    ' Is it not a sqw file?'],...
+                    ' Is it a sqw file at all?'],...
                     full_data_name);
             end
 
@@ -254,15 +256,11 @@ classdef sqw_formats_factory < handle
                 is_compartible = true;
                 return
             end
-            if isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3_3') || ...
-                    isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3') || ...
-                    isa(obj1,'faccess_sqw_v3') && isa(obj2,'faccess_sqw_v3_3')
-                is_compartible = true;
-            elseif isa(obj1,'faccess_sqw_v3_2') && isa(obj2,'faccess_sqw_v3_21') || ...
-                    isa(obj2,'faccess_sqw_v3_2') && isa(obj1,'faccess_sqw_v3_21')
-                is_compartible = true;
-            else
+            if (isa(obj1,'faccess_sqw_v3')||isa(obj1,'faccess_sqw_v3.3')) ...
+                    && isa(obj2,'faccess_sqw_v3_2')
                 is_compartible = false;
+            else
+                is_compartible = true;
             end
         end
 

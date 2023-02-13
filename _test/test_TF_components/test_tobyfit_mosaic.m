@@ -1,236 +1,213 @@
-function test_tobyfit_mosaic (option, version)
-% Test mosaic spread in Tobyfit
-%
-% Perform tests:
-%   >> test_tobyfit_mosaic          % Run the Tobyfit tests and test against stored fit
-%                                   % parameters in test_tobyfit_mosaic_out.mat in the same
-%                                   % folder as this file
-%
-%   >> test_tobyfit_mosaic ('-save')% Run the Tobyfit tests and save fit parameters
-%                                   % to file test_tobyfit_mosaic_out.mat
-%                                   % in the temporary folder (given by tmp_dir)
-%                                   % Copy to the same folder as this file to use in
-%                                   % tests.
-%
-%   >> test_tobyfit_mosaic ('-notest')% Run without testing against previously stored results.
-%                                   % For performing visual checks or debugging the tests!
-%
-%
-% Do any of the above, run with the legacy version of Tobyfit:
-%   >> test_tobyfit_mosaic (...,'-legacy')
-
-
-% ----------------------------------------------------------------------------
-% Setup (should only have to do in extremis - assumes data on Toby Perring's computer
-%   >> test_tobyfit_mosaic ('-setup') % Create the cuts that will be fitted and save in
-%                                   % test_tobyfit_mosaic_data.mat in the temporary folder
-%                                   % given by tmp_dir. Copy this file to the same folder
-%                                   % that holds this .m file to use it in the following
-%                                   % tests
-%   >> status = test_tobyfit_mosaic ('-setup')
-
-
-%% --------------------------------------------------------------------------------------
-
-% ***************************************
-%    Need to complete this test
-% ***************************************
-% Temporary dummy test
-return
-% ***************************************
-% ***************************************
-
-nlist = 0;  % set to 1 or 2 for listing during fit
-
-% Determine whether or not to save output
-save_data = false;
-save_output = false;
-test_output = true;
-legacy = false;
-
-if exist('option','var')
-    if ischar(option) && isequal(lower(option),'-setup')
-        save_data = true;
-        test_output = false;
-    elseif ischar(option) && isequal(lower(option),'-save')
-        save_output = true;
-        test_output = false;
-    elseif ischar(option) && isequal(lower(option),'-notest')
-        test_output = false;
-    else
-        if ~exist('version','var')
-            version = option;
-        else
-            error('Invalid option')
+classdef test_tobyfit_mosaic < TestCaseWithSave
+    % Test of fitting moderator with Tobyfit
+    
+    properties
+        w2_200_eval
+        w2_020_eval
+        alatt
+        angdeg
+        modQ
+        mc
+        seed
+        rng_state
+    end
+    
+    methods
+        function obj = test_tobyfit_mosaic (name)
+            % Initialise object properties and pre-load test cuts for faster tests
+            
+            % Note: in the (hopefully) extremely rare case of needing to
+            % regenerate the data, use the static method generate_data (see
+            % elsewhere in this class definition)
+            data_file = 'test_tobyfit_mosaic_data.mat';   % filename where cuts for tests are stored
+            obj = obj@TestCaseWithSave(name);
+            
+            % Load sqw cuts
+            load (data_file, 'w2_200_eval', 'w2_020_eval');
+            
+            % Add instrument and sample information to cuts
+            sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02],[6,0,4]);
+            
+            w2_200_eval=set_sample_and_inst(w2_200_eval,sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
+            w2_020_eval=set_sample_and_inst(w2_020_eval,sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
+            
+            % Get lattice parameters
+            obj.alatt = w2_020_eval.data.alatt;
+            obj.angdeg = w2_020_eval.data.angdeg;
+            obj.modQ = 2*(2*pi/obj.alatt(1));
+            
+            % Initialise test object properties
+            obj.w2_200_eval = w2_200_eval;
+            obj.w2_020_eval = w2_020_eval;
+            obj.mc = 100;
+            obj.seed = 0;
+            
+            % Required final line (see testCaseWithSave documentation)
+            obj.save();
+        end
+        
+        function obj = setUp(obj)
+            % Save current rng state and force random seed and method
+            obj.rng_state = rng(obj.seed, 'twister');
+            warning('off', 'HERBERT:mask_data_for_fit:bad_points')
+        end
+        
+        function obj = tearDown(obj)
+            % Undo rng state
+            rng(obj.rng_state);
+            warning('on', 'HERBERT:mask_data_for_fit:bad_points')
+        end
+        
+        
+        %% --------------------------------------------------------------------------------------
+        % Simulate mosaic spread in Tobyfit
+        % ---------------------------------------------------------------------------------------
+        
+        function obj = test_mosaic_200(obj)
+            % Model parameters for Bragg blobs
+            amp=1;  qfwhh=0.1;   efwhh=1;
+            
+            % Tobyfit simulations
+            kk = tobyfit(obj.w2_200_eval);
+            kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[obj.alatt,obj.angdeg]});
+            kk = kk.set_mc_points(obj.mc);
+            kk = kk.set_mc_contributions('none');
+            w2_200_nores = kk.simulate;
+            
+            kk = kk.set_mc_contributions('mosaic');
+            w2_200_mosaic = kk.simulate;
+            
+            % Average and covariance of 2D Bragg peak
+            [av_nores, cov_nores] = covariance2 (w2_200_nores);
+            av_nores = av_nores / obj.modQ;
+            cov_nores = cov_nores / (obj.modQ)^2;
+            
+            [av_mos, cov_mos] = covariance2 (w2_200_mosaic);
+            av_mos = av_mos / obj.modQ;
+            cov_mos = cov_mos / (obj.modQ)^2;
+            
+            assertEqualToTolWithSave (obj, av_nores, [0, 0.05])
+            assertEqualToTolWithSave (obj, cov_nores, [0, 0.05])
+            
+            assertEqualToTolWithSave (obj, av_mos, [0, 0.05])
+            assertEqualToTolWithSave (obj, cov_mos, [0, 0.05])
+            
+        end
+        
+        
+        function obj = test_mosaic_020(obj)
+            % Model parameters for Bragg blobs
+            amp=1;  qfwhh=0.1;   efwhh=1;
+            
+            % Tobyfit simulations
+            kk = tobyfit(obj.w2_020_eval);
+            kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[obj.alatt,obj.angdeg]});
+            kk = kk.set_mc_points(obj.mc);
+            kk = kk.set_mc_contributions('none');
+            w2_020_nores = kk.simulate;
+            
+            kk = kk.set_mc_contributions('mosaic');
+            w2_020_mosaic = kk.simulate;
+            
+            % Average and covariance of 2D Bragg peak
+            [av_nores, cov_nores] = covariance2 (w2_020_nores);
+            av_nores = av_nores / obj.modQ;
+            cov_nores = cov_nores / (obj.modQ)^2;
+            
+            [av_mos, cov_mos] = covariance2 (w2_020_mosaic);
+            av_mos = av_mos / obj.modQ;
+            cov_mos = cov_mos / (obj.modQ)^2;
+            
+            assertEqualToTolWithSave (obj, av_nores, [0, 0.05])
+            assertEqualToTolWithSave (obj, cov_nores, [0, 0.05])
+            
+            assertEqualToTolWithSave (obj, av_mos, [0, 0.05])
+            assertEqualToTolWithSave (obj, cov_mos, [0, 0.05])
+            
+        end
+        
+    end
+    
+    %------------------------------------------------------------------
+    methods (Static)
+        function generate_data (datafile)
+            % Generate data and save to file
+            %
+            % Use:
+            %   >> test_tobyfit_mosaic.generate_data ('my_output_file.mat')
+            %
+            % Input:
+            % ------
+            %   datafile    Name of file to which to save cuts for future use
+            %               e.g. fullfile(tempdir,'test_tobyfit_mosaic_data.mat')
+            %               Normal practice is to write to tempdir to check contents
+            %               before manually replacing the file in the repository.
+            
+            % sqw files from which to take cuts for setup
+            % These are private to Toby's computer as of 22/1/2023
+            % Long term solution needed for data source locations
+            data_source = 'T:\data\Fe\sqw_Toby\Fe_ei787.sqw';
+            
+            % Cuts from Fe
+            % ------------
+            % Area cuts about 200 and 020
+            proj_100.u = [1,0,0];
+            proj_100.v = [0,1,0];
+            w2_200 = cut_sqw(data_source,proj_100,[1.95,2.05],[-0.3,0.02,0.3],[-0.3,0.02,0.3],[-10,10]);
+            
+            % w2_200_qk_cut = cut_sqw(data_source,proj_100,[1.95,2.05],[-0.3,0.02,0.3],[-0.05,0.05],[-10,10]);
+            % w2_200_ql_cut = cut_sqw(data_source,proj_100,[1.95,2.05],[-0.05,0.05],[-0.3,0.02,0.3],[-10,10]);
+            
+            proj_010.u = [0,1,0];
+            proj_010.v = [-1,0,0];
+            w2_020=cut_sqw(data_source,proj_010,[1.95,2.05],[-0.3,0.02,0.3],[-0.3,0.02,0.3],[-10,10]);
+            
+            % Get lattice parameters
+            alatt = w2_020.data.alatt;
+            angdeg = w2_020.data.angdeg;
+            
+            % Simulate narrow Bragg blobs
+            amp=1;  qfwhh=0.1;   efwhh=1;
+            w2_200_eval=sqw_eval(w2_200,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
+            w2_020_eval=sqw_eval(w2_020,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
+            
+            % Make error bars all non-zero (so Tobyfit will not later filter these points out)
+            tmp = sigvar(w2_200_eval); tmp.e = 1;
+            w2_200_eval = sigvar_set(w2_200_eval, tmp);
+            tmp = sigvar(w2_020_eval); tmp.e = 1;
+            w2_020_eval = sigvar_set(w2_020_eval, tmp);
+            
+            
+            % Save data
+            % ---------
+            save(datafile, 'w2_200_eval', 'w2_020_eval');
+            disp(['Saved data for future use in ',datafile])
+            
         end
     end
-end
-
-if exist('version','var')
-    if ischar(version) && isequal(lower(version),'-legacy')
-        legacy = true;
-    else
-        error('Invalid option(s)')
-    end
-end
-
-if legacy
-    disp('Legacy Tobyfit...')
+    
 end
 
 
-%% --------------------------------------------------------------------------------------
-% Setup
-%data_source='E:\data\aaa_Horace\Fe_ei787.sqw';  % sqw file from which to take cuts for setup
-data_source='D:\data\Fe\sqw_Toby\Fe_ei787.sqw';  % sqw file from which to take cuts for setup
+%==========================================================================
+function [av, cov] = covariance2 (w)
+% Get covariance of a 2D sqw object
 
-datafile='test_tobyfit_mosaic_data.mat';   % filename where saved results are written
-savefile='test_tobyfit_mosaic_out.mat';   % filename where saved results are written
+x = (w.data.p{1}(2:end) + w.data.p{1}(1:end-1))/2;
+y = (w.data.p{2}(2:end) + w.data.p{2}(1:end-1))/2;
+signal = w.data.s;
+[xx,yy] = ndgrid (x,y);
+x_av = sum(xx(:).*signal(:)) / sum(signal(:));
+y_av = sum(yy(:).*signal(:)) / sum(signal(:));
+c_xx = sum(((xx(:)-x_av).^2).*signal(:)) / sum(signal(:));
+c_yy = sum(((yy(:)-y_av).^2).*signal(:)) / sum(signal(:));
+c_xy = sum(((xx(:)-x_av).*(yy(:)-y_av)).*signal(:)) / sum(signal(:));
 
+av = [x_av; y_av];
+cov = zeros(2);
+cov(1,1) = c_xx;
+cov(2,2) = c_yy;
+cov(1,2) = c_xy;
+cov(2,1) = c_xy;
 
-
-%% --------------------------------------------------------------------------------------
-% Create cuts to save as input data
-% --------------------------------------------------------------------------------------
-if save_data
-    % Area cuts about 200, 1-10 and 020
-    proj_100 = projaxes([1,0,0],[0,1,0]);
-    w2_200=cut_sqw(data_source,proj_100,[1.95,2.05],[-0.3,0.02,0.3],[-0.3,0.02,0.3],[-10,10]);
-    
-    proj_010 = projaxes([0,1,0],[-1,0,0]);
-    w2_020=cut_sqw(data_source,proj_010,[1.95,2.05],[-0.3,0.02,0.3],[-0.3,0.02,0.3],[-10,10]);
-    
-    proj_1m10 = projaxes([1,-1,0],[1,1,0]);
-    w2_1m10=cut_sqw(data_source,proj_1m10,[0.965,1.035],[-0.2,0.015,0.2],[-0.3,0.02,0.3],[-10,10]);
-    
-    % Now save to file for future use
-    datafile_full = fullfile(tmp_dir,datafile);
-    save(datafile_full,'w2_200','w2_020','w2_1m10');
-    disp(['Saved data for future use in',datafile_full])
-    return
-    
-else
-    % Read in data
-    load(datafile);
 end
-
-
-
-%% --------------------------------------------------------------------------------------
-% Evaluate sqw and Tobyfit simulation for single cut
-% --------------------------------------------------------------------------------------
-% Add instrument and sample information to cuts
-sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02],[6,0,4]);
-
-w2_200=set_sample_and_inst(w2_200,sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
-w2_020=set_sample_and_inst(w2_020,sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
-w2_1m10=set_sample_and_inst(w2_1m10,sample,@maps_instrument_obj_for_tests,'-efix',600,'S');
-
-
-% Lattice parameters
-alatt = w2_020.header{1}.alatt;
-angdeg = w2_020.header{1}.angdeg;
-
-% Model parameters for Bragg blobs
-amp=1;  qfwhh=0.1;   efwhh=1;
-
-% Evaluate S(Q,w) model
-w2_200_eval=sqw_eval(w2_200,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-w2_020_eval=sqw_eval(w2_020,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-w2_1m10_eval=sqw_eval(w2_1m10,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-
-% Tobyfit simulation
-kk = tobyfit(w2_200);
-kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-kk = kk.set_mc_points(100);
-kk = kk.set_mc_contributions('none');
-w2_200_sim_nores = kk.simulate;
-kk = kk.set_mc_contributions('mosaic');
-w2_200_sim_mosaic = kk.simulate;
-
-kk = tobyfit(w2_020);
-kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-kk = kk.set_mc_points(100);
-kk = kk.set_mc_contributions('none');
-w2_020_sim_nores = kk.simulate;
-kk = kk.set_mc_contributions('mosaic');
-w2_020_sim_mosaic = kk.simulate;
-
-kk = tobyfit(w2_1m10);
-kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-kk = kk.set_mc_points(100);
-kk = kk.set_mc_contributions('none');
-w2_1m10_sim_nores = kk.simulate;
-kk = kk.set_mc_contributions('mosaic');
-w2_1m10_sim_mosaic = kk.simulate;
-
-
-
-
-%% --------------------------------------------------------------------------------------
-% Evaluate sqw and Tobyfit simulation for single cut with LET instrument
-% --------------------------------------------------------------------------------------
-% The idea is to test the validity of the code, not a realistc instrumnet! 
-% Get fudged parameters to give a reasonable resolution
-
-% Add instrumnet and sample information to cuts
-sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02],[6,0,4]);
-
-instru = let_instrument_obj_for_tests (80, 280, 140, 20, 2, 2);
-instru.shaping_chopper = IX_doubledisk_chopper(2,300,1,0.02);
-instru.mono_chopper = IX_doubledisk_chopper(10,300,1,0.02);
-instru.energy=787;
-
-w2_200=set_sample_and_inst(w2_200,sample,instru);
-w2_020=set_sample_and_inst(w2_020,sample,instru);
-w2_1m10=set_sample_and_inst(w2_1m10,sample,instru);
-
-
-% Lattice parameters
-alatt = w2_020.header{1}.alatt;
-angdeg = w2_020.header{1}.angdeg;
-
-% Model parameters for Bragg blobs
-amp=1;  qfwhh=0.1;   efwhh=1;
-
-% Evaluate S(Q,w) model
-w2_200_eval=sqw_eval(w2_200,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-w2_020_eval=sqw_eval(w2_020,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-w2_1m10_eval=sqw_eval(w2_1m10,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-
-% Tobyfit simulation
-kk = tobyfit(w2_200);
-kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-kk = kk.set_mc_points(100);
-kk = kk.set_mc_contributions('none');
-w2_200_sim_nores = kk.simulate;
-kk = kk.set_mc_contributions('mosaic');
-w2_200_sim_mosaic = kk.simulate;
-
-kk = tobyfit(w2_020);
-kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-kk = kk.set_mc_points(100);
-kk = kk.set_mc_contributions('none');
-w2_020_sim_nores = kk.simulate;
-kk = kk.set_mc_contributions('mosaic');
-w2_020_sim_mosaic = kk.simulate;
-
-kk = tobyfit(w2_1m10);
-kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]});
-kk = kk.set_mc_points(100);
-kk = kk.set_mc_contributions('none');
-w2_1m10_sim_nores = kk.simulate;
-kk = kk.set_mc_contributions('mosaic');
-w2_1m10_sim_mosaic = kk.simulate;
-
-
-
-%% --------------------------------------------------------------------------------------
-% Save fit parameter output if requested
-% ---------------------------------------------------------------------------------------
-% if save_output
-%     save(fullfile(tmp_dir,savefile),...
-%         'fp110a1','fp110a2','fp110a3','fp110a4','fp110arr1','fp110arr2');
-% end
-
-

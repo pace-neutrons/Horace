@@ -27,8 +27,6 @@ function det = get_detpar(obj)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 if ischar(obj.num_contrib_files)
     error('HORACE:sqw_binfile_common:runtime_error',...
         ' get_sqw_detpar called on un-initialized loader')

@@ -18,7 +18,7 @@ if nargin < 3
 
 end
 
-obj.move_to_first_page();
+obj=obj.move_to_first_page();
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 
 signal_sum = zeros(1, numel(npix));
@@ -36,7 +36,7 @@ while true
     variance_sum(idx(1):idx(2)) = variance_sum(idx(1):idx(2)) + variance;
 
     if obj.has_more()
-        obj.advance();
+        obj = obj.advance();
         page_number = page_number + 1;
     else
         break

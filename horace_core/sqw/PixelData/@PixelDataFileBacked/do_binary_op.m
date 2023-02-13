@@ -34,7 +34,10 @@ function pix_out = do_binary_op(obj, operand, binary_op, varargin)
 if nargout == 0
     pix_out = obj;
 else
-    pix_out = copy(obj);
+    %TODO: #928 If it is copy here, what is should be? Initialized
+    %f-accessor should be here
+    pix_out = copy(obj); % this one currently creates Memorybacked pixels in tests
+    %pix_out = obj; 
 end
 
 if isscalar(operand) && isa(operand, 'double')

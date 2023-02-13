@@ -13,6 +13,8 @@ classdef dnd_data_block < data_block
         sig_position;   % signal array position
         err_position;   % error array position
         npix_position;  % npix array position
+        %
+        dnd_info_defined; % if the data block have its dnd information
     end
     properties(Access=protected)
         dimensions_=[]; % number dimensions, the dnd arrays have
@@ -25,6 +27,9 @@ classdef dnd_data_block < data_block
             obj = obj@data_block(varargin{:});
             obj.sqw_prop_name = 'data';
             obj.level2_prop_name = 'nd_data';
+        end
+        function is = get.dnd_info_defined(obj)
+            is = ~isempty(obj.dimensions_);
         end
         %
         function pos = get.sig_position(obj)
@@ -61,6 +66,16 @@ classdef dnd_data_block < data_block
             obj.size_ = 4+obj.dimensions_*4+(3*8)*prod(obj.data_size_);
             obj.serialized_obj_cache_ = subobj;
         end
+        %
+        function obj = read_dnd_info(obj,fid)
+            % retrieve the information necessary to identify npix position
+            obj.move_to_position(fid);
+            n_dims = fread(fid,1,'uint32');
+            obj.data_size_ = double(fread(fid,n_dims,'uint32'));
+            obj.check_read_error(fid,'header');
+            obj.dimensions_ = double(n_dims);
+        end
+        
     end
     methods(Access=protected)
         %-----------------------------------------------------------------

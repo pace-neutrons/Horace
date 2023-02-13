@@ -31,4 +31,7 @@ else
         end
         inputs = rmfield(inputs,'uoffset');
     end
+    if isfield(inputs,'pix_')
+         inputs.pix = inputs.pix_;
+    end
 end

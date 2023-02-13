@@ -79,7 +79,7 @@ classdef Experiment < serializable
             %   detector_array --  Detector array (IX_detector_array objects)
             %   instrument     --  cellarray of Instrument (Concrete class inheriting IX_inst)
             %   sample         --  cellarray of Sample data (IX_sample objects)
-            %   expdata        --  Array of IX_experinent (instr_proj?)
+            %   expdata        --  Array of IX_experiment (instr_proj?)
             %                      objects.
             %   The number of elements in instrument sample and expdata
             %   containers have to be equal

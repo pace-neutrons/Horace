@@ -4,8 +4,8 @@ function check_io_error_(fid,read_or_write)
 
 [mess,res] = ferror(fid);
 if res ~= 0
-    file = fopen(fid);
+    [file,acc] = fopen(fid);
     error('HORACE:data_block:io_error',...
-        'file: "%s". %s Error "%s"', ...
-        file,read_or_write,mess);   
+        'file: "%s", IO mode: "%s". %s error: "%s"', ...
+        file,acc,read_or_write,mess);   
 end

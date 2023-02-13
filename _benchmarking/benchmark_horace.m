@@ -73,13 +73,13 @@ pths = horace_paths;
 bm_path = pths.bm;
 bm_folders_full = fullfile(bm_path, bm_folders);
 
-% Get and store intial Horace config
+% Get and store initial Horace config
 % --------------------------------------
 hoc = hor_config();
 cur_horace_config = hoc.get_data_to_store();
 clear config_store;
 
-% Create cleanup object (to revert to intial Horace config on exit)
+% Create clean-up object (to revert to initial Horace config on exit)
 % --------------------------------------
 cleanup_obj = onCleanup(@() ...
     benchmark_horace_cleanup(cur_horace_config));

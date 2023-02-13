@@ -61,20 +61,19 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             % Test that the sample orientation does not alter the resolution
             % ellipsoid when expressed in terms of the spectrometer axes
             %
-            % The two plots should look identical
+            % The plots should look identical
 
             ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
 
             ww2 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 24, 0, 0, 0, 0);
-            % Should be the same, as does not depend on crystal orientation
-            assertEqualToTol (ww1, ww2, 'tol', [1e-12,1e-12])
-
 
             ww3 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 24, 4, 2, 5, 7);
+            
             % Should be the same, as does not depend on crystal orientation
+            assertEqualToTol (ww1, ww2, 'tol', [1e-12,1e-12])
             assertEqualToTol (ww1, ww3, 'tol', [1e-12,1e-12])
 
             % Save
@@ -126,7 +125,9 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
 
-            proj = ortho_proj(S.u, S.v, 'type', 'aaa');
+            proj.u = S.u;
+            proj.v = S.v;
+            proj.type = 'aaa';
             ww2 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, proj);
 
@@ -151,7 +152,9 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
             aspect1 = get(gca,'DataAspectRatio');
 
-            proj = ortho_proj (S.u, S.v, 'type', 'rrr');
+            proj.u = S.u;
+            proj.v = S.v;
+            proj.type = 'rrr';
             ww2 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, proj);
             aspect2 = get(gca,'DataAspectRatio');
@@ -177,12 +180,14 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             %
             % The second plot should look like the first, but rotated clockwise by 90 deg
 
-            proj = ortho_proj (S.u, S.v, 'type', 'rrr');
+            proj.u = S.u;
+            proj.v = S.v;
+            proj.type = 'rrr';
+            
             ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, proj);
             aspect1 = get(gca,'DataAspectRatio');
 
-            proj = ortho_proj(S.u, S.v, 'type', 'rrr');
             ww2 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 90, 0, 0, 0, 0, proj);
             aspect2 = get(gca,'DataAspectRatio');

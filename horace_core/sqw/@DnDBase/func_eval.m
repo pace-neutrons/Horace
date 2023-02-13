@@ -23,7 +23,7 @@ else
             );
     end
 end
-wout = copy(win);
+wout = win;
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
     ndim=win(i).dimensions();
     if ~opts.all        % only evaluate at the bins actually containing data

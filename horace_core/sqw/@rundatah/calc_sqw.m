@@ -1,4 +1,4 @@
-function [w,grid_size,pix_range] ...
+function [w,grid_size,data_range] ...
     = calc_sqw(obj,grid_size_in,pix_db_range,varargin)
 % Generate single sqw file from given rundata class.
 %
@@ -57,14 +57,14 @@ end
 %
 % Create sqw object
 %
-[w, pix_range]=obj.calc_sqw_(grid_size, pix_db_range);
+[w, data_range]=calc_sqw_(obj,grid_size, pix_db_range);
 %
 if ~isempty(obj.transform_sqw_f_)
     % we should assume that transformation maintains correct data pix_range
     % and correct sqw structure, though this pix_range and grid_size-s do not
     % always coincide with initial range and sizes
     w = obj.transform_sqw_f_(w);
-    pix_range = w.pix.pix_range;
+    data_range = w.pix.data_range;
     grid_size = size(w.data.s);
 end
 

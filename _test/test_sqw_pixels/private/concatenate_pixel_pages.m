@@ -9,15 +9,12 @@ num_cols_in_pix_block = size(pix.data, 1);
 
 data = zeros(num_cols_in_pix_block, pix.num_pixels);
 iter = 0;
-while true
+
+for i=1:pix.num_pages
+    pix.page_num = i;
     start_idx = (iter*base_pg_size) + 1;
     end_idx = min(start_idx + base_pg_size - 1, pix.num_pixels);
     data(:, start_idx:end_idx) = pix.data;
     iter = iter + 1;
-
-    if pix.has_more()
-        pix.advance();
-    else
-        break;
-    end
 end
+%pix = pix.move_to_first_page();

@@ -37,16 +37,24 @@ class_fields = class_fields(keep);
 for idx = 1:numel(class_fields)
     field_name = class_fields{idx};
     if strcmp(field_name,'pix') %pixels compared separately at the end
-        continue; 
+        continue;
     end
-    if strcmp(field_name,'runid_map') % runid maps will be compared as part of experiment
+    if ismember(field_name,{'runid_map','creation_date'}) % runid maps will
+        %  be compared as part of experiment and creation date  as part of 
+        % components comparison
         continue;
     end
     tmp1 = w1.(field_name);
     tmp2 = w2.(field_name);
-    if strcmp(field_name,'main_header') && isa(tmp1,'main_header_cl') && ignore_date
-        tmp1.creation_date = tmp2.creation_date;
-        tmp1.creation_date_defined_privately= tmp2.creation_date_defined_privately;
+    if ignore_date
+        if strcmp(field_name,'main_header') && isa(tmp1,'main_header_cl')
+            tmp1.creation_date = tmp2.creation_date;
+            tmp1.creation_date_defined_privately= tmp2.creation_date_defined_privately;
+        end
+        if strcmp(field_name,'data') && isa(tmp1,'DnDBase')
+            tmp1.creation_date = tmp2.creation_date;
+            tmp2.creation_date = tmp1.creation_date;            
+        end
     end
     name1 = [name_a,'.',field_name];
     name2 = [name_b,'.',field_name];
@@ -90,17 +98,20 @@ else
         ibinarr = replicate_iarray(ibin, npix(ibin)); % bin index for each retained pixel
         % Now test contents for equality
         pix1 = w1.pix;
+        pix1 = pix1.move_to_first_page();
         pix2 = w2.pix;
+        pix2 = pix2.move_to_first_page();
         name_a = [name_a, '.pix'];
         name_b = [name_b, '.pix'];
+
         if opt.reorder
             % Sort retained pixels by bin and then run,det,energy bin indicies
             sort_by = {'run_idx', 'detector_idx', 'energy_idx'};
-            [~, ix] = sortrows([ibinarr, pix1.get_data(sort_by, ipix)']);
+            [~, ix] = sortrows([ibinarr, pix1.get_fields(sort_by, ipix)']);
             s1 = pix1.get_pixels(ipix);
             s1 = s1.get_pixels(ix);
 
-            [~, ix] = sortrows([ibinarr, pix2.get_data(sort_by, ipix)']);
+            [~, ix] = sortrows([ibinarr, pix2.get_fields(sort_by, ipix)']);
             s2 = pix2.get_pixels(ipix);
             s2 = s2.get_pixels(ix);
 

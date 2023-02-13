@@ -88,10 +88,10 @@ classdef test_cut < TestCase & common_state_holder
             assertElementsAlmostEqual(sqw_cut.data.offset,obj.ref_params{1}.offset);
 
             ref_sqw = read_sqw(obj.ref_cut_file);
-			
+
             cut_instr = sqw_cut.experiment_info.instruments;
             sqw_cut.experiment_info.instruments = cut_instr;
-            
+
             ref_instr = ref_sqw.experiment_info.instruments;
             ref_sqw.experiment_info.instruments = ref_instr;
 
@@ -215,6 +215,8 @@ classdef test_cut < TestCase & common_state_holder
             old_conf = conf.get_data_to_store();
             conf.mem_chunk_size = 4000;
             cleanup = onCleanup(@() set(hor_config, old_conf));
+            ws = warning('off','HORACE:old_file_format');
+            clWarn = onCleanup(@()warning(ws));
 
             sqw_obj = read_sqw(obj.sqw_file);
 

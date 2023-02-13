@@ -43,6 +43,7 @@ classdef pix_combine_info < serializable
 
 
         pix_range    % Global range of all pixels, intended for combining
+        data_range   % Global range of all pixel data, i.e. coordinates, signal error and other pixel parameters
 
         % numbers of files used as run_label for pixels if relabel_with_fnum
         % and change_fileno are set to true
@@ -52,6 +53,15 @@ classdef pix_combine_info < serializable
         relabel_with_fnum;
         % true if pixel id for each pixel from contributing files should be changed.
         change_fileno
+    end
+    properties(Dependent,Hidden)
+        % The property, which describes the pixel data layout on disk or in
+        % memory and all additional properties describing pix array
+        metadata;
+        data_wrap;
+        % PixelDataBase interface
+        full_filename
+        is_filebacked
     end
     %
     properties(Access=public)
@@ -78,15 +88,9 @@ classdef pix_combine_info < serializable
         %
         filenum_ = [];
         % Global range of all pixels, intended for combining
-        pix_range_ = PixelDataBase.EMPTY_RANGE_;
-
+        data_range_ = PixelDataBase.EMPTY_RANGE;
+        full_filename_;
     end
-    properties(Constant,Access=protected)
-        fields_to_save_ = {'infiles','npix_each_file',...
-            'pos_npixstart','pos_pixstart','run_label','nbins',...
-            'npix_cumsum'};
-    end
-
     methods
         %
         function obj = pix_combine_info(infiles,nbins,pos_npixstart, ...
@@ -251,14 +255,28 @@ classdef pix_combine_info < serializable
         end
         %
         function range = get.pix_range(obj)
-            range = obj.pix_range_;
+            range = obj.data_range_(:,1:4);
         end
         function obj = set.pix_range(obj,val)
-            if ~all(size(val) == [2,4])
+            if ~(isnumeric(val) && isequal(size(val),[2,4]) )
                 error('HORACE:pix_combine_info:invalid_argument',...
-                    'pix_range size has to be array of 2x4');
+                    'pix_range size has to be a numeric array of 2x4 elements. It is:\n %s', ...
+                    disp2str(val));
             end
-            obj.pix_range_ = val;
+            obj.data_range_(:,1:4) = val;
+
+        end
+        %
+        function range = get.data_range(obj)
+            range = obj.data_range_;
+        end
+        function obj = set.data_range(obj,val)
+            if ~(isnumeric(val) && isequal(size(val),[2,9]) )
+                error('HORACE:pix_combine_info:invalid_argument',...
+                    'data_range size has to be numeric array of 2x9 elements. It is: %s', ...
+                    disp2str(val));
+            end
+            obj.data_range_ = val;
         end
         %
         function rl= get.run_label(obj)
@@ -354,11 +372,17 @@ classdef pix_combine_info < serializable
                 %
                 parts_carr{i} = pix_combine_info(part_files,pnbins,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
             end
-
         end
+        function md = get.metadata(obj)
+            md = pix_metadata(obj);
+        end
+        function dw = get.data_wrap(obj)
+            dw = pix_data(obj);
+        end
+
         %
         %
-        function obj = recalc_pix_range(obj)
+        function obj = recalc_data_range(obj)
             % recalculate common range for all pixels analysing pix ranges
             % from all contributing files
             %
@@ -393,8 +417,46 @@ classdef pix_combine_info < serializable
                 obj.filenum_ = obj.filenum_(1:nfiles_to_leave);
             end
         end
-        %------------------------------------------------------------------
-        % SERIALIZABLE INTERFACE
+        function fn = get.full_filename(obj)
+            fn = obj.full_filename_;
+        end
+        function obj = set.full_filename(obj,val)
+            if ~(ischar(val)||isstring(val))
+                error('HORACE:pix_combine_info:invalid_argument', ...
+                    'fill_filename should be a string, describing full name of the file on disk. It is %s', ...
+                    disp2str(val));
+            end
+            obj.full_filename_ = val;
+        end
+        %
+        function is = get.is_filebacked(~)
+            is = false;
+        end
+    end
+    %----------------------------------------------------------------------
+    methods(Static)
+        function data_range = recalc_data_range_from_loaders(ldrs)
+            % Recalculate pixels range using list of defined loaders
+            n_files = numel(ldrs);
+            ldr = ldrs{1};
+            data_range= ldr.get_data_range();
+            for i=2:n_files
+                ldr = ldrs{i};
+                loc_range = ldr.get_data_range();
+                data_range = [min([loc_range(1,:);data_range(1,:)],[],1);
+                    max([loc_range(2,:);data_range(2,:)],[],1)];
+            end
+        end
+    end
+    %----------------------------------------------------------------------
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access=protected)
+        fields_to_save_ = {'infiles','npix_each_file',...
+            'pos_npixstart','pos_pixstart','run_label','nbins',...
+            'npix_cumsum'};
+    end
+
+    methods
         function ver  = classVersion(~)
             ver = 1;
         end
@@ -421,23 +483,6 @@ classdef pix_combine_info < serializable
                     'numel of npix for each file : %d not equal to the number of files to combine: %d',...
                     numel(obj.npix_each_file_),numel(obj.infiles_));
             end
-
-
         end
     end
-    methods(Static)
-        function pix_range = recalc_pix_range_from_loaders(ldrs)
-            % Recalculate pixels range using list of defined loaders
-            n_files = numel(ldrs);
-            ldr = ldrs{1};
-            pix_range= ldr.get_pix_range();
-            for i=2:n_files
-                ldr = ldrs{i};
-                loc_range = ldr.get_pix_range();
-                pix_range = [min([loc_range(1,:);pix_range(1,:)],[],1);
-                    max([loc_range(2,:);pix_range(2,:)],[],1)];
-            end
-        end
-    end
-
 end

@@ -48,16 +48,6 @@ classdef faccess_dnd_v4 < binfile_v4_common
     %
     %
     %
-    properties(Dependent)
-        % interfaces to binary access outside of this class:
-        % initial location of npix fields
-        npix_position;
-    end
-    properties(Dependent,Hidden)
-        % old data type, not relevant any more. Always b+ for dnd and ? for
-        % sqw
-        data_type
-    end
     properties(Constant,Access=protected)
         % list of data blocks, this class maintains
         dnd_blocks_list_ = {data_block('data','metadata'),...
@@ -89,36 +79,17 @@ classdef faccess_dnd_v4 < binfile_v4_common
         %
     end
     %======================================================================
-    % Define old interface, still relevant and usefule
+    % Define old interface, still relevant and useful
     methods
-        function pos = get.npix_position(obj)
-            if isempty(obj.bat_) || ~obj.bat_.initialized
-                pos = [];
-                return
+        function [sqw_obj,varargout] = get_sqw(obj,varargin)
+            % retrieve the whole sqw or dnd object from properly initialized sqw file
+            if nargout > 1
+                [sqw_obj,varargout{1}] = obj.get_dnd(varargin{:});
+            else
+                sqw_obj = obj.get_dnd(varargin{:});
             end
-            bl = obj.bat_.get_data_block(faccess_dnd_v4.dnd_blocks_list{2});
-            pos = bl.npix_position;
         end
-        %
-        %---------------------------------------------------------
-        % equivalent to get_dnd_data but returning dnd_data structure,
-        % rather then
-        [dnd_dat,obj]  = get_dnd_data(obj,varargin);
-        [dnd_info,obj] = get_dnd_metadata(obj,varargin);
-
-        [dnd_obj,obj]  = get_dnd(obj,varargin); % retrieve any sqw/dnd object as dnd object
-
-        %
         % ----------------------------------------------------------------
-        % save sqw/dnd object stored in memory into binary sqw file as dnd object.
-        % it always reduced data in memory into dnd object on hdd
-        obj = put_dnd(obj,varargin);
-        % write indofmation, describing dnd object
-        obj = put_dnd_metadata(obj,varargin);
-        % write dnd image data, namely s, err and npix
-        obj = put_dnd_data(obj,varargin);
-
-        %
         function [obj,file_exist,old_ldr] = set_file_to_update(obj,filename)
             % open existing file for update its format and/or data blocks
             % stored in it.
@@ -133,50 +104,17 @@ classdef faccess_dnd_v4 < binfile_v4_common
                     'Can not update file %s containing full sqw object using dnd accessor', ...
                     filename)
             end
-            if file_exist && old_ldr.faccess_version ~= obj.faccess_version
-                dnd_obj = old_ldr.get_dnd();
-                obj.sqw_holder = dnd_obj;
-                obj = obj.put_dnd();
-                old_ldr.delete();
-            end
         end
     end
     %----------------------------------------------------------------------
     % Old, partially redundant interface
     methods
-        function dt = get.data_type(obj)
-            dt = get_data_type(obj);
-        end
         [inst,obj]  = get_instrument(obj,varargin); % return instrument
         % stored with sqw file or IX_null_inst if nothing is stored.
         % Always IX_null_inst for dnd objects.
         [samp,obj]  = get_sample(obj,varargin);     % return sample stored
         % with sqw file or IX_samp containing lattice only if nothing is
         % stored. Always IX_samp for dnd objects
-        function [sqw_obj,varargout] = get_sqw(obj,varargin)
-            % retrieve the whole sqw or dnd object from properly initialized sqw file
-            if nargout > 1
-                [sqw_obj,varargout{1}] = obj.get_dnd(varargin{:});
-            else
-                sqw_obj = obj.get_dnd(varargin{:});
-            end
-        end
-        function  [data,obj] =  get_data(obj,varargin)
-            % equivalend to get_dnd('-noclass)
-            is_key = cellfun(@(x)(ischar(x)||isstring(x))&&startsWith(x,'-'), ...
-                varargin);
-            if any(is_key)
-                is_noclass = ismember('-noclass',varargin(is_key));
-                if is_noclass
-                    argi = varargin;
-                else
-                    argi = [varargin(:);'-noclass'];
-                end
-            else
-                argi = varargin;
-            end
-            [data,obj] = obj.get_dnd(argi{:});
-        end
         % -----------------------------------------------------------------
         function pix_range = get_pix_range(~)
             % get [2x4] array of min/max ranges of the pixels contributing
@@ -190,21 +128,13 @@ classdef faccess_dnd_v4 < binfile_v4_common
             % file
             obj = obj.put_dnd(obj,varargin{:});
         end
-        function img_db_range = get_img_db_range(obj,varargin)
-            % get [2x4] array of min/max ranges of the image where pixels
-            % are rebinned into
-            ds = obj.get_dnd_metadata();
-            img_db_range  = ds.axes.img_range;
-        end
-        function [data_str,obj] = get_se_npix(obj,varargin)
-            % get only dnd image data, namely s, err and npix
-            data_dnd = obj.get_dnd_data(varargin{:});
-            data_str = struct('s',data_dnd.sig,'e',data_dnd.err, ...
-                'npix',data_dnd.npix);
-        end
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function obj = do_class_dependent_updates(obj,old_ldr,varargin)
+            % function does nothing as this is recent file format
+        end
+
         function  dt = get_data_type(~)
             % overloadable accessor for the class datatype function
             dt  = 'b+';

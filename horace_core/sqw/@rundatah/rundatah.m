@@ -82,7 +82,7 @@ classdef rundatah < rundata
     methods
         %
         % method to create sqw object from rundata object
-        [w,grid_size,pix_range,varargout] = calc_sqw(rd,grid_size_in,pix_range_in,varargin);
+        [w,grid_size,data_range,varargout] = calc_sqw(rd,grid_size_in,pix_range_in,varargin);
 
         %Method calculates q-dE range, this rundata file contributes into.
         [pix_range,varargout]=calc_pix_range(obj,varargin);
@@ -155,7 +155,7 @@ classdef rundatah < rundata
             [qspec,en]=calc_qspec_(detdcn,obj.efix,en,obj.emode);
         end
 
-        function [pix_range,pix,obj] = calc_projections(obj,detdcn)
+        function [pix_or_data_range,pix,obj] = calc_projections(obj,detdcn)
             % main function to transform rundatah information into
             % crystal Cartesian coordinate system
             %
@@ -163,8 +163,8 @@ classdef rundatah < rundata
             %                         set up too)
             %
             % Usage:
-            %>> [pix_range,u_to_rlu,pix,obj] = rh.calc_projections()
-            %>> [pix_range,u_to_rlu,pix,obj] = rh.calc_projections(detchn)
+            %>> [data_range,u_to_rlu,pix,obj] = rh.calc_projections()
+            %>> [data_range,u_to_rlu,pix,obj] = rh.calc_projections(detchn)
             %
             % Inputs:
             % rh       -- fully defined (valid) rundatah object
@@ -172,7 +172,8 @@ classdef rundatah < rundata
             %
             % Returns:
             % pix_range --  q-dE range of pixels in crystal Cartesian coordinate
-            %             system
+            %             system if 1 output is requested or full [2x9]
+            %             array of data ranges if 2 outputs are requested
             % pix      -- PixelData object containing sqw pixel's information
             %
             %             coordinate system (see sqw pixels information on
@@ -201,7 +202,7 @@ classdef rundatah < rundata
                 detdcn = [];
             end
             % Calculate projections
-            [pix_range,pix,obj] = obj.calc_projections_(detdcn,proj_mode);
+            [pix_or_data_range,pix,obj] = calc_projections_(obj,detdcn,proj_mode);
         end
         %
         function flds = saveableFields(obj)

@@ -1,5 +1,4 @@
 classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & sqw_plot_interface
-
     %SQW Create an sqw object
     %
     % Syntax:
@@ -10,25 +9,30 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %
     properties(Dependent)
         npixels     % common with loaders interface to pix.num_pixels property
-                    % describing number of pixels (neutron events) stored
-                    % in sqw object
+        % describing number of pixels (neutron events) stored
+        % in sqw object
 
         runid_map   % the map which connects header number
-                    % with run_id stored in pixels, e.g. map contains
-                    % connection runid_pixel->header_number
+        % with run_id stored in pixels, e.g. map contains
+        % connection runid_pixel->header_number
 
         main_header % Generic information about contributed files
-                    % and the sqw file creation date.
-        experiment_info
+        % and the sqw file creation date.
         detpar
 
+        experiment_info
+        %
         data; % The information about the N-D neutron image, containing
-              % combined and bin-averaged information about the
-              % neutron experiment.
+        % combined and bin-averaged information about the
+        % neutron experiment.
 
         pix % access to pixel information, if any such information is
-            % stored within an object. May also return pix_combine_info or
-            % filebased pixels. (TODO -- this should be modified)
+        % stored within an object. May also return pix_combine_info or
+        % filebased pixels. (TODO -- this should be modified)
+
+        % The date of the sqw object file creatrion. As the date is defined both
+        % in sqw and dnd object parts, this property synchronize both
+        creation_date;
     end
 
     properties(Hidden,Dependent)
@@ -38,6 +42,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % experiment_info class. Returns array of IX_experiment
         % from Experiment class. Conversion to old header is not performed
         header;
+        % the name of the file, used to store sqw first time
+        full_filename
     end
 
     properties(Access=protected)
@@ -52,6 +58,31 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
+    methods(Static)
+        function form_fields = head_form(sqw_only,keep_data_arrays)
+            % the method returns list of fields, which need to be filled by
+            % head function
+            %
+            %
+            form_fields = {'nfiles','npixels','data_range','creation_date'};
+            if nargin == 0
+                sqw_only = false;
+                keep_data_arrays = false;
+            end
+            if nargin == 1
+                keep_data_arrays = false;
+            end
+
+            if sqw_only;  return;    end
+            %
+            [dnd_fields,data_fields] = DnDBase.head_form(false);
+            if keep_data_arrays
+                form_fields   = [dnd_fields(1:end-1)';form_fields(:);data_fields(:)];
+            else
+                form_fields   = [dnd_fields(1:end-1)';form_fields(:)];
+            end
+        end
+    end
 
     %======================================================================
     % Various sqw methods
@@ -59,7 +90,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         has = has_pixels(w);          % returns true if a sqw object has pixels
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         wout = smooth(win, varargin)  % smooth sqw object or array of sqw
-                                      % objects containing no pixels
+        % objects containing no pixels
         function [val, n] = data_bin_limits (obj)
             % Get limits of the data in an n-dimensional dataset, that is,
             % find the coordinates along each of the axes of the smallest
@@ -141,11 +172,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
 
-            if nargin > 0 % various serializers need empty constructor
-                obj = obj.init(varargin{:});
-            else
+            if nargin==0 % various serializers need empty constructor
                 obj.data_ = d0d();
+                return;
             end
+            obj = obj.init(varargin{:});
 
         end
 
@@ -163,14 +194,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
                 % ii) filename - init from a file
             elseif ~isempty(args.filename)
-                obj = obj.init_from_file_(args.filename, args.pixel_page_size, args.file_backed);
+                obj = obj.init_from_file_(args.filename, args.file_backed);
 
                 % iii) struct or data loader - a struct, pass to the struct
                 % loader
             elseif ~isempty(args.data_struct)
                 if isa(args.data_struct,'horace_binfile_interface')
                     args.data_struct = obj.get_loader_struct_(...
-                        args.data_struct, args.pixel_page_size, args.file_backed);
+                        args.data_struct, args.file_backed);
                     obj = from_bare_struct(obj,args.data_struct);
                 elseif isfield(args.data_struct,'data')
                     if isfield(args.data_struct.data,'version')
@@ -182,7 +213,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     error('HORACE:sqw:invalid_argument',...
                         'Unidentified input data structure');
                 end
-
             end
         end
         %------------------------------------------------------------------
@@ -211,7 +241,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             if isa(val, 'PixelDataBase') || isa(val,'pix_combine_info')
                 obj.pix_ = val;
             elseif isempty(val)
-                obj.pix_ = PixelDataBase.create();
+                %  necessary for clearing up the memmapfile, (if any)
+                obj.pix_ = obj.pix_.delete();
+                obj.pix_ = PixelDataMemory();
             else
                 obj.pix_ = PixelDataBase.create(val);
             end
@@ -287,14 +319,45 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
 
         function is = dnd_type(obj)
-            is = isempty(obj.pix_);
+            is = obj.pix_.num_pixels == 0;
         end
+        %
+        function fn = get.full_filename(obj)
+            fn = fullfile(obj.main_header.filepath,obj.main_header.filename);
+        end
+        function obj = set.full_filename(obj,val)
+            if ~(isstring(val)||ischar(val))
+                error('HORACE:sqw:invalid_argument', ...
+                    ' Full filename can be only string, describing input file together with the path to this file. It is: %s', ...
+                    disp2str(val));
+            end
+            [fp,fn,fex]= fileparts(val);
+            obj.main_header.filename = [fn,fex];
+            obj.main_header.filepath = fp;
+            obj.data.filename = [fn,fex];
+            obj.data.filepath = fp;
+            obj.pix.full_filename = val;
+        end
+        %
+        function cd = get.creation_date(obj)
+            cd = obj.main_header.creation_date;
+        end
+        function obj = set.creation_date(obj,val)
+            obj.main_header.creation_date = val;
+            obj.data.creation_date = val;
+        end
+
     end
 
     %======================================================================
     % REDUNDANT and compatibility ACCESSORS
     methods
         function obj = change_header(obj,hdr)
+            if obj.experiment_info.n_runs ~= hdr.n_runs
+                error('HORACE:sqw:invalid_argument', ...
+                    'Existing experiment info describes %d runs and new experiment info describes %d runs. N-runs have to be the same', ...
+                    obj.experiment_info.n_runs,hdr.n_runs)
+            end
             obj.experiment_info = hdr;
         end
 
@@ -371,7 +434,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = binary_op_manager_single(w1, w2, binary_op);
         wout = recompute_bin_data(w);
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
-                                            % binning of an sqw or dnd object
+        % binning of an sqw or dnd object
 
 
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
@@ -392,14 +455,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
 
-        function ld_str = get_loader_struct_(ldr, pixel_page_size, file_backed)
+        function ld_str = get_loader_struct_(ldr, file_backed)
             % load sqw structure, using file loader
             ld_str = struct();
 
             [ld_str.main_header, ld_str.experiment_info, ld_str.detpar,...
                 ld_str.data,ld_str.pix] = ...
                 ldr.get_sqw('-legacy','-noupgrade', ...
-                            'pixel_page_size', pixel_page_size, 'file_backed', file_backed);
+                'file_backed', file_backed);
         end
 
 
@@ -412,7 +475,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % standard output used in sqw construction
         args = parse_sqw_args_(obj,varargin)
 
-        function obj = init_from_file_(obj, in_filename, pixel_page_size, file_backed)
+        function obj = init_from_file_(obj, in_filename, file_backed)
             % Parse SQW from file
             %
             % An error is raised if the data file is identified not a SQW object
@@ -422,7 +485,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     'Data file: %s does not contain valid sqw-type object',...
                     in_filename);
             end
-            lds = obj.get_loader_struct_(ldr,pixel_page_size, file_backed);
+            lds = obj.get_loader_struct_(ldr,file_backed);
             obj = from_bare_struct(obj,lds);
         end
 
@@ -495,7 +558,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     methods(Static)
         function obj = loadobj(S)
             % loadobj method, calling generic method of
-            % saveable class. Provides empty sqw class instance to
+            % saveable class. Provides empty sqw class instance to set up
+            % the data on
             obj = sqw();
             obj = loadobj@serializable(S,obj);
         end

@@ -10,10 +10,17 @@ if ~isfield(config_data,current_pc)
 end
 obj.current_config_ = config_data.(current_pc);
 %
-% ensure that optimal configuration memory chunk is smaller then 
+% ensure that optimal configuration memory chunk is smaller then
 % the 0.8 of available memory
 hc = obj.current_config_.hor_config;
 if hc.mem_chunk_size*obj.DEFAULT_PIX_SIZE > 0.8*obj.this_pc_memory_
     hc.mem_chunk_size = floor(0.8*obj.this_pc_memory_/obj.DEFAULT_PIX_SIZE);
     obj.current_config_.hor_config = hc;
+end
+% ensure default number of threads not exceeds the number of physical cores
+pc = obj.current_config_.parallel_config;
+nc = feature('numcores');
+if pc.threads > nc
+    pc.threads = nc;
+    obj.current_config_.parallel_config = pc;
 end

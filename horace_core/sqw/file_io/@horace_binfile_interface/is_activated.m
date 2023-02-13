@@ -10,9 +10,9 @@ function is = is_activated(obj, read_or_write)
 %                 Throws invalid_argument in any other cases or if
 %                 read_or_write is undefined.
 %
-full_file_path = obj.full_filename;
+full_file_name = obj.full_filename;
 [file_id_path, permission] = fopen(obj.file_id_);
-is = strcmp(full_file_path, file_id_path);
+is = strcmp(full_file_name, file_id_path);
 
 if is && nargin == 2
     if strcmpi(read_or_write, 'read')

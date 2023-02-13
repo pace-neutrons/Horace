@@ -3,6 +3,8 @@ function varargout = read_sqw(varargin)
 % 
 %   >> w=read_horace            % prompts for file
 %   >> w=read_horace(file)      % read named file or cell array of file names into array
+%   >> w=read_horace(___,'-filebacked')    % make pixels filebacked even if
+%                               % they may fit into memory
 
 % Original author: T.G.Perring
 %

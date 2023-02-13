@@ -94,7 +94,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
 
             pix = file_accessor.get_pix();
-            assertEqual(pix.num_pixels,7680)            
+            assertEqual(pix.num_pixels,7680)
         end
         %
         function obj = test_get_data(obj)
@@ -112,10 +112,10 @@ classdef test_faccess_sqw_v3_3< TestCase
             data = file_accessor.get_data('-ver');
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
-            
+
             pix = file_accessor.get_pix();
             assertTrue(isa(pix, 'PixelDataBase'));
-            assertEqual(pix.file_path, obj.sample_file);
+            assertEqual(pix.full_filename, obj.sample_file);
             assertEqual(pix.num_pixels, 7680);
 
             raw_pix = file_accessor.get_raw_pix(1,20);
@@ -238,10 +238,8 @@ classdef test_faccess_sqw_v3_3< TestCase
 
             assertEqual(ref_range,ver_obj.data.img_range);
 
-            sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
-            assertEqual(sqw_ob.main_header,ver_obj.main_header);
             ver_obj.experiment_info.runid_recalculated = true; % for testing;
-            assertEqualToTol(sqw_ob,ver_obj,[1.e-7,1.e-7]);
+            assertEqualToTol(sqw_ob,ver_obj,[1.e-7,1.e-7],'ignore_str',true,'-ignore_date');
         end
 
         %

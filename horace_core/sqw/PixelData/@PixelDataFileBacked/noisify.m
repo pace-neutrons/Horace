@@ -47,7 +47,7 @@ if ~uses_poisson_distribution
     max_sig = 0;
 
     for i = 1:pix_out.n_pages
-        pix_out.load_page(i);
+        pix_out.page_num = i;
         max_sig_page = max(abs(pix_out.signal));
         max_sig = max(max_sig, max_sig_page);
     end

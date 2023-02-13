@@ -8,5 +8,5 @@ if is_file(file)
     finf= dir(file);
     tm = finf.date;
 else
-    tm = [];
+    tm = '';
 end

@@ -60,7 +60,7 @@ else% calculate detectors directions, which are always cached now.
 end
 
 if calc_all_pixels
-    [pix_range,pix] = run_data.calc_projections(detdcn);
+    [data_range,pix] = run_data.calc_projections(detdcn);
     if hor_log_level>-1
         bigtoc('Time to convert from spe to sqw data:',hor_log_level)
         disp(' ')
@@ -69,6 +69,7 @@ if calc_all_pixels
     pix_or_pix_range = pix;
 
     if any(isinf(axes_bl.img_range(:)))
+        pix_range = data_range(:,1:4);
         pix_range = range_add_border(pix_range,obj.tol_);
         undef = isinf(axes_bl.img_range);
         axes_bl.img_range(undef) =pix_range(undef);

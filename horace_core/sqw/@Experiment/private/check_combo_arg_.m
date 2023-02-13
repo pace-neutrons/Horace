@@ -113,8 +113,11 @@ if ~(all(new_lat_def) && all(new_ang_def))
         end
         obj.old_lattice_holder_ = [];
     else
-        warning('HORACE:Experiment:invalid_argument', ...
-            'Samples in experiment are defined but their lattice is undefined')
+        is_null = cellfun(@(x)isa(x,'IX_null_sample'),new_uni_obj);
+        if ~all(is_null)
+            warning('HORACE:Experiment:invalid_argument', ...
+                'Samples in experiment are defined but their lattice is undefined')
+        end
     end
 end
 

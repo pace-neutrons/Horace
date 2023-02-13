@@ -14,9 +14,9 @@ classdef sqw_binfile_common_tester < sqw_binfile_common
     methods
         % initialize the loader, to be ready to read or write the data
         function obj = init(obj,accessor)
-            if nargin<2 || ~isa(accessor,'sqw_binfile_common')
+            if nargin<2 || ~(isa(accessor,'sqw_binfile_common') || isa(accessor,'faccess_sqw_v4'))
                 error('HORACE:sqw_binfile_common_tester:invalid_argument', ...
-                    'init can be called only with an version of an file accessor')
+                    'init can be called only with a version of an file accessor')
             end
             obj.sqw_binfile_accessor_ = accessor;
         end
@@ -28,7 +28,11 @@ classdef sqw_binfile_common_tester < sqw_binfile_common
             if isempty(obj.sqw_binfile_accessor_ )
                 return;
             end
-            is = obj.sqw_binfile_accessor_.contains_runid_in_header_;
+            if isa(obj.sqw_binfile_accessor_,'sqw_binfile_common')
+                is = obj.sqw_binfile_accessor_.contains_runid_in_header_;
+            else
+                is  = false;
+            end
         end
         function [obj,header_pos]=set_header_size(obj,app_header)
             % auxiliary function to calculate various locations of the

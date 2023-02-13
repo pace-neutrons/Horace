@@ -114,8 +114,9 @@ end
 opts = parse_args(varargin{:});
 %
 
-if opts.header || opts.hverbatim || noclass
+if opts.header || noclass
     data  = data_str;
+    data.dimensions = obj.num_dim;
     return;
 else
     % In old files img_range (urange) is also stored separately and contains

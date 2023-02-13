@@ -193,11 +193,11 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             hc.use_mex = false;
             hc.ignore_nan = true;
 
-            [sq4,grid,pix_range] = rd.calc_sqw();
+            [sq4,grid,data_range] = rd.calc_sqw();
             assertEqual(grid,[50,50,50,50]);
             ref_range = [0.0576   -6.6475   -6.6475    2.5000;...
                 3.8615    6.6475    6.6475  147.5000];
-            assertElementsAlmostEqual(pix_range,ref_range,'relative',3.e-4);
+            assertElementsAlmostEqual(data_range(:,1:4),ref_range,'relative',3.e-4);
             assertEqualToTolWithSave(obj,sq4,'ignore_str',true,'tol',1.e-7);
 
             rdr = rundatah(sq4);

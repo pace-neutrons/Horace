@@ -1,5 +1,5 @@
 function pix  = get_pix_(obj,npix_lo,npix_hi)
-% read full or partial pixel information using propertly initalized
+% read full or partial pixel information using properly initialized
 % sqw file information
 % Usage:
 % assuming that file accessor is properly initiated
