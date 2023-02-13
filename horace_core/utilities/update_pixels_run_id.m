@@ -33,7 +33,7 @@ if pix_runid_known  % all pixels are in memory or pix_runid are known and we
         % going from 1 to n_headers
         head_id =1:numel(headers);
         if max(pix_runid)>numel(headers)
-            if  numel(pix_runid)~=numel(headers)
+            if  numel(pix_runid)> numel(headers)
                 warning('HORACE:old_file_format', ...
                     ['\n*** Can not identify direct correspondence between pixel run-id(s) and experiment info run-id(s)\n', ...
                     '*** Pixel run id(s): %s\n*** Header id(s): %s\n', ...
@@ -51,12 +51,12 @@ if pix_runid_known  % all pixels are in memory or pix_runid are known and we
         sqw_type_struc.runid_map = containers.Map(keys ,head_id);
         %
     end
-    if numel(pix_runid)< numel(head_id)
-        [headers,runid_map] = get_subobj(headers,head_id,pix_runid);
-        sqw_type_struc.main_header.nfiles = numel(headers);
-        sqw_type_struc.runid_map = runid_map;
-        sqw_type_struc.header  = headers;
-    end
+%     if numel(pix_runid)< numel(head_id)
+%         [headers,runid_map] = get_subobj(headers,head_id,pix_runid);
+%         sqw_type_struc.main_header.nfiles = numel(headers);
+%         sqw_type_struc.runid_map = runid_map;
+%         sqw_type_struc.header  = headers;
+%     end
 
 else % not all pixels are loaded into memory or pre-calculated and run-id-s may be wrong
     %
