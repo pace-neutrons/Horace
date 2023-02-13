@@ -22,7 +22,7 @@ classdef ParallelSQWEval < JobExecutor
 
             if isfield(data, 'tobyfit_data')
                 for i=1:numel(data.tobyfit_data)
-                    obj.common_data_.args{2}.plist_{3} = data.tobyfit_data{i};
+                    obj.common_data_.args{4}.plist_{3} = data.tobyfit_data{i};
                 end
             end
 

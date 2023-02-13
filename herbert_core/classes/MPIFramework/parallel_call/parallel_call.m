@@ -18,6 +18,7 @@ function varargout = parallel_call(func, args, varargin)
         % mf_func_eval signature:
         %multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         %    f_pass_caller, bf_pass_caller, pfin, p_info, output_type)
+
         w = args{1};
         call_func = args{3}{1};
         args = args(2:end);

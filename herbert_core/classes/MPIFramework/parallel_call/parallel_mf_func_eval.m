@@ -9,7 +9,7 @@ switch class(w{1})
   case 'sqw'
     wout = parallel_sqw_eval(func, w, call_func, nWorkers, args);
     if ~iscell(wout)
-        wout = {wout}
+        wout = {wout};
     end
   otherwise
     error('HERBERT:parallel_mf_sqw_eval:invalid_argument', ...
