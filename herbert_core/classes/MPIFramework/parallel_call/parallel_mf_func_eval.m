@@ -1,4 +1,4 @@
-function wout = parallel_mf_func_eval(func, w, nWorkers, args)
+function wout = parallel_mf_func_eval(func, w, call_func, nWorkers, args)
 
 switch class(w{1})
 %   case 'struct'
@@ -7,7 +7,7 @@ switch class(w{1})
 %   case {'d1d', 'd2d', 'd3d', 'd4d'}
 
   case 'sqw'
-    wout = parallel_sqw_eval(func, w, nWorkers, args);
+    wout = parallel_sqw_eval(func, w, call_func, nWorkers, args);
     if ~iscell(wout)
         wout = {wout}
     end
