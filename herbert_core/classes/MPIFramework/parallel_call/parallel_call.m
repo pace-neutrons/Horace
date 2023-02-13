@@ -7,11 +7,7 @@ function varargout = parallel_call(func, args, varargin)
     switch func_info.function
       case 'sqw_eval'
 
-        w = args{1};
-        call_func = args{2};
-        args = args(2:end);
-
-        varargout{1} = parallel_sqw_eval(func, w, call_func, nWorkers, args);
+        varargout{1} = parallel_sqw_eval(func, nWorkers, args);
 
       case 'multifit_func_eval'
 
@@ -19,11 +15,7 @@ function varargout = parallel_call(func, args, varargin)
         %multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         %    f_pass_caller, bf_pass_caller, pfin, p_info, output_type)
 
-        w = args{1};
-        call_func = args{3}{1};
-        args = args(2:end);
-
-        varargout{1} = parallel_mf_func_eval(func, w, call_func, nWorkers, args);
+        varargout{1} = parallel_mf_func_eval(func, nWorkers, args);
 
       otherwise
         error('HERBERT:parallel_call:invalid_argument', ...

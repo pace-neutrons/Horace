@@ -1,16 +1,13 @@
-function wout = parallel_sqw_eval(func, w, call_func, nWorkers, args)
+function wout = parallel_sqw_eval(func, nWorkers, args)
+
+    w = args{1};
+    args = args(2:end);
+
     if ~iscell(w)
         w = {w};
     end
 
-    tmp = functions(call_func);
-    if startsWith(tmp.function, 'tobyfit')
-        loop_data = ...
-            mfclass.distribute_fit_data(w, nWorkers, false, ...
-                                        arrayfun(@(x)(x.plist{3}), args{4}, 'UniformOutput', false));
-    else
-        loop_data = mfclass.distribute_fit_data(w, nWorkers, false);
-    end
+    loop_data = mfclass.distribute_fit_data(w, nWorkers, false);
 
     common_data = struct('func', func, ...
                          'args', {args}, ...
