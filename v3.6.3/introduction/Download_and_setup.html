@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Download and setup &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Support and updates" href="Support_and_updates.html" />
+    <link rel="prev" title="The Horace Rationale" href="The_Horace_Rationale.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Download and setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#system-requirements">System Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#download">Download</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation-instructions">Installation Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#horace-configuration">Horace Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#high-performance-computing-configuration">High Performance Computing Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Introduction.html">Introduction and Setup</a></li>
+      <li class="breadcrumb-item active">Download and setup</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/introduction/Download_and_setup.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="download-and-setup">
+<h1>Download and setup<a class="headerlink" href="#download-and-setup" title="Permalink to this heading"></a></h1>
+<section id="system-requirements">
+<h2>System Requirements<a class="headerlink" href="#system-requirements" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Windows 64-bit, or Linux 64-bit operating system</p></li>
+<li><p>Plenty of free disk space in order to cope with the combined data files (&gt; 30GB)</p></li>
+<li><p>16GB RAM or more. Horace will run on a machine with 4 or 8Gb memory,
+but may be quite slow and may not be able to process newer larger datasets.</p></li>
+<li><p>Preferably a recent version of Matlab.
+Horace is not tested on releases of Matlab older than R2018b.
+However, if you require Horace to run on older versions of Matlab,
+and encounter problems, please open a ticket on
+<a class="reference external" href="https://github.com/pace-neutrons/Horace/issues">GitHub</a>
+or write e-mail to <a class="reference external" href="mailto:HoraceHelp&#37;&#52;&#48;stfc&#46;ac&#46;uk">Horace support team</a>
+and we will try to help you.</p></li>
+</ul>
+</section>
+<section id="download">
+<h2>Download<a class="headerlink" href="#download" title="Permalink to this heading"></a></h2>
+<p>Horace releases for supported operating systems are available to download on
+<a class="reference external" href="https://github.com/pace-neutrons/Horace/releases">GitHub here</a>.
+These packages contain pre-compiled <cite>mex</cite> libraries for each OS.</p>
+<p>The released and packaged <em>Horace distribution</em> contains both
+<a class="reference external" href="https://github.com/pace-neutrons/Horace">Horace</a>
+and its support Herbert <a class="reference external" href="https://github.com/pace-neutrons/Herbert">library</a>
+of low-level graphics and data manipulation routines.
+If you need to run the latest development version you need to download these
+two programs separately (see below).</p>
+</section>
+<section id="installation-instructions">
+<h2>Installation Instructions<a class="headerlink" href="#installation-instructions" title="Permalink to this heading"></a></h2>
+<p>To install Horace you should ideally have the administrative rights. To
+install Horace:</p>
+<ol class="arabic simple">
+<li><p>Extract the release archive to your preferred location.</p></li>
+<li><p>Open Matlab and change to the <code class="docutils literal notranslate"><span class="pre">admin</span></code> folder under that location.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">horace_install</span></code>.
+Under Unix, where Matlab GUI may not always run with root privileges
+go to the <code class="docutils literal notranslate"><span class="pre">admin</span></code> folder under the package folder and run Matlab
+from the command line as: <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">matlab</span> <span class="pre">-nosplash</span> <span class="pre">-nodesktop</span> <span class="pre">-r</span> <span class="pre">horace_install</span></code></p></li>
+<li><p>Now you can call <code class="docutils literal notranslate"><span class="pre">horace_on</span></code> from anywhere to start using Horace.</p></li>
+</ol>
+<p>Optional:</p>
+<ol class="arabic simple" start="5">
+<li><p>To have Horace available each time you start your Matlab session,
+you can add <code class="docutils literal notranslate"><span class="pre">horace_on</span></code> to your start-up file:
+Launch Matlab from your home folder or GUI and type <code class="docutils literal notranslate"><span class="pre">&gt;&gt;</span> <span class="pre">edit</span> <span class="pre">startup.m</span></code>.
+Then add <code class="docutils literal notranslate"><span class="pre">horace_on();</span></code> to the end of the file.</p></li>
+</ol>
+<p>If you do not have administrative access, the installation would still be possible,
+and should work as described. You may encounter problems with parallel extensions
+and not be able to initialize Horace if Matlab is launched from a folder different from Matlab’s
+<a class="reference external" href="https://uk.mathworks.com/help/matlab/ref/userpath.html">userpath</a> folder.
+See the <a class="reference internal" href="#troubleshooting">Troubleshooting</a> section below for details of the installation process in this situation.</p>
+<p>If you want to install the latest development version of Horace,
+you should first <em>clone</em> the <a class="reference external" href="https://github.com/pace-neutrons/Horace">Horace</a>
+and <a class="reference external" href="https://github.com/pace-neutrons/Herbert">Herbert</a> <code class="docutils literal notranslate"><span class="pre">git</span></code> repositories.
+You can then use the <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> script in the <code class="docutils literal notranslate"><span class="pre">admin</span></code> subfolder of the Horace repository,
+giving it the path to where <cite>Horace</cite> and <cite>Herbert</cite> were cloned.
+Horace should work after the install script is run but to improve performance of some common Horace operations,
+you may need to build the <cite>mex</cite> files yourself.
+Currently <cite>mex</cite> files for Windows are stored in the repository, but this may not always be the case in future.
+You will need to build <cite>mex</cite> files for other operating systems.</p>
+</section>
+<section id="horace-configuration">
+<h2>Horace Configuration<a class="headerlink" href="#horace-configuration" title="Permalink to this heading"></a></h2>
+<p>Horace uses configuration files to store its settings and to tune its behaviour and performance.
+Horace tries to guess the best performance for your machine, but you should check if the configuration
+it selects is indeed optimal for you.</p>
+<p>You can access the settings using the <code class="docutils literal notranslate"><span class="pre">hor_config</span></code> class.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hor_config</span>
+</pre></div>
+</div>
+<p>This will print the current Horace configuration.
+Descriptions for each option with suggestions for configuring are given below:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hor_config</span><span class="p">()</span>
+
+<span class="n">hc</span><span class="w"> </span><span class="p">=</span>
+
+<span class="n">hor_config</span><span class="w"> </span><span class="s">with</span><span class="w"> </span><span class="s">properties:</span>
+<span class="w">   </span><span class="c">% The buffer size for read/write IO operations in filebased algorithms.</span>
+<span class="w">   </span><span class="c">% (in Horace pixel units)</span>
+<span class="w">   </span><span class="c">% Set it up to ~20M if you machine has 64Gb or RAM, 1M for 4Gb machine.</span>
+<span class="w">   </span><span class="n">mem_chunk_size</span><span class="p">:</span><span class="w"> </span><span class="mi">1000000</span><span class="w"> </span><span class="c">% optimal value for 32Gb RAM machine</span>
+<span class="w">   </span><span class="c">%</span>
+<span class="w">   </span><span class="c">% The number of OMP threads to use in `mex` routines. This should be equal to</span>
+<span class="w">   </span><span class="c">% the number of physical cores on your machine.</span>
+<span class="w">   </span><span class="n">threads</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span>
+<span class="w">   </span><span class="c">% Ignore NaN data when making cuts (true or false)</span>
+<span class="w">   </span><span class="n">ignore_nan</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span><span class="c">% (default)</span>
+<span class="w">   </span><span class="c">% Ignore Inf data when making cuts (true or false)</span>
+<span class="w">   </span><span class="n">ignore_inf</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="c">% (default)</span>
+<span class="w">   </span><span class="c">% The verbosity of informational log messages:</span>
+<span class="w">   </span><span class="c">%  -1 - Display no logging</span>
+<span class="w">   </span><span class="c">%   0 - Display major logging information</span>
+<span class="w">   </span><span class="c">%   1 - Display minor and major logging information</span>
+<span class="w">   </span><span class="c">%   2 - Display all logging messages, including timing information</span>
+<span class="w">   </span><span class="n">log_level</span><span class="p">:</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">   </span><span class="c">% Make use of `mex` libraries (true or false). Make it true if `mex` routines are available.</span>
+<span class="w">   </span><span class="n">use_mex</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">   </span><span class="c">% Automatically delete temporary files generated by sqw generation (true or false)</span>
+<span class="w">   </span><span class="c">% set it to false, if you are building your sqw files using write_nsqw_to_sqw directly</span>
+<span class="w">   </span><span class="n">delete_tmp</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">   </span><span class="c">% The directory to place temporary files during sqw generation</span>
+<span class="w">   </span><span class="n">working_directory</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;C:\temp&#39;</span>
+<span class="w">   </span><span class="c">% Throw an error if a `mex` library cannot be used (true or false) [debugging option]</span>
+<span class="w">   </span><span class="n">force_mex_if_use_mex</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">   </span><span class="c">% Reference to Horace&#39;s high performance configuration</span>
+<span class="w">   </span><span class="n">high_perf_config_info</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span>×<span class="mi">1</span><span class="w"> </span><span class="n">hpc_config</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Use the usual Matlab syntax to set configuration values:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">hc</span><span class="p">.(</span><span class="n">property_name</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="high-performance-computing-configuration">
+<h2>High Performance Computing Configuration<a class="headerlink" href="#high-performance-computing-configuration" title="Permalink to this heading"></a></h2>
+<p>If your have a large machine with multiple cores, fast hard drive connected to parallel file system and large memory,
+you may benefit from using Horace’s parallel computing extensions.
+The memory necessary to make parallel extensions useful may be estimated as 32Gb per main session
+and 16 per each parallel worker as minimum, so if you want to use 4 parallel processes productively,
+your machine should have 96Gb of RAM.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">hpc</span></code> command can be used to enable/disable parallel computing options,
+as well as provide suggested settings for the current system.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hpc</span><span class="p">;</span><span class="w">     </span><span class="c">% display the suggested configuration based on the current system</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hpc</span><span class="w"> </span><span class="n">on</span><span class="w">   </span><span class="c">% enable parallel computing</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hpc</span><span class="w"> </span><span class="n">off</span><span class="w">  </span><span class="c">% disable parallel computing</span>
+</pre></div>
+</div>
+<p>For finer grained control over things like: number of parallel workers,
+use of <cite>mex</cite> routines and which functions are performed in parallel,
+use the <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code> class.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">help</span><span class="w"> </span><span class="n">hpc_config</span>
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading"></a></h2>
+<p>If you used a <a class="reference external" href="https://github.com/pace-neutrons/Horace/releases">release archive</a>,
+then both <cite>Horace</cite> and <cite>Herbert</cite> will be in the same folder (called <code class="docutils literal notranslate"><span class="pre">&lt;extracted_folder&gt;</span></code> below)
+with <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> and this script can be called with no arguments
+(it will automatically detect the folders).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> installation script then modifies three files:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/horace_on.m.template">horace_on.m.template</a>,</p></li>
+<li><p><a class="reference external" href="https://github.com/pace-neutrons/Herbert/blob/master/admin/herbert_on.m.template">herbert_on.m.template</a> and</p></li>
+<li><p><a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v2.m.template">worker_v2.m.template</a></p></li>
+</ul>
+<p>by inserting the location of the <cite>Horace</cite> and <cite>Herbert</cite> folders into these files,
+and copies them to a folder (<code class="docutils literal notranslate"><span class="pre">&lt;extracted_folder&gt;/ISIS</span></code> by default) which it adds to the Matlab path
+by modifying the global <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file.
+This means that all Matlab session including independent parallel workers have access to this path from any location where Matlab has been started.
+Unfortunately, this requires administrative (root) privileges.</p>
+<p>It is possible to install <cite>Horace</cite> without admin rights, in which case the <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> script
+will create a <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file in the default <cite>userpath</cite> folder (as defined in the
+<a class="reference external" href="https://uk.mathworks.com/help/matlab/matlab_env/what-is-the-matlab-search-path.html">Matlab documentation for search paths</a>).
+Some versions of Matlab, however, use different <cite>userpath</cite> folders if they are started as a parallel worker,
+which may lead the parallel extensions to fail because they cannot find the <code class="docutils literal notranslate"><span class="pre">worker_v2.m</span></code> file, but not to report any errors.
+In these cases, you should run Matlab from the <cite>userpath</cite> folder (e.g. the folder with the <code class="docutils literal notranslate"><span class="pre">pathdef.m</span></code> file).</p>
+<p>If instead of using the release packages you’ve cloned the <cite>Horace</cite> and <cite>Herbert</cite> repositories,
+then you should still run <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> which is located in the <code class="docutils literal notranslate"><span class="pre">admin</span></code> subfolder of the Horace repository folder.
+However, you should now give the exact path to the <cite>Horace</cite> and <cite>Herbert</cite> folders using
+the <code class="docutils literal notranslate"><span class="pre">horace_root</span></code> and <code class="docutils literal notranslate"><span class="pre">herbert_root</span></code> arguments:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="p">(</span><span class="s">&#39;horace_folder/admin&#39;</span><span class="p">);</span>
+<span class="n">horace_install</span><span class="p">(</span><span class="s">&#39;herbert_root&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;path/to/herbert&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">               </span><span class="s">&#39;horace_root&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;path/to/horace&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">               </span><span class="s">&#39;init_folder&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;path/to/horace_on&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="The_Horace_Rationale.html" class="btn btn-neutral float-left" title="The Horace Rationale" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Support_and_updates.html" class="btn btn-neutral float-right" title="Support and updates" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2021, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 13, 2023, 4:52:21 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
