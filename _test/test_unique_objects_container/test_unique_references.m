@@ -29,7 +29,7 @@ classdef test_unique_references < TestCase
             urc.global_container('CLEAR', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
             glc = urc.global_container('value', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
             assertTrue( isa( glc, 'unique_objects_container') );
-            assertEqual( glc.n_runs, 0);
+            assertEqual( glc.n_objects, 0);
             assertEqual( urc.global_name, 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES' );
             urc = urc.add(0.111);
             urc = urc.add(0.222);
@@ -67,9 +67,40 @@ classdef test_unique_references < TestCase
 
             glc = urc.global_container('value', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
             assertTrue( isa( glc, 'unique_objects_container') );
-            assertEqual( glc.n_runs, 4);
+            assertEqual( glc.n_objects, 4);
         end
         
+        function test_save_load(~)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
+            urc = unique_references_container('GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES', 'double');
+            urc.global_container('CLEAR', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
+            glc = urc.global_container('value', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
+            urc = urc.add(0.111);
+            urc = urc.add(0.222);
+            urc = urc.add(0.333);
+            urc = urc.add(0.222);
+            save('test_unique_references_container_save_load_1.mat','urc');
+            zzz = load('test_unique_references_container_save_load_1.mat');
+            assertEqual(zzz.urc, urc);
+        end
+        
+        function test_add_multiple(~)
+            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb = onCleanup(@()warning(ws));
+            urc = unique_references_container('GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES', 'double');
+            urc.global_container('CLEAR', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
+            urc = urc.add([0.222 0.333 0.444]);
+            urc = urc.add({0.555 0.666});
+            uoc = unique_objects_container('baseclass','double');
+            uoc{1} = 0.777;
+            uoc{2} = 0.888;
+            urc = urc.add(uoc);
+            assertEqual(urc{5}, 0.666);
+            assertEqual(urc(7), 0.888);
+            assertEqual(urc.n_objects,7);
+        end
+                
         function test_basic_instruments_container(obj)
             ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
             clOb = onCleanup(@()warning(ws));
@@ -79,7 +110,7 @@ classdef test_unique_references < TestCase
             urc.global_container('CLEAR', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             glc = urc.global_container('value', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             assertTrue( isa( glc, 'unique_objects_container') );
-            assertEqual( glc.n_runs, 0);
+            assertEqual( glc.n_objects, 0);
             assertEqual( urc.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
             
             urc = urc.add(obj.mi1);
@@ -126,7 +157,7 @@ classdef test_unique_references < TestCase
             
             glc = urc.global_container('value', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             assertTrue( isa( glc, 'unique_objects_container') );
-            assertEqual( glc.n_runs, 3);
+            assertEqual( glc.n_objects, 3);
             assertEqual( urc.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
 
             inst = IX_null_inst();
@@ -141,7 +172,7 @@ classdef test_unique_references < TestCase
 
             glc = urc.global_container('value', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             assertTrue( isa( glc, 'unique_objects_container') );
-            assertEqual( glc.n_runs, 4);
+            assertEqual( glc.n_objects, 4);
             assertEqual( urc.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
             
             % test contains for a class name instead of an object value
@@ -159,7 +190,7 @@ classdef test_unique_references < TestCase
             urc.global_container('CLEAR', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             glc = urc.global_container('value', 'GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             assertTrue( isa( glc, 'unique_objects_container') );
-            assertEqual( glc.n_runs, 0);
+            assertEqual( glc.n_objects, 0);
             assertEqual( urc.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER' );
 
             % add 3 identical instruments to the container
@@ -479,8 +510,8 @@ classdef test_unique_references < TestCase
             glc = urc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
             hlc = vrc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
             assertEqual( glc, hlc);
-            assertEqual( glc.n_runs, hlc.n_runs );
-            assertEqual( glc.n_runs, 4 );
+            assertEqual( glc.n_objects, hlc.n_objects );
+            assertEqual( glc.n_objects, 4 );
         end
         %----------------------------------------------------------------
         function test_subscripting_type(obj)

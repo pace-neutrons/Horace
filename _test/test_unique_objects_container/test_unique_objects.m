@@ -29,7 +29,7 @@ classdef test_unique_objects < TestCase
             uoc = uoc.add(merlin_instrument(185, 600, 'g'));
             uoc = uoc.add(IX_null_inst());
 
-            assertEqual(uoc.n_runs,4)
+            assertEqual(uoc.n_objects,4)
 
             [is,ind] = uoc.contains(obj.mi1);
             assertTrue(is);
@@ -46,7 +46,7 @@ classdef test_unique_objects < TestCase
             uoc = uoc.add(obj.mi1);
             uoc = uoc.add(IX_null_inst());
 
-            assertEqual(uoc.n_runs,4)
+            assertEqual(uoc.n_objects,4)
 
             [is,ind] = uoc.contains('IX_null_inst');
             assertTrue(is);
@@ -109,8 +109,11 @@ classdef test_unique_objects < TestCase
             function thrower()
                 uoc.unique_objects = 'bbbb';
             end
-            assertExceptionThrown(@()thrower, ...
-                'HERBERT:unique_objects_container:invalid_argument');
+            assertExceptionThrown(@thrower, ...
+                'HERBERT:unique_objects_container:invalid_set');
+            uoc.do_check_combo_arg = false;
+            thrower();
+            uoc.do_check_combo_arg = true;
 
         end
         function test_replace_with_nonunique_same_number_throw(~)
@@ -122,9 +125,20 @@ classdef test_unique_objects < TestCase
             function thrower()
                 uoc.unique_objects = {'AA','AA'};
             end
-            assertExceptionThrown(@()thrower, ...
-                'HERBERT:unique_objects_container:invalid_argument');
+            assertExceptionThrown(@thrower, ...
+                'HERBERT:unique_objects_container:invalid_set');
 
+        end
+        
+        function test_save_load(~)
+            uoc = unique_objects_container();
+            uoc(1) = 'aaaaa';
+            uoc(2) = 'bbbb';
+            uoc(3) = 'bbbb';
+            assertTrue(uoc.do_check_combo_arg);
+            save('unique_objects_container_test_save_load_1.mat','uoc');
+            zzz = load('unique_objects_container_test_save_load_1.mat');
+            assertEqual(zzz.uoc{3},'bbbb');
         end
 
         function test_replace_unique_same_number_works(~)
@@ -133,8 +147,14 @@ classdef test_unique_objects < TestCase
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
             uoc(3) = 'bbbb';
-            uoc.unique_objects = {'dd','cc'};
-
+            function maythrow() 
+                uoc.unique_objects = {'dd','cc'};
+            end
+            assertExceptionThrown(@maythrow,'HERBERT:unique_objects_container:invalid_set');
+            uoc.do_check_combo_arg = false;
+            uoc.unique_objects = {'dd','cc'};            
+            uoc.do_check_combo_arg = false;
+            
             assertEqual(uoc(1),'dd')
             assertEqual(uoc(2),'cc')
             assertEqual(uoc(3),'cc')
@@ -153,11 +173,19 @@ classdef test_unique_objects < TestCase
             uoc(7) = obj.li;
             uoc(8) = 'aaaaa';
 
-            assertEqual(uoc.n_runs,8);
+            assertEqual(uoc.n_objects,8);
             assertEqual(uoc.n_unique,5);
-
-            uoc.baseclass = 'IX_inst';
-            assertEqual(uoc.n_runs,4)
+            
+            % resetting the baseclass will invalidate some of the contents
+            % and hence is not approved for normal use; this just checks
+            % the rest of the contents is compliant with the new
+            % restriction
+            function throw()
+                uoc.baseclass = 'IX_inst';
+            end
+            assertExceptionThrown(@throw, 'HERBERT:unique_objects_container:invalid_argument');
+            uoc = uoc.remove_noncomplying_members_('IX_inst');
+            assertEqual(uoc.n_objects,4)
             assertEqual(uoc.n_unique,2)
             assertEqual(uoc.n_duplicates,[2,2])
         end
@@ -173,11 +201,19 @@ classdef test_unique_objects < TestCase
             uoc(6) = 20;
             uoc(7) = obj.li;
 
-            assertEqual(uoc.n_runs,7);
+            assertEqual(uoc.n_objects,7);
             assertEqual(uoc.n_unique,5);
 
-            uoc.baseclass = 'IX_inst';
-            assertEqual(uoc.n_runs,3)
+            % resetting the baseclass will invalidate some of the contents
+            % and hence is not approved for normal use; this just checks
+            % the rest of the contents is compliant with the new
+            % restriction
+            function throw()
+                uoc.baseclass = 'IX_inst';
+            end
+            assertExceptionThrown(@throw, 'HERBERT:unique_objects_container:invalid_argument');
+            uoc = uoc.remove_noncomplying_members_('IX_inst');
+            assertEqual(uoc.n_objects,3)
             assertEqual(uoc.n_unique,2)
             assertEqual(uoc.n_duplicates,[1,2])
         end
@@ -357,11 +393,11 @@ classdef test_unique_objects < TestCase
         function test_expand_to_nruns(obj)
             uoc = unique_objects_container('baseclass','IX_inst');
             uoc{1} = obj.mi1;
-            assertEqual(uoc.n_runs,1)
+            assertEqual(uoc.n_objects,1)
             assertEqual(uoc.n_unique,1)
 
             uoc = uoc.replicate_runs(10);
-            assertEqual(uoc.n_runs,10);
+            assertEqual(uoc.n_objects,10);
             assertEqual(uoc.n_unique,1);
             assertEqual(uoc.n_duplicates,10);
 
@@ -371,18 +407,18 @@ classdef test_unique_objects < TestCase
             uoc(1) = obj.mi1;
             uoc(2) = IX_null_inst();
             assertEqual( uoc.n_duplicates,[1,1]);
-            assertEqual( uoc.n_runs,2);
+            assertEqual( uoc.n_objects,2);
             assertEqual( uoc.n_unique,2);
             uoc(3) = obj.mi1;
-            assertEqual( uoc.n_runs,3);
+            assertEqual( uoc.n_objects,3);
             assertEqual(uoc.n_duplicates,[2,1]);
             assertEqual(uoc.n_unique,2);
             uoc(1) = IX_null_inst();
-            assertEqual( uoc.n_runs,3);
+            assertEqual( uoc.n_objects,3);
             assertEqual( uoc.n_duplicates,[1,2]);
             uoc(3) = IX_null_inst();
 
-            assertEqual(uoc.n_runs,3);
+            assertEqual(uoc.n_objects,3);
             assertEqual(uoc.n_unique,1);
             assertEqual(uoc.n_duplicates,3);
 
@@ -393,18 +429,18 @@ classdef test_unique_objects < TestCase
             uoc{1} = obj.mi1;
             uoc{2} = IX_null_inst();
             assertEqual( uoc.n_duplicates,[1,1]);
-            assertEqual( uoc.n_runs,2);
+            assertEqual( uoc.n_objects,2);
             assertEqual( uoc.n_unique,2);
             uoc{3} = obj.mi1;
-            assertEqual( uoc.n_runs,3);
+            assertEqual( uoc.n_objects,3);
             assertEqual(uoc.n_duplicates,[2,1]);
             assertEqual(uoc.n_unique,2);
             uoc{1} = IX_null_inst();
-            assertEqual( uoc.n_runs,3);
+            assertEqual( uoc.n_objects,3);
             assertEqual( uoc.n_duplicates,[1,2]);
             uoc{3} = IX_null_inst();
 
-            assertEqual(uoc.n_runs,3);
+            assertEqual(uoc.n_objects,3);
             assertEqual(uoc.n_unique,1);
             assertEqual(uoc.n_duplicates,3);
         end
