@@ -23,13 +23,13 @@ function wout = parallel_mf_func_eval(func, nWorkers, args)
     end
 
     switch class(w{1})
-        %   case 'struct'
-        %
-        %   case {'IX_Dataset_1D', 'IX_Dataset_2D', 'IX_Dataset_3D'}
-        %   case {'d1d', 'd2d', 'd3d', 'd4d'}
-
+      case 'struct'
+        loop_data = cellfun(@(x)distribute(x, nWorkers, false), w);
+      case {'IX_Dataset_1D', 'IX_Dataset_2D', 'IX_Dataset_3D'}
+        loop_data = cellfun(@(x)distribute(x, nWorkers, false), w);
+      case {'d1d', 'd2d', 'd3d', 'd4d'}
+        loop_data = cellfun(@(x)distribute(x, nWorkers, false), w);
       case 'sqw'
-
         if has_fgnd && startsWith(finfo.function, 'tobyfit')
             loop_data = ...
                 mfclass.distribute_fit_data(w, nWorkers, false, ...
