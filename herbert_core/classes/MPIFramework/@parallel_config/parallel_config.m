@@ -481,9 +481,10 @@ classdef parallel_config<config_base
         end
 
         function obj = set.threads(obj,n_threads)
-            n_threads = max(floor(n_threads), 0);
-            if n_threads == 0
-                n_threads = obj.n_cores;
+            n_threads = floor(n_threads);
+
+            if n_threads < 0
+                error('HERBERT:parallel_config:invalid_argument', 'threads must be positive or 0 (automatic)')
             elseif n_threads > obj.n_cores
                 warning('HERBERT:parallel_config:threads', 'Number of threads (%d) might exceed computer capacity (%d)', n_threads, obj.n_cores)
             end
@@ -491,11 +492,13 @@ classdef parallel_config<config_base
         end
 
         function obj = set.par_threads(obj,n_threads)
-            n_threads = max(floor(n_threads), 0);
+            n_threads = floor(n_threads);
             n_workers = get_or_restore_field(obj, 'parallel_workers_number');
             n_poss_threads = floor(obj.n_cores/n_workers);
 
-            if n_threads > n_poss_threads
+            if n_threads < 0
+                error('HERBERT:parallel_config:invalid_argument', 'par_threads must be positive or 0 (automatic)')
+            elseif n_threads > n_poss_threads
                 warning('HERBERT:parallel_config:par_threads', 'Number of par threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
             end
             config_store.instance().store_config(obj,'par_threads',n_threads);
