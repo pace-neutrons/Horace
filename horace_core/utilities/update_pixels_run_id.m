@@ -11,7 +11,7 @@ function sqw_type_struc = update_pixels_run_id(sqw_type_struc,unique_pix_id)
 % run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
-if isempty(sqw_type_struc.data.pix)
+if isempty(sqw_type_struc.data.pix) || isa(sqw_type_struc.data.pix,'pix_combine_info')
     return;
 end
 if ~exist('unique_pix_id','var')
