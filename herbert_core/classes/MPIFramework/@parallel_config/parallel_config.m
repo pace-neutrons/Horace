@@ -330,6 +330,9 @@ classdef parallel_config<config_base
 
         function n_threads=get.threads(obj)
             n_threads = get_or_restore_field(obj,'threads');
+            if n_threads == 0
+                n_threads = maxNumCompThreads();
+            end
         end
 
         function n_threads=get.par_threads(obj)

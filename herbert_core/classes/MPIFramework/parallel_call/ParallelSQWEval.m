@@ -19,6 +19,13 @@ classdef ParallelSQWEval < JobExecutor
 
         function obj = setup(obj)
             data = obj.loop_data_{1};
+
+            if isfield(data, 'tobyfit_data')
+                for i=1:numel(data.tobyfit_data)
+                    obj.common_data_.args{2}.plist_{3} = data.tobyfit_data{i};
+                end
+            end
+
             common = obj.common_data_;
 
             w_out = common.func(data.w, common.args{:});

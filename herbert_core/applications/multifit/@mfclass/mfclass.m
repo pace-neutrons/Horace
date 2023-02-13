@@ -341,15 +341,15 @@ classdef mfclass
         options
 
     end
-    properties(Dependent,Hidden) % 
+    properties(Dependent,Hidden) %
         % Hide excessive interface to avoid confusion but keep it if
         % some external programs use it
         %
         % Foreground is local if true, or global if false
-        global_foreground 
+        global_foreground
         % Background is local if true, or global if false
         local_background
-        
+
     end
 
     methods
@@ -622,6 +622,8 @@ classdef mfclass
     end
 
     methods (Static)
+        [loop_data, merge_data] = distribute_fit_data(w, nWorkers, split_bins, tobyfit)
+
         %------------------------------------------------------------------
         % Methods to interface to legacy (i.e. pre-2018) multifit
         %------------------------------------------------------------------
@@ -675,4 +677,3 @@ classdef mfclass
     end
 
 end
-
