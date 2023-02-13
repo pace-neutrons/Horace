@@ -20,6 +20,10 @@ if any(isnan(runids)) % this also had been done in gen_sqw;
     % duplicated headers unique
     runids = header_numbers;
 end
+if numel(unique(runids)) ~= numel(headers) % probably its incorrect run_id extraction
+    % or duplicated headers were modified incorrectly
+    runids = header_numbers;
+end
 if isempty(runids)
     runid_map = containers.Map();    
 else
