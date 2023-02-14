@@ -442,23 +442,34 @@ classdef config_store < handle
             % config folder in default location, specified by
             % make_config_folder routine
             %
+            % The default folder name incorporates the Horace version for
+            % major version number greater than or equal to 4. This does
+            % not include the case of the Jenkins build server, when the
+            % default folder name incorporates the build name.
 
             %if ~exist('new_path','var') % not currently necessary as is
             %                              always called with new_path,
             %                              but to be aware of the futuire
             %    new_path = '';
             %end
-            [is_virtual,type]=is_idaaas();
-            [is_jenk,build_name,workspace] = is_jenkins();
 
-            if is_virtual
-                obj.config_folder_name_ = ['mprogs_config_',type];
-            end
-
-            if is_jenk                % remove all possible folder paths of the build name
-                                      % to be able to create valid file name.
+            [is_jenk, build_name, workspace] = is_jenkins();
+            if is_jenk
+                % remove all possible folder paths of the build name
+                % to be able to create valid file name.
                 [~,build_name] = fileparts(build_name);
                 obj.config_folder_name_ = ['mprogs_config_',build_name];
+
+            else
+                [vmag,vmin,vp] = herbert_version();
+                ver_string = ['_ver',vmag,'.',vmin,'.',vp];
+                [is_virtual, type] = is_idaaas();
+
+                if is_virtual
+                    obj.config_folder_name_ = ['mprogs_config','_', type,ver_string];
+                else
+                    obj.config_folder_name_ = ['mprogs_config', ver_string];
+                end
             end
 
             if ~isempty(new_path)
