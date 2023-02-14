@@ -50,11 +50,8 @@ elseif isunix
     % the number of numa nodes and all subsequent strings describe each
     % node. So, if there are more then 2 string, its more then one numa
     % node and we consider this computer to be an hpc system.
-    if numel(rez)>2 || nproc>4
-        hpc_computer = true;
-    else
-        hpc_computer = false;
-    end
+    hpc_computer = numel(rez)>2 || nproc>4;
+    
     [is_virtual,type] = is_idaaas();
     if is_virtual
         if strcmpi(type,'idaas_large')

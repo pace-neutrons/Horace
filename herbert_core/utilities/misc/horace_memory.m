@@ -12,26 +12,30 @@ if ispc
     [~,sys] = memory();
     phys_memory = sys.PhysicalMemory.Total;
     free_memory = sys.PhysicalMemory.Available;
+    ok = true;
 elseif isunix
     if ismac
-        [nok,mem_string] = system('top -l 1 -n 0');
-        if ~nok
+        [err,mem_string] = system('top -l 1 -n 0');
+        ok = err == 0;
+        if ok
             [phys_memory,free_memory] = parse_mac_mem_string(mem_string);
         end
     else % normal Unix
-        [nok,mem_string] = system('free | grep Mem');
-        if ~nok
+        [err,mem_string] = system('free | grep Mem');
+        ok = err == 0;
+        if ok
             [phys_memory,free_memory] = parse_mem_string(mem_string);
         end
     end
-    if nok
-        phys_memory = [];
-        free_memory = [];
-    end
+end
+if ~ok
+    phys_memory = [];
+    free_memory = [];
 end
 
+
 function [phys_memory,free_memory] = parse_mem_string(mem_string)
-% Analyze result of free function on linux
+% Analyze result of "free | grep Mem" function on linux
 try
     cont = regexp(mem_string,'\s+','split');
     phys_memory =  1024*sscanf(cont{2},'%d');
@@ -39,21 +43,20 @@ try
 catch
     phys_memory = [];
     free_memory = [];
-
 end
 
 function [phys_memory,free_memory] = parse_mac_mem_string(mem_string)
-% Analyze result of MAC top -l 1 -n 0 function.
+% Analyze result of "top -l 1 -n 0" function on MAC.
 %
 try
     mem_ind = strfind(mem_string,'PhysMem');
     cont = regexp(mem_string(mem_ind:end),'\s+','split');
 
     phys_memory = extract_dig(cont{2});
-    free_memory =  extract_dig(cont{4});% unclear if it is correct, probably not
+    free_memory = extract_dig(cont{4}); % unclear if it is correct, probably not
     %                                   % this value contains something different
-    %                                   % as this value is not yet used
-    %                                   properly -- keep it as it is
+    %                                   % As this value is not yet used
+    %                                   % properly -- keep it as it is.
 catch
     phys_memory = [];
     free_memory = [];
@@ -64,8 +67,8 @@ str_pos = regexp(str,'\d*');
 str = str(str_pos:end);
 dig = sscanf(str,'%d');
 if isempty(dig)
-    dig = 0;
-    return;
+    error('HORACE:utilites:horace_memory', ...
+        'can not extract digits, describing memory size from input string: %s',str);
 end
 Mb = 1024*1024;
 Gb = 1024*Mb;
