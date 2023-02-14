@@ -280,6 +280,5 @@ varargout = cell(nfn,1);
 for i=1:nfn
     varargout{i} = output.(fn{i});
 end
-end
 
 end
