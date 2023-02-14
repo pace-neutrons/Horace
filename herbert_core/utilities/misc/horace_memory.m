@@ -12,17 +12,51 @@ if ispc
     [~,sys] = memory();
     phys_memory = sys.PhysicalMemory.Total;
     free_memory = sys.PhysicalMemory.Available;
-elseif isunix   
-    [nok,mem_string] = system('free | grep Mem');
-    if nok
+elseif isunix
+    if ismac
+        [nok,mem_string] = system('top -l 1 -n 0');
+        if ~nok
+            [phys_memory,free_memory] = parse_mac_mem_string(mem_string);
+        end
+    else % normal Unix
+        [nok,mem_string] = system('free | grep Mem');
+        if ~nok
+    
+            [phys_memory,free_memory] = parse_mem_string(mem_string);
+        end
+    end
+   if nok
         phys_memory = [];
         free_memory = [];
-    else
-        [phys_memory,free_memory] = parse_mem_string(mem_string);
-    end
+   end
 end
 
 function [phys_memory,free_memory] = parse_mem_string(mem_string)
 cont = regexp(mem_string,'\s+','split');
 phys_memory =  1024*sscanf(cont{2},'%d');
 free_memory =  1024*sscanf(cont{4},'%d');
+
+function [phys_memory,free_memory] = parse_mac_mem_string(mem_string)
+mem_ind = strfind(mem_string,'PhysMem');
+cont = regexp(mem_string(mem_ind:end),'\s+','split');
+
+phys_memory = extract_dig(cont{2});
+free_memory =  extract_dig(cont{4});% unclear if it is correct, probably not
+% this value contains something different
+
+function dig = extract_dig(str)
+str_pos = regexp(str,'\d*');
+str = str(str_pos:end);
+dig = sscanf(str,'%d');
+if isempty(dig)
+  dig = 0;
+  return;
+end
+Mb = 1024*1024;
+Gb = 1024*Mb;
+if strcmp(str(end),'G')
+    dig=Gb*dig;
+else
+    dig=Mb*dig;
+end
+
