@@ -1,3 +1,20 @@
+# ========================================================================
+# ========================================================================
+# ===                                                                  ===
+# ===  Please ensure that any alterations you make to the directories  ===
+# ===  in TEST_DIRECTORIES_HERBERT and TEST_DIRECTORIES_HORACE are     ===
+# ===  also made in validate_herbert.m and validate_horace.m           ===
+# ===  respectively.                                                   ===
+# ===                                                                  ===
+# ===  This will ensure that they perform the same tests.              ===
+# ===                                                                  ===
+# ===  [Automatic synchronisation by e.g. reading this file            ===
+# ===   would solve the manual unreliability of this step]             ===
+# ===                                                                  ===
+# ===                                                                  ===
+# ========================================================================
+# ========================================================================
+
 set(TEST_DIRECTORIES_HERBERT
     "test_admin"
     "test_data_loaders"
