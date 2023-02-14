@@ -367,6 +367,11 @@ classdef config_store < handle
         function path=get.config_folder(obj)
             path=obj.config_folder_;
         end
+        function set.config_folder(obj,new_path)
+            % simplified setter for config path. Always copies
+            % old configuration to the new place
+            obj.set_config_path(new_path);
+        end
 
         function fn=get.config_folder_name(obj)
             fn = obj.config_folder_name_;
@@ -385,7 +390,7 @@ classdef config_store < handle
             %             to ensure they do not keep any spurions
             %             configuration in memory, and loaded shared
             %             configuration from config folder
-            if ~ischar(new_path)
+            if ~(ischar(new_path)||isstring(new_path))
                 error('HERBERT:config_store:invalid_argiment',...
                     'The input path has to be a char. Got : %s',fevalc('disp(new_path)'));
             end
@@ -475,7 +480,7 @@ classdef config_store < handle
             if ~isempty(new_path)
                 [file_path,fn] = fileparts(new_path);
                 if contains(fn,'mprogs_config') % use new path config folder
-                                                 % name provided as input
+                    % name provided as input
                     obj.config_folder_name_ = fn;
                     use_external_path = true;
                 else
