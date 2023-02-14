@@ -3,7 +3,7 @@ function wout = parallel_mf_func_eval(func, nWorkers, args)
     w = args{1};
     args = args(2:end);
 
-    has_fgnd = ~isempty(args{2});
+    has_fgnd = ~isempty(args{2}{1});
 
     if has_fgnd
         call_func = args{2}{1};
@@ -11,7 +11,7 @@ function wout = parallel_mf_func_eval(func, nWorkers, args)
     end
     pin = args{4};
 
-    has_bgnd = ~isempty(args{3});
+    has_bgnd = ~isempty(args{3}{1});
     if has_bgnd
         bcall_func = args{3}{1};
         bfinfo = functions(bcall_func);
