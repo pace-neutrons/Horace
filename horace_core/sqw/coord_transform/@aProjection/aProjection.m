@@ -67,11 +67,13 @@ classdef aProjection < serializable
         % true, though testing or the projection used to identify position
         % of q-dE point in q-dE space may set this property to false.
         do_3D_transformation;
+        % direct access to different parts of label method
+        lab1;
+        lab2;
+        lab3;
+        lab4;
     end
 
-    properties(Constant, Access=private)
-        fields_to_save_ = {'alatt','angdeg','offset'}
-    end
     properties(Constant, Access=protected)
         % minimal value of a vector norm e.g. how close couple of unit vectors
         % should be to be considered parallel. u*v are orthogonal if u*v'<tol
@@ -133,21 +135,37 @@ classdef aProjection < serializable
             [obj,par] = init(obj,varargin{:});
         end
         %
-        function [obj,par] = init(obj,varargin)
+        function [obj,remains] = init(obj,varargin)
             % Method normally used to initialize an empty object.
             %
             % Inputs:
             % A combination (including empty) of aProjection
             % class properties containing setters in the form:
-            % {property_name1, value1, property_name2, value2....}
+            % {pos_value2,pos_value2,pos_value3,...
+            % property_name1, value1, property_name2, value2....}
+            % The list of the possible properties to be avaliable for
+            % constructor are specified below (opt_par)
+
             % Returns:
             % obj  -- Initialized instance of aProjection class
-            % par  -- if input arguments contains key-value pairs which do
+            % remanis
+            %      -- if input arguments contains key-value pairs which do
             %         not describe aProjection class, the output contains
             %         cellarray of such parameters. Empty, if all inputs
             %         define the projection parameters.
             %
-            [obj,par] = init_(obj,varargin{:});
+            opt_par = aProjection.init_params;
+            remains = [];
+            if nargin == 0
+                return;
+            end
+            if nargin == 1 && isstruct(varargin{1})
+                obj = serializable.loadobj(varargin{1});
+            else
+                [obj,remains] = ...
+                    set_positional_and_key_val_arguments(obj,...
+                    opt_par,false,varargin{:});
+            end
         end
         %------------------------------------------------------------------
         %
@@ -228,6 +246,19 @@ classdef aProjection < serializable
         function obj = set.offset(obj,val)
             obj = check_and_set_offset_(obj,val);
         end
+        %
+        function obj = set.lab1(obj,val)
+            obj = set_lab_component_(obj,1,val);
+        end
+        function obj = set.lab2(obj,val)
+            obj = set_lab_component_(obj,2,val);
+        end
+        function obj = set.lab3(obj,val)
+            obj = set_lab_component_(obj,3,val);
+        end
+        function obj = set.lab4(obj,val)
+            obj = set_lab_component_(obj,4,val);
+        end
         %------------------------------------------------------------------
         function proj = get.targ_proj(obj)
             proj = obj.get_target_proj();
@@ -248,14 +279,6 @@ classdef aProjection < serializable
         end
         function obj = set.do_3D_transformation(obj,val)
             obj.do_3D_transformation_ = logical(val);
-        end
-        %------------------------------------------------------------------
-        % Serializable interface
-        function ver  = classVersion(~)
-            ver = 1;
-        end
-        function  flds = saveableFields(obj)
-            flds = obj.fields_to_save_;
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
@@ -579,7 +602,11 @@ classdef aProjection < serializable
             end
             contrib_ind = {istart(:)',iend(:)'};
         end
-        %
+        function val = check_3vector(val)
+            % helper function verifying setting 3 vector defining direction
+            val = check_3vector_(val);
+        end
+        
     end
     %----------------------------------------------------------------------
     %  ABSTRACT INTERFACE
@@ -592,5 +619,21 @@ classdef aProjection < serializable
         % into crystal Cartesian system or other source coordinate system,
         % defined by projection
         [pix_cc,varargout] = transform_img_to_pix(obj,pix_transformed,varargin);
+    end
+    %======================================================================
+    % Serializable interface
+    %======================================================================
+    properties(Constant,Access=protected)
+        init_params = {'alatt','angdeg','offset','label','lab1','lab2','lab3','lab4'};
+    end
+    methods
+        %------------------------------------------------------------------
+        % Serializable interface
+        function ver  = classVersion(~)
+            ver = 1;
+        end
+        function  flds = saveableFields(~)
+            flds = {'alatt','angdeg','offset','label'};
+        end
     end
 end

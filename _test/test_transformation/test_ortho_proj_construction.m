@@ -42,33 +42,33 @@ classdef test_ortho_proj_construction<TestCase
         function test_constructor_third_long_throws(~)
             err=assertExceptionThrown(...
                 @()ortho_proj([1,0,0],[0,1,0],[1,1,1,1],'alatt',[2,3,4],'angdeg',[80,70,85]),...
-                'HORACE:ortho_proj:invalid_argument');
-            samp = 'w should be non-zero length numeric 3-vector or empty value';
-            assertTrue(strncmp(err.message,samp,numel(samp)));
+                'HORACE:aProjection:invalid_argument');
+            samp = 'Input should be non-zero length numeric vector with 3 components. It is: "1     1     1     1"';
+            assertEqual(err.message,samp);
         end
 
         function test_constructor_third_zero_throws(~)
             err=assertExceptionThrown(...
                 @()ortho_proj([1,0,0],[0,1,0],[0,0,0],'alatt',[2,3,4],'angdeg',[80,70,85]),...
-                'HORACE:ortho_proj:invalid_argument');
+                'HORACE:aProjection:invalid_argument');
             assertEqual(err.message,...
-                'vector w can not be a 0-vector: [0,0,0]');
+                'Input can not be a 0-vector: [0,0,0] with all components smaller then tol = 1e-12');
         end
 
         function test_incorrect_constructor_throws_on_positional_zero(~)
             err = assertExceptionThrown(...
                 @()ortho_proj([0,0,0],1,'alatt',[2,3,4],'angdeg',[80,70,85]),...
-                'HORACE:ortho_proj:invalid_argument');
+                'HORACE:aProjection:invalid_argument');
             assertEqual(err.message, ...
-                'vector u can not be a 0-vector: [0,0,0]')
+                'Input can not be a 0-vector: [0,0,0] with all components smaller then tol = 1e-12')
         end
 
         function test_incorrect_constructor_throws_on_positional(~)
             err= assertExceptionThrown(...
                 @()ortho_proj([1,0,0],1,'alatt',[2,3,4],'angdeg',[80,70,85]),...
-                'HORACE:ortho_proj:invalid_argument');
+                'HORACE:aProjection:invalid_argument');
             assertEqual(err.message, ...
-                'v should be non-zero length numeric vector with 3 components')
+                'Input should be non-zero length numeric vector with 3 components. It is: "1"')
         end
 
         function test_incorrect_constructor_throws_on_combo(~)

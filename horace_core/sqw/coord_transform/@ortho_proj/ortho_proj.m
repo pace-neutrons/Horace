@@ -123,38 +123,47 @@ classdef ortho_proj<aProjection
         %------------------------------------------------------------------
         % Interfaces:
         %------------------------------------------------------------------
-        % check interdependent projection arguments
-        wout = check_combo_arg (w)
         % set u,v & w simulataniously
         obj = set_axes (obj, u, v, w)
         %------------------------------------------------------------------
-        function [proj,remains]=ortho_proj(varargin)
-            proj = proj@aProjection();
-            proj.label = {'\zeta','\xi','\eta','E'};
+        function obj=ortho_proj(varargin)
+            obj = obj@aProjection();
+            obj.label = {'\zeta','\xi','\eta','E'};
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
                 u_to_rlu =eye(3)/(2*pi);
-                [ul,vl,~,type]=proj.uv_from_data_rot(u_to_rlu,[1,1,1]);
-                proj = proj.init(ul,vl,[],'type',type);
+                [ul,vl,~,type]=obj.uv_from_data_rot(u_to_rlu,[1,1,1]);
+                obj = obj.init(ul,vl,[],'type',type);
             else
-                [proj,remains] = proj.init(varargin{:});
+                obj = obj.init(varargin{:});
             end
         end
         %
-        function [obj,remains] = init(obj,varargin)
+        function obj = init(obj,varargin)
             % initialization routine taking any parameters non-default
             % constructor would take and initiating internal state of the
             % projection class.
             %
-            if nargin == 0
+            if nargin <= 1
                 return
             end
-            obj.do_check_combo_arg_  = false;
-            [obj,remains] = process_positional_args_(obj,varargin{:});
-            [obj,remains] = init@aProjection(obj,remains{:});
-            [obj,remains] = process_keyval_args_(obj,remains{:});
-            obj.do_check_combo_arg_  = true;
-            obj = obj.check_combo_arg();
+            if nargin == 2 && (isstruct(varargin{1})||isa(varargin{1},'aProjection'))
+                if isstruct(varargin{1})
+                    obj = serializable.loadobj(varargin{1});
+                else
+                    obj = obj.from_bare_struct(varargin{1});
+                end
+            else
+                opt =  [ortho_proj.fields_to_save_(:);aProjection.init_params(:)];
+                [obj,remains] = ...
+                    set_positional_and_key_val_arguments(obj,...
+                    opt,false,varargin{:});
+                if ~isempty(remains)
+                    error('HORACE:ortho_proj:invalid_argument',...
+                        'The parameters %s provided as input to ortho_proj initialization have not been recognized',...
+                        disp2str(remains));
+                end
+            end
         end
         %-----------------------------------------------------------------
         %-----------------------------------------------------------------
@@ -162,7 +171,7 @@ classdef ortho_proj<aProjection
             u = obj.u_;
         end
         function obj = set.u(obj,val)
-            obj = check_and_set_uv_(obj,'u',val);
+            obj.u_ = obj.check_3vector(val);
             if obj.do_check_combo_arg_
                 obj = check_combo_arg_(obj);
             end
@@ -172,7 +181,7 @@ classdef ortho_proj<aProjection
             v = obj.v_;
         end
         function obj = set.v(obj,val)
-            obj = check_and_set_uv_(obj,'v',val);
+            obj.v_ = obj.check_3vector(val);
             if obj.do_check_combo_arg_
                 obj = check_combo_arg_(obj);
             end
@@ -183,11 +192,14 @@ classdef ortho_proj<aProjection
             w = obj.w_;
         end
         function obj = set.w(obj,val)
-            obj = check_and_set_w_(obj,val);
+            if isempty(val)
+                obj.w_ = [];
+                return;
+            end
+            obj.w_ = obj.check_3vector(val);
             if obj.do_check_combo_arg_
                 obj = check_combo_arg_(obj);
             end
-
         end
         %
         function no=get.nonorthogonal(obj)
@@ -323,41 +335,8 @@ classdef ortho_proj<aProjection
                     obj,pix_origin,varargin{:});
             end
         end
-        %------------------------------------------------------------------
-        function  flds = saveableFields(obj)
-            flds = saveableFields@aProjection(obj);
-            flds = [flds(:);obj.fields_to_save_(:)];
-        end
     end
     %----------------------------------------------------------------------
-    properties(Constant, Access=private)
-        fields_to_save_ = {'u','v','w','nonorthogonal','type'}
-    end
-    %----------------------------------------------------------------------
-    methods(Static)
-        function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
-            % saveable class
-            obj = ortho_proj();
-            obj = loadobj@serializable(S,obj);
-        end
-        function lst = data_sqw_dnd_export_list()
-            % TODO: temporarty method, which define the values to be
-            % extracted from projection to convert to old style data_sqw_dnd
-            % class. New data_sqw_dnd class will contain the whole projection
-            lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
-        end
-
-        function proj = get_from_old_data(data_struct,header_av)
-            % construct ortho_proj from old style data structure
-            % normally stored in binary
-            % Horace files versions 3 and lower.
-            if nargin == 1
-                header_av = [];
-            end
-            proj = build_from_old_data_struct_(data_struct,header_av);
-        end
-    end
     methods(Access = protected)
         function  mat = get_u_to_rlu_mat(obj)
             % overloadavble accessor for getting value for ub matrix
@@ -519,6 +498,79 @@ classdef ortho_proj<aProjection
             % angdeg-- vector 3 angles describing the angles between lattice cell.
             %          Expressed in degree
             [u,v,w,type,nonortho] = uv_from_rlu_mat_(obj,u_rot_mat,ulen);
+        end
+    end
+    methods(Static)
+        function lst = data_sqw_dnd_export_list()
+            % TODO: temporarty method, which define the values to be
+            % extracted from projection to convert to old style data_sqw_dnd
+            % class. New data_sqw_dnd class will contain the whole projection
+            lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
+        end
+    end
+    %=====================================================================
+    % SERIALIZABLE INTERFACE
+    %----------------------------------------------------------------------
+    methods
+        % check interdependent projection arguments
+        function wout = check_combo_arg (w)
+            % Check validity of interdependent fields
+            %
+            %   >> [ok, mess,obj] = check_combo_arg(w)
+            %
+            %   ok      ok=true if valid, =false if not
+            %   mess    Message if not a valid object, empty string if is valid.
+
+            % Generic method. Needs specific private function checkfields
+            wout = check_combo_arg_(w);
+        end
+        %------------------------------------------------------------------
+        function  flds = saveableFields(obj)
+            flds = saveableFields@aProjection(obj);
+            flds = [flds(:);obj.fields_to_save_(:)];
+        end
+    end
+    properties(Constant, Access=private)
+        fields_to_save_ = {'u','v','w','nonorthogonal','type'}
+    end
+    methods(Static)
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = ortho_proj();
+            obj = loadobj@serializable(S,obj);
+        end
+        %
+        function proj = get_from_old_data(data_struct,header_av)
+            % construct ortho_proj from old style data structure
+            % normally stored in binary
+            % Horace files versions 3 and lower.
+            if nargin == 1
+                header_av = [];
+            end
+            proj = build_from_old_data_struct_(data_struct,header_av);
+        end
+    end
+    methods(Access=protected)
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain a version or the version, stored
+            % in the structure does not correspond to the current version
+            % of the class.
+            %
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
+            %
+            %if isfield(inputs,'version') % do checks for previous versions
+            %   Add appropriate code to convert from specific version to
+            %   modern version
+            %end
+            obj = obj.get_from_old_data(inputs);
         end
 
     end
