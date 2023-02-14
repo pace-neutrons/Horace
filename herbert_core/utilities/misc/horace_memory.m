@@ -32,21 +32,32 @@ end
 
 function [phys_memory,free_memory] = parse_mem_string(mem_string)
 % Analyze result of free function on linux
-cont = regexp(mem_string,'\s+','split');
-phys_memory =  1024*sscanf(cont{2},'%d');
-free_memory =  1024*sscanf(cont{4},'%d');
+try
+    cont = regexp(mem_string,'\s+','split');
+    phys_memory =  1024*sscanf(cont{2},'%d');
+    free_memory =  1024*sscanf(cont{4},'%d');
+catch
+    phys_memory = [];
+    free_memory = [];
+
+end
 
 function [phys_memory,free_memory] = parse_mac_mem_string(mem_string)
-% Analyze result of MAC top -l 1 -n 0 function. 
-% 
-mem_ind = strfind(mem_string,'PhysMem');
-cont = regexp(mem_string(mem_ind:end),'\s+','split');
+% Analyze result of MAC top -l 1 -n 0 function.
+%
+try
+    mem_ind = strfind(mem_string,'PhysMem');
+    cont = regexp(mem_string(mem_ind:end),'\s+','split');
 
-phys_memory = extract_dig(cont{2});
-free_memory =  extract_dig(cont{4});% unclear if it is correct, probably not
-%                                   % this value contains something different
-%                                   % as this value is not yet used
-%                                   properly -- keep it as it is
+    phys_memory = extract_dig(cont{2});
+    free_memory =  extract_dig(cont{4});% unclear if it is correct, probably not
+    %                                   % this value contains something different
+    %                                   % as this value is not yet used
+    %                                   properly -- keep it as it is
+catch
+    phys_memory = [];
+    free_memory = [];
+end
 
 function dig = extract_dig(str)
 str_pos = regexp(str,'\d*');
