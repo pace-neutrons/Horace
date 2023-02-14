@@ -240,14 +240,16 @@ split_bins = any(cellfun(@(x) strcmp(x, '-ave'), pars)) || ...
 tmp = cellfun(@functions, func);
 if any(arrayfun(@(x) startsWith(x.function, 'tobyfit'), tmp))
     [loop_data, merge_data] = ...
-        obj.distribute_fit_data(w, nWorkers, split_bins, arrayfun(@(x)(x.plist{3}), pin, 'UniformOutput', false));
+        mfclass.distribute_fit_data(w, nWorkers, split_bins, arrayfun(@(x)(x.plist{3}), pin, 'UniformOutput', false));
 else
-    [loop_data, merge_data] = obj.distribute_fit_data(w, nWorkers, split_bins);
+    [loop_data, merge_data] = mfclass.distribute_fit_data(w, nWorkers, split_bins);
 end
 
-loop_data.xye = xye;
-loop_data.S = [];
-loop_data.Store = [];
+for i = 1:nWorkers
+    loop_data{i}.xye = xye;
+    loop_data{i}.S = [];
+    loop_data{i}.Store = [];
+end
 
 common_data = struct('func', {func}, ...
     'bfunc', {bfunc}, ...
