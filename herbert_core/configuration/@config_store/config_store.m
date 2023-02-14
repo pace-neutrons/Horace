@@ -466,8 +466,16 @@ classdef config_store < handle
                 obj.config_folder_name_ = ['mprogs_config_',build_name];
 
             else
-                [vmag,vmin,vp] = herbert_version();
-                ver_string = ['_ver',vmag,'.',vmin,'.',vp];
+                % analyze version number and if it exceeds the number
+                % requested, specify other version folder.
+                % To be extended in a future when verison number changes
+                % and config folder either need changes or not.
+                ver = herbert_version('-num');
+                if ver >= 400
+                    ver_string = '_v4';
+                else
+                    ver_string = '';
+                end
                 [is_virtual, type] = is_idaaas();
 
                 if is_virtual
