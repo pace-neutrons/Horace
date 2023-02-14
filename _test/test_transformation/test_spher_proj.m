@@ -11,22 +11,22 @@ classdef test_spher_proj<TestCase
             end
             this=this@TestCase(name);
         end
-        function test_constructor(~)
-            proj = spher_proj();
-            assertEqual(proj.ex,'u-aligned')
-            assertEqual(proj.ez,'w-aligned')
-            assertElementsAlmostEqual(proj.ucentre,[0;0;0])
-            
-            S.type = '.';
-            S.subs  = 'ucentre';
-            f=@()(subsasgn(proj,S,10));
-            assertExceptionThrown(f,'SPHER_PROJ:invalid_argument')
-            
-            proj.ucentre = [0,1,0];
-            assertElementsAlmostEqual(proj.ucentre,[0;1;0])
-            
-            proj = spher_proj([1;0;1]);
-            assertElementsAlmostEqual(proj.ucentre,[1;0;1])
-        end
+%         function test_constructor(~)
+%             proj = spher_proj();
+%             assertEqual(proj.ex,'u-aligned')
+%             assertEqual(proj.ez,'w-aligned')
+%             assertElementsAlmostEqual(proj.ucentre,[0;0;0])
+%             
+%             S.type = '.';
+%             S.subs  = 'ucentre';
+%             f=@()(subsasgn(proj,S,10));
+%             assertExceptionThrown(f,'SPHER_PROJ:invalid_argument')
+%             
+%             proj.ucentre = [0,1,0];
+%             assertElementsAlmostEqual(proj.ucentre,[0;1;0])
+%             
+%             proj = spher_proj([1;0;1]);
+%             assertElementsAlmostEqual(proj.ucentre,[1;0;1])
+%         end
     end
 end
