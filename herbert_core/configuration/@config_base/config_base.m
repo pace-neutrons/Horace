@@ -93,7 +93,8 @@ classdef config_base
             if ischar(class_name)
                 obj.class_name_ = class_name;
             else
-                error('CONFIG_BASE:constructor','first config_base variable has to be a string, providing the derived class name');
+                error('HERBERT:config_base:constructor', ...
+                    'first config_base variable has to be a string, providing the derived class name');
             end
         end
 
@@ -107,7 +108,10 @@ classdef config_base
         function obj=set.config_folder(obj,val)
             cfg = config_store.instance();
             cfg.config_folder = val;
-            %config_store.instance.config_folder = val;
+
+            warning('HERBERT:temporary_config_path', ...
+                '\n *** The config path: %s\n *** will last until the end of session or "clear classes" command is issued', ...
+                cfg.config_folder)
         end
 
         %-----------------------------------------------------------------
