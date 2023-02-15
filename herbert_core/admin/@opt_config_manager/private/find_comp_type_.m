@@ -8,14 +8,12 @@ function [pc_type,nproc,phys_mem] = find_comp_type_(obj)
 % improvements/merging may be necessary to address this)
 %
 
-types = obj.known_pc_types_;
 Gb = 1024*1024*1024;
+types = obj.known_pc_types_;
 
-[phys_mem,free_mem] = horace_memory();
-if isempty(phys_mem) % assume something small
-    phys_mem = 16*Gb;
-    free_mem = 16*Gb;
-end
+% if routine was not able to identify the memory size, it assumes 8*Gb
+[phys_mem,free_mem] = sys_memory();
+%
 nproc = idivide(int64(phys_mem),int64(obj.mem_size_per_worker_*Gb),'floor');
 if ispc
     if phys_mem <  32*Gb
@@ -46,7 +44,7 @@ elseif isunix
     end
 
     rez=strfind(mess,'NUMA node');
-    % if lscpu returns more then one numa node strigs, first string defines
+    % if lscpu returns more then one numa node strings, first string defines
     % the number of numa nodes and all subsequent strings describe each
     % node. So, if there are more then 2 string, its more then one numa
     % node and we consider this computer to be an hpc system.
