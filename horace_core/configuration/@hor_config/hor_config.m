@@ -224,10 +224,11 @@ classdef hor_config < config_base
                 val = 1000;
             end
             size = sys_memory();
+
             if val*sqw_binfile_common.FILE_PIX_SIZE >= size/3
                 if val <= size*0.8
                     warning('HORACE:invalid_argument', ...
-                        'Buffer chunk size exceeds 1/3 of avalable physical memory. HORACE may got unstable, trying to use such chunk in calculations')
+                        'Buffer chunk size exceeds 1/3 of available physical memory. HORACE may got unstable, trying to use such chunk in calculations')
                 else
                     error('HORACE:hor_config:invalid_argument', ...
                         'attempt to set up mem_chunk_size exceeding 0.8 of total physical memory available (Evaluated to: %dkB). This would not work',...
