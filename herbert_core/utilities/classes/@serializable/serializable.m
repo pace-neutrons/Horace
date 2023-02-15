@@ -384,30 +384,52 @@ classdef (Abstract=true) serializable
             % ObjConstructor(positional_par1,positional_par2,positional_par3,...
             % positional_par...,key1,val1,key2,val2,...keyN,valN);
             %
-            % Everything not identified as Key-Value pair where the keys,
-            % belong to the property names returned by saveableFields function
-            % is returned in remains cellarray
+            % The keys are the names of the properties and the values are
+            % the values of the properties to set.
+            % The positional parameters are intended to be the values of
+            % the properties with names defined in the
+            % positional_arg_names list.
+            %
+            % Everything not identified as positional parameters or
+            % Key-Value pair is returned in remains cellarray
             %
             % Inputs:
             % positinal_param_names_list
-            %            -- list of positional parameter
-            %               names, the target properties should be
-            %               associated with
+            %            -- cellarray of positional parameter names,
+            %               coinciding with the names of the properties the
+            %               function is called to set
             % old_keyval_compat
             %            -- if set to true, keys in varargin may have form
             %               '-keyN' in addition to 'keyN'. Deprecation
             %                warning is issued for this kind of names.
             % varargin   -- cellarray of the constructor inputs, in the
-            %               form, described above
+            %               form, described above.
+            %
+            % End of positional parameters list is established by finding
+            % in varargin the element, belonging to the
+            % positinal_param_names_list
+            %
+            % If the same property is defined using positional parameter
+            % and as key-value pair, the key-val parameter value takes
+            % priority.
+            %
+            %
             % EXAMPLE:
-            % if class have the properties {'a1'=1(numeric), 'a2'='blabla'(char),
-            % 'a3'=sqw() 'a4=[1,1,1] (numeric), and these properties are independent
-            % properties returned by saveableFields() function as list {'a1','a2','a3','a4'}
-            % Then the list of input parameters
-            % set_positional_and_key_val_arguments(1,'blabla',an_sqw_obj,'blabla','a4',[1,0,0])
-            % sets up the three first arguments as positional parameters, for properties
-            % a1,a2 and a3 and a4 is set as key-value pair. 'blabla' is returned in
-            % remains.
+            % if class have the properties {'a1'=1, 'a2'='blabla',
+            % 'a3'=sqw() 'a4=[1,1,1], 'a5'=something} and these properties
+            % are the independent properties defining the state of the
+            % object and provided in positional_param_names_list as:
+            % ppp = {'a1','a2','a3','a4','a5'}
+            % Then the call to the function with the list of input parameters:
+            % varargin = {1,'blabla',an_sqw_obj,'a4',[1,0,0],'blabla'}
+            % in the form:
+            %>> [obj,remains] = set_positional_and_key_val_arguments(obj,ppp,false,varargin{:});
+            %
+            % sets up the three first arguments as positional parameters,
+            % for properties a1,a2 and a3, a4 is set as key-value pair,
+            % 'blabla' is returned in remains and property a5 remains
+            % unset.
+            %
             %
             [obj,remains] = ...
                 set_positional_and_key_val_arguments_(obj,...
