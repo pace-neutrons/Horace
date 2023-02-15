@@ -1,4 +1,4 @@
-function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
+function pix_transf = transform_pix_to_spher_(obj,pix_input,varargin)
 % Transform pixels expressed in crystal Cartesian coordinate systems
 % into image coordinate system
 %
@@ -8,7 +8,7 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 %             or pixelData object containing this information.
 % Returns:
 % pix_out -- [3xNpix or [4xNpix]Array the pixels coordinates transformed
-%            into coordinatesystem, related to image (e.g. hkl system)
+%            into spherical coordinate system defined by object properties
 %
 if isa(pix_input,'PixelDataBase')
     pix_cc = pix_input.q_coordinates;

@@ -67,7 +67,9 @@ classdef aProjection < serializable
         % true, though testing or the projection used to identify position
         % of q-dE point in q-dE space may set this property to false.
         do_3D_transformation;
-        % direct access to different parts of label method
+        % direct access to different parts of 4-component label celarray. 
+        % sets up appropriate element of such array. Do not have a getter. 
+        % Do retrievel label as a whole.
         lab1;
         lab2;
         lab3;
@@ -627,8 +629,6 @@ classdef aProjection < serializable
         init_params = {'alatt','angdeg','offset','label','lab1','lab2','lab3','lab4'};
     end
     methods
-        %------------------------------------------------------------------
-        % Serializable interface
         function ver  = classVersion(~)
             ver = 1;
         end

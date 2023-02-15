@@ -273,9 +273,12 @@ classdef ortho_proj<aProjection
             % Input:
             % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
             %             expressed in crystal Cartesian coordinate system
+            %             or instance of PixelDatBase class containign this
+            %             information.
             % Returns:
             % pix_transformed -- the pixels transformed into coordinate
-            %             system, related to image (often hkl system)
+            %             system, related to image. (hkl system here)
+            %
             %
             pix_transformed = transform_pix_to_img_(obj,pix_data);
         end
@@ -305,6 +308,7 @@ classdef ortho_proj<aProjection
             % TODO:  this should go. The projection will keep this property
             % for itself unless it is specific axes block?
             ax_bl.nonorthogonal = obj.nonorthogonal;
+
         end
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
@@ -525,6 +529,9 @@ classdef ortho_proj<aProjection
             wout = check_combo_arg_(w);
         end
         %------------------------------------------------------------------
+        function ver  = classVersion(~)
+            ver = 1;
+        end
         function  flds = saveableFields(obj)
             flds = saveableFields@aProjection(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
@@ -572,6 +579,5 @@ classdef ortho_proj<aProjection
             %end
             obj = obj.get_from_old_data(inputs);
         end
-
     end
 end

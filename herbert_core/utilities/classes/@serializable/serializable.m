@@ -388,7 +388,7 @@ classdef (Abstract=true) serializable
             % the values of the properties to set.
             % The positional parameters are intended to be the values of
             % the properties with names defined in the
-            % positional_arg_names list.
+            % positinal_param_names_list list.
             %
             % Everything not identified as positional parameters or
             % Key-Value pair is returned in remains cellarray
@@ -407,7 +407,7 @@ classdef (Abstract=true) serializable
             %
             % End of positional parameters list is established by finding
             % in varargin the element, belonging to the
-            % positinal_param_names_list
+            % positinal_param_names_list  (first key)
             %
             % If the same property is defined using positional parameter
             % and as key-value pair, the key-val parameter value takes
@@ -435,7 +435,8 @@ classdef (Abstract=true) serializable
                 set_positional_and_key_val_arguments_(obj,...
                 positinal_param_names_list,old_keyval_compat,varargin{:});
             %
-            % Code sample to insert into new object constructor to use generic constructor:
+            % Simple Code sample to insert into new object constructor 
+            % to use this function as part of generic constructor:
             %
             % flds = obj.saveableFields();
             % [obj,remains] = obj.set_positional_and_key_val_arguments(...
