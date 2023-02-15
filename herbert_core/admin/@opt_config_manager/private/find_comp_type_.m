@@ -1,4 +1,4 @@
-function [pc_type,nproc,mem_size] = find_comp_type_(obj)
+function [pc_type,nproc,phys_mem] = find_comp_type_(obj)
 % find pc type as function of the pc properties, like memory size number of
 % processors, etc.
 %
@@ -8,19 +8,19 @@ function [pc_type,nproc,mem_size] = find_comp_type_(obj)
 % improvements/merging may be necessary to address this)
 %
 
-types = obj.known_pc_types_;
 Gb = 1024*1024*1024;
-nproc = 1;
+types = obj.known_pc_types_;
 
+% if routine was not able to identify the memory size, it assumes 8*Gb
+[phys_mem,free_mem] = sys_memory();
+%
+nproc = idivide(int64(phys_mem),int64(obj.mem_size_per_worker_*Gb),'floor');
 if ispc
-    [~,sys] = memory();
-    mem_size = sys.PhysicalMemory.Total;
-    if mem_size <  32*Gb
+    if phys_mem <  32*Gb
         pc_type = types{1}; %windows small
     else
-        if sys.PhysicalMemory.Available >= 0.5*sys.PhysicalMemory.Total
-            nproc = idivide(int64(mem_size),int64(obj.mem_size_per_worker_*Gb),'floor');
-            if nproc >1
+        if free_mem >= 0.5*phys_mem
+            if nproc >2
                 pc_type = types{2}; %windows large
             else
                 pc_type = types{1};  %windows small
@@ -33,14 +33,6 @@ if ispc
         pc_type = types{8};  % 'jenkins_win'
     end
 elseif isunix
-    
-    [nok,mem_string] = system('free | grep Mem');
-    if nok
-        mem_size = 16*Gb;
-    else
-        mem_size = parse_mem_string(mem_string);
-    end
-    
     if ismac %MAC
         pc_type = types{3};
         return;
@@ -50,15 +42,14 @@ elseif isunix
         pc_type = types{3};
         return;
     end
-    
+
     rez=strfind(mess,'NUMA node');
-    % if lscpu returns more then one numa node strigs, first string defines
+    % if lscpu returns more then one numa node strings, first string defines
     % the number of numa nodes and all subsequent strings describe each
     % node. So, if there are more then 2 string, its more then one numa
     % node and we consider this computer to be an hpc system.
-    if numel(rez)>2; hpc_computer = true;
-    else;          hpc_computer = false;
-    end
+    hpc_computer = numel(rez)>2 || nproc>4;
+    
     [is_virtual,type] = is_idaaas();
     if is_virtual
         if strcmpi(type,'idaas_large')
@@ -69,7 +60,7 @@ elseif isunix
     else
         n_profile = 4; % normal unix machine
     end
-    
+
     if hpc_computer
         n_profile=n_profile+1;
     end
@@ -81,7 +72,3 @@ elseif isunix
     end
 end
 
-
-function mem_size = parse_mem_string(mem_string)
-cont = regexp(mem_string,'\s+','split');
-mem_size =  sscanf(cont{2},'%d');

@@ -367,7 +367,16 @@ classdef config_store < handle
         function path=get.config_folder(obj)
             path=obj.config_folder_;
         end
-        
+        function set.config_folder(obj,new_path)
+            % simplified setter for config path. Never copies configuration
+            % to new place. Assumes that its either newly configured or
+            % have some configuration there. 
+            % Remove all existing configurations
+            % from memory to pick up defaults or load configurations from
+            % new folder
+            obj.set_config_path(new_path,'-clean');
+        end
+
         function fn=get.config_folder_name(obj)
             fn = obj.config_folder_name_;
         end
@@ -385,7 +394,7 @@ classdef config_store < handle
             %             to ensure they do not keep any spurions
             %             configuration in memory, and loaded shared
             %             configuration from config folder
-            if ~ischar(new_path)
+            if ~(ischar(new_path)||isstring(new_path))
                 error('HERBERT:config_store:invalid_argiment',...
                     'The input path has to be a char. Got : %s',fevalc('disp(new_path)'));
             end
@@ -446,27 +455,38 @@ classdef config_store < handle
             % major version number greater than or equal to 4. This does
             % not include the case of the Jenkins build server, when the
             % default folder name incorporates the build name.
-            
+
             %if ~exist('new_path','var') % not currently necessary as is
             %                              always called with new_path,
             %                              but to be aware of the futuire
             %    new_path = '';
             %end
-            
+
             [is_jenk, build_name, workspace] = is_jenkins();
-            if is_jenk                
+            if is_jenk
                 % remove all possible folder paths of the build name
                 % to be able to create valid file name.
                 [~,build_name] = fileparts(build_name);
                 obj.config_folder_name_ = ['mprogs_config_',build_name];
-                
+
             else
-                ver_string = herbert_version();
-                [is_virtual, type] = is_idaaas();
-                if is_virtual
-                    obj.config_folder_name_ = ['mprogs_config_', ver_string, '_', type];
+                % analyze version number and if it exceeds the number
+                % requested, specify other version folder.
+                % To be extended in a future when verison number changes
+                % and config folder either need changes or not depending on
+                % various Horace version(s)
+                ver = herbert_version('-num');
+                if ver >= 400
+                    ver_string = '_v4';
                 else
-                    obj.config_folder_name_ = ['mprogs_config_', ver_string];
+                    ver_string = '';
+                end
+                [is_virtual, type] = is_idaaas();
+
+                if is_virtual
+                    obj.config_folder_name_ = ['mprogs_config','_', type,ver_string];
+                else
+                    obj.config_folder_name_ = ['mprogs_config', ver_string];
                 end
             end
             
