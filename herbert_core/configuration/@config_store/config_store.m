@@ -368,9 +368,13 @@ classdef config_store < handle
             path=obj.config_folder_;
         end
         function set.config_folder(obj,new_path)
-            % simplified setter for config path. Always copies
-            % old configuration to the new place
-            obj.set_config_path(new_path);
+            % simplified setter for config path. Never copies configuration
+            % to new place. Assumes that its either newly configured or
+            % have some configuration there. 
+            % Remove all existing configurations
+            % from memory to pick up defaults or load configurations from
+            % new folder
+            obj.set_config_path(new_path,'-clean');
         end
 
         function fn=get.config_folder_name(obj)

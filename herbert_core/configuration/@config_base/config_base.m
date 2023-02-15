@@ -104,6 +104,11 @@ classdef config_base
         function folder = get.config_folder(~)
             folder = config_store.instance.config_folder;
         end
+        function obj=set.config_folder(obj,val)
+            cfg = config_store.instance();
+            cfg.config_folder = val;
+            %config_store.instance.config_folder = val;
+        end
 
         %-----------------------------------------------------------------
 
