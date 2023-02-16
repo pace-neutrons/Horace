@@ -31,10 +31,10 @@ if isa(sample_or_instrument,'unique_references_container')
     end
     global_name = sample_or_instrument.global_name;
     if strcmp(class_base, 'IX_samp') && ...
-            ~strcmp(sample_or_instrument.global_name, 'GLOBAL_NAME_SAMPLES_CONTAINER')
+            ~strcmp(global_name, 'GLOBAL_NAME_SAMPLES_CONTAINER')
         error('container is for samples but global container is not');
     elseif strcmp(class_base, 'IX_inst') && ...
-            ~strcmp(sample_or_instrument.global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER')
+            ~strcmp(global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER')
         error('container is for instruments but global container is not');
     end
     std_form = sample_or_instrument;
@@ -67,7 +67,7 @@ elseif iscell(sample_or_instrument)
             'must be inst or sample but some elements of the input cellarray are not');
     end
     std_form = std_form.add(sample_or_instrument);
-elseif isa(sample_or_instrument,'unique_objects_container');
+elseif isa(sample_or_instrument,'unique_objects_container')
     is = strcmp( sample_or_instrument.baseclass, std_form.stored_baseclass);
     if ~all(is)
         error('HORACE:Experiment:invalid_argument', ...

@@ -111,9 +111,11 @@ classdef unique_references_container < serializable
         n_unique_objects; % size of unique_objects (without creating it)
         idx; % object indices into the global unique objects container.
         n_objects; % numel(idx)
-        n_runs;    % same as n_objects, provides a domain-specific interface
+    end
+    properties(Dependent,Hidden)
+       n_runs;    % same as n_objects, provides a domain-specific interface
                    % to the number of objects for SQW-Experiment
-                   % instruments and samples
+                   % instruments and samples        
     end
     
     properties (Constant, Access=private) % serializable interface
