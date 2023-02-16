@@ -32,7 +32,7 @@ end
 pix_transf= ((bsxfun(@minus,pix_cc,shift))'*rot_to_img')';
 if input_is_obj
     if shift_ei
-        ei = pix_input.dE -obj.shift(4);
+        ei = pix_input.dE -obj.offset(4);
     else
         ei = pix_input.dE;
     end

@@ -522,10 +522,10 @@ classdef ortho_proj<aProjection
             %
             %   >> [ok, mess,obj] = check_combo_arg(w)
             %
-            %   ok      ok=true if valid, =false if not
-            %   mess    Message if not a valid object, empty string if is valid.
-
-            % Generic method. Needs specific private function checkfields
+            % Throws HORACE:ortho_proj:invalid_argument with the message
+            % suggesting the reason for failure if the inputs are incorret
+            % w.r.t. each other.
+            % 
             wout = check_combo_arg_(w);
         end
         %------------------------------------------------------------------

@@ -3,29 +3,24 @@ classdef test_proj_captions<TestCase
     %
     properties
         data
-        wk_data
     end
 
     methods
         function this=test_proj_captions(name)
             this=this@TestCase(name);
             %sqw/dnd data structure with fields used in caption
-            this.data= data_sqw_dnd();
-        end
-        function this=setUp(this)
-            this.wk_data = this.data;
-        end
-        function this=tearDown(this)
-            this.wk_data = [];
+            ab = axes_block(2);
+            proj  = ortho_proj;
+            this.data= d2d(ab,proj);
         end
 
         function test_cube_caption(this)
-
+            wk_data = this.data;
             capt = an_axis_caption();
             assertTrue(capt.changes_aspect_ratio);
 
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
-                capt.data_plot_titles(this.wk_data);
+                capt.data_plot_titles(wk_data);
             assertTrue(iscell(title_main));
             assertEqual(size(title_main),[1,2]);
             %
@@ -45,14 +40,19 @@ classdef test_proj_captions<TestCase
         end
 
 
-        function test_spher_caption(this)
-            skipTest('Requires generic projection refactoring');
-            capt = spher_proj_caption();
-            assertFalse(capt.changes_aspect_ratio);
-            this.wk_data.ulabel={'\rho'  '\theta'  '\phi'  'E'};
+        function test_spher_caption(obj)
+            ldata = obj.data;
+            ldata.proj = spher_proj();
+            
+            existing_range = obj.axes.get_binning_range();
+            range = {[-10,1,10],[-20,1,20],[0,0.01,1],existing_range{4}};
+            ab = ldata.proj.get_proj_axes_block(existing_range,range);
+            capt = ab.axis_caption();
+            assertFalse(capt.changes_aspect_ratio);            
+
 
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
-                capt.data_plot_titles(this.wk_data);
+                capt.data_plot_titles(ldata);
 
             assertTrue(iscell(title_main));
             assertEqual(size(title_main),[1,3]);

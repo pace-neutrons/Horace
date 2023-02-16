@@ -2,13 +2,18 @@ classdef spher_proj<aProjection
     % Class defines spherical coordinate projection, used by cut_sqw
     % to make spherical cuts
     %
+    % Angles names are given according to Matlab description.
+    %
     properties(Dependent)
-        ez; %[1x3] Vector of Z axis in spherical coordinate system
-        % where the elevation angle pi/2-phi is counted from. Default
-        % direction [0,0,1] is a beam direction.
-        ex; %[1x3] Vector of axis in spherical coordinate system
+        ez; %[1x3] Unit vector of Z axis in spherical coordinate system
+        % where the elevation angle (Matlab convention) is counted from.
+        % In Horace/Mantid convention this angle is named theta. 
+        % Default direction [0,0,1] is a beam direction.
+        %
+        ey; %[1x3] unit vector of axis in spherical coordinate system
         % where the theta angle is counted from. The difection coincides
-        % with the instrument axes ?
+        % with the rotation axis.
+
         %
         type;  % units of the projection. Default add -- angstrom, degree, degree
         %      % possible options: rrr where first r is responsible for rlu
@@ -19,23 +24,26 @@ classdef spher_proj<aProjection
     properties(Access=private)
         %
         ez_ = [0,0,1]
-        ex_ = [1,0,0]
+        ey_ = [0,1,0]
         %
         type_ = 'add' % A, degree, degree
         %------------------------------------
         % For the future. See if we want spherical projection in hkl,
         % non-orthogonal
         %orhtonormal_ = true;
-        zero_transf_ = [0,1,0;0,0,1;1,0,0]; % The transformation from 
-        % Horace pixel coordinate system to the axes, described above to
-        % allow Matlab 
+        hor2matlab_transf_ = [0,0,1;1,0,0;0,1,0]; % The transformation from 
+        % Horace pixel coordinate system to the axes, above to
+        % allow to use matlab sph2cart/cart2sph functions.
         pix_to_matlab_transf_ ; % the transformation used for conversion 
-        % from pix coordinate system 
+        % from pix coordinate system to spherical coordinate systen
+        % if unit vectors are the default, it equal to hor2matlab_transf_.
+        % If not, bultiplied by rotation from defauult to selected
     end
 
     methods
         function obj=spher_proj(varargin)
             obj = obj@aProjection();
+            obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
             obj.label = {'\theta','\phi','\ro','En'};
             if nargin>0
                 return;
@@ -69,13 +77,28 @@ classdef spher_proj<aProjection
                 end
             end
         end
-        
-        %
-        function u = get.ex(obj)
-            u = obj.ex_;
-        end
+        %        
         function v = get.ez(obj)
             v=obj.ez_;
+        end     
+        function obj = set.ez(obj,val)
+            val = aProjection.check_3vector(val);
+            obj.ez_ = val;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        
+        %
+        function u = get.ey(obj)
+            u = obj.ey_;
+        end
+        function obj = set.ey(obj,val)
+            val = aProjection.check_3vector(val);
+            obj.ey_ = val;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end            
         end
         %
         function type = get.type(obj)
@@ -83,6 +106,19 @@ classdef spher_proj<aProjection
         end
         function obj = set.type(obj,val)
 
+        end
+        function [rot_to_img,offset]=get_pix_img_transformation(obj,ndim)
+            rot_to_img = obj.pix_to_matlab_transf_;
+            if ndim == 3
+                offset   = obj.offset(1:3);            
+            elseif ndim == 4
+                rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
+                offset   = obj.offset;                            
+            else
+                error('HORACE:spher_proj:invalid_argument', ...
+                    'only numbers 3 and 4 are available as input of this function. Attempted: %s', ...
+                    disp2str(ndim));
+            end
         end
 
         %------------------------------------------------------------------
@@ -94,7 +130,7 @@ classdef spher_proj<aProjection
             %
             %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear
             % TODO, delete this, mutate axes_block
-            ax_bl.axis_caption=an_axis_caption();
+            ax_bl.axis_caption=spher_proj_caption();
         end
         
 
@@ -115,10 +151,11 @@ classdef spher_proj<aProjection
             % 
             pix_transformed = transform_pix_to_spher_(obj,pix_data);
         end
-        % Transform pixels expressed in image coordinate coordinate systems
-        % into crystal Cartesian system or other source coordinate system,
-        % defined by projection
-        [pix_cc,varargout] = transform_img_to_pix(obj,pix_transformed,varargin);
+        function pix_cc = transform_img_to_pix(obj,pix_transformed,varargin)
+            % Transform pixels in image (spherical) coordinate system
+            % into crystal Cartesian system of pixels
+            pix_cc = transform_spher_to_pix_(obj,pix_transformed,varargin{:});
+        end
 
     end
     %=====================================================================
@@ -129,11 +166,17 @@ classdef spher_proj<aProjection
         function obj = check_combo_arg (obj)
             % Check validity of interdependent fields
             %
-            %   >> [ok, mess,obj] = check_combo_arg(w)
+            %   >> obj = check_combo_arg(w)
+            % 
+            % Throws HORACE:spher_proj:invalid_argument with the message
+            % suggesting the reason for failure if the inputs are incorret
+            % w.r.t. each other.
+            % 
+            % Normalizes input vectors to unity and constructs the
+            % transformation to new coordinate system when operation is
+            % successful
             %
-            %   ok      ok=true if valid, =false if not
-            %   mess    Message if not a valid object, empty string if is valid.
-
+            obj = check_combo_arg_(obj);
         end
         %------------------------------------------------------------------
         function ver  = classVersion(~)
@@ -145,7 +188,7 @@ classdef spher_proj<aProjection
         end
     end
     properties(Constant, Access=private)
-        fields_to_save_ = {'ez','ex','type'}
+        fields_to_save_ = {'ez','ey','type'}
     end
     methods(Static)
         function obj = loadobj(S)
