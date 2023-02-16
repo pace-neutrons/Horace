@@ -59,13 +59,15 @@ classdef unique_references_container < serializable
     %
     % Usage issues:
     % It is possible to extract the cell array containing the unique
-    % objects with the get.unique_objects property. This may be used to
+    % objects with the expose_unique_objects property. This may be used to
     % scan properties of the container without duplicating items in the
     % scan. This is a by-product of the availability of get.unique_objects
     % due to its use by saveobj; users may wish to consider if this should 
-    % be used as it breaks encapsulation. This get will return the underlying 
-    % singleton unique_object_container, and the corresponding cell array may 
-    % be extracted from that with a further use of .unique_objects.
+    % be used as it breaks encapsulation. It works by get.unique_objects
+    % returning  a copy of the underlying singleton unique_obects_container
+    % with objects not present in this container removed; its corresponding cell array 
+    % is then extracted  with a further use of .unique_objects - see the
+    % expose_unique_objects method.
     % It is NOT possible to reset the unique objects with a corresponding set
     % property outside of loadobj. There is no actual cell array of objects 
     % available in this container to modify; the user would have to modify the 
@@ -86,6 +88,11 @@ classdef unique_references_container < serializable
     % The number of objects in a container is retrieved via
     % container.n_objects. As instruments and samples are conceptually
     % stored per run, this value is also retrieved as container.n_runs.
+    %
+    % NOTE:unique_objects_container is used by unique_references_container to
+    % implement its storage. Ensure that any changes here in
+    % unique_references_container will continue to be supported by unique_objects_container
+    % if required.
     
     properties (Access = protected)
         idx_ = zeros(1,0); %  array of unique global indices for each object stored
@@ -216,6 +223,18 @@ classdef unique_references_container < serializable
             self.global_name_ = val;
         end
             
+        function uoca = expose_unique_objects(self)
+        %EXPOSE_UNIQUE_OBJECTS - returns the unique objects contained in
+        % self as a cell array. This allows the user to scan unique objects
+        % for a property without having to rescan for duplicates. It is not
+        % intended to expose the implementation of the container.
+        
+            % obtain a unique_objects_container with the unique objects
+            uoca = self.unique_objects;
+            % convert it to a cell array for external use
+            uoca = uoca.expose_unique_objects();
+        end
+            
         function uoc = get.unique_objects(self)
         % GET.UNIQUE_OBJECTS - unique_objects_container version of
         %                           this container, principally used for
@@ -223,8 +242,10 @@ classdef unique_references_container < serializable
         % Output:
         % -------
         % - uoc - the unique objects as a unique_objects_container
-        % To obtain this as a cell array, repeat the .unique_objects
-        % property get on uoc
+        % To obtain this as a cell array, it is possible to repeat the .unique_objects
+        % property get on uoc but it is preferable to use the
+        % expose_unique_objects method which does this in an encapsulated fashion.
+        
             uoc = unique_objects_container('baseclass', self.stored_baseclass);
             glc = self.global_container('value', self.global_name_);
             for i=1:self.n_objects

@@ -12,7 +12,7 @@ classdef unique_objects_container < serializable
     % their own copy of an object even if this container also contains a
     % copy. If you wish to have many containers share a set of unique
     % objects to increase the compression of the storage, then use
-    % uniqu_references_container.
+    % unique_references_container.
     %
     % Note that unique_references_container uses unique_objects_container
     % as the underlying storage singleton container for its contents.
@@ -72,6 +72,10 @@ classdef unique_objects_container < serializable
     % of set.unique_objects; it is not recommended that this be used as the
     % changes may break the container's consistency.
     %
+    % The number of objects in a container is retrieved via
+    % container.n_objects. As Horace instruments and samples are conceptually
+    % stored per run, this size can also be retrieved as container.n_runs.
+    %
     % NOTE: unique_references_container uses unique_objects_container to
     % implement its storage. Ensure that any changes here in
     % unique_objects_container are reflected in unique_references_container
@@ -100,6 +104,9 @@ classdef unique_objects_container < serializable
 
     properties (Dependent)
         n_objects;
+        n_runs; % duplicate of n_objects that names the normal usage in Horace 
+                % of this container for storing possibly duplicated
+                % instruments or samples per run.
         n_unique;
         %
         baseclass;
@@ -147,12 +154,26 @@ classdef unique_objects_container < serializable
             obj.convert_to_stream_f = str2func(val);
         end
         %
+        function x = expose_unique_objects(self)
+        %EXPOSE_UNIQUE_OBJECTS - return the cell array containing the
+        % unique objects in this container. This provides the interface for
+        % using this functionality outside of saveobj. It is allowed so
+        % that users can scan the properties of this container without
+        % repeating the scan for many duplicates. Note that this does break
+        % the encapsulation of the class in some sense.
+        
+            x = self.unique_objects_;
+        end
+        
         function x = get.unique_objects(self)
         %GET.UNIQUE_OBJECTS Return the cell array containing the unique
-        % objects in this container.
+        % objects in this container. This access is solely for saveobj.
+        % Users wishing to do a scan by unique objects outside of saveobj
+        % should use expose_unique_objects().
             
             x = self.unique_objects_;
         end
+        
         function self = set.unique_objects(self, val)
         %SET.UNIQUE_OBJECTS Load a cell array or array of appropriate
         % objects into the container, e.g. from file
@@ -455,6 +476,21 @@ classdef unique_objects_container < serializable
         end
 
         function n = get.n_objects(self)
+        %GET.N_OBJECTS - retrieve size of container without duplicate
+        % compression. This functionality is also provided by get.n_runs to
+        % provide naming by the normal usage of this container for storing
+        % instruments and samples in Horace. The two should be kept
+        % synchronized.
+        
+            n = numel(self.idx_);
+        end
+        function n = get.n_runs(self)
+        %GET.N_RUNS - retrieve size of container without duplicate
+        % compression. This functionality duplicates that provided by
+        % get.n_objects so that naming by the normal usage of this container for storing
+        % instruments and samples in Horace is available. Both properties
+        % should be kept synchronized.
+        
             n = numel(self.idx_);
         end
 

@@ -54,7 +54,7 @@ end
 % check if new lattice is defined
 % NB unique objects used to reduce check time. Should not be used to
 % replace values
-new_uni_obj = obj.samples_.unique_objects.unique_objects;
+new_uni_obj = obj.samples_.expose_unique_objects();
 new_lat_def = cellfun(@(x)~isempty(x.alatt),new_uni_obj);
 new_ang_def = cellfun(@(x)~isempty(x.angdeg),new_uni_obj);
 % if new lattice not defined everywhere

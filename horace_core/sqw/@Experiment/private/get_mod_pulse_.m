@@ -16,7 +16,7 @@ pm_par = [];
 present = true;
 
 % unique_objects cell used to speed access. Should not be used to replace.
-uni_inst = inst.unique_objects.unique_objects;
+uni_inst = inst.expose_unique_objects();
 try
     first_model = uni_inst{1}.moderator.pulse_model;
 catch ME

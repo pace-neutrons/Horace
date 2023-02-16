@@ -125,9 +125,9 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % get instrument and sample data in the form they would be written
             % on hdd.
             % get_unique_instruments as a cell array;
-            instr = exp_info.instruments.unique_objects.unique_objects; 
+            instr = exp_info.instruments.expose_unique_objects();
             % get_unique_samples as a cell array;
-            sampl = exp_info.samples.unique_objects.unique_objects; 
+            sampl = exp_info.samples.expose_unique_objects();
             % convert to structs
             instr_str = cellfun(@(x)(x.to_struct()),instr,'UniformOutput',false);
             sampl_str = cellfun(@(x)(x.to_struct()),sampl,'UniformOutput',false);
