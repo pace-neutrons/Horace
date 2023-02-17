@@ -34,9 +34,9 @@ pix_transf= ((bsxfun(@minus,pix_cc,offset'))'*rot_mat')';
 [azimuth,elevation,r] = cart2sph(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:));
 
 if ndim == 4
-    pix_transf = [pi/2-elevation;azimuth;r;pix_transf(4,:)];
+    pix_transf = [r;pi/2-elevation;azimuth;pix_transf(4,:)];
 else
-    pix_transf = [pi/2- elevation;azimuth;r];
+    pix_transf = [r;pi/2- elevation;azimuth];
 end
 if input_is_obj
     if shift_ei

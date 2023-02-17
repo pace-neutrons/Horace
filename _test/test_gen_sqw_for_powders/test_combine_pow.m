@@ -71,12 +71,20 @@ classdef test_combine_pow < TestCaseWithSave
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_1=fullfile(tmp_dir,'test_pow_1.sqw');
+            sqw_file_2=fullfile(tmp_dir,'test_bl1_pow_1.sqw');
             % clean up
             cleanup_obj=onCleanup(@()this.delete_files(sqw_file_1));
 
             emode = 1;
 
             gen_sqw_powder(this.spe_file_1, this.par_file, sqw_file_1, this.efix, emode);
+            alatt=[2*pi,2*pi,2*pi];
+            angdeg=[90,90,90];
+            u=[1,0,0];
+            v=[0,1,0];
+            gen_sqw (this.spe_file_1, this.par_file, sqw_file_2, this.efix, emode,...
+                alatt, angdeg, u, v, 0, 0, 0, 0, 0);
+
 
 
             w2_1 = cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
@@ -96,6 +104,10 @@ classdef test_combine_pow < TestCaseWithSave
             close all
             %--------------------------------------------------------------------------------------------------
 
+        end
+        function test_spher_cut(~)
+            file = 'c:\temp\Horace_4.0.0.d4673b1d2\test_bl1_pow_1.sqw';
+            w2_R = cut_sqw(file,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1,'-nopix');            
         end
         function this=test_combine_pow2(this)
             % Create sqw files, combine and check results

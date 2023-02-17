@@ -364,7 +364,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             % class check_cobo_arg state
             check_combo_ = obj.proj_.do_check_combo_arg;
             obj.proj_ = val;
-            obj.axes_.label = val.label;            
+            obj.axes_.label = val.label;
+            if ~isempty(val.title)
+                obj.axes_.title = val.title;
+            end
             obj.proj_.do_check_combo_arg = check_combo_;
         end
         function range = get.img_range(obj)

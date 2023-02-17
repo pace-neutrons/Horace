@@ -121,7 +121,9 @@ targ_proj.angdeg = header_av.angdeg;
 % is attached to pixels. In fact, it redefines b-matrix, which is the 
 % function of lattice and partially U-matix used for alignment)
 % See ticket #885 to fix the alignment.
-targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+if isa(targ_proj,'ortho_proj')
+    targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+end
 
 %
 sz = size(pbin);

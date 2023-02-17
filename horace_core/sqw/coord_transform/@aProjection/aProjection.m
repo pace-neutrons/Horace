@@ -42,6 +42,8 @@ classdef aProjection < serializable
         %      projection is provided as input for a cut
         %
         %
+        title % this method would allow change cut title if non-empty value
+        %     % is provided for projection
     end
     properties(Dependent,Hidden)
         % Internal properties, used by algorithms and better not to be
@@ -67,8 +69,8 @@ classdef aProjection < serializable
         % true, though testing or the projection used to identify position
         % of q-dE point in q-dE space may set this property to false.
         do_3D_transformation;
-        % direct access to different parts of 4-component label celarray. 
-        % sets up appropriate element of such array. Do not have a getter. 
+        % direct access to different parts of 4-component label celarray.
+        % sets up appropriate element of such array. Do not have a getter.
         % Do retrievel label as a whole.
         lab1;
         lab2;
@@ -94,6 +96,7 @@ classdef aProjection < serializable
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
         %
         label_  = {'Q_h','Q_k','Q_l','En'};
+        title_ ='';
         %
         % holds target projection used in cuts.
         targ_proj_;
@@ -248,6 +251,14 @@ classdef aProjection < serializable
         function obj = set.offset(obj,val)
             obj = check_and_set_offset_(obj,val);
         end
+        %
+        function tl = get.title(obj)
+            tl = obj.title_;
+        end
+        function obj = set.title(obj,val)
+            tl = obj.title_;
+        end
+        
         %
         function obj = set.lab1(obj,val)
             obj = set_lab_component_(obj,1,val);
@@ -432,6 +443,9 @@ classdef aProjection < serializable
             ax_bl = axes_block.build_from_input_binning(...
                 def_bin_ranges,req_bin_ranges);
             ax_bl.label = obj.label;
+            if ~isempty(obj.title)
+                ax_bl.title = obj.title;
+            end
         end
         %
         function targ_range = calc_target_range(obj,pix_origin,varargin)
@@ -608,7 +622,7 @@ classdef aProjection < serializable
             % helper function verifying setting 3 vector defining direction
             val = check_3vector_(val);
         end
-        
+
     end
     %----------------------------------------------------------------------
     %  ABSTRACT INTERFACE
@@ -626,14 +640,17 @@ classdef aProjection < serializable
     % Serializable interface
     %======================================================================
     properties(Constant,Access=protected)
-        init_params = {'alatt','angdeg','offset','label','lab1','lab2','lab3','lab4'};
+        init_params = {'alatt','angdeg','offset','label','title','lab1','lab2','lab3','lab4'};
     end
     methods
         function ver  = classVersion(~)
             ver = 1;
         end
-        function  flds = saveableFields(~)
+        function  flds = saveableFields(obj)
             flds = {'alatt','angdeg','offset','label'};
+            if ~isempty(obj.title)
+                flds = [flds(:);'title']';
+            end
         end
     end
 end
