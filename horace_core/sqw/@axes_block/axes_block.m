@@ -109,13 +109,6 @@ classdef axes_block < serializable
         dax_=[];                        % display axes numbers holder
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
     end
-    properties(Constant,Access=private)
-        % fields which fully represent the state of the class and allow to
-        % recover it state by setting properties through public interface
-        fields_to_save_ = {'title','filename','filepath',...
-            'label','ulen','img_range','nbins_all_dims','single_bin_defines_iax',...
-            'dax','nonorthogonal'};
-    end
     properties(Dependent,Hidden)
         % old interface to label
         ulabel
@@ -236,6 +229,7 @@ classdef axes_block < serializable
             end
             [interp_points,density,cell_sizes] = calculate_density_(obj,datasets);
         end
+        %
         function [s,e,npix] = interpolate_data(obj,ref_nodes,density,varargin)
             % interpolate density data for signal, error and number of
             % pixels provided as input density and defined on the nodes of the
@@ -618,30 +612,6 @@ classdef axes_block < serializable
         function lab = get.ulabel(obj)
             lab  = obj.label_;
         end
-        %------------------------------------------------------------------
-        % Serializable interface
-        %------------------------------------------------------------------
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw/sqw data format. Each new version would presumably
-            % read the older version, so version substitution is based on
-            % this number
-            ver = 4;
-        end
-        %
-        function flds = saveableFields(~)
-            % get independent fields, which fully define the state of the
-            % serializable object.
-            flds = axes_block.fields_to_save_;
-        end
-        %
-        function obj = check_combo_arg(obj)
-            % verify interdependent variables and the validity of the
-            % obtained serializable object. Throw
-            % 'HORACE:axes_block:invalid_argument' if object is invalid.
-            obj = check_combo_arg_(obj);
-        end
-        %
     end
     methods(Access=protected)
 
@@ -668,41 +638,9 @@ classdef axes_block < serializable
                 axes_block.normalize_binning_input(...
                 grid_size,pix_coord_transf,n_argout,varargin{:});
         end
-
-        function obj = from_old_struct(obj,inputs)
-            % Restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case where the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % Overloaded to accept Horace 3.6.2<version structure.
-            %
-            if isfield(inputs,'version') && (inputs.version == 1) || ...
-                    isfield(inputs,'iint')
-                inputs = axes_block.convert_old_struct_into_nbins(inputs);
-            end
-            if isfield(inputs,'one_nb_is_iax')
-                inputs.single_bin_defines_iax = inputs.one_nb_is_iax;
-                inputs = rmfield(inputs,'one_nb_is_iax');
-            end
-            if isfield(inputs,'array_dat')
-                obj = obj.from_bare_struct(inputs.array_dat);
-            else
-                obj = obj.from_bare_struct(inputs);
-            end
-        end
     end
     %----------------------------------------------------------------------
     methods(Static)
-        function ax = get_from_old_data(input)
-            % supports getting axes block from the data, stored in binary
-            % Horace files versions 3 and lower.
-            ax = axes_block();
-            ax = ax.from_old_struct(input);
-        end
-        %
         function input = convert_old_struct_into_nbins(input)
             % the function, used to convert old v1 axes_block structure,
             % containing axes information, into the v2 structure,
@@ -714,14 +652,6 @@ classdef axes_block < serializable
         % defaults are taken from the given image range which should be
         % properly prepared
         obj = build_from_input_binning(cur_img_range_and_steps,pbin);
-
-        %------------------------------------------------------------------
-        function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
-            % saveable class
-            obj = axes_block();
-            obj = loadobj@serializable(S,obj);
-        end
         %
         function [any_within,is_within]=bins_in_1Drange(bins,range)
             % get bins which contribute into the given range in one
@@ -797,6 +727,79 @@ classdef axes_block < serializable
             [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
         end
-
+    end
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    properties(Constant,Access=private)
+        % fields which fully represent the state of the class and allow to
+        % recover it state by setting properties through public interface
+        fields_to_save_ = {'title','filename','filepath',...
+            'label','ulen','img_range','nbins_all_dims','single_bin_defines_iax',...
+            'dax','nonorthogonal','axis_caption'};
+    end    
+    methods(Static)
+        function ax = get_from_old_data(input)
+            % supports getting axes block from the data, stored in binary
+            % Horace files versions 3 and lower.
+            ax = axes_block();
+            ax = ax.from_old_struct(input);
+        end
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = axes_block();
+            obj = loadobj@serializable(S,obj);
+        end
+    end    
+    %----------------------------------------------------------------------
+    methods
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw/sqw data format. Each new version would presumably
+            % read the older version, so version substitution is based on
+            % this number
+            ver = 5;
+        end
+        %
+        function flds = saveableFields(~)
+            % get independent fields, which fully define the state of the
+            % serializable object.
+            flds = axes_block.fields_to_save_;
+        end
+        %
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained serializable object. Throw
+            % 'HORACE:axes_block:invalid_argument' if object is invalid.
+            obj = check_combo_arg_(obj);
+        end
+        %        
+    end
+    methods(Access=protected)
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case where the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % Overloaded to accept Horace 3.6.2<version structure.
+            %
+            if isfield(inputs,'version') && (inputs.version == 1) || ...
+                    isfield(inputs,'iint')
+                inputs = axes_block.convert_old_struct_into_nbins(inputs);
+            end
+            if isfield(inputs,'one_nb_is_iax')
+                inputs.single_bin_defines_iax = inputs.one_nb_is_iax;
+                inputs = rmfield(inputs,'one_nb_is_iax');
+            end
+            if isfield(inputs,'array_dat')
+                obj = obj.from_bare_struct(inputs.array_dat);
+            else
+                obj = obj.from_bare_struct(inputs);
+            end
+        end
+        
     end
 end

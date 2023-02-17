@@ -2,8 +2,6 @@ classdef spher_proj_caption<an_axis_caption
     %Class describes axis captions, used in spherical projection
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
-    %       
     properties
         % property contains the type of spher_cut projection used in
         % captions. Default is rdd which is rlu (for cubic lattice), 
@@ -47,6 +45,33 @@ classdef spher_proj_caption<an_axis_caption
         end
         
     end
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    methods(Static)
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = spher_proj_caption();
+            obj = loadobj@serializable(S,obj);
+        end
+    end    
+    %----------------------------------------------------------------------
+    methods
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw/sqw data format. Each new version would presumably
+            % read the older version, so version substitution is based on
+            % this number
+            ver = 1;
+        end
+        %
+        function flds = saveableFields(~)
+            % get independent fields, which fully define the state of the
+            % serializable object.
+            flds = {'proj_type'};
+        end
+    end
+
     
 end
 

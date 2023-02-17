@@ -22,19 +22,19 @@ classdef test_proj_captions<TestCase
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                 capt.data_plot_titles(wk_data);
             assertTrue(iscell(title_main));
-            assertEqual(size(title_main),[1,2]);
+            assertEqual(size(title_main),[1,3]);
             %
             assertTrue(iscell(title_pax));
-            assertTrue(isempty(title_pax));
+            assertEqual(numel(title_pax),2);
             %
             assertTrue(iscell(title_iax));
-            assertEqual(size(title_iax),[4,1]);
+            assertEqual(size(title_iax),[2,1]);
             %
             assertTrue(iscell(display_pax));
-            assertTrue(isempty(display_pax));
+            assertEqual(size(display_pax),[2,1]);
             %
             assertTrue(iscell(display_iax));
-            assertEqual(size(display_iax),[4,1]);
+            assertEqual(size(display_iax),[2,1]);
             %
             assertEqual(energy_axis,4);
         end
@@ -44,7 +44,7 @@ classdef test_proj_captions<TestCase
             ldata = obj.data;
             ldata.proj = spher_proj();
             
-            existing_range = obj.axes.get_binning_range();
+            existing_range = ldata.axes.get_binning_range();
             range = {[-10,1,10],[-20,1,20],[0,0.01,1],existing_range{4}};
             ab = ldata.proj.get_proj_axes_block(existing_range,range);
             capt = ab.axis_caption();
@@ -55,19 +55,19 @@ classdef test_proj_captions<TestCase
                 capt.data_plot_titles(ldata);
 
             assertTrue(iscell(title_main));
-            assertEqual(size(title_main),[1,3]);
+            assertEqual(size(title_main),[1,4]);
             %
             assertTrue(iscell(title_pax));
-            assertTrue(isempty(title_pax));
+            assertEqual(size(title_pax),[2,1]);
             %
             assertTrue(iscell(title_iax));
-            assertEqual(size(title_iax),[4,1]);
+            assertEqual(size(title_iax),[2,1]);
             %
             assertTrue(iscell(display_pax));
-            assertTrue(isempty(display_pax));
+            assertEqual(size(display_pax),[2,1]);
             %
             assertTrue(iscell(display_iax));
-            assertEqual(size(display_iax),[4,1]);
+            assertEqual(size(display_iax),[2,1]);
             %
             assertEqual(energy_axis,4);
 

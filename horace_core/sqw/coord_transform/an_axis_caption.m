@@ -1,4 +1,4 @@
-classdef an_axis_caption
+classdef an_axis_caption < serializable
     %Lightweight class -- parent for different various axis caption classes
     %
     % By default implements sqw rectangular cut captions
@@ -16,7 +16,7 @@ classdef an_axis_caption
         % aspect ratio of a 2D image.
         changes_aspect_ratio_=true;
     end
-    
+
     methods
         function obj=an_axis_caption(varargin)
             obj.caption_calc_func_ = @data_plot_titles;
@@ -43,12 +43,37 @@ classdef an_axis_caption
             %                  for printing to the screen
             %   energy_axis     The index of the column in the 4x4 matrix din.u that corresponds
             %                  to the energy axis
-            
+
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                 obj.caption_calc_func_(data);
         end
     end
-    
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    methods(Static)
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = an_axis_caption();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
+    %----------------------------------------------------------------------
+    methods
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw/sqw data format. Each new version would presumably
+            % read the older version, so version substitution is based on
+            % this number
+            ver = 1;
+        end
+        %
+        function flds = saveableFields(~)
+            % get independent fields, which fully define the state of the
+            % serializable object.
+            flds = {};
+        end
+    end
 end
 
 
