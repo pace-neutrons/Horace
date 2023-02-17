@@ -50,7 +50,12 @@ npix = zeros(sz1);
 %sproj = obj.data.get_projection(header_av);
 sproj = obj.data.proj;
 saxes = obj.data.axes;
-[bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,saxes,targ_axes,targ_proj);
+if numel(obj.data.npix) == 1 % single bin original grid
+    bloc_starts = 1;
+    block_sizes = obj.data.npix;
+else
+    [bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,saxes,targ_axes,targ_proj);
+end
 if isempty(bloc_starts)
 
     report_cut_type(obj,log_level-1,false,keep_pixels,'no_pixels');

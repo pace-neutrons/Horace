@@ -108,6 +108,7 @@ classdef test_combine_pow < TestCaseWithSave
         function test_spher_cut(~)
             file = 'c:\temp\Horace_4.0.0.d4673b1d2\test_bl1_pow_1.sqw';
             w2_R = cut_sqw(file,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1,'-nopix');            
+            %w2_R = cut_sqw(file,spher_proj,[-5,0.05,5],[-5,5],[-5,5],1,'-nopix');                        
         end
         function this=test_combine_pow2(this)
             % Create sqw files, combine and check results

@@ -256,9 +256,14 @@ classdef aProjection < serializable
             tl = obj.title_;
         end
         function obj = set.title(obj,val)
-            tl = obj.title_;
+            if ~istext(val)
+                error('HORACE:aProjection:invalid_argument',...
+                    'title should be a text string. In fact its type is %s', ...
+                    class(val));
+            end
+            obj.title_ = val;
         end
-        
+
         %
         function obj = set.lab1(obj,val)
             obj = set_lab_component_(obj,1,val);

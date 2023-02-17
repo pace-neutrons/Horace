@@ -7,7 +7,7 @@ function [qspec,en]=calc_qspec_(detdcn,efix,eps,emode)
 % ------
 %   detdcn  Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %             [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
-%   efix    incident energy for direct mode spectromenter or analyzer(s)
+%   efix    incident energy for direct mode spectrometer or analyser(s)
 %           energy(s) for indirect.
 %   eps     bin centers for energy transfer energies
 %   emode   insrument and q-conversion type (1-direct, 2-indirect 0-
