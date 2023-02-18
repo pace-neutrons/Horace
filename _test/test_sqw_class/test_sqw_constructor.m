@@ -35,9 +35,15 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertTrue(isa(sqw_obj.experiment_info, 'Experiment'));
 
             assertTrue((sqw_obj.experiment_info.instruments.n_runs==0));
-            assertTrue(isempty(sqw_obj.experiment_info.instruments{1}));
+            function throwinst()
+                sqw_obj.experiment_info.instruments{1};
+            end
+            assertExceptionThrown( @throwinst,'HERBERT:unique_references_container:invalid_argument');
             assertTrue((sqw_obj.experiment_info.samples.n_runs==0));
-            assertTrue(isempty(sqw_obj.experiment_info.samples{1}));
+            function throwsamp()
+                sqw_obj.experiment_info.samples{1};
+            end
+            assertExceptionThrown( @throwsamp,'HERBERT:unique_references_container:invalid_argument');
             assertEqual(sqw_obj.detpar, struct([]));
             assertEqual(sqw_obj.pix, PixelDataBase.create());
             assertEqual(numel(sqw_obj.data.pax), 0);

@@ -42,14 +42,17 @@ classdef test_instrument_methods < TestCaseWithSave
             w_mod = w_mod.set_sample(samp);
 
             ref_samp1 = obj.w_fe.experiment_info.samples(1);
-            samp(1).alatt = ref_samp1 .alatt;
-            samp(1).angdeg = ref_samp1.angdeg;            
-            assertEqual(w_mod(1).experiment_info.samples(3),samp(1));
+            samp1 = samp(1);
+          
+            samp1.alatt = ref_samp1.alatt;
+            samp1.angdeg = ref_samp1.angdeg;            
+            assertEqual(w_mod(1).experiment_info.samples(3),samp1);
 
-            ref_samp2 = obj.w_rb.experiment_info.samples(1);            
-            samp(2).alatt = ref_samp2.alatt;
-            samp(2).angdeg = ref_samp2.angdeg;            
-            assertEqual(w_mod(2).experiment_info.samples(10),samp(2));
+            ref_samp2 = obj.w_rb.experiment_info.samples(1); 
+            samp2 = samp(2);
+            samp2.alatt = ref_samp2.alatt;
+            samp2.angdeg = ref_samp2.angdeg;            
+            assertEqual(w_mod(2).experiment_info.samples(10),samp2);
         end
         
         function test_set_sample_array(obj)
