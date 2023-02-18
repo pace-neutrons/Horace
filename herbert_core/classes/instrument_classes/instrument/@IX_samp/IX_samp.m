@@ -36,7 +36,7 @@ classdef IX_samp  < serializable
     methods
 
         %------------------------------------------------------------------
-        % Constructor
+        % Constructor, state
         %------------------------------------------------------------------
         function [obj,remains] = IX_samp (varargin)
             % Create base sample object
@@ -67,6 +67,9 @@ classdef IX_samp  < serializable
             % after all settings have been done.
             [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
                 false,argi{:});
+        end
+        function yesq = lattice_defined(self)
+            yesq = ~isempty(self.alatt) && ~isempty(self.angdeg);
         end
 
 

@@ -52,41 +52,62 @@ if ~isempty(mess)
     error('HORACE:Experiment:invalid_argument',mess);
 end
 % check if new lattice is defined
-new_uni_obj = obj.samples_.unique_objects;
+% NB unique objects used to reduce check time. Should not be used to
+% replace values
+new_uni_obj = obj.samples_.expose_unique_objects();
 new_lat_def = cellfun(@(x)~isempty(x.alatt),new_uni_obj);
 new_ang_def = cellfun(@(x)~isempty(x.angdeg),new_uni_obj);
+% if new lattice not defined everywhere
 if ~(all(new_lat_def) && all(new_ang_def))
+    % if we actually have the old lattice
     if ~isempty(obj.old_lattice_holder_) % try to retrieve old lattice
-        one_unique = (obj.old_lattice_holder_.n_unique ==1 && obj.samples_.n_unique == 1);
+        one_unique = (obj.old_lattice_holder_.n_unique_objects ==1 && obj.samples_.n_unique_objects == 1);
         if obj.old_lattice_holder_.n_runs == obj.samples.n_runs || one_unique
+            % only one unique object so if its lattice was unset then all
+            % need changing, don't need to check again
             if one_unique
-                uni_source = obj.old_lattice_holder_.unique_objects;
-                uni_targ  = obj.samples_.unique_objects;
-                uni_targ{1}.alatt = uni_source{1}.alatt;
-                uni_targ{1}.angdeg = uni_source{1}.angdeg;
-                obj.samples_.unique_objects = uni_targ;
-            else
+                uni_source = obj.old_lattice_holder_.unique_objects{1};
+                uni_targ  = obj.samples_.unique_objects{1}; % extract the single unique object in the target
+                uni_targ.alatt = uni_source.alatt;   % assign the single source lattice to the single target
+                uni_targ.angdeg = uni_source.angdeg;
+                obj.samples_ = obj.samples_.set_all(uni_targ);            % update all the non-unique target samples with the
+                                                        % revised unique target
+                warning('HORACE:Experiment:lattice_changed', ...
+                        ['the common lattice was not defined ', ...
+                        'and was updated from the previous sample']);
+                
+            % unspecified number of lattice parameters unset so change what
+            % is required
+            elseif obj.old_lattice_holder_.n_runs == obj.samples.n_runs
                 targ_samp = obj.samples_;
                 source_samp = obj.old_lattice_holder_;
                 n_runs = obj.samples_.n_runs;
-                one_defined = obj.old_lattice_holder_.n_unique ==1;
+                one_defined = obj.old_lattice_holder_.n_unique_objects ==1;
                 the_source = source_samp(1);
                 for i=1:n_runs
                     the_samp = targ_samp(i);
-                    if one_defined
-                        the_samp.alatt = the_source.alatt;
-                        the_samp.angdeg = the_source .angdeg;
-                    else
-                        the_source = source_samp(i);
-                        the_samp.alatt = the_source.alatt;
-                        the_samp.angdeg = the_source.angdeg;
+                    if ~the_samp.lattice_defined()
+                        if one_defined
+                            the_samp.alatt = the_source.alatt;
+                            the_samp.angdeg = the_source .angdeg;
+                        else
+                            the_source = source_samp(i);
+                            the_samp.alatt = the_source.alatt;
+                            the_samp.angdeg = the_source.angdeg;
+                        end
+                        targ_samp(i)  = the_samp;
                     end
-                    targ_samp(i)  = the_samp;
                 end
                 obj.samples_ = targ_samp;
+                warning('HORACE:Experiment:lattice_changed', ...
+                        ['some lattices were not defined ', ...
+                        'and were updated from the previous sample(s)']);
+            else
+                warning('HORACE:Experiment:no_available_fixup', ...
+                        'number of old lattice parameters does not match current samples');
             end
-
         else
+            
             warning('HORACE:Experiment:invalid_argument', ...
                 'Samples in experiment are defined but their lattice is undefined and the old simples define different lattice')
         end

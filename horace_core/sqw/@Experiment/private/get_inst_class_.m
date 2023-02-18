@@ -3,7 +3,8 @@ function [inst, all_inst] = get_inst_class_(obj)
 % instruments and verify unique instruments
 %
 
-inst = obj.instruments.unique_objects;
+% unique_objects cell used to minimse scanning time. Should not be used to replace.
+inst = obj.instruments.expose_unique_objects();
 if isempty(inst)
     all_inst = false;
     inst = [];

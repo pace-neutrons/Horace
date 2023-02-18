@@ -22,8 +22,8 @@ headers = varargin{1};
 % Make arrays of the hew-style header class types to receive the data
 % coming from each run in headers
 expdata     = repmat(IX_experiment(), 1,numel(headers));
-instruments = unique_objects_container('IX_inst');
-samples     = unique_objects_container('IX_samp');
+instruments = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
+samples     = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
 
 hdr = headers{1};
 alatt = hdr.alatt;
