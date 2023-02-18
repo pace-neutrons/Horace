@@ -66,33 +66,26 @@ classdef test_combine_pow < TestCaseWithSave
             % test files are in svn
             this.save();
         end
+        
 
-        function this=test_combine_pow1(this)
+        function obj=test_combine_pow_1file(obj)
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_1=fullfile(tmp_dir,'test_pow_1.sqw');
-            sqw_file_2=fullfile(tmp_dir,'test_bl1_pow_1.sqw');
             % clean up
-            cleanup_obj=onCleanup(@()this.delete_files(sqw_file_1));
+            cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_1));
 
             emode = 1;
 
-            gen_sqw_powder(this.spe_file_1, this.par_file, sqw_file_1, this.efix, emode);
-            alatt=[2*pi,2*pi,2*pi];
-            angdeg=[90,90,90];
-            u=[1,0,0];
-            v=[0,1,0];
-            gen_sqw (this.spe_file_1, this.par_file, sqw_file_2, this.efix, emode,...
-                alatt, angdeg, u, v, 0, 0, 0, 0, 0);
-
+            gen_sqw_powder(obj.spe_file_1, obj.par_file, sqw_file_1, obj.efix, emode);
 
 
             w2_1 = cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
             w1_1 = cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
 
-            this.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
+            obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
-            this.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
+            obj.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
 
             %--------------------------------------------------------------------------------------------------
@@ -103,12 +96,71 @@ classdef test_combine_pow < TestCaseWithSave
             da(w2_1);
             close all
             %--------------------------------------------------------------------------------------------------
+        end
+        function obj = test_spher_cut_fine_grid(obj)
+            % Create sqw files, combine and check results
+            % -------------------------------------------
+            sqw_file_tot=fullfile(tmp_dir,'test_spher_cut_fine_grid.sqw');
+            cleanup_obj = [];
+            if ~isfile(sqw_file_tot)
+                alatt=[2*pi,2*pi,2*pi];
+                angdeg=[90,90,90];
+                psi = [0,0];
+                u=[1,0,0];
+                v=[0,1,0];
+                gen_sqw ({obj.spe_file_1,obj.spe_file_2},obj.par_file, ...
+                    sqw_file_tot, obj.efix, 1,...
+                    alatt, angdeg, u, v, psi, 0, 0, 0, 0);
+
+                % clean up
+                %cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_tot));                
+            end
+            w2_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1);
+            w1_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,3],[-pi,pi],[-pi,pi],[40,50]);
+
+
+            obj.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
+            obj.assertEqualToTolWithSave(w1_tot,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
+
+            %--------------------------------------------------------------------------------------------------
+            % Visually inspect
+            acolor k
+            dd(w1_tot);
+            acolor b
+            plot(w2_tot);
+            % acolor r
+            % pd(w1_tot)  % does not overlay - but that is OK
+            %--------------------------------------------------------------------------------------------------
 
         end
-        function test_spher_cut(~)
-            file = 'c:\temp\Horace_4.0.0.d4673b1d2\test_bl1_pow_1.sqw';
-            w2_R = cut_sqw(file,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1,'-nopix');            
-            %w2_R = cut_sqw(file,spher_proj,[-5,0.05,5],[-5,5],[-5,5],1,'-nopix');                        
+        
+        function test_spher_cut_coarce_grid(obj)
+            sqw_file_2=fullfile(tmp_dir,'test_spher_cut_coarse_grid.sqw');
+            cleanup_obj = [];
+            if ~isfile(sqw_file_2)
+                alatt=[2*pi,2*pi,2*pi];
+                angdeg=[90,90,90];
+                u=[1,0,0];
+                v=[0,1,0];
+                gen_sqw (obj.spe_file_1, obj.par_file, sqw_file_2, obj.efix, emode,...
+                    alatt, angdeg, u, v, 0, 0, 0, 0, 0);
+
+                % clean up
+                cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_2));
+                
+            end
+
+            w2_1 = cut_sqw(sqw_file_2,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1);
+            w1_1 = cut_sqw(sqw_file_2,spher_proj,[0,0.05,3],[-pi,pi],[-pi,pi],[40,50]);
+
+            obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
+            obj.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
+
+
         end
         function this=test_combine_pow2(this)
             % Create sqw files, combine and check results
