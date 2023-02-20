@@ -14,10 +14,10 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         pix_in_memory;
         pix_with_pages;
 
-        %
         call_count_transfer_;
 
-        ws_cache
+        ws_cache;
+        stored_config;
     end
 
     methods
@@ -27,7 +27,7 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
                 name = 'test_PixelData_binary_ops';
             end
             obj = obj@TestCase(name);
-            obj.BYTES_PER_PIX = 4*9;
+            obj.BYTES_PER_PIX = 4*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
 
             pths = horace_paths();
             obj.test_sqw_file_path    = fullfile(pths.test_common, 'sqw_1d_1.sqw');
@@ -39,11 +39,18 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             obj.ref_raw_pix_data   = sqw_test_obj.pix.data;
             obj.ws_cache = warning('off','HORACE:old_file_format');
 
+            hc = hor_config;
+            obj.stored_config = hc.get_data_to_store();
+            hc.mem_chunk_size = 10000;
+
             obj.pix_with_pages = PixelDataFileBacked(obj.test_sqw_file_path);
+
             obj.pix_in_memory  = sqw_test_obj.pix;
         end
+
         function delete(obj)
             warning(obj.ws_cache);
+            set(hor_config, obj.stored_config);
         end
 
         function test_plus_with_scalar_adds_operand_to_signal_with_unpaged_pix(obj)
@@ -243,7 +250,9 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
                 expected_pix(obj.SIGNAL_IDX, :) + repelem(sig_array(:), npix(:))';
             assertEqual(new_pix.data, expected_pix);
         end
+
         %------------------------------------------------------------------
+
         function test_PIXELDATA_error_on_where_npix_ne_num_pixels(~)
             num_pixels = 11;
             pix = PixelDataMemory(num_pixels);
@@ -256,18 +265,20 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
 
         function test_PIXELDATA_error_on_with_dnd_of_wrong_size_filebacked(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
-            pix = PixelDataMemory(obj.test_sqw_2d_file_path);
+            pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
             f = @() pix.do_binary_op(dnd_obj, @plus);
-            assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:invalid_argument');
         end
 
-        function test_PIXELDATA_error_on_with_dnd_of_wrong_size_memorybased(obj)
+        function test_PIXELDATA_error_on_with_dnd_of_wrong_size_memorybacked(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
             pix = PixelDataMemory(zeros(9, 2));
             f = @() pix.do_binary_op(dnd_obj, @plus);
             assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
         end
+
         %------------------------------------------------------------------
+
         function check_with_1d_dnd_returns_correct_pix_filebacked(obj,pix,dnd_obj)
             npix = dnd_obj.npix;
 
@@ -290,19 +301,11 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             dnd_obj = read_dnd(obj.test_sqw_file_path);
             pix = PixelDataFileBacked(obj.test_sqw_file_path);
 
-            pix_per_page = floor(pix.num_pixels/6);
-            hc = hor_config;
-            cmpp = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',cmpp));
-            hc.mem_chunk_size = pix_per_page;
-            skipTest('Re #928 Filebacked operations are currently disabled. Does it make any sence to do operation on pixels only? pixels will  not normally work without sqw')
-
             obj.check_with_1d_dnd_returns_correct_pix_filebacked(pix,dnd_obj)
         end
 
         function test_with_1d_dnd_returns_correct_pix_filebacked(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
-            skipTest('Re #928 Filebacked operations are currently disabled. Does it make any sence to do operation on pixels only? pixels will not normally work without sqw')
 
             pix = PixelDataFileBacked(obj.test_sqw_file_path);
             obj.check_with_1d_dnd_returns_correct_pix_filebacked(pix,dnd_obj)
@@ -311,10 +314,12 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         function test_with_1d_dnd_returns_correct_pix_membased(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
             pix = PixelDataMemory(obj.test_sqw_file_path);
-            %
+
             obj.check_with_1d_dnd_returns_correct_pix_filebacked(pix,dnd_obj)
         end
+
         %------------------------------------------------------------------
+
         function test_PIXELDATA_error_in_sigvar_if_sum_npix_ne_num_pix(obj)
             dnd_obj = read_dnd(obj.test_sqw_file_path);
             svar = sigvar(dnd_obj.s, dnd_obj.e);
@@ -353,7 +358,6 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             cmpp = hc.mem_chunk_size;
             clOb = onCleanup(@()set(hc,'mem_chunk_size',cmpp));
             hc.mem_chunk_size = pix_per_page;
-            skipTest('Re #928 Filebacked operations are currently disabled. Does it make any sence to do operation on pixels only? pixels will not normally work without sqw')
 
             obj.check_adding_2Dsigvar_returns_correct_pix_filebased(pix,dnd_obj)
 
@@ -363,7 +367,6 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         function test_adding_2Dsigvar_returns_correct_pix_filebased(obj)
             dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
             pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
-            skipTest('Re #928 Filebacked operations are currently disabled. Does it make any sence to do operation on pixels only? pixels will not normally work without sqw')
 
             obj.check_adding_2Dsigvar_returns_correct_pix_filebased(pix,dnd_obj)
         end
@@ -410,7 +413,6 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             cmpp = hc.mem_chunk_size;
             clOb = onCleanup(@()set(hc,'mem_chunk_size',cmpp));
             hc.mem_chunk_size = pix_per_page;
-            skipTest('Re #928 Paging is currently disabled but should be completed as this ticket completed. Does it make any sence? pixels will work within sqw')
 
             obj.check_mult_with_d2d_returns_correct_pix(pix,dnd_obj)
         end
@@ -418,7 +420,6 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
             dnd_obj = read_dnd(obj.test_sqw_2d_file_path);
 
             pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
-            skipTest('Re #928 Filebacked operations are currently disabled. Does it make any sence to do operation on pixels only? pixels will work within sqw')
 
             obj.check_mult_with_d2d_returns_correct_pix(pix,dnd_obj)
         end

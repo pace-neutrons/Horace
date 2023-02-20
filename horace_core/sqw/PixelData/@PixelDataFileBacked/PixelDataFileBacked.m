@@ -290,12 +290,12 @@ classdef PixelDataFileBacked < PixelDataBase
             % PixDataFileBacked class
             if ~isa(val,'pix_data')
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'pix_data_wrap property can be set by pix_data class instance only. Provided class is: %s', ...
+                    'pix_data_wrap property can be set to pix_data class instance only. Provided class is: %s', ...
                     class(val));
-            elseif ~(ischar(val.data)||isstring(val.data)||isempty(val.data))
+            elseif ~(istext(val.data) || isempty(val.data))
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'Attempt to initialize PixelDataFileBacked using pix_data values obtained from PixelDataMemory class: %s', ...
-                    disp2str(val));
+                      'Attempt to initialize PixelDataFileBacked using invalid pix_data values: %s', ...
+                      disp2str(val));
             end
 
             in_file = val.data;
@@ -305,18 +305,8 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
             if ~is_file(in_file)
-                if MPI_State.instance().is_deployed
-                    error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                        'Cannot find file-source of file-backed pixel data: %s', in_file)
-                else
-                    mess = sprintf('Cannot find file-source of file-backed pixels: %s. Select sqw file to get pixel data from', ...
-                        in_file);
-                    in_file = getfile(in_file, mess);
-                    if isempty(in_file)
-                        error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                            'File-source of file-backed pixel data: %s have not been found.', in_file)
-                    end
-                end
+                error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                      'Cannot find file for file-backed pixel data: %s', in_file)
             end
 
             ldr = sqw_formats_factory.instance().get_loader(in_file);
