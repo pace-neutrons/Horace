@@ -602,8 +602,7 @@ classdef unique_references_container < serializable
         
     end
     
-    methods (Static)
-        
+    methods (Static)        
         % the global container is a persistent struct in static method
         % global_container. This contains one field for each category (or
         % global name). Each field contains a unique_objects_container with

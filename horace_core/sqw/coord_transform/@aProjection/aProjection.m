@@ -591,7 +591,7 @@ classdef aProjection < serializable
             %                 orthogonal 1D indexes on dE lattice to include
             %                 into contributing indexes.
             %
-            % Uses knowledge about specific arrangement of 4-D array of indexes
+            % Uses knowledge about linear arrangement of 4-D array of indexes
             % in memory and on disk
 
             q_block_size = numel(bin_inside3D);
@@ -601,7 +601,7 @@ classdef aProjection < serializable
                 contrib_ind = {};
                 return;
             end
-            iend   = find(change==-1)-1;
+            iend   = find(change==-1) - 1;
 
             % calculate full 4D indexes from the the knowledge of the contributing dE bins,
             % 3D indexes and 4D array allocation layout
