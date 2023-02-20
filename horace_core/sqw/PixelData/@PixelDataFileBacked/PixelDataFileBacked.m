@@ -79,14 +79,15 @@ classdef PixelDataFileBacked < PixelDataBase
 
     properties (Access=private)
         num_pixels_ = 0;  % number of pixels, stored in the data file
-        f_accessor_ = [];  % instance of object to access pixel data from file
-        page_num_     = 1;  % the index of the currently loaded page
+        f_accessor_ = []; % instance of object to access pixel data from file
+        page_num_   = 1;  % the index of the currently loaded page
         offset_ = 0;
     end
 
     properties (Constant)
         is_filebacked = true;
     end
+
     % =====================================================================
     % Overloaded operations interface
     methods
@@ -94,6 +95,7 @@ classdef PixelDataFileBacked < PixelDataBase
             error('HORACE:PixelDataFileBacked:not_implemented',...
                 'append does not work on file-based pixels')
         end
+
         function obj = set_raw_data(obj,pix)
             if obj.read_only
                 error('HORACE:PixelDataFileBacked:runtime_error',...
@@ -101,12 +103,13 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             obj = set_raw_data_(obj,pix);
         end
-        function obj  = set_fields(obj, data, fields, abs_pix_indices)
+
+        function obj  = set_fields(obj, data, fields, varargin)
             if obj.read_only
                 error('HORACE:PixelDataFileBacked:runtime_error',...
                     'set_fields can not run on read-only PixelDataFileBacked')
             end
-            obj = set_fields@PixelDataBase(obj,data, fields, abs_pix_indices);
+            obj = set_fields@PixelDataBase(obj, data, fields, varargin{:});
         end
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
@@ -119,16 +122,15 @@ classdef PixelDataFileBacked < PixelDataBase
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
         pix_out = get_fields(obj, fields, abs_pix_indices);
 
-        function  obj=set_raw_fields(obj, data, fields, abs_pix_indices)
+        function  obj=set_raw_fields(obj, data, fields, varargin)
             if obj.read_only
-                error('HORACE:PixelDataFileBacked:not_impmemented',...
-                    'set_raw_fields can not run on read-only PixelDataFileBacked')
+                error('HORACE:PixelDataFileBacked:not_implemented',...
+                      'set_raw_fields can not run on read-only PixelDataFileBacked')
             end
-            obj = set_raw_fields_(obj, data, fields, abs_pix_indices);
+            obj = set_raw_fields_(obj, data, fields, varargin{:});
         end
     end
 
-    %
     methods
         function obj = PixelDataFileBacked(varargin)
             % Construct a File-backed PixelData object from the given data.
@@ -140,11 +142,13 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             obj = obj.init(varargin{:});
         end
+
         function obj = init(obj, varargin)
             % Main part of the fileBacked constructor
             %
             obj = init_(obj,varargin{:});
         end
+
         function obj = move_to_first_page(obj)
             % Reset the object to point to the first page of pixel data in the file
             % and clear the current cache
@@ -169,24 +173,23 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = obj.move_to_first_page();
             ic = 0;
             unique_pix_id = [];
-            while obj.has_more()
-                ic = ic+1;
-                if ic >= 10
-                    ic = 0;
+
+            for i = 1:obj.num_pages
+                obj.page_num_ = i;
+
+                if obj.num_pages > 20 && mod(i, 10) == 0
                     fprintf(2,'*** processing block N:%d/%d\n', ...
                         obj.page_num_,obj.num_pages)
                 end
+
                 if nargout > 1
                     [obj,unique_id]=obj.reset_changed_coord_range('all');
                     unique_pix_id = unique([unique_pix_id,unique_id]);
                 else
                     obj=obj.reset_changed_coord_range('all');
                 end
-                obj = obj.advance();
             end
-            obj = obj.move_to_first_page();
         end
-
 
         % --- Operator overrides ---
         function obj=delete(obj)
@@ -204,94 +207,67 @@ classdef PixelDataFileBacked < PixelDataBase
                 'Can not save filebacked PixelData object');
         end
 
-        function has_more = has_more(obj)
-            % Returns true if there are subsequent pixels stored in the file that
-            % are not held in the current page
-            %
-            %    >> has_more = pix.has_more();
-            %
-            has_more = (obj.page_num_-1)*obj.page_size  <  obj.num_pixels;
-        end
-
-        function [obj,current_page_num, total_num_pages] = advance(obj, varargin)
-            % Load the next page of pixel data from the file backing the object
-            %
-            % This function will throw a PIXELDATA:advance error if attempting to
-            % advance past the final page of data in the file.
-            %
-            % This function does nothing if the pixel data is not file-backed.
-            %
-            %  >>obj = obj.advance()
-            %  >>obj = obj.advance('nosave', true)
-            %
-            %
-            % Outputs:
-            % --------
-            % current_page_number  The new page and total number of pages advance will
-            % walk through to complete the algorithm
-            %
-            obj.page_num_ = obj.page_num_+1;
-            if nargout >1
-                current_page_num = obj.page_num_;
-                total_num_pages  = obj.n_pages;
-            end
-        end
     end
 
     %======================================================================
     % PAGING
     methods(Access=protected)
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, page_number)
-            if nargin == 1
+            if ~exist('page_number', 'var')
                 page_number = obj.page_num_;
             end
+
             pgs = obj.page_size;
             pix_idx_start = (page_number -1)*pgs+1;
+
             if obj.num_pixels > 0 && pix_idx_start > obj.num_pixels
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                     'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
                     pix_idx_start, obj.num_pixels);
             end
+
             % Get the index of the final pixel to read given the maximum page size
-            pix_idx_end = min(pix_idx_start + pgs - 1, ...
-                obj.num_pixels);
+            pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
         end
 
         function np = get_page_num(obj)
             np = obj.page_num_;
         end
+
         function obj = set_page_num(obj,val)
-            if ~isnumeric(val)||~isscalar(val)||val<1
+            if ~isnumeric(val) || ~isscalar(val) || val<1
                 error('HORACE:PixelDataFileBacked:invelid_argument', ...
                     'page number should be positive numeric scalar. It is: %s',...
                     disp2str(val))
-            end
-            if val>obj.num_pages
+            elseif val > obj.num_pages
                 error('HORACE:PixelDataFileBacked:invelid_argument', ...
                     'page number (%d) should not be bigger then total number of pages: %d',...
                     val,obj.num_pages);
             end
+
             obj.page_num_ = val;
         end
+
         function page_size = get_page_size(obj)
             page_size = min(config_store.instance().get_value('hor_config','mem_chunk_size'),obj.num_pixels);
         end
+
         function np = get_num_pages(obj)
             np = max(ceil(obj.num_pixels/obj.page_size),1);
         end
-        function  data =  get_raw_data(obj,varargin)
-            %
-            if nargin == 1
+
+        function  data =  get_raw_data(obj,page_number)
+            if ~exist('page_number', 'var')
                 page_number = obj.page_num_;
-            else
-                page_number = varargin{1};
             end
+
             if isempty(obj.f_accessor_)
-                data = zeros(9,0);
+                prp = obj.EMPTY_PIXELS;
             else
                 [pix_idx_start, pix_idx_end] = obj.get_page_idx_(page_number);
                 data = double(obj.f_accessor_.Data.data(:,pix_idx_start:pix_idx_end));
             end
+
         end
     end
     %======================================================================
@@ -301,14 +277,11 @@ classdef PixelDataFileBacked < PixelDataBase
             % num_pixels getter
             num_pix = obj.num_pixels_;
         end
+
         function ro = get_read_only(obj)
             % report if the file allows to be modified.
             % Main overloadable part of read_only property
-            if isempty(obj.f_accessor_)
-                ro = true;
-            else
-                ro = ~obj.f_accessor_.Writable;
-            end
+            ro = isempty(obj.f_accessor_) || ~obj.f_accessor_.Writable;
         end
 
         %------------------------------------------------------------------
@@ -319,44 +292,48 @@ classdef PixelDataFileBacked < PixelDataBase
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
                     'pix_data_wrap property can be set by pix_data class instance only. Provided class is: %s', ...
                     class(val));
-            end
-            if ~(ischar(val.data)||isstring(val.data)||isempty(val.data))
+            elseif ~(ischar(val.data)||isstring(val.data)||isempty(val.data))
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
                     'Attempt to initialize PixelDataFileBacked using pix_data values obtained from PixelDataMemory class: %s', ...
                     disp2str(val));
             end
+
             in_file = val.data;
+
             if isempty(in_file)
                 return;
             end
+
             if ~is_file(in_file)
-                % 
                 if MPI_State.instance().is_deployed
                     error('HORACE:PixelDataFileBacked:invalid_argument', ...
                         'Cannot find file-source of file-backed pixel data: %s', in_file)
                 else
                     mess = sprintf('Cannot find file-source of file-backed pixels: %s. Select sqw file to get pixel data from', ...
                         in_file);
-                    in_file = getfile(in_file,mess );
+                    in_file = getfile(in_file, mess);
                     if isempty(in_file)
                         error('HORACE:PixelDataFileBacked:invalid_argument', ...
                             'File-source of file-backed pixel data: %s have not been found.', in_file)
                     end
                 end
             end
+
             ldr = sqw_formats_factory.instance().get_loader(in_file);
             obj = init_from_file_accessor_(obj,ldr,false,true);
         end
 
         function prp = get_prop(obj, fld)
             [pix_idx_start, pix_idx_end] = obj.get_page_idx_(obj.page_num_);
+
             if isempty(obj.f_accessor_)
-                prp = zeros(numel(obj.FIELD_INDEX_MAP_(fld)),0);
+                prp = zeros(obj.get_field_count(fld), 0);
             else
                 prp = double(obj.f_accessor_.Data.data(obj.FIELD_INDEX_MAP_(fld), ...
                     pix_idx_start:pix_idx_end));
             end
         end
+
         function obj=set_prop(obj, fld, val)
             val = check_set_prop(obj,fld,val);
             if ~obj.f_accessor_.Writable
@@ -369,11 +346,12 @@ classdef PixelDataFileBacked < PixelDataBase
             indx = pix_idx_start:pix_idx_end;
             flds = obj.FIELD_INDEX_MAP_(fld);
             obj.f_accessor_.Data.data(flds, indx) = single(val);
+
             % this operation will probably lead to invalid results.
             obj=obj.reset_changed_coord_range(fld);
         end
 
-        function [obj,varargout]=reset_changed_coord_range(obj,field_name)
+        function [obj,unique_idx]=reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
@@ -390,16 +368,17 @@ classdef PixelDataFileBacked < PixelDataBase
                 ind = obj.FIELD_INDEX_MAP_(field_name);
             end
 
-
-            loc_range = [min(obj.data(ind,:),[],2),max(obj.data(ind,:),[],2)]';
+            loc_range = [min(obj.data(ind,:),[],2),...
+                         max(obj.data(ind,:),[],2)]';
 
             range = minmax_ranges(obj.data_range_(:,ind),loc_range);
-            obj.data_range_(:,ind)   = range;
+            obj.data_range_(:,ind)  = range;
             if nargout > 1
-                varargout{1} = unique(obj.run_idx);
+                unique_idx = unique(obj.run_idx);
             end
         end
     end
+
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods(Static)
@@ -414,7 +393,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj = loadobj@PixelDataBase(S);
             end
 
-        end        
-    end    
+        end
+    end
 
 end

@@ -9,13 +9,13 @@ if isempty(obj)
     return
 end
 
-obj = obj.move_to_first_page();
 npix_shape = size(npix);
 
 img_signal_sum = zeros(1, numel(npix));
 img_variance_sum = zeros(1, numel(npix));
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.page_size);
-for i = 1:numel(npix_chunks)
+for i = 1:obj.num_pages
+    obj.page_num = i;
     npix_chunk = npix_chunks{i};
     idx = idxs(:, i);
 
@@ -33,11 +33,6 @@ for i = 1:numel(npix_chunks)
     var_increment = accumarray(accum_indices, obj.variance, increment_size);
     img_variance_sum(idx(1):idx(2)) = img_variance_sum(idx(1):idx(2)) + var_increment';
 
-    if obj.has_more()
-        obj=obj.advance();
-    else
-        break
-    end
 end
 img_signal_sum = reshape(img_signal_sum, npix_shape);
 img_variance_sum = reshape(img_variance_sum, npix_shape);

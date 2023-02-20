@@ -63,7 +63,7 @@ end
 fid = pix_out.get_new_handle();
 
 for i = 1:pix_out.n_pages
-    pix_out.load_page(i);
+    pix_out.page_num = i;
     [pix_out.signal, pix_out.variance] = noisify( ...
         pix_out.signal, pix_out.variance, varargin{:});
     pix_out.format_dump_data(fid);

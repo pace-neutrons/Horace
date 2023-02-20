@@ -21,9 +21,6 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
 % PixelData object with no npix array.
 % The double array must have length equal to the number of pixels.
 %
-%
-% Re  #928 fix this
-%fid = obj.get_new_handle();
 
 for i = 1:obj.n_pages
     obj.page_num = i;
@@ -35,12 +32,7 @@ for i = 1:obj.n_pages
     [obj.signal, obj.variance] = ...
         sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
 
-% Re  #928 fix this
-%    obj.format_dump_data(fid);
-
 end
-% Re  #928 fix this
-%obj.finalise(fid);
 
 end
 
@@ -63,7 +55,7 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 for i = 1:obj.n_pages
-    obj.load_page(i);
+    obj.page_num = i;
     npix_for_page = npix_chunks{i};
     idx = idxs(:, i);
 

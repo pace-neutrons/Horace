@@ -30,28 +30,26 @@ function pix_out = mask(obj, mask_array, varargin)
 % -------
 % pix_out      A PixelData object containing only non-masked pixels.
 %
-if nargout ~= 1
-    error('PIXELDATA:mask', ['Bad number of output arguments.\n''mask'' must be ' ...
-        'called with exactly one output argument.']);
-end
 
 [mask_array, npix] = validate_input_args(obj, mask_array, varargin{:});
 
-if numel(mask_array) == obj.num_pixels && all(mask_array)
+all_specified = numel(mask_array) == obj.num_pixels;
+
+if all_specified && all(mask_array)
     pix_out = obj;
-    return;
-elseif numel(mask_array) == obj.num_pixels && ~any(mask_array)
+
+elseif all_specified && ~any(mask_array)
     pix_out = PixelDataBase.create();
-    return;
-end
 
-if numel(mask_array) == obj.num_pixels
-
+elseif all_specified
     pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array);
 
 elseif ~isempty(npix)
-
     pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix);
+
+else
+    error('HORACE:MASK:invalid_argument', ...
+          'Mask must speciify all pixels or be compatible with npix array');
 
 end
 
@@ -66,7 +64,7 @@ pix_out = PixelDataFileBacked();
 fid = pix_out.get_new_handle();
 
 for i = 1:obj.n_pages
-    obj.load_page(i);
+    obj.page_num = i;
     [start_idx, end_idx] = obj.get_page_idx_(i);
     mask_array_chunk = mask_array(start_idx:end_idx);
 
@@ -122,28 +120,30 @@ mask_array = parser.Results.mask_array;
 npix = parser.Results.npix;
 
 if numel(mask_array) ~= obj.num_pixels && isempty(npix)
-    error('PIXELDATA:mask', ...
-        ['Error masking pixel data.\nThe input mask_array must have ' ...
-        'number of elements equal to the number of pixels or must ' ...
-        ' be accompanied by the npix argument. Found ''%i'' ' ...
-        'elements, ''%i'' or ''%i'' elements required.'], ...
-        numel(mask_array), obj.num_pixels, obj.page_size);
+    error('HORACE:mask:invalid_argument', ...
+          ['Error masking pixel data.\nThe input mask_array must have ' ...
+           'number of elements equal to the number of pixels or must ' ...
+           ' be accompanied by the npix argument. Found ''%i'' ' ...
+           'elements, ''%i'' or ''%i'' elements required.'], ...
+          numel(mask_array), obj.num_pixels, obj.page_size);
+
 elseif ~isempty(npix)
     if any(numel(npix) ~= numel(mask_array))
-        error('PIXELDATA:mask', ...
-            ['Number of elements in mask_array and npix must be equal.' ...
-            '\nFound %i and %i elements'], numel(mask_array), numel(npix));
+        error('HORACE:mask:invalid_argument', ...
+              ['Number of elements in mask_array and npix must be equal.\n' ...
+               'Found %i and %i elements'], numel(mask_array), numel(npix));
     elseif sum(npix, 'all') ~= obj.num_pixels
-        error('PIXELDATA:mask', ...
-            ['The sum of npix must be equal to number of pixels.\n' ...
-            'Found sum(npix) = %i, %i pixels required.'], ...
-            sum(npix, 'all'), obj.num_pixels);
+          error('HORACE:mask:invalid_argument', ...
+                ['The sum of npix must be equal to number of pixels.\n' ...
+                 'Found sum(npix) = %i, %i pixels required.'], ...
+                sum(npix, 'all'), obj.num_pixels);
     end
 end
 
 if ~isvector(mask_array)
     mask_array = mask_array(:);
 end
+
 if ~isa(mask_array, 'logical')
     mask_array = logical(mask_array);
 end

@@ -8,8 +8,10 @@ function obj=set_raw_fields_(obj, data,pix_fields, varargin)
 % Examples:
 % ---------
 %
+% Set all 'signal' and 'variance' to 1
+%   >> obj.set_data({'signal', 'variance'}, ones(2, 1));
 % Set the first 100 pixels' signal and variance to zero
-%   >> set_data({'signal', 'variance'}, zeros(2, 100), 1:100);
+%   >> obj.set_data({'signal', 'variance'}, zeros(2, 100), 1:100);
 %
 % Input:
 % ------
@@ -18,26 +20,25 @@ function obj=set_raw_fields_(obj, data,pix_fields, varargin)
 % abs_pix_indices  The indices to set data on. If not specified all indices are
 %                  updated and 'size(data, 2)' must equal to obj.num_pixels.
 %
-if nargin == 2
+
+if ~exist('pix_fields', 'var')
     pix_fields = 'all';
 end
-NO_INPUT_INDICES = -1;
 
 [field_indices, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, varargin{:});
 
 mmf = obj.f_accessor_;
-if abs_pix_indices == NO_INPUT_INDICES
-    if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && ...
-            ischar(pix_fields) && strcmp(pix_fields,'all')
-        mmf.Data.data(field_indices,abs_pix_indices) = single(data);
+if abs_pix_indices == obj.NO_INPUT_INDICES
+
+    if size(data, 2) == 1
+        mmf.Data.data(field_indices,:) = single(data);
     else
         ind = 1:size(data,2);
         mmf.Data.data(field_indices,ind) = single(data);
     end
+
 else
     mmf.Data.data(field_indices,abs_pix_indices) = single(data);
 end
 
 end  % function
-
-% -----------------------------------------------------------------------------

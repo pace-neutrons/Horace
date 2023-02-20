@@ -62,7 +62,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             %modify_pix_ranges(test_sqw_file_full_path);
             obj.tst_sqw_file_full_path = test_sqw_file_full_path;
-
             % Construct an object from raw data
             obj.pixel_data_obj = PixelDataBase.create(obj.raw_pix_data);
             % Construct an object from a file
@@ -72,9 +71,8 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             obj.pix_data_from_faccess = PixelDataFileBacked(f_accessor);
             % Construct an object from file accessor with small page size
 
-
         end
-        %
+
         function delete(obj)
             warning(obj.warning_cache);
         end
@@ -246,7 +244,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             end
 
             f = @() (set_coordinates(new_coord_data));
-            assertExceptionThrown(f, 'HORACCE:PixelDataBase:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_error_raised_if_setting_coordinates_with_wrong_num_cols(obj)
@@ -259,7 +257,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             new_coord_data = ones(3, num_rows);
             f = @() set_coordinates(new_coord_data);
-            assertExceptionThrown(f, 'HORACCE:PixelDataBase:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_PixelData_object_with_underlying_data_is_not_empty(obj)
@@ -297,7 +295,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             pix_data_obj = PixelDataBase.create();
             data = zeros(4,1);
             f = @()set_fields(pix_data_obj,data,'all');
-            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
 
         end
 
@@ -322,13 +320,13 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(pixel_data_obj_copy.data, obj.pixel_data_obj.data);
         end
 
-        function test_get_data_returns_coordinates_for_given_index_range(obj)
+        function test_get_fields_returns_coordinates_for_given_index_range(obj)
             pix_data_obj = obj.get_random_pix_data_(10);
             coords = pix_data_obj.get_fields({'coordinates'}, 2:6);
             assertEqual(coords, pix_data_obj.coordinates(:, 2:6));
         end
 
-        function test_get_data_returns_multiple_fields_for_given_index_range(obj)
+        function test_get_fields_returns_multiple_fields_for_given_index_range(obj)
             pix_data_obj = obj.get_random_pix_data_(10);
             coord_sig = pix_data_obj.get_fields({'coordinates', 'signal'}, 4:9);
             expected_coord_sig = [pix_data_obj.coordinates(:, 4:9); ...
@@ -336,28 +334,30 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(coord_sig, expected_coord_sig);
         end
 
-        function test_get_data_returns_full_pixel_range_if_no_range_given(obj)
+        function test_get_fields_returns_full_pixel_range_if_no_range_given(obj)
             pix_data_obj = obj.get_random_pix_data_(10);
             coord_sig = pix_data_obj.get_fields({'coordinates', 'signal'});
             expected_coord_sig = [pix_data_obj.coordinates; pix_data_obj.signal];
             assertEqual(coord_sig, expected_coord_sig);
         end
 
-        function test_get_data_allows_data_retrieval_for_single_field(obj)
+        function test_get_fields_allows_data_retrieval_for_single_field(obj)
             for i = 1:numel(obj.pix_fields)
                 field_data = obj.pixel_data_obj.get_fields(obj.pix_fields{i});
                 assertEqual(field_data, obj.pixel_data_obj.(obj.pix_fields{i}));
             end
         end
 
-        function test_get_data_throws_PixelData_on_non_valid_field_name(obj)
+        function test_get_fields_throws_PixelData_on_non_valid_field_name(obj)
             f = @() obj.pixel_data_obj.get_fields('not_a_field');
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
 
-        function test_get_data_orders_columns_corresponding_to_input_cell_array(obj)
+        function test_get_fields_orders_columns_by_input_cell_array(obj)
             pix_data_obj = obj.get_random_pix_data_(10);
+
             data_subset = pix_data_obj.get_fields({'detector_idx', 'signal', 'run_idx'});
+
             assertEqual(data_subset(1, :), pix_data_obj.detector_idx);
             assertEqual(data_subset(2, :), pix_data_obj.signal);
             assertEqual(data_subset(3, :), pix_data_obj.run_idx);
@@ -456,23 +456,21 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(obj.pix_data_from_file.page_size, expected_page_size);
         end
 
-        function test_calling_getter_returns_data_for_single_page(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = rand(9, 30);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data);
-            assertEqual(size(pix.signal), [1, pix.page_size]);
-            assertElementsAlmostEqual(pix.signal, data(8, 1:11),'relative',obj.tol);
-        end
+%         function test_calling_getter_returns_data_for_single_page(obj)
+%             data = rand(9, 30);
+%             npix_in_page = 11;
+%             pix = obj.get_pix_with_fake_faccess(data);
+%             assertEqual(size(pix.signal), [1, pix.page_size]);
+%             assertElementsAlmostEqual(pix.signal, data(8, 1:11),'relative',obj.tol);
+%         end
 
-        function test_calling_get_data_returns_data_for_single_page(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = rand(9, 30);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data);
-            sig_var = pix.get_data({'signal', 'variance'}, 3:8);
-            assertElementsAlmostEqual(sig_var, data(8:9, 3:8),'relative',obj.tol);
-        end
+%         function test_calling_get_fields_returns_data_for_single_page(obj)
+%             data = rand(9, 30);
+%             npix_in_page = 11;
+%             pix = obj.get_pix_with_fake_faccess(data);
+%             sig_var = pix.get_fields({'signal', 'variance'}, 3:8);
+%             assertElementsAlmostEqual(sig_var, data(8:9, 3:8),'relative',obj.tol);
+%         end
 
         function test_data_values_are_not_affected_by_changes_in_copies(~)
             n_rows = 5;
@@ -483,57 +481,52 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(p1.u1, ones(1, n_rows));
         end
 
-        function test_number_of_pixels_in_page_matches_memory_usage_size(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = rand(9, 30);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data);
-            pix.u1;
-            assertEqual(size(pix.data, 2), npix_in_page);
-        end
+%         function test_number_of_pixels_in_page_matches_memory_usage_size(obj)
+%             data = rand(9, 30);
+%             npix_in_page = 11;
+%             pix = obj.get_pix_with_fake_faccess(data);
+%             pix.u1;
+%             assertEqual(size(pix.data, 2), npix_in_page);
+%         end
 
-        function test_has_more_true_if_there_are_subsequent_pixels_in_file(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = rand(9, 12);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data);
-            assertTrue(pix.has_more());
-        end
+%         function test_has_more_true_if_there_are_subsequent_pixels_in_file(obj)
+%             data = rand(9, 12);
+%             npix_in_page = 11;
+%             pix = obj.get_pix_with_fake_faccess(data);
+%             assertTrue(pix.has_more());
+%         end
+%
+%         function test_has_more_false_if_all_data_in_page(obj)
+%             data = rand(9, 11);
+%             npix_in_page = 11;
+%             pix = obj.get_pix_with_fake_faccess(data);
+%             assertFalse(pix.has_more());
+%         end
+%
+%         function test_has_more_false_if_all_data_created_in_memory(~)
+%             data = rand(9, 30);
+%             pix = PixelDataMemory(data);
+%             assertFalse(pix.has_more());
+%         end
 
-        function test_has_more_false_if_all_data_in_page(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = rand(9, 11);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data);
-            assertFalse(pix.has_more());
-        end
+%         function test_advance_raises_PixelData_if_at_end_of_data(obj)
+%             npix = 30;
+%             data = rand(9, npix);
+%             npix_in_page = 11;
+%             pix = obj.get_pix_with_fake_faccess(data);
+%
+%             f = @() obj.advance_pix(pix, floor(npix/npix_in_page + 1));
+%             assertExceptionThrown(f, 'PIXELDATA:move_to_page');
+%         end
 
-        function test_has_more_false_if_all_data_created_in_memory(~)
-            data = rand(9, 30);
-            pix = PixelDataMemory(data);
-            assertFalse(pix.has_more());
-        end
-
-        function test_advance_raises_PixelData_if_at_end_of_data(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            npix = 30;
-            data = rand(9, npix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data);
-
-            f = @() obj.advance_pix(pix, floor(npix/npix_in_page + 1));
-            assertExceptionThrown(f, 'PIXELDATA:move_to_page');
-        end
-
-        function test_advance_while_loop_to_sum_signal_data(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_loop_to_sum_signal_data(obj)
             data = randi([0, 99], 9, 30);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data);
 
-            signal_sum = sum(pix.signal);
-            while pix.has_more()
-                pix.advance();
+            signal_sum = 0;
+            for i = 1:pix.num_pages
+                pix.page_num = i;
                 signal_sum = signal_sum + sum(pix.signal);
             end
 
@@ -550,25 +543,23 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(pix.page_size, 0);
         end
 
-        function test_constructing_from_PixelData_with_valid_file_inits_faccess(obj)
-            skipTest('Re #928 Should we allow filebacked creation from input data')
-            new_pix = PixelDataFileBacked(obj.pix_data_small_page);
-            assertEqual(new_pix.file_path, obj.tst_sqw_file_full_path);
-            assertEqual(new_pix.num_pixels, obj.pix_data_small_page.num_pixels);
-            assertEqual(new_pix.signal, obj.pix_data_small_page.signal);
-            assertTrue(new_pix.has_more());
-        end
+%         function test_constructing_from_PixelData_with_valid_file_inits_faccess(obj)
+%             new_pix = PixelDataFileBacked(obj.pix_data_small_page);
+%             assertEqual(new_pix.file_path, obj.tst_sqw_file_full_path);
+%             assertEqual(new_pix.num_pixels, obj.pix_data_small_page.num_pixels);
+%             assertEqual(new_pix.signal, obj.pix_data_small_page.signal);
+%             assertTrue(new_pix.has_more());
+%         end
 
-        function test_move_to_first_page_resets_to_first_page_in_file(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = rand(9, 30);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data);
-            pix.advance();
-            assertElementsAlmostEqual(pix.u1, data(1, 12:22),'relative',obj.tol);  % currently on the second page
-            pix.move_to_first_page();
-            assertElementsAlmostEqual(pix.u1, data(1, 1:11),'relative',obj.tol);  % should be back to the first page
-        end
+%         function test_move_to_first_page_resets_to_first_page_in_file(obj)
+%             data = rand(9, 30);
+%             npix_in_page = 11;
+%             pix = obj.get_pix_with_fake_faccess(data);
+%             pix.advance();
+%             assertElementsAlmostEqual(pix.u1, data(1, 12:22),'relative',obj.tol);  % currently on the second page
+%             pix.move_to_first_page();
+%             assertElementsAlmostEqual(pix.u1, data(1, 1:11),'relative',obj.tol);  % should be back to the first page
+%         end
 
         function test_move_to_first_page_keeps_data_if_pix_not_file_backed(obj)
             pix = obj.get_random_pix_data_(30);
@@ -578,7 +569,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_instance_has_page_size_after_construction(~)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             data = rand(9, 10);
             faccess = FakeFAccess(data);
             pix = PixelDataBase.create(faccess);
@@ -586,7 +576,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_editing_a_field_loads_page(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             data = rand(9, 10);
             faccess = FakeFAccess(data);
             for i = 1:numel(obj.pix_fields)
@@ -596,119 +585,127 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             end
         end
 
-        function test_setting_file_backed_pixels_preserves_changes_after_advance(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = rand(9, 30);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data);
+%         function test_setting_file_backed_pixels_preserves_changes_after_advance(obj)
+%             data = rand(9, 30);
+%             npix_in_page = 11;
+%             pix = obj.get_pix_with_fake_faccess(data);
+%
+%             pix.move_to_first_page();
+%             pix.u1 = 1;  % sets page 1 of u1 to all ones
+%             pix.dump_all_pixels_(); % Save changes
+%             pix.move_to_page(2);  % move to second page
+%             assertElementsAlmostEqual(pix.u1, data(1, (npix_in_page + 1):(2*npix_in_page)),...
+%                 'relative',obj.tol);
+%
+%             pix.move_to_page(1);
+%             assertEqual(pix.u1, ones(1, npix_in_page),'relative',obj.tol);
+%         end
 
-            pix.move_to_first_page();
-            pix.u1 = 1;  % sets page 1 of u1 to all ones
-            pix.dump_all_pixels_(); % Save changes
-            pix.move_to_page(2);  % move to second page
-            assertElementsAlmostEqual(pix.u1, data(1, (npix_in_page + 1):(2*npix_in_page)),...
-                'relative',obj.tol);
+%         function test_dirty_pix_tmp_files_are_deleted_when_pix_out_of_scope(obj)
+%             old_rng_state = rng();
+%             clean_up = onCleanup(@() rng(old_rng_state));
+%             fixed_seed = 774015;
+%             rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 53801
+%             expected_tmp_file = fullfile( ...
+%                 get(parallel_config, 'working_directory'), ...
+%                 'sqw_pix538011426.tmp_sqw' ...
+%                 );
+%
+%             function do_pix_creation_and_delete()
+%                 data = rand(9, 30);
+%
+%                 pix = obj.get_pix_with_fake_faccess(data);
+%
+%                 pix.u1 = 1;
+%                 assertTrue( ...
+%                     is_file(expected_tmp_file), ...
+%                     sprintf('Temp file ''%s'' not created', expected_tmp_file) ...
+%                     );
+%             end
+%
+%             do_pix_creation_and_delete();
+%             pause(0.2)  % let the file system catch up
+%             assertFalse(is_file(expected_tmp_file), ...
+%                 'Temp file not deleted');
+%         end
 
-            pix.move_to_page(1);
-            assertEqual(pix.u1, ones(1, npix_in_page),'relative',obj.tol);
-        end
-
-        function test_dirty_pix_tmp_files_are_deleted_when_pix_out_of_scope(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            old_rng_state = rng();
-            clean_up = onCleanup(@() rng(old_rng_state));
-            fixed_seed = 774015;
-            rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 53801
-            expected_tmp_file = fullfile( ...
-                get(parallel_config, 'working_directory'), ...
-                'sqw_pix538011426.tmp_sqw' ...
-                );
-
-            function do_pix_creation_and_delete()
-                data = rand(9, 30);
-
-                pix = obj.get_pix_with_fake_faccess(data);
-
-                pix.u1 = 1;
-                pix.dump_all_pixels_();  % creates tmp file
-                assertTrue( ...
-                    is_file(expected_tmp_file), ...
-                    sprintf('Temp file ''%s'' not created', expected_tmp_file) ...
-                    );
-            end
-
-            do_pix_creation_and_delete();
-            pause(0.2)  % let the file system catch up
-            assertFalse(is_file(expected_tmp_file), ...
-                'Temp file not deleted');
-        end
-
-        function test_set_all_prop_sets(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_set_fields_sets_all(obj)
             data = zeros(9, 30);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data);
 
             % set all u1 values in each page to 1
-            pix.set_all_prop('u1', 1);
+            pix.set_fields(1, 'u1');
 
             % check all u1 values are 1
-            for i = 1:pix.n_pages
-                pix.move_to_page(i);
+            for i = 1:pix.num_pages
+                pix.page_num = i;
                 assertEqual(pix.u1, ones(1, pix.page_size));
             end
         end
 
-        function test_correct_values_returned_with_mix_of_clean_and_dirty_pages(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_set_fields_with_nonscalar_data_sets_Ndata(obj)
             data = zeros(9, 30);
-
+            npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data);
 
-            % set coordinates of page 1 and 3 to all ones
-            pix.u1 = 1;
-            pix.dump_all_pixels_();
-            pix.move_to_page(3);
-            pix.u1 = 1;
-            pix.dump_all_pixels_();
+            % set all u1 values in each page to 1
+            pix.set_fields(1, 'u1');
 
-            pix.move_to_first_page();
-
-            assertEqual(pix.u1, ones(1, pix.page_size));
-            pix.advance();
-            assertEqual(pix.u1, zeros(1, pix.page_size));
-            pix.advance();
-            assertEqual(pix.u1, ones(1, pix.page_size));
-        end
-
-        function test_you_cannot_set_page_of_data_with_smaller_sized_array(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = zeros(9, 30);
-            pix = obj.get_pix_with_fake_faccess(data);
-
-            function set_pix(data)
-                pix.data = data;
+            % check all u1 values are 1
+            for i = 1:pix.num_pages
+                pix.page_num = i;
+                assertEqual(pix.u1, ones(1, pix.page_size));
             end
-
-            f = @() set_pix(ones(9, 10));
-            assertExceptionThrown(f, 'MATLAB:incorrectSize');
         end
 
-        function test_you_cannot_set_page_of_data_with_larger_sized_array(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = zeros(9, 30);
-            pix = obj.get_pix_with_fake_faccess(data);
 
-            function set_pix(data)
-                pix.data = data;
-            end
+%         function test_correct_values_returned_with_mix_of_clean_and_dirty_pages(obj)
+%             data = zeros(9, 30);
+%
+%             pix = obj.get_pix_with_fake_faccess(data);
+%
+%             % set coordinates of page 1 and 3 to all ones
+%             pix.u1 = 1;
+%             pix.dump_all_pixels_();
+%             pix.move_to_page(3);
+%             pix.u1 = 1;
+%             pix.dump_all_pixels_();
+%
+%             pix.move_to_first_page();
+%
+%             assertEqual(pix.u1, ones(1, pix.page_size));
+%             pix.advance();
+%             assertEqual(pix.u1, zeros(1, pix.page_size));
+%             pix.advance();
+%             assertEqual(pix.u1, ones(1, pix.page_size));
+%         end
 
-            f = @() set_pix(ones(9, 20));
-            assertExceptionThrown(f, 'MATLAB:incorrectSize');
-        end
+%         function test_you_cannot_set_page_of_data_with_smaller_sized_array(obj)
+%             data = zeros(9, 30);
+%             pix = obj.get_pix_with_fake_faccess(data);
+%
+%             function set_pix(data)
+%                 pix.data = data;
+%             end
+%
+%             f = @() set_pix(ones(9, 10));
+%             assertExceptionThrown(f, 'MATLAB:incorrectSize');
+%         end
+%
+%         function test_you_cannot_set_page_of_data_with_larger_sized_array(obj)
+%             data = zeros(9, 30);
+%             pix = obj.get_pix_with_fake_faccess(data);
+%
+%             function set_pix(data)
+%                 pix.data = data;
+%             end
+%
+%             f = @() set_pix(ones(9, 20));
+%             assertExceptionThrown(f, 'MATLAB:incorrectSize');
+%         end
 
         function test_num_pixels_is_a_double_if_faccess_returns_uint(~)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             npix = 30;
             data = rand(9, npix);
             faccess = FakeFAccess(data);
@@ -727,7 +724,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_copy_on_same_page_as_original_when_more_than_1_page(obj)
-            skipTest('Re #928 Should we allow writable PixelDataFileBacked?')
             pix_original = PixelDataBase.create(obj.tst_sqw_file_full_path);
             pix_original.signal = 1;
             pix_original.advance();
@@ -875,126 +871,132 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_pixels_read_correctly_if_final_pg_has_1_pixel(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = rand(9, 10);
+            data = rand(9, 13);
             npix_in_page = 3;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
-            assertElementsAlmostEqual(pix.data, data(:, 1:3),'relative',obj.tol);
-            pix.advance();
-            assertElementsAlmostEqual(pix.data, data(:, 4:6),'relative',obj.tol);
-            pix.advance();
-            assertElementsAlmostEqual(pix.data, data(:, 7:9),'relative',obj.tol);
-            pix.advance();
-            assertElementsAlmostEqual(pix.data, data(:, 10),'relative',obj.tol);
+            warning('off', 'HOR_CONFIG:set_mem_chunk_size');
+            clobW = onCleanup(@() warning('on', 'HOR_CONFIG:set_mem_chunk_size'));
+            hc = hor_config;
+            mch_sz = hc.mem_chunk_size;
+            hc.mem_chunk_size = npix_in_page;
+            clob = onCleanup(@()set(hc, 'mem_chunk_size', mch_sz));
+
+            pix = obj.get_pix_with_fake_faccess(data);
+
+            for i = 1:pix.num_pages
+                pix.page_num = i;
+                pix_idx_start = (i-1)*npix_in_page+1;
+                pix_idx_end = min(pix_idx_start + npix_in_page - 1, pix.num_pixels);
+                assertElementsAlmostEqual(pix.data, ...
+                                          data(:, pix_idx_start:pix_idx_end), ...
+                                          'relative',obj.tol);
+
+            end
         end
 
+%         function test_you_can_append_to_partially_full_PixelData_page(obj)
+%             skipTest('Re #928 This is questionable test for allow pixel modification in-place')
+%
+%             npix_in_page = 11;
+%             nexisting_pix = 5;
+%             existing_data = rand(9, nexisting_pix);
+%             pix = PixelDataFileBacked(existing_data, npix_in_page);
+%             minmax = obj.get_ref_range(existing_data);
+%             assertEqual(pix.pix_range,minmax);
+%
+%             data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
+%             pix_to_append = PixelDataFileBacked(data);
+%             assertEqual(pix_to_append.pix_range,ones(2,4));
+%             minmax(2,:) = ones(1,4);
+%
+%             pg_offset = npix_in_page - nexisting_pix;
+%             expected_pg_1_data = horzcat(existing_data, data(:, 1:pg_offset));
+%             expected_pg_2_data = data(:, (pg_offset + 1):end);
+%
+%             pix.append(pix_to_append);
+%             assertEqual(pix.pix_range,minmax, '', obj.tol);
+%
+%             pix.move_to_first_page();
+%             assertEqual(pix.data, expected_pg_1_data, '', obj.tol);
+%
+%             pix.advance();
+%             assertEqual(pix.data, expected_pg_2_data, '', obj.tol);
+%             assertEqual(pix.pix_range,minmax, '', obj.tol);
+%         end
 
-        function test_you_can_append_to_partially_full_PixelData_page(obj)
-            skipTest('Re #928 This is questionable test for allow pixel modification in-place')
-
-            npix_in_page = 11;
-            nexisting_pix = 5;
-            existing_data = rand(9, nexisting_pix);
-            pix = PixelDataFileBacked(existing_data, npix_in_page);
-            minmax = obj.get_ref_range(existing_data);
-            assertEqual(pix.pix_range,minmax);
-
-            data = ones(obj.NUM_COLS_IN_PIX_BLOCK, npix_in_page);
-            pix_to_append = PixelDataFileBacked(data);
-            assertEqual(pix_to_append.pix_range,ones(2,4));
-            minmax(2,:) = ones(1,4);
-
-            pg_offset = npix_in_page - nexisting_pix;
-            expected_pg_1_data = horzcat(existing_data, data(:, 1:pg_offset));
-            expected_pg_2_data = data(:, (pg_offset + 1):end);
-
-            pix.append(pix_to_append);
-            assertEqual(pix.pix_range,minmax, '', obj.tol);
-
-            pix.move_to_first_page();
-            assertEqual(pix.data, expected_pg_1_data, '', obj.tol);
-
-            pix.advance();
-            assertEqual(pix.data, expected_pg_2_data, '', obj.tol);
-            assertEqual(pix.pix_range,minmax, '', obj.tol);
-        end
-
-
-        function test_error_if_append_called_with_non_PixelData_object(~)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_error_if_append_called(~)
             pix = PixelDataFileBacked(rand(9, 1));
             f = @() pix.append(rand(9, 1));
-            assertExceptionThrown(f, 'PIXELDATA:append:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:not_implemented');
         end
 
-        function test_append_does_not_edit_calling_instance_if_nargout_eq_1(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = rand(9, 30);
-            npix_in_page = 11;
-            [pix,pix_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            pix_to_append = PixelDataFileBacked(rand(9, 5));
+%         function test_append_does_not_edit_calling_instance_if_nargout_eq_1(obj)
+%             skipTest('Re #928 concept of fake_faccess needs clarification')
+%             data = rand(9, 30);
+%             npix_in_page = 11;
+%             [pix,pix_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+%             pix_to_append = PixelDataFileBacked(rand(9, 5));
+%
+%             [~] = pix.append(pix_to_append);
+%             assertElementsAlmostEqual(pix.pix_range,pix_range,'relative',obj.tol);
+%
+%             assertEqual(pix.num_pixels, size(data, 2));
+%             pix_data = pix.get_all_prop('all');
+%             assertElementsAlmostEqual(pix_data, data,'relative',obj.tol);
+%         end
 
-            [~] = pix.append(pix_to_append);
-            assertElementsAlmostEqual(pix.pix_range,pix_range,'relative',obj.tol);
+%         function test_append_returns_edited_pix_if_nargout_eq_1(obj)
+%             skipTest('Re #928 test for filebased pix_range. Has a problem')
+%             pix = PixelDataFileBacked(obj.tst_sqw_file_full_path);
+%             range1 = pix.pix_range;
+%             npix_to_append = 5;
+%             pix_to_append = PixelDataFileBacked(rand(9, npix_to_append));
+%             range2 =  pix_to_append.pix_range;
+%             ref_range = [min(range1(1,:),range2(1,:));...
+%                 max(range1(2,:),range2(2,:))];
+%             out_pix = pix.append(pix_to_append);
+%             % img_db_range, stored in the file is different from
+%             % pix(min/max)
+%             assertEqual(ref_range,out_pix.pix_range);
+%
+%             assertEqual(out_pix.num_pixels, pix.num_pixels + pix_to_append.num_pixels);
+%             original_pix_data = concatenate_pixel_pages(pix);
+%             out_pix_data = concatenate_pixel_pages(out_pix);
+%             assertEqual(out_pix_data, horzcat(original_pix_data, pix_to_append.data));
+%         end
 
-            assertEqual(pix.num_pixels, size(data, 2));
-            pix_data = pix.get_all_prop('all');
-            assertElementsAlmostEqual(pix_data, data,'relative',obj.tol);
-        end
+%         function test_calling_append_with_empty_pixel_data_does_nothing(~)
+%             skipTest('Re #928 concept of fake_faccess needs clarification')
+%             pix = PixelDataFileBacked(rand(9, 5));
+%             range = pix.pix_range;
+%             pix_to_append = PixelDataFileBacked();
+%             appended_pix = pix.append(pix_to_append);
+%             assertEqual(appended_pix.data, pix.data);
+%             assertEqual(range,pix.pix_range);
+%         end
 
-        function test_append_returns_edited_pix_if_nargout_eq_1(obj)
-            skipTest('Re #928 test for filebased pix_range. Has a problem')
-            pix = PixelDataFileBacked(obj.tst_sqw_file_full_path);
-            range1 = pix.pix_range;
-            npix_to_append = 5;
-            pix_to_append = PixelDataFileBacked(rand(9, npix_to_append));
-            range2 =  pix_to_append.pix_range;
-            ref_range = [min(range1(1,:),range2(1,:));...
-                max(range1(2,:),range2(2,:))];
-            out_pix = pix.append(pix_to_append);
-            % img_db_range, stored in the file is different from
-            % pix(min/max)
-            assertEqual(ref_range,out_pix.pix_range);
-
-            assertEqual(out_pix.num_pixels, pix.num_pixels + pix_to_append.num_pixels);
-            original_pix_data = concatenate_pixel_pages(pix);
-            out_pix_data = concatenate_pixel_pages(out_pix);
-            assertEqual(out_pix_data, horzcat(original_pix_data, pix_to_append.data));
-        end
-
-        function test_calling_append_with_empty_pixel_data_does_nothing(~)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            pix = PixelDataFileBacked(rand(9, 5));
-            range = pix.pix_range;
-            pix_to_append = PixelDataFileBacked();
-            appended_pix = pix.append(pix_to_append);
-            assertEqual(appended_pix.data, pix.data);
-            assertEqual(range,pix.pix_range);
-        end
-
-        function test_copied_pix_that_has_been_appended_to_has_correct_num_pix(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            data = rand(9, 30);
-            pix = PixelDataFileBacked(data);
-            range1 = pix.pix_range;
-            num_appended_pix = 5;
-            pix_to_append = PixelDataFileBacked(rand(9, num_appended_pix));
-            range2 = pix_to_append.pix_range;
-            ref_range = [ ...
-                min(range1(1,:),range2(1,:));...
-                max(range1(2,:),range2(2,:)) ...
-                ];
-
-            pix.append(pix_to_append);
-            assertEqual(ref_range,pix.pix_range, '', obj.tol);
-
-
-            pix_copy = copy(pix);
-            assertEqual(pix.num_pixels, size(data, 2) + num_appended_pix);
-            assertEqual(pix_copy.num_pixels, size(data, 2) + num_appended_pix);
-            assertEqualToTol(ref_range,pix_copy.pix_range, 'reltol', obj.tol);
-        end
+%         function test_copied_pix_that_has_been_appended_to_has_correct_num_pix(obj)
+%             skipTest('Re #928 concept of fake_faccess needs clarification')
+%             data = rand(9, 30);
+%             pix = PixelDataFileBacked(data);
+%             range1 = pix.pix_range;
+%             num_appended_pix = 5;
+%             pix_to_append = PixelDataFileBacked(rand(9, num_appended_pix));
+%             range2 = pix_to_append.pix_range;
+%             ref_range = [ ...
+%                 min(range1(1,:),range2(1,:));...
+%                 max(range1(2,:),range2(2,:)) ...
+%                 ];
+%
+%             pix.append(pix_to_append);
+%             assertEqual(ref_range,pix.pix_range, '', obj.tol);
+%
+%
+%             pix_copy = copy(pix);
+%             assertEqual(pix.num_pixels, size(data, 2) + num_appended_pix);
+%             assertEqual(pix_copy.num_pixels, size(data, 2) + num_appended_pix);
+%             assertEqualToTol(ref_range,pix_copy.pix_range, 'reltol', obj.tol);
+%         end
 
         %         function test_has_more_is_true_after_appending_page_to_non_file_backed(obj)
         %             num_pix = 10;
@@ -1018,7 +1020,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
 
         function test_move_to_page_loads_given_page_into_memory(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+            skipTest('Re #928 need better npix force for testing')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
 
@@ -1037,24 +1039,20 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_move_to_page_throws_if_arg_exceeds_number_of_pages(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
 
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
-            f = @() pix.move_to_page(ceil(num_pix/npix_in_page) + 1);
+            f = @() pix.move_to_page(2);
             assertExceptionThrown(f, 'PIXELDATA:move_to_page');
         end
 
         function test_move_to_page_throws_if_arg_less_than_1(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
 
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             f = @() pix.move_to_page(0);
             assertExceptionThrown(f, 'MATLAB:expectedPositive');
@@ -1064,24 +1062,20 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_move_to_page_throws_if_arg_is_non_scalar(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
 
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             f = @() pix.move_to_page([1, 2]);
             assertExceptionThrown(f, 'MATLAB:expectedScalar');
         end
 
         function test_move_to_page_throws_if_arg_is_not_an_int(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
 
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             f = @() pix.move_to_page(1.5);
             assertExceptionThrown(f, 'MATLAB:expectedInteger');
@@ -1089,15 +1083,14 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
 
         function test_get_pixels_retrieves_data_at_absolute_index(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
+
+            pix = obj.get_pix_with_fake_faccess(data);
 
             start_idx = 9;
             end_idx = 23;
 
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix_chunk = pix.get_pixels(start_idx:end_idx);
             ref_range = obj.get_ref_range(data(:,start_idx:end_idx));
             assertElementsAlmostEqual(pix_chunk.pix_range,ref_range,'relative',obj.tol);
@@ -1106,12 +1099,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_get_pixels_retrieves_correct_data_at_page_boundary(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 10;
 
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
             pix_chunk1 = pix.get_pixels(1:3);
             ref_range = obj.get_ref_range(data(:, 1:3));
 
@@ -1138,12 +1129,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_get_pixels_gets_all_data_if_full_range_requested(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
 
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
             ref_range = obj.get_ref_range(data(:,1:num_pix));
             pix_chunk = pix.get_pixels(1:num_pix);
             assertElementsAlmostEqual(pix_chunk.pix_range,ref_range,...
@@ -1154,11 +1143,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_get_pixels_reorders_output_according_to_indices(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            [pix,ref_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix,ref_range] = obj.get_pix_with_fake_faccess(data);
 
             rand_order = randperm(num_pix);
             shuffled_pix = data(:, rand_order);
@@ -1171,52 +1158,46 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_get_pixels_throws_invalid_arg_if_indices_not_vector(~)
             pix = PixelDataBase.create();
             f = @() pix.get_pixels(ones(2, 2));
-            assertExceptionThrown(f, 'HORACE:PixelDataFilebacked:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_get_pixels_throws_if_range_out_of_bounds(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             idx_array = 25:35;
             f = @() pix.get_pixels(idx_array);
-            assertExceptionThrown(f, 'HORACE:PixelData:get_pixels');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_get_pixels_throws_if_an_idx_lt_1_with_paged_pix(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             idx_array = -1:20;
             f = @() pix.get_pixels(idx_array);
-            assertExceptionThrown(f, 'HORACE:PixelDataFilebacked:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_get_pixels_throws_if_an_idx_lt_1_with_in_memory_pix(~)
             in_mem_pix = PixelDataMemory(5);
             f = @() in_mem_pix.get_pixels(-1:3);
-            assertExceptionThrown(f, 'HORACE:PixelDataFilebacked:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_get_pixels_throws_if_indices_not_positive_int(~)
             pix = PixelDataBase.create();
             idx_array = 1:0.1:5;
             f = @() pix.get_pixels(idx_array);
-            assertExceptionThrown(f, 'HORACE:PixelDataFilebacked:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_paged_pix_get_pixels_can_be_called_with_a_logical(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             logical_array = logical(randi([0, 1], [1, 10]));
             ref_range = obj.get_ref_range(data(:,logical_array));
@@ -1229,24 +1210,20 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_get_pixels_throws_if_logical_1_index_out_of_range(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
             f = @() pix.get_pixels(logical_array);
 
-            assertExceptionThrown(f, 'PIXELDATA:get_pixels');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_get_pixels_ignores_out_of_range_logical_0_indices(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), false);
             pix_out = pix.get_pixels(logical_array);
@@ -1274,11 +1251,9 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_get_pixels_can_handle_repeated_indices(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             idx_array = cat(2, randperm(num_pix), randperm(num_pix));
 
@@ -1301,28 +1276,24 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(pix_chunk.data, data(:, idx_array));
         end
 
-        function test_pg_size_reports_size_of_partially_filled_pg_after_advance(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
-            num_pix = 30;
-            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+%         function test_pg_size_reports_size_of_partially_filled_pg_after_advance(obj)
+%             num_pix = 30;
+%             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
+%             pix = obj.get_pix_with_fake_faccess(data);
+%
+%             assertEqual(pix.page_size, npix_in_page);
+%
+%             pix.advance();
+%             assertEqual(pix.page_size, npix_in_page);
+%
+%             pix.advance();
+%             num_pix_in_final_pg = 8;
+%             assertEqual(pix.page_size, num_pix_in_final_pg);
+%         end
 
-            assertEqual(pix.page_size, npix_in_page);
-
-            pix.advance();
-            assertEqual(pix.page_size, npix_in_page);
-
-            pix.advance();
-            num_pix_in_final_pg = 8;
-            assertEqual(pix.page_size, num_pix_in_final_pg);
-        end
-
-        function test_get_data_returns_data_across_pages_by_absolute_index(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_get_fields_returns_data_across_pages_by_absolute_index(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             indices = [9:13, 20:24];
             sig_var = pix.get_fields({'signal', 'variance'}, indices);
@@ -1332,47 +1303,40 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
                 'relative',obj.tol);
         end
 
-        function test_get_data_retrieves_correct_data_at_page_boundary(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_get_fields_retrieves_correct_data_at_page_boundary(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 10;
 
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
-            %             a = pix.get_data('signal')
-            sig = pix.get_data('signal', 1:3);
+            sig = pix.get_fields('signal', 1:3);
             assertElementsAlmostEqual(sig, data(obj.SIGNAL_IDX, 1:3),...
                 'relative',obj.tol);
 
-            sig2 = pix.get_data('signal', 20);
+            sig2 = pix.get_fields('signal', 20);
             assertElementsAlmostEqual(sig2, data(obj.SIGNAL_IDX, 20),...
                 'relative',obj.tol);
 
-            sig3 = pix.get_data('signal', 1:1);
+            sig3 = pix.get_fields('signal', 1:1);
             assertElementsAlmostEqual(sig3, data(obj.SIGNAL_IDX, 1),...
                 'relative',obj.tol);
         end
 
-        function test_paged_pix_get_data_returns_full_data_range_if_no_idx_arg(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_paged_pix_get_fields_returns_full_data_range_if_no_idx_arg(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
-            var_sig = pix.get_data({'variance', 'signal'});
+            var_sig = pix.get_fields({'variance', 'signal'});
             expected_var_sig = data([obj.VARIANCE_IDX, obj.SIGNAL_IDX], :);
 
             assertElementsAlmostEqual(var_sig, expected_var_sig,...
                 'relative',obj.tol);
         end
 
-        function test_paged_pix_get_data_can_be_called_with_a_logical(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_paged_pix_get_fields_can_be_called_with_a_logical(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             logical_array = logical(randi([0, 1], [1, 10]));
             sig_var = pix.get_fields({'signal', 'variance'}, logical_array);
@@ -1383,28 +1347,24 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
                 'relative',obj.tol);
         end
 
-        function test_get_data_throws_if_logical_1_index_out_of_range(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_get_fields_throws_if_logical_1_index_out_of_range(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
-            f = @() pix.get_data('signal', logical_array);
+            f = @() pix.get_fields('signal', logical_array);
 
-            assertExceptionThrown(f, 'HORACE:PIXELDATA:badsubscript');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
-        function test_get_data_ignores_out_of_range_logical_0_indices(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_get_fields_ignores_out_of_range_logical_0_indices(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), false);
-            var_sig = pix.get_data({'variance', 'signal'}, logical_array);
+            var_sig = pix.get_fields({'variance', 'signal'}, logical_array);
 
             assertElementsAlmostEqual(var_sig, ...
                 data([obj.VARIANCE_IDX, obj.SIGNAL_IDX], logical_array),...
@@ -1412,7 +1372,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
 
-        function test_in_mem_pix_get_data_can_be_called_with_a_logical(obj)
+        function test_in_mem_pix_get_fields_can_be_called_with_a_logical(obj)
             num_pix = 30;
             pix = PixelDataBase.create(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix));
 
@@ -1423,27 +1383,23 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
                 pix.data([obj.SIGNAL_IDX, obj.VARIANCE_IDX], logical_array));
         end
 
-        function test_get_data_can_handle_repeated_indices(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_get_fields_can_handle_repeated_indices(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
-            idx_array = cat(2, randperm(num_pix), randperm(num_pix));
+            idx_array = [10 1 10 10 10];
 
-            sig_run = pix.get_data({'signal', 'run_idx'}, idx_array);
+            sig_run = pix.get_fields({'signal', 'run_idx'}, idx_array);
             assertElementsAlmostEqual(sig_run, data([obj.SIGNAL_IDX, obj.RUN_IDX], idx_array),...
                 'relative',obj.tol);
         end
 
 
-        function test_get_data_reorders_output_according_to_indices(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_get_fields_reorders_output_according_to_indices(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            [pix,pix_range] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix, pix_range] = obj.get_pix_with_fake_faccess(data);
 
             rand_order = randperm(num_pix);
             shuffled_pix = data(:, rand_order);
@@ -1456,61 +1412,43 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
                 'relative',obj.tol);
         end
 
-        function test_get_data_throws_invalid_arg_if_indices_not_vector(~)
+        function test_get_fields_throws_invalid_arg_if_indices_not_vector(~)
             pix = PixelDataBase.create();
             f = @() pix.get_fields('signal', ones(2, 2));
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
 
-        function test_get_data_throws_if_range_out_of_bounds(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_get_fields_throws_if_range_out_of_bounds(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             idx_array = 25:35;
-            f = @() pix.get_data('signal', idx_array);
+            f = @() pix.get_fields('signal', idx_array);
             assertExceptionThrown(f, 'PIXELDATA:get_data');
         end
 
-        function test_get_data_throws_if_an_idx_lt_1_with_paged_pix(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
+        function test_get_fields_throws_if_an_idx_lt_1_with_paged_pix(obj)
             num_pix = 30;
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             idx_array = -1:20;
-            f = @() pix.get_data('signal', idx_array);
+            f = @() pix.get_fields('signal', idx_array);
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
 
-        function test_get_data_throws_if_an_idx_lt_1_with_in_memory_pix(~)
+        function test_get_fields_throws_if_an_idx_lt_1_with_in_memory_pix(~)
             in_mem_pix = PixelDataMemory(5);
             f = @() in_mem_pix.get_fields('signal', -1:3);
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
 
-        function test_get_data_throws_if_indices_not_positive_int(~)
+        function test_get_fields_throws_if_indices_not_positive_int(~)
             pix = PixelDataBase.create();
             idx_array = 1:0.1:5;
             f = @() pix.get_fields('signal', idx_array);
             assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
-        end
-
-        function test_calling_advance_with_nosave_discards_cached_changes(obj)
-            skipTest('Re #928 This does not currently work. Do we actually need this functionality?')
-            data = zeros(9, 30);
-
-            pix = obj.get_pix_with_fake_faccess(data);
-
-            % set all u1 values in each page to 1
-            pix.u1 = 1;
-            pix.advance('nosave', true);  % move to second page
-            pix.move_to_first_page();
-
-            assertEqual(pix.u1, zeros(1, npix_in_page));
         end
 
         function test_set_data_sets_fields_with_given_values(~)
@@ -1544,18 +1482,17 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         end
 
         function test_set_data_sets_fields_with_given_values_pix_filebacked(obj)
-            skipTest('Re #928 concept of fake_faccess needs clarification')
             num_pix = 30;
             data = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
             npix_per_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_per_page);
+            pix = obj.get_pix_with_fake_faccess(data);
 
             new_data = ones(3, 7);
             fields = {'run_idx', 'signal', 'variance'};
             idxs = [4, 3, 9, 24, 29, 10, 11];
             pix.set_fields(new_data,fields,idxs);
 
-            assertEqual(pix.get_data(fields, idxs), new_data);
+            assertEqual(pix.get_fields(fields, idxs), new_data);
 
             % Check other fields/indices unchanged
             non_edited_idxs = 1:pix.num_pixels;
@@ -1570,7 +1507,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             new_data = ones(numel(fields) + 1, 7);
             idxs = [4, 3, 9, 24, 29, 10, 11];
             f = @() pix.set_fields(new_data,fields,  idxs);
-            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_set_data_errors_if_data_ncols_ne_to_num_indices(~)
@@ -1579,7 +1516,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             idxs = [4, 3, 9, 24, 29, 10, 11];
             new_data = ones(numel(fields), numel(idxs) - 1);
             f = @() pix.set_fields(new_data,fields, idxs);
-            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:PixelDataBase:invalid_argument');
         end
 
         function test_set_data_sets_fields_with_given_values_with_logical_idxs(~)
@@ -1611,8 +1548,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
         % -- Helpers --
 
-        function [pix,pix_range] = get_pix_with_fake_faccess(obj, data)
-            faccess = PixelDataFileBacked(data);
+        function [pix,pix_range] = get_pix_with_fake_faccess(obj, data, npix)
+            pix = PixelDataFileBacked(data);
+            pix_range = [min(data(1:4, :), [], 2), ...
+                         max(data(1:4, :), [], 2)]';
         end
 
         function do_pixel_data_loop_with_f(obj, func, data)
@@ -1623,12 +1562,10 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             npix_in_page = 11;
             pix = PixelDataFileBacked(faccess, npix_in_page);
 
-            func(pix, 0)
-            iter = 1;
-            while pix.has_more()
-                pix.advance();
-                func(pix, iter);
-                iter = iter + 1;
+            func(pix, 0);
+            for i = 1:pix.num_pages
+                pix.page_number = i;
+                func(pix, i);
             end
         end
 
