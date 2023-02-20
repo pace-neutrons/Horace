@@ -1,5 +1,5 @@
 function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
-    calc_bin_nodes_(obj,do3D,halo,data_to_density,density_integr_grid,varargin)
+    calc_bin_nodes_(obj,do3D,halo,data_to_density,density_integr_grid,axes_only,varargin)
 % build 3D or 4D vectors, containing all nodes of the axes_block grid,
 % constructed over axes_block axes.
 %
@@ -18,6 +18,8 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %           -- if true, return grid used for integration by summation in
 %              centerpoints, namely, points are in the center of cells and
 %              integration dimensions
+% axes_only -- if true, do not build n-d grid but return only grid points
+%              in each 4 directions
 %
 % Optional:
 % char_cube -- if present, the cube, describing the scale of the grid,
@@ -40,7 +42,7 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %        -- 4-element vector of characteristic sizes of the grid cell in
 %           4 dimensions
 
-noptions = 5; % number of positional arguments always present as inputs (excluding varargin)
+noptions = 6; % number of positional arguments always present as inputs (excluding varargin)
 char_size = parse_inputs(noptions,nargin,varargin{:});
 axes = cell(4,1);
 %
@@ -116,6 +118,14 @@ if data_to_density || density_integr_grid
 end
 
 en_axis  = axes{4};
+if axes_only
+    if do3D
+        nodes = {axes{1},axes{2},axes{3}};
+    else
+        nodes = {axes{1},axes{2},axes{3},axes{4}};
+    end
+    return;
+end
 if do3D
     [Xn,Yn,Zn] = ndgrid(axes{1},axes{2},axes{3});
     En = en_axis;

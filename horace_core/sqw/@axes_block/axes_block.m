@@ -395,11 +395,16 @@ classdef axes_block < serializable
             %              by summation in centerpoints, namely, points
             %              are in the center of cells and integration
             %              dimensions
+            % '-axes_only'
+            %           -- if provided, do not return 3D or 4D grid but
+            %              just return the axes in earh 3 or 4 dimensiond
+            %              (as requested by '-3D' switch)
             % Returns:
             % nodes     -- [4 x nBins] or [3 x nBins] array of points,
             %              (depending on state of '-3D' switch)  where
             %              the coordinate of each point is a node of the
-            %              grid, formed by axes_block axes.
+            %              grid, formed by axes_block axes, or axes_block
+            %              axes if '-axes_only' switch is requested.
             % Optional:
             % dE_edges  -- if '-3D' switch is present, coordinates of the
             %              energy transfer grid, empty if not
@@ -409,8 +414,8 @@ classdef axes_block < serializable
             %        -- 4-element vector of characteristic sizes of the grid cell in
             %           4 dimensions
             %
-            opt = {'-3D','-halo','-data_to_density','-density_integr'};
-            [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,argi] = parse_char_options(varargin,opt);
+            opt = {'-3D','-halo','-data_to_density','-density_integr','-axes_only'};
+            [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,axes_only,argi] = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:axes_block:invalid_argument',mess)
             end
@@ -420,7 +425,7 @@ classdef axes_block < serializable
             end
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 calc_bin_nodes_(obj,do_3D, ...
-                build_halo,data_to_density,density_inegr_grid,argi{:});
+                build_halo,data_to_density,density_inegr_grid,axes_only,argi{:});
         end
         %
         function range = get_binning_range(obj,cur_proj,new_proj)

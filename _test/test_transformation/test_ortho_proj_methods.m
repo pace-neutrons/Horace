@@ -106,7 +106,52 @@ classdef test_ortho_proj_methods<TestCase
 
         end
         %------------------------------------------------------------------
-        function test_binning_range_half_sampe_proj2Drot45_3D_opt_vs4D_generic(~)
+        function test_bin_range_05_samp_proj2Drot45_3D_opt_vs4D_generic_withdE(~)
+            % full 4D transformation with orthogonal dE axis tested against
+            % equivalend 3d+1 transformation. Should give equal results
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1.do_generic = true;
+            proj1.do_3D_transformation = false;
+            proj1.use_old_cut_sub_alg = false;
+
+            dbr = [0,0,0,0;1,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab0 = axes_block(bin0{:});
+            sz = ab0.dims_as_ssize();
+            npix = ones(sz);
+            bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[0.5*(dbr(1,4)+dbr(2,4)),1,dbr(2,4)]};
+            ab1 = axes_block(bin1{:});
+            proj2 = ortho_proj([1,1,0],[1,-1,0]);
+            %
+            proj2.do_generic = true;
+            proj2.do_3D_transformation = false;
+            proj2.use_old_cut_sub_alg = false;
+            %------------------------------------------------------------
+            %
+            [bl_start,bl_size] = proj1.get_nrange(npix,ab0,ab1,proj2);
+            assertEqual(numel(bl_start),numel(bl_size));
+            %------------------------------------------------------------
+            %
+            proj1.do_generic = false;
+            proj1.do_3D_transformation = true;
+            proj1.use_old_cut_sub_alg = false;
+            %
+            proj2.do_generic = false;
+            proj2.do_3D_transformation = true;
+            proj2.use_old_cut_sub_alg = false;
+            %------------------------------------------------------------
+            [bl_startO,bl_sizeO] = proj1.get_nrange(npix,ab0,ab1,proj2);
+            assertEqual(numel(bl_startO),numel(bl_sizeO));
+            %------------------------------------------------------------
+
+            assertEqual(bl_start(8:49),bl_startO);
+            assertEqual(bl_size(8:49),bl_sizeO);
+
+        end
+        
+        function test_binning_range_05_samp_proj2Drot45_3D_opt_vs4D_generic(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalend 3d+1 transformation. Should give equal results
             proj1 = ortho_proj([1,0,0],[0,1,0]);
@@ -251,7 +296,6 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(bl_size_r,bl_size_o)
 
         end
-
         %
         function test_binning_range_half_sampe_proj2D(~)
             proj1 = ortho_proj([1,0,0],[0,1,0]);

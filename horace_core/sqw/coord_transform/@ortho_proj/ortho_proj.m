@@ -144,14 +144,15 @@ classdef ortho_proj<aProjection
             % constructor would take and initiating internal state of the
             % projection class.
             %
-            if nargin <= 1
+            narg = numel(varargin);
+            if narg == 0
                 return
             end
-            if nargin == 2 && (isstruct(varargin{1})||isa(varargin{1},'aProjection'))
-                if isstruct(varargin{1})
+            if narg == 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjection'))
+                if isstruct(varargin{1}) && isfield(varargin{1},'serial_name')
                     obj = serializable.loadobj(varargin{1});
                 else
-                    obj = obj.from_bare_struct(varargin{1});
+                    obj = obj.from_old_struct(varargin{1});
                 end
             else
                 opt =  [ortho_proj.fields_to_save_(:);aProjection.init_params(:)];
@@ -550,16 +551,17 @@ classdef ortho_proj<aProjection
         %
         function proj = get_from_old_data(data_struct,header_av)
             % construct ortho_proj from old style data structure
-            % normally stored in binary
-            % Horace files versions 3 and lower.
-            if nargin == 1
+            % normally stored in binary Horace files versions 3 and lower.
+            %
+            proj = ortho_proj();
+            if ~exist('header_av','var')
                 header_av = [];
             end
-            proj = build_from_old_data_struct_(data_struct,header_av);
+            proj = proj.from_old_struct(data_struct,header_av);
         end
     end
     methods(Access=protected)
-        function obj = from_old_struct(obj,inputs)
+        function obj = from_old_struct(obj,inputs,varargin)
             % Restore object from the old structure, which describes the
             % previous version of the object.
             %
@@ -567,17 +569,14 @@ classdef ortho_proj<aProjection
             % structure does not contain a version or the version, stored
             % in the structure does not correspond to the current version
             % of the class.
-            %
-            % By default, this function interfaces the default from_bare_struct
-            % method, but when the old structure substantially differs from
-            % the modern structure, this method needs the specific overloading
-            % to allow loadobj to recover new structure from an old structure.
-            %
-            %if isfield(inputs,'version') % do checks for previous versions
-            %   Add appropriate code to convert from specific version to
-            %   modern version
-            %end
-            obj = obj.get_from_old_data(inputs);
+
+            if nargin <= 2
+                header_av = [];
+            else
+                header_av = varargin{1};
+            end
+            obj = build_from_old_data_struct_(obj,inputs,header_av);
+            
         end
     end
 end
