@@ -108,6 +108,7 @@ classdef test_combine_pow < TestCaseWithSave
                 psi = [0,0];
                 u=[1,0,0];
                 v=[0,1,0];
+                
                 gen_sqw ({obj.spe_file_1,obj.spe_file_2},obj.par_file, ...
                     sqw_file_tot, obj.efix, 1,...
                     alatt, angdeg, u, v, psi, 0, 0, 0, 0);
@@ -144,11 +145,11 @@ classdef test_combine_pow < TestCaseWithSave
                 angdeg=[90,90,90];
                 u=[1,0,0];
                 v=[0,1,0];
-                gen_sqw (obj.spe_file_1, obj.par_file, sqw_file_2, obj.efix, emode,...
+                gen_sqw (obj.spe_file_1, obj.par_file, sqw_file_2, obj.efix, 1,...
                     alatt, angdeg, u, v, 0, 0, 0, 0, 0);
 
                 % clean up
-                cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_2));
+                %cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_2));
                 
             end
 

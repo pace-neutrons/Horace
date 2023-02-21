@@ -11,45 +11,36 @@ function  contrib_ind = get_contrib_cell_ind_(source_proj,...
 if isempty(targ_proj)
     targ_proj = source_proj.targ_proj;
 end
-% Get the hypercube, which equal to minimal cell of the current grid
-% described by axes_block class.
-ch_cube = cur_axes_block.get_axes_scales();
-% and convert it into the target coordinate system assuming cube originates
-% from the centre of coordinates of the target coordinate system.
 %
-% TODO: investigate, if this is the best solution:
-% Make it half of real size to ensure at least one current grid cell point
-% appears in every grid cell of the target grid
-trans_chcube = 0.49999*source_proj.from_this_to_targ_coord(ch_cube);
-% 0.49999 will give point on edge for 100000 bin -- would never happen in
-% real life
-
-% get all nodes belonging to target axes block, doing the
-% binning with the bin size, slightly smaller then the current
-% lattice size
+% build bin edges for the target grid and bin centers for reference grid
 if source_proj.do_3D_transformation_
-    [bin_nodes,dEnodes] = targ_axes_block.get_bin_nodes(trans_chcube,'-3D','-halo');
-    [~,baseEdges] = cur_axes_block.get_bin_nodes('-3D','-axes_only');
-    n_targ_in_bin = histcounts(dEnodes,baseEdges);
-    may_contribure = n_targ_in_bin>0;
+    [targ_nodes,dEnodes] = targ_axes_block.get_bin_nodes('-3D','-ngrid');
+    [ch_grid,baseEdges]  = cur_axes_block.get_bin_nodes('-density_integr','-3D','-halo');
+    nodes_near = interp1(dEnodes,ones(size(dEnodes)),baseEdges,'linear',0);
+    may_contribure = nodes_near>0;
     if ~any(may_contribure)
         contrib_ind = [];
         return;
     end
 else
-    bin_nodes = targ_axes_block.get_bin_nodes(trans_chcube,'-halo');
+    targ_nodes = targ_axes_block.get_bin_nodes('-ngrid');
+    ch_grid = cur_axes_block.get_bin_nodes('-density_integr','-halo');
 end
-% convert these nodes to the coordinate system, described by
-% the existing projection
-nodes_here = targ_proj.from_this_to_targ_coord(bin_nodes);
-% bin target nodes on the current lattice and return numbers of bins
-% contributed into lattice.
-nbin_in_bin = cur_axes_block.bin_pixels(nodes_here);
-%
-% identify cell indexes containing nodes
+nodes_present = ones(size(targ_nodes{1}));
+% convert the coordinates of the bin centers of the reference grid into 
+% the coordinate system of the target grid.
+conv_grid = source_proj.from_this_to_targ_coord(ch_grid);
+
+% find the presence of the reference grid centers within the target grid
+% cells. 
 if source_proj.do_3D_transformation_
+    interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},nodes_present,...
+        conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)', 'linear',0);
+
     contrib_ind = source_proj.convert_3Dplus1Ind_to_4Dind_ranges(...
-        nbin_in_bin(:)>0,may_contribure);
+        interp_ds(:)>0,may_contribure);
 else
-    contrib_ind = find(nbin_in_bin>0);
+    interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_nodes{4},nodes_present,...
+        conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)',conv_grid(4,:)', 'linear',0);
+    contrib_ind = find(interp_ds > 0);
 end

@@ -5,7 +5,7 @@ classdef ortho_proj<aProjection
     %  Defines coordinate transformations, used by cut_sqw when making
     %  Horace cuts
     %
-    %  Object that defines the orhtolinear projection operations
+    %  Object that defines the ortholinear projection operations
     %
     % Input accepting the structure:
     %   >> proj = ortho_proj(proj_struct)
@@ -32,7 +32,7 @@ classdef ortho_proj<aProjection
     % ------
     % Projection axes are defined by two vectors in reciprocal space, together
     % with optional arguments that control normalisation, orthogonality, labels etc.
-    % The input can be a data structure with fieldnames and contents chosen from
+    % The input can be a data structure with field-names and contents chosen from
     % the arguments below, or alternatively the arguments
     %
     % Required arguments:
@@ -97,8 +97,8 @@ classdef ortho_proj<aProjection
     properties(Hidden)
         % Developers option. Use old (v3 and below) subalgorithm in
         % ortho-ortho transformation to identify cells which may contribute
-        % to a cut. Correct value is choosen on basis of performance analysis
-        use_old_cut_sub_alg=true;
+        % to a cut. Correct value is chosen on basis of performance analysis
+        convert_source_to_targ=true;
     end
 
     properties(Access=protected)
@@ -109,13 +109,13 @@ classdef ortho_proj<aProjection
         type_='ppr'
         %
         % The properties used to optimize from_current_to_targ method
-        % transfromation, if both current and target projections are
+        % transformation, if both current and target projections are
         % ortho_proj
         ortho_ortho_transf_mat_;
         ortho_ortho_offset_;
 
         % inverted ub matrix, used to support alignment as in Horace 3.xxx
-        % as real ub matrix is multiplied by alginment matrix
+        % as real ub matrix is multiplied by alignment matrix
         ub_inv_compat_ = [];
     end
 
@@ -123,7 +123,7 @@ classdef ortho_proj<aProjection
         %------------------------------------------------------------------
         % Interfaces:
         %------------------------------------------------------------------
-        % set u,v & w simulataniously
+        % set u,v & w simultaneously
         obj = set_axes (obj, u, v, w)
         %------------------------------------------------------------------
         function obj=ortho_proj(varargin)
@@ -221,7 +221,7 @@ classdef ortho_proj<aProjection
 
         end
         % -----------------------------------------------------------------
-        % OLD sqw object interface compartibility functions
+        % OLD sqw object interface compatibility functions
         % -----------------------------------------------------------------
         function obj = set_from_data_mat(obj,u_rot,ulen)
             % build correct projection from input u_to_rlu and ulen matrices
@@ -242,7 +242,7 @@ classdef ortho_proj<aProjection
         function obj = set_ub_inv_compat(obj,ub_inv)
             % Set up inverted ub matrix, used to support alignment as in
             % Horace 3.xxx where the real inverted ub matrix is multiplied
-            % by alginment matrix.
+            % by alignment matrix.
             obj.ub_inv_compat_ = ub_inv;
         end
         %------------------------------------------------------------------
@@ -265,7 +265,7 @@ classdef ortho_proj<aProjection
         end
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
-        % and oveloads for speficic methods
+        % and overloads for specific methods
         %------------------------------------------------------------------
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in crystal Cartesian coordinate systems
@@ -274,7 +274,7 @@ classdef ortho_proj<aProjection
             % Input:
             % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
             %             expressed in crystal Cartesian coordinate system
-            %             or instance of PixelDatBase class containign this
+            %             or instance of PixelDatBase class containing this
             %             information.
             % Returns:
             % pix_transformed -- the pixels transformed into coordinate
@@ -344,7 +344,7 @@ classdef ortho_proj<aProjection
     %----------------------------------------------------------------------
     methods(Access = protected)
         function  mat = get_u_to_rlu_mat(obj)
-            % overloadavble accessor for getting value for ub matrix
+            % overloadable accessor for getting value for ub matrix
             % property
             [~, mat] = obj.uv_to_rot();
 
@@ -359,7 +359,7 @@ classdef ortho_proj<aProjection
             if isempty(obj.ortho_ortho_transf_mat_)
                 contrib_ind= get_contrib_cell_ind@aProjection(obj,...
                     cur_axes_block,targ_proj,targ_axes_block);
-            elseif obj.use_old_cut_sub_alg
+            elseif obj.convert_source_to_targ
                 contrib_ind= get_contrib_orthocell_ind_(obj,...
                     cur_axes_block,targ_axes_block);
             else
@@ -369,11 +369,11 @@ classdef ortho_proj<aProjection
         end
         %
         function obj = check_and_set_targ_proj(obj,val)
-            % overloadaed setter for target proj.
+            % overloaded setter for target proj.
             % Input:
             % val -- target projection
             %
-            % sets up target projection as the parrent method.
+            % sets up target projection as the parent method.
             % In addition:
             % sets up matrices, necessary for optimized transformations
             % if both projections are ortho_proj
@@ -507,7 +507,7 @@ classdef ortho_proj<aProjection
     end
     methods(Static)
         function lst = data_sqw_dnd_export_list()
-            % TODO: temporarty method, which define the values to be
+            % TODO: temporary method, which define the values to be
             % extracted from projection to convert to old style data_sqw_dnd
             % class. New data_sqw_dnd class will contain the whole projection
             lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
@@ -544,7 +544,7 @@ classdef ortho_proj<aProjection
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % saveable class
+            % savable class
             obj = ortho_proj();
             obj = loadobj@serializable(S,obj);
         end

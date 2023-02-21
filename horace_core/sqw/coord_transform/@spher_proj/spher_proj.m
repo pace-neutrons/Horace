@@ -44,7 +44,7 @@ classdef spher_proj<aProjection
         function obj=spher_proj(varargin)
             obj = obj@aProjection();
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
-            obj.label = {'\ro','\theta','\phi','En'};
+            obj.label = {'\|Q\|','\theta','\phi','En'};
             if nargin>0
                 return;
             end

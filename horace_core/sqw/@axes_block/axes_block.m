@@ -399,6 +399,8 @@ classdef axes_block < serializable
             %           -- if provided, do not return 3D or 4D grid but
             %              just return the axes in earh 3 or 4 dimensiond
             %              (as requested by '-3D' switch)
+            % '-ngrid'  -- return nodes as cellarray of arrays, produced by
+            %              ngrid function
             % Returns:
             % nodes     -- [4 x nBins] or [3 x nBins] array of points,
             %              (depending on state of '-3D' switch)  where
@@ -414,8 +416,9 @@ classdef axes_block < serializable
             %        -- 4-element vector of characteristic sizes of the grid cell in
             %           4 dimensions
             %
-            opt = {'-3D','-halo','-data_to_density','-density_integr','-axes_only'};
-            [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,axes_only,argi] = parse_char_options(varargin,opt);
+            opt = {'-3D','-halo','-data_to_density','-density_integr','-axes_only','-ngrid'};
+            [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,axes_only,ngrid,argi] ...
+            = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:axes_block:invalid_argument',mess)
             end
@@ -425,7 +428,8 @@ classdef axes_block < serializable
             end
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 calc_bin_nodes_(obj,do_3D, ...
-                build_halo,data_to_density,density_inegr_grid,axes_only,argi{:});
+                build_halo,data_to_density,density_inegr_grid,...
+                axes_only,ngrid,argi{:});
         end
         %
         function range = get_binning_range(obj,cur_proj,new_proj)
