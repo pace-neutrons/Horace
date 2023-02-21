@@ -1,6 +1,19 @@
 function [loop_data, merge_data] = distribute_fit_data(w, nWorkers, split_bins, tobyfit)
-% Split up sqws and divvy xyes in w
-
+% Split up xye structs, IX_Datasets and sqw/dnd objects in w for use in
+% parallel jobs.
+%
+% Inputs
+%
+%  w          : Cell aray of objects to split
+%  nWorkers   : number of workers to distribute data over
+%  split_bins : Whether job is allowed to split bins
+%  tobyfit    : Tobyfit arrays if present ensure workers have stable montecarlo samples
+%
+% Outputs
+%
+%  loop_data  : Distributed data to be sent to workers
+%  merge_Data : extra information for the recombination of data
+%
 loop_data = cell(nWorkers, 1);
 merge_data = arrayfun(@(x) struct('nelem', [], 'nomerge', []), zeros(numel(w), nWorkers));
 
