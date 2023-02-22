@@ -13,8 +13,7 @@ function [fig_handle, axes_handle, plot_handle] = pp(w,varargin)
 
 % Check input arguments
 opt=struct('newplot',false);
-[args,ok,mess,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
-if ~ok, error(mess), end
+[args,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
 
 % Perform plot
 type='p';

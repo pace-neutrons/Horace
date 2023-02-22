@@ -32,8 +32,7 @@ end
 
 % Perform plot
 type='surface2';
-[fig_,axes_,plot_,ok,mess]=plot_twod (data,opt.newplot,type,fig);
-if ~ok, error(mess), end
+[fig_,axes_,plot_]=plot_twod (data,opt.newplot,type,fig);
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

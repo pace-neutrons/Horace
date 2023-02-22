@@ -12,7 +12,7 @@ function [fig_handle, axes_handle, plot_handle] = ps2(w,varargin)
 %                   %     object.
 %
 % Advanced use:
-%   >> ps2(...,'name',fig_name)     % overplot on figure with name = fig_name
+%   >> ps2(...,'name',fig_name)     % Overplot on figure with name = fig_name
 %                                   % or figure with given figure number or handle
 %
 % Differs from ps in that the signal sets the z axis, and the colouring is set by the 
@@ -37,8 +37,7 @@ end
 
 % Perform plot
 type='surface2';
-[fig_,axes_,plot_,ok,mess]=plot_twod (data,opt.newplot,type,fig);
-if ~ok, error(mess), end
+[fig_,axes_,plot_]=plot_twod (data,opt.newplot,type,fig);
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

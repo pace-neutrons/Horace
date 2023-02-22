@@ -9,8 +9,7 @@ function [fig_handle, axes_handle, plot_handle] = peoc(w)
 
 % Check input arguments
 opt=struct('newplot',false,'over_curr',true);
-[args,ok,mess,lims,fig]=genie_figure_parse_plot_args(opt);
-if ~ok, error(mess), end
+[args,lims,fig]=genie_figure_parse_plot_args(opt);
 
 % Perform plot
 type='e';

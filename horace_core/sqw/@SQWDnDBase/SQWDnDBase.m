@@ -38,6 +38,8 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
         %
         wout = func_eval(win, func_handle, pars, varargin);
+        % titles used when plotting an sqw object
+        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=data_plot_titles(obj)
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw

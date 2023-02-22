@@ -153,7 +153,9 @@ classdef test_combine_pow < TestCaseWithSave
             end
 
             w2_1 = cut_sqw(sqw_file_2,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1,'-nopix');
+            plot(w2_1);
             w1_1 = cut_sqw(sqw_file_2,spher_proj,[0,0.05,3],[-pi,pi],[-pi,pi],[40,50],'-nopix');
+            plot(w1_1);            
 
             obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
