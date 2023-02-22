@@ -55,8 +55,13 @@ if isempty(char_size)
     iint_ax = num2cell(obj.iint',2);
     axes(obj.iax) = iint_ax(:);
     npoints_in_axes = obj.nbins_all_dims+1;
+    %iax = false(4,1);
+    %iax(obj.iax) = true;
     if halo
         for i=1:4
+            %       if iax(i) % do not build halo for integration axes
+            %           continue;
+            %       end
             step = abs(axes{i}(2)-axes{i}(1));
             axes{i} = [axes{i}(1)-step,axes{i}(:)',axes{i}(end)+step];
             npoints_in_axes(i)= npoints_in_axes(i)+2;

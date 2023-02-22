@@ -390,14 +390,14 @@ classdef axes_block < serializable
             %           -- if provided, returns grid used to define density,
             %              namely with points located on the grid cell edges +
             %              edges of integrated  dimensions.
-            % '-density_integr'
+            % '-bin_center'
             %           -- if provided, returns grid used for integration
-            %              by summation in centerpoints, namely, points
-            %              are in the center of cells and integration
+            %              by summation in centre-points, namely, points
+            %              are in the centre of cells and integration
             %              dimensions
             % '-axes_only'
             %           -- if provided, do not return 3D or 4D grid but
-            %              just return the axes in earh 3 or 4 dimensiond
+            %              just return the axes in each 3 or 4 dimensions
             %              (as requested by '-3D' switch)
             % '-ngrid'  -- return nodes as cellarray of arrays, produced by
             %              ngrid function
@@ -416,7 +416,7 @@ classdef axes_block < serializable
             %        -- 4-element vector of characteristic sizes of the grid cell in
             %           4 dimensions
             %
-            opt = {'-3D','-halo','-data_to_density','-density_integr','-axes_only','-ngrid'};
+            opt = {'-3D','-halo','-data_to_density','-bin_center','-axes_only','-ngrid'};
             [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,axes_only,ngrid,argi] ...
             = parse_char_options(varargin,opt);
             if ~ok

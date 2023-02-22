@@ -98,7 +98,7 @@ classdef ortho_proj<aProjection
         % Developers option. Use old (v3 and below) subalgorithm in
         % ortho-ortho transformation to identify cells which may contribute
         % to a cut. Correct value is chosen on basis of performance analysis
-        convert_source_to_targ=true;
+        convert_targ_to_source=true;
     end
 
     properties(Access=protected)
@@ -359,7 +359,7 @@ classdef ortho_proj<aProjection
             if isempty(obj.ortho_ortho_transf_mat_)
                 contrib_ind= get_contrib_cell_ind@aProjection(obj,...
                     cur_axes_block,targ_proj,targ_axes_block);
-            elseif obj.convert_source_to_targ
+            elseif obj.convert_targ_to_source
                 contrib_ind= get_contrib_orthocell_ind_(obj,...
                     cur_axes_block,targ_axes_block);
             else

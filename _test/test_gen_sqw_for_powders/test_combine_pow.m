@@ -114,10 +114,10 @@ classdef test_combine_pow < TestCaseWithSave
                     alatt, angdeg, u, v, psi, 0, 0, 0, 0);
 
                 % clean up
-                %cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_tot));                
+                cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_tot));                
             end
-            w2_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1);
-            w1_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,3],[-pi,pi],[-pi,pi],[40,50]);
+            w2_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1,'-nopix');
+            w1_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,3],[-pi,pi],[-pi,pi],[40,50],'-nopix');
 
 
             obj.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
@@ -149,12 +149,11 @@ classdef test_combine_pow < TestCaseWithSave
                     alatt, angdeg, u, v, 0, 0, 0, 0, 0);
 
                 % clean up
-                %cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_2));
-                
+                cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_2));                
             end
 
-            w2_1 = cut_sqw(sqw_file_2,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1);
-            w1_1 = cut_sqw(sqw_file_2,spher_proj,[0,0.05,3],[-pi,pi],[-pi,pi],[40,50]);
+            w2_1 = cut_sqw(sqw_file_2,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1,'-nopix');
+            w1_1 = cut_sqw(sqw_file_2,spher_proj,[0,0.05,3],[-pi,pi],[-pi,pi],[40,50],'-nopix');
 
             obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])

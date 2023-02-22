@@ -9,8 +9,8 @@ function [qspec,en]=calc_qspec_(detdcn,efix,eps,emode)
 %             [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 %   efix    incident energy for direct mode spectrometer or analyser(s)
 %           energy(s) for indirect.
-%   eps     bin centers for energy transfer energies
-%   emode   insrument and q-conversion type (1-direct, 2-indirect 0-
+%   eps     bin centres for energy transfer energies
+%   emode   instrument and q-conversion type (1-direct, 2-indirect 0-
 %            elastic)
 %
 % Output:
