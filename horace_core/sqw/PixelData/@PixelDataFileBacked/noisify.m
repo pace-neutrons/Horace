@@ -29,11 +29,8 @@ function pix_out = noisify(obj, varargin)
 % Output specification determines object copying behaviour.
 % Only perform the operation on a copy if a return argument exists,
 % otherwise perform the operation on obj itself.
-if nargout == 1
-    pix_out = copy(obj);
-else
-    pix_out = obj;
-end
+
+pix_out = obj;
 
 uses_poisson_distribution = (   ...
        nargin==3 ...                            % only 3 args for poisson
@@ -46,7 +43,7 @@ if ~uses_poisson_distribution
     % before applying noisify to the individual pages.
     max_sig = 0;
 
-    for i = 1:pix_out.n_pages
+    for i = 1:pix_out.num_pages
         pix_out.page_num = i;
         max_sig_page = max(abs(pix_out.signal));
         max_sig = max(max_sig, max_sig_page);
@@ -64,14 +61,13 @@ pix_out = pix_out.get_new_handle();
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 
-for i = 1:pix_out.n_pages
-    [obj, data] = load_page(i);
-    [data(s_ind,:), data(v_ind, :)] = noisify( ...
-        pix_out.signal, pix_out.variance, varargin{:});
+for i = 1:pix_out.num_pages
+    [pix_out, data] = pix_out.load_page(i);
+    [data(s_ind,:), data(v_ind, :)] = noisify(pix_out.signal, pix_out.variance, varargin{:});
     pix_out.format_dump_data(data);
 end
-pix_out = pix_out.finalise(fid);
 
+pix_out = pix_out.finalise();
 pix_out = pix_out.recalc_data_range({'signal', 'variance'});
 
 end

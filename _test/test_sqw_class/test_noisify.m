@@ -11,7 +11,6 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
         function obj = test_noisify(~)
             obj = obj@TestCase('test_noisify');
 
-
             % Process the file path
             test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
             obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
@@ -19,7 +18,6 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
         end
 
         function test_noisify_returns_equivalent_sqw_for_paged_pixel_data(obj)
-            skipTest('Re #928 paged noisify should be fixed in the frames of this ticket')
             hc = hor_config;
             dts = hc.get_data_to_store();
             clob = onCleanup(@()set(hc,dts));
@@ -61,9 +59,6 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             %   rng(0);
             a.reset();
             noisy_obj2 = noisify(sqw_obj2,noise_factor,'random_number_function',myrng);
-            %TODO: this is the issue where filebased and memory based
-            %objects are inconsistent. See skipTest operator at the end of
-            %the test.
             sqw_obj1.main_header.nfiles = sqw_obj2.main_header.nfiles;
             sqw_obj1.main_header.creation_date = sqw_obj2.main_header.creation_date;
             sqw_obj1.experiment_info = sqw_obj2.experiment_info;
@@ -86,13 +81,11 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             % checks that image data is updated
             assertFalse(equal_to_tol(sqw_obj1.data.s, noisy_obj1.data.s, 5e-4));
             assertFalse(equal_to_tol(sqw_obj2.data.s, noisy_obj2.data.s, 5e-4));
-            skipTest("TODO: Experiment info and all related stuff in memory sqw has been reduced to contributed files but on file-based objects it has been not")
         end
 
         function test_noisify_adds_gaussian_noise_to_data_with_given_stddev(obj)
-            if ~license('test', 'statistics_toolbox') || ~exist('fitdist', 'file')
-                % fitdist requires the statistics toolbox
-                return;
+            if ~license('test', 'statistics_toolbox') || ~is_file('fitdist')
+                skipTest('Statistics toolbox not available')
             end
             [~, old_rng_state] = seed_rng(0);
             cleanup = onCleanup(@() rng(old_rng_state));
