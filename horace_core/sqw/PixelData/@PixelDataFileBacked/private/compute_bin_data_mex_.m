@@ -18,15 +18,14 @@ if nargin < 3
 
 end
 
-obj=obj.move_to_first_page();
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 
 signal_sum = zeros(1, numel(npix));
 variance_sum = zeros(1, numel(npix));
-page_number = 1;
 
 % Loop over pages of data
-while true
+for page_number = 1:obj.num_pages
+    obj.page_num = page_number;
     npix_for_page = npix_chunks{page_number};
     idx = idxs(:, page_number);
 
@@ -35,12 +34,6 @@ while true
     signal_sum(idx(1):idx(2)) = signal_sum(idx(1):idx(2)) + sig;
     variance_sum(idx(1):idx(2)) = variance_sum(idx(1):idx(2)) + variance;
 
-    if obj.has_more()
-        obj = obj.advance();
-        page_number = page_number + 1;
-    else
-        break
-    end
 end
 
 signal_sum = reshape(signal_sum, size(npix));

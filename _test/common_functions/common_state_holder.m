@@ -6,10 +6,10 @@ classdef common_state_holder < handle
 
     methods
         function obj = common_state_holder()
-            %
+
             count = obj.call_count('+');
             if count == 1
-                % Swallow any warnings for when pixel page size set too small
+                % Ignore any warnings for when pixel page size set too small
                 % and nxspe having old version
                 ws = struct('identifier',...
                     {'HORACE:PixelData:memory_allocation','LOAD_NXSPE:old_version'},...
@@ -25,21 +25,23 @@ classdef common_state_holder < handle
                 addpath(search_path_herbert_shared);
             end
         end
+
         function delete(obj)
             call_count = obj.call_count('-');
             if call_count == 0
                 % clear storage for previous warning state and
                 % return old warning state to the initial state
-                old_warm = obj.store_holder('','old_warn_state');
-                warning(old_warm);
+                old_warn = obj.store_holder('','old_warn_state');
+                warning(old_warn);
                 %
-                % Seemps this path is needed by number of other utilities
+                % Seems this path is needed by number of other utilities
                 % so let's not remove it
                 %search_path_herbert_shared = obj.store_holder('','search_path_herbert_shared');
                 %rmpath(search_path_herbert_shared);
             end
         end
     end
+
     methods (Static)
         function stor_val = store_holder(var_to_store,field_name)
             % provides persistent data storage.
@@ -63,9 +65,11 @@ classdef common_state_holder < handle
             if isempty(storage)
                 storage = struct();
             end
+
             if ~exist('field_name','var')
                 field_name= inputname(1);
             end
+
             if isempty(field_name)
                 warning('Can not store variable without name. Nothing is stored');
                 stor_val = '';
@@ -80,6 +84,7 @@ classdef common_state_holder < handle
             storage.(field_name) = var_to_store;
 
         end
+
         function count = call_count(direction)
             % return persistent call counter
             %
@@ -100,6 +105,7 @@ classdef common_state_holder < handle
             if isempty(count_holder)
                 count_holder = 0;
             end
+
             if exist('direction','var') && ischar(direction)
                 if direction(1) == '+'
                     count_holder =  count_holder +1;

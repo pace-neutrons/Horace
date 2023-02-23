@@ -12,7 +12,7 @@ function [page_number,total_num_pages] = move_to_page(obj, page_number, varargin
 %
 [page_number, total_num_pages, nosave] = parse_args(obj, page_number, varargin{:});
 
-if obj.page_number_ ~= page_number
+if obj.page_num ~= page_number
     obj = obj.load_page(page_number);
 end
 

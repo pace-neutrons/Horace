@@ -42,24 +42,22 @@ end
 
 [mask_array, npix] = validate_input_args(obj, mask_array, npix);
 
-if numel(mask_array) == obj.num_pixels && all(mask_array)
+if all(mask_array)
     pix_out = obj;
-    return;
-elseif numel(mask_array) == obj.num_pixels && ~any(mask_array)
+
+elseif ~any(mask_array)
     pix_out = PixelDataBase.create();
-    return;
-end
 
-if numel(mask_array) == obj.num_pixels
-
+elseif numel(mask_array) == obj.num_pixels % all specified
     pix_out = obj.get_pixels(mask_array);
 
-elseif ~isempty(npix)
-
+else
     full_mask_array = repelem(mask_array, npix);
     pix_out = obj.get_pixels(full_mask_array);
 
 end
+
+pix_out = pix_out.reset_changed_coord_range('all');
 
 end
 

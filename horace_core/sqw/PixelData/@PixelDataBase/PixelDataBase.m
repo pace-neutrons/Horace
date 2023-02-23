@@ -319,7 +319,7 @@ classdef (Abstract) PixelDataBase < serializable
     methods(Abstract)
         % --- Pixel operations ---
         pix_out = append(obj, pix);
-        pix     = set_raw_data(obj,pix);
+        pix = set_raw_data(obj,pix);
         obj = set_raw_fields(obj, data, fields, abs_pix_indices);
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
@@ -333,8 +333,6 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = noisify(obj, varargin);
 
         obj = recalc_data_range(obj);
-
-        obj = delete(obj);
 
     end
 
@@ -365,7 +363,7 @@ classdef (Abstract) PixelDataBase < serializable
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
 
         % main part of get.data accessor
-        data =  get_raw_data(obj)
+        data = get_raw_data(obj)
 
         % setters/getters for serializable interface properties
         obj = set_data_wrap(obj,val);
@@ -609,6 +607,12 @@ classdef (Abstract) PixelDataBase < serializable
             %
             obj.move_to_page(1);
         end
+
+        function [obj, data] = load_page(obj, page_number)
+            % Load and return data from given page number
+            obj.page_num = page_number;
+            data = obj.get_fields('all');
+        end
     end
 
     methods(Access=protected)
@@ -628,7 +632,7 @@ classdef (Abstract) PixelDataBase < serializable
 
         function indices = check_pixel_fields(obj, fields)
             %CHECK_PIXEL_FIELDS Check the given field names are valid pixel data fields
-            % Raises error with ID 'HORACE:PIXELDATA:invalid_field' if any fields not valid.
+            % Raises error with ID 'HORACE:PixelDataBase:invalid_argument' if any fields not valid.
             %
             %
             % Input:
@@ -638,13 +642,16 @@ classdef (Abstract) PixelDataBase < serializable
             % Output:
             % indices   -- the indices corresponding to the fields
             %
+            if istext(fields)
+                fields = cellstr(fields);
+            end
 
             poss_fields = obj.FIELD_INDEX_MAP_;
             bad_fields = ~cellfun(@poss_fields.isKey, fields);
             if any(bad_fields)
                 valid_fields = poss_fields.keys();
                 error( ...
-                    'HORACE:PixelData:invalid_argument', ...
+                    'HORACE:PixelDataBase:invalid_argument', ...
                     'Invalid pixel field(s) {''%s''}.\nValid keys are: {''%s''}', ...
                     strjoin(fields(bad_fields), ''', '''), ...
                     strjoin(valid_fields, ''', ''') ...

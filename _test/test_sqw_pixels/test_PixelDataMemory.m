@@ -1,7 +1,7 @@
 classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
 
     properties
-        test_file = 'sqw_1d_2.sqw'
+        test_file
     end
 
     methods
@@ -9,7 +9,7 @@ classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
         function obj = test_PixelDataMemory(~)
             obj = obj@TestCase('test_PixelDataMemory');
             hp = horace_paths;
-            obj.test_file = fullfile(hp.test_common,obj.test_file);
+            obj.test_file = fullfile(hp.test_common,'sqw_1d_2.sqw');
         end
 
         function test_to_from_struct_v2(~)
@@ -22,6 +22,7 @@ classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
 
             assertEqual(pdm,pdm_rec);
         end
+
         function test_serialize_deserialize_full(obj)
             df = PixelDataMemory(obj.test_file);
             assertEqual(df.num_pixels,4324)
@@ -30,7 +31,7 @@ classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
             df_rec = serializable.from_struct(df_struc);
             assertEqual(df,df_rec);
         end
-        
+
         function test_serialize_deserialize_empty(~)
             df = PixelDataMemory();
             df_struc = df.to_struct();
@@ -38,7 +39,7 @@ classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
             df_rec = serializable.from_struct(df_struc);
             assertEqual(df,df_rec);
         end
-        
+
 
         function test_data_constructor(~)
             pdm = PixelDataMemory(ones(9,20));

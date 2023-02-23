@@ -60,12 +60,18 @@ end
 
 % page over pix_out noisifying each page using either Poisson or the max
 % value extracted above
-fid = pix_out.get_new_handle();
+pix_out = pix_out.get_new_handle();
+s_ind = obj.check_pixel_fields('signal');
+v_ind = obj.check_pixel_fields('variance');
 
 for i = 1:pix_out.n_pages
-    pix_out.page_num = i;
-    [pix_out.signal, pix_out.variance] = noisify( ...
+    [obj, data] = load_page(i);
+    [data(s_ind,:), data(v_ind, :)] = noisify( ...
         pix_out.signal, pix_out.variance, varargin{:});
-    pix_out.format_dump_data(fid);
+    pix_out.format_dump_data(data);
 end
-pix_out.finalise(fid);
+pix_out = pix_out.finalise(fid);
+
+pix_out = pix_out.recalc_data_range({'signal', 'variance'});
+
+end
