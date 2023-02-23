@@ -1,3 +1,20 @@
+# ========================================================================
+# ========================================================================
+# ===                                                                  ===
+# ===  Please ensure that any alterations you make to the directories  ===
+# ===  in TEST_DIRECTORIES_HERBERT and TEST_DIRECTORIES_HORACE are     ===
+# ===  also made in validate_herbert.m and validate_horace.m           ===
+# ===  respectively.                                                   ===
+# ===                                                                  ===
+# ===  This will ensure that they perform the same tests.              ===
+# ===                                                                  ===
+# ===  [Automatic synchronisation by e.g. reading this file            ===
+# ===   would solve the manual unreliability of this step]             ===
+# ===                                                                  ===
+# ===                                                                  ===
+# ========================================================================
+# ========================================================================
+
 set(TEST_DIRECTORIES_HERBERT
     "test_admin"
     "test_data_loaders"
@@ -99,6 +116,8 @@ foreach(_test_dir ${TEST_DIRECTORIES_HORACE})
         set(TEST_TIMEOUT_LENGTH "1800")  # 30 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow")
         set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
+    elseif("${_test_dir}" STREQUAL "test_algorithms")
+        set(TEST_TIMEOUT_LENGTH "2400")  # 40 minutes -- fail due to timeout on windows VM-s
     else()
         set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
     endif()

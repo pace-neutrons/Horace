@@ -43,6 +43,12 @@ else % only one run requested
     instr = obj.get_instrument(argi{:});
     main_sampl = obj.get_sample(argi{:});
 end
+
+% This test is to exclude the case that no sample was defined when the run data was read. In that case
+% a dummy IX_null_sample was created to fill the sample slot(s) in the SQW and is detected here.
+% Note that the lattice parameters for that case would have been read separately from the expdata part
+% of the input data and are stored within the IX_null_sample.
+% Previously this state would have been marked with the sample set to [] (empty) rather than a null sample.
 if ~(isa(main_sampl,'IX_null_sample') || ...
         (isa(main_sampl,'unique_objects_container') && isa(main_sampl{1},'IX_null_sample')) ...
         )
@@ -95,33 +101,19 @@ end
 % parameters from header and here we set up this lattice to the particular
 % implementation of sample if such implementation is present.
 if footer_sample_present % set up its lattice if the lattice is not present
-    bas_sample= exp_info.samples.unique_objects;
-    main_si   = main_sampl.unique_objects;
-    n_latt = numel(bas_sample);
-    n_samp = numel(main_si);
-    if n_latt  ~= n_samp && ~(n_latt == 1 || n_samp == 1)
+    bas_sample= exp_info.samples;
+    %main_si   = main_sampl;
+    n_latt = bas_sample.n_runs;
+    n_samp = main_sampl.n_runs;
+    if n_latt  ~= n_samp
         error('HORACE:faccess_sqw_v3:runtime_error',....
-            'Number of unique lattices (%d) differs from number of unique samples (%d) and no one of them are 1',...
+            'Number of unique lattices (%d) differs from number of unique samples (%d)',...
             n_latt,n_samp);
     end
-    if n_latt == 1
-        if n_samp == 1
-            main_si{1} = set_lattice(main_si{1},bas_sample{1});
-        else
             for i=1:n_samp
-                main_si{i} = set_lattice(main_si{i},bas_sample{1});
+        main_sampl{i} = set_lattice(main_sampl{i},bas_sample{i});
             end
-        end
-    else
-        if n_samp == 1
-            main_si{1} = set_lattice(main_si{1},bas_sample{1});
-        else
-            for i=1:n_samp
-                main_si{i} = set_lattice(main_si{i},bas_sample{i});
-            end
-        end
-    end
-    main_sampl.unique_objects = main_si;
+    %main_sampl.unique_objects = main_si;
     exp_info.samples = main_sampl;
 else % basic sample have already been built from lattice stored in header
      % so nothing to do, if this is full sqw access. If not, may be
@@ -133,6 +125,9 @@ else % basic sample have already been built from lattice stored in header
 end  
 %
 
+% This test is to exclude the case that no instrument was defined when the run data was read. In that case
+% a dummy IX_null_inst was created to fill the sample slot(s) in the SQW and is detected here.
+% Previously this state would have been marked with the instrument set to [] (empty) rather than a null instrument.
 if ~(isa(instr,'IX_null_inst') || ...
         (isa(instr,'unique_objects_container') && isa(instr{1},'IX_null_inst')) ...
         ) % all instruments are valid instruments
@@ -166,6 +161,8 @@ if ~(isa(instr,'IX_null_inst') || ...
 else % IX_null_inst
     % is already in the header
 end
+
+%=======================================================================
 function sample = set_lattice(sample,source)
 if isempty(sample.alatt)
     sample.alatt = source.alatt;
