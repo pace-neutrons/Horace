@@ -154,7 +154,7 @@ classdef ortho_axes < AxesBlockBase
             % and nxsqw/sqw data format. Each new version would presumably
             % read the older version, so version substitution is based on
             % this number
-            ver = 1;
+            ver = 6;
         end
         %
         function flds = saveableFields(obj)

@@ -12,8 +12,8 @@ classdef test_AxesBlockBase_properties < TestCase
         % Redefine sample file name and set_save_sample to true
         % to obtain different sample file if(when) the internal sample
         % structure changes again
-        ortho_axes_v1_file = 'AxesBlockBase_sample_v1.mat'; % savobj/loadobj reference file for version 1
-        ortho_axes_v2_file = 'AxesBlockBase_sample_v2.mat'; % savobj/loadobj reference file for version 2
+        ortho_axes_v1_file = 'axes_block_sample_v1.mat'; % savobj/loadobj reference file for version 1
+        ortho_axes_v2_file = 'axes_block_sample_v2.mat'; % savobj/loadobj reference file for version 2
         sample_sqw_file = 'w2d_qq_sqw.sqw'
         % save sample -- simplified TestWithSave interface.
         % Generates v2 test files when save_sample = true

@@ -447,9 +447,9 @@ classdef aProjection < serializable
             %          corresponding to the projection
             cl_name = class(obj);
             cl_type = split(cl_name,'_');
-            proj_class = [cl_type(1:end),'_axes'];
+            proj_class_name = [cl_type{1},'_axes'];
             ax_bl = AxesBlockBase.build_from_input_binning(...
-                proj_class,def_bin_ranges,req_bin_ranges);
+                proj_class_name,def_bin_ranges,req_bin_ranges);
             ax_bl.label = obj.label;
             if ~isempty(obj.title)
                 ax_bl.title = obj.title;

@@ -531,7 +531,7 @@ classdef ortho_proj<aProjection
         end
         %------------------------------------------------------------------
         function ver  = classVersion(~)
-            ver = 1;
+            ver = 6;
         end
         function  flds = saveableFields(obj)
             flds = saveableFields@aProjection(obj);

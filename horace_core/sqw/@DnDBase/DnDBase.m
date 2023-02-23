@@ -438,6 +438,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         function def = get.creation_date_defined(obj)
             def = obj.creation_date_defined_;
         end
+        function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
+            data_plot_titles(obj)
+            % 
+            error('HORACE:DnDBase:not_implemented','Re #952 The method is not yet implemented')
+        end
     end
     %======================================================================
     % binfile IO interface

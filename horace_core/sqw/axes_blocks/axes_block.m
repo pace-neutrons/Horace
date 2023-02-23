@@ -18,6 +18,9 @@ classdef axes_block < ortho_axes
             % boilerplate loadobj method, calling generic method of
             % saveable class
             obj = ortho_axes();
+            if isfield(S,'serial_name') && strcmp(S.serial_name,'axes_block')
+                S.serial_name  = 'ortho_axes';
+            end
             obj = loadobj@serializable(S,obj);
         end
     end
