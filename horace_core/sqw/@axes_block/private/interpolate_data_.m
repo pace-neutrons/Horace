@@ -52,7 +52,7 @@ if ~isempty(ref_grid_cell_size)
     cell_ratio =  trans_cell_size./ref_grid_cell_size;
     % decrease the interpolation cell size to be commensurate with
     % this grid but to be smaller than the reference grid to have
-    % at least one interpolation point within each reference cell
+    % at least one interpolation point within  each reference cell
     do_expand = cell_ratio > 1;
     cell_ratio = round(cell_ratio);
     eq_one = cell_ratio == 1;

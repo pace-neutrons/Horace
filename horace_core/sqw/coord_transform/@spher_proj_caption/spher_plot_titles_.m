@@ -80,7 +80,7 @@ for j=1:4
 end
 
 % HACK:
-spher_units('r') =[u_to_rlu_ch{1,1},' ',spher_units('r')];
+spher_units('d') =[u_to_rlu_ch{1,1},' ',spher_units('d')];
 
 
 % pre-allocate cell arrays for titling:
