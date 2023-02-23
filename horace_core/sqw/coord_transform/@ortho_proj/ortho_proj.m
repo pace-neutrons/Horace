@@ -172,7 +172,7 @@ classdef ortho_proj<aProjection
             u = obj.u_;
         end
         function obj = set.u(obj,val)
-            obj.u_ = obj.check_3vector(val);
+            obj.u_ = obj.check_and_brush3vector(val);
             if obj.do_check_combo_arg_
                 obj = check_combo_arg_(obj);
             end
@@ -182,7 +182,7 @@ classdef ortho_proj<aProjection
             v = obj.v_;
         end
         function obj = set.v(obj,val)
-            obj.v_ = obj.check_3vector(val);
+            obj.v_ = obj.check_and_brush3vector(val);
             if obj.do_check_combo_arg_
                 obj = check_combo_arg_(obj);
             end
@@ -197,7 +197,7 @@ classdef ortho_proj<aProjection
                 obj.w_ = [];
                 return;
             end
-            obj.w_ = obj.check_3vector(val);
+            obj.w_ = obj.check_and_brush3vector(val);
             if obj.do_check_combo_arg_
                 obj = check_combo_arg_(obj);
             end

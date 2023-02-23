@@ -65,7 +65,7 @@ if ~isempty(ref_grid_cell_size)
     while(min_npix ~= max_npix && count<4)
 
         com_cell_size(do_expand) = this_cell_size(do_expand)./cell_ratio(do_expand);
-        [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-bin_center',com_cell_size);
+        [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-bin_centre',com_cell_size);
         npix = obj.bin_pixels(nodes);
 
         min_npix=min(npix(:)); max_npix=max(npix(:)); count = count+1;
@@ -84,7 +84,7 @@ if ~isempty(ref_grid_cell_size)
         inodes = nodes;
     end
 else % usually debug mode. Original grid coincides with interpolation grid
-    [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-bin_center');
+    [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-bin_centre');
     inodes = nodes;
 end
 int_cell_volume = prod(int_cell_size);

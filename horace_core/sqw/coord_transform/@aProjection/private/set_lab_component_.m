@@ -1,5 +1,5 @@
 function obj = set_lab_component_(obj,num_comp,val)
-% check and set up the part of the label's cellarray
+% Check and set up the n-th element of the label's cellarray
 if ~(ischar(val)||isstring(val))
     error('HORACE:aProjection:invalid_argument',...
         'Label component N%d has to be a string. It is %s',num_comp, ...

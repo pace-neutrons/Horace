@@ -30,8 +30,8 @@ for i=1:numel(flds)
 end
 
 %--------------------------------------------------------------------------
-% TODO: this is compatibility functions to support alignment.
-% This will change when alginment matrix is attached to pixels
+% TODO: this is compatibility function to support alignment.
+% This will change when alignment matrix is attached to pixels
 if use_u_to_rlu_transitional 
     proj = proj.set_from_data_mat(data_struct.u_to_rlu(1:3,1:3),data_struct.ulen(1:3));    
 end

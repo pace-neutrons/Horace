@@ -10,7 +10,7 @@ function pix_cc = transform_spher_to_pix_(obj,pix_data)
 %           system
 
 ndim = size(pix_data,1);
-%Original arrangement :  pix_transf = [r;pi/2- elevation;azimuth];
+%Original arrangement :  pix_transf = [r; pi/2-elevation; azimuth];
 %Requested arrangement:  [x,y,z] = sph2cart(azimuth,elevation,r);
 [x,y,z] = sph2cart(pix_data(3,:),pi/2-pix_data(2,:),pix_data(1,:));
 
