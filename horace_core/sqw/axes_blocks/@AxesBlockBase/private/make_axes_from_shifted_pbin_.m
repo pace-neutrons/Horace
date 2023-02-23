@@ -1,5 +1,5 @@
 function [pbin,uoffset,nonorthogonal,remains]=make_axes_from_shifted_pbin_(varargin)
-% Create axes_block from input of the form of set of specific parameters
+% Create AxesBlockBase from input of the form of set of specific parameters
 % Legacy function
 %
 %   >> [pbin,remains] = make_axes_from_shifted_pbin_(u1,p1,u2,p2,...,un,pn)
@@ -54,7 +54,7 @@ if narg>=1
             narg=narg-1;
             nonorthogonal = true;
         else
-            error('HORACE:axes_block:invalid_argument',...
+            error('HORACE:AxesBlockBase:invalid_argument',...
                 'more then one character argument present')
         end
     end
@@ -66,7 +66,7 @@ end
 is_num = cellfun(@(x)isnumeric(x),argi,'UniformOutput',true);
 if ~all(is_num)
     ind = find(~is_num);
-    error('HORACE:axes_block:invalid_argument',...
+    error('HORACE:AxesBlockBase:invalid_argument',...
         'Arguments [uoffset],u1,p1,... should be numeric. Argument(s) N: %s are invalid: %s',...
         num2str(ind),evalc('disp(argi{~is_num})'));
 end
@@ -76,7 +76,7 @@ end
 % Determine if second argument is offset, or use default
 ndim=floor(narg/2);
 if ndim>4 || ndim<0
-    error('HORACE:axes_block:invalid_argument',...
+    error('HORACE:AxesBlockBase:invalid_argument',...
         'Number of axes arguments must be even and smaller then 8. It is: %d',...
         narg)
 end
@@ -87,7 +87,7 @@ if narg-2*ndim>0    % odd number of arguments, so first must be an offset
     elseif ncmp==4
         uoffset=argi{1}(:);
     else
-        error('HORACE:axes_block:invalid_argument',...
+        error('HORACE:AxesBlockBase:invalid_argument',...
             'Origin offset must have form [h,k,l] or [h,k,l,e]');
     end
     noff=1;
@@ -103,7 +103,7 @@ remains=argi(1+noff:end);
 for i=1:ndim
     pbin{i}=varargin{2*i+noff};
     if ~(isnumeric(pbin{i}) && numel(pbin{i})==3)
-        error('HORACE:axes_block:invalid_argument',...
+        error('HORACE:AxesBlockBase:invalid_argument',...
             'Ranges have to have form [plo,pstep,phi] but are: %s',...
             evalc('disp(pbin{i})'));
     end

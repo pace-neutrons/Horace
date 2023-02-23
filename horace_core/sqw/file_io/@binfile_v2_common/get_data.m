@@ -149,20 +149,20 @@ end
 if obj.convert_to_double
     data_str = binfile_v2_common.do_convert_to_double(data_str);
 end
-%data_str = axes_block.convert_old_struct_into_nbins(data_str);
+%data_str = ortho_axes.convert_old_struct_into_nbins(data_str);
 %
 if ~header_only
     data_str = obj.get_se_npix(data_str);
 end
 
 if header_only || noclass
-    data_str.img_range = axes_block.calc_img_db_range(data_str );
+    data_str.img_range = ortho_axes.calc_img_db_range(data_str );
     data_str.dimensions = numel(data_str.p);
     return;
 end
 %
 proj = ortho_proj.get_from_old_data(data_str);
-ax   = axes_block.get_from_old_data(data_str);
+ax   = ortho_axes.get_from_old_data(data_str);
 
 data_str = DnDBase.dnd(ax,proj,data_str.s,data_str.e,data_str.npix);
 obj.sqw_holder_ = data_str;

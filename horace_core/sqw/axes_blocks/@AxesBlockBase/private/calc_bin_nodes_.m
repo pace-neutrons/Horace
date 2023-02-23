@@ -1,11 +1,11 @@
 function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
     calc_bin_nodes_(obj,do3D,halo,data_to_density,density_integr_grid, ...
     axes_only,ngrid_form,varargin)
-% build 3D or 4D vectors, containing all nodes of the axes_block grid,
-% constructed over axes_block axes.
+% build 3D or 4D vectors, containing all nodes of the AxesBlockBase grid,
+% constructed over AxesBlockBase axes.
 %
 % Inputs:
-% obj       -- initialized axes_block instance
+% obj       -- initialized AxesBlockBase instance
 % do3D      -- if true, return more efficient 3D grid and separate energy
 %              axes grid instead of more generic 4D grid over q-dE
 %              axes points.
@@ -17,12 +17,12 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %              dimensions.
 % density_integr_grid
 %           -- if true, return grid used for integration by summation in
-%              centerpoints, namely, points are in the center of cells and
+%              centre-points, namely, points are in the centre of cells and
 %              integration dimensions
 % axes_only -- if true, do not build n-d grid but return only grid points
 %              in each 4 directions
 % ngrid_form
-%           -- if true, return resutl as cellarray of arrays, as ngrid
+%           -- if true, return result as cellarray of arrays, as ngrid
 %              function generates
 %
 % Optional:
@@ -31,7 +31,7 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %              3x8 (4x16) array of 3-D or 4-D vectors arranged in
 %              columns and describing min/max points or all vertices of
 %              cube or hypercube, representing single cell of the grid,
-%              defined by the axes_block, or the all points of the whole
+%              defined by the AxesBlockBase, or the all points of the whole
 %              cube in 3D or 4D space.
 %
 % Output:
@@ -175,19 +175,19 @@ if ninputs > noptions
             elseif cube_size(2) == 1
                 char_size = cube;
             else
-                error('HORACE:axes_block:invalid_argument',...
+                error('HORACE:AxesBlockBase:invalid_argument',...
                     ['characteristic size, if present, should be 4xnNodes', ...
                     ' or 4x1 vector of numeric values. Input size is: [%s]'],...
                     disp2str(cube_size));
             end
         else
-            error('HORACE:axes_block:invalid_argument',...
+            error('HORACE:AxesBlockBase:invalid_argument',...
                 ['characteristic size, if present, should be 4xnNodes or', ...
                 ' 4x1 vector of numeric values. Input size is: [%s]'],...
                 disp2str(cube_size));
         end
     else
-        error('HORACE:axes_block:invalid_argument',...
+        error('HORACE:AxesBlockBase:invalid_argument',...
             ['characteristic size, if present, should be 4x4xnNodes matrix', ...
             ' or 4x1 vector of numeric values.', ...
             ' Input has wrong type: "%s" and wrong value: "%s"'],...

@@ -1,7 +1,7 @@
 function  [any_within,is_within]=bins_in_1Drange_(bins,minmax)
 % get bins which lie within the given range in one dimension
 %
-% No checks of arguments validity due to specifics of the usage within axes_block.
+% No checks of arguments validity due to specifics of the usage within AxesBlockBase.
 % If usage is expanded, the check should be performed
 %
 % Inputs:

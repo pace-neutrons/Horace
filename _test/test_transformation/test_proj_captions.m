@@ -9,7 +9,7 @@ classdef test_proj_captions<TestCase
         function this=test_proj_captions(name)
             this=this@TestCase(name);
             %sqw/dnd data structure with fields used in caption
-            ab = axes_block(2);
+            ab = ortho_axes(2);
             proj  = ortho_proj;
             this.data= d2d(ab,proj);
         end

@@ -1,4 +1,4 @@
-classdef axes_block < serializable
+classdef AxesBlockBase < serializable
     % The class contains information about axes and scales used for
     % displaying sqw/dnd object and provides scales for neutron image data.
     %
@@ -6,19 +6,19 @@ classdef axes_block < serializable
     % sqw/dnd object
     %
     % Construction:
-    %1) ab = axes_block(num) where num belongs to [0,1,2,3,4];
-    %2) ab = axes_block([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
+    %1) ab = AxesBlockBase(num) where num belongs to [0,1,2,3,4];
+    %2) ab = AxesBlockBase([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
     %                                          parameters
     %        or
-    %   ab = axes_block([min1,max1],...,[min4,max4]); - 4 binning
+    %   ab = AxesBlockBase([min1,max1],...,[min4,max4]); - 4 binning
     %                                          parameters
     %        or any combination of ranges [min,step,max] or [min,max]
-    %3) ab = axes_block(structure) where structure contains any fields
+    %3) ab = AxesBlockBase(structure) where structure contains any fields
     %                              returned by savebleFields method
-    %4) ab = axes_block(param1,param2,param3,'key1',value1,'key2',value2....)
+    %4) ab = AxesBlockBase(param1,param2,param3,'key1',value1,'key2',value2....)
     %        where param(1-n) are the values of the fields in the order
     %        fields are returned by saveableFields function.
-    %5) ab = axes_block('img_range',img_range,'nbins_all_dims',nbins_all_dims)
+    %5) ab = AxesBlockBase('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Dependent)
@@ -61,7 +61,7 @@ classdef axes_block < serializable
         % axes block describes
         img_range;
         %
-        dimensions;  % Number of axes_block object dimensions
+        dimensions;  % Number of AxesBlockBase object dimensions
         %
         % binning along each dimension of an object assuming that
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
@@ -69,7 +69,7 @@ classdef axes_block < serializable
         % bins in dE direction would have binning [1,1,1,10];
         nbins_all_dims;
         % number of bins for each non-unit dimension. This would be the
-        % binning of the data arrays associated with the given axes_block
+        % binning of the data arrays associated with the given AxesBlockBase
         data_nbins;
         % number of bins in each non-unit dimension presented in the form,
         % which allows you to allocate an array of the appropriate size
@@ -86,14 +86,6 @@ classdef axes_block < serializable
         single_bin_defines_iax;
     end
 
-    properties
-        %
-        %  Reference to class, which define axis captions. TODO: delete this, mutate axes_block
-        axis_caption = an_axis_caption();
-        %
-        %TODO: Its here temporary, until full projection is stored in sqw obj
-        nonorthogonal = false % if the coordinate system is non-orthogonal.
-    end
     properties(Access=protected)
         title_   =''   % Title of sqw data structure
         filename_=''   % Name of sqw file that is being read, excluding path. Used in titles
@@ -110,35 +102,22 @@ classdef axes_block < serializable
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
     end
     properties(Dependent,Hidden)
-        % old interface to label
-        ulabel
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
     end
 
     methods
-        % return binning range of existing data object, so that cut without
-        % parameters, performed within this range would return the same cut
-        % as the original object
-        range = get_cut_range(obj,varargin);
-        % find the coordinates along each of the axes of the smallest cuboid
-        % that contains bins with non-zero values of contributing pixels.
-        [val, n] = data_bin_limits (obj);
-        %
-        function obj = axes_block(varargin)
+        function obj = AxesBlockBase(varargin)
             % constructor
             %
-            %>>obj = axes_block() % return empty axis block
-            %>>obj = axes_block(ndim) % return unit block with ndim
+            %>>obj = AxesBlockBase() % return empty axis block
+            %>>obj = AxesBlockBase(ndim) % return unit block with ndim
             %                           dimensions
-            %>>obj = axes_block(p1,p2,p3,p4) % build axis block from axis
+            %>>obj = AxesBlockBase(p1,p2,p3,p4) % build axis block from axis
             %                                  arrays
-            %>>obj = axes_block(pbin1,pbin2,pbin3,pbin4) % build axis block
+            %>>obj = AxesBlockBase(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
             %
-            if nargin==0
-                return;
-            end
             obj = obj.init(varargin{:});
         end
         %
@@ -153,11 +132,24 @@ classdef axes_block < serializable
             % remains -- the arguments, not used in initialization if any
             %            were provided as input
             %
+            if nargin==1
+                return;
+            end            
             obj.do_check_combo_arg_ = false;
             [obj,offset,remains] = init_(obj,varargin{:});
             obj.do_check_combo_arg_ = true;
             obj = check_combo_arg(obj);
         end
+                
+        % return binning range of existing data object, so that cut without
+        % parameters, performed within this range would return the same cut
+        % as the original object
+        range = get_cut_range(obj,varargin);
+        % find the coordinates along each of the axes of the smallest cuboid
+        % that contains bins with non-zero values of contributing pixels.
+        [val, n] = data_bin_limits (obj);
+        %
+        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (obj)        
         %
         function [cube_coord,step] = get_axes_scales(obj)
             % Return the array of vertices of a 4D hypercube, describing a
@@ -288,15 +280,15 @@ classdef axes_block < serializable
             %         -- [4,npix] array of pixels coordinates to bin.
             % Optional:
             % npix    -- the array of size of the grid, defined by this
-            %            axes_block, containing the information about
+            %            AxesBlockBase, containing the information about
             %            previous pixel data contribution to the axes grid
             %            cells
             % s        --  the array of size of the grid, defined by this
-            %            axes_block, containing the information about
+            %            AxesBlockBase, containing the information about
             %            previous pixel data contribution to the axes grid
             %            signal cells.
             % e        --  the array of size of the grid, defined by this
-            %            axes_block, containing the information about
+            %            AxesBlockBase, containing the information about
             %            previous pixel data contribution to the axes grid
             %            variance cells. Must be present if s is present
             % If these arrays are not provided or provided empty, they are
@@ -362,8 +354,8 @@ classdef axes_block < serializable
         %
         function [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 get_bin_nodes(obj,varargin)
-            % build 3D or 4D vectors, containing all nodes of the axes_block grid,
-            % constructed over axes_block axes points.
+            % build 3D or 4D vectors, containing all nodes of the AxesBlockBase grid,
+            % constructed over AxesBlockBase axes points.
             %
             % Note: Nodes are 3D or 4D vertices of the axes grid cells, so the
             %       output is 3xN_nodes or 4xN_nodes arrays of the vertices, where each
@@ -405,7 +397,7 @@ classdef axes_block < serializable
             % nodes     -- [4 x nBins] or [3 x nBins] array of points,
             %              (depending on state of '-3D' switch)  where
             %              the coordinate of each point is a node of the
-            %              grid, formed by axes_block axes, or axes_block
+            %              grid, formed by AxesBlockBase axes, or AxesBlockBase
             %              axes if '-axes_only' switch is requested.
             % Optional:
             % dE_edges  -- if '-3D' switch is present, coordinates of the
@@ -420,10 +412,10 @@ classdef axes_block < serializable
             [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,axes_only,ngrid,argi] ...
             = parse_char_options(varargin,opt);
             if ~ok
-                error('Horace:axes_block:invalid_argument',mess)
+                error('Horace:AxesBlockBase:invalid_argument',mess)
             end
             if density_inegr_grid && data_to_density
-                error('Horace:axes_block:invalid_argument',...
+                error('Horace:AxesBlockBase:invalid_argument',...
                     '"-interpolation" and "-extrapolation" keys can not be used together')
             end
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
@@ -436,7 +428,7 @@ classdef axes_block < serializable
             % Get the default binning range to use in cut, defined by a new
             % projection. If no new projection is provided, return current
             % binning range, i.e. the ranges used to construct this
-            % axes_block.
+            % AxesBlockBase.
             %
             % If new projection is not aligned with the old projection, the new
             % projection range is transformed from the old projection range and
@@ -483,7 +475,7 @@ classdef axes_block < serializable
         end
         function obj = set.title(obj,val)
             if ~ischar(val) || isstring(val)
-                error('HORACE:axes_block:invalid_argument',...
+                error('HORACE:AxesBlockBase:invalid_argument',...
                     'title should be defined of array of characters or by a string')
             end
             obj.title_ = val;
@@ -494,7 +486,7 @@ classdef axes_block < serializable
         end
         function obj = set.filename(obj,fn)
             if ~(ischar(fn) || isstring(fn))
-                error('HORACE:axes_block:invalid_argument',...
+                error('HORACE:AxesBlockBase:invalid_argument',...
                     'filename should be defined of array of characters or by a string')
             end
             [~,fn,fext] = fileparts(fn);
@@ -506,7 +498,7 @@ classdef axes_block < serializable
         end
         function obj = set.filepath(obj,fp)
             if ~(ischar(fp) || isstring(fp))
-                error('HORACE:axes_block:invalid_argument',...
+                error('HORACE:AxesBlockBase:invalid_argument',...
                     'filepath should be defined of array of characters or by a string')
             end
             obj.filepath_ = fp;
@@ -516,7 +508,7 @@ classdef axes_block < serializable
         end
         function obj = set.full_filename(obj,fn)
             if ~(ischar(fn) || isstring(fn))
-                error('HORACE:axes_block:invalid_argument',...
+                error('HORACE:AxesBlockBase:invalid_argument',...
                     'full_filename should be defined of array of characters or by a string. It is %s', ...
                     disp2str(fn));
             end
@@ -560,7 +552,7 @@ classdef axes_block < serializable
                 val = [val(:)',1];
             end
             if ~(isnumeric(val) && numel(val) == 4)
-                error('HORACE:axes_block:invalid_argument',...
+                error('HORACE:AxesBlockBase:invalid_argument',...
                     'ulen should be vector, containing 4 elements')
             end
             obj.ulen_ = val(:)';
@@ -571,7 +563,7 @@ classdef axes_block < serializable
         end
         function obj = set.dax(obj,val)
             if min(val(:))~=1
-                error('HORACE:axes_block:invalid_argument',...
+                error('HORACE:AxesBlockBase:invalid_argument',...
                     'A display axis should refer the first projection axis')
             end
             obj.dax_ = val(:)';
@@ -585,7 +577,7 @@ classdef axes_block < serializable
         end
         function obj = set.single_bin_defines_iax(obj,val)
             if numel(val) ~= 4
-                error('HORACE:axes_block:invalid_argument', ...
+                error('HORACE:AxesBlockBase:invalid_argument', ...
                     'single_bin_defines_iax property accepts only 4-element logical vector or vector convertible to logical')
             end
             obj.single_bin_defines_iax_ = logical(val(:)');
@@ -614,16 +606,9 @@ classdef axes_block < serializable
         function pc = get.p(obj)
             pc = build_axes_from_ranges_(obj);
         end
-        % old interface
-        function obj = set.ulabel(obj,val)
-            obj.label = val;
-        end
-        function lab = get.ulabel(obj)
-            lab  = obj.label_;
-        end
     end
+    %======================================================================
     methods(Access=protected)
-
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
@@ -632,7 +617,7 @@ classdef axes_block < serializable
             %
             %Inputs:
             % pix_coord_transf -- the array of pixels coordinates
-            %                     transformed into this axes_block
+            %                     transformed into this AxesBlockBase
             %                      coordinate system
             % n_argout         -- number of argument, requested by the
             %                     calling function
@@ -644,23 +629,17 @@ classdef axes_block < serializable
                 grid_size = grid_size(1:3);
             end
             [npix,s,e,pix_cand,unique_runid,argi]=...
-                axes_block.normalize_binning_input(...
+                AxesBlockBase.normalize_binning_input(...
                 grid_size,pix_coord_transf,n_argout,varargin{:});
         end
     end
     %----------------------------------------------------------------------
     methods(Static)
-        function input = convert_old_struct_into_nbins(input)
-            % the function, used to convert old v1 axes_block structure,
-            % containing axes information, into the v2 structure,
-            % containing only range and bin numbers
-            input = convert_old_struct_into_nbins_(input);
-        end
-        % build new axes_block object from the binning parameters, provided
-        % as input. If some input binning parameters are missing, the
-        % defaults are taken from the given image range which should be
-        % properly prepared
-        obj = build_from_input_binning(cur_img_range_and_steps,pbin);
+        % build new particular AxesBlockBase object from the binning 
+        % parameters, provided as input. If some input binning parameters
+        % are missing, the defaults are taken from the given image range
+        % which should be   properly precalculated
+        obj = build_from_input_binning(proj_cl_name,cur_img_range_and_steps,pbin);
         %
         function [any_within,is_within]=bins_in_1Drange(bins,range)
             % get bins which contribute into the given range in one
@@ -677,48 +656,6 @@ classdef axes_block < serializable
             [any_within,is_within]=bins_in_1Drange_(bins,range);
         end
         %
-        function img_range = calc_img_db_range(ax_data)
-            % LEGACY FUNCTION, left for compatibility with old binary sqw
-            % files for transforming the data, stored there into modern
-            % axes_block form
-            %
-            % Retrieve 4D range used for rebinning pixels
-            % from old style sqw objects, where this range was not stored
-            % directly as it may become incorrect after some
-            % transformations.
-            %
-            % Returns:
-            % img_range  -- the estimate for the image range, used to
-            %               build the grid used as keys to get the pixels,
-            %               contributed into the image
-            %
-            % Should not be used directly, only for compatibility with old
-            % data formats. New sqw object should maintain correct
-            % img_range during all operations
-            %
-            % Inputs: either data_sqw_dnd instance or a structure
-            % containing:
-            % The relevant data structure used as source of image range is as follows:
-            %
-            %   ds.iax        Index of integration axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-            %   ds.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
-            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-            %   ds.pax        Index of plot axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-            %   ds.p          Cell array containing bin boundaries along the plot axes [column vectors]
-            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-            %   ds.dax        Index into data.pax of the axes for display purposes. For example we may have
-            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-            %
-            img_range = calc_img_db_range_(ax_data);
-        end
-        %
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_binning_input(grid_size,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
@@ -727,7 +664,7 @@ classdef axes_block < serializable
             %
             %Inputs:
             % pix_coord_transf -- the array of pixels coordinates
-            %                     transformed into this axes_block
+            %                     transformed into this AxesBlockBase
             %                      coordinate system
             % n_argout         -- number of argument, requested by the
             %                     calling function
@@ -739,76 +676,29 @@ classdef axes_block < serializable
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
+    %----------------------------------------------------------------------
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
         % recover it state by setting properties through public interface
         fields_to_save_ = {'title','filename','filepath',...
             'label','ulen','img_range','nbins_all_dims','single_bin_defines_iax',...
-            'dax','nonorthogonal','axis_caption'};
+            'dax'};
     end    
-    methods(Static)
-        function ax = get_from_old_data(input)
-            % supports getting axes block from the data, stored in binary
-            % Horace files versions 3 and lower.
-            ax = axes_block();
-            ax = ax.from_old_struct(input);
-        end
-        function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
-            % saveable class
-            obj = axes_block();
-            obj = loadobj@serializable(S,obj);
-        end
-    end    
-    %----------------------------------------------------------------------
+    
     methods
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw/sqw data format. Each new version would presumably
-            % read the older version, so version substitution is based on
-            % this number
-            ver = 5;
-        end
-        %
-        function flds = saveableFields(~)
-            % get independent fields, which fully define the state of the
-            % serializable object.
-            flds = axes_block.fields_to_save_;
-        end
         %
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Throw
-            % 'HORACE:axes_block:invalid_argument' if object is invalid.
+            % 'HORACE:AxesBlockBase:invalid_argument' if object is invalid.
             obj = check_combo_arg_(obj);
         end
-        %        
-    end
-    methods(Access=protected)
-        function obj = from_old_struct(obj,inputs)
-            % Restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case where the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % Overloaded to accept Horace 3.6.2<version structure.
-            %
-            if isfield(inputs,'version') && (inputs.version == 1) || ...
-                    isfield(inputs,'iint')
-                inputs = axes_block.convert_old_struct_into_nbins(inputs);
-            end
-            if isfield(inputs,'one_nb_is_iax')
-                inputs.single_bin_defines_iax = inputs.one_nb_is_iax;
-                inputs = rmfield(inputs,'one_nb_is_iax');
-            end
-            if isfield(inputs,'array_dat')
-                obj = obj.from_bare_struct(inputs.array_dat);
-            else
-                obj = obj.from_bare_struct(inputs);
-            end
+        function flds = saveableFields(~)
+            % get independent fields, which fully define the state of the
+            % serializable object.
+            flds = AxesBlockBase.fields_to_save_;
         end
         
+        %        
     end
 end

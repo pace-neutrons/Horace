@@ -81,7 +81,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             if nargin == 1 %read ge information form file (better accuracy)
                 img_db_range = read_img_range(obj);
             else % calculate image range from axes
-                img_db_range = axes_block.calc_img_db_range(data_str);
+                img_db_range = ortho_axes.calc_img_db_range(data_str);
                 if any(isinf(img_db_range(:)))
                     img_data_range = read_img_range(obj);
                     undef = isinf(img_db_range);

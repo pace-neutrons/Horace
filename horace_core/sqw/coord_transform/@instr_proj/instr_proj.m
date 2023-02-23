@@ -186,13 +186,13 @@ classdef instr_proj<aProjection
             % return the axes block, corresponding to this projection class.
             %
             % According to its operations, instrument projection generate
-            % axes_block directly from data range and number of bin in each
+            % ortho_axes directly from data range and number of bin in each
             % direction
-            ax_bl = axes_block(4);
+            ax_bl = ortho_axes(4);
             % set up range and number of bins for the selected axes block
             ax_bl.img_range = ranges;
             ax_bl.nbins_all_dims = bin_numbers;
-            % TODO: Do we want to have axes block here beeing always 4D or
+            % TODO: Do we want to have axes block here being always 4D or
             % let the shape to be defined by input number of bins?
             ax_bl.single_bin_defines_iax = true(4,1); % here we assume that
             % object may be less then 4-dimensions
@@ -201,7 +201,7 @@ classdef instr_proj<aProjection
             end
             % other parameters
             ax_bl.ulen  = [1,1,1,1];
-            % TODO, delete this, mutate axes_block
+            % TODO, delete this, mutate ortho_axes
             ax_bl.axis_caption=an_axis_caption();
             ax_bl.label = obj.label;
 

@@ -5,7 +5,7 @@ function bin_range = get_cut_range(obj,varargin)
 % 
 % Optional:
 % -full_range -- if provided, returns 4-element cell array, containing
-%                bining ranges and integration ranges along all 4-D axes.
+%                binning ranges and integration ranges along all 4-D axes.
 %
 % Returns:
 %
@@ -15,7 +15,7 @@ function bin_range = get_cut_range(obj,varargin)
 % 
 [ok,mess,full_range] = parse_char_options(varargin,{'-full_range'});
 if ~ok
-    error('HORACE:axes_block:invalid_argument',mess);
+    error('HORACE:AxesBlockBase:invalid_argument',mess);
 end
 
 

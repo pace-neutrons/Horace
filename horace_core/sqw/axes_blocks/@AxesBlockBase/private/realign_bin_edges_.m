@@ -27,7 +27,7 @@ for i=1:4
                 warning('HORACE:realign_bin_edges:invalid_argument', ...
                     ['projection axis is requested in direction N%d, ',...
                     'but original axis there is integration. ',...
-                    'Can not rebin integraion axis on dnd object.', ...
+                    'Can not rebin integration axis on dnd object.', ...
                     ' Doing integration axis in this direction'],...
                     i)
             end
@@ -37,7 +37,8 @@ for i=1:4
         ax_range(:,i) = find_proper_iax_range(this_range(:,i),this_nbins(i),ax_range(:,i));
     end
 end
-ax_block_al = axes_block(obj);
+ax_block_al = feval(class(obj));
+ax_block_al = ax_block_al.init(obj);
 ax_block_al.img_range=ax_range;
 ax_block_al.nbins_all_dims = ax_nbins;
 
@@ -57,13 +58,13 @@ iax_requested(1) = bin_edges(min_ind);
 iax_requested(2) = bin_edges(max_ind);
 
 function [nbins,req_range] = realign_pax(i,origin_range,origin_nbins,req_range,req_nbins,log_level)
-% build commensurate range and binning parameters for two overapping axes
+% build commensurate range and binning parameters for two overlapping axes
 % ranges
 % Input:
 % origin_range -- range of existing data
 % origin_bins  -- number of bins this range is divided into
 % req_range    -- the suggested range one wants to obtain. The resulting
-%                 range to be made commensurate with the exisring range
+%                 range to be made commensurate with the existing range
 % req_nbins    -- requested number of bins the range needs to be divided
 %                 into.
 if req_range(1) >=origin_range(2) % maximum provided is smaller then minimum requested
@@ -83,7 +84,7 @@ if req_range(2)-req_range(1) < base_step
             i,req_range(1),req_range(2))
     end
 end
-% new step should be either equal to the old step or to be whole muiltiple
+% new step should be either equal to the old step or to be whole multiple
 % of the old step
 req_step0 = (req_range(2)-req_range(1))/(req_nbins);
 if req_range(2)>origin_range(2)
@@ -109,7 +110,7 @@ end
 bin_edges = linspace(origin_range(1),origin_range(2),origin_nbins+1);
 first_edge = origin_range(1);
 
-% realign bin centers
+% realign bin centres
 new_edge_1 = req_range(1);
 if new_edge_1<first_edge
     % requested range

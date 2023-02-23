@@ -137,7 +137,7 @@ set(hor_config,'log_level',-1);
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin.
 % TODO: refactor and make applicable for file-based operations
-ax = axes_block('nbins_all_dims',ones(4,1),'img_range',combine_range);
+ax = ortho_axes('nbins_all_dims',ones(4,1),'img_range',combine_range);
 wout.data = d0d(ax,proj1);
 wout.data.npix = wout.pix.num_pixels;
 

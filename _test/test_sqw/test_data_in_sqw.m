@@ -49,10 +49,10 @@ classdef test_data_in_sqw < TestCaseWithSave
         end
         %
         function test_loadobj_v0_v1(obj)
-            ax = axes_block([ 1,0.01,2],[-1,1],[0,1],[0,1,10],...
+            ax = ortho_axes([ 1,0.01,2],[-1,1],[0,1],[0,1,10],...
                 'label',{'\zeta','\xi','\eta','E'});
             ref_obj = data_sqw_dnd(ax,ortho_proj());
-            % ocasionally old objects contain npix == 1
+            % occasionally old objects contain npix == 1
             ref_obj.npix = ones(size(ref_obj.npix));
 
             % check modern loader (if saved)
@@ -63,7 +63,7 @@ classdef test_data_in_sqw < TestCaseWithSave
             assertEqualToTol(ref_obj,loaded_v0_obj,[1.e-9,1.e-9]);
 
             % Here we are preparing to restore data_sqw_dnd stored as common
-            % object when it is split to projection and axes_block
+            % object when it is split to projection and ortho_axes
             %ld = load('data_sqw_dnd_V1_ref_data.mat');
             %loaded_v1_obj = ld.test_loadobj_v0_v1.ref_obj;
             %assertEqualToTol(ref_obj,loaded_v1_obj,[1.e-9,1.e-9]);

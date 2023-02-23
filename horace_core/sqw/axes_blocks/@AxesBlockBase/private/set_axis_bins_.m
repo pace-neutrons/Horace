@@ -42,7 +42,7 @@ function obj=set_axis_bins_(obj,ndims,varargin)
 
 
 if nargin ~=6
-    error('HORACE:axes_block:invalid_argument',...
+    error('HORACE:AxesBlockBase:invalid_argument',...
         'Must have four and only four binning descriptors');
 end
 one_bn_is_iax = obj.single_bin_defines_iax_;
@@ -114,7 +114,7 @@ elseif isnumeric(p)
             range=[p(1);p(2)];
             nbin  = 1;
         else
-            error('HORACE:axes_block:invalid_argument',...
+            error('HORACE:AxesBlockBase:invalid_argument',...
                 'Range N%d: Upper integration range must be greater than or equal to the lower integration range',i);
         end
 
@@ -131,7 +131,7 @@ elseif isnumeric(p)
                 end
                 max_v = min_v+nbin*p(2); % bin edges provided
                 range=[min_v;max_v];                
-            else % bin centers provided
+            else % bin centres provided
                 min_v = p(1);
                 max_v = p(3);
                 nbin = floor((max_v-min_v)/p(2));
@@ -140,16 +140,16 @@ elseif isnumeric(p)
                 range=[min_v;max_v];                
             end
         else
-            error('HORACE:axes_block:invalid_argument',...
+            error('HORACE:AxesBlockBase:invalid_argument',...
                 'Range N%d: Check that range has form [plo,pstep,phi], plo<=phi and pstep>0',i);
         end
 
     else
-        error('HORACE:axes_block:invalid_argument',...
+        error('HORACE:AxesBlockBase:invalid_argument',...
             'Range N%d: Binning description must have form [plo,pstep,phi], [plo,phi], or [pcent] or cell array of bin boundaries',i);
     end
 else
-    error('HORACE:axes_block:invalid_argument',...
+    error('HORACE:AxesBlockBase:invalid_argument',...
         'Binning description must have form [plo,pstep,phi], [plo,phi], or [pcent]');
 end
 

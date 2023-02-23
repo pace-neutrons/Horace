@@ -188,7 +188,7 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,4];
             data.iint=[1;30];
             data.p={1:10;1:20;1:40};
-            ax = axes_block.get_from_old_data(data);
+            ax = ortho_axes.get_from_old_data(data);
             proj = ortho_proj.get_from_old_data(data);
 
             do = data_sqw_dnd(ax,proj);
@@ -239,7 +239,7 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,3,4];
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
-            ax = axes_block.get_from_old_data(data);
+            ax = ortho_axes.get_from_old_data(data);
             proj = ortho_proj.get_from_old_data(data);
 
             do = data_sqw_dnd(ax,proj);
@@ -267,7 +267,7 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,3,4];
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
-            ax = axes_block.get_from_old_data(data);
+            ax = ortho_axes.get_from_old_data(data);
             proj = ortho_proj.get_from_old_data(data);
             do = data_sqw_dnd(ax,proj);
 

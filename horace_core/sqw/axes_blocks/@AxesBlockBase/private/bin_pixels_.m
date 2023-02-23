@@ -7,9 +7,9 @@ function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels_(obj,coord,nout,..
 %--------------------------------------------------------------------------
 % Inputs:
 %
-% obj   -- the initialized axes_block object with the grid defined
+% obj   -- the initialized AxesBlockBase object with the grid defined
 % coord -- the 3D or 4D array of pixels coordinates transformed into
-%          axes_block coordinate system
+%          AxesBlockBase coordinate system
 % num_outputs
 %       -- the number of output parameters requested to process. Depending
 %          on this number, additional parts of the algorithm will be
@@ -18,10 +18,10 @@ function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels_(obj,coord,nout,..
 %          about number of pixels contributing into each bin of the grid,
 %          defined by this axes block.
 % s    --  the array of size of the grid, defined by this
-%          axes_block, containing the information about the accumulated
+%          AxesBlockBase, containing the information about the accumulated
 %          signal from all pixels, contributing to each grid cell.
 % e    --  the array of size of the grid, defined by this
-%          axes_block, containing the information about the error from all
+%          AxesBlockBase, containing the information about the error from all
 %          pixels, contributing to each grid cell.
 % npix, s, e arrays on input, contain the previous
 %          state of the accumulator or 0, if this is the first call to
@@ -72,7 +72,7 @@ if nargin>8
     % unknown options
     [ok,mess,force_double,argi]=parse_char_options(varargin,options);
     if ~ok
-        error('HORACE:axes_block:invalid_argument',mess)
+        error('HORACE:AxesBlockBase:invalid_argument',mess)
     end
 else
     force_double =false;

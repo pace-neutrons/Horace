@@ -36,7 +36,7 @@ classdef aProjection < serializable
         label % the method which allows user to change labels present on a
         %      cut
         %      This is transient property, which would be carried out to
-        %      and stored in the axes_block. If you need to modify the
+        %      and stored in the AxesBlockBase. If you need to modify the
         %      labels on the final cut, you would work rather with the
         %      axes block, but here you may request changed labels when the
         %      projection is provided as input for a cut
@@ -180,7 +180,7 @@ classdef aProjection < serializable
                 targ_axes_block,targ_proj)
             % return the positions and the sizes of the pixels blocks
             % belonging to the cells which may contribute to the final cut.
-            % The cells are defined by the projections and axes_block-s,
+            % The cells are defined by the projections and axes block-s,
             % provided as input.
             %
             % Generic (less efficient) implementation
@@ -311,7 +311,7 @@ classdef aProjection < serializable
             % by the axes block, specified as input.
             %
             % Inputs:
-            % axes -- the instance of axes_block class defining the
+            % axes -- the instance of AxesBlockBase class defining the
             %         shape and the binning of the target coordinate system
             % pix_cand
             %      -- PixelData object or pixel data accessor from file
@@ -352,7 +352,7 @@ classdef aProjection < serializable
             %           follow up sorting of data by the bins is expected
             %
             % Optional arguments transferred without any change to
-            % axes_block.bin_pixels( ____ ) routine
+            % AxesBlockBase.bin_pixels( ____ ) routine
             %
             % '-nomex'    -- do not use mex code even if its available
             %               (usually for testing)
@@ -423,11 +423,11 @@ classdef aProjection < serializable
         %
         function ax_bl = get_proj_axes_block(obj,def_bin_ranges,req_bin_ranges)
             % Construct the axes block, corresponding to this projection class
-            % Returns generic axes_block, built from the block ranges or the
+            % Returns generic AxesBlockBase, built from the block ranges or the
             % binning ranges.
             %
             % Usually overloaded for specific projection and specific axes
-            % block to return the particular axes_block specific for the
+            % block to return the particular AxesBlockBase specific for the
             % projection class.
             %
             % Inputs:
@@ -437,16 +437,19 @@ classdef aProjection < serializable
             %           infinite. Usually it is the range of the existing
             %           axes block, transformed into the system
             %           coordinates, defined by obj projection by
-            %           axes_block.get_binning_range method.
+            %           AxesBlockBase.get_binning_range method.
             % req_bin_ranges --
             %           cellarray of bin ranges, requested by user.
             %
             % Returns:
             % ax_bl -- initialized, i.e. containing defined ranges and
-            %          numbers of  bins in each direction, axes_block
+            %          numbers of  bins in each direction, AxesBlockBase
             %          corresponding to the projection
-            ax_bl = axes_block.build_from_input_binning(...
-                def_bin_ranges,req_bin_ranges);
+            cl_name = class(obj);
+            cl_type = split(cl_name,'_');
+            proj_class = [cl_type(1:end),'_axes'];
+            ax_bl = AxesBlockBase.build_from_input_binning(...
+                proj_class,def_bin_ranges,req_bin_ranges);
             ax_bl.label = obj.label;
             if ~isempty(obj.title)
                 ax_bl.title = obj.title;

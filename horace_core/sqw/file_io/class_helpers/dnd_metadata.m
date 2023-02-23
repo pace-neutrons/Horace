@@ -3,7 +3,7 @@ classdef dnd_metadata < serializable
     %contains all information, describing this image.
     %
     % The purpose of this class is storing/restoring DnD object metadata
-    % into custom bindary file.
+    % into custom binary file.
     %
     properties(Dependent)
         %------------------------------------------------------------------
@@ -44,7 +44,7 @@ classdef dnd_metadata < serializable
         creation_date;
     end
     properties(Access=protected)
-        axes_ = axes_block();
+        axes_ = ortho_axes();
         proj_ = ortho_proj();
         %
         creation_date_ = '';
@@ -178,9 +178,9 @@ classdef dnd_metadata < serializable
         end
         %------------------------------------------------------------------
         function obj = set.axes(obj,val)
-            if ~isa(val,'axes_block')
+            if ~isa(val,'AxesBlockBase')
                 error('HORACE:dnd_metadata:invalid_argument', ...
-                    'you can set axes using an instance of axes_block class only. Input class is: %s', ...
+                    'you can set axes using an instance of AxesBlockBase class only. Input class is: %s', ...
                     class(val));
             end
             obj.axes_ = val;

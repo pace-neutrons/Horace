@@ -6,14 +6,14 @@ function varargout = cut_single_(w, tag_proj, targ_axes,return_cut, ...
 % ------
 % w           The dnd object to take a cut from.
 % tag_proj    A `projection` object, defining the projection of the cut.
-% targ_axes   `axes_block` object defining the ranges, binning and geometry
+% targ_axes   `ortho_axes` object defining the ranges, binning and geometry
 %             of the target cut
 % return_cut  if false, save output cut into the file  (name provided)
 % outfile     The output file to write the cut to, empty if cut is not to be
 %             written to file (char).
 % proj_given  if true, user provided projection and cut_interpolate algorithm
 %             should be used, if false, rebinning/integration algorithm
-%             should be ivoked
+%             should be invoked
 % log_level   verbosity of the cut progress report. Taken from
 %             hor_config.log_level and propagated through the parameters to
 %             avoid subsequent calls to hor_config.
@@ -85,7 +85,7 @@ function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 % Input:
 % ------
 % targ_proj  A 'projection' object, defining the projection of the cut.
-% targ_axes  A 'axes_block' object defining the ranges, binning and geometry
+% targ_axes  A 'AxesBlockBase' object defining the ranges, binning and geometry
 %            of the target cut
 %
 % Output:

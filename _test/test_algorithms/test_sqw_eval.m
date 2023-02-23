@@ -345,7 +345,7 @@ classdef test_sqw_eval < TestCase & common_state_holder
 
     methods (Static)
         function fake_dnd = build_fake_dnd()
-            fake_dnd = d2d(axes_block('nbins_all_dims',[3,1,2,1]),ortho_proj());
+            fake_dnd = d2d(ortho_axes('nbins_all_dims',[3,1,2,1]),ortho_proj());
             fake_dnd.s = [1, 0, 2;  7, 1, 2]';
             fake_dnd.npix = [2, 0, 6;  8, 3, 4]';
             fake_dnd.e = sqrt(fake_dnd.s)./fake_dnd.npix;

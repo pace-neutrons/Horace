@@ -1,6 +1,6 @@
 function [dens_nodes,densities,base_cell_size] = calculate_density_(obj,in_data)
-% Convert input datasets defined on centre-points of the axes_block grid into
-% the density data, defined on edges of the axes_block grid.
+% Convert input datasets defined on centre-points of the AxesBlockBase grid into
+% the density data, defined on edges of the AxesBlockBase grid.
 %
 % Inputs:
 % in_data -- cellarray of input datasets to calculate density

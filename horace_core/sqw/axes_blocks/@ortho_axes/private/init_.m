@@ -1,20 +1,16 @@
 function [obj,offset,remains] = init_(obj,varargin)
-%
+% Initialize ortho_axes class contents
 %
 remains = {};
 offset = zeros(4,1);
 nargi = nargin-1;
-if isa(varargin{1},'axes_block')
+if isa(varargin{1},'ortho_axes')
     source = varargin{1};
-    if strcmp(class(obj),'axes_block')% handle shallow copy constructor
+    if strcmp(class(obj),'ortho_axes')% handle shallow copy constructor
         obj =source;                    % its COW for Matlab anyway
-    else % child initiated (may be partially) by an axes_block.
+    else % child initiated (may be partially) by an ortho_axes.
         % the case probably will be removed in a future but logically correct
-        ab = axes_block();
-        flds = ab.saveableFields();
-        for i=1:numel(flds)
-            obj.(flds{i}) = source.(flds{i});
-        end
+        obj = obj.from_bare_struct(source);
     end
     remains = varargin(2:end);
     if ~isempty(remains) && isfield(remains{1},'uoffset')
@@ -23,8 +19,8 @@ if isa(varargin{1},'axes_block')
 elseif nargi==1
     if isstruct(varargin{1})
         input_struct = varargin{1};
-        %TODO: this should be removed and axis cation become part
-        %of some classes from axes_block family.
+        %TODO: #952 this should be removed and axis cation become part
+        %of some classes from AxesBlockBase family.
         if isfield(input_struct,'axis_caption') && ~isempty(input_struct.axis_caption)
             obj.axis_caption = input_struct.axis_caption;
         else
@@ -36,7 +32,7 @@ elseif nargi==1
     elseif isscalar(varargin{1}) && isnumeric(varargin{1})
         ndim=varargin{1}; % build default axes block with specified number of dimensions
         if ~any(ndim==[0,1,2,3,4])
-            error('HORACE:axes_block:invalid_argument',...
+            error('HORACE:ortho_axes:invalid_argument',...
                 'Numeric input must be 0,1,2,3 or 4 to create empty dataset');
         end
 
@@ -48,7 +44,7 @@ elseif nargi==1
         obj = set_axis_bins_([],varargin{1}{:});
         obj.axis_caption = an_axis_caption();
     else
-        error('HORACE:axes_block:invalid_argument',...
+        error('HORACE:ortho_axes:invalid_argument',...
             'unrecognised type of single axis_block constructor argument');
     end
 elseif nargi>= 4 % Either binning parameters (first 4) or default serializable
@@ -77,7 +73,7 @@ elseif nargi>= 4 % Either binning parameters (first 4) or default serializable
             names,false,argi{:});
         if ~isempty(remains)
             out = cellfun(@any_to_char,remains,'UniformOutput',false);
-            error('HORACE:axes_block:invalid_argument',...
+            error('HORACE:ortho_axes:invalid_argument',...
                 'Unknown input parameters and/or values %s',strjoin(out,'; '))
         end
     end
@@ -86,7 +82,7 @@ elseif nargi<4 && nargi>1
     [obj,remains] = obj.set_positional_and_key_val_arguments(...
         names,false,varargin{:});
 else
-    error('HORACE:axes_block:invalid_argument',...
+    error('HORACE:ortho_axes:invalid_argument',...
         'Unrecognised number: %d of input arguments',nargi);
 end
 function out = any_to_char(x)

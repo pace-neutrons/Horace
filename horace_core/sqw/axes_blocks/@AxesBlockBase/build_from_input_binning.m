@@ -1,8 +1,8 @@
 function  new_axes_block = build_from_input_binning(...
-    cur_img_range_and_steps,pbin)
-% Build new axes_block object from the binning parameters, provided
+    axes_class_name,cur_img_range_and_steps,pbin)
+% Build new AxesBlockBase object from the binning parameters, provided
 % as input. If some input binning parameters are missing, the
-% defaults are taken from the existing axes_block object.
+% defaults are taken from the existing AxesBlockBase object.
 %
 % if the target range defined by binning exceeds the existing image range
 % (in target coordinate system), the existing image range is selected
@@ -11,6 +11,7 @@ function  new_axes_block = build_from_input_binning(...
 %       with meaning described by cut_sqw or cut_dnd inputs. See below for more details.
 %
 % Inputs:
+% axes_class_name -- name of the axes block class to build
 % cur_img_range_and_steps
 %          --   4-elements cellarray of the ranges and steps of source
 %               image, expressed in the target coordinates and
@@ -26,14 +27,14 @@ function  new_axes_block = build_from_input_binning(...
 %                               and step size taken from existing binning
 %               - [plo, pstep, phi] Plot axis: minimum and maximum bin centres and step size
 % Outputs:
-% new_axis_block    -- initialized instance of axes_block class
+% new_axis_block    -- initialized instance of AxesBlockBase class
 
 if numel(pbin) ~=4
-    error('HORACE:axes_block:invalid_argument',...
+    error('HORACE:AxesBlockBase:invalid_argument',...
         'Have not provided binning descriptor for all three momentum axes and the energy axis');
 end
 if numel(cur_img_range_and_steps) ~=4
-    error('HORACE:axes_block:invalid_argument',...
+    error('HORACE:AxesBlockBase:invalid_argument',...
         'Have not provided default binning for all three momentum axes and the energy axis');
 else
     if size(cur_img_range_and_steps,1) > 1
@@ -51,7 +52,8 @@ ind = num2cell(idim);
 targ_img_range = cellfun(@(i,bin_rec,bin_def)parse_pbin(i,bin_rec,bin_def),...
     ind,pbin,cur_img_range_and_steps,'UniformOutput',false);
 
-new_axes_block = axes_block(targ_img_range{:});
+new_axes_block = feval(axes_class_name);
+new_axes_block = new_axes_block.init(targ_img_range{:});
 
 
 function range = parse_pbin(ind,bin_req,bin_default)
@@ -113,6 +115,6 @@ end
 
 % check validity of data ranges
 if range(end) < range(1)
-    error('HORACE:axes_block:invalid_argument',...
+    error('HORACE:AxesBlockBase:invalid_argument',...
         'Upper limit greater or equal to the lower limit - check axis N: %d',ind);
 end

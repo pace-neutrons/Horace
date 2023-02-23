@@ -1,9 +1,9 @@
-classdef axes_blockTester < axes_block
+classdef ortho_axesTester < ortho_axes
     % Used to test protected access_block methods
     
     methods
-        function obj = axes_blockTester(varargin)
-            obj = obj@axes_block(varargin{:});
+        function obj = ortho_axesTester(varargin)
+            obj = obj@ortho_axes(varargin{:});
         end
         
         function [npix,s,e,pix_candidates,argi]= ...
