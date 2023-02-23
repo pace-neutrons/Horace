@@ -114,14 +114,15 @@ classdef spher_proj<aProjection
             type = obj.type_;
         end
         function obj = set.type(obj,val)
-            if ~(istext(val) && strlength(val) ~=3)
+            if ~(istext(val) && strlength(val) ==3)
                 error('HORACE:spher_proj:invalid_argument',...
                     'The type parameter has to be a text string with 3 elements. It is: "%s"',...
                     disp2str(val));
             end
-            if ~strmp(val,'add')
-                error('HORACE:spher_proj:not_implemented',...
-                    'Spherical projection types differetn from "add" have not yet been implemented')
+            if ~strcmp(val,'add')
+                warning('HORACE:spher_proj:not_implemented',...
+                    'Spherical projection types different from "add" have not yet been implemented')
+                val = 'add';
             end
             obj.type_ = val;
         end
