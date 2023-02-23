@@ -382,7 +382,7 @@ classdef AxesBlockBase < serializable
             %           -- if provided, returns grid used to define density,
             %              namely with points located on the grid cell edges +
             %              edges of integrated  dimensions.
-            % '-bin_center'
+            % '-bin_centre'
             %           -- if provided, returns grid used for integration
             %              by summation in centre-points, namely, points
             %              are in the centre of cells and integration
@@ -408,7 +408,7 @@ classdef AxesBlockBase < serializable
             %        -- 4-element vector of characteristic sizes of the grid cell in
             %           4 dimensions
             %
-            opt = {'-3D','-halo','-data_to_density','-bin_center','-axes_only','-ngrid'};
+            opt = {'-3D','-halo','-data_to_density','-bin_centre','-axes_only','-ngrid'};
             [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,axes_only,ngrid,argi] ...
             = parse_char_options(varargin,opt);
             if ~ok

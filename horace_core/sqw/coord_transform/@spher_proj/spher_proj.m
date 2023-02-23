@@ -1,14 +1,14 @@
 classdef spher_proj<aProjection
     % Class defines spherical coordinate projection, used by cut_sqw
     % to make spherical cuts.
-    % 
+    %
     % TODO: #954 NEEDS verification:
-    % The angular coordinates names and meanings are chosen according 
-    % to the conventions of inelastic spectrometry, i.e.: 
+    % The angular coordinates names and meanings are chosen according
+    % to the conventions of inelastic spectrometry, i.e.:
     % |Q|     -- coordinate 1 is the module of the scattering momentum,
     % theta   -- coordinate 2, the angle between the beam direction (k_i)
-    %            and the direction of the Q, 
-    % phi     -- coordinate 3 is the angle between the projection of the 
+    %            and the direction of the Q,
+    % phi     -- coordinate 3 is the angle between the projection of the
     %            scattering vector to the instrument plain (perpendicular
     %            to k_i) and the crystal rotation plain.
     % dE      -- coordinate 4 the energy transfer direction
@@ -56,7 +56,7 @@ classdef spher_proj<aProjection
             obj = obj@aProjection();
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
             obj.label = {'\|Q\|','\theta','\phi','En'};
-   
+
             obj = obj.init(varargin{:});
         end
         function obj = init(obj,varargin)
@@ -114,7 +114,16 @@ classdef spher_proj<aProjection
             type = obj.type_;
         end
         function obj = set.type(obj,val)
-
+            if ~(istext(val) && strlength(val) ==3)
+                error('HORACE:spher_proj:invalid_argument',...
+                    'The type parameter has to be a text string with 3 elements. It is: "%s"',...
+                    disp2str(val));
+            end
+            if ~strcmp(val,'add')
+                warning('HORACE:spher_proj:not_implemented',...
+                    'Spherical projection types different from "add" have not yet been implemented')
+                val = 'add';
+            end
             obj.type_ = val;
         end
         function [rot_to_img,offset]=get_pix_img_transformation(obj,ndim)
@@ -130,7 +139,6 @@ classdef spher_proj<aProjection
                     disp2str(ndim));
             end
         end
-
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
         %------------------------------------------------------------------

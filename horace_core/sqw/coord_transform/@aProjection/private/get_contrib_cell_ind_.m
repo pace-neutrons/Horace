@@ -8,10 +8,7 @@ function  contrib_ind = get_contrib_cell_ind_(source_proj,...
 %
 %
 
-if isempty(targ_proj)
-    targ_proj = source_proj.targ_proj;
-end
-%
+
 % build bin edges for the target grid and bin centres for reference grid
 if source_proj.do_3D_transformation_
     [targ_nodes,dEnodes] = targ_axes_block.get_bin_nodes('-3D','-ngrid','-halo');
