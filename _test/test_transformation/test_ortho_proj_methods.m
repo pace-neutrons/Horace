@@ -153,7 +153,7 @@ classdef test_ortho_proj_methods<TestCase
 
         function test_binning_range_05_samp_proj2Drot45_3D_opt_vs4D_generic(~)
             % full 4D transformation with orthogonal dE axis tested against
-            % equivalend 3d+1 transformation. Should give equal results
+            % equivalent 3d+1 transformation. Should give the same results
             proj1 = ortho_proj([1,0,0],[0,1,0]);
             proj1.do_generic = true;
             proj1.do_3D_transformation = false;
@@ -286,9 +286,10 @@ classdef test_ortho_proj_methods<TestCase
             [bl_start,bl_size] = proj1.get_nrange(npix,ab0,ab1,proj2);
             assertEqual(numel(bl_start),numel(bl_size));
 
-            % hell it knows if this is correct or not
+            % hell it knows if this is correct or not. Looks plausible 
+            % if you carefully analyse the image
             assertEqual(numel(bl_start),7);
-            assertEqual(bl_start,[45    56    67    78    89   100   111]);
+            assertEqual(bl_start,[45,56,67,78,89,100,111]);
             assertEqual(bl_size, ones(1,7)*2);
         end
         function test_binning_range_half_sampe_proj2D_offset_eq_ranges_shif(~)

@@ -1,10 +1,11 @@
 function obj = check_combo_arg_(obj)
-% Check validity of interdependent fields
+% Check validity of interdependent fields and construct proper transformation matrix 
+% for spherical coordinates conversion
 %
 %   >> obj = check_combo_arg(w)
 %
 % Throws HORACE:spher_proj:invalid_argument with the message
-% suggesting the reason for failure if the inputs are incorret
+% suggesting the reason for failure if the inputs are incorrect
 % w.r.t. each other.
 %
 % Normalizes input vectors to unity and constructs the

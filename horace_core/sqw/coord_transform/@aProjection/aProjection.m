@@ -69,9 +69,9 @@ classdef aProjection < serializable
         % true, though testing or the projection used to identify position
         % of q-dE point in q-dE space may set this property to false.
         do_3D_transformation;
-        % direct access to different parts of 4-component label celarray.
+        % Direct access to different parts of 4-component label celarray.
         % sets up appropriate element of such array. Do not have a getter.
-        % Do retrievel label as a whole.
+        % Do retrieve label as a whole.
         lab1;
         lab2;
         lab3;
@@ -148,12 +148,12 @@ classdef aProjection < serializable
             % class properties containing setters in the form:
             % {pos_value2,pos_value2,pos_value3,...
             % property_name1, value1, property_name2, value2....}
-            % The list of the possible properties to be avaliable for
+            % The list of the possible properties to be available for
             % constructor are specified below (opt_par)
 
             % Returns:
             % obj  -- Initialized instance of aProjection class
-            % remanis
+            % remains
             %      -- if input arguments contains key-value pairs which do
             %         not describe aProjection class, the output contains
             %         cellarray of such parameters. Empty, if all inputs
@@ -344,7 +344,7 @@ classdef aProjection < serializable
             %           PixelData object (as input pix_candidates) containing
             %           pixels contributing to the grid and sorted according
             %           to the axes block grid.
-            % unique_runid -- the runid (tags) for the runs, which
+            % unique_runid -- the run-id (tags) for the runs, which
             %           contributed into the cut
             % pix_indx--indexes of the pix_ok coordinates according to the
             %           bin. If this index is requested, the pix_ok object
@@ -423,7 +423,7 @@ classdef aProjection < serializable
         %
         function ax_bl = get_proj_axes_block(obj,def_bin_ranges,req_bin_ranges)
             % Construct the axes block, corresponding to this projection class
-            % Returns generic axes_block, bult from the block ranges or the
+            % Returns generic axes_block, built from the block ranges or the
             % binning ranges.
             %
             % Usually overloaded for specific projection and specific axes
@@ -623,9 +623,11 @@ classdef aProjection < serializable
             end
             contrib_ind = {istart(:)',iend(:)'};
         end
-        function val = check_3vector(val)
-            % helper function verifying setting 3 vector defining direction
-            val = check_3vector_(val);
+        function val = check_and_brush3vector(val)
+            % Helper function verifying setting 3 vector defining direction
+            % and modifying it to have standard row form avoiding small values in
+            % some directions when other directions are not small.
+            val = check_and_brush3vector_(val);
         end
 
     end

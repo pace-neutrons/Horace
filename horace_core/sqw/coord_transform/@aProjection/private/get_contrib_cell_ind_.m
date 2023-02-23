@@ -3,7 +3,7 @@ function  contrib_ind = get_contrib_cell_ind_(source_proj,...
 % Return the indexes of cells, which may contain the nodes,
 % belonging to the target axes block by
 %
-% Transforming the target coordinate system into source coordinate system
+% Transforming the target coordinate system (TCS) into source coordinate system
 % and binning TCS nodes into source coordinate system bins.
 %
 %
@@ -15,7 +15,7 @@ end
 % build bin edges for the target grid and bin centres for reference grid
 if source_proj.do_3D_transformation_
     [targ_nodes,dEnodes] = targ_axes_block.get_bin_nodes('-3D','-ngrid','-halo');
-    [ch_grid,baseEdges]  = cur_axes_block.get_bin_nodes('-bin_center','-3D');
+    [ch_grid,baseEdges]  = cur_axes_block.get_bin_nodes('-bin_centre','-3D');
     presence_mark = ones(size(dEnodes));
     presence_mark = nullify_edges(presence_mark,size(dEnodes));    
     nodes_near = interp1(dEnodes,presence_mark,baseEdges,'linear',0);
@@ -26,7 +26,7 @@ if source_proj.do_3D_transformation_
     end
 else
     targ_nodes = targ_axes_block.get_bin_nodes('-ngrid','-halo');
-    ch_grid = cur_axes_block.get_bin_nodes('-bin_center');
+    ch_grid = cur_axes_block.get_bin_nodes('-bin_centre');
 end
 szn = size(targ_nodes{1});
 presence_mark = ones(szn);

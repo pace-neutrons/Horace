@@ -1,21 +1,31 @@
 classdef spher_proj<aProjection
     % Class defines spherical coordinate projection, used by cut_sqw
-    % to make spherical cuts
+    % to make spherical cuts.
+    % 
+    % TODO: #954 NEEDS verification:
+    % The angular coordinates names and meanings are chosen according 
+    % to the conventions of inelastic spectrometry, i.e.: 
+    % |Q|     -- coordinate 1 is the module of the scattering momentum,
+    % theta   -- coordinate 2, the angle between the beam direction (k_i)
+    %            and the direction of the Q, 
+    % phi     -- coordinate 3 is the angle between the projection of the 
+    %            scattering vector to the instrument plain (perpendicular
+    %            to k_i) and the crystal rotation plain.
+    % dE      -- coordinate 4 the energy transfer direction
     %
-    % Angles names are given according to Matlab description.
     %
     properties(Dependent)
         ez; %[1x3] Unit vector of Z axis in spherical coordinate system
         % where the elevation angle (Matlab convention) is counted from.
-        % In Horace/Mantid convention this angle is named theta. 
-        % Default direction [0,0,1] is a beam direction.
+        % In Horace/Mantid convention this angle is named pi/2-theta.
+        % Default direction [0,0,1] is a beam direction for this coordinate system.
         %
         ey; %[1x3] unit vector of axis in spherical coordinate system
-        % where the theta angle is counted from. The difection coincides
-        % with the rotation axis.
+        % where the theta angle is counted from. The direction coincides
+        % with the crystal rotation axis here.
 
         %
-        type;  % units of the projection. Default add -- angstrom, degree, degree
+        type;  % units of the projection. Default add -- inverse Angstrom, degree, degree
         %      % possible options: rrr where first r is responsible for rlu
         %      units and two other -- for radian e.g. 'rdr' or adr are
         %      allowed combinations of letters
@@ -26,18 +36,19 @@ classdef spher_proj<aProjection
         ez_ = [0,0,1]
         ey_ = [0,1,0]
         %
-        type_ = 'add' % A, degree, degree
+        type_ = 'add' % A^{-1}, degree, degree
         %------------------------------------
         % For the future. See if we want spherical projection in hkl,
         % non-orthogonal
         %orhtonormal_ = true;
-        hor2matlab_transf_ = [0,0,1;1,0,0;0,1,0]; % The transformation from 
-        % Horace pixel coordinate system to the axes, above to
-        % allow to use matlab sph2cart/cart2sph functions.
-        pix_to_matlab_transf_ ; % the transformation used for conversion 
-        % from pix coordinate system to spherical coordinate systen
+        hor2matlab_transf_ = [0,0,1;1,0,0;0,1,0]; % The transformation from
+        % Horace pixel coordinate system to the axes above to
+        % allow to use Matlab sph2cart/cart2sph functions.
+        pix_to_matlab_transf_ ; % the transformation used for conversion
+        % from pix coordinate system to spherical coordinate system
         % if unit vectors are the default, it equal to hor2matlab_transf_.
-        % If not, bultiplied by rotation from defauult to selected
+        % If not, multiplied by rotation from default to the selected
+        % coordinate system.
     end
 
     methods
@@ -45,9 +56,7 @@ classdef spher_proj<aProjection
             obj = obj@aProjection();
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
             obj.label = {'\|Q\|','\theta','\phi','En'};
-            if nargin>0
-                return;
-            end
+   
             obj = obj.init(varargin{:});
         end
         function obj = init(obj,varargin)
@@ -77,28 +86,28 @@ classdef spher_proj<aProjection
                 end
             end
         end
-        %        
+        %
         function v = get.ez(obj)
             v=obj.ez_;
-        end     
+        end
         function obj = set.ez(obj,val)
-            val = aProjection.check_3vector(val);
+            val = aProjection.check_and_brush3vector(val);
             obj.ez_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         %
         function u = get.ey(obj)
             u = obj.ey_;
         end
         function obj = set.ey(obj,val)
-            val = aProjection.check_3vector(val);
+            val = aProjection.check_and_brush3vector(val);
             obj.ey_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
-            end            
+            end
         end
         %
         function type = get.type(obj)
@@ -106,17 +115,18 @@ classdef spher_proj<aProjection
         end
         function obj = set.type(obj,val)
 
+            obj.type_ = val;
         end
         function [rot_to_img,offset]=get_pix_img_transformation(obj,ndim)
             rot_to_img = obj.pix_to_matlab_transf_;
             if ndim == 3
-                offset   = obj.offset(1:3);            
+                offset   = obj.offset(1:3);
             elseif ndim == 4
                 rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
-                offset   = obj.offset;                            
+                offset   = obj.offset;
             else
                 error('HORACE:spher_proj:invalid_argument', ...
-                    'only numbers 3 and 4 are available as input of this function. Attempted: %s', ...
+                    'ndims can only be 3 and 4. Provided: %s', ...
                     disp2str(ndim));
             end
         end
@@ -130,9 +140,11 @@ classdef spher_proj<aProjection
             %
             %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear
             % TODO, delete this, mutate axes_block
-            ax_bl.axis_caption=spher_proj_caption();
+            axca = spher_proj_caption();
+            axca.proj_type = obj.type;
+            ax_bl.axis_caption=axca;
         end
-        
+
 
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in crystal Cartesian coordinate systems
@@ -145,10 +157,10 @@ classdef spher_proj<aProjection
             %             or instance of PixelDatBase class containing this
             %             information.
             % Returns:
-            % pix_out -- [3xNpix or [4xNpix]Array the pixels coordinates 
-            %            transformed into spherical coordinate system 
+            % pix_out -- [3xNpix or [4xNpix]Array the pixels coordinates
+            %            transformed into spherical coordinate system
             %            defined by object properties
-            % 
+            %
             pix_transformed = transform_pix_to_spher_(obj,pix_data);
         end
         function pix_cc = transform_img_to_pix(obj,pix_transformed,varargin)
@@ -158,6 +170,7 @@ classdef spher_proj<aProjection
         end
 
     end
+
     %=====================================================================
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
@@ -167,11 +180,11 @@ classdef spher_proj<aProjection
             % Check validity of interdependent fields
             %
             %   >> obj = check_combo_arg(w)
-            % 
+            %
             % Throws HORACE:spher_proj:invalid_argument with the message
-            % suggesting the reason for failure if the inputs are incorret
+            % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
-            % 
+            %
             % Normalizes input vectors to unity and constructs the
             % transformation to new coordinate system when operation is
             % successful
@@ -193,11 +206,11 @@ classdef spher_proj<aProjection
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % saveable class
+            % savable class. Useful for recovering class from a structure
             obj = spher_proj();
             obj = loadobj@serializable(S,obj);
         end
     end
     methods(Access=protected)
-    end    
+    end
 end

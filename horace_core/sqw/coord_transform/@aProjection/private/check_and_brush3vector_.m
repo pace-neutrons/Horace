@@ -1,5 +1,7 @@
-function val = check_3vector_(val)
-% Verify input 3-vector describing the direction can be considered valid
+function val = check_and_brush3vector_(val)
+% Helper function verifying setting 3 vector defining direction
+% and modifying it to have standard row form avoiding small values in
+% some directions when other directions are not small.
 
 if ~(isnumeric(val) && numel(val) ==3)
     error('HORACE:aProjection:invalid_argument',...
