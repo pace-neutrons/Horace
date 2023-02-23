@@ -48,8 +48,10 @@ classdef test_ortho_axes < TestCase
 
             pix = PixelDataBase.create(pix_dat_full);
 
-            assertExceptionThrown(@()bin_pixels(ab,pix_data,[],[]),'HORACE:ortho_axes:invalid_argument');
-            assertExceptionThrown(@()bin_pixels(ab,pix_data,[],[],[]),'HORACE:ortho_axes:invalid_argument');
+            assertExceptionThrown(@()bin_pixels(ab,pix_data,[],[]), ...
+                'HORACE:AxesBlockBase:invalid_argument');
+            assertExceptionThrown(@()bin_pixels(ab,pix_data,[],[],[]), ...
+                'HORACE:AxesBlockBase:invalid_argument');
 
             [npix,s,e,pix_ok,unique_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
 
@@ -600,20 +602,6 @@ classdef test_ortho_axes < TestCase
             assertTrue(isempty(argi));
         end
         %------------------------------------------------------------------
-        function test_axes_scales_2D(~)
-            dbr = [-1,-2,-3,0;1,2,3,10];
-            bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
-                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
-
-            [cube,step]  = ab.get_axes_scales();
-            assertEqual(size(cube,2),16)
-            assertEqual(zeros(4,1),cube(:,1))
-            assertEqual(step,cube(:,16))
-            assertEqual(step,...
-                [dbr(2,1)-dbr(1,1);0.2;dbr(2,3)-dbr(1,3);1]);
-        end
-        %------------------------------------------------------------------
         function test_get_bin_nodes_4D_2d(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
@@ -672,7 +660,7 @@ classdef test_ortho_axes < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
            ex = assertExceptionThrown(@()get_bin_nodes(ab,'-bin_centre',(dbr(2,:)-dbr(1,:))/10),...
-                'HORACE:ortho_axes:invalid_argument');
+                'HORACE:AxesBlockBase:invalid_argument');
            assertTrue(strncmp(ex.message,'characteristic size, if present',31));
         end        
         %
@@ -682,7 +670,7 @@ classdef test_ortho_axes < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
            ex = assertExceptionThrown(@()get_bin_nodes(ab,'-wrong',(dbr(2,:)-dbr(1,:))'/10),...
-                'HORACE:ortho_axes:invalid_argument');
+                'HORACE:AxesBlockBase:invalid_argument');
            assertTrue(strncmp(ex.message,'characteristic size, if present',31));
         end        
         %
@@ -878,7 +866,7 @@ classdef test_ortho_axes < TestCase
         function test_build_from_input_binning_more_infs(~)
             default_binning = {[-1,0.1,1],[-2,0.2,2],[-3,0.3,3],[0,1,10.05]};
             pbin = {[-inf,inf],[inf,0.1,1],[-2,0.1,inf],[-inf,0.1,inf]};
-            block = ortho_axes.build_from_input_binning(default_binning,pbin);
+            block = AxesBlockBase.build_from_input_binning('ortho_axes',default_binning,pbin);
             assertTrue(isa(block,'ortho_axes'));
             assertElementsAlmostEqual(block.img_range,...
                 [-1.,-2.05,-2.05,-0.05;...
@@ -896,7 +884,7 @@ classdef test_ortho_axes < TestCase
         function test_build_from_input_binning(~)
             default_binning = {[-1,0.1,1],[-2,0.2,2],[-3,0.3,3],[0,1,10]};
             pbin = {[],[-1,1],[-2,0.1,2],[-inf,0,inf]};
-            block = ortho_axes.build_from_input_binning(default_binning,pbin);
+            block = AxesBlockBase.build_from_input_binning('ortho_axes',default_binning,pbin);
             assertTrue(isa(block,'ortho_axes'));
             assertElementsAlmostEqual(block.img_range,[-1.05,-1,-2.05,-0.5;1.05,1,2.05,10.5]);
             assertEqual(block.nbins_all_dims,[21,1,41,11]);
@@ -975,16 +963,6 @@ classdef test_ortho_axes < TestCase
             assertEqual(ab.single_bin_defines_iax,false(1,4))
         end
         %
-        function test_axes_scales_4D(~)
-            dbr = [-1,-2,-3,0;1,2,3,10];
-            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
-                [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab = ortho_axes(bin0{:});
-
-            [cube,step]  = ab.get_axes_scales();
-            assertEqual(size(cube,2),16)
-            assertEqual(step,cube(:,16))
-        end
 
     end
 end

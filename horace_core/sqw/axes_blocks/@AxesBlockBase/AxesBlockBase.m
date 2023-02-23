@@ -133,6 +133,8 @@ classdef AxesBlockBase < serializable
             %            were provided as input
             %
             if nargin==1
+                offset = [];
+                remains = [];
                 return;
             end            
             obj.do_check_combo_arg_ = false;
@@ -151,20 +153,6 @@ classdef AxesBlockBase < serializable
         %
         [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (obj)        
         %
-        function [cube_coord,step] = get_axes_scales(obj)
-            % Return the array of vertices of a 4D hypercube, describing a
-            % grid cell of the axes block.
-            % Output:
-            % cube_coord -- 4x16 array of vertices of minimal-sized axes
-            %               cube. (Cubes sizes differ in case if axes
-            %               contains different sized grid, e.g.
-            %               cylindrical grid)
-            % step       -- 4x1 vector, containing the axes block grid
-            %               steps. (change of the coordinates in each
-            %               direction, the length of the each side of the
-            %               axes cell hypercube)
-            [cube_coord,step] = get_axes_scales_(obj);
-        end
         function volume = get_bin_volume(obj)
             % return the volume of the axes grid. For rectilinear grid, the
             % volume of the grid is the single value equal to the product
