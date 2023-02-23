@@ -81,7 +81,10 @@ classdef test_dnd_metadata_data < TestCase
             assertEqual(dnd_met.creation_date_str, ...
                 main_header_cl.convert_datetime_to_str(dtt))
 
-            dnd_met.axes.label = {'a','b','c','d'};
+            proj = dnd_met.proj;
+            proj.label = {'a','b','c','d'};
+            dnd_met.proj = proj;
+            assertEqual(dnd_met.axes.label,{'a','b','c','d'})
             dnd_obj.metadata = dnd_met;
 
             assertEqual(dnd_obj.axes,dnd_met.axes)

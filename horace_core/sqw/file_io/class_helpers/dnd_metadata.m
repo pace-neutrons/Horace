@@ -193,6 +193,13 @@ classdef dnd_metadata < serializable
                     class(val));
             end
             obj.proj_ = val;
+            % synchronize label, defined on projection the same way as
+            % it is done on dnd object
+            obj.axes.label = val.label;
+            if ~isempty(val.title)
+                obj.axes_.title = val.title;
+            end
+
         end
         function obj = set.creation_date_str(obj,val)
             if isempty(val)
