@@ -16,14 +16,6 @@ end
 if nargi==1
     if isstruct(varargin{1})
         input_struct = varargin{1};
-        %TODO: #952 this should be removed and axis cation become part
-        %of some classes from AxesBlockBase family.
-        if isfield(input_struct,'axis_caption') && ~isempty(input_struct.axis_caption)
-            obj.axis_caption = input_struct.axis_caption;
-        else
-            obj.axis_caption = an_axis_caption();
-        end
-        %
         [obj,remains] = from_struct(obj,varargin{1});
         remains = {remains};
     elseif isscalar(varargin{1}) && isnumeric(varargin{1})
@@ -36,10 +28,8 @@ if nargi==1
         rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
         pbin=[repmat({[0,1]},1,ndim),rest];
         obj = set_axis_bins_(obj,ndim,pbin{:});
-        obj.axis_caption = an_axis_caption();
     elseif iscell(varargin{1}) && numel(varargin{1})==4 % input is the array of binning parameters
         obj = set_axis_bins_([],varargin{1}{:});
-        obj.axis_caption = an_axis_caption();
     else
         error('HORACE:AxesBlockBase:invalid_argument',...
             'unrecognised type of single axis_block constructor argument');

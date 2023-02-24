@@ -38,8 +38,15 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
         %
         wout = func_eval(win, func_handle, pars, varargin);
+        %------------------------------------------------------------------
         % titles used when plotting an sqw object
         [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=data_plot_titles(obj)
+        % if the object changes aspect ratio during plotting
+        status = adjust_aspect(w);        
+        %------------------------------------------------------------------
+        wout = IX_dataset_1d(w);
+        wout = IX_dataset_2d(w);
+        wout = IX_dataset_3d(w);        
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -117,9 +124,7 @@ classdef (Abstract) SQWDnDBase < serializable
         cl = save(w, varargin);
 
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
-        wout = IX_dataset_1d(w);
-        wout = IX_dataset_2d(w);
-        wout = IX_dataset_3d(w);
+
         [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
         %                             % of the bins of an n-dimensional sqw
         %                             % or dnd dataset
@@ -167,7 +172,6 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
     methods (Access = private)
-        status = adjust_aspect(w);
         [ok,mess,adjust,present]=adjust_aspect_option(args_in);
         dout = smooth_dnd(din, xunit, varargin);
     end

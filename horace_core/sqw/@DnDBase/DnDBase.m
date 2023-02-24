@@ -182,6 +182,31 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         % Change the crystal lattice and orientation of an sqw object or array of objects
         wout = change_crystal(win,varargin);
+        %
+        function varargout = IX_dataset_1d(obj)
+            error('HORACE:DnDBase:not_implemented', ...
+                'IX_dataset_1d is not implemented for %d dimensional object', ...
+                obj.dimensions())
+        end
+        function varargout = IX_dataset_2d(obj)
+            error('HORACE:DnDBase:not_implemented', ...
+                'IX_dataset_2d is not implemented for %d dimensional object', ...
+                obj.dimensions())
+
+        end
+        function varargout = IX_dataset_3d(obj)
+            error('HORACE:DnDBase:not_implemented', ...
+                'IX_dataset_3d is not implemented for %d dimensional object', ...
+                obj.dimensions())
+        end
+        % check if the function changes aspect ratio
+        does = adjust_aspect(obj);
+        
+        function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
+                data_plot_titles(obj)
+            % note: axes annotations correctly account for permutation in w.data_.dax
+            error('HORACE:DnDBase:not_implemented','Re #952 The method is not yet implemented')
+        end
     end
     %======================================================================
     % Redundant and convenience Accessors
@@ -443,12 +468,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %
         function def = get.creation_date_defined(obj)
             def = obj.creation_date_defined_;
-        end
-        function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
-                data_plot_titles(obj)
-            %
-            error('HORACE:DnDBase:not_implemented','Re #952 The method is not yet implemented')
-        end
+        end        
     end
     %======================================================================
     % binfile IO interface
@@ -562,7 +582,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             % Restore object from the old structure, which describes the
             % previous version of the object.
             %
-            % The method is called by loadobj in the case if the input
+            % The method is called by lodobj in the case if the input
             % structure does not contain a version or the version, stored
             % in the structure does not correspond to the current version
             % of the class.

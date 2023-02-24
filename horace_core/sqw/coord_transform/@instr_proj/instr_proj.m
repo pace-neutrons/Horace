@@ -201,8 +201,6 @@ classdef instr_proj<aProjection
             end
             % other parameters
             ax_bl.ulen  = [1,1,1,1];
-            % TODO, delete this, mutate ortho_axes
-            ax_bl.axis_caption=an_axis_caption();
             ax_bl.label = obj.label;
 
         end

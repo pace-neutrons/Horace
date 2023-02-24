@@ -1,7 +1,7 @@
 function adjust_aspect_2d_(w)
 % Set aspect ratio
 %
-adjust_aspect = w(1).axes.axis_caption.changes_aspect_ratio;
+adjust_aspect = w(1).axes.changes_aspect_ratio;
 if adjust_aspect
     pax = w(1).pax;
     dax = w(1).dax;                  % permutation of projection axes to give display axes

@@ -21,24 +21,28 @@ classdef ortho_axes < AxesBlockBase
     %5) ab = ortho_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
-    properties
-        %
-        %  Reference to class, which define axis captions. TODO: delete this, mutate ortho_axes
-        axis_caption = an_axis_caption();
+    properties(Dependent)
+        % property specifies if 2D or 3D picture, this class captions
+        % is created for, changes aspect ratio according to aspect ratio
+        % of the data along axes
+        changes_aspect_ratio;
+
         %
         %TODO: Its here temporary, until full projection is stored in sqw obj
-        nonorthogonal = false % if the coordinate system is non-orthogonal.
+        nonorthogonal % if the coordinate system is non-orthogonal.
     end
     properties(Dependent,Hidden)
         % old interface to label
         ulabel
     end
+    properties(Access=protected)
+        % handle to function calculating axes captions
+        caption_calc_func_;
+        %
+        nonorthogonal_ = false
+    end
 
     methods
-        % find the coordinates along each of the axes of the smallest cuboid
-        % that contains bins with non-zero values of contributing pixels.
-        [val, n] = data_bin_limits (obj);
-        %
         function obj = ortho_axes(varargin)
             % constructor
             %
@@ -66,6 +70,149 @@ classdef ortho_axes < AxesBlockBase
             %
             [obj,offset,remains] = init@AxesBlockBase(obj,varargin{:});
         end
+
+        function change=get.changes_aspect_ratio(this)
+            change = this.changes_aspect_ratio_;
+        end
+        function [title_main, title_pax, title_iax, display_pax, display_iax] =...
+                data_plot_titles(obj,totvector,in_totvector,in_vector,energy_axis)
+            % Get titling and caption information for an sqw data structure
+            % Input:
+            % ------
+            %   data            ortho_axes object instance
+            %   u_to_rlu        3x3 matrix converting Q-coordinates from
+            %                   Crystal Cartesian coordinate system to
+            %                   othogonal coordinate system of image
+            %  uoff             1x4 vector-offset of the image from the
+            %                   centre of coordinate
+            %
+            %
+            % Output:
+            % -------
+            %   title_main      Main title (cell array of character strings)
+            %   title_pax       Cell array containing axes annotations for each of the plot axes
+            %   title_iax       Cell array containing annotations for each of the integration axes
+            %   display_pax     Cell array containing axes annotations for each of the plot axes suitable
+            %                  for printing to the screen
+            %   display_iax     Cell array containing axes annotations for each of the integration axes suitable
+            %                  for printing to the screen
+            %   energy_axis     The index of the column in the 4x4 matrix din.u that corresponds
+            %                  to the energy axis
+            Angstrom=char(197);     % Angstrom symbol
+            small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
+
+
+            % Prepare input arguments
+            file = obj.full_filename;
+            title = obj.title;
+
+
+            %
+            ulen  = obj.ulen;
+            label = obj.label;
+
+
+            pax = obj.pax;
+            br = obj.get_cut_range();
+            uplot = [br{:}];
+            % uplot = zeros(3,length(pax));
+            % for i=1:length(pax)
+            %     pvals = data.p{i};
+            %     uplot(1,i) = pvals(1);
+            %     uplot(2,i) = (pvals(end)-pvals(1))/(length(pvals)-1);
+            %     uplot(3,i) = pvals(end);
+            % end
+            dax = data.dax;
+
+
+            % Axes and integration titles
+            % Character representations of input data
+            %==========================================================================
+            % pre-allocate cell arrays for titling:
+            title_pax = cell(length(pax),1);
+            display_pax = cell(length(pax),1);
+            title_iax = cell(length(iax),1);
+            display_iax = cell(length(iax),1);
+            title_main_pax = cell(length(pax),1);
+            title_main_iax = cell(length(iax),1);
+
+
+            % Create titling
+            for j=1:4
+                if j ~= energy_axis
+                    % Create captioning
+                    if any(j==pax)   % j appears in the list of plot axes
+                        ipax = find(j==pax(dax));
+                        if abs(ulen(j)-1) > small
+                            title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' ',Angstrom,'^{-1}'];
+                        else
+                            title_pax{ipax} = [totvector{j},' (',Angstrom,'^{-1})'];
+                        end
+                        title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+                        display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+                    elseif any(j==iax)   % j appears in the list of integration axes
+                        iiax = find(j==iax);
+                        title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
+                        title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
+                        display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_vector{j}];
+                    else
+                        error ('ERROR: Axis is neither plot axis nor integration axis')
+                    end
+
+                else
+                    energy_axis = j;
+                    if any(j==pax)   % j appears in the list of plot axes
+                        ipax = find(j==pax(dax));
+                        if abs(ulen(j)-1) > small
+                            title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' meV'];
+                        else
+                            title_pax{ipax} = [totvector{j},' (meV)'];
+                        end
+                        title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+                        display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+                    elseif any(j==iax)   % j appears in the list of integration axes
+                        iiax = find(j==iax);
+                        title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
+                        title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
+                        display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_vector{j}];
+                    else
+                        error ('ERROR: Axis is neither plot axis nor integration axis')
+                    end
+                end
+            end
+            % Main title
+            iline = 1;
+            if ~isempty(file)
+                title_main{iline}=avoidtex(file);
+            else
+                title_main{iline}='';
+            end
+            iline = iline + 1;
+
+            if ~isempty(title)
+                title_main{iline}=title;
+                iline = iline + 1;
+            end
+            if ~isempty(iax)
+                title_main{iline}=title_main_iax{1};
+                if length(title_main_iax)>1
+                    for i=2:length(title_main_iax)
+                        title_main{iline}=[title_main{iline},' , ',title_main_iax{i}];
+                    end
+                end
+                iline = iline + 1;
+            end
+            if ~isempty(pax)
+                title_main{iline}=title_main_pax{1};
+                if length(title_main_pax)>1
+                    for i=2:length(title_main_pax)
+                        title_main{iline}=[title_main{iline},' , ',title_main_pax{i}];
+                    end
+                end
+            end
+
+        end
+
         %------------------------------------------------------------------
         % old interface
         function obj = set.ulabel(obj,val)
@@ -73,7 +220,7 @@ classdef ortho_axes < AxesBlockBase
         end
         function lab = get.ulabel(obj)
             lab  = obj.label_;
-        end        
+        end
     end
     %----------------------------------------------------------------------
     methods(Static)
@@ -131,8 +278,8 @@ classdef ortho_axes < AxesBlockBase
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
         % recover it state by setting properties through public interface
-        fields_to_save_ = {'nonorthogonal','axis_caption'};
-    end    
+        fields_to_save_ = {'nonorthogonal'};
+    end
     methods(Static)
         function ax = get_from_old_data(input)
             % supports getting axes block from the data, stored in binary
@@ -146,7 +293,7 @@ classdef ortho_axes < AxesBlockBase
             obj = ortho_axes();
             obj = loadobj@serializable(S,obj);
         end
-    end    
+    end
     %----------------------------------------------------------------------
     methods
         function ver  = classVersion(~)
@@ -190,6 +337,6 @@ classdef ortho_axes < AxesBlockBase
                 obj = obj.from_bare_struct(inputs);
             end
         end
-        
+
     end
 end

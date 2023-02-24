@@ -83,11 +83,6 @@ classdef ortho_proj<aProjection
         %
     end
     properties(Dependent,Hidden) %TODO: all this should go with new sqw design
-        % Old confusing u_to_rlu matrix value
-        % Matrix to convert from Crystal Cartesian (pix coordinate system)
-        % to the image coordinate system (normally in rlu, except initially
-        % generated sqw file, when this image is also in Crystal Cartesian)
-        u_to_rlu
         % renamed offset projection property
         uoffset
         % Return the compatibility structure, which may be used as additional input to
@@ -249,10 +244,6 @@ classdef ortho_proj<aProjection
         % OLD from new sqw object creation interface.
         % TODO: remove when new SQW object is fully implemented
         %
-        function mat = get.u_to_rlu(obj)
-            %
-            mat = get_u_to_rlu_mat(obj);
-        end
         function off = get.uoffset(obj)
             off = obj.offset';
         end
@@ -304,8 +295,6 @@ classdef ortho_proj<aProjection
             ax_bl = get_proj_axes_block@aProjection(obj,default_binning_ranges,req_binning_ranges);
             [~,~, ulen] = obj.uv_to_rot([1,1,1]);
             ax_bl.ulen  = ulen;
-            % TODO, delete this, mutate axes_block
-            ax_bl.axis_caption=an_axis_caption();
             % TODO:  this should go. The projection will keep this property
             % for itself unless it is specific axes block?
             ax_bl.nonorthogonal = obj.nonorthogonal;
@@ -338,6 +327,152 @@ classdef ortho_proj<aProjection
             else
                 pix_target = do_ortho_ortho_transformation_(...
                     obj,pix_origin,varargin{:});
+            end
+        end
+        function [totvector,in_totvector,in_vector,energy_axis] = axes_scales_description(obj)
+
+            % Axes and integration titles
+            % Character representations of input data
+            %==========================================================================
+            uoff = obj.offset;
+            u_to_rlul = obj.u_to_rlu;
+            small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
+            llabel = obj.label;
+
+            uoff_ch=cell(1,4);
+            uofftot_ch=cell(1,4);
+            u_to_rlu_ch=cell(4,4);
+            for j=1:4
+                if abs(uoff(j)) > small
+                    uoff_ch{j} = num2str(uoff(j),'%+11.4g');
+                else
+                    uoff_ch{j} = num2str(0,'%+11.4g');
+                end
+                if abs(uofftot(j)) > small
+                    uofftot_ch{j} = num2str(uofftot(j),'%+11.4g');
+                else
+                    uofftot_ch{j} = num2str(0,'%+11.4g');
+                end
+                for i=1:4
+                    if abs(u_to_rlul(i,j)) > small
+                        u_to_rlu_ch{i,j} = num2str(u_to_rlul(i,j),'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+                    else
+                        u_to_rlu_ch{i,j} = num2str(0,'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+                    end
+                end
+            end
+
+            ch=cell(4,4);
+            totvector=cell(1,4);
+            in_totvector=cell(1,4);
+            vector=cell(1,4);
+            in_vector=cell(1,4);
+
+            % Create titling
+            for j=1:4
+                % Determine if column vector in u corresponds to a Q-axis or energy
+                if u_to_rlul(4,j)==0
+                    % Q axis ------------------------------------------------------------------------------
+                    % Captions including offsets from integration axes
+                    for i=1:3
+                        if ~strcmp(uofftot_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')     % uofftot(i) and u_to_rlu(i,j) both contain non-zero values
+                            if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
+                                ch{i,j} = [uofftot_ch{i},u_to_rlu_ch{i,j},llabel{j}];
+                            else
+                                ch{i,j} = [uofftot_ch{i},u_to_rlu_ch{i,j}(1),llabel{j}];
+                            end
+                        elseif strcmp(uofftot_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')  % uofftot(i)=0 but u_to_rlu(i,j)~=0
+                            if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
+                                ch{i,j} = [u_to_rlu_ch{i,j},llabel{j}];
+                            else
+                                ch{i,j} = [u_to_rlu_ch{i,j}(1),llabel{j}];
+                            end
+                        else
+                            ch{i,j} = uofftot_ch{i};
+                        end
+                        if ch{i,j}(1)=='+'        % strip off leading '+'
+                            ch{i,j} = ch{i,j}(2:end);
+                        end
+                    end
+                    totvector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];
+                    in_totvector{j} = [' in ',totvector{j}];
+
+                    % Captions excluding offsets from integration axes
+                    for i=1:3
+                        if ~strcmp(uoff_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')     % uoff(i) and u_to_rlu(i,j) both contain non-zero values
+                            if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
+                                ch{i,j} = [uoff_ch{i},u_to_rlu_ch{i,j},llabel{j}];
+                            else
+                                ch{i,j} = [uoff_ch{i},u_to_rlu_ch{i,j}(1),llabel{j}];
+                            end
+                        elseif strcmp(uoff_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')  % uoff(i)=0 but u_to_rlu(i,j)~=0
+                            if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
+                                ch{i,j} = [u_to_rlu_ch{i,j},llabel{j}];
+                            else
+                                ch{i,j} = [u_to_rlu_ch{i,j}(1),llabel{j}];
+                            end
+                        else
+                            ch{i,j} = uoff_ch{i};
+                        end
+                        if ch{i,j}(1)=='+'        % strip off leading '+'
+                            ch{i,j} = ch{i,j}(2:end);
+                        end
+                    end
+                    vector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];
+                    in_vector{j} = [' in ',vector{j}];
+                else
+                    energy_axis = j;
+                    % energy axis ------------------------------------------------------------------------------
+                    % Captions including offsets from integration axes
+                    if ~strcmp(uofftot_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')     % uofftot(4) and u_to_rlu(4,j) both contain non-zero values
+                        if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
+                            ch{4,j} = [uofftot_ch{4},u_to_rlu_ch{4,j},llabel{j}];
+                        else
+                            ch{4,j} = [uofftot_ch{4},u_to_rlu_ch{4,j}(1),llabel{j}];
+                        end
+                    elseif strcmp(uofftot_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')  % uofftot(4)=0 but u_to_rlu(4,j)~=0
+                        if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
+                            ch{4,j} = [u_to_rlu_ch{4,j},llabel{j}];
+                        else
+                            ch{4,j} = [u_to_rlu_ch{4,j}(1),llabel{j}];
+                        end
+                    end
+                    if ch{4,j}(1)=='+'        % strip off leading '+'
+                        ch{4,j} = ch{4,j}(2:end);
+                    end
+                    if max(strcmpi(ch{4,j},{'e','en','energy','hw','hbar w','hbar.w','eps'}))==1  % conventional energy labels
+                        totvector{j} = '';
+                        in_totvector{j} = '';
+                    else
+                        totvector{j} = ['[0, 0, 0, ',ch{4,j},']'];
+                        in_totvector{j} = [' in ',totvector{j}];
+                    end
+
+                    % Captions excluding offsets from integration axes
+                    if ~strcmp(uoff_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')     % uoff(4) and u_to_rlu(4,j) both contain non-zero values
+                        if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
+                            ch{4,j} = [uoff_ch{4},u_to_rlu_ch{4,j},llabel{j}];
+                        else
+                            ch{4,j} = [uoff_ch{4},u_to_rlu_ch{4,j}(1),llabel{j}];
+                        end
+                    elseif strcmp(uoff_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')  % uoff(4)=0 but u_to_rlu(4,j)~=0
+                        if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
+                            ch{4,j} = [u_to_rlu_ch{4,j},llabel{j}];
+                        else
+                            ch{4,j} = [u_to_rlu_ch{4,j}(1),llabel{j}];
+                        end
+                    end
+                    if ch{4,j}(1)=='+'        % strip off leading '+'
+                        ch{4,j} = ch{4,j}(2:end);
+                    end
+                    if max(strcmpi(ch{4,j},{'e','en','energy','hw','hbar w','hbar.w','eps'}))==1  % conventional energy labels
+                        vector{j} = '';
+                        in_vector{j} = '';
+                    else
+                        vector{j} = ['[0, 0, 0, ',ch{4,j},']'];
+                        in_vector{j} = [' in ',vector{j}];
+                    end
+                end
             end
         end
     end
@@ -526,7 +661,7 @@ classdef ortho_proj<aProjection
             % Throws HORACE:ortho_proj:invalid_argument with the message
             % suggesting the reason for failure if the inputs are incorret
             % w.r.t. each other.
-            % 
+            %
             wout = check_combo_arg_(w);
         end
         %------------------------------------------------------------------
@@ -576,7 +711,7 @@ classdef ortho_proj<aProjection
                 header_av = varargin{1};
             end
             obj = build_from_old_data_struct_(obj,inputs,header_av);
-            
+
         end
     end
 end

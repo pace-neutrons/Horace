@@ -97,7 +97,6 @@ classdef spher_proj<aProjection
                 obj = obj.check_combo_arg();
             end
         end
-
         %
         function u = get.ey(obj)
             u = obj.ey_;
@@ -127,12 +126,14 @@ classdef spher_proj<aProjection
             obj.type_ = val;
         end
         function [rot_to_img,offset]=get_pix_img_transformation(obj,ndim)
+            % TODO: #954 NEEDS verification:
             rot_to_img = obj.pix_to_matlab_transf_;
             if ndim == 3
-                offset   = obj.offset(1:3);
+                offset   = bmatrix(obj.alatt,obj.angdeg)*obj.offset(1:3)';
             elseif ndim == 4
                 rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
-                offset   = obj.offset;
+                offset3   = bmatrix(obj.alatt,obj.angdeg)*obj.offset(1:3)';
+                offset   = [offset3,obj.offset(4)];
             else
                 error('HORACE:spher_proj:invalid_argument', ...
                     'ndims can only be 3 and 4. Provided: %s', ...
@@ -147,10 +148,6 @@ classdef spher_proj<aProjection
             ax_bl = get_proj_axes_block@aProjection(obj,default_binning_ranges,req_binning_ranges);
             %
             %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear
-            % TODO, delete this, mutate axes_block
-            axca = spher_proj_caption();
-            axca.proj_type = obj.type;
-            ax_bl.axis_caption=axca;
         end
 
 
@@ -179,6 +176,16 @@ classdef spher_proj<aProjection
 
     end
 
+    methods(Access = protected)
+        function mat = get_u_to_rlu_mat(obj)
+            % TODO: #954 NEEDS verification:
+            % u_to_rlu matrix used to tranfer offset expressed in Crystal Cartesian
+            % into rlu (normally inverse operation is valid)
+            %
+            bm = bmatrix(obj.alatt,obj.angdeg);
+            mat = inv(bm);
+        end
+    end
     %=====================================================================
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------

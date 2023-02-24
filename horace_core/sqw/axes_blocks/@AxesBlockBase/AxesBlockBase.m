@@ -84,6 +84,11 @@ classdef AxesBlockBase < serializable
         % is defined, the input binning parameters in this direction
         % are treated as bin edges rather then bin centres.
         single_bin_defines_iax;
+
+        % property defines if appropriate axes block presented on
+        % picture changes aspect ratio of a 2D image, so that equal
+        % physical ranges along axes occupy equal pixel ranges on the image
+        changes_aspect_ratio;
     end
 
     properties(Access=protected)
@@ -100,6 +105,10 @@ classdef AxesBlockBase < serializable
         single_bin_defines_iax_ = true(1,4); % true if single nbin direction represents integration axis
         dax_=[];                        % display axes numbers holder
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
+
+        % internal property, which defines if appropriate axes block presented on
+        % picture changes aspect ratio of a 2D image.
+        changes_aspect_ratio_=true;
     end
     properties(Dependent,Hidden)
         full_filename % convenience property as fullfile(filepath, filename)
@@ -142,17 +151,187 @@ classdef AxesBlockBase < serializable
             obj.do_check_combo_arg_ = true;
             obj = check_combo_arg(obj);
         end
+        %------------------------------------------------------------------
+        % ACCESSORS to modern API
+        %------------------------------------------------------------------
+        function sz = get.dims_as_ssize(obj)
+            % Return the extent along each dimension of the signal arrays.
+            % suitable for allocating appropriate size memory
+            sz = obj.data_nbins;
+            if isempty(sz)      ; sz = [1,1];
+            elseif numel(sz) ==1; sz = [sz,1];
+            end
+        end
+        %
+        function tit = get.title(obj)
+            tit = obj.title_;
+        end
+        function obj = set.title(obj,val)
+            if ~ischar(val) || isstring(val)
+                error('HORACE:AxesBlockBase:invalid_argument',...
+                    'title should be defined of array of characters or by a string')
+            end
+            obj.title_ = val;
+        end
+        %
+        function fn = get.filename(obj)
+            fn = obj.filename_;
+        end
+        function obj = set.filename(obj,fn)
+            if ~(ischar(fn) || isstring(fn))
+                error('HORACE:AxesBlockBase:invalid_argument',...
+                    'filename should be defined of array of characters or by a string')
+            end
+            [~,fn,fext] = fileparts(fn);
+            obj.filename_ = [fn,fext];
+        end
+        %
+        function fp = get.filepath(obj)
+            fp = obj.filepath_;
+        end
+        function obj = set.filepath(obj,fp)
+            if ~(ischar(fp) || isstring(fp))
+                error('HORACE:AxesBlockBase:invalid_argument',...
+                    'filepath should be defined of array of characters or by a string')
+            end
+            obj.filepath_ = fp;
+        end
+        function fn = get.full_filename(obj)
+            fn = fullfile(obj.filepath_,obj.filename_);
+        end
+        function obj = set.full_filename(obj,fn)
+            if ~(ischar(fn) || isstring(fn))
+                error('HORACE:AxesBlockBase:invalid_argument',...
+                    'full_filename should be defined of array of characters or by a string. It is %s', ...
+                    disp2str(fn));
+            end
+            [fp,fn,fe] = fileparts(fn);
+            obj.filename_ = [fn,fe];
+            obj.filepath_ = fp;
+        end
+        %
 
+        %------------------------------------------------------------------
+        % MUTATORS/ACCESSORS to methods in modern API
+        %------------------------------------------------------------------
+        function lab=get.label(obj)
+            lab = obj.label_;
+        end
+        function obj=set.label(obj,val)
+            obj = check_and_set_labels_(obj,val);
+        end
+        %
+        function ir = get.img_range(obj)
+            ir = obj.img_range_;
+        end
+        function obj = set.img_range(obj,val)
+            obj = check_and_set_img_range_(obj,val);
+        end
+        %
+        function nbin = get.nbins_all_dims(obj)
+            nbin = obj.nbins_all_dims_;
+        end
+        function obj = set.nbins_all_dims(obj,val)
+            obj = check_and_set_nbin_all_dim_(obj,val);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
+        end
+        %
+        function ul = get.ulen(obj)
+            ul = obj.ulen_;
+        end
+        function obj = set.ulen(obj,val)
+            if isnumeric(val) && numel(val) == 3
+                val = [val(:)',1];
+            end
+            if ~(isnumeric(val) && numel(val) == 4)
+                error('HORACE:AxesBlockBase:invalid_argument',...
+                    'ulen should be vector, containing 4 elements')
+            end
+            obj.ulen_ = val(:)';
+        end
+        %
+        function da = get.dax(obj)
+            da = obj.dax_;
+        end
+        function obj = set.dax(obj,val)
+            if min(val(:))~=1
+                error('HORACE:AxesBlockBase:invalid_argument',...
+                    'A display axis should refer the first projection axis')
+            end
+            obj.dax_ = val(:)';
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
+        end
+        %
+        function is = get.single_bin_defines_iax(obj)
+            is = obj.single_bin_defines_iax_;
+        end
+        function obj = set.single_bin_defines_iax(obj,val)
+            if numel(val) ~= 4
+                error('HORACE:AxesBlockBase:invalid_argument', ...
+                    'single_bin_defines_iax property accepts only 4-element logical vector or vector convertible to logical')
+            end
+            obj.single_bin_defines_iax_ = logical(val(:)');
+        end
+        %------------------------------------------------------------------
+        % LEGACY API: historical and convenience getters for dependent properties
+        % which do not have setters
+        %------------------------------------------------------------------
+        function ndim = get.dimensions(obj)
+            ndim = sum(is_pax_(obj));
+        end
+        function ds = get.data_nbins(obj)
+            ds= obj.nbins_all_dims_(obj.nbins_all_dims_>1);
+        end
+        %
+        function ia = get.iax(obj)
+            ia = find(obj.nbins_all_dims_==1 & obj.single_bin_defines_iax_);
+        end
+        function pa = get.pax(obj)
+            pa = find(is_pax_(obj));
+        end
+        function iin = get.iint(obj)
+            is_iint = obj.nbins_all_dims_==1 & obj.single_bin_defines_iax_;
+            iin = obj.img_range_(:,is_iint);
+        end
+        function pc = get.p(obj)
+            pc = build_axes_from_ranges_(obj);
+        end
+        %------------------------------------------------------------------
+        function do_change = get.changes_aspect_ratio(obj)
+            obj = changes_aspect_ratio_;
+        end
+
+
+        %------------------------------------------------------------------
+        % See #956. This method is still used but should be removed
+        function [cube_coord,step] = get_axes_scales(obj)
+            % Return the array of vertices of a 4D hypercube, describing a
+            % grid cell of the axes block.
+            % Output:
+            % cube_coord -- 4x16 array of vertices of minimal-sized axes
+            %               cube. (Cubes sizes differ in case if axes
+            %               contains different sized grid, e.g.
+            %               cylindrical grid)
+            % step       -- 4x1 vector, containing the axes block grid
+            %               steps. (change of the coordinates in each
+            %               direction, the length of the each side of the
+            %               axes cell hypercube)
+            [cube_coord,step] = get_axes_scales_(obj);
+        end
+    end
+    %======================================================================
+    % Integration, interpolation and bining
+    methods
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
         % as the original object
         range = get_cut_range(obj,varargin);
-        % find the coordinates along each of the axes of the smallest cuboid
-        % that contains bins with non-zero values of contributing pixels.
-        [val, n] = data_bin_limits (obj);
         %
-        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (obj)
-        %
+
         function volume = get_bin_volume(obj)
             % return the volume of the axes grid. For rectilinear grid, the
             % volume of the grid is the single value equal to the product
@@ -340,8 +519,7 @@ classdef AxesBlockBase < serializable
                 npix,s,e,pix_cand,unique_runid,argi{:});
         end
         %
-        function [nodes,dE_edges,nbin_size,grid_cell_size] = ...
-                get_bin_nodes(obj,varargin)
+        function [nodes,dE_edges,nbin_size,grid_cell_size] = get_bin_nodes(obj,varargin)
             % build 3D or 4D vectors, containing all nodes of the AxesBlockBase grid,
             % constructed over AxesBlockBase axes points.
             %
@@ -446,170 +624,7 @@ classdef AxesBlockBase < serializable
             end
             range  = get_binning_range_(obj,cur_proj,new_proj);
         end
-        %------------------------------------------------------------------
-        % ACCESSORS to modern API
-        %------------------------------------------------------------------
-        function sz = get.dims_as_ssize(obj)
-            % Return the extent along each dimension of the signal arrays.
-            % suitable for allocating appropriate size memory
-            sz = obj.data_nbins;
-            if isempty(sz)      ; sz = [1,1];
-            elseif numel(sz) ==1; sz = [sz,1];
-            end
-        end
         %
-        function tit = get.title(obj)
-            tit = obj.title_;
-        end
-        function obj = set.title(obj,val)
-            if ~ischar(val) || isstring(val)
-                error('HORACE:AxesBlockBase:invalid_argument',...
-                    'title should be defined of array of characters or by a string')
-            end
-            obj.title_ = val;
-        end
-        %
-        function fn = get.filename(obj)
-            fn = obj.filename_;
-        end
-        function obj = set.filename(obj,fn)
-            if ~(ischar(fn) || isstring(fn))
-                error('HORACE:AxesBlockBase:invalid_argument',...
-                    'filename should be defined of array of characters or by a string')
-            end
-            [~,fn,fext] = fileparts(fn);
-            obj.filename_ = [fn,fext];
-        end
-        %
-        function fp = get.filepath(obj)
-            fp = obj.filepath_;
-        end
-        function obj = set.filepath(obj,fp)
-            if ~(ischar(fp) || isstring(fp))
-                error('HORACE:AxesBlockBase:invalid_argument',...
-                    'filepath should be defined of array of characters or by a string')
-            end
-            obj.filepath_ = fp;
-        end
-        function fn = get.full_filename(obj)
-            fn = fullfile(obj.filepath_,obj.filename_);
-        end
-        function obj = set.full_filename(obj,fn)
-            if ~(ischar(fn) || isstring(fn))
-                error('HORACE:AxesBlockBase:invalid_argument',...
-                    'full_filename should be defined of array of characters or by a string. It is %s', ...
-                    disp2str(fn));
-            end
-            [fp,fn,fe] = fileparts(fn);
-            obj.filename_ = [fn,fe];
-            obj.filepath_ = fp;
-        end
-
-        %------------------------------------------------------------------
-        % MUTATORS/ACCESSORS to methods in modern API
-        %------------------------------------------------------------------
-        function lab=get.label(obj)
-            lab = obj.label_;
-        end
-        function obj=set.label(obj,val)
-            obj = check_and_set_labels_(obj,val);
-        end
-        %
-        function ir = get.img_range(obj)
-            ir = obj.img_range_;
-        end
-        function obj = set.img_range(obj,val)
-            obj = check_and_set_img_range_(obj,val);
-        end
-        %
-        function nbin = get.nbins_all_dims(obj)
-            nbin = obj.nbins_all_dims_;
-        end
-        function obj = set.nbins_all_dims(obj,val)
-            obj = check_and_set_nbin_all_dim_(obj,val);
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-        end
-        %
-        function ul = get.ulen(obj)
-            ul = obj.ulen_;
-        end
-        function obj = set.ulen(obj,val)
-            if isnumeric(val) && numel(val) == 3
-                val = [val(:)',1];
-            end
-            if ~(isnumeric(val) && numel(val) == 4)
-                error('HORACE:AxesBlockBase:invalid_argument',...
-                    'ulen should be vector, containing 4 elements')
-            end
-            obj.ulen_ = val(:)';
-        end
-        %
-        function da = get.dax(obj)
-            da = obj.dax_;
-        end
-        function obj = set.dax(obj,val)
-            if min(val(:))~=1
-                error('HORACE:AxesBlockBase:invalid_argument',...
-                    'A display axis should refer the first projection axis')
-            end
-            obj.dax_ = val(:)';
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-        end
-        %
-        function is = get.single_bin_defines_iax(obj)
-            is = obj.single_bin_defines_iax_;
-        end
-        function obj = set.single_bin_defines_iax(obj,val)
-            if numel(val) ~= 4
-                error('HORACE:AxesBlockBase:invalid_argument', ...
-                    'single_bin_defines_iax property accepts only 4-element logical vector or vector convertible to logical')
-            end
-            obj.single_bin_defines_iax_ = logical(val(:)');
-        end
-        %------------------------------------------------------------------
-        % LEGACY API: historical and convenience getters for dependent properties
-        % which do not have setters
-        %------------------------------------------------------------------
-        function ndim = get.dimensions(obj)
-            ndim = sum(is_pax_(obj));
-        end
-        function ds = get.data_nbins(obj)
-            ds= obj.nbins_all_dims_(obj.nbins_all_dims_>1);
-        end
-        %
-        function ia = get.iax(obj)
-            ia = find(obj.nbins_all_dims_==1 & obj.single_bin_defines_iax_);
-        end
-        function pa = get.pax(obj)
-            pa = find(is_pax_(obj));
-        end
-        function iin = get.iint(obj)
-            is_iint = obj.nbins_all_dims_==1 & obj.single_bin_defines_iax_;
-            iin = obj.img_range_(:,is_iint);
-        end
-        function pc = get.p(obj)
-            pc = build_axes_from_ranges_(obj);
-        end
-        %------------------------------------------------------------------
-        % See #956. This method is still used but should be removed
-        function [cube_coord,step] = get_axes_scales(obj)
-            % Return the array of vertices of a 4D hypercube, describing a
-            % grid cell of the axes block.
-            % Output:
-            % cube_coord -- 4x16 array of vertices of minimal-sized axes
-            %               cube. (Cubes sizes differ in case if axes
-            %               contains different sized grid, e.g.
-            %               cylindrical grid)
-            % step       -- 4x1 vector, containing the axes block grid
-            %               steps. (change of the coordinates in each
-            %               direction, the length of the each side of the
-            %               axes cell hypercube)
-            [cube_coord,step] = get_axes_scales_(obj);
-        end
     end
     %======================================================================
     methods(Access=protected)

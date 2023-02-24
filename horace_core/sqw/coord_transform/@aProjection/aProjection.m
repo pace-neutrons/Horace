@@ -43,7 +43,7 @@ classdef aProjection < serializable
         %
         %
         title % this method would allow change cut title if non-empty value
-        %     % is provided for projection
+        %     % is provided to the projection, which defines title
     end
     properties(Dependent,Hidden)
         % Internal properties, used by algorithms and better not to be
@@ -52,6 +52,13 @@ classdef aProjection < serializable
         targ_proj;   % the target projection, used by cut to transform from
         %              source to target coordinate system
         %
+        % Old confusing u_to_rlu matrix value
+        %
+        % Matrix to convert from Crystal Cartesian (pix coordinate system)
+        % to the image coordinate system (normally in rlu, except initially
+        % generated sqw file, when this image is also in Crystal Cartesian)
+        %
+        u_to_rlu
         %------------------------------------------------------------------
         % DEVELOPERS or FINE-TUNNING properties
         %------------------------------------------------------------------
@@ -263,8 +270,12 @@ classdef aProjection < serializable
             end
             obj.title_ = val;
         end
+        function mat = get.u_to_rlu(obj)
+            %
+            mat = get_u_to_rlu_mat(obj);
+        end
 
-        %
+        %----------------------------------------------------------------
         function obj = set.lab1(obj,val)
             obj = set_lab_component_(obj,1,val);
         end
@@ -277,7 +288,7 @@ classdef aProjection < serializable
         function obj = set.lab4(obj,val)
             obj = set_lab_component_(obj,4,val);
         end
-        %------------------------------------------------------------------
+        %----------------------------------------------------------------
         function proj = get.targ_proj(obj)
             proj = obj.get_target_proj();
         end
@@ -645,6 +656,9 @@ classdef aProjection < serializable
         % into crystal Cartesian system or other source coordinate system,
         % defined by projection
         [pix_cc,varargout] = transform_img_to_pix(obj,pix_transformed,varargin);
+        % function returns u_to_rlu matrix for appropriate coordinate
+        % system
+        mat = get_u_to_rlu_mat(obj);
     end
     %======================================================================
     % Serializable interface
