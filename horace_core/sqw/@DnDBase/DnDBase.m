@@ -211,6 +211,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function obj = set.offset(obj,val)
             obj.proj_.offset = val;
+            % Very questionable operation.
+            % It breaks the object integrity in half of usage scenario. See #955
             obj.axes_.img_range = obj.axes_.img_range+obj.proj_.offset;
         end
 
@@ -225,6 +227,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             val = obj.axes.ulen;
         end
         %         function obj = set.ulen(obj, ulen)
+        %         % This probably also incorrect and should be validated
+        %         % according to #955
         %             obj.data_.ulen = ulen;
         %         end
         %         %
@@ -233,6 +237,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function obj = set.label(obj, label)
             obj.axes_.label = label;
+            obj.proj_.label = label;
         end
         %
         function val = get.iax(obj)
@@ -421,6 +426,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function obj = set.title(obj, title)
             obj.axes_.title = title;
+            obj.proj_.title = title;
         end
         %
         function struct = to_head_struct(obj,keep_data_arrays,data_arrays_only)
@@ -439,8 +445,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             def = obj.creation_date_defined_;
         end
         function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
-            data_plot_titles(obj)
-            % 
+                data_plot_titles(obj)
+            %
             error('HORACE:DnDBase:not_implemented','Re #952 The method is not yet implemented')
         end
     end
