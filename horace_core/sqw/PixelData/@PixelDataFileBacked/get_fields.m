@@ -43,11 +43,15 @@ function [field_indices, abs_pix_indices] = parse_args(obj, varargin)
 
 parser = inputParser();
 parser.addRequired('pix_fields', @(x) ischar(x) || iscellstr(x));
-parser.addOptional('abs_pix_indices', obj.NO_INPUT_INDICES, @isindex);
+parser.addOptional('abs_pix_indices', obj.NO_INPUT_INDICES, @(x) isindex(x) || (istext(x) && x == "all"));
 parser.parse(varargin{:});
 
 pix_fields = parser.Results.pix_fields;
 abs_pix_indices = parser.Results.abs_pix_indices;
+
+if istext(abs_pix_indices) && abs_pix_indices == "all"
+    abs_pix_indices = 1:obj.num_pixels;
+end
 
 pix_fields = cellstr(pix_fields);
 obj.check_pixel_fields(pix_fields);
