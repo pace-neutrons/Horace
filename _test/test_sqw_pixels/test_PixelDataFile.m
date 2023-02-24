@@ -99,7 +99,7 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
                 pdf.page_num = i;
                 assertEqual(pdf.page_num, i)
 
-                [pix_idx_start, pix_idx_end] = pix.get_pix_idx_;
+                [pix_idx_start, pix_idx_end] = pdf.get_page_idx_;
                 pix_to_read = pix_idx_end - pix_idx_start + 1;
 
                 ref_data = double(ldr.get_pix_in_ranges(pix_idx_start,pix_to_read));
