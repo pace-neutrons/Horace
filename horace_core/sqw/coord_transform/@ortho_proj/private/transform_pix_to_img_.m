@@ -7,8 +7,8 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 %             expressed in crystal Cartesian coordinate system
 %             or pixelData object containing this information.
 % Returns:
-% pix_out -- [3xNpix or [4xNpix]Array the pixels coordinates transformed
-%            into coordinatesystem, related to image (e.g. hkl system)
+% pix_out -- [3xNpix] or [4xNpix] array the pixels coordinates transformed
+%            into coordinate system, related to the image (e.g. hkl system)
 %
 if isa(pix_input,'PixelDataBase')
     pix_cc = pix_input.q_coordinates;

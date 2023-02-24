@@ -218,7 +218,7 @@ classdef instr_proj<aProjection
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % saveable class
+            % savable class
             obj = instr_proj();
             obj = loadobj@serializable(S,obj);
         end
