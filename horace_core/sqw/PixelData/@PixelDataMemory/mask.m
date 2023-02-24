@@ -57,7 +57,7 @@ else
 
 end
 
-pix_out = pix_out.recalc_data_range('all');
+obj = obj.reset_changed_coord_range('all');
 
 end
 

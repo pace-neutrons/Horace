@@ -163,7 +163,6 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
             if iscell(init)
-                init
                 flds = obj.saveableFields();
                 obj = obj.set_positional_and_key_val_arguments(flds,false,argi);
 
@@ -272,11 +271,6 @@ classdef PixelDataFileBacked < PixelDataBase
                 'Can not save filebacked PixelData object');
         end
 
-    end
-
-    %======================================================================
-    % PAGING
-    methods(Access=protected)
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, page_number)
             if ~exist('page_number', 'var')
                 page_number = obj.page_num_;
@@ -294,6 +288,13 @@ classdef PixelDataFileBacked < PixelDataBase
             % Get the index of the final pixel to read given the maximum page size
             pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
         end
+
+
+    end
+
+    %======================================================================
+    % PAGING
+    methods(Access=protected)
 
         function np = get_page_num(obj)
             np = obj.page_num_;

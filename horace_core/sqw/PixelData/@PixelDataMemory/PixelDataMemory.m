@@ -141,13 +141,15 @@ classdef PixelDataMemory < PixelDataBase
             end
 
         end
-    end
 
-    methods(Access=protected)
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
             pix_idx_start = 1;
             pix_idx_end   = obj.num_pixels;
         end
+
+    end
+
+    methods(Access=protected)
 
         function np = get_page_num(~)
             np = 1;

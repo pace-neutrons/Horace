@@ -351,6 +351,7 @@ classdef (Abstract) PixelDataBase < serializable
 
         obj = set_fields(obj, data, fields, abs_pix_indices);
 
+        [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
     end
 
     methods(Abstract,Access=protected)
@@ -374,7 +375,6 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_page_num(obj,val);
         np = get_num_pages(obj);
 
-        [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
     end
 
     %======================================================================

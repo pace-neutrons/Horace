@@ -194,7 +194,7 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             operand = ones(1, pix.num_pixels - 1);
 
             f = @() pix.do_binary_op(operand, @plus);
-            assertExceptionThrown(f, 'PIXELDATA:do_binary_op');
+            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:invalid_argument');
         end
 
         function test_add_PixelData_neq_num_pixels_memory(~)
