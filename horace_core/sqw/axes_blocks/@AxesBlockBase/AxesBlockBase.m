@@ -136,13 +136,13 @@ classdef AxesBlockBase < serializable
                 offset = [];
                 remains = [];
                 return;
-            end            
+            end
             obj.do_check_combo_arg_ = false;
             [obj,offset,remains] = init_(obj,varargin{:});
             obj.do_check_combo_arg_ = true;
             obj = check_combo_arg(obj);
         end
-                
+
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
         % as the original object
@@ -151,7 +151,7 @@ classdef AxesBlockBase < serializable
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (obj);
         %
-        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (obj)        
+        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (obj)
         %
         function volume = get_bin_volume(obj)
             % return the volume of the axes grid. For rectilinear grid, the
@@ -398,7 +398,7 @@ classdef AxesBlockBase < serializable
             %
             opt = {'-3D','-halo','-data_to_density','-bin_centre','-axes_only','-ngrid'};
             [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,axes_only,ngrid,argi] ...
-            = parse_char_options(varargin,opt);
+                = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:AxesBlockBase:invalid_argument',mess)
             end
@@ -594,6 +594,22 @@ classdef AxesBlockBase < serializable
         function pc = get.p(obj)
             pc = build_axes_from_ranges_(obj);
         end
+        %------------------------------------------------------------------
+        % See #956. This method is still used but should be removed
+        function [cube_coord,step] = get_axes_scales(obj)
+            % Return the array of vertices of a 4D hypercube, describing a
+            % grid cell of the axes block.
+            % Output:
+            % cube_coord -- 4x16 array of vertices of minimal-sized axes
+            %               cube. (Cubes sizes differ in case if axes
+            %               contains different sized grid, e.g.
+            %               cylindrical grid)
+            % step       -- 4x1 vector, containing the axes block grid
+            %               steps. (change of the coordinates in each
+            %               direction, the length of the each side of the
+            %               axes cell hypercube)
+            [cube_coord,step] = get_axes_scales_(obj);
+        end
     end
     %======================================================================
     methods(Access=protected)
@@ -623,7 +639,7 @@ classdef AxesBlockBase < serializable
     end
     %----------------------------------------------------------------------
     methods(Static)
-        % build new particular AxesBlockBase object from the binning 
+        % build new particular AxesBlockBase object from the binning
         % parameters, provided as input. If some input binning parameters
         % are missing, the defaults are taken from the given image range
         % which should be   properly precalculated
@@ -671,8 +687,8 @@ classdef AxesBlockBase < serializable
         fields_to_save_ = {'title','filename','filepath',...
             'label','ulen','img_range','nbins_all_dims','single_bin_defines_iax',...
             'dax'};
-    end    
-    
+    end
+
     methods
         %
         function obj = check_combo_arg(obj)
@@ -686,7 +702,7 @@ classdef AxesBlockBase < serializable
             % serializable object.
             flds = AxesBlockBase.fields_to_save_;
         end
-        
-        %        
+
+        %
     end
 end
