@@ -9,9 +9,9 @@ function obj=set_raw_fields_(obj, data,pix_fields, varargin)
 % ---------
 %
 % Set all 'signal' and 'variance' to 1
-%   >> obj.set_data({'signal', 'variance'}, ones(2, 1));
+%   >> obj.set_raw_fields(ones(2, 1), {'signal', 'variance'});
 % Set the first 100 pixels' signal and variance to zero
-%   >> obj.set_data({'signal', 'variance'}, zeros(2, 100), 1:100);
+%   >> obj.set_raw_fields(zeros(2, 100), {'signal', 'variance'}, 1:100);
 %
 % Input:
 % ------
@@ -31,10 +31,9 @@ mmf = obj.f_accessor_;
 if abs_pix_indices == obj.NO_INPUT_INDICES
 
     if size(data, 2) == 1
-        mmf.Data.data(field_indices,:) = single(data);
+        mmf.Data.data(field_indices, :) = single(data);
     else
-        ind = 1:size(data,2);
-        mmf.Data.data(field_indices,ind) = single(data);
+        mmf.Data.data(field_indices, 1:size(data,2)) = single(data);
     end
 
 else

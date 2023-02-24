@@ -1,5 +1,21 @@
 classdef PixelTmpFile < handle
-% Class to handle deletion of TmpFile on closure
+% Class temporary PixelDataFileBacked files
+%
+% Created by PixelData file-backed on starting modifying operation
+% (PixelDataFileBacked.get_new_handle) stores the path for the short-term
+% tmp_file (while operation is taking place) and path for the long-term tmp_file
+% (to be referenced by the PixelDataFileBacked object when the operation is
+% complete)
+%
+% Upon deletion of the parent PixelDataFileBacked this object will be cleared
+% resulting in the deletion of the temporary files if they have not
+% been saved.
+%
+% File path is structured so as to reflect the file origin but be unlikely to
+% conflict with other temporary files from the same origin and also to avoid
+% name explosions should temporaries of temporaries be created.
+%
+% Temporary filepath will be located in the Horace tmp_dir
     properties
         file_name;
     end
@@ -7,7 +23,6 @@ classdef PixelTmpFile < handle
     properties(Dependent)
         tmp_name;
     end
-
 
     methods
         function obj = PixelTmpFile(orig_name)
@@ -35,6 +50,7 @@ classdef PixelTmpFile < handle
         end
 
         function obj = delete(obj)
+            ["deleting ", obj.file_name]
             if is_file(obj.file_name)
                 delete(obj.file_name);
             end
