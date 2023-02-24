@@ -507,9 +507,10 @@ classdef ortho_proj<aProjection
     end
     methods(Static)
         function lst = data_sqw_dnd_export_list()
-            % TODO: temporary method, which define the values to be
-            % extracted from projection to convert to old style data_sqw_dnd
-            % class. New data_sqw_dnd class will contain the whole projection
+            % Method, which define the values to be extracted from projection
+            % to convert to old style data_sqw_dnd class.
+            % New data_sqw_dnd class will contain the whole projection, so this 
+            % is left for compatibility with old Horace
             lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
         end
     end
@@ -524,7 +525,7 @@ classdef ortho_proj<aProjection
             %   >> [ok, mess,obj] = check_combo_arg(w)
             %
             % Throws HORACE:ortho_proj:invalid_argument with the message
-            % suggesting the reason for failure if the inputs are incorret
+            % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
             % 
             wout = check_combo_arg_(w);
@@ -561,7 +562,7 @@ classdef ortho_proj<aProjection
         end
     end
     methods(Access=protected)
-        function obj = from_old_struct(obj,inputs,varargin)
+        function obj = from_old_struct(obj,inputs,header_av)
             % Restore object from the old structure, which describes the
             % previous version of the object.
             %
@@ -570,13 +571,11 @@ classdef ortho_proj<aProjection
             % in the structure does not correspond to the current version
             % of the class.
 
-            if nargin <= 2
+            if ~exist('header_av', 'var')
                 header_av = [];
-            else
-                header_av = varargin{1};
             end
             obj = build_from_old_data_struct_(obj,inputs,header_av);
-            
+
         end
     end
 end

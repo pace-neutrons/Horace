@@ -174,7 +174,16 @@ classdef (Abstract=true) serializable
             % Inputs:
             % obj    -- non-initialized instance of the object to build
             % inputs -- the structure, obtained by to_bare_struct method,
-            %           and used as initialization for the object
+            %           and used as initialization for the object.
+            %
+            % The method takes the list of properties returned by saveableFields
+            % method of the class, and picks up the fields from the
+            % input structure if the fields with these names are present in
+            % the structure.
+            % Then it sets up the values of these fields as the values of
+            % the class properties using the public setters of the input
+            % class.
+            %
             obj = from_bare_struct_(obj,inputs);
         end
 
@@ -435,7 +444,7 @@ classdef (Abstract=true) serializable
                 set_positional_and_key_val_arguments_(obj,...
                 positinal_param_names_list,old_keyval_compat,varargin{:});
             %
-            % Simple Code sample to insert into new object constructor 
+            % Simple Code sample to insert into new object constructor
             % to use this function as part of generic constructor:
             %
             % flds = obj.saveableFields();

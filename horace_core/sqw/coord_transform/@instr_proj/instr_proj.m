@@ -192,7 +192,7 @@ classdef instr_proj<aProjection
             % set up range and number of bins for the selected axes block
             ax_bl.img_range = ranges;
             ax_bl.nbins_all_dims = bin_numbers;
-            % TODO: Do we want to have axes block here beeing always 4D or
+            % TODO: Do we want to have axes block here being always 4D or
             % let the shape to be defined by input number of bins?
             ax_bl.single_bin_defines_iax = true(4,1); % here we assume that
             % object may be less then 4-dimensions
@@ -220,7 +220,7 @@ classdef instr_proj<aProjection
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % saveable class
+            % savable class
             obj = instr_proj();
             obj = loadobj@serializable(S,obj);
         end

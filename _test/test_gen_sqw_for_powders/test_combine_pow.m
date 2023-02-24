@@ -137,7 +137,7 @@ classdef test_combine_pow < TestCaseWithSave
 
         end
         
-        function test_spher_cut_coarce_grid(obj)
+        function test_spher_cut_coarse_grid(obj)
             sqw_file_2=fullfile(tmp_dir,'test_spher_cut_coarse_grid.sqw');
             cleanup_obj = [];
             if ~isfile(sqw_file_2)

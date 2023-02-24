@@ -12,25 +12,13 @@ end
 if isfield(data_struct,'uoffset')
     data_struct.offset = data_struct.uoffset;    
 end
-if isfield(data_struct,'u_to_rlu')
-    use_u_to_rlu_transitional = true;
-else
-    use_u_to_rlu_transitional = false;    
-end
+use_u_to_rlu_transitional = isfield(data_struct,'u_to_rlu');
 
-
-flds = fieldnames(data_struct);
-avail_fields = proj.saveableFields();
-valid = ismember(flds,avail_fields);
-flds = flds(valid);
 proj.do_check_combo_arg = false;
-for i=1:numel(flds)
-    fld= flds{i};
-    proj.(fld) = data_struct.(fld);
-end
+proj = proj.from_bare_struct(data_struct);
 
 %--------------------------------------------------------------------------
-% TODO: this is compatibility function to support alignment.
+% TODO: #892 this is compatibility function to support alignment.
 % This will change when alignment matrix is attached to pixels
 if use_u_to_rlu_transitional 
     proj = proj.set_from_data_mat(data_struct.u_to_rlu(1:3,1:3),data_struct.ulen(1:3));    
