@@ -49,8 +49,7 @@ classdef PixelTmpFile < handle
             tmp_file_name = [obj.file_name '_tmp'];
         end
 
-        function obj = delete(obj)
-            ["deleting ", obj.file_name]
+        function delete(obj)
             if is_file(obj.file_name)
                 delete(obj.file_name);
             end
