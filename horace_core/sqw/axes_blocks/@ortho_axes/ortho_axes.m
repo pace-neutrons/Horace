@@ -22,11 +22,6 @@ classdef ortho_axes < AxesBlockBase
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Dependent)
-        % property specifies if 2D or 3D picture, this class captions
-        % is created for, changes aspect ratio according to aspect ratio
-        % of the data along axes
-        changes_aspect_ratio;
-
         %
         %TODO: Its here temporary, until full projection is stored in sqw obj
         nonorthogonal % if the coordinate system is non-orthogonal.
@@ -71,9 +66,6 @@ classdef ortho_axes < AxesBlockBase
             [obj,offset,remains] = init@AxesBlockBase(obj,varargin{:});
         end
 
-        function change=get.changes_aspect_ratio(this)
-            change = this.changes_aspect_ratio_;
-        end
         function [title_main, title_pax, title_iax, display_pax, display_iax] =...
                 data_plot_titles(obj,totvector,in_totvector,in_vector,energy_axis)
             % Get titling and caption information for an sqw data structure

@@ -71,9 +71,6 @@ classdef ortho_proj<aProjection
     % Original author: T.G.Perring
     %
     %
-    properties
-        %
-    end
     properties(Dependent)
         u; %[1x3] Vector of first axis (r.l.u.)
         v; %[1x3] Vector of second axis (r.l.u.)
@@ -334,7 +331,9 @@ classdef ortho_proj<aProjection
             % Axes and integration titles
             % Character representations of input data
             %==========================================================================
-            uoff = obj.offset;
+            uoff  = obj.offset;
+            uofftot=uoff; % + iint centers
+            
             u_to_rlul = obj.u_to_rlu;
             small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
             llabel = obj.label;

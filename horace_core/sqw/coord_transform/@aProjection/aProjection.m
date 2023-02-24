@@ -656,9 +656,11 @@ classdef aProjection < serializable
         % into crystal Cartesian system or other source coordinate system,
         % defined by projection
         [pix_cc,varargout] = transform_img_to_pix(obj,pix_transformed,varargin);
+    end
+    methods(Abstract,Access=protected)
         % function returns u_to_rlu matrix for appropriate coordinate
         % system
-        mat = get_u_to_rlu_mat(obj);
+        mat = get_u_to_rlu_mat(obj);        
     end
     %======================================================================
     % Serializable interface
