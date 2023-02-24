@@ -58,7 +58,7 @@ set(TEST_DIRECTORIES_HORACE
     "test_utilities"
     "test_multifit"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex"
-    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_nomex"    
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_nomex"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_slurm"
@@ -104,18 +104,20 @@ endforeach()
 foreach(_test_dir ${TEST_DIRECTORIES_HORACE})
     if("${_test_dir}" STREQUAL "test_sqw")
         set(TEST_TIMEOUT_LENGTH "2000")  # 33.3 minutes
-    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")
-        set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes
+    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex")
+        set(TEST_TIMEOUT_LENGTH "2400")  # 40 minutes
+    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_nomex")
+        set(TEST_TIMEOUT_LENGTH "2400")  # 40 minutes
+    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")    
+        set(TEST_TIMEOUT_LENGTH "2400")  # 40 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert")
-        set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes. It strange thing happens on Jenkins. On laptop its ~4min
+        set(TEST_TIMEOUT_LENGTH "2400")  # 40 minutes.
     elseif("${_test_dir}" STREQUAL "test_TF_components")
-        set(TEST_TIMEOUT_LENGTH "6100")  # 70+35 minutes
+        set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes
      elseif("${_test_dir}" STREQUAL "test_TF_let")
-        set(TEST_TIMEOUT_LENGTH "4200")  # 70 minutes
+        set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes
     elseif("${_test_dir}" STREQUAL "test_TF_refine_crystal")
         set(TEST_TIMEOUT_LENGTH "1800")  # 30 minutes
-    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow")
-        set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
     elseif("${_test_dir}" STREQUAL "test_algorithms")
         set(TEST_TIMEOUT_LENGTH "2400")  # 40 minutes -- fail due to timeout on windows VM-s
     else()
