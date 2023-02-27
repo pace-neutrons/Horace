@@ -40,10 +40,6 @@ classdef PixelTmpFile < handle
 
         end
 
-        function tmp_file_name = get.tmp_name(obj)
-            tmp_file_name = [obj.file_name '_tmp'];
-        end
-
         function delete(obj)
             if is_file(obj.file_name)
                 delete(obj.file_name);
