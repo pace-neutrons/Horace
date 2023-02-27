@@ -1,4 +1,4 @@
-function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj,u_to_rlu,uoff)
+function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj,proj)
 % Get titling and caption information for the axes sqw data structure
 %
 % Syntax:
@@ -21,59 +21,48 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %   energy_axis     The index of the column in the 4x4 matrix din.u that corresponds
 %                  to the energy axis
 
-% Original author: T.G.Perring
-%
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+
 
 Angstrom=char(197);     % Angstrom symbol
 small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
 
 
 % Prepare input arguments
-file = obj.full_filename;
+file  = obj.full_filename;
 title = obj.title;
-
-
 %
 ulen  = obj.ulen;
 label = obj.label;
 
 
-pax = obj.pax;
-br = obj.get_cut_range();
-uplot = [br{:}];
-% uplot = zeros(3,length(pax));
-% for i=1:length(pax)
-%     pvals = data.p{i};
-%     uplot(1,i) = pvals(1);
-%     uplot(2,i) = (pvals(end)-pvals(1))/(length(pvals)-1);
-%     uplot(3,i) = pvals(end);
-% end
-dax = data.dax;
+pax   = obj.pax;
+br    = obj.get_cut_range();
+dax   = obj.dax;
+n_dim = numel(pax);
+%
+plot_bin_centers = reshape([br{dax}],3,n_dim);
 
 
 % Axes and integration titles
 % Character representations of input data
 %==========================================================================
-uofftot=uoff;
-iax = obj.iax;
+offset   = proj.offset;
+uofftot  = offset;
+u_to_rlu = proj.u_to_rlu;
+
+iax  = obj.iax;
 iint = obj.iint;
 for i=1:length(iax)
     % get offset from integration axis, accounting for non-finite limit(s)
-    if isfinite(iint(1,i)) && isfinite(iint(2,i))
-        iint_ave=0.5*(iint(1,i)+iint(2,i));
-    else
-        iint_ave=0;
-    end
-    uofftot=uofftot+iint_ave*u_to_rlu(:,iax(i));  % overall displacement of plot volume in (rlu;en)
+    uofftot(iax(i))  = uofftot(iax(i))+0.5*(iint(1,i)+iint(2,i));  % overall displacement of plot volume in 
 end
 %
 uoff_ch=cell(1,4);
 uofftot_ch=cell(1,4);
 u_to_rlu_ch=cell(4,4);
+
 for j=1:4
-    if abs(uoff(j)) > small
+    if abs(offset(j)) > small
         uoff_ch{j} = num2str(uoff(j),'%+11.4g');
     else
         uoff_ch{j} = num2str(0,'%+11.4g');
@@ -83,13 +72,13 @@ for j=1:4
     else
         uofftot_ch{j} = num2str(0,'%+11.4g');
     end
-    for i=1:4
-        if abs(u_to_rlu(i,j)) > small
-            u_to_rlu_ch{i,j} = num2str(u_to_rlu(i,j),'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
-        else
-            u_to_rlu_ch{i,j} = num2str(0,'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
-        end
-    end
+%     for i=1:4
+%         if abs(u_to_rlu(i,j)) > small
+%             u_to_rlu_ch{i,j} = num2str(u_to_rlu(i,j),'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+%         else
+%             u_to_rlu_ch{i,j} = num2str(0,'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+%         end
+%     end
 end
 
 % pre-allocate cell arrays for titling:
@@ -167,8 +156,8 @@ for j=1:4
             else
                 title_pax{ipax} = [totvector{j},' (',Angstrom,'^{-1})'];
             end
-            title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
-            display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+            title_main_pax{ipax} = [label{j},'=',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
+            display_pax{ipax} = [label{j},' = ',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
         elseif any(j==iax)   % j appears in the list of integration axes
             iiax = find(j==iax);
             title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
@@ -238,8 +227,8 @@ for j=1:4
             else
                 title_pax{ipax} = [totvector{j},' (meV)'];
             end
-            title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
-            display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+            title_main_pax{ipax} = [label{j},'=',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
+            display_pax{ipax} = [label{j},' = ',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
         elseif any(j==iax)   % j appears in the list of integration axes
             iiax = find(j==iax);
             title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];

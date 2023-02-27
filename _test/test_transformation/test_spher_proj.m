@@ -12,7 +12,7 @@ classdef test_spher_proj<TestCase
             this=this@TestCase(name);
         end
         function test_coord_transf_PixData_plus_offset(~)
-            proj = spher_proj();                        
+            proj = spher_proj();
             proj.offset = [1,2,3,4];
             qPix0 = [100,0,0,1;0,10,0,1;0,0,1,1;10,10,10,10];
             s_pix = ones(5,4);
@@ -24,9 +24,9 @@ classdef test_spher_proj<TestCase
 
             assertElementsAlmostEqual(pix.coordinates,pix_rec);
         end
-        
+
         function test_coord_transf_4D_plus_offset(~)
-            proj = spher_proj();                        
+            proj = spher_proj();
             proj.offset = [1,2,3,4];
             pix0 = [100,0,0,1;0,10,0,1;0,0,1,1;10,10,10,10];
 
@@ -35,9 +35,9 @@ classdef test_spher_proj<TestCase
 
             assertElementsAlmostEqual(pix0,pix_rec);
         end
-        
+
         function test_coord_transf_3D_plus_offset(~)
-            proj = spher_proj();                        
+            proj = spher_proj();
             proj.offset = [1,2,3,4];
             pix0 = [100,0,0,1;0,10,0,1;0,0,1,1];
 
@@ -46,9 +46,23 @@ classdef test_spher_proj<TestCase
 
             assertElementsAlmostEqual(pix0,pix_rec);
         end
-        
-        function test_coord_transf_3D(~)
-            proj = spher_proj();                        
+        function test_coord_transf_3D_deg(~)
+            proj = spher_proj();
+            proj.type = "add";
+            assertEqual(proj.type,'add')
+            pix0 = [100,0,0,1;0,10,0,1;0,0,1,1];
+
+            sph  = proj.transform_pix_to_img(pix0);
+            pix_rec = proj.transform_img_to_pix(sph);
+
+            assertElementsAlmostEqual(pix0,pix_rec);
+        end
+
+
+        function test_coord_transf_3D_radian(~)
+            proj = spher_proj();
+            proj.type = "arr";
+            assertEqual(proj.type,'arr')
             pix0 = [100,0,0,1;0,10,0,1;0,0,1,1];
 
             sph  = proj.transform_pix_to_img(pix0);

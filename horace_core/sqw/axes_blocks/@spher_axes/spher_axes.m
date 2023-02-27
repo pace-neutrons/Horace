@@ -53,6 +53,20 @@ classdef spher_axes < AxesBlockBase
             obj.label = {'\|Q\|','\theta','\phi','En'};
             obj.changes_aspect_ratio_ = false;
         end
+        function [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
+                data_plot_titles(obj,dnd_obj)
+            % Get titling and caption information for the sqw data
+            % structure containing spherical projection
+            proj = dnd_obj.proj;
+            if ~isa(proj,'spher_proj')
+                error('HORACE:spher_axes:runtime_error', ...
+                    'dnd object contains incorrect combination of axes block and projection.\n Needed: spher_axes and spher_proj. Available: %s and %s', ...
+                    class(obj),class(proj));
+            end
+            [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
+                data_plot_titles_(obj,proj);
+        end
+
     end
     %----------------------------------------------------------------------
     %======================================================================
