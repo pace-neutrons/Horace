@@ -63,7 +63,7 @@ classdef AxesBlockBase < serializable
         %
         dimensions;  % Number of AxesBlockBase object dimensions
         %
-        % binning along each dimension of an object assuming that
+        % binning along each dimension of an object assuming tha
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
         % x-direction would have binning [10,1,1,1] and 1D object with 10
         % bins in dE direction would have binning [1,1,1,10];
@@ -88,6 +88,9 @@ classdef AxesBlockBase < serializable
         % property defines if appropriate axes block presented on
         % picture changes aspect ratio of a 2D image, so that equal
         % physical ranges along axes occupy equal pixel ranges on the image
+        %
+        % May be set up locally on an object but have defaults specific for
+        % each axes block
         changes_aspect_ratio;
     end
 
@@ -104,6 +107,7 @@ classdef AxesBlockBase < serializable
         nbins_all_dims_ = [1,1,1,1];    % number of bins in each dimension
         single_bin_defines_iax_ = true(1,4); % true if single nbin direction represents integration axis
         dax_=[];                        % display axes numbers holder
+        dax_set_ = false;
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
 
         % internal property, which defines if appropriate axes block presented on
@@ -258,9 +262,11 @@ classdef AxesBlockBase < serializable
         function obj = set.dax(obj,val)
             if min(val(:))~=1
                 error('HORACE:AxesBlockBase:invalid_argument',...
-                    'A display axis should refer the first projection axis')
+                    'Mininal dax value should refer to the first projection axes. Actually: pax = %s; dax = %s', ...
+                    mat2str(obj.pax),mat2str(val(:)'));
             end
             obj.dax_ = val(:)';
+            obj.dax_set_ = true;
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -300,11 +306,14 @@ classdef AxesBlockBase < serializable
         function pc = get.p(obj)
             pc = build_axes_from_ranges_(obj);
         end
+
         %------------------------------------------------------------------
         function do_change = get.changes_aspect_ratio(obj)
-            obj = changes_aspect_ratio_;
+            do_change  = obj.changes_aspect_ratio_;
         end
-
+        function obj = set.changes_aspect_ratio(obj,val)
+            obj.changes_aspect_ratio_ = logical(val);
+        end
 
         %------------------------------------------------------------------
         % See #956. This method is still used but should be removed
@@ -701,7 +710,7 @@ classdef AxesBlockBase < serializable
         % recover it state by setting properties through public interface
         fields_to_save_ = {'title','filename','filepath',...
             'label','ulen','img_range','nbins_all_dims','single_bin_defines_iax',...
-            'dax'};
+            'dax','changes_aspect_ratio'};
     end
 
     methods

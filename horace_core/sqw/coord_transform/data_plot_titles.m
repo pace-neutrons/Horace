@@ -25,6 +25,8 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
+%
+% TODO: not adgheres to OOP design. Needs refactoring
 
 Angstrom=char(197);     % Angstrom symbol
 
@@ -33,21 +35,29 @@ file = fullfile(data.filepath,data.filename);
 title = data.title;
 
 uoff = data.offset;
-%TODO: overload for other projections
-u_to_rlu = data.proj.u_to_rlu;
-ulen = data.axes.ulen;
+if isa(data,'DnDBase')
+    % every projections now have to have this, though it may have different
+    % meaning for different projecions
+    u_to_rlu = data.proj.u_to_rlu;
+    ulen = data.axes.ulen;
+else
+    u_to_rlu = data.u_to_rlu;
+    ulen = data.ulen;
+end
+
 label = data.label;
 iax = data.iax;
 iint = data.iint;
 pax = data.pax;
 uplot = zeros(3,length(pax));
+dax = data.dax;
 for i=1:length(pax)
     pvals = data.p{i};
-    uplot(1,i) = pvals(1);
-    uplot(2,i) = (pvals(end)-pvals(1))/(length(pvals)-1);
-    uplot(3,i) = pvals(end);
+    uplot(1,dax(i)) = pvals(1);
+    uplot(2,dax(i)) = (pvals(end)-pvals(1))/(length(pvals)-1);
+    uplot(3,dax(i)) = pvals(end);
 end
-dax = data.dax;
+
 
 uofftot=uoff;
 for i=1:length(iax)

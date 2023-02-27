@@ -204,8 +204,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         
         function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                 data_plot_titles(obj)
+            % Return main description of the dnd object used in plots
+            %
             % note: axes annotations correctly account for permutation in w.data_.dax
-            error('HORACE:DnDBase:not_implemented','Re #952 The method is not yet implemented')
+            [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = ...
+                obj.axes.data_plot_titles(obj);
         end
     end
     %======================================================================

@@ -897,6 +897,12 @@ classdef test_ortho_axes < TestCase
             assertElementsAlmostEqual(block.p{2},-2.05:0.1:2.05,'absolute',1.e-12)
             assertElementsAlmostEqual(block.p{3},-0.5:1:10.5,'absolute',1.e-12)
         end
+        function test_dax_eq_pax(~)
+            ab = ortho_axes('img_range',ones(2,4),'nbins_all_dims',[50,1,1,40]);        
+
+            assertEqual(ab.pax,[1,4])
+            assertEqual(ab.dax,[1,2])            
+        end
         %------------------------------------------------------------------
         function test_bin_edges_provided_2D(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
