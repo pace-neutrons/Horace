@@ -170,15 +170,16 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj = obj.loadobj(init);
 
             elseif isa(init, 'PixelDataFileBacked')
-                obj.offset_       = init.offset;
+                obj.offset_       = init.offset_;
                 obj.full_filename = init.full_filename;
                 obj.num_pixels_   = init.num_pixels;
                 obj.data_range    = init.data_range;
+                obj.tmp_pix_obj   = init.tmp_pix_obj;
                 obj.f_accessor_   = memmapfile(obj.full_filename, ...
-                                               'format', obj.get_memmap_format(), ...
+                                               'Format', obj.get_memmap_format(), ...
                                                'Repeat', 1, ...
                                                'Writable', update, ...
-                                               'offset', obj.offset_ );
+                                               'Offset', obj.offset_ );
 
             elseif istext(init)
                 if ~is_file(init)
@@ -342,20 +343,23 @@ classdef PixelDataFileBacked < PixelDataBase
     methods
 
         function obj = get_new_handle(obj)
-            if isempty(obj.tmp_pix_obj)
-                if isempty(obj.full_filename)
-                    obj.full_filename = 'in_mem';
-                end
-                obj.tmp_pix_obj = PixelTmpFile(obj.full_filename);
-                obj.full_filename = obj.tmp_pix_obj.file_name;
+
+            if isempty(obj.full_filename)
+                obj.full_filename = 'in_mem';
             end
+
+            % Always create a new PixTmpFile object
+            % If others point to it, file will be kept
+            % otherwise file will be cleared
+            obj.tmp_pix_obj = PixelTmpFile(obj.full_filename);
+            obj.full_filename = obj.tmp_pix_obj.file_name;
 
             fh = fopen(obj.tmp_pix_obj.tmp_name, 'wb+');
 
             if fh<1
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                       'Can not open data file %s for file-backed pixels',...
-                      obj.get_tmp_name());
+                      obj.tmp_pix_obj.tmp_name);
             end
 
             obj.file_handle_ = fh;

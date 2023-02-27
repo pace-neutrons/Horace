@@ -1,10 +1,7 @@
 classdef test_sqw_copy < TestCase
 
     properties
-        sqw_file_1d_name = 'sqw_1d_1.sqw';
-        sqw_files_path = '../common_data/';
-
-        test_sqw_1d_fullpath = '';
+        test_sqw_1d_fullpath;
     end
 
     methods
@@ -12,8 +9,8 @@ classdef test_sqw_copy < TestCase
         function obj = test_sqw_copy(~)
             obj = obj@TestCase('test_sqw_copy');
 
-            test_sqw_file = java.io.File(pwd(), fullfile(obj.sqw_files_path, obj.sqw_file_1d_name));
-            obj.test_sqw_1d_fullpath = char(test_sqw_file.getCanonicalPath());
+            pths = horace_paths;
+            obj.test_sqw_1d_fullpath = fullfile(pths.test_common, 'sqw_1d_1.sqw');
         end
 
         function test_copy_returns_object_with_identical_data(obj)

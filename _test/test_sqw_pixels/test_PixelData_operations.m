@@ -43,6 +43,27 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertEqual(pix.data, data);
         end
 
+        function test_tmp_file_redirected(obj)
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 50);
+            npix_in_page = 11;
+            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+            % Make temp file
+            sin_pix = pix.do_unary_op(@sin);
+            data = sin_pix.get_fields('all', 'all');
+
+            % Copy
+            sin_pix_cpy = PixelDataFileBacked(sin_pix);
+            assertEqual(sin_pix.full_filename, sin_pix_cpy.full_filename)
+
+            sin_pix = sin_pix.do_unary_op(@sin);
+
+            assertFalse(equal_to_tol(sin_pix.full_filename, sin_pix_cpy.full_filename))
+            assertTrue(is_file(sin_pix.full_filename))
+            assertTrue(is_file(sin_pix_cpy.full_filename))
+            assertEqualToTol(sin_pix_cpy.get_fields('all', 'all'), data)
+        end
+
         function test_unary_op_memory_vs_filebacked(obj)
             % the unary operation and the range the data it acts on should take
 

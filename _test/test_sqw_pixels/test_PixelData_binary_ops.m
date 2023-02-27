@@ -232,6 +232,23 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             assertEqual(full_pix_diff, expected_diff);
         end
 
+        function test_c_eq_a_plus_b(obj)
+            pix1 = obj.pix_with_pages.do_unary_op(@(x) cos(x)^2);
+            data1 = pix1.get_fields('all', 'all');
+            pix2 = obj.pix_with_pages.do_unary_op(@(x) sin(x)^2);
+            data2 = pix2.get_fields('all', 'all');
+
+            pix3 = do_binary_op(pix1, pix2, @plus);
+
+            assertTrue(is_file(pix1.full_filename));
+            assertTrue(is_file(pix2.full_filename));
+            assertTrue(is_file(pix3.full_filename));
+            assertEqualToTol(pix1.get_fields('all', 'all'), data1);
+            assertEqualToTol(pix2.get_fields('all', 'all'), data2);
+            assertEqualToTol(pix3.get_fields('signal', 'all'), ...
+                             ones(1, pix3.num_pixels));
+        end
+
         function test_add_double_npix_memory(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix = PixelDataMemory(data);
