@@ -1,4 +1,4 @@
-function display(w)
+function w=display(w)
 % Display sqw object to screen
 %   >> display(w)
 

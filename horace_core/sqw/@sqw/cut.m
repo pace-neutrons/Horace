@@ -121,7 +121,9 @@ targ_proj.angdeg = header_av.angdeg;
 % is attached to pixels. In fact, it redefines b-matrix, which is the 
 % function of lattice and partially U-matix used for alignment)
 % See ticket #885 to fix the alignment.
-targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+if isa(targ_proj,'ortho_proj')
+    targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+end
 
 %
 sz = size(pbin);
@@ -158,8 +160,7 @@ source_binning = img_block.axes.get_binning_range(...
     source_proj,targ_proj);
 %
 targ_ax_block  = targ_proj.get_proj_axes_block(source_binning,pbin);
-targ_ax_block.filename = img_block.filename;
-targ_ax_block.filepath = img_block.filepath;
+targ_ax_block.full_filename = img_block.full_filename;
 
 function log_progress(data_source,hor_log_level,npix_total)
 if hor_log_level>=1

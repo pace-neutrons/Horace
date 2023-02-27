@@ -52,7 +52,7 @@ if ~isempty(ref_grid_cell_size)
     cell_ratio =  trans_cell_size./ref_grid_cell_size;
     % decrease the interpolation cell size to be commensurate with
     % this grid but to be smaller than the reference grid to have
-    % at least one interpolation point within each reference cell
+    % at least one interpolation point within  each reference cell
     do_expand = cell_ratio > 1;
     cell_ratio = round(cell_ratio);
     eq_one = cell_ratio == 1;
@@ -65,7 +65,7 @@ if ~isempty(ref_grid_cell_size)
     while(min_npix ~= max_npix && count<4)
 
         com_cell_size(do_expand) = this_cell_size(do_expand)./cell_ratio(do_expand);
-        [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-density_integr',com_cell_size);
+        [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-bin_centre',com_cell_size);
         npix = obj.bin_pixels(nodes);
 
         min_npix=min(npix(:)); max_npix=max(npix(:)); count = count+1;
@@ -75,7 +75,7 @@ if ~isempty(ref_grid_cell_size)
         warning('HORACE:runtime_error', ...
             ['Problem generating the interpolation grid commensurate with the cut grid.', ...
             ' The image artefacts will appear on the cut.', ...
-            ' Contact the deveopers team to address the issue.'])
+            ' Contact the developers team to address the issue.'])
     end
 
     if ~isempty(proj)
@@ -84,7 +84,7 @@ if ~isempty(ref_grid_cell_size)
         inodes = nodes;
     end
 else % usually debug mode. Original grid coincides with interpolation grid
-    [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-density_integr');
+    [nodes,~,~,int_cell_size] = obj.get_bin_nodes('-bin_centre');
     inodes = nodes;
 end
 int_cell_volume = prod(int_cell_size);

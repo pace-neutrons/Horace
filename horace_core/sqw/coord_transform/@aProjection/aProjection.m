@@ -42,6 +42,8 @@ classdef aProjection < serializable
         %      projection is provided as input for a cut
         %
         %
+        title % this method would allow change cut title if non-empty value
+        %     % is provided for projection
     end
     properties(Dependent,Hidden)
         % Internal properties, used by algorithms and better not to be
@@ -67,11 +69,15 @@ classdef aProjection < serializable
         % true, though testing or the projection used to identify position
         % of q-dE point in q-dE space may set this property to false.
         do_3D_transformation;
+        % Direct access to different parts of 4-component label celarray.
+        % sets up appropriate element of such array. Do not have a getter.
+        % Do retrieve label as a whole.
+        lab1;
+        lab2;
+        lab3;
+        lab4;
     end
 
-    properties(Constant, Access=private)
-        fields_to_save_ = {'alatt','angdeg','offset'}
-    end
     properties(Constant, Access=protected)
         % minimal value of a vector norm e.g. how close couple of unit vectors
         % should be to be considered parallel. u*v are orthogonal if u*v'<tol
@@ -90,6 +96,7 @@ classdef aProjection < serializable
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
         %
         label_  = {'Q_h','Q_k','Q_l','En'};
+        title_ ='';
         %
         % holds target projection used in cuts.
         targ_proj_;
@@ -133,21 +140,37 @@ classdef aProjection < serializable
             [obj,par] = init(obj,varargin{:});
         end
         %
-        function [obj,par] = init(obj,varargin)
+        function [obj,remains] = init(obj,varargin)
             % Method normally used to initialize an empty object.
             %
             % Inputs:
             % A combination (including empty) of aProjection
             % class properties containing setters in the form:
-            % {property_name1, value1, property_name2, value2....}
+            % {pos_value2,pos_value2,pos_value3,...
+            % property_name1, value1, property_name2, value2....}
+            % The list of the possible properties to be available for
+            % constructor are specified below (opt_par)
+
             % Returns:
             % obj  -- Initialized instance of aProjection class
-            % par  -- if input arguments contains key-value pairs which do
+            % remains
+            %      -- if input arguments contains key-value pairs which do
             %         not describe aProjection class, the output contains
             %         cellarray of such parameters. Empty, if all inputs
             %         define the projection parameters.
             %
-            [obj,par] = init_(obj,varargin{:});
+            opt_par = aProjection.init_params;
+            remains = [];
+            if nargin == 0
+                return;
+            end
+            if nargin == 1 && isstruct(varargin{1})
+                obj = serializable.loadobj(varargin{1});
+            else
+                [obj,remains] = ...
+                    set_positional_and_key_val_arguments(obj,...
+                    opt_par,false,varargin{:});
+            end
         end
         %------------------------------------------------------------------
         %
@@ -228,6 +251,32 @@ classdef aProjection < serializable
         function obj = set.offset(obj,val)
             obj = check_and_set_offset_(obj,val);
         end
+        %
+        function tl = get.title(obj)
+            tl = obj.title_;
+        end
+        function obj = set.title(obj,val)
+            if ~istext(val)
+                error('HORACE:aProjection:invalid_argument',...
+                    'title should be a text string. In fact its type is %s', ...
+                    class(val));
+            end
+            obj.title_ = val;
+        end
+
+        %
+        function obj = set.lab1(obj,val)
+            obj = set_lab_component_(obj,1,val);
+        end
+        function obj = set.lab2(obj,val)
+            obj = set_lab_component_(obj,2,val);
+        end
+        function obj = set.lab3(obj,val)
+            obj = set_lab_component_(obj,3,val);
+        end
+        function obj = set.lab4(obj,val)
+            obj = set_lab_component_(obj,4,val);
+        end
         %------------------------------------------------------------------
         function proj = get.targ_proj(obj)
             proj = obj.get_target_proj();
@@ -248,14 +297,6 @@ classdef aProjection < serializable
         end
         function obj = set.do_3D_transformation(obj,val)
             obj.do_3D_transformation_ = logical(val);
-        end
-        %------------------------------------------------------------------
-        % Serializable interface
-        function ver  = classVersion(~)
-            ver = 1;
-        end
-        function  flds = saveableFields(obj)
-            flds = obj.fields_to_save_;
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
@@ -303,7 +344,7 @@ classdef aProjection < serializable
             %           PixelData object (as input pix_candidates) containing
             %           pixels contributing to the grid and sorted according
             %           to the axes block grid.
-            % unique_runid -- the runid (tags) for the runs, which
+            % unique_runid -- the run-id (tags) for the runs, which
             %           contributed into the cut
             % pix_indx--indexes of the pix_ok coordinates according to the
             %           bin. If this index is requested, the pix_ok object
@@ -382,7 +423,7 @@ classdef aProjection < serializable
         %
         function ax_bl = get_proj_axes_block(obj,def_bin_ranges,req_bin_ranges)
             % Construct the axes block, corresponding to this projection class
-            % Returns generic axes_block, bult from the block ranges or the
+            % Returns generic axes_block, built from the block ranges or the
             % binning ranges.
             %
             % Usually overloaded for specific projection and specific axes
@@ -407,6 +448,9 @@ classdef aProjection < serializable
             ax_bl = axes_block.build_from_input_binning(...
                 def_bin_ranges,req_bin_ranges);
             ax_bl.label = obj.label;
+            if ~isempty(obj.title)
+                ax_bl.title = obj.title;
+            end
         end
         %
         function targ_range = calc_target_range(obj,pix_origin,varargin)
@@ -547,7 +591,7 @@ classdef aProjection < serializable
             %                 orthogonal 1D indexes on dE lattice to include
             %                 into contributing indexes.
             %
-            % Uses knowledge about specific arrangement of 4-D array of indexes
+            % Uses knowledge about linear arrangement of 4-D array of indexes
             % in memory and on disk
 
             q_block_size = numel(bin_inside3D);
@@ -557,7 +601,7 @@ classdef aProjection < serializable
                 contrib_ind = {};
                 return;
             end
-            iend   = find(change==-1)-1;
+            iend   = find(change==-1) - 1;
 
             % calculate full 4D indexes from the the knowledge of the contributing dE bins,
             % 3D indexes and 4D array allocation layout
@@ -579,7 +623,13 @@ classdef aProjection < serializable
             end
             contrib_ind = {istart(:)',iend(:)'};
         end
-        %
+        function val = check_and_brush3vector(val)
+            % Helper function verifying setting 3 vector defining direction
+            % and modifying it to have standard row form avoiding small values in
+            % some directions when other directions are not small.
+            val = check_and_brush3vector_(val);
+        end
+
     end
     %----------------------------------------------------------------------
     %  ABSTRACT INTERFACE
@@ -592,5 +642,22 @@ classdef aProjection < serializable
         % into crystal Cartesian system or other source coordinate system,
         % defined by projection
         [pix_cc,varargout] = transform_img_to_pix(obj,pix_transformed,varargin);
+    end
+    %======================================================================
+    % Serializable interface
+    %======================================================================
+    properties(Constant,Access=protected)
+        init_params = {'alatt','angdeg','offset','label','title','lab1','lab2','lab3','lab4'};
+    end
+    methods
+        function ver  = classVersion(~)
+            ver = 1;
+        end
+        function  flds = saveableFields(obj)
+            flds = {'alatt','angdeg','offset','label'};
+            if ~isempty(obj.title)
+                flds = [flds(:);'title']';
+            end
+        end
     end
 end

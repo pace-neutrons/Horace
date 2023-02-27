@@ -24,7 +24,7 @@ function [pix_or_data_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
 % Output:
 % -------
 %   pix_or_data_range  [2 x 9] or [2 x 4] array containing the full
-%              extent of the data. Firstr 4 columns contain pixel 
+%              extent of the data. First 4 columns contain pixel 
 %              coordinates in crystal Cartesian
 %              coordinate system namely 3 momentum coordinates and 4-th -
 %              the energy transfer; first row the minima, second row the
@@ -36,7 +36,7 @@ function [pix_or_data_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
 %              detector, then increasing energy for the second detector, 
 %              etc....
 
-% Uses the following fields of rundata opbject:
+% Uses the following fields of rundata object:
 % efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det
 % where  data  is the data structure of spe file (see get_spe)
 %

@@ -1,5 +1,6 @@
 function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
-    calc_bin_nodes_(obj,do3D,halo,data_to_density,density_integr_grid,varargin)
+    calc_bin_nodes_(obj,do3D,halo,data_to_density,density_integr_grid, ...
+    axes_only,ngrid_form,varargin)
 % build 3D or 4D vectors, containing all nodes of the axes_block grid,
 % constructed over axes_block axes.
 %
@@ -18,6 +19,11 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %           -- if true, return grid used for integration by summation in
 %              centerpoints, namely, points are in the center of cells and
 %              integration dimensions
+% axes_only -- if true, do not build n-d grid but return only grid points
+%              in each 4 directions
+% ngrid_form
+%           -- if true, return resutl as cellarray of arrays, as ngrid
+%              function generates
 %
 % Optional:
 % char_cube -- if present, the cube, describing the scale of the grid,
@@ -40,7 +46,7 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %        -- 4-element vector of characteristic sizes of the grid cell in
 %           4 dimensions
 
-noptions = 5; % number of positional arguments always present as inputs (excluding varargin)
+noptions = 7; % number of positional arguments always present as inputs (excluding varargin)
 char_size = parse_inputs(noptions,nargin,varargin{:});
 axes = cell(4,1);
 %
@@ -49,8 +55,13 @@ if isempty(char_size)
     iint_ax = num2cell(obj.iint',2);
     axes(obj.iax) = iint_ax(:);
     npoints_in_axes = obj.nbins_all_dims+1;
+    %iax = false(4,1);
+    %iax(obj.iax) = true;
     if halo
         for i=1:4
+            %       if iax(i) % do not build halo for integration axes
+            %           continue;
+            %       end
             step = abs(axes{i}(2)-axes{i}(1));
             axes{i} = [axes{i}(1)-step,axes{i}(:)',axes{i}(end)+step];
             npoints_in_axes(i)= npoints_in_axes(i)+2;
@@ -67,21 +78,21 @@ else
             axes{i} = [range(1,i),range(2,i)];
             npoints_in_axes(i) = 2;
         else
-            if do3D && i==4 % this assumes that dE axis is certainly orthogonal to q-axes
-                % and treated differently when nodes contributed to a cut are
-                % identified
-                npoints_in_axes(i) = obj.nbins_all_dims(4)+1;
-                axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
+            %             if do3D && i==4 % this assumes that dE axis is certainly orthogonal to q-axes
+            %                 % and treated differently when nodes contributed to a cut are
+            %                 % identified
+            %                 npoints_in_axes(i) = obj.nbins_all_dims(4)+1;
+            %                 axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
+            %             else
+            if halo
+                npoints_in_axes(i) = dNR(i)+3;
+                axes{i} = linspace(range(1,i)-steps(i),...
+                    range(2,i)+steps(i),npoints_in_axes(i));
             else
-                if halo
-                    npoints_in_axes(i) = dNR(i)+3;
-                    axes{i} = linspace(range(1,i)-steps(i),...
-                        range(2,i)+steps(i),npoints_in_axes(i));
-                else
-                    npoints_in_axes(i) = dNR(i)+1;
-                    axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
-                end
+                npoints_in_axes(i) = dNR(i)+1;
+                axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
             end
+            %            end
         end
     end
 end
@@ -116,6 +127,14 @@ if data_to_density || density_integr_grid
 end
 
 en_axis  = axes{4};
+if axes_only
+    if do3D
+        nodes = {axes{1},axes{2},axes{3}};
+    else
+        nodes = {axes{1},axes{2},axes{3},axes{4}};
+    end
+    return;
+end
 if do3D
     [Xn,Yn,Zn] = ndgrid(axes{1},axes{2},axes{3});
     En = en_axis;
@@ -125,9 +144,17 @@ end
 
 
 if do3D
-    nodes = [Xn(:)';Yn(:)';Zn(:)'];
+    if ngrid_form
+        nodes = {Xn,Yn,Zn};
+    else
+        nodes = [Xn(:)';Yn(:)';Zn(:)'];
+    end
 else
-    nodes = [Xn(:)';Yn(:)';Zn(:)';En(:)'];
+    if ngrid_form
+        nodes = {Xn,Yn,Zn,En};
+    else
+        nodes = [Xn(:)';Yn(:)';Zn(:)';En(:)'];
+    end
 end
 
 function char_size = parse_inputs(noptions,ninputs,varargin)

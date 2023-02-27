@@ -1,5 +1,5 @@
 classdef unique_objects_container < serializable
-    %UNIQUE_OBJECTS_CONTAINER 
+    %UNIQUE_OBJECTS_CONTAINER
     % This container stores objects of a common baseclass so that if some
     % contained objects are duplicates, only one unique object is stored
     % for all the duplicates.
@@ -19,7 +19,7 @@ classdef unique_objects_container < serializable
     %
     % The overall aim here is - minimise memory for storage of objects in
     % this container.
-    % 
+    %
     % If you do also need the elimination of duplicates between containers,
     % then use unique_references_container instead of unique_object_container.
     %
@@ -47,7 +47,7 @@ classdef unique_objects_container < serializable
     % Instead you must do
     % >> s = u{3};
     % >> s.info = 'new_info';
-    % >> u{3} = s.   
+    % >> u{3} = s.
     %
     % The constructor takes 2 keyword arguments:
     % >> uoc = unique_objects_container('baseclass', bc,             ...
@@ -57,7 +57,7 @@ classdef unique_objects_container < serializable
     %    - cf = serializer function to create a hash from the objects
     % Both are optional:
     %    - if bc is not specified, objects can be of any type.
-    %    - if cf is not specified, it defaults to the undocumented 
+    %    - if cf is not specified, it defaults to the undocumented
     %      function getByteStreamFromArray to perform the conversion.
     %
     %
@@ -66,7 +66,7 @@ classdef unique_objects_container < serializable
     % objects with the get.unique_objects property. This may be used to
     % scan properties of the container without duplicating items in the
     % scan. This is a by-product of the availability of get.unique_objects
-    % due to its use by saveobj; users may wish to consider if this should 
+    % due to its use by saveobj; users may wish to consider if this should
     % be used as it breaks encapsulation. The cell-array list may be modified
     % outside of the container and returned to it due to the availability
     % of set.unique_objects; it is not recommended that this be used as the
@@ -80,7 +80,7 @@ classdef unique_objects_container < serializable
     % implement its storage. Ensure that any changes here in
     % unique_objects_container are reflected in unique_references_container
     % if required.
-    
+
     properties (Access=protected)
         unique_objects_=cell(1,0); % the actual unique objects - initialised in constructor by type
         stored_hashes_ = cell(1,0);  % their hashes are stored
@@ -104,9 +104,9 @@ classdef unique_objects_container < serializable
 
     properties (Dependent)
         n_objects;
-        n_runs; % duplicate of n_objects that names the normal usage in Horace 
-                % of this container for storing possibly duplicated
-                % instruments or samples per run.
+        n_runs; % duplicate of n_objects that names the normal usage in Horace
+        % of this container for storing possibly duplicated
+        % instruments or samples per run.
         n_unique;
         %
         baseclass;
@@ -136,16 +136,16 @@ classdef unique_objects_container < serializable
     % methods
     methods
         function val = get.conv_func_string(obj)
-        %GET.CONV_STRING_FUNCTION - report the function handle used to
-        % generate hashes
+            %GET.CONV_STRING_FUNCTION - report the function handle used to
+            % generate hashes
             val = func2str(obj.convert_to_stream_f_);
         end
         function obj = set.conv_func_string(obj,val)
-        %SET.CONV_STRING_FUNCTION - set the function handle used to
-        % generate hashes. Should only be used with loadobj. After the
-        % container is created, changing this functionmid-stream may
-        % invalidate the comparison for unique objects.
-        
+            %SET.CONV_STRING_FUNCTION - set the function handle used to
+            % generate hashes. Should only be used with loadobj. After the
+            % container is created, changing this functionmid-stream may
+            % invalidate the comparison for unique objects.
+
             if ~(ischar(val)||isstring(val))
                 error('HERBERT:unique_obj_container:invalid_argument',...
                     'convert_to_stream_f_string must be a string convertable to function. It is %s',...
@@ -155,63 +155,63 @@ classdef unique_objects_container < serializable
         end
         %
         function x = expose_unique_objects(self)
-        %EXPOSE_UNIQUE_OBJECTS - return the cell array containing the
-        % unique objects in this container. This provides the interface for
-        % using this functionality outside of saveobj. It is allowed so
-        % that users can scan the properties of this container without
-        % repeating the scan for many duplicates. Note that this does break
-        % the encapsulation of the class in some sense.
-        
+            %EXPOSE_UNIQUE_OBJECTS - return the cell array containing the
+            % unique objects in this container. This provides the interface for
+            % using this functionality outside of saveobj. It is allowed so
+            % that users can scan the properties of this container without
+            % repeating the scan for many duplicates. Note that this does break
+            % the encapsulation of the class in some sense.
+
             x = self.unique_objects_;
         end
-        
+
         function x = get.unique_objects(self)
-        %GET.UNIQUE_OBJECTS Return the cell array containing the unique
-        % objects in this container. This access is solely for saveobj.
-        % Users wishing to do a scan by unique objects outside of saveobj
-        % should use expose_unique_objects().
-            
+            %GET.UNIQUE_OBJECTS Return the cell array containing the unique
+            % objects in this container. This access is solely for saveobj.
+            % Users wishing to do a scan by unique objects outside of saveobj
+            % should use expose_unique_objects().
+
             x = self.unique_objects_;
         end
-        
+
         function self = set.unique_objects(self, val)
-        %SET.UNIQUE_OBJECTS Load a cell array or array of appropriate
-        % objects into the container, e.g. from file
-        %
-        % Inputs:
-        % -------
-        % val = array or cellarray of unique objects to populate the
-        % container.
-        %
-        % NB this set operation should only be done in environments such as
-        % loadobj which disable combo arg checking
-            
-        	if ~self.do_check_combo_arg_ 
-	            if ~iscell(val)
-	                val = {val};
-	            end
-	            self.unique_objects_ = val;
-	        else
-	        	error('HERBERT:unique_objects_container:invalid_set', ...
-	        	      'attempt to set unique objects in container outside of loadobj');
+            %SET.UNIQUE_OBJECTS Load a cell array or array of appropriate
+            % objects into the container, e.g. from file
+            %
+            % Inputs:
+            % -------
+            % val = array or cellarray of unique objects to populate the
+            % container.
+            %
+            % NB this set operation should only be done in environments such as
+            % loadobj which disable combo arg checking
+
+            if ~self.do_check_combo_arg_
+                if ~iscell(val)
+                    val = {val};
+                end
+                self.unique_objects_ = val;
+            else
+                error('HERBERT:unique_objects_container:invalid_set', ...
+                    'attempt to set unique objects in container outside of loadobj');
             end
         end
         %
         function x = get.stored_hashes(self)
-        %GET.STORED_HASHES - list the hashes corresponding to the unique
-        % objects. Only really useful for debugging.
+            %GET.STORED_HASHES - list the hashes corresponding to the unique
+            % objects. Only really useful for debugging.
             x = self.stored_hashes_;
         end
         %
         function x = get.idx(self)
-        %GET.IDX - get the indices of each stored object in the container
-        % which point to the unique objects stored internally.
+            %GET.IDX - get the indices of each stored object in the container
+            % which point to the unique objects stored internally.
             x = self.idx_;
         end
         function self = set.idx(self,val)
-        %SET.IDX - set the indices of each stored object in the container
-        % which point to the unique objects stored internally. Really only
-        % used by loadobj.
+            %SET.IDX - set the indices of each stored object in the container
+            % which point to the unique objects stored internally. Really only
+            % used by loadobj.
             if ~isnumeric(val)
                 error('HERBERT:unique_obj_container:invalid_argument',...
                     'idx may be only array of numeric values, identifying the object position in the container');
@@ -221,34 +221,34 @@ classdef unique_objects_container < serializable
                     'idx are the indexes so they must be positive only. Minum of indexes provided is: %d', ...
                     min(val))
             end
-        	if ~self.do_check_combo_arg_ 
+            if ~self.do_check_combo_arg_
                 self.idx_ = val(:)';
                 self.n_duplicates_ = accumarray(self.idx_',1)';
             else
-	        	error('HERBERT:unique_objects_container:invalid_set', ...
-	        	      'attempt to set idx in container outside of loadobj');
+                error('HERBERT:unique_objects_container:invalid_set', ...
+                    'attempt to set idx in container outside of loadobj');
             end
         end
         %
         function x = get.baseclass(self)
-        %GET.BASECLASS - retrieve the baseclass for objects in this
-        % container. If it is the empty string '' then any kind of object
-        % may be stored.
-        
+            %GET.BASECLASS - retrieve the baseclass for objects in this
+            % container. If it is the empty string '' then any kind of object
+            % may be stored.
+
             x = self.baseclass_;
         end
         function self = set.baseclass(self,val)
-        %SET.BASECLASS - (re)set the baseclass. If any existing items
-        % contained here do not conform to the new baseclass, then abort
-        % the process.
-        
+            %SET.BASECLASS - (re)set the baseclass. If any existing items
+            % contained here do not conform to the new baseclass, then abort
+            % the process.
+
             if ~(ischar(val)||isstring(val))
                 val = class(val);
             end
             %self = remove_noncomplying_members_(self,val);
             if any( cellfun( @(x) ~isa(x,val), self.unique_objects_) )
                 error('HERBERT:unique_objects_container:invalid_argument', ...
-                      'existing objects in the container do not conform to this baseclass');
+                    'existing objects in the container do not conform to this baseclass');
             end
             self.baseclass_ = val;
 
@@ -258,13 +258,13 @@ classdef unique_objects_container < serializable
         end
         %
         function x = get.convert_to_stream_f(self)
-        %GET.CONVERT_TO_STREAM - retrieve the hashing function
+            %GET.CONVERT_TO_STREAM - retrieve the hashing function
             x = self.convert_to_stream_f_;
         end
         function self = set.convert_to_stream_f(self,val)
-        %SET.CONVERT_TO_STREAM - (re)set the hashing function
-        % This may invalidate the contents by changing the hashing function
-        % so should not be used if the container is not empty
+            %SET.CONVERT_TO_STREAM - (re)set the hashing function
+            % This may invalidate the contents by changing the hashing function
+            % so should not be used if the container is not empty
             if ~(isempty(val)|| isa(val,'function_handle'))
                 error('HERBERT:unique_objects_container:invalid_argument',...
                     'this method accepts function handles for serializing objects only')
@@ -365,14 +365,14 @@ classdef unique_objects_container < serializable
             validateattributes(n_objects, {'numeric'}, {'>', 0, 'scalar'})
             if obj.n_unique ~= 1
                 error('HERBERT:unique_objects_container:invalid_argument',...
-                      'The method works only on containers containing a single unique run. This container contains %d unique runs.', ...
-                      obj.n_unique);
+                    'The method works only on containers containing a single unique run. This container contains %d unique runs.', ...
+                    obj.n_unique);
             end
 
             obj.idx_ = ones(1,n_objects);
             obj.n_duplicates_(1) = n_objects;
         end
-        
+
         function self = remove_noncomplying_members(self,new_class_name)
             self = remove_noncomplying_members_(self,new_class_name);
         end
@@ -476,21 +476,21 @@ classdef unique_objects_container < serializable
         end
 
         function n = get.n_objects(self)
-        %GET.N_OBJECTS - retrieve size of container without duplicate
-        % compression. This functionality is also provided by get.n_runs to
-        % provide naming by the normal usage of this container for storing
-        % instruments and samples in Horace. The two should be kept
-        % synchronized.
-        
+            %GET.N_OBJECTS - retrieve size of container without duplicate
+            % compression. This functionality is also provided by get.n_runs to
+            % provide naming by the normal usage of this container for storing
+            % instruments and samples in Horace. The two should be kept
+            % synchronized.
+
             n = numel(self.idx_);
         end
         function n = get.n_runs(self)
-        %GET.N_RUNS - retrieve size of container without duplicate
-        % compression. This functionality duplicates that provided by
-        % get.n_objects so that naming by the normal usage of this container for storing
-        % instruments and samples in Horace is available. Both properties
-        % should be kept synchronized.
-        
+            %GET.N_RUNS - retrieve size of container without duplicate
+            % compression. This functionality duplicates that provided by
+            % get.n_objects so that naming by the normal usage of this container for storing
+            % instruments and samples in Horace is available. Both properties
+            % should be kept synchronized.
+
             n = numel(self.idx_);
         end
 

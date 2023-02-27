@@ -741,7 +741,7 @@ classdef (Abstract) PixelDataBase < serializable
                    obj.full_filename = inputs.file_path;
                 end
                 if isfield(inputs,'file_path_')
-                   obj.full_filename = inputs.file_path_;                    
+                   obj.full_filename = inputs.file_path_;
                 end
             elseif isfield(inputs,'raw_data_')
                 obj.data = inputs.raw_data_;

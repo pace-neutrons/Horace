@@ -263,6 +263,42 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     %======================================================================
     methods
         function obj = DnDBase(varargin)
+            % Common form of constructor for generic dnd object.
+            % Actual constructor have to be run on the particular DxD
+            % object where x stands for specific allowed number of
+            % dimensions (from 0 to 4)
+            %
+            % Usage
+            %>> w = dxd(axes,proj)
+            %>> w = dxd(axes,proj,s,e,npix)
+            %>> w = dxd(axes,proj,s,e,npix,creation_date)
+            % where x stands for number form 0 to 4, e.g.: d0d for 0-dimensional
+            % object or d3d for 3-dimensinal.
+            %
+            % Input parameters:
+            % axes   -- the instance of axes block which defines the object
+            %           frame. The dimensionality of axes block
+            %           (axes.dimensions) have to be equal to the
+            %           dimensionality of the class instance, i.e.
+            %           if axes.dimensions == 2 it has to be d2d
+            % proj   -- instance of aProjection class, which defines the
+            %           transformation from PixelData coordinate system
+            %           (Crystal Cartezian) to axes coordinate system.
+            % Optional:
+            % s,e,npix
+            %        -- if one is provied, all have to be provided.
+            %           the attays defining signal, variance and npix of
+            %           the object. The dimensionality and binning of array
+            %           have to be equal to the dimensionality and binnibng
+            %           of the axes block. If the arrays are missing, they
+            %           are automatically initialized to 0 with axes_block
+            %           dimensionality and binning.
+            % creation_data
+            %        -- the date when this object should be recorded
+            %           created. The format is Matlab datetime class format
+            %           If missing, the creation time will be set to the
+            %           first time the object was stored on HDD.
+            %
             obj = obj@SQWDnDBase();
             if nargin>0
                 obj = obj.init(varargin{:});
@@ -328,6 +364,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             % class check_cobo_arg state
             check_combo_ = obj.proj_.do_check_combo_arg;
             obj.proj_ = val;
+            obj.axes_.label = val.label;
+            if ~isempty(val.title)
+                obj.axes_.title = val.title;
+            end
             obj.proj_.do_check_combo_arg = check_combo_;
         end
         function range = get.img_range(obj)

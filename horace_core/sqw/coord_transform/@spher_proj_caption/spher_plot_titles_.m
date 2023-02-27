@@ -22,10 +22,7 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %                  to the energy axis
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+
 
 Angstrom=char(197);     % Angstrom symbol
 %
@@ -39,10 +36,10 @@ file = fullfile(data.filepath,data.filename);
 title = data.title;
 
 %uoff = data.uoffset;
-centre= data.uoffset;
-u_to_rlu = data.u_to_rlu;
+centre= data.offset;
+%u_to_rlu = data.proj.u_to_rlu;
 ulen = data.ulen;
-ulabel = data.ulabel;
+ulabel = data.label;
 iax = data.iax;
 iint = data.iint;
 pax = data.pax;
@@ -73,17 +70,17 @@ for j=1:4
     %     else
     %         uofftot_ch{j} = num2str(0,'%+11.4g');
     %     end
-    for i=1:4
-        if abs(u_to_rlu(i,j)) > small
-            u_to_rlu_ch{i,j} = num2str(u_to_rlu(i,j),'%11.4g');  % + format ensures sign (+ or -) is attached to character representation
-        else
-            u_to_rlu_ch{i,j} = num2str(0,'%11.4g');  % + format ensures sign (+ or -) is attached to character representation
-        end
-    end
+    %for i=1:4
+    %    if abs(u_to_rlu(i,j)) > small
+    %        u_to_rlu_ch{i,j} = num2str(u_to_rlu(i,j),'%11.4g');  % + format ensures sign (+ or -) is attached to character representation
+    %    else
+    %        u_to_rlu_ch{i,j} = num2str(0,'%11.4g');  % + format ensures sign (+ or -) is attached to character representation
+    %    end
+    %end
 end
 
 % HACK:
-spher_units('r') =[u_to_rlu_ch{1,1},' ',spher_units('r')];
+spher_units('d') =[u_to_rlu_ch{1,1},' ',spher_units('d')];
 
 
 % pre-allocate cell arrays for titling:
@@ -115,11 +112,11 @@ for j=1:4
     end
     
     % Determine if column vector in u corresponds to a Q-axis or energy
-    if u_to_rlu(4,j)~=0
-        energy_axis = j;
-    end
+%     if u_to_rlu(4,j)~=0
+%         energy_axis = j;
+%     end
 end
-
+energy_axis = 4; %Fudge, need thinking
 
 % Main title
 iline = 1;
