@@ -352,14 +352,13 @@ classdef PixelDataFileBacked < PixelDataBase
             % If others point to it, file will be kept
             % otherwise file will be cleared
             obj.tmp_pix_obj = PixelTmpFile(obj.full_filename);
-            obj.full_filename = obj.tmp_pix_obj.file_name;
 
-            fh = fopen(obj.tmp_pix_obj.tmp_name, 'wb+');
+            fh = fopen(obj.tmp_pix_obj.file_name, 'wb+');
 
             if fh<1
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                       'Can not open data file %s for file-backed pixels',...
-                      obj.tmp_pix_obj.tmp_name);
+                      obj.tmp_pix_obj.file_name);
             end
 
             obj.file_handle_ = fh;
@@ -384,14 +383,9 @@ classdef PixelDataFileBacked < PixelDataBase
             fclose(obj.file_handle_);
             obj.file_handle_ = [];
 
-            [ok, mess] = movefile(obj.tmp_pix_obj.tmp_name, obj.full_filename);
-            if ~ok
-                error('HORACE:PixelDataFileBacked:runtime_error', ...
-                      'Failed to move temp file to permanent location, Reason: %s', mess);
-            end
-
             obj.f_accessor_ = [];
             obj.offset_ = 0;
+            obj.full_filename = obj.tmp_pix_obj.file_name;
             obj.f_accessor_ = memmapfile(obj.full_filename, ...
                                          'format', obj.get_memmap_format(), ...
                                          'Repeat', 1, ...
