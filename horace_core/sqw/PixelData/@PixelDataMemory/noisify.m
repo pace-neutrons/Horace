@@ -53,23 +53,10 @@ end
 % page over pix_out noisifying each page using either Poisson or the max
 % value extracted above
 
-pix_out = pix_out.get_new_handle();
-s_ind = pix_out.check_pixel_fields('signal');
-v_ind = pix_out.check_pixel_fields('variance');
 
-for i = 1:pix_out.num_pages
-    [pix_out, data] = pix_out.load_page(i);
+[pix_out.signal, pix_out.variance] = noisify( ...
+    pix_out.signal, pix_out.variance, varargin{:});
 
-    [signal, variance] = noisify( ...
-        pix_out.signal, pix_out.variance, varargin{:});
-
-    data(s_ind, :) = signal;
-    data(v_ind, :) = variance;
-
-    pix_out.format_dump_data(data);
-end
-
-pix_out = pix_out.finalise();
 pix_out = pix_out.reset_changed_coord_range({'signal', 'variance'});
 
 end
