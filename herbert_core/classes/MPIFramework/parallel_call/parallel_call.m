@@ -11,10 +11,6 @@ function varargout = parallel_call(func, args, varargin)
 
       case 'multifit_func_eval'
 
-        % mf_func_eval signature:
-        %multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        %    f_pass_caller, bf_pass_caller, pfin, p_info, output_type)
-
         varargout{1} = parallel_mf_func_eval(func, nWorkers, args);
 
       otherwise
