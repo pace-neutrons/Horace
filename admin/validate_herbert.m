@@ -22,6 +22,9 @@ function err = validate_herbert(varargin)
 % '-exit_on_completion'  exit Matlab when the tests are completed.
 %               This option is useful when running tests from
 %               a script or continuous integration tools.
+%
+% '-no_system_tests' Do not run MPI tests if present
+%
 % Returns:
 %   err -- 0 if tests are successful and -1 if some tests have failed
 
