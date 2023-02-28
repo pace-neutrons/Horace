@@ -15,7 +15,7 @@ function [fig_handle, axes_handle, plot_handle] = da(w,varargin)
 
 % Check input arguments
 opt=struct('newplot',true,'lims_type','xyz');
-[args,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
+[~,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
 
 % Perform plot
 type='area';

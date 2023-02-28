@@ -11,6 +11,7 @@ classdef test_spher_proj<TestCase
             end
             this=this@TestCase(name);
         end
+        %------------------------------------------------------------------
         function test_coord_transf_PixData_plus_offset(~)
             proj = spher_proj();
             proj.offset = [1,2,3,4];
@@ -46,6 +47,41 @@ classdef test_spher_proj<TestCase
 
             assertElementsAlmostEqual(pix0,pix_rec);
         end
+
+        function test_invalid_type_throws(~)
+            proj = spher_proj();
+            function type_setter(proj,val)
+                proj.type = val;
+            end
+            assertExceptionThrown(@()type_setter(proj,'a'),...
+                'HORACE:spher_proj:invalid_argument');
+            assertExceptionThrown(@()type_setter(proj,20),...
+                'HORACE:spher_proj:invalid_argument');
+
+            assertExceptionThrown(@()type_setter(proj,'abb'),...
+                'HORACE:spher_proj:invalid_argument');
+
+            assertExceptionThrown(@()type_setter(proj,'xrr'),...
+                'HORACE:spher_proj:invalid_argument');
+        end
+
+        function test_coord_spher_ranged_rad(~)
+            proj = spher_proj();
+            proj.type = "arr";
+
+            pix0 = [10,-10,  0,   0,  0,  0;...
+                0 ,  0, 10, -10,  0,  0;...
+                0 ,  0,  0,   0, 10,-10];
+
+            sph  = proj.transform_pix_to_img(pix0);
+
+            sam_ranges = [10,10,10,10,10,10;...
+                pi/2, pi/2,0,pi,pi/2, pi/2;... % Theta ranges [0 : pi]
+                pi/2,-pi/2,0, 0,   0, pi];     % phi ranges   [-pi:pi]
+            assertElementsAlmostEqual(sph,sam_ranges);
+
+        end
+
         function test_coord_transf_3D_deg(~)
             proj = spher_proj();
             proj.type = "add";
@@ -58,7 +94,6 @@ classdef test_spher_proj<TestCase
             assertElementsAlmostEqual(pix0,pix_rec);
         end
 
-
         function test_coord_transf_3D_radian(~)
             proj = spher_proj();
             proj.type = "arr";
@@ -70,6 +105,7 @@ classdef test_spher_proj<TestCase
 
             assertElementsAlmostEqual(pix0,pix_rec);
         end
+
         function test_set_get_e(~)
             proj = spher_proj();
             proj.ez = [1,0,0];
@@ -78,6 +114,7 @@ classdef test_spher_proj<TestCase
             assertEqual(proj.ey,[0,0,1])
 
         end
+
         function test_empty_constructor(~)
             proj = spher_proj();
             assertEqual(proj.ez,[0,0,1]);

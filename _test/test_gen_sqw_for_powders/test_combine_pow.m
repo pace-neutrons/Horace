@@ -116,8 +116,8 @@ classdef test_combine_pow < TestCaseWithSave
                 % clean up
                 cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_tot));                
             end
-            w2_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1,'-nopix');
-            w1_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,3],[-pi,pi],[-pi,pi],[40,50],'-nopix');
+            w2_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,8],[0,180],[-180,180],1,'-nopix');
+            w1_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,3],[0,180],[-180,180],[40,50],'-nopix');
 
 
             obj.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...

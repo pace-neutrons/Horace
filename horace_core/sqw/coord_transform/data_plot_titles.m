@@ -26,7 +26,7 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 %
-% TODO: not adgheres to OOP design. Needs refactoring
+% TODO: violates OOP design. Needs refactoring
 
 Angstrom=char(197);     % Angstrom symbol
 

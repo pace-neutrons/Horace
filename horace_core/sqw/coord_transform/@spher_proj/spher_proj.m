@@ -199,6 +199,7 @@ classdef spher_proj<aProjection
             %
             bm = bmatrix(obj.alatt,obj.angdeg);
             mat = inv(bm);
+            mat = [mat,zeros(3,1);[0,0,0,1]];
         end
     end
     %=====================================================================

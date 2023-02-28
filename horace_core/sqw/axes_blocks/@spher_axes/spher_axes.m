@@ -22,6 +22,12 @@ classdef spher_axes < AxesBlockBase
     %5) ab = spher_axes('img_range',img_range,'nbins_all_dims',nbins_all_dims)
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
+    properties(Constant,Access = private)
+        % What units each possible dimension of the spherical projection
+        % have:  Anstrom, radian, degree, mEv
+        capt_units = containers.Map({'a','r','d','e'}, ...
+            {[char(197),'^{-1}'],'rad','^\{o}','mEv'})
+    end
     methods
         %
         function obj = spher_axes(varargin)

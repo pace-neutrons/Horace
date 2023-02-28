@@ -28,8 +28,7 @@ function [fig_handle, axes_handle, plot_handle] = ds2(w,varargin)
 
 
 opt=struct('newplot',true,'lims_type','xyz');
-[args,ok,mess,nw,lims,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});
-if ~ok, error(mess), end
+[~,nw,lims,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});
 if nw==2
     data={w,IX_dataset_2d(varargin{1})};
 else

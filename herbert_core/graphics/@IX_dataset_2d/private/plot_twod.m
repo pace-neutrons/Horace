@@ -207,7 +207,7 @@ if (newplot)
         zticks=w{1}(1).s_axis.ticks;
     end
     % Change titles:
-    title(tt,'FontWeight','normal','interpreter','latex');
+    title(tt,'FontWeight','normal','interpreter','tex');
     xlabel(tx);
     ylabel(ty);
     if ~strcmpi(plot_type,'area')   % don't try to plot along z axis if just an area plot

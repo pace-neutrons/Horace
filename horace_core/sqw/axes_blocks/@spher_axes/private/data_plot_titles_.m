@@ -23,7 +23,7 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 
 
 
-Angstrom=char(197);     % Angstrom symbol
+Angstrom=char(197); % Angstrom symbol
 small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
 
 
@@ -72,14 +72,15 @@ for j=1:4
     else
         uofftot_ch{j} = num2str(0,'%+11.4g');
     end
-%     for i=1:4
-%         if abs(u_to_rlu(i,j)) > small
-%             u_to_rlu_ch{i,j} = num2str(u_to_rlu(i,j),'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
-%         else
-%             u_to_rlu_ch{i,j} = num2str(0,'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
-%         end
-%     end
+    for i=1:4
+        if abs(u_to_rlu(i,j)) > small
+            u_to_rlu_ch{i,j} = num2str(u_to_rlu(i,j),'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+        else
+            u_to_rlu_ch{i,j} = num2str(0,'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+        end
+    end
 end
+type = [proj.type,'e'];
 
 % pre-allocate cell arrays for titling:
 title_pax = cell(length(pax),1);
@@ -120,6 +121,11 @@ for j=1:4
             if ch{i,j}(1)=='+'        % strip off leading '+'
                 ch{i,j} = ch{i,j}(2:end);
             end
+        end
+        %label 
+        if abs(offset(j)) > small
+            totvector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];            
+        else
         end
         totvector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];
         in_totvector{j} = [' in ',totvector{j}];

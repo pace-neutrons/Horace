@@ -1,4 +1,4 @@
-function [fig_handle, axes_handle, plot_handle] = psoc2(w,varargin)
+function [fig_handle, axes_handle, plot_handle] = ps2oc(w,varargin)
 % Overplot a surface plot of an IX_dataset_2d or array of IX_dataset_2d
 %
 %   >> psoc2(w)       % Use error bars to set colour scale
@@ -22,8 +22,7 @@ function [fig_handle, axes_handle, plot_handle] = psoc2(w,varargin)
 
 
 opt=struct('newplot',false,'over_curr',true);
-[args,ok,mess,nw,lims,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});
-if ~ok, error(mess), end
+[~,nw,~,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});
 if nw==2
     data={w,IX_dataset_2d(varargin{1})};
 else

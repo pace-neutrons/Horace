@@ -36,8 +36,6 @@ function [args,nw,lims,fig_out]=genie_figure_parse_plot_args2(opt,varargin)
 %   args        Cell array with arguments as row vector (cell(1,0) if not OK)
 %              suitable for passing down to another plot function e.g.
 %              sqw/dl  calls IX_dataset_1d/dl.
-%   ok          true if arguments are acceptable
-%   mess        Error message if not ok; empty string if ok
 %   lims_type   Cell array (row vector) or limits
 %   fig_out     Figure name
 
