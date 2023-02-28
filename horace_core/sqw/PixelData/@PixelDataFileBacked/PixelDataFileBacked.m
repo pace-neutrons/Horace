@@ -52,9 +52,9 @@ classdef PixelDataFileBacked < PixelDataBase
     %
     %   >> pix = PixelDataFileBacked('my_data.sqw')
     %   >> signal_sum = 0;
-    %   >> while pix.has_more()
+    %   >> for i = 1:pix.num_pages
+    %   >>     pix.page_num = i;
     %   >>     signal_sum = signal_sum + pix.signal;
-    %   >>     pix = pix.advance();
     %   >> end
     %
     % Properties:

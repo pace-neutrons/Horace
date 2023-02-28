@@ -1159,15 +1159,5 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
     end
 
-    methods (Static)
-
-        function advance_pix(pix, niters)
-            % Advance the pixel pages by 'niters'
-            for i = 1:niters
-                pix.advance();
-            end
-        end
-
-    end
 
 end

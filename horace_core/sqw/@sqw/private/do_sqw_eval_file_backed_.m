@@ -22,10 +22,9 @@ function wout = do_sqw_eval_file_backed_(wout, sqwfunc, pars, outfile)
 % whilst avoiding an extra loop over pixels.
 %
 %==============================================================================
-%
-%Re #928 this function should be fixed. It does not work any more (and did not work before the changes anyway)
 
-pg_size = wout.pix.base_page_size;
+pg_size = get(hor_config, 'mem_chunk_size');
+
 pix = wout.pix;
 npix = wout.data.npix;
 
@@ -38,29 +37,24 @@ ldr = write_sqw_no_pix_or_footers_(wout, outfile);
 ldr_clob = onCleanup(@() ldr.delete());
 
 img_signal = zeros(1, numel(npix));
-for chunk_num = 1:numel(npix_chunks)
+
+s_ind = obj.check_pixel_fields('signal');
+v_ind = obj.check_pixel_fields('variance');
+
+for i = 1:pix.num_pages
+    [pix, data] = pix.load_page(i);
+    npix_chunk = npix_chunks{i};
+    idx_chunk = idxs(:, i);
+
     qw = calculate_qw_pixels(wout);
     sig_chunk = sqwfunc(qw{:}, pars{:});
 
-    ldr = write_pix_chunk_with_signal_(ldr, pix, sig_chunk);
+    data(s_ind, :) = sig_chunk;
+    data(v_ind, :) = 0;
 
-    img_signal = increment_signal_sums_( ...
-        img_signal, sig_chunk, npix_chunks{chunk_num}, idxs(:, chunk_num) ...
-    );
+    f_accessor.put_bytes(data);
 
-    if pix.has_more()
-        % Do not save cached changes to pixels.
-        % We avoid copying pixels by just editing the signal/variance of
-        % the current page of the input pixels, then saving that page to
-        % the output file. We don't want to retain changes made to the
-        % input PixelData object, so we discard edits to the cache when we
-        % load the next page of pixels.
-        pix = pix.advance();
-    else
-        % Make sure we discard the changes made to the final page's cache
-        pix = pix.move_to_page(1, 'nosave', true);
-        break;
-    end
+    img_signal = increment_signal_sums_(img_signal, sig_chunk, npix_chunk, idx_chunk);
 end
 
 % We're finished writing pixels, so write the file footers
@@ -81,15 +75,6 @@ function ldr = write_sqw_no_pix_or_footers_(sqw_obj, outfile)
     ldr = sqw_formats_factory.instance().get_pref_access(sqw_obj);
     ldr = ldr.init(sqw_obj, outfile);
     ldr.put_sqw('-nopix');
-end
-
-%------------------------------------------------------------------------------
-function f_accessor = write_pix_chunk_with_signal_(f_accessor, pix, signal)
-    % Update the given PixelData object's signal and write the data to the file
-    % managed by the given file accessor.
-    pix.signal = signal;
-    pix.variance = zeros(1, numel(signal));
-    f_accessor.put_bytes(pix.data);
 end
 
 %------------------------------------------------------------------------------

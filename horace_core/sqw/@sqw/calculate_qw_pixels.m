@@ -30,7 +30,7 @@ u0 = header_ave.uoffset;
 u = header_ave.u_to_rlu(1:3,1:3);
 
 % Assume that the first three axes are Q, and the 4th axis is energy
-if ~all(u==eye(3))   % not identity matrix, so need to perform matrix transformation
+if ~isequal(u, eye(3))   % not identity matrix, so need to perform matrix transformation
     urlu=u*win.pix.q_coordinates;
     qh=urlu(1,:)';
     qk=urlu(2,:)';
@@ -50,3 +50,4 @@ if ~u0(4)==0, en=en+u0(4); end
 % package as cell array of column vectors for convenience with fitting routines etc.
 qw = {qh(:), qk(:), ql(:), en(:)};
 
+end

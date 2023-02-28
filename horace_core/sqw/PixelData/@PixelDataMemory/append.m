@@ -6,11 +6,8 @@ function pix_out = append(obj, pix)
 % -----
 % pix    A PixelData object containing the pixels to append
 %
-if nargout == 1
-    pix_out = copy(obj);
-else
-    pix_out = obj;
-end
+
+pix_out = obj;
 
 if ~isa(pix, 'PixelDataBase')
     error('PIXELDATA:append:invalid_argument', ...
@@ -22,17 +19,9 @@ if isempty(pix)
     return;
 end
 
-pix = pix.move_to_first_page();
-while true
-
+for i = 1:pix.num_pages
+    pix.page_num = i;
     pix_out.data_ = horzcat(pix_out.data, pix.data);
-
-    if pix_out.has_more()
-        pix = pix_out.advance();
-        pix_out = pix_out.reset_changed_coord_range();
-    else
-        break;
-    end
 end
 
 pix_out.num_pixels_ = pix_out.num_pixels_ + pix.num_pixels;
