@@ -31,8 +31,6 @@ classdef spher_axes < AxesBlockBase
     end
     properties(Dependent)
         % if angular dimensions of the axes are expressed in radians or degrees
-        % accepts logical 2-component vector or two letter char array where
-        % r corresponds to radian and d -- to degrees
         angles_in_rad
     end
     properties(Access = protected)
@@ -67,9 +65,14 @@ classdef spher_axes < AxesBlockBase
             % remains -- the arguments, not used in initialization if any
             %            were provided as input
             %
-            [obj,offset,remains] = init@AxesBlockBase(obj,varargin{:});
+
+            % empty spherical range;
+            obj.img_range_ = [inf,pi/2,pi,inf;0,-pi/2,-pi,-inf];
             obj.label = {'|Q|','\theta','\phi','En'};
             obj.changes_aspect_ratio_ = false;
+            %
+            [obj,offset,remains] = init@AxesBlockBase(obj,varargin{:});
+
         end
         function [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
                 data_plot_titles(obj,dnd_obj)
@@ -92,7 +95,7 @@ classdef spher_axes < AxesBlockBase
             % main setter for spherical image range.
             obj = check_and_set_img_range_(obj,val);
         end
-    end    
+    end
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods(Static)

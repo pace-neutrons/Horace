@@ -12,11 +12,11 @@ if nargi>0 && isa(varargin{1},'AxesBlockBase')
     end
     return;
 end
-
+%--------------------------------------------------------------------------
 if nargi==1
     if isstruct(varargin{1})
         input_struct = varargin{1};
-        [obj,remains] = from_struct(obj,varargin{1});
+        [obj,remains] = from_struct(obj,input_struct);
         remains = {remains};
     elseif isscalar(varargin{1}) && isnumeric(varargin{1})
         ndim=varargin{1}; % build default axes block with specified number of dimensions
@@ -59,7 +59,7 @@ elseif nargi>= 4 % Either binning parameters (first 4) or default serializable
         [obj,remains] = obj.set_positional_and_key_val_arguments(...
             names,false,argi{:});
         if ~isempty(remains)
-            out = cellfun(@any_to_char,remains,'UniformOutput',false);
+            out = cellfun(@disp2str,remains,'UniformOutput',false);
             error('HORACE:AxesBlockBase:invalid_argument',...
                 'Unknown input parameters and/or values %s',strjoin(out,'; '))
         end
@@ -71,11 +71,4 @@ elseif nargi<4 && nargi>1
 else
     error('HORACE:AxesBlockBase:invalid_argument',...
         'Unrecognised number: %d of input arguments',nargi);
-end
-
-function out = any_to_char(x)
-if ischar(x)||isstring(x)
-    out = x;
-else
-    out = evalc('disp(x)');
 end
