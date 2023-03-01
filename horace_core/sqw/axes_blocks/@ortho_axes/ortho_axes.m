@@ -88,7 +88,6 @@ classdef ortho_axes < AxesBlockBase
         function obj = set.nonorthogonal(obj,val)
             obj.nonorthogonal_ = logical(val);
         end
-
     end
     %----------------------------------------------------------------------
     methods(Static)
@@ -140,6 +139,13 @@ classdef ortho_axes < AxesBlockBase
             img_range = calc_img_db_range_(ax_data);
         end
 
+    end
+    %----------------------------------------------------------------------
+    methods(Access=protected)
+        function  obj = check_and_set_img_range(obj,val)
+            % main setter for orthogonal image range.
+            obj = check_and_set_img_range_(obj,val);
+        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

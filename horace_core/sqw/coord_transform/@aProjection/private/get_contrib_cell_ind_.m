@@ -1,5 +1,5 @@
 function  contrib_ind = get_contrib_cell_ind_(source_proj,...
-    cur_axes_block,~,targ_axes_block)
+    cur_axes_block,target_proj,targ_axes_block)
 % Return the indexes of cells, which may contain the nodes,
 % belonging to the target axes block by transforming the source
 % coordinate system (SCS) into target coordinate system (TCS)
@@ -7,9 +7,6 @@ function  contrib_ind = get_contrib_cell_ind_(source_proj,...
 % area contains unit signal and signal on SCS is interpolated from unary 
 % values on TCS and zero values outside of TCS.
 %
-% NOTE: may be incorrect if source grid cells are much larger then the
-% target grid cells or target grid covers small internal part of the source
-% grid. TODO: modify for this case.
 
 % build bin edges for the target grid and bin centres for reference grid
 if source_proj.do_3D_transformation_
@@ -42,14 +39,32 @@ conv_grid = source_proj.from_this_to_targ_coord(ch_grid);
 if source_proj.do_3D_transformation_
     interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_grid_present,...
         conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)', 'linear',0);
-
-    contrib_ind = source_proj.convert_3Dplus1Ind_to_4Dind_ranges(...
-        interp_ds(:)>eps(single(1)),may_contribute);
 else
     interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_nodes{4},targ_grid_present,...
         conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)',conv_grid(4,:)', 'linear',0);
-    contrib_ind = find(interp_ds > eps(single(1)));
 end
+% verify if edge nodes may contribute to the cut
+%edge_targ_nodes = pick_edge_nodes(targ_nodes,~targ_grid_present);
+edge_targ_nodes = pick_edge_nodes(targ_nodes);
+edge_targ_nodes = target_proj.from_this_to_targ_coord(edge_targ_nodes );
+cell_dist = cur_axes_block.bin_pixels(edge_targ_nodes );
+may_contributeND = interp_ds(:)>eps(single(1))|cell_dist(:)>0;
+   
+if source_proj.do_3D_transformation_
+    contrib_ind = source_proj.convert_3Dplus1Ind_to_4Dind_ranges(...
+        may_contributeND ,may_contribute);   
+else
+    contrib_ind = find(imay_contributeND);    
+end
+
+%function edge_nodes = pick_edge_nodes(source_grid,is_edge_node)
+function edge_nodes = pick_edge_nodes(source_grid)
+n_dim = numel(source_grid);
+edge_nodes = cell(n_dim,1);
+for i=1:n_dim
+    edge_nodes{i} = source_grid{i}(:);
+end
+edge_nodes = [edge_nodes{:}]';
 
 function mat = nullify_edges(mat,sze)
 % Ugly. Can it be done better?

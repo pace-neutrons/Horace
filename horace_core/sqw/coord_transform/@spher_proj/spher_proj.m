@@ -161,6 +161,7 @@ classdef spher_proj<aProjection
         function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
             % return the axes block, corresponding to this projection class.
             ax_bl = get_proj_axes_block@aProjection(obj,default_binning_ranges,req_binning_ranges);
+            ax_bl.angles_in_rad = axes_bl.type(2:3);
             %
             %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear
         end

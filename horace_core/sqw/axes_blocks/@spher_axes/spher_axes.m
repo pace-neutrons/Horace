@@ -29,6 +29,17 @@ classdef spher_axes < AxesBlockBase
         capt_units = containers.Map({'a','r','d','e'}, ...
             {[char(197),'^{-1}'],'rad','^{o}','mEv'})
     end
+    properties(Dependent)
+        % if angular dimensions of the axes are expressed in radians or degrees
+        % accepts logical 2-component vector or two letter char array where
+        % r corresponds to radian and d -- to degrees
+        angles_in_rad
+    end
+    properties(Access = protected)
+        % if angular dimensions of the axes are expressed in radians or degrees
+        angles_in_rad_ = [false,false];
+    end
+
     methods
         %
         function obj = spher_axes(varargin)
@@ -68,9 +79,20 @@ classdef spher_axes < AxesBlockBase
             [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
                 data_plot_titles_(obj,proj);
         end
-
+        function anr = get.angles_in_rad(obj)
+            anr = obj.angles_in_rad_;
+        end
+        function obj = set.angles_in_rad(obj,val)
+            obj = set_angles_in_rad_(obj,val);
+        end
     end
     %----------------------------------------------------------------------
+    methods(Access=protected)
+        function  obj = check_and_set_img_range(obj,val)
+            % main setter for spherical image range.
+            obj = check_and_set_img_range_(obj,val);
+        end
+    end    
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods(Static)
@@ -95,6 +117,7 @@ classdef spher_axes < AxesBlockBase
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = saveableFields@AxesBlockBase(obj);
+            flds = [flds(:),'angles_in_rad'];
         end
         %
     end

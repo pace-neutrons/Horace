@@ -103,7 +103,7 @@ classdef test_spherical_cuts < TestCaseWithSave
             spp = spher_proj;
             spp.type = 'add';
 
-            w2_fine = cut_sqw(obj.sqw_file_fine,spp,[0,0.05,8],[0,180],[-180,180],1);
+            w2_fine = cut_sqw(obj.sqw_file_fine,spp,[0,0.05,8],[-180,180],[-360,360],1);
             w2_coars = cut_sqw(obj.sqw_file_coarse,spp,[0,0.05,8],[0,180],[-180,180],1);
 
 

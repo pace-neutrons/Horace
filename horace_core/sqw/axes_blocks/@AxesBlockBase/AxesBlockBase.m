@@ -229,7 +229,7 @@ classdef AxesBlockBase < serializable
             ir = obj.img_range_;
         end
         function obj = set.img_range(obj,val)
-            obj = check_and_set_img_range_(obj,val);
+            obj = check_and_set_img_range(obj,val);
         end
         %
         function nbin = get.nbins_all_dims(obj)
@@ -634,6 +634,11 @@ classdef AxesBlockBase < serializable
             range  = get_binning_range_(obj,cur_proj,new_proj);
         end
         %
+    end
+    methods(Abstract,Access=protected)
+        % main setter for image range. Overloadable for different kind
+        % of axes blocks.
+        obj = check_and_set_img_range(obj,val);
     end
     %======================================================================
     methods(Access=protected)
