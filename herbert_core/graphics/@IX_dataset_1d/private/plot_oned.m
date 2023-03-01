@@ -1,4 +1,4 @@
-function [fig_, axes_, plot_, ok, mess] = plot_oned (w_in, newplot, plot_type, fig, varargin)
+function [fig_, axes_, plot_] = plot_oned (w_in, newplot, plot_type, fig, varargin)
 % Draw a one-dimensional plot
 %
 %   >> plot_oned (w_in, newplot, plot_type, fig)
@@ -42,16 +42,17 @@ fig_=[]; axes_=[]; plot_=[];
 % Check spectrum is not too long an array
 maxspec=get_global_var('genieplot','oned_maxspec');
 if numel(w_in)>maxspec
-    ok=false; mess=['This function can only be used to plot ',num2str(maxspec),' spectra - check input object'];
-    if nargout<=3, error(mess), else return, end
+    error('HERBERT:graphics:invalid_argument', ...
+        'This function can only be used to plot %s spectra - check input object', ...
+        num2str(maxspec))
 end
 
 % Get newplot argument
 if islognumscalar(newplot)
     newplot=logical(newplot);   % in case numeric 0 or 1
 else
-    ok=false; mess='Keyword ''newplot'' must be logical true or false';
-    if nargout<=3, error(mess), else return, end
+    error('HERBERT:graphics:invalid_argument', ...
+        'Keyword ''newplot'' must be logical true or false')
 end
 
 % Get plot type
@@ -60,25 +61,27 @@ if is_string(plot_type) && ~isempty(plot_type)
     if ~isempty(ind)
         plot_type=plot_types{ind};
     else
-        ok=false; mess='Plot type not recognised';
-        if nargout<=3, error(mess), else return, end
+        error('HERBERT:graphics:invalid_argument', ...
+            'Plot type %s is not recognised',plot_type);
+
     end
 else
-    ok=false; mess='Plot type must be a (non-empty) character string';
-    if nargout<=3, error(mess), else return, end
+    error('HERBERT:graphics:invalid_argument', ...
+        'Plot type must be a (non-empty) character string. It is %s', ...
+        disp2str(plot_type));
 end
 
 % Get figure name or figure handle - used to branch later on
 [fig_out,ok,mess]=genie_figure_target(fig,newplot,default_fig_name);
 if ~ok
-    if nargout<=3, error(mess), else return, end
+    error('HERBERT:graphics:invalid_argument', mess)
 end
 
 % Check plot limits:
 if ~newplot
     if ~isempty(par)
-        ok=false; mess='Cannot specify plot limits when overplotting';
-        if nargout<=3, error(mess), else return, end
+        error('HERBERT:graphics:invalid_argument', ...
+            'Cannot specify plot limits when overplotting');
     end
     % Need to specify xlims,ylims not give in case need to create a figure
     xlims=false;
@@ -100,18 +103,20 @@ else
             ylims=false;
         end
         if bad
-            ok=false; mess='Plot limits must be numeric scalars';
-            if nargout<=3, error(mess), else return, end
+            error('HERBERT:graphics:invalid_argument', ...
+                'Plot limits must be numeric scalars');
+
         elseif xlims && xlo>=xhi
-            ok=false; mess='Plot limits along x axis must have xlo < xhi';
-            if nargout<=3, error(mess), else return, end
+            error('HERBERT:graphics:invalid_argument', ...
+                'Plot limits along x axis must have xlo < xhi');
+
         elseif ylims && ylo>=yhi
-            ok=false; mess='Plot limits along signal axis must have ylo < yhi';
-            if nargout<=3, error(mess), else return, end
+            error('HERBERT:graphics:invalid_argument', ...
+                'Plot limits along signal axis must have ylo < yhi');
         end
     else
-        ok=false; mess='Check plot limits are numeric and the number of limits (must be none, xlo & xhi, or xlo,xhi,ylo & yhi)';
-        if nargout<=3, error(mess), else return, end
+        error('HERBERT:graphics:invalid_argument', ...
+            'Check plot limits are numeric and the number of limits (must be none, xlo & xhi, or xlo,xhi,ylo & yhi)');
     end
 end
 
@@ -171,7 +176,13 @@ if (newplot)
     [tx,ty]=make_label(w(1));  % Create axis annotations
     tt=w(1).title(:);   % tt=[w(1).title(:);['Plot binning = ',num2str(binning)]];
     % Change titles:
-    title(tt,'FontWeight','normal');
+    if any(contains(tt,'$'))
+        inter= 'latex';
+    else
+        inter= 'tex';
+    end
+    title(tt,'FontWeight','normal','interpreter',inter);
+
     xlabel(tx);
     ylabel(ty);
     % Change ticks
@@ -181,7 +192,7 @@ if (newplot)
     yticks=w(1).s_axis.ticks;
     if ~isempty(yticks.positions), set(gca,'YTick',yticks.positions); end
     if ~isempty(yticks.labels), set(gca,'YTickLabel',yticks.labels); end
-    
+
 end
 
 % Change limits if they are provided

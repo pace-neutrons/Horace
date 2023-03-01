@@ -30,7 +30,7 @@ classdef test_proj_captions<TestCase
                dat.data_plot_titles();
 
             assertTrue(iscell(title_main));
-            assertEqual(size(title_main),[1,3]);
+            assertEqual(size(title_main),[1,4]);
             assertTrue(isempty(title_main{1}));
 
             assertEqual(numel(title_pax),2);

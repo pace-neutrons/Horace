@@ -66,7 +66,7 @@ classdef test_combine_pow < TestCaseWithSave
             % test files are in svn
             this.save();
         end
-        
+
 
         function obj=test_combine_pow_1file(obj)
             % Create sqw files, combine and check results
@@ -88,14 +88,14 @@ classdef test_combine_pow < TestCaseWithSave
             obj.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
 
-            %--------------------------------------------------------------------------------------------------
+            %--------------------------------------------------------------
             % Visually inspect
             acolor k
             dd(w1_1);
             acolor b
             da(w2_1);
             close all
-            %--------------------------------------------------------------------------------------------------
+            %--------------------------------------------------------------
         end
         function obj = test_spher_cut_fine_grid(obj)
             % Create sqw files, combine and check results
@@ -108,16 +108,25 @@ classdef test_combine_pow < TestCaseWithSave
                 psi = [0,0];
                 u=[1,0,0];
                 v=[0,1,0];
-                
+
                 gen_sqw ({obj.spe_file_1,obj.spe_file_2},obj.par_file, ...
                     sqw_file_tot, obj.efix, 1,...
                     alatt, angdeg, u, v, psi, 0, 0, 0, 0);
 
                 % clean up
-                cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_tot));                
+                cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_tot));
             end
-            w2_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,8],[0,180],[-180,180],1,'-nopix');
-            w1_tot = cut_sqw(sqw_file_tot,spher_proj,[0,0.05,3],[0,180],[-180,180],[40,50],'-nopix');
+            spp = spher_proj;
+            spp.type = 'add';
+            
+            w1_tot = cut_sqw(sqw_file_tot,spp,[0,0.05,3],[0,180],[-180,180],[40,50],'-nopix');
+            % Visually inspect
+            acolor k
+            dd(w1_tot);
+
+            w2_tot = cut_sqw(sqw_file_tot,spp,[0,0.05,8],[0,180],[-180,180],1,'-nopix');
+            acolor b
+            da(w2_tot);
 
 
             obj.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
@@ -125,18 +134,10 @@ classdef test_combine_pow < TestCaseWithSave
             obj.assertEqualToTolWithSave(w1_tot,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])
 
-            %--------------------------------------------------------------------------------------------------
-            % Visually inspect
-            acolor k
-            dd(w1_tot);
-            acolor b
-            plot(w2_tot);
-            % acolor r
-            % pd(w1_tot)  % does not overlay - but that is OK
-            %--------------------------------------------------------------------------------------------------
-
+            %--------------------------------------------------------------
+            close all;
         end
-        
+
         function test_spher_cut_coarse_grid(obj)
             sqw_file_2=fullfile(tmp_dir,'test_spher_cut_coarse_grid.sqw');
             cleanup_obj = [];
@@ -149,13 +150,14 @@ classdef test_combine_pow < TestCaseWithSave
                     alatt, angdeg, u, v, 0, 0, 0, 0, 0);
 
                 % clean up
-                cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_2));                
+                cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_2));
             end
-
-            w2_1 = cut_sqw(sqw_file_2,spher_proj,[0,0.05,8],[-pi,pi],[-pi,pi],1,'-nopix');
+            spp = spher_proj;
+            spp.type = 'arr';
+            w2_1 = cut_sqw(sqw_file_2,spp,[0,0.05,8],[0,pi],[-pi,pi],1,'-nopix');
             plot(w2_1);
-            w1_1 = cut_sqw(sqw_file_2,spher_proj,[0,0.05,3],[-pi,pi],[-pi,pi],[40,50],'-nopix');
-            plot(w1_1);            
+            w1_1 = cut_sqw(sqw_file_2,spp,[0,0.05,3],[0,pi],[-pi,pi],[40,50],'-nopix');
+            plot(w1_1);
 
             obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
                 'tol',[1.e-7,1.e-5])

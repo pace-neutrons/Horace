@@ -23,8 +23,9 @@ classdef spher_axes < AxesBlockBase
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Constant,Access = private)
-        % What units each possible dimension of the spherical projection
-        % have:  Anstrom, radian, degree, mEv
+        % What units each possible dimension type of the spherical projection
+        % have:  Currently momentum, angle, and energy transfer may be
+        % expressed in Anstrom, radian, degree, mEv
         capt_units = containers.Map({'a','r','d','e'}, ...
             {[char(197),'^{-1}'],'rad','^\{o}','mEv'})
     end
@@ -56,7 +57,7 @@ classdef spher_axes < AxesBlockBase
             %            were provided as input
             %
             [obj,offset,remains] = init@AxesBlockBase(obj,varargin{:});
-            obj.label = {'\|Q\|','\theta','\phi','En'};
+            obj.label = {'|Q|','\theta','\phi','En'};
             obj.changes_aspect_ratio_ = false;
         end
         function [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
@@ -64,11 +65,6 @@ classdef spher_axes < AxesBlockBase
             % Get titling and caption information for the sqw data
             % structure containing spherical projection
             proj = dnd_obj.proj;
-            if ~isa(proj,'spher_proj')
-                error('HORACE:spher_axes:runtime_error', ...
-                    'dnd object contains incorrect combination of axes block and projection.\n Needed: spher_axes and spher_proj. Available: %s and %s', ...
-                    class(obj),class(proj));
-            end
             [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
                 data_plot_titles_(obj,proj);
         end

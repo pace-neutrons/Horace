@@ -18,8 +18,7 @@ opt=struct('newplot',true,'lims_type','xy');
 
 % Perform plot
 type='l';
-[fig_,axes_,plot_,ok,mess]=plot_oned (w,opt.newplot,type,fig,lims{:});
-if ~ok, error(mess), end
+[fig_,axes_,plot_]=plot_oned (w,opt.newplot,type,fig,lims{:});
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

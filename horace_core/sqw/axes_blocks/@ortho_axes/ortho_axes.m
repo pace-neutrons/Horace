@@ -82,6 +82,13 @@ classdef ortho_axes < AxesBlockBase
         function lab = get.ulabel(obj)
             lab  = obj.label_;
         end
+        function non = get.nonorthogonal(obj)
+            non = obj.nonorthogonal_;
+        end
+        function obj = set.nonorthogonal(obj,val)
+            obj.nonorthogonal_ = logical(val);
+        end
+
     end
     %----------------------------------------------------------------------
     methods(Static)

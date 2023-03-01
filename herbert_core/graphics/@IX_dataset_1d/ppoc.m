@@ -13,8 +13,7 @@ opt=struct('newplot',false,'over_curr',true);
 
 % Perform plot
 type='p';
-[fig_,axes_,plot_,ok,mess]=plot_oned (w,opt.newplot,type,fig);
-if ~ok, error(mess), end
+[fig_,axes_,plot_]=plot_oned (w,opt.newplot,type,fig);
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

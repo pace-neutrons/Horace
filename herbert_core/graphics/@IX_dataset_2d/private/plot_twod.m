@@ -174,20 +174,20 @@ if strcmpi(plot_type,'area')        % area plot
     plot_area (w)
     box on                          % put boundary box on plot
     set(gca,'layer','top')          % puts axes layer on the top
-    
+
 elseif strcmpi(plot_type,'surface') % surface plot
     if newplot, view(3); end        % set viewpoint if newplot
     plot_surface (w);
     set(gca,'layer','top')          % puts axes layer on the top
-    
+
 elseif strcmpi(plot_type,'surface2')% surface2 plot
     if newplot, view(3); end        % set viewpoint if newplot
     plot_surface2 (w);
     set(gca,'layer','top')          % puts axes layer on the top
-    
+
 elseif strcmpi(plot_type,'contour') % contour plot
     plot_contour (w);
-    
+
 end
 hold off    % release plot
 
@@ -207,7 +207,12 @@ if (newplot)
         zticks=w{1}(1).s_axis.ticks;
     end
     % Change titles:
-    title(tt,'FontWeight','normal','interpreter','tex');
+    if any(contains(tt,'$'))
+        inter= 'latex';
+    else
+        inter= 'tex';
+    end
+    title(tt,'FontWeight','normal','interpreter',inter);
     xlabel(tx);
     ylabel(ty);
     if ~strcmpi(plot_type,'area')   % don't try to plot along z axis if just an area plot

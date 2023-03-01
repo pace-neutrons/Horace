@@ -2,12 +2,13 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 % Get titling and caption information for the axes sqw data structure
 %
 % Syntax:
-%   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data,u_to_rlu,uoff)
+%   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (obj,proj)
 %
 % Input:
 % ------
-%   data            Structure for which titles are to be created from the data in its fields.
-%                   Type >> help check_sqw_data for a full description of the fields
+%   obj         Initialized instance of spherical axes object
+%   proj        spherical projection instance, describing spherical
+%               transformation parameters.
 %
 % Output:
 % -------
@@ -21,9 +22,13 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %   energy_axis     The index of the column in the 4x4 matrix din.u that corresponds
 %                  to the energy axis
 
+if ~isa(proj,'spher_proj')
+    error('HORACE:spher_axes:inalid_argument', ...
+        'Spherical projection titiles request spherical projection asof axes block and projection.\n Needed: spher_axes and spher_proj. Available: %s and %s', ...
+        class(obj),class(proj));
+end
 
-
-Angstrom=char(197); % Angstrom symbol
+energy_axis = 4;
 small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
 
 
@@ -48,38 +53,17 @@ plot_bin_centers = reshape([br{dax}],3,n_dim);
 %==========================================================================
 offset   = proj.offset;
 uofftot  = offset;
-u_to_rlu = proj.u_to_rlu;
 
 iax  = obj.iax;
 iint = obj.iint;
 for i=1:length(iax)
     % get offset from integration axis, accounting for non-finite limit(s)
-    uofftot(iax(i))  = uofftot(iax(i))+0.5*(iint(1,i)+iint(2,i));  % overall displacement of plot volume in 
+    uofftot(iax(i))  = uofftot(iax(i))+0.5*(iint(1,i)+iint(2,i));  % overall displacement of plot volume in
 end
 %
-uoff_ch=cell(1,4);
-uofftot_ch=cell(1,4);
-u_to_rlu_ch=cell(4,4);
 
-for j=1:4
-    if abs(offset(j)) > small
-        uoff_ch{j} = num2str(uoff(j),'%+11.4g');
-    else
-        uoff_ch{j} = num2str(0,'%+11.4g');
-    end
-    if abs(uofftot(j)) > small
-        uofftot_ch{j} = num2str(uofftot(j),'%+11.4g');
-    else
-        uofftot_ch{j} = num2str(0,'%+11.4g');
-    end
-    for i=1:4
-        if abs(u_to_rlu(i,j)) > small
-            u_to_rlu_ch{i,j} = num2str(u_to_rlu(i,j),'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
-        else
-            u_to_rlu_ch{i,j} = num2str(0,'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
-        end
-    end
-end
+% add energy type to the types the projection defines. TODO:  Should energy type be part of
+% type?
 type = [proj.type,'e'];
 
 % pre-allocate cell arrays for titling:
@@ -90,159 +74,27 @@ display_iax = cell(length(iax),1);
 title_main_pax = cell(length(pax),1);
 title_main_iax = cell(length(iax),1);
 
-ch=cell(4,4);
-totvector=cell(1,4);
+
 in_totvector=cell(1,4);
-vector=cell(1,4);
-in_vector=cell(1,4);
 
 % Create titling
 for j=1:4
-    % Determine if column vector in u corresponds to a Q-axis or energy
-    if u_to_rlu(4,j)==0
-        % Q axis ------------------------------------------------------------------------------
-        % Captions including offsets from integration axes
-        for i=1:3
-            if ~strcmp(uofftot_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')     % uofftot(i) and u_to_rlu(i,j) both contain non-zero values
-                if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
-                    ch{i,j} = [uofftot_ch{i},u_to_rlu_ch{i,j},label{j}];
-                else
-                    ch{i,j} = [uofftot_ch{i},u_to_rlu_ch{i,j}(1),label{j}];
-                end
-            elseif strcmp(uofftot_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')  % uofftot(i)=0 but u_to_rlu(i,j)~=0
-                if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
-                    ch{i,j} = [u_to_rlu_ch{i,j},label{j}];
-                else
-                    ch{i,j} = [u_to_rlu_ch{i,j}(1),label{j}];
-                end
-            else
-                ch{i,j} = uofftot_ch{i};
-            end
-            if ch{i,j}(1)=='+'        % strip off leading '+'
-                ch{i,j} = ch{i,j}(2:end);
-            end
-        end
-        %label 
-        if abs(offset(j)) > small
-            totvector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];            
+    ax_type = type(j);
+    in_totvector{j} =  [' in ',obj.capt_units(ax_type)];
+    if ismember(j,pax) % pax
+        ipax = find(j==pax(dax));
+        if abs(ulen(j)-1) > small
+            title_pax{ipax} = [label{j},' in ',num2str(ulen(j)),' ',obj.capt_units(ax_type)];
         else
+            title_pax{ipax} = [label{j},' (',obj.capt_units(ax_type),')'];
         end
-        totvector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];
-        in_totvector{j} = [' in ',totvector{j}];
-
-        % Captions excluding offsets from integration axes
-        for i=1:3
-            if ~strcmp(uoff_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')     % uoff(i) and u_to_rlu(i,j) both contain non-zero values
-                if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
-                    ch{i,j} = [uoff_ch{i},u_to_rlu_ch{i,j},label{j}];
-                else
-                    ch{i,j} = [uoff_ch{i},u_to_rlu_ch{i,j}(1),label{j}];
-                end
-            elseif strcmp(uoff_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')  % uoff(i)=0 but u_to_rlu(i,j)~=0
-                if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
-                    ch{i,j} = [u_to_rlu_ch{i,j},label{j}];
-                else
-                    ch{i,j} = [u_to_rlu_ch{i,j}(1),label{j}];
-                end
-            else
-                ch{i,j} = uoff_ch{i};
-            end
-            if ch{i,j}(1)=='+'        % strip off leading '+'
-                ch{i,j} = ch{i,j}(2:end);
-            end
-        end
-        vector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];
-        in_vector{j} = [' in ',vector{j}];
-
-        % Create captioning
-        if any(j==pax)   % j appears in the list of plot axes
-            ipax = find(j==pax(dax));
-            if abs(ulen(j)-1) > small
-                title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' ',Angstrom,'^{-1}'];
-            else
-                title_pax{ipax} = [totvector{j},' (',Angstrom,'^{-1})'];
-            end
-            title_main_pax{ipax} = [label{j},'=',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
-            display_pax{ipax} = [label{j},' = ',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
-        elseif any(j==iax)   % j appears in the list of integration axes
-            iiax = find(j==iax);
-            title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
-            title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
-            display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_vector{j}];
-        else
-            error ('ERROR: Axis is neither plot axis nor integration axis')
-        end
-
-    else
-        % energy axis ------------------------------------------------------------------------------
-        % Captions including offsets from integration axes
-        energy_axis = j;
-        if ~strcmp(uofftot_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')     % uofftot(4) and u_to_rlu(4,j) both contain non-zero values
-            if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
-                ch{4,j} = [uofftot_ch{4},u_to_rlu_ch{4,j},label{j}];
-            else
-                ch{4,j} = [uofftot_ch{4},u_to_rlu_ch{4,j}(1),label{j}];
-            end
-        elseif strcmp(uofftot_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')  % uofftot(4)=0 but u_to_rlu(4,j)~=0
-            if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
-                ch{4,j} = [u_to_rlu_ch{4,j},label{j}];
-            else
-                ch{4,j} = [u_to_rlu_ch{4,j}(1),label{j}];
-            end
-        end
-        if ch{4,j}(1)=='+'        % strip off leading '+'
-            ch{4,j} = ch{4,j}(2:end);
-        end
-        if max(strcmpi(ch{4,j},{'e','en','energy','hw','hbar w','hbar.w','eps'}))==1  % conventional energy labels
-            totvector{j} = '';
-            in_totvector{j} = '';
-        else
-            totvector{j} = ['[0, 0, 0, ',ch{4,j},']'];
-            in_totvector{j} = [' in ',totvector{j}];
-        end
-
-        % Captions excluding offsets from integration axes
-        if ~strcmp(uoff_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')     % uoff(4) and u_to_rlu(4,j) both contain non-zero values
-            if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
-                ch{4,j} = [uoff_ch{4},u_to_rlu_ch{4,j},label{j}];
-            else
-                ch{4,j} = [uoff_ch{4},u_to_rlu_ch{4,j}(1),label{j}];
-            end
-        elseif strcmp(uoff_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')  % uoff(4)=0 but u_to_rlu(4,j)~=0
-            if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
-                ch{4,j} = [u_to_rlu_ch{4,j},label{j}];
-            else
-                ch{4,j} = [u_to_rlu_ch{4,j}(1),label{j}];
-            end
-        end
-        if ch{4,j}(1)=='+'        % strip off leading '+'
-            ch{4,j} = ch{4,j}(2:end);
-        end
-        if max(strcmpi(ch{4,j},{'e','en','energy','hw','hbar w','hbar.w','eps'}))==1  % conventional energy labels
-            vector{j} = '';
-            in_vector{j} = '';
-        else
-            vector{j} = ['[0, 0, 0, ',ch{4,j},']'];
-            in_vector{j} = [' in ',vector{j}];
-        end
-
-        if any(j==pax)   % j appears in the list of plot axes
-            ipax = find(j==pax(dax));
-            if abs(ulen(j)-1) > small
-                title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' meV'];
-            else
-                title_pax{ipax} = [totvector{j},' (meV)'];
-            end
-            title_main_pax{ipax} = [label{j},'=',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
-            display_pax{ipax} = [label{j},' = ',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
-        elseif any(j==iax)   % j appears in the list of integration axes
-            iiax = find(j==iax);
-            title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
-            title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
-            display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_vector{j}];
-        else
-            error ('ERROR: Axis is neither plot axis nor integration axis')
-        end
+        title_main_pax{ipax} = [label{j},'=',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
+        display_pax{ipax} = [label{j},' = ',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
+    else               % iax
+        iiax = find(j==iax);
+        title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_totvector{j}];
+        title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_totvector{j}];
+        display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_totvector{j}];
     end
 end
 
@@ -259,6 +111,9 @@ if ~isempty(title)
     title_main{iline}=title;
     iline = iline + 1;
 end
+title_main{iline}=sprintf('Spherical projection at centre: %s(hklE)',mat2str(offset));
+iline = iline + 1;    
+
 if ~isempty(iax)
     title_main{iline}=title_main_iax{1};
     if length(title_main_iax)>1
