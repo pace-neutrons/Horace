@@ -27,7 +27,7 @@ classdef spher_axes < AxesBlockBase
         % have:  Currently momentum, angle, and energy transfer may be
         % expressed in Anstrom, radian, degree, mEv
         capt_units = containers.Map({'a','r','d','e'}, ...
-            {[char(197),'^{-1}'],'rad','^\{o}','mEv'})
+            {[char(197),'^{-1}'],'rad','^{o}','mEv'})
     end
     methods
         %

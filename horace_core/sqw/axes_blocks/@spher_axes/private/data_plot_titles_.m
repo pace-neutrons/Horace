@@ -86,7 +86,11 @@ for j=1:4
         if abs(ulen(j)-1) > small
             title_pax{ipax} = [label{j},' in ',num2str(ulen(j)),' ',obj.capt_units(ax_type)];
         else
-            title_pax{ipax} = [label{j},' (',obj.capt_units(ax_type),')'];
+            if ax_type == 'd'
+                title_pax{ipax} = [label{j},obj.capt_units(ax_type)];                
+            else
+                title_pax{ipax} = [label{j},' (',obj.capt_units(ax_type),')'];
+            end
         end
         title_main_pax{ipax} = [label{j},'=',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
         display_pax{ipax} = [label{j},' = ',num2str(plot_bin_centers(1,ipax)),':',num2str(plot_bin_centers(2,ipax)),':',num2str(plot_bin_centers(3,ipax)),in_totvector{j}];
