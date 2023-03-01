@@ -27,20 +27,22 @@ if is_cancelled
 else
     if DO_LOGGING ; log_disp_message(log_file_h,'---> Sending "cancelled" message to neighbours\n'); end
     mf = obj.mess_framework;
-    n_labs = mf.numLabs;
-    this_lid = mf.labIndex;
-    % provide 'cancelled' message with the information about the failure to
-    % ensure that if host completed its job and is reducing message,
-    % correct cancelled information will be processed.
-    cm = CancelledMessage();
-    cm.payload = ME;
-    for lid=1:n_labs
-        if lid ~=this_lid
-            [ok,err]=mf.send_message(lid,cm);
-            if ok ~=MESS_CODES.ok
-                error('JOB_EXECUTOR:runtime_error',...
-                    ' Error %s sending "cancelled" message to neighouring node %d',...
-                    err,lid);
+    if ~isempty(mf)  % MF might have failed
+        n_labs = mf.numLabs;
+        this_lid = mf.labIndex;
+        % provide 'cancelled' message with the information about the failure to
+        % ensure that if host completed its job and is reducing message,
+        % correct cancelled information will be processed.
+        cm = CancelledMessage();
+        cm.payload = ME;
+        for lid=1:n_labs
+            if lid ~=this_lid
+                [ok,err]=mf.send_message(lid,cm);
+                if ok ~=MESS_CODES.ok
+                    error('JOB_EXECUTOR:runtime_error',...
+                          ' Error %s sending "cancelled" message to neighouring node %d',...
+                          err,lid);
+                end
             end
         end
     end
@@ -60,10 +62,10 @@ else
     obj.labBarrier(true);
 end
 
+end
+
 function log_disp_message(fh,mess)
 fprintf('**PROCESS_FAIL_STATE: %s ****************************\n',mess);
 fprintf(fh,'**PROCESS_FAIL_STATE: %s ****************************\n',mess);
 
-
-
-
+end

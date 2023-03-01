@@ -22,21 +22,22 @@ opt_default = struct('sum',false,'foreground',false,'background',false,...
     'components',false);
 flagnames = fieldnames(opt_default);
 [args,opt,~,~,ok,mess] = parse_arguments (varargin, opt_default, flagnames);
-if ok
-    if numel(args)<=1
-        lopt = cell2mat(struct2cell(opt));
-        if sum(lopt)==0
-            output_type = 'sum';
-        elseif sum(lopt)==1
-            output_type = flagnames{lopt};
-        else
-            error("HERBERT:mfclass:invalid_argument", 'Check the value of output option')
-        end
-    else
-        error("HERBERT:mfclass:invalid_argument", 'Check number of input arguments')
-    end
-else
+if ~ok
     error("HERBERT:mfclass:invalid_argument", mess)
+end
+
+if numel(args) > 1
+    error("HERBERT:mfclass:invalid_argument", 'Check number of input arguments')
+end
+
+lopt = cell2mat(struct2cell(opt));
+switch sum(lopt)
+  case 0
+    output_type = 'sum';
+  case 1
+    output_type = flagnames{lopt};
+  otherwise
+    error("HERBERT:mfclass:invalid_argument", 'Check the value of output option')
 end
 
 % Check that there is data present
