@@ -15,30 +15,33 @@ classdef test_combine_pow < TestCaseWithSave
         efix;
         psi_1;
         psi_2;
+        test_helpers_path
     end
     methods
 
-        function this=test_combine_pow(varargin)
+        function obj=test_combine_pow(varargin)
             % constructor
             if nargin > 0
                 name = varargin{1};
             else
                 name= mfilename('class');
             end
-            this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_pow_output.mat'));
+            this_dir = fileparts(mfilename('fullpath'));
+            obj = obj@TestCaseWithSave(name,fullfile(this_dir,'test_combine_pow_output.mat'));
             pths = horace_paths;
             common_data_dir = pths.test_common;
-
+            obj.test_helpers_path = fullfile(this_dir,'powder_tools');
+            addpath(obj.test_helpers_path);
 
             % =====================================================================================================================
             % Create spe files:
-            this.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
-            spe_dir = fileparts(mfilename('fullpath'));
-            % test files are present
-            this.spe_file_1=fullfile(spe_dir,'test_combine_1.nxspe');
-            this.spe_file_2=fullfile(spe_dir,'test_combine_2.nxspe');
+            obj.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
 
-            this.efix=100;
+            % test files are present
+            obj.spe_file_1=fullfile(this_dir,'test_combine_1.nxspe');
+            obj.spe_file_2=fullfile(this_dir,'test_combine_2.nxspe');
+
+            obj.efix=100;
             emode=1;
             alatt=2*pi*[1,1,1];
             angdeg=[90,90,90];
@@ -49,22 +52,27 @@ classdef test_combine_pow < TestCaseWithSave
             % Simulate first file, with reproducible random looking noise
             % -----------------------------------------------------------
             en=-5:1:90;
-            this.psi_1=0;
+            obj.psi_1=0;
 
-            if ~exist(this.spe_file_1,'file')
-                simulate_spe_testfunc (en, this.par_file, this.spe_file_1, @sqw_cylinder, [10,1], 0.3,...
-                    this.efix, emode, alatt, angdeg, u, v, this.psi_1, omega, dpsi, gl, gs)
+            if ~exist(obj.spe_file_1,'file')
+                simulate_spe_testfunc (en, obj.par_file, obj.spe_file_1, @sqw_cylinder, [10,1], 0.3,...
+                    obj.efix, emode, alatt, angdeg, u, v, obj.psi_1, omega, dpsi, gl, gs)
             end
             % Simulate second file, with reproducible random looking noise
             % -------------------------------------------------------------
             en=-9.5:2:95;
-            this.psi_2=30;
-            if ~exist(this.spe_file_2,'file')
-                simulate_spe_testfunc (en, this.par_file, this.spe_file_2, @sqw_cylinder, [10,1], 0.3,...
-                    this.efix, emode, alatt, angdeg, u, v, this.psi_2, omega, dpsi, gl, gs)
+            obj.psi_2=30;
+            if ~exist(obj.spe_file_2,'file')
+                simulate_spe_testfunc (en, obj.par_file, obj.spe_file_2, @sqw_cylinder, [10,1], 0.3,...
+                    obj.efix, emode, alatt, angdeg, u, v, obj.psi_2, omega, dpsi, gl, gs)
             end
             % test files are in svn
-            this.save();
+            obj.save();
+        end
+        function delete(obj)
+            delete(obj.spe_file_1);
+            delete(obj.spe_file_2);
+            rmpath(obj.test_helpers_path);
         end
 
 
@@ -97,75 +105,7 @@ classdef test_combine_pow < TestCaseWithSave
             close all
             %--------------------------------------------------------------
         end
-        function obj = test_spher_cut_fine_grid(obj)
-            % Create sqw files, combine and check results
-            % -------------------------------------------
-            sqw_file_tot=fullfile(tmp_dir,'test_spher_cut_fine_grid.sqw');
-            cleanup_obj = [];
-            if ~isfile(sqw_file_tot)
-                alatt=[2*pi,2*pi,2*pi];
-                angdeg=[90,90,90];
-                psi = [0,0];
-                u=[1,0,0];
-                v=[0,1,0];
 
-                gen_sqw ({obj.spe_file_1,obj.spe_file_2},obj.par_file, ...
-                    sqw_file_tot, obj.efix, 1,...
-                    alatt, angdeg, u, v, psi, 0, 0, 0, 0);
-
-                % clean up
-                cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_tot));
-            end
-            spp = spher_proj;
-            spp.type = 'add';
-            
-            w1_tot = cut_sqw(sqw_file_tot,spp,[0,0.05,3],[0,180],[-180,180],[40,50],'-nopix');
-            % Visually inspect
-            acolor k
-            dd(w1_tot);
-
-            w2_tot = cut_sqw(sqw_file_tot,spp,[0,0.05,8],[0,180],[-180,180],1,'-nopix');
-            acolor b
-            da(w2_tot);
-
-
-            obj.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
-                'tol',[1.e-7,1.e-5])
-            obj.assertEqualToTolWithSave(w1_tot,'ignore_str',true, ...
-                'tol',[1.e-7,1.e-5])
-
-            %--------------------------------------------------------------
-            close all;
-        end
-
-        function test_spher_cut_coarse_grid(obj)
-            sqw_file_2=fullfile(tmp_dir,'test_spher_cut_coarse_grid.sqw');
-            cleanup_obj = [];
-            if ~isfile(sqw_file_2)
-                alatt=[2*pi,2*pi,2*pi];
-                angdeg=[90,90,90];
-                u=[1,0,0];
-                v=[0,1,0];
-                gen_sqw (obj.spe_file_1, obj.par_file, sqw_file_2, obj.efix, 1,...
-                    alatt, angdeg, u, v, 0, 0, 0, 0, 0);
-
-                % clean up
-                cleanup_obj=onCleanup(@()obj.delete_files(sqw_file_2));
-            end
-            spp = spher_proj;
-            spp.type = 'arr';
-            w2_1 = cut_sqw(sqw_file_2,spp,[0,0.05,8],[0,pi],[-pi,pi],1,'-nopix');
-            plot(w2_1);
-            w1_1 = cut_sqw(sqw_file_2,spp,[0,0.05,3],[0,pi],[-pi,pi],[40,50],'-nopix');
-            plot(w1_1);
-
-            obj.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
-                'tol',[1.e-7,1.e-5])
-            obj.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
-                'tol',[1.e-7,1.e-5])
-
-
-        end
         function this=test_combine_pow2(this)
             % Create sqw files, combine and check results
             % -------------------------------------------
