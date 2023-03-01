@@ -89,8 +89,8 @@ classdef test_spherical_cuts < TestCaseWithSave
             obj.save();
         end
         function delete(obj)
-            delete(obj.spe_file_1);
-            delete(obj.spe_file_2);
+            %delete(obj.spe_file_1);
+            %delete(obj.spe_file_2);
             delete(obj.sqw_file_coarse);
             delete(obj.sqw_file_fine);
             rmpath(obj.test_helpers_path);

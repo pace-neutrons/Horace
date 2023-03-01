@@ -30,8 +30,8 @@ classdef test_combine_pow < TestCaseWithSave
             obj = obj@TestCaseWithSave(name,fullfile(this_dir,'test_combine_pow_output.mat'));
             pths = horace_paths;
             common_data_dir = pths.test_common;
-            obj.test_helpers_path = fullfile(this_dir,'powder_tools');
-            addpath(obj.test_helpers_path);
+            %obj.test_helpers_path = fullfile(this_dir,'powder_tools');
+            %addpath(obj.test_helpers_path);
 
             % =====================================================================================================================
             % Create spe files:
@@ -70,9 +70,9 @@ classdef test_combine_pow < TestCaseWithSave
             obj.save();
         end
         function delete(obj)
-            delete(obj.spe_file_1);
-            delete(obj.spe_file_2);
-            rmpath(obj.test_helpers_path);
+            %delete(obj.spe_file_1);
+            %delete(obj.spe_file_2);
+            %rmpath(obj.test_helpers_path);
         end
 
 
