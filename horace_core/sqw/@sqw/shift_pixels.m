@@ -75,6 +75,7 @@ for i=1:numel(win)
     else
         wout(i) = calc_shift_memory(win(i), dispreln, ave_pix, pars);
     end
+    wout.pix = wout.pix.recalc_data_range('dE');
 
     % Have shifted the energy, but need to recompute the bins.
     % - If energy is a plot axis, then extend the range of the
@@ -92,12 +93,12 @@ for i=1:numel(win)
     new_data.proj = wout.data.proj;
 
     new_data.npix = pix.num_pixels;
-    eps_lo = min(pix.dE);
-    eps_hi = max(pix.dE);
 
-    new_data.axes.img_range(:,4) = [eps_lo;eps_hi];
+    new_data.axes.img_range(:,4) = pix.data_range(:,4);
+    eps_lo = pix.data_range(1,4);
+    eps_hi = pix.data_range(2,4);
+
     wout(i).data = new_data;
-    %wout(i) = recompute_bin_data(wout(i));
 
     pbin_i = pbin{i};
     % Redefine energy binning ranges with energy bin limits extended, if necessary
@@ -110,10 +111,6 @@ for i=1:numel(win)
         ehi = ceil(eps_hi)+0.5*de;
         pbin_i{4} = [elo,de,ehi];
     end
-
-    wout(i).pix.num_pixels
-    wout(i) = cut(wout(i), proj(i), pbin_i{:});
-    wout(i).pix.num_pixels
 
 end
 
@@ -164,6 +161,7 @@ function wout = calc_shift_filebacked(win, dispreln, ave_pix, pars)
         wdisp = replicate_array(wdisp, npix_chunk);
         data(e_ind, :) = wout.pix.dE - wdisp(:)';
         wout.pix.format_dump_data(data);
+
     end
 
     wout.pix = wout.pix.finalise();
