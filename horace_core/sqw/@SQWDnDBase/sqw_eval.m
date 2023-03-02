@@ -98,16 +98,4 @@ for i=1:numel(wout)
     end
 end
 
-if opts.filebacked
-    % If filebacked, always return file paths not objects. This stops us from
-    % leaking file-backed objects
-    if numel(opts.outfile) > 1
-        wout = opts.outfile;
-    else
-        wout = opts.outfile{1};
-    end
 end
-% end of function sqw_eval
-
-% -----------------------------------------------------------------------------
-%=================================================================

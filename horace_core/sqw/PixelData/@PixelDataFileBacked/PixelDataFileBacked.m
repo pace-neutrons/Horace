@@ -106,22 +106,7 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = set_raw_data_(obj,pix);
         end
 
-        function obj  = set_fields(obj, data, fields, varargin)
-            if obj.read_only
-                error('HORACE:PixelDataFileBacked:runtime_error',...
-                      'File %s is opened in read-only mode', obj.full_filename);
-            end
-            obj = set_fields@PixelDataBase(obj, data, fields, varargin{:});
-        end
-
-        function  obj=set_raw_fields(obj, data, fields, varargin)
-            if obj.read_only
-                error('HORACE:PixelDataFileBacked:not_implemented',...
-                      'File %s is opened in read-only mode', obj.full_filename);
-            end
-            obj = set_raw_fields_(obj, data, fields, varargin{:});
-        end
-
+        obj=set_raw_fields(obj, data, fields, varargin)
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
 
         pix_out = do_unary_op(obj, unary_op);

@@ -1,4 +1,4 @@
-function wout = do_sqw_eval_file_backed_(wout, sqwfunc, pars, outfile)
+function wout = do_sqw_eval_filebacked_(wout, sqwfunc, pars, outfile)
 %==============================================================================
 % Perform sqw_eval over file backed pixels.
 % see function "do_sqw_eval_in_memory" local function in "sqw_eval_pix"
@@ -24,25 +24,30 @@ function wout = do_sqw_eval_file_backed_(wout, sqwfunc, pars, outfile)
 %==============================================================================
 
 pg_size = get(hor_config, 'mem_chunk_size');
+write_as_sqw = ~isempty(outfile);
 
-pix = wout.pix;
 npix = wout.data.npix;
 
-% divide npix into chunks of the base page size
+% divide npix into chunks of the page size
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), pg_size);
 
 % write dnd data to output file as per header description
 % this will be overwritten later with the recalculated image
-ldr = write_sqw_no_pix_or_footers_(wout, outfile);
-ldr_clob = onCleanup(@() ldr.delete());
+if write_as_sqw
+    ldr = write_sqw_no_pix_or_footers_(wout, outfile);
+    ldr_clob = onCleanup(@() ldr.delete());
+else
+    wout.pix = wout.pix.get_new_handle();
+end
 
 img_signal = zeros(1, numel(npix));
 
-s_ind = obj.check_pixel_fields('signal');
-v_ind = obj.check_pixel_fields('variance');
 
-for i = 1:pix.num_pages
-    [pix, data] = pix.load_page(i);
+s_ind = wout.pix.check_pixel_fields('signal');
+v_ind = wout.pix.check_pixel_fields('variance');
+
+for i = 1:wout.pix.num_pages
+    [wout.pix, data] = wout.pix.load_page(i);
     npix_chunk = npix_chunks{i};
     idx_chunk = idxs(:, i);
 
@@ -52,17 +57,25 @@ for i = 1:pix.num_pages
     data(s_ind, :) = sig_chunk;
     data(v_ind, :) = 0;
 
-    f_accessor.put_bytes(data);
+    if write_as_sqw
+        ldr.put_bytes(data);
+    else
+        wout.pix.format_dump_data(data);
+    end
 
     img_signal = increment_signal_sums_(img_signal, sig_chunk, npix_chunk, idx_chunk);
 end
 
 % We're finished writing pixels, so write the file footers
-ldr.put_footers();
-
-% Now go back and overwrite the old image in the file with new data
-[img_signal, img_error] = get_image_bin_averages_(img_signal, npix);
-ldr.put_image(img_signal, img_error);
+if write_as_sqw
+    ldr.put_footers();
+    % Now go back and overwrite the old image in the file with new data
+    [img_signal, img_error] = get_image_bin_averages_(img_signal, npix);
+    ldr.put_image(img_signal, img_error);
+    wout = sqw(outfile);
+else
+    wout.pix = wout.pix.finalise();
+end
 
 end % of function do_sqw_file_backed
 

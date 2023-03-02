@@ -336,18 +336,19 @@ classdef (Abstract) PixelDataBase < serializable
 
     end
 
-    % the same interface on FB and MB files, bit works on PixelDataBase
+    % the same interface on FB and MB files
     methods
         function data  = get_data(obj)
             data = get_raw_data(obj);
         end
-        data_out = get_fields(obj, pix_fields, varargin)
-        pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
-            recalculate_pix_ranges,keep_precision);
 
         function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
         end
+
+        data_out = get_fields(obj, pix_fields, varargin)
+        pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
+            recalculate_pix_ranges,keep_precision);
 
         obj = set_fields(obj, data, fields, abs_pix_indices);
 
@@ -588,48 +589,6 @@ classdef (Abstract) PixelDataBase < serializable
             obj.data_range_ = data_range;
         end
 
-        function pix_copy = copy(obj)
-            % Make an independent copy of this object
-            %  This method simply constructs a new PixelData instance by calling
-            %  the constructor with the input object as an argument. Because of
-            %  this, any properties that need to be explicitly copied must be
-            %  copied within this class' 'copy-constructor'.
-            %
-            % TODO: Re #928 is this function relevant when pixel array become
-            % cow-pointer handled?
-            pix_copy = PixelDataBase.create(obj);
-        end
-
-        function obj = move_to_first_page(obj)
-            % Reset the object to point to the first page of pixel data in the file
-            % and clear the current cache
-            %  This function does nothing if pixels are not file-backed.
-            %
-            obj.move_to_page(1);
-        end
-
-        function [obj, data] = load_page(obj, page_number)
-            % Load and return data from given page number
-            obj.page_num = page_number;
-            data = obj.get_fields('all');
-        end
-    end
-
-    methods(Access=protected)
-        function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
-                parse_get_pix_args(obj,abs_pix_indices,varargin)
-            % process get_pix arguments and return them in standard form suitable for
-            % usage in filebased and memory based classes
-
-            [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
-                parse_get_pix_args_(obj,abs_pix_indices,varargin{:});
-        end
-
-        function [pix_fields, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, varargin)
-            % process inputs for set_raw_fields function
-            [pix_fields, abs_pix_indices] = parse_set_fields_args_(obj, pix_fields, data, varargin{:});
-        end
-
         function indices = check_pixel_fields(obj, fields)
             %CHECK_PIXEL_FIELDS Check the given field names are valid pixel data fields
             % Raises error with ID 'HORACE:PixelDataBase:invalid_argument' if any fields not valid.
@@ -662,6 +621,37 @@ classdef (Abstract) PixelDataBase < serializable
             indices = unique([indices{:}]);
         end
 
+        function pix_copy = copy(obj)
+            % Make an independent copy of this object
+            %  This method simply constructs a new PixelData instance by calling
+            %  the constructor with the input object as an argument. Because of
+            %  this, any properties that need to be explicitly copied must be
+            %  copied within this class' 'copy-constructor'.
+            %
+            if obj.is_filebacked
+                pix_copy = PixelDataFileBacked(obj);
+            else
+                pix_copy = PixelDataMemory(obj);
+            end
+        end
+
+        function obj = move_to_first_page(obj)
+            % Reset the object to point to the first page of pixel data in the file
+            % and clear the current cache
+            %  This function does nothing if pixels are not file-backed.
+            %
+            obj.move_to_page(1);
+        end
+
+        function [obj, data] = load_page(obj, page_number)
+            % Load and return data from given page number
+            obj.page_num = page_number;
+            data = obj.get_fields('all');
+        end
+    end
+
+    methods(Access=protected)
+
         function val = check_set_prop(obj,fld,val)
             % check input parameters of set_property function
 
@@ -688,16 +678,6 @@ classdef (Abstract) PixelDataBase < serializable
             obj.full_filename_ = val;
         end
 
-        function full_filename = get_full_filename(obj)
-            full_filename = obj.full_filename_;
-        end
-
-        function val = get_data_wrap(obj)
-            % main part of pix_data_wrap getter which allows overload for
-            % different children
-            val = pix_data(obj);
-        end
-
         function obj =  set_metadata(obj,val)
             % main part of set from metadata setter
             if ~isa(val,'pix_metadata')
@@ -713,8 +693,110 @@ classdef (Abstract) PixelDataBase < serializable
             end
         end
 
+        function full_filename = get_full_filename(obj)
+            full_filename = obj.full_filename_;
+        end
+
+        function val = get_data_wrap(obj)
+            % main part of pix_data_wrap getter which allows overload for
+            % different children
+            val = pix_data(obj);
+        end
+
         function ro = get_read_only(~)
             ro = false;
+        end
+    end
+
+    methods(Access=protected)
+        function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
+                parse_get_pix_args(obj,varargin)
+
+            [ok, mess, ignore_range, raw_data, keep_precision, argi] = ...
+                parse_char_options(varargin, ...
+                                   {'-ignore_range','-raw_data','-keep_precision'});
+            if ~ok
+                error('HORACE:PixelDataBase:invalid_argument',mess);
+            end
+
+            switch numel(argi)
+              case 0
+                [ind_min,ind_max] = obj.get_page_idx_();
+                abs_pix_indices = [ind_min:ind_max];
+
+              case 1
+                abs_pix_indices = argi{1};
+
+                if islogical(abs_pix_indices)
+                    abs_pix_indices = obj.logical_to_normal_index_(abs_pix_indices);
+                end
+
+                if ~isindex(abs_pix_indices)
+                    error('HORACE:PixelDataBase:invalid_argument',...
+                          'pixel indices should be an array of numeric positive numbers, which define indices or vector of logical values')
+                end
+
+                if any(abs_pix_indices > obj.num_pixels)
+                    error('HORACE:PixelDataBase:invalid_argument', ...
+                          'Some numerical indices exceed the total number of pixels')
+                end
+
+              otherwise
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                      'Too many inputs provided to parse_get_pix_args_')
+
+            end
+        end
+
+        function [pix_fields, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, varargin)
+        % process set_fields arguments and return them in standard form suitable for
+        % usage in filebased and memory based classes
+            if isempty(pix_fields) || ~(iscellstr(pix_fields) || istext(pix_fields))
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                      'pix_fields must be nonempty text or cellstr');
+            end
+
+            if ~isnumeric(data)
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                      'data must be numeric array');
+            end
+
+            if exist('abs_pix_indices', 'var')
+                if ~isindex(abs_pix_indices)
+                    error('HORACE:PixelDataBase:invalid_argument', ...
+                          'abs_pix_indices must be logical or numeric array of pixels to modify');
+                end
+
+                if islogical(abs_pix_indices)
+                    abs_pix_indices = logical_to_normal_index_(obj, abs_pix_indices);
+                end
+
+                if any(abs_pix_indices > obj.num_pixels)
+                    error('HORACE:PixelDataBase:invalid_argument', ...
+                          'Invalid indices in abs_pix_indices');
+                end
+            else
+                abs_pix_indices = obj.NO_INPUT_INDICES;
+            end
+
+            pix_fields = cellstr(pix_fields);
+            pix_fields = obj.check_pixel_fields(pix_fields);
+
+            if size(data, 1) ~= numel(pix_fields)
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                      ['Number of fields in ''pix_fields'' must be equal to number ' ...
+                       'of columns in ''data''.\nn_pix_fields: %i, n_data_columns: %i.'], ...
+                      numel(pix_fields), size(data, 1) ...
+                     );
+            end
+
+            if ~isequal(abs_pix_indices, obj.NO_INPUT_INDICES) && size(data, 2) ~= numel(abs_pix_indices)
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                      ['Number of indices in ''abs_pix_indices'' must be equal to ' ...
+                       'number of rows in ''data''.\nn_pix: %i, n_data_rows: %i.'], ...
+                      numel(abs_pix_indices), size(data, 2) ...
+                     );
+            end
         end
     end
 
@@ -825,4 +907,5 @@ classdef (Abstract) PixelDataBase < serializable
 
         end
     end
+
 end

@@ -1,4 +1,4 @@
-function obj=set_raw_fields_(obj, data,pix_fields, varargin)
+function  obj=set_raw_fields(obj, data, fields, varargin)
 %SET_RAW_PIXELS Update the data on the given pixel data fields
 %
 % The number of columns in 'data' must be equal to the number of fields in
@@ -27,17 +27,32 @@ end
 
 [field_indices, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, varargin{:});
 
-mmf = obj.f_accessor_;
 if abs_pix_indices == obj.NO_INPUT_INDICES
-
     if size(data, 2) == 1
-        mmf.Data.data(field_indices, :) = single(data);
+        abs_pix_indices = 1:obj.num_pixels;
     else
-        mmf.Data.data(field_indices, 1:size(data,2)) = single(data);
+        abs_pix_indices = 1:size(data,2);
     end
-
-else
-    mmf.Data.data(field_indices,abs_pix_indices) = single(data);
 end
 
-end  % function
+if ~obj.read_only
+    obj.f_accessor_.Data.data(field_indices, abs_pix_indices) = single(data);
+else
+
+    obj = obj.get_new_handle();
+
+    for i = 1:obj.num_pages
+        [obj, data] = obj.load_page(i);
+        [start_idx, end_idx] = obj.get_pix_idx_();
+        [loc_indices, global_indices] = get_pg_idx_from_absolute_(obj, abs_pix_indices, i);
+
+        data(field_indices, loc_indices) = data(global_indices);
+        obj.format_dump_data(data);
+
+    end
+
+    obj = obj.finalise();
+
+end
+
+end

@@ -18,12 +18,13 @@ function obj=set_raw_fields(obj, data,pix_fields, varargin)
 % abs_pix_indices  The indices to set data on. If not specified all indices are
 %                  updated and 'size(data, 2)' must equal to obj.num_pixels.
 %
-if nargin == 2
+if ~exist('pix_fields', 'var')
     pix_fields = 'all';
 end
+
 NO_INPUT_INDICES = -1;
 
-[field_indices, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, varargin{:});
+[field_indices, abs_pix_indices] = obj.parse_set_fields_args(pix_fields, data, varargin{:});
 
 if abs_pix_indices == NO_INPUT_INDICES
     if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && ...
@@ -38,5 +39,3 @@ else
 end
 
 end  % function
-
-% -----------------------------------------------------------------------------

@@ -57,73 +57,114 @@ if exist('opt','var')  % no option given
 end
 
 wout = copy(win);
-if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
+
+if ~iscell(pars)
+    pars={pars}; % package parameters as a cell for convenience
+end
+
+if ~all(arrayfun(@has_pixels, win))
+    error('HORACE:sqw:not_implemented', ...
+          'Not yet implemented for dnd objects')
+end
 
 for i=1:numel(win)
-    if has_pixels(win(i))   % determine if sqw or dnd type
-        if ~ave_pix
-            qw = calculate_qw_pixels(win(i));
-            wdisp=dispreln(qw{1:3},pars{:});
-            if iscell(wdisp)
-                wdisp=wdisp{1};     % pick out the first dispersion relation
-            end
-            wout(i).pix.dE=wout(i).pix.dE-wdisp(:)';
-        else
-            % Get average h,k,l,e for the bin, compute sqw for that average, and fill pixels with the average signal for the bin that contains them
-            qw = calculate_qw_pixels(win(i));
-            qw_ave=average_bin_data(win(i),qw);
-            wdisp=dispreln(qw_ave{1:3},pars{:});
-            if icell(wdisp)
-                wdisp=wdisp{1};     % pick out the first dispersion relation
-            end
-            wdisp=replicate_array(wdisp,win(i).data.npix);
-            wout(i).pix.dE=wout(i).pix.dE-wdisp(:)';
-        end
-        % Have shifted the energy, but need to recompute the bins.
-        % - If energy is a plot axis, then extend the range of the
-        %   axis to retain all pixels.
-        % - If energy is an integration axis, then pixels fall out if
-        %   shifted outside the integration range (i.e. we don't extend
-        %   the integration range)
-
-        [proj, pbin] = get_proj_and_pbin (win(i));
-
-        % Convert wout(i) into a single bin object
-        pix  = wout(i).pix;
-        new_data = d0d();
-        new_data.axes.img_range = wout(i).data.axes.img_range;
-        new_data.proj = wout.data.proj;
-
-        new_data.npix = pix.num_pixels;
-        eps_lo = min(pix.dE);
-        eps_hi = max(pix.dE);
-
-        new_data.axes.img_range(:,4) = [eps_lo;eps_hi];
-        wout(i).data = new_data;
-        %wout(i) = recompute_bin_data(wout(i));
-            
-
-        pbin_i = pbin{i};
-        % Redefine energy binning ranges with energy bin limits extended, if necessary
-        if numel(pbin_i{4})==2
-            pbin_i{4}(1) = floor(eps_lo);
-            pbin_i{4}(2) = ceil(eps_hi);            
-        else
-            de = pbin_i{4}(2);            
-            elo = floor(eps_lo)-0.5*de;
-            ehi = ceil(eps_hi)+0.5*de;
-            pbin_i{4} = [elo,de,ehi];
-        end
-
-        wout(i) = cut(wout(i),proj(i),pbin_i{:});
-
+    % Get average h,k,l,e for the bin, compute sqw for that average,
+    % and fill pixels with the average signal for the bin that contains them
+    if win(i).pix.is_filebacked
+        wout(i) = calc_shift_filebacked(win(i), dispreln, ave_pix, pars);
     else
-        error('HORACE:sqw:not_implemented', ...
-            'Not yet implemented for dnd objects')
-        %         qw = calculate_qw_bins(win(i));
-        %         wdisp=dispreln(qw{1:3},pars{:});
-        %         if icell(wdisp)
-        %             wdisp=wdisp{1};     % pick out the first dispersion relation
-        %         end
+        wout(i) = calc_shift_memory(win(i), dispreln, ave_pix, pars);
     end
+
+    % Have shifted the energy, but need to recompute the bins.
+    % - If energy is a plot axis, then extend the range of the
+    %   axis to retain all pixels.
+    % - If energy is an integration axis, then pixels fall out if
+    %   shifted outside the integration range (i.e. we don't extend
+    %   the integration range)
+
+    [proj, pbin] = get_proj_and_pbin(win(i));
+
+    % Convert wout(i) into a single bin object
+    pix  = wout(i).pix;
+    new_data = d0d();
+    new_data.axes.img_range = wout(i).data.axes.img_range;
+    new_data.proj = wout.data.proj;
+
+    new_data.npix = pix.num_pixels;
+    eps_lo = min(pix.dE);
+    eps_hi = max(pix.dE);
+
+    new_data.axes.img_range(:,4) = [eps_lo;eps_hi];
+    wout(i).data = new_data;
+    %wout(i) = recompute_bin_data(wout(i));
+
+    pbin_i = pbin{i};
+    % Redefine energy binning ranges with energy bin limits extended, if necessary
+    if numel(pbin_i{4})==2
+        pbin_i{4}(1) = floor(eps_lo);
+        pbin_i{4}(2) = ceil(eps_hi);
+    else
+        de = pbin_i{4}(2);
+        elo = floor(eps_lo)-0.5*de;
+        ehi = ceil(eps_hi)+0.5*de;
+        pbin_i{4} = [elo,de,ehi];
+    end
+
+    wout(i).pix.num_pixels
+    wout(i) = cut(wout(i), proj(i), pbin_i{:});
+    wout(i).pix.num_pixels
+
+end
+
+
+end
+
+function wout = calc_shift_memory(win, dispreln, ave_pix, pars)
+    wout = win;
+    qw = calculate_qw_pixels(win);
+    if ~ave_pix
+        qw = win.average_bin_data_(qw);
+    end
+
+    wdisp = dispreln(qw{1:3}, pars{:});
+
+    if iscell(wdisp)
+        wdisp = wdisp{1};     % pick out the first dispersion relation
+    end
+
+    wdisp = replicate_array(wdisp, win.data.npix);
+    wout.pix.dE = win.pix.dE - wdisp(:)';
+end
+
+function wout = calc_shift_filebacked(win, dispreln, ave_pix, pars)
+    wout = win;
+
+    wout.pix = wout.pix.get_new_handle();
+    e_ind = wout.pix.check_pixel_fields('dE');
+
+    pg_size = get(hor_config, 'mem_chunk_size');
+
+    [npix_chunks, idxs] = split_vector_fixed_sum(wout.data.npix(:), pg_size);
+
+    for i = 1:wout.pix.num_pages
+        [wout.pix, data] = wout.pix.load_page(i);
+        npix_chunk = npix_chunks{i};
+        qw = calculate_qw_pixels(wout);
+
+        if ~ave_pix
+            qw = average_bin_data(npix_chunk, qw);
+        end
+
+        wdisp=dispreln(qw{1:3}, pars{:});
+        if iscell(wdisp)
+            wdisp=wdisp{1};     % pick out the first dispersion relation
+        end
+
+        wdisp = replicate_array(wdisp, npix_chunk);
+        data(e_ind, :) = wout.pix.dE - wdisp(:)';
+        wout.pix.format_dump_data(data);
+    end
+
+    wout.pix = wout.pix.finalise();
 end
