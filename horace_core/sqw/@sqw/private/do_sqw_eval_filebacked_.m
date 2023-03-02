@@ -79,7 +79,6 @@ end
 
 end % of function do_sqw_file_backed
 
-%------------------------------------------------------------------------------
 function ldr = write_sqw_no_pix_or_footers_(sqw_obj, outfile)
     % Write the given SQW object to the given file.
     % The pixels of the SQW object will be derived from the image signal array
@@ -90,7 +89,6 @@ function ldr = write_sqw_no_pix_or_footers_(sqw_obj, outfile)
     ldr.put_sqw('-nopix');
 end
 
-%------------------------------------------------------------------------------
 function img_signal = increment_signal_sums_(img_signal, pix_signal, npix, idx)
     accum_indices = make_column(repelem(1:numel(npix), npix));
     pix_signal = make_row(pix_signal);
@@ -98,11 +96,8 @@ function img_signal = increment_signal_sums_(img_signal, pix_signal, npix, idx)
     img_signal(idx(1):idx(2)) = img_signal(idx(1):idx(2)) + bin_sums';
 end
 
-%------------------------------------------------------------------------------
 function [s, e] = get_image_bin_averages_(bin_sums, npix)
     s = reshape(bin_sums(:)./npix(:), size(npix));
     s(npix == 0) = 0;
     e = zeros(size(s));
 end
-
-%==============================================================================

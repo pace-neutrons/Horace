@@ -75,7 +75,6 @@ function qw_pix = get_qw_pixels_(sqw_obj, pix)
     qw_pix = calculate_qw_pixels(sqw_obj);
 end
 
-%------------------------------------------------------------------------------
 function qw_ave = average_qw_pix_(sqw_obj, pix, npix)
     ab = ortho_axes('nbins_all_dims',[numel(npix),1,1,1],'img_range',sqw_obj.data.img_range);
     sqw_obj.data = d1d(ab,sqw_obj.data.proj);
@@ -84,11 +83,14 @@ function qw_ave = average_qw_pix_(sqw_obj, pix, npix)
     qw_ave = cellfun(@(x) x(:), qw_ave, 'UniformOutput', false);
 end
 
-%------------------------------------------------------------------------------
 function pix = set_pixel_data_(pix, ave_signal, npix_chunk, start_idx, end_idx)
     sig_var = zeros(2, end_idx - start_idx + 1);
     sig_var(1, :) = repelem(ave_signal, npix_chunk);
     pix.set_data({'signal', 'variance'}, sig_var, start_idx:end_idx);
 end
 
-%==============================================================================
+function [s, e] = get_image_bin_averages_(bin_sums, npix)
+    s = reshape(bin_sums(:)./npix(:), size(npix));
+    s(npix == 0) = 0;
+    e = zeros(size(s));
+end
