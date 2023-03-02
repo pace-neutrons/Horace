@@ -28,7 +28,7 @@ if isempty(val) || any(undef(:))
     if ~obj.angles_in_rad_(2)
         obj.img_range_(:,3) = rad2deg(obj.img_range_(:,3));
     end
-
+    obj.img_range_set_        = true;
     return;
 end
 if any(val(1,:)>val(2,:))
@@ -43,25 +43,6 @@ end
 if val(1,1)<0
     error('HORACE:spher_axes:invalid_argument','minimal Q-value can not be negative');
 end
-% check if teta is in range [-pi/2; pi/2] and throw if the value is outside
-% of this interval
-val(:,2) = check_angular_range(val(:,2),obj.angles_in_rad_(1),[-pi/2,pi/2]);
-% check if phi is in range [-pi; pi] and transform any other value into
-% of this interval
-val(:,3) = check_angular_range(val(:,3),obj.angles_in_rad_(2),[-pi,pi]);
 
-
-obj.img_range_ = val;
-
-function range = check_angular_range(range,range_in_rad,limits_in_rad)
-if range_in_rad
-    limits = limits_in_rad;
-else
-    limits = rad2deg(limits_in_rad);
-end
-if range(1)<limits(1) || range(2)>limits(2)
-    error('HORACE:spher_axes:invalid_argument', ...
-        'Angular range: %s is outside of its alowed range: %s', ...
-        mat2str(range),mat2str(limits));
-end
-
+obj.img_range_      = val;
+obj.img_range_set_  = true;

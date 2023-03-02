@@ -36,7 +36,7 @@ classdef spher_axes < AxesBlockBase
     end
     properties(Dependent)
         % if angular dimensions of the axes are expressed in radians or degrees
-        angles_in_rad
+        angular_unit_is_rad
     end
     properties(Dependent,Hidden)
         % if angular dimensions of the axes are expressed in radians or degrees
@@ -45,7 +45,17 @@ classdef spher_axes < AxesBlockBase
 
     properties(Access = protected)
         % if angular dimensions of the axes are expressed in radians or degrees
-        angles_in_rad_ = [false,false];
+        angular_unit_is_rad_ = [false,false];
+    end
+    properties(Access=private)
+        % helper properties used in setting angular units image range and
+        % the meaning of the angular units. If both image_range and
+        % old_angular_unit_is_rad changed, you have set up the range
+        % and its meaning.
+        % If only angular_unit_is_rad have changed, the image range have to
+        % be recalculated from degree to radians of v.v..
+        old_angular_unit_is_rad_  = [];
+        img_range_set_        = false;
     end
 
     methods
@@ -90,9 +100,9 @@ classdef spher_axes < AxesBlockBase
             if nargin == 1
                 return;
             end
-            [is_changed,new_value] = check_angular_units_changed_(obj,varargin);
+            [is_changed,new_value] = check_angular_units_changed_(obj,varargin{:});
             if is_changed
-                obj.angles_in_rad =new_value;
+                obj.angular_unit_is_rad =new_value;
             end
             [obj,offset,remains] = init@AxesBlockBase(obj,varargin{:});
 
@@ -105,17 +115,20 @@ classdef spher_axes < AxesBlockBase
             [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
                 data_plot_titles_(obj,proj);
         end
-        function anr = get.angles_in_rad(obj)
-            anr = obj.angles_in_rad_;
+        function anr = get.angular_unit_is_rad(obj)
+            anr = obj.angular_unit_is_rad_;
         end
-        function obj = set.angles_in_rad(obj,val)
+        function obj = set.angular_unit_is_rad(obj,val)
             obj = set_angles_in_rad_(obj,val);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
         %
         function range = get.default_img_range(obj)
             range  = obj.default_img_range_;
             for i=1:2
-                if obj.angles_in_rad_(i)
+                if obj.angular_unit_is_rad_(i)
                     range(:,1+i) = deg2rad(range(:,1+i));
                 end
             end
@@ -126,6 +139,9 @@ classdef spher_axes < AxesBlockBase
         function  obj = check_and_set_img_range(obj,val)
             % main setter for spherical image range.
             obj = check_and_set_img_range_(obj,val);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
         function pbin = default_pbin(obj,ndim)
             % method is called when default constructor with dimensions is invoked
@@ -151,6 +167,13 @@ classdef spher_axes < AxesBlockBase
     end
     %----------------------------------------------------------------------
     methods
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            obj = check_combo_arg@AxesBlockBase(obj);
+            %
+            obj = check_angular_units_consistency_(obj);
+        end
+
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
             % and nxsqw/sqw data format. Each new version would presumably
@@ -163,7 +186,7 @@ classdef spher_axes < AxesBlockBase
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = saveableFields@AxesBlockBase(obj);
-            flds = [flds(:);'angles_in_rad'];
+            flds = [flds(:);'angular_unit_is_rad'];
         end
         %
     end

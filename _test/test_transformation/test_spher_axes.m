@@ -153,69 +153,55 @@ classdef test_spher_axes < TestCase
         %             assertEqual(size(nodes,2),the_size);
         %         end
         %         %
-        %         function test_get_bin_nodes_2D_2d_char_size(~)
-        %             dbr = [-1,-2,-3,0;1,2,3,10];
-        %             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
-        %                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-        %             ab = spher_axes(bin0{:});
-        %
-        %             new_step = [0.05;4;6;0.1];
-        %             r0 = [-1;-2;-3;0];
-        %             r1 = r0+new_step;
-        %             char_block =[r0,r1];
-        %             [nodes,en,nbins] = ab.get_bin_nodes(char_block);
-        %             assertEqual(numel(en),nbins(4));
-        %             assertEqual(size(nodes,1),4);
-        %             node_range = [min(nodes,[],2)';max(nodes,[],2)'];
-        %             assertEqual(ab.img_range,node_range);
-        %
-        %             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
-        %             nns = [42,2,2,111];
-        %             assertEqual(nns,nbins);
-        %             the_size = prod(nns);
-        %             assertEqual(size(nodes,2),the_size);
-        %         end
-        %         %
-        %         function test_get_bin_nodes_2D_4d_char_size(~)
-        %             dbr = [-1,-2,-3,0;1,2,3,10];
-        %             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
-        %                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-        %             ab = spher_axes(bin0{:});
-        %
-        %             new_step = [0.05;0.1;0.15;0.1];
-        %             r0 = [-1;-2;-3;0];
-        %             r1 = r0+new_step;
-        %             char_block =[r0,r1];
-        %             [nodes3D,dEgrid,npoints_in_axes] = ab.get_bin_nodes(char_block,'-3D');
-        %             assertEqual(size(nodes3D,1),3);
-        %             node_range = [min(nodes3D,[],2)';max(nodes3D,[],2)'];
-        %             assertEqual(ab.img_range(:,1:3),node_range);
-        %
-        %             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
-        %
-        %             nns = [42    40    41   111];
-        %             assertEqual(nns,npoints_in_axes);
-        %             q_size = prod(nns(1:3));
-        %             assertEqual(numel(dEgrid),nns(4))
-        %             assertEqual(size(nodes3D,2),q_size);
-        %         end
-        %         %
-        %         function test_get_bin_nodes_2D_4d(~)
-        %             dbr = [-1,-2,-3,0;1,2,3,10];
-        %             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
-        %                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-        %             ab = spher_axes(bin0{:});
-        %
-        %             nodes = ab.get_bin_nodes();
-        %             assertEqual(size(nodes,1),4);
-        %
-        %             nd = ab.dimensions;
-        %             sz = ab.dims_as_ssize();
-        %             ni = 4-nd;
-        %             %sz = sz+1;
-        %             the_size = ni*2*prod(sz+1);
-        %             assertEqual(size(nodes,2),the_size);
-        %         end
+        function test_get_bin_nodes_2D_4d_deg(~)
+            dbr = [0,-90,-180,0;1,90,180,10];
+            bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),1,dbr(2,2)];...
+                [dbr(1,3),1,dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+            ab = spher_axes(bin0{:});
+
+            nodes = ab.get_bin_nodes();
+            assertEqual(size(nodes,1),4);
+
+            nd = ab.dimensions;
+            sz = ab.dims_as_ssize();
+            ni = 4-nd;
+            %sz = sz+1;
+            the_size = ni*2*prod(sz+1);
+            assertEqual(size(nodes,2),the_size);
+        end
+        
+        function test_get_bin_nodes_2D_4d(~)
+            dbr = [0,-90,-180,0;1,90,180,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab = spher_axes(bin0{:});
+
+            nodes = ab.get_bin_nodes();
+            assertEqual(size(nodes,1),4);
+
+            nd = ab.dimensions;
+            sz = ab.dims_as_ssize();
+            ni = 4-nd;
+            %sz = sz+1;
+            the_size = ni*2*prod(sz+1);
+            assertEqual(size(nodes,2),the_size);
+        end
+        %------------------------------------------------------------------
+        function test_angular_is_rad_in_constructor(~)
+            dbr = [0,-pi/2,-pi,-10;10,pi/2,pi,50];
+            bin0 = {[dbr(1,1),0.05,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab = spher_axes(bin0{:},'angular_unit_is_rad','r');
+            assertEqual(ab.img_range, ...
+                [0,-pi/2,-pi,-10.5; ...
+                10.05,pi/2,pi,50.5])
+            assertTrue(all(ab.angular_unit_is_rad));
+            ab.angular_unit_is_rad = [false,true];
+            assertEqual(ab.img_range, ...
+                [0,-90,-pi,-10.5; ...
+                10.05,90,pi,50.5])
+
+        end
         %------------------------------------------------------------------
         function test_build_from_input_binning_more_infs(~)
             default_binning = {[0,0.1,1],[-45,1,45],[-180,1,180],[0,1,10]};
@@ -297,17 +283,17 @@ classdef test_spher_axes < TestCase
         function test_spher_axes_change_angular_range_in_parts_text(~)
             ab = spher_axes(4);
             assertEqual(ab.dimensions,4);
-            assertEqual(ab.angles_in_rad,[false,false]);
+            assertEqual(ab.angular_unit_is_rad,[false,false]);
             assertEqual(ab.img_range,[0,-90,-180,0;1,90,180,1])
-            ab.angles_in_rad = 'rd';
-            assertEqual(ab.angles_in_rad,[true,false]);
+            ab.angular_unit_is_rad = 'rd';
+            assertEqual(ab.angular_unit_is_rad,[true,false]);
             assertEqual(ab.img_range,[0,-pi/2,-180,0;1,pi/2,180,1])
-            ab.angles_in_rad = "dr";
-            assertEqual(ab.angles_in_rad,[false,true]);
+            ab.angular_unit_is_rad = "dr";
+            assertEqual(ab.angular_unit_is_rad,[false,true]);
             assertEqual(ab.img_range,[0,-90,-pi,0;1,90,pi,1])
-            ab.angles_in_rad = 'rr';
+            ab.angular_unit_is_rad = 'rr';
             assertEqual(ab.img_range,[0,-pi/2,-pi,0;1,pi/2,pi,1])
-            ab.angles_in_rad = "dd";
+            ab.angular_unit_is_rad = "dd";
             assertEqual(ab.img_range,[0,-90,-180,0;1,90,180,1])
 
         end
@@ -315,28 +301,28 @@ classdef test_spher_axes < TestCase
         function test_spher_axes_change_angular_range_in_parts_logical(~)
             ab = spher_axes(4);
             assertEqual(ab.dimensions,4);
-            assertEqual(ab.angles_in_rad,[false,false]);
+            assertEqual(ab.angular_unit_is_rad,[false,false]);
             assertEqual(ab.img_range,[0,-90,-180,0;1,90,180,1])
-            ab.angles_in_rad = [true,false];
-            assertEqual(ab.angles_in_rad,[true,false]);
+            ab.angular_unit_is_rad = [true,false];
+            assertEqual(ab.angular_unit_is_rad,[true,false]);
             assertEqual(ab.img_range,[0,-pi/2,-180,0;1,pi/2,180,1])
-            ab.angles_in_rad = [false,true];
-            assertEqual(ab.angles_in_rad,[false,true]);
+            ab.angular_unit_is_rad = [false,true];
+            assertEqual(ab.angular_unit_is_rad,[false,true]);
             assertEqual(ab.img_range,[0,-90,-pi,0;1,90,pi,1])
-            ab.angles_in_rad = [true,true];
+            ab.angular_unit_is_rad = [true,true];
             assertEqual(ab.img_range,[0,-pi/2,-pi,0;1,pi/2,pi,1])
         end
 
         function test_spher_axes_change_angular_range(~)
             ab = spher_axes(3);
             assertEqual(ab.dimensions,3);
-            assertEqual(ab.angles_in_rad,[false,false]);
+            assertEqual(ab.angular_unit_is_rad,[false,false]);
             assertEqual(ab.img_range,[0,-90,-180,0;1,90,180,0])
-            ab.angles_in_rad = 'd';
-            assertEqual(ab.angles_in_rad,[false,false]);
+            ab.angular_unit_is_rad = 'd';
+            assertEqual(ab.angular_unit_is_rad,[false,false]);
             assertEqual(ab.img_range,[0,-90,-180,0;1,90,180,0])
-            ab.angles_in_rad = 'r';
-            assertEqual(ab.angles_in_rad,[true,true]);
+            ab.angular_unit_is_rad = 'r';
+            assertEqual(ab.angular_unit_is_rad,[true,true]);
             assertEqual(ab.img_range,[0,-pi/2,-pi,0;1,pi/2,pi,0])
         end
         %
@@ -365,7 +351,7 @@ classdef test_spher_axes < TestCase
             iiax(3) = true;
             iiax(4) = true;
             assertEqual(ab.single_bin_defines_iax,iiax)
-            assertEqual(ab.angles_in_rad,[false,false]);
+            assertEqual(ab.angular_unit_is_rad,[false,false]);
             assertEqual(ab.img_range,[0,-90,0,0;1,90,0,0])
 
         end
@@ -377,7 +363,7 @@ classdef test_spher_axes < TestCase
             iiax = false(1,4);
             iiax(4) = true;
             assertEqual(ab.single_bin_defines_iax,iiax)
-            assertEqual(ab.angles_in_rad,[false,false]);
+            assertEqual(ab.angular_unit_is_rad,[false,false]);
             assertEqual(ab.img_range,[0,-90,-180,0;1,90,180,0])
 
         end
@@ -387,7 +373,7 @@ classdef test_spher_axes < TestCase
             assertEqual(ab.dimensions,4);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             assertEqual(ab.single_bin_defines_iax,false(1,4))
-            assertEqual(ab.angles_in_rad,[false,false]);
+            assertEqual(ab.angular_unit_is_rad,[false,false]);
             assertEqual(ab.img_range,[0,-90,-180,0;1,90,180,1])
 
         end

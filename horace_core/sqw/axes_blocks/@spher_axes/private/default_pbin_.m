@@ -1,12 +1,13 @@
 function pbin = default_pbin_(obj,ndim)
-% UNTITLED3 Defines binning for dimensions-only construction
+% DEFAULT_PBIN_ Defines default binning for dimensions-only construction of
+% the spher_axes class
 
-if obj.angles_in_rad_(1)
+if obj.angular_unit_is_rad_(1)
     thetar = [-pi/2,pi/2];
 else
     thetar = [-90,90];
 end
-if obj.angles_in_rad_(2)
+if obj.angular_unit_is_rad_(2)
     phir = [-pi,pi];
 else
     phir = [-180,180];

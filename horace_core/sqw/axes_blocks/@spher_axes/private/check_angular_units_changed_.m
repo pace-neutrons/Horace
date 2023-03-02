@@ -4,16 +4,16 @@ function  [is_present,new_value] = check_angular_units_changed_(obj,varargin)
 %
 % This property, if present, have to be set first to be able to treat
 % other posible angular parameters properly.
-
+%argi = varargin;
 new_value = [];
 is_possible_key = cellfun(@istext,varargin);
 
 possible_key = varargin(is_possible_key);
 
-is_present = ismember('angles_in_rad',possible_key);
+is_present = ismember('angular_unit_is_rad',possible_key);
 if is_present
-    key_pos = find(ismember(possible_key,'angles_in_rad'));
-    new_value= possible_key(key_pos+1);
+    key_pos = find(ismember(possible_key,'angular_unit_is_rad'));
+    new_value= possible_key{key_pos+1};
     return;
 end
 % whatever unlikely, 'angles_in_rad' may be provided as positional
