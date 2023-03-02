@@ -74,6 +74,7 @@ classdef spher_axes < AxesBlockBase
 
             % empty spherical range:
             obj.img_range_ = [inf,90,180,inf;0,-90,-180,-inf];
+            obj.max_img_range_ = [-inf,-90,-180,-inf;inf,90,180,inf];            
             obj.label = {'|Q|','\theta','\phi','En'};
             obj.changes_aspect_ratio_ = false;
             if nargin == 0

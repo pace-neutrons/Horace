@@ -113,6 +113,8 @@ classdef AxesBlockBase < serializable
         % internal property, which defines if appropriate axes block presented on
         % picture changes aspect ratio of a 2D image.
         changes_aspect_ratio_=true;
+        % maximal range the image can have
+        max_img_range_ = [-inf,-inf,-inf,-inf;inf,inf,inf,inf];
     end
     properties(Dependent,Hidden)
         full_filename % convenience property as fullfile(filepath, filename)

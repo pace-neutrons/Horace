@@ -22,7 +22,7 @@ classdef test_proj_captions<TestCase
 
         function test_spher_proj_description(obj)
             dat = obj.data;
-            range = [0,0,-pi,-5;8,pi,-pi,20];
+            range = [0,0,-180,-5;8,90,-180,20];
             dat.axes = spher_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
             dat.proj = spher_proj();            
 
@@ -34,20 +34,20 @@ classdef test_proj_captions<TestCase
             assertTrue(isempty(title_main{1}));
 
             assertEqual(numel(title_pax),2);
-            assertEqual(title_pax{1},'[-1+\zeta, 1+\zeta, 1] (Å^{-1})');
-            assertEqual(title_pax{2},' (meV)');
+            assertEqual(title_pax{1},'|Q| (Å^{-1})');
+            assertEqual(title_pax{2},'En (mEv)');
 
             assertEqual(numel(title_iax),2);
-            assertEqual(title_iax{1},'1 \leq \xi \leq 1 in [-\xi, \xi, 0]');
-            assertEqual(title_iax{2},'1 \leq \eta \leq 1 in [0, 0, \eta]');
+            assertEqual(title_iax{1},'0 \leq \theta \leq 90 in ^{o}');
+            assertEqual(title_iax{2},'-180 \leq \phi \leq -180 in ^{o}');
 
             assertEqual(numel(display_pax),2);
-            assertEqual(display_pax{1},'\zeta = -2:0.08:2 in [-1+\zeta, 1+\zeta, 1]');
-            assertEqual(display_pax{2},'E = -5:0.625:20');
+            assertEqual(display_pax{1},'|Q| = 0.08:0.16:7.92 in Å^{-1}');
+            assertEqual(display_pax{2},'En = -4.6875:0.625:19.6875 in mEv');
 
             assertEqual(numel(display_iax),2);
-            assertEqual(display_iax{1},'1 =< \xi =< 1 in [-\xi, \xi, 0]');
-            assertEqual(display_iax{2},'1 =< \eta =< 1 in [0, 0, \eta]');
+            assertEqual(display_iax{1},'0 =< \theta =< 90 in ^{o}');
+            assertEqual(display_iax{2},'-180 =< \phi =< -180 in ^{o}');
 
             assertEqual(energy_axis,4);
 

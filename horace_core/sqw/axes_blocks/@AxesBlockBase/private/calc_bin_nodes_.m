@@ -62,9 +62,8 @@ if isempty(char_size)
             %       if iax(i) % do not build halo for integration axes
             %           continue;
             %       end
-            step = abs(axes{i}(2)-axes{i}(1));
-            axes{i} = [axes{i}(1)-step,axes{i}(:)',axes{i}(end)+step];
-            npoints_in_axes(i)= npoints_in_axes(i)+2;
+            axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),axes{i});
+            npoints_in_axes(i)= numel(axes{i});
         end
     end
 else
@@ -98,7 +97,11 @@ else
 end
 grid_cell_size = zeros(4,1);
 for i =1:4
-    grid_cell_size(i) = min(axes{i}(2:end)-axes{i}(1:end-1));
+    if halo % avoid possible empty ranges when halo is applied to ranged boxes
+        grid_cell_size(i) = min(axes{i}(3:end-1)-axes{i}(2:end-2));
+    else
+        grid_cell_size(i) = min(axes{i}(2:end)-axes{i}(1:end-1));
+    end
 end
 
 if data_to_density || density_integr_grid
@@ -142,7 +145,6 @@ else
     [Xn,Yn,Zn,En] = ndgrid(axes{:});
 end
 
-
 if do3D
     if ngrid_form
         nodes = {Xn,Yn,Zn};
@@ -156,6 +158,21 @@ else
         nodes = [Xn(:)';Yn(:)';Zn(:)';En(:)'];
     end
 end
+
+function  axes = build_ax_with_halo(range,axes)
+% Build axes with halo which does not exceed
+% the allowed image ranges
+%
+step = abs(axes(2)-axes(1));
+min_pos = axes(1)-step;
+if min_pos < range(1)
+    min_pos = range(1);
+end
+max_pos = axes(end)+step;
+if max_pos > range(2)
+    max_pos = range(2);
+end
+axes = [min_pos,axes(:)',max_pos];
 
 function char_size = parse_inputs(noptions,ninputs,varargin)
 % process inputs to extract char size in the form of 4D cube. If the input
