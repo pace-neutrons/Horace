@@ -25,14 +25,24 @@ classdef spher_axes < AxesBlockBase
     properties(Constant,Access = private)
         % What units each possible dimension type of the spherical projection
         % have:  Currently momentum, angle, and energy transfer may be
-        % expressed in Anstrom, radian, degree, mEv
+        % expressed in Anstrom, radian, degree, mEv. The key is the type
+        % letter present in spher_projection and the value is the unit
+        % caption.
         capt_units = containers.Map({'a','r','d','e'}, ...
             {[char(197),'^{-1}'],'rad','^{o}','mEv'})
+        default_img_range_ = [0,-90,-180,0;...
+            1,90,180,1]; % the range, a object defined with dimensions
+        % only would have
     end
     properties(Dependent)
         % if angular dimensions of the axes are expressed in radians or degrees
         angles_in_rad
     end
+    properties(Dependent,Hidden)
+        % if angular dimensions of the axes are expressed in radians or degrees
+        default_img_range
+    end
+
     properties(Access = protected)
         % if angular dimensions of the axes are expressed in radians or degrees
         angles_in_rad_ = [false,false];
@@ -51,13 +61,25 @@ classdef spher_axes < AxesBlockBase
             %>>obj = spher_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
             %
+
+            % empty spherical range:
+            obj.img_range_ = [inf,90,180,inf;0,-90,-180,-inf];
+            obj.label = {'|Q|','\theta','\phi','En'};
+            obj.changes_aspect_ratio_ = false;
+            if nargin == 0
+                return;
+            end
+
             obj = obj.init(varargin{:});
         end
         %
         function [obj,offset,remains] = init(obj,varargin)
             % initialize object with axis parameters.
             %
-            % The parameters are defined as in constructor.
+            % The parameters are defined as in constructor
+            % and accepts range of positional variables or key-value pairs
+            % as defined by saveableFields function.
+            %
             % Returns:
             % obj    -- initialized by inputs axis_block object
             % offset -- the offset for axis box from the origin of the
@@ -65,12 +87,13 @@ classdef spher_axes < AxesBlockBase
             % remains -- the arguments, not used in initialization if any
             %            were provided as input
             %
-
-            % empty spherical range;
-            obj.img_range_ = [inf,pi/2,pi,inf;0,-pi/2,-pi,-inf];
-            obj.label = {'|Q|','\theta','\phi','En'};
-            obj.changes_aspect_ratio_ = false;
-            %
+            if nargin == 1
+                return;
+            end
+            [is_changed,new_value] = check_angular_units_changed_(obj,varargin);
+            if is_changed
+                obj.angles_in_rad =new_value;
+            end
             [obj,offset,remains] = init@AxesBlockBase(obj,varargin{:});
 
         end
@@ -88,12 +111,32 @@ classdef spher_axes < AxesBlockBase
         function obj = set.angles_in_rad(obj,val)
             obj = set_angles_in_rad_(obj,val);
         end
+        %
+        function range = get.default_img_range(obj)
+            range  = obj.default_img_range_;
+            for i=1:2
+                if obj.angles_in_rad_(i)
+                    range(:,1+i) = deg2rad(range(:,1+i));
+                end
+            end
+        end
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
         function  obj = check_and_set_img_range(obj,val)
             % main setter for spherical image range.
             obj = check_and_set_img_range_(obj,val);
+        end
+        function pbin = default_pbin(obj,ndim)
+            % method is called when default constructor with dimensions is invoked
+            % and defines default empty binning for dimension-only
+            % construction
+            pbin = default_pbin_(obj,ndim);
+        end
+        function  [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
+            % takes binning parameters and converts it into axis binning
+            % for the given axiss
+            [range,nbin]=pbin_parse_(obj,p,p_defines_bin_centers,i);
         end
     end
     %======================================================================
@@ -120,7 +163,7 @@ classdef spher_axes < AxesBlockBase
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = saveableFields@AxesBlockBase(obj);
-            flds = [flds(:),'angles_in_rad'];
+            flds = [flds(:);'angles_in_rad'];
         end
         %
     end

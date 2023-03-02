@@ -49,6 +49,9 @@ classdef ortho_axes < AxesBlockBase
             %>>obj = ortho_axes(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
             %
+            if nargin == 0
+                return;
+            end
             obj = obj.init(varargin{:});
         end
         %
@@ -146,14 +149,20 @@ classdef ortho_axes < AxesBlockBase
             % main setter for orthogonal image range.
             obj = check_and_set_img_range_(obj,val);
         end
+        function pbin = default_pbin(~,ndim)
+            % method is called when default constructor with dimensions is invoked
+            % and defines default binning in this situation
+            rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
+            pbin=[repmat({[0,1]},1,ndim),rest];
+        end
+        function  [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
+            % takes binning parameters and converts it into axis binning
+            % for the given axiss
+            [range,nbin]=pbin_parse_(obj,p,p_defines_bin_centers,i);
+        end       
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
-    properties(Constant,Access=private)
-        % fields which fully represent the state of the class and allow to
-        % recover it state by setting properties through public interface
-        fields_to_save_ = {'nonorthogonal'};
-    end
     methods(Static)
         function ax = get_from_old_data(input)
             % supports getting axes block from the data, stored in binary
@@ -182,7 +191,7 @@ classdef ortho_axes < AxesBlockBase
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = saveableFields@AxesBlockBase(obj);
-            flds = [flds(:);ortho_axes.fields_to_save_(:)];
+            flds = [flds(:);'nonorthogonal'];
         end
         %
     end

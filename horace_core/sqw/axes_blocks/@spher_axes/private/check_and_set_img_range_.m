@@ -14,7 +14,7 @@ if any(size(val)~=[2,4])
 end
 
 undef = val == PixelDataBase.EMPTY_RANGE_;
-if isempty(val) || any(undef)
+if isempty(val) || any(undef(:))
     angular_undef = [inf,pi/2,pi;inf,0,-pi/2,-pi,-inf];
     if isempty(val)
         val  = angular_undef;
@@ -43,28 +43,25 @@ end
 if val(1,1)<0
     error('HORACE:spher_axes:invalid_argument','minimal Q-value can not be negative');
 end
-if val(1,1) < eps
-    val(1,1) = eps;
-end
 % check if teta is in range [-pi/2; pi/2] and throw if the value is outside
 % of this interval
-val(:,2) = check_and_normalize_angular_range(val(:,2),obj.angles_in_rad_(1),[-pi/2,pi/2]);
+val(:,2) = check_angular_range(val(:,2),obj.angles_in_rad_(1),[-pi/2,pi/2]);
 % check if phi is in range [-pi; pi] and transform any other value into
 % of this interval
-val(:,3) = check_and_normalize_angular_range(val(:,3),obj.angles_in_rad_(2),[-pi,pi]);
+val(:,3) = check_angular_range(val(:,3),obj.angles_in_rad_(2),[-pi,pi]);
 
 
 obj.img_range_ = val;
 
-function range = check_and_normalize_angular_range(range,range_in_rad,limits_in_rad)
+function range = check_angular_range(range,range_in_rad,limits_in_rad)
 if range_in_rad
     limits = limits_in_rad;
 else
     limits = rad2deg(limits_in_rad);
 end
-if in_range(1)<limits(1) || in_range(2)>limits(2)
+if range(1)<limits(1) || range(2)>limits(2)
     error('HORACE:spher_axes:invalid_argument', ...
-        'Angular range exceeds its alowed range %s', ...
-        mat2str(limits));
+        'Angular range: %s is outside of its alowed range: %s', ...
+        mat2str(range),mat2str(limits));
 end
 

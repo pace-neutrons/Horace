@@ -2,7 +2,7 @@ classdef axes_block < ortho_axes
     % Transiend class, left for support of old data loading from .mat files
     % and v4 sqw binary files (if released with old axes_block)
     %
-    % The functionality of axes_block class have been moved to ortho_axes 
+    % The functionality of the axes_block class have been moved to ortho_axes
     % class
     %
     methods

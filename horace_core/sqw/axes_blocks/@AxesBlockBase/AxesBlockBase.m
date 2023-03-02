@@ -131,6 +131,9 @@ classdef AxesBlockBase < serializable
             %>>obj = AxesBlockBase(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
             %
+            if nargin == 0
+                return;
+            end
             obj = obj.init(varargin{:});
         end
         %
@@ -639,6 +642,11 @@ classdef AxesBlockBase < serializable
         % main setter for image range. Overloadable for different kind
         % of axes blocks.
         obj = check_and_set_img_range(obj,val);
+        % defines bins used when default constructor with dimensions only is called.
+        pbin = default_pbin(obj,ndim)
+        % takes binning parameters converts it into axis binning for the
+        % given axes
+        [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
     end
     %======================================================================
     methods(Access=protected)
@@ -665,6 +673,30 @@ classdef AxesBlockBase < serializable
                 AxesBlockBase.normalize_binning_input(...
                 grid_size,pix_coord_transf,n_argout,varargin{:});
         end
+        function obj = set_axis_bins(obj,ndims,p1,p2,p3,p4)
+            % Calculates and sets plot and integration axes from binning information
+            %
+            %   >> obj=set_axis_bins_(obj,p1,p2,p3,p4)
+            % where the routine sets the following object fields:
+            % iax,iint,pax,p and dax
+            %
+            % Input:
+            % ------
+            %   p1,p2,p3,p4 Binning descriptions
+            %               - [pcent_lo,pstep,pcent_hi] (pcent_lo<=pcent_hi; pstep>0)
+            %               - [pint_lo,pint_hi]         (pint_lo<=pint_hi)
+            %               - [pint]                    (interpreted as [pint,pint]
+            %               - [] or empty               (interpreted as [0,0]
+            %               - scalar numeric cellarray  (interpreted as bin boundaries)
+            %
+            % Output:
+            % -------
+            %   Sets up img_range and nbin_all_dim parameters of the axes block, which
+            %   in turn define all axes block parameters
+
+            obj=set_axis_bins_(obj,ndims,p1,p2,p3,p4);
+        end
+        
     end
     %----------------------------------------------------------------------
     methods(Static)

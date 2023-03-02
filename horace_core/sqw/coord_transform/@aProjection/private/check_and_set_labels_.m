@@ -2,9 +2,9 @@ function obj = check_and_set_labels_(obj,val)
 % Verify and set up aProjection labels if validation is successful.
 % throws invalid argument if not
 if iscell(val) && numel(val) == 4
-    if ~all(cellfun(@is_string,val,'UniformOutput',true))
+    if ~all(cellfun(@istext,val,'UniformOutput',true))
         error('HORACE:aProjection:invalid_argument',...
-            'all labels has to be strings')
+            'all labels has to be a text strings')
     end
     obj.label_ = val(:)';
 else

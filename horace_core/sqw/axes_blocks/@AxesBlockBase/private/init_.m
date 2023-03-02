@@ -25,9 +25,8 @@ if nargi==1
                 'Numeric input must be 0,1,2,3 or 4 to create empty dataset');
         end
 
-        rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
-        pbin=[repmat({[0,1]},1,ndim),rest];
-        obj = set_axis_bins_(obj,ndim,pbin{:});
+        pbin = obj.default_pbin(ndim);
+        obj = obj.set_axis_bins(ndim,pbin{:});
     elseif iscell(varargin{1}) && numel(varargin{1})==4 % input is the array of binning parameters
         obj = set_axis_bins_([],varargin{1}{:});
     else
@@ -50,7 +49,7 @@ elseif nargi>= 4 % Either binning parameters (first 4) or default serializable
                 argi = argi(~is_present);
             end
         end
-        obj = set_axis_bins_(obj,[],pbin{:});
+        obj = obj.set_axis_bins([],pbin{:});        
     else
         argi  = varargin;
     end
