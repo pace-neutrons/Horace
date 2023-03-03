@@ -90,7 +90,7 @@ classdef spher_proj<aProjection
                     opt,false,varargin{:});
                 if ~isempty(remains)
                     error('HORACE:spher_proj:invalid_argument',...
-                        'The parameters: "%s" provided as input to spher_proj initialization have not been recognized',...
+                        'The parameters: "%s" provided as input to spher_proj constructor initialization have not been recognized',...
                         disp2str(remains));
                 end
             end
@@ -101,6 +101,12 @@ classdef spher_proj<aProjection
         end
         function obj = set.ez(obj,val)
             val = aProjection.check_and_brush3vector(val);
+            if any(val ~= [0,0,1])
+                warning('HORACE:spher_proj:not_implemented', ...
+                    'changes in beam-axis direction is not yet implemented')
+                val = [0,0,1];
+            end
+
             obj.ez_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
@@ -112,6 +118,12 @@ classdef spher_proj<aProjection
         end
         function obj = set.ey(obj,val)
             val = aProjection.check_and_brush3vector(val);
+            if any(val ~= [0,1,0])
+                warning('HORACE:spher_proj:not_implemented', ...
+                    'changes in rotation-axis direction is not yet implemented')
+                val = [0,1,0];
+            end
+            
             obj.ey_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
