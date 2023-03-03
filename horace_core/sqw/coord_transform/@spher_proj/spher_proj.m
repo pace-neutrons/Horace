@@ -41,9 +41,12 @@ classdef spher_proj<aProjection
         % For the future. See if we want spherical projection in hkl,
         % non-orthogonal
         %orhtonormal_ = true;
-        hor2matlab_transf_ = [0,0,1;1,0,0;0,1,0]; % The transformation from
-        % Horace pixel coordinate system to the axes above to
-        % allow to use Matlab sph2cart/cart2sph functions.
+        hor2matlab_transf_ = ...
+            [0,0,1;... % The transformation from
+            1 ,0,0;... % Horace pixel coordinate system to the axes above to
+            0 ,1,0];   % allow to use Matlab sph2cart/cart2sph functions.  
+
+
         pix_to_matlab_transf_ ; % the transformation used for conversion
         % from pix coordinate system to spherical coordinate system
         % if unit vectors are the default, it equal to hor2matlab_transf_.
@@ -161,9 +164,9 @@ classdef spher_proj<aProjection
         function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
             % return the axes block, corresponding to this projection class.
             ax_bl = get_proj_axes_block@aProjection(obj,default_binning_ranges,req_binning_ranges);
-            ax_bl.angles_in_rad = axes_bl.type(2:3);
+            ax_bl.angular_unit_is_rad = obj.type(2:3);
             %
-            %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear
+            %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear TODO: #954.
         end
 
 

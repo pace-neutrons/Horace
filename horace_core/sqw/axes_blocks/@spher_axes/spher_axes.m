@@ -30,9 +30,10 @@ classdef spher_axes < AxesBlockBase
         % caption.
         capt_units = containers.Map({'a','r','d','e'}, ...
             {[char(197),'^{-1}'],'rad','^{o}','mEv'})
-        default_img_range_ = [0,-90,-180,0;...
-            1,90,180,1]; % the range, a object defined with dimensions
-        % only would have
+        default_img_range_ = ...
+            [0,  0,-180,0;...  % the range, a object defined with dimensions
+            1 ,180, 180,1];    % only would have
+
     end
     properties(Dependent)
         % if angular dimensions of the axes are expressed in radians or degrees
@@ -72,9 +73,12 @@ classdef spher_axes < AxesBlockBase
             %                                       from binning parameters
             %
 
+            obj.max_img_range_ = ...
+                [0 ,  0,-180,-inf;...
+                inf,180, 180, inf];
             % empty spherical range:
-            obj.img_range_ = [inf,90,180,inf;0,-90,-180,-inf];
-            obj.max_img_range_ = [-inf,-90,-180,-inf;inf,90,180,inf];            
+            obj.img_range_ = [obj.max_img_range_(2,:);obj.max_img_range_(1,:)];
+
             obj.label = {'|Q|','\theta','\phi','En'};
             obj.changes_aspect_ratio_ = false;
             if nargin == 0

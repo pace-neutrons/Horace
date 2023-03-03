@@ -18,9 +18,9 @@ ndim = size(pix_data,1);
 
 %
 if ndim == 3
-    pix_cc= (bsxfun(@plus,[x;y;z]'/rot_to_img',offset))';
+    pix_cc= (bsxfun(@plus,[x;y;z]'/rot_to_img,offset))';
 else
-    pix_cc= (bsxfun(@plus,[x;y;z;pix_data(4,:)]'/rot_to_img',offset))';    
+    pix_cc= (bsxfun(@plus,[x;y;z;pix_data(4,:)]'/rot_to_img,offset))';    
 end
 
 

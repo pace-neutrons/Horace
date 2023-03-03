@@ -10,9 +10,9 @@ if ~obj.img_range_set_
     end
 end
 range = obj.img_range;
-% check if teta is in range [-pi/2; pi/2] and throw if the value is outside
+% check if teta is in range [0; pi] and throw if the value is outside
 % of this interval
-check_angular_range(range(:,2),obj.angular_unit_is_rad_(1),[-pi/2,pi/2]);
+check_angular_range(range(:,2),obj.angular_unit_is_rad_(1),[0 ,pi]);
 % check if phi is in range [-pi; pi] and transform any other value into
 % of this interval
 check_angular_range(range(:,3),obj.angular_unit_is_rad_(2),[-pi,pi]);

@@ -3,7 +3,7 @@ classdef aProjectionTester < aProjection
     %----------------------------------------------------------------------
     properties(Access=protected)
     end
-    
+
     methods
         function [proj,extra_param]=aProjectionTester(varargin)
             proj = proj@aProjection();
@@ -23,15 +23,26 @@ classdef aProjectionTester < aProjection
         function pix_cc = transform_pix_to_img(~,pix_cc,varargin)
             % Transform pixels expressed in crystal cartezian coordinate systems
             % into image coordinate system
-            
+
         end
         function pix_cc = transform_img_to_pix(~,pix_cc,varargin)
             % Transform pixels expressed in image coordinate coordinate systems
             % into crystal cartezian system
         end
-        
-        
+
+
     end
+    methods(Access = protected)
+        function mat = get_u_to_rlu_mat(obj)
+            % u_to_rlu matrix used to tranfer offset expressed in Crystal Cartesian
+            % into rlu (normally this matrix contans inverse operation)
+            %
+            bm = bmatrix(obj.alatt,obj.angdeg);
+            mat = inv(bm);
+            mat = [mat,zeros(3,1);[0,0,0,1]];
+        end
+    end
+
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
@@ -39,7 +50,7 @@ classdef aProjectionTester < aProjection
             obj = aProjectionTester();
             obj = loadobj@serializable(S,obj);
         end
-    end    
+    end
     %
     methods(Access = protected)
         %

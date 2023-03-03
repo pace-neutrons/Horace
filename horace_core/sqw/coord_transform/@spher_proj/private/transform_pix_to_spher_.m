@@ -28,7 +28,7 @@ end
 [rot_mat,offset,theta_to_ang,phi_to_ang] = obj.get_pix_img_transformation(ndim);
 
 %
-pix_transf= ((bsxfun(@minus,pix_cc,offset'))'*rot_mat')';
+pix_transf= ((bsxfun(@minus,pix_cc,offset'))'*rot_mat)';
 [azimuth,elevation,r] = cart2sph(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:));
 
 if ndim == 4

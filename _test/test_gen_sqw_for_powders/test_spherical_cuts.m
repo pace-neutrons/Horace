@@ -103,11 +103,10 @@ classdef test_spherical_cuts < TestCaseWithSave
             spp = spher_proj;
             spp.type = 'add';
 
-            w2_fine = cut_sqw(obj.sqw_file_fine,spp,[0,0.05,8],[-180,180],[-360,360],1);
-            w2_coars = cut_sqw(obj.sqw_file_coarse,spp,[0,0.05,8],[0,180],[-180,180],1);
+            w2_fine  = cut_sqw(obj.sqw_file_fine  ,spp,[0,0.05,8],[0,180],[-180,180],[-10,95]);            
+            w2_coars = cut_sqw(obj.sqw_file_coarse,spp,[0,0.05,8],[0,180],[-180,180],[-10,95]);            
 
-
-            assertEqualToTol(w2_fine,w2_coars,'ignore_str',true);
+            assertEqualToTol(w2_fine,w2_coars,1.e-8,'ignore_str',true);
         end
 
         function obj = test_spher_cut_2D_ThetaPhi_fineEqCoarse(obj)
@@ -117,7 +116,7 @@ classdef test_spherical_cuts < TestCaseWithSave
             spp = spher_proj;
             spp.type = 'add';
 
-            w2_fine = cut_sqw(obj.sqw_file_fine,spp,[0,8],[0,1,180],[-180,1,180],[-10,90]);
+            w2_fine  = cut_sqw(obj.sqw_file_fine,  spp,[0,8],[0,1,180],[-180,1,180],[-10,90]);
             w2_coars = cut_sqw(obj.sqw_file_coarse,spp,[0,8],[0,1,180],[-180,1,180],[-10,90]);
 
             assertEqualToTol(w2_fine,w2_coars,'ignore_str',true);

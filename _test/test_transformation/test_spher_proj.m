@@ -29,7 +29,11 @@ classdef test_spher_proj<TestCase
         function test_coord_transf_4D_plus_offset(~)
             proj = spher_proj();
             proj.offset = [1,2,3,4];
-            pix0 = [100,0,0,1;0,10,0,1;0,0,1,1;10,10,10,10];
+            pix0 = ...
+                [100, 0, 0, 1;...
+                0   ,10, 0, 1;...
+                0,    0, 1, 1;...
+                10 , 10,10,10];
 
             sph  = proj.transform_pix_to_img(pix0);
             pix_rec = proj.transform_img_to_pix(sph);
@@ -69,16 +73,21 @@ classdef test_spher_proj<TestCase
             proj = spher_proj();
             proj.type = "arr";
 
-            pix0 = [10,-10,  0,   0,  0,  0;...
-                0 ,  0, 10, -10,  0,  0;...
-                0 ,  0,  0,   0, 10,-10];
+            pix0 = ...
+                [10,-10, 0,   0,  0,  0, 0;...
+                0 ,  0, 10, -10,  0,  0, -1;...
+                0 ,  0,  0,   0, 10,-10, -1];
 
             sph  = proj.transform_pix_to_img(pix0);
 
-            sam_ranges = [10,10,10,10,10,10;...
-                pi/2, pi/2,0,pi,pi/2, pi/2;... % Theta ranges [0 : pi]
-                pi/2,-pi/2,0, 0,   0, pi];     % phi ranges   [-pi:pi]
+            sam_ranges = ...
+                [10,  10,  10,   10,   10, 10 , sqrt(2);...
+                0  ,  pi, pi/2,pi/2, pi/2, pi/2, pi/2   ;... % Theta ranges [ 0 : pi]
+                0  ,   0,  0,  pi,   pi/2,-pi/2,  -3*pi/4];   % phi ranges   [-pi: pi]
             assertElementsAlmostEqual(sph,sam_ranges);
+
+            pixr  = proj.transform_img_to_pix(sph);
+            assertElementsAlmostEqual(pixr,pix0);
 
         end
 

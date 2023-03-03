@@ -163,14 +163,22 @@ function  axes = build_ax_with_halo(range,axes)
 % Build axes with halo which does not exceed
 % the allowed image ranges
 %
-step = abs(axes(2)-axes(1));
+step    = abs(axes(2)-axes(1));
 min_pos = axes(1)-step;
 if min_pos < range(1)
-    min_pos = range(1);
+    if abs(range(1))<eps
+        min_pos = -eps;
+    else
+        min_pos = range(1)*(1+eps);
+    end
 end
 max_pos = axes(end)+step;
 if max_pos > range(2)
-    max_pos = range(2);
+    if abs(range(2))<eps
+        max_pos = eps;
+    else
+        max_pos = range(2)*(1+eps);
+    end
 end
 axes = [min_pos,axes(:)',max_pos];
 
