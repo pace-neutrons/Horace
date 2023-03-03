@@ -43,7 +43,7 @@ classdef test_eval < TestCase
             pix = ds.pix;
 
             assertEqual(sig(1), pix.signal(1));
-            assertEqual(pix.signal(1), 36);
+            assertEqual(pix.signal(1), 210);
         end
 
         function test_sqw_eval(obj)

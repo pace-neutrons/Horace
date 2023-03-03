@@ -122,15 +122,10 @@ classdef test_sqw_eval < TestCase & common_state_holder
         end
 
         function test_output_is_file_if_filebacked_true_and_pix_in_memory(obj)
-            out_sqw_file = sqw_eval( ...
+            out_sqw = sqw_eval( ...
                 obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, 'filebacked', true ...
                 );
-            tmp_file_cleanup = onCleanup(@() clean_up_file(out_sqw_file));
 
-            assertTrue(ischar(out_sqw_file));
-            assertTrue(is_file(out_sqw_file));
-
-            out_sqw = sqw(out_sqw_file);
             assertEqualToTol( ...
                 out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date' ...
@@ -158,29 +153,6 @@ classdef test_sqw_eval < TestCase & common_state_holder
                 );
         end
 
-        function test_result_written_to_file_if_outfile_argument_given(obj)
-            tmp_path = gen_tmp_file_path();
-            sqw_eval( ...
-                obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params, ...
-                'outfile', tmp_path...
-                );
-            tmp_file_cleanup = onCleanup(@() clean_up_file(tmp_path));
-
-            assertTrue(is_file(tmp_path));
-        end
-
-        function test_sqw_object_returned_if_outfile_argument_given(obj)
-            tmp_path = gen_tmp_file_path();
-            out_sqw = sqw_eval( ...
-                obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params, ...
-                'outfile', tmp_path...
-                );
-            tmp_file_cleanup = onCleanup(@() clean_up_file(tmp_path));
-
-            assertTrue(is_file(tmp_path));
-            assertTrue(isa(out_sqw, 'sqw'));
-        end
-
         function test_gauss_on_cell_of_sqw_files_matches_reference_file(obj)
             sqws_in = {obj.sqw_2d_file_path, obj.sqw_2d_file_path};
 
@@ -201,18 +173,11 @@ classdef test_sqw_eval < TestCase & common_state_holder
                 'use_mex', false ...
                 );
 
-            out_sqw_file = sqw_eval( ...
+            out_sqw = sqw_eval( ...
                 obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params, ...
                 'filebacked', true ...
                 );
-            tmp_file_cleanup = onCleanup(@() clean_up_file(out_sqw_file));
 
-            assertTrue(isa(out_sqw_file, 'char'));
-            assertTrue(is_file(out_sqw_file));
-
-            out_sqw = sqw(out_sqw_file);
-            % Old filebased file does not correctly recalculate contributing pixes. See
-            % skip message
             ref_obj = obj.sqw_2d_sqw_eval_ref_obj;
             out_sqw.main_header.nfiles = ref_obj.main_header.nfiles;
             out_sqw.experiment_info = ref_obj .experiment_info;
@@ -221,44 +186,9 @@ classdef test_sqw_eval < TestCase & common_state_holder
                 out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date' ...
                 );
-            skipTest('PAGED SQW: this test uses paged sqw file, which then saved into final SQW. This needs to be fixed; Ticket #928')
-        end
-
-        function test_output_is_given_outfile_if_filebacked_true(obj)
-            conf_cleanup = set_temporary_config_options( ...
-                hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size ...
-                );
-
-            outfile = gen_tmp_file_path();
-            out_sqw_file = sqw_eval( ...
-                obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params, ...
-                'filebacked', true, 'outfile', outfile ...
-                );
-            tmp_file_cleanup = onCleanup(@() clean_up_file(out_sqw_file));
-
-            assertTrue(isa(out_sqw_file, 'char'));
-            assertEqual(out_sqw_file, outfile);
-            assertTrue(is_file(out_sqw_file));
-        end
-
-        function test_output_written_to_outfile_if_filebacked_and_no_argout(obj)
-            conf_cleanup = set_temporary_config_options( ...
-                hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size ...
-                );
-
-            outfile = gen_tmp_file_path();
-            sqw_eval( ...
-                obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params, ...
-                'filebacked', true, 'outfile', outfile ...
-                );
-            tmp_file_cleanup = onCleanup(@() clean_up_file(outfile));
-
-            assertTrue(isa(outfile, 'char'));
-            assertTrue(is_file(outfile));
         end
 
         function test_gauss_on_sqw_w_filebacked_and_ave_equal_to_in_memory(obj)
-            skipTest('The functionality is currently broken. Ticket #844, may be #928')
             conf_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size ...
                 );
@@ -267,21 +197,16 @@ classdef test_sqw_eval < TestCase & common_state_holder
             % file-backed.
             % We test that the in-memory is correct in:
             % test_calling_with_average_flag_sets_each_pix_signal_to_average
-            out_sqw_file = sqw_eval( ...
+            out_sqw = sqw_eval( ...
                 obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params, ...
                 'average', true, 'filebacked', true ...
                 );
-            tmp_file_cleanup = onCleanup(@() clean_up_file(out_sqw_file));
 
-            assertTrue(isa(out_sqw_file, 'char'));
-
-            out_sqw = sqw(out_sqw_file);
             ref_out_sqw = sqw_eval( ...
                 obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, ...
                 'average', true ...
                 );
-            % Old filebased file does not correctly recalculate contributing pixes. See
-            % skip message
+
             out_sqw.main_header.nfiles = ref_out_sqw.main_header.nfiles;
             out_sqw.experiment_info = ref_out_sqw.experiment_info;
             assertEqualToTol( ...
@@ -289,7 +214,6 @@ classdef test_sqw_eval < TestCase & common_state_holder
                 'tol', obj.FLOAT_TOL, ...
                 'ignore_str', true,'-ignore_date' ...
                 );
-            skipTest('PAGED SQW: this test uses paged sqw file, which then saved into final SQW. This needs to be fixed')
         end
 
         %% DND tests
