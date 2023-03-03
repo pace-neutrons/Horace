@@ -1,4 +1,4 @@
-function  obj=set_raw_fields(obj, data, fields, varargin)
+function  obj=set_raw_fields(obj, data, pix_fields, varargin)
 %SET_RAW_PIXELS Update the data on the given pixel data fields
 %
 % The number of columns in 'data' must be equal to the number of fields in
@@ -21,19 +21,7 @@ function  obj=set_raw_fields(obj, data, fields, varargin)
 %                  updated and 'size(data, 2)' must equal to obj.num_pixels.
 %
 
-if ~exist('pix_fields', 'var')
-    pix_fields = 'all';
-end
-
 [field_indices, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, varargin{:});
-
-if abs_pix_indices == obj.NO_INPUT_INDICES
-    if size(data, 2) == 1
-        abs_pix_indices = 1:obj.num_pixels;
-    else
-        abs_pix_indices = 1:size(data,2);
-    end
-end
 
 if ~obj.read_only
     obj.f_accessor_.Data.data(field_indices, abs_pix_indices) = single(data);

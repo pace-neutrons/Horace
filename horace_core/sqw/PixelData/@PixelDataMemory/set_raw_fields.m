@@ -26,16 +26,6 @@ NO_INPUT_INDICES = -1;
 
 [field_indices, abs_pix_indices] = obj.parse_set_fields_args(pix_fields, data, varargin{:});
 
-if abs_pix_indices == NO_INPUT_INDICES
-    if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && ...
-            ischar(pix_fields) && strcmp(pix_fields,'all')
-        obj.data_   = data; % all arguments have been already verified,
-        %            no point of using data_ setter
-    else
-        obj.data_(field_indices, 1:end) = data;
-    end
-else
-    obj.data_(field_indices, abs_pix_indices) = data;
-end
+obj.data_(field_indices, abs_pix_indices) = data;
 
 end  % function

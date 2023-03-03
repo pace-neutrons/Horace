@@ -748,7 +748,7 @@ classdef (Abstract) PixelDataBase < serializable
             end
         end
 
-        function [pix_fields, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, varargin)
+        function [pix_fields, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, abs_pix_indices)
         % process set_fields arguments and return them in standard form suitable for
         % usage in filebased and memory based classes
             if isempty(pix_fields) || ~(iscellstr(pix_fields) || istext(pix_fields))
@@ -760,6 +760,9 @@ classdef (Abstract) PixelDataBase < serializable
                 error('HORACE:PixelDataBase:invalid_argument', ...
                       'data must be numeric array');
             end
+
+            pix_fields = cellstr(pix_fields);
+            pix_fields = obj.check_pixel_fields(pix_fields);
 
             if exist('abs_pix_indices', 'var')
                 if ~isindex(abs_pix_indices)
@@ -775,14 +778,14 @@ classdef (Abstract) PixelDataBase < serializable
                     error('HORACE:PixelDataBase:invalid_argument', ...
                           'Invalid indices in abs_pix_indices');
                 end
+            elseif isscalar(data) || ...   % Specified as scalar (all) or
+                    isrow(data) && numel(data) == numel(pix_fields) % scalar for each field
+                abs_pix_indices = 1:obj.num_pixels;
             else
-                abs_pix_indices = obj.NO_INPUT_INDICES;
+                abs_pix_indices = 1:size(data,2);
             end
 
-            pix_fields = cellstr(pix_fields);
-            pix_fields = obj.check_pixel_fields(pix_fields);
-
-            if size(data, 1) ~= numel(pix_fields)
+            if ~isscalar(data) && size(data, 1) ~= numel(pix_fields)
                 error('HORACE:PixelDataBase:invalid_argument', ...
                       ['Number of fields in ''pix_fields'' must be equal to number ' ...
                        'of columns in ''data''.\nn_pix_fields: %i, n_data_columns: %i.'], ...
@@ -790,7 +793,7 @@ classdef (Abstract) PixelDataBase < serializable
                      );
             end
 
-            if ~isequal(abs_pix_indices, obj.NO_INPUT_INDICES) && size(data, 2) ~= numel(abs_pix_indices)
+            if ~isrow(data) && size(data, 2) ~= numel(abs_pix_indices)
                 error('HORACE:PixelDataBase:invalid_argument', ...
                       ['Number of indices in ''abs_pix_indices'' must be equal to ' ...
                        'number of rows in ''data''.\nn_pix: %i, n_data_rows: %i.'], ...

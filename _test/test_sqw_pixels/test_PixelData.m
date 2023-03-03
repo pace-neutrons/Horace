@@ -286,7 +286,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         function test_PixelData_set_data_all(~)
             pix_data_obj = PixelDataBase.create();
             data = zeros(9,1);
-            pix_data_obj = pix_data_obj.set_fields(data,'all');
+            pix_data_obj.data = data;
             assertEqual(pix_data_obj.num_pixels,1);
             assertEqual(pix_data_obj.coordinates,zeros(4,1));
 
@@ -534,7 +534,6 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             npix_in_page = 11;
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
-            % set all u1 values in each page to 1
             pix.set_fields(ones(1,12), 'u1');
 
             % check u1 values are set
