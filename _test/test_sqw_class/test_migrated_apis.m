@@ -340,9 +340,9 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
         function test_shift_pixels(obj)
             params = {}; % no parameters required by test shift_rln function
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
-            wout = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, params);
+            wout = shift_pixels(sqw_4d_obj, @test_migrated_apis.shift_rln, params);
 
-            assertEqual(sqw_4d_obj.npixels,wout.npixels);
+            assertEqual(sqw_4d_obj.npixels, wout.npixels);
         end
 
         %% values
