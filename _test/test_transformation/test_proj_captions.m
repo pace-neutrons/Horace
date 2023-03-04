@@ -34,7 +34,7 @@ classdef test_proj_captions<TestCase
             assertTrue(isempty(title_main{1}));
 
             assertEqual(numel(title_pax),2);
-            assertEqual(title_pax{1},'|Q| (Å^{-1})');
+            assertEqual(title_pax{1},['|Q| (',char(197),'^{-1})']);
             assertEqual(title_pax{2},'En (mEv)');
 
             assertEqual(numel(title_iax),2);
@@ -42,7 +42,7 @@ classdef test_proj_captions<TestCase
             assertEqual(title_iax{2},'-180 \leq \phi \leq -180 in ^{o}');
 
             assertEqual(numel(display_pax),2);
-            assertEqual(display_pax{1},'|Q| = 0.08:0.16:7.92 in Å^{-1}');
+            assertEqual(display_pax{1},['|Q| = 0.08:0.16:7.92 in ',char(197)','^{-1}']);
             assertEqual(display_pax{2},'En = -4.6875:0.625:19.6875 in mEv');
 
             assertEqual(numel(display_iax),2);
@@ -70,7 +70,7 @@ classdef test_proj_captions<TestCase
             assertEqual(title_main{2},'My Sample');
 
             assertEqual(numel(title_pax),2);
-            assertEqual(title_pax{2},'[-1+\zeta, 1+\zeta, 1] (Å^{-1})');
+            assertEqual(title_pax{2},['[-1+\zeta, 1+\zeta, 1] (',char(197),'^{-1})']);
             assertEqual(title_pax{1},' (meV)');
 
             assertEqual(numel(title_iax),2);
@@ -101,7 +101,7 @@ classdef test_proj_captions<TestCase
             assertTrue(isempty(title_main{1}));
 
             assertEqual(numel(title_pax),2);
-            assertEqual(title_pax{1},'[\zeta, 2+\zeta, 2] (Å^{-1})');
+            assertEqual(title_pax{1},['[\zeta, 2+\zeta, 2] (',char(197),'^{-1})']);
             assertEqual(title_pax{2},'[0, 0, 0, 1+E] (meV)'); % Re #954 why 0,0,0, why not 1,1,1,1+dE
 
             assertEqual(numel(title_iax),2);
@@ -131,7 +131,7 @@ classdef test_proj_captions<TestCase
             assertTrue(isempty(title_main{1}));
 
             assertEqual(numel(title_pax),2);
-            assertEqual(title_pax{1},'[-1+\zeta, 1+\zeta, 1] (Å^{-1})');
+            assertEqual(title_pax{1},['[-1+\zeta, 1+\zeta, 1] (',char(197),'^{-1})']);
             assertEqual(title_pax{2},' (meV)');
 
             assertEqual(numel(title_iax),2);
