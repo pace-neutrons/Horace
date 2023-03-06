@@ -24,6 +24,4 @@ for i = 1:pix.num_pages
     pix_out.data_ = horzcat(pix_out.data, pix.data);
 end
 
-pix_out.num_pixels_ = pix_out.num_pixels_ + pix.num_pixels;
-
 end
