@@ -21,20 +21,20 @@ else % if pix_input is 4-d, this will use 4-D matrix and shift
     % if its 3-d -- matrix is 3-dimensional and energy is not shifted
     % anyway
     ndim         = size(pix_input,1);
-    pix_cc       = pix_input;    
+    pix_cc       = pix_input;
     input_is_obj = false;
 end
 
-[rot_mat,offset] = obj.get_pix_img_transformation(ndim);
+[rot_mat,offset,theta_to_ang,phi_to_ang] = obj.get_pix_img_transformation(ndim);
 
 %
-pix_transf= ((bsxfun(@minus,pix_cc,offset'))'*rot_mat')';
+pix_transf= ((bsxfun(@minus,pix_cc,offset'))'*rot_mat)';
 [azimuth,elevation,r] = cart2sph(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:));
 
 if ndim == 4
-    pix_transf = [r; pi/2-elevation; azimuth; pix_transf(4,:)];
+    pix_transf = [r; theta_to_ang*(pi/2-elevation); azimuth*phi_to_ang; pix_transf(4,:)];
 else
-    pix_transf = [r; pi/2-elevation; azimuth];
+    pix_transf = [r; theta_to_ang*(pi/2-elevation); azimuth*phi_to_ang];
 end
 if input_is_obj
     if shift_ei

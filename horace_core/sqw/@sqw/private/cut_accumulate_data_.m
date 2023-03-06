@@ -5,7 +5,7 @@ function [s, e, npix, pix_out,unique_runid] = ...
 % Input:
 % ------
 % targ_proj  A 'projection' object, defining the projection of the cut.
-% targ_axes  A 'axes_block' object defining the ranges, binning and geometry
+% targ_axes  A 'AxesBlockBase' object defining the ranges, binning and geometry
 %            of the target cut
 % keep_pixels A boolean defining whether pixel data should be retained. If this
 %            is false return variable 'pix_out' will be empty.

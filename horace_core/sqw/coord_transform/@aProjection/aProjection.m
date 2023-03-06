@@ -36,14 +36,14 @@ classdef aProjection < serializable
         label % the method which allows user to change labels present on a
         %      cut
         %      This is transient property, which would be carried out to
-        %      and stored in the axes_block. If you need to modify the
+        %      and stored in the AxesBlockBase. If you need to modify the
         %      labels on the final cut, you would work rather with the
         %      axes block, but here you may request changed labels when the
         %      projection is provided as input for a cut
         %
         %
         title % this method would allow change cut title if non-empty value
-        %     % is provided for projection
+        %     % is provided to the projection, which defines title
     end
     properties(Dependent,Hidden)
         % Internal properties, used by algorithms and better not to be
@@ -52,6 +52,13 @@ classdef aProjection < serializable
         targ_proj;   % the target projection, used by cut to transform from
         %              source to target coordinate system
         %
+        % Old confusing u_to_rlu matrix value
+        %
+        % Matrix to convert from Crystal Cartesian (pix coordinate system)
+        % to the image coordinate system (normally in rlu, except initially
+        % generated sqw file, when this image is also in Crystal Cartesian)
+        %
+        u_to_rlu
         %------------------------------------------------------------------
         % DEVELOPERS or FINE-TUNNING properties
         %------------------------------------------------------------------
@@ -180,7 +187,7 @@ classdef aProjection < serializable
                 targ_axes_block,targ_proj)
             % return the positions and the sizes of the pixels blocks
             % belonging to the cells which may contribute to the final cut.
-            % The cells are defined by the projections and axes_block-s,
+            % The cells are defined by the projections and axes block-s,
             % provided as input.
             %
             % Generic (less efficient) implementation
@@ -263,8 +270,12 @@ classdef aProjection < serializable
             end
             obj.title_ = val;
         end
+        function mat = get.u_to_rlu(obj)
+            %
+            mat = get_u_to_rlu_mat(obj);
+        end
 
-        %
+        %----------------------------------------------------------------
         function obj = set.lab1(obj,val)
             obj = set_lab_component_(obj,1,val);
         end
@@ -277,7 +288,7 @@ classdef aProjection < serializable
         function obj = set.lab4(obj,val)
             obj = set_lab_component_(obj,4,val);
         end
-        %------------------------------------------------------------------
+        %----------------------------------------------------------------
         function proj = get.targ_proj(obj)
             proj = obj.get_target_proj();
         end
@@ -311,7 +322,7 @@ classdef aProjection < serializable
             % by the axes block, specified as input.
             %
             % Inputs:
-            % axes -- the instance of axes_block class defining the
+            % axes -- the instance of AxesBlockBase class defining the
             %         shape and the binning of the target coordinate system
             % pix_cand
             %      -- PixelData object or pixel data accessor from file
@@ -352,7 +363,7 @@ classdef aProjection < serializable
             %           follow up sorting of data by the bins is expected
             %
             % Optional arguments transferred without any change to
-            % axes_block.bin_pixels( ____ ) routine
+            % AxesBlockBase.bin_pixels( ____ ) routine
             %
             % '-nomex'    -- do not use mex code even if its available
             %               (usually for testing)
@@ -423,11 +434,11 @@ classdef aProjection < serializable
         %
         function ax_bl = get_proj_axes_block(obj,def_bin_ranges,req_bin_ranges)
             % Construct the axes block, corresponding to this projection class
-            % Returns generic axes_block, built from the block ranges or the
+            % Returns generic AxesBlockBase, built from the block ranges or the
             % binning ranges.
             %
             % Usually overloaded for specific projection and specific axes
-            % block to return the particular axes_block specific for the
+            % block to return the particular AxesBlockBase specific for the
             % projection class.
             %
             % Inputs:
@@ -437,16 +448,19 @@ classdef aProjection < serializable
             %           infinite. Usually it is the range of the existing
             %           axes block, transformed into the system
             %           coordinates, defined by obj projection by
-            %           axes_block.get_binning_range method.
+            %           AxesBlockBase.get_binning_range method.
             % req_bin_ranges --
             %           cellarray of bin ranges, requested by user.
             %
             % Returns:
             % ax_bl -- initialized, i.e. containing defined ranges and
-            %          numbers of  bins in each direction, axes_block
+            %          numbers of  bins in each direction, AxesBlockBase
             %          corresponding to the projection
-            ax_bl = axes_block.build_from_input_binning(...
-                def_bin_ranges,req_bin_ranges);
+            cl_name = class(obj);
+            cl_type = split(cl_name,'_');
+            proj_class_name = [cl_type{1},'_axes'];
+            ax_bl = AxesBlockBase.build_from_input_binning(...
+                proj_class_name,def_bin_ranges,req_bin_ranges);
             ax_bl.label = obj.label;
             if ~isempty(obj.title)
                 ax_bl.title = obj.title;
@@ -642,6 +656,11 @@ classdef aProjection < serializable
         % into crystal Cartesian system or other source coordinate system,
         % defined by projection
         [pix_cc,varargout] = transform_img_to_pix(obj,pix_transformed,varargin);
+    end
+    methods(Abstract,Access=protected)
+        % function returns u_to_rlu matrix for appropriate coordinate
+        % system
+        mat = get_u_to_rlu_mat(obj);        
     end
     %======================================================================
     % Serializable interface

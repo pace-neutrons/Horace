@@ -1,7 +1,7 @@
 function ndims = found_dims_(varargin)
 % Found number of dimensions from the dnd method inputs
 if (nargin>1)
-    has_dims = cellfun(@(x)(isa(x,'axes_block')||isa(x,'SQWDnDBase')||...
+    has_dims = cellfun(@(x)(isa(x,'AxesBlockBase')||isa(x,'SQWDnDBase')||...
         isa(x,'dnd_metadata')||isa(x,'dnd_data')),varargin);
     if any(has_dims)
         dim_id = find(has_dims,1);
@@ -18,13 +18,13 @@ else
             %                     elseif isfield(varargin{1},'')
         else
             error('HORACE:DnDBase:invalid_argument',...
-                'can not indentify the dimensions of the input data');
+                'can not identify the dimensions of the input data');
         end
     elseif isa(varargin{1},'SQWDnDBase')
         ndims = varargin{1}.dimensions;
     else
         error('HORACE:DnDBase:invalid_argument',...
-            'Can not extract number of dimensions from the input of class: %s.\n Sqw stucture or SQWDnDBase instace input requested',...
+            'Can not extract number of dimensions from the input of class: %s.\n Sqw structure or SQWDnDBase instance input requested',...
             class(varargin{1}));
     end
 end

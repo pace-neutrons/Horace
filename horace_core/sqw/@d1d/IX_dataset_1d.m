@@ -12,10 +12,7 @@ if numel(w)>1
 end  % allocate array
 
 for i=1:numel(wout)
-    title_fun_calc = w(i).axes.axis_caption;
-    
-    [title_main, title_pax] = title_fun_calc.data_plot_titles(w(i));   % note: axes annotations correctly account for permutation in w.data_.dax
-    
+    [title_main, title_pax]  = w(i).data_plot_titles();
 
     s_axis = IX_axis ('Intensity');
     x_axis = IX_axis (title_pax{1});

@@ -9,15 +9,15 @@ if ~(isnumeric(val) && numel(val) ==3)
         disp2str(val))
 end
 cand = val(:)'; % make it row vector
+%
+% brush small values:
 is_small = abs(cand)<aProjection.tol_;
 if any(is_small)
     if all(is_small)
         error('HORACE:aProjection:invalid_argument',...
             'Input can not be a 0-vector: [%g,%g,%g] with all components smaller then tol = %g',...
             cand(1),cand(2),cand(3),aProjection.tol_)
-    else
-        cand(is_small) = 0;
     end
+    cand(is_small) = 0;
 end
 val = cand;
-

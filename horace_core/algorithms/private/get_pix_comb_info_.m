@@ -12,7 +12,7 @@ function  [data_sum,img_range,job_disp]=get_pix_comb_info_(infiles, ...
 % location to write
 %
 % Inputs:
-% infiles  -- cellarry of tmp sqw files to process
+% infiles  -- cellarray of tmp sqw files to process
 % job_disp -- the instance of initialized job dispatcher class,
 %             connected to running cluster job if the algorithm is supposed
 %             to be run in parallel. If this value is not empty, the
@@ -26,11 +26,11 @@ function  [data_sum,img_range,job_disp]=get_pix_comb_info_(infiles, ...
 %          -- if true, check for different headers is not run,
 %             and the runs with the same parameters are allowed
 % keep_runid
-%          -- if true, the runid-s attached to each experient are left
+%          -- if true, the runid-s attached to each experiment are left
 %             as they are. If false, all run numbers are redefined to be
 %             from 1-number of runs.
 % drop_subzone_headers
-%          -- currently depricated. Will be removed in the future
+%          -- currently deprecated. Will be removed in the future
 %
 
 combine_in_parallel = ~isempty(job_disp);
@@ -115,7 +115,7 @@ if isa(datahdr{1},'dnd_metadata')
     ab = datahdr{1}.axes;
     proj = datahdr{1}.proj;
 else
-    ab = axes_block.get_from_old_data(datahdr{1});
+    ab = ortho_axes.get_from_old_data(datahdr{1});
     proj = ortho_proj.get_from_old_data(datahdr{1});
 end
 sqw_data = DnDBase.dnd(ab,proj);

@@ -132,8 +132,8 @@ function [targ_ax_block,targ_proj] = define_target_axes_block(img_block, targ_pr
 source_proj = img_block.proj;
 %--------------------------------------------------------------------------
 % Get the source binning ranges, transformed into target coordinate system.
-% It is actually axes_block method, so source projection is provided as
-% input of this method. Left in this form unil data_sqw_dnd is a axes_block
+% It is actually AxesBlockBase method, so source projection is provided as
+% input of this method. Left in this form until data_sqw_dnd is a AxesBlockBase
 source_binning = img_block.axes.get_binning_range(...
     source_proj,targ_proj);
 %
