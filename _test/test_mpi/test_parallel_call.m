@@ -24,7 +24,6 @@ classdef test_parallel_call < TestCase
             pc = parallel_config();
             obj.stored_par = pc.get_data_to_store();
 
-
         end
 
         function tearDown(obj)
@@ -67,6 +66,19 @@ classdef test_parallel_call < TestCase
             assertEqual(ser.data.s, par.data.s)
             assertEqual(ser.pix.signal, par.pix.signal)
         end
+
+        function test_parallel_call_dummy_mpi_sqw_eval(obj)
+            pc = parallel_config();
+            pc.parallel_cluster = 'dummy';
+            pc.parallel_workers_number = 1;
+
+            ser = obj.sqw_obj.sqw_eval(@obj.sqw_eval_tester, {});
+            par = parallel_call(@sqw_eval, {obj.sqw_obj, @obj.sqw_eval_tester, {}});
+
+            assertEqual(ser.data.s, par.data.s)
+            assertEqual(ser.pix.signal, par.pix.signal)
+        end
+
     end
 
     methods(Static)

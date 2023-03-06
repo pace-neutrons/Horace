@@ -1,48 +1,88 @@
 function  contrib_ind = get_contrib_cell_ind_(source_proj,...
-    cur_axes_block,targ_proj,targ_axes_block)
-% return the indexes of cells, which may contain
-% the nodes, belonging to the target axes block
+    cur_axes_block,~,targ_axes_block)
+% Return the indexes of cells, which may contain the nodes,
+% belonging to the target axes block by transforming the source
+% coordinate system (SCS) into target coordinate system (TCS)
+% and interpolating signal on SCS nodes assuming target coordinate system 
+% area contains unit signal and signal on SCS is interpolated from unary 
+% values on TCS and zero values outside of TCS.
 %
+% NOTE: may be incorrect if source grid cells are much larger then the
+% target grid cells or target grid covers small internal part of the source
+% grid. TODO: modify for this case.
 
-if isempty(targ_proj)
-    targ_proj = source_proj.targ_proj;
-end
-% Get the hypercube, which equal to minimal cell of the current grid
-% described by axes_block class.
-ch_cube = cur_axes_block.get_axes_scales();
-% and convert it into the target coordinate system assuming cube originates
-% from the centre of coordinates of the target coordinate system.
-%
-% TODO: investigate, if this is the best solution:
-% Make it half of real size to ensure at least one current grid cell point
-% appears in every grid cell of the target grid
-trans_chcube = 0.5*source_proj.from_this_to_targ_coord(ch_cube);
-
-% get all nodes belonging to target axes block, doing the
-% binning with the bin size, slightly smaller then the current
-% lattice size
+% build bin edges for the target grid and bin centres for reference grid
 if source_proj.do_3D_transformation_
-    [bin_nodes,dEnodes] = targ_axes_block.get_bin_nodes(trans_chcube,'-3D','-halo');
-    bin_range = targ_axes_block.img_range;
-    [any_inside,e_inside] = axes_block.bins_in_1Drange(dEnodes,bin_range(:,4));
-    if ~any_inside
+    [targ_nodes,dEnodes] = targ_axes_block.get_bin_nodes('-3D','-ngrid','-halo');
+    [ch_grid,baseEdges]  = cur_axes_block.get_bin_nodes('-bin_centre','-3D');
+    targ_grid_present = ones(size(dEnodes));
+    targ_grid_present = nullify_edges(targ_grid_present,size(dEnodes));    
+    nodes_near = interp1(dEnodes,targ_grid_present,baseEdges,'linear',0);
+    may_contribute = nodes_near>0;
+    if ~any(may_contribute)
         contrib_ind = [];
         return;
     end
 else
-    bin_nodes = targ_axes_block.get_bin_nodes(trans_chcube,'-halo');
+    targ_nodes = targ_axes_block.get_bin_nodes('-ngrid','-halo');
+    ch_grid = cur_axes_block.get_bin_nodes('-bin_centre');
 end
-% convert these nodes to the coordinate system, described by
-% the existing projection
-nodes_here = targ_proj.from_this_to_targ_coord(bin_nodes);
-% bin target nodes on the current lattice and return numbers of bins
-% contributed into lattice.
-nbin_in_bin = cur_axes_block.bin_pixels(nodes_here);
-%
-% identify cell indexes containing nodes
+% define unit signal on the edges of the target grid and zeros at "halo"
+% points surrounding the target grid
+szn = size(targ_nodes{1});
+targ_grid_present = ones(szn);
+targ_grid_present = nullify_edges(targ_grid_present,szn);
+
+% convert the coordinates of the bin centres of the reference grid into
+% the coordinate system of the target grid.
+conv_grid = source_proj.from_this_to_targ_coord(ch_grid);
+
+% find the presence of the reference grid centres within the target grid
+% cells.
 if source_proj.do_3D_transformation_
+    interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_grid_present,...
+        conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)', 'linear',0);
+
     contrib_ind = source_proj.convert_3Dplus1Ind_to_4Dind_ranges(...
-        nbin_in_bin(:)>0,e_inside);
+        interp_ds(:)>eps(single(1)),may_contribute);
 else
-    contrib_ind = find(nbin_in_bin>0);
+    interp_ds = interpn(targ_nodes{1},targ_nodes{2},targ_nodes{3},targ_nodes{4},targ_grid_present,...
+        conv_grid(1,:)',conv_grid(2,:)',conv_grid(3,:)',conv_grid(4,:)', 'linear',0);
+    contrib_ind = find(interp_ds > eps(single(1)));
+end
+
+function mat = nullify_edges(mat,sze)
+% Ugly. Can it be done better?
+n_dim = numel(sze);
+if numel(sze) == 2 && any(sze == 1)
+    n_dim = 1;
+end
+switch n_dim
+    case 1
+        mat(1) = 0;
+        mat(end)=0;
+    case 2
+        mat(1,:)  = 0;
+        mat(end,:)= 0;
+        mat(:,1)  = 0;
+        mat(:,end)= 0;
+    case 3
+        mat(1,:,:)  = 0;
+        mat(end,:,:)= 0;
+        mat(:,1,:)  = 0;
+        mat(:,end,:)= 0;
+        mat(:,:,1)  = 0;
+        mat(:,:,end)= 0;
+    case 4
+        mat(1,:,:,:)  = 0;
+        mat(end,:,:,:)= 0;
+        mat(:,1,:,:)  = 0;
+        mat(:,end,:,:)= 0;
+        mat(:,:,1,:)  = 0;
+        mat(:,:,end,:)= 0;
+        mat(:,:,:,1)  = 0;
+        mat(:,:,:,end)= 0;
+    otherwise
+        error('HORACE:aProjection:unsupported_number_of_dimensions',...
+            'Can not process %d dimensions',n_dim);
 end

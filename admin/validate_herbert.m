@@ -22,6 +22,9 @@ function err = validate_herbert(varargin)
 % '-exit_on_completion'  exit Matlab when the tests are completed.
 %               This option is useful when running tests from
 %               a script or continuous integration tools.
+%
+% '-no_system_tests' Do not run MPI tests if present
+%
 % Returns:
 %   err -- 0 if tests are successful and -1 if some tests have failed
 
@@ -65,19 +68,11 @@ else % No tests specified on command line - run them all
         'test_geometry',...
         'test_xunit_framework', ...
         'test_mpi_wrappers', ...
-        'test_mpi/test_ParpoolMPI_Framework', ...
-        'test_mpi/test_job_dispatcher_herbert', ...
-        'test_mpi/test_job_dispatcher_mpiexec', ...
-        'test_mpi/test_job_dispatcher_parpool', ...
-        'test_mpi/test_job_dispatcher_slurm' ...
+        'test_mpi'
         };
 end
 system_tests = { ...
-    'test_mpi/test_ParpoolMPI_Framework', ...
-    'test_mpi/test_job_dispatcher_herbert', ...
-    'test_mpi/test_job_dispatcher_mpiexec', ...
-    'test_mpi/test_job_dispatcher_parpool', ...
-    'test_mpi/test_job_dispatcher_slurm' ...
+    'test_mpi'
     };
 if no_system
     no_sys = ~ismember(test_folders,system_tests);
@@ -139,7 +134,7 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
         end
         matlabpool(cores);
     end
-    
+
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
     parfor i = 1:numel(test_folders_full)
@@ -160,7 +155,7 @@ else
     %     end
     %     tests_ok = all(test_ok);
     bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
-    
+
 end
 
 if tests_ok

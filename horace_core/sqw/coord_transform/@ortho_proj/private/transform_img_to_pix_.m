@@ -10,7 +10,7 @@ function pix_cc = transform_img_to_pix_(obj,pix_data)
 %           system
 
 ndim = size(pix_data,1);
-[rot_to_img,shift]=obj.get_pix_img_transformation(ndim);
+[rot_to_img,offset]=obj.get_pix_img_transformation(ndim);
 %
-pix_cc= (bsxfun(@plus,pix_data'/rot_to_img',shift'))';
+pix_cc= (bsxfun(@plus,pix_data'/rot_to_img',offset'))';
 

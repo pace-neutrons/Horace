@@ -287,7 +287,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_you_can_take_multiple_cuts_over_int_axis_with_nopix(obj)
-            proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+            proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
 
             u_axis_lims = [-0.1, 0.025, 0.1];
             v_axis_lims = [-0.1, 0.025, 0.1];
