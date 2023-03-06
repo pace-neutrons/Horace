@@ -40,7 +40,7 @@ proj = obj.get_projection();
 axes_bl = proj.get_proj_axes_block(pix_db_range_in,grid_size_in);
 [exp_info,data] = calc_sqw_data_and_header (obj,axes_bl);
 
-% in addition to standard operations, recalculates axes_block img_range if
+% in addition to standard operations, recalculates ortho_axes img_range if
 % the range has not been defined before:
 [data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
     proj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);

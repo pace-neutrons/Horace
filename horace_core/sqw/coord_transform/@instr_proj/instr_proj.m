@@ -186,9 +186,9 @@ classdef instr_proj<aProjection
             % return the axes block, corresponding to this projection class.
             %
             % According to its operations, instrument projection generate
-            % axes_block directly from data range and number of bin in each
+            % ortho_axes directly from data range and number of bin in each
             % direction
-            ax_bl = axes_block(4);
+            ax_bl = ortho_axes(4);
             % set up range and number of bins for the selected axes block
             ax_bl.img_range = ranges;
             ax_bl.nbins_all_dims = bin_numbers;
@@ -201,8 +201,6 @@ classdef instr_proj<aProjection
             end
             % other parameters
             ax_bl.ulen  = [1,1,1,1];
-            % TODO, delete this, mutate axes_block
-            ax_bl.axis_caption=an_axis_caption();
             ax_bl.label = obj.label;
 
         end
@@ -226,6 +224,15 @@ classdef instr_proj<aProjection
         end
     end
     methods(Access = protected)
+        function  mat = get_u_to_rlu_mat(obj)
+            % By name, it should be u_to_rlu matrix, but by meaning --
+            % transformation from pixel coordinate system to image
+            % coordinate system -- it should be spec_to_u matrix as pixels
+            % here are instrument and image -- Crystal Cartesian coordinate
+            % system. Using meaining. TODO: #954 Clarify.
+            mat = obj.lattice.calc_proj_matrix();
+            mat = [mat,zeros(3,1);[0,0,0,1]];
+        end
         function  alat = get_alatt_(obj)
             % get lattice from oriented lattice property
             alat  = obj.lattice.alatt;

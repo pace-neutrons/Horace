@@ -15,13 +15,12 @@ function [fig_handle, axes_handle, plot_handle] = da(w,varargin)
 
 % Check input arguments
 opt=struct('newplot',true,'lims_type','xyz');
-[args,ok,mess,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
-if ~ok, error(mess), end
+[~,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
 
 % Perform plot
 type='area';
-[fig_,axes_,plot_,ok,mess]=plot_twod (w,opt.newplot,type,fig,lims{:});
-if ~ok, error(mess), end
+[fig_,axes_,plot_]=plot_twod (w,opt.newplot,type,fig,lims{:});
+
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

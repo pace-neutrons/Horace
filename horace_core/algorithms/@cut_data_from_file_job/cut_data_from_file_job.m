@@ -137,7 +137,7 @@ classdef cut_data_from_file_job < JobExecutor
             % by the axes block, specified as input.
             %
             % Inputs:
-            % axes -- the instance of axes_block class, defining the
+            % axes -- the instance of AxesBlockBase class, defining the
             %         shape and the binning of the target coordinate system
             % pix_candidates -- the 4xNpix array of pixel coordinates or
             %         PixelData object or pixel data accessor from file
@@ -160,7 +160,7 @@ classdef cut_data_from_file_job < JobExecutor
             %            iteration step. zeros(size(npix)) if this is the
             %            first step.
             % Optional arguments transferred without any change to
-            % axes_block.bin_pixels()
+            % AxesBlockBase.bin_pixels()
             %
             % '-nomex'    -- do not use mex code even if its available
             %               (usually for testing)

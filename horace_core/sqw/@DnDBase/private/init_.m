@@ -19,7 +19,7 @@ for i=1:args.array_numel
             obj_in{i} = copy(args.dnd_obj(i));
         else % rebin the input object to the object
             %  with the dimensionality, smaller then the
-            %  dimensionalify of the input object.
+            %  dimensionality of the input object.
             %  Bigger dimensionality will be rejected.
             %
             obj_in{i} = rebin(obj(i),args.dnd_obj(i));
@@ -72,7 +72,7 @@ args = struct(...
 
 if isempty(input_data)
     % create struct holding default instance contents
-    args.data_struct.axes =   axes_block(obj.NUM_DIMS);
+    args.data_struct.axes =   ortho_axes(obj.NUM_DIMS);
     args.data_struct.proj =   ortho_proj();
     sz = args.data_struct.axes.dims_as_ssize;
     args.data_struct = init_arrays_(args.data_struct,sz);
@@ -117,7 +117,7 @@ elseif isstruct(input_data{1}) && ~isempty(input_data{1})
     args.data_struct = input_data;
 elseif numel(input_data) > 1
     if numel(input_data) == 2
-        if isa(input_data{1},'axes_block') && isa(input_data{2},'aProjection')
+        if isa(input_data{1},'AxesBlockBase') && isa(input_data{2},'aProjection')
             sz = input_data{1}.dims_as_ssize;
             strc = init_arrays_(struct(),sz);
             args.set_of_fields = [varargin(:);struct2cell(strc)];
@@ -126,13 +126,13 @@ elseif numel(input_data) > 1
             args.keys = {'metadata','nd_data'};
         else
             error(['HORACE:', class(obj),':invalid_argument'], ...
-                'Class constructor invoked with two unrecognized input arguments')
+                'Class constructor invoked with two unrecognised input arguments')
         end
     elseif numel(input_data) >= 5
         args.set_of_fields = input_data;
     else
         error(['HORACE:', class(obj),':invalid_argument'], ...
-            'Unrecognized number or type of the input arguments')
+            'Unrecognised number or type of the input arguments')
     end
 
 else

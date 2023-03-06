@@ -71,9 +71,6 @@ classdef ortho_proj<aProjection
     % Original author: T.G.Perring
     %
     %
-    properties
-        %
-    end
     properties(Dependent)
         u; %[1x3] Vector of first axis (r.l.u.)
         v; %[1x3] Vector of second axis (r.l.u.)
@@ -83,11 +80,6 @@ classdef ortho_proj<aProjection
         %
     end
     properties(Dependent,Hidden) %TODO: all this should go with new sqw design
-        % Old confusing u_to_rlu matrix value
-        % Matrix to convert from Crystal Cartesian (pix coordinate system)
-        % to the image coordinate system (normally in rlu, except initially
-        % generated sqw file, when this image is also in Crystal Cartesian)
-        u_to_rlu
         % renamed offset projection property
         uoffset
         % Return the compatibility structure, which may be used as additional input to
@@ -249,10 +241,6 @@ classdef ortho_proj<aProjection
         % OLD from new sqw object creation interface.
         % TODO: remove when new SQW object is fully implemented
         %
-        function mat = get.u_to_rlu(obj)
-            %
-            mat = get_u_to_rlu_mat(obj);
-        end
         function off = get.uoffset(obj)
             off = obj.offset';
         end
@@ -304,8 +292,6 @@ classdef ortho_proj<aProjection
             ax_bl = get_proj_axes_block@aProjection(obj,default_binning_ranges,req_binning_ranges);
             [~,~, ulen] = obj.uv_to_rot([1,1,1]);
             ax_bl.ulen  = ulen;
-            % TODO, delete this, mutate axes_block
-            ax_bl.axis_caption=an_axis_caption();
             % TODO:  this should go. The projection will keep this property
             % for itself unless it is specific axes block?
             ax_bl.nonorthogonal = obj.nonorthogonal;
@@ -347,9 +333,8 @@ classdef ortho_proj<aProjection
             % overloadable accessor for getting value for ub matrix
             % property
             [~, mat] = obj.uv_to_rot();
-
             mat = [mat,[0;0;0];[0,0,0,1]];
-        end
+        end        
         %------------------------------------------------------------------
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...
@@ -527,12 +512,12 @@ classdef ortho_proj<aProjection
             % Throws HORACE:ortho_proj:invalid_argument with the message
             % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
-            % 
+            %
             wout = check_combo_arg_(w);
         end
         %------------------------------------------------------------------
         function ver  = classVersion(~)
-            ver = 1;
+            ver = 6;
         end
         function  flds = saveableFields(obj)
             flds = saveableFields@aProjection(obj);

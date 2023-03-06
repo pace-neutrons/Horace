@@ -45,7 +45,7 @@ name_sliceomatic =  get_global_var('horace_plot','name_sliceomatic');
     'name',name_sliceomatic,varargin{1:end-opt_present});
 
 % Rescale plot so that aspect ratios reflect relative lengths of Q axes
-adjust_aspect = w.axes.axis_caption.changes_aspect_ratio;
+adjust_aspect = w.axes.changes_aspect_ratio;
 if adjust_aspect && opt_adjust
     energy_axis = 4;    % by convention, the energy axis is always the 4th projection axis
     if isempty(find(pax==energy_axis, 1))   % none of the plot axes is an energy axis

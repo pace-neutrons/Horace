@@ -47,7 +47,7 @@ end
 
 %------------------------------------------------------------------------------
 function qw_ave = average_qw_pix_(sqw_obj, pix, npix)
-    ab = axes_block('nbins_all_dims',[numel(npix),1,1,1],'img_range',sqw_obj.data.img_range);
+    ab = ortho_axes('nbins_all_dims',[numel(npix),1,1,1],'img_range',sqw_obj.data.img_range);
     sqw_obj.data = d1d(ab,sqw_obj.data.proj);    
     sqw_obj.data.npix = npix;
     qw_ave = average_bin_data(sqw_obj, pix);

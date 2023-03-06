@@ -286,7 +286,7 @@ ndim=dimensions(w_in);
 
 %Get the plot title info:
 ds = sqw(w_in);
-[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (ds.data);
+[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = ds.data_plot_titles();
 
 %Get the info about the object:
 if has_pixels(w_in)

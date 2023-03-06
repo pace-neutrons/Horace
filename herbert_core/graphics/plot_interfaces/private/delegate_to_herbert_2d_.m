@@ -11,13 +11,10 @@ function  [figureHandle, axesHandle, plotHandle] = delegate_to_herbert_2d_( ...
 %                corresponding plotting method
 % Output (if requested)
 % figureHandle -- the handle or array of picture handles of the plotted pictures
-% axesHandle   -- array of picutres axes handles
+% axesHandle   -- array of pictures axes handles
 % plotHandle   -- array of handles of the overplot methods
 %
-[args,ok,mess]=genie_figure_parse_plot_args(opt,varargin{:});
-if ~ok
-    error(['HORACE:',call_class_name,'invalid_argument'],mess);
-end
+args=genie_figure_parse_plot_args(opt,varargin{:});
 
 
 nobj = numel(obj);
@@ -52,7 +49,7 @@ else
 
         otherwise
             error(['HORACE:',call_class_name,':invalid_argument'], ...
-                'unrecognized number %d of output parameters. From 0 to 3 allowed.',nout)
+                'unrecognised number %d of output parameters. From 0 to 3 allowed.',nout)
     end
 
 end
