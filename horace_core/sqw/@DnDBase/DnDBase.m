@@ -201,7 +201,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         % check if the function changes aspect ratio
         does = adjust_aspect(obj);
-        
+
         function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                 data_plot_titles(obj)
             % Return main description of the dnd object used in plots
@@ -210,6 +210,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = ...
                 obj.axes.data_plot_titles(obj);
         end
+        
+        % calculate the range of the image to be produded by target
+        % projection from the current image
+        range = targ_range(obj,targ_proj)
     end
     %======================================================================
     % Redundant and convenience Accessors
@@ -471,7 +475,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %
         function def = get.creation_date_defined(obj)
             def = obj.creation_date_defined_;
-        end        
+        end
     end
     %======================================================================
     % binfile IO interface

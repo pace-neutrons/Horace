@@ -188,7 +188,7 @@ classdef test_main_mex < TestCase
             test_sqw.pix  = pix;
 
             hc.use_mex = false;
-            new_sqw = recompute_bin_data_tester(test_sqw);
+            new_sqw = recompute_bin_data(test_sqw);
             s = new_sqw.data.s;
             e = new_sqw.data.e;
             assertElementsAlmostEqual(4*s,npix);

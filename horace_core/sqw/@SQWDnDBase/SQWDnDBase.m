@@ -19,6 +19,7 @@ classdef (Abstract) SQWDnDBase < serializable
         %------------------------------------------------------------------
         % sigvar block
         w                 = sigvar_set(win, sigvar_obj);
+        [s,var,mask_null] = sigvar_get (w); %        
         %------------------------------------------------------------------
         wout = signal(w,name); % Set the intensity of an sqw object to the
         % values for the named argument
@@ -42,7 +43,6 @@ classdef (Abstract) SQWDnDBase < serializable
         %------------------------------------------------------------------        
         % sigvar block
         wout              = sigvar(w); % Create sigvar object from sqw or dnd object
-        [s,var,mask_null] = sigvar_get (w); %
         sz                = sigvar_size(w);        
         %------------------------------------------------------------------        
         % titles used when plotting an sqw object
