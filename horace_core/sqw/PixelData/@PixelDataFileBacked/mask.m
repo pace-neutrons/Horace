@@ -61,7 +61,7 @@ pix_out = pix_out.get_new_handle();
 mask_array = pix_out.logical_to_normal_index_(mask_array);
 pix_out.num_pixels_ = numel(mask_array);
 
-mem_chunk_size = get(hor_config, 'mem_chunk_size');
+mem_chunk_size = obj.DEFAULT_PAGE_SIZE;
 
 for i = 1:mem_chunk_size:pix_out.num_pixels
     block_size = min(pix_out.num_pixels - i + 1, mem_chunk_size);
@@ -84,7 +84,7 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
 pix_out = PixelDataFileBacked();
 pix_out = pix_out.get_new_handle();
 
-[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.page_size);
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.DEFAULT_PAGE_SIZE);
 pix_out.num_pixels_ = 0;
 
 for i = 1:obj.num_pages

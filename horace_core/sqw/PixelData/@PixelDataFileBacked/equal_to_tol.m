@@ -100,14 +100,6 @@ if obj.num_pixels ~= other_pix.num_pixels
     return
 end
 
-if other_pix.is_filebacked && obj.page_size ~= other_pix.page_size
-    ok = false;
-    mess = sprintf(['PixelData objects have different page ' ...
-        'sizes.\nFound page sizes %i and %i.'], obj.page_size, ...
-        other_pix.page_size);
-    return
-end
-
 end
 
 

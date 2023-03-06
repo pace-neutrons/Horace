@@ -111,7 +111,7 @@ if numel(opts.outfile) < numel(win)
     opts.outfile = out_tmp_file;
     empty_outfile = true;
 else
-    empty_outfile = false;    
+    empty_outfile = false;
 end
 
 % Evaluate function for each element of the array of sqw objects
@@ -145,7 +145,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     end
     if opts.filebacked
         % Return file names so we're not leaking file-backed objects
-        out_file = opts.outfile{i};        
+        out_file = opts.outfile{i};
         if ~wout_i.pix.is_filebacked
             save(wout_i, out_file);
         end
@@ -187,7 +187,7 @@ function facc = write_out_of_mem_pix(pix, npix, img_signal, facc)
 % that pixel belongs to. Set all variances to zero.
 %
 
-[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), pix.page_size);
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), pix.DEFAULT_PAGE_SIZE);
 n_pages = pix.num_pages;
 data_range = PixelDataBase.EMPTY_RANGE;
 pix_pos = 1;

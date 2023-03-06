@@ -302,11 +302,11 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function page_size = get_page_size(obj)
-            page_size = min(config_store.instance().get_value('hor_config','mem_chunk_size'),obj.num_pixels);
+            page_size = min(obj.DEFAULT_PAGE_SIZE, obj.num_pixels);
         end
 
         function np = get_num_pages(obj)
-            np = max(ceil(obj.num_pixels/obj.page_size),1);
+            np = max(ceil(obj.num_pixels/obj.DEFAULT_PAGE_SIZE),1);
         end
 
         function  data =  get_raw_data(obj,page_number)
