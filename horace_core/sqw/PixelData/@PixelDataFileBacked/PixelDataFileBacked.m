@@ -377,6 +377,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 'Repeat', 1, ...
                 'Writable', true, ...
                 'offset', obj.offset_);
+            obj = obj.recalc_data_range('all');
         end
 
         function format = get_memmap_format(obj)
