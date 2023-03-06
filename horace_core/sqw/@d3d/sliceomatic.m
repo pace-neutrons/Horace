@@ -31,8 +31,8 @@ if numel(w)~=1
 end
 
 % Strip trailing option, if present
-[ok,mess,opt_adjust,opt_present]=adjust_aspect_option(varargin);
-if ~ok, error(mess), end
+[opt_adjust,opt_present]=data_plot_interface.adjust_aspect_option(varargin);
+
 
 pax = w.pax;
 dax = w.dax;                 % permutation of projection axes to give display axes
