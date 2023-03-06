@@ -95,13 +95,13 @@ classdef PixelDataFileBacked < PixelDataBase
     methods
         function obj = append(~, ~)
             error('HORACE:PixelDataFileBacked:not_implemented',...
-                  'append does not work on file-based pixels')
+                'append does not work on file-based pixels')
         end
 
         function obj = set_raw_data(obj,pix)
             if obj.read_only
                 error('HORACE:PixelDataFileBacked:runtime_error',...
-                      'File %s is opened in read-only mode', obj.full_filename);
+                    'File %s is opened in read-only mode', obj.full_filename);
             end
             obj = set_raw_data_(obj,pix);
         end
@@ -115,6 +115,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
         pix_out = get_fields(obj, fields, abs_pix_indices);
+        pix_out = mask(obj, mask_array, varargin);
 
     end
 
@@ -161,15 +162,15 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.data_range    = init.data_range;
                 obj.tmp_pix_obj   = init.tmp_pix_obj;
                 obj.f_accessor_   = memmapfile(obj.full_filename, ...
-                                               'Format', obj.get_memmap_format(), ...
-                                               'Repeat', 1, ...
-                                               'Writable', update, ...
-                                               'Offset', obj.offset_ );
+                    'Format', obj.get_memmap_format(), ...
+                    'Repeat', 1, ...
+                    'Writable', update, ...
+                    'Offset', obj.offset_ );
 
             elseif istext(init)
                 if ~is_file(init)
                     error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                          'Cannot find file to load (%s)', init)
+                        'Cannot find file to load (%s)', init)
                 end
 
                 init = sqw_formats_factory.instance().get_loader(init);
@@ -191,7 +192,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj = set_raw_data_(obj,init);
             else
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                      'Cannot construct PixelDataFileBacked from class (%s)', class(init))
+                    'Cannot construct PixelDataFileBacked from class (%s)', class(init))
             end
 
             obj.page_num = 1;
@@ -289,12 +290,12 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = set_page_num(obj,val)
             if ~isnumeric(val) || ~isscalar(val) || val<1
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                      'page number should be positive numeric scalar. It is: %s',...
-                      disp2str(val))
+                    'page number should be positive numeric scalar. It is: %s',...
+                    disp2str(val))
             elseif val > obj.num_pages
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                      'page number (%d) should not be bigger then total number of pages: %d',...
-                      val, obj.num_pages);
+                    'page number (%d) should not be bigger then total number of pages: %d',...
+                    val, obj.num_pages);
             end
 
             obj.page_num_ = val;
@@ -342,8 +343,8 @@ classdef PixelDataFileBacked < PixelDataBase
 
             if fh<1
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
-                      'Can not open data file %s for file-backed pixels',...
-                      obj.tmp_pix_obj.file_name);
+                    'Can not open data file %s for file-backed pixels',...
+                    obj.tmp_pix_obj.file_name);
             end
 
             obj.file_handle_ = fh;
@@ -352,7 +353,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function format_dump_data(obj, pix)
             if isempty(obj.file_handle_)
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
-                      'Cannot dump data, object does not have open filehandle')
+                    'Cannot dump data, object does not have open filehandle')
             end
 
             fwrite(obj.file_handle_, single(pix), 'single');
@@ -362,7 +363,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = finalise(obj)
             if isempty(obj.file_handle_)
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
-                      'Cannot finalise writing, object does not have open filehandle')
+                    'Cannot finalise writing, object does not have open filehandle')
             end
 
             fclose(obj.file_handle_);
@@ -372,10 +373,10 @@ classdef PixelDataFileBacked < PixelDataBase
             obj.offset_ = 0;
             obj.full_filename = obj.tmp_pix_obj.file_name;
             obj.f_accessor_ = memmapfile(obj.full_filename, ...
-                                         'format', obj.get_memmap_format(), ...
-                                         'Repeat', 1, ...
-                                         'Writable', true, ...
-                                         'offset', obj.offset_);
+                'format', obj.get_memmap_format(), ...
+                'Repeat', 1, ...
+                'Writable', true, ...
+                'offset', obj.offset_);
         end
 
         function format = get_memmap_format(obj)
@@ -408,8 +409,8 @@ classdef PixelDataFileBacked < PixelDataBase
                     class(val));
             elseif ~(istext(val.data) || isempty(val.data))
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                      'Attempt to initialize PixelDataFileBacked using invalid pix_data values: %s', ...
-                      disp2str(val));
+                    'Attempt to initialize PixelDataFileBacked using invalid pix_data values: %s', ...
+                    disp2str(val));
             end
 
             in_file = val.data;
@@ -420,7 +421,7 @@ classdef PixelDataFileBacked < PixelDataBase
 
             if ~is_file(in_file)
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                      'Cannot find file for file-backed pixel data: %s', in_file)
+                    'Cannot find file for file-backed pixel data: %s', in_file)
             end
 
             ldr = sqw_formats_factory.instance().get_loader(in_file);
@@ -441,7 +442,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = set_prop(obj, fld, val)
             if obj.read_only
                 error('HORACE:PixelDataFileBacked:invalid_argument',...
-                      'File %s is opened in read-only mode', obj.full_filename);
+                    'File %s is opened in read-only mode', obj.full_filename);
             end
             val = check_set_prop(obj,fld,val);
 
@@ -469,7 +470,7 @@ classdef PixelDataFileBacked < PixelDataBase
             ind = obj.check_pixel_fields(field_name);
 
             loc_range = [min(obj.data(ind,:),[],2),...
-                         max(obj.data(ind,:),[],2)]';
+                max(obj.data(ind,:),[],2)]';
 
             range = minmax_ranges(obj.data_range_(:,ind),loc_range);
             obj.data_range_(:,ind)  = range;
