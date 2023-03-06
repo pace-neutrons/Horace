@@ -176,7 +176,7 @@ classdef AxesBlockBase < serializable
             tit = obj.title_;
         end
         function obj = set.title(obj,val)
-            if ~ischar(val) || isstring(val)
+            if ~istext(val)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'title should be defined of array of characters or by a string')
             end
@@ -187,7 +187,7 @@ classdef AxesBlockBase < serializable
             fn = obj.filename_;
         end
         function obj = set.filename(obj,fn)
-            if ~(ischar(fn) || isstring(fn))
+            if ~istext(val)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'filename should be defined of array of characters or by a string')
             end
@@ -199,7 +199,7 @@ classdef AxesBlockBase < serializable
             fp = obj.filepath_;
         end
         function obj = set.filepath(obj,fp)
-            if ~(ischar(fp) || isstring(fp))
+            if ~istext(val)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'filepath should be defined of array of characters or by a string')
             end
@@ -209,7 +209,7 @@ classdef AxesBlockBase < serializable
             fn = fullfile(obj.filepath_,obj.filename_);
         end
         function obj = set.full_filename(obj,fn)
-            if ~(ischar(fn) || isstring(fn))
+            if ~istext(val)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'full_filename should be defined of array of characters or by a string. It is %s', ...
                     disp2str(fn));
