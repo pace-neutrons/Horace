@@ -380,9 +380,8 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
 
 
             % Strip trailing option, if present
-            [ok,mess,opt_adjust,opt_present]= ...
-                adjust_aspect_option(varargin);
-            if ~ok, error(mess), end
+            [opt_adjust,opt_present]= ...
+                data_plot_interface.adjust_aspect_option(varargin);
 
             % Check input arguments
             nam=get_global_var('horace_plot','name_area');
@@ -416,8 +415,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
 
 
             % Strip trailing option, if present
-            [ok,mess,opt_adjust,opt_present]=adjust_aspect_option(varargin);
-            if ~ok, error(mess), end
+            [opt_adjust,opt_present]=data_plot_interface.adjust_aspect_option(varargin);
 
             % Check input arguments
             nam=get_global_var('horace_plot','name_surface');
@@ -464,8 +462,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
 
 
             % Strip trailing option, if present
-            [ok,mess,opt_adjust,opt_present]=adjust_aspect_option(varargin);
-            if ~ok, error(mess), end
+            [opt_adjust,opt_present]=data_plot_interface.adjust_aspect_option(varargin);
 
             nam=get_global_var('horace_plot','name_surface');
             opt=struct('newplot',true,'default_name',nam,'lims_type','xyz');

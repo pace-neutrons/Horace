@@ -1,4 +1,4 @@
-function [ok,mess,adjust,present]=adjust_aspect_option(args_in)
+function [adjust,present]=adjust_aspect_option(args_in)
 % Determine presence and value of option to request the aspect ratio is adjusted
 %
 %   >> [args_out,status]=adjust_aspect_option(args_in)
@@ -25,8 +25,6 @@ function [ok,mess,adjust,present]=adjust_aspect_option(args_in)
 
 
 % Default
-ok=true;
-mess='';
 adjust=true;
 present=false;
 
@@ -37,9 +35,7 @@ if numel(args_in)>=1 && is_string(args_in{end}) && numel(args_in{end})>=2 && arg
         adjust=tf(1);
         present=true;
     else
-        ok=false;
-        mess=['Unrecognised option: ',args_in{end}];
-        adjust=false;
-        present=false;
+        error('HERBERT:plot_interface:invalid_argument', ...
+            'Unrecognized option %s',args_in{end})
     end
 end
