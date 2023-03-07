@@ -156,17 +156,15 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             obj.pix_range_ = pix.pix_range;
             num_pix = obj.npixels;
 
-            if any(any(obj.pix_range_ == PixelDataBase.EMPTY_RANGE_)) && num_pix > 0
+            if any(obj.pix_range_ == PixelDataBase.EMPTY_RANGE_, 'all') && num_pix > 0
                 hc           = hor_config;
                 ll           = hc.log_level;
-                page_size    = pix.page_size;
 
-                crit = pix.num_pixels > 6*page_size;
-                if crit && ll >0
+                if pix.num_pages > 5 && ll > 0
                     fprintf(['*** Recalculating pixel range to upgrade file format to the latest binary version.\n',...
                         '    This is once per-old file long operation, analysing the whole pixels array\n'])
                 end
-                % RELYS ON PIX being handle?
+
                 pix = pix.recalc_pix_range();
                 obj.pix_range_ = pix.pix_range;
             end

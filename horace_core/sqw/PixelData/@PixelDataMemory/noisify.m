@@ -52,9 +52,11 @@ end
 
 % page over pix_out noisifying each page using either Poisson or the max
 % value extracted above
-[pg_result_s, pg_result_e] = noisify( ...
+
+
+[pix_out.signal, pix_out.variance] = noisify( ...
     pix_out.signal, pix_out.variance, varargin{:});
-pix_out.signal = pg_result_s;
-pix_out.variance = pg_result_e;
+
+pix_out = pix_out.reset_changed_coord_range({'signal', 'variance'});
 
 end

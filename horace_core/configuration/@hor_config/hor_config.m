@@ -218,10 +218,12 @@ classdef hor_config < config_base
         %-----------------------------------------------------------------
         % overloaded setters
         function obj = set.mem_chunk_size(obj,val)
+
+            % Don't allow non-integer values, may cause weird effects
+            val = ceil(val);
             if val<1000
                 warning('HOR_CONFIG:set_mem_chunk_size',...
-                    ' mem chunk size should not be too small at least 1M is recommended (and set)');
-                val = 1000;
+                    ' mem chunk size should not be too small at least 1M is recommended');
             end
             size = sys_memory();
 

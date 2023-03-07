@@ -4,8 +4,6 @@ function obj = binary_op_double_(obj, double_array, binary_op, flip, npix)
 %
 validate_input_array(obj, double_array, npix);
 
-obj.move_to_first_page();
-
 if isempty(npix)
     obj = do_op_with_no_npix(obj, double_array, binary_op, flip);
 else
@@ -21,26 +19,31 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
 % PixelData object with no npix array.
 % The double array must have length equal to the number of pixels.
 %
-%
-% Re  #928 fix this
-%fid = obj.get_new_handle();
 
-for i = 1:obj.n_pages
-    obj.page_num = i;
+obj = obj.get_new_handle();
+s_ind = obj.check_pixel_fields('signal');
+v_ind = obj.check_pixel_fields('variance');
+
+for i = 1:obj.num_pages
+    [obj, data] = obj.load_page(i);
     pix_sigvar = sigvar(obj.signal, obj.variance);
 
     [start_idx, end_idx] = obj.get_page_idx_(i);
 
     double_sigvar = double_array(start_idx:end_idx);     % TGP 2021-04-11: to work with new classdef sigvar
-    [obj.signal, obj.variance] = ...
+
+    [signal, variance] = ...
         sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
 
-% Re  #928 fix this
-%    obj.format_dump_data(fid);
+    data(s_ind, :) = signal;
+    data(v_ind, :) = variance;
+
+    obj.format_dump_data(data);
 
 end
-% Re  #928 fix this
-%obj.finalise(fid);
+
+obj = obj.finalise();
+obj = obj.recalc_data_range({'signal', 'variance'});
 
 end
 
@@ -61,46 +64,61 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
 % Re  #928 fix this
 %fid = obj.get_new_handle();
 
+obj = obj.get_new_handle();
+s_ind = obj.check_pixel_fields('signal');
+v_ind = obj.check_pixel_fields('variance');
+
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
-for i = 1:obj.n_pages
-    obj.load_page(i);
+for i = 1:obj.num_pages
+    [obj, data] = obj.load_page(i);
     npix_for_page = npix_chunks{i};
     idx = idxs(:, i);
 
     sig_chunk = repelem(double_array(idx(1):idx(2)), npix_for_page)';
 
-    this_sigvar = sigvar(obj.signal, obj.variance);
+    pix_sigvar = sigvar(obj.signal, obj.variance);
     %double_sigvar = sigvar(sig_chunk', []);
     double_sigvar = sig_chunk';     % TGP 2021-04-11: to work with new classdef sigvar
-    [obj.signal, obj.variance] = ...
-        sigvar_binary_op_(this_sigvar, double_sigvar, binary_op, flip);
-% Re  #928 fix this
-%    obj.format_dump_data(fid);
+
+    [signal, variance] = ...
+        sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
+
+    data(s_ind, :) = signal;
+    data(v_ind, :) = variance;
+
+    obj.format_dump_data(data);
 end
-% Re  #928 fix this
-%obj.finalise(fid);
+
+obj = obj.finalise();
+obj = obj.recalc_data_range({'signal', 'variance'});
 
 end
 
 function validate_input_array(obj, double_array, npix)
-if ~isequal(size(double_array), [1, obj.num_pixels]) && isempty(npix)
-    required_size = sprintf('[1 %i]', obj.num_pixels);
-    actual_size = num2str(size(double_array));
-    error('PIXELDATA:do_binary_op', ...
+
+expected_size = [1, obj.num_pixels];
+passed_size = size(double_array);
+
+if ~isequal(passed_size, expected_size) && isempty(npix)
+    required_size = mat2str(expected_size);
+    actual_size = mat2str(passed_size);
+    error('HORACE:PixelDataFileBacked:invalid_argument', ...
           ['Cannot perform binary operation. Double array must ' ...
-           'have size equal to number of pixels.\nFound size ''[%s]'', ' ...
-           '''[%s]'' required.'], actual_size, required_size);
+           'have size equal to number of pixels.\nFound size , ' ...
+           '%s required.'], actual_size, required_size);
+
 elseif ~isempty(npix)
     % Get the cumsum rather than just the sum here since it's required in
     % do_op_with_npix
     num_pix = sum(npix(:));
     if num_pix ~= obj.num_pixels
         error( ...
-            'PIXELDATA:binary_op_double_', ...
+            'HORACE:PixelDataFileBacked:invalid_argument', ...
             ['Cannot perform binary operation. Sum of ''npix'' must be ' ...
              'equal to the number of pixels in the PixelData object.\n' ...
              'Found ''%i'' pixels in npix but ''%i'' in PixelData.'], ...
             num_pix, obj.num_pixels);
     end
 end
+
 end
