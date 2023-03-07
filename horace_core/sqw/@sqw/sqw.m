@@ -293,7 +293,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 obj.pix_ = val;
             elseif isempty(val)
                 %  necessary for clearing up the memmapfile, (if any)
-                obj.pix_ = obj.pix_.delete();
                 obj.pix_ = PixelDataMemory();
             else
                 obj.pix_ = PixelDataBase.create(val);

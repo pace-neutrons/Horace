@@ -169,13 +169,15 @@ classdef (Abstract) SQWDnDBase < serializable
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
-        %                             % on an image stored in an sqw object
+                                                             % on an image stored in an sqw object
+
         function [func_handle, pars, opts] = parse_eval_args(win, ...
                 func_handle, pars, varargin)
-            % paser for funceval function input parameters
+            % parser for funceval function input parameters
             [func_handle, pars, opts] = parse_eval_args_(win, func_handle, ...
                 pars, varargin{:});
         end
+
         function [wout,log_info] = cut_single(obj, tag_proj, targ_axes, outfile,log_level)
             [wout,log_info] = cut_single_(obj, tag_proj, targ_axes, outfile,log_level);
         end

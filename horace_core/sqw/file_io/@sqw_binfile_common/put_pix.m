@@ -168,10 +168,8 @@ else % write pixels directly
 
     npix_to_write = obj.npixels;
     if npix_to_write <= block_size
-        input_obj= input_obj.move_to_first_page();
-        fwrite(obj.file_id_, single(input_obj.data), 'float32');
-        while input_obj.has_more()
-            input_obj=input_obj.advance();
+        for i = 1:input_obj.num_pages
+            input_obj.page_num = i;
             fwrite(obj.file_id_, single(input_obj.data), 'float32');
         end
         check_error_report_fail_(obj,'Error writing pixels array');

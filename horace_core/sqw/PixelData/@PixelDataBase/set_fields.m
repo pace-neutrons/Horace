@@ -19,5 +19,7 @@ function obj=set_fields(obj, data,pix_fields, varargin)
 %                  updated and 'size(data, 2)' must equal to obj.num_pixels.
 %
 
-obj = obj.set_raw_fields(data,pix_fields, varargin{:});
+obj = obj.set_raw_fields(data, pix_fields, varargin{:});
 obj = obj.reset_changed_coord_range(pix_fields);
+
+end

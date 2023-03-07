@@ -13,6 +13,7 @@ end
 
 if isstruct(init)
     obj = obj.loadobj(init);
+
 elseif ischar(init) || isstring(init)
     if ~is_file(init)
         error('HORACE:PixelDataFileBacked:invalid_argument', ...
@@ -20,8 +21,10 @@ elseif ischar(init) || isstring(init)
     end
     init = sqw_formats_factory.instance().get_loader(init);
     obj = obj.init_from_file_accessor_(init);
+
 elseif isa(init,'PixelData')
     obj.data = init.data;
+
 elseif isa(init, 'sqw_file_interface')
     obj = obj.init_from_file_accessor_(init);
 
@@ -36,15 +39,18 @@ elseif isnumeric(init)
     obj.data = init;
 
 elseif isa(init, 'PixelDataFileBacked')
-    n_pages = init.num_pages;
-    pg_hoder = cell(1,n_pages);
-    for i=1:n_pages
-        init.page_num=i;
-        pg_hoder{i} = init.data;
+
+    data = zeros(obj.DEFAULT_NUM_PIX_FIELDS, init.num_pixels);
+
+    for i=1:init.num_pages
+        [sind, eind] = init.get_page_idx_(i);
+        [init, data(:, sind:eind)] = init.load_page(i);
     end
-    obj.data_ = [pg_hoder{:}];
+
+    obj.data_ = data;
     init=init.move_to_first_page();
     undef = init.data_range == PixelDataBase.EMPTY_RANGE;
+
     if any(undef(:))
         obj=obj.recalc_data_range();
     else

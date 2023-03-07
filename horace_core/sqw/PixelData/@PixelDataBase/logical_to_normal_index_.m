@@ -23,13 +23,13 @@ function normal_indices = logical_to_normal_index_(obj, logical_indices)
 %
 if numel(logical_indices) > obj.num_pixels
     if any(logical_indices(obj.num_pixels + 1:end))
-        error( ...
-            'HORACE:PIXELDATA:badsubscript', ...
-            ['The logical indices contain a true value outside of the ' ...
-             'array bounds.'] ...
-        );
-    else
-        logical_indices = logical_indices(1:obj.num_pixels);
+        error('HORACE:PixelDataBase:invalid_argument', ...
+              'The logical indices contain a true value outside of the array bounds.');
     end
+    logical_indices = logical_indices(1:obj.num_pixels);
 end
+
 normal_indices = find(logical_indices);
+
+
+end

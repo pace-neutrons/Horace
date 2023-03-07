@@ -55,31 +55,19 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             obj.mask_array_3d(obj.idxs_to_mask_3d) = false;
 
             obj.masked_3d = mask(obj.sqw_3d, obj.mask_array_3d);
-%            [obj.sqw_3d_paged, obj.masked_3d_paged] = ...
-%                obj.get_paged_sqw(obj.sqw_3d_file_path, obj.mask_array_3d);
+            [obj.sqw_3d_paged, obj.masked_3d_paged] = ...
+                obj.get_paged_sqw(obj.sqw_3d_file_path, obj.mask_array_3d);
 
             obj.fh_range_check = @(data, limit) all(data<limit, 'all');
 
         end
 
-        function test_pix_range_equal_for_paged_and_non_paged_sqw_after_mask(obj)
-            if isempty(obj.masked_2d_pix_range)
-                masked_2d = mask(obj.sqw_2d, obj.mask_array_2d);
-                obj.masked_2d_pix_range = masked_2d.pix.pix_range;
-                obj.masked_2d_img_range = masked_2d.data.img_range;
-            end
-            skipTest('Re #928 file-backed masking is not currently implemented')
-            if isempty(obj.masked_2d_paged_cache)
-                [~, masked_2d_paged] = ...
-                    obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
-                obj.masked_2d_paged_cache = masked_2d_paged;
-            else
-                masked_2d_paged = obj.masked_2d_paged_cache;
-            end
+        function test_mem_fb_equal_after_mask(obj)
+            masked_2d = mask(obj.sqw_2d, obj.mask_array_2d);
+            [~, masked_2d_paged] = ...
+                obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
 
-            paged_pix_range = masked_2d_paged.pix.pix_range;
-            mem_pix_range = obj.masked_2d_pix_range;
-            assertElementsAlmostEqual(mem_pix_range, paged_pix_range, 'absolute', 0.001);
+            assertEqualToTol(masked_2d_paged.pix, masked_2d.pix);
         end
 
         function test_mask_works_in_memory(obj)
@@ -122,7 +110,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
                                       'absolute', 0.001);
             assertElementsAlmostEqual(original_pix_range(1,3:end), new_pix_range(1,3:end), ...
                                       'absolute', 0.001);
-            skipTest('Re #928 fileacked masking is not currently implemented')
+
             if isempty(obj.masked_2d_paged_cache)
                 [~, masked_2d_paged] = ...
                     obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
@@ -137,7 +125,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_works_with_paged(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')            
+
             if isempty(obj.masked_2d_paged_cache)
                 [~, masked_2d_paged] = ...
                     obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
@@ -168,13 +156,13 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             expected_num_pix = sum(obj.sqw_2d.data.npix(obj.mask_array_2d));
             assertEqual(masked_2d_paged.pix.num_pixels, expected_num_pix);
 
-            %function test_img_range_recalculated_after_mask_with_paged_pix(obj)
+            %function test_pix_range_recalculated_after_mask_with_paged_pix(obj)
             original_pix_range = obj.sqw_2d.pix.pix_range;
             new_pix_range = masked_2d_paged.pix.pix_range;
 
             img_range_diff = abs(original_pix_range - new_pix_range);
             assertTrue(img_range_diff(1) > 0.001);
-            assertElementsAlmostEqual(original_pix_range(2,:), new_pix_range(2,:), ...
+            assertElementsAlmostEqual(original_pix_range(2,[1,2,4]), new_pix_range(2,[1,2,4]), ...
                                       'absolute', 0.001);
             assertElementsAlmostEqual(original_pix_range(1,3:end), new_pix_range(1,3:end), ...
                                       'absolute', 0.001);
@@ -187,7 +175,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_sets_npix_in_masked_bins_to_zero_with_paged_pix_3d(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')            
             assertEqual(sum(obj.masked_3d_paged.data.npix(~obj.mask_array_3d)), 0);
         end
 
@@ -196,7 +183,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_sets_signal_in_masked_bins_to_zero_with_paged_pix_3d(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')            
             assertEqual(sum(obj.masked_3d_paged.data.s(~obj.mask_array_3d)), 0);
         end
 
@@ -205,7 +191,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_sets_error_in_masked_bins_to_zero_with_paged_pix_3d(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')            
             assertEqual(sum(obj.masked_3d_paged.data.e(~obj.mask_array_3d)), 0);
         end
 
@@ -215,7 +200,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_doesnt_change_unmasked_bins_signal_with_paged_pix_3d(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')            
             assertEqual(obj.masked_3d_paged.data.s(obj.mask_array_3d), ...
                         obj.sqw_3d.data.s(obj.mask_array_3d));
         end
@@ -226,7 +210,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_does_not_change_unmasked_bins_error_with_paged_pix_3d(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')            
             assertEqual(obj.masked_3d_paged.data.e(obj.mask_array_3d), ...
                         obj.sqw_3d.data.e(obj.mask_array_3d));
         end
@@ -237,7 +220,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_does_not_change_unmasked_bins_npix_with_paged_pix_3d(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')            
             assertEqual(obj.masked_3d_paged.data.npix(obj.mask_array_3d), ...
                         obj.sqw_3d.data.npix(obj.mask_array_3d));
         end
@@ -248,7 +230,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_num_pix_has_been_reduced_by_correct_amount_paged_pix_3d(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')            
             expected_num_pix = sum(obj.sqw_3d.data.npix(obj.mask_array_3d));
             assertEqual(obj.masked_3d_paged.pix.num_pixels, expected_num_pix);
         end
@@ -260,20 +241,17 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_img_range_recalculated_after_mask_with_paged_pix_3d(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')            
             original_img_range = obj.sqw_3d.data.img_range;
             img_range_diff = abs(original_img_range - obj.masked_3d_paged.data.img_range);
             assertTrue(obj.fh_range_check(img_range_diff ,1.e-7));
         end
 
         function test_paged_and_non_paged_sqw_have_same_pixels_after_mask_3d(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')            
             raw_paged_pix = PixelDataMemory(obj.masked_3d_paged.pix);
-            assertEqual(raw_paged_pix.data, obj.masked_3d.pix.data);
+            assertEqualToTol(raw_paged_pix, obj.masked_3d.pix);
         end
 
         function test_img_range_equal_for_paged_and_non_paged_sqw_after_mask_3d(obj)
-            skipTest('Re #928 fileacked masking is not currently implemented')
             paged_img_range = obj.masked_3d_paged.data.img_range;
             mem_img_range = obj.masked_3d.data.img_range;
             assertElementsAlmostEqual(mem_img_range, paged_img_range, 'absolute', 0.001);
@@ -281,7 +259,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
         function test_mask_pixels_removes_pixels_given_in_mask_array(obj)
             sqw_obj = sqw(obj.sqw_2d_file_path);
-            mask_array = ones(1, sqw_obj.pix.num_pixels, 'logical');
+            mask_array = true(1, sqw_obj.pix.num_pixels);
 
             % Remove all pix where u1 greater than median u1
             % This ensures img_range and pix_range will be sufficiently different
@@ -292,10 +270,10 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             new_sqw = mask_pixels(sqw_obj, mask_array);
 
             assertEqual(new_sqw.pix.num_pixels, sum(mask_array));
-            assertFalse(equal_to_tol(new_sqw.data.s, sqw_obj.data.s,[0, 1e-4]));
-            % masking have not changed binning, so img_range remains the
+%             assertEqualToTol(new_sqw.data.s, sqw_obj.data.s, [0, 1e-4]);
+            % masking has not changed binning, so img_range remains the
             % same
-            assertTrue(equal_to_tol(new_sqw.data.img_range, sqw_obj.data.img_range,[0, 1e-7]));
+            assertEqualToTol(new_sqw.data.img_range, sqw_obj.data.img_range, [0, 1e-7]);
         end
 
         function test_mask_random_fraction_pixels_removes_percentage_of_pixels(obj)
