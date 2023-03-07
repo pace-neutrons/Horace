@@ -172,7 +172,6 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
     methods (Access = private)
-        [ok,mess,adjust,present]=adjust_aspect_option(args_in);
         dout = smooth_dnd(din, xunit, varargin);
     end
 end
