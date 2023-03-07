@@ -25,7 +25,7 @@ warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 % end
 % Add paths
 % ---------
-addpath(herbert_path);  % MUST have herbert_path so that herbert_init, herbert_off included
+addpath(herbert_path);  % MUST have herbert_path so that herbert_init, included
 addpath(fullfile(herbert_path,'admin'));
 
 % Configurations
@@ -76,11 +76,9 @@ if exist(string,'dir')==7 % is_dir has not been loaded yet
     try
         addpath (genpath_special(string),'-frozen');
     catch ME
-        herbert_off
         rethrow(ME);
     end
 else
-    herbert_off
     error([string, ' is not a directory - not added to path']);
 end
 
