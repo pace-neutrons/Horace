@@ -1,4 +1,4 @@
-classdef PixelTmpFile < handle
+classdef TmpFileHandler < handle
     % Class to handle temporary PixelDataFileBacked files
     %
     % Created by PixelData file-backed on starting modifying operation
@@ -20,22 +20,22 @@ classdef PixelTmpFile < handle
     end
 
     methods
-        function obj = PixelTmpFile(orig_name)
+        function obj = TmpFileHandler(orig_name)
             [~, name] = fileparts(orig_name);
 
             for i = 1:5
                 obj.file_name = fullfile(tmp_dir(), ...
-                    [name, '.pix_', str_random()]);
+                    [name, '.tmp_', str_random()]);
                 if ~is_file(obj.file_name)
                     break
                 end
             end
             % Unlikely to happen, but best to check fail to generate
             if i == 5 && is_file(obj.file_name)
-                error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    ['Can not generate available tmp file name for file-backed pixels. \n\n', ...
-                    'Check %s and clear any .pix_<id> files'], ...
-                    tmp_dir());
+                error('HORACE:TmpFileHandler:runtime_error', ...
+                      ['Can not generate available tmp file name for %s. \n\n', ...
+                       'Check %s and clear any .pix_<id> files'], ...
+                      orig_name, tmp_dir());
             end
 
         end
