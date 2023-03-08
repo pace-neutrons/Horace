@@ -10,10 +10,10 @@ if obj.num_pixels ~= pixel_data.num_pixels
            'in second pixel_data, ''%i'' pixels required.'], ...
           pixel_data.num_pixels, obj.num_pixels);
 end
-% Re #892 complete this
-%fid = obj.get_new_handle();
 
-obj = obj.get_new_handle();
+if isempty(obj.file_handle_)
+    obj = obj.get_new_handle();
+end
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 

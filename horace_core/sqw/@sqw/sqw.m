@@ -8,27 +8,33 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
     %
     properties(Dependent)
-        npixels     % common with loaders interface to pix.num_pixels property
+        % common with loaders interface to pix.num_pixels property
         % describing number of pixels (neutron events) stored
         % in sqw object
+        npixels;
 
-        runid_map   % the map which connects header number
+        % the map which connects header number
         % with run_id stored in pixels, e.g. map contains
         % connection runid_pixel->header_number
+        runid_map;
 
-        main_header % Generic information about contributed files
+        % Generic information about contributed files
         % and the sqw file creation date.
-        detpar
+        main_header;
 
-        experiment_info
-        %
-        data; % The information about the N-D neutron image, containing
+        detpar;
+
+        experiment_info;
+
+        % The information about the N-D neutron image, containing
         % combined and bin-averaged information about the
         % neutron experiment.
+        data;
 
-        pix % access to pixel information, if any such information is
+        % access to pixel information, if any such information is
         % stored within an object. May also return pix_combine_info or
         % filebased pixels. (TODO -- this should be modified)
+        pix;
 
         % The date of the sqw object file creation. As the date is defined both
         % in sqw and dnd object parts, this property synchronize both
@@ -37,20 +43,28 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
     properties(Hidden,Dependent)
         % obsolete property, duplicating detpar. Do not use
-        detpar_x
+        detpar_x;
+
         % compatibility field, providing old interface for new
         % experiment_info class. Returns array of IX_experiment
         % from Experiment class. Conversion to old header is not performed
         header;
+
         % the name of the file, used to store sqw first time
-        full_filename
+        full_filename;
     end
 
     properties(Access=protected)
         % holder for image data, e.g. appropriate dnd object
         data_;
+
         % holder for pix data
-        pix_ = PixelDataBase.create()      % Object containing data for each pixe
+        % Object containing data for each pixe
+        pix_ = PixelDataBase.create();
+
+        % Holder for temporary file to clear
+        % it on object deletion
+        file_holder_;
     end
 
     properties(Access=protected)
@@ -58,6 +72,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
+
     methods(Static)
         function form_fields = head_form(sqw_only,keep_data_arrays)
             % the method returns list of fields, which need to be filled by
@@ -65,16 +80,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %
             %
             form_fields = {'nfiles','npixels','data_range','creation_date'};
-            if nargin == 0
-                sqw_only = false;
-                keep_data_arrays = false;
-            end
-            if nargin == 1
-                keep_data_arrays = false;
+            sqw_only = exist('sqw_only', 'var') && sqw_only;
+            keep_data_arrays = exist('keep_data_arrays', 'var') && keep_data_arrays;
+
+            if sqw_only
+                return
             end
 
-            if sqw_only;  return;    end
-            %
             [dnd_fields,data_fields] = DnDBase.head_form(false);
             if keep_data_arrays
                 form_fields   = [dnd_fields(1:end-1)';form_fields(:);data_fields(:)];

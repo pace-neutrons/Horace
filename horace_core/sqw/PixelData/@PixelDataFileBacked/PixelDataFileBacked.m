@@ -328,26 +328,31 @@ classdef PixelDataFileBacked < PixelDataBase
     % File handling/migration
     methods
 
-        function obj = get_new_handle(obj)
-
-            if isempty(obj.full_filename)
-                obj.full_filename = 'in_mem';
-            end
+        function obj = get_new_handle(obj, f_accessor)
 
             % Always create a new PixTmpFile object
             % If others point to it, file will be kept
             % otherwise file will be cleared
-            obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
-            fh = fopen(obj.tmp_pix_obj.file_name, 'wb+');
+            if exist('f_accessor', 'var')
+                obj.file_handle_ = f_accessor;
+            else
+                if isempty(obj.full_filename)
+                    obj.full_filename = 'in_mem';
+                end
+                obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
-            if fh<1
-                error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'Can not open data file %s for file-backed pixels',...
-                    obj.tmp_pix_obj.file_name);
+                fh = fopen(obj.tmp_pix_obj.file_name, 'wb+');
+
+                if fh<1
+                    error('HORACE:PixelDataFileBacked:runtime_error', ...
+                          'Can not open data file %s for file-backed pixels',...
+                          obj.tmp_pix_obj.file_name);
+                end
+
+                obj.file_handle_ = fh;
             end
 
-            obj.file_handle_ = fh;
         end
 
         function format_dump_data(obj, pix)
@@ -356,7 +361,11 @@ classdef PixelDataFileBacked < PixelDataBase
                     'Cannot dump data, object does not have open filehandle')
             end
 
-            fwrite(obj.file_handle_, single(pix), 'single');
+            if isa(obj.file_handle_, 'sqw_binfile_common')
+                obj.file_handle_.put_bytes(data);
+            else
+                fwrite(obj.file_handle_, single(pix), 'single');
+            end
 
         end
 
@@ -366,18 +375,25 @@ classdef PixelDataFileBacked < PixelDataBase
                     'Cannot finalise writing, object does not have open filehandle')
             end
 
-            fclose(obj.file_handle_);
-            obj.file_handle_ = [];
+            if isa(obj.file_handle_, 'sqw_binfile_common')
+                ldr.put_footers();
+                obj = obj.init_from_file_accessor_(obj.file_handle_, false, true)
+                obj.file_handle_ = [];
 
-            obj.f_accessor_ = [];
-            obj.offset_ = 0;
-            obj.full_filename = obj.tmp_pix_obj.file_name;
-            obj.f_accessor_ = memmapfile(obj.full_filename, ...
-                'format', obj.get_memmap_format(), ...
-                'Repeat', 1, ...
-                'Writable', true, ...
-                'offset', obj.offset_);
-            obj = obj.recalc_data_range('all');
+            else
+                fclose(obj.file_handle_);
+                obj.file_handle_ = [];
+
+                obj.f_accessor_ = [];
+                obj.offset_ = 0;
+                obj.full_filename = obj.tmp_pix_obj.file_name;
+                obj.f_accessor_ = memmapfile(obj.full_filename, ...
+                                             'format', obj.get_memmap_format(), ...
+                                             'Repeat', 1, ...
+                                             'Writable', true, ...
+                                             'offset', obj.offset_);
+                obj = obj.recalc_data_range('all');
+            end
         end
 
         function format = get_memmap_format(obj)

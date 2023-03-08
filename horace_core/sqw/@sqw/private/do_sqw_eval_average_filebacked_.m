@@ -1,4 +1,4 @@
-function sqw_obj = do_sqw_eval_average_filebacked_(sqw_obj, sqwfunc, pars, outfile)
+function wout = do_sqw_eval_average_filebacked_(wout, sqwfunc, pars, outfile)
 %==============================================================================
 % Execute the given function 'sqwfunc' on the average coordinates (in
 % r, l, u) for each image bin
@@ -6,21 +6,29 @@ function sqw_obj = do_sqw_eval_average_filebacked_(sqw_obj, sqwfunc, pars, outfi
 %==============================================================================
 
 pg_size = get(hor_config, 'mem_chunk_size');
-write_as_sqw = ~isempty(outfile);
 
-npix = sqw_obj.data.npix;
+if isempty(outfile)
+    if isempty(wout.full_filename)
+        obj.full_filename = 'in_mem';
+    end
+    wout.file_holder_ = TmpFileHandler(obj.full_filename);
+    outfile = wout.file_holder_.file_name;
+end
+
+npix = wout.data.npix;
 
 % Split npix array up, this allows us to pass the npix chunks into
 % 'average_bin_data', for which we need whole bins.
 [npix_chunks, idxs, npix_cumsum] = split_vector_max_sum(npix(:), pg_size);
 pix_bin_starts = npix_cumsum - npix(:) + 1;
 
-if write_as_sqw
-    ldr = write_sqw_no_pix_or_footers_(wout, outfile);
-    ldr_clob = onCleanup(@() ldr.delete());
-else
-    sqw_obj.pix = sqw_obj.pix.get_new_handle();
-end
+ldr = sqw_formats_factory.instance().get_pref_access(wout);
+ldr = ldr.init(wout, outfile);
+ldr.put_sqw('-nopix');
+
+wout.pix = wout.pix.get_new_handle(ldr);
+
+ldr_clob = onCleanup(@() ldr.delete());
 
 for j = 1:numel(npix_chunks)
     npix_chunk = npix_chunks{j};
@@ -29,11 +37,11 @@ for j = 1:numel(npix_chunks)
     pix_block_sizes = pix_end_idx-pix_start_idx+1;
 
     % Get pixels that belong to the bins in the current npix chunk
-    pix_chunk = sqw_obj.pix.get_pix_in_ranges(pix_start_idx, pix_block_sizes, false);
+    pix_chunk = wout.pix.get_pix_in_ranges(pix_start_idx, pix_block_sizes, false);
 
 
     % Calculate qh, qk, ql, and en for the pixels (qw_pix is cell array)
-    qw_pix = get_qw_pixels_(sqw_obj, pix_chunk);
+    qw_pix = get_qw_pixels_(wout, pix_chunk);
 
     % Average the qw pixel data over each bin defined by the npix chunk
     qw_ave = average_bin_data(npix_chunk, pix);
@@ -48,25 +56,16 @@ for j = 1:numel(npix_chunks)
 
     pix_chunk = pix_chunk.set_fields(sig_var, {'signal', 'variance'});
 
-    if write_as_sqw
-        ldr.put_bytes(pix_chunk.data);
-    else
-        sqw_obj.pix.format_dump_data(pix_chunk.data);
-    end
+    wout.pix.format_dump_data(pix_chunk.data);
 
 end
 
-if write_as_sqw
-    ldr.put_footers();
-    % Now go back and overwrite the old image in the file with new data
-    [img_signal, img_error] = get_image_bin_averages_(img_signal, npix);
-    ldr.put_image(img_signal, img_error);
-    sqw_obj = sqw(outfile);
-else
-    sqw_obj.pix = sqw_obj.pix.finalise();
-end
+wout.pix = wout.pix.finalise();
 
-sqw_obj = recompute_bin_data(sqw_obj);
+% Now go back and overwrite the old image in the file with new data
+[img_signal, img_error] = get_image_bin_averages_(img_signal, npix);
+ldr.put_image(img_signal, img_error);
+wout.data = ldr.get_data('-nopix');
 
 end % of function do_sqw_eval_average_filebacked
 
