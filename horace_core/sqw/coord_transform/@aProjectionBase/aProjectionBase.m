@@ -166,7 +166,9 @@ classdef aProjectionBase < serializable
             %         cellarray of such parameters. Empty, if all inputs
             %         define the projection parameters.
             %
-            opt_par = aProjectionBase.init_params;
+
+            % get list of the parameter names, used in initialization
+            init_par = aProjectionBase.init_params;
             remains = [];
             if nargin == 0
                 return;
@@ -176,7 +178,7 @@ classdef aProjectionBase < serializable
             else
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
-                    opt_par,false,varargin{:});
+                    init_par,false,varargin{:});
             end
         end
         %------------------------------------------------------------------
@@ -660,7 +662,7 @@ classdef aProjectionBase < serializable
     methods(Abstract,Access=protected)
         % function returns u_to_rlu matrix for appropriate coordinate
         % system
-        mat = get_u_to_rlu_mat(obj);        
+        mat = get_u_to_rlu_mat(obj);
     end
     %======================================================================
     % Serializable interface

@@ -45,8 +45,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     end
     properties(Dependent,Hidden)
         % legacy operations, necessary for saving dnd object in the old sqw
-        % data format. Will be removed when old sqw format saving is
-        % removed
+        % data format. May be removed if old sqw format saving is not used
+        % any more.
         u_to_rlu;
         ulen;
         creation_date_defined;
@@ -54,11 +54,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % Two properties, responsible for storing/restoring dnd information
         % to/from binary hdd file format.
         % The main purpose for the separation, is the possibility to access
-        % dnd-data from third party (non-Matlab) applications
-        %
+        % dnd-data arrays on hdd from third party (non-Matlab) applications
         metadata; % Full information describing dnd object
-        nd_data;     % N-D data arrays, describing DND image stored in dnd
-        %             % object
+        nd_data;  % N-D data arrays, describing DND image stored in dnd
+        %         % object. Stored on HDD in binary form accessible for
+        %         % binary read operation from external sotfware.
+        %------------------------------------------------------------------
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
     end
@@ -210,7 +211,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = ...
                 obj.axes.data_plot_titles(obj);
         end
-        
+
         % calculate the range of the image to be produded by target
         % projection from the current image
         range = targ_range(obj,targ_proj)

@@ -16,7 +16,7 @@ classdef spher_proj<aProjectionBase
     %
     properties(Dependent)
         ez; %[1x3] Unit vector of Z axis in spherical coordinate system
-        % where the elevation angle (Matlab convention) is counted from.
+        % where the elevation angle (MATLAB convention) is counted from.
         % In Horace/Mantid convention this angle is named pi/2-theta.
         % Default direction [0,0,1] is a beam direction for this coordinate system.
         %
@@ -44,7 +44,7 @@ classdef spher_proj<aProjectionBase
         hor2matlab_transf_ = ...
             [0,0,1;... % The transformation from
             1 ,0,0;... % Horace pixel coordinate system to the axes above to
-            0 ,1,0];   % allow to use Matlab sph2cart/cart2sph functions.  
+            0 ,1,0];   % allow to use MATLAB sph2cart/cart2sph functions.  
 
 
         pix_to_matlab_transf_ ; % the transformation used for conversion

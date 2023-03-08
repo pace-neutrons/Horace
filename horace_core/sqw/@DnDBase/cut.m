@@ -23,7 +23,8 @@ function wout = cut(obj, varargin)
 % ------
 %   data_source    Data source: sqw-type object (sqw or sqw data accessor)
 %
-%   proj           instance of aProjectionBase class (ortho_proj) as defailts
+%   proj           instance of aProjectionBase class (ortho_proj by default)
+%                  which describes the target coordinate system of the cut
 %                  or Data structure containing the projection class fields,
 %                  (names and its values)
 %                  (type >> help ortho_proj   for details)
@@ -84,7 +85,8 @@ function wout = cut(obj, varargin)
 %                                be the number of rdiff sized steps between plo
 %                                and phi; phi will be automatically increased
 %                                such that rdiff divides phi - plo.
-%
+% NOTE:
+% All binning parameters are expressed in the coordinate system described by proj.
 %
 % Output:
 % -------

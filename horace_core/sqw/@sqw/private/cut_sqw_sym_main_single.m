@@ -80,12 +80,8 @@ else
         % This could be generalized later - but with repercussions in many routines
         header_ave=header_average(header);
         
-        
-        % Because Alex's aProjectionBase class (of which proj is an instance)
-        % is a rather odd hybrid object with projection and cut information
-        % in its public and private properties, regenerate this class
-        % with the information for input cut projection information in the
-        % same way that was done by cut_sqw_check_pbins in cut_sqw_sym_main
+        % 
+        %TODO: THIS ALL SHOULD GO. Modify this as its now done in cut_sqw_sym_main
         proj_trans=ortho_proj(proj_trans);
         [proj_trans, ~, ~, pin, en] = proj_trans.update_pbins(header_ave, data,pbin_trans);
         
