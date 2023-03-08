@@ -337,7 +337,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % Always create a new PixTmpFile object
             % If others point to it, file will be kept
             % otherwise file will be cleared
-            obj.tmp_pix_obj = PixelTmpFile(obj.full_filename);
+            obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
             fh = fopen(obj.tmp_pix_obj.file_name, 'wb+');
 
