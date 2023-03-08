@@ -1,4 +1,4 @@
-classdef spher_proj<aProjection
+classdef spher_proj<aProjectionBase
     % Class defines spherical coordinate projection, used by cut_sqw
     % to make spherical cuts.
     %
@@ -62,7 +62,7 @@ classdef spher_proj<aProjection
 
     methods
         function obj=spher_proj(varargin)
-            obj = obj@aProjection();
+            obj = obj@aProjectionBase();
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
             obj.label = {'|Q|','\theta','\phi','En'};
 
@@ -77,14 +77,14 @@ classdef spher_proj<aProjection
                 return
             end
             nargi = numel(varargin);
-            if nargi== 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjection'))
+            if nargi== 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjectionBase'))
                 if isstruct(varargin{1})
                     obj = serializable.loadobj(varargin{1});
                 else
                     obj = obj.from_bare_struct(varargin{1});
                 end
             else
-                opt =  [ortho_proj.fields_to_save_(:);aProjection.init_params(:)];
+                opt =  [ortho_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
                     opt,false,varargin{:});
@@ -100,7 +100,7 @@ classdef spher_proj<aProjection
             v=obj.ez_;
         end
         function obj = set.ez(obj,val)
-            val = aProjection.check_and_brush3vector(val);
+            val = aProjectionBase.check_and_brush3vector(val);
             if any(val ~= [0,0,1])
                 warning('HORACE:spher_proj:not_implemented', ...
                     'changes in beam-axis direction is not yet implemented')
@@ -117,7 +117,7 @@ classdef spher_proj<aProjection
             u = obj.ey_;
         end
         function obj = set.ey(obj,val)
-            val = aProjection.check_and_brush3vector(val);
+            val = aProjectionBase.check_and_brush3vector(val);
             if any(val ~= [0,1,0])
                 warning('HORACE:spher_proj:not_implemented', ...
                     'changes in rotation-axis direction is not yet implemented')
@@ -171,11 +171,11 @@ classdef spher_proj<aProjection
 
         end
         %------------------------------------------------------------------
-        % Particular implementation of aProjection abstract interface
+        % Particular implementation of aProjectionBase abstract interface
         %------------------------------------------------------------------
         function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
             % return the axes block, corresponding to this projection class.
-            ax_bl = get_proj_axes_block@aProjection(obj,default_binning_ranges,req_binning_ranges);
+            ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
             ax_bl.angular_unit_is_rad = obj.type(2:3);
             %
             %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear TODO: #954.
@@ -243,7 +243,7 @@ classdef spher_proj<aProjection
             ver = 1;
         end
         function  flds = saveableFields(obj)
-            flds = saveableFields@aProjection(obj);
+            flds = saveableFields@aProjectionBase(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
     end

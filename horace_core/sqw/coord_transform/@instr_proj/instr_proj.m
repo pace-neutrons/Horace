@@ -1,4 +1,4 @@
-classdef instr_proj<aProjection
+classdef instr_proj<aProjectionBase
     %  Class defines coordinate transformations necessary to convert the
     %  results of neutron experiments from the physical space of inelastic
     %  neutron instrument (instrument frame), to orthogonal reciprocal
@@ -64,7 +64,7 @@ classdef instr_proj<aProjection
             % efix    -- incident energy or array of incident energies
             % emode   -- the instrument operational mode
             %
-            proj = proj@aProjection();
+            proj = proj@aProjectionBase();
             proj.label = {'Q_\zeta','Q_\xi','Q_\eta','E'};
             if nargin>0 % initialize defaults, which describe unit transformation from
                 proj = proj.init(varargin{:});
@@ -134,7 +134,7 @@ classdef instr_proj<aProjection
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
-        % Particular implementation of aProjection abstract interface
+        % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
         %------------------------------------------------------------------
         function pix_coord = transform_pix_to_img(obj,pix_data,varargin)
@@ -179,7 +179,7 @@ classdef instr_proj<aProjection
             % See #838 for possible optimization of this
             [pix,det0,axes]  = obj.convert_rundata_to_pix(run_data,axes);
             [npix,s,e,pix_ok,unique_runid] = ...
-                bin_pixels@aProjection(obj,axes,pix,varargin{:});
+                bin_pixels@aProjectionBase(obj,axes,pix,varargin{:});
         end
         %
         function ax_bl = get_proj_axes_block(obj,ranges,bin_numbers)
@@ -206,7 +206,7 @@ classdef instr_proj<aProjection
         end
         %
         function  flds = saveableFields(obj)
-            flds = saveableFields@aProjection(obj);
+            flds = saveableFields@aProjectionBase(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
     end

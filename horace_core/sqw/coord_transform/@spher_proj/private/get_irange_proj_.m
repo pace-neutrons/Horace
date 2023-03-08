@@ -68,7 +68,7 @@ if ndim==3
     irange=zeros(2,0);
 else
     % Check first if the simple section of dimensions 4,5,... leaves any points (as fast to test)
-    [irange,inside,outside] = aProjection.get_irange(urange(:,4:end),varargin{4:end});
+    [irange,inside,outside] = aProjectionBase.get_irange(urange(:,4:end),varargin{4:end});
     if outside
         istart=zeros(0,1);
         iend=zeros(0,1);

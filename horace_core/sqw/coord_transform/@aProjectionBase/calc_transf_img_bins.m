@@ -9,7 +9,7 @@ function [iax, iint, pax, p, img_db_range_out] = calc_transf_img_bins(proj,img_d
 %
 %   >> [iax, iint, pax, p, img_db_range, pbin_out] =  proj.calc_transformed_img_bins(img_db_range_in, pbin, pin, en)
 %
-%      Throws aPROJECTION:invalid_arguments if input parameters are
+%      Throws HORACE:aProjectionBase:invalid_arguments if input parameters are
 %      inconsistent or incorrect
 %
 % Input:
@@ -70,7 +70,7 @@ function [iax, iint, pax, p, img_db_range_out] = calc_transf_img_bins(proj,img_d
 % ------------------------------------------------------------------------
 n=length(pbin);
 if n<3 || n>4
-    error('aPROJECTION:invalid_arguments',...
+    error('HORACE:aProjectionBase:invalid_arguments',...
         'Have not provided binning descriptor for all three momentum axes and (optionally) the energy axis');
 end
 
@@ -78,13 +78,13 @@ if ~(isempty(pbin{1})||(isa_size(pbin{1},'row','double') && length(pbin{1})>=1 &
         ~(isempty(pbin{2})||(isa_size(pbin{2},'row','double') && length(pbin{2})>=1 && length(pbin{2})<=3)) || ...
         ~(isempty(pbin{3})||(isa_size(pbin{3},'row','double') && length(pbin{3})>=1 && length(pbin{3})<=3))
     
-    error('aPROJECTION:invalid_arguments',...
+    error('HORACE:aProjectionBase:invalid_arguments',...
         'Check format of integration range / plotting description for momentum axes');
 end
 
 if n==4
     if ~(isempty(pbin{4})||(isa_size(pbin{4},'row','double') && length(pbin{4})>=1 && length(pbin{4})<=3))
-        error('aPROJECTION:invalid_arguments',...
+        error('HORACE:aProjectionBase:invalid_arguments',...
             'Check format of integration range / plotting description for energy axis');
     end
 end
@@ -139,17 +139,17 @@ for idim=1:4
         end
         % Check validity of step sizes
         if idim==4 && vstep(idim)<0 % recall that step of zero is valid for energy axis
-            error('aPROJECTION:invalid_arguments',...
+            error('HORACE:aProjectionBase:invalid_arguments',...
                 'Cannot have negative energy step size');
         elseif idim~=4 && vstep(idim)<=0
-            error('aPROJECTION:invalid_arguments',...
+            error('HORACE:aProjectionBase:invalid_arguments',...
                 'Cannot have zero step size for plotting - check axis  N: %d',num2str(idim));
             
         end
     end
     % check validity of data ranges
     if cut_lmts_req(idim,2)<cut_lmts_req(idim,1)
-        error('aPROJECTION:invalid_arguments',...
+        error('HORACE:aProjectionBase:invalid_arguments',...
             'Check upper limit greater or equal to the lower limit - check axis N: %d',idim);
     end
 end
@@ -190,14 +190,14 @@ for i=1:npax
         end
         % No bins
         if isempty(p{i})
-            error('aPROJECTION:invalid_arguments',...
+            error('HORACE:aProjectionBase:invalid_arguments',...
                 'Plot range outside extent of data for at least one plot axis (axis N%d)',i);
         end
         % For a plot axis we have declared that we need at least two bins
         if numel(p{i})<=2
             str=str_compress(num2str(pbin_tmp));
             mess=['Only one bin in range [',str,'] - cannot make this a plot axis'];
-            error('aPROJECTION:invalid_arguments',mess)
+            error('HORACE:aProjectionBase:invalid_arguments',mess)
         end
         %pbin_out{ipax} = pbin_tmp;
     end

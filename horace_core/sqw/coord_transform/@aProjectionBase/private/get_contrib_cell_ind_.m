@@ -101,6 +101,6 @@ switch n_dim
         mat(:,:,:,1)  = 0;
         mat(:,:,:,end)= 0;
     otherwise
-        error('HORACE:aProjection:unsupported_number_of_dimensions',...
+        error('HORACE:aProjectionBase:unsupported_number_of_dimensions',...
             'Can not process %d dimensions',n_dim);
 end

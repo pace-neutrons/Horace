@@ -81,7 +81,7 @@ else
         header_ave=header_average(header);
         
         
-        % Because Alex's aProjection class (of which proj is an instance)
+        % Because Alex's aProjectionBase class (of which proj is an instance)
         % is a rather odd hybrid object with projection and cut information
         % in its public and private properties, regenerate this class
         % with the information for input cut projection information in the
