@@ -25,13 +25,29 @@ function wout = do_sqw_eval_filebacked_(wout, sqwfunc, pars, outfile)
 
 pg_size = get(hor_config, 'mem_chunk_size');
 
-[wout, ldr] = wout.get_new_handle(outfile);
-ldr_clob = onCleanup(@() ldr.delete());
+if isempty(outfile)
+    if isempty(wout.full_filename)
+        wout.full_filename = 'in_mem';
+    end
+    wout.file_holder_ = TmpFileHandler(wout.full_filename);
+    outfile = wout.file_holder_.file_name;
+end
 
 npix = wout.data.npix;
 
 % divide npix into chunks of the page size
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), pg_size);
+
+% Write the given SQW object to the given file.
+% The pixels of the SQW object will be derived from the image signal array
+% and npix array, saving in chunks so they do not need to be held in memory.
+ldr = sqw_formats_factory.instance().get_pref_access(wout);
+ldr = ldr.init(wout, outfile);
+ldr.put_sqw('-nopix');
+
+wout.pix = wout.pix.get_new_handle(ldr);
+
+ldr_clob = onCleanup(@() ldr.delete());
 
 img_signal = zeros(1, numel(npix));
 
@@ -52,8 +68,6 @@ for i = 1:wout.pix.num_pages
     data(v_ind, :) = 0;
 
     wout.pix.format_dump_data(data);
-    wout.pix.data_range = wout.pix.pix_minmax_ranges(data, ...
-                                                     wout.pix.data_range);
 
     img_signal = increment_signal_sums_(img_signal, sig_chunk, ...
                                         npix_chunk, idx_chunk);
@@ -63,10 +77,8 @@ end
 wout.pix = wout.pix.finalise();
 
 [img_signal, img_error] = get_image_bin_averages_(img_signal, npix);
-wout.data.s = img_signal;
-wout.data.e = img_error;
-
-% ldr.put_dnd(wout.data);
+ldr.put_image(img_signal, img_error);
+wout.data = ldr.get_data('-nopix');
 
 end % of function do_sqw_file_backed
 

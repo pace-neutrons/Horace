@@ -61,9 +61,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % holder for pix data
         % Object containing data for each pixe
         pix_ = PixelDataBase.create();
-    end
 
-    properties(Hidden)
         % Holder for temporary file to clear
         % it on object deletion
         file_holder_;
