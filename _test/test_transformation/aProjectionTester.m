@@ -1,12 +1,12 @@
-classdef aProjectionTester < aProjection
-    %  Helper class to test non-abstract aProjection methods
+classdef aProjectionTester < aProjectionBase
+    %  Helper class to test non-abstract aProjectionBase methods
     %----------------------------------------------------------------------
     properties(Access=protected)
     end
 
     methods
         function [proj,extra_param]=aProjectionTester(varargin)
-            proj = proj@aProjection();
+            proj = proj@aProjectionBase();
             if nargin>0
                 [proj,extra_param]  = proj.init(varargin{:});
             else

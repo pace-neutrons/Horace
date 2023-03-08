@@ -20,7 +20,7 @@ classdef test_aProjection_methods <TestCase
                 ap.label= [200,10,10];
             end
             assertExceptionThrown(@sap,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
         function test_serialize_deserialize(~)
             ap = aProjectionTester();
@@ -79,7 +79,7 @@ classdef test_aProjection_methods <TestCase
                 ap.angdeg= [200,10,10];
             end
             assertExceptionThrown(@sap,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
 
         function test_set_angdeg_zero_throws(~)
@@ -88,7 +88,7 @@ classdef test_aProjection_methods <TestCase
                 ap.angdeg= 0;
             end
             assertExceptionThrown(@sap,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
 
         function test_set_angdeg_empty_throws(~)
@@ -97,7 +97,7 @@ classdef test_aProjection_methods <TestCase
                 ap.angdeg= [];
             end
             assertExceptionThrown(@sap,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
 
         function test_set_angdeg_matrix_throws(~)
@@ -106,7 +106,7 @@ classdef test_aProjection_methods <TestCase
                 ap.angdeg= 40*ones(3);
             end
             assertExceptionThrown(@sap,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
 
         function test_set_angdeg_col(~)
@@ -133,7 +133,7 @@ classdef test_aProjection_methods <TestCase
                 ap.alatt= 0;
             end
             assertExceptionThrown(@sap,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
 
         function test_set_lattice_empty_throws(~)
@@ -142,7 +142,7 @@ classdef test_aProjection_methods <TestCase
                 ap.alatt= [];
             end
             assertExceptionThrown(@sap,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
 
         function test_set_lattice_matrix_throws(~)
@@ -151,7 +151,7 @@ classdef test_aProjection_methods <TestCase
                 ap.alatt= ones(3);
             end
             assertExceptionThrown(@sap,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
 
         function test_set_lattice_col(~)
@@ -178,7 +178,7 @@ classdef test_aProjection_methods <TestCase
                 ap.offset = ones(3);
             end
             assertExceptionThrown(@sap,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
 
         function test_offset_nonnum_throws(~)
@@ -187,7 +187,7 @@ classdef test_aProjection_methods <TestCase
                 ap.offset = 'a';
             end
             assertExceptionThrown(@sap,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
         function test_set_offset_one_member_noz(~)
             ap = aProjectionTester();
@@ -232,7 +232,7 @@ classdef test_aProjection_methods <TestCase
                 ap.do_generic = [1,10];
             end
             assertExceptionThrown(@setter,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
 
         function test_set_throws_wrong_type(~)
@@ -243,7 +243,7 @@ classdef test_aProjection_methods <TestCase
                 ap.do_generic = 'b';
             end
             assertExceptionThrown(@setter,...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
         end
 
         function test_set_get_generic(~)

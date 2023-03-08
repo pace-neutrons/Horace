@@ -187,9 +187,9 @@ classdef dnd_metadata < serializable
             obj.axes_ = val;
         end
         function obj = set.proj(obj,val)
-            if ~isa(val,'aProjection')
+            if ~isa(val,'aProjectionBase')
                 error('HORACE:dnd_metadata:invalid_argument', ...
-                    'you can set proj using an instance of aProjection class only. Input class is: %s', ...
+                    'you can set proj using an instance of aProjectionBase class only. Input class is: %s', ...
                     class(val));
             end
             obj.proj_ = val;

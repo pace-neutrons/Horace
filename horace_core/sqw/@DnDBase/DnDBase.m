@@ -314,7 +314,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %           (axes.dimensions) have to be equal to the
             %           dimensionality of the class instance, i.e.
             %           if axes.dimensions == 2 it has to be d2d
-            % proj   -- instance of aProjection class, which defines the
+            % proj   -- instance of aProjectionBase class, which defines the
             %           transformation from PixelData coordinate system
             %           (Crystal Cartezian) to axes coordinate system.
             % Optional:
@@ -388,9 +388,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             pr = obj.proj_;
         end
         function obj = set.proj(obj,val)
-            if ~isa(val,'aProjection')
+            if ~isa(val,'aProjectionBase')
                 error('HORACE:DnDBase:invalid_argument',...
-                    'input for proj property has to be an instance of aProjection class only. It is %s',...
+                    'input for proj property has to be an instance of aProjectionBase class only. It is %s',...
                     class(val));
             end
             % keep the state of the check_combo_arg synchronized with whole

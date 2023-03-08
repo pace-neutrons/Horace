@@ -34,7 +34,7 @@ for i=1:args.array_numel
                 keys,false,args.set_of_fields{:});
             % copy label from projection to axes block in case it
             % has been redefined on projection
-            is_proj = cellfun(@(x)isa(x,'aProjection'),args.set_of_fields);
+            is_proj = cellfun(@(x)isa(x,'aProjectionBase'),args.set_of_fields);
             if any(is_proj)
                 obj_in{i}.axes.label = args.set_of_fields{is_proj}.label;
             end
@@ -117,7 +117,7 @@ elseif isstruct(input_data{1}) && ~isempty(input_data{1})
     args.data_struct = input_data;
 elseif numel(input_data) > 1
     if numel(input_data) == 2
-        if isa(input_data{1},'AxesBlockBase') && isa(input_data{2},'aProjection')
+        if isa(input_data{1},'AxesBlockBase') && isa(input_data{2},'aProjectionBase')
             sz = input_data{1}.dims_as_ssize;
             strc = init_arrays_(struct(),sz);
             args.set_of_fields = [varargin(:);struct2cell(strc)];
