@@ -123,13 +123,9 @@ end
 % combine pixels into single pixels block
 
 wout = copy(inputs(1));
-pix = arrayfun(@(x) x.pix, inputs, 'UniformOutput', false);
-
-if wout.pix.is_filebacked
-    [wout, ldr] = wout.get_new_handle();
-    wout.pix = wout.pix.cat(pix{:}, ldr);
-else
-    wout.pix = wout.pix.cat(pix{:});
+pixout = wout.pix;
+for i=2:numel(inputs)
+    pixout = PixelDataBase.concatenate(pixout,inputs(i).pix);
 end
 
 % Turn off horace_info output, but save for automatic clean-up on exit or ctrl-C
