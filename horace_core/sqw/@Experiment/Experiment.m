@@ -5,7 +5,7 @@ classdef Experiment < serializable
         % if no other instrument input is provided Exeriment instrument
         % remain empty.
         instruments_ = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
-        detector_arrays_ = []
+        detector_arrays_ = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
         samples_ = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
         samples_set_ = false; % Two prperties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata

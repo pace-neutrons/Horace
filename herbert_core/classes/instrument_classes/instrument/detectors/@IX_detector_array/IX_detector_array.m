@@ -22,6 +22,8 @@ classdef IX_detector_array < serializable
     properties (Dependent)
         % Detector identifiers, unique integers greater or equal to one
         id
+        % Alias for id, field as used in Horace detpar-struct
+        group
         % Sample-detector distances (m) (column vector)
         x2
         % Scattering angles (degrees, in range 0 to 180) (column vector)
@@ -139,6 +141,10 @@ classdef IX_detector_array < serializable
             else
                 val = obj.det_bank_.id;
             end
+        end
+        
+        function val = get.group(obj)
+            val = obj.id';
         end
 
         function val = get.x2(obj)

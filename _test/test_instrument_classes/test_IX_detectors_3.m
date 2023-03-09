@@ -46,6 +46,22 @@ classdef test_IX_detectors_3 < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
+        function test_det_bank_changed_order (self)
+            [dets, det_array] = construct_detectors(self);
+            det = dets(1);
+            id = (99:-1:1)';
+            x2 = (0.0001:0.0001:0.0099)';
+            phi = (1.8:1.8:179.999)';
+            azim = (1.8:1.8:179.999)';
+            bank = IX_detector_bank(id,x2,phi,azim,det);
+            assertEqual(bank.id, id);
+            assertEqual(bank.x2, x2);
+            assertEqual(bank.phi, phi);
+            assertEqual(bank.azim, azim);
+            assertEqual(bank.det.replicate(-1), det);
+        end
+        
+        %--------------------------------------------------------------------------
         function test_det_bank_saveload (self)
             [dets, det_array] = construct_detectors(self);
             det = dets(1);

@@ -1,18 +1,19 @@
-function std_form = check_sample_or_inst_array_and_return_std_form_(...
-    sample_or_instrument,class_base)
+function std_form = check_sample_or_inst_or_detector_array_and_return_std_form_(...
+    sid,class_base)
 % The function is the common part of the checks to set sample
 % or instrument methods.
 %
 % check if input is sample or instrument type input and return
 % standard form of the class, to store within the class method.
 % Inputs:
-% sample_or_instrument --object or collection of objects in any
+% sid             --object or collection of objects in any
 %                        standard form acceptable
-% class_base           --base class for samples or instruments
+%                        of samples, instruments or detectors\
+% class_base      --base class for samples or instruments or detectors
 %                        depending on sample or instrument is
 %                        verified
 % Output:
-% std_form -- the standard form of sample or instrument
+% std_form -- the standard form of sample or instrument or detector
 %             collection to store within the container
 % Throws 'HORACE:Experiment:invalid_argument' if the input can not be
 % converted into the standard forn
@@ -20,16 +21,16 @@ function std_form = check_sample_or_inst_array_and_return_std_form_(...
 % the sample_or_instrument container is being used in the set method for
 % Experiment. Likely in loading the class from file, but maybe other uses.
 
-% Assuming that the object saved is the current unique_references_container
+% If the object saved is the current unique_references_container
 % type, then just copy it into place, amking sure it is the right base
 % type.
-if isa(sample_or_instrument,'unique_references_container')
-    is = strcmp(class_base, sample_or_instrument.stored_baseclass);
+if isa(sid,'unique_references_container')
+    is = strcmp(class_base, sid.stored_baseclass);
     if ~is
         error('HORACE:Experiment:invalid_argument',...
             'unique_references_container of wrong type');
     end
-    global_name = sample_or_instrument.global_name;
+    global_name = sid.global_name;
     if strcmp(class_base, 'IX_samp') && ...
             ~strcmp(global_name, 'GLOBAL_NAME_SAMPLES_CONTAINER')
         error('container is for samples but global container is not');
@@ -37,7 +38,7 @@ if isa(sample_or_instrument,'unique_references_container')
             ~strcmp(global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER')
         error('container is for instruments but global container is not');
     end
-    std_form = sample_or_instrument;
+    std_form = sid;
     return
 end
 
@@ -48,36 +49,40 @@ if strcmp(class_base,'IX_samp')
     global_name = 'GLOBAL_NAME_SAMPLES_CONTAINER';
 elseif strcmp(class_base, 'IX_inst')
     global_name = 'GLOBAL_NAME_INSTRUMENTS_CONTAINER';
+elseif strcmp(class_base, 'IX_detector_array')
+    global_name = 'GLOBAL_NAME_INSTRUMENTS_CONTAINER';
 else
     error('HORACE:check_sample_or_inst_array_and_return_std_form:invalid_argument', ...
-          'storage base class specified is not IX_samp or IX_inst');
+          'storage base class specified is not IX_samp or IX_inst or IX_detector_array');
 end
 std_form = unique_references_container(global_name,class_base);
 
-if isempty(sample_or_instrument)
+if isempty(sid)
     if strcmp(class_base,'IX_samp')
         std_form = std_form.add(IX_null_sample());
-    else
+    elseif strcmp(class_base, 'IX_inst')
         std_form = std_form.add(IX_null_inst());
+    else
+        error('should not have empty detector');
     end
-elseif iscell(sample_or_instrument)
-    is = cellfun(@(x)isa(x,class_base),sample_or_instrument);
+elseif iscell(sid)
+    is = cellfun(@(x)isa(x,class_base),sid);
     if ~all(is)
         error('HORACE:Experiment:invalid_argument', ...
             'must be inst or sample but some elements of the input cellarray are not');
     end
-    std_form = std_form.add(sample_or_instrument);
-elseif isa(sample_or_instrument,'unique_objects_container')
-    is = strcmp( sample_or_instrument.baseclass, std_form.stored_baseclass);
+    std_form = std_form.add(sid);
+elseif isa(sid,'unique_objects_container')
+    is = strcmp( sid.baseclass, std_form.stored_baseclass);
     if ~all(is)
         error('HORACE:Experiment:invalid_argument', ...
             'must be inst or sample but the input container is not');
     end
-    std_form = std_form.add(sample_or_instrument);
-elseif isa(sample_or_instrument,class_base)
-    std_form = std_form.add(sample_or_instrument);
+    std_form = std_form.add(sid);
+elseif isa(sid,class_base)
+    std_form = std_form.add(sid);
 else
     error('HORACE:Experiment:invalid_argument', ...
         'Input must be a cellarray or array of %s objects . In fact it is %s',...
-        class_base,class(sample_or_instrument));
+        class_base,class(sid));
 end

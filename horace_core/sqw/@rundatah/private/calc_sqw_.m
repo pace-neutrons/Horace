@@ -109,4 +109,6 @@ expdata = IX_experiment([fn,fe], [fp,filesep], ...
     obj.en,uoffset,  u_to_rlu, ...
     ulen,sqw_data.label,obj.run_id);
 
-header = Experiment([],obj.instrument,obj.sample,expdata);
+detector = IX_detector_array(obj.det_par);
+
+header = Experiment(detector,obj.instrument,obj.sample,expdata);
