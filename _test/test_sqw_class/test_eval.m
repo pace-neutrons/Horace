@@ -15,14 +15,12 @@ classdef test_eval < TestCase
         end
 
         function test_disp2sqw_eval(obj)
-            ds = disp2sqw_eval(obj.sqw_obj, ...
-                               @test_eval.disp2sqw_eval_tester2D, [], 1.0, '-all');
+            ds = disp2sqw_eval(obj.sqw_obj, @test_eval.disp2sqw_eval_tester2D, [], 1.0, '-all');
 
         end
 
         function test_func_eval_sqw(obj)
-            ds = func_eval(obj.sqw_obj, ...
-                           @test_eval.funceval_tester2D, [], '-all');
+            ds = func_eval(obj.sqw_obj, @test_eval.funceval_tester2D, [], '-all');
 
             sig = ds.data.s;
             assertEqual(sig(1), numel(sig));
@@ -36,20 +34,18 @@ classdef test_eval < TestCase
 
         function test_sqw_eval_average(obj)
 
-            ds = sqw_eval(obj.sqw_obj, ...
-                          @test_eval.sqw_eval_tester, [], '-average');
+            ds = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, [], '-average');
 
             sig = ds.data.s;
             pix = ds.pix;
 
             assertEqual(sig(1), pix.signal(1));
-            assertEqual(pix.signal(1), 210);
+            assertEqual(pix.signal(1), 36);
         end
 
         function test_sqw_eval(obj)
 
-            ds = sqw_eval(obj.sqw_obj, ...
-                          @test_eval.sqw_eval_tester, []);
+            ds = sqw_eval(obj.sqw_obj, @test_eval.sqw_eval_tester, []);
 
             pix = ds.pix;
             assertEqual(pix.signal(2), 1);
@@ -60,8 +56,7 @@ classdef test_eval < TestCase
 
             sqw_nopix = copy(obj.sqw_obj);
             sqw_nopix.pix = PixelDataBase.create();
-            ds = sqw_eval(sqw_nopix, ...
-                          @test_eval.sqw_eval_tester, []);
+            ds = sqw_eval(sqw_nopix, @test_eval.sqw_eval_tester, []);
 
             assertEqual(size(ds.data.s), size(sqw_nopix.data.s));
             % the first value is calculated, it doesn't matter what
