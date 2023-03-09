@@ -1,4 +1,4 @@
-classdef aProjection < serializable
+classdef aProjectionBase < serializable
     %  Abstract class, defining interface and common properties used for
     %  transforming pixels from crystal Cartesian
     %  to the coordinate system defined by an sqw image (dnd-object)
@@ -126,18 +126,18 @@ classdef aProjection < serializable
     end
 
     methods
-        function [obj,par]=aProjection(varargin)
-            % aProjection constructor.
+        function [obj,par]=aProjectionBase(varargin)
+            % aProjectionBase constructor.
             %
-            % Accepts any combination (including empty) of aProjection
+            % Accepts any combination (including empty) of aProjectionBase
             % class properties containing setters in the form:
             % {property_name1, value1, property_name2, value2....}
             %
             % Returns:
             %
-            % obj  -- Instance of aProjection class
+            % obj  -- Instance of aProjectionBase class
             % par  -- if input arguments contains key-value pairs, which do
-            %         not describe aProjection class, the output contains
+            %         not describe aProjectionBase class, the output contains
             %         cellarray of such parameters. Empty, if all inputs
             %         define the projection parameters.
             if nargin == 0
@@ -151,7 +151,7 @@ classdef aProjection < serializable
             % Method normally used to initialize an empty object.
             %
             % Inputs:
-            % A combination (including empty) of aProjection
+            % A combination (including empty) of aProjectionBase
             % class properties containing setters in the form:
             % {pos_value2,pos_value2,pos_value3,...
             % property_name1, value1, property_name2, value2....}
@@ -159,14 +159,14 @@ classdef aProjection < serializable
             % constructor are specified below (opt_par)
 
             % Returns:
-            % obj  -- Initialized instance of aProjection class
+            % obj  -- Initialized instance of aProjectionBase class
             % remains
             %      -- if input arguments contains key-value pairs which do
-            %         not describe aProjection class, the output contains
+            %         not describe aProjectionBase class, the output contains
             %         cellarray of such parameters. Empty, if all inputs
             %         define the projection parameters.
             %
-            opt_par = aProjection.init_params;
+            opt_par = aProjectionBase.init_params;
             remains = [];
             if nargin == 0
                 return;
@@ -264,7 +264,7 @@ classdef aProjection < serializable
         end
         function obj = set.title(obj,val)
             if ~istext(val)
-                error('HORACE:aProjection:invalid_argument',...
+                error('HORACE:aProjectionBase:invalid_argument',...
                     'title should be a text string. In fact its type is %s', ...
                     class(val));
             end
@@ -397,7 +397,7 @@ classdef aProjection < serializable
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
                 otherwise
-                    error('HORACE:aProjection:invalid_argument',...
+                    error('HORACE:aProjectionBase:invalid_argument',...
                         'This function requests 1,3,4,5 or 6 output arguments');
             end
         end
@@ -425,7 +425,7 @@ classdef aProjection < serializable
             %
             targproj = obj.targ_proj;
             if isempty(targproj)
-                error('HORACE:aProjection:runtime_error',...
+                error('HORACE:aProjectionBase:runtime_error',...
                     'Target projection property has to be set up to convert to target coordinate system')
             end
             pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
@@ -515,9 +515,9 @@ classdef aProjection < serializable
             %
             % made protected to allow overloading to enable optimization for
             % special types of projection pairs
-            if ~isa(val,'aProjection')
-                error('HORACE:aProjection:invalid_argument',...
-                    ['only member of aProjection family can be set up as a target projection.',...
+            if ~isa(val,'aProjectionBase')
+                error('HORACE:aProjectionBase:invalid_argument',...
+                    ['only member of aProjectionBase family can be set up as a target projection.',...
                     ' Attempted to use: %s'],...
                     evalc('disp(type(val))'))
             end
@@ -542,7 +542,7 @@ classdef aProjection < serializable
         function obj = check_and_set_do_generic(obj,val)
             % setter for do_generic method
             if ~((islogical(val) || isnumeric(val)) && numel(val)==1)
-                error('HORACE:aProjection:invalid_argument',...
+                error('HORACE:aProjectionBase:invalid_argument',...
                     'you may set do_generic property into true or false state only');
             end
             obj.do_generic_ = logical(val);

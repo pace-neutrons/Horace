@@ -102,7 +102,7 @@ classdef test_ortho_proj_methods<TestCase
             pix = eye(4);
 
             assertExceptionThrown(@()from_this_to_targ_coord(pra,pix),...
-                'HORACE:aProjection:runtime_error');
+                'HORACE:aProjectionBase:runtime_error');
 
         end
         %------------------------------------------------------------------

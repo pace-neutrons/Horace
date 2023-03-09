@@ -23,7 +23,7 @@ function wout = cut(obj, varargin)
 % ------
 %   data_source    Data source: sqw-type object (sqw or sqw data accessor)
 %
-%   proj           instance of aProjection class (ortho_proj) as defailts
+%   proj           instance of aProjectionBase class (ortho_proj) as defailts
 %                  or Data structure containing the projection class fields,
 %                  (names and its values)
 %                  (type >> help ortho_proj   for details)

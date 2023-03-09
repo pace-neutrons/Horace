@@ -80,7 +80,7 @@ classdef test_data_in_sqw < TestCaseWithSave
             source_cut = cut_sqw(obj.ref_sqw,proj,[-1,0.02,3],[-2,0.02,2],[-1,1],[-4,4]);
             % Check projection 0;
             proj_0 =  source_cut.data.proj();
-            assertTrue(isa(proj_0 ,'aProjection'));
+            assertTrue(isa(proj_0 ,'aProjectionBase'));
             img_range = source_cut.data.img_range;
             ref_img_range = [ -1.0100   -2.0100   -1.0000   -4.0000;
                 3.0100    2.0100    1.0000    4.0000]; % actually look at cut ranges
@@ -116,7 +116,7 @@ classdef test_data_in_sqw < TestCaseWithSave
             ref_cut = cut_sqw(source_cut,proj1,[0,0.01,0.15],[-0.8,0.01,0.8],[-1,1],[-8,8]);
 
             proj_r =  ref_cut.data.proj;
-            assertTrue(isa(proj,'aProjection'));
+            assertTrue(isa(proj,'aProjectionBase'));
             img_range = ref_cut.data.img_range;
             full_img_range = expand_box(img_range(1,:),img_range(2,:));
 
@@ -160,7 +160,7 @@ classdef test_data_in_sqw < TestCaseWithSave
             % we rounding the projections to 9 significant digits
             proj1.u = round(proj1.u,9);
             proj1.v = round(proj1.v,9);
-            assertTrue(isa(proj,'aProjection'));
+            assertTrue(isa(proj,'aProjectionBase'));
 
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
 
@@ -189,7 +189,7 @@ classdef test_data_in_sqw < TestCaseWithSave
         function test_get_proj_crystal_cartesian(obj)
             d_sqw_dnd = obj.ref_sqw.data;
             proj =  d_sqw_dnd.proj;
-            assertTrue(isa(proj,'aProjection'));
+            assertTrue(isa(proj,'aProjectionBase'));
 
             same_sqw = cut_sqw(obj.ref_sqw,proj,[],[],[],[]);
 
