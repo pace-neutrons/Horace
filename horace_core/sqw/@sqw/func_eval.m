@@ -181,7 +181,7 @@ data_range = PixelDataBase.EMPTY_RANGE;
 pix_out = PixelDataMemory();
 
 for i=1:sqw_obj.pix.num_pages
-    [sqw_obj.pix.page_num, pix_out.data] = sqw_obj.pix.load_page(i);
+    [sqw_obj.pix, pix_out.data] = sqw_obj.pix.load_page(i);
     npix_chunk = npix_chunks{i};
     idx = idxs(:, i);
 
