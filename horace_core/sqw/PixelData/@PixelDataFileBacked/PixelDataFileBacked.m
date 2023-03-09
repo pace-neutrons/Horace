@@ -388,8 +388,11 @@ classdef PixelDataFileBacked < PixelDataBase
                     'Cannot dump data, object does not have open filehandle')
             end
 
-            if isa(obj.file_handle_, 'sqw_binfile_common')
-                obj.file_handle_.put_bytes(data);
+            if isa(obj.file_handle_, 'sqw_file_interface')
+                if ~exist('start_idx', 'var')
+                    start_idx = obj.get_page_idx_();
+                end
+                obj.file_handle_.put_raw_pix(pix, start_idx);
             else
                 fwrite(obj.file_handle_, single(pix), 'single');
             end
@@ -402,9 +405,10 @@ classdef PixelDataFileBacked < PixelDataBase
                       'Cannot finalise writing, object does not have open filehandle')
             end
 
-            if isa(obj.file_handle_, 'sqw_binfile_common')
-                ldr.put_footers();
-                obj = obj.init_from_file_accessor_(obj.file_handle_, false, true)
+            if isa(obj.file_handle_, 'sqw_file_interface')
+                obj.full_filename = obj.file_handle_.full_filename;
+                obj.file_handle_ = obj.file_handle_.put_pix_metadata(obj);
+                obj = obj.init_from_file_accessor_(obj.file_handle_, false, true);
                 obj.file_handle_ = [];
 
             else

@@ -9,28 +9,28 @@ pg_size = get(hor_config, 'mem_chunk_size');
 
 if isempty(outfile)
     if isempty(wout.full_filename)
-        obj.full_filename = 'in_mem';
+        wout.full_filename = 'in_mem';
     end
-    wout.file_holder_ = TmpFileHandler(obj.full_filename);
+    wout.file_holder_ = TmpFileHandler(wout.full_filename);
     outfile = wout.file_holder_.file_name;
 end
 
-npix = wout.data.npix;
+% Write the given SQW object to the given file.
+% The pixels of the SQW object will be derived from the image signal array
+% and npix array, saving in chunks so they do not need to be held in memory.
+ldr = sqw_formats_factory.instance().get_pref_access(wout);
+ldr = ldr.init(wout, outfile);
+ldr.put_sqw('-nopix');
+wout.pix = wout.pix.get_new_handle(ldr);
+
+ldr_clob = onCleanup(@() ldr.delete());
 
 % Split npix array up, this allows us to pass the npix chunks into
 % 'average_bin_data', for which we need whole bins.
 npix = wout.data.npix;
 
-[npix_chunks, idxs, npix_cumsum] = split_vector_max_sum(npix(:), wout.pix.DEFAULT_PAGE_SIZE);
+[npix_chunks, idxs, npix_cumsum] = split_vector_max_sum(npix(:), pg_size);
 pix_bin_starts = npix_cumsum - npix(:) + 1;
-
-ldr = sqw_formats_factory.instance().get_pref_access(wout);
-ldr = ldr.init(wout, outfile);
-ldr.put_sqw('-nopix');
-
-wout.pix = wout.pix.get_new_handle(ldr);
-
-ldr_clob = onCleanup(@() ldr.delete());
 
 for i = 1:numel(npix_chunks)
     npix_chunk = npix_chunks{i};
@@ -40,7 +40,6 @@ for i = 1:numel(npix_chunks)
 
     % Get pixels that belong to the bins in the current npix chunk
     pix_chunk = wout.pix.get_pix_in_ranges(pix_start_idx, pix_block_sizes, false);
-
 
     % Calculate qh, qk, ql, and en for the pixels (qw_pix is cell array)
     qw_pix = get_qw_pixels_(wout, pix_chunk);
@@ -59,16 +58,15 @@ for i = 1:numel(npix_chunks)
     pix_chunk = pix_chunk.set_fields(sig_var, {'signal', 'variance'});
     pix_chunk = pix_chunk.reset_changed_coord_range({'signal', 'variance'});
 
-    wout.pix.format_dump_data(pix_chunk.data);
+    wout.pix.format_dump_data(pix_chunk.data, pix_start_idx);
 
 end
 
 wout.pix = wout.pix.finalise();
+wout = recompute_bin_data(wout);
 
 % Now go back and overwrite the old image in the file with new data
-[img_signal, img_error] = get_image_bin_averages_(img_signal, npix);
-ldr.put_image(img_signal, img_error);
-wout.data = ldr.get_data('-nopix');
+% ldr.put_dnd(wout);
 
 end % of function do_sqw_eval_average_filebacked
 
