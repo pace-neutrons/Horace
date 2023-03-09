@@ -30,9 +30,43 @@ classdef test_AxesBlockBase_properties < TestCase
             obj = obj@TestCase(name);
             obj.working_dir = fileparts(mfilename("fullpath"));
         end
+        %------------------------------------------------------------------
+        function test_axes_block_nodes_hull_grid_mult_2(~)
+            dbr = [0,-2,-3,0;8,2,3,10];
+            nbins_all_dims = [8,1,4,1];
+            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
+
+            hull_sizes = nbins_all_dims*2 + 1;
+            assize = 0;
+            j = 1:4;
+            for i=1:4
+                other_dim = hull_sizes(j~=i);
+                assize = assize + 2*prod(other_dim);
+            end
+            ax = ab.get_bin_nodes('-hull',2);
+            assertEqual(size(ax),[4,assize]);
+        end
+
+        function test_axes_block_nodes_hull_grid_mult_1(~)
+            dbr = [0,-2,-3,0;8,2,3,10];
+            nbins_all_dims = [8,1,4,1];
+            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
+
+            hull_sizes = nbins_all_dims + 1;
+            assize = 0;
+            j = 1:4;
+            for i=1:4
+                other_dim = hull_sizes(j~=i);
+                assize = assize + 2*prod(other_dim);
+            end
+            ax = ab.get_bin_nodes('-hull',1);
+            assertEqual(size(ax),[4,assize]);
+        end
+
         function test_axes_block_nodes_hull_no_halo(~)
             dbr = [0,-2,-3,0;8,2,3,10];
-            ab = ortho_axes('img_range',dbr,'nbins_all_dims',[8,1,4,1]);
+            nbins_all_dims = [8,1,4,1];
+            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
 
             ax = ab.get_bin_nodes('-axes_only','-hull');
             assertEqual(numel(ax),4)
@@ -41,13 +75,21 @@ classdef test_AxesBlockBase_properties < TestCase
             assertEqual(numel(ax{3}),2)
             assertEqual(numel(ax{4}),2)
 
+            hallo_sizes = nbins_all_dims + 1;
+            assize = 0;
+            j = 1:4;
+            for i=1:4
+                other_dim = hallo_sizes(j~=i);
+                assize = assize + 2*prod(other_dim);
+            end
             ax = ab.get_bin_nodes('-hull');
-            assertEqual(size(ax),[4,2^4]);
+            assertEqual(size(ax),[4,assize]);
         end
 
         function test_axes_block_nodes_hull(~)
             dbr = [0,-2,-3,0;8,2,3,10];
-            ab = ortho_axes('img_range',dbr,'nbins_all_dims',[8,1,4,1]);
+            nbins_all_dims = [8,1,4,1];
+            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims );
 
             ax = ab.get_bin_nodes('-axes_only','-hull','-halo');
             assertEqual(numel(ax),4)
@@ -56,10 +98,17 @@ classdef test_AxesBlockBase_properties < TestCase
             assertEqual(numel(ax{3}),4)
             assertEqual(numel(ax{4}),4)
 
-            ax = ab.get_bin_nodes('-hull','-halo');
-            assertEqual(size(ax),[4,4^4]);
-        end
+            hull_hallo_sizes = nbins_all_dims + 3;
+            assize = 0;
+            j = 1:4;
+            for i=1:4
+                other_dim = hull_hallo_sizes(j~=i);
+                assize = assize + 4*prod(other_dim);
+            end
 
+            ax = ab.get_bin_nodes('-hull','-halo');
+            assertEqual(size(ax),[4,assize]);
+        end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function test_load_save_prev_sqw_version(obj)

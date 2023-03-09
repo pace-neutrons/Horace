@@ -1,5 +1,5 @@
 function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
-    calc_bin_nodes_(obj,do3D,halo,data_to_density,density_integr_grid, ...
+    calc_bin_nodes_(obj,do3D,halo,bin_edges,bin_centre, ...
     axes_only,ngrid_form,hull,varargin)
 % build 3D or 4D vectors, containing all nodes of the AxesBlockBase grid,
 % constructed over AxesBlockBase axes.
@@ -11,11 +11,11 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %              axes points.
 % halo      -- if true, build one-cell width halo around the generated axes
 %              grid. Not building halo along energy axes in 3D mode
-% data_to_density
+% bin_edges
 %           -- if true, return grid used to define density, namely with points
 %              located on the grid cell edges + edges of integrated
 %              dimensions.
-% density_integr_grid
+% bin_centre
 %           -- if true, return grid used for integration by summation in
 %              centre-points, namely, points are in the centre of cells and
 %              integration dimensions
@@ -54,7 +54,16 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %           4 dimensions
 
 noptions = 8; % number of positional arguments always present as inputs (excluding varargin)
+if bin_centre && bin_edges
+    error('Horace:AxesBlockBase:invalid_argument',...
+        '"-bin_edges" and "-bin_centre" keys can not be used together')
+end
+if ngrid_form && hull
+    error('HORACE:AxesBlockBase:invalid_argument',...
+        '"-hull" and "-grid_form" parameters can not be used together');
+end
 [char_size,grid_nnodes_multiplier] = parse_inputs(noptions,nargin,varargin{:});
+
 axes = cell(4,1);
 %
 if isempty(char_size) && isempty(grid_nnodes_multiplier)
@@ -73,6 +82,22 @@ if isempty(char_size) && isempty(grid_nnodes_multiplier)
             npoints_in_axes(i)= numel(axes{i});
         end
     end
+elseif ~isempty(grid_nnodes_multiplier)
+    range = obj.img_range;
+    size = range(2,:)'-range(1,:)';
+    npoints_in_axes = obj.nbins_all_dims*grid_nnodes_multiplier+1;
+    steps = size./npoints_in_axes';
+    if halo
+        npoints_in_axes = npoints_in_axes+2;
+    end
+    for i=1:4
+        if halo
+            axes{i} = linspace(range(1,i)-steps(i),...
+                range(2,i)+steps(i),npoints_in_axes(i));
+        else
+            axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
+        end
+    end
 else
     npoints_in_axes = zeros(1,4);
     range = obj.img_range;
@@ -84,12 +109,6 @@ else
             axes{i} = [range(1,i),range(2,i)];
             npoints_in_axes(i) = 2;
         else
-            %             if do3D && i==4 % this assumes that dE axis is certainly orthogonal to q-axes
-            %                 % and treated differently when nodes contributed to a cut are
-            %                 % identified
-            %                 npoints_in_axes(i) = obj.nbins_all_dims(4)+1;
-            %                 axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
-            %             else
             if halo
                 npoints_in_axes(i) = dNR(i)+3;
                 axes{i} = linspace(range(1,i)-steps(i),...
@@ -111,7 +130,7 @@ for i =1:4
     end
 end
 
-if data_to_density || density_integr_grid
+if bin_edges || bin_centre
     is_pax = false(4,1);
     is_pax(obj.pax) = true;
 
@@ -121,7 +140,7 @@ if data_to_density || density_integr_grid
         if is_pax(i)
             axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
         else % integration axis
-            if density_integr_grid
+            if bin_centre
                 if numel(axes{i})==2
                     grid_cell_size(i) = obj.img_range(2,i)-obj.img_range(1,i);
                 end
@@ -136,30 +155,53 @@ if data_to_density || density_integr_grid
     end
 end
 en_axis  = axes{4};
+ax_hull = axes;
 if hull
     for i=1:4
-        ax = axes{i};
+        ax = ax_hull{i};
         if halo
-            axes{i} = [ax(1:2),ax(end-1:end)];
+            ax_hull{i} = [ax(1:2),ax(end-1:end)];
         else
-            axes{i} = [ax(1),ax(end)];
+            ax_hull{i} = [ax(1),ax(end)];
         end
     end
 end
 
 if axes_only
     if do3D
-        nodes = {axes{1},axes{2},axes{3}};
+        nodes = {ax_hull{1},ax_hull{2},ax_hull{3}};
     else
-        nodes = {axes{1},axes{2},axes{3},axes{4}};
+        nodes = {ax_hull{1},ax_hull{2},ax_hull{3},ax_hull{4}};
     end
     return;
 end
 if do3D
-    [Xn,Yn,Zn] = ndgrid(axes{1},axes{2},axes{3});
+    if hull
+        [Xn1,Yn1,Zn1] = ndgrid(ax_hull{1},axes{2},axes{3});
+        [Xn2,Yn2,Zn2] = ndgrid(axes{1},ax_hull{2},axes{3});
+        [Xn3,Yn3,Zn3] = ndgrid(axes{1},axes{2},ax_hull{3});
+
+        Xn = [Xn1(:);Xn2(:);Xn3(:)]';
+        Yn = [Yn1(:);Yn2(:);Yn3(:)]';
+        Zn = [Zn1(:);Zn2(:);Zn3(:)]';
+    else
+        [Xn,Yn,Zn] = ndgrid(axes{1},axes{2},axes{3});
+    end
     En = en_axis;
 else
-    [Xn,Yn,Zn,En] = ndgrid(axes{:});
+    if hull
+        [Xn1,Yn1,Zn1,En1] = ndgrid(ax_hull{1},axes{2},axes{3},axes{4});
+        [Xn2,Yn2,Zn2,En2] = ndgrid(axes{1},ax_hull{2},axes{3},axes{4});
+        [Xn3,Yn3,Zn3,En3] = ndgrid(axes{1},axes{2},ax_hull{3},axes{4});
+        [Xn4,Yn4,Zn4,En4] = ndgrid(axes{1},axes{2},axes{3},ax_hull{4});
+
+        Xn = [Xn1(:);Xn2(:);Xn3(:);Xn4(:)]';
+        Yn = [Yn1(:);Yn2(:);Yn3(:);Yn4(:)]';
+        Zn = [Zn1(:);Zn2(:);Zn3(:);Zn4(:)]';
+        En = [En1(:);En2(:);En3(:);En4(:)]';
+    else
+        [Xn,Yn,Zn,En] = ndgrid(axes{:});
+    end
 end
 
 if do3D
@@ -172,7 +214,7 @@ else
     if ngrid_form
         nodes = {Xn,Yn,Zn,En};
     else
-        nodes = [Xn(:)';Yn(:)';Zn(:)';En(:)'];
+        nodes = [Xn(:),Yn(:),Zn(:),En(:)]';
     end
 end
 
@@ -223,9 +265,9 @@ if ninputs > noptions
                     ' or 4x1 vector of numeric values. Input size is: [%s]'],...
                     disp2str(cube_size));
             end
-        elseif numel(cube_size) == 1
+        elseif numel(cube) == 1
             % its nnodes_multiplier, not char_size
-            nnodes_multiplier = cube;
+            nnodes_multiplier = round(cube);
         else
             error('HORACE:AxesBlockBase:invalid_argument',...
                 ['characteristic size, if present, should be 4xnNodes or', ...

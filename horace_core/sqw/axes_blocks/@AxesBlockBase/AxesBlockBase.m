@@ -558,7 +558,7 @@ classdef AxesBlockBase < serializable
             % '-halo'   -- request to build lattice in the
             %              specified range + single-cell sized
             %              step expanding the lattice
-            % '-data_to_density'
+            % '-bin_edges'
             %           -- if provided, returns grid used to define density,
             %              namely with points located on the grid cell edges +
             %              edges of integrated  dimensions.
@@ -591,22 +591,18 @@ classdef AxesBlockBase < serializable
             %        -- 4-element vector of characteristic sizes of the grid cell in
             %           4 dimensions
             %
-            opt = {'-3D','-halo','-data_to_density','-bin_centre',...
+            opt = {'-3D','-halo','-bin_edges','-bin_centre',...
                 '-axes_only','-ngrid','-hull'};
             [ok,mess,...
-                do_3D,build_halo,data_to_density,density_inegr_grid,...
+                do_3D,build_halo,bin_edges,bin_centre,...
                 axes_only,ngrid,hull,argi] ...
                 = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:AxesBlockBase:invalid_argument',mess)
             end
-            if density_inegr_grid && data_to_density
-                error('Horace:AxesBlockBase:invalid_argument',...
-                    '"-interpolation" and "-extrapolation" keys can not be used together')
-            end
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 calc_bin_nodes_(obj,do_3D, ...
-                build_halo,data_to_density,density_inegr_grid,...
+                build_halo,bin_edges,bin_centre,...
                 axes_only,ngrid,hull,argi{:});
         end
         %
@@ -771,7 +767,6 @@ classdef AxesBlockBase < serializable
             % serializable object.
             flds = AxesBlockBase.fields_to_save_;
         end
-
         %
     end
 end
