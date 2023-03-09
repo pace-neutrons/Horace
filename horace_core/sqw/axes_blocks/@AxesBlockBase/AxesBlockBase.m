@@ -187,7 +187,7 @@ classdef AxesBlockBase < serializable
             fn = obj.filename_;
         end
         function obj = set.filename(obj,fn)
-            if ~istext(val)
+            if ~istext(fn)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'filename should be defined of array of characters or by a string')
             end
@@ -199,7 +199,7 @@ classdef AxesBlockBase < serializable
             fp = obj.filepath_;
         end
         function obj = set.filepath(obj,fp)
-            if ~istext(val)
+            if ~istext(fp)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'filepath should be defined of array of characters or by a string')
             end
@@ -209,7 +209,7 @@ classdef AxesBlockBase < serializable
             fn = fullfile(obj.filepath_,obj.filename_);
         end
         function obj = set.full_filename(obj,fn)
-            if ~istext(val)
+            if ~istext(fn)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'full_filename should be defined of array of characters or by a string. It is %s', ...
                     disp2str(fn));
@@ -571,6 +571,9 @@ classdef AxesBlockBase < serializable
             %           -- if provided, do not return 3D or 4D grid but
             %              just return the axes in each 3 or 4 dimensions
             %              (as requested by '-3D' switch)
+            % '-hull'   -- return only boundary nodes of the grid
+            %              If '-halo' is also provided, return edge nodes
+            %              and halo nodes.
             % '-ngrid'  -- return nodes as cellarray of arrays, produced by
             %              ngrid function
             % Returns:
@@ -588,8 +591,11 @@ classdef AxesBlockBase < serializable
             %        -- 4-element vector of characteristic sizes of the grid cell in
             %           4 dimensions
             %
-            opt = {'-3D','-halo','-data_to_density','-bin_centre','-axes_only','-ngrid'};
-            [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,axes_only,ngrid,argi] ...
+            opt = {'-3D','-halo','-data_to_density','-bin_centre',...
+                '-axes_only','-ngrid','-hull'};
+            [ok,mess,...
+                do_3D,build_halo,data_to_density,density_inegr_grid,...
+                axes_only,ngrid,hull,argi] ...
                 = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:AxesBlockBase:invalid_argument',mess)
@@ -601,7 +607,7 @@ classdef AxesBlockBase < serializable
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 calc_bin_nodes_(obj,do_3D, ...
                 build_halo,data_to_density,density_inegr_grid,...
-                axes_only,ngrid,argi{:});
+                axes_only,ngrid,hull,argi{:});
         end
         %
         function range = get_binning_range(obj,cur_proj,new_proj)
@@ -698,7 +704,7 @@ classdef AxesBlockBase < serializable
 
             obj=set_axis_bins_(obj,ndims,p1,p2,p3,p4);
         end
-        
+
     end
     %----------------------------------------------------------------------
     methods(Static)

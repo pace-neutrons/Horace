@@ -161,13 +161,13 @@ classdef aProjectionBase < serializable
             % Returns:
             % obj  -- Initialized instance of aProjectionBase class
             % remains
-            %      -- if input arguments contains key-value pairs which do
-            %         not describe aProjectionBase class, the output contains
+            %      -- if input arguments contain key-value pairs which do not
+            %         describe aProjectionBase class, the output contains
             %         cellarray of such parameters. Empty, if all inputs
             %         define the projection parameters.
             %
 
-            % get list of the parameter names, used in initialization
+            % get list of the property names, used in initialization
             init_par = aProjectionBase.init_params;
             remains = [];
             if nargin == 0
@@ -469,9 +469,9 @@ classdef aProjectionBase < serializable
             end
         end
         %
-        function targ_range = calc_target_range(obj,pix_origin,varargin)
+        function targ_range = calc_pix_img_range(obj,pix_origin,varargin)
             % Calculate and return the range of pixels in target coordinate
-            % system.
+            % system, i.e. the image coordinate system.
             %
             % Not very efficient in the generic form, but may be efficiently
             % overloaded by children. (especially in mex-mode when transformed
@@ -483,6 +483,8 @@ classdef aProjectionBase < serializable
             % Returns:
             % targ_range  -- the range of the pixels, transformed to target
             %                coordinate system.
+            % NOTE:
+            % Need verification for non ortho_proj
             pix_transformed = obj.transform_pix_to_img(pix_origin,varargin{:});
             if isa(pix_origin, 'PixelDataBase')
                 targ_range = pix_transformed.pixel_range;

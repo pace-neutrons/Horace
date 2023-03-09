@@ -30,6 +30,36 @@ classdef test_AxesBlockBase_properties < TestCase
             obj = obj@TestCase(name);
             obj.working_dir = fileparts(mfilename("fullpath"));
         end
+        function test_axes_block_nodes_hull_no_halo(~)
+            dbr = [0,-2,-3,0;8,2,3,10];
+            ab = ortho_axes('img_range',dbr,'nbins_all_dims',[8,1,4,1]);
+
+            ax = ab.get_bin_nodes('-axes_only','-hull');
+            assertEqual(numel(ax),4)
+            assertEqual(numel(ax{1}),2)
+            assertEqual(numel(ax{2}),2)
+            assertEqual(numel(ax{3}),2)
+            assertEqual(numel(ax{4}),2)
+
+            ax = ab.get_bin_nodes('-hull');
+            assertEqual(size(ax),[4,2^4]);
+        end
+
+        function test_axes_block_nodes_hull(~)
+            dbr = [0,-2,-3,0;8,2,3,10];
+            ab = ortho_axes('img_range',dbr,'nbins_all_dims',[8,1,4,1]);
+
+            ax = ab.get_bin_nodes('-axes_only','-hull','-halo');
+            assertEqual(numel(ax),4)
+            assertEqual(numel(ax{1}),4)
+            assertEqual(numel(ax{2}),4)
+            assertEqual(numel(ax{3}),4)
+            assertEqual(numel(ax{4}),4)
+
+            ax = ab.get_bin_nodes('-hull','-halo');
+            assertEqual(size(ax),[4,4^4]);
+        end
+
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function test_load_save_prev_sqw_version(obj)

@@ -1,5 +1,7 @@
-function [range,nbin]=pbin_parse_(obj,p,p_defines_bin_centers,i)
+function [range,nbin]=pbin_parse_(~,p,p_defines_bin_centers,i)
 % Check form of the bin descriptions and return bin boundaries
+% and number of bins for axes block built from the bin descriptors provided
+% as input
 %
 %   >> [range,nbin]=pbin_parse(p,i)
 %
@@ -51,14 +53,14 @@ elseif isnumeric(p)
                     nbin = nbin+1;
                 end
                 max_v = min_v+nbin*p(2); % bin edges provided
-                range=[min_v;max_v];                
+                range=[min_v;max_v];
             else % bin centres provided
                 min_v = p(1);
                 max_v = p(3);
                 nbin = floor((max_v-min_v)/p(2));
                 step = (max_v-min_v)/nbin;
                 max_v = p(1)+nbin*step;
-                range=[min_v;max_v];                
+                range=[min_v;max_v];
             end
         else
             error('HORACE:ortho_axes:invalid_argument',...

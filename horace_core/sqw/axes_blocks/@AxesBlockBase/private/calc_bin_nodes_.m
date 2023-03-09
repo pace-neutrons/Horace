@@ -1,6 +1,6 @@
 function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
     calc_bin_nodes_(obj,do3D,halo,data_to_density,density_integr_grid, ...
-    axes_only,ngrid_form,varargin)
+    axes_only,ngrid_form,hull,varargin)
 % build 3D or 4D vectors, containing all nodes of the AxesBlockBase grid,
 % constructed over AxesBlockBase axes.
 %
@@ -24,6 +24,8 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 % ngrid_form
 %           -- if true, return result as cellarray of arrays, as ngrid
 %              function generates
+% hull      -- if true, return only boundary nodes of the grid.
+%              If halo is also true, return edge nodes and halo nodes.
 %
 % Optional:
 % char_cube -- if present, the cube, describing the scale of the grid,
@@ -33,6 +35,11 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %              cube or hypercube, representing single cell of the grid,
 %              defined by the AxesBlockBase, or the all points of the whole
 %              cube in 3D or 4D space.
+% grid_nnodes_multiplier
+%           -- if present, used instead of char_cube to produce grid, which
+%             is bigger then the original grid by multiplying the original
+%             grid
+%
 %
 % Output:
 % nodes  -- [3 x nnodes] or [4 x nnodes] aray of grid nodes depending
@@ -46,11 +53,11 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %        -- 4-element vector of characteristic sizes of the grid cell in
 %           4 dimensions
 
-noptions = 7; % number of positional arguments always present as inputs (excluding varargin)
-char_size = parse_inputs(noptions,nargin,varargin{:});
+noptions = 8; % number of positional arguments always present as inputs (excluding varargin)
+[char_size,grid_nnodes_multiplier] = parse_inputs(noptions,nargin,varargin{:});
 axes = cell(4,1);
 %
-if isempty(char_size)
+if isempty(char_size) && isempty(grid_nnodes_multiplier)
     axes(obj.pax) = obj.p(:);
     iint_ax = num2cell(obj.iint',2);
     axes(obj.iax) = iint_ax(:);
@@ -128,8 +135,18 @@ if data_to_density || density_integr_grid
         npoints_in_axes(i) = numel(axes{i});
     end
 end
-
 en_axis  = axes{4};
+if hull
+    for i=1:4
+        ax = axes{i};
+        if halo
+            axes{i} = [ax(1:2),ax(end-1:end)];
+        else
+            axes{i} = [ax(1),ax(end)];
+        end
+    end
+end
+
 if axes_only
     if do3D
         nodes = {axes{1},axes{2},axes{3}};
@@ -182,12 +199,13 @@ if max_pos > range(2)
 end
 axes = [min_pos,axes(:)',max_pos];
 
-function char_size = parse_inputs(noptions,ninputs,varargin)
+function [char_size,nnodes_multiplier] = parse_inputs(noptions,ninputs,varargin)
 % process inputs to extract char size in the form of 4D cube. If the input
 % numeric array do not satisty the request for beeing 4D characteristic
 % cube, throw invalid_argument
 %
 char_size= [];
+nnodes_multiplier = [];
 if ninputs > noptions
     if isnumeric(varargin{1})
         cube = varargin{1};
@@ -205,6 +223,9 @@ if ninputs > noptions
                     ' or 4x1 vector of numeric values. Input size is: [%s]'],...
                     disp2str(cube_size));
             end
+        elseif numel(cube_size) == 1
+            % its nnodes_multiplier, not char_size
+            nnodes_multiplier = cube;
         else
             error('HORACE:AxesBlockBase:invalid_argument',...
                 ['characteristic size, if present, should be 4xnNodes or', ...

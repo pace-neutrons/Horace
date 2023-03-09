@@ -1,5 +1,7 @@
 function [range,nbin]=pbin_parse_(obj,p,p_defines_bin_centers,i)
 % Check form of the bin descriptions and return bin boundaries
+% and number of bins for axes block built from the bin descriptors provided
+% as input.
 %
 %   >> [range,nbin]=pbin_parse(p,i)
 %

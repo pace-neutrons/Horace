@@ -155,8 +155,8 @@ classdef spher_axes < AxesBlockBase
             pbin = default_pbin_(obj,ndim);
         end
         function  [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
-            % takes binning parameters and converts it into axis binning
-            % for the given axiss
+            % take binning parameters and converts them into axes bin ranges
+            % and number of bins defining this axes block
             [range,nbin]=pbin_parse_(obj,p,p_defines_bin_centers,i);
         end
     end
