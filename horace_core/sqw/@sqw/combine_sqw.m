@@ -124,7 +124,7 @@ end
 wout = copy(inputs(1));
 pixout = wout.pix;
 for i=2:numel(inputs)
-    pixout = PixelDataBase.cat(pixout,inputs(i).pix);
+    pixout = PixelDataBase.concatenate(pixout,inputs(i).pix);
 end
 wout.pix = pixout;
 

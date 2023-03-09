@@ -174,11 +174,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %
             [val,n] = obj.data.data_bin_limits();
         end
-		
+
         % smooth sqw object or array of sqw
-		% objects containing no pixels
-        wout = smooth(win, varargin)  
-        %                             
+                % objects containing no pixels
+        wout = smooth(win, varargin)
+        %
         function wout = cut_dnd(obj,varargin)
             % legacy entrance to cut for dnd objects
             wout = cut(obj.data,varargin{:});
@@ -408,6 +408,31 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
     end
 
+    methods(Access=private)
+        function [obj, ldr] = get_new_handle(obj, outfile)
+            if ~obj.pix.is_filebacked
+                return;
+            end
+
+            if ~exist('outfile', 'var') || isempty(outfile)
+                if isempty(obj.full_filename)
+                    obj.full_filename = 'in_mem';
+                end
+                obj.file_holder_ = TmpFileHandler(obj.full_filename);
+                outfile = obj.file_holder_.file_name;
+            end
+
+            % Write the given SQW object to the given file.
+            % The pixels of the SQW object will be derived from the image signal array
+            % and npix array, saving in chunks so they do not need to be held in memory.
+            ldr = sqw_formats_factory.instance().get_pref_access(obj);
+            ldr = ldr.init(obj, outfile);
+            ldr.put_sqw('-nopix');
+            obj.pix = obj.pix.get_new_handle(ldr);
+
+        end
+    end
+
     %======================================================================
     % REDUNDANT and compatibility ACCESSORS
     methods
@@ -448,6 +473,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             hdr = rmfield(hdr,{'instrument','sample'});
         end
     end
+
     %======================================================================
     % TOBYFIT INTERFACE
     methods
@@ -560,6 +586,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             [set_single,set_per_obj,n_runs_in_obj]=find_set_mode_(obj,varargin{:});
         end
     end
+
     %======================================================================
     % SERIALIZABLE INTERFACE
     properties(Constant,Access=protected)
@@ -587,7 +614,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             str = saveobj@serializable(obj);
         end
     end
-    %
+
     methods(Access = protected)
         function obj = from_old_struct(obj,S)
             % restore object from the old structure, which describes the

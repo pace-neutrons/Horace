@@ -25,22 +25,7 @@ function wout = do_sqw_eval_filebacked_(wout, sqwfunc, pars, outfile)
 
 pg_size = get(hor_config, 'mem_chunk_size');
 
-if isempty(outfile)
-    if isempty(wout.full_filename)
-        wout.full_filename = 'in_mem';
-    end
-    wout.file_holder_ = TmpFileHandler(wout.full_filename);
-    outfile = wout.file_holder_.file_name;
-end
-
-% Write the given SQW object to the given file.
-% The pixels of the SQW object will be derived from the image signal array
-% and npix array, saving in chunks so they do not need to be held in memory.
-ldr = sqw_formats_factory.instance().get_pref_access(wout);
-ldr = ldr.init(wout, outfile);
-ldr.put_sqw('-nopix');
-wout.pix = wout.pix.get_new_handle(ldr);
-
+[wout, ldr] = wout.get_new_handle(outfile);
 ldr_clob = onCleanup(@() ldr.delete());
 
 npix = wout.data.npix;

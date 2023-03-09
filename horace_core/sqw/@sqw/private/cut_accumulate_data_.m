@@ -50,12 +50,14 @@ npix = zeros(sz1);
 %sproj = obj.data.get_projection(header_av);
 sproj = obj.data.proj;
 saxes = obj.data.axes;
+
 if numel(obj.data.npix) == 1 % single bin original grid
     bloc_starts = 1;
     block_sizes = obj.data.npix;
 else
     [bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,saxes,targ_axes,targ_proj);
 end
+
 if isempty(bloc_starts)
 
     report_cut_type(obj,log_level-1,false,keep_pixels,'no_pixels');
@@ -65,6 +67,7 @@ if isempty(bloc_starts)
     unique_runid = [];
     return
 end
+
 if obj.pix.is_filebacked()
     hc = hor_config;
     chunk_size = hc.mem_chunk_size;
@@ -76,6 +79,7 @@ else
     num_chunks = 1;
     block_chunks = {{bloc_starts,block_sizes}};
 end
+
 % If we only have one iteration of pixels to cut then we must be able to fit
 % all pixels in memory, hence no need to use temporary files.
 use_tmp_files = ~return_cut && num_chunks > 1;
@@ -83,7 +87,7 @@ if keep_pixels
     % Pre-allocate cell arrays to hold PixelData chunks
     pix_retained = cell(1, num_chunks);
     pix_ix_retained = cell(1,num_chunks);
-    %
+
     if use_tmp_files
         % Create a pix_comb_info object to handle tmp files of pixels
         num_bins = numel(s);
@@ -92,17 +96,12 @@ if keep_pixels
         pix_comb_info = [];
     end
 end
-%
+
 if keep_pixels && use_tmp_files
     clearPixAccum = onCleanup(@()cut_data_from_file_job.accumulate_pix_to_file('cleanup'));
 end
-%
-if keep_pixels && ~use_tmp_files
-    keep_precision = false; % change single precision to double precision for further operations
-else
-    keep_precision = true;
-end
-%
+
+keep_precision = use_tmp_files && ~keep_pixels;
 
 pixel_contrib_name = report_cut_type(obj,log_level,use_tmp_files,keep_pixels);
 
@@ -113,6 +112,7 @@ if num_chunks == 1
     block_sizes = block_chunk{2};
     candidate_pix = obj.pix.get_pix_in_ranges( ...
         pix_start, block_sizes, false,keep_precision);
+
     if log_level >= 1
         fprintf(['*** Got data for %d pixels -- ' ...
             'processing data...'], ...
@@ -128,8 +128,10 @@ if num_chunks == 1
         npix_step_retained = [];
         unique_runid = [];
     end
+
     pix_retained{1} = pix_ok;%candidate_pix.get_pixels(ok);
     pix_ix_retained{1} = [];
+
     if log_level >= 1
         if isempty(npix_step_retained)
             npix_step_retained = sum(npix(:));
@@ -153,6 +155,7 @@ else
                 'processing data...'], iter, num_chunks, ...
                 candidate_pix.num_pixels);
         end
+
         if keep_pixels
             [npix,s,e,pix_ok,unique_runid_l,pix_indx] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
             npix_step_retained = pix_ok.num_pixels; % just for logging the progress
@@ -173,6 +176,7 @@ else
             fprintf(' ----->  %s  %d pixels\n',...
                 pixel_contrib_name,npix_step_retained);
         end
+
         if keep_pixels
             if use_tmp_files
                 % Generate tmp files and get a pix_combine_info object to manage
@@ -229,13 +233,15 @@ function pixel_contrib_name= report_cut_type(obj,log_level,use_tmp_files,keep_pi
 if isa(obj,'sqw')
     obj_type = 'in memory';
 else
-    obj_type = 'on file';
+    obj_type = 'in file';
 end
+
 if use_tmp_files
     target = 'in file';
 else
     target = 'in memory';
 end
+
 if keep_pixels
     pix_state = 'kept';
     pixel_contrib_name = 'retained';

@@ -39,5 +39,6 @@ end
 
 % Section the pix array, if non empty, and update pix_range
 if has_pixels(win)
-    wout.pix = win.pix.mask(mask_array, win.data.npix);
+    wout = wout.get_new_handle();
+    wout.pix = wout.pix.mask(mask_array, win.data.npix);
 end

@@ -122,7 +122,6 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     end
     wout_i = win(i);
     wout_i.data = func_eval(win(i).data,func_handle, pars,opts);
-    %
 
     % If sqw object, fill every pixel with the value of its corresponding bin
     if sqw_type
@@ -134,6 +133,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
             out_file = opts.outfile{i};
             wout_i = write_sqw_with_out_of_mem_pix(wout_i,out_file);
         end
+
     elseif opts.all
         % in this case, must set npix>0 to be plotted
         wout_i.data.npix=ones(size(wout_i.data.npix));
@@ -165,47 +165,35 @@ else
     end
 end
 
-% -----------------------------------------------------------------------------
+end
+
 function sqw_obj = write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
 % Write the given SQW object to the given file.
 % The pixels of the SQW object will be derived from the image signal array
 % and npix array, saving in chunks so they do not need to be held in memory.
 %
-sqw_obj.full_filename = outfile;
-ldr = sqw_formats_factory.instance().get_pref_access(sqw_obj);
-ldr = ldr.init(sqw_obj, outfile);
-ldr = ldr.put_sqw('-nopix');
-ldr = write_out_of_mem_pix(sqw_obj.pix, sqw_obj.data.npix, sqw_obj.data.s, ldr);
-sqw_obj = sqw(ldr);
-ldr.delete();
+[sqw_obj, ldr] = sqw_obj.get_new_handle(outfile);
+img_signal = sqw_obj.data.s;
 
+[npix_chunks, idxs] = split_vector_fixed_sum(sqw_obj.data.npix(:), pix.DEFAULT_PAGE_SIZE);
 
-
-function facc = write_out_of_mem_pix(pix, npix, img_signal, facc)
-% Smear the given image signal values over a file-backed PixelData object
-% Set each pixel's signal to the value of the average signal of the bin
-% that pixel belongs to. Set all variances to zero.
-%
-
-[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), pix.DEFAULT_PAGE_SIZE);
-n_pages = pix.num_pages;
 data_range = PixelDataBase.EMPTY_RANGE;
-pix_pos = 1;
 pix_out = PixelDataMemory();
-for i=1:n_pages
-    pix.page_num = i;
+
+for i=1:sqw_obj.pix.num_pages
+    [sqw_obj.pix.page_num, pix_out.data] = sqw_obj.pix.load_page(i);
     npix_chunk = npix_chunks{i};
     idx = idxs(:, i);
-    pix_out.data = pix.data;
 
     pix_out.signal = repelem(img_signal(idx(1):idx(2)), npix_chunk);
     pix_out.variance = 0;
     data_range = [min(data_range(1,:),pix_out.data_range(1,:));...
-        max(data_range(2,:),pix_out.data_range(2,:))];
+                  max(data_range(2,:),pix_out.data_range(2,:))];
 
-    facc= facc.put_raw_pix(pix_out.data,pix_pos);
-    pix_pos = pix_pos + pix.page_size;
+    sqw_obj.pix.format_dump_data(pix_out.data);
+end
+sqw_obj.pix.data_range = data_range;
+sqw_obj.pix = sqw_obj.pix.finalise();
+ldr.delete();
 
 end
-pix.data_range = data_range;
-facc = facc.put_pix_metadata(pix);
