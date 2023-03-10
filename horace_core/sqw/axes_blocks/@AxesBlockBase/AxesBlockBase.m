@@ -606,41 +606,6 @@ classdef AxesBlockBase < serializable
                 axes_only,ngrid,hull,argi{:});
         end
         %
-        function range = get_binning_range(obj,cur_proj,new_proj)
-            % Get the default binning range to use in cut, defined by a new
-            % projection. If no new projection is provided, return current
-            % binning range, i.e. the ranges used to construct this
-            % AxesBlockBase.
-            %
-            % If new projection is not aligned with the old projection, the new
-            % projection range is transformed from the old projection range and
-            % its binning is copied from the old projection binning according to
-            % axis number, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target
-            % proj would have 10 bins, etc. This redefines the behaviour of the
-            % cuts when some directions are integration directions, but
-            % become projection directions, and redefine it when a new
-            % projection direction goes in a direction mixing
-            % the current projection and the integration directions.
-            %
-            % Inputs:
-            % obj      - current instance of the axes block
-            % cur_proj - the projection, current block is defined for
-            % new_proj - the projection, for which the requested range should
-            %            be defined
-            % if both these projection are empty, returning the current binning range
-            %
-            % Output:
-            % range    - 4-element cellarray of ranges, containing current
-            %            binning range expressed in the coordinate system,
-            %            defined by the new projection (or current binning range if new
-            %            projection is not provided)
-            if nargin < 3
-                cur_proj = [];
-                new_proj = [];
-            end
-            range  = get_binning_range_(obj,cur_proj,new_proj);
-        end
-        %
     end
     methods(Abstract,Access=protected)
         % main setter for image range. Overloadable for different kind

@@ -449,10 +449,10 @@ classdef aProjectionBase < serializable
             %           if requested binning ranges are undefined or
             %           infinite. Usually it is the range of the existing
             %           axes block, transformed into the system
-            %           coordinates, defined by obj projection by
-            %           AxesBlockBase.get_binning_range method.
+            %           coordinates, defined by cut projection using
+            %           dnd.targ_range(targ_proj) method.
             % req_bin_ranges --
-            %           cellarray of bin ranges, requested by user.
+            %           cellarray of cut bin ranges, requested by user.
             %
             % Returns:
             % ax_bl -- initialized, i.e. containing defined ranges and
@@ -523,7 +523,7 @@ classdef aProjectionBase < serializable
                 error('HORACE:aProjectionBase:invalid_argument',...
                     ['only member of aProjectionBase family can be set up as a target projection.',...
                     ' Attempted to use: %s'],...
-                    evalc('disp(type(val))'))
+                    disp2str(val))
             end
             obj.targ_proj_ = val;
             obj.do_3D_transformation_ = val.do_3D_transformation;

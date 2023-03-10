@@ -198,6 +198,25 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % aspect ratio when plotting sqw objects
             status  = obj.data.adjust_aspect();
         end
+        function [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin,varargin)
+            % define target axes from existing axes, inputs and the target projections
+            % Inputs:
+            %  w        -- sqw object
+            % targ_proj -- the projection class which defines the
+            %              coordinate system of the cut
+            % pbin      -- bining parameters of the cut
+            %
+            % Retugns:
+            % targ_axes_block
+            %           -- the axes block which corresponds to the target
+            %              projection and have binning defined by pbin
+            %              parameter
+            % targ_proj
+            %           -- the input target projection, which extracted
+            %              some input parameters from source projection
+            %              (e.g. lattice if undefined, etc)
+            [targ_ax_block,targ_proj] = w.data_.define_target_axes_block(targ_proj, pbin,varargin{:});
+        end
     end
     %======================================================================
     % ACCESSORS TO OBJECT PROPERTIES and construction

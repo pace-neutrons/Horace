@@ -213,8 +213,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
 
         % calculate the range of the image to be produded by target
-        % projection from the current image
-        range = targ_range(obj,targ_proj)
+        % projection from the current object
+        range = targ_range(obj,targ_proj,varargin)
     end
     %======================================================================
     % Redundant and convenience Accessors
@@ -477,6 +477,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         function def = get.creation_date_defined(obj)
             def = obj.creation_date_defined_;
         end
+
+        % build the axes block which specified by projection and target cut
+        % parameters
+        [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, input_pbin,varagin);
     end
     %======================================================================
     % binfile IO interface
