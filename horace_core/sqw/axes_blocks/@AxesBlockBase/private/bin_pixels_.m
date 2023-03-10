@@ -90,9 +90,7 @@ else % 3D array binning
     r1 = data_range(1,1:3)';
     r2 = data_range(2,1:3)';
     pax = pax(pax~=4);
-    if isempty(pax)
-        ndims  = 0;
-    end
+    ndims = numel(pax);
 end
 
 ok = all(coord>=r1 & coord<=r2,1); % collapse first dimension, all along it should be ok for pixel be ok

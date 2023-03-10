@@ -219,7 +219,6 @@ classdef AxesBlockBase < serializable
             obj.filepath_ = fp;
         end
         %
-
         %------------------------------------------------------------------
         % MUTATORS/ACCESSORS to methods in modern API
         %------------------------------------------------------------------

@@ -194,11 +194,11 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(bl_start,bl_startO);
             assertEqual(bl_size,bl_sizeO);
 
-            assertEqual(numel(bl_start),8);
+            assertEqual(numel(bl_start),7);
             % both use halo 
             
-            assertEqual(bl_startO,[9,18,27,36,48,61,74,87]);
-            assertEqual(bl_sizeO, [3,5,7,9,8,6,4,1]);
+            assertEqual(bl_startO,[9,18,27,36,48,61,74]);
+            assertEqual(bl_sizeO, [3, 5, 7, 9, 8, 6, 4]);
         end
 
         function test_binning_range_half_sampe_proj2Drot45(~)
@@ -263,7 +263,7 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(numel(bl_start),6);
             assertEqual(numel(bl_startOld),6);
             assertEqual(bl_start,[18,27,36,89,100,111])
-            assertEqual(bl_size,[2,6,52,8,6,4])
+            assertEqual(bl_size,[2,6,51,7,5,3])
             assertEqual(bl_startOld,[27,36,45,89,100,111]);
             assertEqual(bl_sizeOld, [4,8,42,7,5,3]);
         end
