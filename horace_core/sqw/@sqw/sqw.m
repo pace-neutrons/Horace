@@ -123,7 +123,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         varargout = multifit (varargin);
 
         %------------------------------------------------------------------
-        [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
+        [ok,mess,varargout] = parse_pixel_indices (win,indx,iw);
 
         wout=combine_sqw(w1,w2);
         function wout= rebin(win,varargin)

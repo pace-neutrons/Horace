@@ -1,20 +1,18 @@
 classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
-
     properties
         horace_config;
         ALL_IN_MEM_PG_SIZE = 1e12;
 
-        test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
-        test_dnd_file_path = '../common_data/dnd_2d.sqw';
+        test_sqw_file_path;
+        test_dnd_file_path;
 
         dnd_2d;
         sqw_2d;
         sqw_2d_paged;
-        %
+
     end
-    methods(Static)
-    end
+
     methods
 
         function obj = test_equal_to_tol(name)
@@ -22,6 +20,11 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
                 name = 'test_equal_to_tol';
             end
             obj = obj@TestCase(name);
+
+            pths = horace_paths;
+            obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
+            obj.test_dnd_file_path = fullfile(pths.test_common, 'dnd_2d.sqw');
+
 
             hc = hor_config();
             obj.horace_config = hc.get_data_to_store();

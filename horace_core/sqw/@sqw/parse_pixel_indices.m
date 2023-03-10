@@ -1,13 +1,13 @@
-function [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw)
+function [ok,mess,varargout] = parse_pixel_indices (win,indx,iw)
 % Return the indicies to pixels
 %
 % Check validity (sizes and extent of arrays, format of input arguments etc)
-%   >> [ok,mess] = parse_pixel_indicies (win,indx)
+%   >> [ok,mess] = parse_pixel_indices (win,indx)
 %
 % Get indicies for a particular sqw object
-%   >> [ok,mess,irun,idet,ien] = parse_pixel_indicies (win)           % all pixels
-%   >> [ok,mess,irun,idet,ien] = parse_pixel_indicies (win,indx)      % pixels in indx (if scalar)
-%   >> [ok,mess,irun,idet,ien] = parse_pixel_indicies (win,indx,iw)   % Index in indx if not scalar
+%   >> [ok,mess,irun,idet,ien] = parse_pixel_indices (win)           % all pixels
+%   >> [ok,mess,irun,idet,ien] = parse_pixel_indices (win,indx)      % pixels in indx (if scalar)
+%   >> [ok,mess,irun,idet,ien] = parse_pixel_indices (win,indx,iw)   % Index in indx if not scalar
 %
 % Input:
 % ------
@@ -58,8 +58,8 @@ function [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw)
 
 nw = numel(win);
 nout = nargout - 2;     % number of optional output arguments in series irun, idet, ien
-if nw==0
-    error('Function called with empty sqw argument')
+if nw == 0
+    error('HORACE:parse_pixel_indices:invalid_argument', 'Function called with empty sqw argument')
 end
 
 
@@ -83,9 +83,14 @@ if nargin==1
             irun = arrayfun(@(x)runid_map(x),run_idx);
 
         else
-            if nout>=1, irun = cell(size(win)); end
-            if nout>=2, idet = cell(size(win)); end
-            if nout>=3, ien  = cell(size(win)); end
+            if nout>=1
+                irun = cell(size(win));
+            end
+            if nout>=2
+                idet = cell(size(win)); end
+            if nout>=3
+                ien  = cell(size(win));
+            end
             for i = 1:nw
                 if iscell(win)
                     pix = win{i}.pix;
@@ -97,17 +102,26 @@ if nargin==1
                     irun = arrayfun(@(x)win{1}.runid_map(x),run_idx);
                     irun{i} = irun;
                 end   % column vector
-                if nout>=2, idet{i} = pix.detector_idx'; end   % column vector
-                if nout>=3, ien{i}  = pix.energy_idx'; end   % column vector
+                if nout>=2
+                    idet{i} = pix.detector_idx';
+                end   % column vector
+                if nout>=3
+                    ien{i}  = pix.energy_idx';
+                end   % column vector
             end
         end
-        if nout>=1, varargout{1} = irun; end
-        if nout>=2, varargout{2} = idet; end
-        if nout>=3, varargout{3} = ien; end
+        if nout>=1
+            varargout{1} = irun;
+        end
+        if
+            nout>=2, varargout{2} = idet;
+        end
+        if
+            nout>=3, varargout{3} = ien;
+        end
     end
     return
 end
-
 
 % Case when given index array(s)
 % ------------------------------

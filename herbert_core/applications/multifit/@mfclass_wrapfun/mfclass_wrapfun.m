@@ -147,24 +147,26 @@ classdef mfclass_wrapfun
             %                               f_pass_caller, bf_pass_caller,...
             %                               func_init, bfunc_init)
 
-            if numel(varargin)>0
-                if numel(varargin)==4 || numel(varargin)==6 || numel(varargin)==8
-                    % Populate with public set routines to ensure checks are performed
-                    obj.fun_wrap = varargin{1};
-                    obj.p_wrap = varargin{2};
-                    obj.bfun_wrap = varargin{3};
-                    obj.bp_wrap = varargin{4};
-                    if numel(varargin)>=6
-                        obj.f_pass_caller = varargin{5};
-                        obj.bf_pass_caller = varargin{6};
-                    end
-                    if numel(varargin)>=8
-                        obj.func_init = varargin{7};
-                        obj.bfunc_init = varargin{8};
-                    end
-                else
-                    error ('Check number of input arguments')
+            if numel(varargin) == 0
+                return
+            end
+
+            if numel(varargin)==4 || numel(varargin)==6 || numel(varargin)==8
+                % Populate with public set routines to ensure checks are performed
+                obj.fun_wrap = varargin{1};
+                obj.p_wrap = varargin{2};
+                obj.bfun_wrap = varargin{3};
+                obj.bp_wrap = varargin{4};
+                if numel(varargin)>=6
+                    obj.f_pass_caller = varargin{5};
+                    obj.bf_pass_caller = varargin{6};
                 end
+                if numel(varargin)>=8
+                    obj.func_init = varargin{7};
+                    obj.bfunc_init = varargin{8};
+                end
+            else
+                error ('Check number of input arguments')
             end
         end
 
