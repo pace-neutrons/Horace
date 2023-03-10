@@ -171,6 +171,13 @@ end
 
 % Check pixel indexing is valid
 % -----------------------------
+if exist('indx','var')
+    all_pixels = false;
+    [ok,mess] = parse_pixel_indices (win,indx);
+    if ~ok, return, end
+else
+    all_pixels = true;
+end
 
 all_pixels = ~exist('indx','var');
 if ~all_pixels
@@ -220,9 +227,9 @@ for iw=1:nw
 
     % Pixel indicies
     if all_pixels
-        [irun,idet,ien] = parse_pixel_indices(wtmp);
+        [ok,mess,irun,idet,ien] = parse_pixel_indices (wtmp);
     else
-        [irun,idet,ien] = parse_pixel_indices(wtmp,indx,iw);
+        [ok,mess,irun,idet,ien] = parse_pixel_indices (wtmp,indx,iw);
     end
     npix(iw) = numel(irun);
 
