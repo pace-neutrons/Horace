@@ -84,18 +84,12 @@ if isempty(char_size) && isempty(grid_nnodes_multiplier)
     end
 elseif ~isempty(grid_nnodes_multiplier)
     range = obj.img_range;
-    size = range(2,:)'-range(1,:)';
     npoints_in_axes = obj.nbins_all_dims*grid_nnodes_multiplier+1;
-    steps = size./npoints_in_axes';
-    if halo
-        npoints_in_axes = npoints_in_axes+2;
-    end
     for i=1:4
+        axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
         if halo
-            axes{i} = linspace(range(1,i)-steps(i),...
-                range(2,i)+steps(i),npoints_in_axes(i));
-        else
-            axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
+            axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),axes{i});
+            npoints_in_axes(i) = npoints_in_axes(i)+2;
         end
     end
 else
@@ -107,18 +101,13 @@ else
     for i=1:4
         if range(1,i)+ steps(i)>=range(2,i)
             axes{i} = [range(1,i),range(2,i)];
-            npoints_in_axes(i) = 2;
         else
+            axes{i} = linspace(range(1,i),range(2,i),dNR(i)+1);
             if halo
-                npoints_in_axes(i) = dNR(i)+3;
-                axes{i} = linspace(range(1,i)-steps(i),...
-                    range(2,i)+steps(i),npoints_in_axes(i));
-            else
-                npoints_in_axes(i) = dNR(i)+1;
-                axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
+                axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),axes{i});
             end
-            %            end
         end
+        npoints_in_axes(i) = numel(axes{i});
     end
 end
 grid_cell_size = zeros(4,1);

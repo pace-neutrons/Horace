@@ -526,6 +526,7 @@ classdef aProjectionBase < serializable
                     evalc('disp(type(val))'))
             end
             obj.targ_proj_ = val;
+            obj.do_3D_transformation_ = val.do_3D_transformation;
         end
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)
