@@ -31,6 +31,9 @@ classdef test_head < TestCaseWithSave
             obj.test_sqw_2d_fullpath = fullfile(hc.test_common, obj.sqw_file_2d_name);
             obj.test_sqw_4d_fullpath = fullfile(hc.test_common, obj.sqw_file_4d_name);
             obj.d1d_obj = read_dnd(obj.test_sqw_1d_fullpath);
+            % old object, creation date is not defined. 
+            % assign creation date to avoid uncertainty
+            obj.d1d_obj.creation_date = datetime('now');
             obj.save();
         end
         function test_head_no_arg_full_works(obj)
