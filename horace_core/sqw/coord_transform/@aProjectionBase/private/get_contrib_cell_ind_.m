@@ -46,7 +46,7 @@ else
     targ_nodes = targ_axes_block.get_bin_nodes('-hull');
 end
 % verify if hull nodes may contribute to the cut, which may be 
-% the case when source cells are large and fully contain the cut cells
+% the case when source cells are larger and fully contain the cut cells
 targ_nodes = target_proj.from_this_to_targ_coord(targ_nodes);
 cell_dist = cur_axes_block.bin_pixels(targ_nodes);
 may_contributeND = interp_ds(:)>eps(single(1))|cell_dist(:)>0;
@@ -57,8 +57,6 @@ if source_proj.do_3D_transformation_
 else
     contrib_ind = find(may_contributeND);
 end
-
-
 
 function mat = nullify_edges(mat,sze)
 % Ugly. Can it be done better?

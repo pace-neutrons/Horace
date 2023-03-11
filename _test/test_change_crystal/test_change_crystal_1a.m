@@ -247,7 +247,7 @@ classdef test_change_crystal_1a < TestCase
                     % mainly to propagate errors as sqw_eval nullified errors?
                     npix = sqw_obj.pix.num_pixels;
                     sqw_obj.pix.variance = ones(1,npix);
-                    sqw_obj=recompute_bin_data_tester(sqw_obj);
+                    sqw_obj=recompute_bin_data(sqw_obj);
                     % convert to nxspe (instrument view)
                     rdo = rundatah(sqw_obj);
                     rdo.saveNXSPE(obj.nxs_file{i});

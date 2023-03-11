@@ -67,7 +67,8 @@ while difr>1.e-3 && node_mult<17
 end
 if node_mult > 17
     warning('HORACE:targ_range', ...
-        'target range search algorithm have not converged after 4 iterations. The default range identified for the cut may be invalid')
+        ['target range search algorithm have not converged after 4 iterations.\n', ...
+        ' The default range identified for the cut may be inaccurate'])
 end
 %
 if source_proj.do_3D_transformation
