@@ -47,12 +47,15 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
 
     parser = inputParser();
     parser.addRequired('pix_fields', @(x) ischar(x) || iscell(x));
-    parser.addOptional('abs_pix_indices', NO_INPUT_INDICES, ...
-                       @is_positive_int_vector_or_logical_vector);
+    parser.addOptional('abs_pix_indices', obj.NO_INPUT_INDICES, @(x) isindex(x) || (istext(x) && x == "all"));
     parser.parse(varargin{:});
 
     pix_fields = parser.Results.pix_fields;
     abs_pix_indices = parser.Results.abs_pix_indices;
+
+    if istext(abs_pix_indices) && abs_pix_indices == "all"
+        abs_pix_indices = 1:obj.num_pixels;
+    end
 
     pix_fields = cellstr(pix_fields);
     check_pixel_fields(obj, pix_fields);
@@ -64,14 +67,9 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
 
         max_idx = max(abs_pix_indices);
         if max_idx > obj.num_pixels
-            error('PIXELDATA:get_data', ...
+            error('HORACE:PixelDataMemory:get_fields', ...
                   ['Pixel index out of range. Index must not exceed %i, ' ...
                    'found %i'], obj.num_pixels, max_idx);
         end
     end
-end
-
-
-function is = is_positive_int_vector_or_logical_vector(vec)
-    is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
 end

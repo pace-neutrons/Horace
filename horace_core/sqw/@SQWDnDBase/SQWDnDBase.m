@@ -38,6 +38,15 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
         %
         wout = func_eval(win, func_handle, pars, varargin);
+        %------------------------------------------------------------------
+        % titles used when plotting an sqw object
+        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=data_plot_titles(obj)
+        % if the object changes aspect ratio during plotting
+        status = adjust_aspect(w);        
+        %------------------------------------------------------------------
+        wout = IX_dataset_1d(w);
+        wout = IX_dataset_2d(w);
+        wout = IX_dataset_3d(w);        
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -115,9 +124,7 @@ classdef (Abstract) SQWDnDBase < serializable
         cl = save(w, varargin);
 
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
-        wout = IX_dataset_1d(w);
-        wout = IX_dataset_2d(w);
-        wout = IX_dataset_3d(w);
+
         [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
         %                             % of the bins of an n-dimensional sqw
         %                             % or dnd dataset
@@ -152,21 +159,21 @@ classdef (Abstract) SQWDnDBase < serializable
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
-        %                             % on an image stored in an sqw object
+                                                             % on an image stored in an sqw object
+
         function [func_handle, pars, opts] = parse_eval_args(win, ...
                 func_handle, pars, varargin)
-            % paser for funceval function input parameters
+            % parser for funceval function input parameters
             [func_handle, pars, opts] = parse_eval_args_(win, func_handle, ...
                 pars, varargin{:});
         end
+
         function [wout,log_info] = cut_single(obj, tag_proj, targ_axes, outfile,log_level)
             [wout,log_info] = cut_single_(obj, tag_proj, targ_axes, outfile,log_level);
         end
     end
 
     methods (Access = private)
-        status = adjust_aspect(w);
-        [ok,mess,adjust,present]=adjust_aspect_option(args_in);
         dout = smooth_dnd(din, xunit, varargin);
     end
 end

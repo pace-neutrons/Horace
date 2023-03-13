@@ -183,13 +183,10 @@ if ~present.noplot  % plotting is required
         opt.newplot = false;
         if present.current
             opt.over_curr = true;
-            [~,ok,mess,~,fig] = genie_figure_parse_plot_args(opt);
+            [~,~,fig] = genie_figure_parse_plot_args(opt);
         elseif present.name
             opt.over_curr = false;
-            [~,ok,mess,~,fig] = genie_figure_parse_plot_args(opt, 'name', key.name);
-        end
-        if ~ok
-            error(mess);
+            [~,~,fig] = genie_figure_parse_plot_args(opt, 'name', key.name);
         end
         figure(fig);
     else

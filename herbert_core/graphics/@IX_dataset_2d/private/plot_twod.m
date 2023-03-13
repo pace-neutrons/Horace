@@ -1,4 +1,4 @@
-function [fig_, axes_, plot_, ok, mess] = plot_twod (w_in, newplot, plot_type, fig, varargin)
+function [fig_, axes_, plot_] = plot_twod (w_in, newplot, plot_type, fig, varargin)
 % Draw a two-dimensional plot
 %
 %   >> plot_twod (w_in, newplot, plot_type, fig)
@@ -38,8 +38,6 @@ plot_types={'area','surface','surface2','contour'};
 
 par=varargin;
 
-fig_=[]; axes_=[]; plot_=[];
-
 
 % Check input arguments
 % ---------------------
@@ -47,16 +45,16 @@ fig_=[]; axes_=[]; plot_=[];
 maxspec=get_global_var('genieplot','twod_maxspec');
 if ~iscell(w_in), nspec=numel(w_in); else nspec=numel(w_in{1}); end
 if nspec>maxspec
-    ok=false; mess=['This function can only be used to plot ',num2str(maxspec),' 2D datasets - check input object'];
-    if nargout<=3, error(mess), else return, end
+    mess=['This function can only be used to plot ',num2str(maxspec),' 2D datasets - check input object'];
+    if nargout<=3, error(mess); end
 end
 
 % Get newplot argument
 if islognumscalar(newplot)
     newplot=logical(newplot);   % in case numeric 0 or 1
 else
-    ok=false; mess='Keyword ''newplot'' must be logical true or false';
-    if nargout<=3, error(mess), else return, end
+    mess='Keyword ''newplot'' must be logical true or false';
+    if nargout<=3, error(mess), end
 end
 
 % Get plot type
@@ -65,12 +63,12 @@ if is_string(plot_type) && ~isempty(plot_type)
     if ~isempty(ind)
         plot_type=plot_types{ind};
     else
-        ok=false; mess='Plot type not recognised';
-        if nargout<=3, error(mess), else return, end
+        mess='Plot type not recognised';
+        if nargout<=3, error(mess), end
     end
 else
-    ok=false; mess='Plot type must be a (non-empty) character string';
-    if nargout<=3, error(mess), else return, end
+    mess='Plot type must be a (non-empty) character string';
+    if nargout<=3, error(mess), end
 end
 
 % Get figure name or figure handle - used to branch later on
@@ -87,14 +85,14 @@ else
 end
 [fig_out,ok,mess]=genie_figure_target(fig,newplot,default_fig_name);
 if ~ok
-    if nargout<=3, error(mess), else return, end
+    error(mess);
 end
 
 % Check plot limits:
 if ~newplot
     if ~isempty(par)
-        ok=false; mess='Cannot specify plot limits when overplotting';
-        if nargout<=3, error(mess), else return, end
+        mess='Cannot specify plot limits when overplotting';
+        if nargout<=3, error(mess), end
     end
     % Need to specify xlims,ylims not give in case need to create a figure
     xlims=false;
@@ -125,21 +123,21 @@ else
             zlims=false;
         end
         if bad
-            ok=false; mess='Plot limits must be numeric scalars';
-            if nargout<=3, error(mess), else return, end
+            mess='Plot limits must be numeric scalars';
+            if nargout<=3, error(mess), end
         elseif xlims && xlo>=xhi
-            ok=false; mess='Plot limits along x axis must have xlo < xhi';
-            if nargout<=3, error(mess), else return, end
+            mess='Plot limits along x axis must have xlo < xhi';
+            if nargout<=3, error(mess), end
         elseif ylims && ylo>=yhi
-            ok=false; mess='Plot limits along y-axis must have ylo < yhi';
-            if nargout<=3, error(mess), else return, end
+            mess='Plot limits along y-axis must have ylo < yhi';
+            if nargout<=3, error(mess), end
         elseif zlims && zlo>=zhi
-            ok=false; mess='Plot limits along signal axis must have zlo < zhi';
-            if nargout<=3, error(mess), else return, end
+            mess='Plot limits along signal axis must have zlo < zhi';
+            if nargout<=3, error(mess), end
         end
     else
-        ok=false; mess='Check plot limits are numeric and the number of limits';
-        if nargout<=3, error(mess), else return, end
+        mess='Check plot limits are numeric and the number of limits';
+        if nargout<=3, error(mess), end
     end
 end
 
@@ -176,20 +174,20 @@ if strcmpi(plot_type,'area')        % area plot
     plot_area (w)
     box on                          % put boundary box on plot
     set(gca,'layer','top')          % puts axes layer on the top
-    
+
 elseif strcmpi(plot_type,'surface') % surface plot
     if newplot, view(3); end        % set viewpoint if newplot
     plot_surface (w);
     set(gca,'layer','top')          % puts axes layer on the top
-    
+
 elseif strcmpi(plot_type,'surface2')% surface2 plot
     if newplot, view(3); end        % set viewpoint if newplot
     plot_surface2 (w);
     set(gca,'layer','top')          % puts axes layer on the top
-    
+
 elseif strcmpi(plot_type,'contour') % contour plot
     plot_contour (w);
-    
+
 end
 hold off    % release plot
 
@@ -209,7 +207,12 @@ if (newplot)
         zticks=w{1}(1).s_axis.ticks;
     end
     % Change titles:
-    title(tt,'FontWeight','normal');
+    if any(contains(tt,'$'))
+        inter= 'latex';
+    else
+        inter= 'tex';
+    end
+    title(tt,'FontWeight','normal','interpreter',inter);
     xlabel(tx);
     ylabel(ty);
     if ~strcmpi(plot_type,'area')   % don't try to plot along z axis if just an area plot

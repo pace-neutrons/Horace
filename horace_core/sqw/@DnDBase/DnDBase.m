@@ -63,10 +63,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % are often used
     end
     properties(Access = protected)
-        s_    %cumulative signal for each bin of the image  size(data.s) == axes_block.dims_as_ssize)
-        e_    %cumulative variance size(data.e) == axes_block.dims_as_ssize
-        npix_ %No. contributing pixels to each bin of the plot axes. size(data.npix) == axes_block.dims_as_ssize
-        axes_ = axes_block(); % axes block describing size and shape of the dnd object.
+        s_    %cumulative signal for each bin of the image  size(data.s) == ortho_axes.dims_as_ssize)
+        e_    %cumulative variance size(data.e) == ortho_axes.dims_as_ssize
+        npix_ %No. contributing pixels to each bin of the plot axes. size(data.npix) == ortho_axes.dims_as_ssize
+        axes_ = ortho_axes(); % axes block describing size and shape of the dnd object.
         proj_ = ortho_proj(); % Object defining the transformation, used to convert data from
         %                      crystal Cartesian coordinate system to this
         %                      image coordinate system.
@@ -182,6 +182,34 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         % Change the crystal lattice and orientation of an sqw object or array of objects
         wout = change_crystal(win,varargin);
+        %
+        function varargout = IX_dataset_1d(obj)
+            error('HORACE:DnDBase:not_implemented', ...
+                'IX_dataset_1d is not implemented for %d dimensional object', ...
+                obj.dimensions())
+        end
+        function varargout = IX_dataset_2d(obj)
+            error('HORACE:DnDBase:not_implemented', ...
+                'IX_dataset_2d is not implemented for %d dimensional object', ...
+                obj.dimensions())
+
+        end
+        function varargout = IX_dataset_3d(obj)
+            error('HORACE:DnDBase:not_implemented', ...
+                'IX_dataset_3d is not implemented for %d dimensional object', ...
+                obj.dimensions())
+        end
+        % check if the function changes aspect ratio
+        does = adjust_aspect(obj);
+        
+        function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
+                data_plot_titles(obj)
+            % Return main description of the dnd object used in plots
+            %
+            % note: axes annotations correctly account for permutation in w.data_.dax
+            [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = ...
+                obj.axes.data_plot_titles(obj);
+        end
     end
     %======================================================================
     % Redundant and convenience Accessors
@@ -211,6 +239,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function obj = set.offset(obj,val)
             obj.proj_.offset = val;
+            % Very questionable operation.
+            % It breaks the object integrity in half of usage scenario. See #955
             obj.axes_.img_range = obj.axes_.img_range+obj.proj_.offset;
         end
 
@@ -225,6 +255,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             val = obj.axes.ulen;
         end
         %         function obj = set.ulen(obj, ulen)
+        %         % This probably also incorrect and should be validated
+        %         % according to #955
         %             obj.data_.ulen = ulen;
         %         end
         %         %
@@ -233,6 +265,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function obj = set.label(obj, label)
             obj.axes_.label = label;
+            obj.proj_.label = label;
         end
         %
         function val = get.iax(obj)
@@ -281,7 +314,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %           (axes.dimensions) have to be equal to the
             %           dimensionality of the class instance, i.e.
             %           if axes.dimensions == 2 it has to be d2d
-            % proj   -- instance of aProjection class, which defines the
+            % proj   -- instance of aProjectionBase class, which defines the
             %           transformation from PixelData coordinate system
             %           (Crystal Cartezian) to axes coordinate system.
             % Optional:
@@ -291,7 +324,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %           the object. The dimensionality and binning of array
             %           have to be equal to the dimensionality and binnibng
             %           of the axes block. If the arrays are missing, they
-            %           are automatically initialized to 0 with axes_block
+            %           are automatically initialized to 0 with ortho_axes
             %           dimensionality and binning.
             % creation_data
             %        -- the date when this object should be recorded
@@ -355,9 +388,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             pr = obj.proj_;
         end
         function obj = set.proj(obj,val)
-            if ~isa(val,'aProjection')
+            if ~isa(val,'aProjectionBase')
                 error('HORACE:DnDBase:invalid_argument',...
-                    'input for proj property has to be an instance of aProjection class only. It is %s',...
+                    'input for proj property has to be an instance of aProjectionBase class only. It is %s',...
                     class(val));
             end
             % keep the state of the check_combo_arg synchronized with whole
@@ -421,6 +454,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function obj = set.title(obj, title)
             obj.axes_.title = title;
+            obj.proj_.title = title;
         end
         %
         function struct = to_head_struct(obj,keep_data_arrays,data_arrays_only)
@@ -437,7 +471,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %
         function def = get.creation_date_defined(obj)
             def = obj.creation_date_defined_;
-        end
+        end        
     end
     %======================================================================
     % binfile IO interface
@@ -551,7 +585,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             % Restore object from the old structure, which describes the
             % previous version of the object.
             %
-            % The method is called by loadobj in the case if the input
+            % The method is called by lodobj in the case if the input
             % structure does not contain a version or the version, stored
             % in the structure does not correspond to the current version
             % of the class.

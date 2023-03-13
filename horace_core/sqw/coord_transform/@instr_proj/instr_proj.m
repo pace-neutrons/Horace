@@ -1,4 +1,4 @@
-classdef instr_proj<aProjection
+classdef instr_proj<aProjectionBase
     %  Class defines coordinate transformations necessary to convert the
     %  results of neutron experiments from the physical space of inelastic
     %  neutron instrument (instrument frame), to orthogonal reciprocal
@@ -64,7 +64,7 @@ classdef instr_proj<aProjection
             % efix    -- incident energy or array of incident energies
             % emode   -- the instrument operational mode
             %
-            proj = proj@aProjection();
+            proj = proj@aProjectionBase();
             proj.label = {'Q_\zeta','Q_\xi','Q_\eta','E'};
             if nargin>0 % initialize defaults, which describe unit transformation from
                 proj = proj.init(varargin{:});
@@ -134,7 +134,7 @@ classdef instr_proj<aProjection
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
-        % Particular implementation of aProjection abstract interface
+        % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
         %------------------------------------------------------------------
         function pix_coord = transform_pix_to_img(obj,pix_data,varargin)
@@ -179,16 +179,16 @@ classdef instr_proj<aProjection
             % See #838 for possible optimization of this
             [pix,det0,axes]  = obj.convert_rundata_to_pix(run_data,axes);
             [npix,s,e,pix_ok,unique_runid] = ...
-                bin_pixels@aProjection(obj,axes,pix,varargin{:});
+                bin_pixels@aProjectionBase(obj,axes,pix,varargin{:});
         end
         %
         function ax_bl = get_proj_axes_block(obj,ranges,bin_numbers)
             % return the axes block, corresponding to this projection class.
             %
             % According to its operations, instrument projection generate
-            % axes_block directly from data range and number of bin in each
+            % ortho_axes directly from data range and number of bin in each
             % direction
-            ax_bl = axes_block(4);
+            ax_bl = ortho_axes(4);
             % set up range and number of bins for the selected axes block
             ax_bl.img_range = ranges;
             ax_bl.nbins_all_dims = bin_numbers;
@@ -201,14 +201,12 @@ classdef instr_proj<aProjection
             end
             % other parameters
             ax_bl.ulen  = [1,1,1,1];
-            % TODO, delete this, mutate axes_block
-            ax_bl.axis_caption=an_axis_caption();
             ax_bl.label = obj.label;
 
         end
         %
         function  flds = saveableFields(obj)
-            flds = saveableFields@aProjection(obj);
+            flds = saveableFields@aProjectionBase(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
     end
@@ -226,6 +224,15 @@ classdef instr_proj<aProjection
         end
     end
     methods(Access = protected)
+        function  mat = get_u_to_rlu_mat(obj)
+            % By name, it should be u_to_rlu matrix, but by meaning --
+            % transformation from pixel coordinate system to image
+            % coordinate system -- it should be spec_to_u matrix as pixels
+            % here are instrument and image -- Crystal Cartesian coordinate
+            % system. Using meaining. TODO: #954 Clarify.
+            mat = obj.lattice.calc_proj_matrix();
+            mat = [mat,zeros(3,1);[0,0,0,1]];
+        end
         function  alat = get_alatt_(obj)
             % get lattice from oriented lattice property
             alat  = obj.lattice.alatt;

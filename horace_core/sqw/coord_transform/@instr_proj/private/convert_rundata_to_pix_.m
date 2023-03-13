@@ -4,10 +4,10 @@ function [pix_or_pix_range,det0,axes_bl]  = convert_rundata_to_pix_(obj,run_data
 % the form of PixelData object.
 
 %
-% if axes_block is missing, caclulate only pix_range in this coordinate
+% if axes_bl is missing, calculate only pix_range in this coordinate
 % system.
 %
-if nargin == 2 % axes_block is missing and we are calculating only pix range
+if nargin == 2 % axes_bl is missing and we are calculating only pix range
     axes_bl = [];
     calc_all_pixels = false;
 else
@@ -46,7 +46,7 @@ if calc_all_pixels && ~qspec_provided
     end
 end
 
-% caclulate pixels in standard form:
+% calculate pixels in standard form:
 % -----------------
 if qspec_provided
     detdcn = [];

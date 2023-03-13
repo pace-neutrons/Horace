@@ -1,9 +1,8 @@
 function herbert_init
 % Adds the paths needed by Herbert.
 %
-% In your startup.m, add the Herbert root path and call herbert_init, e.g.
-%       addpath('c:\mprogs\herbert')
-%       herbert_init
+% In your startup.m, add the Horace root path and call horace_on, do not
+% call this directly
 %
 % Is PC and Unix compatible.
 
@@ -15,17 +14,11 @@ function herbert_init
 global herbert_path
 herbert_path = fileparts(which('herbert_init'));
 
-% Remove all instances of Herbert
-% -------------------------------
-% (This might include this version of Herbert)
-application_off('herbert');
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
-% if ~verLessThan('matlab','9.1')
-%     warning('off','MATLAB:subscripting:noSubscriptsSpecified');
-% end
+
 % Add paths
 % ---------
-addpath(herbert_path);  % MUST have herbert_path so that herbert_init, herbert_off included
+addpath(herbert_path);  % MUST have herbert_path so that herbert_init, included
 addpath(fullfile(herbert_path,'admin'));
 
 % Configurations
@@ -59,10 +52,10 @@ if parc.is_default
     ocp.load_configuration('-set_config','-change_only_default','-force_save');
 end
 
-
 print_banner();
 
-%=========================================================================================================
+end
+
 function addgenpath_message (varargin)
 % Add a recursive toolbox path from the component directory names, printing
 % a message if the directory does not exist.
@@ -72,53 +65,13 @@ function addgenpath_message (varargin)
 % T.G.Perring
 
 string=fullfile(varargin{:},'');    % '' needed to circumvent bug in fullfile if only one argument, Matlab 2008b (& maybe earlier)
-if exist(string,'dir')==7 % is_dir has not been loaded yet
-    try
-        addpath (genpath_special(string),'-frozen');
-    catch ME
-        herbert_off
-        rethrow(ME);
-    end
-else
-    herbert_off
-    error([string, ' is not a directory - not added to path']);
+
+if ~exist(string,'dir') == 7 % is_dir has not been loaded yet
+    error('HERBERT:herbert_init:invalid_argument', '%s is not a directory - not added to path', string);
 end
 
-function application_off(app_name)
-% Remove paths to all instances of the application.
+addpath (genpath_special(string),'-frozen');
 
-start_dir=pwd;
-
-% Determine the rootpaths of any instances of the application by looking for app_name on the matlab path
-application_init_old = which([app_name,'_init'],'-all');
-
-for i=1:numel(application_init_old)
-    try
-        rootpath=fileparts(application_init_old{i});
-        cd(rootpath)
-        if exist(fullfile(pwd,[app_name,'_off.m']),'file') % check that 'off' routine exists in the particular rootpath
-            try
-                feval([app_name,'_off'])    % call the 'off' routine
-            catch ME
-                message=ME.message;
-                disp(['Unable to run function ',fullfile(pwd,[app_name,'_off.m']),'. Reason: ',message]);
-            end
-        else
-            disp(['Function ',app_name,'_off.m not found in ',rootpath])
-            disp('Clearing rootpath and subdirectories from Matlab path in any case')
-            paths = genpath(rootpath);
-            warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
-            rmpath(paths);
-            warning(warn_state);    % return warnings to initial state
-        end
-        cd(start_dir)           % return to starting directory
-    catch ME
-        cd(start_dir)           % return to starting directory
-        message=ME.message;
-        disp(['Problems removing ',rootpath,' and any sub-directories from matlab path. Reason: ',message]);
-    end
-    % Make sure we're not removing any global paths
-    addpath(getenv('MATLABPATH'));
 end
 
 function print_banner()
@@ -132,3 +85,5 @@ function print_banner()
         fprintf('!%s!\n', center_and_pad_string(lines{i}, ' ', width));
     end
     fprintf('!%s!\n', repmat('-', 1, width));
+
+end

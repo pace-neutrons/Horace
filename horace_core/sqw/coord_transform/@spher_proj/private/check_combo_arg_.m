@@ -28,5 +28,5 @@ ex = ex/nex;
 ey = cross(ex,ez);
 obj.ey_ = ey/norm(ey);
 transf_mat = [ez;ey;ex];
-%TODO:  #954 scientific validation:
+%TODO:  #954 scientific validation needed
 obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_*transf_mat;

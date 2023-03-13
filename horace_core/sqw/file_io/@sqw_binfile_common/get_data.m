@@ -130,7 +130,7 @@ end
 if isa(data_str,'DnDBase')
     data = data_str;
 else
-    ab = axes_block.get_from_old_data(data_str);
+    ab = ortho_axes.get_from_old_data(data_str);
     proj=ortho_proj.get_from_old_data(data_str);
     data = DnDBase.dnd(ab,proj,data_str.s,data_str.e,data_str.npix);
 end

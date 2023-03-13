@@ -44,11 +44,12 @@ if isempty(numeric_vector)
 end
 
 validateattributes(numeric_vector, {'numeric'}, {'vector', 'nonnegative'});
-validateattributes(chunk_sum, {'numeric'}, {'scalar', 'positive'});
+validateattributes(chunk_sum, {'numeric'}, {'scalar', 'positive', 'integer'});
 numeric_vector = make_row(numeric_vector);
 
 cumulative_sum = cumsum(numeric_vector);
 vector_sum = cumulative_sum(end);
+
 if vector_sum <= chunk_sum
     % Return early if we've only got one chunk
     chunks = {numeric_vector};
@@ -56,12 +57,12 @@ if vector_sum <= chunk_sum
     return
 end
 
-
 num_chunks = ceil(vector_sum/chunk_sum);
 chunks = cell(1, num_chunks);
 idxs = zeros(2, num_chunks);
 end_idx = 1;
 allocated = 0;
+
 for chunk_num = 1:num_chunks
     remaining_sum = vector_sum - allocated;
     chunk_sum = min(chunk_sum, remaining_sum);
@@ -106,4 +107,6 @@ for chunk_num = 1:num_chunks
     end
     idxs(:, chunk_num) = [start_idx; end_idx];
     allocated = allocated + chunk_sum;
+end
+
 end

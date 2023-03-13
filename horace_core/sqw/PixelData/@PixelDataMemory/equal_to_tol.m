@@ -46,6 +46,7 @@ function [ok, mess] = equal_to_tol(obj, other_pix, varargin)
 %            'input_2'.
 %            (default = 'input_2').
 %
+
 parse_args(varargin{:});
 
 [ok, mess] = validate_other_pix(obj, other_pix);
@@ -53,32 +54,14 @@ if ~ok
     return
 end
 
-if other_pix.is_filebacked()
-    [ok, mess] = pix_paged_and_in_mem_equal_to_tol(other_pix, obj, varargin{:});
+if other_pix.is_filebacked
+     % Avoid duplicate implementation, fall back to filebacked comparison
+    [ok, mess] = other_pix.equal_to_tol(obj, varargin{:});
 else
     [ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
 end
 
 end
-
-
-% -----------------------------------------------------------------------------
-function [ok, mess] = pix_paged_and_in_mem_equal_to_tol(...
-        paged_pix, in_mem_pix, varargin)
-    paged_pix=paged_pix.move_to_first_page();
-    start_idx = 1;
-    end_idx = paged_pix.page_size;
-    [ok, mess] = equal_to_tol(in_mem_pix.data(:, start_idx:end_idx), ...
-                              paged_pix.data, varargin{:});
-    while ok && paged_pix.has_more()
-        paged_pix = paged_pix.advance();
-        start_idx = end_idx + 1;
-        end_idx = end_idx + paged_pix.page_size;
-        [ok, mess] = equal_to_tol(in_mem_pix.data(:, start_idx:end_idx), ...
-                                  paged_pix.data, varargin{:});
-    end
-end
-
 
 function [ok, mess] = validate_other_pix(obj, other_pix)
     ok = true;

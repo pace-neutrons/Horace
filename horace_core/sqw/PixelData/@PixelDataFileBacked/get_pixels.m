@@ -39,7 +39,6 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
     obj.parse_get_pix_args(abs_pix_indices,varargin{:});
 
-
 mmf = obj.f_accessor_;
 pix_out = mmf.Data.data(:,abs_pix_indices);
 
@@ -58,4 +57,3 @@ if ignore_range
 else
     pix_out = PixelDataMemory(pix_out);
 end
-

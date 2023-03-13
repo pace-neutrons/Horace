@@ -12,15 +12,14 @@ function [page_number,total_num_pages] = move_to_page(obj, page_number, varargin
 %
 [page_number, total_num_pages, nosave] = parse_args(obj, page_number, varargin{:});
 
-if obj.page_number_ ~= page_number
+if obj.page_num ~= page_number
     obj = obj.load_page(page_number);
 end
 
 end
 
-
-% -----------------------------------------------------------------------------
 function [page_number,total_num_pages, nosave] = parse_args(obj, varargin)
+
 persistent parser
 if isempty(parser)
     parser = inputParser();
@@ -32,7 +31,7 @@ parser.parse(varargin{:});
 page_number = parser.Results.page_number;
 nosave = parser.Results.nosave;
 
-total_num_pages = obj.get_num_pages_();
+total_num_pages = obj.num_pages;
 if page_number > total_num_pages
     error('PIXELDATA:move_to_page', ...
         'Cannot advance to page %i only %i pages of data found.', ...

@@ -1,4 +1,4 @@
-classdef ortho_proj<aProjection
+classdef ortho_proj<aProjectionBase
     %  Class defines coordinate transformations necessary to make Horace cuts
     %  in crystal coordinate system (orthogonal or non-orthogonal)
     %
@@ -71,9 +71,6 @@ classdef ortho_proj<aProjection
     % Original author: T.G.Perring
     %
     %
-    properties
-        %
-    end
     properties(Dependent)
         u; %[1x3] Vector of first axis (r.l.u.)
         v; %[1x3] Vector of second axis (r.l.u.)
@@ -83,11 +80,6 @@ classdef ortho_proj<aProjection
         %
     end
     properties(Dependent,Hidden) %TODO: all this should go with new sqw design
-        % Old confusing u_to_rlu matrix value
-        % Matrix to convert from Crystal Cartesian (pix coordinate system)
-        % to the image coordinate system (normally in rlu, except initially
-        % generated sqw file, when this image is also in Crystal Cartesian)
-        u_to_rlu
         % renamed offset projection property
         uoffset
         % Return the compatibility structure, which may be used as additional input to
@@ -127,7 +119,7 @@ classdef ortho_proj<aProjection
         obj = set_axes (obj, u, v, w)
         %------------------------------------------------------------------
         function obj=ortho_proj(varargin)
-            obj = obj@aProjection();
+            obj = obj@aProjectionBase();
             obj.label = {'\zeta','\xi','\eta','E'};
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
@@ -148,14 +140,14 @@ classdef ortho_proj<aProjection
             if narg == 0
                 return
             end
-            if narg == 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjection'))
+            if narg == 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjectionBase'))
                 if isstruct(varargin{1}) && isfield(varargin{1},'serial_name')
                     obj = serializable.loadobj(varargin{1});
                 else
                     obj = obj.from_old_struct(varargin{1});
                 end
             else
-                opt =  [ortho_proj.fields_to_save_(:);aProjection.init_params(:)];
+                opt =  [ortho_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
                     opt,false,varargin{:});
@@ -249,10 +241,6 @@ classdef ortho_proj<aProjection
         % OLD from new sqw object creation interface.
         % TODO: remove when new SQW object is fully implemented
         %
-        function mat = get.u_to_rlu(obj)
-            %
-            mat = get_u_to_rlu_mat(obj);
-        end
         function off = get.uoffset(obj)
             off = obj.offset';
         end
@@ -264,7 +252,7 @@ classdef ortho_proj<aProjection
             end
         end
         %------------------------------------------------------------------
-        % Particular implementation of aProjection abstract interface
+        % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
         %------------------------------------------------------------------
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
@@ -301,11 +289,9 @@ classdef ortho_proj<aProjection
         %
         function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
             % return the axes block, corresponding to this projection class.
-            ax_bl = get_proj_axes_block@aProjection(obj,default_binning_ranges,req_binning_ranges);
+            ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
             [~,~, ulen] = obj.uv_to_rot([1,1,1]);
             ax_bl.ulen  = ulen;
-            % TODO, delete this, mutate axes_block
-            ax_bl.axis_caption=an_axis_caption();
             % TODO:  this should go. The projection will keep this property
             % for itself unless it is specific axes block?
             ax_bl.nonorthogonal = obj.nonorthogonal;
@@ -333,7 +319,7 @@ classdef ortho_proj<aProjection
             %
             if isempty(obj.ortho_ortho_transf_mat_)
                 % use generic projection transformation
-                pix_target = from_this_to_targ_coord@aProjection(...
+                pix_target = from_this_to_targ_coord@aProjectionBase(...
                     obj,pix_origin,varargin{:});
             else
                 pix_target = do_ortho_ortho_transformation_(...
@@ -347,9 +333,8 @@ classdef ortho_proj<aProjection
             % overloadable accessor for getting value for ub matrix
             % property
             [~, mat] = obj.uv_to_rot();
-
             mat = [mat,[0;0;0];[0,0,0,1]];
-        end
+        end        
         %------------------------------------------------------------------
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...
@@ -357,13 +342,13 @@ classdef ortho_proj<aProjection
             % get indexes of cells which may contributing into the cut.
             %
             if isempty(obj.ortho_ortho_transf_mat_)
-                contrib_ind= get_contrib_cell_ind@aProjection(obj,...
+                contrib_ind= get_contrib_cell_ind@aProjectionBase(obj,...
                     cur_axes_block,targ_proj,targ_axes_block);
             elseif obj.convert_targ_to_source
                 contrib_ind= get_contrib_orthocell_ind_(obj,...
                     cur_axes_block,targ_axes_block);
             else
-                contrib_ind= get_contrib_cell_ind@aProjection(obj,...
+                contrib_ind= get_contrib_cell_ind@aProjectionBase(obj,...
                     cur_axes_block,targ_proj,targ_axes_block);
             end
         end
@@ -378,7 +363,7 @@ classdef ortho_proj<aProjection
             % sets up matrices, necessary for optimized transformations
             % if both projections are ortho_proj
             %
-            obj = check_and_set_targ_proj@aProjection(obj,val);
+            obj = check_and_set_targ_proj@aProjectionBase(obj,val);
             if isa(obj.targ_proj_,'ortho_proj') && ~obj.do_generic
                 obj = set_ortho_ortho_transf_(obj);
             else
@@ -391,7 +376,7 @@ classdef ortho_proj<aProjection
             % Overloaded internal setter for do_generic method.
             % Clears specific transformation matrices if do_generic
             % is false.
-            obj = check_and_set_do_generic@aProjection(obj,val);
+            obj = check_and_set_do_generic@aProjectionBase(obj,val);
             if obj.do_generic_
                 obj.ortho_ortho_transf_mat_ = [];
                 obj.ortho_ortho_offset_ = [];
@@ -527,15 +512,15 @@ classdef ortho_proj<aProjection
             % Throws HORACE:ortho_proj:invalid_argument with the message
             % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
-            % 
+            %
             wout = check_combo_arg_(w);
         end
         %------------------------------------------------------------------
         function ver  = classVersion(~)
-            ver = 1;
+            ver = 6;
         end
         function  flds = saveableFields(obj)
-            flds = saveableFields@aProjection(obj);
+            flds = saveableFields@aProjectionBase(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
     end

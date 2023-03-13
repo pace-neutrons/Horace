@@ -101,7 +101,7 @@ for n=1:numel(win)
                 i)
         end
     end
-    ab = axes_block('nbins_all_dims',nbins_all_dims,'img_range',img_range, ...
+    ab = ortho_axes('nbins_all_dims',nbins_all_dims,'img_range',img_range, ...
         'single_bin_defines_iax',win(n).data.axes.single_bin_defines_iax);
 
 

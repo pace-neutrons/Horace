@@ -128,8 +128,8 @@ end
 % Get leading projection, if present, and strip from parameter list
 % -----------------------------------------------------------------
 if numel(par)>=1 && (isstruct(par{1}) ||...
-        isa(par{1},'aProjection') )
-    if isa(par{1},'aProjection')
+        isa(par{1},'aProjectionBase') )
+    if isa(par{1},'aProjectionBase')
         proj=par{1};
     else
         proj=ortho_proj(par{1});

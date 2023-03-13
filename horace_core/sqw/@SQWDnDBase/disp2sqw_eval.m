@@ -91,21 +91,22 @@ if ~iscell(pars)
     pars={pars}; % package parameters as a cell for convenience
 end
 
+extra_args = {};
+if ave_pix
+    extra_args = [extra_args '-ave'];
+end
+if all_bins
+    extra_args = [extra_args '-all'];
+end
+
 for i=1:numel(win)
     if has_pixels(win(i))   % determine if sqw or dnd type
         % If sqw type, then must evaluate at every pixel, as qh,qk,ql in general will be different for every pixel
-        if ~ave_pix
-            wout(i) = sqw_eval(win(i), @disp2sqw, {dispreln,pars,fwhh});
-        else
-            wout(i) = sqw_eval(win(i), @disp2sqw, {dispreln,pars,fwhh}, '-ave');
-        end
+        wout(i) = sqw_eval(win(i), @disp2sqw, {dispreln,pars,fwhh}, extra_args{:});
     else
         % If dnd type, then can take advantage of Cartesian grid to calculate dispersion for the Q grid only
-        if all_bins
-            wout(i) = disp2sqw(win(i), dispreln, pars, fwhh,'-all');
-        else
-            wout(i) = disp2sqw(win(i), dispreln, pars, fwhh);
-        end
+
+        wout(i) = disp2sqw(win(i), dispreln, pars, fwhh, extra_args{:});
 
     end
 end

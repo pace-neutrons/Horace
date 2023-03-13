@@ -42,7 +42,7 @@ classdef test_ortho_proj_construction<TestCase
         function test_constructor_third_long_throws(~)
             err=assertExceptionThrown(...
                 @()ortho_proj([1,0,0],[0,1,0],[1,1,1,1],'alatt',[2,3,4],'angdeg',[80,70,85]),...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
             samp = 'Input should be non-zero length numeric vector with 3 components. It is: "1     1     1     1"';
             assertEqual(err.message,samp);
         end
@@ -50,7 +50,7 @@ classdef test_ortho_proj_construction<TestCase
         function test_constructor_third_zero_throws(~)
             err=assertExceptionThrown(...
                 @()ortho_proj([1,0,0],[0,1,0],[0,0,0],'alatt',[2,3,4],'angdeg',[80,70,85]),...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
             assertEqual(err.message,...
                 'Input can not be a 0-vector: [0,0,0] with all components smaller then tol = 1e-12');
         end
@@ -58,7 +58,7 @@ classdef test_ortho_proj_construction<TestCase
         function test_incorrect_constructor_throws_on_positional_zero(~)
             err = assertExceptionThrown(...
                 @()ortho_proj([0,0,0],1,'alatt',[2,3,4],'angdeg',[80,70,85]),...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
             assertEqual(err.message, ...
                 'Input can not be a 0-vector: [0,0,0] with all components smaller then tol = 1e-12')
         end
@@ -66,7 +66,7 @@ classdef test_ortho_proj_construction<TestCase
         function test_incorrect_constructor_throws_on_positional(~)
             err= assertExceptionThrown(...
                 @()ortho_proj([1,0,0],1,'alatt',[2,3,4],'angdeg',[80,70,85]),...
-                'HORACE:aProjection:invalid_argument');
+                'HORACE:aProjectionBase:invalid_argument');
             assertEqual(err.message, ...
                 'Input should be non-zero length numeric vector with 3 components. It is: "1"')
         end
@@ -188,7 +188,7 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,4];
             data.iint=[1;30];
             data.p={1:10;1:20;1:40};
-            ax = axes_block.get_from_old_data(data);
+            ax = ortho_axes.get_from_old_data(data);
             proj = ortho_proj.get_from_old_data(data);
 
             do = data_sqw_dnd(ax,proj);
@@ -239,7 +239,7 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,3,4];
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
-            ax = axes_block.get_from_old_data(data);
+            ax = ortho_axes.get_from_old_data(data);
             proj = ortho_proj.get_from_old_data(data);
 
             do = data_sqw_dnd(ax,proj);
@@ -267,7 +267,7 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,3,4];
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
-            ax = axes_block.get_from_old_data(data);
+            ax = ortho_axes.get_from_old_data(data);
             proj = ortho_proj.get_from_old_data(data);
             do = data_sqw_dnd(ax,proj);
 

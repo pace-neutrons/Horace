@@ -1,9 +1,5 @@
 classdef test_test_sqw_utils < TestCase & common_pix_class_state_holder
 
-    properties
-        this_dir = fileparts(mfilename('fullpath'));
-    end
-
     methods
 
         function obj = test_test_sqw_utils(~)
@@ -11,7 +7,7 @@ classdef test_test_sqw_utils < TestCase & common_pix_class_state_holder
         end
 
         function test_concatenate_pixel_pages(~)
-            skipTest('Re #928 The concept of FakeFAccess needs clarification and probably replacement')            
+
             % This test gives confidence in 'concatenate_pixel_pages' which several
             % other tests depend upon
             NUM_BYTES_IN_VALUE = 8;
@@ -22,8 +18,6 @@ classdef test_test_sqw_utils < TestCase & common_pix_class_state_holder
 
             faccess = FakeFAccess(data);
             pix = PixelDataBase.create(faccess);
-
-            pix = pix.advance();
 
             joined_pix_array = concatenate_pixel_pages(pix);
             assertElementsAlmostEqual(joined_pix_array, data,'relative',4.e-8);

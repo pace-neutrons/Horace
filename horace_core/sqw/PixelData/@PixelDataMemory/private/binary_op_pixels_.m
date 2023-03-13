@@ -13,12 +13,10 @@ end
 
 
 if pixel_data.is_filebacked
-    pixel_data = pixel_data.move_to_first_page();
 
-    while true
-        pg_size = pixel_data.base_page_size;
-        start_idx = (pixel_data.page_number_ - 1)*pg_size + 1;
-        end_idx = min(pixel_data.page_number_*pg_size, pixel_data.num_pixels);
+    for i = 1:pixel_data.num_pages
+        pixel_data.page_num = i;
+        [start_idx, end_idx] = pixel_data.get_page_idx_();
 
         this_sigvar = sigvar(pixel_data.signal(start_idx:end_idx), ...
                              pixel_data.variance(start_idx:end_idx));
@@ -28,11 +26,6 @@ if pixel_data.is_filebacked
         [obj.signal(start_idx:end_idx), obj.variance(start_idx:end_idx)] = ...
             sigvar_binary_op_(this_sigvar, other_sigvar, binary_op, flip);
 
-        if pixel_data.has_more()
-            pixel_data= pixel_data.advance();
-        else
-            break;
-        end
     end
 
 else

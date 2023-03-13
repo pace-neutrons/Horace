@@ -14,8 +14,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             obj = obj@TestCase('test_PixelData_operations');
         end
 
-        function test_do_unary_op_returns_correct_output_with_cosine_gt_1_page(obj)
-            skipTest('Re #928 THIS DOES NOT LOOK LIKE RELEVANT TO NEW CONCEPT. TODO: clarify')                                                            
+        function test_do_unary_op_cosine_filebacked(obj)
+
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 50);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -23,7 +23,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix = pix.do_unary_op(@cos);
             % Loop back through and validate values
 
-            file_backed_data = pix.get_all_prop('all');
+            file_backed_data = pix.get_fields('all', 1:50);
             expected_data = data;
             expected_data(obj.SIGNAL_IDX, :) = ...
                 cos(expected_data(obj.SIGNAL_IDX, :));
@@ -36,16 +36,37 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
         end
 
-        function test_do_unary_op_with_nargout_1_doesnt_affect_called_instance(~)
+        function test_do_unary_op_output_not_change_orig(~)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix = PixelDataBase.create(data);
             sin_pix = pix.do_unary_op(@sin);
             assertEqual(pix.data, data);
         end
 
-        function test_paged_data_returns_same_unary_op_result_as_all_in_memory(obj)
+        function test_tmp_file_redirected(obj)
+            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 50);
+            npix_in_page = 11;
+            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+            % Make temp file
+            sin_pix = pix.do_unary_op(@sin);
+            data = sin_pix.get_fields('all', 'all');
+
+            % Copy
+            sin_pix_cpy = PixelDataFileBacked(sin_pix);
+            assertEqual(sin_pix.full_filename, sin_pix_cpy.full_filename)
+
+            sin_pix = sin_pix.do_unary_op(@sin);
+
+            assertFalse(equal_to_tol(sin_pix.full_filename, sin_pix_cpy.full_filename))
+            assertTrue(is_file(sin_pix.full_filename))
+            assertTrue(is_file(sin_pix_cpy.full_filename))
+            assertEqualToTol(sin_pix_cpy.get_fields('all', 'all'), data)
+        end
+
+        function test_unary_op_memory_vs_filebacked(obj)
             % the unary operation and the range the data it acts on should take
-            skipTest('Re #928 THIS filebacked pixels operations have to be fixed')                                                            
+
             unary_ops = {
                 @acos, [0, 1], ...
                 @acosh, [1, 3], ...
@@ -89,23 +110,16 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 data = get_random_data_in_range( ...
                     PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
                 pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-                pix.do_unary_op(unary_op);
-
-                file_backed_data = pix.data;
+                pix = pix.do_unary_op(unary_op);
 
                 pix_in_mem = PixelDataBase.create(data);
                 pix_in_mem = pix_in_mem.do_unary_op(unary_op);
-                in_memory_data = pix_in_mem.data;
 
-                assertElementsAlmostEqual( ...
-                    file_backed_data, in_memory_data, ...
-                    'relative',1e-4,... % Due to single precision errors
-                    sprintf(['In-memory and file-backed data do not match after ' ...
-                    'operation: ''%s''.'], char(unary_op)) );
+                assertEqualToTol(pix, pix_in_mem, 'reltol',1e-4);
             end
         end
 
-        function test_mask_does_nothing_if_mask_array_eq_ones_when_pix_in_memory(obj)
+        function test_mask_all_ones_memory(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11);
             ref_range = obj.get_ref_range(data);
             pix = PixelDataBase.create(data);
@@ -115,7 +129,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertEqual(pix_out.pix_range,ref_range);
         end
 
-        function test_mask_returns_empty_PixelData_if_mask_array_all_zeros(~)
+        function test_mask_all_zeros_memory(~)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11);
             pix = PixelDataMemory(data);
             mask_array = zeros(1, pix.num_pixels);
@@ -126,16 +140,15 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_raises_if_mask_array_len_neq_to_pg_size_or_num_pixels(obj)
-            skipTest('Re #928 THIS DOES NOT LOOK LIKE RELEVANT TO NEW CONCEPT. TODO: clarify')                                                
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             npix_in_page = 10;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             mask_array = zeros(5);
             f = @() pix.mask(mask_array);
-            assertExceptionThrown(f, 'PIXELDATA:mask');
+            assertExceptionThrown(f, 'HORACE:mask:invalid_argument');
         end
 
-        function test_mask_removes_in_memory_pix_if_len_mask_array_eq_num_pixels(obj)
+        function test_mask_all_specified_memory(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 11);
             pix = PixelDataBase.create(data);
 
@@ -154,14 +167,14 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertEqual(pix.pix_range, ref_range);
         end
 
-        function test_mask_throws_PIXELDATA_if_called_with_no_output_args(~)
+        function test_mask_fails_in_place(~)
             pix = PixelDataMemory(5);
             f = @() pix.mask(zeros(1, pix.num_pixels), 'logical');
             assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
         end
 
-        function test_mask_deletes_pixels_when_given_npix_argument_pix_in_pages(obj)
-            skipTest('Re #928 THIS DOES NOT LOOK LIKE RELEVANT TO NEW CONCEPT. TODO: clarify')                                    
+        function test_mask_npix_filebacked(obj)
+
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -175,32 +188,12 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             expected_data = data(:, logical(full_mask_array));
             ref_range = obj.get_ref_range(expected_data);
 
-            actual_data = pix.get_all_prop('all');
+            actual_data = pix.get_fields('all', 1:pix.num_pixels);
             assertElementsAlmostEqual(actual_data, expected_data,'relative',4e-8);
             assertElementsAlmostEqual(pix.pix_range, ref_range,'relative',4e-8);
         end
 
-        function test_mask_deletes_pix_with_npix_argument_all_pages_full(obj)
-            skipTest('Re #928 THIS DOES NOT LOOK LIKE RELEVANT TO NEW CONCEPT. TODO: clarify')                                    
-            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
-            npix_in_page = 10;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
-            mask_array = [0, 1, 1, 0, 1, 0];
-            npix = [4, 5, 1, 2, 3, 5];
-
-            pix = pix.mask(mask_array, npix);
-
-            full_mask_array = repelem(mask_array, npix);
-            expected_data = data(:, logical(full_mask_array));
-            ref_range = obj.get_ref_range(expected_data);
-
-            actual_data = pix.get_pixels(1:pix.num_pixels).data;
-            assertElementsAlmostEqual(actual_data, expected_data,'relative',4e-8);
-            assertElementsAlmostEqual(pix.pix_range, ref_range,'relative',4e-8);
-        end
-
-        function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
+        function test_mask_npix_memory(obj)
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             pix = PixelDataBase.create(data);
 
@@ -219,14 +212,14 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
 
         end
 
-        function test_PIXELDATA_thrown_if_sum_of_npix_ne_to_num_pixels(~)
+        function test_mask_fail_bad_npix_memory(~)
             pix = PixelDataMemory(5);
             npix = [1, 2];
             f = @() pix.mask([0, 1], npix);
             assertExceptionThrown(f, 'HORACE:PixelDataMemory:invalid_argument');
         end
 
-        function test_error_if_passing_mask_npix_and_num_pix_len_mask_array(~)
+        function test_mask_fail_npix_and_all_specified_memory(~)
 
             function out = f()
                 num_pix = 10;
@@ -239,7 +232,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertExceptionThrown(@() f(), 'HORACE:PixelDataMemory:invalid_argument');
         end
 
-        function test_not_enough_args_error_if_calling_mask_with_no_args(~)
+        function test_mask_fail_no_args(~)
 
             function pix = f()
                 pix = PixelDataBase.create(rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10));
@@ -249,29 +242,23 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertExceptionThrown(@() f(), 'MATLAB:minrhs');
         end
 
-        function test_PixelData_and_raw_arrays_are_not_equal_to_tol(~)
+        function test_equal_to_tol_PixelData_ne_raw_array_memory(~)
             raw_array = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix = PixelDataBase.create(raw_array);
-            [ok, ~] = equal_to_tol(pix, raw_array);
+            [ok, mess] = equal_to_tol(pix, raw_array);
             assertFalse(ok);
-        end
-
-        function test_equal_to_tol_err_msg_contains_argument_classes(~)
-            raw_array = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
-            pix = PixelDataBase.create(raw_array);
-            [~, mess] = equal_to_tol(pix, raw_array);
             assertTrue(contains(mess, 'PixelData'));
             assertTrue(contains(mess, 'double'));
         end
 
-        function test_equal_to_tol_is_false_for_objects_with_unequal_num_pixels(~)
+        function test_equal_to_tol_num_pixels_neq(~)
             data = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix1 = PixelDataBase.create(data);
             pix2 = PixelDataBase.create(data(:, 1:9));
             assertFalse(equal_to_tol(pix1, pix2));
         end
 
-        function test_equal_to_tol_true_if_PixelData_objects_contain_same_data(~)
+        function test_equal_to_tol_same_data_memory(~)
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 10);
             pix1 = PixelDataBase.create(data);
             pix2 = PixelDataBase.create(data);
@@ -279,8 +266,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertTrue(equal_to_tol(pix2, pix1));
         end
 
-        function test_equal_to_tol_true_if_pixels_paged_and_contain_same_data(obj)
-            skipTest('Re #928 THIS DOES NOT LOOK LIKE RELEVANT TO NEW CONCEPT. TODO: clarify')                        
+        function test_equal_to_tol_same_data_filebacked(obj)
+
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 10;
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -289,8 +276,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertTrue(equal_to_tol(pix2, pix1));
         end
 
-        function test_equal_to_tol_true_if_pixels_differ_less_than_tolerance(obj)
-            skipTest('Re #928 THIS DOES NOT LOOK LIKE RELEVANT TO NEW CONCEPT. TODO: clarify')                        
+        function test_equal_to_tol_w_tolerance_filebacked(obj)
+
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 10;
             tol = 0.1;
@@ -300,9 +287,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertTrue(equal_to_tol(pix2, pix1, tol));
         end
 
-        function test_equal_to_tol_false_if_pix_paged_and_contain_unequal_data(obj)
-            skipTest('Re #928 THIS DOES NOT LOOK LIKE RELEVANT TO NEW CONCEPT. TODO: clarify')                        
-            
+        function test_equal_to_tol_diff_data_filebacked(obj)
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             data2 = data;
             data2(11) = 0.9;
@@ -314,8 +299,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertFalse(equal_to_tol(pix2, pix1));
         end
 
-        function test_equal_to_tol_true_if_only_1_arg_paged_but_data_is_equal(obj)
-            skipTest('Re #928 THIS DOES NOT LOOK LIKE RELEVANT TO NEW CONCEPT. TODO: clarify')                        
+        function test_equal_to_tol_same_data_memory_filebacked(obj)
+
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 6;
 
@@ -325,8 +310,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertTrue(equal_to_tol(pix2, pix1));
         end
 
-        function test_equal_to_tol_false_if_only_1_arg_paged_and_data_not_equal(obj)
-            skipTest('Re #928 THIS DOES NOT LOOK LIKE RELEVANT TO NEW CONCEPT. TODO: clarify')            
+        function test_equal_to_tol_diff_data_memory_filebacked(obj)
+
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 6;
 
@@ -336,20 +321,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertFalse(equal_to_tol(pix2, pix1));
         end
 
-        function test_equal_to_tol_throws_if_paged_pix_but_page_sizes_not_equal(obj)
-            skipTest('Re #928 THIS DOES NOT LOOK LIKE RELEVANT TO NEW CONCEPT. TODO: clarify')
-
-            data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
-            data2 = data;
-            npix_in_page = 5;
-
-            pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page - 1);
-
-            assertFalse(equal_to_tol(pix1, pix2));
-        end
-
-        function test_equal_to_tol_true_when_comparing_NaNs_if_nan_equal_true(~)
+        function test_equal_to_tol_nan_equal_true_memory(~)
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             data(:, [5, 10, 15]) = nan;
             pix1 = PixelDataBase.create(data);
@@ -358,7 +330,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertTrue(equal_to_tol(pix1, pix2, 'nan_equal', true));
         end
 
-        function test_equal_to_tol_false_when_comparing_NaNs_if_nan_equal_false(~)
+        function test_equal_to_tol_nan_equal_false_memory(~)
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             data(:, [5, 10, 15]) = nan;
             pix1 = PixelDataBase.create(data);
@@ -372,12 +344,12 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
     methods (Static)
         % -- Helpers --
         function [pix,pix_range] = get_pix_with_fake_faccess(data, npix_in_page)
+            pix = PixelDataFileBacked(data);
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
-            faccess = FakeFAccess(data);
+%             faccess = FakeFAccess(data);
             % give it a real file path to trick code into thinking it exists
-            faccess = faccess.set_filepath('fake_file');
-            mem_alloc = npix_in_page;
-            pix = PixelDataFileBacked(faccess, mem_alloc);
+%             faccess = faccess.set_filepath('fake_file');
+%             mem_alloc = npix_in_page;
         end
 
         function ref_range = get_ref_range(data)

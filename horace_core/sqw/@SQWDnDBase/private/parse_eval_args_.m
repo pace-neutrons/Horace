@@ -1,5 +1,5 @@
 function [func_handle, pars, opts] = parse_eval_args_(win, func_handle, pars, varargin)
-% 
+%
 flags = {'-all', '-average', '-filebacked'};
 [~, ~, all_flag, ave_flag, filebacked_flag, args] = parse_char_options(varargin, flags);
 
@@ -9,7 +9,7 @@ parser.addRequired('pars');
 parser.addParameter('average', ave_flag, @islognumscalar);
 parser.addParameter('all', all_flag, @islognumscalar);
 parser.addParameter('filebacked', filebacked_flag, @islognumscalar);
-parser.addParameter('outfile', {}, @(x) iscellstr(x) || ischar(x) || isstring(x));
+parser.addParameter('outfile', {}, @(x) iscellstr(x) || istext(x));
 
 parser.parse(func_handle, pars, args{:});
 opts = parser.Results;
@@ -39,4 +39,4 @@ end
 func_handle = opts.func_handle;
 pars = opts.pars;
 
-
+end

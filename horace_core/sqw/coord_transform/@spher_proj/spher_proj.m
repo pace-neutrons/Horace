@@ -1,4 +1,4 @@
-classdef spher_proj<aProjection
+classdef spher_proj<aProjectionBase
     % Class defines spherical coordinate projection, used by cut_sqw
     % to make spherical cuts.
     %
@@ -41,21 +41,30 @@ classdef spher_proj<aProjection
         % For the future. See if we want spherical projection in hkl,
         % non-orthogonal
         %orhtonormal_ = true;
-        hor2matlab_transf_ = [0,0,1;1,0,0;0,1,0]; % The transformation from
-        % Horace pixel coordinate system to the axes above to
-        % allow to use Matlab sph2cart/cart2sph functions.
+        hor2matlab_transf_ = ...
+            [0,0,1;... % The transformation from
+            1 ,0,0;... % Horace pixel coordinate system to the axes above to
+            0 ,1,0];   % allow to use Matlab sph2cart/cart2sph functions.  
+
+
         pix_to_matlab_transf_ ; % the transformation used for conversion
         % from pix coordinate system to spherical coordinate system
         % if unit vectors are the default, it equal to hor2matlab_transf_.
         % If not, multiplied by rotation from default to the selected
         % coordinate system.
     end
+    properties(Constant,Access = private)
+        % cellarray describing what letters are available to assign for
+        % type properties.
+        % 'a' -- Angstrom, 'd' - degree, 'r' -- radians
+        types_available_ = {'a',{'d','r'},{'d','r'}};
+    end
 
     methods
         function obj=spher_proj(varargin)
-            obj = obj@aProjection();
+            obj = obj@aProjectionBase();
             obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_;
-            obj.label = {'\|Q\|','\theta','\phi','En'};
+            obj.label = {'|Q|','\theta','\phi','En'};
 
             obj = obj.init(varargin{:});
         end
@@ -68,20 +77,20 @@ classdef spher_proj<aProjection
                 return
             end
             nargi = numel(varargin);
-            if nargi== 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjection'))
+            if nargi== 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjectionBase'))
                 if isstruct(varargin{1})
                     obj = serializable.loadobj(varargin{1});
                 else
                     obj = obj.from_bare_struct(varargin{1});
                 end
             else
-                opt =  [ortho_proj.fields_to_save_(:);aProjection.init_params(:)];
+                opt =  [ortho_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
                     opt,false,varargin{:});
                 if ~isempty(remains)
                     error('HORACE:spher_proj:invalid_argument',...
-                        'The parameters: "%s" provided as input to spher_proj initialization have not been recognized',...
+                        'The parameters: "%s" provided as input to spher_proj constructor initialization have not been recognized',...
                         disp2str(remains));
                 end
             end
@@ -91,19 +100,30 @@ classdef spher_proj<aProjection
             v=obj.ez_;
         end
         function obj = set.ez(obj,val)
-            val = aProjection.check_and_brush3vector(val);
+            val = aProjectionBase.check_and_brush3vector(val);
+            if any(val ~= [0,0,1])
+                warning('HORACE:spher_proj:not_implemented', ...
+                    'changes in beam-axis direction is not yet implemented')
+                val = [0,0,1];
+            end
+
             obj.ez_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-
         %
         function u = get.ey(obj)
             u = obj.ey_;
         end
         function obj = set.ey(obj,val)
-            val = aProjection.check_and_brush3vector(val);
+            val = aProjectionBase.check_and_brush3vector(val);
+            if any(val ~= [0,1,0])
+                warning('HORACE:spher_proj:not_implemented', ...
+                    'changes in rotation-axis direction is not yet implemented')
+                val = [0,1,0];
+            end
+            
             obj.ey_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
@@ -114,43 +134,51 @@ classdef spher_proj<aProjection
             type = obj.type_;
         end
         function obj = set.type(obj,val)
-            if ~(istext(val) && strlength(val) ==3)
-                error('HORACE:spher_proj:invalid_argument',...
-                    'The type parameter has to be a text string with 3 elements. It is: "%s"',...
-                    disp2str(val));
-            end
-            if ~strcmp(val,'add')
-                warning('HORACE:spher_proj:not_implemented',...
-                    'Spherical projection types different from "add" have not yet been implemented')
-                val = 'add';
-            end
-            obj.type_ = val;
+            obj = check_and_set_type_(obj,val);
         end
-        function [rot_to_img,offset]=get_pix_img_transformation(obj,ndim)
-            rot_to_img = obj.pix_to_matlab_transf_;
-            if ndim == 3
-                offset   = obj.offset(1:3);
-            elseif ndim == 4
-                rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
-                offset   = obj.offset;
-            else
-                error('HORACE:spher_proj:invalid_argument', ...
-                    'ndims can only be 3 and 4. Provided: %s', ...
-                    disp2str(ndim));
-            end
+        function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation(obj,ndim)
+            % Return the constants and parameters used for transformation
+            % from Crystal Cartezian to spherical coordinate system and
+            % back
+            %
+            % Inputs:
+            % obj  -- initialized instance of the spher_proj class
+            % ndim -- number 3 or 4 -- depending on what kind of
+            %         transformation (3D -- momentum only or
+            %         4D -- momentum and energy) are requested
+            % Output:
+            % rot_to_img
+            %      -- 3x3 or 4x4 rotation matrix, which orients spherical
+            %         coordinate system and transforms momentum and energy
+            %         in Crystal Cartesian coordinates into oriented
+            %         spherical coordinate system where angular coordinates
+            %         are calculated
+            % offset
+            %     -- the centre of spherical coordinate system in Crystal
+            %        Cartesian coordinates.
+            % theta_to_ang
+            %     -- depending on the projection type, the constant used to
+            %        convert Theta angles in radians to Theta angles in
+            %        degrees or vice versa.
+            % phi_to_ang
+            %     -- depending on the projection type, the constant used to
+            %        convert Phi angles in radians to Phi angles in
+            %        degrees or vice versa.
+
+            %
+            % TODO: #954 NEEDS verification:
+            [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_(obj,ndim);
+
         end
         %------------------------------------------------------------------
-        % Particular implementation of aProjection abstract interface
+        % Particular implementation of aProjectionBase abstract interface
         %------------------------------------------------------------------
         function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
             % return the axes block, corresponding to this projection class.
-            ax_bl = get_proj_axes_block@aProjection(obj,default_binning_ranges,req_binning_ranges);
+            ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
+            ax_bl.angular_unit_is_rad = obj.type(2:3);
             %
-            %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear
-            % TODO, delete this, mutate axes_block
-            axca = spher_proj_caption();
-            axca.proj_type = obj.type;
-            ax_bl.axis_caption=axca;
+            %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear TODO: #954.
         end
 
 
@@ -179,6 +207,17 @@ classdef spher_proj<aProjection
 
     end
 
+    methods(Access = protected)
+        function mat = get_u_to_rlu_mat(obj)
+            % TODO: #954 NEEDS verification:
+            % u_to_rlu matrix used to tranfer offset expressed in Crystal Cartesian
+            % into rlu (normally this matrix contans inverse operation)
+            %
+            bm = bmatrix(obj.alatt,obj.angdeg);
+            mat = inv(bm);
+            mat = [mat,zeros(3,1);[0,0,0,1]];
+        end
+    end
     %=====================================================================
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
@@ -204,7 +243,7 @@ classdef spher_proj<aProjection
             ver = 1;
         end
         function  flds = saveableFields(obj)
-            flds = saveableFields@aProjection(obj);
+            flds = saveableFields@aProjectionBase(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
     end

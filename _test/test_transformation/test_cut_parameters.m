@@ -199,7 +199,7 @@ classdef test_cut_parameters < TestCase
             assertEqual(pbin{3},[])
             assertEqual(pbin{4},[])
 
-            assertTrue(isa(proj,'aProjection'));
+            assertTrue(isa(proj,'aProjectionBase'));
             assertEqual(proj.u,[1,0,0])
             assertEqual(proj.v,[0,1,0])
 
@@ -224,7 +224,7 @@ classdef test_cut_parameters < TestCase
             assertEqual(pbin{3},[-0.3,0.03,0.3])
             assertEqual(pbin{4},[0,1,10])
 
-            assertTrue(isa(proj,'aProjection'));
+            assertTrue(isa(proj,'aProjectionBase'));
             assertEqual(proj.u,[1,0,0])
             assertEqual(proj.v,[0,1,0])
 
@@ -249,7 +249,7 @@ classdef test_cut_parameters < TestCase
             assertEqual(pbin{3},[-0.3,0.03,0.3])
             assertEqual(pbin{4},[0,1,10])
 
-            assertTrue(isa(proj,'aProjection'));
+            assertTrue(isa(proj,'aProjectionBase'));
             assertEqual(proj.u,[1,0,0])
             assertEqual(proj.v,[0,1,0])
 

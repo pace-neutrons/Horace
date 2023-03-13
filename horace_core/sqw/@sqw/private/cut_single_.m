@@ -5,7 +5,7 @@ function [wout,log_info] = cut_single_(w, tag_proj, targ_axes, keep_pix, outfile
 % ------
 % w           The sqw object to take a cut from.
 % tag_proj    A `projection` object, defining the projection of the cut.
-% targ_axes   `axes_block` object defining the ranges, binning and geometry
+% targ_axes   `AxesBlockBase` object defining the ranges, binning and geometry
 %             of the target cut
 %
 % keep_pix    True if pixel information is to be retained in cut, else false.

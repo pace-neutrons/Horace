@@ -102,7 +102,7 @@ classdef test_ortho_proj_methods<TestCase
             pix = eye(4);
 
             assertExceptionThrown(@()from_this_to_targ_coord(pra,pix),...
-                'HORACE:aProjection:runtime_error');
+                'HORACE:aProjectionBase:runtime_error');
 
         end
         %------------------------------------------------------------------
@@ -117,12 +117,12 @@ classdef test_ortho_proj_methods<TestCase
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab0 = axes_block(bin0{:});
+            ab0 = ortho_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[0.5*(dbr(1,4)+dbr(2,4)),1,dbr(2,4)]};
-            ab1 = axes_block(bin1{:});
+            ab1 = ortho_axes(bin1{:});
             proj2 = ortho_proj([1,1,0],[1,-1,0]);
             %
             proj2.do_generic = true;
@@ -162,12 +162,12 @@ classdef test_ortho_proj_methods<TestCase
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = axes_block(bin0{:});
+            ab0 = ortho_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab1 = axes_block(bin1{:});
+            ab1 = ortho_axes(bin1{:});
             proj2 = ortho_proj([1,1,0],[1,-1,0]);
             %
             proj2.do_generic = true;
@@ -194,10 +194,11 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(bl_start,bl_startO);
             assertEqual(bl_size,bl_sizeO);
 
-            assertEqual(numel(bl_start),7);
+            assertEqual(numel(bl_start),8);
             % both use halo 
-            assertEqual(bl_startO,[9,18,27,36,48,61,74]);
-            assertEqual(bl_sizeO, [3,5,7,9,8,6,4]);
+            
+            assertEqual(bl_startO,[9,18,27,36,48,61,74,87]);
+            assertEqual(bl_sizeO, [3,5,7,9,8,6,4,1]);
         end
 
         function test_binning_range_half_sampe_proj2Drot45(~)
@@ -210,12 +211,12 @@ classdef test_ortho_proj_methods<TestCase
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = axes_block(bin0{:});
+            ab0 = ortho_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab1 = axes_block(bin1{:});
+            ab1 = ortho_axes(bin1{:});
             proj2 = ortho_proj([1,1,0],[-1,1,0]);
             proj2.do_generic = true;
             proj2.convert_targ_to_source = false;
@@ -262,7 +263,7 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(numel(bl_start),6);
             assertEqual(numel(bl_startOld),6);
             assertEqual(bl_start,[18,27,36,89,100,111])
-            assertEqual(bl_size,[2,6,51,7,5,3])
+            assertEqual(bl_size,[2,6,52,8,6,4])
             assertEqual(bl_startOld,[27,36,45,89,100,111]);
             assertEqual(bl_sizeOld, [4,8,42,7,5,3]);
         end
@@ -273,12 +274,12 @@ classdef test_ortho_proj_methods<TestCase
             dbr = [0,0,0,0;1,1,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = axes_block(bin0{:});
+            ab0 = ortho_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,dbr(2,1)];[0,0.1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab1 = axes_block(bin1{:});
+            ab1 = ortho_axes(bin1{:});
             proj2 = ortho_proj([0,1,0],[-1,0,0]);
             proj2.do_generic = true;
 
@@ -298,19 +299,19 @@ classdef test_ortho_proj_methods<TestCase
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = axes_block(bin0{:});
+            ab0 = ortho_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab1 = axes_block(bin1{:});
+            ab1 = ortho_axes(bin1{:});
 
             [bl_start_r,bl_size_r] = proj1.get_nrange(npix,ab0,ab1,proj1);
             assertEqual(numel(bl_start_r),numel(bl_size_r));
 
             bin2 = {[0.0,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab2 = axes_block(bin2{:});
+            ab2 = ortho_axes(bin2{:});
             proj2 = proj1;
             proj2.offset = [0.5,0,0,0];
 
@@ -328,12 +329,12 @@ classdef test_ortho_proj_methods<TestCase
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = axes_block(bin0{:});
+            ab0 = ortho_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab1 = axes_block(bin1{:});
+            ab1 = ortho_axes(bin1{:});
 
 
             proj1.do_3D_transformation = false;
@@ -360,7 +361,7 @@ classdef test_ortho_proj_methods<TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab0 = axes_block(bin0{:});
+            ab0 = ortho_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
 
@@ -381,7 +382,7 @@ classdef test_ortho_proj_methods<TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-            ab0 = axes_block(bin0{:});
+            ab0 = ortho_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
 
@@ -405,7 +406,7 @@ classdef test_ortho_proj_methods<TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
-            ab0 = axes_block(bin0{:});
+            ab0 = ortho_axes(bin0{:});
             sz = ab0.dims_as_ssize();
             npix = ones(sz);
 

@@ -23,7 +23,7 @@ function wout = cut(obj, varargin)
 % ------
 %   data_source    Data source: sqw-type object (sqw or sqw data accessor)
 %
-%   proj           instance of aProjection class (ortho_proj) as defailts
+%   proj           instance of aProjectionBase class (ortho_proj) as defailts
 %                  or Data structure containing the projection class fields,
 %                  (names and its values)
 %                  (type >> help ortho_proj   for details)
@@ -127,7 +127,7 @@ end
 
 %
 sz = size(pbin);
-% This loop enables multicuts
+% This loop enables multi-cuts
 if return_cut
     wout = cell(sz);
 end
@@ -154,7 +154,7 @@ img_block = w.data;
 source_proj = img_block.proj;
 %--------------------------------------------------------------------------
 % Get the source binning ranges, transformed into target coordinate system.
-% It is actually axes_block method, so source projection is provided as
+% It is actually AxesBlockBase method, so source projection is provided as
 % input of this method.
 source_binning = img_block.axes.get_binning_range(...
     source_proj,targ_proj);
