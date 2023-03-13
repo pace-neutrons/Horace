@@ -24,11 +24,11 @@ function wout = mask (win, mask_array)
 %
 
 % Initialise output argument
-if win.has_pixels()
-    wout = copy(win, 'exclude_pix', true);  % pixels will be assigned later
-else
-    wout = copy(win);
-end
+% if win.has_pixels()
+%     wout = copy(win, 'exclude_pix', true);  % pixels will be assigned later
+% else
+wout = copy(win);
+% end
 
 % Trivial case of empty or no mask arguments
 if nargin==1 || isempty(mask_array)

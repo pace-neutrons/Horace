@@ -170,12 +170,10 @@ end
 
 % Check pixel indexing is valid
 % -----------------------------
-if exist('indx','var')
-    all_pixels = false;
-    [ok,mess] = parse_pixel_indices (win,indx);
-    if ~ok, return, end
-else
-    all_pixels = true;
+
+all_pixels = ~exist('indx','var');
+if ~all_pixels
+    parse_pixel_indices (win,indx);
 end
 
 
@@ -223,11 +221,10 @@ for iw=1:nw
 
     % Pixel indicies
     if all_pixels
-        [ok,mess,irun,idet,ien] = parse_pixel_indices (wtmp);
+        [irun,idet,ien] = parse_pixel_indices (wtmp);
     else
-        [ok,mess,irun,idet,ien] = parse_pixel_indices (wtmp,indx,iw);
+        [irun,idet,ien] = parse_pixel_indices (wtmp,indx,iw);
     end
-    if ~ok, return, end
     npix(iw) = numel(irun);
 
     % Get energy transfer and bin sizes
