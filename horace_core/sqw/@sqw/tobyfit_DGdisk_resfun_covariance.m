@@ -73,11 +73,16 @@ detector_table = lookup.detector_table;
 % Get covariance matricies
 % ------------------------
 for iw = 1:numel(win)
-    if iscell(win), wtmp = win{iw}; else, wtmp = win(iw); end
-    if all_pixels
-        [~,~,irun,idet] = parse_pixel_indices (wtmp);
+    if iscell(win)
+        wtmp = win{iw};
     else
-        [~,~,irun,idet] = parse_pixel_indices (wtmp,indx,iw);
+        wtmp = win(iw);
+    end
+
+    if all_pixels
+        [irun,idet] = parse_pixel_indices (wtmp);
+    else
+        [irun,idet] = parse_pixel_indices (wtmp,indx,iw);
     end
     npix = npix_arr(iw);
 
