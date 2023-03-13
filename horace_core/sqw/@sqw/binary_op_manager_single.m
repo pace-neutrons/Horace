@@ -150,7 +150,7 @@ function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
         end
 
         wout = copy(w1);
-        wout.get_new_handle();
+        wout = wout.get_new_handle();
         wout.pix = wout.pix.do_binary_op(w2.pix, binary_op, 'flip', flip);
         wout = recompute_bin_data(wout);
     else
