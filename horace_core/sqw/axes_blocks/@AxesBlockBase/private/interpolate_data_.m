@@ -1,25 +1,25 @@
-function varargout = interpolate_data_(obj,nout,ref_nodes,density, ...
-    ref_grid_cell_size,proj)
+function varargout = interpolate_data_(obj,nout,ref_axes,ref_proj,ref_data,targ_proj)
 % interpolate density data for signal, error and number of
 % pixels provided as input density and defined on the references
 % nodes onto the grid, defined by this block
 %
 % Inputs:
 % nout      -- number of elements in cellarray of densities
-% ref_nodes -- 4D array of the nodes of the reference lattice,
-%              produced by get_density routine of the reference
-%              axes block and projected into coordinate system of this axes
-%              block
-% density   -- 3-elements cellarray containing arrays of
-%              signal, error and npix densities,
-%              produced by get_density routine of the reference
-%              axes block.
-% Optional:
-% ref_grid_cell_size
-%           -- 4D array of the scales of the reference lattice
-%              if missing or empty, assume ref_nodes have the same
-%              cell sizes as these nodes
-% proj      -- the projection object defining the transformation
+%
+% ref_axes
+%           -- axes block -source grid, defining the lattice
+%              where source data are defined on
+% ref_proj
+%           -- the projection, which defines the coordinate
+%              system related to the ref_axes
+%
+% data      -- 1 to 3-elements cellarray containing arrays of data
+%              to interpolate on the nodes of the input axes
+%              block. In the most common case this is the
+%              celarray of s,e,npix data, defined on source
+%              axes block. source_axes.nbins_all_dims ==
+%              size(data{i}) where
+% targ_proj -- the projection object defining the transformation
 %              from this coordinate system to the system,
 %              where the reference nodes are defined
 %              If missing or empty, assume that this coordinate
@@ -33,6 +33,10 @@ function varargout = interpolate_data_(obj,nout,ref_nodes,density, ...
 for i= 1:nargout
     varargout{i} = [];
 end
+% cross-assign the source and target projection transformations
+%
+%
+[ref_nodes,density,ref_grid_cell_size] = ref_axes.get_density(ref_data);
 %
 ref_grid_size = size(density{1});
 ref_gridX = reshape(ref_nodes(1,:),ref_grid_size );
@@ -40,10 +44,13 @@ ref_gridY = reshape(ref_nodes(2,:),ref_grid_size );
 ref_gridZ = reshape(ref_nodes(3,:),ref_grid_size );
 ref_gridE = reshape(ref_nodes(4,:),ref_grid_size );
 
-if ~isempty(ref_grid_cell_size)
+if ~isempty(targ_proj)
+    ref_proj.targ_proj = targ_proj;
+    targ_proj.targ_proj = ref_proj;
+    
     [char_cube,this_cell_size] = obj.get_axes_scales();
-    if ~isempty(proj)
-        char_cube = proj.from_this_to_targ_coord(char_cube);
+    if ~isempty(targ_proj)
+        char_cube = targ_proj.from_this_to_targ_coord(char_cube);
         trans_cell_size = max(char_cube,[],2)-min(char_cube,[],2);
     else
         trans_cell_size  = this_cell_size;
@@ -78,8 +85,8 @@ if ~isempty(ref_grid_cell_size)
             ' Contact the developers team to address the issue.'])
     end
 
-    if ~isempty(proj)
-        inodes = proj.from_this_to_targ_coord(nodes);
+    if ~isempty(targ_proj)
+        inodes = targ_proj.from_this_to_targ_coord(nodes);
     else
         inodes = nodes;
     end
@@ -95,7 +102,7 @@ for i = 1:nout
 
     varargout{i} = interp_ds.*int_cell_volume;
 end
-nsig = sum(varargout{nout}(:)); % total number of contributing pixels or 
+nsig = sum(varargout{nout}(:)); % total number of contributing pixels or
 % whatever replaces them in tests is 0
 if nsig == 0
     min_base = min(ref_nodes,[],2);

@@ -386,7 +386,7 @@ classdef AxesBlockBase < serializable
             % Returns:
             % intep_pints
             %          -- 2D [4,nAxesEdgesPoints] array of axes positions
-            %              where the density is defined
+            %             where the density is defined
             % density
             %          -- cellarray of density points calculated in the
             %             density points positions.
@@ -402,24 +402,27 @@ classdef AxesBlockBase < serializable
             [interp_points,density,cell_sizes] = calculate_density_(obj,datasets);
         end
         %
-        function [s,e,npix] = interpolate_data(obj,ref_nodes,density,varargin)
+        function [s,e,npix] = interpolate_data(obj,source_axes, ...
+                source_proj,data,varargin)
             % interpolate density data for signal, error and number of
             % pixels provided as input density and defined on the nodes of the
             % references axes block onto the grid, defined by this axes block.
             %
             % Inputs:
-            % ref_nodes -- 4D array of the nodes of the reference lattice,
-            %              produced by get_density routine of the reference
-            %              axes block.
-            % density   -- 3-elements cellarray containing arrays of
-            %              signal, error and npix densities,
-            %              produced by get_density routine of the reference
-            %              axes block.
+            % source_axes
+            %           -- axes block -source grid, defining the lattice
+            %              where source data are defined on
+            % source_proj
+            %           -- the projection, which defines the coordinate
+            %              system related to the source_axes
+            % data      -- 1 to 3-elements cellarray containing arrays of data
+            %              to interpolate on the nodes of the input axes
+            %              block. In the most common case this is the
+            %              celarray of s,e,npix data, defined on source
+            %              axes block. source_axes.nbins_all_dims ==
+            %              size(data{i}) where
+            %
             % Optional:
-            % grid_cell_size
-            %           -- 4D array of the scales of the reference lattice
-            %              if missing or empty, assume ref_nodes have the same
-            %              cell sizes as these nodes
             % proj      -- the projection object defining the transformation
             %              from this coordinate system to the system,
             %              where the reference nodes are defined
@@ -433,15 +436,10 @@ classdef AxesBlockBase < serializable
             if nargin < 5
                 proj = [];
             else
-                proj = varargin{2};
+                proj = varargin{1};
             end
-            if nargin < 4
-                grid_cell_size = [];
-            else
-                grid_cell_size = varargin{1};
-            end
-            [s,e,npix] = interpolate_data_(obj,nargout,ref_nodes, ...
-                density,grid_cell_size,proj);
+            [s,e,npix] = interpolate_data_(obj,nargout, ...
+                source_axes,source_proj, data,proj);
         end
         %
         function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,coord_transf,varargin)

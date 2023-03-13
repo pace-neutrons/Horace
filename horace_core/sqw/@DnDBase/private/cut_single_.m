@@ -96,7 +96,8 @@ function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 %            bin. size(npix) == size(s). As the data are interpolated,
 %            the number of pixels may become fractional
 
-%obj.proj.targ_proj = targ_proj;
+% cross-assign targer projections to enable possible optimizations
+obj.proj.targ_proj = targ_proj;
 targ_proj.targ_proj = obj.proj;
 
 s = obj.s.*obj.npix;
