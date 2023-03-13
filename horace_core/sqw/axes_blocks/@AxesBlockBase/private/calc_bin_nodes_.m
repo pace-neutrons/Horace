@@ -1,5 +1,5 @@
 function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
-    calc_bin_nodes_(obj,do3D,halo,bin_edges,bin_centre, ...
+    calc_bin_nodes_(obj,do3D,halo,bin_edges,bin_centre,dens_interp, ...
     axes_only,ngrid_form,hull,varargin)
 % build 3D or 4D vectors, containing all nodes of the AxesBlockBase grid,
 % constructed over AxesBlockBase axes.
@@ -11,10 +11,10 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %              axes points.
 % halo      -- if true, build one-cell width halo around the generated axes
 %              grid. Not building halo along energy axes in 3D mode
-% bin_edges
-%           -- if true, return grid used to define density, namely with points
-%              located on the grid cell edges + edges of integrated
-%              dimensions.
+% bin_edges -- if true, return grid containing bin edges
+% dens_interp
+%           -- if true, return grid used to define density, bin centers for
+%              projection axes and bin edges of integrated dimensions.
 % bin_centre
 %           -- if true, return grid used for integration by summation in
 %              centre-points, namely, points are in the centre of cells and
@@ -53,7 +53,7 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 %        -- 4-element vector of characteristic sizes of the grid cell in
 %           4 dimensions
 
-noptions = 8; % number of positional arguments always present as inputs (excluding varargin)
+noptions = 9; % number of positional arguments always present as inputs (excluding varargin)
 if bin_centre && bin_edges
     error('Horace:AxesBlockBase:invalid_argument',...
         '"-bin_edges" and "-bin_centre" keys can not be used together')
@@ -62,64 +62,67 @@ if ngrid_form && hull
     error('HORACE:AxesBlockBase:invalid_argument',...
         '"-hull" and "-grid_form" parameters can not be used together');
 end
-[char_size,grid_nnodes_multiplier] = parse_inputs(noptions,nargin,varargin{:});
+grid_nnodes_multiplier = parse_inputs(noptions,nargin,varargin{:});
 
 axes = cell(4,1);
 %
-if isempty(char_size) && isempty(grid_nnodes_multiplier)
+if isempty(grid_nnodes_multiplier)
     axes(obj.pax) = obj.p(:);
     iint_ax = num2cell(obj.iint',2);
     axes(obj.iax) = iint_ax(:);
     npoints_in_axes = obj.nbins_all_dims+1;
-    %iax = false(4,1);
-    %iax(obj.iax) = true;
     if halo
         for i=1:4
-            %       if iax(i) % do not build halo for integration axes
-            %           continue;
-            %       end
             axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),axes{i});
             npoints_in_axes(i)= numel(axes{i});
         end
     end
-elseif ~isempty(grid_nnodes_multiplier)
-    range = obj.img_range;
-    npoints_in_axes = obj.nbins_all_dims*grid_nnodes_multiplier+1;
-    for i=1:4
-        axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
-        if halo
-            axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),axes{i});
-            npoints_in_axes(i) = npoints_in_axes(i)+2;
-        end
-    end
 else
-    npoints_in_axes = zeros(1,4);
     range = obj.img_range;
-    size = range(2,:)'-range(1,:)';
-    dNR = floor(size./char_size);
-    steps = size./(dNR+1);
-    for i=1:4
-        if range(1,i)+ steps(i)>=range(2,i)
-            axes{i} = [range(1,i),range(2,i)];
-        else
-            axes{i} = linspace(range(1,i),range(2,i),dNR(i)+1);
-            if halo
-                axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),axes{i});
+    npoints_in_axes = zeros(1,4);
+    for i=1:4 % this mode is used for data interpolation, so we need to
+        % keep bin centers, where the base interpolating function is
+        % defined unchanged
+        ax = linspace(range(1,i),range(2,i),obj.nbins_all_dims(i)+1);
+        if grid_nnodes_multiplier(i) == 2
+            cent = 0.5*(ax(1:end-1)+ax(2:end));
+            ax = sort([ax,cent]);
+        elseif grid_nnodes_multiplier(i) > 2
+            bin_cells = cell(1,obj.nbins_all_dims(i));
+            for j=1:obj.nbins_all_dims(i)
+                bin_cells{j} = linspace(ax(j),ax(j+1),grid_nnodes_multiplier(i)+1);
             end
+            bin_cells = cell2mat(bin_cells);
+            ax = unique(bin_cells);
+        end
+        if halo
+            axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),ax{i});
+        else
+            axes{i} = ax(:)';
         end
         npoints_in_axes(i) = numel(axes{i});
     end
 end
-grid_cell_size = zeros(4,1);
+grid_cell_size = cell(4,1);
+cell_output = false;
 for i =1:4
     if halo % avoid possible empty ranges when halo is applied to ranged boxes
-        grid_cell_size(i) = min(axes{i}(3:end-1)-axes{i}(2:end-2));
+        diffrence = axes{i}(3:end-1)-axes{i}(2:end-2);
     else
-        grid_cell_size(i) = min(axes{i}(2:end)-axes{i}(1:end-1));
+        diffrence = axes{i}(2:end)-axes{i}(1:end-1);
+    end
+    if abs(min(diffrence)- max(diffrence))< eps('single')
+        grid_cell_size{i} = min(diffrence);
+    else
+        cell_output  = true;
+        grid_cell_size{i} = diffrence;
     end
 end
+if ~cell_output
+    grid_cell_size = cell2arr(grid_cell_size,true);
+end
 
-if bin_edges || bin_centre
+if bin_centre || dens_interp
     is_pax = false(4,1);
     is_pax(obj.pax) = true;
 
@@ -129,15 +132,15 @@ if bin_edges || bin_centre
         if is_pax(i)
             axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
         else % integration axis
-            if bin_centre
+            if dens_interp  % may be necessary if cell size is provided, not for
+               %  default range which is already defined by this formula                
+                axes{i} = [obj.img_range(1,i),obj.img_range(2,i)];
+            else 
                 if numel(axes{i})==2
                     grid_cell_size(i) = obj.img_range(2,i)-obj.img_range(1,i);
                 end
                 axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
-
-            else  % may be necessary if cell size is provided, not for
-                %  default range which is already defined by this formula
-                axes{i} = [obj.img_range(1,i),obj.img_range(2,i)];
+                
             end
         end
         npoints_in_axes(i) = numel(axes{i});
@@ -211,8 +214,8 @@ function  axes = build_ax_with_halo(range,axes)
 % Build axes with halo which does not exceed
 % the allowed image ranges
 %
-step    = abs(axes(2)-axes(1));
-min_pos = axes(1)-step;
+L_step    = abs(axes(2)-axes(1));
+min_pos = axes(1)-L_step;
 if min_pos < range(1)
     if abs(range(1))<eps
         min_pos = -eps;
@@ -220,7 +223,8 @@ if min_pos < range(1)
         min_pos = range(1)*(1+eps);
     end
 end
-max_pos = axes(end)+step;
+R_step = abs(axes(end)-axes(end-1));
+max_pos = axes(end)+R_step;
 if max_pos > range(2)
     if abs(range(2))<eps
         max_pos = eps;
@@ -230,43 +234,30 @@ if max_pos > range(2)
 end
 axes = [min_pos,axes(:)',max_pos];
 
-function [char_size,nnodes_multiplier] = parse_inputs(noptions,ninputs,varargin)
+function nnodes_multiplier = parse_inputs(noptions,ninputs,varargin)
 % process inputs to extract char size in the form of 4D cube. If the input
 % numeric array do not satisty the request for beeing 4D characteristic
 % cube, throw invalid_argument
 %
-char_size= [];
 nnodes_multiplier = [];
 if ninputs > noptions
     if isnumeric(varargin{1})
-        cube = varargin{1};
-        cube_size = size(cube);
-        if cube_size(1)  ==4
-            if cube_size(2) ==2 || cube_size(2) == 2^4
-                r0 = min(cube,[],2);
-                r1 = max(cube,[],2);
-                char_size = r1-r0;
-            elseif cube_size(2) == 1
-                char_size = cube;
-            else
-                error('HORACE:AxesBlockBase:invalid_argument',...
-                    ['characteristic size, if present, should be 4xnNodes', ...
-                    ' or 4x1 vector of numeric values. Input size is: [%s]'],...
-                    disp2str(cube_size));
-            end
-        elseif numel(cube) == 1
-            % its nnodes_multiplier, not char_size
-            nnodes_multiplier = round(cube);
-        else
+        nnodes_multiplier = round(varargin{1});
+        nnodes_multiplier = nnodes_multiplier(:)';
+        if numel(nnodes_multiplier) == 1
+            nnodes_multiplier = ones(1,4)*nnodes_multiplier;
+        end
+        nnodes_multiplier(nnodes_multiplier<1) = 1;
+        if numel(nnodes_multiplier)~=4
             error('HORACE:AxesBlockBase:invalid_argument',...
-                ['characteristic size, if present, should be 4xnNodes or', ...
-                ' 4x1 vector of numeric values. Input size is: [%s]'],...
-                disp2str(cube_size));
+                ['nnodes multipler should be 1x4 vector or single value.\n', ...
+                ' Input size is: [%s]'],...
+                disp2str(size(varargin{1})));
         end
     else
         error('HORACE:AxesBlockBase:invalid_argument',...
-            ['characteristic size, if present, should be 4x4xnNodes matrix', ...
-            ' or 4x1 vector of numeric values.', ...
+            ['nodes_multiplier, if present, should be single numeric value', ...
+            ' or 4x1 vector of numeric values.\n', ...
             ' Input has wrong type: "%s" and wrong value: "%s"'],...
             class(varargin{1}),disp2str(varargin{1}))
     end

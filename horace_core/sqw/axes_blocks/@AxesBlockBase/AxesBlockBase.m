@@ -556,14 +556,13 @@ classdef AxesBlockBase < serializable
             %              specified range + single-cell sized
             %              step expanding the lattice
             % '-bin_edges'
-            %           -- if provided, returns grid used to define density,
-            %              namely with points located on the grid cell edges +
-            %              edges of integrated  dimensions.
+            %           -- if provided, returns grid containign bin edges.
             % '-bin_centre'
-            %           -- if provided, returns grid used for integration
-            %              by summation in centre-points, namely, points
-            %              are in the centre of cells and integration
-            %              dimensions
+            %           -- if provided, returns grid containing bin centers
+            % '-dens_interp'
+            %           -- if present, return grid used to define density,
+            %              bin centers for projection axes and bin edges for
+            %              integrated dimensions.
             % '-axes_only'
             %           -- if provided, do not return 3D or 4D grid but
             %              just return the axes in each 3 or 4 dimensions
@@ -588,10 +587,10 @@ classdef AxesBlockBase < serializable
             %        -- 4-element vector of characteristic sizes of the grid cell in
             %           4 dimensions
             %
-            opt = {'-3D','-halo','-bin_edges','-bin_centre',...
+            opt = {'-3D','-halo','-bin_edges','-bin_centre','-dens_interp',...
                 '-axes_only','-ngrid','-hull'};
             [ok,mess,...
-                do_3D,build_halo,bin_edges,bin_centre,...
+                do_3D,build_halo,bin_edges,bin_centre,dens_interp,...
                 axes_only,ngrid,hull,argi] ...
                 = parse_char_options(varargin,opt);
             if ~ok
@@ -599,7 +598,7 @@ classdef AxesBlockBase < serializable
             end
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 calc_bin_nodes_(obj,do_3D, ...
-                build_halo,bin_edges,bin_centre,...
+                build_halo,bin_edges,bin_centre,dens_interp,...
                 axes_only,ngrid,hull,argi{:});
         end
         %

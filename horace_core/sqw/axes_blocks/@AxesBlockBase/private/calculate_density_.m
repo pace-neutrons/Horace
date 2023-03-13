@@ -24,7 +24,7 @@ function [dens_nodes,densities,base_cell_size] = calculate_density_(obj,in_data)
 
 % build data grid
 [data_nodes,~,npoints_in_base,base_cell_size] = ...
-    obj.get_bin_nodes('-bin_edges');
+    obj.get_bin_nodes('-dens_interp');
 gridCX = reshape(data_nodes(1,:),npoints_in_base);
 gridCY = reshape(data_nodes(2,:),npoints_in_base);
 gridCZ = reshape(data_nodes(3,:),npoints_in_base);
@@ -34,8 +34,9 @@ gridCE = reshape(data_nodes(4,:),npoints_in_base);
 % build density grid
 base_cell_volume = prod(base_cell_size);
 
-base_cell_size(obj.pax) = base_cell_size(obj.pax)./2;
-[dens_nodes,~,n_ref_points] = obj.get_bin_nodes(base_cell_size);
+cell_dens_multiplier = ones(1,4);
+cell_dens_multiplier(obj.pax) = 2;
+[dens_nodes,~,n_ref_points] = obj.get_bin_nodes(cell_dens_multiplier);
 
 % provide the coefficient for the future integration over interpolated grid
 % in the form int(grid,a,b) = 0.5*grid_step*sum(signal_i,for a<= i <b);
@@ -85,6 +86,9 @@ rep_rate = ones(1,4);
 rep_rate(~is_pax) = 2;
 shape  = n_ref_points;
 shape(~is_pax) = 1;
+% assign density of projection axes cells to bin centres of these cells
 ref_ds= reshape(ref_ds,shape);
+% distribute density of integration cells on the bin edges of the
+% integration cells 
 ref_ds = repmat(ref_ds,rep_rate);
 

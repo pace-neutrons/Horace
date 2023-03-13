@@ -59,7 +59,7 @@ function range = search_for_range(obj,source_proj)
 [range0,dE_range] = transf_range(obj,source_proj,1);
 difr = 1;
 node_mult = 2;
-while difr>1.e-3 && node_mult<17
+while difr>1.e-3 && node_mult<33 % 2,4,8,16,32 % it is hull, so acceptable number of points
     range = transf_range(obj,source_proj,node_mult);
     difr = calc_difr(range0,range);
     range0 = range;
