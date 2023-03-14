@@ -123,12 +123,12 @@ end
 % combine pixels into single pixels block
 
 wout = copy(inputs(1));
-pixout = wout.pix;
-for i=2:numel(inputs)
-    pixout = PixelDataBase.concatenate(pixout,inputs(i).pix);
-end
+[wout, ldr] = wout.get_new_handle();
 
-% Turn off horace_info output, but save for automatic clean-up on exit or ctrl-C
+pix = arrayfun(@(x) x.pix, inputs, 'UniformOutput', false);
+wout.pix = wout.pix.cat(pix{:}, ldr);
+
+% Turn off horace_info output, but save for automatic clean-up on exit or cntrl-C
 info_level = get(hor_config,'log_level');
 cleanup_obj=onCleanup(@()set(hor_config, 'log_level', info_level));
 set(hor_config,'log_level',-1);
