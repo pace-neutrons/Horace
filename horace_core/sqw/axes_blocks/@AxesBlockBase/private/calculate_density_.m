@@ -24,7 +24,7 @@ function [dens_nodes,densities,base_cell_size] = calculate_density_(obj,in_data)
 
 % build data grid
 [data_nodes,~,npoints_in_base,base_cell_size] = ...
-    obj.get_bin_nodes('-data_to_density');
+    obj.get_bin_nodes('-bin_edges');
 gridCX = reshape(data_nodes(1,:),npoints_in_base);
 gridCY = reshape(data_nodes(2,:),npoints_in_base);
 gridCZ = reshape(data_nodes(3,:),npoints_in_base);

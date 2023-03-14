@@ -24,7 +24,8 @@ classdef test_spher_axes < TestCase
             bin0 = {[dbr(1,1),0.5,dbr(2,1)];[dbr(1,2),1,dbr(2,2)];...
                 [dbr(1,3),1,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = spher_axes(bin0{:});
-            range = ab.get_binning_range();
+            dobj = DnDBase.dnd(ab,ortho_proj);
+            range = dobj.targ_range([],'-bin');
             ac_range = {[0.25,0.5,10.25];[0.5,1,179.5];[-179.5,1,179.5];[dbr(1,4),1,dbr(2,4)]};
             assertEqual(ac_range,range');
         end
@@ -34,7 +35,8 @@ classdef test_spher_axes < TestCase
             bin0 = {[dbr(1,1),0.5,dbr(2,1)];[dbr(1,2),1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = spher_axes(bin0{:});
-            range = ab.get_binning_range();
+            dobj = DnDBase.dnd(ab,ortho_proj);
+            range = dobj.targ_range([],'-bin');            
             assertEqual(bin0,range');
         end
         %

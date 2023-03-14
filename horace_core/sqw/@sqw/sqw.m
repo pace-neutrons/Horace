@@ -30,7 +30,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % stored within an object. May also return pix_combine_info or
         % filebased pixels. (TODO -- this should be modified)
 
-        % The date of the sqw object file creatrion. As the date is defined both
+        % The date of the sqw object file creation. As the date is defined both
         % in sqw and dnd object parts, this property synchronize both
         creation_date;
     end
@@ -89,34 +89,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     methods
         has = has_pixels(w);          % returns true if a sqw object has pixels
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
-        wout = smooth(win, varargin)  % smooth sqw object or array of sqw
-        % objects containing no pixels
-        function [val, n] = data_bin_limits (obj)
-            % Get limits of the data in an n-dimensional dataset, that is,
-            % find the coordinates along each of the axes of the smallest
-            % cuboid that contains bins with non-zero values of
-            % contributing pixels.
-            %
-            % Syntax:
-            %   >> [val, n] = data_bin_limits (din)
-            %
-            [val,n] = obj.data.data_bin_limits();
-        end
         % sigvar block
         %------------------------------------------------------------------
-
-        wout = sigvar(w);
-        [s,var,mask_null] = sigvar_get (w);
         w = sigvar_set(win, sigvar_obj);
-        sz = sigvar_size(w);
-
         %------------------------------------------------------------------
         wout = cut(obj, varargin); % take cut from the sqw object.
-
-        function wout = cut_dnd(obj,varargin)
-            % legacy entrance to cut for dnd objects
-            wout = cut(obj.data,varargin{:});
-        end
 
         function wout = cut_sqw(obj,varargin)
             % legacy entrance to cut for sqw object
@@ -133,7 +110,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
 
-
         %------------------------------------------------------------------
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
 
@@ -145,7 +121,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout=symmetrise_sqw(win,v1,v2,v3);
         [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
         wtot=combine_cuts(w);
-        wout=recompute_bin_data_tester(sqw_obj);
+        wout=recompute_bin_data(sqw_obj);
 
         % return the header, common for all runs (average?)
         [header_ave, ebins_all_same]=header_average(header);
@@ -164,17 +140,86 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
         %----------------------------------
+    end
+    %======================================================================
+    % METHODS, Available on SQW but redirecting actions to DnD and requesting
+    % only DND object for implementation.
+    methods
+        function [nd,sz] = dimensions(win)
+            % Return size and shape of the image
+            % arrays in sqw or dnd object
+            [nd,sz] = win(1).data.dimensions();
+        end
+        %
+        function [val, n] = data_bin_limits (obj)
+            % Get limits of the data in an n-dimensional dataset, that is,
+            % find the coordinates along each of the axes of the smallest
+            % cuboid that contains bins with non-zero values of
+            % contributing pixels.
+            %
+            % Syntax:
+            %   >> [val, n] = data_bin_limits (din)
+            %
+            [val,n] = obj.data.data_bin_limits();
+        end
+		
+        % smooth sqw object or array of sqw
+		% objects containing no pixels
+        wout = smooth(win, varargin)  
+        %                             
+        function wout = cut_dnd(obj,varargin)
+            % legacy entrance to cut for dnd objects
+            wout = cut(obj.data,varargin{:});
+        end
+        %------------------------------------------------------------------
+        % sigvar block
+        wout              = sigvar(w); % Create sigvar object from sqw or dnd object
+        [s,var,mask_null] = sigvar_get (w);
+        sz                = sigvar_size(w);
+        %------------------------------------------------------------------
+        % titles used when plotting an sqw object
         function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
                 data_plot_titles(obj)
             % get titles used to display sqw object
-            [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=data_plot_titles(obj.data);
+            [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
+                data_plot_titles(obj.data);
         end
-        status = adjust_aspect(w);
+        %------------------------------------------------------------------
+        % construct dataset from appropriately sized dnd part of an object
         wout = IX_dataset_1d(w);
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
+        %
+        function range = targ_range(obj,targ_proj)
+            % calculate the maximal range of the image may be produced by
+            % target projection applied to the current image.
+            range = obj.data.targ_range(targ_proj);
+        end
+        function status = adjust_aspect(obj)
+            % method reports if the plotting operation should adujust
+            % aspect ratio when plotting sqw objects
+            status  = obj.data.adjust_aspect();
+        end
+        function [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin,varargin)
+            % define target axes from existing axes, inputs and the target projections
+            % Inputs:
+            %  w        -- sqw object
+            % targ_proj -- the projection class which defines the
+            %              coordinate system of the cut
+            % pbin      -- bining parameters of the cut
+            %
+            % Retugns:
+            % targ_axes_block
+            %           -- the axes block which corresponds to the target
+            %              projection and have binning defined by pbin
+            %              parameter
+            % targ_proj
+            %           -- the input target projection, which extracted
+            %              some input parameters from source projection
+            %              (e.g. lattice if undefined, etc)
+            [targ_ax_block,targ_proj] = w.data_.define_target_axes_block(targ_proj, pbin,varargin{:});
+        end
     end
-
     %======================================================================
     % ACCESSORS TO OBJECT PROPERTIES and construction
     methods
@@ -186,7 +231,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 return;
             end
             obj = obj.init(varargin{:});
-
         end
 
         function obj = init(obj,varargin)
@@ -321,11 +365,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
         end
 
-        function [nd,sz] = dimensions(obj)
-            % return size and shape of the image arrays
-            [nd,sz] = obj(1).data_.dimensions();
-        end
-
         function is = dnd_type(obj)
             is = obj.pix_.num_pixels == 0;
         end
@@ -436,11 +475,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     %======================================================================
-
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
-        wout = recompute_bin_data(w);
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         % binning of an sqw or dnd object
 
@@ -456,7 +493,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     %----------------------------------------------------------------------
-
     methods(Static, Access=private)
         % Signatures of private class functions declared in files
         sqw_struct = make_sqw(ndims);
@@ -475,9 +511,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
 
     end
-
     %----------------------------------------------------------------------
-
     methods(Access=private)
         % process various inputs for the constructor and return some
         % standard output used in sqw construction
@@ -519,7 +553,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     properties(Constant,Access=protected)
         fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
     end
-
+    %
     methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
@@ -541,8 +575,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             str = saveobj@serializable(obj);
         end
     end
+    %
     methods(Access = protected)
-
         function obj = from_old_struct(obj,S)
             % restore object from the old structure, which describes the
             % previous version(s) of the object.
@@ -562,7 +596,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj = set_from_old_struct_(obj,S);
         end
     end
-
+    %
     methods(Static)
         function obj = loadobj(S)
             % loadobj method, calling generic method of

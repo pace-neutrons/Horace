@@ -9,14 +9,6 @@ classdef (Abstract) SQWDnDBase < serializable
         % producing useful result
         pixels = has_pixels(win);     % Check if sqw or dnd object has pixels.
         %                             % DnD object always returns false.
-        [nd,sz] = dimensions(win);    % Return size and shape of the image
-        %                             % arrays in sqw or dnd object
-        [val, n] = data_bin_limits (din) % Get limits of the data in an n-dimensional
-        %                             % dataset, that is, find the
-        %                             % coordinates along each of the axes
-        %                             % of the smallest cuboid that contains
-        %                             % bins with non-zero values of contributing pixels.
-        %------------------------------------------------------------------
         save_xye(obj,varargin);       % save xye data into file
         s=xye(w, null_value);         % return a strucute, containing xye data
         %
@@ -26,10 +18,8 @@ classdef (Abstract) SQWDnDBase < serializable
         %                             % corresponding pixels if available
         %------------------------------------------------------------------
         % sigvar block
-        wout              = sigvar(w); % Create sigvar object from sqw or dnd object
-        [s,var,mask_null] = sigvar_get (w); %
         w                 = sigvar_set(win, sigvar_obj);
-        sz                = sigvar_size(w);
+        [s,var,mask_null] = sigvar_get (w); %
         %------------------------------------------------------------------
         wout = signal(w,name); % Set the intensity of an sqw object to the
         % values for the named argument
@@ -38,15 +28,40 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
         %
         wout = func_eval(win, func_handle, pars, varargin);
+    end
+    %======================================================================
+    % METHODS, Available on SQW but requesting only DND object for
+    % implementation
+    methods(Abstract)
+        [nd,sz] = dimensions(win);    % Return size and shape of the image
+        %                             % arrays in sqw or dnd object
+        [val, n] = data_bin_limits (din) % Get limits of the data in an n-dimensional
+        %                             % dataset, that is, find the
+        %                             % coordinates along each of the axes
+        %                             % of the smallest cuboid that contains
+        %                             % bins with non-zero values of contributing pixels.
+        %------------------------------------------------------------------
+        % sigvar block
+        wout              = sigvar(w); % Create sigvar object from sqw or dnd object
+        sz                = sigvar_size(w);
         %------------------------------------------------------------------
         % titles used when plotting an sqw object
         [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=data_plot_titles(obj)
         % if the object changes aspect ratio during plotting
-        status = adjust_aspect(w);        
+        status = adjust_aspect(w);
         %------------------------------------------------------------------
+        % construct dataset from appropriately sized dnd part of an object
         wout = IX_dataset_1d(w);
         wout = IX_dataset_2d(w);
-        wout = IX_dataset_3d(w);        
+        wout = IX_dataset_3d(w);
+
+        % calculate the range of the image to be produded by target
+        % projection from the current image
+        range = targ_range(obj,targ_proj)
+
+        % build the axes block which specified by projection and target cut
+        % parameters
+        [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, input_pbin,varagin);
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -54,14 +69,19 @@ classdef (Abstract) SQWDnDBase < serializable
         border_size = -4*eps
     end
 
-
-    methods (Static,Hidden) % should be protected but Matlab have some issues with calling this
-        % from children
+    methods (Static,Hidden) % should be protected but Matlab have some
+        % issues with calling this from children
         %
         function [proj, pbin, opt] = process_and_validate_cut_inputs(data,...
                 return_cut, varargin)
             % interface to private cut parameters parser/validator
-            % checking and parsing cut inputs in any acceptable form
+            % checking and parsing cut inputs in any acceptable form.
+            %
+            % The cut parameters are expressed in the target projection
+            % system of coordinates.
+            %
+            % TODO: do we want an option to express cut ranges in the source
+            %       coordinate system?
             ndims = data.dimensions;
             [proj, pbin, opt]= cut_parse_inputs_(data,ndims, return_cut, varargin{:});
         end
@@ -159,7 +179,7 @@ classdef (Abstract) SQWDnDBase < serializable
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
-                                                             % on an image stored in an sqw object
+        % on an image stored in an sqw object
 
         function [func_handle, pars, opts] = parse_eval_args(win, ...
                 func_handle, pars, varargin)

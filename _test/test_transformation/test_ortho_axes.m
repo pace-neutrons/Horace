@@ -456,7 +456,7 @@ classdef test_ortho_axes < TestCase
             assertEqual(sum(reshape(npix,1,numel(npix))),size(pix_data,2));
 
         end
-        %------------------------------------------------------------------       
+        %------------------------------------------------------------------
         function test_1Dbin_inputs_1par_provided(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
@@ -659,20 +659,20 @@ classdef test_ortho_axes < TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
-           ex = assertExceptionThrown(@()get_bin_nodes(ab,'-bin_centre',(dbr(2,:)-dbr(1,:))/10),...
+            ex = assertExceptionThrown(@()get_bin_nodes(ab,'-bin_centre',(dbr(2,:)-dbr(1,:))/10),...
                 'HORACE:AxesBlockBase:invalid_argument');
-           assertTrue(strncmp(ex.message,'characteristic size, if present',31));
-        end        
+            assertTrue(strncmp(ex.message,'characteristic size, if present',31));
+        end
         %
         function test_worong_keyword_throw(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
-           ex = assertExceptionThrown(@()get_bin_nodes(ab,'-wrong',(dbr(2,:)-dbr(1,:))'/10),...
+            ex = assertExceptionThrown(@()get_bin_nodes(ab,'-wrong',(dbr(2,:)-dbr(1,:))'/10),...
                 'HORACE:AxesBlockBase:invalid_argument');
-           assertTrue(strncmp(ex.message,'characteristic size, if present',31));
-        end        
+            assertTrue(strncmp(ex.message,'characteristic size, if present',31));
+        end
         %
         function test_get_bin_nodes_2D_2d(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
@@ -779,7 +779,10 @@ classdef test_ortho_axes < TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)],[dbr(1,2),dbr(2,2)],...
                 [dbr(1,3),0.3,dbr(2,3)],[dbr(1,4),dbr(2,4)]};
             ab = ortho_axes(bin0{:});
-            range = ab.get_binning_range();
+
+            tob = DnDBase.dnd(ab,ortho_proj());
+            range  = tob.targ_range([],'-binning');
+
             assertEqual(bin0,range);
         end
         %------------------------------------------------------------------
@@ -792,7 +795,8 @@ classdef test_ortho_axes < TestCase
             proj1 = ortho_proj([1,0,0],[0,1,0]);
             proj2 = ortho_proj([1,1,0],[1,-1,0]);
 
-            bin = ab.get_binning_range(proj1,proj2);
+            tob = DnDBase.dnd(ab,proj1);
+            bin = tob.targ_range(proj2,'-binning');
 
             % characteristic size of the block, transformed into proj2
             % coordinate system. This is absolutely unclear why does this
@@ -818,9 +822,8 @@ classdef test_ortho_axes < TestCase
             proj1 = ortho_proj([1,0,0],[0,1,0]);
             proj2 = ortho_proj([1,1,0],[1,-1,0]);
 
-            bin = ab.get_binning_range(proj1,proj2);
-
-            %proj1.targ_proj = proj2;
+            tob = DnDBase.dnd(ab,proj1);
+            bin = tob.targ_range(proj2,'-binning');
 
             assertEqualToTol([-1,0.1,1],bin{1},'abstol',1.e-12);
             assertEqualToTol([-1,0.1,1],bin{2},'abstol',1.e-12);
@@ -835,9 +838,10 @@ classdef test_ortho_axes < TestCase
             ab = ortho_axes(bin0{:});
 
             proj1 = ortho_proj([1,0,0],[0,1,0]);
+            tob = DnDBase.dnd(ab,proj1);
             proj2 = ortho_proj([1,0,0],[0,0,1]);
 
-            bin = ab.get_binning_range(proj1,proj2);
+            bin = tob.targ_range(proj2,'-binning');
 
             assertEqualToTol(bin0{1},bin{1},'abstol',1.e-12);
             assertEqualToTol(bin0{2},bin{3},'abstol',1.e-12);
@@ -857,12 +861,13 @@ classdef test_ortho_axes < TestCase
             assertEqual(ab.iint,[-2,0;2,10]);
 
             proj1 = ortho_proj([1,0,0],[0,1,0]);
+            tob = DnDBase.dnd(ab,proj1);
 
-            bin = ab.get_binning_range(proj1,proj1);
+            bin = tob.targ_range(proj1,'-binning');
 
             assertEqualToTol(bin0,bin,'abstol',1.e-12);
         end
-        %------------------------------------------------------------------       
+        %------------------------------------------------------------------
         function test_build_from_input_binning_more_infs(~)
             default_binning = {[-1,0.1,1],[-2,0.2,2],[-3,0.3,3],[0,1,10.05]};
             pbin = {[-inf,inf],[inf,0.1,1],[-2,0.1,inf],[-inf,0.1,inf]};
@@ -898,10 +903,10 @@ classdef test_ortho_axes < TestCase
             assertElementsAlmostEqual(block.p{3},-0.5:1:10.5,'absolute',1.e-12)
         end
         function test_dax_eq_pax(~)
-            ab = ortho_axes('img_range',ones(2,4),'nbins_all_dims',[50,1,1,40]);        
+            ab = ortho_axes('img_range',ones(2,4),'nbins_all_dims',[50,1,1,40]);
 
             assertEqual(ab.pax,[1,4])
-            assertEqual(ab.dax,[1,2])            
+            assertEqual(ab.dax,[1,2])
         end
         %------------------------------------------------------------------
         function test_bin_edges_provided_2D(~)
@@ -912,7 +917,7 @@ classdef test_ortho_axes < TestCase
 
             assertEqual(ab.img_range,[-1,-2,-3,0;1,2,3,10])
             assertEqual(ab.dimensions(),2)
-            
+
         end
         %
         function test_bin_edges_provided_4D(~)

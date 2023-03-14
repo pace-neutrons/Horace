@@ -161,12 +161,14 @@ classdef aProjectionBase < serializable
             % Returns:
             % obj  -- Initialized instance of aProjectionBase class
             % remains
-            %      -- if input arguments contains key-value pairs which do
-            %         not describe aProjectionBase class, the output contains
+            %      -- if input arguments contain key-value pairs which do not
+            %         describe aProjectionBase class, the output contains
             %         cellarray of such parameters. Empty, if all inputs
             %         define the projection parameters.
             %
-            opt_par = aProjectionBase.init_params;
+
+            % get list of the property names, used in initialization
+            init_par = aProjectionBase.init_params;
             remains = [];
             if nargin == 0
                 return;
@@ -176,7 +178,7 @@ classdef aProjectionBase < serializable
             else
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
-                    opt_par,false,varargin{:});
+                    init_par,false,varargin{:});
             end
         end
         %------------------------------------------------------------------
@@ -447,10 +449,10 @@ classdef aProjectionBase < serializable
             %           if requested binning ranges are undefined or
             %           infinite. Usually it is the range of the existing
             %           axes block, transformed into the system
-            %           coordinates, defined by obj projection by
-            %           AxesBlockBase.get_binning_range method.
+            %           coordinates, defined by cut projection using
+            %           dnd.targ_range(targ_proj) method.
             % req_bin_ranges --
-            %           cellarray of bin ranges, requested by user.
+            %           cellarray of cut bin ranges, requested by user.
             %
             % Returns:
             % ax_bl -- initialized, i.e. containing defined ranges and
@@ -467,9 +469,9 @@ classdef aProjectionBase < serializable
             end
         end
         %
-        function targ_range = calc_target_range(obj,pix_origin,varargin)
+        function targ_range = calc_pix_img_range(obj,pix_origin,varargin)
             % Calculate and return the range of pixels in target coordinate
-            % system.
+            % system, i.e. the image coordinate system.
             %
             % Not very efficient in the generic form, but may be efficiently
             % overloaded by children. (especially in mex-mode when transformed
@@ -481,6 +483,8 @@ classdef aProjectionBase < serializable
             % Returns:
             % targ_range  -- the range of the pixels, transformed to target
             %                coordinate system.
+            % NOTE:
+            % Need verification for non ortho_proj
             pix_transformed = obj.transform_pix_to_img(pix_origin,varargin{:});
             if isa(pix_origin, 'PixelDataBase')
                 targ_range = pix_transformed.pixel_range;
@@ -519,9 +523,10 @@ classdef aProjectionBase < serializable
                 error('HORACE:aProjectionBase:invalid_argument',...
                     ['only member of aProjectionBase family can be set up as a target projection.',...
                     ' Attempted to use: %s'],...
-                    evalc('disp(type(val))'))
+                    disp2str(val))
             end
             obj.targ_proj_ = val;
+            obj.do_3D_transformation_ = val.do_3D_transformation;
         end
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)
@@ -660,7 +665,7 @@ classdef aProjectionBase < serializable
     methods(Abstract,Access=protected)
         % function returns u_to_rlu matrix for appropriate coordinate
         % system
-        mat = get_u_to_rlu_mat(obj);        
+        mat = get_u_to_rlu_mat(obj);
     end
     %======================================================================
     % Serializable interface

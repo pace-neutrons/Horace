@@ -19,7 +19,9 @@ classdef test_cut_parameters < TestCase
             det_file = fullfile(obj.det_dir,'common_data','96dets.par');
             params = {1:10,det_file,'',11,1,[2.8,2.8,2.8],[90,90,90],...
                 [1,0,0],[0,1,0],10, 0, 0, 0, 0};
-            sqw_4d_samp = dummy_sqw(params{:},[10,20,40,80],[0,-0.5,-0.1,0;1.5,0,0.1,10]);
+            sqw_4d_samp = dummy_sqw(params{:},[10,20,40,80], ...
+                [0 ,-0.5,-0.1,  0; ...
+                1.5,   0, 0.1, 10]);
             sqw_4d_samp  = sqw_4d_samp{1};
             obj.sample_files{1} = cut_sqw(sqw_4d_samp,...
                 struct('u',[1,0,0],'v',[0,1,0]),...
@@ -32,6 +34,126 @@ classdef test_cut_parameters < TestCase
                 [-1,1],[-1,0.1,0],[-0.1,0.01,0.1],[0,10]);
             obj.sample_files{4} = sqw_4d_samp;
         end
+        %==================================================================
+        function test_default_spher_from_ortho(obj)
+            sqw_samp = obj.sample_files{4};
+            ws = warning('off','HORACE:targ_range');
+            clOb = onCleanup(@()warning(ws));
+
+            img_block = sqw_samp.data;
+            targ_proj = spher_proj();
+            targ_range = img_block.targ_range(targ_proj);
+
+            assertElementsAlmostEqual(targ_range(:,1)',[0,sqrt(1.5^2+0.5^2)], ...
+                'absolute',1.e-2)
+            assertEqual(targ_range(:,2)',[0,90])
+            assertElementsAlmostEqual(targ_range(:,3)',[-179.9642,180], ...
+                'absolute',1.e-4)
+            assertEqual(targ_range(:,4)',[0,10])
+
+        end
+        %------------------------------------------------------------------
+        function test_transf_range_ortho_ortho_2D_Q(~)
+            data_range = ...
+                [-5, 0, 0,-5;
+                5, 5,10,20];
+            bin_range = [50,50,1,1];
+
+            ax = ortho_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            proj = ortho_proj();
+
+            dnd_obj = DnDBase.dnd(ax,proj);
+
+            % the resulting range is divided by the length of the
+            % projection vector, so we make it unit vector to avoid
+            % confusion
+            targ_proj = ortho_proj('u',[1,-1,0]/sqrt(2),'v',[1,1,0]/sqrt(2));
+
+            range = dnd_obj.targ_range(targ_proj);
+            assertElementsAlmostEqual(range, ...
+                [-5*sqrt(2),-5/sqrt(2),  0,   -5;...
+                5/sqrt(2)  , 5*sqrt(2), 10, 20.0],...
+                'absolute',5e-5)
+        end
+
+        function test_transf_range_spher_ortho_2D_Q(~)
+            data_range = ...
+                [0,          0,    0,   -5;...
+                12.2474, 180.0, 90.0, 20.0];
+
+            bin_range = [50,50,1,1];
+
+            ax = spher_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            proj = spher_proj();
+
+            dnd_obj = DnDBase.dnd(ax,proj);
+
+            targ_proj = ortho_proj();
+
+            range = dnd_obj.targ_range(targ_proj);
+            assertElementsAlmostEqual(range, ...
+                [-12.2474,       0,       0, -5; ...
+                12.2474 , 12.2474, 12.2474, 20],'absolute',5e-5)
+        end
+
+        function test_transf_range_ortho_spher_2D_Q(~)
+            data_range = ...
+                [-5,0, 0,-5;
+                5  ,6,10,20];
+            bin_range = [50,50,1,1];
+
+            ax = ortho_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            proj = ortho_proj();
+
+            dnd_obj = DnDBase.dnd(ax,proj);
+
+
+            targ_proj = spher_proj();
+
+            range = dnd_obj.targ_range(targ_proj);
+            assertElementsAlmostEqual(range, ...
+                [0     ,     0,    0, -5.0;...
+                12.6886, 180.0, 90.0, 20.0],'absolute',5e-5)
+        end
+
+        function test_transf_range_spher_ortho_2D_dE(~)
+            data_range = ...
+                [0,          0,    0,   -5;...
+                12.2474, 180.0, 90.0, 20.0];
+
+            bin_range = [1,50,1,50];
+
+            ax = spher_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            proj = spher_proj();
+
+            dnd_obj = DnDBase.dnd(ax,proj);
+
+            targ_proj = ortho_proj();
+
+            range = dnd_obj.targ_range(targ_proj);
+            assertElementsAlmostEqual(range, ...
+                [-12.2474,       0,       0, -5; ...
+                12.2474 , 12.2474, 12.2474, 20],'absolute',5e-5)
+
+        end
+
+        function test_transf_range_ortho_spher_2D_dE(~)
+            data_range = [-5,0,0,-5;5,5,10,20];
+            bin_range = [1,50,1,50];
+
+            ax = ortho_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            proj = ortho_proj();
+
+            dnd_obj = DnDBase.dnd(ax,proj);
+
+
+            targ_proj = spher_proj();
+
+            range = dnd_obj.targ_range(targ_proj);
+            assertElementsAlmostEqual(range,[0, 0, 0,-5.0000;...
+                12.2474, 180.0, 90.0, 20.0],'absolute',5e-5)
+        end
+        %------------------------------------------------------------------
         function test_double_multicut_expanded3d(obj)
             sqw_samp = obj.sample_files{2};
             sqw_test = cut_sqw_tester(sqw_samp);
@@ -61,12 +183,12 @@ classdef test_cut_parameters < TestCase
             pb75 = pbin{75};
             last_cent = -1+2*0.8;
             assertEqual(pb75,{[-1,1],[0.5,1.5],[0.5,1.5],[last_cent-0.5,last_cent+0.5]})
-            
+
             assertTrue(opt.keep_pix);
             assertFalse(opt.parallel);
             assertTrue(isempty(opt.outfile));
         end
-        
+
         function test_double_multicut_expanded2d(obj)
             sqw_samp = obj.sample_files{2};
             sqw_test = cut_sqw_tester(sqw_samp);
@@ -122,7 +244,6 @@ classdef test_cut_parameters < TestCase
             assertTrue(isempty(opt.outfile));
         end
 
-        %
         function test_invalid_multicut_throws(obj)
             sqw_samp = obj.sample_files{2};
             sqw_test = cut_sqw_tester(sqw_samp);
@@ -147,7 +268,7 @@ classdef test_cut_parameters < TestCase
                 [-1,1],[-1,0.5,1,-1],[],[]),'HORACE:cut:invalid_argument');
 
         end
-        %
+        %------------------------------------------------------------------
         function test_cut_range_1D(obj)
             %
             sqw_samp = obj.sample_files{1};

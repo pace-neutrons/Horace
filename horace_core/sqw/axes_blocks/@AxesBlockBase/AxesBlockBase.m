@@ -176,7 +176,7 @@ classdef AxesBlockBase < serializable
             tit = obj.title_;
         end
         function obj = set.title(obj,val)
-            if ~ischar(val) || isstring(val)
+            if ~istext(val)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'title should be defined of array of characters or by a string')
             end
@@ -187,7 +187,7 @@ classdef AxesBlockBase < serializable
             fn = obj.filename_;
         end
         function obj = set.filename(obj,fn)
-            if ~(ischar(fn) || isstring(fn))
+            if ~istext(fn)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'filename should be defined of array of characters or by a string')
             end
@@ -199,7 +199,7 @@ classdef AxesBlockBase < serializable
             fp = obj.filepath_;
         end
         function obj = set.filepath(obj,fp)
-            if ~(ischar(fp) || isstring(fp))
+            if ~istext(fp)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'filepath should be defined of array of characters or by a string')
             end
@@ -209,7 +209,7 @@ classdef AxesBlockBase < serializable
             fn = fullfile(obj.filepath_,obj.filename_);
         end
         function obj = set.full_filename(obj,fn)
-            if ~(ischar(fn) || isstring(fn))
+            if ~istext(fn)
                 error('HORACE:AxesBlockBase:invalid_argument',...
                     'full_filename should be defined of array of characters or by a string. It is %s', ...
                     disp2str(fn));
@@ -219,7 +219,6 @@ classdef AxesBlockBase < serializable
             obj.filepath_ = fp;
         end
         %
-
         %------------------------------------------------------------------
         % MUTATORS/ACCESSORS to methods in modern API
         %------------------------------------------------------------------
@@ -558,7 +557,7 @@ classdef AxesBlockBase < serializable
             % '-halo'   -- request to build lattice in the
             %              specified range + single-cell sized
             %              step expanding the lattice
-            % '-data_to_density'
+            % '-bin_edges'
             %           -- if provided, returns grid used to define density,
             %              namely with points located on the grid cell edges +
             %              edges of integrated  dimensions.
@@ -571,6 +570,9 @@ classdef AxesBlockBase < serializable
             %           -- if provided, do not return 3D or 4D grid but
             %              just return the axes in each 3 or 4 dimensions
             %              (as requested by '-3D' switch)
+            % '-hull'   -- return only boundary nodes of the grid
+            %              If '-halo' is also provided, return edge nodes
+            %              and halo nodes.
             % '-ngrid'  -- return nodes as cellarray of arrays, produced by
             %              ngrid function
             % Returns:
@@ -588,55 +590,19 @@ classdef AxesBlockBase < serializable
             %        -- 4-element vector of characteristic sizes of the grid cell in
             %           4 dimensions
             %
-            opt = {'-3D','-halo','-data_to_density','-bin_centre','-axes_only','-ngrid'};
-            [ok,mess,do_3D,build_halo,data_to_density,density_inegr_grid,axes_only,ngrid,argi] ...
+            opt = {'-3D','-halo','-bin_edges','-bin_centre',...
+                '-axes_only','-ngrid','-hull'};
+            [ok,mess,...
+                do_3D,build_halo,bin_edges,bin_centre,...
+                axes_only,ngrid,hull,argi] ...
                 = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:AxesBlockBase:invalid_argument',mess)
             end
-            if density_inegr_grid && data_to_density
-                error('Horace:AxesBlockBase:invalid_argument',...
-                    '"-interpolation" and "-extrapolation" keys can not be used together')
-            end
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 calc_bin_nodes_(obj,do_3D, ...
-                build_halo,data_to_density,density_inegr_grid,...
-                axes_only,ngrid,argi{:});
-        end
-        %
-        function range = get_binning_range(obj,cur_proj,new_proj)
-            % Get the default binning range to use in cut, defined by a new
-            % projection. If no new projection is provided, return current
-            % binning range, i.e. the ranges used to construct this
-            % AxesBlockBase.
-            %
-            % If new projection is not aligned with the old projection, the new
-            % projection range is transformed from the old projection range and
-            % its binning is copied from the old projection binning according to
-            % axis number, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target
-            % proj would have 10 bins, etc. This redefines the behaviour of the
-            % cuts when some directions are integration directions, but
-            % become projection directions, and redefine it when a new
-            % projection direction goes in a direction mixing
-            % the current projection and the integration directions.
-            %
-            % Inputs:
-            % obj      - current instance of the axes block
-            % cur_proj - the projection, current block is defined for
-            % new_proj - the projection, for which the requested range should
-            %            be defined
-            % if both these projection are empty, returning the current binning range
-            %
-            % Output:
-            % range    - 4-element cellarray of ranges, containing current
-            %            binning range expressed in the coordinate system,
-            %            defined by the new projection (or current binning range if new
-            %            projection is not provided)
-            if nargin < 3
-                cur_proj = [];
-                new_proj = [];
-            end
-            range  = get_binning_range_(obj,cur_proj,new_proj);
+                build_halo,bin_edges,bin_centre,...
+                axes_only,ngrid,hull,argi{:});
         end
         %
     end
@@ -698,7 +664,7 @@ classdef AxesBlockBase < serializable
 
             obj=set_axis_bins_(obj,ndims,p1,p2,p3,p4);
         end
-        
+
     end
     %----------------------------------------------------------------------
     methods(Static)
@@ -765,7 +731,6 @@ classdef AxesBlockBase < serializable
             % serializable object.
             flds = AxesBlockBase.fields_to_save_;
         end
-
         %
     end
 end
