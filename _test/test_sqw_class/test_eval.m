@@ -37,8 +37,8 @@ classdef test_eval < TestCase
             sig = ds.data.s;
             pix = ds.pix.get_fields('signal', 'all');
 
-            assertEqual(sig(1), pix.signal(1));
-            assertEqual(pix.signal(1), 36);
+            assertEqual(sig, 2.*ones(size(sig)));
+            assertEqual(pix, 2.*ones(size(pix)));
         end
 
         function test_sqw_eval(obj)
