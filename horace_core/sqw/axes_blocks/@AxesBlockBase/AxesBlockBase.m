@@ -602,6 +602,14 @@ classdef AxesBlockBase < serializable
                 axes_only,ngrid,hull,argi{:});
         end
         %
+        function nodes = dE_nodes(obj,varargin)
+            % helper functon which returns nodes along energy transfer axis
+            %
+            % Optional:
+            % '-bin_centers' -- return bin centers rather then bin edges
+            %
+            nodes = dE_nodes_(obj,varargin{:});
+        end
     end
     methods(Abstract,Access=protected)
         % main setter for image range. Overloadable for different kind

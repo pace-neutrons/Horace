@@ -219,6 +219,38 @@ classdef aProjectionBase < serializable
             [bl_start,bl_size] = obj.convert_contrib_cell_into_pix_indexes(...
                 contrib_ind,npix);
         end
+        function   [may_contribND,may_contrib_dE] = may_contribute(obj, ...
+                cur_axes_block, targ_proj,targ_axes_block)
+            % return logical array of size of the current axes block grid
+            % containing true for the cells which may contribute into
+            % into cut, descrined by target projection and target axes
+            % block/
+            %
+            % Part of get_nrange -> get_contrib_cell_ind routines
+            % Inputs:
+            % cur_axes_block -- the axes block for the current ND_image
+            % targ_proj      -- the projection, which defines the target
+            %                   coordinate system
+            % targ_axes_block-- the axes block for the coordinate system,
+            %                   requested by the cut
+            % Output:
+            % may_contribND --  logical 1D array of cur_axes_block grid numel,
+            %                   containing true for cells with may
+            %                   contribute to cut and false for thouse
+            %                   which would not. If projection does 3D
+            %                   transformation and energy axes is
+            %                   orthogonal to it, size and values correspond
+            %                   to 3D Q-grid.
+            %                   if projection does 4D transformation,
+            %                   the size and values are for 4D grid.
+            % may_contrib_dE -- logical array containing possible
+            %                   contribution from energy transfer cells.
+            %                   empty in 4D case.
+
+            [may_contribND,may_contrib_dE] = may_contribute_(obj,...
+                cur_axes_block,targ_proj,targ_axes_block);
+        end
+
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         % accessors
@@ -528,6 +560,7 @@ classdef aProjectionBase < serializable
             obj.targ_proj_ = val;
             obj.do_3D_transformation_ = val.do_3D_transformation;
         end
+        %
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)
             % get indexes of cells which may contributing into the cut.

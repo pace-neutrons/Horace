@@ -70,9 +70,6 @@ for i = 1:numel(in_data)
 end
 %
 
-
-
-
 function ref_ds = convert_data_to_density(obj,in_data,cell_volume,n_ref_points)
 % convert data into density and  assign density
 % points to the edges of integrated dimensions assuming bin centre of

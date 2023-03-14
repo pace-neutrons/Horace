@@ -142,11 +142,12 @@ classdef test_axes_block_interpolation < TestCase
 
             ab_interp = ortho_axes('img_range',dbr,'nbins_all_dims',[8,1,1,1]);
 
-            si = ab_interp.interpolate_data(ab_base,ortho_proj,data);
+            proj = ortho_proj();
+            si = ab_interp.interpolate_data(ab_base,proj ,data,proj );
 
             assertEqualToTol(sum(si),sum(data),1.e-12);
-            sample= [0,0,1.25,7.5,1.25,0,0,0];
-            assertElementsAlmostEqual(si,sample')
+            %sample= [0,0,1.25,7.5,1.25,0,0,0];
+            assertElementsAlmostEqual(si,data')
         end
         %
         function test_interp_1D_half_points_int_coeff(~)
