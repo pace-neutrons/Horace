@@ -30,7 +30,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % stored within an object. May also return pix_combine_info or
         % filebased pixels. (TODO -- this should be modified)
 
-        % The date of the sqw object file creatrion. As the date is defined both
+        % The date of the sqw object file creation. As the date is defined both
         % in sqw and dnd object parts, this property synchronize both
         creation_date;
     end
@@ -142,7 +142,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %----------------------------------
     end
     %======================================================================
-    % METHODS, Available on SQW but redirectiong actions to DnD and requesting
+    % METHODS, Available on SQW but redirecting actions to DnD and requesting
     % only DND object for implementation.
     methods
         function [nd,sz] = dimensions(win)
@@ -162,9 +162,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %
             [val,n] = obj.data.data_bin_limits();
         end
-        %
-        wout = smooth(win, varargin)  % smooth sqw object or array of sqw
-        %                             % objects containing no pixels
+		
+        % smooth sqw object or array of sqw
+		% objects containing no pixels
+        wout = smooth(win, varargin)  
+        %                             
         function wout = cut_dnd(obj,varargin)
             % legacy entrance to cut for dnd objects
             wout = cut(obj.data,varargin{:});
