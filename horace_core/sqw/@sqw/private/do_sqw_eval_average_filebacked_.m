@@ -5,8 +5,6 @@ function wout = do_sqw_eval_average_filebacked_(wout, sqwfunc, pars, outfile)
 %
 %==============================================================================
 
-pg_size = get(hor_config, 'mem_chunk_size');
-
 [wout, ldr] = wout.get_new_handle(outfile);
 ldr_clob = onCleanup(@() ldr.delete());
 
@@ -14,7 +12,7 @@ ldr_clob = onCleanup(@() ldr.delete());
 % 'average_bin_data', for which we need whole bins.
 npix = wout.data.npix;
 
-[npix_chunks, idxs, npix_cumsum] = split_vector_max_sum(npix(:), pg_size);
+[npix_chunks, idxs, npix_cumsum] = split_vector_max_sum(npix(:), wout.pix.DEFAULT_PAGE_SIZE);
 pix_bin_starts = npix_cumsum - npix(:) + 1;
 
 for i = 1:numel(npix_chunks)
