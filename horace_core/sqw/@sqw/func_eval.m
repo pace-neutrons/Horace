@@ -175,10 +175,10 @@ function sqw_obj = write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
 [sqw_obj, ldr] = sqw_obj.get_new_handle(outfile);
 img_signal = sqw_obj.data.s;
 
-[npix_chunks, idxs] = split_vector_fixed_sum(sqw_obj.data.npix(:), pix.DEFAULT_PAGE_SIZE);
-
 data_range = PixelDataBase.EMPTY_RANGE;
 pix_out = PixelDataMemory();
+
+[npix_chunks, idxs] = split_vector_fixed_sum(sqw_obj.data.npix(:), pix_out.DEFAULT_PAGE_SIZE);
 
 for i=1:sqw_obj.pix.num_pages
     [sqw_obj.pix, pix_out.data] = sqw_obj.pix.load_page(i);

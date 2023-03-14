@@ -305,9 +305,9 @@ classdef (Abstract) PixelDataBase < serializable
             % -------
             %   obj         A PixelData object containing all the pixels in the inputted
             %               PixelData objects
-            data_cell_array = cellfun(@(p) p.data, varargin, 'UniformOutput', false);
-            data = cat(2, data_cell_array{:});
-            obj = PixelDataBase.create(data);
+
+            % Take the dataclass of the first object.
+            obj = varargin{1}.cat(varargin{:});
         end
 
         function npix = bytes2pix(bytes)

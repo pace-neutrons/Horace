@@ -149,6 +149,39 @@ classdef PixelDataMemory < PixelDataBase
 
     end
 
+    methods(Static)
+        function obj = cat(varargin)
+        % Concatenate the given PixelData objects' pixels. This function performs
+        % a straight-forward data concatenation.
+        %
+        %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
+        %
+        % Input:
+        % ------
+        %   varargin    A cell array of PixelData objects
+        %
+        % Output:
+        % -------
+        %   obj         A PixelData object containing all the pixels in the inputted
+        %               PixelData objects
+            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
+
+            if ~any(is_ldr)
+                obj = PixelDataFilebacked(varargin);
+                return
+            end
+
+            obj = PixelDataMemory();
+            for i = 1:numel(varargin)
+                curr_pix = varargin{i};
+                for page = 1:curr_pix.num_pages
+                    [curr_pix,data] = curr_pix.load_page(page);
+                    obj = obj.append(data);
+                end
+            end
+        end
+    end
+
     methods(Access=protected)
 
         function np = get_page_num(~)
