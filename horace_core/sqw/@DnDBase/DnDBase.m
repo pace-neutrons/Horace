@@ -58,7 +58,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         metadata; % Full information describing dnd object
         nd_data;  % N-D data arrays, describing DND image stored in dnd
         %         % object. Stored on HDD in binary form accessible for
-        %         % binary read operation from external sotfware.
+        %         % binary read operation from external software.
         %------------------------------------------------------------------
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
@@ -212,7 +212,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 obj.axes.data_plot_titles(obj);
         end
 
-        % calculate the range of the image to be produded by target
+        % calculate the range of the image to be produced by target
         % projection from the current object
         range = targ_range(obj,targ_proj,varargin)
     end
@@ -311,7 +311,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %>> w = dxd(axes,proj,s,e,npix)
             %>> w = dxd(axes,proj,s,e,npix,creation_date)
             % where x stands for number form 0 to 4, e.g.: d0d for 0-dimensional
-            % object or d3d for 3-dimensinal.
+            % object or d3d for 3-dimensional.
             %
             % Input parameters:
             % axes   -- the instance of axes block which defines the object
@@ -321,13 +321,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %           if axes.dimensions == 2 it has to be d2d
             % proj   -- instance of aProjectionBase class, which defines the
             %           transformation from PixelData coordinate system
-            %           (Crystal Cartezian) to axes coordinate system.
+            %           (Crystal Cartesian) to axes coordinate system.
             % Optional:
             % s,e,npix
-            %        -- if one is provied, all have to be provided.
-            %           the attays defining signal, variance and npix of
+            %        -- if one is provided, all have to be provided.
+            %           the arrays defining signal, variance and npix of
             %           the object. The dimensionality and binning of array
-            %           have to be equal to the dimensionality and binnibng
+            %           have to be equal to the dimensionality and binning
             %           of the axes block. If the arrays are missing, they
             %           are automatically initialized to 0 with ortho_axes
             %           dimensionality and binning.

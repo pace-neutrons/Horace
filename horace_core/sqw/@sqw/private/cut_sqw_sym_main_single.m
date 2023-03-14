@@ -81,7 +81,9 @@ else
         header_ave=header_average(header);
         
         % 
-        %TODO: THIS ALL SHOULD GO. Modify this as its now done in cut_sqw_sym_main
+        %TODO: THIS ALL SHOULD GO. Modify this.  This code may not work any more, update_pbins is deprecated
+		%       All should be refactored using algorithms and methods used in cut_single_
+		%
         proj_trans=ortho_proj(proj_trans);
         [proj_trans, ~, ~, pin, en] = proj_trans.update_pbins(header_ave, data,pbin_trans);
         
