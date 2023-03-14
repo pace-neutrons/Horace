@@ -243,7 +243,6 @@ for iw=1:nw
     % Get instrument data
     [ei{iw},x0{iw},xa{iw},x1{iw},mod_shape_mono{iw},...
         horiz_div{iw},vert_div{iw}] = instpars_DGdisk(wtmp.experiment_info);
-    if ~ok, return, end
 
     % Compute ki and kf
     ki{iw}=sqrt(ei{iw}/k_to_e);

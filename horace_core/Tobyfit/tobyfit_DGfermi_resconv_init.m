@@ -221,9 +221,9 @@ for iw=1:nw
 
     % Pixel indicies
     if all_pixels
-        [irun,idet,ien] = parse_pixel_indices (wtmp);
+        [irun,idet,ien] = parse_pixel_indices(wtmp);
     else
-        [irun,idet,ien] = parse_pixel_indices (wtmp,indx,iw);
+        [irun,idet,ien] = parse_pixel_indices(wtmp,indx,iw);
     end
     npix(iw) = numel(irun);
 
