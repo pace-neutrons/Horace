@@ -167,6 +167,14 @@ classdef PixelDataFileBacked < PixelDataBase
                     'Writable', update, ...
                     'Offset', obj.offset_ );
 
+            elseif isa(init, 'PixelDataMemory')
+
+                if isempty(obj.full_filename_)
+                    obj.full_filename = 'from_mem';
+                end
+
+                obj = set_raw_data_(obj,init.data);
+
             elseif istext(init)
                 if ~is_file(init)
                     error('HORACE:PixelDataFileBacked:invalid_argument', ...

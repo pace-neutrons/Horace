@@ -89,14 +89,13 @@ if numel(win) > 1
     input_dims = arrayfun(@(x) dimensions(x), win);
     if any(input_dims(1) ~= input_dims)
         error('HORACE:sqw:invalid_argument', ...
-            ['Input sqw objects must have equal image dimensions.\n' ...
-            'Found dimensions [%s].'], ...
-            num2str(input_dims));
+              ['Input sqw objects must have equal image dimensions.\n' ...
+               'Found dimensions [%s].'], ...
+              mat2str(input_dims));
     end
 end
 
 wout = cell(1,numel(win));
-%
 
 % Check if any objects are zero dimensional before evaluating function
 if any(arrayfun(@(x) (x.dimensions()==0), win))
@@ -105,55 +104,48 @@ if any(arrayfun(@(x) (x.dimensions()==0), win))
         'func_eval not supported for zero dimensional objects.' ...
         );
 end
-if numel(opts.outfile) < numel(win)
-    out_tmp_file = gen_unique_file_paths( ...
-        numel(win), 'horace_func_eval', tmp_dir(), 'tmp');
-    opts.outfile = out_tmp_file;
-    empty_outfile = true;
-else
-    empty_outfile = false;
+
+if isempty(opts.outfile) % If we don't have outfiles, fall back to TmpFileHandler
+    opts.outfile = cell(numel(win), 1);
+elseif numel(opts.outfile) < numel(win) % Otherwise we need to generate new ones
+    opts.outfile = gen_unique_file_paths(numel(win), 'horace_func_eval', tmp_dir(), 'tmp');
 end
 
 % Evaluate function for each element of the array of sqw objects
+
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
     sqw_type=has_pixels(win(i));   % determine if sqw or dnd type
     if sqw_type
         opts.all = false;
     end
+
     wout_i = win(i);
-    wout_i.data = func_eval(win(i).data,func_handle, pars,opts);
+    wout_i.data = func_eval(win(i).data, func_handle, pars, opts);
 
     % If sqw object, fill every pixel with the value of its corresponding bin
     if sqw_type
+        out_file = opts.outfile{i};
         if ~wout_i.pix.is_filebacked
             s = repelem(wout_i.data.s(:), wout_i.data.npix(:));
             wout_i.pix.signal = s;
             wout_i.pix.variance = zeros(size(s));
-        else
-            out_file = opts.outfile{i};
-            wout_i = write_sqw_with_out_of_mem_pix(wout_i,out_file);
-        end
+            if ~isempty(out_file)
+                wout_i = write_sqw_with_in_mem_pix(wout_i, out_file);
+            end
 
-    elseif opts.all
+        else
+            wout_i = write_sqw_with_out_of_mem_pix(wout_i, out_file);
+        end
+    end
+
+    if opts.all
         % in this case, must set npix>0 to be plotted
         wout_i.data.npix=ones(size(wout_i.data.npix));
     end
 
-    % Save to file if outfile argument is given
-    if ~empty_outfile && ~opts.filebacked
-        save(wout_i, opts.outfile{i});
-    end
-    if opts.filebacked
-        % Return file names so we're not leaking file-backed objects
-        out_file = opts.outfile{i};
-        if ~wout_i.pix.is_filebacked
-            save(wout_i, out_file);
-        end
-        wout{i} = out_file;
-    else
-        wout{i} = wout_i;
-    end
+    wout{i} = wout_i;
 end  % end loop over input objects
+
 % form desired output
 if numel(wout) == 1
     wout = wout{1};
@@ -172,6 +164,7 @@ function sqw_obj = write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
 % The pixels of the SQW object will be derived from the image signal array
 % and npix array, saving in chunks so they do not need to be held in memory.
 %
+
 [sqw_obj, ldr] = sqw_obj.get_new_handle(outfile);
 img_signal = sqw_obj.data.s;
 
@@ -194,6 +187,26 @@ for i=1:sqw_obj.pix.num_pages
 end
 sqw_obj.pix.data_range = data_range;
 sqw_obj.pix = sqw_obj.pix.finalise();
+ldr.delete();
+
+end
+
+
+function sqw_obj = write_sqw_with_in_mem_pix(sqw_obj, outfile)
+% Write the given SQW object to the given file.
+% The pixels of the SQW object will be derived from the image signal array
+% and npix array, saving in chunks so they do not need to be held in memory.
+
+pix = sqw_obj.pix;
+
+sqw_obj.pix = PixelDataFileBacked();
+[sqw_obj, ldr] = sqw_obj.get_new_handle(outfile);
+
+sqw_obj.pix.format_dump_data(pix.data);
+sqw_obj.pix = sqw_obj.pix.finalise();
+
+sqw_obj.pix.data_range = pix.data_range;
+
 ldr.delete();
 
 end

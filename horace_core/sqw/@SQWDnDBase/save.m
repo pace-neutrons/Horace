@@ -63,6 +63,7 @@ elseif numel(argi)>1
     else
         n_found = 1;
     end
+
     if numel(argi) > n_found % Matlab 2021b bug?
         argi  = argi{n_found+1:end};
     else
@@ -74,16 +75,19 @@ else
     if ~isempty(mess)
         error('HORACE:SQWDnDBase:invalid_argument',mess)
     end
+
     if numel(argi) > 1 % Matlab 2021b bug?
         argi  = argi{2:end};
     else
         argi  = {};
     end
 end
+
 if ~iscellstr(file_internal)
     file_internal=cellstr(file_internal);
 end
-if numel(file_internal)~=numel(w)
+
+if numel(file_internal) ~= numel(w)
     error('HORACE:SQWDnDBase:invalid_argument',...
         'Number of data objects in array does not match number of file names')
 end
@@ -92,12 +96,17 @@ hor_log_level = get(hor_config,'log_level');
 
 for i=1:numel(w)
     if isempty(ldw)
-        if isa(w(i), 'DnDBase') %
-            sqw_type = false;
-            ldw = sqw_formats_factory.instance().get_pref_access('dnd');
+        sqw_type = ~isa(w(i), 'DnDBase');
+
+        if sqw_type
+            if ~isempty(w(i).file_holder_)
+                movefile(w(i).full_filename, file_internal{i});
+                continue;
+            else
+                ldw = sqw_formats_factory.instance().get_pref_access(w(i));
+            end
         else
-            sqw_type = true;
-            ldw = sqw_formats_factory.instance().get_pref_access(w(i));
+            ldw = sqw_formats_factory.instance().get_pref_access('dnd');
         end
     else
         sqw_type = isa(w(i),'sqw');
@@ -107,9 +116,11 @@ for i=1:numel(w)
     if hor_log_level>0
         disp(['*** Writing to ',file_internal{i},'...'])
     end
+
     if ~upgrade && exist(file_internal{i},'file') == 2
         delete(file_internal{i});
     end
+
     ldw = ldw.init(w(i),file_internal{i});
     %     if ldw.upgrade_mode % as we delete file, this never happens. The question is where it should?
     %         if sqw_type
@@ -118,6 +129,7 @@ for i=1:numel(w)
     %             ldw = ldw.put_dnd('-update','-nopix');
     %         end
     %     else
+
     if sqw_type  % Actually, can be removed, as put_sqw for dnd does put dnd for faccess_dnd
         % only the possible issue that is currently put_dnd and put_sqw do not
         % accept the same key set. Should it be reconsicled?
