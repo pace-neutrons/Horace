@@ -1,4 +1,4 @@
-function [dens_nodes,densities,base_cell_size] = calculate_density_(obj,in_data)
+function [dens_nodes,densities] = calculate_density_(obj,in_data)
 % Convert input datasets defined on centre-points of the AxesBlockBase grid into
 % the density data, defined on edges of the AxesBlockBase grid.
 %
@@ -19,11 +19,14 @@ function [dens_nodes,densities,base_cell_size] = calculate_density_(obj,in_data)
 %             density points positions.
 %             Number of cells in the output array is equal to
 %             the number of input datasets
-
+% base_cell_volume 
+%          -- the volume of each cell, containing density data. Single
+%             value if all cell volumes are equal or nAxesEdgesPoints
+%             array of bin volumes if cell volumes are different
 
 
 % build data grid
-[data_nodes,~,npoints_in_base,base_cell_size] = ...
+[data_nodes,~,npoints_in_base,base_cell_volume ] = ...
     obj.get_bin_nodes('-dens_interp');
 gridCX = reshape(data_nodes(1,:),npoints_in_base);
 gridCY = reshape(data_nodes(2,:),npoints_in_base);
@@ -32,7 +35,6 @@ gridCE = reshape(data_nodes(4,:),npoints_in_base);
 %
 
 % build density grid
-base_cell_volume = prod(base_cell_size);
 
 cell_dens_multiplier = ones(1,4);
 cell_dens_multiplier(obj.pax) = 2;

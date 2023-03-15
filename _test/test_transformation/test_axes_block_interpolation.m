@@ -36,7 +36,7 @@ classdef test_axes_block_interpolation < TestCase
             targ_proj = ortho_proj([1/sqrt(2),1/sqrt(2),0],[1/sqrt(2),-1/sqrt(2),0]);
             si = ab_interp.interpolate_data(ab_base,source_proj,data,targ_proj);
 
-            assertElementsAlmostEqual(si,data,'absolute',0.06)
+            assertElementsAlmostEqual(si,data,'absolute',0.1)
             % Below are the tests for different definition of boundary
             % points
             %cs = size(si);
@@ -85,9 +85,6 @@ classdef test_axes_block_interpolation < TestCase
             cdat =1+cos(0.5*(ay(1:end-1)+ay(2:end)));
             data = sdat'.*cdat;
 
-            [int_points,int_data] = ab_base.get_density(data);
-
-
             ab_interp = ortho_axes(bin0{:});
             si = ab_interp.interpolate_data(ab_base,ortho_proj,data);
 
@@ -110,6 +107,7 @@ classdef test_axes_block_interpolation < TestCase
 
             % define less bins buy the same range as for ab_base
             nb = ab_base.nbins_all_dims;
+            base_cell_volume = ab_base.get_bin_volume();
             nb(2) = floor(nb(2)*0.7);
             ab_interp = ortho_axes('img_range',ab_base.img_range,'nbins_all_dims',nb);
             assertElementsAlmostEqual(ab_base.img_range,ab_interp.img_range);
@@ -118,8 +116,8 @@ classdef test_axes_block_interpolation < TestCase
             si = ab_interp.interpolate_data(ab_base,ortho_proj,data);
             % integrated signal increase proportional to the
             % integration cell increase
-            [~,icell_sizes] = ab_interp.get_axes_scales();
-            mult = icell_sizes(2)/cell_sizes(2)/2;
+            int_bin_volume = ab_interp.get_bin_volume();
+            mult = int_bin_volume/base_cell_volume;
 
             assertEqualToTol(sum(si),sum(data),1.e-8);
 

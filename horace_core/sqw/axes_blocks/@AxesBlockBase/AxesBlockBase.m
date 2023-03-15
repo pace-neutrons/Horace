@@ -319,25 +319,9 @@ classdef AxesBlockBase < serializable
             obj.changes_aspect_ratio_ = logical(val);
         end
 
-        %------------------------------------------------------------------
-        % See #956. This method is still used but should be removed
-        function [cube_coord,step] = get_axes_scales(obj)
-            % Return the array of vertices of a 4D hypercube, describing a
-            % grid cell of the axes block.
-            % Output:
-            % cube_coord -- 4x16 array of vertices of minimal-sized axes
-            %               cube. (Cubes sizes differ in case if axes
-            %               contains different sized grid, e.g.
-            %               cylindrical grid)
-            % step       -- 4x1 vector, containing the axes block grid
-            %               steps. (change of the coordinates in each
-            %               direction, the length of the each side of the
-            %               axes cell hypercube)
-            [cube_coord,step] = get_axes_scales_(obj);
-        end
     end
     %======================================================================
-    % Integration, interpolation and bining
+    % Integration, interpolation and binning
     methods
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
@@ -375,8 +359,8 @@ classdef AxesBlockBase < serializable
             ax_block_al = realign_bin_edges_(obj,ax_block);
         end
         %
-        function [interp_points,density,cell_sizes] = get_density(obj,datasets)
-            % Convert input datasets defined on centerpoints of this grid
+        function [interp_points,density] = get_density(obj,datasets)
+            % Convert input datasets defined on center-points of this grid
             % into the density data, defined on edges of the grid.
             %
             % Inputs:
@@ -396,14 +380,14 @@ classdef AxesBlockBase < serializable
             %             density points positions.
             %             Number of cells in the output array is equal to
             %             the number of input datasets
-            % cell_sizes
-            %          -- 4-elements vector containing the sizes of the
-            %             cell (to be extended on heterogheneous cell)
+            % bin_volume
+            %          -- the volume of each density cell. Single value if
+            %             cells have the same size or numel(density) if 
             %
             if ~iscell(datasets)
                 datasets = {datasets};
             end
-            [interp_points,density,cell_sizes] = calculate_density_(obj,datasets);
+            [interp_points,density] = calculate_density_(obj,datasets);
         end
         %
         function [s,e,npix] = interpolate_data(obj,source_axes, ...
@@ -560,7 +544,7 @@ classdef AxesBlockBase < serializable
             %              specified range + single-cell sized
             %              step expanding the lattice
             % '-bin_edges'
-            %           -- if provided, returns grid containign bin edges.
+            %           -- if provided, returns grid containing bin edges.
             % '-bin_centre'
             %           -- if provided, returns grid containing bin centers
             % '-dens_interp'
@@ -607,7 +591,7 @@ classdef AxesBlockBase < serializable
         end
         %
         function nodes = dE_nodes(obj,varargin)
-            % helper functon which returns nodes along energy transfer axis
+            % helper function which returns nodes along energy transfer axis
             %
             % Optional:
             % '-bin_centers' -- return bin centers rather then bin edges
@@ -685,7 +669,7 @@ classdef AxesBlockBase < serializable
         % build new particular AxesBlockBase object from the binning
         % parameters, provided as input. If some input binning parameters
         % are missing, the defaults are taken from the given image range
-        % which should be   properly precalculated
+        % which should be properly pre-calculated
         obj = build_from_input_binning(proj_cl_name,cur_img_range_and_steps,pbin);
         %
         function [any_within,is_within]=bins_in_1Drange(bins,range)

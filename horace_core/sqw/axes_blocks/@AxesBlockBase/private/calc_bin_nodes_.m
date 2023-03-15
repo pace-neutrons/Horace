@@ -1,4 +1,4 @@
-function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
+function [nodes,en_axis,npoints_in_axes,bin_volume] = ...
     calc_bin_nodes_(obj,do3D,halo,bin_edges,bin_centre,dens_interp, ...
     axes_only,ngrid_form,hull,varargin)
 % build 3D or 4D vectors, containing all nodes of the AxesBlockBase grid,
@@ -49,9 +49,10 @@ function [nodes,en_axis,npoints_in_axes,grid_cell_size] = ...
 % npoints_in_axes
 %        -- 4-elements vector, containing numbers of axes
 %           nodes in each of 4 directions
-% grid_cell_size
-%        -- 4-element vector of characteristic sizes of the grid cell in
-%           4 dimensions
+% bin_volume
+%        -- either the value of volume of a bin if all bin sizes are equal or
+%           vector of bin volumes for the grid returned grid if axes bin
+%           volumes differ
 
 noptions = 9; % number of positional arguments always present as inputs (excluding varargin)
 if bin_centre && bin_edges
@@ -103,24 +104,8 @@ else
         npoints_in_axes(i) = numel(axes{i});
     end
 end
-grid_cell_size = cell(4,1);
-cell_output = false;
-for i =1:4
-    if halo % avoid possible empty ranges when halo is applied to ranged boxes
-        diffrence = axes{i}(3:end-1)-axes{i}(2:end-2);
-    else
-        diffrence = axes{i}(2:end)-axes{i}(1:end-1);
-    end
-    if abs(min(diffrence)- max(diffrence))< eps('single')
-        grid_cell_size{i} = min(diffrence);
-    else
-        cell_output  = true;
-        grid_cell_size{i} = diffrence;
-    end
-end
-if ~cell_output
-    grid_cell_size = cell2arr(grid_cell_size,true);
-end
+
+bin_volume = obj.get_bin_volume(axes);
 
 if bin_centre || dens_interp
     is_pax = false(4,1);
@@ -136,9 +121,6 @@ if bin_centre || dens_interp
                %  default range which is already defined by this formula                
                 axes{i} = [obj.img_range(1,i),obj.img_range(2,i)];
             else 
-                if numel(axes{i})==2
-                    grid_cell_size(i) = obj.img_range(2,i)-obj.img_range(1,i);
-                end
                 axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
                 
             end
