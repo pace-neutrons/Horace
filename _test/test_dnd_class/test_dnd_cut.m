@@ -30,7 +30,7 @@ classdef test_dnd_cut< TestCaseWithSave
         % tests
         function test_2D_to2D_cut_with_spher_proj(obj)
             proj = spher_proj();
-            w2 = cut(obj.d2d_obj,proj,[-0.6,0.01,-0.4], ...
+            w2 = cut(obj.d2d_obj,proj,[0,0.01,0.8], ...
                 [0,1,180],[-180,180],[-0.25,0.25]);
             % formally this works but needs scientific validation
             assertEqualToTolWithSave(obj,w2,'ignore_str',true,'tol',[1.e-9,1.e-9]);

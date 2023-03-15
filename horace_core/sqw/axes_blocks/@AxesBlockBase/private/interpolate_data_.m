@@ -1,4 +1,4 @@
-function varargout = interpolate_data_(targ_ax,nout,ref_axes,ref_proj,ref_data,targ_proj)
+function varargout = interpolate_data_(targ_axes,nout,ref_axes,ref_proj,ref_data,targ_proj)
 % interpolate density data for signal, error and number of
 % pixels provided as input density and defined on the references
 % nodes onto the grid, defined by this block
@@ -40,7 +40,7 @@ end
 %
 %
 [ref_nodes,density] = ref_axes.get_density(ref_data);
-n_ref_nodes = size(ref_nodes,2);
+%n_ref_nodes = size(ref_nodes,2);
 
 %
 ref_grid_size = size(density{1});
@@ -55,18 +55,26 @@ if ~isempty(targ_proj)
     targ_proj.targ_proj = ref_proj;
 
     % Identify how many interpolation nodes may belong to the original area
-    [may_contrND,may_contr_dE]  = targ_proj.may_contribute(targ_ax, ...
+    [may_contrND_targ,may_contr_dE_targ]  = targ_proj.may_contribute(targ_axes, ...
         ref_proj,ref_axes);
     if targ_proj.do_3D_transformation
-        n_contr_nodes = sum(may_contrND)*sum(may_contr_dE);
+        n_ref_nodes = sum(may_contrND_targ)*sum(may_contr_dE_targ);
     else
-        n_contr_nodes = sum(may_contrND);
+        n_ref_nodes = sum(may_contrND_targ);
     end
-    contributing_share = n_contr_nodes/prod(targ_ax.dims_as_ssize+1);
+    targ_contr_share = n_ref_nodes/prod(targ_axes.dims_as_ssize+1);
+    [may_contrND,may_contr_dE]  = ref_proj.may_contribute(ref_axes, ...
+        targ_proj,targ_axes);
+    if ref_proj.do_3D_transformation
+        n_ref_nodes = sum(may_contrND)*sum(may_contr_dE);
+    else
+        n_ref_nodes = sum(may_contrND);
+    end
+
 
     if isempty(may_contrND) % the source and target grids do not have
         % intersection points
-        res = zeros(targ_ax.dims_as_ssize);
+        res = zeros(targ_axes.dims_as_ssize);
         for i= 1:nout
             varargout{i} = res;
         end
@@ -76,9 +84,11 @@ if ~isempty(targ_proj)
     % at least one point of the interpolating grid. Build finer and finer
     % interpolation grid until this happens
     mult = 1;
-    [all_accounted4,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source( ...
-        ref_proj,ref_axes,targ_proj,targ_ax,mult,may_contrND,may_contr_dE);
-    n_targ_nodes = size(inodes,2)*contributing_share;
+    [all_accounted4,nodes,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source( ...
+        ref_proj,ref_axes,targ_proj,targ_axes,mult,may_contrND,may_contr_dE);
+    n_targ_nodes = size(inodes,2)*targ_contr_share;
+    % rough estimate of the number of nodes increase after doubling node
+    % multiplier
     dim_multiplier = 2^(ref_axes.dimensions()+1);
 
     mult = 2;
@@ -87,11 +97,11 @@ if ~isempty(targ_proj)
         % be too big to fit one original rectangular cell, while plenty of
         % low-R cell fit a grid cell. Despite that due to oversampling, should
         % still be reasonable result with warning
-        [all_accounted4,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source( ...
-            ref_proj,ref_axes,targ_proj,targ_ax, ...
+        [all_accounted4,nodes,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source( ...
+            ref_proj,ref_axes,targ_proj,targ_axes, ...
             mult,may_contrND,may_contr_dE);
         mult = mult*2;
-        n_targ_nodes = size(inodes,2)*contributing_share;
+        n_targ_nodes = size(inodes,2)*targ_contr_share;
     end
     if ~all_accounted4
         warning('HORACE:runtime_error', ...
@@ -104,7 +114,7 @@ if ~isempty(targ_proj)
     end
 
 else % usually debug mode. Original grid coincides with interpolation grid
-    [nodes,~,~,targ_cell_volume] = targ_ax.get_bin_nodes('-bin_centre');
+    [nodes,~,~,targ_cell_volume] = targ_axes.get_bin_nodes('-bin_centre');
     inodes = nodes;
 end
 
@@ -124,11 +134,16 @@ if nsig == 0
     mess = format_warning(min_base,max_base,min_cut,max_cut);
     warning('HORACE:runtime_error', mess);
 end
-%
-%Pattern: [npix,s,e,npix_interp]           =     obj.bin_pixels(coord_transf,varargin)
-[~,varargout{1},varargout{2},varargout{3}] = targ_ax.bin_pixels(inodes,[],[],[],varargout(1:nout));
+clear inodes;
+if ~isempty(dE_nodes)
+    nodes = [repmat(nodes,1,numel(dE_nodes));repelem(dE_nodes,size(nodes,2))];
+end
 
-function [all_accounted4,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source( ...
+%
+%Pattern: [npix,s,e,npix_interp]           =        obj.bin_pixels(coord_transf,varargin)
+[~,varargout{1},varargout{2},varargout{3}] = targ_axes.bin_pixels(nodes,[],[],[],varargout(1:nout));
+
+function [all_accounted4,nodes,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source( ...
     ~,ref_axes,targ_proj,targ_ax,mult,may_contrND,may_contr_dE)
 % Rebin target nodes on the source grid to verify that the target grid is
 % fine enough to account for all source grid points
@@ -136,17 +151,17 @@ function [all_accounted4,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source(
 grid_mult = ones(1,4);
 grid_mult(targ_ax.pax) = mult;
 if targ_proj.do_3D_transformation
-    [inodes,dE_nodes,~,targ_cell_volume] = targ_ax.get_bin_nodes('-3D','-bin_centre',grid_mult);
+    [nodes,dE_nodes,~,targ_cell_volume] = targ_ax.get_bin_nodes('-3D','-bin_centre',grid_mult);
     source_edges = ref_axes.dE_nodes();
     ind = histcounts(dE_nodes,source_edges);
     dE_accounted4 = all(ind(may_contr_dE)>0);
 else
-    [inodes,~,~,targ_cell_volume] = targ_ax.get_bin_nodes('-bin_centre',grid_mult);
+    [nodes,~,~,targ_cell_volume] = targ_ax.get_bin_nodes('-bin_centre',grid_mult);
     dE_nodes       = [];
     dE_accounted4  = true;
 end
 
-inodes = targ_proj.from_this_to_targ_coord(inodes);
+inodes = targ_proj.from_this_to_targ_coord(nodes);
 npix = ref_axes.bin_pixels(inodes);
 all_accounted4 = all(npix(may_contrND)>0) & dE_accounted4;
 

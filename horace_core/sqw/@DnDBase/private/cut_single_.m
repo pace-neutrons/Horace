@@ -96,14 +96,9 @@ function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 %            bin. size(npix) == size(s). As the data are interpolated,
 %            the number of pixels may become fractional
 
-% cross-assign targer projections to enable possible optimizations
-obj.proj.targ_proj = targ_proj;
-targ_proj.targ_proj = obj.proj;
-
 s = obj.s.*obj.npix;
 e = obj.e.*(obj.npix.^2);
-[source_nodes,densities,cell_sizes] = obj.axes.get_density({s,e,obj.npix});
 
-[s,e,npix] = targ_axes.interpolate_data(source_nodes,densities,cell_sizes,targ_proj);
+[s,e,npix] = targ_axes.interpolate_data(obj.axes,obj.proj,{s,e,obj.npix},targ_proj);
 
 [s, e] = normalize_signal(s, e, npix);

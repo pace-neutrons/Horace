@@ -21,6 +21,8 @@ classdef test_axes_block_interpolation < TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab_base = ortho_axes(bin0{:});
+            ws = warning('off','HORACE:runtime_error');
+            clOb = onCleanup(@()warning(ws));
 
             ax = ab_base.p{1};
             ay = ab_base.p{2};
