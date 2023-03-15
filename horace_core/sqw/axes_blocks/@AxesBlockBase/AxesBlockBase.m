@@ -345,7 +345,7 @@ classdef AxesBlockBase < serializable
         range = get_cut_range(obj,varargin);
         %
 
-        function volume = get_bin_volume(obj)
+        function volume = get_bin_volume(obj,varargin)
             % return the volume of the axes grid. For rectilinear grid, the
             % volume of the grid is the single value equal to the product
             % of the grid step array obtained from get_axes_scales
@@ -353,8 +353,12 @@ classdef AxesBlockBase < serializable
             % For other coordinate systems (e.g. spherical), the volume is
             % 1D array of the cells, with the volume, dependent on the cell
             % radius
-            [~,step] = obj.get_axes_scales();
-            volume = prod(step);
+            if nargin == 1
+                ax = obj.get_bin_nodes('-axes_only');                
+            else
+                ax = varargin{1};
+            end
+            volume = obj.calc_bin_volume(ax);
         end
         function data_out = rebin_data(obj,data_in,other_ax)
             % Rebin data,defined on this axes grid into other axes grid
@@ -623,6 +627,11 @@ classdef AxesBlockBase < serializable
     end
     %======================================================================
     methods(Access=protected)
+        function  volume = calc_bin_volume(obj,axis_cell)
+            % calculate bin volume from the  axes of the axes block or input 
+            % axis organized in cellarray of 4 axis.
+            volume = calc_bin_volume_(obj,axis_cell);
+        end
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various

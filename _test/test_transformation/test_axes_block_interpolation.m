@@ -107,9 +107,8 @@ classdef test_axes_block_interpolation < TestCase
             ax = ab_base.p{1};
             cp = 0.5*(ax(1:end-1)+ax(2:end));
             data = ones(size(cp));
-            [int_points,~,cell_sizes] = ab_base.get_density(data);
 
-            % define bins to give exactly the same range as for ab_base
+            % define less bins buy the same range as for ab_base
             nb = ab_base.nbins_all_dims;
             nb(2) = floor(nb(2)*0.7);
             ab_interp = ortho_axes('img_range',ab_base.img_range,'nbins_all_dims',nb);

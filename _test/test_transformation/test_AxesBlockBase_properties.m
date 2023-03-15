@@ -31,6 +31,37 @@ classdef test_AxesBlockBase_properties < TestCase
             obj.working_dir = fileparts(mfilename("fullpath"));
         end
         %------------------------------------------------------------------
+        function test_bin_volume_array(~)
+            dbr = [0,-2,-3,0;10,2,3,10];
+            nbins_all_dims = [10,1,6,5];
+            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
+            ax = cell(4,1);
+            ax{1} = [0,1,2,3,5,10];
+            ax{2} = [0,1,2,3,5,6];
+            ax{3} = 1:0.1:2;
+            ax{4} = [0,2,3,4,5,10];
+            n_cells = cellfun(@(x)numel(x)-1,ax);
+            n_cells = prod(n_cells);
+
+            bv = ab.get_bin_volume(ax);
+
+            assertEqual(numel(bv),n_cells);
+
+            assertEqualToTol(bv(1),1*1*0.1*2,'tol',1.e-11);
+            assertEqualToTol(bv(end),5*1*0.1*5,'tol',1.e-11);
+        end
+
+        function test_bin_volume_single(~)
+            dbr = [0,-2,-3,0;10,2,3,10];
+            nbins_all_dims = [10,1,6,5];
+            ab = ortho_axes('img_range',dbr,'nbins_all_dims',nbins_all_dims);
+            calc_vol = (dbr(2,:)-dbr(1,:))./nbins_all_dims;
+            calc_vol = prod(calc_vol);
+
+            bv = ab.get_bin_volume();
+            assertEqual(calc_vol,bv)
+        end
+        %------------------------------------------------------------------
         function test_axes_block_nodes_hull_grid_mult_2(~)
             dbr = [0,-2,-3,0;8,2,3,10];
             nbins_all_dims = [8,1,4,1];
