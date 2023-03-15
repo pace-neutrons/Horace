@@ -120,7 +120,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     end
 
     wout_i = win(i);
-    wout_i.data = func_eval(win(i).data,func_handle, pars,opts);
+    wout_i.data = func_eval(win(i).data, func_handle, pars, opts);
 
     % If sqw object, fill every pixel with the value of its corresponding bin
     if sqw_type
@@ -136,8 +136,9 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
         else
             wout_i = write_sqw_with_out_of_mem_pix(wout_i, out_file);
         end
+    end
 
-    elseif opts.all
+    if opts.all
         % in this case, must set npix>0 to be plotted
         wout_i.data.npix=ones(size(wout_i.data.npix));
     end
@@ -163,6 +164,7 @@ function sqw_obj = write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
 % The pixels of the SQW object will be derived from the image signal array
 % and npix array, saving in chunks so they do not need to be held in memory.
 %
+
 [sqw_obj, ldr] = sqw_obj.get_new_handle(outfile);
 img_signal = sqw_obj.data.s;
 
@@ -185,6 +187,26 @@ for i=1:sqw_obj.pix.num_pages
 end
 sqw_obj.pix.data_range = data_range;
 sqw_obj.pix = sqw_obj.pix.finalise();
+ldr.delete();
+
+end
+
+
+function sqw_obj = write_sqw_with_in_mem_pix(sqw_obj, outfile)
+% Write the given SQW object to the given file.
+% The pixels of the SQW object will be derived from the image signal array
+% and npix array, saving in chunks so they do not need to be held in memory.
+
+pix = sqw_obj.pix;
+
+sqw_obj.pix = PixelDataFileBacked();
+[sqw_obj, ldr] = sqw_obj.get_new_handle(outfile);
+
+sqw_obj.pix.format_dump_data(pix.data);
+sqw_obj.pix = sqw_obj.pix.finalise();
+
+sqw_obj.pix.data_range = pix.data_range;
+
 ldr.delete();
 
 end

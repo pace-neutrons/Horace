@@ -81,6 +81,17 @@ switch numel(argi)
     error ('HORACE:save:invalid_argument',...
            'Too many args passed to save')
 
+else
+    [file_internal,mess]=putfile_horace(argi{1});
+    if ~isempty(mess)
+        error('HORACE:SQWDnDBase:invalid_argument',mess)
+    end
+
+    if numel(argi) > 1 % Matlab 2021b bug?
+        argi  = argi{2:end};
+    else
+        argi  = {};
+    end
 end
 
 if ~iscellstr(file_internal)
@@ -88,7 +99,7 @@ if ~iscellstr(file_internal)
 end
 
 if numel(file_internal) ~= numel(w)
-    error('HORACE:save:invalid_argument',...
+    error('HORACE:SQWDnDBase:invalid_argument',...
         'Number of data objects in array does not match number of file names')
 end
 
