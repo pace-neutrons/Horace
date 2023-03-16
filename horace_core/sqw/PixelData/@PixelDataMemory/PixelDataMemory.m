@@ -166,8 +166,8 @@ classdef PixelDataMemory < PixelDataBase
         %               PixelData objects
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
 
-            if ~any(is_ldr)
-                obj = PixelDataFilebacked(varargin);
+            if any(is_ldr)
+                obj = PixelDataFileBacked(varargin);
                 return
             end
 
@@ -176,9 +176,10 @@ classdef PixelDataMemory < PixelDataBase
                 curr_pix = varargin{i};
                 for page = 1:curr_pix.num_pages
                     [curr_pix,data] = curr_pix.load_page(page);
-                    obj = obj.append(data);
+                    obj.data = [obj.data, data];
                 end
             end
+            obj = obj.recalc_data_range();
         end
     end
 

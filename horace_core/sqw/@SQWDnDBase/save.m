@@ -44,52 +44,32 @@ if ~ok
     error('HORACE:SQWDnDBase:invalid_argument',mess);
 end
 
-% Use the concrete class name as file extension
-file_ext = lower(class(w));
-
 % Get file name - prompting if necessary
 ldw = [];
 if numel(argi)==0
-    file_internal = putfile(['*.' file_ext]);
-    if (isempty(file_internal))
-        error ('HORACE:SQWDnDBase:invalid_argument',...
-            'No file given to save result')
-    end
-elseif numel(argi)>1
-    if isa(argi{2},'horace_binfile_interface') % specific loader provided
-        file_internal = argi{1};
-        ldw  = argi{2};
-        n_found = 2;
-    else
-        n_found = 1;
-    end
+    error ('HORACE:SQWDnDBase:invalid_argument',...
+           'No file given to save result')
+end
 
-    if numel(argi) > n_found % Matlab 2021b bug?
-        argi  = argi{n_found+1:end};
-    else
-        argi  = {};
-    end
-
+if isa(argi{2},'horace_binfile_interface') % specific loader provided
+    file_internal = argi{1};
+    ldw  = argi{2};
+    n_found = 2;
 else
-    [file_internal,mess]=putfile_horace(argi{1});
-    if ~isempty(mess)
-        error('HORACE:SQWDnDBase:invalid_argument',mess)
-    end
-
-    if numel(argi) > 1 % Matlab 2021b bug?
-        argi  = argi{2:end};
-    else
-        argi  = {};
-    end
+    n_found = 1;
 end
 
-if ~iscellstr(file_internal)
-    file_internal=cellstr(file_internal);
+if numel(argi) > n_found % Matlab 2021b bug?
+    argi  = argi{n_found+1:end};
+else
+    argi  = {};
 end
+
+file_internal=cellstr(file_internal);
 
 if numel(file_internal) ~= numel(w)
     error('HORACE:SQWDnDBase:invalid_argument',...
-        'Number of data objects in array does not match number of file names')
+        'Number of data objects to save does not match number of file names')
 end
 
 hor_log_level = get(hor_config,'log_level');

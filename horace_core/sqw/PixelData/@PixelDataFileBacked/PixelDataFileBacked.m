@@ -431,24 +431,31 @@ classdef PixelDataFileBacked < PixelDataBase
         %               PixelData objects
 
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
-            ldr = varargin(is_ldr);
+            ldr = varargin{is_ldr};
             varargin = varargin(~is_ldr);
 
             obj = PixelDataFileBacked();
+
+            obj.num_pixels_ = sum(cellfun(@(x) x.num_pixels, varargin));
+            ldr.bat.blocks_list{end}.npixels = obj.num_pixels;
+
             if isempty(ldr)
                 obj = obj.get_new_handle();
+            else
+                obj = obj.get_new_handle(ldr);
             end
 
+            start_idx = 1;
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
                 for page = 1:curr_pix.num_pages
                     [curr_pix,data] = curr_pix.load_page(page);
-                    obj.format_dump_data(data);
+                    obj.format_dump_data(data, start_idx);
+                    start_idx = start_idx + size(data,2);
                 end
             end
 
             obj = obj.finalise();
-
         end
     end
 

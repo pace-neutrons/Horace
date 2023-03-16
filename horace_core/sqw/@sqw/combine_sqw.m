@@ -123,21 +123,24 @@ end
 % combine pixels into single pixels block
 
 wout = copy(inputs(1));
-[wout, ldr] = wout.get_new_handle();
-
 pix = arrayfun(@(x) x.pix, inputs, 'UniformOutput', false);
-wout.pix = wout.pix.cat(pix{:}, ldr);
 
-% Turn off horace_info output, but save for automatic clean-up on exit or cntrl-C
+if wout.pix.is_filebacked
+    [wout, ldr] = wout.get_new_handle();
+    wout.pix = wout.pix.cat(pix{:}, ldr);
+else
+    wout.pix = wout.pix.cat(pix{:});
+end
+
+% Turn off horace_info output, but save for automatic clean-up on exit or ctrl-C
 info_level = get(hor_config,'log_level');
-cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
+cleanup_obj=onCleanup(@()set(hor_config, 'log_level', info_level));
 set(hor_config,'log_level',-1);
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin.
-% TODO: refactor and make applicable for file-based operations
-ax = ortho_axes('nbins_all_dims',ones(4,1),'img_range',combine_range);
-wout.data = d0d(ax,proj1);
+ax = ortho_axes('nbins_all_dims', ones(4,1), 'img_range', combine_range);
+wout.data = d0d(ax, proj1);
 wout.data.npix = wout.pix.num_pixels;
 
 wout=cut(wout,proj1,new_range_arg{:});
