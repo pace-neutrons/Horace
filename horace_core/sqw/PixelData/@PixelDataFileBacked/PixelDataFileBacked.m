@@ -408,6 +408,9 @@ classdef PixelDataFileBacked < PixelDataBase
             if isa(obj.file_handle_, 'sqw_file_interface')
                 obj.full_filename = obj.file_handle_.full_filename;
                 obj.file_handle_ = obj.file_handle_.put_pix_metadata(obj);
+                % Force pixel update
+                obj.file_handle_ = obj.file_handle_.put_num_pixels(obj.num_pixels);
+
                 obj = obj.init_from_file_accessor_(obj.file_handle_, false, true);
                 obj.file_handle_ = [];
 
@@ -456,7 +459,6 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = PixelDataFileBacked();
 
             obj.num_pixels_ = sum(cellfun(@(x) x.num_pixels, varargin));
-            ldr.bat.blocks_list{end}.npixels = obj.num_pixels;
 
             if isempty(ldr)
                 obj = obj.get_new_handle();
