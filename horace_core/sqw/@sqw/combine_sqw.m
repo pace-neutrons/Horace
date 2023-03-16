@@ -123,12 +123,16 @@ end
 % combine pixels into single pixels block
 
 wout = copy(inputs(1));
-[wout, ldr] = wout.get_new_handle();
-
 pix = arrayfun(@(x) x.pix, inputs, 'UniformOutput', false);
-wout.pix = wout.pix.cat(pix{:}, ldr);
 
-% Turn off horace_info output, but save for automatic clean-up on exit or cntrl-C
+if wout.pix.is_filebacked
+    [wout, ldr] = wout.get_new_handle();
+    wout.pix = wout.pix.cat(pix{:}, ldr);
+else
+    wout.pix = wout.pix.cat(pix{:});
+end
+
+% Turn off horace_info output, but save for automatic clean-up on exit or ctrl-C
 info_level = get(hor_config,'log_level');
 cleanup_obj=onCleanup(@()set(hor_config, 'log_level', info_level));
 set(hor_config,'log_level',-1);

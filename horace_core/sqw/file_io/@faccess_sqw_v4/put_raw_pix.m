@@ -36,7 +36,6 @@ try
 catch ME
     exc = MException('HORACE:put_raw_pix:io_error',...
                      'Error moving to the start of the pixels block data at index: %d',pix_idx);
-    ME
     throw(exc.addCause(ME))
 end
 
@@ -45,6 +44,6 @@ try
     obj.check_write_error(obj.file_id_);
 catch ME
     exc = MException('HORACE:put_raw_pix:io_error',...
-                     'Error writing input pixels array indexes: %d',pix_idx);
+                     'Error writing input pixels array indices: %d',pix_idx);
     throw(exc.addCause(ME))
 end
