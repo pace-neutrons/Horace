@@ -20,9 +20,6 @@ classdef test_dnd_cut< TestCaseWithSave
             obj = obj@TestCaseWithSave(argi{:});
             hp = horace_paths();
             dnd_2d_fullpath = fullfile(hp.test_common,obj.dnd_file_2d_name);
-            %hor_root = horace_root();            %
-            %dnd_2d_fullpath = fullfile(hor_root,'_test/common_data',...
-            %    obj.dnd_file_2d_name);
 
             obj.d2d_obj = read_dnd(dnd_2d_fullpath);
             obj.save();

@@ -19,11 +19,6 @@ function [dens_nodes,densities] = calculate_density_(obj,in_data)
 %             density points positions.
 %             Number of cells in the output array is equal to
 %             the number of input datasets
-% base_cell_volume 
-%          -- the volume of each cell, containing density data. Single
-%             value if all cell volumes are equal or nAxesEdgesPoints
-%             array of bin volumes if cell volumes are different
-
 
 % build data grid
 [data_nodes,~,npoints_in_base,base_cell_volume ] = ...

@@ -76,7 +76,7 @@ classdef AxesBlockBase < serializable
         % i.e. size(s) == dims_as_ssize and size(zeros(dims_as_ssize)) ==
         % size(s)
         dims_as_ssize;
-        % boolean row, identifying if a single bin direction
+        % boolean row, identifying if a single bin direction (dir)
         % (nbins_all_dims(dir)==1) is integration axis or a projection
         % axis. By default, single nbins_all_dims direction is
         % integration direction.
@@ -132,6 +132,10 @@ classdef AxesBlockBase < serializable
             %                                  arrays
             %>>obj = AxesBlockBase(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
+            %>>obj = AxesBlockBase('key1',value,'key2',value,...)
+            %        build axis block from property names and property
+            %        values (standard serializable constructor)
+
             %
             if nargin == 0
                 return;
@@ -330,20 +334,30 @@ classdef AxesBlockBase < serializable
         %
 
         function volume = get_bin_volume(obj,varargin)
-            % return the volume of the axes grid. For rectilinear grid, the
-            % volume of the grid is the single value equal to the product
-            % of the grid step array obtained from get_axes_scales
-            % function, because all grid cells of such grid are equal.
-            % For other coordinate systems (e.g. spherical), the volume is
-            % 1D array of the cells, with the volume, dependent on the cell
-            % radius
+            % Return the volume(s) of the axes grid. For rectilinear grid, the
+            % volume of the grid is the scalar equal to the product
+            % of the grid steps in all directions. 
+            % For the coordinate systems where grid volumes depend on 
+            % the grid number (e.g. spherical), the volume is
+            % 1D array of the volumes of the cells. The number of elements
+            % in the array is equal to the number of cells in the grid.
+            % Inputs:
+            % obj   -- initialized instance of an axes_block class
+            % Optional:
+            % axes  -- 4-element celarray, containig axes in all 4
+            %          directions. If this argument is present, the
+            %          volume(s) are calculated for the grid, buil from
+            %          the axes provided as input.
             if nargin == 1
-                [~,~,~,volume] = obj.get_bin_nodes('-axes_only');                
-                return;
+                [~,~,~,volume] = obj.get_bin_nodes('-axes_only');
+            elseif nargin == 2
+                volume = obj.calc_bin_volume(varargin{1});
             else
-                ax = varargin{1};
+                error('HORACE:AxesBlockBase:invalid_argument', ...
+                    'This method accepts no or one argument. Called with %d arguments', ...
+                    nargin);
             end
-            volume = obj.calc_bin_volume(ax);
+
         end
         function data_out = rebin_data(obj,data_in,other_ax)
             % Rebin data,defined on this axes grid into other axes grid
@@ -356,12 +370,15 @@ classdef AxesBlockBase < serializable
             % align input axes block to have the same or commensurate
             % bin sizes as this axes block and the integration ranges equal
             % or smaller than the ranges of this axes block but
-            % commensurate with this axis block bin edges
+            % commensurate with this axis block bin edges. 
+            %
+            % The coordinate systems of both access blocks assumed to be
+            % the same
             ax_block_al = realign_bin_edges_(obj,ax_block);
         end
         %
         function [interp_points,density] = get_density(obj,datasets)
-            % Convert input datasets defined on center-points of this grid
+            % Convert input datasets defined on centre-points of this grid
             % into the density data, defined on edges of the grid.
             %
             % Inputs:
@@ -369,8 +386,8 @@ classdef AxesBlockBase < serializable
             %             from.
             %             The size and dimensions of the datasets should
             %             be equal to the dimensions of the axes block
-            %             returned by data_nbins property, i.e.:
-            %             all(size(dataset{i}) == obj.data_nbins;
+            %             returned by dims_as_ssize property, i.e.:
+            %             all(size(dataset{i}) == obj.dims_as_ssize);
             %             datasets contain bin values.
             % Returns:
             % intep_pints
@@ -381,10 +398,7 @@ classdef AxesBlockBase < serializable
             %             density points positions.
             %             Number of cells in the output array is equal to
             %             the number of input datasets
-            % bin_volume
-            %          -- the volume of each density cell. Single value if
-            %             cells have the same size or numel(density) if 
-            %
+
             if ~iscell(datasets)
                 datasets = {datasets};
             end
@@ -422,7 +436,7 @@ classdef AxesBlockBase < serializable
             % s,e,npix  -- interpolated arrays of signal, error and number
             %              of pixels calculated in the centres of the
             %              cells of this lattice.
-            if nargin < 5
+            if isempty(varargin)
                 proj = [];
             else
                 proj = varargin{1};
@@ -613,7 +627,7 @@ classdef AxesBlockBase < serializable
     %======================================================================
     methods(Access=protected)
         function  volume = calc_bin_volume(obj,axis_cell)
-            % calculate bin volume from the  axes of the axes block or input 
+            % calculate bin volume from the  axes of the axes block or input
             % axis organized in cellarray of 4 axis.
             volume = calc_bin_volume_(obj,axis_cell);
         end

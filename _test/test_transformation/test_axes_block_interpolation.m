@@ -57,9 +57,6 @@ classdef test_axes_block_interpolation < TestCase
             cdat =1+cos(0.5*(ay(1:end-1)+ay(2:end)));
             data = sdat'.*cdat;
 
-            %[int_points,int_data,cell_size] = ab_base.get_density(data);
-
-
             ab_interp = ortho_axes(bin0{:});
             % define source and target coordinate systems
             source_proj = ortho_proj([1,0,0],[0,1,0]);
@@ -107,7 +104,7 @@ classdef test_axes_block_interpolation < TestCase
             cp = 0.5*(ax(1:end-1)+ax(2:end));
             data = ones(size(cp));
 
-            % define less bins buy the same range as for ab_base
+            % define fewer bins but the same range as for ab_base
             nb = ab_base.nbins_all_dims;
             base_cell_volume = ab_base.get_bin_volume();
             nb(2) = floor(nb(2)*0.7);
@@ -145,8 +142,16 @@ classdef test_axes_block_interpolation < TestCase
             si = ab_interp.interpolate_data(ab_base,proj ,data,proj );
 
             assertEqualToTol(sum(si),sum(data),1.e-12);
-            %sample= [0,0,1.25,7.5,1.25,0,0,0];
+            %density= [0,0,1.25,7.5,1.25,0,0,0]; % This is the density
+            %distribution, but proper integration in centre-points recovers 
+            %the initial data
             assertElementsAlmostEqual(si,data')
+
+
+            ab_interp = ortho_axes('img_range',dbr+0.5,'nbins_all_dims',[8,1,1,1]);
+            si = ab_interp.interpolate_data(ab_base,proj ,data,proj );            
+            sample= [0,0,5,5,0,0,0,0]; 
+            assertElementsAlmostEqual(si,sample')            
         end
         %
         function test_interp_1D_half_points_int_coeff(~)

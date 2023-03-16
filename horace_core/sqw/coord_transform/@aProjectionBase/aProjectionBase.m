@@ -279,7 +279,7 @@ classdef aProjectionBase < serializable
         end
     end
     %======================================================================
-    % MAIN AXES OPERATIONS
+    % MAIN PROJECTION OPERATIONS
     methods
         function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
                 targ_axes_block,targ_proj)
@@ -349,23 +349,20 @@ classdef aProjectionBase < serializable
         %
         function ax_num = projection_axes_coverage(obj,source_ax_block)
             % method defines what axes become intertangled if some
-            % projection is involved. E.g. if source projection and target
-            % projections are ortho_proj, only projection axes contribute
-            % into projection axess of each other.
-            % if target projection is spherical projection, changes to
-            % one projection axis of the source projectin would contribute
-            % to all axes of the sperical projection
+            % projection is involved.
+            %
+            % E.g. if source projection and target projections are ortho_proj,
+            % only projection axes contribute into projection axess of each other.
+            % if target projection is a spherical projection, changes to
+            % one projection axis of the orthogonal source projectin would
+            % contribute to all axes of the sperical projection.
 
             % NOTE: needs some further thinking about it.
             if isempty(obj.targ_proj_) || isa(obj,class(obj.targ_proj_))
                 ax_num = source_ax_block.pax;
             else
-                if obj.do_3D_transformation
-                    if any(source_ax_block.pax == 4)
-                        ax_num = 1:4;
-                    else
-                        ax_num = 1:3;
-                    end
+                if obj.do_3D_transformation && ~any(source_ax_block.pax == 4)
+                    ax_num = 1:3;
                 else
                     ax_num = 1:4;
                 end

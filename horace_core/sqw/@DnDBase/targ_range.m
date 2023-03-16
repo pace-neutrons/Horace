@@ -5,7 +5,7 @@ function range = targ_range(obj,targ_proj,varargin)
 % Optional:
 % '-binning' if present, the method returns range as cellarray of binning
 %            parameters, i.e. the parameters which you would provide to cut
-%            to get the target cut in ranges obtained
+%            to get the target cut in the ranges produced
 %
 %
 [ok,mess,do_binning_range] = parse_char_options(varargin,'-binning');
@@ -30,7 +30,7 @@ else
         full_targ_range = source_proj.from_this_to_targ_coord(full_range);
         range = [min(full_targ_range,[],2),max(full_targ_range,[],2)]';
     else
-        % if not, analysze cut hull to understand what ranges can be
+        % if not, analyse cut hull to understand what ranges can be
         % specified
         range = search_for_range(obj,source_proj);
     end
@@ -54,20 +54,22 @@ function range = search_for_range(obj,source_proj)
 % find the maximal range, the current grid occupies in target coordinate
 % system
 %
-% The most primitive search algorithm possible.
+% The most primitive and pretty memory expensive search algorithm possible.
 %
 [range0,dE_range] = transf_range(obj,source_proj,1);
 difr = 1;
 node_mult = 2;
-while difr>1.e-3 && node_mult<33 % 2,4,8,16,32 % it is hull, so acceptable number of points
+while difr>1.e-3 && node_mult<33 % node multiplier doubles number of points 
+% on each iteration step and goes 2,4,8,16,32. As the number of points increases on the hull,
+% it is still not too big number so memory requests are acceptable.
     range = transf_range(obj,source_proj,node_mult);
     difr = calc_difr(range0,range);
     range0 = range;
     node_mult = node_mult*2;
 end
-if node_mult > 17
+if node_mult > 32
     warning('HORACE:targ_range', ...
-        ['target range search algorithm have not converged after 4 iterations.\n', ...
+        ['target range search algorithm have not converged after 5 iterations.\n', ...
         ' The default range identified for the cut may be inaccurate'])
 end
 %

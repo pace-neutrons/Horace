@@ -16,7 +16,7 @@ function [nodes,en_axis,npoints_in_axes,bin_volume] = ...
 %              grid. Not building halo along energy axes in 3D mode
 % bin_edges -- if true, return grid containing bin edges
 % dens_interp
-%           -- if true, return grid used to define density, bin centers for
+%           -- if true, return grid used to define density, bin centres for
 %              projection axes and bin edges of integrated dimensions.
 % bin_centre
 %           -- if true, return grid used for integration by summation in

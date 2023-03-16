@@ -50,7 +50,9 @@ ref_gridZ = reshape(ref_nodes(3,:),ref_grid_size );
 ref_gridE = reshape(ref_nodes(4,:),ref_grid_size );
 
 if ~isempty(targ_proj)
-    % cross-assign projection to enable possible optimizations:
+    % cross-assign source->target and target->source projections
+	% as each other target projection to enable possible optimizations
+	% doing transformations in similar coordinate systems.
     ref_proj.targ_proj = targ_proj;
     targ_proj.targ_proj = ref_proj;
 
@@ -62,7 +64,7 @@ if ~isempty(targ_proj)
     else
         n_ref_nodes = sum(may_contrND_targ);
     end
-    targ_contr_share = n_ref_nodes/prod(targ_axes.dims_as_ssize+1);
+    targ_contr_share = n_ref_nodes/prod(targ_axes.nbins_all_dims);
     [may_contrND,may_contr_dE]  = ref_proj.may_contribute(ref_axes, ...
         targ_proj,targ_axes);
     if ref_proj.do_3D_transformation
@@ -84,7 +86,7 @@ if ~isempty(targ_proj)
     % at least one point of the interpolating grid. Build finer and finer
     % interpolation grid until this happens
     mult = 1;
-    [all_accounted4,nodes,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source( ...
+    [all_accounted_for,nodes,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source( ...
         ref_proj,ref_axes,targ_proj,targ_axes,mult,may_contrND,may_contr_dE);
     n_targ_nodes = size(inodes,2)*targ_contr_share;
     % rough estimate of the number of nodes increase after doubling node
@@ -92,18 +94,18 @@ if ~isempty(targ_proj)
     dim_multiplier = 2^(ref_axes.dimensions()+1);
 
     mult = 2;
-    while ~all_accounted4 && n_targ_nodes < dim_multiplier*n_ref_nodes % not fully reliable condition, as
+    while ~all_accounted_for && n_targ_nodes < dim_multiplier*n_ref_nodes % not fully reliable condition, as
         % e.g. for rectangular->spherical transformation hign-R cells may
         % be too big to fit one original rectangular cell, while plenty of
         % low-R cell fit a grid cell. Despite that due to oversampling, should
         % still be reasonable result with warning
-        [all_accounted4,nodes,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source( ...
+        [all_accounted_for,nodes,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_source( ...
             ref_proj,ref_axes,targ_proj,targ_axes, ...
             mult,may_contrND,may_contr_dE);
         mult = mult*2;
         n_targ_nodes = size(inodes,2)*targ_contr_share;
     end
-    if ~all_accounted4
+    if ~all_accounted_for
         warning('HORACE:runtime_error', ...
             ['Problem generating the cut grid commensurate with the interpolation grid.\n', ...
             ' The interpolation artefacts may appear on the cut.\n', ...
@@ -116,6 +118,7 @@ if ~isempty(targ_proj)
 else % usually debug mode. Original grid coincides with interpolation grid
     [nodes,~,~,targ_cell_volume] = targ_axes.get_bin_nodes('-bin_centre');
     inodes = nodes;
+    dE_nodes = [];
 end
 
 for i = 1:nout

@@ -623,15 +623,18 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+	        % Define 2-dimensional grid.
             ab = ortho_axes(bin0{:});
 
+            % create multiplier to produce 4-dimensional grid 
+			% with requested number of bins (10x10x10x10)
             char_size_des = (dbr(2,:)-dbr(1,:))/10;
             char_size_ex  = (ab.img_range(2,:)-ab.img_range(1,:))./ab.nbins_all_dims;
             mult = ceil(char_size_ex./char_size_des);
+			% ensure multiplier is never smaller then 1
             mult(mult<1) = 1;
             [nodes,en,nbins] = ab.get_bin_nodes('-bin_centre',mult);
             assertEqual(size(nodes,1),4);
-
 
             assertEqual(numel(en),nbins(end));
 
@@ -658,23 +661,25 @@ classdef test_ortho_axes < TestCase
             assertEqual(size(centers,2),the_size);
         end
         %
-        function test_worong_mult_throw(~)
+        function test_wrong_mult_throw(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
             mult = ones(3,1);
-            mult(mult<1) = 1;
             ex = assertExceptionThrown(@()get_bin_nodes(ab,'-bin_centre',mult),...
                 'HORACE:AxesBlockBase:invalid_argument');
             assertTrue(strncmp(ex.message,'nnodes multipler should',23));
         end
         %
-        function test_worong_keyword_throw(~)
+        function test_wrong_keyword_throw(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
+			% procedure to produce multiplier, which gives requested number of bins
+			% does not used here but left for correct code execution in case of 
+			% the requested exception is not thrown 
             char_size_des = (dbr(2,:)-dbr(1,:))'/10;
             char_size_ex  = (dbr(2,:)-dbr(1,:))'./ab.nbins_all_dims;
             mult = ceil(char_size_ex./char_size_des);

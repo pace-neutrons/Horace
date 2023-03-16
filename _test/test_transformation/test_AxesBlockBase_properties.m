@@ -47,7 +47,11 @@ classdef test_AxesBlockBase_properties < TestCase
 
             assertEqual(numel(bv),n_cells);
 
+            % the volume of the first bin is the production 
+			% of all sizes of the first cell
             assertEqualToTol(bv(1),1*1*0.1*2,'tol',1.e-11);
+            % the volume of the last bin is the production 
+			% of all sizes of the last cell			
             assertEqualToTol(bv(end),5*1*0.1*5,'tol',1.e-11);
         end
 
