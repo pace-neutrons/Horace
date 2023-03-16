@@ -76,7 +76,7 @@ obj = obj.finalise();
 
 end
 
-function obj = do_mask_file_backed_with_npix(obj, mask_array, npix)
+function obj_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
 % Perform a mask of a file-backed PixelData object with a mask array and
 % an npix array. The npix array should account for the full range of pixels
 % in the PixelData instance i.e. sum(npix) == pix.num_pixels.
@@ -84,12 +84,16 @@ function obj = do_mask_file_backed_with_npix(obj, mask_array, npix)
 % The mask_array and npix array should have equal dimensions.
 %
 
-if isempty(obj.file_handle_)
-    obj = obj.get_new_handle();
+obj_out = obj;
+
+if isempty(obj_out.file_handle_)
+    obj_out = obj_out.get_new_handle();
 end
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.DEFAULT_PAGE_SIZE);
-obj.num_pixels_ = sum(npix .* mask_array, 'all');
+obj_out.num_pixels_ = sum(npix .* mask_array, 'all');
+
+curr = 1;
 
 for i = 1:obj.num_pages
     [obj, data] = obj.load_page(i);
@@ -97,10 +101,13 @@ for i = 1:obj.num_pages
     idx = idxs(:, i);
 
     mask_array_chunk = repelem(mask_array(idx(1):idx(2)), npix_for_page);
-    obj.format_dump_data(data(:, mask_array_chunk));
+
+    obj_out.format_dump_data(data(:, mask_array_chunk), curr);
+
+    curr = curr + sum(mask_array_chunk);
 end
 
-obj = obj.finalise();
+obj_out = obj_out.finalise();
 
 end
 
