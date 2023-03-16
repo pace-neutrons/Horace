@@ -1,5 +1,5 @@
 function  [may_contributeND,may_contribute_dE] = may_contribute_(source_proj,...
-    cur_axes_block,target_proj,targ_axes_block)
+    source_axes_block,target_proj,targ_axes_block)
 % Return the indexes of cells, which may contain the nodes,
 % belonging to the target axes block by transforming the source
 % coordinate system (SCS) into target coordinate system (TCS)
@@ -11,7 +11,7 @@ function  [may_contributeND,may_contribute_dE] = may_contribute_(source_proj,...
 % build bin edges for the target grid and bin centres for reference grid
 if source_proj.do_3D_transformation_
     [targ_nodes,dEnodes] = targ_axes_block.get_bin_nodes('-3D','-ngrid','-halo');
-    [source_grid,baseEdges]  = cur_axes_block.get_bin_nodes('-bin_centre','-3D');
+    [source_grid,baseEdges]  = source_axes_block.get_bin_nodes('-bin_centre','-3D');
     targ_grid_present = ones(size(dEnodes));
     targ_grid_present = nullify_edges(targ_grid_present,size(dEnodes));
     nodes_near = interp1(dEnodes,targ_grid_present,baseEdges,'linear',0);
@@ -23,7 +23,7 @@ if source_proj.do_3D_transformation_
 else
     may_contribute_dE = [];
     targ_nodes = targ_axes_block.get_bin_nodes('-ngrid','-halo');
-    source_grid = cur_axes_block.get_bin_nodes('-bin_centre');
+    source_grid = source_axes_block.get_bin_nodes('-bin_centre');
 end
 % define unit signal on the edges of the target grid and zeros at "halo"
 % points surrounding the target grid
@@ -49,7 +49,7 @@ end
 % verify if hull nodes may contribute to the cut, which may be 
 % the case when source cells are larger and fully contain the cut cells
 targ_nodes = target_proj.from_this_to_targ_coord(targ_nodes);
-cell_dist = cur_axes_block.bin_pixels(targ_nodes);
+cell_dist = source_axes_block.bin_pixels(targ_nodes);
 may_contributeND = interp_ds(:)>eps(single(1))|cell_dist(:)>0;
 
 

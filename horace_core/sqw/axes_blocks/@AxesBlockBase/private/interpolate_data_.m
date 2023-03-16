@@ -149,7 +149,8 @@ function [all_accounted4,nodes,inodes,dE_nodes,targ_cell_volume] = bin_targ_on_s
 % fine enough to account for all source grid points
 %
 grid_mult = ones(1,4);
-grid_mult(targ_ax.pax) = mult;
+search_ax = targ_proj.projection_axes_coverage(ref_axes);
+grid_mult(search_ax) = mult;
 if targ_proj.do_3D_transformation
     [nodes,dE_nodes,~,targ_cell_volume] = targ_ax.get_bin_nodes('-3D','-bin_centre',grid_mult);
     source_edges = ref_axes.dE_nodes();
