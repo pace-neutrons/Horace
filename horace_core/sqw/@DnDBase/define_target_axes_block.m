@@ -18,12 +18,28 @@ function [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pb
 %              some input parameters from source projection
 %              (e.g. lattice if undefined, etc)
 
-
-% Get the source binning ranges, transformed into target coordinate system.
-% It is actually AxesBlockBase method, so source projection is provided as
-% input of this method. Left in this form until data_sqw_dnd is a AxesBlockBase
-source_binning = obj.targ_range(targ_proj,'-binning');
+% check if default binning is necessary
+default_needed = cellfun(@is_default_needed,pbin);
+if any(default_needed)
+    % Get the source binning ranges, transformed into target coordinate system.
+    source_binning = obj.targ_range(targ_proj,'-binning');
+else
+    % empty binning as it will not be deployed
+    source_binning = cell(1,4);
+end
 %
 targ_ax_block  = targ_proj.get_proj_axes_block(source_binning,pbin);
 targ_ax_block.full_filename = obj.full_filename;
+
+
+function needed = is_default_needed(pb)
+
+if numel(pb)<2
+    needed = true;
+    return;
+end
+needed =  isinf(pb(1))||isinf(pb(end));
+if numel(pb)==3 && pb(2)==0
+    needed = true;
+end
 
