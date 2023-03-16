@@ -338,7 +338,8 @@ classdef AxesBlockBase < serializable
             % 1D array of the cells, with the volume, dependent on the cell
             % radius
             if nargin == 1
-                ax = obj.get_bin_nodes('-axes_only');                
+                [~,~,~,volume] = obj.get_bin_nodes('-axes_only');                
+                return;
             else
                 ax = varargin{1};
             end
@@ -585,7 +586,7 @@ classdef AxesBlockBase < serializable
                 error('Horace:AxesBlockBase:invalid_argument',mess)
             end
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
-                calc_bin_nodes_(obj,do_3D, ...
+                calc_bin_nodes_(obj,nargout,do_3D, ...
                 build_halo,bin_edges,bin_centre,dens_interp,...
                 axes_only,ngrid,hull,argi{:});
         end

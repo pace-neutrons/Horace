@@ -37,6 +37,9 @@ classdef test_dnd_cut< TestCaseWithSave
         end
         
         function test_2D_to2D_cut_with_proj(obj)
+            ws = warning('off','HORACE:runtime_error');
+            clOb = onCleanup(@()warning(ws));
+            
             proj = ortho_proj([1,1,1],[0,0,1]);
             w2 = cut(obj.d2d_obj,proj,[-0.6,0.01,-0.4], ...
                 [-0.3,0.02,0.2],[-0.05,0.05],[-0.25,0.25]);

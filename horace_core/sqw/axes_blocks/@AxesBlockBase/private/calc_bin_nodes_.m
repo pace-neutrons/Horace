@@ -1,11 +1,14 @@
 function [nodes,en_axis,npoints_in_axes,bin_volume] = ...
-    calc_bin_nodes_(obj,do3D,halo,bin_edges,bin_centre,dens_interp, ...
+    calc_bin_nodes_(obj,call_nargout,do3D,halo,bin_edges,bin_centre,dens_interp, ...
     axes_only,ngrid_form,hull,varargin)
 % build 3D or 4D vectors, containing all nodes of the AxesBlockBase grid,
 % constructed over AxesBlockBase axes.
 %
 % Inputs:
 % obj       -- initialized AxesBlockBase instance
+% call_nargout
+%           -- number of output argument this the class method was called
+%              with. Used to check if cell volume calculations are necessary
 % do3D      -- if true, return more efficient 3D grid and separate energy
 %              axes grid instead of more generic 4D grid over q-dE
 %              axes points.
@@ -54,7 +57,7 @@ function [nodes,en_axis,npoints_in_axes,bin_volume] = ...
 %           vector of bin volumes for the grid returned grid if axes bin
 %           volumes differ
 
-noptions = 9; % number of positional arguments always present as inputs (excluding varargin)
+n_pos_arg = 10; % number of positional arguments always present as inputs (excluding varargin)
 if bin_centre && bin_edges
     error('Horace:AxesBlockBase:invalid_argument',...
         '"-bin_edges" and "-bin_centre" keys can not be used together')
@@ -63,7 +66,7 @@ if ngrid_form && hull
     error('HORACE:AxesBlockBase:invalid_argument',...
         '"-hull" and "-grid_form" parameters can not be used together');
 end
-grid_nnodes_multiplier = parse_inputs(noptions,nargin,varargin{:});
+grid_nnodes_multiplier = parse_inputs(n_pos_arg,nargin,varargin{:});
 
 axes = cell(4,1);
 %
@@ -104,8 +107,11 @@ else
         npoints_in_axes(i) = numel(axes{i});
     end
 end
-
-bin_volume = obj.get_bin_volume(axes);
+if call_nargout > 3
+    bin_volume = obj.get_bin_volume(axes);
+else
+    bin_volume  = [];
+end
 
 if bin_centre || dens_interp
     is_pax = false(4,1);
