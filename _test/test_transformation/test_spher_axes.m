@@ -25,8 +25,7 @@ classdef test_spher_axes < TestCase
 
             vol = ab.get_bin_volume();
             assertEqual(numel(vol),10^4);
-        end
-
+        end       
         function test_bin_voulume_single(~)
             dbr = ...
                 [  1, 45,  0, 0;...
@@ -35,9 +34,20 @@ classdef test_spher_axes < TestCase
 
             vol = ab.get_bin_volume();
             assertEqual(numel(vol),1);
-            ref_vol = 0.1*1.1033* (cos(45*pi/180)-cos(46*pi/180))*9*pi/180*1;
+            ref_vol = 0.1*1.1033* (cosd(45)-cosd(46))*9*pi/180*1;
             assertEqualToTol(vol,ref_vol,1.e-8);
         end
+        function test_bin_voulume_single_large(~)
+            dbr = ...
+                [0,  0,-180, 0;...
+                1 , 90, 180, 10]; % half a sphere
+            ab = spher_axes('img_range',dbr,'nbins_all_dims',[1,1,1,10]);
+
+            vol = ab.get_bin_volume();
+            assertEqual(numel(vol),1);
+            ref_vol = 2*pi/3;  % half a sphere volume
+            assertEqualToTol(vol,ref_vol,1.e-8);
+        end        
         %------------------------------------------------------------------
         function test_axes_ranges_at_limits(~)
             dbr = ...
