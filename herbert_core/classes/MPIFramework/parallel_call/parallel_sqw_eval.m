@@ -21,20 +21,22 @@ function wout = parallel_sqw_eval(func, nWorkers, args)
               'Parallel execution of SQW eval failed');
     end
 
-
     wout = cellfun(@copy, w, 'UniformOutput', false);
 
     if iscell(res{1})
-        extract = @(x, i) x{i}.pix.data;
+        extract = @(x, i) x{i}.pix;
     else
-        extract = @(x, i) x(i).pix.data;
+        extract = @(x, i) x(i).pix;
     end
 
     % Recombine data
     for i = 1:numel(wout)
         pix = cellfun(extract, res, repmat({i}, size(res)), 'UniformOutput', false);
-        wout{i}.pix.data = horzcat(pix{:});
+        wout{i}.pix = wout{i}.pix.cat(pix{:});
         [wout{i}.data.s, wout{i}.data.e] = wout{i}.pix.compute_bin_data(wout{i}.data.npix);
+        for i = 1:numel(pix) % Clear temp files preserved by function
+            delete(pix{i}.full_filename);
+        end
     end
 
     if isscalar(wout)

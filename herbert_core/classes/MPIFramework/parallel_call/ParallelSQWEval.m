@@ -28,7 +28,12 @@ classdef ParallelSQWEval < JobExecutor
 
             common = obj.common_data_;
 
+
             w_out = common.func(data.w, common.args{:});
+            if w_out.pix.is_filebacked
+                % Need to preserve tmp files
+                save(w_out, w_out.full_filename);
+            end
             obj.task_outputs = w_out;
 
         end
