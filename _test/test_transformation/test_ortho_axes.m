@@ -623,11 +623,18 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+	        % Define 2-dimensional grid.
             ab = ortho_axes(bin0{:});
 
-            [nodes,en,nbins] = ab.get_bin_nodes('-bin_centre',(dbr(2,:)-dbr(1,:))'/10);
+            % create multiplier to produce 4-dimensional grid 
+			% with requested number of bins (10x10x10x10)
+            char_size_des = (dbr(2,:)-dbr(1,:))/10;
+            char_size_ex  = (ab.img_range(2,:)-ab.img_range(1,:))./ab.nbins_all_dims;
+            mult = ceil(char_size_ex./char_size_des);
+			% ensure multiplier is never smaller then 1
+            mult(mult<1) = 1;
+            [nodes,en,nbins] = ab.get_bin_nodes('-bin_centre',mult);
             assertEqual(size(nodes,1),4);
-
 
             assertEqual(numel(en),nbins(end));
 
@@ -654,24 +661,33 @@ classdef test_ortho_axes < TestCase
             assertEqual(size(centers,2),the_size);
         end
         %
-        function test_worong_char_size_throw(~)
+        function test_wrong_mult_throw(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
-            ex = assertExceptionThrown(@()get_bin_nodes(ab,'-bin_centre',(dbr(2,:)-dbr(1,:))/10),...
+            mult = ones(3,1);
+            ex = assertExceptionThrown(@()get_bin_nodes(ab,'-bin_centre',mult),...
                 'HORACE:AxesBlockBase:invalid_argument');
-            assertTrue(strncmp(ex.message,'characteristic size, if present',31));
+            assertTrue(strncmp(ex.message,'nnodes multipler should',23));
         end
         %
-        function test_worong_keyword_throw(~)
+        function test_wrong_keyword_throw(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
-            ex = assertExceptionThrown(@()get_bin_nodes(ab,'-wrong',(dbr(2,:)-dbr(1,:))'/10),...
+			% procedure to produce multiplier, which gives requested number of bins
+			% does not used here but left for correct code execution in case of 
+			% the requested exception is not thrown 
+            char_size_des = (dbr(2,:)-dbr(1,:))'/10;
+            char_size_ex  = (dbr(2,:)-dbr(1,:))'./ab.nbins_all_dims;
+            mult = ceil(char_size_ex./char_size_des);
+            mult(mult<1) = 1;
+
+            ex = assertExceptionThrown(@()get_bin_nodes(ab,'-wrong',mult),...
                 'HORACE:AxesBlockBase:invalid_argument');
-            assertTrue(strncmp(ex.message,'characteristic size, if present',31));
+            assertTrue(strncmp(ex.message,'nodes_multiplier, if present, should',36));
         end
         %
         function test_get_bin_nodes_2D_2d(~)
@@ -710,48 +726,42 @@ classdef test_ortho_axes < TestCase
             assertEqual(size(nodes,2),the_size);
         end
         %
-        function test_get_bin_nodes_2D_2d_char_size(~)
+        function test_get_bin_nodes_2D_2d_mult(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
 
-            new_step = [0.05;4;6;0.1];
-            r0 = [-1;-2;-3;0];
-            r1 = r0+new_step;
-            char_block =[r0,r1];
-            [nodes,en,nbins] = ab.get_bin_nodes(char_block);
+
+            [nodes,en,nbins] = ab.get_bin_nodes(2);
             assertEqual(numel(en),nbins(4));
             assertEqual(size(nodes,1),4);
             node_range = [min(nodes,[],2)';max(nodes,[],2)'];
             assertEqual(ab.img_range,node_range);
 
             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
-            nns = [42,2,2,111];
+            nns = [43,3,3,23];
             assertEqual(nns,nbins);
             the_size = prod(nns);
             assertEqual(size(nodes,2),the_size);
         end
         %
-        function test_get_bin_nodes_2D_4d_char_size(~)
+        function test_get_bin_nodes_2D_4d_mult(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
 
-            new_step = [0.05;0.1;0.15;0.1];
-            r0 = [-1;-2;-3;0];
-            r1 = r0+new_step;
-            char_block =[r0,r1];
-            [nodes3D,dEgrid,npoints_in_axes] = ab.get_bin_nodes(char_block,'-3D');
+            nnodes_mult = [2,40,40,10];
+            [nodes3D,dEgrid,npoints_in_axes] = ab.get_bin_nodes(nnodes_mult,'-3D');
             assertEqual(size(nodes3D,1),3);
             node_range = [min(nodes3D,[],2)';max(nodes3D,[],2)'];
             assertEqual(ab.img_range(:,1:3),node_range);
 
             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
 
-            nns = [42    40    41   111];
-            assertEqual(nns,npoints_in_axes);
+            nns = [43,41,41,111];
+            assertEqual(npoints_in_axes,nns);
             q_size = prod(nns(1:3));
             assertEqual(numel(dEgrid),nns(4))
             assertEqual(size(nodes3D,2),q_size);

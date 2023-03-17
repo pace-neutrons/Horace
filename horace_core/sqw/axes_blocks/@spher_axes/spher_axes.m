@@ -141,6 +141,13 @@ classdef spher_axes < AxesBlockBase
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function  volume = calc_bin_volume(obj,axis_cell)
+            % calculate bin volume from the  axes of the axes block or input 
+            % axis organized in cellarray of 4 axis. Will return array of
+            % bin volumes 
+            volume = calc_bin_volume_(obj,axis_cell);
+        end
+        
         function  obj = check_and_set_img_range(obj,val)
             % main setter for spherical image range.
             obj = check_and_set_img_range_(obj,val);

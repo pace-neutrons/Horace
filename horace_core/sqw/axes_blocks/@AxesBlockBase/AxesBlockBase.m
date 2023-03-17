@@ -76,7 +76,7 @@ classdef AxesBlockBase < serializable
         % i.e. size(s) == dims_as_ssize and size(zeros(dims_as_ssize)) ==
         % size(s)
         dims_as_ssize;
-        % boolean row, identifying if a single bin direction
+        % boolean row, identifying if a single bin direction (dir)
         % (nbins_all_dims(dir)==1) is integration axis or a projection
         % axis. By default, single nbins_all_dims direction is
         % integration direction.
@@ -132,6 +132,10 @@ classdef AxesBlockBase < serializable
             %                                  arrays
             %>>obj = AxesBlockBase(pbin1,pbin2,pbin3,pbin4) % build axis block
             %                                       from binning parameters
+            %>>obj = AxesBlockBase('key1',value,'key2',value,...)
+            %        build axis block from property names and property
+            %        values (standard serializable constructor)
+
             %
             if nargin == 0
                 return;
@@ -319,25 +323,9 @@ classdef AxesBlockBase < serializable
             obj.changes_aspect_ratio_ = logical(val);
         end
 
-        %------------------------------------------------------------------
-        % See #956. This method is still used but should be removed
-        function [cube_coord,step] = get_axes_scales(obj)
-            % Return the array of vertices of a 4D hypercube, describing a
-            % grid cell of the axes block.
-            % Output:
-            % cube_coord -- 4x16 array of vertices of minimal-sized axes
-            %               cube. (Cubes sizes differ in case if axes
-            %               contains different sized grid, e.g.
-            %               cylindrical grid)
-            % step       -- 4x1 vector, containing the axes block grid
-            %               steps. (change of the coordinates in each
-            %               direction, the length of the each side of the
-            %               axes cell hypercube)
-            [cube_coord,step] = get_axes_scales_(obj);
-        end
     end
     %======================================================================
-    % Integration, interpolation and bining
+    % Integration, interpolation and binning
     methods
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
@@ -345,16 +333,31 @@ classdef AxesBlockBase < serializable
         range = get_cut_range(obj,varargin);
         %
 
-        function volume = get_bin_volume(obj)
-            % return the volume of the axes grid. For rectilinear grid, the
-            % volume of the grid is the single value equal to the product
-            % of the grid step array obtained from get_axes_scales
-            % function, because all grid cells of such grid are equal.
-            % For other coordinate systems (e.g. spherical), the volume is
-            % 1D array of the cells, with the volume, dependent on the cell
-            % radius
-            [~,step] = obj.get_axes_scales();
-            volume = prod(step);
+        function volume = get_bin_volume(obj,varargin)
+            % Return the volume(s) of the axes grid. For rectilinear grid, the
+            % volume of the grid is the scalar equal to the product
+            % of the grid steps in all directions. 
+            % For the coordinate systems where grid volumes depend on 
+            % the grid number (e.g. spherical), the volume is
+            % 1D array of the volumes of the cells. The number of elements
+            % in the array is equal to the number of cells in the grid.
+            % Inputs:
+            % obj   -- initialized instance of an axes_block class
+            % Optional:
+            % axes  -- 4-element celarray, containig axes in all 4
+            %          directions. If this argument is present, the
+            %          volume(s) are calculated for the grid, buil from
+            %          the axes provided as input.
+            if nargin == 1
+                [~,~,~,volume] = obj.get_bin_nodes('-axes_only');
+            elseif nargin == 2
+                volume = obj.calc_bin_volume(varargin{1});
+            else
+                error('HORACE:AxesBlockBase:invalid_argument', ...
+                    'This method accepts no or one argument. Called with %d arguments', ...
+                    nargin);
+            end
+
         end
         function data_out = rebin_data(obj,data_in,other_ax)
             % Rebin data,defined on this axes grid into other axes grid
@@ -367,12 +370,15 @@ classdef AxesBlockBase < serializable
             % align input axes block to have the same or commensurate
             % bin sizes as this axes block and the integration ranges equal
             % or smaller than the ranges of this axes block but
-            % commensurate with this axis block bin edges
+            % commensurate with this axis block bin edges. 
+            %
+            % The coordinate systems of both access blocks assumed to be
+            % the same
             ax_block_al = realign_bin_edges_(obj,ax_block);
         end
         %
-        function [interp_points,density,cell_sizes] = get_density(obj,datasets)
-            % Convert input datasets defined on centerpoints of this grid
+        function [interp_points,density] = get_density(obj,datasets)
+            % Convert input datasets defined on centre-points of this grid
             % into the density data, defined on edges of the grid.
             %
             % Inputs:
@@ -380,46 +386,46 @@ classdef AxesBlockBase < serializable
             %             from.
             %             The size and dimensions of the datasets should
             %             be equal to the dimensions of the axes block
-            %             returned by data_nbins property, i.e.:
-            %             all(size(dataset{i}) == obj.data_nbins;
+            %             returned by dims_as_ssize property, i.e.:
+            %             all(size(dataset{i}) == obj.dims_as_ssize);
             %             datasets contain bin values.
             % Returns:
             % intep_pints
             %          -- 2D [4,nAxesEdgesPoints] array of axes positions
-            %              where the density is defined
+            %             where the density is defined
             % density
             %          -- cellarray of density points calculated in the
             %             density points positions.
             %             Number of cells in the output array is equal to
             %             the number of input datasets
-            % cell_sizes
-            %          -- 4-elements vector containing the sizes of the
-            %             cell (to be extended on heterogheneous cell)
-            %
+
             if ~iscell(datasets)
                 datasets = {datasets};
             end
-            [interp_points,density,cell_sizes] = calculate_density_(obj,datasets);
+            [interp_points,density] = calculate_density_(obj,datasets);
         end
         %
-        function [s,e,npix] = interpolate_data(obj,ref_nodes,density,varargin)
+        function [s,e,npix] = interpolate_data(obj,source_axes, ...
+                source_proj,data,varargin)
             % interpolate density data for signal, error and number of
             % pixels provided as input density and defined on the nodes of the
             % references axes block onto the grid, defined by this axes block.
             %
             % Inputs:
-            % ref_nodes -- 4D array of the nodes of the reference lattice,
-            %              produced by get_density routine of the reference
-            %              axes block.
-            % density   -- 3-elements cellarray containing arrays of
-            %              signal, error and npix densities,
-            %              produced by get_density routine of the reference
-            %              axes block.
+            % source_axes
+            %           -- axes block -source grid, defining the lattice
+            %              where source data are defined on
+            % source_proj
+            %           -- the projection, which defines the coordinate
+            %              system related to the source_axes
+            % data      -- 1 to 3-elements cellarray containing arrays of data
+            %              to interpolate on the nodes of the input axes
+            %              block. In the most common case this is the
+            %              celarray of s,e,npix data, defined on source
+            %              axes block. source_axes.nbins_all_dims ==
+            %              size(data{i}) where
+            %
             % Optional:
-            % grid_cell_size
-            %           -- 4D array of the scales of the reference lattice
-            %              if missing or empty, assume ref_nodes have the same
-            %              cell sizes as these nodes
             % proj      -- the projection object defining the transformation
             %              from this coordinate system to the system,
             %              where the reference nodes are defined
@@ -430,18 +436,13 @@ classdef AxesBlockBase < serializable
             % s,e,npix  -- interpolated arrays of signal, error and number
             %              of pixels calculated in the centres of the
             %              cells of this lattice.
-            if nargin < 5
+            if isempty(varargin)
                 proj = [];
             else
-                proj = varargin{2};
+                proj = varargin{1};
             end
-            if nargin < 4
-                grid_cell_size = [];
-            else
-                grid_cell_size = varargin{1};
-            end
-            [s,e,npix] = interpolate_data_(obj,nargout,ref_nodes, ...
-                density,grid_cell_size,proj);
+            [s,e,npix] = interpolate_data_(obj,nargout, ...
+                source_axes,source_proj, data,proj);
         end
         %
         function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,coord_transf,varargin)
@@ -558,14 +559,13 @@ classdef AxesBlockBase < serializable
             %              specified range + single-cell sized
             %              step expanding the lattice
             % '-bin_edges'
-            %           -- if provided, returns grid used to define density,
-            %              namely with points located on the grid cell edges +
-            %              edges of integrated  dimensions.
+            %           -- if provided, returns grid containing bin edges.
             % '-bin_centre'
-            %           -- if provided, returns grid used for integration
-            %              by summation in centre-points, namely, points
-            %              are in the centre of cells and integration
-            %              dimensions
+            %           -- if provided, returns grid containing bin centers
+            % '-dens_interp'
+            %           -- if present, return grid used to define density,
+            %              bin centers for projection axes and bin edges for
+            %              integrated dimensions.
             % '-axes_only'
             %           -- if provided, do not return 3D or 4D grid but
             %              just return the axes in each 3 or 4 dimensions
@@ -590,21 +590,29 @@ classdef AxesBlockBase < serializable
             %        -- 4-element vector of characteristic sizes of the grid cell in
             %           4 dimensions
             %
-            opt = {'-3D','-halo','-bin_edges','-bin_centre',...
+            opt = {'-3D','-halo','-bin_edges','-bin_centre','-dens_interp',...
                 '-axes_only','-ngrid','-hull'};
             [ok,mess,...
-                do_3D,build_halo,bin_edges,bin_centre,...
+                do_3D,build_halo,bin_edges,bin_centre,dens_interp,...
                 axes_only,ngrid,hull,argi] ...
                 = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:AxesBlockBase:invalid_argument',mess)
             end
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
-                calc_bin_nodes_(obj,do_3D, ...
-                build_halo,bin_edges,bin_centre,...
+                calc_bin_nodes_(obj,nargout,do_3D, ...
+                build_halo,bin_edges,bin_centre,dens_interp,...
                 axes_only,ngrid,hull,argi{:});
         end
         %
+        function nodes = dE_nodes(obj,varargin)
+            % helper function which returns nodes along energy transfer axis
+            %
+            % Optional:
+            % '-bin_centers' -- return bin centers rather then bin edges
+            %
+            nodes = dE_nodes_(obj,varargin{:});
+        end
     end
     methods(Abstract,Access=protected)
         % main setter for image range. Overloadable for different kind
@@ -618,6 +626,11 @@ classdef AxesBlockBase < serializable
     end
     %======================================================================
     methods(Access=protected)
+        function  volume = calc_bin_volume(obj,axis_cell)
+            % calculate bin volume from the  axes of the axes block or input
+            % axis organized in cellarray of 4 axis.
+            volume = calc_bin_volume_(obj,axis_cell);
+        end
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
@@ -671,7 +684,7 @@ classdef AxesBlockBase < serializable
         % build new particular AxesBlockBase object from the binning
         % parameters, provided as input. If some input binning parameters
         % are missing, the defaults are taken from the given image range
-        % which should be   properly precalculated
+        % which should be properly pre-calculated
         obj = build_from_input_binning(proj_cl_name,cur_img_range_and_steps,pbin);
         %
         function [any_within,is_within]=bins_in_1Drange(bins,range)

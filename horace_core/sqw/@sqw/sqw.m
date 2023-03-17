@@ -196,7 +196,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             range = obj.data.targ_range(targ_proj);
         end
         function status = adjust_aspect(obj)
-            % method reports if the plotting operation should adujust
+            % method reports if the plotting operation should adjust
             % aspect ratio when plotting sqw objects
             status  = obj.data.adjust_aspect();
         end
