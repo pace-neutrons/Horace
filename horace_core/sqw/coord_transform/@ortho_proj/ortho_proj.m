@@ -220,12 +220,14 @@ classdef ortho_proj<aProjectionBase
             % stored in sqw object ver < 4
             %
             [ur,vr,wr,tpe,nonortho]=obj.uv_from_data_rot(u_rot(1:3,1:3),ulen(1:3));
-
-            obj.u_ = ur;
-            obj.v_ = vr;
-            obj.w_ = wr;
-            obj.nonorthogonal_ = nonortho;
-            obj = check_and_set_type_(obj,tpe);
+            check = obj.do_check_combo_arg_;
+            obj.do_check_combo_arg_ = false;
+            obj.u = ur;
+            obj.v = vr;
+            obj.w = wr;            
+            obj.type = tpe;
+            obj.nonorthogonal = nonortho;
+            obj.do_check_combo_arg_ = check;            
             if obj.do_check_combo_arg_
                 obj = check_combo_arg_(obj);
             end

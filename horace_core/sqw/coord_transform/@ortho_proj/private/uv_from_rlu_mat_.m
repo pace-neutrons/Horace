@@ -22,56 +22,7 @@ function [u,v,w,type,nonortho]=uv_from_rlu_mat_(obj,u_rot_mat,ulen)
 % type --
 %u_rot_mat(:,i) = ubinv(:,i)*ulen(i);
 
-
-ulen_inv = 1./ulen(:)';
-ubinv = u_rot_mat.*repmat(ulen_inv,3,1);
-ubmat = inv(ubinv); % correctly recovered ubmatrix; ulen matrix extracted
 b_mat = bmatrix(obj.alatt,obj.angdeg); % converts hkl to Crystal Cartesian
-%ubmat = umat*b_mat;
-umat = ubmat/b_mat;
-%
-u_dir = (b_mat\umat(1,:)')';
-% unit vector, parallel to u:
-u = u_dir/norm(u_dir);
-
-% the length of the v-vector, orthogonal to u (unit vector)
-% in fact real v-vector is not fully recoverable. We can
-% recover only its orthogonal part
-v_tr =  (b_mat\umat(2,:)')';
-v = v_tr/norm(v_tr);
-%
-w=ubinv(:,3)';  % perpendicular to u and v, length 1 Ang^-1, forms rh set with u and v
-
-uvw=[u(:),v(:),w(:)];
-uvw_orthonorm=ubinv\uvw;    % u,v,w in the orthonormal (Crystal Cartesian)
-%   frame defined by u and v
-ulen_new = diag(uvw_orthonorm);
-lt = cell(3,1);
-for i=1:3
-    if ulen(i)==1
-        lt{i} = 'a';
-    elseif abs(ulen(i)-ulen_new(i))<1.e-7
-        lt{i} = 'p';
-    else % either new projection 'p' or 'r'
-        if i==3
-            lt{i} = 'r';
-        else
-            scale = ulen(i)/ulen_new(i);
-            if i==1
-                u = u*scale;
-            else % i==2
-                v = v*scale;
-            end
-            lt{i} = 'p';
-        end
-
-    end
-end
-if lt{3} ~= 'p'
-    w = [];
-end
-type = [lt{:}];
-
 % get_proj_and_pbin(w) T.G.Perring   30 September 2018
 % Extracted from it on 19/07/2022; Caution: ticket #827
 uu = u_rot_mat(:, 1)';
@@ -87,3 +38,82 @@ else
     nonortho = false;
 end
 
+obj.nonorthogonal = nonortho;
+
+if nonortho
+    u = zeros(3,1);
+    v = zeros(3,1);
+    w = zeros(3,1);
+    type = cell(3,1);
+    for i=1:3
+        [type{i},u(i),v(i),w(i)] = reinterpret_u_to_rlu(u_rot_mat(:,i),ulen(i));
+    end
+    type = [type{:}];
+else
+    ulen_inv = 1./ulen(:)';
+    ubinv = u_rot_mat.*repmat(ulen_inv,3,1);
+    ubmat = inv(ubinv); % correctly recovered ubmatrix; ulen matrix extracted
+
+    %ubmat = umat*b_mat;
+    umat = ubmat/b_mat;
+    %
+    u_dir = (b_mat\umat(1,:)')';
+    % unit vector, parallel to u:
+    u = u_dir/norm(u_dir);
+
+    % the length of the v-vector, orthogonal to u (unit vector)
+    % in fact real v-vector is not fully recoverable. We can
+    % recover only its orthogonal part
+    v_tr =  (b_mat\umat(2,:)')';
+    v = v_tr/norm(v_tr);
+    %
+    w=ubinv(:,3)';  % perpendicular to u and v, length 1 Ang^-1, forms rh set with u and v
+
+    uvw=[u(:),v(:),w(:)];
+    uvw_orthonorm=ubinv\uvw;    % u,v,w in the orthonormal (Crystal Cartesian)
+    %   frame defined by u and v
+    ulen_new = diag(uvw_orthonorm);
+    lt = cell(3,1);
+    for i=1:3
+        if ulen(i)==1
+            lt{i} = 'a';
+        elseif abs(ulen(i)-ulen_new(i))<1.e-7
+            lt{i} = 'p';
+        else % either new projection 'p' or 'r'
+            if i==3
+                lt{i} = 'r';
+            else
+                scale = ulen(i)/ulen_new(i);
+                if i==1
+                    u = u*scale;
+                else % i==2
+                    v = v*scale;
+                end
+                lt{i} = 'p';
+            end
+        end
+    end
+    if lt{3} ~= 'p'
+        w = [];
+    end
+    type = [lt{:}];
+end
+
+function  [type,u,v,w] = reinterpret_u_to_rlu(u_rot_vec,ulen)
+Li = norm(u_rot_vec);
+if ulen == 1 && abs(Li-1)< 4*eps('single')
+    type = 'a';
+    u = u_rot_vec(1);
+    v = u_rot_vec(2);
+    w = u_rot_vec(3);
+elseif abs(Li-ulen)< 4*eps('single')
+    type = 'p';
+    u = u_rot_vec(1);
+    v = u_rot_vec(2);
+    w = u_rot_vec(3);
+else
+    type = 'r';
+    u = u_rot_vec(1)/ulen;
+    v = u_rot_vec(2)/ulen;
+    w = u_rot_vec(3)/ulen;
+end

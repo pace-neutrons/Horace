@@ -191,19 +191,17 @@ classdef test_ortho_proj_construction<TestCase
             ax = ortho_axes.get_from_old_data(data);
             proj = ortho_proj.get_from_old_data(data);
 
-            do = data_sqw_dnd(ax,proj);
+            do = DnDBase.dnd(ax,proj);
 
-
-            proj1=do.get_projection();
+            proj1=do.proj;
             opt = ortho_projTester(proj1);
 
-            [rlu_to_ustep, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
+            [~, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
             assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]],...
                 'absolute',1.e-4)
             assertElementsAlmostEqual(data.ulen(1:3),ulen','absolute',1.e-4);
         end
         function test_get_projection_from_other_aligned_data(~)
-            skipTest('Demonstrates issue #846')
             data = struct();
             data.alatt = [3.1580 3.1752 3.1247];
             data.angdeg = [90.0013 89.9985 90.0003];
