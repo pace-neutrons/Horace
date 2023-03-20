@@ -15,6 +15,8 @@ npix = wout.data.npix;
 [npix_chunks, idxs, npix_cumsum] = split_vector_max_sum(npix(:), wout.pix.DEFAULT_PAGE_SIZE);
 pix_bin_starts = npix_cumsum - npix(:) + 1;
 
+wout.pix.data_range = PixelDataBase.EMPTY_RANGE;
+
 for i = 1:numel(npix_chunks)
     npix_chunk = npix_chunks{i};
     pix_start_idx = pix_bin_starts(idxs(1, i));
@@ -40,6 +42,9 @@ for i = 1:numel(npix_chunks)
 
     pix_chunk = pix_chunk.set_fields(sig_var, {'signal', 'variance'});
     pix_chunk = pix_chunk.reset_changed_coord_range({'signal', 'variance'});
+
+    wout.pix.data_range = minmax_ranges(pix_chunk.data_range, ...
+                                        wout.pix.data_range);
 
     wout.pix.format_dump_data(pix_chunk.data, pix_start_idx);
 

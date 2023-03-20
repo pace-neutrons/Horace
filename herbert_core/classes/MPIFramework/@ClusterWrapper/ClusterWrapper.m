@@ -410,7 +410,7 @@ classdef ClusterWrapper
                 end
             else
                 paused = false;
-                running = true;
+                running =true;
                 failedC = false;
                 messC = varargin{1};
                 if ~isempty(messC) && isa(messC,'FailedMessage')
@@ -439,7 +439,7 @@ classdef ClusterWrapper
                 if isempty(mess)
                     if ~(failedC && ~isempty(messC))
                         fm = FailedMessage(...
-                            'Cluster reports job completed but the final completion messages has not been received');
+                            'Cluster reports job completed but the final completeon messages has not been received');
 
                         obj.status  = fm;
                     end

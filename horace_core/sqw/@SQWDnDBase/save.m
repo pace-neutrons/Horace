@@ -100,13 +100,7 @@ for i=1:numel(w)
 
         if sqw_type
             if ~isempty(w(i).file_holder_)
-                if w(i).full_filename ~= file_internal{i}
-                    movefile(w(i).full_filename, file_internal{i});
-                end
-                w(i).file_holder_.file_name = [];
-                w(i).file_holder_ = [];
-                w(i).full_filename = file_internal{i};
-
+                movefile(w(i).full_filename, file_internal{i});
                 continue;
             else
                 ldw = sqw_formats_factory.instance().get_pref_access(w(i));

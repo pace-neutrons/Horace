@@ -34,10 +34,13 @@ classdef pix_data < serializable
                 inputs = varargin{1};
                 if isa(varargin{1},'PixelDataMemory')
                     obj.data = inputs.data;
-                elseif isa(varargin{1},'PixelDataFileBacked') || isa(varargin{1},'pix_combine_info')
+                elseif isa(varargin{1},'PixelDataFileBacked')
                     obj.npix = inputs.num_pixels;
                     obj.data = inputs.full_filename;
                     obj.offset = inputs.offset;
+                elseif isa(varargin{1},'pix_combine_info')
+                    obj.npix = inputs.num_pixels;
+                    obj.data = inputs.full_filename;
                 else
                     remains = inputs;
                 end

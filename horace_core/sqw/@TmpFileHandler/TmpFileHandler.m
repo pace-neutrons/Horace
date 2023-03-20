@@ -41,7 +41,7 @@ classdef TmpFileHandler < handle
         end
 
         function delete(obj)
-            if is_file(obj.file_name)
+            if ~isempty(obj.file_name) && is_file(obj.file_name)
                 delete(obj.file_name);
             end
         end

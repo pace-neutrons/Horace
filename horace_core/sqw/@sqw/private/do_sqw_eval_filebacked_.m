@@ -52,6 +52,8 @@ for i = 1:wout.pix.num_pages
     data(v_ind, :) = 0;
 
     wout.pix.format_dump_data(data);
+    wout.pix.data_range = wout.pix.pix_minmax_ranges(data, ...
+                                                     wout.pix.data_range);
 
     img_signal = increment_signal_sums_(img_signal, sig_chunk, ...
                                         npix_chunk, idx_chunk);

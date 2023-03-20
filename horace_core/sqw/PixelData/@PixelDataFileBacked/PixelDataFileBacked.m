@@ -288,6 +288,27 @@ classdef PixelDataFileBacked < PixelDataBase
             pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
         end
 
+
+        function [obj,unique_idx] = reset_changed_coord_range(obj,field_name)
+            % Recalculate and set appropriate range of pixel coordinates.
+            % The coordinates are defined by the selected field
+            %
+            % Sets up the property page_range defining the range of block
+            % of pixels changed at current iteration.
+
+            %NOTE:  This range calculations are incorrect unless
+            %       performed in a loop over all pix pages where initial
+            %       range is set to empty!
+            %
+            ind = obj.check_pixel_fields(field_name);
+
+            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
+                                                           obj.data_range_(:,ind));
+            if nargout > 1
+                unique_idx = unique(obj.run_idx);
+            end
+        end
+
         function offset = get.offset(obj)
             offset = obj.offset_;
         end
@@ -323,7 +344,7 @@ classdef PixelDataFileBacked < PixelDataBase
             np = max(ceil(obj.num_pixels/obj.DEFAULT_PAGE_SIZE),1);
         end
 
-        function  data = get_raw_data(obj,page_number)
+        function data = get_raw_data(obj, page_number)
             if ~exist('page_number', 'var')
                 page_number = obj.page_num_;
             end
