@@ -192,7 +192,7 @@ else
             'Must give binning arguments for all four dimensions if new projection axes');
     end
 end
-if proj_given 
+if proj_given
     % check if the projection have no lattice defined and define the
     % lattice for cut
     default_proj = ortho_proj;
