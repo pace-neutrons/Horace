@@ -40,8 +40,14 @@ if ~exist('ustep','var')
     ustep=[1,1,1];
 end
 
-[b, ~, ~, mess] = bmatrix(proj.alatt, proj.angdeg);
-if ~isempty(mess); rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return; end
+try
+    b = bmatrix(proj.alatt, proj.angdeg);
+catch
+    rlu_to_ustep=[];
+    u_to_rlu=[];
+    ulen=[];
+    return;
+end
 
 u=proj.u;
 v=proj.v;
@@ -101,4 +107,3 @@ else
     end
 end
 rlu_to_ustep = inv(ustep_to_rlu);   % matrix to convert a vector in r.l.u. to no. steps along u1, u2, u3
-

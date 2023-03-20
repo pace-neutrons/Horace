@@ -1,4 +1,4 @@
-function [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg)
+function [b, arlu, angrlu] = bmatrix(alatt, angdeg)
 % Calculate B matrix of Busing and Levy, returning also the reciprocal
 % lattice vector in Angstrom^-1 and the reciprocal lattice angles in degrees
 %
@@ -31,81 +31,40 @@ function [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg)
 %
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
-if nargout<4
-    throw_error = true;
-else
-    throw_error = false;
-end
 
 
 if max(angdeg)>=180 || min(angdeg)<=0
-    mess = 'some lattice angles bigger than 180deg or less than 0 deg';
-    if throw_error
-        error('BMATRIX:invalid_argument',mess);
-    else
-        b = [];
-        arlu = [];
-        angrlu = [];
-        return
-    end
-elseif min(alatt)<= 0
-    mess = 'Some lattice parameters are less than 0';
-    if throw_error
-        error('BMATRIX:invalid_argument',mess);
-    else
-        b = [];
-        arlu = [];
-        angrlu = [];
-        return
-    end
-    
+    error('HORACE:bmatrix:invalid_argument', ...
+          'some lattice angles bigger than 180 deg or less than 0 deg');
+end
+
+if min(alatt)<= 0
+    error('HORACE:bmatrix:invalid_argument', ...
+          'Some lattice parameters are less than 0');
 end
 
 
-try
-    ang  = deg2rad(angdeg);
-    cosa = cos(ang);
-    sina = abs(sin(ang));
-    
-    a = [    1 , cosa(3),    cosa(2);...
-        cosa(3),      1 ,    cosa(1);...
-        cosa(2), cosa(1),      1    ];
-    
-    q = sqrt(abs(det(a)));
-    
-    as = (2*pi/q)*(sina(1)/alatt(1));
-    bs = (2*pi/q)*(sina(2)/alatt(2));
-    cs = (2*pi/q)*(sina(3)/alatt(3));
-    
-    % reciprocal lattice angles
-    aa = acos( (cosa(2)*cosa(3)-cosa(1))/(sina(2)*sina(3)) );
-    bb = acos( (cosa(3)*cosa(1)-cosa(2))/(sina(3)*sina(1)) );
-    cc = acos( (cosa(1)*cosa(2)-cosa(3))/(sina(1)*sina(2)) );
-    % b-matix as in Acta Cryst. (1967). 22, 457
-    b = [as,   bs*cos(cc)     ,   cs*cos(bb)             ;...
-        0  ,   bs*abs(sin(cc)),  -cs*abs(sin(bb))*cosa(1);...
-        0  ,   0              ,   2*pi/alatt(3)         ];
-    if nargout >= 2
-        arlu = [as, bs, cs];
-    end
-    
-    if nargout >= 3
-        angrlu = rad2deg([aa, bb, cc]);
-    end
-    
-    if nargout >= 4
-        mess = '';
-    end
-    
-    %-----------------------
-catch
-    b = [];
-    arlu = [];
-    angrlu = [];
-    mess = 'Unable to calculate B matrix - check lattice parameters';
-    if throw_error
-        error('HERBERT:bmatrix:invalid_argument',mess);
-    end
+ang  = deg2rad(angdeg);
+cosa = cos(ang);
+sina = abs(sin(ang));
+
+a = [1 ,      cosa(3),    cosa(2);...
+     cosa(3),      1 ,    cosa(1);...
+     cosa(2), cosa(1),      1    ];
+
+q = sqrt(abs(det(a)));
+
+arlu = (2*pi/q)*(sina ./ alatt);
+
+% reciprocal lattice angles
+aa = acos( (cosa(2)*cosa(3)-cosa(1))/(sina(2)*sina(3)) );
+bb = acos( (cosa(3)*cosa(1)-cosa(2))/(sina(3)*sina(1)) );
+cc = acos( (cosa(1)*cosa(2)-cosa(3))/(sina(1)*sina(2)) );
+% b-matix as in Acta Cryst. (1967). 22, 457
+b = [arlu(1), arlu(2)*cos(cc)     ,  arlu(3)*cos(bb)             ;...
+     0      , arlu(2)*abs(sin(cc)), -arlu(3)*abs(sin(bb))*cosa(1);...
+     0      , 0                   , 2*pi/alatt(3)                ];
+
+angrlu = rad2deg([aa, bb, cc]);
+
 end
-
-

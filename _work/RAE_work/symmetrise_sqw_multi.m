@@ -110,11 +110,7 @@ end
 alatt=wout.header{1}.alatt;
 angdeg=wout.header{1}.angdeg;
 
-[b, arlu, angrlu, mess] = bmatrix(alatt, angdeg);
-
-if ~isempty(mess)
-    error('Problem in symmetrisation - sqw object does not have valid alatt and/or angdeg fields');
-end
+[b, arlu, angrlu] = bmatrix(alatt, angdeg);
 
 
 % The first 3 rows of the pix array specify the co-ordinates in Q of each
