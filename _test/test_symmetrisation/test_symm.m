@@ -98,14 +98,10 @@ classdef test_symm < TestCase
             w3d_sqw_sym3 = symmetrise_sqw(w3d_sqw_sym2, [0,0,1], [-1,1,0], [0,0,0]);
             assertEqual(w3d_sqw_sym3.pix.num_pixels, w3d_sqw_sym2.pix.num_pixels);
 
-            w3d_sqw_sym
-            w3d_sqw_sym.pix
-            w3d_sqw_sym.dimensions
-
             cc1 = cut(w3d_sqw_sym,  [0.2,0.025,1], [-0.1,0.1], [0,1.4,99.8]);
             cc2 = cut(w3d_sqw_sym3, [0.2,0.025,1], [-0.1,0.1], [0,1.4,99.8]);
 
-            assertEqualToTol(d2d(cc1), d2d(cc2), 'relative', 1e-6, 'ignore_str', 1);
+            assertEqualToTol(d2d(cc1), d2d(cc2), 'reltol', 1e-6, 'ignore_str', 1);
         end
 
         function obj = test_sym_d2d(obj)

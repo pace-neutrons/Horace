@@ -127,6 +127,7 @@ if wout.pix.is_filebacked
 end
 
 q_idx = wout.pix.check_pixel_fields('q_coordinates');
+wout.pix.data_range = PixelDataBase.EMPTY_RANGE;
 
 for i = 1:wout.pix.num_pages
     [wout.pix, data] = wout.pix.load_page(i);
@@ -144,8 +145,12 @@ for i = 1:wout.pix.num_pages
 
     data(q_idx, mask) = Reflec * coords_new(:, mask) + vec3;
 
+    wout.pix.data_range = wout.pix.pix_minmax_ranges(data, ...
+                                                     wout.pix.data_range);
     if wout.pix.is_filebacked
-        wout.pix.format_dump_data(data)
+        wout.pix.format_dump_data(data);
+    else
+        wout.pix.data = data;
     end
 end
 
