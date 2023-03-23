@@ -65,20 +65,12 @@ end
 
 % Don't use mex with file-backed
 % TODO Make mex available to file-backed
-% Mex disabled see issue #1018
-% Consider refactor of
-% _LowLevelCode/cpp/sort_pixels_by_bins/sort_pixels_by_bins.{h,cpp}
-% to fix MEX for sort_pix by replacing reinterpret_cast & case with
-% function signature dispatch
-
-use_mex = false;
-
-% use_mex = ~pix_retained{1}.is_filebacked && ...
-%           force_mex || ...
-%           (exist('npix', 'var') && ...
-%            ~isempty(npix) && ...
-%            ~nomex && ...
-%            get(hor_config, 'use_mex'));
+use_mex = ~pix_retained{1}.is_filebacked && ...
+          force_mex || ...
+          (exist('npix', 'var') && ...
+           ~isempty(npix) && ...
+           ~nomex && ...
+           get(hor_config, 'use_mex'));
 
 %
 % Do the job -- sort pixels
@@ -123,14 +115,6 @@ if use_mex
 end
 
 if ~use_mex
-    % maintain type of pix
-    pix = pix_retained{1}.cat(pix_retained{:});
-    clear pix_retained;
-    if isempty(pix)  % return early if no pixels
-        pix = PixelDataMemory();
-        return;
-    end
-
     ix = cat(1, pix_ix_retained{:});
 
     clear pix_ix_retained;
@@ -142,6 +126,13 @@ if ~use_mex
     [~,ind] = sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
     clear ix;          % clear big arrays so that final output variable pix is not way up the stack
 
+    % maintain type of pix
+    pix = pix_retained{1}.cat(pix_retained{:});
+    clear pix_retained;
+    if isempty(pix)  % return early if no pixels
+        pix = PixelDataMemory();
+        return;
+    end
 
     if pix.is_filebacked
         mch_sz = get(hor_config, 'mem_chunk_size');

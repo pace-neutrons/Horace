@@ -73,18 +73,16 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 
 pix_ok = [];
 pix_indx = [];
-selected = [];
-
-options = {'-force_double', '-return_selected'};
-% keep unused argi parameter to tell parse_char_options to ignore
-% unknown options
-[ok,mess,force_double,return_selected,argi]=parse_char_options(varargin,options);
-if ~ok
-    error('HORACE:AxesBlockBase:invalid_argument',mess)
-end
-if return_selected && nout ~= 4
-    error('HORACE:AxesBlockBase:invalid_argument', ...
-          'return_selected requested for non pixel cut')
+if nargin>8
+    options = {'-force_double'};
+    % keep unused argi parameter to tell parse_char_options to ignore
+    % unknown options
+    [ok,mess,force_double,argi]=parse_char_options(varargin,options);
+    if ~ok
+        error('HORACE:AxesBlockBase:invalid_argument',mess)
+    end
+else
+    force_double = false;
 end
 
 bin_array_size  = obj.nbins_all_dims; % arrays of this size will be allocated too
@@ -243,8 +241,10 @@ if ndims > 1 % convert to 1D indices
 end
 pix = pix_ok;
 
-if ~isa(pix.data,'double') && force_double
-    pix = PixelDataBase.create(double(pix.data));
+% TODO: this should be moved to get_pixels
+% when PixelData is separated into file accessor and memory accessor
+if ndims > 0 && nout ~= 6
+    pix = sort_pix(pix, pix_indx, npix1, varargin{:});
 end
 
 if nout < 6 && ndims > 0

@@ -104,27 +104,19 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_object_mb_fb(obj)
-            mem_chunk_size = 10000;
-            cleanup_config_handle = set_temporary_config_options(hor_config, 'mem_chunk_size', mem_chunk_size);
-
+            %sqw_obj = read_sqw(obj.sqw_file);
             sqw_obj = obj.sqw_4d;
             ref_par = obj.ref_params;
-
-            sqw_obj.pix = PixelDataFileBacked(sqw_obj.pix);
             sqw_cut_fb = cut(sqw_obj,ref_par{:});
 
             sqw_obj.pix = PixelDataMemory(sqw_obj.pix);
             sqw_cut_mb = cut(sqw_obj,ref_par{:});
 
-            % Pix are in different order due to paged application in FileBacked
-            % Can only compare binned data here
-            assertEqualToTol(sqw_cut_mb.data, sqw_cut_fb.data, ...
-                             obj.FLOAT_TOL, 'ignore_str', true);
+            assertEqualToTol(sqw_cut_mb, sqw_cut_fb, obj.FLOAT_TOL, 'ignore_str', true);
 
         end
 
         function test_cut_sqw_nopix(obj)
-            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
 
             ref_sqw = read_dnd(obj.ref_cut_file);
@@ -156,11 +148,10 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_file_to_file(obj)
-            mem_chunk_size = 4000;
-            cleanup_hor_config = set_temporary_config_options( ...
-                hor_config, ...
-                'mem_chunk_size', mem_chunk_size ...
-                );
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 4000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
 
             outfile = fullfile(obj.working_dir, 'tmp_outfile.sqw');
             ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
@@ -175,8 +166,14 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_file_to_file_combined_mex(obj)
-            clear_fb_cut_buf_settings = set_temporary_config_options(hor_config, 'mem_chunk_size', 2000);
-            hpc_cleanup = set_temporary_config_options(hpc_config, 'combine_sqw_using', 'mex');
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 2000;
+            clear_fb_cut_buf_settings = onCleanup(@() set(hor_config, old_conf));
+            hpc = hpc_config;
+            old_hpc = hpc.get_data_to_store();
+            hpc_cleanup = onCleanup(@() set(hpc, old_hpc ));
+            hpc.combine_sqw_using = 'mex';
 
             ref_obj= copy(obj.sqw_4d); % it has been read in constructor
             %ref_obj.pix.signal = 1:ref_obj.pix.num_pixels;
@@ -202,18 +199,14 @@ classdef test_cut < TestCase & common_state_holder
 
 
         function test_cut_sqw_file_to_sqw_file_combined_nomex(obj)
-
-            mem_chunk_size = 4000;
-            cleanup_hor_config = set_temporary_config_options( ...
-                hor_config, ...
-                'mem_chunk_size', mem_chunk_size, ...
-                'use_mex', false ...
-                );
-
-            cleanup_hpc_config = set_temporary_config_options( ...
-                hpc_config, ...
-                'combine_sqw_using', 'matlab' ...
-                );
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 2000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
+            hpc = hpc_config;
+            old_hpc = hpc.get_data_to_store();
+            hpc_cleanup = onCleanup(@() set(hpc, old_hpc ));
+            hpc.combine_sqw_using = 'matlab';
 
             % test filebased cut
             outfile = fullfile(obj.working_dir, 'nomex_combine_cut_from_file_to_file.sqw');
@@ -232,8 +225,12 @@ classdef test_cut < TestCase & common_state_holder
 
 
         function test_cut_sqw_object_to_file(obj)
-            cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 4000);
-            clWarn = set_temporary_warning('off','HORACE:old_file_format');
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 4000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
+            ws = warning('off','HORACE:old_file_format');
+            clWarn = onCleanup(@()warning(ws));
 
             sqw_obj = read_sqw(obj.sqw_file);
 
@@ -376,7 +373,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_out_of_memory_cut_tmp_files_no_mex(obj)
-            mem_chunk_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
+            mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup_config_handle = set_temporary_config_options( ...
                 hor_config, ...
@@ -549,72 +546,11 @@ classdef test_cut < TestCase & common_state_holder
 
         %------------------------------------------------------------------
 
-        function test_multicut_1(obj)
-        % Test multicut capability for cuts that are adjacent
-        % Note that the last cut has no pixels retained - a good test too!
-
-            range = [0,0.2];    % range of cut
-            step = 0.01;        % Q step
-            bin = [range(1)+step/2,step,range(2)-step/2];
-            width = [-0.15,0.15];  % Width in Ang^-1 of cuts
-            args = {obj.ref_params{1}, bin, width, width};
-
-            % Must use '-pix' to properly handle pixel double counting in general
-            w1 = cut(obj.sqw_4d, args{:}, [106,4,114,4], '-pix');
-            w2 = repmat(sqw,[3,1]);
-
-            for i=1:3
-                tmp = cut(obj.sqw_4d, args{:}, 102+4*i+[-2,2], '-pix');
-                w2(i) = tmp;
-            end
-            assertEqualToTol(w1, w2, obj.FLOAT_TOL,'ignore_str',1)
-
-        end
-
-        function test_multicut_2(obj)
-        % Test multicut capability for cuts that are adjacent
-        % Last couple of cuts have no pixels read or are even outside the range
-        % of the input data
-
-            range = [0,0.2];    % range of cut
-            step = 0.01;        % Q step
-            bin = [range(1)+step/2,step,range(2)-step/2];
-            width = [-0.15,0.15];  % Width in Ang^-1 of cuts
-            args = {obj.ref_params{1}, bin, width, width};
-
-        % Must use '-pix' to properly handle pixel double counting in general
-            w1 = cut(obj.sqw_4d, args{:}, [110,2,118,2], '-pix');
-            w2 = repmat(sqw,[5,1]);
-            for i=1:5
-                w2(i) = cut(obj.sqw_4d, args{:}, 108+2*i+[-1,1], '-pix');
-            end
-            assertEqualToTol(w1, w2, obj.FLOAT_TOL,'ignore_str',1)
-
-        end
-
-        function test_multicut_3(obj)
-        % Test multicut capability for cuts that overlap adjacent cuts
-
-            range = [0,0.2];    % range of cut
-            step = 0.01;        % Q step
-            bin = [range(1)+step/2,step,range(2)-step/2];
-            width = [-0.15,0.15];  % Width in Ang^-1 of cuts
-            args = {obj.ref_params{1}, bin, width, width};
-
-        % Must use '-pix' to properly handle pixel double counting in general
-            w1 = cut(obj.sqw_4d, args{:}, [106,4,114,8], '-pix');
-            w2 = repmat(sqw,[3,1]);
-            for i=1:3
-                w2(i) = cut(obj.sqw_4d, args{:}, 102+4*i+[-4,4], '-pix');
-            end
-            assertEqualToTol(w1, w2, obj.FLOAT_TOL,'ignore_str',1)
-
-        end
-
-        %------------------------------------------------------------------
-
         function test_cut_multiple_sqw_files(obj)
-            cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 8000);
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 8000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
 
             files = {obj.sqw_file,obj.sqw_file};
             [sqw_cut1,sqw_cut2] = cut(files, obj.ref_params{:});
@@ -630,7 +566,6 @@ classdef test_cut < TestCase & common_state_holder
             ex = assertExceptionThrown(@()cut_sqw(obj.dnd_file, obj.ref_params{:}), ...
                 'HORACE:cut:invalid_argument');
         end
-
         function test_cut_fail_no_output_no_file(obj)
 
             assertExceptionThrown(@()cut(obj.dnd_file,obj.ref_params{:}),...

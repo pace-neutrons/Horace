@@ -211,16 +211,8 @@ classdef PixelDataMemory < PixelDataBase
         % -------
         %   obj         A PixelData object containing all the pixels in the inputted
         %               PixelData objects
-
-            if isempty(varargin)
-                obj = PixelDataMemory();
-                return;
-            elseif numel(varargin) == 1
-                if isa(varargin{1}, 'PixelDataFileBacked')
-                    obj = PixelDataMemory(varargin{1});
-                elseif isa(varargin{1}, 'PixelDataMemory')
-                    obj = varargin{1};
-                end
+            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
+                obj = PixelDataMemory(varargin{1});
                 return;
             end
 

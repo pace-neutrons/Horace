@@ -11,7 +11,9 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 %            into coordinate system, related to the image (e.g. hkl system)
 %
 
-if isa(pix_input,'PixelDataBase')
+input_is_obj = isa(pix_input,'PixelDataBase')
+
+if input_is_obj
     if pix_input.is_misaligned
         pix_cc = pix_input.get_raw_data('q_coordinates');
     else
@@ -38,7 +40,6 @@ else
     % if its 3-d -- matrix is 3-dimensional and energy is not shifted
     % anyway
     ndim = size(pix_input, 1);
-    [rot_to_img, shift]=obj.get_pix_img_transformation(ndim);
 
     pix_transf = rot_to_img * (pix_input - shift);
 
@@ -46,7 +47,7 @@ else
 
     % transposed pix_to_image transformation, as the transformation is defined
     % as column vectors and pixel_data here are also column vectors.
-    pix_transf= pix_to_img*(pix_input - offset(:));
+    pix_transf= pix_to_img*(pix_cc - offset(:));
 
 end
 
