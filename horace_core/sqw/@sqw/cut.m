@@ -121,7 +121,7 @@ targ_proj.alatt  = header_av.alatt;
 targ_proj.angdeg = header_av.angdeg;
 % TODO: The method below is for compartibility with current alignment
 % implementation. It should change and disappear when alginment matrix
-% is attached to pixels. In fact, it redefines b-matrix, which is the 
+% is attached to pixels. In fact, it redefines b-matrix, which is the
 % function of lattice and partially U-matix used for alignment)
 % See ticket #885 to fix the alignment.
 if isa(targ_proj,'ortho_proj')
@@ -138,11 +138,12 @@ for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
     [targ_ax_block,targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp,header_av);
 
-    args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile,log_level};
     if return_cut
-        wout{cut_num} = cut_single_(args{:});
+        wout{cut_num} = cut_single_(obj, targ_proj, targ_ax_block, ...
+                                    opt.keep_pix, opt.outfile, log_level);
     else
-        cut_single_(args{:});
+        cut_single_(obj, targ_proj, targ_ax_block, ...
+                    opt.keep_pix, opt.outfile, log_level);
     end
 end
 if return_cut
@@ -165,4 +166,3 @@ if hor_log_level>=1
     bigtoc('Total time in cut_sqw:',hor_log_level)
     disp('--------------------------------------------------------------------------------')
 end
-

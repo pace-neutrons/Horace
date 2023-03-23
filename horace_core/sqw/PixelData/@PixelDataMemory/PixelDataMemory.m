@@ -185,6 +185,10 @@ classdef PixelDataMemory < PixelDataBase
         % -------
         %   obj         A PixelData object containing all the pixels in the inputted
         %               PixelData objects
+            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
+                obj = PixelDataMemory(varargin{1});
+                return;
+            end
 
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
 
