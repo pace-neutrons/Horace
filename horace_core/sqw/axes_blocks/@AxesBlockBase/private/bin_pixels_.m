@@ -75,7 +75,7 @@ if nargin>8
         error('HORACE:AxesBlockBase:invalid_argument',mess)
     end
 else
-    force_double =false;
+    force_double = false;
 end
 
 bin_array_size  = obj.nbins_all_dims; % arrays of this size will be allocated too
@@ -83,7 +83,7 @@ ndims           = obj.dimensions;
 data_range      = obj.img_range;
 
 pax = obj.pax;
-if size(coord,1) ==4
+if size(coord,1) == 4
     r1 = data_range(1,:)';
     r2 = data_range(2,:)';
 else % 3D array binning
@@ -117,7 +117,7 @@ else
     r2 = r2(pax);
     step = (r2-r1)./n_bins';
 
-    coord   = coord(pax,:);
+    coord = coord(pax,:);
 
     bin_step = 1./step;
     pix_indx = floor((coord-r1)'.*bin_step')+1;
@@ -215,22 +215,10 @@ if ndims > 1 % convert to 1D indexes
 end
 pix = pix_ok;
 
-if ndims > 0
-    if nout == 6
-        if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
-            pix = PixelDataBase.create(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
-        end
-    else % sort will make pix double if requested  TODO: this should be moved to get_pixels
-        pix = sort_pix(pix,pix_indx,npix1,varargin{:}); % when PixelData is separated into file accessor and memory accessor
-    end
-elseif ndims == 0
-    if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
-        pix = PixelDataBase.create(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
-    end
-
-    if nout == 6
-        pix_indx = ones(pix.num_pixels,1);
-    end
+% TODO: this should be moved to get_pixels
+% when PixelData is separated into file accessor and memory accessor
+if ndims > 0 && nout ~= 6
+    pix = sort_pix(pix, pix_indx, npix1, varargin{:});
 end
 pix_ok = pix;
 
