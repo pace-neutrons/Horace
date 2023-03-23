@@ -36,9 +36,7 @@ else
     % if pix_input is 4-d, this will use 4-D matrix and shift
     % if its 3-d -- matrix is 3-dimensional and energy is not shifted
     % anyway
-    ndim = size(pix_input, 1);
+    ndim = size(pix_cc,1);
 
     pix_transf = rot_to_img * (pix_input - shift);
-end
-
 end
