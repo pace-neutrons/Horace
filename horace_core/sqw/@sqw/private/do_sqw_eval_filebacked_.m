@@ -38,6 +38,8 @@ img_signal = zeros(1, numel(npix));
 s_ind = wout.pix.check_pixel_fields('signal');
 v_ind = wout.pix.check_pixel_fields('variance');
 
+wout.pix.data_range = PixelDataBase.EMPTY_RANGE;
+
 for i = 1:wout.pix.num_pages
     [wout.pix, data] = wout.pix.load_page(i);
     npix_chunk = npix_chunks{i};
@@ -50,8 +52,11 @@ for i = 1:wout.pix.num_pages
     data(v_ind, :) = 0;
 
     wout.pix.format_dump_data(data);
+    wout.pix.data_range = wout.pix.pix_minmax_ranges(data, ...
+                                                     wout.pix.data_range);
 
-    img_signal = increment_signal_sums_(img_signal, sig_chunk, npix_chunk, idx_chunk);
+    img_signal = increment_signal_sums_(img_signal, sig_chunk, ...
+                                        npix_chunk, idx_chunk);
 end
 
 % We're finished writing pixels

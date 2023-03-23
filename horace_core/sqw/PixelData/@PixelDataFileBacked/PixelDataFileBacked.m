@@ -285,6 +285,25 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
 
+        function [obj,unique_idx] = reset_changed_coord_range(obj,field_name)
+            % Recalculate and set appropriate range of pixel coordinates.
+            % The coordinates are defined by the selected field
+            %
+            % Sets up the property page_range defining the range of block
+            % of pixels changed at current iteration.
+
+            %NOTE:  This range calculations are incorrect unless
+            %       performed in a loop over all pix pages where initial
+            %       range is set to empty!
+            %
+            ind = obj.check_pixel_fields(field_name);
+
+            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
+                                                           obj.data_range_(:,ind));
+            if nargout > 1
+                unique_idx = unique(obj.run_idx);
+            end
+        end
     end
 
     %======================================================================
@@ -529,29 +548,6 @@ classdef PixelDataFileBacked < PixelDataBase
 
             % this operation will probably lead to invalid results.
             obj=obj.reset_changed_coord_range(fld);
-        end
-
-        function [obj,unique_idx] = reset_changed_coord_range(obj,field_name)
-            % Recalculate and set appropriate range of pixel coordinates.
-            % The coordinates are defined by the selected field
-            %
-            % Sets up the property page_range defining the range of block
-            % of pixels changed at current iteration.
-
-            %NOTE:  This range calculations are incorrect unless
-            %       performed in a loop over all pix pages where initial
-            %       range is set to empty!
-            %
-            ind = obj.check_pixel_fields(field_name);
-
-            loc_range = [min(obj.data(ind,:),[],2),...
-                max(obj.data(ind,:),[],2)]';
-
-            range = minmax_ranges(obj.data_range_(:,ind),loc_range);
-            obj.data_range_(:,ind)  = range;
-            if nargout > 1
-                unique_idx = unique(obj.run_idx);
-            end
         end
     end
 

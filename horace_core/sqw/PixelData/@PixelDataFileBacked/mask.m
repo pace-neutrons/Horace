@@ -63,12 +63,17 @@ mask_array = obj.logical_to_normal_index_(mask_array);
 obj.num_pixels_ = numel(mask_array);
 
 mem_chunk_size = obj.DEFAULT_PAGE_SIZE;
+obj.data_range = obj.EMPTY_RANGE;
 
 curr = 1;
 for i = 1:mem_chunk_size:obj.num_pixels
     block_size = min(obj.num_pixels - i + 1, mem_chunk_size);
     data = obj.get_fields('all', mask_array(i:i+block_size));
+
     obj.format_dump_data(data, curr);
+    obj.data_range = obj.pix_minmax_ranges(data, ...
+                                           obj.data_range);
+
     curr = curr + block_size
 end
 
@@ -92,6 +97,7 @@ end
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.DEFAULT_PAGE_SIZE);
 obj_out.num_pixels_ = sum(npix .* mask_array, 'all');
+obj.data_range = obj.EMPTY_RANGE;
 
 curr = 1;
 
@@ -102,7 +108,12 @@ for i = 1:obj.num_pages
 
     mask_array_chunk = repelem(mask_array(idx(1):idx(2)), npix_for_page);
 
-    obj_out.format_dump_data(data(:, mask_array_chunk), curr);
+    data = data(:, mask_array_chunk);
+
+    obj.data_range = obj.pix_minmax_ranges(data, ...
+                                           obj.data_range);
+
+    obj_out.format_dump_data(data, curr);
 
     curr = curr + sum(mask_array_chunk);
 end
