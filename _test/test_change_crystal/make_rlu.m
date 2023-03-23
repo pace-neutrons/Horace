@@ -6,20 +6,19 @@ function rlu = make_rlu (rlu0, lattice0, lattice, rotvec, ang_dev, rad_dev)
 % Input:
 % ------
 %   rlu0        Positions of Bragg peaks as h,k,l in reference lattice
-%              (n x 3 matrix, n=no. reflections)
+%                  (n x 3 matrix, n=no. reflections)
 %   lattice0    Reference lattice parameters [a,b,c,alf,bet,gam] (Angstroms and degrees)
 %   lattice     True lattice parameters [a,b,c,alf,bet,gam] (Angstroms and degrees)
 %   rotvec      Rotation vector that rotates crystal Cartesian frame of
-%              reference lattice to that for true lattice (radians)
+%                  reference lattice to that for true lattice (radians)
 %   ang_dev     Maximum deviation of random components of rotation vector
-%              use to give random transverse errors to output rlu (radians)
-%              Each rlu vector is given diffrerent random error
+%                  use to give random transverse errors to output rlu (radians)
+%                  Each rlu vector is given diffrerent random error
 %   rad_dev     Maximum random fractional error in radial length of output rlu
-%              Each rlu vector is given diffrerent random error
+%                  Each rlu vector is given diffrerent random error
 %
 % Author: T.G.Perring
 
-%[b0,arlu,angrlu] = bmatrix(lattice0(1:3),lattice0(4:6));
 b0 = bmatrix(lattice0(1:3),lattice0(4:6));
 b = bmatrix(lattice(1:3),lattice(4:6));
 
@@ -34,4 +33,7 @@ for iv=1:nv
     vcryst_tmp=vcryst_tmp*(1+rad_dev*2*(rand(1)-0.5));
     vcryst(:,iv)=vcryst_tmp;
 end
-rlu=(b\vcryst)';
+
+rlu= (b \ vcryst)';
+
+end
