@@ -162,10 +162,10 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.data_range    = init.data_range;
                 obj.tmp_pix_obj   = init.tmp_pix_obj;
                 obj.f_accessor_   = memmapfile(obj.full_filename, ...
-                    'Format', obj.get_memmap_format(), ...
-                    'Repeat', 1, ...
-                    'Writable', update, ...
-                    'Offset', obj.offset_ );
+                                               'Format', obj.get_memmap_format(), ...
+                                               'Repeat', 1, ...
+                                               'Writable', update, ...
+                                               'Offset', obj.offset_ );
 
             elseif isa(init, 'PixelDataMemory')
 
@@ -354,7 +354,6 @@ classdef PixelDataFileBacked < PixelDataBase
     %======================================================================
     % File handling/migration
     methods
-
         function obj = get_new_handle(obj, f_accessor)
 
             % Always create a new PixTmpFile object
@@ -370,7 +369,6 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
                 fh = fopen(obj.tmp_pix_obj.file_name, 'wb+');
-
                 if fh<1
                     error('HORACE:PixelDataFileBacked:runtime_error', ...
                           'Can not open data file %s for file-backed pixels',...
@@ -399,10 +397,14 @@ classdef PixelDataFileBacked < PixelDataBase
 
         end
 
-        function obj = finalise(obj)
+        function obj = finalise(obj, final_num_pixels)
             if isempty(obj.file_handle_)
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                       'Cannot finalise writing, object does not have open filehandle')
+            end
+
+            if exist('final_num_pixels', 'var')
+                obj.num_pixels_ = final_num_pixels;
             end
 
             if isa(obj.file_handle_, 'sqw_file_interface')
@@ -452,9 +454,18 @@ classdef PixelDataFileBacked < PixelDataBase
         %   obj         A PixelData object containing all the pixels in the inputted
         %               PixelData objects
 
+            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
+                obj = PixelDataFileBacked(varargin{1});
+                return;
+            end
+
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
-            ldr = varargin{is_ldr};
-            varargin = varargin(~is_ldr);
+            if any(is_ldr)
+                ldr = varargin{is_ldr};
+                varargin = varargin(~is_ldr);
+            else
+                ldr = [];
+            end
 
             obj = PixelDataFileBacked();
 
