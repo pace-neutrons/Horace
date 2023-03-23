@@ -93,7 +93,7 @@ else
         error('HORACE:AxesBlockBase:invalid_argument',...
             'PixelData have to be provided as 7-th argument if cell-average signal and erros are requested');
     end
-    if ~ismember(mode,[1,3,4,5,6,7])
+    if ~ismember(mode,[1,3,4,5,6])
         error('HORACE:AxesBlockBase:invalid_argument',...
             'The procedure accepts 1,3,4,5,6 or 7 output arguments')
     end
