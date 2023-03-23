@@ -1,18 +1,16 @@
-function [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
+function [ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
     instpars_DGfermi(header)
 % Get parameters needed for chopper spectrometer resolution function calculation
 %
-%   >> [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
+%   >> [ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
 %                                                   instpars_DGfermi(header)
-%    
+%
 % Input:
 % ------
 %   header      Header field from sqw object
 %
 % Output: (arrays are column vectors with length equal to the number of contributing runs)
 % -------
-%   ok          Error status: true if OK, false otherwise
-%   mess        Error message: empty if OK, filled otherwise
 %   ei          Incident energies (mev)     [Column vector]
 %   x0          Moderator - chopper distance (m)    [Column vector]
 %   xa          Beam defining aperture - chopper distance (m)       [Column vector]
@@ -61,5 +59,4 @@ for i=1:nrun
     chopper(i).energy=ei(i);                            % Update incident energy to value in header
 end
 
-ok=true;
-mess='';
+end

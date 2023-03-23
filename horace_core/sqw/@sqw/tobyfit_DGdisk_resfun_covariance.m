@@ -44,15 +44,13 @@ function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, 
 
 % Get lookup arrays
 % -----------------
-if exist('indx','var')
-    all_pixels = false;
-    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win, indx);
-else
-    all_pixels = true;
-    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win);
-end
-if ~ok, error(mess), end
 
+all_pixels = ~exist('indx','var');
+if all_pixels
+    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win);
+else
+    [ok,mess,lookup,npix_arr] = tobyfit_DGdisk_resconv_init (win, indx);
+end
 
 % Get variances
 % -------------
@@ -75,18 +73,23 @@ detector_table = lookup.detector_table;
 % Get covariance matricies
 % ------------------------
 for iw = 1:numel(win)
-    if iscell(win), wtmp = win{iw}; else, wtmp = win(iw); end
-    if all_pixels
-        [~,~,irun,idet] = parse_pixel_indicies (wtmp);
+    if iscell(win)
+        wtmp = win{iw};
     else
-        [~,~,irun,idet] = parse_pixel_indicies (wtmp,indx,iw);
+        wtmp = win(iw);
+    end
+
+    if all_pixels
+        [irun,idet] = parse_pixel_indices (wtmp);
+    else
+        [irun,idet] = parse_pixel_indices (wtmp,indx,iw);
     end
     npix = npix_arr(iw);
-    
+
     % Simple pointers to items in lookup
     kf = lookup.kf{iw};
     dt = lookup.dt{iw};
-    
+
     % Compute variances
     cov_sh_ch = 1e-12 * mod_shape_mono_table.func_eval(iw, irun, @covariance);
     var_horiz_div = (horiz_div_table.func_eval(iw, irun, @profile_width)).^2;
@@ -94,7 +97,7 @@ for iw = 1:numel(win)
     cov_sample = sample_table.func_eval(iw, @covariance);
     cov_detector = detector_table.func_eval(iw, @covariance, idet, kf);
     var_tbin = dt.^2 / 12;
-    
+
     % Fill covariance matrix
     cov_x = zeros(11,11,npix);
     cov_x([1,4],[1,4],:) = cov_sh_ch;
@@ -103,14 +106,14 @@ for iw = 1:numel(win)
     cov_x(5:7,5:7,:) = repmat(cov_sample,[1,1,npix]);
     cov_x(8:10,8:10,:) = cov_detector;
     cov_x(11,11,:) = var_tbin;
-    
+
     % Compute wavevector-energy covariance matrix in different dimensions
     dq_mat = lookup.dq_mat{iw};
     spec_to_rlu = lookup.spec_to_rlu{iw};
-    
+
     cov_hkle{iw} = transform_matrix (cov_x, dq_mat);
     cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(wtmp.data.u_to_rlu));
-    
+
     rlu_to_spec = invert_matrix (spec_to_rlu);
     rlu_to_spec4(1:3,1:3,:) = rlu_to_spec(:,:,irun);
     rlu_to_spec4(4,4,:) = 1;

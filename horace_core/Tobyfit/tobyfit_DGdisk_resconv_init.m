@@ -171,14 +171,11 @@ end
 
 % Check pixel indexing is valid
 % -----------------------------
-if exist('indx','var')
-    all_pixels = false;
-    [ok,mess] = parse_pixel_indicies (win,indx);
-    if ~ok, return, end
-else
-    all_pixels = true;
-end
 
+all_pixels = ~exist('indx','var');
+if ~all_pixels
+    parse_pixel_indices(win,indx);
+end
 
 % Create lookup
 % -------------
@@ -220,21 +217,20 @@ for iw=1:nw
     else
         wtmp = win(iw);
     end
-    
+
     % Pixel indicies
     if all_pixels
-        [ok,mess,irun,idet,ien] = parse_pixel_indicies (wtmp);
+        [irun,idet,ien] = parse_pixel_indices(wtmp);
     else
-        [ok,mess,irun,idet,ien] = parse_pixel_indicies (wtmp,indx,iw);
+        [irun,idet,ien] = parse_pixel_indices(wtmp,indx,iw);
     end
-    if ~ok, return, end
     npix(iw) = numel(irun);
-    
+
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
-    irun_max = max(irun);    
+    irun_max = max(irun);
     if irun_max>numel(ne)
         irun = arrayfun(@(x)wtmp.runid_map(x),irun);
     end
@@ -243,20 +239,19 @@ for iw=1:nw
     else
         eps=eps_lo;     % only one bin, so ne=1 eps_lo=eps_hi, and the above line fails
     end
-    
+
     % Get instrument data
-    [ok,mess,ei{iw},x0{iw},xa{iw},x1{iw},mod_shape_mono{iw},...
+    [ei{iw},x0{iw},xa{iw},x1{iw},mod_shape_mono{iw},...
         horiz_div{iw},vert_div{iw}] = instpars_DGdisk(wtmp.experiment_info);
-    if ~ok, return, end
-    
+
     % Compute ki and kf
     ki{iw}=sqrt(ei{iw}/k_to_e);
     kf{iw}=sqrt((ei{iw}(irun)-eps)/k_to_e);
-    
+
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
     [sample(iw),s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
-    
+
     % Get detector information
     % Because detpar only contains minimal information, hardwire in the detector type here
     detpar = wtmp.detpar();   % just get a pointer
@@ -271,21 +266,21 @@ for iw=1:nw
     d_mat{iw} = detectors(iw).dmat;
     f_mat{iw} = spec_to_secondary(detectors(iw));
     detdcn{iw} = det_direction(detectors(iw));
-    
+
     % Time width corresponding to energy bins for each pixel
     dt{iw} = deps_to_dt*(x2{iw}(idet).*deps(irun)./kf{iw}.^3);
-    
+
     % Calculate h,k,l (symmetrised objects will not have true pixel coordinates)
     qw{iw} = cell(1,4);
     qw{iw}(1:3) = calculate_q (ki{iw}(irun), kf{iw}, detdcn{iw}(:,idet), spec_to_rlu{iw}(:,:,irun));
     qw{iw}{4} = eps;
-    
+
     % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
     dq_mat{iw} = dq_matrix_DGdisk (ki{iw}(irun), kf{iw},...
         xa{iw}(irun), x1{iw}(irun), x2{iw}(idet),...
         s_mat{iw}(:,:,irun), f_mat{iw}(:,:,idet), d_mat{iw}(:,:,idet),...
         spec_to_rlu{iw}(:,:,irun), k_to_v, k_to_e);
-    
+
 end
 
 % Package output
