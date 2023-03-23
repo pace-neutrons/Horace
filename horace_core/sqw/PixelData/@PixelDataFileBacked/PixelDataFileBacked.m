@@ -406,6 +406,10 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.num_pixels_ = final_num_pixels;
             end
 
+            if exist('final_num_pixels', 'var')
+                obj.num_pixels_ = final_num_pixels;
+            end
+
             if isa(obj.file_handle_, 'sqw_file_interface')
                 obj.full_filename = obj.file_handle_.full_filename;
                 obj.file_handle_ = obj.file_handle_.put_pix_metadata(obj);
@@ -467,15 +471,8 @@ classdef PixelDataFileBacked < PixelDataBase
         %   obj         A PixelData object containing all the pixels in the inputted
         %               PixelData objects
 
-            if isempty(varargin)
-                obj = PixelDataFileBacked();
-                return;
-            elseif numel(varargin) == 1
-                if isa(varargin{1}, 'PixelDataMemory')
-                    obj = PixelDataFileBacked(varargin{1});
-                elseif isa(varargin{1}, 'PixelDataFileBacked')
-                    obj = varargin{1};
-                end
+            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
+                obj = PixelDataFileBacked(varargin{1});
                 return;
             end
 
