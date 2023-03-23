@@ -10,31 +10,35 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 % pix_out -- [3xNpix] or [4xNpix] array the pixels coordinates transformed
 %            into coordinate system, related to the image (e.g. hkl system)
 %
+
 if isa(pix_input,'PixelDataBase')
-    pix_cc = pix_input.q_coordinates;
-    if obj.offset(4) ~=0
-        shift_ei = true;
-    else
-        shift_ei = false;
+
+    ndim = 3;
+    [rot_to_img,shift]=obj.get_pix_img_transformation(ndim);
+
+    pix_transf = zeros(4, pix_input.num_pixels);
+    shift_ei = obj.offset(4) ~= 0;
+
+    for i = 1:pix_input.num_pages
+        pix_input.page_num = i;
+        [start_idx, end_idx] = pix_input.get_page_idx_();
+        pix_transf(1:3, start_idx:end_idx) = ...
+            rot_to_img * (pix_input.q_coordinates - shift);
+
+        if shift_ei
+            pix_transf(4, start_idx:end_idx) = pix_input.dE - obj.offset(4);
+        else
+            pix_transf(4, start_idx:end_idx) = pix_input.dE;
+        end
     end
-    ndim   = 3;
-    input_is_obj = true;
-else % if pix_input is 4-d, this will use 4-D matrix and shift
+
+else
+    % if pix_input is 4-d, this will use 4-D matrix and shift
     % if its 3-d -- matrix is 3-dimensional and energy is not shifted
     % anyway
-    pix_cc = pix_input;
-    ndim = size(pix_cc,1);
-    input_is_obj = false;
+    ndim = size(pix_input, 1);
+
+    pix_transf = rot_to_img * (pix_input - shift);
 end
 
-[rot_to_img,shift]=obj.get_pix_img_transformation(ndim);
-%
-pix_transf= ((bsxfun(@minus,pix_cc,shift))'*rot_to_img')';
-if input_is_obj
-    if shift_ei
-        ei = pix_input.dE -obj.offset(4);
-    else
-        ei = pix_input.dE;
-    end
-    pix_transf = [pix_transf;ei];
 end
