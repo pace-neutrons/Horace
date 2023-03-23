@@ -78,7 +78,7 @@ classdef PixelDataMemory < PixelDataBase
             end
         end
         pix_out = get_fields(obj, fields, abs_pix_indices);
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);        
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);
 
         pix     = set_raw_data(obj,pix);
         obj     = set_raw_fields(obj, data, fields, abs_pix_indices);
@@ -159,19 +159,23 @@ classdef PixelDataMemory < PixelDataBase
 
     methods(Static)
         function obj = cat(varargin)
-            % Concatenate the given PixelData objects' pixels. This function performs
-            % a straight-forward data concatenation.
-            %
-            %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
-            %
-            % Input:
-            % ------
-            %   varargin    A cell array of PixelData objects
-            %
-            % Output:
-            % -------
-            %   obj         A PixelData object containing all the pixels in the inputted
-            %               PixelData objects
+        % Concatenate the given PixelData objects' pixels. This function performs
+        % a straight-forward data concatenation.
+        %
+        %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
+        %
+        % Input:
+        % ------
+        %   varargin    A cell array of PixelData objects
+        %
+        % Output:
+        % -------
+        %   obj         A PixelData object containing all the pixels in the inputted
+        %               PixelData objects
+            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
+                obj = PixelDataMemory(varargin{1});
+                return;
+            end
 
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
 
@@ -180,12 +184,12 @@ classdef PixelDataMemory < PixelDataBase
                 return
             end
 
-            obj = PixelDataMemory();            
+            obj = PixelDataMemory();
 
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
                 for page = 1:curr_pix.num_pages
-				    curr_pix.page_num = page;
+                                    curr_pix.page_num = page;
                     data = curr_pix.data;
                     obj.data = [obj.data, data];
                 end
@@ -197,7 +201,7 @@ classdef PixelDataMemory < PixelDataBase
     methods(Access=protected)
         function obj = set_alignment_matrix(obj,val)
             % set new alignment matrix and recalculate new pixel ranges
-            % if alignment changes            
+            % if alignment changes
             obj = obj.set_alignment(val,@reset_changed_coord_range);
         end
         function num_pix = get_num_pixels(obj)

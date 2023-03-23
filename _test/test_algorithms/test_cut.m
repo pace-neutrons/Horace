@@ -52,7 +52,6 @@ classdef test_cut < TestCase & common_state_holder
             obj.working_dir = tmp_dir();
             obj.old_ws = warning('off','HORACE:old_file_format');
 
-            %
             if save_reference
                 fprintf('*** Rebuilding and overwriting reference cut file %s\n',...
                     obj.ref_cut_file);
@@ -60,11 +59,8 @@ classdef test_cut < TestCase & common_state_holder
                 save(sqw_cut,obj.ref_cut_file);
             end
         end
-        function delete(obj)
-            warning(obj.old_ws);
-        end
-        %
-        function test_take_a_cut_from_an_sqw_file_single_chunk(obj)
+
+        function test_cut_sqw_file_single_chunk(obj)
             % Really large file V2 on disk to ensure that ranges are
             % calculated using filebased algorithm rather than all data
             % loaded in memory.
@@ -76,16 +72,16 @@ classdef test_cut < TestCase & common_state_holder
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
 
             ref_sqw = read_sqw(obj.ref_cut_file);
-            assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
-                'ignore_str', true,'-ignore_date');
+            assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, ...
+                             'ignore_str', true,'-ignore_date');
         end
 
-        function test_take_a_cut_from_an_sqw_object(obj)
+        function test_cut_sqw_object(obj)
             %sqw_obj = read_sqw(obj.sqw_file);
-            sqw_obj = obj.sqw_4d; % it have just been read in constructor
+            sqw_obj = obj.sqw_4d; % it has already been read in constructor
             ref_par = obj.ref_params;
             sqw_cut = cut(sqw_obj,ref_par{:});
-            %
+
             % offset is currently expressed in hkl
             assertElementsAlmostEqual(sqw_cut.data.offset,obj.ref_params{1}.offset);
 
@@ -102,22 +98,35 @@ classdef test_cut < TestCase & common_state_holder
 
         end
 
-        function test_take_a_cut_with_nopix_argument(obj)
+        function test_cut_sqw_object_mb_fb(obj)
+            %sqw_obj = read_sqw(obj.sqw_file);
+            sqw_obj = obj.sqw_4d;
+            ref_par = obj.ref_params;
+            sqw_cut_fb = cut(sqw_obj,ref_par{:});
+
+            sqw_obj.pix = PixelDataMemory(sqw_obj.pix);
+            sqw_cut_mb = cut(sqw_obj,ref_par{:});
+
+            assertEqualToTol(sqw_cut_mb, sqw_cut_fb, obj.FLOAT_TOL, 'ignore_str', true);
+
+        end
+
+        function test_cut_sqw_nopix(obj)
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
 
             ref_sqw = read_dnd(obj.ref_cut_file);
-            assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
+            assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
         end
 
-        function test_taking_cut_of_array_of_sqw(obj)
+        function test_cut_sqw_array(obj)
             sqw_obj1 = sqw(obj.sqw_file);
             sqw_obj2 = sqw(obj.sqw_file);
 
             out_sqw = cut([sqw_obj1, sqw_obj2], obj.ref_params{:});
-            assertEqualToTol(out_sqw(1),out_sqw(2),'-ignore_date');
+            assertEqualToTol(out_sqw(1), out_sqw(2),'-ignore_date');
         end
 
-        function test_take_a_cut_integrating_over_more_than_1_axis(obj)
+        function test_cut_sqw_integrating_multi_axes(obj)
             proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
 
             u_axis_lims = [-0.1, 0.025, 0.1];
@@ -147,8 +156,8 @@ classdef test_cut < TestCase & common_state_holder
 
             assertEqualToTol(ret_sqw, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
         end
-        %
-        function test_cut_from_an_sqw_file_to_another_sqw_file_combined_mex(obj)
+
+        function test_cut_sqw_file_to_file_combined_mex(obj)
             clear_fb_cut_buf_settings = set_temporary_config_options(hor_config, 'mem_chunk_size', 2000);
             hpc_cleanup = set_temporary_config_options(hpc_config, 'combine_sqw_using', 'mex');
 
@@ -175,7 +184,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
 
-        function test_cut_from_an_sqw_file_to_another_sqw_file_combined_nomex(obj)
+        function test_cut_sqw_file_to_sqw_file_combined_nomex(obj)
             cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 4000);
             hpc_cleanup = set_temporary_config_options(hpc_config, 'combine_sqw_using', 'matlab');
 
@@ -191,12 +200,11 @@ classdef test_cut < TestCase & common_state_holder
             ref_par = obj.ref_params;
             ref_cut = cut(sqw_obj,ref_par{:});
 
-
             assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
         end
 
 
-        function test_cut_from_an_sqw_object_to_an_sqw_file(obj)
+        function test_cut_sqw_object_to_file(obj)
             cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 4000);
             clWarn = set_temporary_warning('off','HORACE:old_file_format');
 
@@ -215,7 +223,7 @@ classdef test_cut < TestCase & common_state_holder
 
         end
 
-        function test_you_can_take_a_cut_from_a_dnd_object(obj)
+        function test_cut_dnd(obj)
             dnd_obj = read_dnd(obj.sqw_file);
 
             u_axis_lims = [-0.1, 0.024, 0.1];
@@ -235,7 +243,7 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(size(res.s), expected_img_size);
         end
 
-        function test_you_can_take_multiple_cuts_over_integration_axis(obj)
+        function test_multiple_cuts_integration_axis(obj)
             proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
 
             u_axis_lims = [-0.1, 0.025, 0.1];
@@ -268,7 +276,7 @@ classdef test_cut < TestCase & common_state_holder
             end
         end
 
-        function test_you_can_take_multiple_cuts_over_int_axis_with_nopix(obj)
+        function test_multiple_cuts_int_axis_nopix(obj)
             proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
 
             u_axis_lims = [-0.1, 0.025, 0.1];
@@ -298,7 +306,7 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(res(3).e, zeros(9, 9));
         end
 
-        function test_cut_errors_before_cut_taken_if_outfile_cannot_be_created(obj)
+        function test_cut_fail_outfile_not_created(obj)
             % If the outfile cannot be created, we want to know before we carry out
             % the potentially expensive cut.
             % We check that the error  is raised early by checking the error's ID,
@@ -309,12 +317,12 @@ classdef test_cut < TestCase & common_state_holder
             assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
         end
 
-        function test_error_raised_if_cut_called_with_multiple_files(obj)
+        function test_cut_fail_multiple_files(obj)
             f = @() cut({obj.sqw_file, obj.sqw_file}, obj.ref_params{:});
             assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
         end
 
-        function test_you_can_take_an_out_of_memory_cut_with_tmp_files_with_mex(obj)
+        function test_out_of_memory_cut_tmp_files_mex(obj)
             skipTest('Ticket #896: mex cutting is disabled for the time being')
             mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
@@ -339,7 +347,7 @@ classdef test_cut < TestCase & common_state_holder
             skipTest('SAMPLE COMPARISON and instrument comparison are disabled as some routes ignore empty samples/instruments')
         end
 
-        function test_you_can_take_an_out_of_memory_cut_with_tmp_files_no_mex(obj)
+        function test_out_of_memory_cut_tmp_files_no_mex(obj)
             mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             hc = hor_config;
@@ -368,12 +376,12 @@ classdef test_cut < TestCase & common_state_holder
             clear cleanup_config_handle;
         end
 
-        function test_calling_cut_with_no_outfile_and_no_nargout_throws_error(obj)
+        function test_cut_fail_no_outfile_no_nargout(obj)
             f = @() cut(obj.sqw_file, obj.ref_params{:});
             assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
         end
 
-        function test_you_can_take_a_cut_with_nopix_arg_and_output_to_file(obj)
+        function test_cut_nopix_to_file(obj)
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cut(obj.sqw_file, obj.ref_params{:}, outfile, '-nopix')
             cleanup = onCleanup(@() clean_up_file(outfile));
@@ -408,12 +416,15 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(cut1,indata{1});
             assertEqual(cut2,indata{2});
         end
+
         function test_cut_dnd_wrapper(obj)
             indata = dnd_multicut_tester();
             cut1 = cut_dnd(indata, obj.ref_params{:});
             assertEqual(cut1,indata);
         end
+
         %-------------------------------------------------------------------
+
         function test_cut_hor_multiple_obj_same_type_cell(obj)
             indata = {sqw_multicut_tester(),sqw_multicut_tester()};
             cuts = cut_horace(indata,'-cell', obj.ref_params{:});
@@ -428,23 +439,28 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(cuts(1),indata{1});
             assertEqual(cuts(2),indata{2});
         end
+
         function test_cut_hor_multiple_obj(obj)
             indata = {sqw_multicut_tester(),sqw_multicut_tester()};
             [cut1,cut2] = cut_horace(indata, obj.ref_params{:});
             assertEqual(cut1,indata{1});
             assertEqual(cut2,indata{2});
         end
+
         function test_cut_hor_wrapper_dnd(obj)
             indata = dnd_multicut_tester();
             cut1 = cut_horace(indata, obj.ref_params{:});
             assertEqual(cut1,indata);
         end
+
         function test_cut_horace_wrapper_sqw(obj)
             indata = sqw_multicut_tester();
             cut1 = cut_horace(indata, obj.ref_params{:});
             assertEqual(cut1,indata);
         end
+
         %-------------------------------------------------------------------
+
         function test_cut_sqw_multiple_obj_same_type_cell(obj)
             indata = {sqw_multicut_tester(),sqw_multicut_tester()};
             cuts = cut_sqw(indata,'-cell', obj.ref_params{:});
@@ -466,12 +482,15 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(cut1,indata{1});
             assertEqual(cut2,indata{2});
         end
+
         function test_cut_sqw_wrapper(obj)
             indata = sqw_multicut_tester();
             cut1 = cut_sqw(indata, obj.ref_params{:});
             assertEqual(cut1,indata);
         end
+
         %-------------------------------------------------------------------
+
         function test_fake_cut_multiple_obj_same_type_cell(obj)
             indata = {sqw_multicut_tester(),sqw_multicut_tester()};
             cuts = cut(indata,'-cell', obj.ref_params{:});
@@ -493,6 +512,7 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(cuts{1},indata{1});
             assertEqual(cuts{2},indata{2});
         end
+
         function test_fake_cut_multiple_obj(obj)
             indata = {sqw_multicut_tester(),dnd_multicut_tester()};
             [cut1,cut2] = cut(indata, obj.ref_params{:});
@@ -501,25 +521,24 @@ classdef test_cut < TestCase & common_state_holder
         end
         %------------------------------------------------------------------
 
-        function test_take_a_cut_from_multiple_sqw_files(obj)
+        function test_cut_multiple_sqw_files(obj)
             cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 8000);
 
             files = {obj.sqw_file,obj.sqw_file};
             [sqw_cut1,sqw_cut2] = cut(files, obj.ref_params{:});
             assertEqualToTol(sqw_cut1,sqw_cut2,'-ignore_date');
         end
-        %
 
-        function test_take_cut_dnd_from_sqw_file_throws(obj)
+        function test_cut_fail_dnd_sqw_file(obj)
             ex = assertExceptionThrown(@()cut_dnd(obj.sqw_file, obj.ref_params{:}), ...
                 'HORACE:cut:invalid_argument');
         end
 
-        function test_take_cut_sqw_from_dnd_file_throws(obj)
+        function test_cut_fail_sqw_dnd_file(obj)
             ex = assertExceptionThrown(@()cut_sqw(obj.dnd_file, obj.ref_params{:}), ...
                 'HORACE:cut:invalid_argument');
         end
-        function test_cut_no_output_no_file_throw(obj)
+        function test_cut_fail_no_output_no_file(obj)
 
             assertExceptionThrown(@()cut(obj.dnd_file,obj.ref_params{:}),...
                 'HORACE:cut:invalid_argument');
@@ -538,7 +557,6 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(files{2},'file_name2.sqw')
             assertEqual(obj.ref_params,argi);
         end
-
 
         function test_cut_2inputs_2files_as_params(obj)
             inputs = [obj.ref_params(:);{'file_name1.sqw';'file_name2.sqw'}]';
@@ -576,6 +594,7 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(files{1},'some_file_name.sqw')
             assertEqual(obj.ref_params,argi);
         end
+
         function test_too_many_inputs_ignored(obj)
             [nin,nout,is_file,files,params]= ...
                 dnd_multicut_tester.cut_inputs_tester(4,3,obj.ref_params{:});
@@ -585,18 +604,19 @@ classdef test_cut < TestCase & common_state_holder
             assertTrue(isempty(files));
             assertEqual(obj.ref_params,params);
         end
-        function test_not_enough_outs_throw(obj)
+
+        function test_cut_fail_not_enough_outs(obj)
             err = assertExceptionThrown(@()(dnd_multicut_tester.cut_inputs_tester(2,3,obj.ref_params{:})),...
                 'HORACE:cut:invalid_argument');
             assertEqual(err.message,'Number of input cut sources (2) is smaller than the number of requested outputs (3)');
         end
-        function test_not_enough_files_throw(obj)
+        function test_cut_fail_not_enough_files(obj)
             inputs = [obj.ref_params(:);{'file_name1.sqw';'file_name2.sqw'}]';
             err = assertExceptionThrown(@()(dnd_multicut_tester.cut_inputs_tester(3,0,inputs{:})),...
                 'HORACE:cut:invalid_argument');
             assertTrue(strncmp(err.message,'Multiple cuts',12));
         end
-        function test_zero_nargout_input_without_file_throw(obj)
+        function test_cut_fail_no_nargout_no_file(obj)
             assertExceptionThrown(@()(dnd_multicut_tester.cut_inputs_tester(1,0,obj.ref_params{:})),...
                 'HORACE:cut:invalid_argument');
         end

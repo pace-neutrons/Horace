@@ -112,8 +112,8 @@ end
 
 return_cut = nargout > 0;
 
-% verify if source projection is ortho_projection as 
-% it may contain legacy alignment, we do not want transfer to other 
+% verify if source projection is ortho_projection as
+% it may contain legacy alignment, we do not want transfer to other
 % projections. (TODO: need to be converted into recent alignment)
 source_is_ortho_proj = isa(obj.data.proj,'ortho_proj');
 %
@@ -121,9 +121,9 @@ source_is_ortho_proj = isa(obj.data.proj,'ortho_proj');
 % projection inputs defines pixels-to-image transformation.
 [targ_proj, pbin, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
     obj.data,return_cut, varargin{:});
-	
+
 % nasty legacy alignment business. TODO: deal with it
-target_is_ortho_proj = isa(targ_proj,'ortho_proj');	
+target_is_ortho_proj = isa(targ_proj,'ortho_proj');
 
 % if we are realigning old format file, legacy alignment matrix should be
 % ignored
@@ -132,8 +132,8 @@ if source_is_ortho_proj && target_is_ortho_proj && targ_proj.ignore_legacy_align
 end
 
 % old file format alignment. Only ortho_proj is supported
-if  source_is_ortho_proj && ~isempty(obj.data.proj.ub_inv_legacy) 
-    if target_is_ortho_proj % transfer legacy alignment matrix to 
+if  source_is_ortho_proj && ~isempty(obj.data.proj.ub_inv_legacy)
+    if target_is_ortho_proj % transfer legacy alignment matrix to
         % new projection to keep legacy alignment
         targ_proj = targ_proj.set_ub_inv_compat(obj.data.proj.ub_inv_legacy);
     else
@@ -154,11 +154,12 @@ for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
     [targ_ax_block,targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp);
 
-    args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile,log_level};
     if return_cut
-        wout{cut_num} = cut_single_(args{:});
+        wout{cut_num} = cut_single_(obj, targ_proj, targ_ax_block, ...
+                                    opt.keep_pix, opt.outfile, log_level);
     else
-        cut_single_(args{:});
+        cut_single_(obj, targ_proj, targ_ax_block, ...
+                    opt.keep_pix, opt.outfile, log_level);
     end
 end
 if return_cut
@@ -181,4 +182,3 @@ if hor_log_level>=1
     bigtoc('Total time in cut_sqw:',hor_log_level)
     disp('--------------------------------------------------------------------------------')
 end
-

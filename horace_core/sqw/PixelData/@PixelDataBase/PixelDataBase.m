@@ -341,6 +341,11 @@ classdef (Abstract) PixelDataBase < serializable
             %               PixelData objects
 
             % Take the dataclass of the first object.
+            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
+                obj = varargin{1};
+                return;
+            end
+
             obj = varargin{1}.cat(varargin{:});
         end
 
