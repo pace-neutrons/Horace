@@ -37,6 +37,7 @@ else
     % if its 3-d -- matrix is 3-dimensional and energy is not shifted
     % anyway
     ndim = size(pix_input, 1);
+    [rot_to_img,shift]=obj.get_pix_img_transformation(ndim);
 
     pix_transf = rot_to_img * (pix_input - shift);
 end
