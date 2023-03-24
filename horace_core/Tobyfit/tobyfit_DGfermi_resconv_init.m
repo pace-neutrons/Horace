@@ -170,12 +170,10 @@ end
 
 % Check pixel indexing is valid
 % -----------------------------
-if exist('indx','var')
-    all_pixels = false;
-    [ok,mess] = parse_pixel_indicies (win,indx);
-    if ~ok, return, end
-else
-    all_pixels = true;
+
+all_pixels = ~exist('indx','var');
+if ~all_pixels
+    parse_pixel_indices (win,indx);
 end
 
 
@@ -223,16 +221,16 @@ for iw=1:nw
 
     % Pixel indicies
     if all_pixels
-        [ok,mess,irun,idet,ien] = parse_pixel_indicies (wtmp);
+        [irun,idet,ien] = parse_pixel_indices(wtmp);
     else
-        [ok,mess,irun,idet,ien] = parse_pixel_indicies (wtmp,indx,iw);
+        [irun,idet,ien] = parse_pixel_indices(wtmp,indx,iw);
     end
-    if ~ok, return, end
     npix(iw) = numel(irun);
 
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
+
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
 
     if ne>1
@@ -242,9 +240,8 @@ for iw=1:nw
     end
 
     % Get instrument information
-    [ok,mess,ei{iw},x0{iw},xa{iw},x1{iw},thetam{iw},angvel{iw},...
+    [ei{iw},x0{iw},xa{iw},x1{iw},thetam{iw},angvel{iw},...
         moderator{iw},aperture{iw},chopper{iw}] = instpars_DGfermi(wtmp.experiment_info);
-    if ~ok, return, end
 
     % Compute ki and kf
     ki{iw}=sqrt(ei{iw}/k_to_e);

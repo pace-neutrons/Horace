@@ -4,7 +4,10 @@ function obj = binary_op_sigvar_(obj, operand, binary_op, flip, npix)
 
 validate_inputs(obj, operand, npix);
 
-obj = obj.get_new_handle();
+if isempty(obj.file_handle_)
+    obj = obj.get_new_handle();
+end
+
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 

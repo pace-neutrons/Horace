@@ -761,7 +761,7 @@ classdef ClusterWrapper
                     else
                         failed = false;
                         running = false;
-                        mess = 'Java process sucsessfulluy completed';
+                        mess = 'Java process successfully completed';
                     end
                 else
                     failed = true;

@@ -42,14 +42,10 @@ classdef test_sqw_dnd_eval < TestCase
             %converge
 
             sig = ds.data.s;
-            pix = ds.pix;
+            pix_sig = ds.pix.get_fields('signal', 'all');
 
-            assertEqual(pix.signal(2), numel(sig)+1);
-            assertEqual(pix.num_pixels + numel(sig), pix.signal(1));
-
-            assertEqual(sig(2),2);
-            assertElementsAlmostEqual(sig(1),403.0462,'absolute',0.0001);
-
+            assertEqual(sig, 5.*ones(size(sig)));
+            assertEqual(pix_sig, 5.*ones(size(pix_sig)));
         end
 
         function test_dispersion_sqw(obj)
@@ -64,7 +60,6 @@ classdef test_sqw_dnd_eval < TestCase
             assertEqual(sig(2),1);
             assertEqual(sig(1),size(obj.sqw_4_test.data.s,1));
 
-
         end
 
         function test_fit_sqw_sqw(obj)
@@ -78,13 +73,10 @@ classdef test_sqw_dnd_eval < TestCase
             ds = kk.simulate();
 
             sig = ds.data.s;
-            pix = ds.pix;
+            pix_sig = ds.pix.get_fields('signal', 'all');
 
-            assertEqual(pix.signal(2),2);
-            assertEqual(2*pix.num_pixels, pix.signal(1));
-
-            assertEqual(sig(2),2);
-            assertElementsAlmostEqual(sig(1),386.0924,'absolute',0.0001);
+            assertEqual(sig, 6.*ones(size(sig)));
+            assertEqual(pix_sig, 6.*ones(size(pix_sig)));
 
         end
 
@@ -94,17 +86,15 @@ classdef test_sqw_dnd_eval < TestCase
             kk = kk.set_fun (@obj.sqw_eval_tester);
             kk = kk.set_pin(1);
             kk = kk.set_bfun (@obj.funceval_tester2D);
-            kk = kk.set_bpin (1);
+            kk = kk.set_bpin(1);
 
             ds = kk.simulate();
 
             sig = ds.data.s;
-            pix = ds.pix;
-            assertEqual(pix.signal(2),numel(sig)+1);
-            assertEqual(pix.num_pixels + numel(sig), pix.signal(1));
+            pix_sig = ds.pix.get_fields('signal', 'all');
 
-            assertEqual(sig(2),2);
-            assertElementsAlmostEqual(sig(1),403.0462,'absolute',0.0001);
+            assertEqual(sig, 5.*ones(size(sig)));
+            assertEqual(pix_sig, 5.*ones(size(pix_sig)));
 
         end
 
@@ -118,8 +108,7 @@ classdef test_sqw_dnd_eval < TestCase
             my_fitted_data = kk.simulate();
 
             sig = my_fitted_data.data.s;
-            assertEqual(sig(2),2);
-            assertEqual(sig(1),2*numel(sig));
+            assertEqual(sig, 4.*ones(size(sig)));
 
         end
 
@@ -127,12 +116,10 @@ classdef test_sqw_dnd_eval < TestCase
             ds = func_eval(obj.sqw_4_test, @obj.funceval_tester2D, [], '-all');
 
             sig = ds.data.s;
-            assertEqual(sig(2),1);
-            assertEqual(sig(1),numel(sig));
+            pix_sig = ds.pix.get_fields('signal', 'all');
 
-            pix = ds.pix;
-            assertEqual(pix.signal(2),numel(sig));
-            assertEqual(pix.signal(1),numel(sig));
+            assertEqual(sig, 2.*ones(size(sig)));
+            assertEqual(pix_sig, 2.*ones(size(pix_sig)));
 
         end
 
@@ -140,34 +127,33 @@ classdef test_sqw_dnd_eval < TestCase
             ds = func_eval(obj.dnd_4_test, @obj.funceval_tester2D, []);
 
             sig = ds.s;
-            assertEqual(sig(2),1);
-            assertEqual(sig(1),numel(sig));
+            assertEqual(sig, 2.*ones(size(sig)));
         end
 
         function test_sqw_eval_aver(obj)
-            ds = sqw_eval(obj.sqw_4_test,@test_sqw_dnd_eval.sqw_eval_tester,[],'-average');
+            ds = sqw_eval(obj.sqw_4_test,@obj.sqw_eval_tester,[],'-average');
 
             sig = ds.data.s;
-            assertEqual(sig(1),numel(sig));
+            assertEqual(sig, 3.*ones(size(sig)));
+
             pix = ds.pix;
             assertEqual(pix.signal(2),sig(1));
             assertEqual(sig(1),pix.signal(1));
         end
 
         function test_sqw_eval(obj)
-            ds = sqw_eval(obj.sqw_4_test,@test_sqw_dnd_eval.sqw_eval_tester,[]);
+            ds = sqw_eval(obj.sqw_4_test,@obj.sqw_eval_tester,[]);
 
-            pix = ds.pix;
-            assertEqual(pix.signal(2),1);
-            assertEqual(pix.num_pixels, pix.signal(1));
+            sig = ds.pix.get_fields('signal', 'all');
+
+            assertEqual(sig, 3.*ones(size(sig)));
         end
 
         function test_sqw_eval_dnd(obj)
-            ds = sqw_eval(obj.dnd_4_test,@test_sqw_dnd_eval.sqw_eval_tester,[]);
+            ds = sqw_eval(obj.dnd_4_test,@obj.sqw_eval_tester,[]);
 
             sig = ds.s;
-            assertEqual(sig(2),1);
-            assertEqual(sig(1),numel(sig));
+            assertEqual(sig, 3.*ones(size(sig)));
 
         end
     end
@@ -180,8 +166,7 @@ classdef test_sqw_dnd_eval < TestCase
             elseif sz(2) ~=1
                 error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
             end
-            dis = ones(sz);
-            dis(1) = numel(h);
+            dis = 3.*ones(sz);
         end
 
         function dis = sqw_eval_tester(h,k,l,en,~)
@@ -191,8 +176,7 @@ classdef test_sqw_dnd_eval < TestCase
             elseif sz(2) ~=1
                 error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
             end
-            dis = ones(sz);
-            dis(1) = numel(h);
+            dis = 3.*ones(sz);
         end
 
         function dis = funceval_tester2D(x,en,~)
@@ -202,8 +186,7 @@ classdef test_sqw_dnd_eval < TestCase
             elseif sz(2) ~=1
                 error('FUNC_EVAL:runtime_error','incorrect shape of input arrays');
             end
-            dis = ones(sz);
-            dis(1) = numel(x);
+            dis = 2.*ones(sz);
         end
     end
 end

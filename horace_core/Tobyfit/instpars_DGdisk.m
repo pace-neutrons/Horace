@@ -1,4 +1,4 @@
-function [ok,mess,ei,x0,xa,x1,mod_shape_mono,horiz_div,vert_div] =...
+function [ei,x0,xa,x1,mod_shape_mono,horiz_div,vert_div] =...
     instpars_DGdisk(header)
 % Get parameters needed for chopper spectrometer resolution function calculation
 %
@@ -47,5 +47,4 @@ for i=1:nrun
     vert_div(i)=inst{i}.vert_div;
 end
 
-ok=true;
-mess='';
+end

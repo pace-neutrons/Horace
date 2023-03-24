@@ -20,7 +20,9 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
 % The double array must have length equal to the number of pixels.
 %
 
-obj = obj.get_new_handle();
+if isempty(obj.file_handle_)
+    obj = obj.get_new_handle();
+end
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 
@@ -61,10 +63,10 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
 % The operation is performed whilst looping over the pages in the PixelData
 % object.
 %
-% Re  #928 fix this
-%fid = obj.get_new_handle();
 
-obj = obj.get_new_handle();
+if isempty(obj.file_handle_)
+    obj = obj.get_new_handle();
+end
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 

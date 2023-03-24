@@ -8,27 +8,33 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
     %
     properties(Dependent)
-        npixels     % common with loaders interface to pix.num_pixels property
+        % common with loaders interface to pix.num_pixels property
         % describing number of pixels (neutron events) stored
         % in sqw object
+        npixels;
 
-        runid_map   % the map which connects header number
+        % the map which connects header number
         % with run_id stored in pixels, e.g. map contains
         % connection runid_pixel->header_number
+        runid_map;
 
-        main_header % Generic information about contributed files
+        % Generic information about contributed files
         % and the sqw file creation date.
-        detpar
+        main_header;
 
-        experiment_info
-        %
-        data; % The information about the N-D neutron image, containing
+        detpar;
+
+        experiment_info;
+
+        % The information about the N-D neutron image, containing
         % combined and bin-averaged information about the
         % neutron experiment.
+        data;
 
-        pix % access to pixel information, if any such information is
+        % access to pixel information, if any such information is
         % stored within an object. May also return pix_combine_info or
         % filebased pixels. (TODO -- this should be modified)
+        pix;
 
         % The date of the sqw object file creation. As the date is defined both
         % in sqw and dnd object parts, this property synchronize both
@@ -37,20 +43,30 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
     properties(Hidden,Dependent)
         % obsolete property, duplicating detpar. Do not use
-        detpar_x
+        detpar_x;
+
         % compatibility field, providing old interface for new
         % experiment_info class. Returns array of IX_experiment
         % from Experiment class. Conversion to old header is not performed
         header;
+
         % the name of the file, used to store sqw first time
-        full_filename
+        full_filename;
     end
 
     properties(Access=protected)
         % holder for image data, e.g. appropriate dnd object
         data_;
+
         % holder for pix data
-        pix_ = PixelDataBase.create()      % Object containing data for each pixe
+        % Object containing data for each pixe
+        pix_ = PixelDataBase.create();
+    end
+
+    properties(Hidden)
+        % Holder for temporary file to clear
+        % it on object deletion
+        file_holder_;
     end
 
     properties(Access=protected)
@@ -58,6 +74,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
+
     methods(Static)
         function form_fields = head_form(sqw_only,keep_data_arrays)
             % the method returns list of fields, which need to be filled by
@@ -65,16 +82,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %
             %
             form_fields = {'nfiles','npixels','data_range','creation_date'};
-            if nargin == 0
-                sqw_only = false;
-                keep_data_arrays = false;
-            end
-            if nargin == 1
-                keep_data_arrays = false;
+            sqw_only = exist('sqw_only', 'var') && sqw_only;
+            keep_data_arrays = exist('keep_data_arrays', 'var') && keep_data_arrays;
+
+            if sqw_only
+                return
             end
 
-            if sqw_only;  return;    end
-            %
             [dnd_fields,data_fields] = DnDBase.head_form(false);
             if keep_data_arrays
                 form_fields   = [dnd_fields(1:end-1)';form_fields(:);data_fields(:)];
@@ -111,7 +125,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         varargout = multifit (varargin);
 
         %------------------------------------------------------------------
-        [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
+        [ok,mess,varargout] = parse_pixel_indices (win,indx,iw);
 
         wout=combine_sqw(w1,w2);
         function wout= rebin(win,varargin)
@@ -162,11 +176,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %
             [val,n] = obj.data.data_bin_limits();
         end
-		
+
         % smooth sqw object or array of sqw
-		% objects containing no pixels
-        wout = smooth(win, varargin)  
-        %                             
+                % objects containing no pixels
+        wout = smooth(win, varargin)
+        %
         function wout = cut_dnd(obj,varargin)
             % legacy entrance to cut for dnd objects
             wout = cut(obj.data,varargin{:});
@@ -396,6 +410,31 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
     end
 
+    methods(Access=private)
+        function [obj, ldr] = get_new_handle(obj, outfile)
+            if ~obj.pix.is_filebacked
+                return;
+            end
+
+            if ~exist('outfile', 'var') || isempty(outfile)
+                if isempty(obj.full_filename)
+                    obj.full_filename = 'in_mem';
+                end
+                obj.file_holder_ = TmpFileHandler(obj.full_filename);
+                outfile = obj.file_holder_.file_name;
+            end
+
+            % Write the given SQW object to the given file.
+            % The pixels of the SQW object will be derived from the image signal array
+            % and npix array, saving in chunks so they do not need to be held in memory.
+            ldr = sqw_formats_factory.instance().get_pref_access(obj);
+            ldr = ldr.init(obj, outfile);
+            ldr.put_sqw('-nopix');
+            obj.pix = obj.pix.get_new_handle(ldr);
+
+        end
+    end
+
     %======================================================================
     % REDUNDANT and compatibility ACCESSORS
     methods
@@ -436,6 +475,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             hdr = rmfield(hdr,{'instrument','sample'});
         end
     end
+
     %======================================================================
     % TOBYFIT INTERFACE
     methods
@@ -548,6 +588,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             [set_single,set_per_obj,n_runs_in_obj]=find_set_mode_(obj,varargin{:});
         end
     end
+
     %======================================================================
     % SERIALIZABLE INTERFACE
     properties(Constant,Access=protected)
@@ -575,7 +616,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             str = saveobj@serializable(obj);
         end
     end
-    %
+
     methods(Access = protected)
         function obj = from_old_struct(obj,S)
             % restore object from the old structure, which describes the
