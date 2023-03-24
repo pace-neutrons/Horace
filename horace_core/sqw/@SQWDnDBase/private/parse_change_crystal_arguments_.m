@@ -38,10 +38,9 @@ elseif narg>=1 && narg<=4
     else
         angdeg=angdeg0;
     end
-    [b0,~,~,mess] = bmatrix(alatt0,angdeg0);
-    if ~isempty(mess); error('HORACE:change_crystal:invalid_argument',mess); end
-    [b,~,~,mess] = bmatrix(alatt,angdeg);
-    if ~isempty(mess); error('HORACE:change_crystal:invalid_argument',mess); end
+
+    b0 = bmatrix(alatt0,angdeg0);
+    b = bmatrix(alatt,angdeg);
 
     if narg<=2
         rlu_corr=b\b0;
