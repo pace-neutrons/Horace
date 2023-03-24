@@ -72,7 +72,7 @@ classdef (Abstract) SQWDnDBase < serializable
     methods (Static,Hidden) % should be protected but Matlab have some
         % issues with calling this from children
         %
-        function [proj, pbin, opt] = process_and_validate_cut_inputs(data,...
+        function [proj, pbin, sym, opt] = process_and_validate_cut_inputs(data,...
                 return_cut, varargin)
             % interface to private cut parameters parser/validator
             % checking and parsing cut inputs in any acceptable form.
@@ -83,7 +83,7 @@ classdef (Abstract) SQWDnDBase < serializable
             % TODO: do we want an option to express cut ranges in the source
             %       coordinate system?
             ndims = data.dimensions;
-            [proj, pbin, opt]= cut_parse_inputs_(data,ndims, return_cut, varargin{:});
+            [proj, pbin, sym, opt]= cut_parse_inputs_(data, ndims, return_cut, varargin{:});
         end
         %
         function [alatt,angdeg,cor_mat]=parse_change_crystal_arguments(alatt0,angdeg0,exper_info,varargin)

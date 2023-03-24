@@ -224,30 +224,21 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
             end
 
             % Transform proj
-            b = bmatrix(proj.alatt, proj.angdeg);
-
             for i=numel(obj):-1:1
-                proj = obj(i).transform_proj_single(b, proj);
+                proj = obj(i).transform_proj_single(proj);
             end
-
         end
     end
 
     methods (Access=private)
-        function [proj, sgn] = transform_proj_single (obj, Minv, proj)
+        function [proj, sgn] = transform_proj_single (obj, proj)
         % Note this function uses matrix Minv which transforms from rlu to
         % orthonormal components
 
-            R = obj.calculate_transform(Minv);
-
-            sgn = round(det(R));    % will be +1 for rotation, -1 for reflection
-
-            proj.offset(1:3) = Minv \ R * Minv * (proj.offset(1:3)'-obj.offset_) + obj.offset_;
-
-            u_new = (Minv \ R * Minv * proj.u(:));
-            v_new = (Minv \ R * Minv * proj.v(:));
+            u_new = obj.transform_vec(proj.u(:));
+            v_new = obj.transform_vec(proj.v(:));
             if ~isempty(proj.w)
-                w_new = (Minv \ R * Minv * proj.w(:));
+                w_new = obj.transform_vec(proj.w(:));
                 proj = proj.set_axes(u_new, v_new, w_new);
             else
                 proj = proj.set_axes(u_new, v_new);

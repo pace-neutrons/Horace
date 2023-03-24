@@ -454,7 +454,7 @@ classdef AxesBlockBase < serializable
                 source_axes,source_proj, data,proj);
         end
         %
-        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,coord_transf,varargin)
+        function [npix,s,e,pix_ok,unique_runid,pix_indx,ok] = bin_pixels(obj,coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
             %
@@ -500,6 +500,7 @@ classdef AxesBlockBase < serializable
             %                 it gets on input, into double. if not, output
             %                 pixels will keep their initial type
             % -nomex and -force_mex options can not be used together.
+            % '-return_ok' -- For DnD only cuts returns `ok` in `pix_ok`
             %
             % Returns:
             % npix    -- the array, containing the numbers of pixels
@@ -523,6 +524,9 @@ classdef AxesBlockBase < serializable
             %            is requested, pixels_ok are not sorted according
             %            to bins, but every element of pix_ok array
             %            corresponds to the appropriate pix_indx.
+            % ok     -- numerical array of indices of selected pixels after
+            %            binning
+            %
             % Note:
             % unique_runid argument needed to get pixels sorted according
             % to bins. If it is not requested, pix_ok are returned unsorted.
@@ -538,7 +542,7 @@ classdef AxesBlockBase < serializable
                 obj.normalize_bin_input(coord_transf,mode,varargin{:});
             %
             % bin pixels
-            [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels_(obj,coord_transf,mode,...
+            [npix,s,e,pix_ok,unique_runid,pix_indx,ok] = bin_pixels_(obj,coord_transf,mode,...
                 npix,s,e,pix_cand,unique_runid,argi{:});
         end
         %

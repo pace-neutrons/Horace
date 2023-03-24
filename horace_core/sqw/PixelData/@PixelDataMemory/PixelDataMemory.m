@@ -171,6 +171,36 @@ classdef PixelDataMemory < PixelDataBase
         end
     end
 
+    methods
+        function obj = tag(obj, selected)
+        % Function to tag pixels to avoid e.g. duplicating pixels on
+        % cut Returned pixels has negative sign on detector index When
+        % operation is complete should discard pixels or use `untag`
+        % function
+            if ~exist('selected', 'var')
+                selected = [1:obj.num_pixels];
+            end
+
+            obj = obj.set_raw_fields(...
+                -obj.detector_idx(selected), ...
+                'detector_idx', selected);
+        end
+
+        function obj = untag(obj, selected)
+        % Function to untag pixels when operation finished. Should
+        % generally be called without `selected` specified to untag
+        % all pixels
+            if ~exist('selected', 'var')
+                selected = [1:obj.num_pixels];
+            end
+
+            obj.set_raw_fields(...
+                abs(obj.detector_idx(selected)), ...
+                'detector_idx', selected)
+        end
+
+    end
+
     methods(Static)
         function obj = cat(varargin)
         % Concatenate the given PixelData objects' pixels. This function performs
