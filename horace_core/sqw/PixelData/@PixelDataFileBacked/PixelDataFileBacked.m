@@ -427,8 +427,12 @@ classdef PixelDataFileBacked < PixelDataBase
 
             else
                 fclose(obj.file_handle_);
-                obj.file_handle_ = [];
+                if obj.num_pixels_ == 0
+                    obj = PixelDataMemory();
+                    return;
+                end
 
+                obj.file_handle_ = [];
                 obj.f_accessor_ = [];
                 obj.offset_ = 0;
                 obj.full_filename = obj.tmp_pix_obj.file_name;
@@ -437,6 +441,7 @@ classdef PixelDataFileBacked < PixelDataBase
                                              'Repeat', 1, ...
                                              'Writable', true, ...
                                              'offset', obj.offset_);
+
             end
         end
 

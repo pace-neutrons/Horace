@@ -1,7 +1,7 @@
-function [argout,mess] = horace_function_call_method (nargout_caller, func, input_type, varargin)
+function argout = horace_function_call_method (nargout_caller, func, input_type, varargin)
 % Generic function to call sqw or dnd class methods
 %
-%   >> [argout,mess] = horace_function_call_method (nargout_caller, func, input_type, data_source, arg1, arg2, ...)
+%   >> argout = horace_function_call_method (nargout_caller, func, input_type, data_source, arg1, arg2, ...)
 %
 % Input:
 % ------
@@ -33,9 +33,6 @@ function [argout,mess] = horace_function_call_method (nargout_caller, func, inpu
 %                       If no arguments, then a cell array with a single
 %                      empty cell array
 %
-%   mess            Error message; empty if all OK, otherwise contains a message 
-%                   and argout is set to empty cell array.
-%
 %  The convention is that if the source of data to the calling function (as indicated by
 % the field source_arg_is_struct in w) is an object of the class or is one or more
 % filenames, then the output arguments, if any, are filled.
@@ -43,17 +40,15 @@ function [argout,mess] = horace_function_call_method (nargout_caller, func, inpu
 % to be unpacked by the function that called the function that calls this one.
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
 % Check input_type option
 % -----------------------
 [ok,opt_sqw,opt_dnd,opt_hor]=is_horace_data_file_opt(input_type);
 if ~ok
-    error('Invalid value for ''input_type''')
+    error('HORACE:horace_function_call_method:invalid_argument', ...
+          'Invalid value for ''input_type''')
 end
-    
+
 % Parse input
 % -----------
 argout={};
@@ -62,21 +57,23 @@ if numel(varargin)>=1
     [hor_obj,sqw_obj,dnd_obj]=is_horace_data_object(varargin{1});
     if isa(varargin{1},'SQWDnDBase')
         % Horace object passed as first argument: this is assumed to be the data source
-        if opt_hor || (opt_sqw && isa(varargin{1},'sqw')) || (opt_dnd && isa(varargin{1},'DnDBase'))
-            [w, args, mess] = horace_function_parse_input (nargout_caller,varargin{:});
-        else
-            if opt_sqw
-                mess='Invalid data type: expected sqw object(s)';
-            else
-                mess='Invalid data type: expected d0d,d1d,d2d,d3d,or d4d object(s)';
-            end
+        if opt_sqw && isa(varargin{1},'DnDBase')
+            error('HORACE:horace_function_call_method:invalid_argument', ...
+                  'Invalid data type: expected sqw object(s)');
         end
+
+        if opt_dnd && isa(varargin{1},'sqw')
+            error('HORACE:horace_function_call_method:invalid_argument', ...
+                  'Invalid data type: expected d0d,d1d,d2d,d3d,or d4d object(s)');
+        end
+
+        [w, args] = horace_function_parse_input (nargout_caller,varargin{:});
     else
         % If first argument is not a Horace object, then only other valid input is filename(s)
-        [w, args, mess] = horace_function_parse_input (nargout_caller,input_type,varargin{:});
+
+        [w, args] = horace_function_parse_input (nargout_caller,input_type,varargin{:});
     end
-    if ~isempty(mess), return, end
-    
+
 else
     % No input arguments; prompt for file name
     if opt_sqw
@@ -86,36 +83,26 @@ else
     elseif opt_hor
         [filename,mess]=getfile_horace('*.sqw;*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
     end
-    if ~isempty(mess), return, end
-    [w, args, mess] = horace_function_parse_input (nargout_caller,input_type,filename);
-    if ~isempty(mess), return, end
-    
+    if ~isempty(mess)
+        error('HORACE:horace_function_call_method:invalid_argument', mess)
+    end
+
+    [w, args] = horace_function_parse_input (nargout_caller,input_type,filename);
+
 end
 
 if all(w.sqw_type)
-    dummy_obj=sqw;
+    dummy_obj=sqw();
 else
     ndims=w.ndims(1);
-    if ndims==0
-        dummy_obj=d0d;
-    elseif ndims==1
-        dummy_obj=d1d;
-    elseif ndims==2
-        dummy_obj=d2d;
-    elseif ndims==3
-        dummy_obj=d3d;
-    elseif ndims==4
-        dummy_obj=d4d;
-    end
+    DnDBase.dnd(ndims);
 end
 
 % Perform operations
 % ------------------
 % Channel the call to a method of the correct class
-argout=func(dummy_obj,w,args{:});
+argout = func(dummy_obj,w,args{:});
 
 % Package output arguments
 % ------------------------
-[argout,mess]=horace_function_pack_output(w,argout{:});
-if ~isempty(mess), error(mess), end
-
+argout = horace_function_pack_output(w,argout{:});

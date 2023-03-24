@@ -134,35 +134,33 @@ hor_log_level = get(hor_config,'log_level');
 
 % Parse input arguments
 % ---------------------
-return_cut = (nargout>0);
-return_comp = (nargout>1);
+return_cut = nargout > 0;
+return_comp = nargout > 1;
 
-[proj, pbin, opt,args] = ...
-    process_and_validate_cut_inputs(data_source, return_cut, varargin{:});
+is_symop = cellfun(@(x) isa(x, 'symop') || ...
+                   iscell(x) && any(cellfun(@(y) isa(y, 'symop'), x)), ...
+                   varargin);
+sym = varargin{is_symop};
+varargin = varargin(~is_symop);
+
+[proj, pbin, opt] = ...
+    SQWDnDBase.process_and_validate_cut_inputs(data_source.data, return_cut, varargin{2:end-1});
 
 % Checks on symmetry description - check valid, and remove empty descriptions
-if numel(args)==1
-    [ok, mess, sym] = cut_sqw_check_sym_arg (args{1});
-    if ~ok, error(mess), end
-else
-    error ('HORACE:cut_sqw_sym:invalid_arguments', ...
-        'Check the number and type of input arguments')
-end
-
+sym = cut_sqw_check_sym_arg(sym);
 
 % Read the header information (or if data source is an object, unpack the major fields)
 % -------------------------------------------------------------------------------------
-[ok, mess, main_header, header, detpar, data, npixtot, pix_position] = ...
-    cut_sqw_read_data (data_source, hor_log_level);
-if ~ok
-    error ('CUT_SQW:invalid_arguments', mess)
-end
+[main_header, header, detpar, data, npixtot, pix_position] = ...
+    cut_sqw_read_data(data_source, hor_log_level);
+
 % Get some 'average' quantities for use in calculating transformations and bin boundaries
 % -----------------------------------------------------------------------------------------
 % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
 % This could be generalised later - but with repercussions in many routines
 header_ave=header_average(header);
-
+targ_proj.alatt  = header_ave.alatt;
+targ_proj.angdeg = header_ave.angdeg;
 
 % Update projection by current projection, and reorder binning descriptors
 % ------------------------------------------------------------------------
@@ -171,89 +169,61 @@ header_ave=header_average(header);
 % display axes to the input projection axes. Multiple integration axes are
 % determined and the corresponding elements of pbin are turned into two
 % dimensional arrays.
-[proj, pbin, ndims, pin, en] = proj.update_pbins(header_ave, data,pbin);
-%[ok, mess, proj, pbin, ndims, pin, en] = cut_sqw_check_pbins (header_ave, data, proj, pbin);
 
+if isa(targ_proj,'ortho_proj')
+    targ_proj = targ_proj.set_ub_inv_compat(header_ave.u_to_rlu(1:3,1:3));
+end
 
 % Perform cuts
 % ------------
-sz = cellfun(@(x)max(size(x,1),1),pbin);    % size of array of cuts (note: numel(wsize)==4)
+% size of array of cuts (note: numel(wsize)==4)
+sz = cellfun(@(x)max(size(x,1),1),pbin);
 sz_squeeze = [sz(sz>1),ones(1,max(2-sum(sz>1),0))];
+
+wout = [];
+wsym = [];
+
 if return_cut
+
     if opt.keep_pix
-        wout = sqw;
+        wout = sqw();
     else
-        wout = eval(sprintf('d%dd',ndims)); % construct a d0d, d1d, d2d, d3d, d4d, ...
+        wout = DnDBase.dnd(ndims);
     end
+
     if prod(sz_squeeze)>1
         wout = repmat(wout, sz_squeeze); % an array
     end
 end
+
 if return_comp
     wsym = {wout};
     if prod(sz_squeeze)>1
         wsym = repmat(wsym, sz_squeeze); % a cell array
     end
 end
-for i=1:prod(sz)
-    [i1,i2,i3,i4] = ind2sub(sz,i);
-    pbin_tmp = {pbin{1}(i1,:),pbin{2}(i2,:),pbin{3}(i3,:),pbin{4}(i4,:)};
-    if return_cut
-        if return_comp
-            [wout(i),wsym{i}] = cut_sqw_sym_main_single (data_source,...
-                main_header, header, detpar, data, npixtot, pix_position,...
-                proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
-        else
-            wout(i) = cut_sqw_sym_main_single (data_source,...
-                main_header, header, detpar, data, npixtot, pix_position,...
-                proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
-        end
+
+for i=1:numel(pbin)
+    pbin_tmp = pbin{i};
+    if return_cut && return_comp
+        [wout(i),wsym{i}] = ...
+            cut_sqw_sym_main_single(data_source,...
+                                    main_header, header, detpar, data, npixtot, pix_position,...
+                                    proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
+    elseif return_cut
+        wout(i) = ...
+            cut_sqw_sym_main_single(data_source,...
+                                    main_header, header, detpar, data, npixtot, pix_position,...
+                                    proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
     else
-        cut_sqw_sym_main_single (data_source,...
-            main_header, header, detpar, data, npixtot, pix_position,...
-            proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
+        cut_sqw_sym_main_single(data_source,...
+                                main_header, header, detpar, data, npixtot, pix_position,...
+                                proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
     end
 end
-if prod(sz)==1 && return_comp
+
+if isscalar(wsym) && return_comp
     wsym = wsym{1}; % convert back from a 1x1 cell array
 end
 
-function [ok, mess, sym_out] = cut_sqw_check_sym_arg (sym)
-% Checks on symmetry description - check valid, and remove empty descriptions
-%
-%   >> [ok, mess, sym_out] = cut_sqw_check_sym_arg (sym)
-%
-% Input:
-% ------
-%   sym     Symmetry description, or cell array of symmetry descriptions.
-%           A symmetry description can be:
-%           - Scalar symop object
-%           - Array of symop objects (multiple symops to be performed in sequence)
-%           - Empty argument (which will be removed)
-%
-% Output:
-% -------
-%   ok      True if all OK, false otherwise
-%   mess    Error message if not OK; empty string '' otherwise
-%   sym_out Cell array of symmetry descriptions, each one a scalar or row vector
-%           of symop objects. Empty symmetry descriptions or identity descriptions
-%           are removed from the cell array.
-
-
-ok = true;
-mess = '';
-
-if ~iscell(sym), sym = {sym}; end   % make a cell array for convenience
-keep = true(size(sym));
-for i=1:numel(sym)
-    sym{i} = sym{i}(:)';    % make row vector
-    if isempty(sym{i}) || (isa(sym{i},'symop') && all(is_identity(sym{i})))
-        keep(i) = false;
-    elseif ~isa(sym{i},'symop')
-        ok = false;
-        mess = 'Symmetry descriptor must be an symop object or array of symop objects, or a cell of those';
-        sym_out = symop();
-        return
-    end
 end
-sym_out = sym(keep);

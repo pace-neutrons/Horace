@@ -12,7 +12,6 @@ function varargout = cut_sqw_sym(varargin)
 % Original author: T.G.Perring
 %
 
+varargout = horace_function_call_method (nargout, @cut_sym, '$sqw', varargin{:});
 
-[varargout,mess] = horace_function_call_method (nargout, @cut_sym, '$sqw', varargin{:});
-if ~isempty(mess), error(mess), end
-
+end

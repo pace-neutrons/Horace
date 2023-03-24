@@ -13,7 +13,7 @@ function [nin,nout,fn_present,filenames,argi]= parse_cut_inputs_(nin,nout,vararg
 %              provided as one of the function methods
 % fn_present-- logical indicating that filenames are present among cut
 %              inputs
-% filenames -- number of files to save cuts into 
+% filenames -- number of files to save cuts into
 % argi      -- other cut arguments stripped from the filenames
 
 % unlike convention, nargout needs '-' here because files for cut are
@@ -78,4 +78,4 @@ if nout>1
 end
 
 function is = isfilename_(x)
-is = (ischar(x)||isstring(x))&&~strncmp(x,'-',1);
+is = istext(x) && ~strncmp(x,'-',1);
