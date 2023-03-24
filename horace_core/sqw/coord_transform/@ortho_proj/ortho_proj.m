@@ -82,9 +82,13 @@ classdef ortho_proj<aProjectionBase
     properties(Dependent,Hidden) %TODO: all this should go with new sqw design
         % renamed offset projection property
         uoffset
+        % LEGACY PROPERTY: (used for saving data in old file format)
         % Return the compatibility structure, which may be used as additional input to
         % data_sqw_dnd constructor
         compat_struct;
+        % return set of vectors, which define primary lattice cell if
+        % coordinate transformation is non-orthogonal
+        unit_cell;
     end
     properties(Hidden)
         % Developers option. Use old (v3 and below) subalgorithm in
@@ -192,6 +196,9 @@ classdef ortho_proj<aProjectionBase
                 obj = check_combo_arg_(obj);
             end
         end
+        function cell = get.unit_cell(obj)
+            cell = get_unit_cell_(obj);
+        end
         %
         function no=get.nonorthogonal(obj)
             no = obj.nonorthogonal_;
@@ -286,15 +293,20 @@ classdef ortho_proj<aProjectionBase
             %
             pix_cc = transform_img_to_pix_(obj,pix_hkl);
         end
+
         %
         function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
             % return the axes block, corresponding to this projection class.
             ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
             [~,~, ulen] = obj.uv_to_rot([1,1,1]);
             ax_bl.ulen  = ulen;
-            % TODO:  this should go. The projection will keep this property
-            % for itself unless it is specific axes block?
-            ax_bl.nonorthogonal = obj.nonorthogonal;
+            %
+            ax_bl.do_check_combo_arg = false;
+            if obj.nonorthogonal
+                ax_bl.nonorthogonal = true;
+                ax_bl.unit_cell = obj.unit_cell;
+            end
+            ax_bl.do_check_combo_arg = true;
 
         end
         %
@@ -377,7 +389,7 @@ classdef ortho_proj<aProjectionBase
             end
             [rlu_to_ustep, u_rot, ulen] = projaxes_to_rlu_(proj,ustep);
         end
-        
+
         %------------------------------------------------------------------
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...

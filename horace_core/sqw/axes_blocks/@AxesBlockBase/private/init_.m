@@ -54,13 +54,13 @@ elseif nargi>= 4 % Either binning parameters (first 4) or default serializable
         argi  = varargin;
     end
     if numel(argi)>0
-        names = obj.saveableFields();
+        names = obj.saveableFields('all');
         [obj,remains] = obj.set_positional_and_key_val_arguments(...
             names,false,argi{:});
         if ~isempty(remains)
             out = cellfun(@disp2str,remains,'UniformOutput',false);
             error('HORACE:AxesBlockBase:invalid_argument',...
-                'Unknown input parameters and/or values %s',strjoin(out,'; '))
+                'Unknown input parameters and/or values:\n %s',strjoin(out,'; '))
         end
     end
 elseif nargi<4 && nargi>1

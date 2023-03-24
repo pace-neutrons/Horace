@@ -194,7 +194,7 @@ classdef spher_axes < AxesBlockBase
             ver = 1;
         end
         %
-        function flds = saveableFields(obj)
+        function flds = saveableFields(obj,varargin)
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = saveableFields@AxesBlockBase(obj);

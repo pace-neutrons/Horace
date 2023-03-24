@@ -27,6 +27,19 @@ classdef test_ortho_proj_methods<TestCase
             this.fake_sqw_par{2} = this.par_file;
         end
         %------------------------------------------------------------------
+        function test_get_axes_block_nonortho(~)
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+            pra = ortho_proj([1,1,0],[0, 1,0],'w',[1,1,1],'alatt',alatt,'angdeg',angdeg);
+            pra.nonorthogonal = true;
+
+            binning = {[-1,1],[-2,0.2,2],[0,1],[0,0.1,10]};
+            ax = pra.get_proj_axes_block(binning,binning);
+
+            assertTrue(ax.nonorthogonal)
+            assertEqual(ax.unit_cell,[1,1,0,0;0,1,0,0;1,1,1,0;0,0,0,1]');
+        end
+        %------------------------------------------------------------------
         function test_rotation_and_shift_4D(~)
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
@@ -195,8 +208,8 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(bl_size,bl_sizeO);
 
             assertEqual(numel(bl_start),7);
-            % both use halo 
-            
+            % both use halo
+
             assertEqual(bl_startO,[9,18,27,36,48,61,74]);
             assertEqual(bl_sizeO, [3, 5, 7, 9, 8, 6, 4]);
         end
@@ -287,7 +300,7 @@ classdef test_ortho_proj_methods<TestCase
             [bl_start,bl_size] = proj1.get_nrange(npix,ab0,ab1,proj2);
             assertEqual(numel(bl_start),numel(bl_size));
 
-            % hell it knows if this is correct or not. Looks plausible 
+            % hell it knows if this is correct or not. Looks plausible
             % if you carefully analyse the image
             assertEqual(numel(bl_start),7);
             assertEqual(bl_start,[45,56,67,78,89,100,111]);
