@@ -24,7 +24,7 @@ function [u,v,w,type,nonortho]=uv_from_rlu_mat_(obj,u_rot_mat,ulen)
 
 b_mat = bmatrix(obj.alatt,obj.angdeg); % converts hkl to Crystal Cartesian
 % get_proj_and_pbin(w) T.G.Perring   30 September 2018
-% Extracted from it on 19/07/2022; Caution: ticket #827
+% Extracted from it on 19/07/2022;
 uu = u_rot_mat(:, 1)';
 vv = u_rot_mat(:, 2)';
 ww = u_rot_mat(:, 3)';
@@ -32,23 +32,26 @@ ux = b_mat * uu';
 vx = b_mat * vv';
 nx = cross(ux, vx);  nx = nx/norm(nx);
 wx = b_mat * ww'  ;  wx = wx/norm(wx);
-if abs(cross(nx, wx)) > 1e-10
+if norm(cross(nx, wx)) > 1e-8
     nonortho = true;
 else
     nonortho = false;
 end
 
-obj.nonorthogonal = nonortho;
-
 if nonortho
-    u = zeros(3,1);
-    v = zeros(3,1);
-    w = zeros(3,1);
+    uvw = [uu',vv',ww'];
     type = cell(3,1);
     for i=1:3
-        [type{i},u(i),v(i),w(i)] = reinterpret_u_to_rlu(u_rot_mat(:,i),ulen(i));
+        type{i} = find_type(u_rot_mat(i,:),ulen(i));
+        if type{i} ~= 'a'
+            uvw(:,i) =  uvw(:,i)/ulen(i);
+        end
     end
     type = [type{:}];
+    u = uvw(:,1);
+    v = uvw(:,2);
+    w = uvw(:,3);
+    
 else
     ulen_inv = 1./ulen(:)';
     ubinv = u_rot_mat.*repmat(ulen_inv,3,1);
@@ -99,21 +102,13 @@ else
     type = [lt{:}];
 end
 
-function  [type,u,v,w] = reinterpret_u_to_rlu(u_rot_vec,ulen)
+function  [type] = find_type(u_rot_vec,ulen)
 Li = norm(u_rot_vec);
-if ulen == 1 && abs(Li-1)< 4*eps('single')
-    type = 'a';
-    u = u_rot_vec(1);
-    v = u_rot_vec(2);
-    w = u_rot_vec(3);
-elseif abs(Li-ulen)< 4*eps('single')
+if abs(Li-ulen)< 4*eps('single')
     type = 'p';
-    u = u_rot_vec(1);
-    v = u_rot_vec(2);
-    w = u_rot_vec(3);
+elseif ulen == 1 
+    type = 'a';
+    % check?
 else
     type = 'r';
-    u = u_rot_vec(1)/ulen;
-    v = u_rot_vec(2)/ulen;
-    w = u_rot_vec(3)/ulen;
 end
