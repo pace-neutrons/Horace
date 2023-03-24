@@ -120,6 +120,7 @@ if ~use_mex
     clear pix_ix_retained;
 
     if issorted(ix)
+        pix = pix_retained{1};
         return;
     end
 
