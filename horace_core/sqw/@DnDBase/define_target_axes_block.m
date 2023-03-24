@@ -33,8 +33,7 @@ end
 [targ_proj, source_binning] = cellfun(@(x)x.transform_proj(targ_proj, source_binning), ...
                                       sym, 'UniformOutput', false);
 targ_ax_block = cellfun(@(proj, sb) proj.get_proj_axes_block(sb, pbin), targ_proj, source_binning);
-targ_ax_block = targ_ax_block(:);
-targ_proj = vertcat(targ_proj{:});
+targ_proj = horzcat(targ_proj{:});
 for i = 1:numel(targ_ax_block)
     targ_ax_block(i).filename = obj.full_filename;
 end

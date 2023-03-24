@@ -8,11 +8,11 @@ obj.do_check_combo_arg_ = false;
 obj.u_ = u(:)';
 obj.v_ = v(:)';
 
-if exist('w','var') && ~isempty(w)
+if exist('w','var')
     obj.w_ = w(:)';
 end
 
-if exist('offset','var') && ~isempty(offset)
+if exist('offset','var')
     obj.offset_ = offset(:)';
 end
 

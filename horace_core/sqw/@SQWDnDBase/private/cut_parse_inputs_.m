@@ -57,23 +57,18 @@ function [proj, pbin, sym, opt] = ...
 %                                cut integrates the axis over 105-107, the
 %                                second over 109-111 and the third 113-115.
 %
-%   sym          Symmetry operator (or an array of symmetry operators
+%   sym             Symmetry operator (or an array of symmetry operators
 %                  to be applied in the order sym(1), sym(2),...)
 %                  by which a symmetry related cut is to be accumulated.
-%                   Must be a subclass of Symop.
+%                   Must have class symop.
 %
-%                For several symmetry related cuts, provide a cell array
+%                   For several symmetry related cuts, provide a cell array
 %                  of symmetry operators and/or arrays of symmetry operators
 %           EXAMPLES
-%                   s1 = SymopReflection([1,0,0],[0,1,0],[1,1,1]);
-%                   s2 = SymopReflection([1,0,0],[0,0,1],[1,1,1]);
+%                   s1 = symop ([1,0,0],[0,1,0],[1,1,1]);
+%                   s2 = symop ([1,0,0],[0,0,1],[1,1,1]);
 %                   % For all four symmetry related cuts:
 %                   sym = {s1,s2,[s1,s2]};
-%                    The following cuts will be accumulated:
-%                       -- Apply identity (original binning)
-%                       -- Apply s1
-%                       -- Apply s2
-%                       -- Apply s2*s1
 %
 %NOTE:
 % The cut bin ranges are expressed in the coordinate system related to
@@ -111,7 +106,7 @@ function [proj, pbin, sym, opt] = ...
 %                               given by 'width'
 %                               If width=0, it is taken to be equal to pstep.
 %
-%  sym              Symop, or array/cell array thereof
+%  sym              symop, or array/cell array thereof
 %
 % Output:          Returns the aruments in standard form
 % -------
@@ -201,7 +196,7 @@ if numel(par) < npbin_expected
 elseif numel(par) > npbin_expected
     error('HORACE:cut:invalid_argument',...
           'Unrecognised additional input(s): "%s" were provided to cut',...
-          disp2str(par(npbin_expected+1:end)));
+          par(npbin_expected+1:end));
 end
 
 pbin = par(1:npbin_expected);
@@ -405,25 +400,18 @@ function sym_out = check_sym_arg(sym)
 % ------
 %   sym     Symmetry description, or cell array of symmetry descriptions.
 %           A symmetry description can be:
-%           - Scalar Symop object
-%           - Array of Symop objects (multiple Symops to be performed in sequence)
+%           - Scalar symop object
+%           - Array of symop objects (multiple symops to be performed in sequence)
 %           - Empty argument (which will be removed)
 %
 % Output:
 % -------
-%
-%   sym_out Cell array of symmetry descriptions from input sym, each one a
-%             scalar or row vector of Symop objects.
-%
-%           Always adds one SymopIdentity.
-%
-%           Empty symmetry descriptions or identity descriptions
-%             are removed from the cell array.
+%   sym_out Cell array of symmetry descriptions, each one a scalar or row vector
+%           of symop objects. Empty symmetry descriptions or identity descriptions
+%           are removed from the cell array.
 
 if ~iscell(sym)   % make a cell array for convenience
     sym = {sym};
-else
-    sym = sym(:);
 end
 
 keep = true(size(sym));

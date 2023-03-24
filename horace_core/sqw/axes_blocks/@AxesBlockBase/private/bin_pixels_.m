@@ -39,7 +39,7 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 %              -- if provided, the routine changes type of pixels
 %                 it gets on input, into double. if not, output
 %                 pixels will keep their initial type.
-% '-return_selected'
+% '-return_ok'
 %              -- sets pix_ok to return the indices of selected pixels
 %                 for use with DnD cuts where fewer args are requested
 %--------------------------------------------------------------------------
@@ -55,7 +55,8 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 %      -- if num_outputs >=4, returns input pix_cand contributed to
 %         the the cut and sorted by grid cell or left unsorted,
 %         depending on requested pix_indx output.
-%         IF '-return_selected' passed, contains indices of kept pixels
+%         IF '-return_ok' passed, contains indices of kept pixels
+%         akin to `selected`
 % unique_runid
 %      -- if num_outputs >=5, array, containing the unique runids from the
 %         pixels, contributed to the cut. If input unique_runid was not
@@ -73,16 +74,21 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 
 pix_ok = [];
 pix_indx = [];
-if nargin>8
-    options = {'-force_double'};
-    % keep unused argi parameter to tell parse_char_options to ignore
-    % unknown options
-    [ok,mess,force_double,argi]=parse_char_options(varargin,options);
-    if ~ok
-        error('HORACE:AxesBlockBase:invalid_argument',mess)
-    end
-else
-    force_double = false;
+selected = [];
+
+force_double = false;
+return_ok = false;
+
+options = {'-force_double', '-return_ok'};
+% keep unused argi parameter to tell parse_char_options to ignore
+% unknown options
+[ok,mess,force_double,return_ok,argi]=parse_char_options(varargin,options);
+if ~ok
+    error('HORACE:AxesBlockBase:invalid_argument',mess)
+end
+if return_ok && nout ~= 4
+    error('HORACE:AxesBlockBase:invalid_argument', ...
+          'return_ok requested for non pixel cut')
 end
 
 bin_array_size  = obj.nbins_all_dims; % arrays of this size will be allocated too
@@ -104,7 +110,7 @@ end
 % collapse first dimension, all along it should be ok for pixel be ok
 if is_pix
     % Add filter for duplicated pix
-    ok = all(coord>=r1 & coord<=r2,1) & pix_cand.detector_idx >= 0;
+    ok = all(coord>=r1 & coord<=r2,1) & pix_cand.detector_idx > 0;
 else
     ok = all(coord>=r1 & coord<=r2,1);
 end
@@ -115,7 +121,7 @@ if ~any(ok)
         if iscell(pix_cand)
             pix_ok = zeros(size(s));
             selected = [];
-        elseif return_selected
+        elseif return_ok
             pix_ok = [];
         else
             pix_ok = PixelDataBase.create();
@@ -211,7 +217,7 @@ end
 
 if nout > 6
     selected = find(ok);
-elseif return_selected
+elseif return_ok
     pix_ok = find(ok);
     return
 end

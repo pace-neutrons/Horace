@@ -54,12 +54,15 @@ if numel(obj.data.npix) == 1 % single bin original grid
     block_starts = 1;
     block_sizes = obj.data.npix;
 else
-    [block_starts, block_sizes] = sproj.get_nrange(obj.data.npix,saxes,targ_axes,targ_proj);
+    block_starts = cell(numel(targ_proj), 1);
+    block_sizes = cell(numel(targ_proj), 1);
+    [block_starts, block_sizes] = arrayfun(@(proj, ax) sproj.get_nrange(obj.data.npix, saxes, ax, proj), ...
+                                           targ_proj, targ_axes, 'UniformOutput', false);
+    [block_starts, block_sizes] = merge_ranges(block_starts, block_sizes);
 end
 
 if isempty(block_starts)
-
-    report_cut_type(obj,log_level-1,false,keep_pixels,'no_pixels');
+    report_cut_type(obj, log_level-1, false, keep_pixels);
 
     % No pixels in range, we can return early
     pix_out = PixelDataBase.create();
@@ -67,90 +70,136 @@ if isempty(block_starts)
     return
 end
 
-if obj.pix.is_filebacked
+n_candidate_pix = sum(block_sizes);
+
+
+cut_in_mem = ~obj.pix.is_filebacked || ~PixelDataBase.do_filebacked(n_candidate_pix);
+cut_to_file = ~return_cut;
+
+if ~cut_to_file && PixelDataBase.do_filebacked(n_candidate_pix, 10)
+    warning('HORACE:cut:large_cut', ['Requested cut may retain up to %d pixel indices, which may exceed system memory\n', ...
+                                     'Suggested fix: use cut with ''-save''\n', ...
+                                     'Recommended limit: 10*mem_chunk_size (%d)'], ...
+            n_candidate_pix, 10*get(hor_config, 'mem_chunk_size'));
+end
+
+keep_precision = ~keep_pixels || cut_to_file;
+pixel_contrib_name = report_cut_type(obj, log_level, cut_to_file, keep_pixels);
+
+if cut_to_file
+    [npix, s, e, pix_out, unique_runid] = cut_tmp_files(obj.pix, block_starts, block_sizes, ...
+                                                        targ_proj, targ_axes, npix, s, e, ...
+                                                        log_level, keep_precision, pixel_contrib_name);
+
+elseif cut_in_mem && keep_pixels
+    [npix, s, e, pix_out, unique_runid] = cut_in_memory_w_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
+                                                                targ_axes, npix, s, e, log_level, pixel_contrib_name);
+
+elseif cut_in_mem
+    [npix, s, e, pix_out, unique_runid] = cut_in_memory_no_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
+                                                                 targ_axes, npix, s, e, log_level, pixel_contrib_name);
+elseif keep_pixels
+    [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
+                                                                  targ_axes, npix, s, e, log_level, pixel_contrib_name);
+
+else
+    [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
+                                                                   targ_axes, npix, s, e, log_level, pixel_contrib_name);
+
+end
+
+[s, e] = normalize_signal(s, e, npix);
+
+end  % function
+
+function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_w_pixels(pix, block_starts, block_sizes, ...
+                                                                           targ_proj, targ_axes, npix, s, e, ll, ...
+                                                                           pixel_contrib_name)
+
+    candidate_pix = pix.get_pix_in_ranges(block_starts, block_sizes, false, false);
+
+    if ll >= 1
+        fprintf('*** Got data for %d pixels -- processing data...', candidate_pix.num_pixels);
+    end
+
+    if isscalar(targ_proj)
+        [npix, s, e, pix_retained, unique_runid] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
+
+    else
+        pix_retained = cell(numel(targ_proj), 1);
+        pix_indx = cell(numel(targ_proj), 1);
+        unique_runid = [];
+        for i = 1:numel(targ_proj)
+            [npix, s, e, pix_retained{i}, unique_runid_l, pix_indx{i}, selected] = ...
+                targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
+            unique_run_id = unique([unique_runid; unique_runid_l(:)]);
+
+            % Invalidate candidates whose pixels have already been selected
+            npix_step_retained = pix_retained{i}.num_pixels;
+
+            candidate_pix = candidate_pix.tag(selected);
+
+        end
+
+        pix_retained = pix_retained{1}.cat(pix_retained{:});
+        pix_retained = sort_pix(pix_retained, pix_indx, npix);
+        unique_runid = unique_runid';
+    end
+
+    if ll >= 1
+        fprintf(' ----->  %s  %d pixels\n', pixel_contrib_name, npix_step_retained);
+    end
+
+end
+
+function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_no_pixels(pix, block_starts, block_sizes, ...
+                                                                            targ_proj, targ_axes, npix, s, e, ll, ...
+                                                                            pixel_contrib_name)
+
+    candidate_pix = pix.get_pix_in_ranges(block_starts, block_sizes, false, true);
+
+    if ll >= 1
+        fprintf('*** Got data for %d pixels -- processing data...', candidate_pix.num_pixels);
+    end
+
+    if isscalar(targ_proj)
+        [npix, s, e] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
+    else
+        for i = 1:numel(targ_proj)
+            [npix, s, e, selected] = targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e, '-return_ok');
+            candidate_pix = candidate_pix.tag(selected);
+        end
+    end
+
+    if ll >= 1
+        npix_step_retained = sum(npix(:));
+        fprintf(' ----->  %s  %d pixels\n', pixel_contrib_name, npix_step_retained);
+    end
+
+    pix_retained = PixelDataBase.create();
+    unique_runid = [];
+
+end
+
+function [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(pix, block_starts, block_sizes, ...
+                                                                       targ_proj, targ_axes, npix, s, e, ll, ...
+                                                                       pixel_contrib_name)
+
     hc = hor_config;
     chunk_size = hc.mem_chunk_size;
     % Get indices in order to split the candidate bin ranges into chunks whose sums
     % are less than, or equal to, a pixel page size
-    block_chunks = split_data_blocks(block_starts,block_sizes, chunk_size);
+    block_chunks = split_data_blocks(block_starts, block_sizes, chunk_size);
     num_chunks = numel(block_chunks);
-else
-    num_chunks = 1;
-    block_chunks = {{block_starts,block_sizes}};
-end
-
-% If we only have one iteration of pixels to cut then we must be able to fit
-% all pixels in memory, hence no need to use temporary files.
-use_tmp_files = ~return_cut && num_chunks > 1;
-
-if keep_pixels
-    % Pre-allocate cell arrays to hold PixelData chunks
-    pix_retained = cell(1, num_chunks);
-    pix_ix_retained = cell(1,num_chunks);
-
-    if use_tmp_files
-        % Create a pix_comb_info object to handle tmp files of pixels
-        num_bins = numel(s);
-        pix_comb_info = init_pix_combine_info(num_chunks, num_bins);
-    else
-        pix_comb_info = [];
-    end
-end
-
-if keep_pixels && use_tmp_files
-    clearPixAccum = onCleanup(@()cut_data_from_file_job.accumulate_pix_to_file('cleanup'));
-end
-
-keep_precision = ~keep_pixels || use_tmp_files;
-
-pixel_contrib_name = report_cut_type(obj,log_level,use_tmp_files,keep_pixels);
-
-if ~obj.pix.is_filebacked
-    block_chunk = block_chunks{1};
-    pix_start = block_chunk{1};
-    block_sizes = block_chunk{2};
-
-    candidate_pix = obj.pix.get_pix_in_ranges( ...
-        pix_start, block_sizes, false, keep_precision);
-
-    if log_level >= 1
-        fprintf(['*** Got data for %d pixels -- ' ...
-            'processing data...'], ...
-            candidate_pix.num_pixels);
-    end
-
-    if keep_pixels
-        [npix,s,e,pix_ok,unique_runid] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
-        npix_step_retained = pix_ok.num_pixels; % just for logging the progress
-
-    else
-        [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
-        pix_ok = [];
-        npix_step_retained = [];
-        unique_runid = [];
-    end
-
-    pix_retained{1} = pix_ok;%candidate_pix.get_pixels(ok);
-    pix_ix_retained{1} = [];
-
-    if log_level >= 1
-        if isempty(npix_step_retained)
-            npix_step_retained = sum(npix(:));
-        end
-        fprintf(' ----->  %s  %d pixels\n',...
-            pixel_contrib_name,npix_step_retained);
-    end
-
-else
+    num_proj = numel(targ_proj);
 
     npix_tot_retained = 0;
 
     unique_runid = [];
     cut_fb = keep_pixels && ~use_tmp_files;
 
-    if cut_fb
-        pix_retained = PixelDataFileBacked().get_new_handle();
-    end
+    pix_retained = PixelDataFileBacked().get_new_handle();
+    pix_ix_retained = cell(1, num_chunks*num_proj);
 
     for iter = 1:num_chunks
         % Get pixels that will likely contribute to the cut
@@ -167,10 +216,11 @@ else
                 candidate_pix.num_pixels);
         end
 
-        if keep_pixels
-            % Pix not sorted here
-            [npix, s, e, pix_ok, unique_runid_l, pix_indx] = ...
-                targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
+        % Pix not sorted here
+        for i = 1:num_proj
+            [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
+                targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
+
             npix_step_retained = pix_ok.num_pixels; % just for logging the progress
             npix_tot_retained = npix_tot_retained + npix_step_retained;
             unique_runid = unique([unique_runid, unique_runid_l(:)']);
@@ -182,7 +232,8 @@ else
 
             % Retain only the pixels that contributed to the cut
             pix_retained.format_dump_data(pix_ok.data);
-            pix_ix_retained{j} = pix_indx;
+            pix_ix_retained{num_proj*(iter-1) + i} = pix_indx;
+
 
         end
 
@@ -220,6 +271,11 @@ function [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(pix, blo
         if isscalar(targ_proj)
             [npix, s, e] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
         else
+            for i = 1:numel(targ_proj)
+                [npix, s, e, selected] = targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e, '-return_ok');
+                candidate_pix = candidate_pix.tag(selected);
+            end
+        end
 
             [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
             pix_ok = [];
@@ -278,6 +334,64 @@ end
 [s, e] = normalize_signal(s, e, npix);
 end  % function
 
+    hc = hor_config;
+    chunk_size = hc.mem_chunk_size;
+
+    % Get indices in order to split the candidate bin ranges into chunks whose sums
+    % are less than, or equal to, a pixel page size
+    block_chunks = split_data_blocks(block_starts, block_sizes, chunk_size);
+    num_chunks = numel(block_chunks);
+    num_proj = numel(targ_proj);
+
+    % Create a pix_comb_info object to handle tmp files of pixels
+    num_bins = numel(s);
+    pix_comb_info = init_pix_combine_info(num_chunks*num_proj, num_bins);
+    clearPixAccum = onCleanup(@() cut_data_from_file_job.accumulate_pix_to_file('cleanup'));
+
+    unique_runid = [];
+
+    for iter = 1:num_chunks
+        % Get pixels that will likely contribute to the cut
+        chunk = block_chunks{iter};
+        pix_start = chunk{1};
+        block_sizes = chunk{2};
+
+        candidate_pix = pix.get_pix_in_ranges(pix_start, block_sizes, false, keep_precision);
+
+        if ll >= 1
+            fprintf('*** Step %d of %d; Read data for %d pixels -- processing data...', ...
+                    iter, num_chunks, candidate_pix.num_pixels);
+        end
+
+        for i = 1:num_proj
+
+            % Pix not sorted here
+            [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
+                targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
+
+            candidate_pix = candidate_pix.tag(selected);
+
+            npix_step_retained = pix_ok.num_pixels; % just for logging the progress
+            unique_runid = unique([unique_runid, unique_runid_l(:)']);
+
+            if ll >= 1
+                fprintf(' ----->  %s  %d pixels\n', pixel_contrib_name, npix_step_retained);
+            end
+
+            % Generate tmp files and get a pix_combine_info object to manage
+            % the files - this object then recombines the files once it is
+            % passed to 'put_sqw'.
+            pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file(pix_comb_info, false, ...
+                                                                          pix_ok, pix_indx, npix, chunk_size);
+        end
+    end  % loop over pixel blocks
+
+    % store partial pixel_blocks remaining memory to tmp files
+    % return pix_out which here is the pix_combine_info.
+    % clear pix_block from memory.
+    pix_out = cut_data_from_file_job.accumulate_pix_to_file(pix_comb_info, true);
+
+end
 
 function pci = init_pix_combine_info(nfiles, nbins)
 % Create a pix_combine_info object to manage temporary files of pixels
@@ -294,7 +408,7 @@ function pixel_contrib_name = report_cut_type(obj, log_level, use_tmp_files, kee
 % in some situations report that no data contribute to the cut and the cut
 % is not performed.
 %
-if isa(obj,'sqw')
+if isa(obj, 'sqw')
     if obj.pix.is_filebacked
         obj_type = 'file-backed';
     else
@@ -320,15 +434,15 @@ end
 
 if nargin == 4  && log_level > 1 % no pixels contributed in the cut
     if use_tmp_files
-        fprintf('*** Cutting %s sqw object; returning result %s --> ignored as cut contains no pixels\n',...
-            obj_type,target);
+        fprintf('*** Cutting %s sqw object; returning result %s --> ignored as cut contains no pixels\n', ...
+            obj_type, target);
     else
-        fprintf('*** Cutting %s sqw object; returning result %s; cut contains no pixels\n',...
-            obj_type,target);
+        fprintf('*** Cutting %s sqw object; returning result %s; cut contains no pixels\n', ...
+            obj_type, target);
     end
 else
-    fprintf('*** Cutting %s sqw object; returning result %s; retuning pixels - %s\n',...
-        obj_type,target,pix_state);
+    fprintf('*** Cutting %s sqw object; returning result %s; retuning pixels - %s\n', ...
+        obj_type, target, pix_state);
 end
 
 end

@@ -26,27 +26,27 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             if nargin<1
                 name = 'test_cut_sqw_sym';
             end
-            this@TestCaseWithSave(name)
+            obj@TestCaseWithSave(name)
 
             % Get Horace log level
-            this.log_level = get(hor_config,'log_level');
+            obj.log_level = get(hor_config,'log_level');
 
             % Read in data
             this_path = fileparts(mfilename('fullpath'));
-            this.data_source = fullfile(this_path,'test_cut_sqw_sym.sqw');
-            this.data = read_horace(this.data_source);
+            obj.data_source = fullfile(this_path,'test_cut_sqw_sym.sqw');
+            obj.data = read_horace(obj.data_source);
 
             % Cut projection and ranges etc
             s100 = SymopReflection([1,0,0],[0,0,1],[1,1,0]);
             sdiag= SymopReflection([1,1,0],[0,0,1],[1,1,0]);
-            this.sym = {sdiag,s100,[sdiag,s100]};
+            obj.sym = {sdiag,s100,[sdiag,s100]};
 
-            this.proj = ortho_proj([1,-1,0], [1,1,0]/sqrt(2), 'offset', [1,1,0], 'type', 'paa');
+            obj.proj = ortho_proj([1,-1,0], [1,1,0]/sqrt(2), 'offset', [1,1,0], 'type', 'paa');
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
-            this.bin = [range(1)+step/2,step,range(2)-step/2];
-            this.width = [-0.15,0.15];  % Width in Ang^-1 of cuts
-            this.ebins = [105,0,115];
+            obj.bin = [range(1)+step/2,step,range(2)-step/2];
+            obj.width = [-0.15,0.15];  % Width in Ang^-1 of cuts
+            obj.ebins = [105,0,115];
 
             %%% New tests:
             % Read the stored pixel data
@@ -63,46 +63,64 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                   0  0  0  0  0  0  0  0  1  1 -1 -1
                   1  1 -1 -1  0  0  0  0  0  0  0  0];
             Ws = mat2cell(reshape(Ws,[3,3,12]),3,3,ones(12,1));
-            this.sym2 = squeeze(cellfun(@Symop, Ws, 'UniformOutput', false));
+            this.sym2 = squeeze(cellfun(@SymopGeneral, Ws, 'UniformOutput', false));
             % setup projection and binning specifications
-            this.proj2 = ortho_proj([1,0,0],[0,1,0]);
-            this.ubin2 = [0, 0.05, 0.5];
-            this.vbin2 = [-0.1, 0.1];
-            this.wbin2 = [-0.1, 0.1];
-            this.ebin2 = [-2, 2];
-
+            obj.proj2 = ortho_proj([1,0,0],[0,1,0]);
+            obj.ubin2 = [-0.5, 0.05, 0.5];
+            obj.vbin2 = [-0.1, 0.1];
+            obj.wbin2 = [-0.1, 0.1];
+            obj.ebin2 = [-2, 2];
 
             % Tolerance
-            this.tol_sp = [1e-6,1e-6];
+            obj.tol_sp = [1e-6,1e-6];
 
             % Save line - must be the last line
-            obj.save();
+            obj.save()
+        end
+
+        function setUp(obj)
+            set(hor_config,'log_level',-1);  % turn off output
+        end
+
+        function tearDown(obj)
+            set(hor_config,'log_level',obj.log_level);
         end
 
         %------------------------------------------------------------------------
         % Tests
         %------------------------------------------------------------------------
-        %------------------------------------------------------------------------
-        function test_cut_sym_with_pix(obj)
-            % Test symmetrisation, keeping pixels
-            w2sym = cut(obj.data, obj.proj, obj.bin,...
-                        obj.width, obj.width, obj.ebins, obj.sym);
 
-            w2sym = cut_sqw_sym (this.data_source, this.proj, this.bin,...
-                this.width, this.width, this.ebins, this.sym, '-pix');
-            this.assertEqualToTolWithSave (w2sym, this.tol_sp,'ignore_str',1);
-        end
-        %------------------------------------------------------------------------
-        function test_cut_sym_with_nopix (this)
-            % Test symmetrisation, without keeping pixels
-            skipTest("cut_sym needs modification to work with new cut #805")
-            % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
+        function test_cut_sym_no_dup_2_identity(obj)
+        % Test symmetrisation, does not duplicate pixels
+        % Even if we cut identity twice.
+        % `id` is defined as 2 identical reflections because
+        % `SymopIdentity`s are filtered from ops.
 
-            d2sym = cut_sqw_sym (this.data_source, this.proj, this.bin,...
-                this.width, this.width, this.ebins, this.sym, '-nopix');
-            this.assertEqualToTolWithSave (d2sym, this.tol_sp,'ignore_str',1);
+            op = SymopReflection([1 0 0], [0 1 0], [0 0 0]);
+            id = [op, op]; % Reflect reflect back
+
+            obj.data2.pix = PixelDataMemory(obj.data2.pix);
+            w1sym = cut(obj.data2, obj.proj2, obj.ubin2, ...
+                        obj.vbin2, obj.wbin2, obj.ebin2);
+
+            w2sym = cut(obj.data2, obj.proj2, obj.ubin2, ...
+                        obj.vbin2, obj.wbin2, obj.ebin2, ...
+                        {SymopIdentity(), id});
+
+            sqw2 = symmetrise_sqw(sqw1, SymopRotation([1 0 0], 90))
+
+            [ok, mess] = equal_to_tol(w1sym.data.s, w2sym.data.s, 'ignore_str', 1);
+            if ~ok
+                error(mess)
+            end
+            [ok, mess] = equal_to_tol(w1sym.data.e, w2sym.data.e, 'ignore_str', 1);
+            if ~ok
+                error(mess)
+            end
+            [ok, mess] = equal_to_tol(w1sym.data.npix, w2sym.data.npix, 'ignore_str', 1);
+            if ~ok
+                error(mess)
+            end
         end
 
         %------------------------------------------------------------------------
@@ -114,32 +132,17 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
             set(hor_config,'log_level',-1);  % turn off output
 
-            [c, s] = cut_sqw_sym(this.data2, this.proj2, ...
-                this.ubin2, this.vbin2, this.wbin2, this.ebin2, ...
-                this.sym2(2:end)); % skip the superfluous first (identity) operation
-            this.assertEqualToTolWithSave(c, this.tol_sp,'ignore_str',1);
-            this.assertEqualToTolWithSave(s, this.tol_sp,'ignore_str',1);
-        end
-        %
-        function test_cut_with_pix (this)
-            % Test a simple cut keeping pixels
-
-            w2 = cut_sqw (this.data_source, this.proj, this.bin,...
-                this.width, this.width, this.ebins, '-pix');
-            this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
+            w2 = cut(obj.data, obj.proj, obj.bin,...
+                     obj.width, obj.width, obj.ebins, '-pix');
+            obj.assertEqualToTolWithSave(w2, obj.tol_sp,'ignore_str',1);
         end
 
-        %------------------------------------------------------------------------
-        function test_cut_with_nopix (this)
-            % Test a simple cut without keeping pixels
-            % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
+        function test_cut_with_nopix(obj)
+        % Test a simple cut without keeping pixels
 
-            d2 = cut_sqw (this.data_source, this.proj, this.bin,...
-                this.width, this.width, this.ebins, '-nopix');
-            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
-            this.assertEqualToTolWithSave (d2, this.tol_sp,'ignore_str',1);
+            d2 = cut(obj.data, obj.proj, obj.bin,...
+                     obj.width, obj.width, obj.ebins, '-nopix');
+            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
         end
 
         %------------------------------------------------------------------------
