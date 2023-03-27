@@ -347,7 +347,7 @@ classdef ortho_proj<aProjectionBase
         end
 
         function  [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj,ustep)
-            % Determine the matrices partially used for conversion
+            % Determine the matrices used for conversion
             % to/from image coordinate system from/to Crystal Cartesian
             % (PixelData) coordinate system.
             %
