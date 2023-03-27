@@ -70,7 +70,6 @@ classdef test_change_crystal_1a < TestCase
 
         end
         function test_u_alighnment_tf_way(obj)
-            skipTest('Test is disabled');
             % Fit Bragg peak positions
             % ------------------------
             proj.u=obj.u;
@@ -135,7 +134,6 @@ classdef test_change_crystal_1a < TestCase
         end
         %
         function test_u_alighnment(obj)
-            skipTest('Has not been finished, does not work. Test is disabled');
 
             %
             % Fit Bragg peak positions
