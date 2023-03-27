@@ -33,6 +33,6 @@ else
     volume = prod(vol);
 end
 if obj.nonorthogonal
-    unit_cell = cross(obj.cell(1:3,1),obj.cell(1:3,2))'*obj.cell(1:3,3);
-    volume  = volume.*unit_cell;
+    cell_vol = cross(obj.unit_cell(1:3,1),obj.unit_cell(1:3,2))'*obj.unit_cell(1:3,3);
+    volume  = volume.*cell_vol;
 end
