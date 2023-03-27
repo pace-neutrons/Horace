@@ -216,7 +216,7 @@ classdef ortho_axes < AxesBlockBase
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = saveableFields@AxesBlockBase(obj);
-            if nargin>1 || (obj.nonorthogonal && ~isempty(obj.unit_cell_)) 
+            if nargin>1 || obj.nonorthogonal
                 flds = [flds(:);'nonorthogonal';'unit_cell'];
             else
                 flds = [flds(:);'nonorthogonal'];
@@ -227,9 +227,10 @@ classdef ortho_axes < AxesBlockBase
             % obtained serializable object. Throw
             % 'HORACE:AxesBlockBase:invalid_argument' if object is invalid.
             obj = check_combo_arg@AxesBlockBase(obj);
-            if obj.nonorthogonal_ && isempty(obj.unit_cell)
+            if obj.nonorthogonal_ && isempty(obj.unit_cell_)
                 error('HORACE:ortho_axes:invalid_argument',...
-                    'Unit cell have to be set for non-orthogonal ortho_axes');
+                    ['Unit cell have to be set for non-orthogonal ortho_axes.\n', ...
+                    ' Set up non-orthogonal unit cell before setting nonorthogonal property to true\n']);
             end
         end
         %

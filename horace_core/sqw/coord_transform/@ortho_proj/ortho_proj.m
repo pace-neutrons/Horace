@@ -301,13 +301,8 @@ classdef ortho_proj<aProjectionBase
             [~,~, ulen] = obj.uv_to_rot([1,1,1]);
             ax_bl.ulen  = ulen;
             %
-            ax_bl.do_check_combo_arg = false;
-            if obj.nonorthogonal
-                ax_bl.nonorthogonal = true;
-                ax_bl.unit_cell = obj.unit_cell;
-            end
-            ax_bl.do_check_combo_arg = true;
-
+            ax_bl.unit_cell = obj.unit_cell;
+            ax_bl.nonorthogonal = true;
         end
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
