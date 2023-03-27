@@ -1,4 +1,4 @@
-classdef test_change_crystal_1 < TestCase
+classdef test_change_crystal_bragg_fine < TestCase
     % Test crystal refinement functions change_crytstal and refine_crystal
     %
     %   >> test_refinement           % Use previously saved sqw input data file
@@ -8,11 +8,12 @@ classdef test_change_crystal_1 < TestCase
         sim_sqw_file
         sim_sqw_file_corr
         hpc_config_data;
+        qfwhh
     end
     methods
-        function obj = test_change_crystal_1(varargin)
+        function obj = test_change_crystal_bragg_fine(varargin)
             if nargin == 0
-                name = 'test_change_crystal_1a';
+                name = 'test_change_crystal_bragg_fine';
             else
                 name =varargin{1};
             end
@@ -50,7 +51,7 @@ classdef test_change_crystal_1 < TestCase
             % Parameters of the true lattice
             alatt_true=[5.5,5.5,5.5];
             angdeg_true=[90,90,90];
-            qfwhh=0.1;                  % Spread of Bragg peaks
+            obj.qfwhh=0.1;                  % Spread of Bragg peaks
             efwhh=1;                    % Energy width of Bragg peaks
             rotvec=[10,10,0]*(pi/180);  % orientation of the true lattice w.r.t reference lattice
 
@@ -65,7 +66,7 @@ classdef test_change_crystal_1 < TestCase
                 wtmp=dummy_sqw (en, par_file, '', efix, emode, alatt, angdeg,...
                     u, v, psi(i), omega, dpsi, gl, gs, [1,1,1,1], pix_range);
                 % Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
-                wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[1,qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
+                wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[1,obj.qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
                 sqw_tmp_file{i}=fullfile(dir_out,['dummy_test_change_crystal_1_',num2str(i),'.sqw']);
                 save(wtmp,sqw_tmp_file{i});
             end
@@ -78,24 +79,32 @@ classdef test_change_crystal_1 < TestCase
                     delete(sqw_tmp_file{i})
                 catch
                 end
-            end            
+            end
         end
-        function test_alignment(obj)
+        function test_alignment_from_bragg_peaks(obj)
             % Fit Bragg peak positions
             % ------------------------
-            % Should get approximately: rlu0=[1.052,-0.142,0.722; 0.199,0.732,1.036; 0.158,-0.135,0.886; 0.895,0.015,-0.158; -0.015,-0.900,-0.158];
+
             proj.u=[1,0,0];
             proj.v=[0,1,0];
 
             rlu=[1,0,1; 0,1,1; 0,0,1; 1,0,0; 0,-1,0];
             half_len=0.5; half_thick=0.25; bin_width=0.025;
-            
+
             sqw_to_ref = sqw(obj.sim_sqw_file);
 
             rlu0=get_bragg_positions(sqw_to_ref, proj, rlu, half_len, half_thick, bin_width);
+            % Should get approximately: rlu0=;
+            ref_rlu = [1.052,-0.142,0.722;
+                0.199,0.732,1.036;
+                0.158,-0.135,0.886;
+                0.895,0.015,-0.158;
+                -0.015,-0.900,-0.158];
+
+            assertElementsAlmostEqual(rlu0,ref_rlu,'absolute',1.e-2)
 
             alatt = sqw_to_ref.data.proj.alatt;
-            angdeg = sqw_to_ref.data.proj.angdeg;            
+            angdeg = sqw_to_ref.data.proj.angdeg;
 
             % Get correction matrix from the 5 peak positions:
             % ------------------------------------------------
@@ -108,15 +117,15 @@ classdef test_change_crystal_1 < TestCase
             change_crystal_sqw(obj.sim_sqw_file_corr,rlu_corr)
             rlu0_corr=get_bragg_positions(sqw(obj.sim_sqw_file_corr), proj, rlu, half_len, half_thick, bin_width);
 
-            if max(abs(rlu0_corr(:)-rlu(:)))>qfwhh
-                assertTrue(false,'Problem in refinement of crystal orientation and lattice parameters')
-            end
+
+            assertTrue(max(abs(rlu0_corr(:)-rlu(:)))<=obj.qfwhh, ...
+                'Problem in refinement of crystal orientation and lattice parameters')
         end
         %------------------------------------------------------------------
         function delete(obj)
             %
             % restore old hpc configuration
-            set(hpc_config,obj.hpc_config_data)
+            set(hpc_config,obj.hpc_config_data);
 
             ws = warning('off','MATLAB:DELETE:Permission');
 
