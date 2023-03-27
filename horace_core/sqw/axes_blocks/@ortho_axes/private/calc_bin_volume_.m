@@ -1,4 +1,4 @@
-function volume = calc_bin_volume_(~,ax_in_cell)
+function volume = calc_bin_volume_(obj,ax_in_cell)
 %CALC_BIN_VOLUME_ calculate the volume of a lattice cell defined by the
 %cellarray of lattice axes.
 %
@@ -31,4 +31,8 @@ if volume_is_array
 else
     vol = cellfun(@(x)x(1),grid_sizes);
     volume = prod(vol);
+end
+if obj.nonorthogonal
+    cell_vol = cross(obj.unit_cell(1:3,1),obj.unit_cell(1:3,2))'*obj.unit_cell(1:3,3);
+    volume  = volume.*cell_vol;
 end

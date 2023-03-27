@@ -22,19 +22,22 @@ classdef ortho_axes < AxesBlockBase
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Dependent)
-        %
-        %TODO: Its here temporary, until full projection is stored in sqw obj
-        nonorthogonal % if the coordinate system is non-orthogonal.
+        nonorthogonal % true, if the coordinate system described by
+        %             % this axes block is non-orthogonal
+
+        unit_cell     % four-vector describing primary unit cell of the
+        % lattice. eye(4) in nonorthogonal == false and
+        % four-vector of the cell vectors for non-orthogonal
     end
     properties(Dependent,Hidden)
         % old interface to label
         ulabel
     end
     properties(Access=protected)
-        % handle to function calculating axes captions
-        caption_calc_func_;
         %
         nonorthogonal_ = false
+        %
+        unit_cell_ = [];
     end
 
     methods
@@ -77,6 +80,19 @@ classdef ortho_axes < AxesBlockBase
                 data_plot_titles(data);
         end
 
+        function cell = get.unit_cell(obj)
+            if isempty(obj.unit_cell_)
+                cell = eye(4);
+            else
+                cell = obj.unit_cell_;
+            end
+        end
+        function obj = set.unit_cell(obj,val)
+            obj = check_and_set_unit_cell_(obj,val);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
         %------------------------------------------------------------------
         % old interface
         function obj = set.ulabel(obj,val)
@@ -90,6 +106,9 @@ classdef ortho_axes < AxesBlockBase
         end
         function obj = set.nonorthogonal(obj,val)
             obj.nonorthogonal_ = logical(val);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
     end
     %----------------------------------------------------------------------
@@ -145,6 +164,12 @@ classdef ortho_axes < AxesBlockBase
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function  volume = calc_bin_volume(obj,axis_cell)
+            % calculate bin volume from the  axes of the axes block or input
+            % axis organized in cellarray of 4 axis.
+            volume = calc_bin_volume_(obj,axis_cell);
+        end
+
         function  obj = check_and_set_img_range(obj,val)
             % main setter for orthogonal image range.
             obj = check_and_set_img_range_(obj,val);
@@ -187,11 +212,26 @@ classdef ortho_axes < AxesBlockBase
             ver = 6;
         end
         %
-        function flds = saveableFields(obj)
+        function flds = saveableFields(obj,varargin)
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = saveableFields@AxesBlockBase(obj);
-            flds = [flds(:);'nonorthogonal'];
+            if nargin>1 || obj.nonorthogonal
+                flds = [flds(:);'nonorthogonal';'unit_cell'];
+            else
+                flds = [flds(:);'nonorthogonal'];
+            end
+        end
+        function obj = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained serializable object. Throw
+            % 'HORACE:AxesBlockBase:invalid_argument' if object is invalid.
+            obj = check_combo_arg@AxesBlockBase(obj);
+            if obj.nonorthogonal_ && isempty(obj.unit_cell_)
+                error('HORACE:ortho_axes:invalid_argument',...
+                    ['Unit cell have to be set for non-orthogonal ortho_axes.\n', ...
+                    ' Set up non-orthogonal unit cell before setting nonorthogonal property to true\n']);
+            end
         end
         %
     end

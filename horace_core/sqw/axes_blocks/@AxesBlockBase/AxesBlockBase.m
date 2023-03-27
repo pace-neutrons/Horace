@@ -119,6 +119,8 @@ classdef AxesBlockBase < serializable
     properties(Dependent,Hidden)
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
+        % Old name for img_range left for compartibility with old user code
+        img_db_range;
     end
 
     methods
@@ -314,7 +316,13 @@ classdef AxesBlockBase < serializable
         function pc = get.p(obj)
             pc = build_axes_from_ranges_(obj);
         end
-
+        %
+        function imr = get.img_db_range(obj)
+            imr = obj.img_range;
+        end
+        function obj = set.img_db_range(obj,val)
+            obj.img_range = val;
+        end
         %------------------------------------------------------------------
         function do_change = get.changes_aspect_ratio(obj)
             do_change  = obj.changes_aspect_ratio_;
@@ -336,8 +344,8 @@ classdef AxesBlockBase < serializable
         function volume = get_bin_volume(obj,varargin)
             % Return the volume(s) of the axes grid. For rectilinear grid, the
             % volume of the grid is the scalar equal to the product
-            % of the grid steps in all directions. 
-            % For the coordinate systems where grid volumes depend on 
+            % of the grid steps in all directions.
+            % For the coordinate systems where grid volumes depend on
             % the grid number (e.g. spherical), the volume is
             % 1D array of the volumes of the cells. The number of elements
             % in the array is equal to the number of cells in the grid.
@@ -370,7 +378,7 @@ classdef AxesBlockBase < serializable
             % align input axes block to have the same or commensurate
             % bin sizes as this axes block and the integration ranges equal
             % or smaller than the ranges of this axes block but
-            % commensurate with this axis block bin edges. 
+            % commensurate with this axis block bin edges.
             %
             % The coordinate systems of both access blocks assumed to be
             % the same
@@ -623,14 +631,13 @@ classdef AxesBlockBase < serializable
         % takes binning parameters converts it into axis binning for the
         % given axes
         [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
+        % calculate bin volume from the  axes of the axes block or input
+        % axis organized in cellarray of 4 axis.
+
+        volume = calc_bin_volume(obj,axis_cell)
     end
     %======================================================================
     methods(Access=protected)
-        function  volume = calc_bin_volume(obj,axis_cell)
-            % calculate bin volume from the  axes of the axes block or input
-            % axis organized in cellarray of 4 axis.
-            volume = calc_bin_volume_(obj,axis_cell);
-        end
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
@@ -739,7 +746,7 @@ classdef AxesBlockBase < serializable
             % 'HORACE:AxesBlockBase:invalid_argument' if object is invalid.
             obj = check_combo_arg_(obj);
         end
-        function flds = saveableFields(~)
+        function flds = saveableFields(~,varargin)
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = AxesBlockBase.fields_to_save_;

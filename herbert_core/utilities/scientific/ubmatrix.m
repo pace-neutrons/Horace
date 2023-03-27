@@ -39,8 +39,8 @@ function [ub, mess, umat] = ubmatrix (u, v, b)
 
 try
     mess = '';
-    if size(u,2)>1; u=u'; end    % convert to column vector
-    if size(v,2)>1; v=v'; end    % convert to column vector
+    u = u(:);   % convert to column vector
+    v = v(:);   % convert to column vector
 
     uc = b*u;   % Get u, v in crystal cartesian coordinates
     vc = b*v;   
@@ -55,5 +55,8 @@ catch
     ub = [];
     umat = [];
     mess = 'Problem calculating UB matrix. Check u and v are not parallel';
+    if nargout < 1
+        error('HORACE:ubmatrix:invalid_argument',mess);
+    end
 end
 

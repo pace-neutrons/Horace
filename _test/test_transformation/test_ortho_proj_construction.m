@@ -191,19 +191,18 @@ classdef test_ortho_proj_construction<TestCase
             ax = ortho_axes.get_from_old_data(data);
             proj = ortho_proj.get_from_old_data(data);
 
-            do = data_sqw_dnd(ax,proj);
+            do = DnDBase.dnd(ax,proj);
 
-
-            proj1=do.get_projection();
+            proj1=do.proj;
             opt = ortho_projTester(proj1);
 
-            [rlu_to_ustep, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
+            [~, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
             assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]],...
                 'absolute',1.e-4)
             assertElementsAlmostEqual(data.ulen(1:3),ulen','absolute',1.e-4);
         end
+
         function test_get_projection_from_other_aligned_data(~)
-            skipTest('Demonstrates issue #846')
             data = struct();
             data.alatt = [3.1580 3.1752 3.1247];
             data.angdeg = [90.0013 89.9985 90.0003];
@@ -215,11 +214,235 @@ classdef test_ortho_proj_construction<TestCase
             data.label = {'h','k','l','en'};
             data.ulen = ones(4,1);
             proj = ortho_proj.get_from_old_data(data);
-            u_to_rlu_rec = proj.u_to_rlu;
-            assertElementsAlmostEqual(data.u_to_rlu,u_to_rlu_rec,...
+            opt = ortho_projTester(proj);
+            [~, u_to_rlu_rec, ulen_rec] = opt .projaxes_to_rlu_public(ones(4,1));
+            assertEqual(ulen_rec,ones(1,3));
+            assertElementsAlmostEqual(data.u_to_rlu(1:3,1:3),u_to_rlu_rec,...
                 'absolute',1.e-4)
 
         end
+        function test_getset_nonortho_proj_aaa_111(~)
+            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+                'angdeg',[85 95 90],'nonorthogonal',true,...
+                'type','aaa','u',[1,1,1],'v',[1,1,0],'w',[0,-1,1]);
+
+            [rlu_to_ustep, u_to_rlu, ulen] = prj_or.projaxes_to_rlu_public();
+
+            data = struct();
+            data.alatt = prj_or.alatt;
+            data.angdeg =prj_or.angdeg;
+            data.u_to_rlu = prj_or.u_to_rlu;
+            data.label = prj_or.label;
+            data.ulen = ulen;
+
+            prj_rec = ortho_proj.get_from_old_data(data);
+            prj_rec = ortho_projTester(prj_rec);
+            [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
+
+            assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(ulen,ulen_rec)
+
+            assertTrue(prj_or.nonorthogonal);
+            assertTrue(prj_rec.nonorthogonal);
+        end
+
+        function test_getset_nonortho_proj_aaa_110(~)
+            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+                'angdeg',[85 95 90],'nonorthogonal',true,...
+                'type','aaa','u',[1,1,0],'v',[1,0,0],'w',[1,1,1]);
+
+            [rlu_to_ustep, u_to_rlu, ulen] = prj_or.projaxes_to_rlu_public();
+
+            data = struct();
+            data.alatt = prj_or.alatt;
+            data.angdeg =prj_or.angdeg;
+            data.u_to_rlu = prj_or.u_to_rlu;
+            data.label = prj_or.label;
+            data.ulen = ulen;
+
+            prj_rec = ortho_proj.get_from_old_data(data);
+            prj_rec = ortho_projTester(prj_rec);
+            [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
+
+            assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(ulen,ulen_rec)
+
+            assertTrue(prj_or.nonorthogonal);
+            assertTrue(prj_rec.nonorthogonal);
+        end
+        function test_getset_nonortho_proj_aaa_100(~)
+            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+                'angdeg',[85 95 90],'nonorthogonal',true,...
+                'type','aaa','u',[1,0,0],'v',[1,1,0],'w',[1,1,1]);
+
+            [rlu_to_ustep, u_to_rlu, ulen] = prj_or.projaxes_to_rlu_public();
+
+            data = struct();
+            data.alatt = prj_or.alatt;
+            data.angdeg =prj_or.angdeg;
+            data.u_to_rlu = prj_or.u_to_rlu;
+            data.label = prj_or.label;
+            data.ulen = ulen;
+
+            prj_rec = ortho_proj.get_from_old_data(data);
+            prj_rec = ortho_projTester(prj_rec);
+            [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
+
+            assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(ulen,ulen_rec)
+
+            assertTrue(prj_or.nonorthogonal);
+            assertTrue(prj_rec.nonorthogonal);
+        end
+        function test_getset_nonortho_proj_ppp_110(~)
+            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+                'angdeg',[85 95 90],'nonorthogonal',true,...
+                'type','ppp','u',[1,1,0],'v',[0,1,0],'w',[1,1,1]);
+
+            [rlu_to_ustep, u_to_rlu, ulen] = prj_or.projaxes_to_rlu_public();
+
+            data = struct();
+            data.alatt = prj_or.alatt;
+            data.angdeg =prj_or.angdeg;
+            data.u_to_rlu = prj_or.u_to_rlu;
+            data.label = prj_or.label;
+            data.ulen = ulen;
+
+            prj_rec = ortho_proj.get_from_old_data(data);
+            prj_rec = ortho_projTester(prj_rec);
+            [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
+
+            assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(ulen,ulen_rec)
+
+            % and the matrices are correct!
+            assertTrue(prj_or.nonorthogonal);
+            assertTrue(prj_rec.nonorthogonal);
+            % BUT:
+            assertEqual(prj_or.type,'ppp')
+            assertEqual(prj_rec.type,'rrr')
+        end
+        function test_getset_nonortho_proj_par_110(~)
+            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+                'angdeg',[85 95 90],'nonorthogonal',true,...
+                'type','par','u',[1,1,0],'v',[0,1,0],'w',[1,1,1]);
+
+            [rlu_to_ustep, u_to_rlu, ulen] = prj_or.projaxes_to_rlu_public();
+
+            data = struct();
+            data.alatt = prj_or.alatt;
+            data.angdeg =prj_or.angdeg;
+            data.u_to_rlu = prj_or.u_to_rlu;
+            data.label = prj_or.label;
+            data.ulen = ulen;
+
+            prj_rec = ortho_proj.get_from_old_data(data);
+            prj_rec = ortho_projTester(prj_rec);
+            [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
+
+            assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(ulen,ulen_rec)
+
+            % and the matrices are correct!
+            assertTrue(prj_or.nonorthogonal);
+            assertTrue(prj_rec.nonorthogonal);
+            % BUT:
+            assertEqual(prj_or.type,'par')
+            assertEqual(prj_rec.type,'rar')            
+        end
+        
+
+        function test_getset_nonortho_proj_ppp_100(~)
+            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+                'angdeg',[85 95 90],'nonorthogonal',true,...
+                'type','ppp','u',[1,0,0],'v',[0,1,0],'w',[1,1,1]);
+
+            [rlu_to_ustep, u_to_rlu, ulen] = prj_or.projaxes_to_rlu_public();
+
+            data = struct();
+            data.alatt = prj_or.alatt;
+            data.angdeg =prj_or.angdeg;
+            data.u_to_rlu = prj_or.u_to_rlu;
+            data.label = prj_or.label;
+            data.ulen = ulen;
+
+            prj_rec = ortho_proj.get_from_old_data(data);
+            prj_rec = ortho_projTester(prj_rec);
+            [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
+
+            assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(ulen,ulen_rec)
+
+            % and the matrices are correct!
+            assertTrue(prj_or.nonorthogonal);
+            assertTrue(prj_rec.nonorthogonal);
+            % BUT:
+            assertEqual(prj_or.type,'ppp')
+            assertEqual(prj_rec.type,'rrr')
+        end
+
+        function test_getset_nonortho_proj_rrr_100(~)
+            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+                'angdeg',[85 95 90],'nonorthogonal',true,...
+                'type','rrr','u',[1,0,0],'v',[0,1,0],'w',[1,1,1]);
+
+            [rlu_to_ustep, u_to_rlu, ulen] = prj_or.projaxes_to_rlu_public();
+
+            data = struct();
+            data.alatt = prj_or.alatt;
+            data.angdeg =prj_or.angdeg;
+            data.u_to_rlu = prj_or.u_to_rlu;
+            data.label = prj_or.label;
+            data.ulen = ulen;
+
+            prj_rec = ortho_proj.get_from_old_data(data);
+            prj_rec = ortho_projTester(prj_rec);
+            [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
+
+            assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(ulen,ulen_rec)
+
+            % and the matrices are correct!
+            assertTrue(prj_or.nonorthogonal);
+            assertTrue(prj_rec.nonorthogonal);
+        end
+
+
+
+        function test_getset_nonortho_proj_rrr_noW(~)
+            prj_or = ortho_projTester('alatt',[3.1580 3.1752 3.1247], ...
+                'angdeg',[90.0013 89.9985 90.0003],'nonorthogonal',true,...
+                'type','rrr','u',[1,0,0],'v',[0,1,0]);
+
+            [rlu_to_ustep, u_to_rlu, ulen] = prj_or.projaxes_to_rlu_public();
+
+            data = struct();
+            data.alatt = prj_or.alatt;
+            data.angdeg =prj_or.angdeg;
+            data.u_to_rlu = prj_or.u_to_rlu;
+            data.label = prj_or.label;
+            data.ulen = ulen;
+
+            prj_rec = ortho_proj.get_from_old_data(data);
+            prj_rec = ortho_projTester(prj_rec);
+            [rlu_to_ustep_rec, u_to_rlu_rec,ulen_rec] = prj_rec.projaxes_to_rlu_public();
+
+            assertElementsAlmostEqual(rlu_to_ustep,rlu_to_ustep_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec,'absolute',6.e-6)
+            assertElementsAlmostEqual(ulen,ulen_rec)
+            % BUT!
+            % and the matrices are correct!
+            assertTrue(prj_or.nonorthogonal);
+            assertFalse(prj_rec.nonorthogonal);
+        end
+
         %
         function test_get_projection_from_aligned_sqw_data(~)
 
@@ -247,7 +470,7 @@ classdef test_ortho_proj_construction<TestCase
             proj1=do.get_projection();
             opt = ortho_projTester(proj1);
 
-            [rlu_to_ustep, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
+            [~, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
             assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]],...
                 'absolute',1.e-4)
             assertElementsAlmostEqual(data.ulen(1:3),ulen');
@@ -279,7 +502,7 @@ classdef test_ortho_proj_construction<TestCase
 
             opt = ortho_projTester(proj1);
 
-            [rlu_to_ustep, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
+            [~, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
             assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]])
             assertElementsAlmostEqual(data.ulen(1:3),ulen');
         end

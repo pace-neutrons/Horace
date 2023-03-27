@@ -40,19 +40,11 @@ if ~exist('ustep','var')
     ustep=[1,1,1];
 end
 
-try
-    b = bmatrix(proj.alatt, proj.angdeg);
-catch
-    rlu_to_ustep=[];
-    u_to_rlu=[];
-    ulen=[];
-    return;
-end
+b = bmatrix(proj.alatt, proj.angdeg);
 
 u=proj.u;
 v=proj.v;
-[ubmat, mess] = ubmatrix(u,v,b);  % get UB matrix
-if ~isempty(mess); rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return; end
+ubmat = ubmatrix(u,v,b);  % get UB matrix
 ubinv = inv(ubmat);         % inverse of ub matrix
 
 if isempty(proj.w)
@@ -98,7 +90,7 @@ else
         if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
             ulen(i) = 1/max(abs(ubinv(:,i)));       % length of ui in Ang^-1
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
-            ulen(i) = 1;                            % length of ui in Ang^-1
+            ulen(i) = 1;            % length of ui in Ang^-1
         elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
             ulen(i) = uvw_orthonorm(i,i);
         end
