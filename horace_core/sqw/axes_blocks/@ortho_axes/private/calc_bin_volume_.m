@@ -1,4 +1,4 @@
-function volume = calc_bin_volume_(~,ax_in_cell)
+function volume = calc_bin_volume_(obj,ax_in_cell)
 %CALC_BIN_VOLUME_ calculate the volume of a lattice cell defined by the
 %cellarray of lattice axes.
 %
