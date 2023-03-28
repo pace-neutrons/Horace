@@ -27,10 +27,8 @@ classdef test_ortho_axes < TestCase
 
             assertExceptionThrown(@()thrower(oa,'nonorthogonal',true), ...
                 'HORACE:ortho_axes:invalid_argument');
-            
-
-            
         end
+        %
         function test_unit_cell_set_get(~)
             range= zeros(2,4);
             range(2,:) = 1;

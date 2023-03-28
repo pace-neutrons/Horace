@@ -13,14 +13,14 @@ function [rlu_corr,alatt,angdeg,rotmat] = orient_crystal(rlu_index,rlu_real,rlu_
 %   alatt_init      Initial lattice parameters for start of refinement [a,b,c] (Angstroms)
 %   angdeg_init     Initial lattice angles for start of refinement [alf,bet,gam] (deg)
 %                  If one or both of alatt_init and angdeg_init are not given, then the corresponding
-%                  reference lattice parmaeters are taken as the initial values for refinement.
+%                  reference lattice parameters are taken as the initial values for refinement.
 %
 % Keywords (more than one is permitted if not inconsistent)
 %   fix_lattice     Fix all lattice parameters [a,b,c,alf,bet,gam]
 %                  i.e. only allow crystal orientation to be refined
 %   fix_alatt       Fix [a,b,c] but allow lattice angles alf, bet and gam to be refined
 %                  together with crystal orientation
-%   fix_angdeg      Fix [alf,bet,gam] but allow pattice parameters [a,b,c] to be refined
+%   fix_angdeg      Fix [alf,bet,gam] but allow lattice parameters [a,b,c] to be refined
 %                  together with crystal orientation
 %   fix_alatt_ratio Fix the ratio of the lattice parameters as given by the values in
 %                  lattice_init, but allow the overall scale of the lattice to be refined
@@ -177,8 +177,8 @@ ortho_set = [e1,e2,e3];
 function [alatt,angdeg]=refine_lattice(rlu_index,rlu_real,rlu_errors,alatt0,angdeg0,fix_alatt,fix_alatt_ratio,fix_angdeg)
 % refine lattice according to G-tensor procedure
 %
-% Entirely worng statistics
-% needs mprovement either as described in
+% Entirely wrong statistics
+% needs improvement either as described in
 % Acta Cryst. A 1970 26(1) pp97-101
 % or just by fitting to minimize the B'*B deviation from an average
 %
