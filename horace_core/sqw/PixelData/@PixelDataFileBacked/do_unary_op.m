@@ -9,7 +9,9 @@ function pix_out = do_unary_op(obj, unary_op)
 
 pix_out = obj;
 
-pix_out = pix_out.get_new_handle();
+if isempty(pix_out.file_handle_)
+    pix_out = pix_out.get_new_handle();
+end
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 

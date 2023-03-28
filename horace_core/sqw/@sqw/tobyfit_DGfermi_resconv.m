@@ -124,7 +124,6 @@ wout = copy(win);
 state_out = cell(size(win));    % create output argument
 store_out = [];
 
-
 % Create pointers to parts of lookup structure
 % --------------------------------------------
 moderator_table = lookup.moderator_table;
@@ -192,8 +191,8 @@ for i=1:numel(ind)
     dq_mat=lookup.dq_mat{iw};
 
     % Run and detector for each pixel
-    irun = win(i).pix.run_idx';   % column vector
-    idet = win(i).pix.detector_idx';   % column vector
+    irun = win(i).pix.get_fields('run_idx', 'all')';   % column vector
+    idet = win(i).pix.get_fields('detector_idx', 'all')';   % column vector
     npix = win(i).pix.num_pixels;
     %HACK. TODO: do it properly (ticket #901)
     max_irun = max(irun);
@@ -292,7 +291,30 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         end
     end
-    wout(i).pix.signal=stmp(:)'/mc_points;
-    wout(i).pix.variance=zeros(1,numel(stmp));
-    wout(i)=recompute_bin_data(wout(i));
+
+    if wout.pix.is_filebacked
+        wout = wout.get_new_handle();
+
+        s_ind = wout.pix.check_pixel_fields('signal');
+        v_ind = wout.pix.check_pixel_fields('variance');
+
+        for page = 1:wout.pix.num_pages
+            [wout.pix, data] = wout.pix.load_page(page);
+            [start_idx, end_idx] = wout.pix.get_page_idx_(page);
+
+            data(s_ind, :) = stmp(start_idx:end_idx)/mc_points;
+            data(v_ind, :) = 0;
+
+            wout.pix.format_dump_data(data);
+        end
+        wout.pix = wout.pix.finalise();
+
+    else
+        wout(i).pix.signal = stmp(:)'/mc_points;
+        wout(i).pix.variance = zeros(1,numel(stmp));
+    end
+
+    wout(i) = recompute_bin_data(wout(i));
+end
+
 end

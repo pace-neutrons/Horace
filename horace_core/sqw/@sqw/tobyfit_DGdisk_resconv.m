@@ -196,13 +196,16 @@ for i=1:numel(ind)
     dq_mat=lookup.dq_mat{iw};
 
     % Run and detector for each pixel
-    run_idx = win(i).pix.run_idx';   % column vector
+    run_idx = win(i).pix.get_fields('run_idx', 'all')';   % column vector
+
     %HACK. TODO: do it properly (ticket #901)
     max_irun = max(run_idx);
     if max_irun>win(i).main_header.nfiles
         rmp = win(i).runid_map;
-        runid_array = rmp.keys;  runid_array = [runid_array{:}];
-        runid_val   = rmp.values;runid_val   = [runid_val{:}];
+        runid_array = rmp.keys;
+        runid_array = [runid_array{:}];
+        runid_val   = rmp.values;
+        runid_val   = [runid_val{:}];
         max_id = max(runid_array);
         min_id = min(runid_array)-1;
         lookup_ind = inf(max_id-min_id+1,1);
@@ -215,7 +218,7 @@ for i=1:numel(ind)
 
 
 
-    idet = win(i).pix.detector_idx';   % column vector
+    idet = win(i).pix.get_fields('detector_idx', 'all')';   % column vector
     npix = win(i).pix.num_pixels;
 
     % Catch case of refining crystal orientation or moderator parameters
@@ -300,7 +303,28 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         end
     end
-    wout(i).pix.signal = stmp(:)'/mc_points;
-    wout(i).pix.variance = zeros(1,numel(stmp));
+
+    if wout.pix.is_filebacked
+        wout = wout.get_new_handle();
+
+        s_ind = wout.pix.check_pixel_fields('signal');
+        v_ind = wout.pix.check_pixel_fields('variance');
+
+        for page = 1:wout.pix.num_pages
+            [wout.pix, data] = wout.pix.load_page(page);
+            [start_idx, end_idx] = wout.pix.get_page_idx_(page);
+
+            data(s_ind, :) = stmp(start_idx:end_idx)/mc_points;
+            data(v_ind, :) = 0;
+
+            wout.pix.format_dump_data(data);
+        end
+        wout.pix = wout.pix.finalise();
+
+    else
+        wout(i).pix.signal = stmp(:)'/mc_points;
+        wout(i).pix.variance = zeros(1,numel(stmp));
+    end
+
     wout(i)=recompute_bin_data(wout(i));
 end

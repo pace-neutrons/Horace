@@ -141,6 +141,13 @@ classdef spher_axes < AxesBlockBase
     end
     %----------------------------------------------------------------------
     methods(Access=protected)
+        function  volume = calc_bin_volume(obj,axis_cell)
+            % calculate bin volume from the  axes of the axes block or input 
+            % axis organized in cellarray of 4 axis. Will return array of
+            % bin volumes 
+            volume = calc_bin_volume_(obj,axis_cell);
+        end
+        
         function  obj = check_and_set_img_range(obj,val)
             % main setter for spherical image range.
             obj = check_and_set_img_range_(obj,val);
@@ -155,8 +162,8 @@ classdef spher_axes < AxesBlockBase
             pbin = default_pbin_(obj,ndim);
         end
         function  [range,nbin]=pbin_parse(obj,p,p_defines_bin_centers,i)
-            % takes binning parameters and converts it into axis binning
-            % for the given axiss
+            % take binning parameters and converts them into axes bin ranges
+            % and number of bins defining this axes block
             [range,nbin]=pbin_parse_(obj,p,p_defines_bin_centers,i);
         end
     end
@@ -187,7 +194,7 @@ classdef spher_axes < AxesBlockBase
             ver = 1;
         end
         %
-        function flds = saveableFields(obj)
+        function flds = saveableFields(obj,varargin)
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = saveableFields@AxesBlockBase(obj);

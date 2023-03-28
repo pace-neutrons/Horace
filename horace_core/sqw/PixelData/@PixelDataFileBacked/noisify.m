@@ -57,7 +57,12 @@ end
 
 % page over pix_out noisifying each page using either Poisson or the max
 % value extracted above
-pix_out = pix_out.get_new_handle();
+
+% If we're being called from tests
+if isempty(pix_out.file_handle_)
+    pix_out = pix_out.get_new_handle();
+end
+
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 

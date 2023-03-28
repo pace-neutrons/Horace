@@ -8,7 +8,7 @@ function   obj = put_pix(obj,varargin)
 %
 % Optional:
 % '-update' -- update existing data rather then (over)writing new file
-%             (deprecated, ignored, update occurs automatically if proper file is 
+%             (deprecated, ignored, update occurs automatically if proper file is
 %              provided)
 % '-nopix'  -- do not write pixels
 % '-reserve' -- if applied together with nopix, pixel information is not
@@ -28,10 +28,10 @@ end
 
 if ~isempty(argi) % parse inputs which may or may not contain any
     % combination of 3 following input parameters:
-    sqw_pos = cellfun(@(x)(isa(x,'sqw')||isstruct(x)),argi);
-    numeric_pos = cellfun(@(x)(isnumeric(x)&&~isempty(x)),argi);
-    parallel_Fw = cellfun(@(x)isa(x,'JobDispatcher'),argi);
-    %
+    sqw_pos = cellfun(@(x) isa(x,'sqw') || isstruct(x), argi);
+    numeric_pos = cellfun(@(x) isnumeric(x) && ~isempty(x), argi);
+    parallel_Fw = cellfun(@(x) isa(x,'JobDispatcher'), argi);
+
     unknown  = ~(sqw_pos|numeric_pos|parallel_Fw);
     if any(unknown)
         if isempty(argi{1})
@@ -64,10 +64,12 @@ if ~isempty(argi) % parse inputs which may or may not contain any
     else
         input_obj = obj.sqw_holder_.pix;
     end
+
 else
     input_obj = obj.sqw_holder_.pix;
     jobDispatcher = [];
 end
+
 if isnumeric(input_obj)
     num_pixels = size(input_obj,2);
 else
@@ -75,11 +77,12 @@ else
 end
 
 
-if ~(isa(input_obj,'pix_combine_info')|| (~isnumeric(input_obj)&&input_obj.is_filebacked))
+if ~(isa(input_obj,'pix_combine_info') || (~isnumeric(input_obj) && input_obj.is_filebacked))
     obj = obj.put_sqw_block('bl_pix_metadata',input_obj);
     obj = obj.put_sqw_block('bl_pix_data_wrap',input_obj);
     return;
 end
+
 obj = obj.put_sqw_block('bl_pix_metadata',input_obj.metadata);
 
 % get block responsible for writing pix_data
@@ -87,6 +90,7 @@ pdb = obj.bat_.blocks_list{end};
 if nopix && ~reserve
     pdb.npix = 0;
 end
+
 % write pixel data block information; number of dimensions and number of pixels
 pdb.put_data_header(obj.file_id_);
 
@@ -101,7 +105,8 @@ catch ME
 end
 
 if nopix && reserve
-    block_size= config_store.instance().get_value('hor_config','mem_chunk_size'); % size of buffer to hold pixel information
+    % size of buffer to hold pixel information
+    block_size= config_store.instance().get_value('hor_config','mem_chunk_size');
 
     if block_size >= num_pixels
         res_data = single(zeros(9,num_pixels));
@@ -125,17 +130,18 @@ end
 if num_pixels == 0
     return % nothing to do.
 end
-%
+
 if isa(input_obj,'pix_combine_info') % pix field contains info to read &
     %combine pixels from sequence of files. There is special sub-algorithm
     %to do that.
     obj = obj.put_sqw_data_pix_from_file(input_obj, jobDispatcher);
+
 elseif isa(input_obj,'PixelDataBase')  % write pixels stored in other file
 
     n_pages = input_obj.num_pages;
     for i = 1:n_pages
-        input_obj.page_num = i;
-        pix_data = input_obj.get_pixels('-keep_precision','-raw_data');
+        [input_obj, pix_data] = input_obj.load_page(i);
+
         try
             fwrite(obj.file_id_, single(pix_data), 'float32');
             obj.check_write_error(obj.file_id_);

@@ -124,7 +124,8 @@ classdef aProjectionBase < serializable
         do_3D_transformation_ = true;
         %------------------------------------------------------------------
     end
-
+    %======================================================================
+    % ACCESSORS AND CONSTRUCTION
     methods
         function [obj,par]=aProjectionBase(varargin)
             % aProjectionBase constructor.
@@ -161,12 +162,14 @@ classdef aProjectionBase < serializable
             % Returns:
             % obj  -- Initialized instance of aProjectionBase class
             % remains
-            %      -- if input arguments contains key-value pairs which do
-            %         not describe aProjectionBase class, the output contains
+            %      -- if input arguments contain key-value pairs which do not
+            %         describe aProjectionBase class, the output contains
             %         cellarray of such parameters. Empty, if all inputs
             %         define the projection parameters.
             %
-            opt_par = aProjectionBase.init_params;
+
+            % get list of the property names, used in initialization
+            init_par = aProjectionBase.init_params;
             remains = [];
             if nargin == 0
                 return;
@@ -176,47 +179,12 @@ classdef aProjectionBase < serializable
             else
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
-                    opt_par,false,varargin{:});
+                    init_par,false,varargin{:});
             end
         end
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
-        %
-        function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
-                targ_axes_block,targ_proj)
-            % return the positions and the sizes of the pixels blocks
-            % belonging to the cells which may contribute to the final cut.
-            % The cells are defined by the projections and axes block-s,
-            % provided as input.
-            %
-            % Generic (less efficient) implementation
-            if ~exist('targ_proj','var')
-                targ_proj = [];
-            else
-                %targ_proj.do_generic = true;    %| DEBUGGING generic algorithm,
-                %source_proj.do_generic = true;  %| disable specialization
-                %
-                % Assign target projection to verify if optimization is
-                % available and enable if it available
-                targ_proj.targ_proj = obj;
-                obj.targ_proj = targ_proj;
-            end
-            contrib_ind= obj.get_contrib_cell_ind(...
-                cur_axes_block,targ_proj,targ_axes_block);
-            if isempty(contrib_ind)
-                bl_start  = [];
-                bl_size = [];
-                return;
-            end
-            % Calculate pix indexes from cell indexes. Compress indexes of
-            % contributing cells into bl_start:bl_start+bl_size-1 form if
-            % it has not been done before.
-            % Converted to form ideal for filebased access but not
-            % so optimal for arrays.
-            [bl_start,bl_size] = obj.convert_contrib_cell_into_pix_indexes(...
-                contrib_ind,npix);
-        end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         % accessors
@@ -309,8 +277,97 @@ classdef aProjectionBase < serializable
         function obj = set.do_3D_transformation(obj,val)
             obj.do_3D_transformation_ = logical(val);
         end
-        %------------------------------------------------------------------
-        %------------------------------------------------------------------
+    end
+    %======================================================================
+    % MAIN PROJECTION OPERATIONS
+    methods
+        function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
+                targ_axes_block,targ_proj)
+            % return the positions and the sizes of the pixels blocks
+            % belonging to the cells which may contribute to the final cut.
+            % The cells are defined by the projections and axes block-s,
+            % provided as input.
+            %
+            % Generic (less efficient) implementation
+            if ~exist('targ_proj','var')
+                targ_proj = [];
+            else
+                %targ_proj.do_generic = true;    %| DEBUGGING generic algorithm,
+                %source_proj.do_generic = true;  %| disable specialization
+                %
+                % Assign target projection to verify if optimization is
+                % available and enable if it available
+                targ_proj.targ_proj = obj;
+                obj.targ_proj = targ_proj;
+            end
+            contrib_ind= obj.get_contrib_cell_ind(...
+                cur_axes_block,targ_proj,targ_axes_block);
+            if isempty(contrib_ind)
+                bl_start  = [];
+                bl_size = [];
+                return;
+            end
+            % Calculate pix indexes from cell indexes. Compress indexes of
+            % contributing cells into bl_start:bl_start+bl_size-1 form if
+            % it has not been done before.
+            % Converted to form ideal for filebased access but not
+            % so optimal for arrays.
+            [bl_start,bl_size] = obj.convert_contrib_cell_into_pix_indexes(...
+                contrib_ind,npix);
+        end
+        function   [may_contribND,may_contrib_dE] = may_contribute(obj, ...
+                cur_axes_block, targ_proj,targ_axes_block)
+            % return logical array of size of the current axes block grid
+            % containing true for the cells which may contribute into
+            % into cut, descrined by target projection and target axes
+            % block/
+            %
+            % Part of get_nrange -> get_contrib_cell_ind routines
+            % Inputs:
+            % cur_axes_block -- the axes block for the current ND_image
+            % targ_proj      -- the projection, which defines the target
+            %                   coordinate system
+            % targ_axes_block-- the axes block for the coordinate system,
+            %                   requested by the cut
+            % Output:
+            % may_contribND --  logical 1D array of cur_axes_block grid numel,
+            %                   containing true for cells with may
+            %                   contribute to cut and false for thouse
+            %                   which would not. If projection does 3D
+            %                   transformation and energy axes is
+            %                   orthogonal to it, size and values correspond
+            %                   to 3D Q-grid.
+            %                   if projection does 4D transformation,
+            %                   the size and values are for 4D grid.
+            % may_contrib_dE -- logical array containing possible
+            %                   contribution from energy transfer cells.
+            %                   empty in 4D case.
+
+            [may_contribND,may_contrib_dE] = may_contribute_(obj,...
+                cur_axes_block,targ_proj,targ_axes_block);
+        end
+        %
+        function ax_num = projection_axes_coverage(obj,source_ax_block)
+            % method defines what axes become intertangled if some
+            % projection is involved.
+            %
+            % E.g. if source projection and target projections are ortho_proj,
+            % only projection axes contribute into projection axess of each other.
+            % if target projection is a spherical projection, changes to
+            % one projection axis of the orthogonal source projectin would
+            % contribute to all axes of the sperical projection.
+
+            % NOTE: needs some further thinking about it.
+            if isempty(obj.targ_proj_) || isa(obj,class(obj.targ_proj_))
+                ax_num = source_ax_block.pax;
+            else
+                if obj.do_3D_transformation && ~any(source_ax_block.pax == 4)
+                    ax_num = 1:3;
+                else
+                    ax_num = 1:4;
+                end
+            end
+        end
         % Generic methods, which provide generic interface but should
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
@@ -447,10 +504,10 @@ classdef aProjectionBase < serializable
             %           if requested binning ranges are undefined or
             %           infinite. Usually it is the range of the existing
             %           axes block, transformed into the system
-            %           coordinates, defined by obj projection by
-            %           AxesBlockBase.get_binning_range method.
+            %           coordinates, defined by cut projection using
+            %           dnd.targ_range(targ_proj) method.
             % req_bin_ranges --
-            %           cellarray of bin ranges, requested by user.
+            %           cellarray of cut bin ranges, requested by user.
             %
             % Returns:
             % ax_bl -- initialized, i.e. containing defined ranges and
@@ -467,9 +524,9 @@ classdef aProjectionBase < serializable
             end
         end
         %
-        function targ_range = calc_target_range(obj,pix_origin,varargin)
+        function targ_range = calc_pix_img_range(obj,pix_origin,varargin)
             % Calculate and return the range of pixels in target coordinate
-            % system.
+            % system, i.e. the image coordinate system.
             %
             % Not very efficient in the generic form, but may be efficiently
             % overloaded by children. (especially in mex-mode when transformed
@@ -481,6 +538,8 @@ classdef aProjectionBase < serializable
             % Returns:
             % targ_range  -- the range of the pixels, transformed to target
             %                coordinate system.
+            % NOTE:
+            % Need verification for non ortho_proj
             pix_transformed = obj.transform_pix_to_img(pix_origin,varargin{:});
             if isa(pix_origin, 'PixelDataBase')
                 targ_range = pix_transformed.pixel_range;
@@ -490,7 +549,7 @@ classdef aProjectionBase < serializable
             end
         end
     end
-    %
+    %======================================================================
     methods(Access = protected)
         function  alat = get_alatt_(obj)
             % overloadable alatt accessor
@@ -519,10 +578,12 @@ classdef aProjectionBase < serializable
                 error('HORACE:aProjectionBase:invalid_argument',...
                     ['only member of aProjectionBase family can be set up as a target projection.',...
                     ' Attempted to use: %s'],...
-                    evalc('disp(type(val))'))
+                    disp2str(val))
             end
             obj.targ_proj_ = val;
+            obj.do_3D_transformation_ = val.do_3D_transformation;
         end
+        %
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)
             % get indexes of cells which may contributing into the cut.
@@ -660,7 +721,7 @@ classdef aProjectionBase < serializable
     methods(Abstract,Access=protected)
         % function returns u_to_rlu matrix for appropriate coordinate
         % system
-        mat = get_u_to_rlu_mat(obj);        
+        mat = get_u_to_rlu_mat(obj);
     end
     %======================================================================
     % Serializable interface

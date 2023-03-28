@@ -17,6 +17,39 @@ classdef test_spher_axes < TestCase
         end
         %
         %------------------------------------------------------------------
+        function test_bin_voulume_array(~)
+            dbr = ...
+                [0.5, 45,  0, 0;...
+                1.5 , 46, 90, 10];
+            ab = spher_axes('img_range',dbr,'nbins_all_dims',[10,10,10,10]);
+
+            vol = ab.get_bin_volume();
+            assertEqual(numel(vol),10^4);
+        end       
+        function test_bin_volume_single(~)
+            dbr = ...
+                [  1, 45,  0, 0;...
+                1.1 , 46, 90, 10];
+            ab = spher_axes('img_range',dbr,'nbins_all_dims',[1,1,10,10]);
+
+            vol = ab.get_bin_volume();
+            assertEqual(numel(vol),1);
+			% single bin volume Int(r^2*sin(theta)dTheta*dPhi)
+            ref_vol = 0.1*1.1033* (cosd(45)-cosd(46))*9*pi/180*1;
+            assertEqualToTol(vol,ref_vol,1.e-8);
+        end
+        function test_bin_volume_single_large(~)
+            dbr = ...
+                [0,  0,-180, 0;...
+                1 , 90, 180, 10]; % half a sphere
+            ab = spher_axes('img_range',dbr,'nbins_all_dims',[1,1,1,10]);
+
+            vol = ab.get_bin_volume();
+            assertEqual(numel(vol),1);
+            ref_vol = 2*pi/3;  % half a sphere volume
+            assertEqualToTol(vol,ref_vol,1.e-8);
+        end        
+        %------------------------------------------------------------------
         function test_axes_ranges_at_limits(~)
             dbr = ...
                 [0,0,-180,-10;...
@@ -24,7 +57,8 @@ classdef test_spher_axes < TestCase
             bin0 = {[dbr(1,1),0.5,dbr(2,1)];[dbr(1,2),1,dbr(2,2)];...
                 [dbr(1,3),1,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = spher_axes(bin0{:});
-            range = ab.get_binning_range();
+            dobj = DnDBase.dnd(ab,ortho_proj);
+            range = dobj.targ_range([],'-bin');
             ac_range = {[0.25,0.5,10.25];[0.5,1,179.5];[-179.5,1,179.5];[dbr(1,4),1,dbr(2,4)]};
             assertEqual(ac_range,range');
         end
@@ -34,7 +68,8 @@ classdef test_spher_axes < TestCase
             bin0 = {[dbr(1,1),0.5,dbr(2,1)];[dbr(1,2),1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = spher_axes(bin0{:});
-            range = ab.get_binning_range();
+            dobj = DnDBase.dnd(ab,ortho_proj);
+            range = dobj.targ_range([],'-bin');
             assertEqual(bin0,range');
         end
         %

@@ -56,7 +56,11 @@ function [proj, pbin,opt] = ...
 %                                integration range for three cuts, the first
 %                                cut integrates the axis over 105-107, the
 %                                second over 109-111 and the third 113-115.
-
+%NOTE:
+% The cut bin ranges are expressed in the coordinate system related to
+% the target projection
+%
+%
 % Parse the input arguments to cut_sqw_main and cut_sqw_sym_main
 %
 %   >> [proj, pbin, opt] = ...

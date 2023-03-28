@@ -22,10 +22,7 @@ function weight = sheet_sqw (qh,qk,ql,en,pars,lattice,normal)
 amp=pars(1);
 qsig=pars(2)/sqrt(log(256));
 
-[b,~,~,mess] = bmatrix(lattice(1:3),lattice(4:6));
-if ~isempty(mess)
-    error(mess)
-end
+b = bmatrix(lattice(1:3),lattice(4:6));
 
 % Get normal and Q in crystal Cartesisn coordinates
 n = b*normal(:);

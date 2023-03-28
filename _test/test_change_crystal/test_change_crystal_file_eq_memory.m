@@ -58,14 +58,13 @@ classdef test_change_crystal_file_eq_memory < TestCase
             w2c_1=read_sqw(w2c_1_file);
             w2c_2=read_sqw(w2c_2_file);
 
-            w2c_1.data.proj = ref_ans(1).data.proj; %this disables failure #846!
+
             [ok, mess]=equal_to_tol(w2c_1, ref_ans(1),[2.e-7,2e-7], ...
                 'nan_equal',true,'ignore_str',true,'-ignore_date');
             assertTrue(ok,mess)
-            w2c_2.data.proj = ref_ans(2).data.proj; %this disables failure #846!
             assertEqualToTol(w2c_2, ref_ans(2),[2.e-7,2e-7], ...
                 'nan_equal',true,'ignore_str',true,'-ignore_date');
-            skipTest('Disabled due to issue #846')
+
         end
 
         function test_change_crystal_sqw_in_file_eq_change_in_memory(obj)
@@ -79,11 +78,8 @@ classdef test_change_crystal_file_eq_memory < TestCase
             change_crystal_sqw(w2c_1_file,obj.rlu_corr);
             w2c_1=read_sqw(w2c_1_file);
 
-
-            w2c_1.data.proj = ref_ans.data.proj; %this disables failure #846!
             assertEqualToTol(w2c_1, ref_ans,[2.e-7,2e-7], ...
                 'nan_equal',true,'ignore_str',true,'-ignore_date');
-            skipTest('Disabled due to issue #846')
         end
         function test_change_crystal_d2darray_in_file_eq_change_in_memory(obj)
             %
@@ -103,14 +99,12 @@ classdef test_change_crystal_file_eq_memory < TestCase
             d2c_2=read_dnd(d2c_2_file);
 
 
-            d2c_1.proj = ref_ans(1).proj; %this disables failure #846!
             [ok, mess]=equal_to_tol(d2c_1, ref_ans(1),[2.e-7,2e-7], ...
                 'nan_equal',true,'ignore_str',true);
             assertTrue(ok,mess)
-            d2c_2.proj = ref_ans(2).proj; %this disables failure #846!
+
             assertEqualToTol(d2c_2, ref_ans(2),[2.e-7,2e-7], ...
                 'nan_equal',true,'ignore_str',true);
-            skipTest('Disabled due to issue #846')
         end
 
         function test_change_crystal_d2d_in_file_eq_change_in_memory(obj)
@@ -126,11 +120,8 @@ classdef test_change_crystal_file_eq_memory < TestCase
             d2c_1=read_dnd(d2c_1_file);
 
 
-            d2c_1.proj = ref_ans.proj; %this disables failure #846!
             assertEqualToTol(d2c_1, ref_ans,[2.e-7,2e-7], ...
                 'nan_equal',true,'ignore_str',true);
-            skipTest('Disabled due to issue #846')
-
         end
     end
 end
