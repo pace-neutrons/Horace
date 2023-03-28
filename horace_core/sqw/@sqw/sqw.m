@@ -224,6 +224,30 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 end
             end
         end
+        
+        function obj = check_combo_arg(obj)
+            % Deals with input of old-style objects where detpar is defined
+            % but the detector arrays in experiment_info are empty
+            %
+            % NB combined if-expression is in parentheses to help visually
+            % locate it - just useful cosmetic
+            
+            if (~isempty(obj.detpar)                             && ...
+                IX_detector_array.check_detpar_parms(obj.detpar) && ...
+                obj.experiment_info.detector_arrays.n_runs == 0     ...
+               )
+            
+                n_runs = obj.experiment_info.n_runs;
+                detector = IX_detector_array(obj.detpar);
+                updated_detectors = obj.experiment_info.detector_arrays;
+                for i=1:n_runs
+                    updated_detectors = updated_detectors.add(detector);
+                end
+                obj.experiment_info.detector_arrays = updated_detectors;
+                
+            end 
+        end
+
         %------------------------------------------------------------------
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)

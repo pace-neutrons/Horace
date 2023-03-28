@@ -97,136 +97,88 @@ classdef IX_detector_bank < serializable
             if numel(varargin)==0
                 dmat = eye(3);
                 ndet0 = 1;
+            elseif numel(varargin)~=2
+                error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
+                      'must be 2 or 0 optional arguments to describe orientation type and value');
             else
-                types = det_orient_trans();
-                if numel(varargin)==2 && is_string(varargin{1}) && ~isempty(varargin{1})
+                types = {'dmat','rotvec'}; % unpack this from det_orient_trans(); for ease of reading
+                if is_string(varargin{1}) && ~isempty(varargin{1})
                     iout = stringmatchi(varargin{1},types);
                     if isscalar(iout)
+                        % convert varargin{2} to dmat, either unchanged if
+                        % already dmat, or converted from rotvec to dmat
+                        % also extract no. detectors as per dmat
                         [ok,mess,ndet0,dmat] = det_orient_trans (varargin{2}, types{iout}, 'dmat');
                         if ~ok, error(mess); end
                     else
-                        error('Unrecognised or ambiguous orientation type')
+                        error(HERBERT:IX_detector_bank_constructor:invalid_argument', ...
+                          'Unrecognised or ambiguous orientation type')
                     end
                 else
-                    error('Must supply one and only one detector orientation description')
+                    error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
+                          'first optional argument must be a non-empty char/string');
                 end
             end
+            % dmat is now a 'dmat' type i.e. with size [3,3,ndet0]
             
             % Check detector identifiers
-            [ok,mess,ix] = is_integer_id(id);
-            if ok
+            %                         [ok,mess,ix] = is_integer_id(id);
+            % detector ids must not be empty
+            if isempty(id)
+                error('HERBERT:IX_detector_bank_constructor:invalid_argument','detector ids empty');
+            end
+            % detector ids must be positive integers
+            if ~all(id>=1) || ~all(rem(id,1)==0)
+                error('HERBERT:IX_detector_bank_constructor:invalid_argument','detector ids not integer and positive');
+            end
+            % convert detector ids to column vector, set no. detectors as per id
+            obj.id_ = id(:);
                 ndet = numel(id);
-                if ndet>=1
-                    obj.id_ = id(:);
-                else
-                    error('There must be at least one detector identifier')
-                end
-            else
-                error(['Detector ',mess])
-            end
             
-            % Check position coordinates
+            % NB accept detector ids as-is for ordering; do not force
+            % ascending order (or any order)
+            
+            % Expand position coordinates to vectors if input as scalars
+            % (i.e. constant over all vectors)
+            % NB in the examples in the tests, id is a row vector,
+            % x2/phi/axim are column vectors. The expand_args_by_ref
+            % function converts x2/phi/azim to rows by reshaping to the
+            % size of id
             [x2_exp, phi_exp, azim_exp] = expand_args_by_ref (id, x2, phi, azim);
-            if isempty(ix)
-                obj.x2_   = x2_exp;
-                obj.phi_  = phi_exp;
-                obj.azim_ = azim_exp;
-            else
-                obj.x2_   = x2_exp(ix);
-                obj.phi_  = phi_exp(ix);
-                obj.azim_ = azim_exp(ix);
-            end
             
-            % Check detector orientation
-            if ndet==ndet0
-                if ~isempty(ix)
-                    obj.dmat_ = dmat(:,:,ix);
-                else
+            % Set object properties from argument expansion
+            % the output is forced to be column vectors as previously done
+            % in the underscore setters. Note that it is now assumed that
+            % x2/phi/azim are not empty
+            obj.x2_   = x2_exp(:);
+            obj.phi_  = phi_exp(:);
+            obj.azim_ = azim_exp(:);
+            
+            % Repeat for detector orientation
+            if ndet0==ndet % dmat size matches id size
                     obj.dmat_ = dmat;
-                end
-            elseif ndet0==1 % must have ndet>1, as scalar case already caught
-                obj.dmat_ = repmat(dmat,[1,1,ndet]);
+            elseif ndet0==1 % dmat is a single [3,3] value
+                obj.dmat_ = repmat(dmat,[1,1,ndet]); % expand its size to agree with id
             else
-                error('Number of detector orientations must be unity or match the number of detector identifiers')
+                error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
+                      'Number of detector orientations must be unity or match the number of detector identifiers')
             end
             
-            % Check detector parameters
+            % Repeat for detector objects
             obj.det_ = det;     % this assignment will check correct class of det
-            if det.ndet==ndet
-                if ~isempty(ix)
-                    obj.det_  = obj.det_.reorder(ix);
-                end
-            elseif det.ndet==1  % must have ndet>1, as scalar case already caught
+            if det.ndet==1  % must make ndet>1, as scalar case already caught
                 obj.det_ = obj.det_.replicate(ndet);
-            else
-                error('Number of detectors must be unity or match the number of detector identifiers')
+            elseif det.ndet ~= ndet
+                error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
+                      'Number of detectors must be unity or match the number of detector identifiers')
             end
             
         end
         %------------------------------------------------------------------
-        % Set methods
-        %
-        % Test the validity where there is no dependency on other private properties
-        
-        function obj = set.id_(obj,val)
-            % Will have put val through checks before reaching here, either in the
-            % constructor or the setting of dependent property id
-            obj.id_ = val;
-        end
-        
-        function obj = set.x2_(obj,val)
-            if isempty(val)
-                % keeps shape of val as shape of empty val(:) is different 
-                obj.x2_ = val;
-                return;
-            end
-            if all(val(:) >= 0)
-                obj.x2_ = val(:);
-            else
-                error('Sample - detector distance(s) must be greater or equal to zero')
-            end
-        end
-        
-        function obj = set.phi_(obj,val)
-            if isempty(val)
-                % keeps shape of val as shape of empty val(:) is different
-                obj.phi_ = val;
-                return;
-            end
-            if all(val(:) >= 0) && all(val(:)<180)
-                obj.phi_ = val(:);
-            else
-                error('Scattering angle(s) must lie in the range 0 inclusive to 180 degrees exclusive')
-            end
-        end
-        
-        function obj = set.azim_(obj,val)
-            if isempty(val)
-                % keeps shape of val as shape of empty val(:) is different                
-                obj.azim_ = val;
-                return;
-            end
-            obj.azim_ = val(:);
-        end
-        
-        function obj = set.dmat_(obj,val)
-            % Will have put val through checks before reaching here, either in the
-            % constructor or the setting of dependent property id
-            obj.dmat_ = val;
-        end
-        
-        function obj = set.det_(obj,val)
-            if isa(val,'IX_det_abstractType') && isscalar(val)
-                obj.det_ = val;
-            else
-                error('Detector type must be a single IX_det_abstractType object')
-            end
-        end
-        
-        %------------------------------------------------------------------
-        % Set methods for dependent properties
+        % Set/get methods for dependent properties (combined)
         %
         % Checks that rely on interdependencies must go here
+        % first, dealing with the combined variables
         
         function val = get.combined(obj)
             val = struct();
@@ -247,12 +199,24 @@ classdef IX_detector_bank < serializable
             obj.det_ = val.det;
         end
         
+        %------------------------------------------------------------------
+        % Set/get methods for dependent properties (individual)
+        %
+        % Checks that rely on interdependencies must go above
+        
+        %{
         function obj = set.id (obj,val)
+        %SET.ID sets ALL the id numbers for detectors
             if numel(val)==numel(obj.id_)
+                % checks val is positive non-duplicate integers
+                % and gives the permutation ix to make it ascending order
                 [ok,mess,ix] = is_integer_id(val);
                 if ok
                     obj.id_ = val(:);
                     if ~isempty(ix)
+                        % reorder id to match reordering of the
+                        % x2/phi/azim/dmat/det
+                        obj.id_   = obj.id_(ix);
                         obj.x2_   = x2_exp(ix);
                         obj.phi_  = phi_exp(ix);
                         obj.azim_ = azim_exp(ix);
@@ -260,10 +224,12 @@ classdef IX_detector_bank < serializable
                         obj.det_  = obj.det_.reorder(ix);
                     end
                 else
-                    error(['Detector ',mess])
+                    error('HORACE:IX_detector_bank:set.id', ['Detector ',mess]);
                 end
             else
-                error('The number of detector identifiers must match the current number')
+                error('HORACE:IX_detector_bank:set.id', ...
+                      ['The number of detector identifiers must match ' ...
+                       'the current number']);
             end
         end
         
@@ -305,7 +271,49 @@ classdef IX_detector_bank < serializable
                     error('The number of detectors must match be unity or equal the number of detector identifiers')
                 end
             end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg(true);
+            end
         end
+        
+        function obj = check_combo_arg(obj,do_recompute_components)
+            % verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check
+
+            % Throw if the properties are inconsistent and return without
+            % problem it they are not, after recomputing pdf table if
+            % requested.
+            if ~exist('do_recompute_components','var')
+                do_recompute_components = true;
+            end
+            if do_recompute_components
+            if numel(val)==numel(obj.id_)
+                % checks val is positive non-duplicate integers
+                % and gives the permutation ix to make it ascending order
+                [ok,mess,ix] = is_integer_id(val);
+                if ok
+                    obj.id_ = val(:);
+                    if ~isempty(ix)
+                        % reorder id to match reordering of the
+                        % x2/phi/azim/dmat/det
+                        obj.id_   = obj.id_(ix);
+                        obj.x2_   = x2_exp(ix);
+                        obj.phi_  = phi_exp(ix);
+                        obj.azim_ = azim_exp(ix);
+                        obj.dmat_ = obj.dmat_(:,:,ix);
+                        obj.det_  = obj.det_.reorder(ix);
+                    end
+                else
+                    error('HORACE:IX_detector_bank:set.id', ['Detector ',mess]);
+                end
+            else
+                error('HORACE:IX_detector_bank:set.id', ...
+                      ['The number of detector identifiers must match ' ...
+                       'the current number']);
+            end
+            end
+        end
+        %}
         
         %------------------------------------------------------------------
         % Get methods for dependent properties

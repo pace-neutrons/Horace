@@ -11,14 +11,17 @@ classdef test_experiment_methods < TestCase
                 name = varargin{1};
             end
             obj = obj@TestCase(name);
-            instruments = {IX_inst_DGfermi(), IX_inst_DGdisk(),IX_inst_DGdisk()};
+            instruments = { IX_inst_DGfermi(), ...
+                            IX_inst_DGdisk(),  ...
+                            IX_inst_DGdisk()   };
+            
             sample1 = IX_sample([1,2,3],[91,90,89]);
             sample1.name = 'sample1';
             sample2 = IX_sample([1.1,2.2,3.2],[90,91,92]);
             sample2.name = 'sample2';
             sample3  = IX_samp('sample3',[1.2,2.3,3.3],[89,92,91]);
-
             samples = {sample1,sample2,sample3};
+            
             exp = repmat(IX_experiment,3,1);
             exp(1).run_id = 10;
             exp(1).filename = 'a1';
@@ -26,8 +29,10 @@ classdef test_experiment_methods < TestCase
             exp(2).filename = 'a2';
             exp(3).run_id = 30;
             exp(3).filename = 'a3';
+            
+            detector = IX_detector_array();
 
-            obj.sample_exper= Experiment(IX_detector_array,instruments,samples,exp);
+            obj.sample_exper= Experiment(detector,instruments,samples,exp);
         end
         function test_samples_sets_keeps_lattice_with_no_lattice(obj)
             %

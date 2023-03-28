@@ -342,9 +342,13 @@ classdef unique_references_container < serializable
             switch idxstr(1).type
                 case {'()','{}'}
                     b = idxstr(1).subs{:};
-                    if b<1 || b>numel(self.idx_)
+                    if any(b<1)
                         error('HERBERT:unique_references_container:invalid_argument',...
-                            'subscript %d out of range 1..%d', b, numel(self.idx_));
+                            'subscript must be positive');
+                    end
+                    if any(b>numel(self.idx_))
+                        error('HERBERT:unique_references_container:invalid_argument',...
+                            'subscript must be within range');
                     end
                     glindex = self.idx_(b);
                     glc = self.global_container('value',self.global_name_);

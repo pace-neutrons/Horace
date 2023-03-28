@@ -10,6 +10,7 @@ classdef rundatah < rundata
         % optional handle to list of q-vectors, used instead of detectors
         % positions
         qpsecs_cache = []
+        compressed_detpars = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
     end
 
     properties(Access=private)

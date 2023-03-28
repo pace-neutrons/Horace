@@ -31,6 +31,18 @@ if obj.samples_.n_runs ~= nruns
             mess,obj.samples_.n_runs,nruns);
     end
 end
+
+if obj.detector_arrays_.n_runs ~= nruns
+    if obj.detector_arrays_.n_runs == 0
+        % do nothing, this will be set later
+    elseif obj.detector_arrays_.n_runs == 1
+        obj.detector_arrays_ = obj.detector_arrays_.replicate_runs(nruns);
+    else
+        mess = sprintf(...
+            '%s\n Number of detector arrays %d is not equal to number of runs: %d; ',...
+            mess,obj.detector_arrays_.n_runs,nruns);
+    end
+end
 if isempty(obj.runid_map_)
     mess = sprintf('%s\n runid_map is not defined',mess);
 else

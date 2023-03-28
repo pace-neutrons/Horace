@@ -30,8 +30,20 @@ polar = h5read(file_name,[root_folder,'/data/polar']);
 
 n_det   = numel(polar);
 if n_det == obj.n_det_in_par_ && ~isempty(obj.det_par_) && ~force_reload
+    % as the size of data in the file n_det is equal to the amount of data
+    % in obj.det_par_, assume in the absence of the force_reload flag that
+    % this data is OK and don't change it further.
+    % also in this case, as obj.det_par_ is unchanged, make a local reference to it
+    % called par so that the data has the same set of references as the
+    % else case below.
     par = obj.det_par_;
+    % it should be either a detpar struct or an IX_detector_array (not yet
+    % supported) so catch anything else (should not be a raw array)
+    if ~isstruct(par)
+        error('not a detpar struct');
+    end
 else
+    % in this case, we will change obj.det_par_ from the data read into par
     par     = zeros(6,n_det);
     par(2,:)= polar;
     if nxspe_ver1
@@ -55,10 +67,20 @@ else
     end
     obj.det_par_ = get_hor_format(par,file_name);
 end
+% at this point obj.det_par_ will be a detpar struct (from the else)
+% or whatever was in obj.det_par_ (either a detpar struct - supported - or
+% an IX_detector_array (not yet supported). par will be an an array (else)
+% or a detpar struct (if).
+% The par will be used as the array output for return_array if it is an
+% array, and otherwise converted to it.
+% Once we have the struct, then we can convert it to an IX_detector_array
+%obj.det_par_ = IX_detector_array(obj.det_par_);
 
 if return_array
     if isstruct(par)
-        par = get_hor_format(par,'');
+        par = get_hor_format(par,''); % convert Horace detpar struct to raw array
+    elseif isa(par,'IX_detector_array')
+        error('use of convert this type to raw array not yet supported');
     end
     if getphx
         par = a_detpar_loader_interface.convert_par2phx(par);

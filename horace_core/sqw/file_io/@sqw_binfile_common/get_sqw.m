@@ -66,7 +66,19 @@ end
 % Get detector parameters
 % -----------------------
 if ~(opts.head||opts.his)
-    sqw_struc.detpar = obj.get_detpar();
+    detpar = obj.get_detpar();
+    if (~isempty(detpar)                             && ...
+        IX_detector_array.check_detpar_parms(detpar) && ...
+        exp_info.detector_arrays.n_runs == 0         )
+
+        detector = IX_detector_array(detpar);
+        det_arrays = exp_info.detector_arrays;
+        for i=1:exp_info.n_runs
+            det_arrays = det_arrays.add(detector);
+        end
+        exp_info.detector_arrays = det_arrays;
+    end
+    sqw_struc.detpar = detpar;
 end
 
 % Get data

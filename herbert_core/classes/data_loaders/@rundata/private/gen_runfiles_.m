@@ -76,7 +76,7 @@ end
 % Check if second parameter is a par file or list of par files and
 % remove par_files variable from the list of input parameters;
 if nargin>1
-    parfile_is_det = false;
+    parfile_is_det = false; % not a detpar structure
     if ischar(params{1}) && size(params{1},1)==1    % single par file provided as input
         par_files = params(1);    % cell array with one character array
     elseif iscellstr(params{1})   % list of par files provided
@@ -229,8 +229,9 @@ elseif numel(par_files)==1
         end
     end
     % Save time on multiple load of the same par into memory by reading it just once
+    %CM:will probably have to get rid of this 
     if n_files>1
-        [par,runfiles{1}] = get_par(runfiles{1});
+        [par,runfiles{1}] = get_par(runfiles{1}); %CM:get_par()
     end
     for i=2:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...

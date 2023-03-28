@@ -26,7 +26,7 @@ end
 
 % load or retrieve detectors, the operation does not reload detectors
 % already in memory
-[det,obj]=obj.get_par();
+[det,obj]=obj.get_par(); %CM:get_par()
 
 
 if ~range_given

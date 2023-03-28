@@ -60,6 +60,8 @@ w.detpar = det0;
 w.experiment_info = exp_info;
 w.data = data;
 w.pix=pix;
+% move detector data from detpar into the experiment info detector arrays
+w.check_combo_arg();
 
 %------------------------------------------------------------------------------------------------------------------
 function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
@@ -109,4 +111,13 @@ expdata = IX_experiment([fn,fe], [fp,filesep], ...
     obj.en,uoffset,  u_to_rlu, ...
     ulen,sqw_data.label,obj.run_id);
 
-header = Experiment([],obj.instrument,obj.sample,expdata);
+detpar = obj.det_par;
+
+if isempty(detpar)
+    header = Experiment([],obj.instrument,obj.sample,expdata);
+else
+    detector = IX_detector_array(obj.det_par);
+    obj.compressed_detpars = obj.compressed_detpars.add(detector);
+
+    header = Experiment(obj.compressed_detpars,obj.instrument,obj.sample,expdata);
+end

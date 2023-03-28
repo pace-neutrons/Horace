@@ -68,8 +68,12 @@ end
 [obj,sqw_skel] = obj.get_all_blocks(sqw_skel,'ignore_blocks',skip_blocks);
 
 if ~(opts.head || opts.his)
+    detpar = sqw_skel.detpar;
+    if ~isempty(detpar)        
+        detpar = IX_detector_array(detpar);
+    end
     sqw_skel.data = DnDBase.dnd(sqw_skel.data.metadata,sqw_skel.data.nd_data);
-    sqw_skel.experiment_info = Experiment([],sqw_skel.experiment_info.instruments, ...
+    sqw_skel.experiment_info = Experiment(detpar,sqw_skel.experiment_info.instruments, ...
         sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);
 end
 

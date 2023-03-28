@@ -4,9 +4,9 @@ classdef Experiment < serializable
     properties(Access=private)
         % if no other instrument input is provided Exeriment instrument
         % remain empty.
-        instruments_ = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
-        detector_arrays_ = []
-        samples_ = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
+        instruments_ = "initialised in constructor";
+        detector_arrays_ = "initialised in constructor";
+        samples_ = "initialised in constructor";
         samples_set_ = false; % Two prperties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set
@@ -94,12 +94,104 @@ classdef Experiment < serializable
             %              object.
             %
             % Each argument can be a single object or array of objects.
-            if nargin == 0
-                % add one null instrument if using the vanilla constructor
-                % to satisfy the requirements of subsequent initialisation
+            
+            obj = obj@serializable();
+            
+            % initialising the compressed component containers.
+            % these may be overwritten if they are passed in as arguments
+            % below
+            obj.instruments_ = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
+            obj.detector_arrays_ = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
+            obj.samples_ = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
+            % expdata is not compressed and has been initialised as an
+            % empty array
+            
+            if nargin == 0 || (nargin == 1 && isempty(varargin{1}))
+                % no components in initialising arguments
+                % so finish
                 return;
+                
+            elseif nargin == 4
+                % arguments are the component arrays, 
+                % initialise them
+                detector_arrays = varargin{1};
+                instruments     = varargin{2};
+                samples         = varargin{3};
+                expdata         = varargin{4};
+
+                if isa(detector_arrays, 'unique_references_container') && ...
+                        strcmp(detector_arrays.stored_baseclass,'IX_detector_array')
+                    % overwrite default compressed container
+                    obj.detector_arrays_ = detector_arrays;
+                elseif isa(detector_arrays, 'IX_detector_array') || ...
+                        ( isa(detector_arrays, 'unique_objects_container') && ...
+                          strcmp(detector_arrays.baseclass, 'IX_detector_array') )
+                    % add to default compressed container
+                    obj.detector_arrays_ = obj.detector_arrays_.add(detector_arrays);
+                elseif isempty(detector_arrays)
+                    % do nothing, leave default compressed container empty
+                else
+                    error('HORACE:Experiment:invalid_argument', ...
+                          'input is not empty or IX_detector_array');
+                end
+                
+                if isa(instruments, 'unique_references_container') && ...
+                        strcmp(instruments.stored_baseclass,'IX_inst')
+                    % overwrite default compressed container
+                    obj.instruments_ = instruments;
+                elseif isa(instruments, 'IX_inst') || ...
+                        ( isa(instruments, 'unique_objects_container') && ...
+                          strcmp(instruments.baseclass, 'IX_inst') ) || ...
+                        ( iscell(instruments) && isa( instruments{1}, 'IX_inst') )
+                    % add to default compressed container
+                    obj.instruments_ = obj.instruments_.add(instruments);
+                elseif isempty(instruments)
+                    % do nothing, leave default compressed container empty
+                else
+                    error('HORACE:Experiment:invalid_argument', ...
+                          'input is not empty or IX_inst');
+                end
+                
+                if isa(samples, 'unique_references_container') && ...
+                        strcmp(samples.stored_baseclass,'IX_samp')
+                    % overwrite default compressed container
+                    obj.samples_ = samples;
+                elseif isa(samples, 'IX_samp') || ...
+                        ( isa(samples, 'unique_objects_container') && ...
+                          strcmp(samples.baseclass, 'IX_samp') )  || ...
+                        ( iscell(samples) && isa( samples{1}, 'IX_samp') )
+                    % add to default compressed container
+                    obj.samples_ = obj.samples_.add(samples);
+                elseif isempty(samples)
+                    % do nothing, leave default compressed container empty
+                else
+                    error('HORACE:Experiment:invalid_argument', ...
+                          'input is not empty or IX_samp');
+                end
+                
+                if isa(expdata, 'IX_experiment')
+                    % add to default compressed container
+                    obj.expdata_ = expdata;
+                elseif isempty(expdata)
+                    % do nothing, leave default compressed container empty
+                else
+                    error('HORACE:Experiment:invalid_argument', ...
+                          'input is not empty or IX_experiment');
+                end
+                
+            elseif nargin == 1 
+                if ~iscell(varargin{1})
+                    % make arg a cell
+                    varargin{1} = { varargin{1} };
+                end
+                % now havecell array of headers, init_ will process
+            else
+                error(['the other cases do not yet have examples',...
+                       'so catching them here until we can do them',...
+                       'properly']);
             end
-            obj = init_(obj,varargin{:});
+            tmpp = init_(obj,varargin{:});
+            obj = tmpp;
         end
         %
         function obj = init(obj,varargin)
@@ -116,12 +208,13 @@ classdef Experiment < serializable
             val=obj.detector_arrays_;
         end
         function obj=set.detector_arrays(obj, val)
-            if isa(val,'IX_detector_array') || isempty(val)
-                obj.detector_arrays_ = val;
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'Detector array must be one or an array of IX_detector_array object')
+            if isempty(val)
+                % many inputs have unset detectors, leave container as-is
+                % from default initialisation
+                return
             end
+            std_form = check_si_input(obj,val,'IX_detector_array');
+            obj.detector_arrays_ = std_form;
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
@@ -482,22 +575,31 @@ classdef Experiment < serializable
                 nspe(i) = exp_cellarray{i}.n_runs;
             end
             n_tot = sum(nspe);
-            instr  = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst'); %cell(1,n_tot);
-            sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp'); %cell(1,n_tot);
+            instr  = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER', ...
+                                                 'IX_inst'); %cell(1,n_tot);
+            sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER', ...
+                                                 'IX_samp'); %cell(1,n_tot);
+            detectors = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER', ...
+                                                    'IX_detector_array');
             %warning('stop here so you can check that instr and sampl should no longer be set as cells');
             expinfo= repmat(IX_experiment(),1,n_tot);
             ic = 1;
             %TODO: combine instruments using unique_objects_container
             %      rather than doing a complete unpack and repack
             for i=1:n_contrib
+                if exp_cellarray{i}.n_runs ~= 1 ...
+                   error('HORACE:Experiment:combine_experiments', ...
+                         'input data is for more than one run per input');
+                end
                 for j=1:exp_cellarray{i}.n_runs
                     instr{ic}  = exp_cellarray{i}.instruments{j};
                     sampl{ic}  = exp_cellarray{i}.samples{j};
                     expinfo(ic)= exp_cellarray{i}.expdata(j);
+                    detectors(ic) = exp_cellarray{i}.detector_arrays{j};
                     ic = ic+1;
                 end
             end
-            exp = Experiment([], instr, sampl,expinfo);
+            exp = Experiment(detectors, instr, sampl,expinfo);
         end
     end
     %======================================================================

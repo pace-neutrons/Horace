@@ -49,15 +49,8 @@ else
     end
 end
 info = cell(4,1);
-if numel(obj.detector_arrays_) == obj.n_runs
-    info{1} = obj.detector_arrays_(head_num);
-else
-    if isempty(obj.detector_arrays_)
-        info{1} = [];
-    else
-        info{1} = obj.detector_arrays_(1);
-    end
-end
+
+info{1} = obj.detector_arrays_.get_subset(head_num);
 info{2} = obj.instruments_.get_subset(head_num);
 info{3} = obj.samples_.get_subset(head_num);
 info{4} = obj.expdata_(head_num);

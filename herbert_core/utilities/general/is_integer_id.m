@@ -28,22 +28,22 @@ id = id_in(:);
 ok = true;
 mess = '';
 
-% Check inputs are integers
+% Check inputs are positive integers
 if all(id>=1) && all(rem(id,1)==0)
     % Determine if already sorted
     if issorted(id)
         ix = [];
         perm = (id(1)==1 && id(end)==numel(id));
-    elseif issorted(flipud(id))
-        ix = (numel(id):-1:1)';
-        perm = (id(end)==1 && id(1)==numel(id));
+    elseif issorted(flipud(id)) % reverse direction sorted
+        ix = (numel(id):-1:1)'; % column vector of descending contiguous sequence
+        perm = (id(end)==1 && id(1)==numel(id));% check perm goes from N to 1
     else
         [id,ix] = sort(id);
         perm = (id(1)==1 && id(end)==numel(id));
     end
     
     % Check if unique identifiers
-    if any(diff(id)==0)
+    if any(diff(id)==0) % array is sorted so check adjacent differences
         ok = false;
         mess = 'identifiers must be unique';
         ix = [];
