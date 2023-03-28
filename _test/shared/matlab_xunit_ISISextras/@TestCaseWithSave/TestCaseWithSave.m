@@ -165,6 +165,9 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     %   assertElementsAlmostEqualWithSave   - test floating array elements near-equality
     %   assertVectorsAlmostEqualWithSave    - test vector near-equality in L2 norm sense
     %
+    %   assertTestWithSave                  - user-supplied test function with save saved
+    %                                         variable
+    %
     %
     % Utility methods:
     %   add_to_files_cleanList  - Add file or files to list to be deleted at end of test
@@ -423,11 +426,11 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %       [ok, out1, out2,..] = my_other_test_func (A, Aref, arg1 ,arg2,...)
             %
             %   where the return argument ok is a logical value that indicates
-            %   whether or not the test has passed. The function should print an
-            %   message to be useful. Additional return arguments out1, out2,...can be
-            %   passed but these are ignored by the unit testing framework. This
-            %   alternative form allows many pre-existing validity check functions
-            %   to be used without modification.
+            %   whether or not the test has passed. This alternative form allows
+            %   pre-existing validity check functions to be used without modification.
+            %   The function should print a message to be useful. Additional return
+            %   arguments out1, out2,...can be passed but these are ignored by the
+            %   unit testing framework. 
             %
             %   The input arguments to your test function are:
             %       A           test variable

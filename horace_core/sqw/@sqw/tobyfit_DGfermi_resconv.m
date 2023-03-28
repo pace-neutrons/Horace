@@ -255,11 +255,17 @@ for i=1:numel(ind)
         % Sample deviations
         if mc_contributions.sample
             yvec(5:7,1,:) = sample_table.func_eval(iw,@rand,[1,npix]);
+            %{
+            yvec(5:7,1,:) = sample_table.rand_ind (iw, irun, @rand);
+            %}
         end
 
         % Detector deviations
         if mc_contributions.detector_depth || mc_contributions.detector_area
             det_points = detector_table.func_eval(iw,@rand,idet,kf);
+            %{
+            det_points = detector_table.rand_ind (iw, irun, idet, 'split', @rand, kf);
+            %}
             if ~mc_contributions.detector_area
                 yvec(8,1,:) = det_points(1,:);
             elseif ~mc_contributions.detector_depth
@@ -282,6 +288,9 @@ for i=1:numel(ind)
         % Mosaic spread
         if mosaic_spread && mc_contributions.mosaic
             Rrlu = sample_table.func_eval(iw,@rand_mosaic,[1,npix],alatt,angdeg);
+            %{
+            Rrlu = sample_table.rand_ind (iw, irun, @rand_mosaic, alatt, angdeg);
+            %}
             q(1:3,:,:) = mtimesx_horace(Rrlu, q(1:3,:,:));
         end
         q = squeeze(q);    % 4 x 1 x npix ==> 4 x npix

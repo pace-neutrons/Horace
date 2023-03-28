@@ -244,7 +244,7 @@ function argsplit = split_arr(arg,sz_stack,ix,nelmt)
 % Output:
 % -------
 %   argsplit    Cell array size(numel(arg),numel(nelmt)) containing the
-%               split arguments, retianing the inner dimensions of the
+%               split arguments, retaining the inner dimensions of the
 %               stacked arrays
 
 
