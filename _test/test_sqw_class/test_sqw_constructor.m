@@ -2,11 +2,15 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
 
     properties
         sqw_file_1d_name = 'sqw_1d_1.sqw';
-        sqw_files_path = '../common_data/';
 
         test_sqw_1d_fullpath = '';
-        test_dir
-        %
+        test_dir;
+
+        mem_chunk_size;
+    end
+
+    properties(Constant)
+        data_npix = 100337;
     end
 
     methods
@@ -14,17 +18,29 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
         function obj = test_sqw_constructor(~)
             obj = obj@TestCase('test_sqw_constructor');
 
-            test_sqw_file = java.io.File(pwd(), fullfile(obj.sqw_files_path, obj.sqw_file_1d_name));
-            obj.test_sqw_1d_fullpath = char(test_sqw_file.getCanonicalPath());
+            hc = hor_config;
+            obj.mem_chunk_size = hc.mem_chunk_size;
+
+            pths = horace_paths;
+
+            obj.test_sqw_1d_fullpath = fullfile(pths.test_common, obj.sqw_file_1d_name);
             obj.test_dir = fileparts(mfilename('fullpath'));
+
         end
 
-
-        function test_sqw_class_follows_expected_class_heirarchy(~)
+        function test_sqw_class_follows_expected_class_hierarchy(~)
             sqw_obj = sqw();
 
             assertTrue(isa(sqw_obj, 'sqw'));
             assertTrue(isa(sqw_obj, 'SQWDnDBase'));
+        end
+
+        function setUp(obj)
+            set(hor_config,'mem_chunk_size',1e6);
+        end
+
+        function tearDown(obj)
+            set(hor_config,'mem_chunk_size',obj.mem_chunk_size);
         end
 
         function test_default_constructor_returns_empty_instance(~)
@@ -35,9 +51,15 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertTrue(isa(sqw_obj.experiment_info, 'Experiment'));
 
             assertTrue((sqw_obj.experiment_info.instruments.n_runs==0));
-            assertTrue(isempty(sqw_obj.experiment_info.instruments{1}));
+            function throwinst()
+                sqw_obj.experiment_info.instruments{1};
+            end
+            assertExceptionThrown( @throwinst,'HERBERT:unique_references_container:invalid_argument');
             assertTrue((sqw_obj.experiment_info.samples.n_runs==0));
-            assertTrue(isempty(sqw_obj.experiment_info.samples{1}));
+            function throwsamp()
+                sqw_obj.experiment_info.samples{1};
+            end
+            assertExceptionThrown( @throwsamp,'HERBERT:unique_references_container:invalid_argument');
             assertEqual(sqw_obj.detpar, struct([]));
             assertEqual(sqw_obj.pix, PixelDataBase.create());
             assertEqual(numel(sqw_obj.data.pax), 0);
@@ -54,14 +76,11 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertEqual(sqw_obj.experiment_info.samples.n_runs, 14)
             assertEqual(numel(sqw_obj.detpar.group), 36864);
             assertEqual(numel(sqw_obj.data.pax), 1);
-            assertEqual(sqw_obj.pix.num_pixels, 100337);
+            assertEqual(sqw_obj.pix.num_pixels, obj.data_npix);
         end
 
         function test_filename_constructor_sets_pixel_page_size_if_passed(obj)
-
             hc = hor_config;
-            mmc = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mmc));
             pagesize_pixels = 6666; % test value
             hc.mem_chunk_size = pagesize_pixels;
 
@@ -70,16 +89,19 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
 
             assertTrue(isa(sqw_obj, 'sqw'));
             assertTrue(sqw_obj.pix.num_pixels > pagesize_pixels);
-            assertEqual(sqw_obj.pix.num_pixels, 100337); % expected value from test file
+            assertEqual(sqw_obj.pix.num_pixels, obj.data_npix); % expected value from test file
             assertEqual(sqw_obj.pix.page_size, pagesize_pixels);
         end
 
         function test_filename_constructor_sets_all_data_default_pagesize(obj)
             sqw_obj = sqw(obj.test_sqw_1d_fullpath);
 
+            hc = hor_config;
+            mmc = hc.mem_chunk_size;
+
             assertTrue(isa(sqw_obj, 'sqw'));
-            assertEqual(sqw_obj.pix.num_pixels, 100337); % expected value from test file
-            assertEqual(sqw_obj.pix.page_size, 100337);
+            assertEqual(sqw_obj.pix.num_pixels, obj.data_npix); % expected value from test file
+            assertEqual(sqw_obj.pix.page_size, min(mmc, obj.data_npix));
         end
 
         function test_copy_constructor_clones_object(obj)
@@ -97,9 +119,10 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
             keys = sqw_obj.runid_map.keys;
             keys = [keys{:}];
-            ids = sqw_obj.experiment_info.expdata.get_run_ids;
+            ids = sqw_obj.experiment_info.expdata.get_run_ids();
             assertEqual(keys,ids);
-            pix_ids = unique(sqw_obj.pix.run_idx);
+
+            pix_ids = unique(sqw_obj.pix.get_fields('run_idx', 'all'));
             assertEqual(ids,pix_ids)
 
             save(tmp_filename, 'sqw_obj');

@@ -8,7 +8,7 @@ function    obj = put_sqw(obj,varargin)
 % obj = obj.put_sqw(sqw_obj)  Put sqw object provided as input of the
 %                             method. The file to put object should be
 %                             already set.
-% obj = obj.put_sqw(sqw_obj,filename) 
+% obj = obj.put_sqw(sqw_obj,filename)
 %                             Put sqw object provided as input of the
 %                             method to the file provided as second parameter.
 %
@@ -16,7 +16,7 @@ function    obj = put_sqw(obj,varargin)
 % '-update'        -- write to existing sqw file. Currently deprecated and does nothimg.
 %
 %                    TODO: Check if existing file contains sqw object,
-%                    as currently such file is silently overwritten. 
+%                    as currently such file is silently overwritten.
 % '-verbatim'      -- do not change filenames and file-path-es, stored in
 %                     current sqw object headers to the name and path
 %                     of the current file to write data into
@@ -24,33 +24,38 @@ function    obj = put_sqw(obj,varargin)
 %                     Write sqw object with empty pixels record
 %
 %
+
 [ok,mess,~,verbatim,nopix,reserve,argi]=parse_char_options(varargin, ...
     {'-update','-verbatim','-nopix','-reserve'});
 if ~ok
-    error('HORACE:faccess_sqw_v4:invalid_artgument', ...
+    error('HORACE:faccess_sqw_v4:invalid_argument', ...
         mess);
 end
-%
+
 jobDispatcher = [];
-%
+
 if ~isempty(argi)
-    is_sqw = cellfun(@(x)isa(x,'sqw'),argi,'UniformOutput',true);
+    is_sqw = cellfun(@(x) isa(x,'sqw'), argi);
     if any(is_sqw)
         if sum(is_sqw) > 1
-            error('HORACE:sqw_binfile_common:invalid_artgument',...
+            error('HORACE:sqw_binfile_common:invalid_argument',...
                 'only one sqw object can be provided as input for put_sqw');
         end
         obj.sqw_holder = argi{is_sqw};
         argi = argi(~is_sqw);
     end
-    if ~isempty(argi)
-        is_jd = cellfun(@(x)isa(x,'JobDispatcher'),argi,'UniformOutput',true);
-        if any(is_jd)
-            jobDispatcher = argi{is_jd};
+
+    is_jd = cellfun(@(x) isa(x,'JobDispatcher'), argi);
+    if any(is_jd)
+        if sum(is_jd) > 1
+            error('HORACE:sqw_binfile_common:invalid_argument',...
+                  'only one JobDispatcher object can be provided as input for put_sqw');
         end
-        argi = argi(~is_jd);
+        jobDispatcher = argi{is_jd};
     end
+    argi = argi(~is_jd);
 end
+
 if ~obj.sqw_holder.main_header.creation_date_defined ||...
         isempty(obj.sqw_holder.main_header.filename)
     cd = datetime('now');
@@ -61,13 +66,18 @@ if ~obj.sqw_holder.main_header.creation_date_defined ||...
     end
     obj.sqw_holder = sqw_obj;
 end
-if ~(isa(obj.sqw_holder.pix,'pix_combine_info')|| obj.sqw_holder.pix.is_filebacked||nopix)
+
+if ~(isa(obj.sqw_holder.pix,'pix_combine_info') || ...
+     obj.sqw_holder.pix.is_filebacked || ...
+     nopix)
     obj = obj.put_all_blocks();
-    return
-elseif ~verbatim
-    sqw_obj = obj.sqw_holder;    
+    return;
+end
+
+if ~verbatim
+    sqw_obj = obj.sqw_holder;
     sqw_obj.pix.full_filename =obj.full_filename;
-    obj.sqw_holder = sqw_obj;    
+    obj.sqw_holder = sqw_obj;
 end
 
 if nopix && ~reserve % Modify writeable object to contain no pixels
@@ -82,15 +92,20 @@ if nopix && ~reserve % Modify writeable object to contain no pixels
     sqw_obj.pix    = old_pix;
     obj.sqw_holder = sqw_obj;
     return;
-elseif reserve
+end
+
+if reserve
     argi = [argi(:),'-reserve'];
 end
+
 if nopix
      argi = [argi(:),'-nopix'];
 end
+
 obj = obj.put_all_blocks('ignore_blocks',{'bl_pix_metadata','bl_pix_data_wrap'});
-%
+
 if ~isempty(jobDispatcher)
     argi = [{jobDispatcher},argi];
 end
+
 obj=obj.put_pix(argi{:});

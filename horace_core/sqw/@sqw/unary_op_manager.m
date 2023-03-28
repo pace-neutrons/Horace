@@ -62,6 +62,7 @@ function w = unary_op_manager (w1, unary_op)
 w = w1;
 for i=1:numel(w1)
     if has_pixels(w1(i))
+        w(i) = w(i).get_new_handle();
         w(i).pix = w(i).pix.do_unary_op(unary_op);
         w(i) = recompute_bin_data(w(i));
     else

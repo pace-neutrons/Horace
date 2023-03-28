@@ -6,12 +6,9 @@ function  [obj,remains] = set_positional_and_key_val_arguments_(obj,...
 % ObjConstructor(positional_par1,positional_par2,positional_par3,...
 % positional_par...,key1,val1,key2,val2,...keyN,valN);
 %
-% All positional parameters should have the type defined in the validators
-% list. If the validator list is shorter then positional_arg_names list or
-% empty, the remaining positional argument values assumed to be numeric.
-%
-% First argument, which type not corresponds to the type, defined by the
-% validator list, assumed to be belonging to key-value pair.
+% The keys are the names of the properties and the values are their values.
+% The positional parameters are intended to be the values of the properties
+% with names defined in the positional_arg_names list. 
 %
 % Everything not identified as Key-Value pair where the keys,
 % belong to the property names returned by saveableFields function
@@ -19,13 +16,16 @@ function  [obj,remains] = set_positional_and_key_val_arguments_(obj,...
 %
 % Inputs:
 % positinal_param_names_list
-%            -- list of positional parameter
-%               names, the target properties should be
-%               associated with
+%            -- cellarray of positional parameter names, coinciding with
+%               the names of the properties the function is called to set
+%
 % suport_dashed_keys
 %            -- if set to true, keys in varargin may have form
 %               '-keyN' in addition to 'keyN'. Deprecation warning is
 %               issued for this kind of key names
+% varargin   -- the list of the inputs of the class constructor to parse
+%               according to positional parameters names list
+%
 % EXAMPLE:
 % if class have the properties {'a1'=1(numeric), 'a2'='blabla'(char),
 % 'a3'=sqw() 'a4=[1,1,1] (numeric), and these properties are independent
@@ -43,7 +43,7 @@ if nargin == 1
     return;
 end
 obj.do_check_combo_arg_ = false;
-[obj,remains,key_num,val_num,is_positional,argi] = parse_keyval_argi(obj, ...
+[obj,remains,keys_keyval,val_keyval,is_positional,argi] = parse_keyval_argi(obj, ...
     positional_arg_names,suport_dashed_keys,varargin{:});
 
 
@@ -51,7 +51,8 @@ obj.do_check_combo_arg_ = false;
 if any(is_positional)
     if sum(is_positional)> numel(positional_arg_names)
         error('HERBERT:serializable:invalid_argument',...
-            'More positional arguments identified (%d) then properties values required (%d). Some keys have identified as property values',...
+            ['More positional arguments identified: (%d) then properties values required: (%d).\n', ...
+            ' Looks like some keys from key-value pairs have been identified as property values'],...
             sum(is_positional),numel(positional_arg_names))
     end
     pos_arg_val = argi(is_positional);
@@ -64,9 +65,11 @@ if any(is_positional)
         obj.(pos_arg_names{i}) = pos_arg_val{i};
     end
 end
-for i=1:numel(key_num)
-    obj.(argi{key_num(i)}) = argi{val_num(i)};
+%
+for i=1:numel(keys_keyval)
+    obj.(argi{keys_keyval(i)}) = argi{val_keyval(i)};
 end
+
 % enable check for the combo properties
 obj.do_check_combo_arg_ = true;
 obj=obj.check_combo_arg();

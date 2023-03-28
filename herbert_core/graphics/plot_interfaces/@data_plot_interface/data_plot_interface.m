@@ -6,6 +6,11 @@ classdef (Abstract=true) data_plot_interface
     methods(Abstract)
         nd = dimensions();
     end
+    methods(Static)
+        % verify if user wants to change aspect of a 2D plot
+        [adjust,present]=adjust_aspect_option(args_in)
+    end
+    
 
     methods
         %------------------------------------------------------------------

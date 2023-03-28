@@ -6,7 +6,6 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
         sqw_file_1d_name = 'sqw_1d_1.sqw';
         sqw_file_2d_name = 'sqw_2d_1.sqw';
         sqw_file_4d_name = 'sqw_4d.sqw';
-        sqw_files_path = '../common_data/';
 
         test_sqw_1d_fullpath = '';
         test_sqw_2d_fullpath = '';
@@ -17,15 +16,11 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
     methods
         function obj = test_migrated_apis(~)
             obj = obj@TestCase('test_migrated_apis');
-            obj.test_sqw_1d_fullpath = obj.build_fullpath(obj.sqw_file_1d_name);
-            obj.test_sqw_2d_fullpath = obj.build_fullpath(obj.sqw_file_2d_name);
-            obj.test_sqw_4d_fullpath = obj.build_fullpath(obj.sqw_file_4d_name);
-        end
+            pths = horace_paths;
 
-
-        function fullpath = build_fullpath(obj, testfile_name)
-            test_file = java.io.File(pwd(), fullfile(obj.sqw_files_path, testfile_name));
-            fullpath = char(test_file.getCanonicalPath());
+            obj.test_sqw_1d_fullpath = fullfile(pths.test_common, obj.sqw_file_1d_name);
+            obj.test_sqw_2d_fullpath = fullfile(pths.test_common, obj.sqw_file_2d_name);
+            obj.test_sqw_4d_fullpath = fullfile(pths.test_common, obj.sqw_file_4d_name);
         end
 
         %% Calculate
@@ -239,12 +234,12 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             % runs are now the DGfermi, the rest are still ''. But they
             % are all IX_inst because that is how the new header is set up.
             % Previously the unset ones were just structs.
-            hdr = s.experiment_info;            
+            hdr = s.experiment_info;
             for idx=1:20
                 hdr.instruments{idx} = expected_inst;
             end
             s = s.change_header(hdr);
-            
+
 
             [inst,all_inst] = get_inst_class(s);
 
@@ -274,7 +269,7 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
                 [1,1,0], [1.1102e-16 1.1102e-16 1], ...
                 'alatt',4.2275,...
                 'nonorthogonal', 0, ...
-                'lab', {'\zeta'  '\xi'  '\eta'  'E'});
+                'label', {'\zeta'  '\xi'  '\eta'  'E'});
 
             % low tolerance as ref data to 5sf only
             assertEqualToTol(proj, expected_proj, 1e-6);
@@ -339,14 +334,16 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             skipTest("Incorrect test data for shift");
             params = {'scale', 14};
             sqw_4d_obj = sqw(obj.test_sqw_1d_fullpath);
-            wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, params);
+            wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.disp_rln, params);
         end
+
         function test_shift_pixels(obj)
-            %TODO: test return values more
+            skipTest("Incorrect test data for shift");
             params = {}; % no parameters required by test shift_rln function
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
-            wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, params);
-            assertEqual(sqw_4d_obj.npixels,wout.npixels);
+            wout = shift_pixels(sqw_4d_obj, @test_migrated_apis.shift_rln, params);
+
+            assertEqual(sqw_4d_obj.npixels, wout.npixels);
         end
 
         %% values
@@ -396,6 +393,7 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             scale = varargin{2};
             val = qh .* qk .* ql .* scale;
         end
+
         function val = shift_rln(qh, qk, qw, ~)
             % discard any function parameters that are passed by shift_pixels call
             val = qw .* qk .* qh;

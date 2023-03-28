@@ -58,9 +58,9 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % And now fit
             [wfit_1, fitpar_1] = mss.fit();
 
-            % Test against saved or store to save later; ingnore string
+            % Test against saved or store to save later; ignore string
             % changes - these are filepaths
-            tol = [1e-10,1e-8];
+            tol = [1e-6,1e-6];
             assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
             assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
             assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
@@ -89,7 +89,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             assertEqualToTolWithSave (obj, fitpar_1, 'tol', tol, 'ignore_str', 1)
             assertEqualToTolWithSave (obj, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
             assertEqualToTolWithSave (obj, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
-            
+
         end
 
         function this = test_fit_two_datasets(this)

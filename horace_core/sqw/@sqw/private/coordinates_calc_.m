@@ -101,7 +101,7 @@ if ind.h||ind.k||ind.l||ind.Q
     uhkl = hkl_proj.transform_pix_to_img(w.pix.q_coordinates);
     if ind.Q
         % Get |Q| -- We would use pix coordinates directly, but the pix
-        % coordinates may be invalid due to misalignment. 
+        % coordinates may be invalid due to misalignment.
         % See #885 to resolve alignment.
         % Example of the code to use dealing with #825
         %B=bmatrix(header_ave.alatt, header_ave.angdeg);
@@ -143,7 +143,7 @@ if ind.E
 end
 
 % Compute average, and spread if
-[xvals,xvar,xdevsqr]=average_bin_data(w,xpix);
+[xvals,xvar,xdevsqr]=w.average_bin_data_(xpix);
 
 % Convert output to arrays if input was not a cell array
 if ~cell_output

@@ -6,25 +6,28 @@ function pix_out = do_unary_op(obj, unary_op)
 % unary_op   Function handle pointing to the operation to perform. This
 %            operation should take a sigvar object as an argument.
 %
-if nargout == 1
-    % Only do a copy if a return argument exists, otherwise perform the
-    % operation on obj
-    pix_out = copy(obj);
-else
-    pix_out = obj;
+
+pix_out = obj;
+
+if isempty(pix_out.file_handle_)
+    pix_out = pix_out.get_new_handle();
+end
+s_ind = obj.check_pixel_fields('signal');
+v_ind = obj.check_pixel_fields('variance');
+
+for i = 1:obj.num_pages
+    [obj, data] = obj.load_page(i);
+
+    pix_sigvar = sigvar(obj.signal, obj.variance);
+    pg_result = unary_op(pix_sigvar);
+
+    data(s_ind, :) = pg_result.s;
+    data(v_ind, :) = pg_result.e;
+
+    pix_out.format_dump_data(data);
 end
 
-%fid = pix_out.get_new_handle();
-
-for i = 1:pix_out.n_pages
-    pix_out.load_page(i);
-    pg_result = unary_op(sigvar(pix_out.signal, pix_out.variance));
-    pix_out.signal = pg_result.s;
-    pix_out.variance = pg_result.e;
-
-    %pix_out.format_dump_data(fid);
-end
-
-%pix_out.finalise(fid)
+pix_out = pix_out.finalise();
+pix_out = pix_out.recalc_data_range({'signal', 'variance'});
 
 end

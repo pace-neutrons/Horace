@@ -1,4 +1,4 @@
-function [args,ok,mess,lims,fig_out]=genie_figure_parse_plot_args(opt,varargin)
+function [args,lims,fig_out]=genie_figure_parse_plot_args(opt,varargin)
 % Parse the input arguments for the various different plot functions
 %
 %   >> [args,ok,mess,lims_type,fig_out] = genie_figure_parse_plot_args...
@@ -44,59 +44,43 @@ if newplot || ~over_curr
     else
         default_name=[];
     end
-    
+
     % Parse input
     name_struct_default.name=default_name;
     [lims,name_struct,present,filled,ok,mess]=parse_arguments(varargin,name_struct_default);
-    if ~ok, [args,ok,mess,lims,fig_out]=error_return(mess); return, end
-    
+    if ~ok, error('HERBERT:graphics:invalid_argument',mess); end
+
     % Check name is valid
     [fig_out,ok,mess]=genie_figure_target(name_struct.name,newplot,default_name);
-    if ~ok, [args,ok,mess,lims,fig_out]=error_return(mess); return, end
-    
+    if ~ok, error('HERBERT:graphics:invalid_argument',mess); end
+
     % Check limits are valid (if any are permitted)
     if newplot
         lims_type=opt.lims_type;
         [ok,mess] = plot_limits_valid (lims_type, lims{:});
-        if ~ok, [args,ok,mess,lims,fig_out]=error_return(mess); return, end
+        if ~ok, error('HERBERT:graphics:invalid_argument',mess); end
     else
         % No limits can be given if overplotting
         if numel(lims)~=0
-            [args,ok,mess,lims,fig_out]=error_return('Check the input parameters');
-            return
+            if ~ok, error('HERBERT:graphics:invalid_argument', ...
+                    'No limits can be given if overplotting requested'); end
         end
     end
-    
     args=[lims,struct2namval(name_struct)];
-    
 else
     % Check there is a current figure
     if isempty(findobj(0,'Type','figure'))
-        [args,ok,mess,lims,fig_out]=error_return('No current figure exists - cannot overplot');
-        return
+        error('HERBERT:graphics:invalid_argument', ...
+            'No current figure exists - cannot overplot');
     end
     fig_out=gcf;
-    
+
     % Check there are no parameters
     if numel(varargin)>0
-        [args,ok,mess,lims,fig_out]=error_return('Check the input parameters');
-        return
+        error('HERBERT:graphics:invalid_argument', ...
+            'Check the input parameters');
     end
-    
+
     args=cell(1,0);
     lims=cell(1,0);
 end
-
-% OK if got here
-ok=true;
-mess='';
-
-
-%--------------------------------------------------------------------------------------------------
-function [args,ok,mess,lims,fig_out]=error_return(mess)
-% Standard return arguments
-
-args=cell(1,0);
-ok=false;
-lims=cell(1,0);
-fig_out=empty_default_graphics_object();

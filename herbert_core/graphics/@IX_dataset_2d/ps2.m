@@ -12,7 +12,7 @@ function [fig_handle, axes_handle, plot_handle] = ps2(w,varargin)
 %                   %     object.
 %
 % Advanced use:
-%   >> ps2(...,'name',fig_name)     % overplot on figure with name = fig_name
+%   >> ps2(...,'name',fig_name)     % Overplot on figure with name = fig_name
 %                                   % or figure with given figure number or handle
 %
 % Differs from ps in that the signal sets the z axis, and the colouring is set by the 
@@ -27,8 +27,8 @@ function [fig_handle, axes_handle, plot_handle] = ps2(w,varargin)
 % Check input arguments (must allow for the two cases of one or two plotting input arguments)
 
 opt=struct('newplot',false);
-[args,ok,mess,nw,lims,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});
-if ~ok, error(mess), end
+%args,nw,lims,fig_out
+[args,nw,lims,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});
 if nw==2
     data={w,IX_dataset_2d(varargin{1})};
 else
@@ -37,8 +37,7 @@ end
 
 % Perform plot
 type='surface2';
-[fig_,axes_,plot_,ok,mess]=plot_twod (data,opt.newplot,type,fig);
-if ~ok, error(mess), end
+[fig_,axes_,plot_]=plot_twod (data,opt.newplot,type,fig);
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

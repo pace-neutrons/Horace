@@ -263,7 +263,7 @@ else
 end
 %proj = proj.set_ub_inv_compat(spec_to_rlu); % This operation was in the
 %                                              previous code and it looks completely wrong
-ax = axes_block('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));
+ax = ortho_axes('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));
 ax.label = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 
 wres.data = DnDBase.dnd(ax,proj, ...

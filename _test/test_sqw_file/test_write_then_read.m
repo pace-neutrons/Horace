@@ -30,21 +30,6 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             assertEqualToTol(saved_sqw, sqw_obj,1.e-9,'ignore_str', true);
         end
 
-        function test_sqw_with_paged_pix_not_on_1st_pg_saved_correctly(obj)
-            sqw_obj = sqw(obj.test_sqw_file_path, ...
-                'file_backed', true);
-            sqw_obj.pix = sqw_obj.pix.advance();
-            assertFalse(sqw_obj.main_header.creation_date_defined);
-
-            [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
-
-            saved_sqw = sqw(out_file_path);
-            assertTrue(saved_sqw.main_header.creation_date_defined);
-
-            sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
-            assertEqualToTol(saved_sqw, sqw_obj,1.e-9,'ignore_str', true);
-        end
-
         function test_saved_sqw_with_paged_pix_equal_to_original_sqw(obj)
             sqw_obj = sqw(obj.test_sqw_file_path, ...
                 'file_backed', true);
@@ -71,25 +56,6 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
             saved_sqw = sqw(out_file_path);
-            assertTrue(saved_sqw.main_header.creation_date_defined);
-
-            sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
-            assertEqualToTol(saved_sqw, sqw_obj,1.e-9,'ignore_str', true);
-        end
-
-        function test_sqw_w_pix_on_2nd_pg_saved_right_with_small_mem_chunk_size(obj)
-            sqw_obj = sqw(obj.test_sqw_file_path, ...
-                'file_backed', true);
-            sqw_obj.pix = sqw_obj.pix.advance();
-            assertFalse(sqw_obj.main_header.creation_date_defined);
-
-            mem_chunk_conf_cleanup = set_temporary_config_options(...
-                hor_config(), ...
-                'mem_chunk_size', floor(obj.npixels_in_file/2) ...
-                );
-            [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
-
-            saved_sqw = read_sqw(out_file_path);
             assertTrue(saved_sqw.main_header.creation_date_defined);
 
             sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;

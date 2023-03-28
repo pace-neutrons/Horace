@@ -13,13 +13,11 @@ function [fig_handle, axes_handle, plot_handle] = ph(w,varargin)
 
 % Check input arguments
 opt=struct('newplot',false);
-[args,ok,mess,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
-if ~ok, error(mess), end
+[args,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
 
 % Perform plot
 type='h';
-[fig_,axes_,plot_,ok,mess]=plot_oned (w,opt.newplot,type,fig);
-if ~ok, error(mess), end
+[fig_,axes_,plot_]=plot_oned (w,opt.newplot,type,fig);
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

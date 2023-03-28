@@ -56,7 +56,11 @@ function [proj, pbin,opt] = ...
 %                                integration range for three cuts, the first
 %                                cut integrates the axis over 105-107, the
 %                                second over 109-111 and the third 113-115.
-
+%NOTE:
+% The cut bin ranges are expressed in the coordinate system related to
+% the target projection
+%
+%
 % Parse the input arguments to cut_sqw_main and cut_sqw_sym_main
 %
 %   >> [proj, pbin, opt] = ...
@@ -128,8 +132,8 @@ end
 % Get leading projection, if present, and strip from parameter list
 % -----------------------------------------------------------------
 if numel(par)>=1 && (isstruct(par{1}) ||...
-        isa(par{1},'aProjection') )
-    if isa(par{1},'aProjection')
+        isa(par{1},'aProjectionBase') )
+    if isa(par{1},'aProjectionBase')
         proj=par{1};
     else
         proj=ortho_proj(par{1});

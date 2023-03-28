@@ -1,20 +1,18 @@
 classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
-
     properties
         horace_config;
         ALL_IN_MEM_PG_SIZE = 1e12;
 
-        test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
-        test_dnd_file_path = '../common_data/dnd_2d.sqw';
+        test_sqw_file_path;
+        test_dnd_file_path;
 
         dnd_2d;
         sqw_2d;
         sqw_2d_paged;
-        %
+
     end
-    methods(Static)
-    end
+
     methods
 
         function obj = test_equal_to_tol(name)
@@ -22,6 +20,11 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
                 name = 'test_equal_to_tol';
             end
             obj = obj@TestCase(name);
+
+            pths = horace_paths;
+            obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
+            obj.test_dnd_file_path = fullfile(pths.test_common, 'dnd_2d.sqw');
+
 
             hc = hor_config();
             obj.horace_config = hc.get_data_to_store();
@@ -55,7 +58,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             assertEqual(mess, 'Objects being compared are not the same type');
         end
 
-  
+
         function test_the_same_sqw_objects_are_equal_with_no_pix_reorder(obj)
             sqw_copy = obj.sqw_2d;
             assertTrue(equal_to_tol(obj.sqw_2d, sqw_copy, 'reorder', false));
@@ -88,11 +91,11 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data);
             shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data);
 
-            original_sqw.data.do_check_combo_arg = false; % disable object integrity validation            
+            original_sqw.data.do_check_combo_arg = false; % disable object integrity validation
             % to be able to modify npix array size independently on other
             % arrays. Object becomes invalid, but we are not testing it
             % here
-            
+
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.npix = npix;
             original_sqw.pix = pix;
@@ -112,11 +115,11 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data);
             shuffled_pix = obj.get_pix_with_fake_faccess(shuffled_data);
 
-            original_sqw.data.do_check_combo_arg = false; % disable object integrity validation            
+            original_sqw.data.do_check_combo_arg = false; % disable object integrity validation
             % to be able to modify npix array size independently on other
             % arrays. Object becomes invalid, but we are not testing it
             % here
-            
+
             % Replace sqw objects' npix and pix arrays
             original_sqw.data.npix = npix;
             original_sqw.pix = pix;
@@ -139,11 +142,10 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         function test_paged_and_non_paged_version_of_same_sqw_file_are_equal(obj)
             sqw2d = obj.sqw_2d;
             sqw2d.main_header.nfiles = obj.sqw_2d_paged.main_header.nfiles;
-            sqw2d.experiment_info = obj.sqw_2d_paged.experiment_info;            
+            sqw2d.experiment_info = obj.sqw_2d_paged.experiment_info;
             [ok,mess] = equal_to_tol(obj.sqw_2d_paged, sqw2d, ...
-                'fraction', 0.5);            
+                'fraction', 0.5);
             assertTrue(ok,['Paged and unpaged versions are different: ',mess]);
-            skipTest('Headers in fb and mem-based files loaded from old file formats are different. Re #843 should address this')
         end
 
         function test_false_returned_if_NaNs_in_sqw_and_nan_equal_is_false(obj)
@@ -190,7 +192,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             pix = obj.get_pix_with_fake_faccess(data);
             edited_pix = obj.get_pix_with_fake_faccess(edited_data);
 
-            original_sqw.data.do_check_combo_arg = false; % disable object integrity validation            
+            original_sqw.data.do_check_combo_arg = false; % disable object integrity validation
             % to be able to modify npix array size independently on other
             % arrays. Object becomes invalid, but we are not testing it
             % here

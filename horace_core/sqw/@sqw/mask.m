@@ -24,11 +24,11 @@ function wout = mask (win, mask_array)
 %
 
 % Initialise output argument
-if win.has_pixels()
-    wout = copy(win, 'exclude_pix', true);  % pixels will be assigned later
-else
-    wout = copy(win);
-end
+% if win.has_pixels()
+%     wout = copy(win, 'exclude_pix', true);  % pixels will be assigned later
+% else
+wout = copy(win);
+% end
 
 % Trivial case of empty or no mask arguments
 if nargin==1 || isempty(mask_array)
@@ -39,5 +39,8 @@ end
 
 % Section the pix array, if non empty, and update pix_range
 if has_pixels(win)
-    wout.pix = win.pix.mask(mask_array, win.data.npix);
+    if wout.pix.is_filebacked
+        wout = wout.get_new_handle();
+    end
+    wout.pix = wout.pix.mask(mask_array, win.data.npix);
 end

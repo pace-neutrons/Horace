@@ -51,7 +51,7 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %                  e.g. ...,'free_alatt',[1,0,1],... allows only lattice parameter b to vary
 %   free_angdeg     Array length 3 of zeros or ones, 1=free, 0=fixed
 %                  e.g. ...,'free_lattice',[1,1,0],... fixes lattice angle gam buts allows alf and bet to vary
-%   bind_alatt      Cell array of cell arrays following multifit convention of fixing the ratio of one lattice 
+%   bind_alatt      Cell array of cell arrays following multifit convention of fixing the ratio of one lattice
 %                   parameter to another, e.g. fix the ratio of a and b to be 1, but have c independent: {{2,1}}
 %                   IMPORTANT - YOU MUST USE THIS ARGUMENT IN CONJUNCTION
 %                   WITH free_alatt option - if you fix the ratio of a and
@@ -71,7 +71,7 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %
 %   rotmat          Rotation matrix that relates crystal Cartesian coordinate frame of the refined
 %                  lattice and orientation as a rotation of the initial crystal frame. Coordinates
-%                  in the two frames are related by 
+%                  in the two frames are related by
 %                       v(i)= rotmat(i,j)*v0(j)
 %
 %   distance        Distances between peak positions and points given by true indexes, in input
@@ -183,18 +183,15 @@ end
 if opt.fix_lattice && ...
         ((present.fix_alatt && ~opt.fix_alatt) || (present.fix_angdeg && ~opt.fix_angdeg) || (present.fix_alatt_ratio && ~opt.fix_alatt_ratio))
     error('Check consistency of options to fix lattice parameters')
-elseif opt.fix_alatt && (present.fix_alatt_ratio && ~opt.fix_alatt_ratio) 
+elseif opt.fix_alatt && (present.fix_alatt_ratio && ~opt.fix_alatt_ratio)
     error('Check consistency of options to fix lattice parameters')
 end
 
 
 % Perform calculations
 % --------------------
-[b0,arlu,angrlu,mess] = bmatrix(lattice0(1:3),lattice0(4:6));
-if ~isempty(mess), error(mess), end
-
-[binit,arlu,angrlu,mess] = bmatrix(lattice_init(1:3),lattice_init(4:6));
-if ~isempty(mess), error(mess), end
+[b0,arlu,angrlu] = bmatrix(lattice0(1:3),lattice0(4:6));
+[binit,arlu,angrlu] = bmatrix(lattice_init(1:3),lattice_init(4:6));
 
 vcryst0=b0*rlu0';       % crystal Cartesian coords in reference lattice
 vcryst_init=binit*rlu'; % crystal Cartesian coords in initial lattice
@@ -267,8 +264,7 @@ alatt=fitpar.p(1:3);
 angdeg=fitpar.p(4:6);
 distance=sqrt(sum(reshape(distance,3,nv).^2,1))';
 
-[b,arlu,angrlu,mess] = bmatrix(alatt,angdeg);
-if ~isempty(mess), error(mess), end
+[b,arlu,angrlu] = bmatrix(alatt,angdeg);
 rlu_corr=b\rotmat*b0;
 
 
@@ -360,7 +356,7 @@ function [rotmat,ok,mess] = rotmat_from_uv (u0,v0,u,v)
 %
 %   u0, v0  Coordinates of two vectors in frame S0
 %   u, v    Coordinates of same vectors in frame S
-% 
+%
 %   rotmat  Matrix that relates a vector expressed in the two frames as
 %               r(i) = rotmat(i,j)*r0(j)
 

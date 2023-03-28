@@ -106,6 +106,7 @@ function wout = do_binary_op_sqw_double(w1, w2, binary_op, flip)
     if isscalar(w2) || isequal(size(w1.data.npix), size(w2))
         flip = exist('flip', 'var') && flip;
         wout = copy(w1);
+        wout = wout.get_new_handle();
         if ~isscalar(w2)
             wout.pix = wout.pix.do_binary_op(...
                 w2, binary_op, 'flip', flip, 'npix', w1.data.npix);
@@ -149,7 +150,8 @@ function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
         end
 
         wout = copy(w1);
-        wout.pix = w1.pix.do_binary_op(w2.pix, binary_op, 'flip', flip);
+        wout = wout.get_new_handle();
+        wout.pix = wout.pix.do_binary_op(w2.pix, binary_op, 'flip', flip);
         wout = recompute_bin_data(wout);
     else
         error('SQW:binary_op_manager_single', ...
@@ -180,7 +182,7 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
         flip = exist('flip', 'var') && flip;
 
 
-        if isa(w2, 'SQWDnDBase') 
+        if isa(w2, 'SQWDnDBase')
             % Need to remove bins with npix=0 in the object for the
             % binary operation
             if isa(w2, 'DnDBase')
@@ -195,7 +197,8 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
         else % sigvar
             operand = w2;
         end
-        
+
+        wout = wout.get_new_handle();
         wout.pix = wout.pix.do_binary_op( ...
             operand, binary_op, 'flip', flip, 'npix', wout.data.npix);
         wout = recompute_bin_data(wout);

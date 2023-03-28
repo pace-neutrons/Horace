@@ -182,13 +182,13 @@ classdef test_main_mex < TestCase
             [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
             pix.coordinates = [ux(:)';uy(:)';uz(:)';et(:)'];
             npix = 4*ones(10,10,10,10);
-            ab = axes_block('nbins_all_dims',[10,10,10,10],'img_range',[0,0,0,0;2,2,2,2]);
+            ab = ortho_axes('nbins_all_dims',[10,10,10,10],'img_range',[0,0,0,0;2,2,2,2]);
             test_sqw.data = DnDBase.dnd(ab,ortho_proj);
             test_sqw.data.npix = npix;
             test_sqw.pix  = pix;
 
             hc.use_mex = false;
-            new_sqw = recompute_bin_data_tester(test_sqw);
+            new_sqw = recompute_bin_data(test_sqw);
             s = new_sqw.data.s;
             e = new_sqw.data.e;
             assertElementsAlmostEqual(4*s,npix);
@@ -201,13 +201,13 @@ classdef test_main_mex < TestCase
 
             hc.use_mex = true;
             par.threads = 1;
-            new_sqw1 = recompute_bin_data_tester(test_sqw);
+            new_sqw1 = recompute_bin_data(test_sqw);
             assertElementsAlmostEqual(new_sqw1.data.s,s)
             assertElementsAlmostEqual(new_sqw1.data.e,e)
 
             hc.use_mex = true;
             par.threads = 8;
-            new_sqw2 = recompute_bin_data_tester(test_sqw);
+            new_sqw2 = recompute_bin_data(test_sqw);
             assertElementsAlmostEqual(new_sqw2.data.s,s)
             assertElementsAlmostEqual(new_sqw2.data.e,e)
 
@@ -342,7 +342,7 @@ classdef test_main_mex < TestCase
             E1=max(en);
             Es=2;
             proj = ortho_proj(u,v,'alatt',[3,4,5],'angdeg',[90,90,90]);
-            ab = axes_block([0,1,L1],[0,1,L2],[0,0.1,L3],[E0,Es,E1]);
+            ab = ortho_axes([0,1,L1],[0,1,L2],[0,0.1,L3],[E0,Es,E1]);
             data = DnDBase.dnd(ab,proj);
 
             vv=ones(9,nPixels);

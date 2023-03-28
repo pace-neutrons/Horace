@@ -17,10 +17,7 @@ function  [figureHandle, axesHandle, plotHandle] = delegate_to_herbert_1d_( ...
 % axesHandle   -- array of picutres axes handles
 % plotHandle   -- array of handles of the overplot methods
 %
-[args,ok,mess]=genie_figure_parse_plot_args(options,varargin{:});
-if ~ok
-    error(['HORACE:',call_class_name,'invalid_argument'],mess);
-end
+args=genie_figure_parse_plot_args(options,varargin{:});
 
 nobj = numel(obj);
 figureHandle = [];

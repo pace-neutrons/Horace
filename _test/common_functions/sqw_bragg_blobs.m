@@ -14,8 +14,7 @@ qsig=p(1)/sqrt(log(256));
 esig=p(2)/sqrt(log(256));
 
 % Conversion matrix to turn h,k,l into correponding values for the lattice defined by parameters
-[b,arlu,angrlu,mess] = bmatrix(lattice(1:3),lattice(4:6));
-if ~isempty(mess), error(mess), end
+[b,arlu,angrlu] = bmatrix(lattice(1:3),lattice(4:6));
 
 % Get h,k,l in new lattice and get weight
 qrlu=[qh(:),qk(:),ql(:)]';

@@ -5,10 +5,10 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 % Input:
 % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
 %             expressed in crystal Cartesian coordinate system
-%             or pixelData object.
+%             or pixelData object containing this information.
 % Returns:
-% pix_out -- the pixels coordinates transformed into coordinate
-%             system, related to image (e.g. hkl system)
+% pix_out -- [3xNpix] or [4xNpix] array the pixels coordinates transformed
+%            into coordinate system, related to the image (e.g. hkl system)
 %
 if isa(pix_input,'PixelDataBase')
     pix_cc = pix_input.q_coordinates;
@@ -32,7 +32,7 @@ end
 pix_transf= ((bsxfun(@minus,pix_cc,shift))'*rot_to_img')';
 if input_is_obj
     if shift_ei
-        ei = pix_input.dE -obj.shift(4);
+        ei = pix_input.dE -obj.offset(4);
     else
         ei = pix_input.dE;
     end

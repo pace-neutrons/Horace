@@ -33,9 +33,7 @@ if ~no_inst, set_instrument_horace(tmpsqwfile,inst); end
 if ~no_samp, set_sample_horace(tmpsqwfile,samp); end
 tmpfromfile=read_sqw(tmpsqwfile);
 % ignore file creation date
-wnew.main_header.creation_date = tmpfromfile.main_header.creation_date;
-wnew.experiment_info.instruments = wnew.experiment_info.instruments.reorder();
-tmpfromfile.experiment_info.instruments = tmpfromfile.experiment_info.instruments.reorder();
+wnew.creation_date = tmpfromfile.creation_date;
 
 assertEqualToTol(wnew,tmpfromfile,[1.e-8,1.e-8],'ignore_str',1)
 

@@ -31,14 +31,8 @@ function pix_out = do_binary_op(obj, operand, binary_op, varargin)
 %
 [flip, npix] = parse_args(obj, operand, binary_op, varargin{:});
 
-if nargout == 0
-    pix_out = obj;
-else
-    %TODO: #928 If it is copy here, what is should be? Initialized
-    %f-accessor should be here
-    pix_out = copy(obj); % this one currently creates Memorybacked pixels in tests
-    %pix_out = obj; 
-end
+%Rely on CoW behaviour
+pix_out = obj;
 
 if isscalar(operand) && isa(operand, 'double')
     pix_out = binary_op_scalar_(pix_out, operand, binary_op, flip);
@@ -46,7 +40,7 @@ elseif isa(operand, 'double')
     pix_out = binary_op_double_(pix_out, operand, binary_op, flip, npix);
 elseif isa(operand, 'PixelDataBase')
     pix_out = binary_op_pixels_(pix_out, operand, binary_op, flip);
-elseif ~isempty(regexp(class(operand), '^d[0-4]d$', 'ONCE')) || isa(operand, 'sigvar')
+elseif isa(operand, 'DnDBase') || isa(operand, 'sigvar')
     pix_out = binary_op_sigvar_(pix_out, operand, binary_op, flip, npix);
 end
 

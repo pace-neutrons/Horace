@@ -6,11 +6,12 @@ classdef test_func_eval < TestCase & common_state_holder
 
     properties
 
-        d2d_file_path = '../common_data/w2d_qq_small_d2d.sqw'
+        d2d_file_path;
         d2d_obj;
-        sqw_2d_file_path = '../common_data/sqw_2d_1.sqw'
-        sqw_1d_file_path = '../common_data/sqw_1d_1.sqw'
-        sqw_2d_obj;
+        sqw_1d_file_path;
+        sqw_2d_file_path;
+        sqw_2d_obj_fb;
+        sqw_2d_obj_mb;
 
         quadratic = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
         quadratic_params = {2, 3, 6};
@@ -29,8 +30,17 @@ classdef test_func_eval < TestCase & common_state_holder
     methods
         function obj = test_func_eval(~)
             obj = obj@TestCase('test_func_eval');
+            pths = horace_paths;
+            obj.sqw_1d_file_path = fullfile(pths.test_common, 'sqw_1d_1.sqw');
+            obj.sqw_2d_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
+            obj.d2d_file_path = fullfile(pths.test_common, 'w2d_qq_small_d2d.sqw');
+
             obj.d2d_obj = read_dnd(obj.d2d_file_path);
-            obj.sqw_2d_obj = read_sqw(obj.sqw_2d_file_path);
+
+            obj.sqw_2d_obj_fb = read_sqw(obj.sqw_2d_file_path, '-filebacked');
+            obj.sqw_2d_obj_mb = obj.sqw_2d_obj_fb;
+            obj.sqw_2d_obj_mb.pix = PixelDataMemory(obj.sqw_2d_obj_fb.pix);
+
         end
 
 
@@ -48,13 +58,13 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_SQW_error_if_sqws_in_array_have_different_dimensions(obj)
-            sqws_in = [sqw(obj.sqw_1d_file_path), obj.sqw_2d_obj];
+            sqws_in = [sqw(obj.sqw_1d_file_path), obj.sqw_2d_obj_fb];
             f = @() func_eval(sqws_in, obj.quadratic, obj.quadratic_params);
             assertExceptionThrown(f, 'HORACE:sqw:invalid_argument');
         end
 
         function test_SQW_error_if_num_input_objects_gt_num_outfiles(obj)
-            sqws_in = [obj.sqw_2d_obj, obj.sqw_2d_obj];
+            sqws_in = [obj.sqw_2d_obj_fb, obj.sqw_2d_obj_fb];
             outfile = 'some_path';
 
             f = @() func_eval( ...
@@ -64,7 +74,7 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_SQW_error_if_num_input_objects_lt_num_outfiles(obj)
-            sqws_in = obj.sqw_2d_obj;
+            sqws_in = obj.sqw_2d_obj_fb;
             outfiles = {'some_path', 'some_other_path'};
 
             f = @() func_eval( ...
@@ -74,42 +84,30 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_error_raised_if_func_eval_called_with_mix_of_sqw_and_dnd(obj)
-            inputs = {obj.d2d_obj, obj.sqw_2d_obj};
+            inputs = {obj.d2d_obj, obj.sqw_2d_obj_fb};
             f = @() func_eval(inputs, obj.quadratic, obj.quadratic_params);
             assertExceptionThrown(f, 'HORACE:func_eval:invalid_argument');
         end
 
         function test_error_if_func_eval_input_arrays_within_a_cell_array(obj)
-            inputs = {[obj.sqw_2d_obj, obj.sqw_2d_obj], obj.sqw_2d_file_path};
+            inputs = {[obj.sqw_2d_obj_fb, obj.sqw_2d_obj_fb]};
             f = @() func_eval(inputs, obj.quadratic, obj.quadratic_params);
             assertExceptionThrown(f, 'HORACE:func_eval:invalid_argument');
         end
 
-        function test_error_raised_if_filebacked_arg_not_scalar_logical(obj)
-            invalid_vals = {'not-a-logical', [true, false, true], 2};
-            for i = 1:numel(invalid_vals)
-                f = @() func_eval( ...
-                    obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params, ...
-                    'filebacked', invalid_vals{i} ...
-                    );
-                assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
-            end
-        end
-
         %% SQW tests
         function test_applying_func_eval_to_sqw_object_returns_correct_sqw_data(obj)
-            sqw_out = obj.sqw_2d_obj.func_eval(obj.quadratic, obj.quadratic_params);
+            sqw_out = obj.sqw_2d_obj_fb.func_eval(obj.quadratic, obj.quadratic_params);
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
                 obj.final_img_signal_row_sqw_2d ...
                 );
-            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqw_out);
+            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj_fb, sqw_out);
         end
 
         function test_func_eval_on_array_of_sqw_objects_returns_correct_sqw_data(obj)
-            sqws_in = repmat(obj.sqw_2d_obj, [2, 3]);
-
+            sqws_in = repmat(obj.sqw_2d_obj_fb, [2, 3]);
             sqws_out = func_eval(sqws_in, obj.quadratic, obj.quadratic_params);
 
             assertEqual(size(sqws_out), size(sqws_in));
@@ -118,123 +116,83 @@ classdef test_func_eval < TestCase & common_state_holder
                     sqws_out(i).data.s(end, :), ...
                     obj.final_img_signal_row_sqw_2d ...
                     );
-                obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqws_out(i));
+                obj.validate_func_eval_sqw_output(obj.sqw_2d_obj_fb, sqws_out(i));
             end
         end
 
         function test_func_eval_on_array_of_sqw_objs_with_cell_arr_of_outfiles(obj)
-            sqws_in = [obj.sqw_2d_obj, obj.sqw_2d_obj];
+            sqws_in = [obj.sqw_2d_obj_fb, obj.sqw_2d_obj_fb];
             outfiles = {gen_tmp_file_path('1'), gen_tmp_file_path('2')};
             tmp_file_cleanup = onCleanup(@() cellfun(@(x) clean_up_file(x), outfiles));
 
-            func_eval(sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfiles);
+            sqws_out = func_eval(sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfiles);
 
-            sqws_out = cellfun(@(x) sqw(x), outfiles, 'UniformOutput', false);
             assertEqual(size(sqws_out), size(sqws_in));
             for i = 1:numel(sqws_in)
+                assertEqual(sqws_out(i).pix.full_filename, outfiles{i});
+
                 assertElementsAlmostEqual( ...
-                    sqws_out{i}.data.s(end, :), ...
+                    sqws_out(i).data.s(end, :), ...
                     obj.final_img_signal_row_sqw_2d, ...
                     'relative', obj.FLOAT_TOL ...
                     );
-                obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqws_out{i});
+
+                obj.validate_func_eval_sqw_output(obj.sqw_2d_obj_fb, sqws_out(i));
             end
         end
 
         function test_applying_func_eval_to_an_sqw_file_returns_correct_sqw_data(obj)
-            sqw_out = func_eval(obj.sqw_2d_obj, obj.quadratic, obj.quadratic_params);
+            sqw_out = func_eval(obj.sqw_2d_obj_fb, obj.quadratic, obj.quadratic_params);
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
                 obj.final_img_signal_row_sqw_2d ...
                 );
 
-            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqw_out);
+            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj_fb, sqw_out);
         end
 
         function test_applying_func_eval_to_sqw_obj_with_outfile_outputs_to_file(obj)
             outfile = gen_tmp_file_path();
-            func_eval( ...
-                obj.sqw_2d_file_path, ...
+
+            sqw_out = func_eval( ...
+                obj.sqw_2d_obj_fb, ...
                 obj.quadratic, ...
                 obj.quadratic_params, ...
                 'outfile', outfile ...
                 );
+
             tmp_file_cleanup = onCleanup(@() clean_up_file(outfile));
 
-            assertTrue(logical(exist(outfile, 'file')));
+            assertEqual(sqw_out.pix.full_filename, outfile)
+            assertTrue(is_file(outfile));
 
-            sqw_out = sqw(outfile);
             assertEqualToTol( ...
                 sqw_out.data.s(end, :), ...
                 obj.final_img_signal_row_sqw_2d, ...
                 'reltol', obj.FLOAT_TOL ...
                 );
-            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqw_out);
-        end
-
-        function test_input_cell_array_of_sqw_files_rets_array_of_sqw(obj)
-            sqw_files_in = {obj.sqw_2d_file_path, obj.sqw_2d_file_path};
-
-            sqws_out = func_eval(sqw_files_in, obj.quadratic, obj.quadratic_params);
-
-            assertEqual(size(sqws_out), [1, 2]);
-            for i = 1:numel(sqw_files_in)
-                obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqws_out(i));
-            end
+            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj_fb, sqw_out);
         end
 
         function test_output_file_of_out_of_memory_op_matches_reference_data(obj)
             mem_chunk_size = floor(24689/5); % all pixels from ref file (24689),
-            % split in 5-6 pages
-            config_cleanup = set_temporary_config_options( ...
-                hor_config, 'mem_chunk_size', mem_chunk_size ...
-                );
-            sqw_out_file = func_eval( ...
-                obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params, ...
-                'filebacked', true ...
-                );
-            tmp_file_cleanup = onCleanup(@() clean_up_file(sqw_out_file));
+                                             % split in 5-6 pages
+            config_cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', mem_chunk_size);
+            sqw_out = func_eval(obj.sqw_2d_obj_fb, obj.quadratic, obj.quadratic_params);
 
-            assertTrue(isa(sqw_out_file, 'char'));
-            sqw_out = sqw(sqw_out_file);
+            assertTrue(isa(sqw_out, 'sqw'));
+
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
                 obj.final_img_signal_row_sqw_2d, ...
                 'relative', obj.FLOAT_TOL ...
                 );
-            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqw_out);
+            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj_fb, sqw_out);
         end
 
-        function test_output_files_of_cell_array_of_files_on_out_of_memory_data(obj)
-            mem_chunk_size = floor(24689/5);% all pixels from ref file (24689),
-            % split in 5-6 pages            
-            config_cleanup = set_temporary_config_options( ...
-                hor_config, 'mem_chunk_size', mem_chunk_size ...
-                );
-            sqw_files_in = {obj.sqw_2d_file_path, obj.sqw_2d_file_path};
-            sqw_out_files = func_eval( ...
-                sqw_files_in, obj.quadratic, obj.quadratic_params, ...
-                'filebacked', true ...
-                );
-            tmp_file_cleanup = onCleanup( ...
-                @() cellfun(@(x) clean_up_file(x), sqw_out_files) ...
-                );
-
-            assertTrue(isa(sqw_out_files, 'cell'));
-            for i = 1:numel(sqw_out_files)
-                sqw_out = sqw(sqw_out_files{i});
-                assertElementsAlmostEqual( ...
-                    sqw_out.data.s(end, :), ...
-                    obj.final_img_signal_row_sqw_2d, ...
-                    'relative', obj.FLOAT_TOL ...
-                    );
-                obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqw_out);
-            end
-        end
-
-        function test_output_on_cell_arr_with_files_and_objects_matches_ref(obj)
-            sqws_in = {obj.sqw_2d_file_path, obj.sqw_2d_obj};
+        function test_output_on_cell_arr_objects_matches_ref(obj)
+            sqws_in = {obj.sqw_2d_obj_mb, obj.sqw_2d_obj_mb};
             sqws_out = func_eval(sqws_in, obj.quadratic, obj.quadratic_params);
 
             assertTrue(isa(sqws_out, 'sqw'));
@@ -245,55 +203,46 @@ classdef test_func_eval < TestCase & common_state_holder
                     obj.final_img_signal_row_sqw_2d, ...
                     'relative', obj.FLOAT_TOL ...
                     );
-                obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqws_out(i));
+                obj.validate_func_eval_sqw_output(obj.sqw_2d_obj_fb, sqws_out(i));
             end
         end
 
         function test_outfile_path_equal_to_input_outfile_if_filebacked(obj)
             outfile = gen_tmp_file_path();
-            sqw_out_file = func_eval( ...
-                obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params, ...
-                'filebacked', true, ...
-                'outfile', outfile ...
-                );
+            sqw_out = func_eval(obj.sqw_2d_obj_fb, obj.quadratic, obj.quadratic_params, 'outfile', outfile);
+
             tmp_file_cleanup = onCleanup(@() clean_up_file(outfile));
 
-            assertEqual(sqw_out_file, outfile)
-            assertEqual(exist(sqw_out_file, 'file'), 2);
+            assertEqual(sqw_out.pix.full_filename, outfile)
+            assertTrue(is_file(outfile));
         end
 
         function test_npix_all_ones_if_all_flag_given_and_no_pixels(obj)
-            sqw_in = obj.sqw_2d_obj;
+            sqw_in = obj.sqw_2d_obj_mb;
             sqw_in.pix = PixelDataBase.create();
-            sqw_out = func_eval( ...
-                sqw_in, obj.quadratic, obj.quadratic_params, '-all' ...
-                );
+            sqw_out = func_eval(sqw_in, obj.quadratic, obj.quadratic_params, '-all');
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
                 obj.final_img_signal_row_sqw_2d ...
                 );
-            assertEqual(sqw_out.data.npix, ones(size(obj.sqw_2d_obj.data.npix)));
+            assertEqual(sqw_out.data.npix, ones(size(obj.sqw_2d_obj_fb.data.npix)));
         end
 
         function test_output_matches_ref_file_if_pixel_page_size_small(obj)
             mem_chunk_size = floor(24689/5); % all pixels, 5 pages
-            config_cleanup = set_temporary_config_options( ...
-                hor_config, 'mem_chunk_size', mem_chunk_size ...
-                );
-            sqw_out = func_eval( ...
-                obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params ...
-                );
-            
+            config_cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', mem_chunk_size);
+
+            sqw_out = func_eval(obj.sqw_2d_obj_fb, obj.quadratic, obj.quadratic_params);
+
             assertTrue(sqw_out.pix.is_filebacked)
-            clOb = onCleanup(@()delete(sqw_out.full_filename));
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
                 obj.final_img_signal_row_sqw_2d, ...
                 'relative', obj.FLOAT_TOL ...
                 );
-            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqw_out);
+            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj_fb, sqw_out);
         end
 
         %% DnD tests
@@ -324,7 +273,7 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_applying_func_eval_to_a_dnd_file_returns_correct_dnd_data(obj)
-            dnd_out = func_eval(read_dnd(obj.d2d_file_path), obj.quadratic, obj.quadratic_params);
+            dnd_out = func_eval(obj.d2d_obj, obj.quadratic, obj.quadratic_params);
 
             assertElementsAlmostEqual( ...
                 dnd_out.s(end, :), ...
@@ -335,7 +284,7 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_func_eval_on_cell_array_of_dnd_files_rets_dnd_array(obj)
-            dnds_in = {read_dnd(obj.d2d_file_path), read_dnd(obj.d2d_file_path)};
+            dnds_in = {obj.d2d_obj, obj.d2d_obj};
             dnds_out = func_eval(dnds_in, obj.quadratic, obj.quadratic_params);
 
             assertEqual(size(dnds_out), size(dnds_in));
@@ -351,9 +300,7 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_for_dnd_input_npix_are_all_ones_if_all_flag_given(obj)
-            dnd_out = func_eval( ...
-                obj.d2d_obj, obj.quadratic, obj.quadratic_params, '-all' ...
-                );
+            dnd_out = func_eval(obj.d2d_obj, obj.quadratic, obj.quadratic_params, '-all');
 
             assertElementsAlmostEqual( ...
                 dnd_out.s(end, :), ...
@@ -364,9 +311,7 @@ classdef test_func_eval < TestCase & common_state_holder
         end
 
         function test_for_dnd_input_npix_are_all_ones_if_kwarg_all_is_true(obj)
-            dnd_out = func_eval( ...
-                obj.d2d_obj, obj.quadratic, obj.quadratic_params, 'all', true ...
-                );
+            dnd_out = func_eval(obj.d2d_obj, obj.quadratic, obj.quadratic_params, 'all', true);
 
             assertElementsAlmostEqual( ...
                 dnd_out.s(end, :), ...

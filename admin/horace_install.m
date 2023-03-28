@@ -71,22 +71,18 @@ init_folder= opt.init_folder;
 
 
 if ~opt.test_mode
-    try % remove from search path any possible previous version of Horace/Herbert
-        herbert_off();
-    catch % ignore errors if the code has not been installed before and script
-    end   % has not been found
     try
         horace_off();
     catch  % ignore errors if the code has not been installed before and script
     end    % has not been found
     %
-    
+
     % remove herbert_on which may be left from previous installations
     old_herbert_on = which('herbert_on');
     if ~isempty(old_herbert_on)
         delete(old_herbert_on);
     end
-    
+
     if ~exist(init_folder,'dir')
         mkdir(init_folder);
     end
@@ -180,68 +176,66 @@ function opts = parse_args(code_root,init_folder_default,...
 % Parse install script options and identify default package
 % location(s)
 %
-if ismember('-test_mode',varargin)
-    tm = ismember(varargin,'-test_mode');
-    argi = varargin(~tm);
-    test_mode = true;
-else
-    argi = varargin;
-    test_mode = false;
-end
-
+    test_mode = ismember('-test_mode',varargin);
+    if test_mode
+        tm = ismember(varargin,'-test_mode');
+        argi = varargin(~tm);
+    else
+        argi = varargin;
+    end
 
     function validate_path(x, arg_name)
+
         validateattributes( ...
             x, {'string', 'char'}, {'scalartext'},...
             'horace_install', arg_name );
+
     end
 
-% Default horace_root is "<check_up_folder_name>/Horace", but Jenkins
-% checks it up directly into check_up_folder_name.
-hor_root_default = fullfile(code_root, hor_checkup_folder);
-% Default init folder location is either init folder where previous Horace
-% init files are located or, if clean installation, "<horace_root>/../ISIS"
-if isempty(init_folder_default)
-    use_old_init_path   = false;
-    init_folder_default = fullfile(code_root,'ISIS');
-else
-    use_old_init_path   = true;
-end
+    % Default horace_root is "<check_up_folder_name>/Horace", but Jenkins
+    % checks it up directly into check_up_folder_name.
+    hor_root_default = fullfile(code_root, hor_checkup_folder);
+    % Default init folder location is either init folder where previous Horace
+    % init files are located or, if clean installation, "<horace_root>/../ISIS"
 
-parser = inputParser();
-% Default horace_root is one directory above this script
-parser.addParameter( ...
-    'horace_root', ...
-    hor_root_default, ...
-    @(x) validate_path(x, 'horace_root') ...
-    );
-parser.addParameter( ...
-    'init_folder', ...
-    init_folder_default, ...
-    @(x) validate_path(x, 'init_folder') ...
-    );
-
-parser.parse(argi{:});
-%
-opts = parser.Results;
-
-opts.test_mode = test_mode;
-% check if user provided some specific location for init folder, different
-% from the previous default location
-if ~strcmp(opts.init_folder,init_folder_default)
-    use_old_init_path = false;
-    % if user provided init folder without ISIS extension, add ISIS
-    % extension to the folder name
-    [~,folder_name] = fileparts(opts.init_folder);
-    if ~strcmp(folder_name,'ISIS')
-        opts.init_folder = fullfile(opts.init_folder,'ISIS');
+    use_old_init_path = ~isempty(init_folder_default);
+    if ~use_old_init_path
+        init_folder_default = fullfile(code_root,'ISIS');
     end
-end
-opts.use_old_init_path = use_old_init_path;
-opts.herbert_root = opts.horace_root;
+
+    parser = inputParser();
+    % Default horace_root is one directory above this script
+    parser.addParameter( ...
+        'horace_root', ...
+        hor_root_default, ...
+        @(x) validate_path(x, 'horace_root') ...
+                       );
+    parser.addParameter( ...
+        'init_folder', ...
+        init_folder_default, ...
+        @(x) validate_path(x, 'init_folder') ...
+                       );
+
+    parser.parse(argi{:});
+
+    opts = parser.Results;
+
+    opts.test_mode = test_mode;
+    % check if user provided some specific location for init folder, different
+    % from the previous default location
+    if ~strcmp(opts.init_folder, init_folder_default)
+        use_old_init_path = false;
+        % if user provided init folder without ISIS extension, add ISIS
+        % extension to the folder name
+        [~,folder_name] = fileparts(opts.init_folder);
+        if ~strcmp(folder_name,'ISIS')
+            opts.init_folder = fullfile(opts.init_folder,'ISIS');
+        end
+    end
+    opts.use_old_init_path = use_old_init_path;
+    opts.herbert_root = opts.horace_root;
 
 end
-
 
 function install_file(source, dest, placeholders, replace_strs)
 % copy the given file to the given destination

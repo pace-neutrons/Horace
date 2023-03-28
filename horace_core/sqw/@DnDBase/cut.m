@@ -23,7 +23,8 @@ function wout = cut(obj, varargin)
 % ------
 %   data_source    Data source: sqw-type object (sqw or sqw data accessor)
 %
-%   proj           instance of aProjection class (ortho_proj) as defailts
+%   proj           instance of aProjectionBase class (ortho_proj by default)
+%                  which describes the target coordinate system of the cut
 %                  or Data structure containing the projection class fields,
 %                  (names and its values)
 %                  (type >> help ortho_proj   for details)
@@ -84,7 +85,8 @@ function wout = cut(obj, varargin)
 %                                be the number of rdiff sized steps between plo
 %                                and phi; phi will be automatically increased
 %                                such that rdiff divides phi - plo.
-%
+% NOTE:
+% All binning parameters are expressed in the coordinate system described by proj.
 %
 % Output:
 % -------
@@ -112,7 +114,7 @@ if return_cut
 end
 for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
-    [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pbin_tmp );
+    [targ_ax_block,targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp );
 
     args = {obj, targ_proj, targ_ax_block, opt.outfile,opt.proj_given,log_level};
     if return_cut
@@ -125,18 +127,3 @@ if return_cut
     wout = [wout{:}]';
 end
 % End function
-
-function [targ_ax_block,targ_proj] = define_target_axes_block(img_block, targ_proj, pbin)
-% define target axes from existing axes, inputs and the projections
-%
-source_proj = img_block.proj;
-%--------------------------------------------------------------------------
-% Get the source binning ranges, transformed into target coordinate system.
-% It is actually axes_block method, so source projection is provided as
-% input of this method. Left in this form unil data_sqw_dnd is a axes_block
-source_binning = img_block.axes.get_binning_range(...
-    source_proj,targ_proj);
-%
-targ_ax_block  = targ_proj.get_proj_axes_block(source_binning,pbin);
-targ_ax_block.filename = img_block.filename;
-targ_ax_block.filepath = img_block.filepath;

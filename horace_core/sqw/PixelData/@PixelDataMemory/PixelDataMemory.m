@@ -56,9 +56,11 @@ classdef PixelDataMemory < PixelDataBase
     properties(Access=protected)
         data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
     end
+
     properties
         page_memory_size_ = inf;
     end
+
     properties(Constant)
         is_filebacked = false;
         n_pages = 1;
@@ -69,7 +71,7 @@ classdef PixelDataMemory < PixelDataBase
         pix_out = append(obj, pix);
         pix     = set_raw_data(obj,pix);
         obj     = set_raw_fields(obj, data, fields, abs_pix_indices);
-        %
+
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         pix_out = do_unary_op(obj, unary_op);
@@ -79,7 +81,7 @@ classdef PixelDataMemory < PixelDataBase
 
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
-        %
+
         pix_out = get_fields(obj, fields, abs_pix_indices);
 
     end
@@ -95,10 +97,12 @@ classdef PixelDataMemory < PixelDataBase
             end
             obj = obj.init(varargin{:});
         end
+
         function obj = init(obj,varargin)
             % Main part of PixelDataMemory constructor.
             obj = init_(obj,varargin{:});
         end
+
         function [obj,unique_pix_id] = recalc_data_range(obj)
             % Recalculate pixels range in the situations, where the
             % range for some reason appeared to be missing (i.e. loading pixels from
@@ -116,21 +120,6 @@ classdef PixelDataMemory < PixelDataBase
                 unique_pix_id = unique(obj.run_idx);
             end
         end
-
-
-        % --- Data management ---
-        function has_more = has_more(~)
-            % Returns true if there are subsequent pixels stored in the file that
-            % are not held in the current page
-            %
-            %    >> has_more = pix.has_more();
-            %
-            has_more = false;
-        end
-        function obj = delete(obj)
-            obj.data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,0);
-        end
-
 
         function [page_number,total_num_pages] = move_to_page(~, page_number, varargin)
             % Set the object to point at the given page number
@@ -153,71 +142,11 @@ classdef PixelDataMemory < PixelDataBase
 
         end
 
-        function [current_page_num, total_num_pages] = advance(~, varargin)
-            % Load the next page of pixel data from the file backing the object
-            %
-            % This function will throw a PIXELDATA:advance error if attempting to
-            % advance past the final page of data in the file.
-            %
-            % This function does nothing if the pixel data is not file-backed.
-            %
-            %  >> obj.advance()
-            %  >> obj.advance('nosave', true)
-            %
-            % Inputs:
-            % -------
-            % nosave  Keyword argument. Set to true to discard changes to cache.
-            %         (default: false)
-            %
-            % Outputs:
-            % --------
-            % current_page_number  The new page and total number of pages advance will
-            % walk through to complete the algorithm
-            %
-            current_page_num = 1;
-            total_num_pages = 1;
-        end
-    end
-    %
-    methods(Access=protected)
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
             pix_idx_start = 1;
             pix_idx_end   = obj.num_pixels;
         end
 
-        function np = get_page_num(~)
-            np = 1;
-        end
-        function obj = set_page_num(obj,varargin)
-            % do nothing. Only 1 is pagenum in pixel_data
-        end
-        function  page_size = get_page_size(obj)
-            page_size = size(obj.data_,2);
-        end
-        function np = get_num_pages(~)
-            np = 1;
-        end
-        function data =  get_raw_data(obj)
-            % main part of get.data accessor
-            data = obj.data_;
-        end
-        %
-        %
-        function num_pix = get_num_pixels(obj)
-            % num_pixels getter
-            num_pix = size(obj.data_,2);
-        end
-        %------------------------------------------------------------------
-        function obj=set_prop(obj, fld, val)
-            val = check_set_prop(obj,fld,val);
-            obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
-            obj=obj.reset_changed_coord_range(fld);
-        end
-        %
-        function prp = get_prop(obj, fld)
-            prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
-        end
-        %
         function [obj,varargout]=reset_changed_coord_range(obj,field_name)
             % Recalculate and set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
@@ -235,13 +164,85 @@ classdef PixelDataMemory < PixelDataBase
                 ind = obj.FIELD_INDEX_MAP_(field_name);
             end
 
-            range = [min(obj.data_(ind,:),[],2),max(obj.data_(ind,:),[],2)]';
-            obj.data_range_(:,ind)   = range;
+            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:));
             if nargout>1
-                varargout{1} =  unique(obj.run_idx);
+                varargout{1} = unique(obj.run_idx);
             end
         end
-        %------------------------------------------------------------------
+    end
+
+    methods(Static)
+        function obj = cat(varargin)
+        % Concatenate the given PixelData objects' pixels. This function performs
+        % a straight-forward data concatenation.
+        %
+        %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
+        %
+        % Input:
+        % ------
+        %   varargin    A cell array of PixelData objects
+        %
+        % Output:
+        % -------
+        %   obj         A PixelData object containing all the pixels in the inputted
+        %               PixelData objects
+            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
+
+            if any(is_ldr)
+                obj = PixelDataFileBacked(varargin);
+                return
+            end
+
+            obj = PixelDataMemory();
+            for i = 1:numel(varargin)
+                curr_pix = varargin{i};
+                for page = 1:curr_pix.num_pages
+                    [curr_pix,data] = curr_pix.load_page(page);
+                    obj.data = [obj.data, data];
+                end
+            end
+            obj = obj.recalc_data_range();
+        end
+    end
+
+    methods(Access=protected)
+
+        function np = get_page_num(~)
+            np = 1;
+        end
+
+        function obj = set_page_num(obj,varargin)
+            % do nothing. Only 1 is pagenum in pixel_data
+        end
+
+        function  page_size = get_page_size(obj)
+            page_size = size(obj.data_,2);
+        end
+
+        function np = get_num_pages(~)
+            np = 1;
+        end
+
+        function data =  get_raw_data(obj)
+            % main part of get.data accessor
+            data = obj.data_;
+        end
+
+        function num_pix = get_num_pixels(obj)
+            % num_pixels getter
+            num_pix = size(obj.data_,2);
+        end
+
+        function obj=set_prop(obj, fld, val)
+            val = check_set_prop(obj,fld,val);
+            obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
+            obj=obj.reset_changed_coord_range(fld);
+        end
+
+        function prp = get_prop(obj, fld)
+            prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
+        end
+
         function obj=set_data_wrap(obj,val)
             % main part of pix_data_wrap setter overloaded for
             % PixDataMemory class
@@ -258,6 +259,7 @@ classdef PixelDataMemory < PixelDataBase
             obj.data_ = val.data;
         end
     end
+
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods(Static)
