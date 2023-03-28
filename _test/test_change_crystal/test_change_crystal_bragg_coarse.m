@@ -51,7 +51,7 @@ classdef test_change_crystal_bragg_coarse < TestCase
             % Parameters for generation of reference sqw file
             obj.dir_out=tmp_dir;
 
-            sim_sqw_file=fullfile(obj.dir_out,'test_change_crystal_1a_sim.sqw'); % output file for simulation in reference lattice
+            sim_sqw_file=fullfile(obj.dir_out,'test_change_crystal_coarse_sim.sqw'); % output file for simulation in reference lattice
             obj=obj.build_misaligned_source_file(sim_sqw_file);
             %
         end
@@ -85,7 +85,7 @@ classdef test_change_crystal_bragg_coarse < TestCase
 
             % Apply to a copy of the sqw object to see that the alignment is now OK
             % ---------------------------------------------------------------------
-            sim_sqw_file_corr=fullfile(obj.dir_out,'test_change_crystal_1sima_corr.sqw'); % output file for correction
+            sim_sqw_file_corr=fullfile(obj.dir_out,'test_change_crystal_coarse_sima_corr.sqw'); % output file for correction
             copyfile(obj.misaligned_sqw_file,sim_sqw_file_corr)
             cleanup_obj=onCleanup(@()delete(sim_sqw_file_corr));
 
@@ -104,7 +104,7 @@ classdef test_change_crystal_bragg_coarse < TestCase
             assertElementsAlmostEqual(alatt_c,obj.alatt,'absolute',0.01)
             assertElementsAlmostEqual(angdeg_c,obj.angdeg,'absolute',0.01)
             %
-            realigned_sqw_file=fullfile(obj.dir_out,'test_change_crystal_1sima_realigned.sqw'); % output file for correction
+            realigned_sqw_file=fullfile(obj.dir_out,'test_change_crystal_coarse_sima_realigned.sqw'); % output file for correction
             cleanup_obj1=onCleanup(@()delete(realigned_sqw_file));
 
             % Generate re-aligned crystal

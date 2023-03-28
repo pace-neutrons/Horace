@@ -26,8 +26,8 @@ classdef test_change_crystal_bragg_fine < TestCase
             % -----------------------------------------------------------------------------
 
             dir_out=tmp_dir;
-            obj.sim_sqw_file=fullfile(dir_out,'test_change_crystal_1sim.sqw');           % output file for simulation in reference lattice
-            obj.sim_sqw_file_corr=fullfile(dir_out,'test_change_crystal_1sim_corr.sqw'); % output file for correction
+            obj.sim_sqw_file=fullfile(dir_out,'test_change_crystal_bragg_fine_sim.sqw');           % output file for simulation in reference lattice
+            obj.sim_sqw_file_corr=fullfile(dir_out,'test_change_crystal_bragg_fine_sim_corr.sqw'); % output file for correction
             hp = hpc_config;
             obj.hpc_config_data = hp.get_data_to_store();
             hp.combine_sqw_using = 'mex_code';

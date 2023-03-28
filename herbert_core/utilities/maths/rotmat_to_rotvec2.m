@@ -20,7 +20,7 @@ function theta = rotmat_to_rotvec2 (rotmat, algorithm)
 %
 % Output:
 % -------
-%   theta      Rotation vector: vector angles with length 3 (single rotation vector)
+%   theta      Rotation vector: vector of 3 rotation angles (single rotation vector)
 %              or 3 x m array (m is the number of vectors).
 %               A rotation vector defines the orientation of a coordinate frame
 %              S' with respect to a frame S by rotation about a unit vector
