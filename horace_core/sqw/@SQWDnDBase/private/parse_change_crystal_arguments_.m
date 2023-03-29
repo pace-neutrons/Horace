@@ -20,8 +20,8 @@ function  [alatt,angdeg,rlu_corr]=parse_change_crystal_arguments_(alatt0,angdeg0
 narg=numel(varargin);
 if narg==1 && isnumeric(varargin{1}) && numel(size(varargin{1}))==2 && all(size(varargin{1})==[3,3])     % rlu_corr
     rlu_corr=varargin{1};
-    [alatt,angdeg,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
-    if ~ok; error('HORACE:change_crystal:invalid_argument',mess); end
+    [alatt,angdeg]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
+
 
 elseif narg>=1 && narg<=4
     alatt=varargin{1}(:)';  % ensure row vector

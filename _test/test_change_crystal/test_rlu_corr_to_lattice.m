@@ -20,6 +20,9 @@ rlu_corr=b\rotmat*b0;
 % Now test:
 [alatt_out,angdeg_out,rotmat_out]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
 
-if max(abs(alatt_out(:)-alatt(:)))>eps, assertTrue(false,'Lattice parameters not recovered'), end
-if max(abs(angdeg_out(:)-angdeg(:)))>eps, assertTrue(false,'Lattice angless not recovered'), end
-if max(abs(rotmat_out(:)-rotmat(:)))>eps, assertTrue(false,'Rotation matrix not recovered'), end
+assertElementsAlmostEqual(alatt_out,alatt,'absolute',eps, ...
+    'Lattice parameters not recovered')
+assertElementsAlmostEqual(angdeg_out,angdeg,'absolute',eps, ...
+    'Lattice angles not recovered')
+assertElementsAlmostEqual(rotmat_out,rotmat,'absolute',eps, ...
+    'Rotation matrix not recovered')

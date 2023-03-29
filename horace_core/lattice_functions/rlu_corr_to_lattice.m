@@ -1,4 +1,4 @@
-function [alatt,angdeg,rotmat,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0)
+function [alatt,angdeg,rotmat]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0)
 % Extract lattice parameters and orientation matrix from rlu correction matrix and reference lattice parameters
 %
 %   >> [alatt,angdeg,rotmat,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0)
@@ -19,16 +19,10 @@ function [alatt,angdeg,rotmat,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angde
 %                  lattice and orientation as a rotation of the reference crystal frame. Coordinates
 %                  in the two frames are related by
 %                       v(i)= rotmat(i,j)*v0(j)
-%   ok              =true if all ok; =false otherwise
-%   mess            Error message if ~ok; ='' if ok
 
-try
-    [b0,arlu,angrlu] = bmatrix(alatt0,angdeg0);
-catch ME
-    mess = ME.message;
-    ok = false;
-    return
-end
+
+b0 = bmatrix(alatt0,angdeg0);
+
 
 % We have v_cryst0=b0*inv(rlu_corr)*v_rlu, so:
 astar=b0*(rlu_corr\[1;0;0]);
@@ -36,7 +30,8 @@ bstar=b0*(rlu_corr\[0;1;0]);
 cstar=b0*(rlu_corr\[0;0;1]);
 V=det([astar,bstar,cstar]);     % a*.(b* x c*)
 if V<=0
-    ok=false; mess='New reciprocal lattice vectors are collinear or do not form a right-hand coordinate set'; return
+    error('HORACE:lattice_functions:invalid_argument',...
+         'New reciprocal lattice vectors are collinear or do not form a right-hand coordinate set')
 end
 a=(2*pi)*cross(bstar,cstar)/V;
 b=(2*pi)*cross(cstar,astar)/V;
@@ -44,14 +39,7 @@ c=(2*pi)*cross(astar,bstar)/V;
 alatt=[norm(a),norm(b),norm(c)];
 angdeg=[acosd(dot(b,c)/(alatt(2)*alatt(3))), acosd(dot(c,a)/(alatt(3)*alatt(1))), acosd(dot(a,b)/(alatt(1)*alatt(2)))];
 
-try
-    [b,arlu,angrlu] = bmatrix(alatt,angdeg);
-catch ME
-    mess = ME.message;
-    ok=false;
-    return
-end
+
+b = bmatrix(alatt,angdeg);
 
 rotmat=b*rlu_corr/b0;
-ok=true;
-mess='';

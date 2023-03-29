@@ -9,10 +9,6 @@
     - test_spher_caption2D (no ticket)
     
 
-- test_change_crystal_1a.m
-    - test_u_alighnment_tf_way (no ticket) -- Why disabled?
-    - test_u_alighnment (no ticket)
-
 - test_multifit_horace_1.m
     - test_fit_single_or_array2 https://github.com/pace-neutrons/Horace/issues/111
     - test_fit_array_of_datasets (no ticket)
@@ -66,10 +62,6 @@ Temporary enabled to see how it goes
 - test_calc_projections
   - test_transf1
 
-- test_algorithms
-  -test_cut -- sample comparison and instrument comparison are currently disabled as loader, in some cases, returns
-               bunch of empty instruments and this should be fixed
-               
  - test_gen_sqw_workflow ->gen_sqw_accumulate_sqw_tests_common
     disabled final checkf on :
     -test_accumulate_sqw11456

@@ -46,10 +46,14 @@ if numel(sz)==2
     elseif sz(1)==3 && sz(2)>=1
         nvec=sz(2);
     else
-        error('Check size of rotation vector: must be vector length 3 or 3 x m array')
+        error('HERBERT:math:invalid_argument', ...
+            'Check size of rotation vector: must be vector length 3 or 3 x m array. In fact its size is: %s', ...
+            disp2str(sz))
     end
 else
-    error('Check size of rotation vector: must be vector length 3 or 3 x m array')
+    error('HERBERT:math:invalid_argument', ...
+        'Check size of rotation vector: must be vector length 3 or 3 x m array. In fact, its size is: %s', ...
+        disp2str(sz))
 end
 
 % Calculate rotation matricies
@@ -67,16 +71,16 @@ if nargin==2 && algorithm==1
             rotmat(:,:,i)=expm(gen(:,:,i));
         end
     end
-    
+
 else
     % Fast method, but which may not be so robust at very small theta
     small=1e-20;
-    
+
     rotmat=zeros(3,3,nvec);         % pre-allocate
-    
+
     theta0=sqrt(sum(theta.^2,1));	% length of vectors
     ok=theta0>small;
-    
+
     if any(ok)
         nv=theta(:,ok)./repmat(theta0(ok),3,1); % unit vector in S; this line fails if ~any(ok)
         c = cos(theta0(ok));
@@ -95,5 +99,5 @@ else
     rotmat(1,1,~ok) = 1;
     rotmat(2,2,~ok) = 1;
     rotmat(3,3,~ok) = 1;
-    
+
 end

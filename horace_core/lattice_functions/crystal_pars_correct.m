@@ -62,8 +62,8 @@ b_matrix0 = bmatrix(alatt0, angdeg0);        % bmat takes Vrlu to Vxtal_cart
 ub_matrix0 = ubmatrix(u, v, b_matrix0);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 
 % Get matrix to convert from rlu defined by true lattice parameters to orthonormal frame defined by u,v;
-[alatt,angdeg,rotmat,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
-if ~ok, error(mess), end
+[alatt,angdeg,rotmat]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
+
 b_matrix = bmatrix(alatt, angdeg);     % bmat takes Vrlu to Vxtal_cart
 ub_matrix = ubmatrix(u_new, v_new, b_matrix);       % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 
