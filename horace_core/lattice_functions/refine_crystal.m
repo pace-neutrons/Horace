@@ -23,7 +23,7 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 % Input:
 % ------
 %   rlu0            Positions of reciprocal lattice vectors as h,k,l in reference lattice
-%                  (n x 3 matrix, n=no. reflections)
+%                   (n x 3 matrix, n=no. reflections)
 %   alatt0          Reference lattice parameters [a,b,c] (Angstroms)
 %   angdeg0         Reference lattice angles [alf,bet,gam] (deg)
 %   rlu             True indexes of reciprocal lattice vectors (n x 3 matrix)
@@ -39,18 +39,18 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %                  i.e. only allow crystal orientation to be refined
 %   fix_alatt       Fix [a,b,c] but allow lattice angles alf, bet and gam to be refined
 %                  together with crystal orientation
-%   fix_angdeg      Fix [alf,bet,gam] but allow pattice parameters [a,b,c] to be refined
+%   fix_angdeg      Fix [alf,bet,gam] but allow lattice parameters [a,b,c] to be refined
 %                  together with crystal orientation
 %   fix_alatt_ratio Fix the ratio of the lattice parameters as given by the values in
 %                  lattice_init, but allow the overall scale of the lattice to be refined
 %                  together with crystal orientation
 %   fix_orient      Fix the crystal orientation i.e. only refine lattice parameters
 %
-% Finer control of refoinement of lattice parameters: instead of fix_lattice, fix_angdeg,... use
+% Finer control of refinement of lattice parameters: instead of fix_lattice, fix_angdeg,... use
 %   free_alatt      Array length 3 of zeros or ones, 1=free, 0=fixed
-%                  e.g. ...,'free_alatt',[1,0,1],... allows only lattice parameter b to vary
+%                   e.g. ...,'free_alatt',[1,0,1],... allows only lattice parameter b to vary
 %   free_angdeg     Array length 3 of zeros or ones, 1=free, 0=fixed
-%                  e.g. ...,'free_lattice',[1,1,0],... fixes lattice angle gam buts allows alf and bet to vary
+%                   e.g. ...,'free_lattice',[1,1,0],... fixes lattice angle gam buts allows alf and bet to vary
 %   bind_alatt      Cell array of cell arrays following multifit convention of fixing the ratio of one lattice
 %                   parameter to another, e.g. fix the ratio of a and b to be 1, but have c independent: {{2,1}}
 %                   IMPORTANT - YOU MUST USE THIS ARGUMENT IN CONJUNCTION
