@@ -166,7 +166,7 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     methods (Static)
-        function isfb = do_filebacked(num_pixels)
+        function isfb = do_filebacked(num_pixels, scale_fac)
             % function defines the rule to make pixels filebased or memory
             % based
             if ~(isnumeric(num_pixels)&&isscalar(num_pixels)&&num_pixels>=0)
@@ -174,9 +174,13 @@ classdef (Abstract) PixelDataBase < serializable
                     'Input number of pixels should have single non-negative value. It is %s', ...
                     disp2str(num_pixels))
             end
+            if ~exist('scale_fac', 'var')
+                scale_fac = 3;
+            end
+
             mem_chunk_size = config_store.instance().get_value('hor_config','mem_chunk_size');
             % 3 should go to configuration too
-            isfb = num_pixels > 3*mem_chunk_size;
+            isfb = num_pixels > scale_fac*mem_chunk_size;
         end
 
         function obj = create(varargin)
