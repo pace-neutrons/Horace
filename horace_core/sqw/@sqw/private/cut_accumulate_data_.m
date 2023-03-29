@@ -67,31 +67,41 @@ if isempty(block_starts)
     return
 end
 
-cut_in_mem = ~obj.pix.is_filebacked;
+n_candidate_pix = sum(block_sizes);
+
+
+cut_in_mem = ~obj.pix.is_filebacked || ~PixelDataBase.do_filebacked(n_candidate_pix);
 cut_to_file = ~return_cut;
+
+if ~cut_to_file && ~PixelDataBase.do_filebacked(n_candidate_pix, 10)
+    warning('HORACE:cut:large_cut', ['Requested cut may retain up to %d pixel indices, which may exceed system memory\n', ...
+                                     'Recommended limit: 10*mem_chunk_size (%d)'], ...
+            n_candidate_pix, 10*get(hor_config, 'mem_chunk_size'));
+end
+
 keep_precision = ~keep_pixels || cut_to_file;
 pixel_contrib_name = report_cut_type(obj, log_level, cut_to_file, keep_pixels);
-
 
 if cut_to_file
     [npix, s, e, pix_out, unique_runid] = cut_tmp_files(obj.pix, block_starts, block_sizes, ...
                                                         targ_proj, targ_axes, npix, s, e, ...
-                                                        log_level, keep_precision);
+                                                        log_level, keep_precision, pixel_contrib_name);
 
 elseif cut_in_mem && keep_pixels
-    [npix, s, e, pix_out, unique_runid] = cut_in_memory_w_pixels(obj.pix, block_starts, block_sizes, ...
-                                                                targ_proj, targ_axes, npix, s, e, log_level);
+    [npix, s, e, pix_out, unique_runid] = cut_in_memory_w_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
+                                                                targ_axes, npix, s, e, log_level, pixel_contrib_name);
 
 elseif cut_in_mem
-    [npix, s, e, pix_out, unique_runid] = cut_in_memory_no_pixels(obj.pix, block_starts, block_sizes, ...
-                                                                 targ_proj, targ_axes, npix, s, e, log_level);
+    [npix, s, e, pix_out, unique_runid] = cut_in_memory_no_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
+                                                                 targ_axes, npix, s, e, log_level, pixel_contrib_name);
 elseif keep_pixels
-    [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(obj.pix, block_starts, block_sizes, ...
-                                                                  targ_proj, targ_axes, npix, s, e, log_level);
+    [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
+                                                                  targ_axes, npix, s, e, log_level, pixel_contrib_name);
 
 else
-    [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(obj.pix, block_starts, block_sizes, ...
-                                                                   targ_proj, targ_axes, npix, s, e, log_level);
+
+    [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
+                                                                   targ_axes, npix, s, e, log_level, pixel_contrib_name);
 
 end
 
@@ -100,7 +110,8 @@ end
 end  % function
 
 function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_w_pixels(pix, block_starts, block_sizes, ...
-                                                                           targ_proj, targ_axes, npix, s, e, ll)
+                                                                           targ_proj, targ_axes, npix, s, e, ll, ...
+                                                                           pixel_contrib_name)
 
     candidate_pix = pix.get_pix_in_ranges(block_starts, block_sizes, false, false);
 
@@ -117,7 +128,8 @@ function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_w_pixels(pix, 
 end
 
 function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_no_pixels(pix, block_starts, block_sizes, ...
-                                                                            targ_proj, targ_axes, npix, s, e, ll)
+                                                                            targ_proj, targ_axes, npix, s, e, ll, ...
+                                                                            pixel_contrib_name)
 
     candidate_pix = pix.get_pix_in_ranges(block_starts, block_sizes, false, true);
 
@@ -139,7 +151,8 @@ function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_no_pixels(pix,
 end
 
 function [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(pix, block_starts, block_sizes, ...
-                                                                       targ_proj, targ_axes, npix, s, e, ll)
+                                                                       targ_proj, targ_axes, npix, s, e, ll, ...
+                                                                       pixel_contrib_name)
 
     hc = hor_config;
     chunk_size = hc.mem_chunk_size;
@@ -192,7 +205,8 @@ function [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(pix, bloc
 end
 
 function [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(pix, block_starts, block_sizes, ...
-                                                                        targ_proj, targ_axes, npix, s, e, ll)
+                                                                        targ_proj, targ_axes, npix, s, e, ll, ...
+                                                                        pixel_contrib_name)
 
     hc = hor_config;
     chunk_size = hc.mem_chunk_size;
@@ -214,7 +228,6 @@ function [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(pix, blo
                     iter, num_chunks, candidate_pix.num_pixels);
         end
 
-
         [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
 
         if ll >= 1
@@ -234,7 +247,7 @@ end
 
 function [npix, s, e, pix_out, unique_runid] = cut_tmp_files(pix, block_starts, block_sizes, ...
                                                              targ_proj, targ_axes, npix, s, e, ll, ...
-                                                             keep_precision)
+                                                             keep_precision, pixel_contrib_name)
 
     hc = hor_config;
     chunk_size = hc.mem_chunk_size;
@@ -296,7 +309,7 @@ function pci = init_pix_combine_info(nfiles, nbins)
 
 end
 
-function pixel_contrib_name= report_cut_type(obj,log_level,use_tmp_files,keep_pixels,no_pixels)
+function pixel_contrib_name = report_cut_type(obj,log_level,use_tmp_files,keep_pixels)
 % Routine prints the information about the cut type and how it would be
 % done to inform user about the intended cut and expected results.
 %
