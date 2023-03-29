@@ -28,7 +28,7 @@ return_cut = nargout > 0;
 
 % Accumulate image and pixel data for cut
 [s, e, npix, pix_out, runid_contributed] = ...
-    cut_accumulate_data_(w, tag_proj, targ_axes, keep_pix, log_level, return_cut);
+    cut_accumulate_data_(w, targ_proj, targ_axes, keep_pix, log_level, return_cut);
 
 if isa(pix_out, 'pix_combine_info')
     % Make sure we clean up temp files.
@@ -37,7 +37,7 @@ end
 
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
-data_out = compile_sqw_data(targ_axes, tag_proj, s, e, npix, pix_out, keep_pix);
+data_out = compile_sqw_data(targ_axes, targ_proj, s, e, npix, pix_out, keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
 % dnd.
