@@ -48,9 +48,23 @@ function varargout = func_eval (obj, varargin)
 %
 % Output:
 % -------
-%   X1, X2,...  Output arguments. If the size of X1 for a single call to
-%               funchandle is sz1, then the size of X1 is [sz1,size(ind)]
-%               with singleton dimensions in the size squeezed away.
+%   X1, X2,...  Output arguments. The output arrays for each value of ind
+%               are stacked. For example, if the size of X1 for a single
+%               call to funchandle is sz1, then the size of X1 returned by
+%               func_eval is [sz1,size(ind)] but with leading singleton
+%               dimensions in size(ind) used to hold trailing dimensions of
+%               sz1.
+%
+%               Note the output array size is not necessarily the same as
+%               that obtained by using the matlab intrinsic function squeeze.
+%
+%               See also size_array_stack for details
+%
+%               EXAMPLES
+%                   funchandle output    size(ind)        size(X1)
+%                       [1,3]               [1,5]           [1,3,5]
+%                       [3,1]               [1,5]           [3,5]
+%                       [3,1]               [1,1,5]         [3,1,5]
 
 
 % Check validity
@@ -84,8 +98,12 @@ else
     error('Insufficient number of input arguments')
 end
 
+% Extract the array of unique objects and create an array of indicies to
+% the unique objects corresponding to the input array ind
+ind_unique_obj = reshape (obj.indx_{iarray}(ind), size(ind));   % retain shape of ind
 
-[varargout{1:nargout}] = func_eval_private (obj.object_store_, obj.indx_{iarray}(ind), funchandle, arg);
+% Call a private function that evaluate only once per unique object instance
+[varargout{1:nargout}] = func_eval_private (obj.object_store_, ind_unique_obj, funchandle, arg);
 
 
 %------------------------------------------------------------------
@@ -95,7 +113,7 @@ function varargout = func_eval_private (obj, ind, funchandle, arg)
 % In principle, ind could be a large array (e.g. the 10^7 pixels in a large cut
 % from Horace). We only want to evaluate the function for distinct objects in the
 % lookup array, as the function could be expensive to evaluate.
-N = max(ind);
+N = max(ind(:));
 ind_present = logical(accumarray(ind(:),1,[N,1]));
 ix = 1:N;
 indu = ix(ind_present);     % unique occurences of ind
@@ -128,6 +146,7 @@ if numel(indu)>1
         X, sz, 'UniformOutput', false);
     
 else
+    % Only one unique object; simply repmat the output arguments and reshape
     varargout = cellfun (@(x,y)(reshape(repmat(x(:),[1,numel(ind)]),...
-        size_array_stack(y,size(ind)))), Xtmp, sz, 'UniformOutput', false);
+        size_array_stack(y, size(ind)))), Xtmp, sz, 'UniformOutput', false);
 end

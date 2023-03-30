@@ -35,11 +35,11 @@ classdef test_object_lookup < TestCaseWithSave
             obj@TestCaseWithSave(name);
             
             % Make some test data
-            c1=IX_fermi_chopper(10,150,0.049,1.3,0.003,Inf, 0, 0,50);
-            c2=IX_fermi_chopper(10,250,0.049,1.3,0.003,Inf, 0, 0,100);
-            c3=IX_fermi_chopper(10,350,0.049,1.3,0.003,Inf, 0, 0,300);
-            c4=IX_fermi_chopper(10,450,0.049,1.3,0.003,Inf, 0, 0,400);
-            c5=IX_fermi_chopper(10,550,0.049,1.3,0.003,Inf, 0, 0,350);
+            c1=IX_fermi_chopper(10, 150, 0.049, 1.3, 0.003, Inf, 0, 0, 50, 1, 0, 'Chopper 1');
+            c2=IX_fermi_chopper(10, 250, 0.049, 1.3, 0.003, Inf, 0, 0, 100, 1, 0, 'Chopper 2');
+            c3=IX_fermi_chopper(10, 350, 0.049, 1.3, 0.003, Inf, 0, 0, 300, 1, 0, 'Chopper 3');
+            c4=IX_fermi_chopper(10, 450, 0.049, 1.3, 0.003, Inf, 0, 0, 400, 1, 0, 'Chopper 4');
+            c5=IX_fermi_chopper(10, 550, 0.049, 1.3, 0.003, Inf, 0, 0, 350, 1, 0, 'Chopper 5');
             
             [y,t] = pulse_shape(c1);  w1=IX_dataset_1d(t,y);
             [y,t] = pulse_shape(c2);  w2=IX_dataset_1d(t,y);
@@ -242,9 +242,9 @@ classdef test_object_lookup < TestCaseWithSave
         
         %--------------------------------------------------------------------------
         function test_random_sampling_of_same_distributions_not_equal (obj)
-            % Check distributions generated for different elements of carr1 but same
-            % underlying object are actually different. This checks that they are
-            % randomly sampled separately.
+            % Check generated values are actually different for different elements
+            % of carr1 but which have the same underlying object . This checks that
+            % they are randomly sampled separately.
             
             % Get a large random array of indices in the range 1 to the number
             % of objects in one of the arrays stored in the object_lookup instance
@@ -269,11 +269,138 @@ classdef test_object_lookup < TestCaseWithSave
         %--------------------------------------------------------------------------
         % Test operation of func_eval
         %--------------------------------------------------------------------------
-        function test_func_eval (obj)
-            % Test operation
-            ind = [6,1,5,6,1,1];    % three distinct indicies into carr2 (c)
-            [tlo3, thi3] = obj.c3.pulse_range
+        function test_func_eval_1 (obj)
+            % Function evaluated for an array of what corresponds to a single unique object
+            % Also checks size of output arrays match the size of the index array ind
+            ind = [6,3,5,6,3,3,3];    % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            [tlo_ref, thi_ref] = obj.c3.pulse_range;
+            tlo_ref = repmat (tlo_ref, size(ind));
+            thi_ref = repmat (thi_ref, size(ind));
+            
+            [tlo, thi] = func_eval(obj.c_lookup1, 2, ind, @pulse_range);
+            assertEqual (tlo_ref, tlo)
+            assertEqual (thi_ref, thi)
+        end
+        
+        function test_func_eval_2 (obj)
+            % Function evaluated for an array of objects that corresponds to more than
+            % one unique object, but which are not all unique.
+            % Also checks size of output arrays match the size of the index array ind
+            ind = [6,1; 5,2; 1,1];    % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            tlo_ref = zeros(size(ind));
+            thi_ref = zeros(size(ind));
+            [tlo_ref(1,1), thi_ref(1,1)] = obj.c3.pulse_range;
+            [tlo_ref(1,2), thi_ref(1,2)] = obj.c4.pulse_range;
+            [tlo_ref(2,1), thi_ref(2,1)] = obj.c3.pulse_range;
+            [tlo_ref(2,2), thi_ref(2,2)] = obj.c2.pulse_range;
+            [tlo_ref(3,1), thi_ref(3,1)] = obj.c4.pulse_range;
+            [tlo_ref(3,2), thi_ref(3,2)] = obj.c4.pulse_range;
+            
+            [tlo, thi] = func_eval(obj.c_lookup1, 2, ind, @pulse_range);
+            assertEqual (tlo_ref, tlo)
+            assertEqual (thi_ref, thi)
+        end
+        
+        function test_func_eval_output_size_1 (obj)
+            % Test the output argument
+            % Stack [1,10] by [1,5] should be [1,10,5]
+            
+            sz_output = [1,10];
+            ind = [5,1,1,5,3];  % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            
+            t = time_array (obj.c4, sz_output);     % a suitable array of times
+            y3 = obj.c3.pulse_shape(t);
+            y4 = obj.c4.pulse_shape(t);
+            y_ref = zeros(1,10,5);
+            y_ref(:,:,1) = y3;
+            y_ref(:,:,2) = y4;
+            y_ref(:,:,3) = y4;
+            y_ref(:,:,4) = y3;
+            y_ref(:,:,5) = y3;
+            
+            yout = func_eval(obj.c_lookup1, 2, ind, @pulse_shape, t);
+            assertEqual (size(yout), [1,10,5])
+            assertEqual (y_ref, yout)
+        end
+        
+        function test_func_eval_output_size_2 (obj)
+            % Test the output argument arrays
+            % Stack [10,1] by [1,5] should be [10,5]
+            
+            sz_output = [10,1];
+            ind = [5,1,1,5,3];  % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            
+            t = time_array (obj.c4, sz_output);     % a suitable array of times
+            t_ref = repmat(t, [1,5]);
+            
+            y3 = obj.c3.pulse_shape(t);
+            y4 = obj.c4.pulse_shape(t);
+            y_ref = [y3,y4,y4,y3,y3];
+            
+            [yout, tout] = func_eval(obj.c_lookup1, 2, ind, @pulse_shape, t);
+            assertEqual (size(tout), [10,5])
+            assertEqual (size(yout), [10,5])
+            assertEqual (t_ref, tout)
+            assertEqual (y_ref, yout)
+        end
+        
+        function test_func_eval_output_size_3 (obj)
+            % Test the output argument arrays
+            % Stack [10,1] by [1,1,5] should be [10,1,5]
+            
+            sz_output = [10,1];
+            ind = zeros(1,1,5);
+            ind(1,1,:) = [5,1,1,5,3];  % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
+            
+            t = time_array (obj.c4, sz_output);     % a suitable array of times
+            t_ref = repmat(t, [1,1,5]);
+            
+            y3 = obj.c3.pulse_shape(t);
+            y4 = obj.c4.pulse_shape(t);
+            y_ref = zeros(10,1,5);
+            y_ref(:,:,1) = y3;
+            y_ref(:,:,2) = y4;
+            y_ref(:,:,3) = y4;
+            y_ref(:,:,4) = y3;
+            y_ref(:,:,5) = y3;
+            
+            [yout, tout] = func_eval(obj.c_lookup1, 2, ind, @pulse_shape, t);
+            assertEqual (size(tout), [10,1,5])
+            assertEqual (size(yout), [10,1,5])
+            assertEqual (t_ref, tout)
+            assertEqual (y_ref, yout)
         end
         
     end
+end
+
+
+%==========================================================================
+function t = time_array (fermi_chopper, sz)
+% Return an array of times at which to evaluate the chopper transmission
+%
+%   >> t = time_array (fermi_chopper, sz)
+%
+% Use to test sizes of output arguments from func_eval
+% Constructed by using linspace over the range of transmission
+% Note that if a scalar is required, it does NOT return t=0, but at
+% half the tme at which transmission goes to zero. This is so that different
+% chopper objects will return difference transmissions and can therefore
+% be distinguished.
+
+if numel(sz)==1
+    sz = [sz,sz];
+end
+nel = prod(sz);
+if ~isrow(sz) || ~all(rem(sz,1)==0) || any(sz<0) || ~all(isfinite(sz)) || nel<1
+    error('Check input arguments')
+end
+
+[tlo, thi] = fermi_chopper.pulse_range();
+if nel>1
+    t = reshape(linspace(tlo,thi,nel), sz);
+else
+    t = thi/2;
+end
+
 end

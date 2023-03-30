@@ -1,18 +1,26 @@
 function X = rand_ind (obj, varargin)
 % Generate random points for indexed occurences in an object lookup table
 %
-%   >> X = rand_ind (obj, iarray, ind)
-%   >> X = rand_ind (obj, ind)
+%   >> X = rand_ind (obj, iarray, ind, @randfunc)
+%   >> X = rand_ind (obj, iarray, ind, ielmts, @randfunc)
 %
-%   >> X = rand_ind (...,'options', p1, p2,...)
+%   >> X = rand_ind (..., @randfunc, p1, p2, ...)
 %
-% The purpose is to return random points from a method of the form:
-%       X = rand (object, n)
-%       X = rand (object, sz)
-%       X = rand (object, sz1, sz2,...)
-%       X = rand (..., p1, p2, ...)      % with further optional arguments
+%   >> X = rand_ind (..., 'split', @randfunc, p1, p2, ...)
+%   >> X = rand_ind (..., 'split', iarg, @randfunc, p1, p2, ...)
 %
-% for a set of objects defined by index arguments iarray and ind.
+% The purpose is to return random points for a set of objects defined by
+% index arguments iarray and ind from a method of the form:
+%       X = randfunc (object, n)
+%       X = randfunc (object, sz)
+%       X = randfunc (object, sz1, sz2,...)
+%       X = randfunc (..., p1, p2, ...)      % with further optional arguments
+%
+% or, if particular elements of the objects are selected by the input argument
+% ielmts, then the form is
+%       X = randfunc (object, ielmts)
+%       X = randfunc (object, ielmts, p1, p2, ...)
+%
 % See below for further details.
 % 
 %
@@ -23,8 +31,6 @@ function X = rand_ind (obj, varargin)
 %   iarray      Scalar index of the original object array from the
 %              cell array of object arrays from which the object lookup
 %              was created.
-%               If there was only one object array, then iarray is not
-%              necessary (as it assumed iarray=1)
 %
 %   ind         Array containing indices of objects in the original
 %              object array referred to by iarray, from which a random point
@@ -106,9 +112,10 @@ end
 % Extract the array of unique objects and create an array of indicies to
 % the unique objects corresponding to the input array ind, and pass to the
 % private function that efficiently randomly samples the objects
+ind_unique_obj = reshape (obj.indx_{iarray}(ind), size(ind));   % retain shape of ind
 
-X = rand_ind_private (obj.object_store_, obj.indx_{iarray}(ind), args{:});
-
+% Call a private function that efficiently randomly samples the objects
+X = rand_ind_private (obj.object_store_, ind_unique_obj, args{:});
 
 
 %------------------------------------------------------------------

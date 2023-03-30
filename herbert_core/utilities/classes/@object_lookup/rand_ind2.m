@@ -112,9 +112,10 @@ end
 % Extract the array of unique objects and create an array of indicies to
 % the unique objects corresponding to the input array ind, and pass to the
 % private function that efficiently randomly samples the objects
+ind_unique_obj = reshape (obj.indx_{iarray}(ind), size(ind));   % retain shape of ind
 
-X = rand_ind_private (obj.object_store_, obj.indx_{iarray}(ind), args{:});
-
+% Call a private function that efficiently randomly samples the objects
+X = rand_ind_private (obj.object_store_, ind_unique_obj, args{:});
 
 
 %------------------------------------------------------------------
