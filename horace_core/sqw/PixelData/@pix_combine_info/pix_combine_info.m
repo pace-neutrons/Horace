@@ -62,10 +62,13 @@ classdef pix_combine_info < serializable
         % PixelDataBase interface
         full_filename
         is_filebacked
+        % the property here to support PixelData interface. Never false, as
+        % this kind of data should be never (knowingly) misaligned
+        is_misaligned
     end
     %
     properties(Access=public)
-        npix_cumsum = [];  % auxiliary propery used by cut_sqw operating
+        npix_cumsum = [];  % auxiliary property used by cut_sqw operating
         %                   in file->file mode
         %                   and containing cumsum of npix array
         %                   where npix is the common npix image array for
@@ -109,7 +112,7 @@ classdef pix_combine_info < serializable
             %pos_pixstart -- array containing the locations of the pix
             %            array in binary sqw files on hdd. Size equal to
             %            number of contributing files.
-            %npix_each_file -- array containign number of pixels in each
+            %npix_each_file -- array containing number of pixels in each
             %            contributing sqw(tmp) file.
             %run_label
             %      --either
@@ -430,6 +433,9 @@ classdef pix_combine_info < serializable
         end
         %
         function is = get.is_filebacked(~)
+            is = false;
+        end
+        function is = get.is_misaligned(~)
             is = false;
         end
     end

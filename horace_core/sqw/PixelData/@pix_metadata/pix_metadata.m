@@ -11,12 +11,16 @@ classdef pix_metadata < serializable
         npix;
         pix_range; % 2x4 range of pixel coordinates, first part of data_range, left for compartibility
         data_range; % 2x9 range of all pixel data
+        is_misaligned %
+        alignment_matr;
     end
     properties(Access=protected)
         full_filename_;
         npix_;
         data_range_ = PixelDataBase.EMPTY_RANGE;
         %
+        is_misaligned_ = false;
+        alignment_matr_ = eye(3);
     end
 
     methods
@@ -36,11 +40,14 @@ classdef pix_metadata < serializable
                     obj.npix = inputs.num_pixels;
                     obj.data_range    = inputs.data_range;
                     obj.full_filename = inputs.full_filename;
+                    if inputs.is_misaligned
+                        obj.alignment_matr = input.alignment_matr;
+                    end
                 else
                     remains = varargin{1};
                 end
             else
-                flds = obj.saveableFields();
+                flds = obj.saveableFields('-all');
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...
                     flds,false,varargin{:});
             end
@@ -102,8 +109,16 @@ classdef pix_metadata < serializable
             end
             obj.data_range_ = val;
         end
-
-        %
+        %------------------------------------------------------------------
+        function is = get.is_misaligned(obj)
+            is = obj.is_misaligned_;
+        end
+        function matr = get.alignment_matr(obj)
+            matr = obj.alignment_matr_;
+        end
+        function obj = set.alignment_matr(obj,val)
+            obj = set_alignment_matr_(obj,val);
+        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE
@@ -111,12 +126,16 @@ classdef pix_metadata < serializable
         function ver  = classVersion(~)
             ver = 1;
         end
-        function flds = saveableFields(~)
+        function flds = saveableFields(obj,varargin)
             % Return cellarray of public property names, which fully define
             % the state of a serializable object, so when the field values are
             % provided, the object can be fully restored from these values.
             %
-            flds = {'full_filename','npix','data_range'};
+            if obj.is_misaligned || nargin > 1
+                flds = {'full_filename','npix','data_range','alignment_matr'};
+            else
+                flds = {'full_filename','npix','data_range'};
+            end
         end
     end
 end

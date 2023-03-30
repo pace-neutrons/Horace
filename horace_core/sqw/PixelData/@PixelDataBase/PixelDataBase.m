@@ -51,6 +51,8 @@ classdef (Abstract) PixelDataBase < serializable
         PIXEL_BLOCK_COLS_ = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         data_range_ = PixelDataBase.EMPTY_RANGE; % range of all other variables (signal, error, indexes)
         full_filename_ = '';
+        is_misaligned_ = false;
+        alignment_matr_ = eye(3);
     end
 
     properties(Dependent,Hidden)
@@ -59,6 +61,11 @@ classdef (Abstract) PixelDataBase < serializable
         % memory and all additional properties describing pix array
         metadata;
         data_wrap;
+        % The property returns data if PixelData are in Crystal Cartesian
+        % coordinate system or raw data (not multiplied by alignment
+        % matrix)
+        % if pixels are misaligned.
+        raw_data;
     end
 
     properties (Constant,Hidden)
@@ -96,7 +103,8 @@ classdef (Abstract) PixelDataBase < serializable
         %              % u2, u3 and dE (4 x n array)
 
         run_idx; % The run index the pixel originated from (1 x n array)
-        detector_idx; % The detector group number in the detector listing for the pixels (1 x n array)
+        detector_idx; % The detector group number in the detector listing
+        %             % for the pixels (1 x n array)
         energy_idx;   % The energy bin numbers (1 x n array)
 
         signal;   % The signal array (1 x n array)
@@ -122,6 +130,15 @@ classdef (Abstract) PixelDataBase < serializable
         num_pages   % number of pages in the whole data file
         page_size;  % The number of pixels that can fit in one page of data
         read_only   % Specify if you can modify the data of your pixels
+
+        %
+        is_misaligned % true if pixel data are not in Crystal Cartesian and
+        %             % and true Crystal Cartesian is obtanied by
+        %             % bultiplying data by the alignment matrix
+        alignment_matr % matrix used for multiplying misaligned pixel data
+        %             % to convert their coordinates into CrystalCartesian
+        %             % coordinate system. If pixels are not misaligned,
+        %             % the matrix is eye(3);
     end
 
     methods(Static,Hidden)
@@ -183,12 +200,12 @@ classdef (Abstract) PixelDataBase < serializable
             %  '-filebacked' -- if present, request filebacked data (does
             %                   not work currently work with array of data)
             %  '-upgrade'    -- if present, alow write access to filebased
-            %  '-writable'      data
+            %  '-writable'      data (properties are synonimous)
             %  '-norange'    -- if present, do not calculate the range of
             %                   pix data if this range is missing. Should
             %                   be selected during file-format upgrade, as
             %                   the range calculations are performed in
-            %                   create
+            %                   create procedure.
 
             if nargin == 0
                 obj = PixelDataMemory();
@@ -315,10 +332,10 @@ classdef (Abstract) PixelDataBase < serializable
         end
 
         function loc_range = pix_minmax_ranges(data, current)
-        % Compute the minmax ranges in data in the appropriate format for
-        % PixelData objects
+            % Compute the minmax ranges in data in the appropriate format for
+            % PixelData objects
             loc_range = [min(data,[],2),...
-                         max(data,[],2)]';
+                max(data,[],2)]';
             if exist('current', 'var')
                 loc_range = minmax_ranges(current,loc_range);
             end
@@ -392,7 +409,6 @@ classdef (Abstract) PixelDataBase < serializable
         function data = get.data(obj)
             data = get_raw_data(obj);
         end
-
         function obj=set.data(obj, pixel_data)
             obj=set_raw_data(obj, pixel_data);
             obj = obj.recalc_data_range();
@@ -401,91 +417,89 @@ classdef (Abstract) PixelDataBase < serializable
         function u1 = get.u1(obj)
             u1 = obj.get_prop('u1');
         end
-
         function obj= set.u1(obj, val)
             obj= obj.set_prop('u1', val);
         end
-
+        %
         function u2 = get.u2(obj)
             u2 = obj.get_prop('u2');
         end
-
         function obj= set.u2(obj, val)
             obj= obj.set_prop('u2', val);
         end
-
+        %
         function u3 = get.u3(obj)
             u3 = obj.get_prop('u3');
         end
-
         function obj= set.u3(obj, val)
             obj= obj.set_prop('u3', val);
         end
-
+        %
         function dE = get.dE(obj)
             dE = obj.get_prop('dE');
         end
-
         function obj= set.dE(obj, val)
             obj= obj.set_prop('dE', val);
         end
-
+        %
         function q_coordinates = get.q_coordinates(obj)
             q_coordinates = obj.get_prop('q_coordinates');
         end
-
         function obj= set.q_coordinates(obj, val)
             obj= obj.set_prop('q_coordinates', val);
         end
-
+        %
         function coordinates = get.coordinates(obj)
             coordinates = obj.get_prop('coordinates');
         end
-
         function obj= set.coordinates(obj, val)
             obj= obj.set_prop('coordinates', val);
         end
-
+        %
         function run_idx = get.run_idx(obj)
             run_idx = obj.get_prop('run_idx');
         end
-
         function obj= set.run_idx(obj, val)
             obj=obj.set_prop('run_idx', val);
         end
-
+        %
         function detector_idx = get.detector_idx(obj)
             detector_idx = obj.get_prop('detector_idx');
         end
-
         function obj= set.detector_idx(obj, val)
             obj= obj.set_prop('detector_idx', val);
         end
-
+        %
         function energy_idx = get.energy_idx(obj)
             energy_idx = obj.get_prop('energy_idx');
         end
-
         function obj= set.energy_idx(obj, val)
             obj=obj.set_prop('energy_idx', val);
         end
-
+        %
         function signal = get.signal(obj)
             signal = obj.get_prop('signal');
         end
-
         function obj= set.signal(obj, val)
             obj=obj.set_prop('signal', val);
         end
-
+        %
         function variance = get.variance(obj)
             variance = obj.get_prop('variance');
         end
-
         function obj= set.variance(obj, val)
             obj=obj.set_prop('variance', val);
         end
-
+        %
+        function is = get.is_misaligned(obj)
+            is = obj.is_misaligned_;
+        end
+        function matr = get.alignment_matr(obj)
+            matr = obj.alignment_matr_;
+        end
+        function obj = set.alignment_matr(obj,val)
+            obj = set_alignment_matr_(obj,val);
+        end
         %------------------------------------------------------------------
         function range = get.pix_range(obj)
             range = obj.data_range_(:,1:4);
@@ -570,9 +584,7 @@ classdef (Abstract) PixelDataBase < serializable
             ro = get_read_only(obj);
         end
     end
-
-    %--------------------------------------------------------------
-
+    %----------------------------------------------------------------------
     methods
         function obj=set_data_range(obj,data_range)
             % Function allows to set the pixels range (min/max values of
@@ -621,7 +633,7 @@ classdef (Abstract) PixelDataBase < serializable
                     'Invalid pixel field(s) {''%s''}.\nValid keys are: {''%s''}', ...
                     strjoin(fields(bad_fields), ''', '''), ...
                     strjoin(valid_fields, ''', ''') ...
-                     );
+                    );
             end
 
             indices = cellfun(@(field) poss_fields(field), fields, 'UniformOutput', false);
@@ -656,7 +668,8 @@ classdef (Abstract) PixelDataBase < serializable
             data = obj.get_fields('all');
         end
     end
-
+    %======================================================================
+    % Overloadable protected getters/setters for properties
     methods(Access=protected)
 
         function val = check_set_prop(obj,fld,val)
@@ -668,10 +681,10 @@ classdef (Abstract) PixelDataBase < serializable
 
             if ~isnumeric(val) || ...
                     (~isscalar(val) && ...
-                     ~isequal(size(val), [obj.get_field_count(fld), obj.page_size]))
+                    ~isequal(size(val), [obj.get_field_count(fld), obj.page_size]))
                 error('HORACE:PixelDataBase:invalid_argument', ...
-                      '%s value must be scalar or [%d %d] numeric array. Received: %s %s', ...
-                      fld, obj.get_field_count(fld), obj.page_size, mat2str(size(val)), class(val))
+                    '%s value must be scalar or [%d %d] numeric array. Received: %s %s', ...
+                    fld, obj.get_field_count(fld), obj.page_size, mat2str(size(val)), class(val))
             end
         end
 
@@ -679,8 +692,8 @@ classdef (Abstract) PixelDataBase < serializable
             % main part of filepath setter. Need checks/modification
             if ~istext(val)
                 error('HORACE:PixelDataBase:invalid_argument',...
-                      'full_filename must be a string. Received: %s', ...
-                      class(val));
+                    'full_filename must be a string. Received: %s', ...
+                    class(val));
             end
             obj.full_filename_ = val;
         end
@@ -689,12 +702,16 @@ classdef (Abstract) PixelDataBase < serializable
             % main part of set from metadata setter
             if ~isa(val,'pix_metadata')
                 error('HORACE:PixelDataBase:invalid_argument',...
-                      'metadata can only be set to instance of pix_metadata class. Provided class: %s', ...
-                      class(val))
+                    'metadata can only be set to instance of pix_metadata class. Provided class: %s', ...
+                    class(val))
             end
 
             obj.full_filename_   = val.full_filename;
             obj.data_range_      = val.data_range;
+            if val.is_misaligned
+                obj.alignment_matr_ = val.alignment_matr;
+                obj.is_misaligned_  = true;
+            end
             if obj.do_check_combo_arg
                 obj = obj.check_combo_arg();
             end
@@ -714,58 +731,58 @@ classdef (Abstract) PixelDataBase < serializable
             ro = false;
         end
     end
-
+    % Helper methods.
     methods(Access=protected)
         function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
                 parse_get_pix_args(obj,varargin)
 
             [ok, mess, ignore_range, raw_data, keep_precision, argi] = ...
                 parse_char_options(varargin, ...
-                                   {'-ignore_range','-raw_data','-keep_precision'});
+                {'-ignore_range','-raw_data','-keep_precision'});
             if ~ok
                 error('HORACE:PixelDataBase:invalid_argument',mess);
             end
 
             switch numel(argi)
-              case 0
-                [ind_min,ind_max] = obj.get_page_idx_();
-                abs_pix_indices = [ind_min:ind_max];
+                case 0
+                    [ind_min,ind_max] = obj.get_page_idx_();
+                    abs_pix_indices = [ind_min:ind_max];
 
-              case 1
-                abs_pix_indices = argi{1};
+                case 1
+                    abs_pix_indices = argi{1};
 
-                if islogical(abs_pix_indices)
-                    abs_pix_indices = obj.logical_to_normal_index_(abs_pix_indices);
-                end
+                    if islogical(abs_pix_indices)
+                        abs_pix_indices = obj.logical_to_normal_index_(abs_pix_indices);
+                    end
 
-                if ~isindex(abs_pix_indices)
-                    error('HORACE:PixelDataBase:invalid_argument',...
-                          'pixel indices should be an array of numeric positive numbers, which define indices or vector of logical values')
-                end
+                    if ~isindex(abs_pix_indices)
+                        error('HORACE:PixelDataBase:invalid_argument',...
+                            'pixel indices should be an array of numeric positive numbers, which define indices or vector of logical values')
+                    end
 
-                if any(abs_pix_indices > obj.num_pixels)
+                    if any(abs_pix_indices > obj.num_pixels)
+                        error('HORACE:PixelDataBase:invalid_argument', ...
+                            'Some numerical indices exceed the total number of pixels')
+                    end
+
+                otherwise
                     error('HORACE:PixelDataBase:invalid_argument', ...
-                          'Some numerical indices exceed the total number of pixels')
-                end
-
-              otherwise
-                error('HORACE:PixelDataBase:invalid_argument', ...
-                      'Too many inputs provided to parse_get_pix_args_')
+                        'Too many inputs provided to parse_get_pix_args_')
 
             end
         end
 
         function [pix_fields, abs_pix_indices] = parse_set_fields_args(obj, pix_fields, data, abs_pix_indices)
-        % process set_fields arguments and return them in standard form suitable for
-        % usage in filebased and memory based classes
+            % process set_fields arguments and return them in standard form suitable for
+            % usage in filebased and memory based classes
             if isempty(pix_fields) || ~(iscellstr(pix_fields) || istext(pix_fields))
                 error('HORACE:PixelDataBase:invalid_argument', ...
-                      'pix_fields must be nonempty text or cellstr');
+                    'pix_fields must be nonempty text or cellstr');
             end
 
             if ~isnumeric(data)
                 error('HORACE:PixelDataBase:invalid_argument', ...
-                      'data must be numeric array');
+                    'data must be numeric array');
             end
 
             pix_fields = cellstr(pix_fields);
@@ -774,7 +791,7 @@ classdef (Abstract) PixelDataBase < serializable
             if exist('abs_pix_indices', 'var')
                 if ~isindex(abs_pix_indices)
                     error('HORACE:PixelDataBase:invalid_argument', ...
-                          'abs_pix_indices must be logical or numeric array of pixels to modify');
+                        'abs_pix_indices must be logical or numeric array of pixels to modify');
                 end
 
                 if islogical(abs_pix_indices)
@@ -783,7 +800,7 @@ classdef (Abstract) PixelDataBase < serializable
 
                 if any(abs_pix_indices > obj.num_pixels)
                     error('HORACE:PixelDataBase:invalid_argument', ...
-                          'Invalid indices in abs_pix_indices');
+                        'Invalid indices in abs_pix_indices');
                 end
             elseif isscalar(data) || ...   % Specified as scalar (all) or
                     isrow(data) && numel(data) == numel(pix_fields) % scalar for each field
@@ -794,18 +811,18 @@ classdef (Abstract) PixelDataBase < serializable
 
             if ~isscalar(data) && size(data, 1) ~= numel(pix_fields)
                 error('HORACE:PixelDataBase:invalid_argument', ...
-                      ['Number of fields in ''pix_fields'' must be equal to number ' ...
-                       'of columns in ''data''.\nn_pix_fields: %i, n_data_columns: %i.'], ...
-                      numel(pix_fields), size(data, 1) ...
-                     );
+                    ['Number of fields in ''pix_fields'' must be equal to number ' ...
+                    'of columns in ''data''.\nn_pix_fields: %i, n_data_columns: %i.'], ...
+                    numel(pix_fields), size(data, 1) ...
+                    );
             end
 
             if ~isrow(data) && size(data, 2) ~= numel(abs_pix_indices)
                 error('HORACE:PixelDataBase:invalid_argument', ...
-                      ['Number of indices in ''abs_pix_indices'' must be equal to ' ...
-                       'number of rows in ''data''.\nn_pix: %i, n_data_rows: %i.'], ...
-                      numel(abs_pix_indices), size(data, 2) ...
-                     );
+                    ['Number of indices in ''abs_pix_indices'' must be equal to ' ...
+                    'number of rows in ''data''.\nn_pix: %i, n_data_rows: %i.'], ...
+                    numel(abs_pix_indices), size(data, 2) ...
+                    );
             end
         end
     end
@@ -898,10 +915,10 @@ classdef (Abstract) PixelDataBase < serializable
                 obj.data = inputs.data;
 
                 if isfield(inputs,'file_path_')
-                   obj.full_filename = inputs.file_path_;
+                    obj.full_filename = inputs.file_path_;
 
                 elseif isfield(inputs,'file_path')
-                   obj.full_filename = inputs.file_path;
+                    obj.full_filename = inputs.file_path;
                 end
 
             elseif isfield(inputs,'raw_data_')
@@ -912,7 +929,6 @@ classdef (Abstract) PixelDataBase < serializable
 
             else
                 obj = obj.from_bare_struct(inputs);
-
             end
 
         end

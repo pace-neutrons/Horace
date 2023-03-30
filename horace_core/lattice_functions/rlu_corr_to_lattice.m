@@ -1,23 +1,25 @@
 function [alatt,angdeg,rotmat]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0)
-% Extract lattice parameters and orientation matrix from rlu correction matrix and reference lattice parameters
+% Extract lattice parameters and orientation matrix from rlu correction
+% matrix and reference lattice parameters
 %
-%   >> [alatt,angdeg,rotmat,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0)
+%   >> [alatt,angdeg,rotmat]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0)
 %
 % Input:
 % ------
-%   rlu_corr        Conversion matrix to relate reference rlu to true rlu, accounting
-%                  for the the true lattice parameters and orientation
+%   rlu_corr       Conversion matrix to relate reference rlu to true rlu,
+%                  accounting for the the true lattice parameters and
+%                  orientation
 %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
-%   alatt0          Reference lattice parameters [a,b,c] (Angstroms)
-%   angdeg0         Reference lattice angles [alf,bet,gam] (deg)
+%   alatt0         Reference lattice parameters [a,b,c] (Angstroms)
+%   angdeg0        Reference lattice angles [alf,bet,gam] (deg)
 %
 % Output:
 % -------
-%   alatt           True lattice parameters [a,b,c] (Angstroms)
-%   angdeg          True lattice angles [alf,bet,gam] (degrees)
-%   rotmat          Rotation matrix that relates crystal Cartesian coordinate frame of the true
+%   alatt          True lattice parameters [a,b,c] (Angstroms)
+%   angdeg         True lattice angles [alf,bet,gam] (degrees)
+%   rotmat         Rotation matrix that relates crystal Cartesian coordinate frame of the true
 %                  lattice and orientation as a rotation of the reference crystal frame. Coordinates
-%                  in the two frames are related by
+%                  in the two frames are related by:
 %                       v(i)= rotmat(i,j)*v0(j)
 
 
@@ -31,7 +33,7 @@ cstar=b0*(rlu_corr\[0;0;1]);
 V=det([astar,bstar,cstar]);     % a*.(b* x c*)
 if V<=0
     error('HORACE:lattice_functions:invalid_argument',...
-         'New reciprocal lattice vectors are collinear or do not form a right-hand coordinate set')
+        'New reciprocal lattice vectors are collinear or do not form a right-hand coordinate set')
 end
 a=(2*pi)*cross(bstar,cstar)/V;
 b=(2*pi)*cross(cstar,astar)/V;

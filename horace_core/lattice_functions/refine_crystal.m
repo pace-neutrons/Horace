@@ -13,7 +13,7 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %
 % This function is used to get a matrix that relates the coordinates of a vector (h0,k0,l0)
 % as expressed in an initial or reference lattice to the coordinates (h,k,l) in the true lattice.
-% It does this by taking a set of points (h0,k0,l0) and the corresponding set of true indicies
+% It does this by taking a set of points (h0,k0,l0) and the corresponding set of true indices
 % (h,k,l), and refining the lattice parameters and orientation. The refined lattice parameters
 % are also returned.
 %
@@ -29,21 +29,21 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %   rlu             True indexes of reciprocal lattice vectors (n x 3 matrix)
 %
 % Optional input parameter:
-%   alatt_init      Initial lattice parameters for start of refinement [a,b,c] (Angstroms)
-%   angdeg_init     Initial lattice angles for start of refinement [alf,bet,gam] (deg)
+%   alatt_init     Initial lattice parameters for start of refinement [a,b,c] (Angstroms)
+%   angdeg_init    Initial lattice angles for start of refinement [alf,bet,gam] (deg)
 %                  If one or both of alatt_init and angdeg_init are not given, then the corresponding
-%                  reference lattice parmaeters are taken as the initial values for refinement.
+%                  reference lattice parameters are taken as the initial values for refinement.
 %
 % Keywords (more than one is permitted if not inconsistent)
 %   fix_lattice     Fix all lattice parameters [a,b,c,alf,bet,gam]
-%                  i.e. only allow crystal orientation to be refined
+%                   i.e. only allow crystal orientation to be refined
 %   fix_alatt       Fix [a,b,c] but allow lattice angles alf, bet and gam to be refined
-%                  together with crystal orientation
+%                   together with crystal orientation
 %   fix_angdeg      Fix [alf,bet,gam] but allow lattice parameters [a,b,c] to be refined
-%                  together with crystal orientation
+%                   together with crystal orientation
 %   fix_alatt_ratio Fix the ratio of the lattice parameters as given by the values in
-%                  lattice_init, but allow the overall scale of the lattice to be refined
-%                  together with crystal orientation
+%                   lattice_init, but allow the overall scale of the lattice to be refined
+%                   together with crystal orientation
 %   fix_orient      Fix the crystal orientation i.e. only refine lattice parameters
 %
 % Finer control of refinement of lattice parameters: instead of fix_lattice, fix_angdeg,... use
@@ -61,7 +61,7 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %
 % Output:
 % -------
-%   rlu_corr        Conversion matrix to relate notional rlu to true rlu, accounting for the the
+%   rlu_corr       Conversion matrix to relate notional rlu to true rlu, accounting for the the
 %                  refined crystal lattice parameters and orientation
 %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
 %
@@ -69,16 +69,16 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %
 %   angdeg          Refined lattice angles [alf,bet,gam] (degrees)
 %
-%   rotmat          Rotation matrix that relates crystal Cartesian coordinate frame of the refined
+%   rotmat         Rotation matrix that relates crystal Cartesian coordinate frame of the refined
 %                  lattice and orientation as a rotation of the initial crystal frame. Coordinates
 %                  in the two frames are related by
 %                       v(i)= rotmat(i,j)*v0(j)
 %
-%   distance        Distances between peak positions and points given by true indexes, in input
+%   distance       Distances between peak positions and points given by true indexes, in input
 %                  argument rlu, in the refined crystal lattice. (Ang^-1)
 %
 %   rotangle        Angle of rotation corresponding to rotmat (to give a measure
-%                  of the misorientation) (degrees)
+%                   of the misorientation) (degrees)
 %
 % The output argument rlu_corr, together with the input alatt0 and angdeg0, are sufficient to compute
 % the other output arguments. That is why Horace functions that use the output of this function will
@@ -110,8 +110,8 @@ lattice_init = check_additional_args(lattice0,args{:});
 
 % Perform calculations
 % --------------------
-[b0,arlu,angrlu] = bmatrix(lattice0(1:3),lattice0(4:6));
-[binit,arlu,angrlu] = bmatrix(lattice_init(1:3),lattice_init(4:6));
+b0 = bmatrix(lattice0(1:3),lattice0(4:6));
+binit = bmatrix(lattice_init(1:3),lattice_init(4:6));
 
 vcryst0=b0*rlu0';       % crystal Cartesian coords in reference lattice
 vcryst_init=binit*rlu'; % crystal Cartesian coords in initial lattice
@@ -119,12 +119,16 @@ vcryst_init=binit*rlu'; % crystal Cartesian coords in initial lattice
 % Check lengths are all non-zero
 lensqr0=sum(vcryst0.^2,1);
 lensqr_init=sum(vcryst_init.^2,1);
-if any(lensqr0<small)||any(lensqr_init<small), error('Check none of the reciprocal lattice vectors are at the origin'), end
+if any(lensqr0<small)||any(lensqr_init<small)
+    error('HORACE:lattice_functions:invalid_argument', ...
+        'Check none of the reciprocal lattice vectors are at the origin')
+end
 
 % Get initial estimate of rotation vector
 [rotmat_ave,rotvec_ave] = rotmat_average (vcryst0,vcryst_init);
 if isempty(rotmat_ave)
-    error('Check reciprocal lattice vectors in reference and new coordinate frames are not all collinear')
+    error('HORACE:lattice_functions:invalid_argument', ...
+        'Check reciprocal lattice vectors in reference and new coordinate frames are not all collinear')
 end
 
 % Fit
@@ -173,7 +177,8 @@ if ~isreal(fitpar.p)
         fitpar.p=real(fitpar.p);
         distance=real(distance);
     else
-        error('Problem refining crystal orientation: imaginary fit parameters')
+        error('HORACE:lattice_functions:runtime_error', ...
+            'Problem refining crystal orientation: imaginary fit parameters')
     end
 end
 
@@ -184,7 +189,7 @@ alatt=fitpar.p(1:3);
 angdeg=fitpar.p(4:6);
 distance=sqrt(sum(reshape(distance,3,nv).^2,1))';
 
-[b,arlu,angrlu] = bmatrix(alatt,angdeg);
+b = bmatrix(alatt,angdeg);
 rlu_corr=b\rotmat*b0;
 
 
@@ -244,7 +249,10 @@ function [rotmat_ave,rotvec_ave] = rotmat_average (v0,v)
 %           We have errors on the precise values of v0 and v which is why this will not be exact
 
 nv=size(v0,2);
-if nv<2, error('Must have at least two vectors'), end
+if nv<2
+    error('HORACE:lattice_functions:invalid_argument', ...
+        'Must have at least two vectors')
+end
 rotvec=zeros(3,nv*(nv-1)/2);
 iin=zeros(1,nv*(nv-1)/2);
 jin=zeros(1,nv*(nv-1)/2);
@@ -313,10 +321,12 @@ function check_options_consistency(present,opt)
 if present.free_alatt
     if islognum(opt.free_alatt) && numel(opt.free_alatt)==3
         if opt.fix_lattice || opt.fix_alatt || opt.fix_alatt_ratio
-            error('Cannot use the option ''free_alatt'' with other keywords fixing lattice parameters a,b,c')
+            error('HORACE:lattice_functions:invalid_argument', ...
+                'Cannot use the option ''free_alatt'' with other keywords fixing lattice parameters a,b,c')
         end
     else
-        error('Check value of ''free_alatt'' option')
+        error('HORACE:lattice_functions:invalid_argument', ...
+            'Check value of ''free_alatt'' option')
     end
 end
 
