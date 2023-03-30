@@ -229,7 +229,7 @@ classdef PixelDataFileBacked < PixelDataBase
             ind = obj.check_pixel_fields(field_name);
 
             obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
-                                                           obj.data_range_(:,ind));
+                obj.data_range_(:,ind));
             if nargout > 1
                 unique_idx = unique(obj.run_idx);
             end
@@ -303,8 +303,8 @@ classdef PixelDataFileBacked < PixelDataBase
 
                 if fh<1
                     error('HORACE:PixelDataFileBacked:runtime_error', ...
-                          'Can not open data file %s for file-backed pixels',...
-                          obj.tmp_pix_obj.file_name);
+                        'Can not open data file %s for file-backed pixels',...
+                        obj.tmp_pix_obj.file_name);
                 end
 
                 obj.file_handle_ = fh;
@@ -332,7 +332,7 @@ classdef PixelDataFileBacked < PixelDataBase
         function obj = finalise(obj)
             if isempty(obj.file_handle_)
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
-                      'Cannot finalise writing, object does not have open filehandle')
+                    'Cannot finalise writing, object does not have open filehandle')
             end
 
             if isa(obj.file_handle_, 'sqw_file_interface')
@@ -352,35 +352,45 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.offset_ = 0;
                 obj.full_filename = obj.tmp_pix_obj.file_name;
                 obj.f_accessor_ = memmapfile(obj.full_filename, ...
-                                             'format', obj.get_memmap_format(), ...
-                                             'Repeat', 1, ...
-                                             'Writable', true, ...
-                                             'offset', obj.offset_);
+                    'format', obj.get_memmap_format(), ...
+                    'Repeat', 1, ...
+                    'Writable', true, ...
+                    'offset', obj.offset_);
                 obj = obj.recalc_data_range('all');
             end
         end
 
-        function format = get_memmap_format(obj)
-            format = {'single',[PixelDataBase.DEFAULT_NUM_PIX_FIELDS, obj.num_pixels_],'data'};
+        function format = get_memmap_format(obj,tail)
+            if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile')
+                if nargin == 1
+                    tail = 0;
+                end               
+                data_size = double([PixelDataBase.DEFAULT_NUM_PIX_FIELDS, obj.num_pixels_]);
+                if tail>0
+                    format = {'single',data_size,'data';'uint8',double(tail),'tail'};
+                else
+                    format = {'single',data_size,'data'};
+                end
+            else
+                format = obj.f_accessor_.Format;
+            end
         end
-
     end
-
     methods(Static)
         function obj = cat(varargin)
-        % Concatenate the given PixelData objects' pixels. This function performs
-        % a straight-forward data concatenation.
-        %
-        %   >> joined_pix = PixelDataBase.cat(pix_data1, pix_data2);
-        %
-        % Input:
-        % ------
-        %   varargin    A cell array of PixelData objects
-        %
-        % Output:
-        % -------
-        %   obj         A PixelData object containing all the pixels in the inputted
-        %               PixelData objects
+            % Concatenate the given PixelData objects' pixels. This function performs
+            % a straight-forward data concatenation.
+            %
+            %   >> joined_pix = PixelDataBase.cat(pix_data1, pix_data2);
+            %
+            % Input:
+            % ------
+            %   varargin    A cell array of PixelData objects
+            %
+            % Output:
+            % -------
+            %   obj         A PixelData object containing all the pixels in the inputted
+            %               PixelData objects
 
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
             ldr = varargin{is_ldr};

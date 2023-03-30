@@ -11,65 +11,63 @@ norange = log_par(2);
 argi = varargin(~is_bool);
 
 if isscalar(argi)
-    init = argi{1};
+    init_data = argi{1};
 else
     % build from data/metadata pair
-    init = argi;
+    init_data = argi;
 end
 
-if iscell(init)
+if iscell(init_data)
     flds = obj.saveableFields();
     obj = obj.set_positional_and_key_val_arguments(flds,false,argi);
 
-elseif isstruct(init)
-    obj = obj.loadobj(init);
+elseif isstruct(init_data)
+    obj = obj.loadobj(init_data);
 
-elseif isa(init, 'PixelDataFileBacked')
-    obj.offset_       = init.offset_;
-    obj.full_filename = init.full_filename;
-    obj.num_pixels_   = init.num_pixels;
-    obj.data_range    = init.data_range;
-    obj.tmp_pix_obj   = init.tmp_pix_obj;
+elseif isa(init_data, 'PixelDataFileBacked')
+    obj.offset_       = init_data.offset_;
+    obj.full_filename = init_data.full_filename;
+    obj.num_pixels_   = init_data.num_pixels;
+    obj.data_range    = init_data.data_range;
+    obj.tmp_pix_obj   = init_data.tmp_pix_obj;
     obj.f_accessor_   = memmapfile(obj.full_filename, ...
-        'Format', obj.get_memmap_format(), ...
+        'Format', init_data.get_memmap_format(), ...
         'Repeat', 1, ...
         'Writable', update, ...
-        'Offset', obj.offset_ );
-
-elseif isa(init, 'PixelDataMemory')
-
+        'Offset'  , obj.offset_ );
+elseif isa(init_data, 'PixelDataMemory')
     if isempty(obj.full_filename_)
         obj.full_filename = 'from_mem';
     end
 
-    obj = set_raw_data_(obj,init.data);
+    obj = set_raw_data_(obj,init_data.data);
 
-elseif istext(init)
-    if ~is_file(init)
+elseif istext(init_data)
+    if ~is_file(init_data)
         error('HORACE:PixelDataFileBacked:invalid_argument', ...
-            'Cannot find file to load (%s)', init)
+            'Cannot find file to load (%s)', init_data)
     end
 
-    init = sqw_formats_factory.instance().get_loader(init);
-    obj = init_from_file_accessor_(obj,init,update,norange);
+    init_data = sqw_formats_factory.instance().get_loader(init_data);
+    obj = init_from_file_accessor_(obj,init_data,update,norange);
 
-elseif isa(init, 'sqw_file_interface')
-    obj = init_from_file_accessor_(obj,init,update,norange);
+elseif isa(init_data, 'sqw_file_interface')
+    obj = init_from_file_accessor_(obj,init_data,update,norange);
 
-elseif isnumeric(init)
+elseif isnumeric(init_data)
     % this is usually option for testing filebacked operations
-    if isscalar(init)
-        init = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,abs(floor(init)));
+    if isscalar(init_data)
+        init_data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,abs(floor(init_data)));
     end
 
     if isempty(obj.full_filename_)
         obj.full_filename = 'from_mem';
     end
 
-    obj = set_raw_data_(obj,init);
+    obj = set_raw_data_(obj,init_data);
 else
     error('HORACE:PixelDataFileBacked:invalid_argument', ...
-        'Cannot construct PixelDataFileBacked from class (%s)', class(init))
+        'Cannot construct PixelDataFileBacked from class (%s)', class(init_data))
 end
 
 obj.page_num = 1;
