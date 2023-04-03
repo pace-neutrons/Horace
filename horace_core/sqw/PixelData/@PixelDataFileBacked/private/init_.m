@@ -1,7 +1,9 @@
 function obj = init_(obj, varargin)
-%INIT_ Main part of the initialiation structure, usually performed by
-%constructor, but may be applied to existing object (empty) fully deleting
-% its old contents and replacing it with initialization information
+%INIT_ Main part of the initialiation algorithm, usually performed by
+% constructor, but may be applied to existing object (normally empty) fully
+% deleting its old contents and replacing it with initialization information
+%
+% Initializes the object using any permitted initialization information.
 
 % process possible update parameter, which opens file in write mode
 is_bool = cellfun(@islogical,varargin);

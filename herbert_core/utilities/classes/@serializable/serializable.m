@@ -312,6 +312,16 @@ classdef (Abstract=true) serializable
             end
             obj = from_struct_(in_struct,existing_obj);
         end
+        function is = is_serial_struct(val)
+            % helper method to check if the input structure is obtained 
+            % using serializable to_struct method or just some structure
+            % (may be bare_struct or may be not)
+             if isstruct(val) 
+                 is = isfield(val,'serial_name') && isfield(val,'version');
+             else
+                 is = false;
+             end
+        end
 
         function [obj,nbytes] = deserialize(byte_array,pos)
             % recover the object from the serialized into array of bytes

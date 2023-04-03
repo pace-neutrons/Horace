@@ -17,6 +17,14 @@ if ~exist('targ_proj','var') || isempty(targ_proj)
     range = obj.img_range;
 else
     source_proj = obj.proj;
+    if isstruct(targ_proj) % allow input to be a structure
+        if serializable.is_serial_struct(targ_proj)
+            targ_proj = serializable.from_struct(targ_proj);            
+        else
+            op = ortho_proj();
+            targ_proj = op.from_bare_struct(targ_proj);
+        end
+    end
     %
     % cross-assign appropriate projections to enable possible optimizations
     source_proj.targ_proj = targ_proj;

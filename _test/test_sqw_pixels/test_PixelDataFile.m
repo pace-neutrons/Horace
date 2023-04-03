@@ -104,11 +104,12 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
         function test_construct_from_faccessor_keep_tail(obj)
 
             hc = hor_config;
-            mem_ch = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mem_ch));
+            rcd = hc.get_data_to_store();
+            clOb = onCleanup(@()set(hc,rcd));
 
             mchs = 10000;
             hc.mem_chunk_size = mchs;
+            hc.log_level = -1;
 
             wkf = fullfile(tmp_dir,'pix_data_with_tail.sqw');
             clObF = onCleanup(@()file_delete(obj,wkf));
@@ -137,11 +138,12 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
         function test_construct_from_data_loader_check_advance_with_tail(obj)
 
             hc = hor_config;
-            mem_ch = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mem_ch));
+            rcd = hc.get_data_to_store();
+            clOb = onCleanup(@()set(hc,rcd));
 
             mchs = 10000;
             hc.mem_chunk_size = mchs;
+            hc.log_level = -1;
 
             wkf = fullfile(tmp_dir,'pix_data_with_tail.sqw');
             clObF = onCleanup(@()file_delete(obj,wkf));
@@ -175,11 +177,12 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             clObW = onCleanup(@()warning(sw));
 
             hc = hor_config;
-            mem_ch = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mem_ch));
+            rcd = hc.get_data_to_store();
+            clOb = onCleanup(@()set(hc,rcd));
 
             mchs = 10000;
             hc.mem_chunk_size = mchs;
+            hc.log_level = -1;
 
             ldr = sqw_formats_factory.instance().get_loader(obj.sample_file);
             assertTrue(PixelDataBase.do_filebacked(ldr.npixels));
@@ -206,11 +209,12 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             clObW = onCleanup(@()warning(sw));
 
             hc = hor_config;
-            mem_ch = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mem_ch));
+            rcd = hc.get_data_to_store();
+            clOb = onCleanup(@()set(hc,rcd));
 
             mchs = 10000;
             hc.mem_chunk_size = mchs;
+            hc.log_level = -1;
 
             ldr = sqw_formats_factory.instance().get_loader(obj.sample_file);
             assertTrue(PixelDataBase.do_filebacked(ldr.npixels));

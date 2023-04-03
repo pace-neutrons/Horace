@@ -1,4 +1,4 @@
-classdef test_change_crystal_bragg_coarse < TestCase
+classdef test_change_crystal_bragg_coarse < TestCaseWithSave
     % Test crystal refinement functions change_crytstal and refine_crystal
     %
     %
@@ -29,12 +29,14 @@ classdef test_change_crystal_bragg_coarse < TestCase
     end
     methods
         function obj = test_change_crystal_bragg_coarse(varargin)
+            test_ref_data= fullfile(fileparts(mfilename('fullpath')),'test_change_crystal_coarse.mat');
             if nargin == 0
-                name = 'test_change_crystal_bragg_coarse';
+                argi = {'test_change_crystal_bragg_coarse',test_ref_data};
             else
-                name =varargin{1};
+                argi = {varargin{1},test_ref_data};
             end
-            obj= obj@TestCase(name);
+
+            obj= obj@TestCaseWithSave(argi{:});
             %
             hpc = hpc_config;
             obj.hpc_restore = hpc.get_data_to_store;
@@ -54,6 +56,7 @@ classdef test_change_crystal_bragg_coarse < TestCase
             sim_sqw_file=fullfile(obj.dir_out,'test_change_crystal_coarse_sim.sqw'); % output file for simulation in reference lattice
             obj=obj.build_misaligned_source_file(sim_sqw_file);
             %
+            obj.save();
         end
         function test_u_alighnment_tf_way(obj)
             % Fit Bragg peak positions
@@ -117,7 +120,99 @@ classdef test_change_crystal_bragg_coarse < TestCase
             assertElementsAlmostEqual(bp,rlu1_corr,'absolute',half_thick);
             assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
         end
+        function test_levacy_vs_pix_alignment(obj)
+            proj.u=obj.u;
+            proj.v=obj.v;
+
+
+            % theoretical bragg points postioons
+            bp=[...
+                0, -1,  0; ...
+                1,  2,  0; ...
+                0, -1,  1];
+
+            fit_obj = read_sqw(obj.misaligned_sqw_file);
+            % the bragg points positions found by fitting measured bragg
+            % peaks shape to Gaussian and identifying the Gaussian centerpoints
+            rlu_real = [...
+                0.0372,-0.9999, 0.0521;...
+                0.9200, 2.0328,-0.1568;...
+                0.1047,-0.9425, 1.0459];
+
+
+            % Get correction matrix from the 3 peak positions:
+            % ------------------------------------------------
+            [rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real,...
+                obj.alatt, obj.angdeg, bp);
+
+            wout_legacy = change_crystal (fit_obj,rlu_corr);
+            wout_pix     = fit_obj;
+            % This all will be packed in new change crystal:
+            proj0 = wout_pix.data.proj;
+            proj0.alatt = alatt1;
+            proj0.angdeg = angdeg1;
+            wout_pix.data.proj = proj0;
+            wout_pix.pix.alignment_matr  = rotmat_fit;
+            wout_pix.experiment_info = change_crystal(wout_pix.experiment_info,alatt1,angdeg1,eye(3));
+
+            cut_range = wout_legacy.targ_range(proj,'-binning');
+            cut_old = cut(wout_legacy,proj,cut_range{:});
+            cut_new = cut(wout_pix,proj,cut_range{:});
+
+            assertEqualToTol(cut_old,cut_new);
+
+        end
         %
+        function test_bragg_pos(obj)
+            bragg_pos= [...
+                0, -1,  0; ...
+                1,  2,  0; ...
+                0, -1,  1];
+
+            radial_cut_length = 1.5;
+            radial_bin_width  = 0.02;
+            radial_thickness  = 0.4;
+            trans_cut_length = 1.5;
+            trans_bin_width  = 0.02;
+            trans_thickness  = 2;
+
+            [rlu_real,width,wcut,wpeak]=bragg_positions(obj.misaligned_sqw_file,...
+                bragg_pos,radial_cut_length,radial_bin_width, radial_thickness,...
+                trans_cut_length,trans_bin_width ,trans_thickness, 'gauss');
+
+            rlu_sample = ...
+                [0.04   -0.9999    0.05;...
+                0.90     2.       -0.16;...
+                0.10    -0.95       1.0];
+            assertElementsAlmostEqual(rlu_real,rlu_sample,'absolute',1.e-1);
+            width_sample = ...
+                [0.1    0.1    0.1;...
+                0.18    0.13   0.1;...
+                0.1     0.07   0.1];
+            assertElementsAlmostEqual(width,width_sample,'absolute',1.e-1);
+            assertEqualWithSave(obj,wcut);
+            assertEqualWithSave(obj,wpeak);
+        end
+
+        function delete(obj)
+            %
+            set(hpc_config,obj.hpc_restore);
+
+            ws = warning('off','MATLAB:DELETE:Permission');
+
+            delete(obj.misaligned_sqw_file);
+
+            % Delete temporary nxs files
+            for i=1:numel(obj.nxs_file)
+                try
+                    delete(obj.nxs_file{i})
+                catch
+                end
+            end
+            warning(ws);
+            delete@TestCaseWithSave(obj);
+        end
+
     end
     methods(Access=private)
         %
@@ -186,23 +281,5 @@ classdef test_change_crystal_bragg_coarse < TestCase
             end
 
         end
-        function delete(obj)
-            %
-            set(hpc_config,obj.hpc_restore);
-
-            ws = warning('off','MATLAB:DELETE:Permission');
-
-            delete(obj.misaligned_sqw_file);
-
-            % Delete temporary nxs files
-            for i=1:numel(obj.nxs_file)
-                try
-                    delete(obj.nxs_file{i})
-                catch
-                end
-            end
-            warning(ws);
-        end
-
     end
 end

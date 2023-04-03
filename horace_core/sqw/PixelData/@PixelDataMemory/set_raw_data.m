@@ -13,3 +13,9 @@ if ~isnumeric(pix) || size(pix,1) ~= obj.DEFAULT_NUM_PIX_FIELDS
         obj.DEFAULT_NUM_PIX_FIELDS,class(pix),disp2str(size(pix)));
 end
 obj.data_ = pix;
+%
+% setting data remove misalignment 
+if obj.is_misaligned_
+    obj.alignment_matr_ = eye(3);
+    obj.is_misaligned_  = false;
+end

@@ -16,16 +16,15 @@ obj.f_accessor_ = memmapfile(obj.full_filename, ...
                              'Repeat', 1, ...
                              'Writable', update, ...
                              'Offset', obj.offset_);
+if norange
+    return;
+end
 
 fac_range  = faccessor.get_data_range();
 undefined = fac_range == PixelDataBase.EMPTY_RANGE;
 
 if ~any(undefined(:))
     obj.data_range_ = fac_range;
-end
-
-if norange
-    return;
 end
 
 undefined = obj.data_range == PixelDataBase.EMPTY_RANGE;

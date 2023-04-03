@@ -132,7 +132,46 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function obj = init(obj, varargin)
-            % Main part of the fileBacked constructor
+            % Main part of the fileBacked constructor.
+            %
+            % Initialize filebacked data using any available input
+            % information namely:
+            % >> fb = PixelDataFileBacked();
+            %
+            % 1:>> fb = fb.init(filename);
+            % 2:>> fb = fb.init(struct);
+            % 3:>> fb = fb.init(pixel_data_wrap,pixel_metadata);
+            % 4:>> fb = fb.init(other_PixelDataFileBacked);
+            % 5:>> fb = fb.init(instance_PixelDataMemory);
+            % 6:>> fb = fb.init(faccess_loader);
+            % Normally test mode:
+            % 7:>> fb = fb.init(number);
+            % 8:>> fb = fb.init(3xNpix array);
+            % Where
+            % 1: filename -- the name of existing sqw file
+            % 2: struct   -- the structure obtained from serializable
+            %                to_struct method, saveobj method or previous
+            %                versions of these methods.
+            % 3: pixel_data_wrap -- class-wrapper around pixel data informaion,
+            %                       obtained from obj.data_wrap property
+            %    pixel_metadata  -- class-wrapper aroung pixel metadata
+            %                       information obtained from obj.metadata
+            %                       property
+            % 4: other_PixelDataFileBacked
+            %             -- build PixelDataFileBacked from other instance
+            %                  of PixelDataFileBacked class
+            % 5: instance_PixelDataMemory
+            %             -- build PixelDataFileBacked from instance
+            %                of PixelDataMemory class
+            % 6: faccess_loader
+            %             -- initialized instance of binary faccess_sqw
+            %                 file loader
+            % 7: number   -- initialized single-paged data class with the
+            %                  provided number of empty pixels
+            % 8: 3xNpix array
+            %             -- initialize filebacked class from array of
+            %                data provided as input
+
             obj = init_(obj,varargin{:});
         end
 
@@ -234,6 +273,8 @@ classdef PixelDataFileBacked < PixelDataBase
                 unique_idx = unique(obj.run_idx);
             end
         end
+        % public getter for unmodified page data
+        data =  get_raw_data(obj,varargin)
     end
 
     %======================================================================
@@ -266,18 +307,12 @@ classdef PixelDataFileBacked < PixelDataBase
             np = max(ceil(obj.num_pixels/obj.DEFAULT_PAGE_SIZE),1);
         end
 
-        function  data =  get_raw_data(obj,page_number)
-            if ~exist('page_number', 'var')
-                page_number = obj.page_num_;
+        function data  = get_data(obj,page_number)
+            data =  obj.get_raw_data(page_number);
+            if obj.is_misaligned_
+                pix_coord = (data(1:3,:)'*obj.alignment_matr_');
+                data(1:3,:) = pix_coord';
             end
-
-            if isempty(obj.f_accessor_)
-                data = obj.EMPTY_PIXELS;
-            else
-                [pix_idx_start, pix_idx_end] = obj.get_page_idx_(page_number);
-                data = double(obj.f_accessor_.Data.data(:, pix_idx_start:pix_idx_end));
-            end
-
         end
     end
 
@@ -363,7 +398,7 @@ classdef PixelDataFileBacked < PixelDataBase
             if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile')
                 if nargin == 1
                     tail = 0;
-                end               
+                end
                 data_size = double([PixelDataBase.DEFAULT_NUM_PIX_FIELDS, obj.num_pixels_]);
                 if tail>0
                     format = {'single',data_size,'data';'uint8',double(tail),'tail'};
@@ -467,8 +502,19 @@ classdef PixelDataFileBacked < PixelDataBase
             if isempty(obj.f_accessor_)
                 prp = zeros(obj.get_field_count(fld), 0);
             else
-                prp = double(obj.f_accessor_.Data.data(obj.FIELD_INDEX_MAP_(fld), ...
-                    pix_idx_start:pix_idx_end));
+                idx = obj.FIELD_INDEX_MAP_(fld);
+                if obj.is_misaligned_ && any(idx<4)
+                    acc_idx = unique([1:3,idx]);
+                    data = double(obj.f_accessor_.Data.data(acc_idx, ...
+                        pix_idx_start:pix_idx_end));
+                    pix_coord = (data(1:3,:)'*obj.alignment_matr_');
+                    conv_idx = idx(idx<4);
+                    data(conv_idx,:) = pix_coord(conv_idx,:);
+                    prp = data(idx);
+                else
+                    prp = double(obj.f_accessor_.Data.data(idx, ...
+                        pix_idx_start:pix_idx_end));
+                end
             end
         end
 
@@ -485,7 +531,15 @@ classdef PixelDataFileBacked < PixelDataBase
             flds = obj.FIELD_INDEX_MAP_(fld);
             obj.f_accessor_.Data.data(flds, indx) = single(val);
 
-            % this operation will probably lead to invalid results.
+            % setting data property value removes misalignment. We do not
+            % consciously set misaligned data
+            obj.is_misaligned_ = false;
+            obj.alignment_matr_= eye(3);
+
+            % this operation will probably lead to invalid results as to be
+            % correct, the check should run over whole pages range.
+            % it will be correct if set_prop was run within the loop over
+            % whole file and initial range was initialized properly
             obj=obj.reset_changed_coord_range(fld);
         end
     end

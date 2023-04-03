@@ -11,7 +11,11 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 %            into coordinate system, related to the image (e.g. hkl system)
 %
 if isa(pix_input,'PixelDataBase')
-    pix_cc = pix_input.q_coordinates;
+    if pix_input.is_misaligned
+        pix_cc = pix_input.get_raw_data('q_coordinates');        
+    else
+        pix_cc = pix_input.q_coordinates;
+    end
     if obj.offset(4) ~=0
         shift_ei = true;
     else
@@ -27,7 +31,7 @@ else % if pix_input is 4-d, this will use 4-D matrix and shift
     input_is_obj = false;
 end
 
-[rot_to_img,shift]=obj.get_pix_img_transformation(ndim);
+[rot_to_img,shift]=obj.get_pix_img_transformation(ndim,pix_input);
 %
 pix_transf= ((bsxfun(@minus,pix_cc,shift))'*rot_to_img')';
 if input_is_obj

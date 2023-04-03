@@ -204,10 +204,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
         %
-        function range = targ_range(obj,targ_proj)
+        function range = targ_range(obj,targ_proj,varargin)
             % calculate the maximal range of the image may be produced by
             % target projection applied to the current image.
-            range = obj.data.targ_range(targ_proj);
+            range = obj.data.targ_range(targ_proj,varargin{:});
         end
         function status = adjust_aspect(obj)
             % method reports if the plotting operation should adjust

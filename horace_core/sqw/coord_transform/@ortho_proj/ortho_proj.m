@@ -443,7 +443,25 @@ classdef ortho_proj<aProjectionBase
             % ndim -- number of dimensions in the pixels coordinate array
             %         (3 or 4). Depending on this number the routine
             %         returns 3D or 4D transformation matrix
+            % Optional:
+            % pix_transf_info 
+            %      -- PixelDataBase or pix_metadata class, providing the 
+            %         informarion about pixel alignment. If present and
+            %         pixels are misaligned, contains additional rotation
+            %         matrix, used for aligning the pixels data into
+            %         Crystal Cartesian coordinate system
             %
+            if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))                
+                pix = varargin{1};
+                if pix.is_misaligned
+                    alignment_needed = true;                                        
+                    alignment_mat = pix.alignment_matr;
+                else
+                    alignment_needed = false;                    
+                end
+            else
+                alignment_needed = false;
+            end
             rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);
             if isempty(obj.ub_inv_compat_)
                 b_mat  = bmatrix(obj.alatt, obj.angdeg);
@@ -454,6 +472,10 @@ classdef ortho_proj<aProjectionBase
                 rot_to_img = rlu_to_ustep*u_to_rlu_;
                 rlu_to_u = inv(u_to_rlu_);
             end
+            if alignment_needed
+                rot_to_img  = rot_to_img*alignment_mat;
+            end
+
             %
             if ndim==4
                 shift  = obj.offset;
@@ -466,7 +488,7 @@ classdef ortho_proj<aProjectionBase
                     'The ndim input may be 3 or 4  actually it is: %s',...
                     evalc('disp(ndim)'));
             end
-            if nargin == 2
+            if nargout == 2
                 % convert shift, expressed in hkl into crystal Cartesian
                 shift = rlu_to_u *shift';
             else % do not convert anything

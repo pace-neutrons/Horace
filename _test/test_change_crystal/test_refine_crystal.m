@@ -5,15 +5,15 @@ classdef test_refine_crystal < TestCase
     properties
         % The expected accurate positons of the Bragg peaks to align crystal
         %
-        rlu0=[1,0,0; 0,1,0; 0,0,1];
+        bragg_peak_expected=[1,0,0; 0,1,0; 0,0,1];
         %
-        alatt0=[5,5,5];
-        angdeg0=[90,90,90];
+        alatt_base=[5,5,5];
+        angdeg_base=[90,90,90];
 
-        rlu;  % simulated postions of the Bragg peaks, identified from
+        bragg_peak_measured;  % simulated postions of the Bragg peaks, identified from
         %     % test "experiment"
         ref_data
-        rlu_r;  % rlu with noise
+        bragg_peak_mnoise;  % rlu with noise
         answer_r
     end
 
@@ -29,9 +29,9 @@ classdef test_refine_crystal < TestCase
             ang_dev=0;
             rad_dev=0;
             rotvec=[0,0,0];
-            obj.rlu = obj.make_rlu(obj.rlu0, [obj.alatt0,obj.angdeg0], ...
-                [obj.alatt0,obj.angdeg0], rotvec, ang_dev, rad_dev);
-            obj.ref_data = struct('rlu_corr',eye(3),'alatt',obj.alatt0,'angdeg',obj.angdeg0,'rotmat',eye(3));
+            obj.bragg_peak_measured = obj.make_rlu(obj.bragg_peak_expected, [obj.alatt_base,obj.angdeg_base], ...
+                [obj.alatt_base,obj.angdeg_base], rotvec, ang_dev, rad_dev);
+            obj.ref_data = struct('rlu_corr',eye(3),'alatt',obj.alatt_base,'angdeg',obj.angdeg_base,'rotmat',eye(3));
 
             % Introduce random noise and a rotation
             % -------------------------------------
@@ -39,10 +39,10 @@ classdef test_refine_crystal < TestCase
             ang_dev=0.02;
             rad_dev=0.005;
             rotvec=[pi/2,0,0];
-            obj.rlu_r = obj.make_rlu(obj.rlu0, [obj.alatt0,obj.angdeg0], ...
-                [obj.alatt0,obj.angdeg0], rotvec, ang_dev, rad_dev);
-            obj.answer_r = struct('rlu_corr',[1,0,0;0,0,1;0,-1,0],'alatt',obj.alatt0, ...
-                'angdeg',obj.angdeg0,'rotmat',[1,0,0;0,0,1;0,-1,0]);
+            obj.bragg_peak_mnoise = obj.make_rlu(obj.bragg_peak_expected, [obj.alatt_base,obj.angdeg_base], ...
+                [obj.alatt_base,obj.angdeg_base], rotvec, ang_dev, rad_dev);
+            obj.answer_r = struct('rlu_corr',[1,0,0;0,0,1;0,-1,0],'alatt',obj.alatt_base, ...
+                'angdeg',obj.angdeg_base,'rotmat',[1,0,0;0,0,1;0,-1,0]);
 
         end
         function test_exact_fit(obj)
@@ -50,7 +50,8 @@ classdef test_refine_crystal < TestCase
             % ---------------------------------------
             % The refinement involves a least-squares fit, so will not be exact, hence the large tolerance
 
-            [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal(obj.rlu0,obj.alatt0,obj.angdeg0,obj.rlu);
+            [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base,obj.bragg_peak_measured);
             fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
 
             [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
@@ -59,7 +60,7 @@ classdef test_refine_crystal < TestCase
         function test_fit_from_different_lattice_and_angle(obj)
 
             [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
-                obj.rlu0,obj.alatt0,obj.angdeg0,obj.rlu,[5.1,5.2,5.3],[92,88,91]);
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base,obj.bragg_peak_measured,[5.1,5.2,5.3],[92,88,91]);
             fir_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
 
             [ok,mess]=equal_to_tol(fir_data,obj.ref_data,1e-9);
@@ -69,7 +70,7 @@ classdef test_refine_crystal < TestCase
 
 
             [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
-                obj.rlu0,obj.alatt0,obj.angdeg0,obj.rlu,[5.1,5.2,5.3],[90,90,90]);
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base,obj.bragg_peak_measured,[5.1,5.2,5.3],[90,90,90]);
             fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
 
             [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
@@ -78,7 +79,7 @@ classdef test_refine_crystal < TestCase
         function test_fit_from_different_lattice_fix_angles(obj)
 
             [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
-                obj.rlu0,obj.alatt0,obj.angdeg0,obj.rlu,[5.1,5.2,5.3],[90,90,90],'fix_ang');
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base,obj.bragg_peak_measured,[5.1,5.2,5.3],[90,90,90],'fix_ang');
             fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
 
             [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
@@ -88,7 +89,7 @@ classdef test_refine_crystal < TestCase
         function test_fit_with_rotation_fix_ang(obj)
 
             [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
-                obj.rlu0,obj.alatt0,obj.angdeg0,obj.rlu_r,'fix_ang');
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base,obj.bragg_peak_mnoise,'fix_ang');
             fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
 
             [ok,mess]=equal_to_tol(fit_data,obj.answer_r ,-3e-2,'min_denominator',1);
@@ -97,7 +98,8 @@ classdef test_refine_crystal < TestCase
         function test_fit_with_rot_latt_guess_fix_ang(obj)
 
             [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
-                obj.rlu0,obj.alatt0,obj.angdeg0,obj.rlu_r,[5.1,5.2,5.3],[90,90,90],'fix_ang');
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base, ...
+                obj.bragg_peak_mnoise,[5.1,5.2,5.3],[90,90,90],'fix_ang');
             fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
 
             [ok,mess]=equal_to_tol(fit_data,obj.answer_r ,-3e-2,'min_denominator',1);
@@ -107,7 +109,8 @@ classdef test_refine_crystal < TestCase
         function test_fit_with_rot_free_alatt(obj)
 
             [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
-                obj.rlu0,obj.alatt0,obj.angdeg0,obj.rlu_r,[5.1,5.2,5.3],[90,90,90],'free_alatt',[1,0,1]);
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base, ...
+                obj.bragg_peak_mnoise,[5.1,5.2,5.3],[90,90,90],'free_alatt',[1,0,1]);
             fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
 
             [ok,mess]=equal_to_tol(fit_data,obj.answer_r ,-5e-2,'min_denominator',1);

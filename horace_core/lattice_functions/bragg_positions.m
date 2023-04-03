@@ -95,12 +95,13 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 
 
 % Check input arguments
-if ischar(w)    % assume a file name
+if istext(w)    % assume a file name
     file_type_ok=is_sqw_type_file(w);
     if ~isscalar(file_type_ok) || ~file_type_ok
-        error('File must be sqw type')
+        error('HORACE:lattice_functions:invalid_argument', ...
+            'File %s must be sqw type',w);
     end
-    hdr=head_sqw(w);    % get header information as extracted from the 'data' field
+    hdr=read_dnd(w);    % get header information as extracted from the 'data' field
 elseif isa(w,'sqw') && has_pixels(w(1))
     if numel(w)~=1
         error('Data must be a single sqw object, not an array (or empty)')
@@ -110,89 +111,18 @@ else
     error('Object must be sqw type')
 end
 
-npeaks=size(rlu,1);
-if size(rlu,2)~=3 || npeaks==0
-    error('The input Bragg point must form an (n x 3) array, one row per Bragg peak')
-end
-
-% Get cut binning and integration for each projection axes
-if ~isscalar(radial_cut_length) || ~isnumeric(radial_cut_length) || radial_cut_length<=0
-    error('Check radial cut length is a positive number greater than zero')
-end
-if ~isscalar(radial_bin_width) || ~isnumeric(radial_bin_width) || radial_bin_width<=0
-    error('Check radial bin width is a positive number greater than zero')
-end
-if ~isscalar(radial_thickness) || ~isnumeric(radial_thickness) || radial_thickness<=0
-    error('Check radial thickness is a positive number greater than zero')
-end
-if ~isscalar(trans_cut_length) || ~isnumeric(trans_cut_length) || trans_cut_length<=0
-    error('Check transverse cut length is a positive number greater than zero')
-end
-if ~isscalar(trans_bin_width) || ~isnumeric(trans_bin_width) || trans_bin_width<=0
-    error('Check transverse bin width is a positive number greater than zero')
-end
-if ~isscalar(trans_thickness) || ~isnumeric(trans_thickness) || trans_thickness<=0
-    error('Check transverse thickness is a positive number greater than zero')
-end
-
-% Parse parameters:
-arglist = struct('bin_relative',0,'bin_absolute',0,'inner',0,'outer',0,'gaussian',0);
-flags = {'bin_relative','bin_absolute','inner','outer','gaussian'};
-[args,opt] = parse_arguments(varargin,arglist,flags);
-if numel(args)>1
-    error('Check number and type of optional parameters')
-end
-
-% Get energy window
-if numel(args)==1
-    energy_window=args{1};
-    if ~isscalar(energy_window) || ~isnumeric(energy_window) || energy_window<=0
-        error('Check energy window is a positive number greater than zero')
-    end
-else
-    energy_window=Inf;
-    disp(' ')
-    disp('*** Using default energy window as -Inf to Inf ***')
-    disp(' ')
-end
-eint=[-energy_window/2,energy_window/2];
-
-% Get binning option
-optsum=opt.bin_relative+opt.bin_absolute;
-if optsum==0
-    absolute_binning=true;
-elseif optsum==1
-    absolute_binning=logical(opt.bin_absolute);
-else
-    error('Check binning options')
-end
-
-% Get peak option
-optsum=(opt.inner+opt.outer+opt.gaussian);
-if optsum==0
-    opt.outer=true;
-elseif optsum~=1
-    error('Check peak options')
-end
-
-if opt.inner
-    opt='inner';
-    gau=false;
-elseif opt.outer
-    opt='outer';
-    gau=false;
-elseif opt.gaussian
-    gau=true;
-else
-    error('Logic problem - see T.G.Perring')
-end
+[opt,eint,absolute_binning,gau] = check_and_parse_inputs( rlu,...
+    radial_cut_length, radial_bin_width, radial_thickness,...
+    trans_cut_length, trans_bin_width, trans_thickness, varargin{:});
 
 
 % Fit Peaks
 % ---------
 % Initialise output arguments
-rlu0=zeros(size(rlu));
-width=zeros(size(rlu));
+szrlu = size(rlu);
+rlu0=zeros(szrlu );
+width=zeros(szrlu);
+npeaks=size(rlu,1);
 wcut=repmat(IX_dataset_1d,npeaks,3);
 wpeak=repmat(IX_dataset_1d,npeaks,3);
 
@@ -326,10 +256,112 @@ else
 end
 
 
-%-----------------------------------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 function c = cosangle (B, u, v)
 % Cosine of the angle between two reciprocal lattice vectors
 uxtal = B*u(:);
 vxtal = B*v(:);
 c = dot(uxtal,vxtal)/(norm(uxtal)*norm(vxtal));
+
+%--------------------------------------------------------------------------
+function [opt,eint,absolute_binning,gau] = check_and_parse_inputs(rlu,...
+    radial_cut_length, radial_bin_width, radial_thickness,...
+    trans_cut_length, trans_bin_width, trans_thickness, varargin)
+
+npeaks=size(rlu,1);
+if size(rlu,2)~=3 || npeaks==0
+    error('HORACE:lattice_functions:invalid_argument',...
+        'The input Bragg point must form an (n x 3) array, one row per Bragg peak')
+end
+
+% Get cut binning and integration for each projection axes
+if ~isscalar(radial_cut_length) || ~isnumeric(radial_cut_length) || radial_cut_length<=0
+    error('HORACE:lattice_functions:invalid_argument',...
+        'Radial cut length must be a positive number greater than zero. It is: %s', ...
+        disp2str(radial_cut_length))
+end
+if ~isscalar(radial_bin_width) || ~isnumeric(radial_bin_width) || radial_bin_width<=0
+    error('HORACE:lattice_functions:invalid_argument',...
+        'Radial bin width must be a positive number greater than zero. It is: %s', ...
+        disp2str(radial_bin_width))
+end
+if ~isscalar(radial_thickness) || ~isnumeric(radial_thickness) || radial_thickness<=0
+    error('HORACE:lattice_functions:invalid_argument',...
+        'Radial thickness must be a positive number greater than zero. It is: %s', ...
+        disp2str(radial_thickness))
+end
+if ~isscalar(trans_cut_length) || ~isnumeric(trans_cut_length) || trans_cut_length<=0
+    error('HORACE:lattice_functions:invalid_argument',...
+        'Transverse cut length is a positive number greater than zero. It is: %s', ...
+        disp2str(trans_cut_length))
+end
+if ~isscalar(trans_bin_width) || ~isnumeric(trans_bin_width) || trans_bin_width<=0
+    error('HORACE:lattice_functions:invalid_argument',...
+        'Transverse bin width bust be a positive number greater than zero. It is: %s', ...
+        disp2str(trans_bin_width))
+end
+if ~isscalar(trans_thickness) || ~isnumeric(trans_thickness) || trans_thickness<=0
+    error('HORACE:lattice_functions:invalid_argument',...
+        'Transverse thickness must be a positive number greater than zero. It is: %s', ...
+        disp2str(trans_thickness))
+end
+
+% Parse parameters:
+arglist = struct('bin_relative',0,'bin_absolute',0,'inner',0,'outer',0,'gaussian',0);
+flags = {'bin_relative','bin_absolute','inner','outer','gaussian'};
+[args,opt] = parse_arguments(varargin,arglist,flags);
+if numel(args)>1
+    error('HORACE:lattice_functions:invalid_argument',...
+        'Check number and type of optional parameters')
+end
+
+% Get energy window
+if numel(args)==1
+    energy_window=args{1};
+    if ~isscalar(energy_window) || ~isnumeric(energy_window) || energy_window<=0
+        error('HORACE:lattice_functions:invalid_argument',...
+            'Energy window must be a positive number greater than zero. It is: %s', ...
+            disp2str(energy_window))
+    end
+else
+    energy_window=Inf;
+    disp(' ')
+    disp('*** Using default energy window as -Inf to Inf ***')
+    disp(' ')
+end
+eint=[-energy_window/2,energy_window/2];
+
+% Get binning option
+optsum=opt.bin_relative+opt.bin_absolute;
+if optsum==0
+    absolute_binning=true;
+elseif optsum==1
+    absolute_binning=logical(opt.bin_absolute);
+else
+    error('HORACE:lattice_functions:invalid_argument',...
+        'Incorrect binning options: %s', ...
+        disp2str(optsum))
+end
+
+% Get peak option
+optsum=(opt.inner+opt.outer+opt.gaussian);
+if optsum==0
+    opt.outer=true;
+elseif optsum~=1
+    error( ...
+        'Incorrect peak options: %s', ...
+        disp2str(optsum))
+end
+
+if opt.inner
+    opt='inner';
+    gau=false;
+elseif opt.outer
+    opt='outer';
+    gau=false;
+elseif opt.gaussian
+    gau=true;
+else
+    error('Logic problem - see T.G.Perring')
+end
 

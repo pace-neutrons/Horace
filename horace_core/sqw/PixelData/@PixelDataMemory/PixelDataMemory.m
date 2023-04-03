@@ -39,7 +39,7 @@ classdef PixelDataMemory < PixelDataBase
     %                    Cartesian coordinates in projection axes, units are per Angstrom (1 x n arrays)
     %   dE             - The energy transfer value for each pixel in meV (1 x n array)
     %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
-    %   q_coordinates  - The spacial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
+    %   q_coordinates  - The spatial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
     %   run_idx        - The run index the pixel originated from (1 x n array)
     %   detector_idx   - The detector group number in the detector listing for the pixels (1 x n array)
     %   energy_idx     - The energy bin numbers (1 x n array)
@@ -84,6 +84,17 @@ classdef PixelDataMemory < PixelDataBase
 
         pix_out = get_fields(obj, fields, abs_pix_indices);
 
+        function data =  get_raw_data(obj,varargin)
+            % main part of get.data accessor
+            data = obj.data_;
+            if nargin>1
+                if iscell(varargin{1}) || istext(varargin{1})
+                    fld = varargin{1};
+                    idx = obj.FIELD_INDEX_MAP_(fld);
+                    data = data(idx,:);
+                end
+            end
+        end
     end
 
     methods
@@ -173,19 +184,19 @@ classdef PixelDataMemory < PixelDataBase
 
     methods(Static)
         function obj = cat(varargin)
-        % Concatenate the given PixelData objects' pixels. This function performs
-        % a straight-forward data concatenation.
-        %
-        %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
-        %
-        % Input:
-        % ------
-        %   varargin    A cell array of PixelData objects
-        %
-        % Output:
-        % -------
-        %   obj         A PixelData object containing all the pixels in the inputted
-        %               PixelData objects
+            % Concatenate the given PixelData objects' pixels. This function performs
+            % a straight-forward data concatenation.
+            %
+            %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
+            %
+            % Input:
+            % ------
+            %   varargin    A cell array of PixelData objects
+            %
+            % Output:
+            % -------
+            %   obj         A PixelData object containing all the pixels in the inputted
+            %               PixelData objects
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
 
             if any(is_ldr)
@@ -223,9 +234,12 @@ classdef PixelDataMemory < PixelDataBase
             np = 1;
         end
 
-        function data =  get_raw_data(obj)
-            % main part of get.data accessor
+        function data  = get_data(obj)
             data = obj.data_;
+            if obj.is_misaligned_
+                pix_coord = (data(1:3,:)'*obj.alignment_matr_');
+                data(1:3,:) = pix_coord';
+            end
         end
 
         function num_pix = get_num_pixels(obj)
@@ -236,11 +250,25 @@ classdef PixelDataMemory < PixelDataBase
         function obj=set_prop(obj, fld, val)
             val = check_set_prop(obj,fld,val);
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
+
+            % setting data property value removes misalignment. We do not
+            % consciously set misaligned data
+            obj.is_misaligned_ = false;
+            obj.alignment_matr_= eye(3);
             obj=obj.reset_changed_coord_range(fld);
         end
 
         function prp = get_prop(obj, fld)
-            prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
+            idx = obj.FIELD_INDEX_MAP_(fld);
+            if obj.is_misaligned_ && any(idx<4)
+                data = obj.data_;
+                pix_coord = (data(1:3,:)'*obj.alignment_matr_');
+                conv_idx = idx(idx<4);
+                data(conv_idx,:) = pix_coord(:,conv_idx)';
+                prp = data(idx);
+            else
+                prp = obj.data_(idx, :);
+            end
         end
 
         function obj=set_data_wrap(obj,val)

@@ -360,14 +360,12 @@ classdef (Abstract) PixelDataBase < serializable
 
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
+
+        data = get_raw_data(obj,varargin)        
     end
 
     % the same interface on FB and MB files
     methods
-        function data  = get_data(obj)
-            data = get_raw_data(obj);
-        end
-
         function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
         end
@@ -389,7 +387,8 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_prop(obj, ind, val);
 
         % main part of get.data accessor
-        data = get_raw_data(obj)
+        data  = get_data(obj);
+
 
         % setters/getters for serializable interface properties
         obj = set_data_wrap(obj,val);
@@ -407,7 +406,7 @@ classdef (Abstract) PixelDataBase < serializable
     methods
         % DATA accessors:
         function data = get.data(obj)
-            data = get_raw_data(obj);
+            data = get_data(obj);
         end
         function obj=set.data(obj, pixel_data)
             obj=set_raw_data(obj, pixel_data);
@@ -499,6 +498,10 @@ classdef (Abstract) PixelDataBase < serializable
         end
         function obj = set.alignment_matr(obj,val)
             obj = set_alignment_matr_(obj,val);
+        end
+        %
+        function data = get.raw_data(obj)
+            data = get_raw_data(obj);
         end
         %------------------------------------------------------------------
         function range = get.pix_range(obj)
@@ -675,10 +678,6 @@ classdef (Abstract) PixelDataBase < serializable
         function val = check_set_prop(obj,fld,val)
             % check input parameters of set_property function
 
-            if iscolumn(val)
-                val = val';
-            end
-
             if ~isnumeric(val) || ...
                     (~isscalar(val) && ...
                     ~isequal(size(val), [obj.get_field_count(fld), obj.page_size]))
@@ -686,6 +685,7 @@ classdef (Abstract) PixelDataBase < serializable
                     '%s value must be scalar or [%d %d] numeric array. Received: %s %s', ...
                     fld, obj.get_field_count(fld), obj.page_size, mat2str(size(val)), class(val))
             end
+            val = val(:)';
         end
 
         function obj = set_full_filename(obj,val)
@@ -746,7 +746,7 @@ classdef (Abstract) PixelDataBase < serializable
             switch numel(argi)
                 case 0
                     [ind_min,ind_max] = obj.get_page_idx_();
-                    abs_pix_indices = [ind_min:ind_max];
+                    abs_pix_indices = ind_min:ind_max;
 
                 case 1
                     abs_pix_indices = argi{1};

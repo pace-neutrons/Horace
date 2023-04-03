@@ -74,7 +74,7 @@ end
 function pix = set_pixel_data_(pix, ave_signal, npix_chunk, start_idx, end_idx)
     sig_var = zeros(2, end_idx - start_idx + 1);
     sig_var(1, :) = repelem(ave_signal, npix_chunk);
-    pix.set_data({'signal', 'variance'}, sig_var, start_idx:end_idx);
+    pix = pix.set_data({'signal', 'variance'}, sig_var, start_idx:end_idx);
 end
 
 function [s, e] = get_image_bin_averages_(bin_sums, npix)

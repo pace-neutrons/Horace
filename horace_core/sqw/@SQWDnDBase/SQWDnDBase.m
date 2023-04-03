@@ -124,7 +124,6 @@ classdef (Abstract) SQWDnDBase < serializable
 
             [alatt,angdeg,cor_mat]=parse_change_crystal_arguments_(alatt0,angdeg0,exper_info,varargin{:});
         end
-
     end
 
     methods (Abstract, Access = protected)

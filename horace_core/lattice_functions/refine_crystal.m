@@ -24,8 +24,10 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 % ------
 %   rlu0            Positions of reciprocal lattice vectors as h,k,l in reference lattice
 %                   (n x 3 matrix, n=no. reflections)
-%   alatt0          Reference lattice parameters [a,b,c] (Angstroms)
-%   angdeg0         Reference lattice angles [alf,bet,gam] (deg)
+%   alatt0          Reference lattice parameters [a,b,c] (Angstroms), which
+%                   would provide rlu0
+%   angdeg0         Reference lattice angles [alf,bet,gam] (deg), which
+%                   would provide rlu0
 %   rlu             True indexes of reciprocal lattice vectors (n x 3 matrix)
 %
 % Optional input parameter:
@@ -77,8 +79,8 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %   distance       Distances between peak positions and points given by true indexes, in input
 %                  argument rlu, in the refined crystal lattice. (Ang^-1)
 %
-%   rotangle        Angle of rotation corresponding to rotmat (to give a measure
-%                   of the misorientation) (degrees)
+%   rotangle       Angle of rotation corresponding to rotmat (to give a measure
+%                  of the misorientation) (degrees)
 %
 % The output argument rlu_corr, together with the input alatt0 and angdeg0, are sufficient to compute
 % the other output arguments. That is why Horace functions that use the output of this function will

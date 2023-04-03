@@ -136,7 +136,7 @@ classdef spher_proj<aProjectionBase
         function obj = set.type(obj,val)
             obj = check_and_set_type_(obj,val);
         end
-        function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation(obj,ndim)
+        function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the constants and parameters used for transformation
             % from Crystal Cartezian to spherical coordinate system and
             % back
@@ -167,7 +167,7 @@ classdef spher_proj<aProjectionBase
 
             %
             % TODO: #954 NEEDS verification:
-            [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_(obj,ndim);
+            [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_(obj,ndim,varargin{:});
 
         end
         %------------------------------------------------------------------
