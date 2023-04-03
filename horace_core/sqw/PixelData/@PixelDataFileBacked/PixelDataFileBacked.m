@@ -86,6 +86,10 @@ classdef PixelDataFileBacked < PixelDataBase
         tmp_pix_obj = [];
     end
 
+    properties(Dependent)
+        offset;
+    end
+
     properties (Constant)
         is_filebacked = true;
     end
@@ -304,6 +308,10 @@ classdef PixelDataFileBacked < PixelDataBase
                 unique_idx = unique(obj.run_idx);
             end
         end
+
+        function offset = get.offset(obj)
+            offset = obj.offset_;
+        end
     end
 
     %======================================================================
@@ -336,7 +344,7 @@ classdef PixelDataFileBacked < PixelDataBase
             np = max(ceil(obj.num_pixels/obj.DEFAULT_PAGE_SIZE),1);
         end
 
-        function  data =  get_raw_data(obj,page_number)
+        function data = get_raw_data(obj, page_number)
             if ~exist('page_number', 'var')
                 page_number = obj.page_num_;
             end
@@ -349,6 +357,7 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
         end
+
     end
 
     %======================================================================
@@ -361,7 +370,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % If others point to it, file will be kept
             % otherwise file will be cleared
 
-            if exist('f_accessor', 'var')
+            if exist('f_accessor', 'var') && ~isempty(f_accessor)
                 obj.file_handle_ = f_accessor;
             else
                 if isempty(obj.full_filename)
@@ -451,19 +460,25 @@ classdef PixelDataFileBacked < PixelDataBase
         %   obj         A PixelData object containing all the pixels in the inputted
         %               PixelData objects
 
+            if isempty(varargin)
+                obj = PixelDataFileBacked();
+            elseif numel(varargin) == 1
+                obj = PixelDataFileBacked(varargin{1});
+            end
+
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
-            ldr = varargin{is_ldr};
-            varargin = varargin(~is_ldr);
+            if any(is_ldr)
+                ldr = varargin{is_ldr};
+                varargin = varargin(~is_ldr);
+            else
+                ldr = [];
+            end
 
             obj = PixelDataFileBacked();
 
             obj.num_pixels_ = sum(cellfun(@(x) x.num_pixels, varargin));
 
-            if isempty(ldr)
-                obj = obj.get_new_handle();
-            else
-                obj = obj.get_new_handle(ldr);
-            end
+            obj = obj.get_new_handle(ldr);
 
             start_idx = 1;
             for i = 1:numel(varargin)
@@ -518,7 +533,17 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
             ldr = sqw_formats_factory.instance().get_loader(in_file);
-            obj = init_from_file_accessor_(obj,ldr,false,true);
+
+            obj.full_filename = in_file;
+            obj.offset_ = val.offset;
+            obj.num_pixels_ = val.npix;
+            obj.f_accessor_ = memmapfile(obj.full_filename, ...
+                                         'Format', obj.get_memmap_format(), ...
+                                         'Repeat', 1, ...
+                                         'Writable', false, ...
+                                         'Offset', obj.offset_);
+            obj.page_num_ = 1;
+            fac_range  = ldr.get_data_range();
         end
 
         function prp = get_prop(obj, fld)
