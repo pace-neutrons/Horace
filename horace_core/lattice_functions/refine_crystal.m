@@ -1,12 +1,12 @@
-function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
+function alighment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 % Refine crystal orientation and lattice parameters
 %
-%   >> [rlu_corr,alatt,angdeg] = refine_crystal(rlu0, alatt0, angdeg0, rlu)
-%   >> [rlu_corr,alatt,angdeg] = refine_crystal(rlu0, alatt0, angdeg0, rlu, alatt_init, angdeg_init)
+%   >> alighment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu)
+%   >> alighment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu, alatt_init, angdeg_init)
 %
 % In addition, there are keyword arguments to control the refinement e.g.
-%   >> [rlu_corr,alatt,angdeg] = refine_crystal(..., 'fix_angdeg')
-%   >> [rlu_corr,alatt,angdeg] = refine_crystal(..., 'free_alatt', [1,0,1])
+%   >> alighment_info = refine_crystal(..., 'fix_angdeg')
+%   >> alighment_info = refine_crystal(..., 'free_alatt', [1,0,1])
 %
 % In all cases, further output arguments can be returned:
 %   >> [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(...)
@@ -25,9 +25,9 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %   rlu0            Positions of reciprocal lattice vectors as h,k,l in reference lattice
 %                   (n x 3 matrix, n=no. reflections)
 %   alatt0          Reference lattice parameters [a,b,c] (Angstroms), which
-%                   would provide rlu0
+%                   would provide bragg peaks at rlu0
 %   angdeg0         Reference lattice angles [alf,bet,gam] (deg), which
-%                   would provide rlu0
+%                   would provide bragg peaks at rlu0
 %   rlu             True indexes of reciprocal lattice vectors (n x 3 matrix)
 %
 % Optional input parameter:
@@ -63,24 +63,24 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %
 % Output:
 % -------
-%   rlu_corr       Conversion matrix to relate notional rlu to true rlu, accounting for the the
-%                  refined crystal lattice parameters and orientation
+%  alighment_info  -- helper class, which contains information, necessary
+%                  for the crystal alignment. The class contains the
+%                  following fields, calculated by the procedure:
+%
+%      rlu_corr       Conversion matrix to relate notional rlu to true rlu, accounting for the the
+%                     refined crystal lattice parameters and orientation
 %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
-%
-%   alatt           Refined lattice parameters [a,b,c] (Angstroms)
-%
-%   angdeg          Refined lattice angles [alf,bet,gam] (degrees)
-%
-%   rotmat         Rotation matrix that relates crystal Cartesian coordinate frame of the refined
-%                  lattice and orientation as a rotation of the initial crystal frame. Coordinates
-%                  in the two frames are related by
+%      alatt          Refined lattice parameters [a,b,c] (Angstroms)
+%      angdeg         Refined lattice angles [alf,bet,gam] (degrees)
+%      rotmat         Rotation matrix that relates crystal Cartesian coordinate frame of the refined
+%                     lattice and orientation as a rotation of the initial crystal frame. Coordinates
+%                     in the two frames are related by
 %                       v(i)= rotmat(i,j)*v0(j)
+%      distance       Distances between peak positions and points given by true indexes, in input
+%                     argument rlu, in the refined crystal lattice. (Ang^-1)
 %
-%   distance       Distances between peak positions and points given by true indexes, in input
-%                  argument rlu, in the refined crystal lattice. (Ang^-1)
-%
-%   rotangle       Angle of rotation corresponding to rotmat (to give a measure
-%                  of the misorientation) (degrees)
+%      rotangle       Angle of rotation corresponding to rotmat (to give a measure
+%                     of the misorientation) (degrees)
 %
 % The output argument rlu_corr, together with the input alatt0 and angdeg0, are sufficient to compute
 % the other output arguments. That is why Horace functions that use the output of this function will
@@ -88,10 +88,12 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %
 % EXAMPLES
 %   Want to refine crystal orientation only:
-%   >> rlu_corr=refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_lattice')
+%   >> alighment_info =refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_lattice')
+%    the alignment info would contain the initial lattice values i.e.  alatt0, angdeg0
 %
 %   Want to refine lattice parameters a,b,c as well as crystal orientation:
-%   >> [rlu_corr,alatt]=refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_angdeg')
+%   >> alighment_info=refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_angdeg')
+%    the alignment info would contain the initial lattice angles i.e.  angdeg0
 
 small=1e-10;
 
@@ -184,6 +186,7 @@ if ~isreal(fitpar.p)
     end
 end
 
+
 rotvec=fitpar.p(7:9);
 rotangle=norm(rotvec)*(180/pi);
 rotmat=rotvec_to_rotmat2(rotvec);
@@ -193,6 +196,7 @@ distance=sqrt(sum(reshape(distance,3,nv).^2,1))';
 
 b = bmatrix(alatt,angdeg);
 rlu_corr=b\rotmat*b0;
+alighment_info = crystal_alignment_info(rlu_corr,alatt,angdeg,distance,rotangle);
 
 
 %============================================================================================================
@@ -208,9 +212,9 @@ function dist = reciprocal_space_deviation (x1,x2,x3,p,rlu)
 %   x1,x2,x3    Array of coordinates in reference crystal Cartesian coordinates
 %              This is n x 3 array repeated three times along first dimension
 %   p           Parameters that can be fitted: [a,b,c,alf,bet,gam,theta1,theta2,theta3]
-%                   a,b,c           lattice parameters (Ang)
-%                   alf,bet,gam     lattice angles (deg)
-%                   theta1,theta2,theta3    components of rotation vector linking
+%               a,b,c           lattice parameters (Ang)
+%               alf,bet,gam     lattice angles (deg)
+%               theta1,theta2,theta3    components of rotation vector linking
 %                                          crystal Cartesian coordinates
 %                                           v(i)=R_theta(i,j)*v0(j)
 %   rlu         Components along a*, b*, c* in lattice defined by p (n x 3 array)

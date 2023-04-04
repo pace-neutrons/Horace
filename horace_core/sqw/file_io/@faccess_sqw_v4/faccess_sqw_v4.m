@@ -142,6 +142,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         pix         = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation,keep_precision);
         %------------------------------------------------------------------
         [pix_range,obj]   = get_pix_range(obj,varargin)
+        [meta,obj]        = get_pix_metadata(obj);
         [dat_range,obj]   = get_data_range(obj,varargin)
         [samp,obj]  = get_sample(obj,varargin)
         [inst,obj]  = get_instrument(obj,varargin)

@@ -361,7 +361,7 @@ classdef (Abstract) PixelDataBase < serializable
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
 
-        data = get_raw_data(obj,varargin)        
+        data = get_raw_data(obj,varargin)
     end
 
     % the same interface on FB and MB files
@@ -498,6 +498,14 @@ classdef (Abstract) PixelDataBase < serializable
         end
         function obj = set.alignment_matr(obj,val)
             obj = set_alignment_matr_(obj,val);
+        end
+        function obj = change_crystal(obj,alignment_data)
+            if ~isa(alignment_data,'crystal_alignment_info')
+                error('HORACE:PixelDataBase:invalid_argument',...
+                    'change_crystal method requests crystal_alignment_info class as input. You provided: %s', ...
+                    class(alignment_data));
+            end
+            obj.alignment_matr = alignment_data.rotmat;
         end
         %
         function data = get.raw_data(obj)

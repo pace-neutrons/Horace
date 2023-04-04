@@ -134,6 +134,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             fit_obj = read_sqw(obj.misaligned_sqw_file);
             % the bragg points positions found by fitting measured bragg
             % peaks shape to Gaussian and identifying the Gaussian centerpoints
+            % See test_u_alighnment_tf_way for the procedure of obtaining
+            % them
             rlu_real = [...
                 0.0372,-0.9999, 0.0521;...
                 0.9200, 2.0328,-0.1568;...
@@ -142,18 +144,18 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % Get correction matrix from the 3 peak positions:
             % ------------------------------------------------
-            [rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real,...
+            corr = refine_crystal(rlu_real,...
                 obj.alatt, obj.angdeg, bp);
 
-            wout_legacy = change_crystal (fit_obj,rlu_corr);
+            wout_legacy = change_crystal (fit_obj,corr);
             wout_pix     = fit_obj;
             % This all will be packed in new change crystal:
             proj0 = wout_pix.data.proj;
-            proj0.alatt = alatt1;
-            proj0.angdeg = angdeg1;
+            proj0.alatt = corr.alatt;
+            proj0.angdeg = corr.angdeg;
             wout_pix.data.proj = proj0;
-            wout_pix.pix.alignment_matr  = rotmat_fit;
-            wout_pix.experiment_info = change_crystal(wout_pix.experiment_info,alatt1,angdeg1,eye(3));
+            wout_pix.pix.alignment_matr  = corr.rotmat;
+            wout_pix.experiment_info = change_crystal(wout_pix.experiment_info,corr);
 
             cut_range = wout_legacy.targ_range(proj,'-binning');
             cut_old = cut(wout_legacy,proj,cut_range{:});
