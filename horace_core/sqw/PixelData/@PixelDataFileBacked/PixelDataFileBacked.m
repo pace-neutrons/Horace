@@ -443,7 +443,9 @@ classdef PixelDataFileBacked < PixelDataBase
                     'pix_data_wrap property can be set by pix_data class instance only. Provided class is: %s', ...
                     class(val));
             end
-            if isnumeric(val.data)
+            if isempty(val.data)
+                return;
+            elseif isnumeric(val.data)
                 init = val.data;
             elseif istext(val.data)
                 % File-backed or loader construction
@@ -452,8 +454,7 @@ classdef PixelDataFileBacked < PixelDataBase
             end
             obj = obj.init(init);
         end
-
-        %
+        %------------------------------------------------------------------
         function data  = get_data(obj,page_number)
             if nargin==1
                 page_number = 1;

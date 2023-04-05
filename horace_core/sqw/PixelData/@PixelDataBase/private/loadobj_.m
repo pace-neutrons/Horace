@@ -61,11 +61,5 @@ if isstruct(S)
         end
     end
 else
-    if isempty(S.page_memory_size_)
-        % This if statement allows us to load old PixelData objects that
-        % were saved in .mat files that do not have the 'page_memory_size_'
-        % property
-        S.page_memory_size_ = PixelDataBase.DEFAULT_PAGE_SIZE;
-    end
     obj = PixelDataBase.create(S);
 end

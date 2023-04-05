@@ -100,10 +100,13 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             %
             pix_range = PixelData.EMPTY_RANGE_;
         end
-        function [metadata,obj] = get_pix_metadata(~,varargin)
-            error('HORACE:sqw_binfile_common:not_implemented', ...
-                ['You can not access pixel metadata from binary sqw files version smaller then 4.\n', ...
-                ' Upgrade your binary files to recent file format to use this functionality'])
+        function [metadata,varargout] = get_pix_metadata(obj,varargin)
+            % return empty pix metadata as old file format do not have
+            % full metadata
+            metadata = pix_metadata;
+            if nargout>1
+                varargout{1} = obj;
+            end
         end
         function data_range = get_data_range(~)
             % no data range for new files

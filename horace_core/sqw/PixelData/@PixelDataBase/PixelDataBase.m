@@ -453,7 +453,7 @@ classdef (Abstract) PixelDataBase < serializable
     methods
         % DATA accessors:
         function data = get.data(obj)
-            data = get_data(obj);
+            data = get_data(obj,obj.page_num);
         end
         function obj=set.data(obj, pixel_data)
             obj=set_raw_data(obj, pixel_data);

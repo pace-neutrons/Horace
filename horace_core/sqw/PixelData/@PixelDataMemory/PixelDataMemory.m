@@ -57,10 +57,6 @@ classdef PixelDataMemory < PixelDataBase
         data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
     end
 
-    properties
-        page_memory_size_ = inf;
-    end
-
     properties(Constant)
         is_filebacked = false;
         n_pages = 1;
@@ -243,7 +239,7 @@ classdef PixelDataMemory < PixelDataBase
             obj=obj.reset_changed_coord_range(fld);
         end
         %
-        function data  = get_data(obj)
+        function data  = get_data(obj,varargin)
             % main part of data getter
             data = obj.data_;
             if obj.is_misaligned_
