@@ -215,62 +215,43 @@ classdef PixelDataMemory < PixelDataBase
             obj = obj.recalc_data_range();
         end
     end
-
+    %======================================================================
+    % implementation of PixelDataBase abstract protected interface
     methods(Access=protected)
-
-        function np = get_page_num(~)
-            np = 1;
-        end
-
-        function obj = set_page_num(obj,varargin)
-            % do nothing. Only 1 is pagenum in pixel_data
-        end
-
-        function  page_size = get_page_size(obj)
-            page_size = size(obj.data_,2);
-        end
-
-        function np = get_num_pages(~)
-            np = 1;
-        end
-
-        function data  = get_data(obj)
-            data = obj.data_;
-            if obj.is_misaligned_
-                pix_coord = (data(1:3,:)'*obj.alignment_matr_');
-                data(1:3,:) = pix_coord';
-            end
-        end
-
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
             num_pix = size(obj.data_,2);
         end
-
+        function ro = get_read_only(~)
+            % pixel data in memory are not read-obly
+            ro = false;
+        end
+        %
+        function prp = get_prop(obj, fld)
+            prp = get_prop_(obj, fld);
+        end
         function obj=set_prop(obj, fld, val)
             val = check_set_prop(obj,fld,val);
             obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
 
             % setting data property value removes misalignment. We do not
             % consciously set misaligned data
-            obj.is_misaligned_ = false;
-            obj.alignment_matr_= eye(3);
+            if obj.is_misaligned_
+                obj.is_misaligned_ = false;
+                obj.alignment_matr_= eye(3);
+            end
             obj=obj.reset_changed_coord_range(fld);
         end
-
-        function prp = get_prop(obj, fld)
-            idx = obj.FIELD_INDEX_MAP_(fld);
-            if obj.is_misaligned_ && any(idx<4)
-                data = obj.data_;
+        %
+        function data  = get_data(obj)
+            % main part of data getter
+            data = obj.data_;
+            if obj.is_misaligned_
                 pix_coord = (data(1:3,:)'*obj.alignment_matr_');
-                conv_idx = idx(idx<4);
-                data(conv_idx,:) = pix_coord(:,conv_idx)';
-                prp = data(idx);
-            else
-                prp = obj.data_(idx, :);
+                data(1:3,:) = pix_coord';
             end
         end
-
+        %
         function obj=set_data_wrap(obj,val)
             % main part of pix_data_wrap setter overloaded for
             % PixDataMemory class
@@ -286,8 +267,31 @@ classdef PixelDataMemory < PixelDataBase
             end
             obj.data_ = val.data;
         end
+        %------------------------------------------------------------------
+        function obj = set_alignment(obj,val)
+            % set non-unary alignment martix and recalculate pix averages
+            % Part of alignment_mart setter
+            obj.alignment_matr_ = val;
+            obj.is_misaligned_ = true;
+            obj=obj.reset_changed_coord_range('q_coordinates');
+        end
     end
-
+    %----------------------------------------------------------------------
+    % PAGING
+    methods(Access=protected)
+        function  page_size = get_page_size(obj)
+            page_size = size(obj.data_,2);
+        end
+        function np = get_page_num(~)
+            np = 1;
+        end
+        function obj = set_page_num(obj,varargin)
+            % do nothing. Only 1 is pagenum in pixel_data
+        end
+        function np = get_num_pages(~)
+            np = 1;
+        end
+    end
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods(Static)

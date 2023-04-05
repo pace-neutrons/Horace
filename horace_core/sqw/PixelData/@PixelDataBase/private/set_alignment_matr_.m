@@ -18,8 +18,7 @@ end
 %
 difr = val - eye(3);
 if max(abs(difr(:))) > 1.e-8
-    obj.alignment_matr_ = val;
-    obj.is_misaligned_ = true;
+    obj = obj.set_alignment(val);
 else
     obj.alignment_matr_ = eye(3);
     obj.is_misaligned_ = false;

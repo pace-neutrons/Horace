@@ -341,7 +341,7 @@ classdef (Abstract) PixelDataBase < serializable
             end
         end
     end
-
+    %======================================================================
     methods(Abstract)
         % --- Pixel operations ---
         pix_out = append(obj, pix);
@@ -363,7 +363,32 @@ classdef (Abstract) PixelDataBase < serializable
 
         data = get_raw_data(obj,varargin)
     end
+    %======================================================================
+    methods(Abstract,Access=protected)
+        % Main part of get.num_pixels accessor
+        num_pix = get_num_pixels(obj);
+        ro = get_read_only(obj)
+        %------------------------------------------------------------------
+        prp = get_prop(obj, ind);
+        obj = set_prop(obj, ind, val);
 
+        % main part of get.data accessor
+        data  = get_data(obj);
+
+        % setters/getters for serializable interface properties
+        obj = set_data_wrap(obj,val);
+        %------------------------------------------------------------------
+        % set non-unary alignment martix and recalculate or invalidate pix averages
+        % part of alignment_mart setter
+        obj = set_alignment(obj,val);
+        %------------------------------------------------------------------
+        % paging
+        page_size = get_page_size(obj);
+        np  = get_page_num(obj);
+        obj = set_page_num(obj,val);
+        np = get_num_pages(obj);        
+    end
+    %======================================================================
     % the same interface on FB and MB files
     methods
         function cnt = get_field_count(obj, field)
@@ -377,30 +402,52 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_fields(obj, data, fields, abs_pix_indices);
 
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
+        %
+        function obj = invalidate_range(obj,fld)
+            % set the data range to inverse values
+            % to allow
+            if nargin == 1 % invalidate the whole range
+                idx = obj.FIELD_INDEX_MAP_('all');
+            else
+                idx = obj.FIELD_INDEX_MAP_(fld);
+            end
+            obj.data_range(:,idx) = obj.EMPTY_RANGE(:,idx);
+        end
+        function is = is_range_valid(obj,fld)
+            % check if the range for the appropriate fields, provided as
+            % input is valid, i.e. not equal to empty range;
+            if nargin == 1 % check the whole range
+                idx = obj.FIELD_INDEX_MAP_('all');
+            else
+                idx = obj.FIELD_INDEX_MAP_(fld);
+            end
+            invalid = obj.data_range(:,idx) == obj.EMPTY_RANGE(:,idx);
+            is = ~any(invalid(:));
+        end
+        %
+        function obj=set_data_range(obj,data_range)
+            % Function allows to set the pixels range (min/max values of
+            % pixels coordinates)
+            %
+            % WARNING: Use with caution!!! As this is performance function,
+            % no checks that the set range is the
+            % correct range for pixels, hold by the class are
+            % performed, while subsequent algorithms may rely on pix range
+            % to be correct. A out-of memory assignment can occur during
+            % rebinning if the range is smaller, then the actual range.
+            %
+            % Necessary to set up the pixel range when filebased
+            % pixels are modified by algorithm and correct range
+            % calculations are expensive
+            %
+            if ~isequal(size(data_range),[2,9])
+                error('HORACE:PixelDataBase:invalid_argument',...
+                    'data_range should be [2x9] array of data ranges');
+            end
+            obj.data_range_ = data_range;
+        end
+        
     end
-
-    methods(Abstract,Access=protected)
-        % Main part of get.num_pixels accessor
-        num_pix = get_num_pixels(obj);
-
-        prp = get_prop(obj, ind);
-        obj = set_prop(obj, ind, val);
-
-        % main part of get.data accessor
-        data  = get_data(obj);
-
-
-        % setters/getters for serializable interface properties
-        obj = set_data_wrap(obj,val);
-
-        % paging
-        page_size = get_page_size(obj);
-        np  = get_page_num(obj);
-        obj = set_page_num(obj,val);
-        np = get_num_pages(obj);
-
-    end
-
     %======================================================================
     % GETTERS/SETTERS
     methods
@@ -596,29 +643,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
     end
     %----------------------------------------------------------------------
-    methods
-        function obj=set_data_range(obj,data_range)
-            % Function allows to set the pixels range (min/max values of
-            % pixels coordinates)
-            %
-            % WARNING: Use with caution!!! As this is performance function,
-            % no checks that the set range is the
-            % correct range for pixels, hold by the class are
-            % performed, while subsequent algorithms may rely on pix range
-            % to be correct. A out-of memory assignment can occur during
-            % rebinning if the range is smaller, then the actual range.
-            %
-            % Necessary to set up the pixel range when filebased
-            % pixels are modified by algorithm and correct range
-            % calculations are expensive
-            %
-            if ~isequal(size(data_range),[2,9])
-                error('HORACE:PixelDataBase:invalid_argument',...
-                    'data_range should be [2x9] array of data ranges');
-            end
-            obj.data_range_ = data_range;
-        end
-
+    methods 
         function indices = check_pixel_fields(obj, fields)
             %CHECK_PIXEL_FIELDS Check the given field names are valid pixel data fields
             % Raises error with ID 'HORACE:PixelDataBase:invalid_argument' if any fields not valid.
@@ -631,6 +656,8 @@ classdef (Abstract) PixelDataBase < serializable
             % Output:
             % indices   -- the indices corresponding to the fields
             %
+            % NOTE:
+            % it looks like this should be protected method. 
             if istext(fields)
                 fields = cellstr(fields);
             end
@@ -658,6 +685,10 @@ classdef (Abstract) PixelDataBase < serializable
             %  this, any properties that need to be explicitly copied must be
             %  copied within this class' 'copy-constructor'.
             %
+            % NOTE:
+            % REDUNDANT METHOD. left from the time when PixelData were
+            % handle. TODO: reconsider usefulness and remove (could it be
+            % useful for filebacked data?)
             if obj.is_filebacked
                 pix_copy = PixelDataFileBacked(obj);
             else
@@ -733,10 +764,6 @@ classdef (Abstract) PixelDataBase < serializable
             % main part of pix_data_wrap getter which allows overload for
             % different children
             val = pix_data(obj);
-        end
-
-        function ro = get_read_only(~)
-            ro = false;
         end
     end
     % Helper methods.

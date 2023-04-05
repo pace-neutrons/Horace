@@ -50,6 +50,32 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             assertTrue(isnumeric(pix_data_f))
             assertEqual(pix_data_f ,pix_data_m );
         end
+        function test_pix_alignment_set(~)
+            pix_data = zeros(9,6);
+            pix_data(1:4,1:4) = eye(4);
+            pix_data(1:4,5)  = ones(4,1);
+            pdm = PixelDataFileBacked(pix_data);
+
+            initial_range = pdm.data_range;
+
+            % this actually changes pixel_data_range!
+            al_matr = rotvec_to_rotmat2([pi/4,0,0]);
+            pdm.alignment_matr = al_matr ;
+
+            al_data = pdm.data;
+            assertFalse(all(pix_data(:) == al_data(:)));
+            raw_data = pdm.get_raw_data();
+            assertElementsAlmostEqual(raw_data,pix_data);
+
+            al_range = pdm.data_range;
+            assertFalse(all(initial_range(:) == al_range(:)));
+            assertFalse(pdm.is_range_valid);
+
+            assertElementsAlmostEqual(al_data(1:3,1:3),al_matr);
+            ref_range = PixelDataBase.EMPTY_RANGE(:,1:3);
+            assertElementsAlmostEqual(al_range(:,1:3),ref_range);
+        end
+
 
         function test_filebacked_pixels_from_data(~)
             data = rand(9,1000);

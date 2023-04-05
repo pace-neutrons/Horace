@@ -39,8 +39,34 @@ classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
             df_rec = serializable.from_struct(df_struc);
             assertEqual(df,df_rec);
         end
+        %
+        function test_pix_alignment_set(~)
+            pix_data = zeros(9,6);
+            pix_data(1:4,1:4) = eye(4);
+            pix_data(1:4,5)  = ones(4,1);
+            pdm = PixelDataMemory(pix_data);
 
+            initial_range = pdm.data_range;
 
+            % this actually changes pixel_data_range!
+            al_matr = rotvec_to_rotmat2([pi/4,0,0]);
+            pdm.alignment_matr = al_matr ;
+
+            al_data = pdm.data;
+            assertFalse(all(pix_data(:) == al_data(:)));
+            raw_data = pdm.get_raw_data();
+            assertElementsAlmostEqual(raw_data,pix_data);
+
+            al_range = pdm.data_range;
+            assertFalse(all(initial_range(:) == al_range(:)));
+
+            assertElementsAlmostEqual(al_data(1:3,1:3),al_matr);
+            ref_range =[  ...
+                0,   0,       -0.7071,   0; ...
+                1.,  1.4142,   0.7071,   1.0 ];
+            assertElementsAlmostEqual(al_range(:,1:4),ref_range,'absolute',1.e-4);
+        end
+        %
         function test_data_constructor(~)
             pdm = PixelDataMemory(ones(9,20));
             assertEqual(pdm.page_size,20);
@@ -48,7 +74,6 @@ classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
 
             assertEqual(pdm.pix_range,ones(2,4));
         end
-
         function test_empty_constructor(~)
             pdm = PixelDataMemory();
             assertEqual(pdm.page_size,0);

@@ -278,51 +278,8 @@ classdef PixelDataFileBacked < PixelDataBase
     end
 
     %======================================================================
-    % PAGING
-    methods(Access=protected)
-
-        function np = get_page_num(obj)
-            np = obj.page_num_;
-        end
-
-        function obj = set_page_num(obj,val)
-            if ~isnumeric(val) || ~isscalar(val) || val<1
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'page number should be positive numeric scalar. It is: %s',...
-                    disp2str(val))
-            elseif val > obj.num_pages
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'page number (%d) should not be bigger then total number of pages: %d',...
-                    val, obj.num_pages);
-            end
-
-            obj.page_num_ = val;
-        end
-
-        function page_size = get_page_size(obj)
-            page_size = min(obj.DEFAULT_PAGE_SIZE, obj.num_pixels);
-        end
-
-        function np = get_num_pages(obj)
-            np = max(ceil(obj.num_pixels/obj.DEFAULT_PAGE_SIZE),1);
-        end
-
-        function data  = get_data(obj,page_number)
-            if nargin==1
-                page_number = 1;
-            end
-            data =  obj.get_raw_data(page_number);
-            if obj.is_misaligned_
-                pix_coord = (data(1:3,:)'*obj.alignment_matr_');
-                data(1:3,:) = pix_coord';
-            end
-        end
-    end
-
-    %======================================================================
     % File handling/migration
     methods
-
         function obj = get_new_handle(obj, f_accessor)
 
             % Always create a new PixTmpFile object
@@ -458,95 +415,92 @@ classdef PixelDataFileBacked < PixelDataBase
     end
 
     %======================================================================
-    % other getter/setter
+    % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
             num_pix = obj.num_pixels_;
         end
-
         function ro = get_read_only(obj)
             % report if the file allows to be modified.
             % Main overloadable part of read_only property
             ro = isempty(obj.f_accessor_) || ~obj.f_accessor_.Writable;
         end
-
-        function obj = set_data_wrap(obj,val)
+        %------------------------------------------------------------------
+        function prp = get_prop(obj, fld)
+            % main part of PixelData property getter;
+            prp = get_prop_(obj,fld);
+        end
+        function obj = set_prop(obj, fld, val)
+            obj = set_prop_(obj,fld,val);
+        end
+        %
+        function obj=set_data_wrap(obj,val)
             % main part of pix_data_wrap setter overloaded for
             % PixDataFileBacked class
             if ~isa(val,'pix_data')
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'pix_data_wrap property can be set to pix_data class instance only. Provided class is: %s', ...
+                    'pix_data_wrap property can be set by pix_data class instance only. Provided class is: %s', ...
                     class(val));
-            elseif ~(istext(val.data) || isempty(val.data))
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'Attempt to initialize PixelDataFileBacked using invalid pix_data values: %s', ...
-                    disp2str(val));
             end
-
-            in_file = val.data;
-
-            if isempty(in_file)
-                return;
+            if isnumeric(val.data)
+                init = val.data;
+            elseif istext(val.data)
+                % File-backed or loader construction
+                % input is a file path
+                init = sqw_formats_factory.instance().get_loader(val.data);
             end
-
-            if ~is_file(in_file)
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'Cannot find file for file-backed pixel data: %s', in_file)
-            end
-
-            ldr = sqw_formats_factory.instance().get_loader(in_file);
-            obj = init_from_file_accessor_(obj,ldr,false,true);
+            obj = obj.init(init);
         end
 
-        function prp = get_prop(obj, fld)
-            [pix_idx_start, pix_idx_end] = obj.get_page_idx_(obj.page_num_);
-
-            if isempty(obj.f_accessor_)
-                prp = zeros(obj.get_field_count(fld), 0);
-            else
-                idx = obj.FIELD_INDEX_MAP_(fld);
-                if obj.is_misaligned_ && any(idx<4)
-                    acc_idx = unique([1:3,idx]);
-                    data = double(obj.f_accessor_.Data.data(acc_idx, ...
-                        pix_idx_start:pix_idx_end));
-                    pix_coord = (data(1:3,:)'*obj.alignment_matr_');
-                    conv_idx = idx(idx<4);
-                    data(conv_idx,:) = pix_coord(conv_idx,:);
-                    prp = data(idx);
-                else
-                    prp = double(obj.f_accessor_.Data.data(idx, ...
-                        pix_idx_start:pix_idx_end));
-                end
+        %
+        function data  = get_data(obj,page_number)
+            if nargin==1
+                page_number = 1;
+            end
+            data =  obj.get_raw_data(page_number);
+            if obj.is_misaligned_
+                pix_coord = (data(1:3,:)'*obj.alignment_matr_');
+                data(1:3,:) = pix_coord';
             end
         end
-
-        function obj = set_prop(obj, fld, val)
-            if obj.read_only
-                error('HORACE:PixelDataFileBacked:invalid_argument',...
-                    'File %s is opened in read-only mode', obj.full_filename);
-            end
-            val = check_set_prop(obj,fld,val);
-
-            [pix_idx_start,pix_idx_end] = obj.get_page_idx_(obj.page_num_);
-            pix_idx_end = min(pix_idx_end,pix_idx_start-1+size(val,2));
-            indx = pix_idx_start:pix_idx_end;
-            flds = obj.FIELD_INDEX_MAP_(fld);
-            obj.f_accessor_.Data.data(flds, indx) = single(val);
-
-            % setting data property value removes misalignment. We do not
-            % consciously set misaligned data
-            obj.is_misaligned_ = false;
-            obj.alignment_matr_= eye(3);
-
-            % this operation will probably lead to invalid results as to be
-            % correct, the check should run over whole pages range.
-            % it will be correct if set_prop was run within the loop over
-            % whole file and initial range was initialized properly
-            obj=obj.reset_changed_coord_range(fld);
+        %------------------------------------------------------------------
+        function obj = set_alignment(obj,val)
+            % set non-unary alignment martix and recalculate pix averages
+            % Part of alignment_mart setter
+            obj.alignment_matr_ = val;
+            obj.is_misaligned_ = true;
+            obj=obj.invalidate_range('q_coordinates');
         end
     end
+    %----------------------------------------------------------------------
+    % PAGING
+    methods(Access=protected)
+        function np = get_page_num(obj)
+            np = obj.page_num_;
+        end
 
+        function obj = set_page_num(obj,val)
+            if ~isnumeric(val) || ~isscalar(val) || val<1
+                error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                    'page number should be positive numeric scalar. It is: %s',...
+                    disp2str(val))
+            elseif val > obj.num_pages
+                error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                    'page number (%d) should not be bigger then total number of pages: %d',...
+                    val, obj.num_pages);
+            end
+            obj.page_num_ = val;
+        end
+
+        function page_size = get_page_size(obj)
+            page_size = min(obj.DEFAULT_PAGE_SIZE, obj.num_pixels);
+        end
+
+        function np = get_num_pages(obj)
+            np = max(ceil(obj.num_pixels/obj.DEFAULT_PAGE_SIZE),1);
+        end
+    end
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods(Static)
