@@ -570,8 +570,40 @@ classdef test_faccess_sqw_v4< TestCase
 
             assertEqualToTol(sample,rdd,'ignore_str',true)
         end
+        function test_get_set_pix_metadata(obj)
+
+            test_f = fullfile(tmp_dir,'set_get_pix_metadata.sqw');
+            copyfile(obj.sample_file,test_f,'f');
+            clOb = onCleanup(@()delete(test_f));            
+
+            fac0 = faccess_sqw_v4(test_f);
+            meta = fac0.get_pix_metadata();
+
+            assertFalse(meta.is_misaligned)
+            ref_range = meta.data_range;
+            empty_range = ref_range  == PixelDataBase.EMPTY_RANGE;
+            assertTrue(~any(empty_range(:)));
+            ref_range(2,end) = 2*ref_range(2,end);            
+            alignment_mat = rotvec_to_rotmat2(rand(1,3));
+            meta.alignment_matr = alignment_mat;
+            meta.data_range = ref_range;
+
+            fac0 = fac0.reopen_to_write();
+            fac0 = fac0.put_pix_metadata(meta);
+            fac0.delete();
+
+            fac1 = faccess_sqw_v4(test_f);
+            meta = fac1.get_pix_metadata();
+            assertTrue(meta.is_misaligned)
+            fac1.delete();
+
+            assertElementsAlmostEqual(meta.alignment_matr,alignment_mat);
+            assertElementsAlmostEqual(meta.data_range,ref_range);            
+            
+        end
         %         function test_build_correct(obj)
-        %             %TEST used in preparation of first v4 sample file and is not tests
+        %             %TEST used in preparation of first v4 sample file and
+        %             is not testing
         %             %any other functionality. Left for references
         %             sample = read_sqw(obj.old_origin,'-verbatim');
         %             %fac0 = faccess_sqw_v4(obj.sample_file);

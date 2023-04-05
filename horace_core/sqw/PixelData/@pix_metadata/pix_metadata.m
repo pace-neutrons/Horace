@@ -47,7 +47,7 @@ classdef pix_metadata < serializable
                     remains = varargin{1};
                 end
             else
-                flds = obj.saveableFields('-all');
+                flds = obj.saveableFields();
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...
                     flds,false,varargin{:});
             end
@@ -126,12 +126,14 @@ classdef pix_metadata < serializable
         function ver  = classVersion(~)
             ver = 1;
         end
-        function flds = saveableFields(obj,varargin)
+        function flds = saveableFields(obj)
             % Return cellarray of public property names, which fully define
             % the state of a serializable object, so when the field values are
             % provided, the object can be fully restored from these values.
             %
-            if obj.is_misaligned || nargin > 1
+            if obj.is_misaligned || isempty(obj.npix_) % second condition
+                % forces the method returning full set of fields for empty
+                % object, which is important for serializable recovery
                 flds = {'full_filename','npix','data_range','alignment_matr'};
             else
                 flds = {'full_filename','npix','data_range'};

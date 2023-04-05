@@ -308,6 +308,9 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function data  = get_data(obj,page_number)
+            if nargin==1
+                page_number = 1;
+            end
             data =  obj.get_raw_data(page_number);
             if obj.is_misaligned_
                 pix_coord = (data(1:3,:)'*obj.alignment_matr_');

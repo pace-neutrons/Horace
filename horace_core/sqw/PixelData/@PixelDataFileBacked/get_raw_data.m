@@ -17,7 +17,7 @@ if nargin > 1
         fld = varargin{1};
     elseif isnumeric(varargin{1})
         page_number = varargin{1};
-        if nargin > 2 && iscell(varargin{2})|| ischar(varargin{2})
+        if nargin > 2 && (iscell(varargin{2})|| ischar(varargin{2}))
             fld = varargin{2};
         else
             fld= [];

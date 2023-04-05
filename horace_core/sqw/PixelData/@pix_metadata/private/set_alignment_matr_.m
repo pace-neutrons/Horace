@@ -1,9 +1,9 @@
-function  obj = set_alignment_mart_(obj,val)
+function  obj = set_alignment_matr_(obj,val)
 %SET_ALIGNMENT_MATR_ helper property which checks and sets alignment matrix
 %
 if isempty(val)
-    obj.alignment_mart_ = eye(3);
-    obj.is_misaligned_ = false;
+    obj.alignment_matr_ = eye(3);
+    obj.is_misaligned_  = false;
 end
 if ~isnumeric(val)
     error('HORACE:PixelDataBase:invalid_argument', ...
@@ -18,9 +18,9 @@ end
 %
 difr = val - eye(3);
 if max(abs(difr(:))) > 1.e-8
-    obj.alignment_mart_ = val;
+    obj.alignment_matr_ = val;
     obj.is_misaligned_ = true;
 else
-    obj.alignment_mart_ = eye(3);
+    obj.alignment_matr_ = eye(3);
     obj.is_misaligned_ = false;
 end

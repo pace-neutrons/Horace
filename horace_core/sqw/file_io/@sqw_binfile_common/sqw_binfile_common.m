@@ -100,6 +100,11 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             %
             pix_range = PixelData.EMPTY_RANGE_;
         end
+        function [metadata,obj] = get_pix_metadata(~,varargin)
+            error('HORACE:sqw_binfile_common:not_implemented', ...
+                ['You can not access pixel metadata from binary sqw files version smaller then 4.\n', ...
+                ' Upgrade your binary files to recent file format to use this functionality'])
+        end
         function data_range = get_data_range(~)
             % no data range for new files
             data_range = PixelDataBase.EMPTY_RANGE;
@@ -123,9 +128,15 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         obj = put_det_info(obj,varargin);
         %
         obj = put_pix(obj,varargin);
-        function obj = put_raw_pix(obj,vararing)
+        function obj = put_raw_pix(~,varargin)
             error('HORACE:sqw_binfile_common:not_implemented', ...
-                'This is the function, used by new file interface and not implemented on old file interface')
+                ['This is the method, available for sqw files version higher then 3 \n', ...
+                'Upgrade binary files to recent file format to use this method'])
+        end
+        function  obj = put_pix_metadata(~,varargin)
+            error('HORACE:sqw_binfile_common:not_implemented', ...
+                ['You can not use pixel metadata from binary sqw files version smaller then 4.\n', ...
+                ' Upgrade binary files to recent file format to use this functionality'])
         end
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
@@ -194,7 +205,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         %
         function hd = head(obj,varargin)
             % Return the information, which describes sqw file in a standard form
-            % 
+            %
             [ok,mess,full_data] = parse_char_options(varargin,'-full');
             if ~ok
                 error('HORACE:sqw_binfile_common:invalid_argument',mess);

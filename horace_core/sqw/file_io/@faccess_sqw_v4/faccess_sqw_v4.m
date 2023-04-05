@@ -158,7 +158,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         %
         obj = put_instruments(obj,varargin);
         obj = put_samples(obj,varargin);
-        obj = put_pix_metadata(ob,pix_class)
+        obj = put_pix_metadata(ob,pix_class_or_metadata)
     end
     %======================================================================
     % Old, interface
