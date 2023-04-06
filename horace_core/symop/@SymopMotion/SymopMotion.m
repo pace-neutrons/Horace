@@ -1,62 +1,54 @@
-classdef SymopReflection < SymopBase
+classdef SymopMotion < SymopBase
 
     properties(Dependent)
-        u;
-        v;
+        W;
     end
 
     properties(Access=private)
-        u_;
-        v_;
+        W_;
     end
 
     methods
-        function obj = SymopReflection(u, v, offset)
+        function obj = SymopMotion(W, offset)
             if ~exist('offset', 'var')
                 offset = obj.offset;
             end
 
-            if ~SymopReflection.check_args({u, v, offset})
+            if ~SymopMotion.check_args({W})
                 error('HORACE:symop:invalid_argument', ...
                       ['Constructor arguments should be:\n', ...
-                       '- Reflection: symop(3vector, 3vector, [3vector])\n', ...
-                       'Received: %s'], disp2str({u, v, offset}));
+                       '- Motion:     symop(3x3matrix, [3vector])\n', ...
+                       'Received: %s'], disp2str(W));
             end
 
-            obj.u = u;
-            obj.v = v;
+            obj.W = W;
             obj.offset = offset;
+
         end
 
-        function obj = set.u(obj, val)
-            if  ~obj.is_3vector(val)
+        function obj = set.W(obj, val)
+            if  ~obj.is_3x3matrix(val) || det(val) ~= 1
                 error('HORACE:symop:invalid_argument', ...
-                      'Reflection vector u must be a three vector');
+                      'Motion matrix W must be a 3x3 matrix with determinant 1, det: %d', det(val));
             end
-            obj.u_ = val(:);    % make col vector
+            obj.W_ = reshape(val, [3 3]);
         end
 
-        function u = get.u(obj)
-            u = obj.u_;
-        end
-
-        function obj = set.v(obj, val)
-            if  ~obj.is_3vector(val)
-                error('HORACE:symop:invalid_argument', ...
-                      'Reflection vector v must be a three vector');
-            end
-            obj.v_ = val(:);    % make col vector
-        end
-
-        function v = get.v(obj)
-            v = obj.v_;
+        function W = get.W(obj)
+            W = obj.W_;
         end
 
         function disp(obj)
-            disp('Reflection operator:')
-            disp([' In-plane u (rlu): ',mat2str(obj.u)])
-            disp([' In-plane v (rlu): ',mat2str(obj.v)])
-            disp(['     offset (rlu): ',mat2str(obj.offset)])
+            disp('Motion:')
+            if any(obj.offset ~= 0)
+                fprintf(' % 1d % 1d % 1d    % g\n', obj.W(1, :), obj.offset(1));
+                fprintf(' % 1d % 1d % 1d  + % g\n', obj.W(2, :), obj.offset(2));
+                fprintf(' % 1d % 1d % 1d    % g\n', obj.W(3, :), obj.offset(3));
+            else
+                fprintf(' % 1d % 1d % 1d\n', obj.W(1, :));
+                fprintf(' % 1d % 1d % 1d\n', obj.W(2, :));
+                fprintf(' % 1d % 1d % 1d\n', obj.W(3, :));
+            end
         end
 
         function R = calculate_transform(obj, Minv)
@@ -85,22 +77,15 @@ classdef SymopReflection < SymopBase
         % -------
         %   R       Transformation matrix to be applied to the components of a
         %          vector given in the orthonormal frame for which Minv is defined
-        % Determine the representation of u and v in the orthonormal frame
-            e1 = Minv * obj.u_;
-            e2 = Minv * obj.v_;
-            n = cross(e1,e2);
-            n = n / norm(n);
-            % Create reflection matrix in the orthonormal frame
-            R = eye(3) - 2*(n*n');
+            R = obj.W;
         end
     end
 
     methods(Static)
         function is = check_args(argin)
-            is = (numel(argin) == 2 || ...
-                  numel(argin) == 3 && SymopBase.is_3vector(argin{3})) && ...
-                  SymopBase.is_3vector(argin{1}) && ...
-                  SymopBase.is_3vector(argin{2});
+            is = (numel(argin) == 1 || ...
+                  numel(argin) == 2 && SymopBase.is_3vector(argin{2})) && ...
+                  SymopBase.is_3x3matrix(argin{1});
         end
     end
 end

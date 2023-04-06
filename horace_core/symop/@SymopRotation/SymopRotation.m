@@ -1,4 +1,4 @@
-classdef SymopRotation < Symop
+classdef SymopRotation < SymopBase
 
     properties(Dependent)
         n;
@@ -12,10 +12,6 @@ classdef SymopRotation < Symop
 
     methods
         function obj = SymopRotation(n, theta_deg, offset)
-            if nargin == 0
-                return
-            end
-
             if ~exist('offset', 'var')
                 offset = obj.offset;
             end
@@ -57,30 +53,11 @@ classdef SymopRotation < Symop
             theta_deg = obj.theta_deg_;
         end
 
-        function selected = in_irreducible(obj, coords)
-        % Compute whether the coordinates in `coords` (Q) are in the irreducible
-        % set following the symmetry reduction under this operator
-        %
-        % For a rotation `R` about axis `n` of angle `theta`:
-        %
-        % For any `u` not parallel to `n` and v = R*u;
-        % The planes defined by UN, VN encapsulate the reduced region
-        % And thus any coordinate `q` from `Q` where
-        % q*(n x u) > 0 && q*(v x n) > 0
-        % belong to the irreducible set in the upper right quadrant
-            n = obj.n / norm(obj.n);
-            if sum(abs(n - [1; 0; 0])) > 1e-1
-                u = [1; 0; 0];
-            else
-                u = [0; 1; 0];
-            end
-
-            v = obj.transform_vec(u);
-            normvec_u = cross(n, u);
-            normvec_v = cross(v, n);
-
-            selected = (coords'*normvec_u > 0 & ...
-                        coords'*normvec_v > 0);
+        function disp(obj)
+            disp([indstr,'Rotation operator:'])
+            disp(['       axis (rlu): ',mat2str(obj.n)])
+            disp(['      angle (deg): ',num2str(obj.theta_deg)])
+            disp(['     offset (rlu): ',mat2str(obj.offset)])
         end
 
         function R = calculate_transform(obj, Minv)
@@ -114,40 +91,14 @@ classdef SymopRotation < Symop
             % Perform active rotation (hence reversal of sign of theta
             R = rotvec_to_rotmat(-obj.theta_deg_*n/norm(n));
         end
-
-        function local_disp(obj)
-            fprintf('Rotation operator:\n');
-            fprintf('       axis (rlu): %s\n', mat2str(obj.n, 2));
-            fprintf('      angle (deg): %5.2f\n', obj.theta_deg);
-            fprintf('     offset (rlu): %s\n', mat2str(obj.offset, 2));
-        end
     end
 
     methods(Static)
         function is = check_args(argin)
             is = (numel(argin) == 2 || ...
-                  numel(argin) == 3 && Symop.is_3vector(argin{3})) && ...
-                  Symop.is_3vector(argin{1}) && ...
+                  numel(argin) == 3 && SymopBase.is_3vector(argin{3})) && ...
+                  SymopBase.is_3vector(argin{1}) && ...
                   isscalar(argin{2});
-        end
-
-        function sym = fold(nfold, axis, offset)
-        % Generate cell array of symmetry required for a n-Fold rotational symmetry reduction
-            validateattributes(nfold, {'numeric'}, {'integer'})
-
-            if ~exist('offset', 'var')
-                offset = [0; 0; 0];
-            end
-
-            sym = cell(nfold, 1);
-
-            ang = 360 / nfold;
-
-            sym{1} = SymopIdentity();
-            for i = 2:nfold
-                sym{i} = SymopRotation(axis, ang*(i-1), offset);
-            end
-
         end
     end
 end

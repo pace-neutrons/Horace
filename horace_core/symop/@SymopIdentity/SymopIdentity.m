@@ -1,31 +1,26 @@
-classdef SymopIdentity < Symop
+classdef SymopIdentity < SymopBase
 
     methods
-        function obj = SymopIdentity(id, offset)
+        function obj = SymopIdentity(id)
             if ~exist('id', 'var')
                 id = eye(3);
             end
-            if ~exist('offset', 'var')
-                offset = [0; 0; 0];
-            end
 
-            if ~SymopIdentity.check_args({id, offset})
+            if ~SymopIdentity.check_args({id})
                 error('HORACE:symop:invalid_argument', ...
                       ['Constructor arguments should be:\n', ...
-                       '[1 0 0  [0\n', ...
-                       ' 0 1 0 , 0\n', ...
-                       ' 0 0 1]  0]\n', ...
-                       'Actual arguments received : %s'], disp2str({id, offset}));
+                       '[1 0 0\n', ...
+                       ' 0 1 0\n', ...
+                       ' 0 0 1]\n', ...
+                       'Received: %s'], disp2str(id));
             end
         end
 
-        function selected = in_irreducible(~, coords)
-        % Compute whether the coordinates in `coords` are in the irreducible
-        % set following the operation
-            selected = true(size(coords));
+        function disp(obj)
+            disp('Identity operator (no symmetrisation)')
         end
 
-        function R = calculate_transform(~, Minv)
+        function R = calculate_transform(obj, Minv)
         % Get transformation matrix for the symmetry operator in an orthonormal frame
         %
         % The transformation matrix converts the components of a vector which is
@@ -51,19 +46,13 @@ classdef SymopIdentity < Symop
         % -------
         %   R       Transformation matrix to be applied to the components of a
         %          vector given in the orthonormal frame for which Minv is defined
-            R = Minv;
-        end
-
-        function local_disp(~)
-            disp('Identity operator (no symmetrisation)')
+            R = eye(3);
         end
     end
 
     methods(Static)
         function is = check_args(argin)
-            is = (numel(argin) == 1 || ...
-                  numel(argin) == 2 && Symop.is_3vector(argin{2}) && ...
-                  all(argin{2} == 0)) && ...
+            is = numel(argin) == 1 && ...
                  isequal(argin{1}, eye(3));
         end
     end
