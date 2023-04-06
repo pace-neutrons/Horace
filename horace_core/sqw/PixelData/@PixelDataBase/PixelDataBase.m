@@ -56,7 +56,9 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     properties(Dependent,Hidden)
-        DEFAULT_PAGE_SIZE;
+        % size of the pixel chunk to loat in memory for further processing
+        % in filebacked operations
+        default_page_size;
         % The property, which describes the pixel data layout on disk or in
         % memory and all additional properties describing pix array
         metadata;
@@ -345,23 +347,25 @@ classdef (Abstract) PixelDataBase < serializable
     methods(Abstract)
         % --- Pixel operations ---
         pix_out = append(obj, pix);
+
+        data = get_raw_data(obj,varargin)
+        data_out = get_fields(obj, pix_fields, varargin)                
         pix = set_raw_data(obj,pix);
         obj = set_raw_fields(obj, data, fields, abs_pix_indices);
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);        
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         pix_out = do_unary_op(obj, unary_op);
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
 
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);
+
         pix_out = mask(obj, mask_array, npix);
-        [page_num, total_number_of_pages] = move_to_page(obj, page_number, varargin);
         pix_out = noisify(obj, varargin);
 
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
 
-        data = get_raw_data(obj,varargin)
     end
     %======================================================================
     methods(Abstract,Access=protected)
@@ -386,7 +390,7 @@ classdef (Abstract) PixelDataBase < serializable
         page_size = get_page_size(obj);
         np  = get_page_num(obj);
         obj = set_page_num(obj,val);
-        np = get_num_pages(obj);        
+        np = get_num_pages(obj);
     end
     %======================================================================
     % the same interface on FB and MB files
@@ -395,7 +399,7 @@ classdef (Abstract) PixelDataBase < serializable
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
         end
 
-        data_out = get_fields(obj, pix_fields, varargin)
+
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
 
@@ -446,7 +450,7 @@ classdef (Abstract) PixelDataBase < serializable
             end
             obj.data_range_ = data_range;
         end
-        
+
     end
     %======================================================================
     % GETTERS/SETTERS
@@ -583,7 +587,7 @@ classdef (Abstract) PixelDataBase < serializable
             obj = obj.set_data_range(val);
         end
 
-        function ps = get.DEFAULT_PAGE_SIZE(~)
+        function ps = get.default_page_size(~)
             ps = config_store.instance().get_value('hor_config', 'mem_chunk_size');
         end
 
@@ -643,7 +647,7 @@ classdef (Abstract) PixelDataBase < serializable
         end
     end
     %----------------------------------------------------------------------
-    methods 
+    methods
         function indices = check_pixel_fields(obj, fields)
             %CHECK_PIXEL_FIELDS Check the given field names are valid pixel data fields
             % Raises error with ID 'HORACE:PixelDataBase:invalid_argument' if any fields not valid.
@@ -657,7 +661,7 @@ classdef (Abstract) PixelDataBase < serializable
             % indices   -- the indices corresponding to the fields
             %
             % NOTE:
-            % it looks like this should be protected method. 
+            % it looks like this should be protected method.
             if istext(fields)
                 fields = cellstr(fields);
             end
@@ -701,7 +705,6 @@ classdef (Abstract) PixelDataBase < serializable
             % and clear the current cache
             %  This function does nothing if pixels are not file-backed.
             %
-            obj.move_to_page(1);
         end
 
         function [obj, data] = load_page(obj, page_number)
@@ -716,15 +719,19 @@ classdef (Abstract) PixelDataBase < serializable
 
         function val = check_set_prop(obj,fld,val)
             % check input parameters of set_property function
-
-            if ~isnumeric(val) || ...
-                    (~isscalar(val) && ...
-                    ~isequal(size(val), [obj.get_field_count(fld), obj.page_size]))
+            if ~isnumeric(val)
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                    'Value for property %s have to be numeric',fld);
+            end
+            block_size = [obj.get_field_count(fld), obj.page_size];            
+            if isscalar(val)
+                return;
+            elseif ~isequal(numel(val),prod(block_size) )
                 error('HORACE:PixelDataBase:invalid_argument', ...
                     '%s value must be scalar or [%d %d] numeric array. Received: %s %s', ...
-                    fld, obj.get_field_count(fld), obj.page_size, mat2str(size(val)), class(val))
+                    fld, block_size(1), block_size(2), mat2str(size(val)), class(val))
             end
-            val = val(:)';
+            val = reshape(val,block_size);
         end
 
         function obj = set_full_filename(obj,val)

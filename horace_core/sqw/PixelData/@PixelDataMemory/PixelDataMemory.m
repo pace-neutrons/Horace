@@ -61,25 +61,11 @@ classdef PixelDataMemory < PixelDataBase
         is_filebacked = false;
         n_pages = 1;
     end
-
+    %======================================================================
+    % Implementing abstract PixelDataBase interface
     methods
-        % --- Pixel operations ---
         pix_out = append(obj, pix);
-        pix     = set_raw_data(obj,pix);
-        obj     = set_raw_fields(obj, data, fields, abs_pix_indices);
-
-        [mean_signal, mean_variance] = compute_bin_data(obj, npix);
-        pix_out = do_binary_op(obj, operand, binary_op, varargin);
-        pix_out = do_unary_op(obj, unary_op);
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
-
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);
-
-        pix_out = mask(obj, mask_array, npix);
-        pix_out = noisify(obj, varargin);
-
-        pix_out = get_fields(obj, fields, abs_pix_indices);
-
+        %
         function data =  get_raw_data(obj,varargin)
             % main part of get.data accessor
             data = obj.data_;
@@ -91,6 +77,21 @@ classdef PixelDataMemory < PixelDataBase
                 end
             end
         end
+        pix_out = get_fields(obj, fields, abs_pix_indices);
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);        
+
+        pix     = set_raw_data(obj,pix);
+        obj     = set_raw_fields(obj, data, fields, abs_pix_indices);
+
+        [mean_signal, mean_variance] = compute_bin_data(obj, npix);
+        pix_out = do_binary_op(obj, operand, binary_op, varargin);
+        pix_out = do_unary_op(obj, unary_op);
+        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
+
+
+
+        pix_out = mask(obj, mask_array, npix);
+        pix_out = noisify(obj, varargin);
     end
 
     methods
@@ -126,27 +127,6 @@ classdef PixelDataMemory < PixelDataBase
             if nargout == 2
                 unique_pix_id = unique(obj.run_idx);
             end
-        end
-
-        function [page_number,total_num_pages] = move_to_page(~, page_number, varargin)
-            % Set the object to point at the given page number
-            %   This function does nothing if the object is not file-backed or is
-            %   already on the given page
-            %
-            % Inputs:
-            % page_number -- page number to move to
-            %
-            % Returns:
-            % page_number -- the page this routine moved to
-            % total_num_pages -- total number of pages, present in the file
-            %
-            total_num_pages = 1;
-            if page_number ~= 1
-                error('HORACE:PIXELDATA:move_to_page', ...
-                    'Cannot advance to page %i only %i pages of data found.', ...
-                    page_number, 1);
-            end
-
         end
 
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
@@ -228,7 +208,8 @@ classdef PixelDataMemory < PixelDataBase
         end
         function obj=set_prop(obj, fld, val)
             val = check_set_prop(obj,fld,val);
-            obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
+            idx = obj.FIELD_INDEX_MAP_(fld);
+            obj.data_(idx, :) = val;
 
             % setting data property value removes misalignment. We do not
             % consciously set misaligned data

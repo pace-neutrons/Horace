@@ -1,4 +1,4 @@
-classdef test_PixelData < TestCase & common_pix_class_state_holder
+classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
     properties
 
@@ -48,7 +48,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
     methods
 
-        function obj = test_PixelData(~)
+        function obj = test_PixelDataBase(~)
             obj = obj@TestCase('test_PixelData');
             obj.warning_cache = warning('off','HORACE:old_file_format');
 
@@ -504,13 +504,16 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             assertEqual(pix.page_size, 10);
         end
 
-        function test_editing_a_field_loads_page(obj)
+        function test_editing_a_field_changes_page(obj)
+
             data = rand(9, 10);
             faccess = FakeFAccess(data);
             for i = 1:numel(obj.pix_fields)
                 pix = PixelDataBase.create(faccess);
                 pix.(obj.pix_fields{i}) = 1;
                 assertEqual(pix.page_size, 10);
+                nf = pix.get_field_count(obj.pix_fields{i});
+                assertEqual(pix.(obj.pix_fields{i}),ones(nf,10))
             end
         end
 
@@ -575,8 +578,8 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
                 pix_idx_start = (i-1)*npix_in_page+1;
                 pix_idx_end = min(pix_idx_start + npix_in_page - 1, pix.num_pixels);
                 assertElementsAlmostEqual(pix.data, ...
-                                          data(:, pix_idx_start:pix_idx_end), ...
-                                          'relative',obj.tol);
+                    data(:, pix_idx_start:pix_idx_end), ...
+                    'relative',obj.tol);
 
             end
         end
@@ -610,9 +613,12 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             npix_in_page = 11;
 
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            function set_page(pix,npage)
+                pix.page_num = npage;
+            end
 
-            f = @() pix.move_to_page(50);
-            assertExceptionThrown(f, 'PIXELDATA:move_to_page');
+            f = @()set_page(pix,50);
+            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:invalid_argument');
         end
 
         function test_move_to_page_throws_if_arg_less_than_1(obj)
@@ -621,12 +627,16 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             npix_in_page = 11;
 
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            function set_page(pix,npage)
+                pix.page_num = npage;
+            end
 
-            f = @() pix.move_to_page(0);
-            assertExceptionThrown(f, 'MATLAB:expectedPositive');
 
-            f = @() pix.move_to_page(-1);
-            assertExceptionThrown(f, 'MATLAB:expectedPositive');
+            f = @()set_page(pix,0);
+            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:invalid_argument');
+
+            f = @()set_page(pix,-1);
+            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:invalid_argument');
         end
 
         function test_move_to_page_throws_if_arg_is_non_scalar(obj)
@@ -636,21 +646,13 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
-            f = @() pix.move_to_page([1, 2]);
-            assertExceptionThrown(f, 'MATLAB:expectedScalar');
+            function set_page(pix,npage)
+                pix.page_num = npage;
+            end
+
+            f = @()set_page(pix,[1, 2]);
+            assertExceptionThrown(f, 'HORACE:PixelDataFileBacked:invalid_argument');
         end
-
-        function test_move_to_page_throws_if_arg_is_not_an_int(obj)
-            num_pix = 30;
-            data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix);
-            npix_in_page = 11;
-
-            [pix, ~, clob] = obj.get_pix_with_fake_faccess(data, npix_in_page);
-
-            f = @() pix.move_to_page(1.5);
-            assertExceptionThrown(f, 'MATLAB:expectedInteger');
-        end
-
 
         function test_get_pixels_retrieves_data_at_absolute_index(obj)
             num_pix = 30;
@@ -1139,7 +1141,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
 
             pix = PixelDataFileBacked(data);
             pix_range = [min(data(1:4, :), [], 2), ...
-                         max(data(1:4, :), [], 2)]';
+                max(data(1:4, :), [], 2)]';
         end
 
         function do_pixel_data_loop_with_f(obj, func, data)

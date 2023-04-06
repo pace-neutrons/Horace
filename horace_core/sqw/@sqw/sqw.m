@@ -178,7 +178,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
 
         % smooth sqw object or array of sqw
-                % objects containing no pixels
+        % objects containing no pixels
         wout = smooth(win, varargin)
         %
         function wout = cut_dnd(obj,varargin)
@@ -429,7 +429,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % and npix array, saving in chunks so they do not need to be held in memory.
             ldr = sqw_formats_factory.instance().get_pref_access(obj);
             ldr = ldr.init(obj, outfile);
-            ldr.put_sqw('-nopix');
+            ldr =ldr.put_sqw('-nopix');
             obj.pix = obj.pix.get_new_handle(ldr);
 
         end
@@ -557,7 +557,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % standard output used in sqw construction
         args = parse_sqw_args_(obj,varargin)
 
-        function obj = init_from_file_(obj, in_filename, file_backed)
+        function obj = init_from_file_(~, in_filename, file_backed)
             % Parse SQW from file
             %
             % An error is raised if the data file is identified not a SQW object
@@ -567,8 +567,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     'Data file: %s does not contain valid sqw-type object',...
                     in_filename);
             end
-            lds = obj.get_loader_struct_(ldr,file_backed);
-            obj = from_bare_struct(obj,lds);
+            if file_backed
+                [obj,ldr] = ldr.get_sqw('-file_backed');                
+            else
+                [obj,ldr] = ldr.get_sqw();
+            end
+            ldr.delete();            
         end
 
         function obj = init_from_loader_struct_(obj, data_struct)

@@ -102,8 +102,14 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         end
         function [metadata,varargout] = get_pix_metadata(obj,varargin)
             % return empty pix metadata as old file format do not have
-            % full metadata
+            % full metadata.
+            %
+            % Full the fields which do have correspondence in old file
+            % fomat
             metadata = pix_metadata;
+            metadata.full_filename = obj.full_filename;
+            metadata.npix = obj.npixels;
+
             if nargout>1
                 varargout{1} = obj;
             end

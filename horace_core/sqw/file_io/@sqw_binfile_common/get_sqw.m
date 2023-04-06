@@ -122,5 +122,7 @@ elseif opts.head || opts.his
 else
     sqw_object = sqw(sqw_struc);
 end
-
+if nargout>1
+    varargout{1} = obj;
+end
 

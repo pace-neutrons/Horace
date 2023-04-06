@@ -482,6 +482,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function obj = set_page_num(obj,val)
+            val = floor(val);
             if ~isnumeric(val) || ~isscalar(val) || val<1
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
                     'page number should be positive numeric scalar. It is: %s',...
@@ -495,11 +496,11 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function page_size = get_page_size(obj)
-            page_size = min(obj.DEFAULT_PAGE_SIZE, obj.num_pixels);
+            page_size = min(obj.default_page_size, obj.num_pixels);
         end
 
         function np = get_num_pages(obj)
-            np = max(ceil(obj.num_pixels/obj.DEFAULT_PAGE_SIZE),1);
+            np = max(ceil(obj.num_pixels/obj.page_size),1);
         end
     end
     %======================================================================

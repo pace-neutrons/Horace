@@ -57,9 +57,6 @@ else
 
 end
 
-obj = obj.reset_changed_coord_range('all');
-
-end
 
 
 function [mask_array, npix] = validate_input_args(obj, mask_array, npix)
@@ -102,5 +99,4 @@ end
 
 if ~isempty(npix) && ~isvector(npix)
     npix = npix(:);
-end
 end

@@ -15,19 +15,24 @@ end
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 
-for i = 1:obj.num_pages
-    [obj, data] = obj.load_page(i);
+n_pages = obj.num_pages;
+obj.data_range = PixelDataBase.EMPTY_RANGE;
+
+for i = 1:n_pages
+    obj.page_num = i;
 
     pix_sigvar = sigvar(obj.signal, obj.variance);
-    pg_result = unary_op(pix_sigvar);
+    pg_result  = unary_op(pix_sigvar);
 
     data(s_ind, :) = pg_result.s;
     data(v_ind, :) = pg_result.e;
+    obj.data_range = ...
+            obj.pix_minmax_ranges(data, obj.data_range);
 
     pix_out.format_dump_data(data);
 end
 
 pix_out = pix_out.finalise();
-pix_out = pix_out.recalc_data_range({'signal', 'variance'});
+
 
 end
