@@ -349,10 +349,10 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = append(obj, pix);
 
         data = get_raw_data(obj,varargin)
-        data_out = get_fields(obj, pix_fields, varargin)                
+        data_out = get_fields(obj, pix_fields, varargin)
         pix = set_raw_data(obj,pix);
         obj = set_raw_fields(obj, data, fields, abs_pix_indices);
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);        
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
@@ -417,11 +417,14 @@ classdef (Abstract) PixelDataBase < serializable
             end
             obj.data_range(:,idx) = obj.EMPTY_RANGE(:,idx);
         end
+        %
         function is = is_range_valid(obj,fld)
             % check if the range for the appropriate fields, provided as
             % input is valid, i.e. not equal to empty range;
             if nargin == 1 % check the whole range
                 idx = obj.FIELD_INDEX_MAP_('all');
+            elseif iscell(fld)
+                idx = cellfun(@(fl)obj.FIELD_INDEX_MAP_(fl),fld);
             else
                 idx = obj.FIELD_INDEX_MAP_(fld);
             end
@@ -450,7 +453,6 @@ classdef (Abstract) PixelDataBase < serializable
             end
             obj.data_range_ = data_range;
         end
-
     end
     %======================================================================
     % GETTERS/SETTERS
@@ -706,12 +708,6 @@ classdef (Abstract) PixelDataBase < serializable
             %  This function does nothing if pixels are not file-backed.
             %
         end
-
-        function [obj, data] = load_page(obj, page_number)
-            % Load and return data from given page number
-            obj.page_num = page_number;
-            data = obj.get_fields('all');
-        end
     end
     %======================================================================
     % Overloadable protected getters/setters for properties
@@ -723,7 +719,7 @@ classdef (Abstract) PixelDataBase < serializable
                 error('HORACE:PixelDataBase:invalid_argument', ...
                     'Value for property %s have to be numeric',fld);
             end
-            block_size = [obj.get_field_count(fld), obj.page_size];            
+            block_size = [obj.get_field_count(fld), obj.page_size];
             if isscalar(val)
                 return;
             elseif ~isequal(numel(val),prod(block_size) )

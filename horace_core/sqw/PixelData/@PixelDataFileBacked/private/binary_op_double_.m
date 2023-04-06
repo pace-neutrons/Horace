@@ -25,9 +25,13 @@ if isempty(obj.file_handle_)
 end
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
-
-for i = 1:obj.num_pages
-    [obj, data] = obj.load_page(i);
+obj.data_range = PixelDataBase.EMPTY_RANGE;
+% TODO: #975 loop have to be moved level up calculating image too in single
+% loop
+num_pages= obj.num_pages;
+for i = 1:num_pages
+    obj.page_num = i;
+    data = obj.data;
     pix_sigvar = sigvar(obj.signal, obj.variance);
 
     [start_idx, end_idx] = obj.get_page_idx_(i);
@@ -40,12 +44,14 @@ for i = 1:obj.num_pages
     data(s_ind, :) = signal;
     data(v_ind, :) = variance;
 
+    obj.data_range = ...
+        obj.pix_minmax_ranges(data, obj.data_range);
+
     obj.format_dump_data(data);
 
 end
 
 obj = obj.finalise();
-obj = obj.recalc_data_range({'signal', 'variance'});
 
 end
 
@@ -69,10 +75,17 @@ if isempty(obj.file_handle_)
 end
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
+obj.data_range = PixelDataBase.EMPTY_RANGE;
+%
+% TODO: #975 loop have to be moved level up calculating image in single
+% loop too
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
-for i = 1:obj.num_pages
-    [obj, data] = obj.load_page(i);
+num_pages= obj.num_pages;
+for i = 1:num_pages
+    obj.page_num = i;
+    data = obj.data;
+
     npix_for_page = npix_chunks{i};
     idx = idxs(:, i);
 
@@ -89,11 +102,12 @@ for i = 1:obj.num_pages
     data(v_ind, :) = variance;
 
     obj.format_dump_data(data);
+
+    obj.data_range = ...
+        obj.pix_minmax_ranges(data, obj.data_range);
 end
 
 obj = obj.finalise();
-obj = obj.recalc_data_range({'signal', 'variance'});
-
 end
 
 function validate_input_array(obj, double_array, npix)
@@ -105,9 +119,9 @@ if ~isequal(passed_size, expected_size) && isempty(npix)
     required_size = mat2str(expected_size);
     actual_size = mat2str(passed_size);
     error('HORACE:PixelDataFileBacked:invalid_argument', ...
-          ['Cannot perform binary operation. Double array must ' ...
-           'have size equal to number of pixels.\nFound size , ' ...
-           '%s required.'], actual_size, required_size);
+        ['Cannot perform binary operation. Double array must ' ...
+        'have size equal to number of pixels.\nFound size , ' ...
+        '%s required.'], actual_size, required_size);
 
 elseif ~isempty(npix)
     % Get the cumsum rather than just the sum here since it's required in
@@ -117,8 +131,8 @@ elseif ~isempty(npix)
         error( ...
             'HORACE:PixelDataFileBacked:invalid_argument', ...
             ['Cannot perform binary operation. Sum of ''npix'' must be ' ...
-             'equal to the number of pixels in the PixelData object.\n' ...
-             'Found ''%i'' pixels in npix but ''%i'' in PixelData.'], ...
+            'equal to the number of pixels in the PixelData object.\n' ...
+            'Found ''%i'' pixels in npix but ''%i'' in PixelData.'], ...
             num_pix, obj.num_pixels);
     end
 end

@@ -401,11 +401,16 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
             start_idx = 1;
-            for i = 1:numel(varargin)
+            obj.data_range = PixelDataBase.EMPTY_RANGE;            
+            for i = 1:numel(varargin)                
                 curr_pix = varargin{i};
-                for page = 1:curr_pix.num_pages
-                    [curr_pix,data] = curr_pix.load_page(page);
+                num_pages= curr_pix .num_pages;                
+                for page = 1:num_pages
+                    curr_pix.page_num = i;
+                    data = curr_pix.data;
                     obj.format_dump_data(data, start_idx);
+                    obj.data_range = ...
+                        obj.pix_minmax_ranges(data, obj.data_range);                    
                     start_idx = start_idx + size(data,2);
                 end
             end

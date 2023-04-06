@@ -184,11 +184,11 @@ classdef PixelDataMemory < PixelDataBase
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
                 for page = 1:curr_pix.num_pages
-                    [curr_pix,data] = curr_pix.load_page(page);
+				    curr_pix.page_num = page;
+                    data = curr_pix.data;
                     obj.data = [obj.data, data];
                 end
             end
-            obj = obj.recalc_data_range();
         end
     end
     %======================================================================
