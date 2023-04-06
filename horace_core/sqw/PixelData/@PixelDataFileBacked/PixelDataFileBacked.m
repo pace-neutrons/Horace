@@ -281,7 +281,6 @@ classdef PixelDataFileBacked < PixelDataBase
     % File handling/migration
     methods
         function obj = get_new_handle(obj, f_accessor)
-
             % Always create a new PixTmpFile object
             % If others point to it, file will be kept
             % otherwise file will be cleared
@@ -304,7 +303,6 @@ classdef PixelDataFileBacked < PixelDataBase
 
                 obj.file_handle_ = fh;
             end
-
         end
 
         function format_dump_data(obj, pix, start_idx)
@@ -321,7 +319,6 @@ classdef PixelDataFileBacked < PixelDataBase
             else
                 fwrite(obj.file_handle_, single(pix), 'single');
             end
-
         end
 
         function obj = finalise(obj)
@@ -401,20 +398,19 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
             start_idx = 1;
-            obj.data_range = PixelDataBase.EMPTY_RANGE;            
-            for i = 1:numel(varargin)                
+            obj.data_range = PixelDataBase.EMPTY_RANGE;
+            for i = 1:numel(varargin)
                 curr_pix = varargin{i};
-                num_pages= curr_pix .num_pages;                
+                num_pages= curr_pix .num_pages;
                 for page = 1:num_pages
                     curr_pix.page_num = i;
                     data = curr_pix.data;
                     obj.format_dump_data(data, start_idx);
                     obj.data_range = ...
-                        obj.pix_minmax_ranges(data, obj.data_range);                    
+                        obj.pix_minmax_ranges(data, obj.data_range);
                     start_idx = start_idx + size(data,2);
                 end
             end
-
             obj = obj.finalise();
         end
     end

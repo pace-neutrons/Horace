@@ -20,8 +20,9 @@ obj.data_range = PixelDataBase.EMPTY_RANGE;
 
 for i = 1:n_pages
     obj.page_num = i;
+    data = obj.data;
 
-    pix_sigvar = sigvar(obj.signal, obj.variance);
+    pix_sigvar = sigvar(data(s_ind,:), data(v_ind,:));
     pg_result  = unary_op(pix_sigvar);
 
     data(s_ind, :) = pg_result.s;
