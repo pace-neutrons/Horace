@@ -75,7 +75,7 @@ if ~obj.filled
     error('The object_lookup is not initialised')
 end
 
-% Parse the input
+% Parse the input arguments
 narg = numel(varargin);
 if narg>=2 && isa(varargin{2},'function_handle')
     if numel(obj.indx_)==1

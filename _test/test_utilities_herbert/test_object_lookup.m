@@ -267,9 +267,9 @@ classdef test_object_lookup < TestCaseWithSave
 
         
         %--------------------------------------------------------------------------
-        % Test operation of func_eval
+        % Test operation of func_eval_ind
         %--------------------------------------------------------------------------
-        function test_func_eval_1 (obj)
+        function test_func_eval_ind_1 (obj)
             % Function evaluated for an array of what corresponds to a single unique object
             % Also checks size of output arrays match the size of the index array ind
             ind = [6,3,5,6,3,3,3];    % indicies into carr2 = [c4, c3, c3; c2, c1, c3];
@@ -277,12 +277,12 @@ classdef test_object_lookup < TestCaseWithSave
             tlo_ref = repmat (tlo_ref, size(ind));
             thi_ref = repmat (thi_ref, size(ind));
             
-            [tlo, thi] = func_eval(obj.c_lookup1, 2, ind, @pulse_range);
+            [tlo, thi] = func_eval_ind(obj.c_lookup1, 2, ind, @pulse_range);
             assertEqual (tlo_ref, tlo)
             assertEqual (thi_ref, thi)
         end
         
-        function test_func_eval_2 (obj)
+        function test_func_eval_ind_2 (obj)
             % Function evaluated for an array of objects that corresponds to more than
             % one unique object, but which are not all unique.
             % Also checks size of output arrays match the size of the index array ind
@@ -296,12 +296,12 @@ classdef test_object_lookup < TestCaseWithSave
             [tlo_ref(3,1), thi_ref(3,1)] = obj.c4.pulse_range;
             [tlo_ref(3,2), thi_ref(3,2)] = obj.c4.pulse_range;
             
-            [tlo, thi] = func_eval(obj.c_lookup1, 2, ind, @pulse_range);
+            [tlo, thi] = func_eval_ind(obj.c_lookup1, 2, ind, @pulse_range);
             assertEqual (tlo_ref, tlo)
             assertEqual (thi_ref, thi)
         end
         
-        function test_func_eval_output_size_1 (obj)
+        function test_func_eval_ind_output_size_1 (obj)
             % Test the output argument
             % Stack [1,10] by [1,5] should be [1,10,5]
             
@@ -318,12 +318,12 @@ classdef test_object_lookup < TestCaseWithSave
             y_ref(:,:,4) = y3;
             y_ref(:,:,5) = y3;
             
-            yout = func_eval(obj.c_lookup1, 2, ind, @pulse_shape, t);
+            yout = func_eval_ind(obj.c_lookup1, 2, ind, @pulse_shape, t);
             assertEqual (size(yout), [1,10,5])
             assertEqual (y_ref, yout)
         end
         
-        function test_func_eval_output_size_2 (obj)
+        function test_func_eval_ind_output_size_2 (obj)
             % Test the output argument arrays
             % Stack [10,1] by [1,5] should be [10,5]
             
@@ -337,14 +337,14 @@ classdef test_object_lookup < TestCaseWithSave
             y4 = obj.c4.pulse_shape(t);
             y_ref = [y3,y4,y4,y3,y3];
             
-            [yout, tout] = func_eval(obj.c_lookup1, 2, ind, @pulse_shape, t);
+            [yout, tout] = func_eval_ind(obj.c_lookup1, 2, ind, @pulse_shape, t);
             assertEqual (size(tout), [10,5])
             assertEqual (size(yout), [10,5])
             assertEqual (t_ref, tout)
             assertEqual (y_ref, yout)
         end
         
-        function test_func_eval_output_size_3 (obj)
+        function test_func_eval_ind_output_size_3 (obj)
             % Test the output argument arrays
             % Stack [10,1] by [1,1,5] should be [10,1,5]
             
@@ -364,7 +364,7 @@ classdef test_object_lookup < TestCaseWithSave
             y_ref(:,:,4) = y3;
             y_ref(:,:,5) = y3;
             
-            [yout, tout] = func_eval(obj.c_lookup1, 2, ind, @pulse_shape, t);
+            [yout, tout] = func_eval_ind(obj.c_lookup1, 2, ind, @pulse_shape, t);
             assertEqual (size(tout), [10,1,5])
             assertEqual (size(yout), [10,1,5])
             assertEqual (t_ref, tout)
@@ -381,7 +381,7 @@ function t = time_array (fermi_chopper, sz)
 %
 %   >> t = time_array (fermi_chopper, sz)
 %
-% Use to test sizes of output arguments from func_eval
+% Use to test sizes of output arguments from func_eval_ind
 % Constructed by using linspace over the range of transmission
 % Note that if a scalar is required, it does NOT return t=0, but at
 % half the tme at which transmission goes to zero. This is so that different
