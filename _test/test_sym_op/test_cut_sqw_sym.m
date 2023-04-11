@@ -39,8 +39,8 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             this.data = read_horace(this.data_source);
 
             % Cut projection and ranges etc
-            s100 = symop([1,0,0],[0,0,1],[1,1,0]);
-            sdiag= symop([1,1,0],[0,0,1],[1,1,0]);
+            s100 = SymopReflection([1,0,0],[0,0,1],[1,1,0]);
+            sdiag= SymopReflection([1,1,0],[0,0,1],[1,1,0]);
             this.sym = {sdiag,s100,[sdiag,s100]};
 
             this.proj = ortho_proj([1,-1,0], [1,1,0]/sqrt(2), 'offset', [1,1,0], 'type', 'paa');
@@ -65,7 +65,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                 0  0  0  0  0  0  0  0  1  1 -1 -1
                 1  1 -1 -1  0  0  0  0  0  0  0  0];
             Ws = mat2cell(reshape(Ws,[3,3,12]),3,3,ones(12,1));
-            this.sym2 = squeeze(cellfun(@symop, Ws, 'UniformOutput', false));
+            this.sym2 = squeeze(cellfun(@Symop, Ws, 'UniformOutput', false));
             % setup projection and binning specifications
             this.proj2 = ortho_proj([1,0,0],[0,1,0]);
             this.ubin2 = [0, 0.05, 0.5];
