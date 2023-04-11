@@ -1,4 +1,4 @@
-classdef SymopReflection < SymopBase
+classdef SymopReflection < Symop
 
     properties(Dependent)
         u;
@@ -12,6 +12,10 @@ classdef SymopReflection < SymopBase
 
     methods
         function obj = SymopReflection(u, v, offset)
+            if nargin == 0
+                return
+            end
+
             if ~exist('offset', 'var')
                 offset = obj.offset;
             end
@@ -52,13 +56,6 @@ classdef SymopReflection < SymopBase
             v = obj.v_;
         end
 
-        function disp(obj)
-            disp('Reflection operator:')
-            disp([' In-plane u (rlu): ',mat2str(obj.u)])
-            disp([' In-plane v (rlu): ',mat2str(obj.v)])
-            disp(['     offset (rlu): ',mat2str(obj.offset)])
-        end
-
         function R = calculate_transform(obj, Minv)
         % Get transformation matrix for the symmetry operator in an orthonormal frame
         %
@@ -95,12 +92,21 @@ classdef SymopReflection < SymopBase
         end
     end
 
+    methods(Access=protected)
+        function local_disp(obj)
+            disp('Reflection operator:')
+            disp([' In-plane u (rlu): ',mat2str(obj.u, 2)])
+            disp([' In-plane v (rlu): ',mat2str(obj.v, 2)])
+            disp(['     offset (rlu): ',mat2str(obj.offset, 2)])
+        end
+    end
+
     methods(Static)
         function is = check_args(argin)
             is = (numel(argin) == 2 || ...
-                  numel(argin) == 3 && SymopBase.is_3vector(argin{3})) && ...
-                  SymopBase.is_3vector(argin{1}) && ...
-                  SymopBase.is_3vector(argin{2});
+                  numel(argin) == 3 && Symop.is_3vector(argin{3})) && ...
+                  Symop.is_3vector(argin{1}) && ...
+                  Symop.is_3vector(argin{2});
         end
     end
 end
