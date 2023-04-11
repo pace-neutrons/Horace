@@ -27,6 +27,11 @@ classdef SymopReflection < Symop
                        'Received: %s'], disp2str({u, v, offset}));
             end
 
+            if norm(cross(u, v)) < 1e-2
+                error('HORACE:symop:invalid_argument', ...
+                      'Colinear vectors u & v')
+            end
+
             obj.u = u;
             obj.v = v;
             obj.offset = offset;
