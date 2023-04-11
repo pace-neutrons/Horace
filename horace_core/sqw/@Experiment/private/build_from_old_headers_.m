@@ -29,6 +29,11 @@ detectors   = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_
 
 
 hdr = headers{1};
+if ~obj.isoldheader(hdr)
+    error('HORACE:build_from_old_headers_:invalid_argument', ...
+          'arg should be a true header struct')
+end
+    
 alatt = hdr.alatt;
 angdeg =hdr.angdeg;
 % convert old headers, restored differently from sqw and mat files into the

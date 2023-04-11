@@ -31,6 +31,7 @@ classdef test_experiment_methods < TestCase
             exp(3).filename = 'a3';
             
             detector = IX_detector_array();
+            detector = repmat(detector,3,1);
 
             obj.sample_exper= Experiment(detector,instruments,samples,exp);
         end
@@ -99,6 +100,10 @@ classdef test_experiment_methods < TestCase
             assertEqual(hdrs_cell{1}.filename,'a1')
 
             rec_exp = Experiment.build_from_binfile_headers(hdrs_cell);
+            % here as the detectors weren't originally in the headers but in
+            % a detpar in the parent sqw. As there is no parent sqw for
+            % this test, the detectors are just reinserted.
+            rec_exp.detector_arrays = exp.detector_arrays;
             assertTrue(rec_exp.runid_recalculated);
             assertTrue(isa(rec_exp,'Experiment'));
 
@@ -113,15 +118,7 @@ classdef test_experiment_methods < TestCase
             assertEqual(rec_exp.runid_map.keys,exp.runid_map.keys);
             assertEqual(rec_exp.runid_map.values,exp.runid_map.values);
 
-            % these properties are only partially recovered from headers
-            % sin
-            exp.samples{1} = IX_samp('',[1,2,3],[91,90,89]);
-            exp.samples{2} = IX_samp('',[1.1,2.2,3.2],[90,91,92]);
-            exp.samples{3} = IX_samp('',[1.2,2.3,3.3],[89,92,91]);
             assertEqual(rec_exp.samples,exp.samples);
-
-            % instruments are not recovered from old headers at all
-            exp.instruments = {IX_null_inst(),IX_null_inst(),IX_null_inst()};
             assertEqual(rec_exp.instruments,exp.instruments);
 
         end
@@ -140,10 +137,21 @@ classdef test_experiment_methods < TestCase
             assertEqual(rec_exp.runid_map.keys,{20});
             assertEqual(rec_exp.runid_map.values,{1});
 
+            % properties are now recovered from the header so these
+            % tests are invalid
             % these properties are only partially recovered from headers
-            assertEqual(rec_exp.samples{1},IX_samp('',[1.1,2.2,3.2],[90,91,92]));
+            %assertEqual(rec_exp.samples{1},IX_samp('',[1.1,2.2,3.2],[90,91,92]));
             % instrument is not recovered from headers
-            assertEqual(rec_exp.instruments{1},IX_null_inst());
+            %assertEqual(rec_exp.instruments{1},IX_null_inst());
+            
+            % instead compare reconstructed data for element 1 against 
+            % the original element 2
+            assertEqual(rec_exp.instruments{1},exp.instruments{2});
+            assertEqual(rec_exp.samples{1},exp.samples{2});
+            
+            % note that detector detpars are not held in the headers so any
+            % detectors in exp will not have been passed to rec_exp via
+            % the reconstruction via hdrs_cell
         end
 
 
@@ -160,17 +168,22 @@ classdef test_experiment_methods < TestCase
             assertEqual(exp.runid_map.keys,rec_exp.runid_map.keys);
             assertEqual(exp.runid_map.values,rec_exp.runid_map.values);
 
+            % these properties are now fully recovered from the
+            % conversion so the resets are not required
+            %
             % these properties are only partially recovered from headers
             % sin
-            exp.samples{1} = IX_samp('',[1,2,3],[91,90,89]);
-            exp.samples{2} = IX_samp('',[1.1,2.2,3.2],[90,91,92]);
-            exp.samples{3} = IX_samp('',[1.2,2.3,3.3],[89,92,91]);
+            %exp.samples{1} = IX_samp('',[1,2,3],[91,90,89]);
+            %exp.samples{2} = IX_samp('',[1.1,2.2,3.2],[90,91,92]);
+            %exp.samples{3} = IX_samp('',[1.2,2.3,3.3],[89,92,91]);
             assertEqual(rec_exp.samples,exp.samples);
 
             % instruments are not recovered from old headers at all
-            exp.instruments = {IX_null_inst(),IX_null_inst(),IX_null_inst()};
+            %exp.instruments = {IX_null_inst(),IX_null_inst(),IX_null_inst()};
             assertEqual(rec_exp.instruments,exp.instruments);
-
+            
+            %NB detectors are not stored in old headers and so
+            %   have not been converted
         end
         function test_reset_runid_map_with_other_map(obj)
             exp = obj.sample_exper;

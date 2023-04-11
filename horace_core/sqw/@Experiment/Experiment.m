@@ -119,72 +119,34 @@ classdef Experiment < serializable
                 samples         = varargin{3};
                 expdata         = varargin{4};
 
-                if isa(detector_arrays, 'unique_references_container') && ...
-                        strcmp(detector_arrays.stored_baseclass,'IX_detector_array')
-                    % overwrite default compressed container
-                    obj.detector_arrays_ = detector_arrays;
-                elseif isa(detector_arrays, 'IX_detector_array') || ...
-                        ( isa(detector_arrays, 'unique_objects_container') && ...
-                          strcmp(detector_arrays.baseclass, 'IX_detector_array') )
-                    % add to default compressed container
-                    obj.detector_arrays_ = obj.detector_arrays_.add(detector_arrays);
-                elseif isempty(detector_arrays)
-                    % do nothing, leave default compressed container empty
-                else
-                    error('HORACE:Experiment:invalid_argument', ...
-                          'input is not empty or IX_detector_array');
-                end
-                
-                if isa(instruments, 'unique_references_container') && ...
-                        strcmp(instruments.stored_baseclass,'IX_inst')
-                    % overwrite default compressed container
-                    obj.instruments_ = instruments;
-                elseif isa(instruments, 'IX_inst') || ...
-                        ( isa(instruments, 'unique_objects_container') && ...
-                          strcmp(instruments.baseclass, 'IX_inst') ) || ...
-                        ( iscell(instruments) && isa( instruments{1}, 'IX_inst') )
-                    % add to default compressed container
-                    obj.instruments_ = obj.instruments_.add(instruments);
-                elseif isempty(instruments)
-                    % do nothing, leave default compressed container empty
-                else
-                    error('HORACE:Experiment:invalid_argument', ...
-                          'input is not empty or IX_inst');
-                end
-                
-                if isa(samples, 'unique_references_container') && ...
-                        strcmp(samples.stored_baseclass,'IX_samp')
-                    % overwrite default compressed container
-                    obj.samples_ = samples;
-                elseif isa(samples, 'IX_samp') || ...
-                        ( isa(samples, 'unique_objects_container') && ...
-                          strcmp(samples.baseclass, 'IX_samp') )  || ...
-                        ( iscell(samples) && isa( samples{1}, 'IX_samp') )
-                    % add to default compressed container
-                    obj.samples_ = obj.samples_.add(samples);
-                elseif isempty(samples)
-                    % do nothing, leave default compressed container empty
-                else
-                    error('HORACE:Experiment:invalid_argument', ...
-                          'input is not empty or IX_samp');
-                end
-                
+                % define expdata first, as the size of this determines the
+                % number of runs which obj will hold
                 if isa(expdata, 'IX_experiment')
                     % add to default compressed container
+                    % this must be of the right size to define number of
+                    % runs for the experiment - the other fields can handle
+                    % adding duplicates once they know this number
                     obj.expdata_ = expdata;
                 elseif isempty(expdata)
-                    % do nothing, leave default compressed container empty
+                    % do nothing, leave default array container empty
                 else
                     error('HORACE:Experiment:invalid_argument', ...
                           'input is not empty or IX_experiment');
                 end
+                                
+                obj = obj.check_input_for_consistency(detector_arrays, 'IX_detector_array');
                 
+                obj = obj.check_input_for_consistency(instruments,     'IX_inst');
+                
+                obj = obj.check_input_for_consistency(samples,         'IX_samp');
+                
+                                
             elseif nargin == 1 
                 if ~iscell(varargin{1})
                     % make arg a cell
                     varargin{1} = { varargin{1} };
                 end
-                % now havecell array of headers, init_ will process
+                % now have cell array of headers, init_ will process
             else
                 error(['the other cases do not yet have examples',...
                        'so catching them here until we can do them',...
@@ -193,6 +155,7 @@ classdef Experiment < serializable
             tmpp = init_(obj,varargin{:});
             obj = tmpp;
         end
+        
         %
         function obj = init(obj,varargin)
             % initialize Experiment object using various possible forms of inputs,
@@ -513,6 +476,77 @@ classdef Experiment < serializable
             std_form = check_sample_or_inst_array_and_return_std_form_(...
                 sample_or_instrument,class_base);
         end
+        
+        function obj = check_input_for_consistency(obj, val,type)
+            % CHECK_INPUT_FOR_CONSISTENCY
+            % Add val to one of the unique_reference_container properties.
+            % This makes sure that the right thing is added and any
+            % duplicates are handled.
+            %
+            % Input
+            % -----
+            % - obj:   the Experiment object to which val is being added
+            % - val:   the object or container of objects which is being
+            %          added. this could be a unique_references_container
+            %          or unique_objects_container with baseclass 'type'
+            %          or an object which 'isa(,type)'
+            % - type:  string naming the baseclass to which val should
+            %          belong
+            %
+            % Output
+            % ------
+            % - obj:   the modified Experiment object where the value of
+            %          the field named by the calling form of val (using
+            %          inputname(val#argnum) is modified by adding val if
+            %          val is not a unique_references-container or setting
+            %          it if it is a unique_references_container
+
+            % get the name of the calling variable which enters as 'val'
+            field = [inputname(2) '_'];
+
+            if isa(val, 'unique_references_container') && ...
+                   strcmp(val.stored_baseclass,type)
+                % if size is right, overwrite default compressed container
+                if val.n_runs == obj.n_runs
+                    obj.(field) = val;
+                else
+                    error('HORACE:Experiment:invalid_argument', ...
+                          'input %d size must match number of runs',obj.n_runs);
+                end
+
+
+            elseif ( isa(val, type) &&                       ...
+                     numel(val) == obj.n_runs )              ...
+                   ||                                        ...                   
+                   ( isa(val, 'unique_objects_container') && ...
+                     val.n_runs == obj.n_runs             && ...
+                     strcmp(val.baseclass, type) )           ...
+                   ||                                        ...
+                   ( iscell(val)                          && ...
+                     numel(val) == obj.n_runs             && ...
+                     isa(val{1}, type) )
+
+                % add to default compressed container
+                obj.(field) = obj.(field).add(val);
+
+            elseif ( isa(val, type) &&                       ...
+                     numel(val) == 1 )              ...
+                % assume we're adding n_runs identical copies
+                % 
+                % add to default compressed container
+                for i=1:obj.n_runs
+                    obj.(field) = obj.(field).add(val);
+                end
+
+            elseif isempty(val)
+                % do nothing, leave default compressed container empty
+
+            else
+                error('HORACE:Experiment:invalid_argument', ...
+                      ['input is not empty, does not have the right number ' ...
+                       'of runs, or if not of type %s'], type);
+            end
+        end
     end
     %
     methods(Static)
@@ -670,6 +704,16 @@ classdef Experiment < serializable
         end
     end
     methods(Static)
+        function ishdr = isoldheader(val)
+            % hacky - 
+            ishdr = true;
+            if ~isstruct(val)
+                ishdr = false;
+            elseif ~isfield(val,{'alatt','angdeg','efix','emode'})
+                ishdr = false;
+            end
+        end
+        
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % save-able class

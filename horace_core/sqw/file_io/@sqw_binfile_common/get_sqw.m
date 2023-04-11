@@ -68,15 +68,25 @@ end
 if ~(opts.head||opts.his)
     detpar = obj.get_detpar();
     if (~isempty(detpar)                             && ...
-        IX_detector_array.check_detpar_parms(detpar) && ...
-        exp_info.detector_arrays.n_runs == 0         )
-
+        IX_detector_array.check_detpar_parms(detpar)    ...
+       )
         detector = IX_detector_array(detpar);
         det_arrays = exp_info.detector_arrays;
-        for i=1:exp_info.n_runs
-            det_arrays = det_arrays.add(detector);
+        if exp_info.detector_arrays.n_runs == 0       
+            for i=1:exp_info.n_runs
+                det_arrays = det_arrays.add(detector);
+            end
+            exp_info.detector_arrays = det_arrays;
+        elseif exp_info.detector_arrays.n_runs == exp_info.n_runs
+            for i=1:exp_info.n_runs
+                exp_info.detector_arrays{i} = detector;
+            end
+        else
+            error('HORACE:get_sqw:invalid_data', ...
+                  ['the detector arrays input with exp_info are neither zero length',...
+                   'nor as long as the number of runs in exp_info.\n', ...
+                   'the formation of exp_info upstream may be faulty.']);
         end
-        exp_info.detector_arrays = det_arrays;
     end
     sqw_struc.detpar = detpar;
 end

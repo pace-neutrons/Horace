@@ -61,7 +61,7 @@ w.experiment_info = exp_info;
 w.data = data;
 w.pix=pix;
 % move detector data from detpar into the experiment info detector arrays
-w.check_combo_arg();
+w = w.check_combo_arg();
 
 %------------------------------------------------------------------------------------------------------------------
 function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)

@@ -12,14 +12,25 @@ detc = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detecto
 for i=1:n_header
     if iscell(header)
         [exper(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(header{i});
+        hdr = header{i};
     else
         [exper(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(header(i));
+        hdr = header(i);
     end
-    samp{i} = IX_samp('',alatt,angdeg);
-    inst{i} = IX_null_inst();
+    if ~isfield(hdr,'instrument') || isempty(hdr.instrument)
+        inst{i} = IX_null_inst();
+    else
+        inst{i} = hdr.instrument;
+    end
+    if ~isfield(hdr,'sample') || isempty(hdr.sample)
+        samp{i} = IX_samp('',alatt,angdeg);        
+    else
+        samp{i} = hdr.sample;
+    end
 end
 %
-% the detector arg creates the container but it will be
+% the detc variable creates the container but it will be
 % empty until subsequent code populates it from detpar
+detc = detc.add(repmat(IX_detector_array(),1,n_header));
 exp_info = Experiment(detc,inst,samp,exper);
 %

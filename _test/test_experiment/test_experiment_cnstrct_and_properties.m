@@ -47,8 +47,9 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             exp(2).filename = 'a2';
             exp(3).run_id = 30;
             exp(3).filename = 'a3';
+            detectors = repmat(IX_detector_array(),1,numel(exp));
 
-            exper= Experiment(IX_detector_array,instruments,samples,exp);
+            exper= Experiment(detectors,instruments,samples,exp);
 
             assertEqual(exper.n_runs,3)
 
@@ -79,12 +80,12 @@ classdef test_experiment_cnstrct_and_properties < TestCase
 
             assertTrue(isa(expt.samples{1},'IX_null_sample'));
             assertTrue(isa(expt.instruments{1},'IX_null_inst'));
-            assertTrue(isempty(expt.detector_arrays));
+            assertTrue(expt.detector_arrays.n_runs==0);
             assertTrue(isempty(expt.expdata));
         end
         function test_constructor_raises_error_with_invalid_single_input(~)
             assertExceptionThrown(@()Experiment('something icorrect'),...
-                'HORACE:Experiment:invalid_argument');
+                'HORACE:build_from_old_headers_:invalid_argument');
         end
 
         function test_constructor_raises_error_with_no_sample(~)
@@ -138,8 +139,9 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             sample2.name = 'sample2';
             samples = [sample1, sample2];
             data = [IX_experiment(),IX_experiment()];
+            detectors = repmat(IX_detector_array(), 1, numel(data));
 
-            expt = Experiment(IX_detector_array, instruments, samples,data);
+            expt = Experiment(detectors, instruments, samples,data);
             info = expt.expdata;
             assertTrue(expt.runid_recalculated)
             assertEqual(numel(info),2)

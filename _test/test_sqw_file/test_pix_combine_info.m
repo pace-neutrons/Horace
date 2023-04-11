@@ -1,4 +1,4 @@
-classdef test_pix_combine_info_SKIPTEST < TestCase & common_sqw_file_state_holder
+classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
     % Test checks some components of pix_combine_info
     %
     %---------------------------------------------------------------------
@@ -11,9 +11,7 @@ classdef test_pix_combine_info_SKIPTEST < TestCase & common_sqw_file_state_holde
     end
 
     methods
-        function obj=test_pix_combine_info_SKIPTEST(test_class_name)
-            %
-            skipTest('cm error');
+        function obj=test_pix_combine_info(test_class_name)
             if ~exist('test_class_name','var')
                 test_class_name = 'test_pix_combine_info';
             end
