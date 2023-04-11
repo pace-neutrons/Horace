@@ -1,4 +1,4 @@
-classdef (Abstract) SymopBase < matlab.mixin.Heterogeneous
+classdef Symop < matlab.mixin.Heterogeneous
 % Symmetry operator describing equivalent points
 %
 % A symmetry operator object describes how equivalent points are defined by
@@ -24,18 +24,51 @@ classdef (Abstract) SymopBase < matlab.mixin.Heterogeneous
 % symop Methods:
 % --------------------------------------
 %   symop           - Create a symmetry operator object
+%   transform_vec   - Transform a 3xN list of vectors
 %   transform_pix   - Transform pixel coordinates into symmetry related coordinates
 %   transform_proj  - Transform projection axes description by the symmetry operation
 
     properties (Dependent)
-        offset
+        offset;
+        W;
     end
 
     properties (Access=private)
-        offset_ = [0; 0; 0];  % offset vector for symmetry operator (rlu) (row)
+        offset_ = [0; 0; 0];  % offset vector for symmetry operator (rlu) (col)
+    end
+
+    properties(Access=protected)
+        W_;
     end
 
     methods
+
+        function obj = Symop(W, offset)
+            if nargin == 0
+                return
+            end
+
+            if ~exist('offset', 'var')
+                offset = obj.offset;
+            end
+
+            if ~Symop.check_args({W, offset})
+                error('HORACE:symop:invalid_argument', ...
+                      ['Constructor arguments should be:\n', ...
+                       '- Motion:     symop(3x3matrix, [3vector])\n', ...
+                       'Received: %s'], disp2str(W));
+            end
+
+            if SymopIdentity.check_args({W, offset})
+                obj = SymopIdentity(W);
+                return;
+            end
+
+            obj.W = W;
+            obj.offset = offset;
+
+        end
+
         function offset = get.offset(obj)
             offset = obj.offset_;
         end
@@ -48,16 +81,72 @@ classdef (Abstract) SymopBase < matlab.mixin.Heterogeneous
             obj.offset_ = val(:);
         end
 
-        function vec = transform(obj, vec)
+        function obj = set.W(obj, val)
+            if  ~obj.is_3x3matrix(val) || abs(det(val)) ~= 1
+                error('HORACE:symop:invalid_argument', ...
+                      'Motion matrix W must be a 3x3 matrix with determinant 1, det: %d', det(val));
+            end
+            obj.W_ = reshape(val, [3 3]);
+        end
+
+        function W = get.W(obj)
+            W = obj.transform_vec(eye(3));
+        end
+
+
+        function R = calculate_transform(obj, Minv)
+        % Get transformation matrix for the symmetry operator in an orthonormal frame
+        %
+        % The transformation matrix converts the components of a vector which is
+        % related by the symmetry operation into the equivalent vector. The
+        % coordinates of the vector are expressed in an orthonormal frame.
+        %
+        % For example, if the symmetry operation is a rotation by 90 degrees about
+        % [0,0,1] in a cubic lattice with lattice parameter 2*pi, the point [0.3,0.1,2]
+        % is transformed into [0.1,-0.3,2].
+        %
+        % The transformation matrix accounts for reflection or rotation, but not
+        % translation associated with the offset in the symmetry operator.
+        %
+        %   >> R = calculate_transform (obj, Minv)
+        %
+        % Input:
+        % ------
+        %   obj     Symmetry operator object (scalar)
+        %   Minv    Matrix to convert components of a vector given in rlu to those
+        %          in an orthonormal frame
+        %
+        % Output:
+        % -------
+        %   R       Transformation matrix to be applied to the components of a
+        %          vector given in the orthonormal frame for which Minv is defined
+            R = obj.W_;
+        end
+    end
+
+    methods(Sealed)
+
+        function vec = transform_vec(obj, vec)
             if size(vec, 1) ~= 3
                 error('HORACE:symop:invalid_argument', ...
                       'Input must be list of 3-vectors')
             end
 
-
             for i = numel(obj):-1:1
                 R = obj(i).calculate_transform(eye(3));
                 vec = R * vec;
+            end
+        end
+
+        function disp(obj)
+            if isscalar(obj)
+                obj.local_disp();
+            else
+                disp('[')
+                for i = obj
+                    i.local_disp();
+                end
+                disp(']')
             end
         end
 
@@ -166,16 +255,18 @@ classdef (Abstract) SymopBase < matlab.mixin.Heterogeneous
             b = bmatrix(proj.alatt, proj.angdeg);
 
             sgn = ones(1,numel(obj));
-            for i=1:numel(obj)
-                [proj, sgn] = transform_proj_single(obj(i), b, proj);
+            for i=numel(obj):-1:1
+                [proj, sgn(i)] = transform_proj_single(obj(i), b, proj);
             end
+
             sgntot = prod(sgn);     % +1 or -1 depending on even or odd number of reflections
 
-            if sgntot == -1     % odd number of reflections
-                                % Does not work for non-orthogonal axes. The problem is that reflections
-                                % do not have a simple relationship
-                                % Find an axis to invert. Invert an integration axis (then there are no
-                                % problems with order of bins in the sqw object); if none, then invert axis 3
+            if sgntot == -1
+                % odd number of reflections
+                % Does not work for non-orthogonal axes. The problem is that reflections
+                % do not have a simple relationship
+                % Find an axis to invert. Invert an integration axis (then there are no
+                % problems with order of bins in the sqw object); if none, then invert axis 3
                 invert = cellfun(@numel, pbin) == 2;
 
                 if invert(3)
@@ -204,7 +295,6 @@ classdef (Abstract) SymopBase < matlab.mixin.Heterogeneous
                 end
             end
         end
-
     end
 
     methods (Access=private)
@@ -237,12 +327,105 @@ classdef (Abstract) SymopBase < matlab.mixin.Heterogeneous
         end
     end
 
-    methods (Abstract)
-        disp(obj)
-        R = calculate_transform(Minv)
+    methods(Access=protected)
+        function local_disp(obj)
+            disp('Sym op:')
+            if any(obj.offset ~= 0)
+                fprintf(' % 1d % 1d % 1d    % g\n', obj.W(1, :), obj.offset(1));
+                fprintf(' % 1d % 1d % 1d  + % g\n', obj.W(2, :), obj.offset(2));
+                fprintf(' % 1d % 1d % 1d    % g\n', obj.W(3, :), obj.offset(3));
+            else
+                fprintf(' % 1d % 1d % 1d\n', obj.W(1, :));
+                fprintf(' % 1d % 1d % 1d\n', obj.W(2, :));
+                fprintf(' % 1d % 1d % 1d\n', obj.W(3, :));
+            end
+        end
     end
 
     methods(Static)
+        function obj = create(varargin)
+        % Create a symmetry operator object.
+        %
+        % Valid operators are:
+        %   Rotation:
+        %       >> obj = Symop.create (axis, angle)
+        %       >> obj = Symop.create (axis, angle, offset)
+        %
+        %       Input:
+        %       ------
+        %       axis    Vector defining the rotation axis
+        %               (in reciprocal lattice units: (h,k,l))
+        %       angle   Angle of rotation in degrees
+        %       offset  [Optional] Vector defining a point in reciprocal lattice units
+        %               through which the rotation axis passes
+        %               Default: [0,0,0] i.e. the rotation axis goes throught the origin
+        %
+        %   Reflection:
+        %       >> obj = Symop.create (u, v)
+        %       >> obj = Symop.create (u, v, offset)
+        %
+        %       Input:
+        %       ------
+        %       u, v    Vectors giving two directions that lie in a mirror plane
+        %               (in reciprocal lattice units: (h,k,l))
+        %       offset  [Optional] Vector connecting the mirror plane to the origin
+        %               i.e. is an offset vector (in reciprocal lattice units: (h,k,l))
+        %               Default: [0,0,0] i.e. the mirror plane goes throught the origin
+        %
+        %   Symmetry Motion operator:
+        %       >> obj = Symop.create(W, offset)
+        %
+        %       Input:
+        %       ------
+        %       W       A transformation operation in matrix form.
+        %               W can represent the identity element {eye(3)},
+        %               the inversion element {-eye(3)}, any rotation
+        %               or any rotoinversion. The elements of W are
+        %               almost certainly integers.
+        %       offset  [Optional] The origin at which the transformation
+        %               is performed, expressed in r.l.u.
+        %               Default: [0,0,0]
+        %
+        % EXAMPLES:
+        %   Rotation of 120 degress about [1,1,1]:
+        %       obj = Symop.create ([1,1,1], 120)
+        %
+        %   Reflection through a plane going through the [2,0,0] reciprocal lattice point:
+        %       obj = Symop.create ([1,1,0], [0,0,1], [2,0,0])
+
+            if numel(varargin)>0
+
+                if SymopIdentity.check_args(varargin)
+
+                    obj = SymopIdentity(varargin{:});
+                elseif SymopReflection.check_args(varargin)
+
+                    obj = SymopReflection(varargin{:});
+                elseif SymopRotation.check_args(varargin)
+
+                    obj = SymopRotation(varargin{:});
+                elseif Symop.check_args(varargin)
+
+                    obj = Symop(varargin{:});
+                else
+
+                    error('HORACE:symop:invalid_argument', ...
+                          ['Constructor arguments should be one of:\n', ...
+                           '- Rotation:   symop(3vector, scalar, [3vector])\n', ...
+                           '- Reflection: symop(3vector, 3vector, [3vector])\n', ...
+                           '- Motion:     symop(3x3matrix, [3vector])\n', ...
+                           'Received: %s'], disp2str(varargin));
+
+                end
+            end
+        end
+
+        function is = check_args(argin)
+            is = (numel(argin) == 1 || ...
+                  numel(argin) == 2 && Symop.is_3vector(argin{2})) && ...
+                  Symop.is_3x3matrix(argin{1});
+        end
+
         function is = is_3vector(elem)
             is = isnumeric(elem) && numel(elem) == 3;
         end

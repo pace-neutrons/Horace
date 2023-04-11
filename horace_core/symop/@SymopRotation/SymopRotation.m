@@ -1,4 +1,4 @@
-classdef SymopRotation < SymopBase
+classdef SymopRotation < Symop
 
     properties(Dependent)
         n;
@@ -12,6 +12,10 @@ classdef SymopRotation < SymopBase
 
     methods
         function obj = SymopRotation(n, theta_deg, offset)
+            if nargin == 0
+                return
+            end
+
             if ~exist('offset', 'var')
                 offset = obj.offset;
             end
@@ -53,13 +57,6 @@ classdef SymopRotation < SymopBase
             theta_deg = obj.theta_deg_;
         end
 
-        function disp(obj)
-            disp([indstr,'Rotation operator:'])
-            disp(['       axis (rlu): ',mat2str(obj.n)])
-            disp(['      angle (deg): ',num2str(obj.theta_deg)])
-            disp(['     offset (rlu): ',mat2str(obj.offset)])
-        end
-
         function R = calculate_transform(obj, Minv)
         % Get transformation matrix for the symmetry operator in an orthonormal frame
         %
@@ -93,11 +90,20 @@ classdef SymopRotation < SymopBase
         end
     end
 
+    methods(Access=protected)
+        function local_disp(obj)
+            disp(['Rotation operator:'])
+            disp(['       axis (rlu): ',mat2str(obj.n)])
+            disp(['      angle (deg): ',num2str(obj.theta_deg)])
+            disp(['     offset (rlu): ',mat2str(obj.offset)])
+        end
+    end
+
     methods(Static)
         function is = check_args(argin)
             is = (numel(argin) == 2 || ...
-                  numel(argin) == 3 && SymopBase.is_3vector(argin{3})) && ...
-                  SymopBase.is_3vector(argin{1}) && ...
+                  numel(argin) == 3 && Symop.is_3vector(argin{3})) && ...
+                  Symop.is_3vector(argin{1}) && ...
                   isscalar(argin{2});
         end
     end
