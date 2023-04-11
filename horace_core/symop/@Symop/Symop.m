@@ -1,4 +1,4 @@
-classdef(Abstract) Symop < matlab.mixin.Heterogeneous
+classdef Symop < matlab.mixin.Heterogeneous
 % Symmetry operator describing equivalent points
 %
 % A symmetry operator object describes how equivalent points are defined by
@@ -6,26 +6,16 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
 %   - Rotation about an axis through a given point
 %   - Reflection through a plane passing through a given point
 %
-% An array of the symmetry operator objects can be created to express a
-% more complex operation, in which operations are applied in sequence op(N)*op(N-1)*...*op(1)*targ
+% An array, O, of the symmetry operator objects can be created to express a
+% more complex operation, in which operations are applied in sequence O(1), O(2),...
 %
 % EXAMPLES:
-%   Equivalent points are reached by general 3x3 Matrix transform
-%       s = SymopGeneral([1,0,0; 0 -1 0; 0,0,-1], [1,1,1]);
-%       s = Symop.create([1,0,0; 0 -1 0; 0,0,-1], [1,1,1]);
-%
-%   Identity (no-op) transform
-%       s = SymopIdentity();
-%       s = Symop.create(eye(3));
-%
-%   Equivalent points are reached by [1,0,0] and [0,1,0] directions passing through [1,1,1]
-%       s1 = SymopReflection([1,0,0], [0,1,0], [1,1,1]);
-%       s1 = Symop.create([1,0,0], [0,1,0], [1,1,1]);
+%   Mirror plane defined by [1,0,0] and [0,1,0] directions passing through [1,1,1]
+%       s1 = symop ([1,0,0], [0,1,0], [1,1,1]);
 %
 %   Equivalent points are reached by rotation by 90 degrees about c* passing
 %   through [0,2,0]:
-%       s2 = SymopRotation([0,0,1], 90, [0,2,0]);
-%       s2 = Symop.create([0,0,1], 90, [0,2,0]);
+%       s2 = symop([0,0,1], 90, [0,2,0]);
 %
 %   Equivalent points are reached by first reflection in the mirror plane and
 %   then rotating:
@@ -33,24 +23,26 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
 %
 % symop Methods:
 % --------------------------------------
-%   Symop           - Create a general symmetry operator object through 3x3 matrix specification
-%   create          - Create appropriate symmetry operator object from
+%   symop           - Create a symmetry operator object
 %   transform_vec   - Transform a 3xN list of vectors
 %   transform_pix   - Transform pixel coordinates into symmetry related coordinates
 %   transform_proj  - Transform projection axes description by the symmetry operation
 
-    properties(Dependent)
-        % Offset of transform
+    properties (Dependent)
         offset;
-        % General transformation matrix for operator
-        R;
+        W;
     end
 
     properties (Access=private)
         offset_ = [0; 0; 0];  % offset vector for symmetry operator (rlu) (col)
     end
 
+    properties(Access=protected)
+        W_;
+    end
+
     methods
+
         function obj = Symop(W, offset)
             if nargin == 0
                 return
@@ -63,8 +55,13 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
             if ~Symop.check_args({W, offset})
                 error('HORACE:symop:invalid_argument', ...
                       ['Constructor arguments should be:\n', ...
-                       '- General:  Symop(3x3matrix, [3vector])\n', ...
+                       '- Motion:     symop(3x3matrix, [3vector])\n', ...
                        'Received: %s'], disp2str(W));
+            end
+
+            if SymopIdentity.check_args({W, offset})
+                obj = SymopIdentity(W);
+                return;
             end
 
             obj.W = W;
@@ -84,59 +81,76 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
             obj.offset_ = val(:);
         end
 
-        function R = get.R(obj)
-        % Compute general transformation matrix for operator
-        % Computing so as to generate it for Symop subclasses
-            R = obj.calculate_transform(eye(3));
+        function obj = set.W(obj, val)
+            if  ~obj.is_3x3matrix(val) || abs(det(val)) ~= 1
+                error('HORACE:symop:invalid_argument', ...
+                      'Motion matrix W must be a 3x3 matrix with determinant 1, det: %d', det(val));
+            end
+            obj.W_ = reshape(val, [3 3]);
         end
 
-    end
+        function W = get.W(obj)
+            W = obj.transform_vec(eye(3));
+        end
 
-    methods(Abstract)
-        R = calculate_transform(obj, Minv)
-        local_disp(obj)
-        selected = in_irreducible(obj, coords)
+
+        function R = calculate_transform(obj, Minv)
+        % Get transformation matrix for the symmetry operator in an orthonormal frame
+        %
+        % The transformation matrix converts the components of a vector which is
+        % related by the symmetry operation into the equivalent vector. The
+        % coordinates of the vector are expressed in an orthonormal frame.
+        %
+        % For example, if the symmetry operation is a rotation by 90 degrees about
+        % [0,0,1] in a cubic lattice with lattice parameter 2*pi, the point [0.3,0.1,2]
+        % is transformed into [0.1,-0.3,2].
+        %
+        % The transformation matrix accounts for reflection or rotation, but not
+        % translation associated with the offset in the symmetry operator.
+        %
+        %   >> R = calculate_transform (obj, Minv)
+        %
+        % Input:
+        % ------
+        %   obj     Symmetry operator object (scalar)
+        %   Minv    Matrix to convert components of a vector given in rlu to those
+        %          in an orthonormal frame
+        %
+        % Output:
+        % -------
+        %   R       Transformation matrix to be applied to the components of a
+        %          vector given in the orthonormal frame for which Minv is defined
+            R = obj.W_;
+        end
     end
 
     methods(Sealed)
 
         function vec = transform_vec(obj, vec)
-        % Transform a vector or list of vectors according to array of
-        % Symops stored in `obj`.
-        %
-        % Input:
-        %   obj    Array of symmetry operator objects
-        %   vec    3xN list of 3-vectors to transform
-        % Output:
-        %   vec    Transformed set of vectors
-
             if size(vec, 1) ~= 3
                 error('HORACE:symop:invalid_argument', ...
                       'Input must be list of 3-vectors')
             end
 
             for i = numel(obj):-1:1
-                vec = vec - obj(i).offset;
-                vec = obj(i).R * vec;
-                vec = vec + obj(i).offset;
+                R = obj(i).calculate_transform(eye(3));
+                vec = R * vec;
             end
         end
 
         function disp(obj)
-        % Display set of symmetry operations resulting in transform
-        % even if specified as array of symops
             if isscalar(obj)
                 obj.local_disp();
             else
-                disp('[');
+                disp('[')
                 for i = obj
                     i.local_disp();
                 end
-                disp(']');
+                disp(']')
             end
         end
 
-        function pix = transform_pix(obj, pix)
+        function pix = transform_pix(obj, upix_to_rlu, upix_offset, pix)
         % Transform pixel coordinates into symmetry related coordinates
         %
         % The transformation converts the components of a vector which is
@@ -145,7 +159,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         % [0,0,1] in a cubic lattice with lattice parameter 2*pi, the point [0.3;0.1;2]
         % is transformed into [0.1;-0.3;2].
         %
-        %   >> pix = transform_pix (obj, pix_in)
+        %   >> pix = transform_pix (obj, upix_to_rlu, upix_offset, pix_in)
         %
         % Input:
         % ------
@@ -157,26 +171,40 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         %
         %   upix_offset Offset of origin of pixel coordinate frame (rlu) (vector length 3)
         %
-        %   pix         PixelData object
+        %   pix         Pixel coordinates (3 x n array).
         %
         % Output:
         % -------
-        %   pix         Transformed PixelData object
+        %   pix_out     Transformed pixel array (3 x n array).
 
             % Check input
-            if ~isa(pix, 'PixelDataBase')
-                error('HORACE:Symop:invalid_argument', ...
-                      'transform_pix requires pixels');
+            if ~isequal(size(upix_to_rlu), [3,3])
+                error('HORACE:symop:invalid_argument', ...
+                      'Check upix_to_rlu is a 3x3 matrix')
+            elseif ~(numel(upix_offset)==3 || numel(upix_offset)==4)
+                error('HORACE:symop:invalid_argument', ...
+                      'Check upix_offset is a vector length 3|4')
+            elseif isempty(obj)
+                error('HORACE:symop:invalid_argument', ...
+                      'Empty symmetry operation object array')
             end
 
             % Get transformation
-            if isa(pix, 'PixelDataMemory')
-                sel = obj.in_irreducible(pix.q_coordinates);
-                pix.q_coordinates(:, ~sel) = obj.transform_vec(pix.q_coordinates(:, ~sel));
-            else
-                error('HORACE:Symop:not_implemented', ...
-                      'filebacked pix symmetry reduction not possible')
+            n = numel(obj);
+
+            Minv = upix_to_rlu(1:3,1:3) \ eye(3);  % seems to be slightly better than inv(M)
+            Rtot = obj(end).calculate_transform(Minv);
+            Om = obj(end).compute_offset(Rtot, Minv, upix_offset(1:3));
+
+            for i=n-1:-1:1
+                R = obj(i).calculate_transform(Minv);
+                O = obj(i).compute_offset(R, Minv, upix_offset(1:3));
+                Rtot = Rtot * R;
+                Om = R \ Om + O;
             end
+
+            % Transform pixels
+            pix = Rtot \ pix_in + Om;
 
         end
 
@@ -213,54 +241,80 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         % a right-hand coordinate set. Strictly, the condition only applies to the
         % third axis when all three momentum axes are plot axes.
 
-            % Check input
-            if ~isa(proj, 'aProjectionBase')
-                error('HORACE:Symop:invalid_argument', ...
-                      'transform_proj requires projection');
+            if isempty(obj)
+                error('HORACE:symop:invalid_argument', ...
+                      'Empty symmetry operation object array')
+            end
+
+            if proj.nonorthogonal
+                error('HORACE:symop:invalid_argument', ...
+                      'Symmetry transformed non-orthogonal projections not supported');
             end
 
             % Transform proj
+            b = bmatrix(proj.alatt, proj.angdeg);
+
+            sgn = ones(1,numel(obj));
             for i=numel(obj):-1:1
-                proj = obj(i).transform_proj_single(proj);
+                [proj, sgn(i)] = transform_proj_single(obj(i), b, proj);
+            end
+
+            sgntot = prod(sgn);     % +1 or -1 depending on even or odd number of reflections
+
+            if sgntot == -1
+                % odd number of reflections
+                % Does not work for non-orthogonal axes. The problem is that reflections
+                % do not have a simple relationship
+                % Find an axis to invert. Invert an integration axis (then there are no
+                % problems with order of bins in the sqw object); if none, then invert axis 3
+                invert = cellfun(@numel, pbin) == 2;
+
+                if invert(3)
+                    pbin{3} = -flip(pbin{3});
+                    proj.w = -proj.w;
+
+                elseif invert(2)
+                    pbin{2} = -flip(pbin{2});
+                    proj.v = -proj.v;
+
+                elseif invert(1)
+                    pbin{1} = -flip(pbin{1});
+                    proj.u = -proj.u;
+
+                else
+                    % The following is correct if the true bin descriptor is given
+                    % i.e. the interval is an integer multiple of the step size
+                    nbin = (pbin{3}(3) - pbin{3}(1)) / pbin{3}(2);
+                    if floor(nbin) ~= nbin
+                        error('HORACE:symop:invalid_argument', ...
+                              'Range along third projection axis is not an integer multiple of bin size');
+                    end
+                    pbin{3} = -flip(pbin{3});
+                    proj.w = -proj.w;
+
+                end
             end
         end
     end
 
     methods (Access=private)
-        function [proj, sgn] = transform_proj_single (obj, proj)
+        function [proj, sgn] = transform_proj_single (obj, Minv, proj)
         % Note this function uses matrix Minv which transforms from rlu to
         % orthonormal components
 
-            switch class(proj)
-              case 'ortho_proj'
+            R = obj.calculate_transform(Minv);
 
-                u_new = obj.R * proj.u(:);
-                v_new = obj.R * proj.v(:);
-                offset_new = proj.offset(:);
-                offset_new(1:3) = obj.transform_vec(offset_new(1:3));
-                if ~isempty(proj.w)
-                    w_new = obj.R * proj.w(:);
-                    proj = proj.set_axes(u_new, v_new, w_new, offset_new);
-                else
-                    proj = proj.set_axes(u_new, v_new, [], offset_new);
-                end
+            sgn = round(det(R));    % will be +1 for rotation, -1 for reflection
 
-              case 'spher_proj'
+            proj.offset(1:3) = Minv \ R * Minv * (proj.offset(1:3)'-obj.offset_) + obj.offset_;
 
-                %% TODO non-aligned ez/ey not supported
-                % ez_new = obj.R * proj.ez(:);
-                % ey_new = obj.R * proj.ey(:);
-
-%                 offset_new = proj.offset(:);
-%                 offset_new(1:3) = obj.transform_vec(offset_new(1:3));
-%
-%                 proj.offset = offset_new;
-
-              otherwise
-
-                error('HORACE:Symop:not_implemented', ...
-                      'Cannot transform projection class "%s"', class(proj));
-
+            u_new = (Minv \ R * Minv * proj.u(:));
+            v_new = (Minv \ R * Minv * proj.v(:));
+            if ~isempty(proj.w)
+                w_new = (Minv \ R * Minv * proj.w(:));
+                proj = proj.set_axes(u_new, v_new, w_new);
+            else
+                proj = proj.set_axes(u_new, v_new);
             end
 
         end
@@ -270,6 +324,21 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
             dp = Minv*(obj.offset - upix_offset(:));
             offset = dp - R \ dp;
 
+        end
+    end
+
+    methods(Access=protected)
+        function local_disp(obj)
+            disp('Sym op:')
+            if any(obj.offset ~= 0)
+                fprintf(' % 1d % 1d % 1d    % g\n', obj.W(1, :), obj.offset(1));
+                fprintf(' % 1d % 1d % 1d  + % g\n', obj.W(2, :), obj.offset(2));
+                fprintf(' % 1d % 1d % 1d    % g\n', obj.W(3, :), obj.offset(3));
+            else
+                fprintf(' % 1d % 1d % 1d\n', obj.W(1, :));
+                fprintf(' % 1d % 1d % 1d\n', obj.W(2, :));
+                fprintf(' % 1d % 1d % 1d\n', obj.W(3, :));
+            end
         end
     end
 
@@ -284,9 +353,9 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         %
         %       Input:
         %       ------
-        %       axis    Vector defining the rotation axis                                 [3-vector]
+        %       axis    Vector defining the rotation axis
         %               (in reciprocal lattice units: (h,k,l))
-        %       angle   Angle of rotation in degrees                                      [scalar]
+        %       angle   Angle of rotation in degrees
         %       offset  [Optional] Vector defining a point in reciprocal lattice units
         %               through which the rotation axis passes
         %               Default: [0,0,0] i.e. the rotation axis goes throught the origin
@@ -297,7 +366,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         %
         %       Input:
         %       ------
-        %       u, v    Vectors giving two directions that lie in a mirror plane          [3-vector]
+        %       u, v    Vectors giving two directions that lie in a mirror plane
         %               (in reciprocal lattice units: (h,k,l))
         %       offset  [Optional] Vector connecting the mirror plane to the origin
         %               i.e. is an offset vector (in reciprocal lattice units: (h,k,l))
@@ -308,7 +377,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         %
         %       Input:
         %       ------
-        %       W       A transformation operation in matrix form.                        [3x3 matrix]
+        %       W       A transformation operation in matrix form.
         %               W can represent the identity element {eye(3)},
         %               the inversion element {-eye(3)}, any rotation
         %               or any rotoinversion. The elements of W are
@@ -337,14 +406,14 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
                     obj = SymopRotation(varargin{:});
                 elseif Symop.check_args(varargin)
 
-                    obj = SymopGeneral(varargin{:});
+                    obj = Symop(varargin{:});
                 else
 
                     error('HORACE:symop:invalid_argument', ...
                           ['Constructor arguments should be one of:\n', ...
                            '- Rotation:   symop(3vector, scalar, [3vector])\n', ...
                            '- Reflection: symop(3vector, 3vector, [3vector])\n', ...
-                           '- General:    symop(3x3matrix, [3vector])\n', ...
+                           '- Motion:     symop(3x3matrix, [3vector])\n', ...
                            'Received: %s'], disp2str(varargin));
 
                 end
