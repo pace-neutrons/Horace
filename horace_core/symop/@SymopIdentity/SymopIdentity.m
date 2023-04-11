@@ -1,4 +1,4 @@
-classdef SymopIdentity < SymopBase
+classdef SymopIdentity < Symop
 
     methods
         function obj = SymopIdentity(id)
@@ -14,10 +14,6 @@ classdef SymopIdentity < SymopBase
                        ' 0 0 1]\n', ...
                        'Received: %s'], disp2str(id));
             end
-        end
-
-        function disp(obj)
-            disp('Identity operator (no symmetrisation)')
         end
 
         function R = calculate_transform(obj, Minv)
@@ -46,13 +42,21 @@ classdef SymopIdentity < SymopBase
         % -------
         %   R       Transformation matrix to be applied to the components of a
         %          vector given in the orthonormal frame for which Minv is defined
-            R = eye(3);
+            R = Minv * eye(3);
+        end
+    end
+
+    methods(Access=protected)
+        function local_disp(obj)
+            disp('Identity operator (no symmetrisation)')
         end
     end
 
     methods(Static)
         function is = check_args(argin)
-            is = numel(argin) == 1 && ...
+            is = (numel(argin) == 1 || ...
+                  numel(argin) == 2 && Symop.is_3vector(argin{2}) && ...
+                  all(argin{2} == 0)) && ...
                  isequal(argin{1}, eye(3));
         end
     end
