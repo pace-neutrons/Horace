@@ -1,18 +1,21 @@
 classdef SymopIdentity < Symop
 
     methods
-        function obj = SymopIdentity(id)
+        function obj = SymopIdentity(id, offset)
             if ~exist('id', 'var')
                 id = eye(3);
             end
+            if ~exist('offset', 'var')
+                offset = [0; 0; 0];
+            end
 
-            if ~SymopIdentity.check_args({id})
+            if ~SymopIdentity.check_args({id, offset})
                 error('HORACE:symop:invalid_argument', ...
                       ['Constructor arguments should be:\n', ...
-                       '[1 0 0\n', ...
-                       ' 0 1 0\n', ...
-                       ' 0 0 1]\n', ...
-                       'Received: %s'], disp2str(id));
+                       '[1 0 0  [0\n', ...
+                       ' 0 1 0 , 0\n', ...
+                       ' 0 0 1]  0]\n', ...
+                       'Received : %s'], disp2str({id, offset}));
             end
         end
 
