@@ -45,7 +45,27 @@ classdef test_symop < TestCase
         function test_identity_constructor(obj)
             out = SymopIdentity();
             assertTrue(isa(out, 'SymopIdentity'))
+
+            out = SymopIdentity(eye(3));
+            assertTrue(isa(out, 'SymopIdentity'))
+
+            out = SymopIdentity(eye(3), [0 0 0]);
+            assertTrue(isa(out, 'SymopIdentity'))
         end
+
+
+        function test_identity_constructor_fail(obj)
+            assertExceptionThrown(@() SymopIdentity(1), 'HORACE:symop:invalid_argument');
+            assertExceptionThrown(@() SymopIdentity([1 0 0]), 'HORACE:symop:invalid_argument');
+            assertExceptionThrown(@() SymopIdentity([1 0 0], 90), 'HORACE:symop:invalid_argument');
+            assertExceptionThrown(@() SymopIdentity([1 0 0], [0 1 0]), 'HORACE:symop:invalid_argument');
+            assertExceptionThrown(@() SymopIdentity([0  1 0
+                                                     -1 0 0
+                                                     0  0 1]), 'HORACE:symop:invalid_argument');
+
+            % Non-zero offset
+            assertExceptionThrown(@() SymopIdentity(eye(3), [1 0 0]), 'HORACE:symop:invalid_argument');
+       end
 
         function test_symop_create_reflection(obj)
             out = Symop.create([1 0 0], [0 1 0]);
@@ -63,6 +83,20 @@ classdef test_symop < TestCase
             assertEqual(out.offset, [3; 3; 3])
         end
 
+        function test_reflection_constructor_fail(obj)
+            assertExceptionThrown(@() SymopReflection(1), 'MATLAB:minrhs');
+            assertExceptionThrown(@() SymopReflection([1 0 0]), 'MATLAB:minrhs');
+            assertExceptionThrown(@() SymopReflection(1, 90), 'HORACE:symop:invalid_argument');
+            assertExceptionThrown(@() SymopReflection([1 0 0], 90), 'HORACE:symop:invalid_argument');
+            assertExceptionThrown(@() SymopReflection(eye(3)), 'MATLAB:minrhs');
+            assertExceptionThrown(@() SymopReflection([0  1 0
+                                                       -1 0 0
+                                                       0  0 1], 90), 'HORACE:symop:invalid_argument');
+
+            % Test colinear vectors
+            assertExceptionThrown(@() SymopReflection([1 0 0], [1 0 0]), 'HORACE:symop:invalid_argument');
+       end
+
         function test_symop_create_rotation(obj)
             out = Symop.create([1 0 0], 120);
             assertTrue(isa(out, 'SymopRotation'))
@@ -79,7 +113,18 @@ classdef test_symop < TestCase
             assertEqual(out.offset, [3; 3; 3])
         end
 
-        function test_symop_create_matrix(obj)
+        function test_rotation_constructor_fail(obj)
+            assertExceptionThrown(@() SymopRotation(1), 'MATLAB:minrhs');
+            assertExceptionThrown(@() SymopRotation([1 0 0]), 'MATLAB:minrhs');
+            assertExceptionThrown(@() SymopRotation([1 0 0], [0 1 0]), 'HORACE:symop:invalid_argument');
+            assertExceptionThrown(@() SymopRotation(eye(3), [1 0 0]), 'HORACE:symop:invalid_argument');
+            assertExceptionThrown(@() SymopRotation([0  1 0
+                                                     -1 0 0
+                                                     0  0 1], [1 1 0]), 'HORACE:symop:invalid_argument');
+            assertExceptionThrown(@() SymopRotation([0  1 0; -1 0 0]), 'MATLAB:minrhs');
+       end
+
+       function test_symop_create_matrix(obj)
             out = Symop.create([ 0  0 -1
                                  -1  0  0
                                  0  1  0]);
@@ -247,7 +292,7 @@ classdef test_symop < TestCase
         end
 
         function test_apply_rot_360(obj)
-            op = [SymopRotation([1 0 0], 360)]
+            op = [SymopRotation([1 0 0], 360)];
             [out_proj, out_bin] = op.transform_proj(obj.proj, obj.binning);
 
             assertEqualToTol(out_proj.u, obj.proj.u, 'abstol', 1e-10)
