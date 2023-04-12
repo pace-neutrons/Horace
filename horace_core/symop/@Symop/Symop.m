@@ -38,7 +38,7 @@ classdef Symop < matlab.mixin.Heterogeneous
     end
 
     properties(Access=protected)
-        W_;
+        W_ = eye(3);
     end
 
     methods
@@ -57,11 +57,6 @@ classdef Symop < matlab.mixin.Heterogeneous
                       ['Constructor arguments should be:\n', ...
                        '- Motion:     symop(3x3matrix, [3vector])\n', ...
                        'Received: %s'], disp2str(W));
-            end
-
-            if SymopIdentity.check_args({W, offset})
-                obj = SymopIdentity(W);
-                return;
             end
 
             obj.W = W;
