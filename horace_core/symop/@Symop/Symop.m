@@ -6,16 +6,26 @@ classdef Symop < matlab.mixin.Heterogeneous
 %   - Rotation about an axis through a given point
 %   - Reflection through a plane passing through a given point
 %
-% An array, O, of the symmetry operator objects can be created to express a
-% more complex operation, in which operations are applied in sequence O(1), O(2),...
+% An array of the symmetry operator objects can be created to express a
+% more complex operation, in which operations are applied in sequence op(N)*op(N-1)*...*op(1)*targ
 %
 % EXAMPLES:
-%   Mirror plane defined by [1,0,0] and [0,1,0] directions passing through [1,1,1]
-%       s1 = symop ([1,0,0], [0,1,0], [1,1,1]);
+%   Equivalent points are reached by general 3x3 Matrix transform
+%       s = Symop([1,0,0; 0 -1 0; 0,0,-1], [1,1,1]);
+%       s = Symop.create([1,0,0; 0 -1 0; 0,0,-1], [1,1,1]);
+%
+%   Identity (no-op) transform
+%       s = SymopIdentity();
+%       s = Symop.create(eye(3));
+%
+%   Equivalent points are reached by [1,0,0] and [0,1,0] directions passing through [1,1,1]
+%       s1 = SymopReflection([1,0,0], [0,1,0], [1,1,1]);
+%       s1 = Symop.create([1,0,0], [0,1,0], [1,1,1]);
 %
 %   Equivalent points are reached by rotation by 90 degrees about c* passing
 %   through [0,2,0]:
-%       s2 = symop([0,0,1], 90, [0,2,0]);
+%       s2 = SymopRotation([0,0,1], 90, [0,2,0]);
+%       s2 = Symop.create([0,0,1], 90, [0,2,0]);
 %
 %   Equivalent points are reached by first reflection in the mirror plane and
 %   then rotating:
@@ -23,13 +33,16 @@ classdef Symop < matlab.mixin.Heterogeneous
 %
 % symop Methods:
 % --------------------------------------
-%   symop           - Create a symmetry operator object
+%   Symop           - Create a general symmetry operator object through 3x3 matrix specification
+%   create          - Create appropriate symmetry operator object from
 %   transform_vec   - Transform a 3xN list of vectors
 %   transform_pix   - Transform pixel coordinates into symmetry related coordinates
 %   transform_proj  - Transform projection axes description by the symmetry operation
 
     properties (Dependent)
+        % Offset of transform
         offset;
+        % General transformation matrix for operator
         W;
     end
 
@@ -55,7 +68,7 @@ classdef Symop < matlab.mixin.Heterogeneous
             if ~Symop.check_args({W, offset})
                 error('HORACE:symop:invalid_argument', ...
                       ['Constructor arguments should be:\n', ...
-                       '- Motion:     symop(3x3matrix, [3vector])\n', ...
+                       '- General:  Symop(3x3matrix, [3vector])\n', ...
                        'Received: %s'], disp2str(W));
             end
 
@@ -85,6 +98,8 @@ classdef Symop < matlab.mixin.Heterogeneous
         end
 
         function W = get.W(obj)
+        % Compute general transformation matrix for operator
+        % Computing so as to generate it for Symop subclasses
             W = obj.transform_vec(eye(3));
         end
 
@@ -96,12 +111,12 @@ classdef Symop < matlab.mixin.Heterogeneous
         % related by the symmetry operation into the equivalent vector. The
         % coordinates of the vector are expressed in an orthonormal frame.
         %
-        % For example, if the symmetry operation is a rotation by 90 degrees about
+        % For example, if the symmetry operation is a rotation by -90 degrees about
         % [0,0,1] in a cubic lattice with lattice parameter 2*pi, the point [0.3,0.1,2]
         % is transformed into [0.1,-0.3,2].
         %
         % The transformation matrix accounts for reflection or rotation, but not
-        % translation associated with the offset in the symmetry operator.
+        % translation, which is associated with the offset in the symmetry operator.
         %
         %   >> R = calculate_transform (obj, Minv)
         %
@@ -109,7 +124,7 @@ classdef Symop < matlab.mixin.Heterogeneous
         % ------
         %   obj     Symmetry operator object (scalar)
         %   Minv    Matrix to convert components of a vector given in rlu to those
-        %          in an orthonormal frame
+        %             in an orthonormal frame, this is used by SymopRotation
         %
         % Output:
         % -------
@@ -122,18 +137,28 @@ classdef Symop < matlab.mixin.Heterogeneous
     methods(Sealed)
 
         function vec = transform_vec(obj, vec)
+        % Transform a vector or list of vectors according to array of
+        % Symops stored in `obj`.
+        %
+        % Input:
+        %   obj    Array of symmetry operator objects
+        %   vec    3xN list of 3-vectors to transform
+        % Output:
+        %   vec    Transformed set of vectors
+
             if size(vec, 1) ~= 3
                 error('HORACE:symop:invalid_argument', ...
                       'Input must be list of 3-vectors')
             end
 
             for i = numel(obj):-1:1
-                R = obj(i).calculate_transform(eye(3));
-                vec = R * vec;
+                vec = obj(i).W * vec;
             end
         end
 
         function disp(obj)
+        % Display set of symmetry operations resulting in transform
+        % even if specified as array of symops
             if isscalar(obj)
                 obj.local_disp();
             else
@@ -348,9 +373,9 @@ classdef Symop < matlab.mixin.Heterogeneous
         %
         %       Input:
         %       ------
-        %       axis    Vector defining the rotation axis
+        %       axis    Vector defining the rotation axis                                 [3-vector]
         %               (in reciprocal lattice units: (h,k,l))
-        %       angle   Angle of rotation in degrees
+        %       angle   Angle of rotation in degrees                                      [scalar]
         %       offset  [Optional] Vector defining a point in reciprocal lattice units
         %               through which the rotation axis passes
         %               Default: [0,0,0] i.e. the rotation axis goes throught the origin
@@ -361,7 +386,7 @@ classdef Symop < matlab.mixin.Heterogeneous
         %
         %       Input:
         %       ------
-        %       u, v    Vectors giving two directions that lie in a mirror plane
+        %       u, v    Vectors giving two directions that lie in a mirror plane          [3-vector]
         %               (in reciprocal lattice units: (h,k,l))
         %       offset  [Optional] Vector connecting the mirror plane to the origin
         %               i.e. is an offset vector (in reciprocal lattice units: (h,k,l))
@@ -372,7 +397,7 @@ classdef Symop < matlab.mixin.Heterogeneous
         %
         %       Input:
         %       ------
-        %       W       A transformation operation in matrix form.
+        %       W       A transformation operation in matrix form.                        [3x3 matrix]
         %               W can represent the identity element {eye(3)},
         %               the inversion element {-eye(3)}, any rotation
         %               or any rotoinversion. The elements of W are
