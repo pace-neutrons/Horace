@@ -100,8 +100,11 @@ end
 if keep_pixels && use_tmp_files
     clearPixAccum = onCleanup(@()cut_data_from_file_job.accumulate_pix_to_file('cleanup'));
 end
-
-keep_precision = use_tmp_files && ~keep_pixels;
+% if we use tmp files, the pixels will be stored as single precision anyway
+% equaly, if we do not keep pixels in memory, pix read as single presision
+% will be binned and dropped so no point of artificially boosting their
+% precision. Otherwise, cut in memory contains double precision pixels
+keep_precision = use_tmp_files || ~keep_pixels;
 
 pixel_contrib_name = report_cut_type(obj,log_level,use_tmp_files,keep_pixels);
 

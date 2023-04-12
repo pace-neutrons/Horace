@@ -9,8 +9,9 @@ function [grid_size, data_range,update_runlabels] = rundata_write_to_sqw_(run_fi
 %   run_file        Cell array of initiated rundata objects
 %   sqw_file        Cell array of full file names of output sqw files
 %   grid_size_in    Scalar or row vector of grid dimensions.
-%   pix_db_range   Range of data grid to rebin on. If not given, then uses smallest hypercuboid
-%                  that encloses the whole data range
+%   pix_db_range    Range of data image grid to rebin pixels on. If not given, 
+%                   uses smallest hypercuboid that encloses the whole data range
+%                   for 
 %   instrument      Array of structures or objects containing instrument information
 %   sample          Array of structures or objects containing sample geometry information
 %   write_banner    =true then write banner; =false then done (no banner will be

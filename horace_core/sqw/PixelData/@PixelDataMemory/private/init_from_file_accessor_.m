@@ -1,6 +1,6 @@
 function obj = init_from_file_accessor_(obj, f_accessor)
-
-% Initialise a PixelData object from a file accessor
+% Initialise a PixelDataMemory object from a file accessor
+%
 meta  = f_accessor.get_pix_metadata();
 % set up current filename, instead of stored with metadata
 meta.full_filename = f_accessor.full_filename;

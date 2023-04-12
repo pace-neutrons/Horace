@@ -156,7 +156,8 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             obj.pix_range_ = pix.pix_range;
             num_pix = obj.npixels;
 
-            if any(obj.pix_range_ == PixelDataBase.EMPTY_RANGE_, 'all') && num_pix > 0
+            undef =obj.pix_range_ == PixelDataBase.EMPTY_RANGE_; 
+            if any(undef(:)) && num_pix > 0
                 hc           = hor_config;
                 ll           = hc.log_level;
 

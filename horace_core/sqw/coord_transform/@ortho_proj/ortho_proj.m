@@ -79,7 +79,8 @@ classdef ortho_proj<aProjectionBase
         nonorthogonal; % Indicates if non-orthogonal axes are permitted (if true)
         %
     end
-    properties(Dependent,Hidden) %TODO: all this should go with new sqw design
+    properties(Dependent,Hidden) 
+        %TODO: two properties below should go with new sqw design
         % renamed offset projection property
         uoffset
         % LEGACY PROPERTY: (used for saving data in old file format)

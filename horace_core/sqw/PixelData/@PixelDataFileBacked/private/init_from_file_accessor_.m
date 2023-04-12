@@ -1,16 +1,16 @@
 function obj = init_from_file_accessor_(obj, faccessor,update,norange)
-% Initialise a PixelDataFileBases object from a file accessor
+% Initialise a PixelDataFileBased object from a file accessor
 
 if ~faccessor.sqw_type
     error('HORACE:PixelDataFileBacked:invalid_argument', ...
-        'f_accessor for file: %s is not sqw-file accessor', faccessor.full_filename);
+        'f_accessor for file: %s is not a sqw-file accessor', faccessor.full_filename);
 end
 
 obj.offset_   = faccessor.pix_position;
 obj.page_num_ = 1;
 obj.num_pixels_ = double(faccessor.npixels);
 tail = faccessor.eof_position-faccessor.pixel_data_end;
-obj.f_accessor_ = []; % this one necessary as otherwise it may use the 
+obj.f_accessor_ = []; % this one necessary as otherwise it may use the
 % previous instance of file_acessors, and it may become ivalid
 obj.f_accessor_ = memmapfile(faccessor.full_filename, ...
     'Format', obj.get_memmap_format(tail), ...
