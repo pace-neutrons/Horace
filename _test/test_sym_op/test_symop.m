@@ -309,7 +309,5 @@ classdef test_symop < TestCase
             assertEqualToTol(out_bin, obj.binning, 'abstol', 1e-10)
         end
 
-
-
     end
 end
