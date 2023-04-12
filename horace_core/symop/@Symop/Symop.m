@@ -94,7 +94,7 @@ classdef Symop < matlab.mixin.Heterogeneous
                 error('HORACE:symop:invalid_argument', ...
                       'Motion matrix W must be a 3x3 matrix with determinant 1, det: %d', det(val));
             end
-            obj.W_ = reshape(val, [3 3]);
+            obj.W_ = reshape(val, [3 3]); % Just requires 9 elements & numeric
         end
 
         function W = get.W(obj)
@@ -102,7 +102,6 @@ classdef Symop < matlab.mixin.Heterogeneous
         % Computing so as to generate it for Symop subclasses
             W = obj.transform_vec(eye(3));
         end
-
 
         function R = calculate_transform(obj, Minv)
         % Get transformation matrix for the symmetry operator in an orthonormal frame
@@ -152,7 +151,7 @@ classdef Symop < matlab.mixin.Heterogeneous
             end
 
             for i = numel(obj):-1:1
-                vec = obj(i).W * vec;
+                vec = calculate_transform(eye(3)) * vec;
             end
         end
 
