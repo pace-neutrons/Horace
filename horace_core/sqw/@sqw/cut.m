@@ -116,17 +116,17 @@ return_cut = nargout > 0;
     obj.data,return_cut, varargin{:});
 % Set up new projection properties, related to lattice. This together with
 % projection inputs defines pixels-to-image transformation.
-header_av = header_average(obj);
-targ_proj.alatt  = header_av.alatt;
-targ_proj.angdeg = header_av.angdeg;
-% TODO: The method below is for compartibility with current alignment
-% implementation. It should change and disappear when alginment matrix
-% is attached to pixels. In fact, it redefines b-matrix, which is the 
-% function of lattice and partially U-matix used for alignment)
-% See ticket #885 to fix the alignment.
-if isa(targ_proj,'ortho_proj')
-    targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
-end
+% header_av = header_average(obj);
+% targ_proj.alatt  = header_av.alatt;
+% targ_proj.angdeg = header_av.angdeg;
+% % TODO: The method below is for compartibility with current alignment
+% % implementation. It should change and disappear when alginment matrix
+% % is attached to pixels. In fact, it redefines b-matrix, which is the 
+% % function of lattice and partially U-matix used for alignment)
+% % See ticket #885 to fix the alignment.
+% if isa(targ_proj,'ortho_proj')
+%     targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+% end
 
 %
 sz = size(pbin);
@@ -136,7 +136,7 @@ if return_cut
 end
 for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
-    [targ_ax_block,targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp,header_av);
+    [targ_ax_block,targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp);
 
     args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile,log_level};
     if return_cut
