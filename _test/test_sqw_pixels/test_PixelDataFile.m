@@ -13,28 +13,6 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             obj.sample_dir = hc.test_common;
             obj.sample_file  = fullfile(obj.sample_dir,'w2d_qe_sqw.sqw');
         end
-        function file_delete(~,filename)
-            if ~is_file(filename)
-                return;
-            end
-            ws = warning('off','');
-            wsClob = onCleanup(@()warning(ws));
-            if ispc
-                comm = sprintf('del %s',filename);
-            else
-                comm = sprintf('rm %s',filename);
-            end
-            for i=1:100
-                delete(filename);
-                [~,wid] = lastwarn;
-                if ~strcmp(wid,'MATLAB:DELETE:Permission')
-                    break;
-                end
-                system(comm);
-                lastwarn('file have not been deleted','HORACE:test_file_deletion');
-                pause(0.1);
-            end
-        end
 
         function test_get_raw_pix(obj)
             sw = warning('off','HORACE:old_file_format');
@@ -138,7 +116,7 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             hc.log_level = -1;
 
             wkf = fullfile(tmp_dir,'pix_data_with_tail.sqw');
-            clObF = onCleanup(@()file_delete(obj,wkf));
+            clObF = onCleanup(@()file_delete(wkf));
             copyfile(obj.sample_file,wkf,'f');
 
 
@@ -172,7 +150,7 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             hc.log_level = -1;
 
             wkf = fullfile(tmp_dir,'pix_data_with_tail.sqw');
-            clObF = onCleanup(@()file_delete(obj,wkf));
+            clObF = onCleanup(@()file_delete(wkf));
             copyfile(obj.sample_file,wkf,'f');
 
 

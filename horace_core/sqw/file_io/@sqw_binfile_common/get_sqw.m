@@ -85,9 +85,6 @@ end
 
 data_opt= [opt1, opt2];
 sqw_struc.data = obj.get_data(data_opt{:});
-proj = sqw_struc.data.proj;
-header_av = exp_info.header_average();
-sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 
 if ~opts.nopix && obj.npixels>0
     if opts.noupgrade || opts.norange
@@ -109,6 +106,9 @@ old_file = ~sqw_struc.main_header.creation_date_defined;
 if ~opts.nopix && (sqw_struc.pix.num_pixels > 0) && old_file
     % try to update pixels run id-s
     sqw_struc = update_pixels_run_id(sqw_struc);
+end
+if ~opts.norange
+    sqw_struc = obj.update_projection(sqw_struc);
 end
 
 if opts.legacy

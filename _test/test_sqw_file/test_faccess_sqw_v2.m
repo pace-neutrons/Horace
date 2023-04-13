@@ -10,6 +10,8 @@ classdef test_faccess_sqw_v2< TestCase
         sample_dir;
         sample_file;
         test_folder;
+        % old warning level
+        old_wl;
     end
     methods(Static)
         function sz = fl_size(filename)
@@ -26,18 +28,22 @@ classdef test_faccess_sqw_v2< TestCase
     methods
 
         %The above can now be read into the test routine directly.
-        function this=test_faccess_sqw_v2(varargin)
+        function obj=test_faccess_sqw_v2(varargin)
             if nargin > 0
                 name = varargin{1};
             else
                 name= mfilename('class');
             end
-            this=this@TestCase(name);
+            obj=obj@TestCase(name);
 
             hc = horace_paths;
-            this.sample_dir = hc.test_common;
-            this.sample_file = fullfile(this.sample_dir,'w3d_sqw.sqw');
-            this.test_folder=fileparts(mfilename('fullpath'));
+            obj.sample_dir = hc.test_common;
+            obj.sample_file = fullfile(obj.sample_dir,'w3d_sqw.sqw');
+            obj.test_folder=fileparts(mfilename('fullpath'));
+            obj.old_wl = warning('off','HORACE:old_file_format');
+        end
+        function delete(obj)
+            warning(obj.old_wl);
         end
 
         % tests
@@ -315,10 +321,10 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(tobV4,'faccess_sqw_v4'));
 
             sqw1 = tobV4.get_sqw();
-            tobV4.delete();                        
+            tobV4.delete();
             tob.delete();
 
-            
+
             % file was written afresh so have chreation date defined
             assertTrue(sqw1.main_header.creation_date_defined);
 

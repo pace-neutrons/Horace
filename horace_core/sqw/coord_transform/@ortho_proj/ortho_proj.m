@@ -79,7 +79,7 @@ classdef ortho_proj<aProjectionBase
         nonorthogonal; % Indicates if non-orthogonal axes are permitted (if true)
         %
     end
-    properties(Dependent,Hidden) 
+    properties(Dependent,Hidden)
         %TODO: two properties below should go with new sqw design
         % renamed offset projection property
         uoffset
@@ -110,10 +110,6 @@ classdef ortho_proj<aProjectionBase
         % ortho_proj
         ortho_ortho_transf_mat_;
         ortho_ortho_offset_;
-
-        % inverted ub matrix, used to support alignment as in Horace 3.xxx
-        % as real ub matrix is multiplied by alignment matrix
-        ub_inv_compat_ = [];
     end
 
     methods
@@ -239,12 +235,6 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function obj = set_ub_inv_compat(obj,ub_inv)
-            % Set up inverted ub matrix, used to support alignment as in
-            % Horace 3.xxx where the real inverted ub matrix is multiplied
-            % by alignment matrix.
-            obj.ub_inv_compat_ = ub_inv;
-        end
         %------------------------------------------------------------------
         % OLD from new sqw object creation interface.
         % TODO: remove when new SQW object is fully implemented
@@ -445,34 +435,29 @@ classdef ortho_proj<aProjectionBase
             %         (3 or 4). Depending on this number the routine
             %         returns 3D or 4D transformation matrix
             % Optional:
-            % pix_transf_info 
-            %      -- PixelDataBase or pix_metadata class, providing the 
+            % pix_transf_info
+            %      -- PixelDataBase or pix_metadata class, providing the
             %         informarion about pixel alignment. If present and
             %         pixels are misaligned, contains additional rotation
             %         matrix, used for aligning the pixels data into
             %         Crystal Cartesian coordinate system
             %
-            if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))                
+            if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
                 pix = varargin{1};
                 if pix.is_misaligned
-                    alignment_needed = true;                                        
+                    alignment_needed = true;
                     alignment_mat = pix.alignment_matr;
                 else
-                    alignment_needed = false;                    
+                    alignment_needed = false;
                 end
             else
                 alignment_needed = false;
             end
             rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);
-            if isempty(obj.ub_inv_compat_)
-                b_mat  = bmatrix(obj.alatt, obj.angdeg);
-                rot_to_img = rlu_to_ustep/b_mat;
-                rlu_to_u  = b_mat;
-            else
-                u_to_rlu_ = obj.ub_inv_compat_;
-                rot_to_img = rlu_to_ustep*u_to_rlu_;
-                rlu_to_u = inv(u_to_rlu_);
-            end
+
+            b_mat  = bmatrix(obj.alatt, obj.angdeg);
+            rot_to_img = rlu_to_ustep/b_mat;
+            rlu_to_u  = b_mat;
             if alignment_needed
                 rot_to_img  = rot_to_img*alignment_mat;
             end

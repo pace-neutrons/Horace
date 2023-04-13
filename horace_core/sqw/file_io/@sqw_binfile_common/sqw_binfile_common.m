@@ -320,6 +320,45 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             % calculating fields positions while upgrading file format
             sq = make_pseudo_sqw_(nfiles);
         end
+        function sqw_data = update_projection(sqw_data)
+            % Check if the projection attached to dnd class is related to
+            % the cut (the cut image range is in hkl) or to the initial
+            % generated sqw file (image range equal to the pixel range)
+            % and modify dnd projection accordingly
+            img_range = sqw_data.data.img_range;
+            pix_range = sqw_data.pix.pix_range;
+            difr = img_range(:,1:3)-pix_range(:,1:3);
+            proj = sqw_data.data.proj;
+            if ~any(abs(difr(:))>1.e-4)
+                % this is original gen_sqw, which have pixels binned into Crystal Cartezian
+                % coordinate system.
+                exp_info = sqw_data.experiment_info;
+                header_av = exp_info.header_average();
+                %sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+                sqw_data.data.proj = proj.set_from_data_mat(header_av.u_to_rlu(1:3,1:3), ...
+                    header_av.ulen);
+            else % this is cut, where the pixels are binned on some projection
+                % let's check we have properly binned the pixels (pixels range must be
+                % within the image_range
+                pr_expanded = expand_box(pix_range(1,:),pix_range(2,:));
+                pix_img_r_expanded = proj.transform_pix_to_img(pr_expanded);
+                pix_img_range = [min(pix_img_r_expanded,[],2),max(pix_img_r_expanded,[],2)]';
+                if any(pix_img_range(1,:)<img_range(1,:)) || any(pix_img_range(2,:)>img_range(2,:))
+                    % print warning and do nothing. img range converted
+                    % from pixels ranges is usually different from actual
+                    % range calculated from converted pixels
+                    mess = sprintf( ...
+                        ['\nOLD FILE FORMAT: partiall recovery of pix/image trasformation:\n', ...
+                        'image_range: Min: [%g, %g, %g, %g]\t pix_in_img_range: Min: [%g, %g, %g, %g]\n', ...
+                        '           : Max: [%g, %g, %g, %g]\t                 : Max: [%g, %g, %g, %g]\n'], ...
+                        img_range(1,:),pix_img_range(1,:),img_range(2,:),pix_img_range(2,:));
+                    % whatever editor says, it does not support vectors in SPRINT-f
+                    % like arguments directly
+                    warning('HORACE:old_file_format', mess);
+                end
+            end
+
+        end
     end
     %======================================================================
     methods(Access = protected)

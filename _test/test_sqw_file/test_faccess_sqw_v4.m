@@ -10,6 +10,7 @@ classdef test_faccess_sqw_v4< TestCase
         old_origin
         sample_dir;
         sample_file;
+        old_ws
     end
 
     methods
@@ -28,6 +29,10 @@ classdef test_faccess_sqw_v4< TestCase
             hp = horace_paths;
 
             obj.old_origin = fullfile(hp.test_common,'sqw_1d_2.sqw');
+            obj.old_ws = warning('off','HORACE:old_file_format');
+        end
+        function delete(obj)
+            warning(obj.old_ws);
         end
         %------------------------------------------------------------------
         % tests
@@ -130,7 +135,7 @@ classdef test_faccess_sqw_v4< TestCase
             sqw_ob = sqw_ob.change_header(hdr);
 
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()file_delete(tf));
 
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob,tf);
@@ -153,7 +158,7 @@ classdef test_faccess_sqw_v4< TestCase
 
         function test_upgrdate_v2_to_v4_filebacked(obj)
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
-            clObF = onCleanup(@()delete(tf));
+            clObF = onCleanup(@()file_delete(tf));
             copyfile(obj.old_origin,tf,'f');
             ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
             clObW = onCleanup(@()warning(ws));
@@ -188,6 +193,9 @@ classdef test_faccess_sqw_v4< TestCase
             w_new_new = fac1.get_sqw('-ver');
             fac1.delete();
             assertEqualToTol(w_new,w_new_new)
+            % Cut projection is recovered correctly
+            eq_cut = w_new_new.cut(w_new_new.data.proj,[],[],[],[]);
+            assertEqualToTol(eq_cut,w_new_new,1.e-7,'-ignore_date');
             % do clean-up as pixels hold access to the file, which can not
             % be deleted as memmapfile holds it
             w_new.pix = [];
@@ -387,7 +395,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             test_name = 'test_wrong_file_name_activated_1.sqw';
             targ_file = fullfile(tmp_dir(),test_name);
-            clob_for_tf1 = onCleanup(@()delete(targ_file));
+            clob_for_tf1 = onCleanup(@()file_delete(targ_file));
 
             wrt =sqw_formats_factory.instance.get_pref_access(sample_obj);
             wrt = wrt.init(sample_obj,targ_file);
@@ -398,7 +406,7 @@ classdef test_faccess_sqw_v4< TestCase
             targ_file_2 = fullfile(tmp_dir(),test_name_2);
             wrt.delete();
             copyfile(targ_file,targ_file_2);
-            clob_for_tf2 = onCleanup(@()delete(targ_file_2));
+            clob_for_tf2 = onCleanup(@()file_delete(targ_file_2));
 
             % test file has been recovered with the name test_name_2.
             ld = sqw_formats_factory.instance.get_loader(targ_file_2);
@@ -411,7 +419,7 @@ classdef test_faccess_sqw_v4< TestCase
             test_name = 'test_correct_activation.sqw';
             targ_file = fullfile(tmp_dir(),test_name);
             copyfile(obj.sample_file,targ_file);
-            clob = onCleanup(@()delete(targ_file));
+            clob = onCleanup(@()file_delete(targ_file));
 
             fo = faccess_sqw_v4();
             fo = fo.init(targ_file);
@@ -531,7 +539,7 @@ classdef test_faccess_sqw_v4< TestCase
 
 
             tf = fullfile(tmp_dir,'write_read_correctV4_filebacked.sqw');
-            clobF = onCleanup(@()delete(tf));
+            clobF = onCleanup(@()file_delete(tf));
 
             tob = faccess_sqw_v4();
             tob = tob.init(sqw_ob,tf);
@@ -558,7 +566,7 @@ classdef test_faccess_sqw_v4< TestCase
 
 
             test_f = fullfile(tmp_dir,'write_read_sample_correct.sqw');
-            clOb = onCleanup(@()delete(test_f));
+            clOb = onCleanup(@()file_delete(test_f));
             wo = faccess_sqw_v4(sample,test_f);
             wo = wo.put_sqw();
             wo.delete();
@@ -574,7 +582,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             test_f = fullfile(tmp_dir,'set_get_pix_metadata.sqw');
             copyfile(obj.sample_file,test_f,'f');
-            clOb = onCleanup(@()delete(test_f));            
+            clOb = onCleanup(@()file_delete(test_f));
 
             fac0 = faccess_sqw_v4(test_f);
             meta = fac0.get_pix_metadata();
@@ -583,7 +591,7 @@ classdef test_faccess_sqw_v4< TestCase
             ref_range = meta.data_range;
             empty_range = ref_range  == PixelDataBase.EMPTY_RANGE;
             assertTrue(~any(empty_range(:)));
-            ref_range(2,end) = 2*ref_range(2,end);            
+            ref_range(2,end) = 2*ref_range(2,end);
             alignment_mat = rotvec_to_rotmat2(rand(1,3));
             meta.alignment_matr = alignment_mat;
             meta.data_range = ref_range;
@@ -598,8 +606,8 @@ classdef test_faccess_sqw_v4< TestCase
             fac1.delete();
 
             assertElementsAlmostEqual(meta.alignment_matr,alignment_mat);
-            assertElementsAlmostEqual(meta.data_range,ref_range);            
-            
+            assertElementsAlmostEqual(meta.data_range,ref_range);
+
         end
         %         function test_build_correct(obj)
         %             %TEST used in preparation of first v4 sample file and

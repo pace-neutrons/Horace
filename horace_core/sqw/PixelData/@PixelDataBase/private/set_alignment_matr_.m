@@ -1,5 +1,11 @@
 function  obj = set_alignment_matr_(obj,val)
 %SET_ALIGNMENT_MATR_ helper property which checks and sets alignment matrix
+% to the PixelData class.
+%
+% The alignment matrix intended for transforming current pixel
+% Q-coordinates into Crystal Cartesian coordinate system if existing
+% coordinate pixel coordinate system dirres from Crystal Cartesian due to
+% erroneous misalignment.
 %
 if isempty(val)
     obj.alignment_matr_ = eye(3);

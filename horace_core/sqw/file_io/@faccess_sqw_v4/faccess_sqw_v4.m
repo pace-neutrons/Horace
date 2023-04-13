@@ -225,6 +225,12 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
                 sqw_obj.pix = pix;
                 sqw_obj = update_pixels_run_id(sqw_obj,unique_pix_id);
             end
+            % this method is only on the old file interface and checks if
+            % the projection is defined for cut (image system of
+            % coordinates is different from pixel system coordinates) or 
+            % recovered for original sqw file (image coordinates system 
+            % is Crystal Cartesian). 
+            sqw_obj = other_obj.update_projection(sqw_obj);
             % define number of confrinuting files, which is stored in sqw
             % object header, but necessary for sqw_file_interface (not any
             % more but historically to be able to recover headers)
