@@ -534,9 +534,12 @@ classdef Experiment < serializable
                 % assume we're adding n_runs identical copies
                 % 
                 % add to default compressed container
+                %{
                 for i=1:obj.n_runs
                     obj.(field) = obj.(field).add(val);
                 end
+                %}
+                obj.(field) = obj.(field).add_copies_(val, obj.n_runs);
 
             elseif isempty(val)
                 % do nothing, leave default compressed container empty
@@ -621,7 +624,7 @@ classdef Experiment < serializable
             %TODO: combine instruments using unique_objects_container
             %      rather than doing a complete unpack and repack
             for i=1:n_contrib
-                if exp_cellarray{i}.n_runs ~= 1 ...
+                if exp_cellarray{i}.n_runs ~= 1
                    error('HORACE:Experiment:combine_experiments', ...
                          'input data is for more than one run per input');
                 end

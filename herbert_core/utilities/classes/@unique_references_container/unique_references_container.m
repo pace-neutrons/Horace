@@ -448,6 +448,54 @@ classdef unique_references_container < serializable
             nuix = numel(self.idx_);
         end
 
+        function [self, nuix] = add_copies_(self,obj,n)
+            %ADD_COPIES - add a single object obj at the end of the container
+            % multiple times
+            %
+            % Input:
+            % ------
+            % obj - the single object to be added. This must not be a
+            %       unique container or an array of size.1 or cell.
+            % n   - the number of copies to add
+            %
+            % Output
+            % ------
+            % self - the revised container with the additional indices for
+            %        the added objects
+            % nuix - the range of added non-unique indices
+            
+            if isempty(self.stored_baseclass_)
+                error('HERBERT:unique_references_container:incomplete_setup', ...
+                    'stored baseclass unset');
+            end
+            if ~isa(obj,self.stored_baseclass_)
+                warning('HERBERT:unique_references_container:invalid_argument', ...
+                    'not correct stored base class; object was not added');
+                nuix = 0;
+                return;
+            end
+            if isempty(self.global_name_)
+                error('HERBERT:unique_references_container:incomplete_setup', ...
+                    'global name unset');
+            end
+            [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(obj);
+            if isempty(glindex)
+                glcont = self.global_container('value',self.global_name_);
+                [glcont,glindex] = glcont.add(obj);
+                if glindex == 0
+                    % object was not added
+                    nuix = 0;
+                    return
+                end
+                self.global_container('reset',self.global_name_,glcont);
+            end
+            multiple_copies = repmat( glindex, n, 1);
+            oldsize = numel(self.idx_);
+            self.idx_ = [ self.idx(:)', multiple_copies(:)' ];
+            newsize = numel(self.idx_);
+            nuix = oldsize+1:newsize;
+        end
+
         function [self, nuix] = add(self, obj)
             %ADD -
             % add (possibly contents of multiple) objects at the end of the
@@ -562,6 +610,32 @@ classdef unique_references_container < serializable
                 self.global_container('reset',self.global_name_,glcont);
             end
             self.idx_(nuix) = glindex;
+        end
+        
+        function [self] = replace_all(self,obj)
+            %REPLACE - substitute object obj at position nuix in container
+            % Equivalent to self{nuix}=1 (which would not work inside the
+            % container) and used to implement it.
+            %
+            % Input
+            % -----
+            % - obj:  object to be inserted into the container
+            % - nuix: (non-unique index) position at which it is to be
+            %         inserted.
+            % The old value is overwritten.
+
+            [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(obj);
+            if isempty(glindex)
+                [glcont,glindex] = ...
+                    self.global_container('value',self.global_name_).add(obj);
+                if glindex == 0
+                    % object was not replaced
+                    return
+                end
+                self.global_container('reset',self.global_name_,glcont);
+            end
+            sz = self.n_runs;
+            self.idx_ = repmat(glindex, sz, 1) ;
         end
     end
 

@@ -73,14 +73,14 @@ if ~(opts.head||opts.his)
         detector = IX_detector_array(detpar);
         det_arrays = exp_info.detector_arrays;
         if exp_info.detector_arrays.n_runs == 0       
-            for i=1:exp_info.n_runs
-                det_arrays = det_arrays.add(detector);
-            end
+            %for i=1:exp_info.n_runs
+                det_arrays = det_arrays.add_copies_(detector, exp_info.n_runs);
+            %end
             exp_info.detector_arrays = det_arrays;
         elseif exp_info.detector_arrays.n_runs == exp_info.n_runs
-            for i=1:exp_info.n_runs
-                exp_info.detector_arrays{i} = detector;
-            end
+            %for i=1:exp_info.n_runs
+                exp_info.detector_arrays = exp_info.detector_arrays.replace_all(detector);
+            %end
         else
             error('HORACE:get_sqw:invalid_data', ...
                   ['the detector arrays input with exp_info are neither zero length',...

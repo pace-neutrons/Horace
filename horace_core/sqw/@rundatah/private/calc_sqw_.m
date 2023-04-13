@@ -115,6 +115,7 @@ detpar = obj.det_par;
 
 if isempty(detpar)
     header = Experiment([],obj.instrument,obj.sample,expdata);
+    % the detector arrays will be inserted later from detpar
 else
     detector = IX_detector_array(obj.det_par);
     obj.compressed_detpars = obj.compressed_detpars.add(detector);
