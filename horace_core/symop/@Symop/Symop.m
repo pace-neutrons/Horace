@@ -178,6 +178,19 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
                       'filebacked pix reduction not possible')
             end
 
+%             Rtot = obj(end).W;
+%             Om = obj(end).compute_offset(Rtot, Minv, upix_offset(1:3));
+%
+%             for i=n-1:-1:1
+%                 R = obj(i).calculate_transform(Minv);
+%                 O = obj(i).compute_offset(R, Minv, upix_offset(1:3));
+%                 Rtot = Rtot * R;
+%                 Om = R \ Om + O;
+%             end
+%
+%             % Transform pixels
+%             pix = Rtot \ pix_in + Om;
+
         end
 
         function [proj, pbin] = transform_proj (obj, proj, pbin)

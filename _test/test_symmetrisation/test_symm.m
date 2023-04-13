@@ -85,7 +85,7 @@ classdef test_symm < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_sym_sqw(this)
             % sqw symmetrisation:
-            w3d_sqw=read_sqw(fullfile(this.testdir,'w3d_sqw.sqw'));
+            w3d_sqw = read_sqw(fullfile(this.testdir,'w3d_sqw.sqw'), 'filbacked', false);
 
             w3d_sqw_sym=symmetrise_sqw(w3d_sqw,[0,0,1],[-1,1,0],[0,0,0]);
             % one pixel lost, pity, but bearable.
