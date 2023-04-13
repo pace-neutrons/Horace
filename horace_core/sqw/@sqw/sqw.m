@@ -298,9 +298,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 n_runs = obj.experiment_info.n_runs;
                 detector = IX_detector_array(obj.detpar);
                 updated_detectors = obj.experiment_info.detector_arrays;
-                for i=1:n_runs
-                    updated_detectors = updated_detectors.add(detector);
-                end
+                %for i=1:n_runs
+                    updated_detectors = updated_detectors.add_copies_(detector, n_runs);
+                %end
                 obj.experiment_info.detector_arrays = updated_detectors;
                 
             end 

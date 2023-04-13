@@ -31,6 +31,9 @@ end
 %
 % the detc variable creates the container but it will be
 % empty until subsequent code populates it from detpar
-detc = detc.add(repmat(IX_detector_array(),1,n_header));
-exp_info = Experiment(detc,inst,samp,exper);
+%detc = detc.add(repmat(IX_detector_array(),1,n_header));
+% the detectors in exp_info will be empty until populated later
+% if we put detc into the constructor, it would fail with incorrect number
+% (0) of detector arrays
+exp_info = Experiment([],inst,samp,exper);
 %

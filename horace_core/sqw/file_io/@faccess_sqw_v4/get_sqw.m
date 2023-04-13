@@ -74,10 +74,12 @@ if ~(opts.head || opts.his)
     else
         detpar = IX_detector_array();
     end
-    detpar = repmat(detpar,numel(sqw_skel.experiment_info.expdata),1);
+    %detpar = repmat(detpar,numel(sqw_skel.experiment_info.expdata),1);
     sqw_skel.data = DnDBase.dnd(sqw_skel.data.metadata,sqw_skel.data.nd_data);
-    sqw_skel.experiment_info = Experiment(detpar,sqw_skel.experiment_info.instruments, ...
+    sqw_skel.experiment_info = Experiment([],sqw_skel.experiment_info.instruments, ...
         sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);
+    sqw_skel.experiment_info.detector_arrays = ...
+        sqw_skel.experiment_info.detector_arrays.add_copies_(detpar, numel(sqw_skel.experiment_info.expdata));
 end
 
 
