@@ -57,6 +57,32 @@ classdef SymopRotation < Symop
             theta_deg = obj.theta_deg_;
         end
 
+        function selected = in_irreducible(obj, coords)
+        % Compute whether the coordinates in `coords` (Q) are in the irreducible
+        % set following the symmetry reduction under this operator
+        %
+        % For a rotation `R` about axis `n` of angle `theta`:
+        %
+        % For any `u` not parallel to `n` and v = R*u;
+        % The planes defined by UN, VN encapsulate the reduced region
+        % And thus any coordinate `q` from `Q` where
+        % q*(u x n) > 0 && q*(n x v) > 0
+        % belong to the irreducible set
+            n = obj.n / norm(obj.n);
+            if sum(abs(n - [1; 0; 0])) > 1e-1
+                u = [1; 0; 0];
+            else
+                u = [0; 1; 0];
+            end
+
+            v = obj.transform_vec(u);
+            normvec_u = cross(u, n);
+            normvec_v = cross(n, v);
+
+            selected = (coords'*normvec_u > 0 & ...
+                        coords'*normvec_v > 0);
+        end
+
         function R = calculate_transform(obj, Minv)
         % Get transformation matrix for the symmetry operator in an orthonormal frame
         %

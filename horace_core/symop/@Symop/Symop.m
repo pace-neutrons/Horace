@@ -95,6 +95,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
     methods(Abstract)
         R = calculate_transform(obj, Minv)
         local_disp(obj)
+        selected = in_irreducible(obj, coords)
     end
 
     methods(Sealed)
@@ -163,15 +164,32 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         %   pix_out     Transformed pixel array (3 x n array).
 
             % Check input
-            if isempty(obj)
+            if ~isa(pix, 'PixelDataBase')
                 error('HORACE:symop:invalid_argument', ...
-                      'Empty symmetry operation object array')
+                      'Transform pix requires pixels');
             end
 
             % Get transformation
-            for i = numel(obj):-1:1
-                pix.coordinates = obj(i).transform_vec(pix.coordinates)
+            if isa(pix, 'PixelDataMemory')
+                sel = obj.in_irreducible(new_coords)
+                pix.q_coordinates(:, ~sel) = obj.transform_vec(new_coords(:, ~sel));
+            else
+                error('HORACE:symop:not_implemented', ...
+                      'Pix backed reduction not possible')
             end
+
+%             Rtot = obj(end).W;
+%             Om = obj(end).compute_offset(Rtot, Minv, upix_offset(1:3));
+%
+%             for i=n-1:-1:1
+%                 R = obj(i).calculate_transform(Minv);
+%                 O = obj(i).compute_offset(R, Minv, upix_offset(1:3));
+%                 Rtot = Rtot * R;
+%                 Om = R \ Om + O;
+%             end
+%
+%             % Transform pixels
+%             pix = Rtot \ pix_in + Om;
 
         end
 
