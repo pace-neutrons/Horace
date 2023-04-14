@@ -267,9 +267,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 % loader
             elseif ~isempty(args.data_struct)
                 if isa(args.data_struct,'horace_binfile_interface')
-                    args.data_struct = obj.get_loader_struct_(...
-                        args.data_struct, args.file_backed);
-                    obj = from_bare_struct(obj,args.data_struct);
+                    if args.file_backed
+                        obj = args.data_struct.get_sqw('-file_backed');
+                    else
+                        obj = args.data_struct.get_sqw();                        
+                    end
                 elseif isfield(args.data_struct,'data')
                     if isfield(args.data_struct.data,'version')
                         obj = serializable.from_struct(args.data_struct);

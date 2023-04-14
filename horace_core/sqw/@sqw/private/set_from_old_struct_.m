@@ -44,7 +44,7 @@ if ~isfield(S,'version') || S.version<4
             ss.experiment_info.runid_map = ss.runid_map;
             ss = rmfield(ss,'runid_map');
         end
-        if isfield(ss,'data') 
+        if isfield(ss,'data')
             if isstruct(ss.data)
                 ss.data = data_sqw_dnd.loadobj(ss.data);
             end
@@ -52,18 +52,18 @@ if ~isfield(S,'version') || S.version<4
                 if ss.experiment_info.samples.n_runs == 0
                     sam = IX_samp('alatt',ss.data.alatt,'angdeg',ss.data.angdeg);
                     ss.experiment_info.samples{1} = sam;
-                    if ss.experiment_info.instruments.n_runs == 0                    
+                    if ss.experiment_info.instruments.n_runs == 0
                         ss.experiment_info.instruments{1} = IX_null_inst();
                     end
                 end
                 hav = header_average(ss.experiment_info);
                 if isempty(hav.alatt) % no actual header, happens in old test files
-                    proj = ss.data.get_projection();     
+                    proj = ss.data.get_projection();
                     exper = IX_experiment('','','alatt',proj.alatt,'angdeg',proj.angdeg);
                     if isempty(ss.data.pix)
                         exper.run_id = 1;
                     else
-                        exper.run_id = unique(ss.data.pix.run_idx);                        
+                        exper.run_id = unique(ss.data.pix.run_idx);
                         if numel(exper.run_id)>1
                             error('HORACE:sqw:invalid_argumet', ...
                                 'the sqw object without header refers to more then 1 run according to pixels run_id')
@@ -82,12 +82,18 @@ if ~isfield(S,'version') || S.version<4
                 ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
             end
         end
-%         proj = ss.data.proj;
-%         header_av = ss.experiment_info.header_average();
-%         if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
-%             ss.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
-%         end
-        
+        % we need compartibility matrix as can not distinguish between
+        % old=style aligned and non-aligned data
+        proj = ss.data.proj;
+        header_av = ss.experiment_info.header_average();
+        if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
+            u_to_rlu = header_av.u_to_rlu(1:3,1:3);
+            if any(abs(lower_part(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
+                % no alignment, otherwise, be cautions
+                ss.data.proj = proj.set_ub_inv_compat(u_to_rlu);
+            end
+        end
+
         % guard against old data formats, which may or may not contain
         % runid map and the map may or may not correspond to
         % pixel_id

@@ -128,6 +128,20 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
         pix = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation,keep_precision);
         % retrieve the whole sqw object from properly initialized sqw file
         [sqw_obj,varargout] = get_sqw(obj,varargin);
+        function [dnd_obj,obj] = get_dnd(obj,varargin)
+            [dnd_obj,obj] = get_dnd@binfile_v2_common(obj,varargin{:});
+            % needed to support  legacy alignment, where u_to_rlu matrix is multiplied
+            % by alignment matrix
+            [exp_info,~]  = obj.get_exp_info(1);
+            header_av = exp_info.header_average;
+            u_to_rlu  = header_av.u_to_rlu(1:3,1:3);
+            if any(abs(lower_part(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
+                proj = dnd_obj.proj; % no alignment; otherwise, may be aligned. 
+                % be cauteous.
+                dnd_obj.proj = proj.set_ub_inv_compat(u_to_rlu);
+            end
+        end
+
         % ---------   File Mutators:
         % save or replace main file header
         obj = put_main_header(obj,varargin);
@@ -340,22 +354,28 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             else % this is cut, where the pixels are binned on some projection
                 % let's check we have properly binned the pixels (pixels range must be
                 % within the image_range
-                pr_expanded = expand_box(pix_range(1,:),pix_range(2,:));
-                pix_img_r_expanded = proj.transform_pix_to_img(pr_expanded);
-                pix_img_range = [min(pix_img_r_expanded,[],2),max(pix_img_r_expanded,[],2)]';
-                if any(pix_img_range(1,:)<img_range(1,:)) || any(pix_img_range(2,:)>img_range(2,:))
-                    % print warning and do nothing. img range converted
-                    % from pixels ranges is usually different from actual
-                    % range calculated from converted pixels
-                    mess = sprintf( ...
-                        ['\nOLD FILE FORMAT: partiall recovery of pix/image trasformation:\n', ...
-                        'image_range: Min: [%g, %g, %g, %g]\t pix_in_img_range: Min: [%g, %g, %g, %g]\n', ...
-                        '           : Max: [%g, %g, %g, %g]\t                 : Max: [%g, %g, %g, %g]\n'], ...
-                        img_range(1,:),pix_img_range(1,:),img_range(2,:),pix_img_range(2,:));
-                    % whatever editor says, it does not support vectors in SPRINT-f
-                    % like arguments directly
-                    warning('HORACE:old_file_format', mess);
-                end
+                % PIXEL_RANGE does not defines image range, as pixels are
+                % located on a complex shape here and the pix_range widely
+                % expands this shape boundaries wrapping it into 4D box.
+                % transformed Box edges may go far beyond of image_range
+                %
+                % proper validation is possible but is it necessary?
+                %                 pr_expanded = expand_box(pix_range(1,:),pix_range(2,:));
+                %                 pix_img_r_expanded = proj.transform_pix_to_img(pr_expanded);
+                %                 pix_img_range = [min(pix_img_r_expanded,[],2),max(pix_img_r_expanded,[],2)]';
+                %                 if any(pix_img_range(1,:)<img_range(1,:)) || any(pix_img_range(2,:)>img_range(2,:))
+                %                     % print warning and do nothing. img range converted
+                %                     % from pixels ranges is usually different from actual
+                %                     % range calculated from converted pixels
+                %                     mess = sprintf( ...
+                %                         ['\nOLD FILE FORMAT: partiall recovery of pix/image trasformation:\n', ...
+                %                         'image_range: Min: [%g, %g, %g, %g]\t pix_in_img_range: Min: [%g, %g, %g, %g]\n', ...
+                %                         '           : Max: [%g, %g, %g, %g]\t                 : Max: [%g, %g, %g, %g]\n'], ...
+                %                         img_range(1,:),pix_img_range(1,:),img_range(2,:),pix_img_range(2,:));
+                %                     % whatever editor says, it does not support vectors in SPRINT-f
+                %                     % like arguments directly
+                %                     warning('HORACE:old_file_format', mess);
+                %                 end
             end
 
         end

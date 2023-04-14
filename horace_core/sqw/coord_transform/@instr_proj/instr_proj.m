@@ -24,12 +24,11 @@ classdef instr_proj<aProjectionBase
     % ------
     % arguments requested by constructor:
     %   lattice -- initialized version of oriented lattice class defining
-    %          the crystal lattice and its orientation with relatively to
-    %          the beam.
-    %   efix   incident energy for direct instrument and crystal analyser
-    %          energy(ies) for indirect. Ignored for elastic
-    %   emode  -- the operational mode of instrument (1-direct, 2-indirect,
-    %          0 - elastic)
+    %              the crystal lattice and its orientation w.r.t. the beam.
+    %   efix    -- incident energy for direct instrument and crystal analyser
+    %              energy(ies) for indirect. Ignored for elastic
+    %   emode   -- the operational mode of instrument (1-direct, 2-indirect,
+    %              0 - elastic)
     %
     %
     % The optional arguments control goniometer settings, used to fix the
@@ -45,9 +44,10 @@ classdef instr_proj<aProjectionBase
         %      energy(ies) for indirect. Ignored for elastic
         %
         emode % type of instrument (1-direct,2-indirect,0 - elastic)
-        %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
         %
-        lattice; % accessor to the oriented lattice, which holds all properties above
+        lattice; % accessor to the oriented lattice, which holds all 
+        % properties related to gonitometer and lattice (lattice is not
+        % used)
     end
 
     properties(Access=protected)

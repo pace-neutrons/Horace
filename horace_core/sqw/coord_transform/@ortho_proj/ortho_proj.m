@@ -80,13 +80,17 @@ classdef ortho_proj<aProjectionBase
         %
     end
     properties(Dependent,Hidden)
-        %TODO: two properties below should go with new sqw design
         % renamed offset projection property
         uoffset
+        % Two properties below are responsible for support of old binary
+        % file format and legacy alingment
+        %
         % LEGACY PROPERTY: (used for saving data in old file format)
-        % Return the compatibility structure, which may be used as additional input to
-        % data_sqw_dnd constructor
+        % Return the compatibility structure, which may be used as
+        % additional input to data_sqw_dnd constructor
         compat_struct;
+        %
+        ub_inv_legacy_alignment
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
         unit_cell;
@@ -110,6 +114,11 @@ classdef ortho_proj<aProjectionBase
         % ortho_proj
         ortho_ortho_transf_mat_;
         ortho_ortho_offset_;
+
+        % inverted ub matrix, used to support alignment as in Horace 3.xxx
+        % as real ub matrix is multiplied by alignment matrix there and
+        % there are no way of indetifying if this happened or not.
+        ub_inv_legacy_alignment_ = [];
     end
 
     methods
@@ -146,7 +155,8 @@ classdef ortho_proj<aProjectionBase
                     obj = obj.from_old_struct(varargin{1});
                 end
             else
-                opt =  [ortho_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
+                % constructor does not accept legacy alignment matrix
+                opt =  [ortho_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
                     opt,false,varargin{:});
@@ -235,6 +245,21 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
+        function ub_inv = get.ub_inv_legacy_alignment(obj)
+            ub_inv = obj.ub_inv_legacy_alignment_;
+        end
+        function obj = set.ub_inv_legacy_alignment(obj,val)
+            % no comprehencive checks performed here.  It is compartibility
+            % with old file format. The method should be used
+            % by saveobj/loadobj only
+            obj.ub_inv_legacy_alignment_ = val;
+        end
+        function obj = set_ub_inv_compat(obj,ub_inv)
+            % Set up inverted ub matrix, used to support alignment as in
+            % Horace 3.xxx where the real inverted ub matrix is multiplied
+            % by alignment matrix.
+            obj.ub_inv_legacy_alignment_ = ub_inv;
+        end
         %------------------------------------------------------------------
         % OLD from new sqw object creation interface.
         % TODO: remove when new SQW object is fully implemented
@@ -454,14 +479,22 @@ classdef ortho_proj<aProjectionBase
                 alignment_needed = false;
             end
             rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);
-
-            b_mat  = bmatrix(obj.alatt, obj.angdeg);
-            rot_to_img = rlu_to_ustep/b_mat;
-            rlu_to_u  = b_mat;
-            if alignment_needed
-                rot_to_img  = rot_to_img*alignment_mat;
+            %
+            if isempty(obj.ub_inv_legacy_alignment_)
+                % Modern alignment with rotation matrix attached to pixel
+                % coordinate system
+                b_mat  = bmatrix(obj.alatt, obj.angdeg);
+                rot_to_img = rlu_to_ustep/b_mat;
+                rlu_to_u  = b_mat;
+                if alignment_needed
+                    rot_to_img  = rot_to_img*alignment_mat;
+                end
+            else% Legacy alignment, with multiplication of rotation matrix
+                % and u_to_rlu transformation matrix;
+                u_to_rlu_ = obj.ub_inv_legacy_alignment_;
+                rot_to_img = rlu_to_ustep*u_to_rlu_;
+                rlu_to_u = inv(u_to_rlu_);
             end
-
             %
             if ndim==4
                 shift  = obj.offset;
@@ -513,8 +546,9 @@ classdef ortho_proj<aProjectionBase
         function lst = data_sqw_dnd_export_list()
             % Method, which define the values to be extracted from projection
             % to convert to old style data_sqw_dnd class.
-            % New data_sqw_dnd class will contain the whole projection, so this
-            % is left for compatibility with old Horace
+            % New data_sqw_dnd class (rather dnd class) contains the whole
+            % projection, so this method is left for compatibility with
+            % old Horace
             lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
         end
     end
@@ -544,7 +578,8 @@ classdef ortho_proj<aProjectionBase
         end
     end
     properties(Constant, Access=private)
-        fields_to_save_ = {'u','v','w','nonorthogonal','type'}
+        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';...
+            'ub_inv_legacy_alignment'} % ignored in constructor
     end
     methods(Static)
         function obj = loadobj(S)
