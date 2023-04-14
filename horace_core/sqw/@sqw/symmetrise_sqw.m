@@ -51,8 +51,7 @@ if numel(varargin) == 1 && isa(varargin{1}, 'Symop')
     sym = varargin{1}
 elseif numel(varargin) == 3
 
-    sym = SymopReflection(v1, v2, v3);
-
+    sym = SymopReflection(varargin{:});
 else
     error('HORACE:symmetrise_sqw:invalid_argument', ...
           ['Call as:\n', ...
@@ -64,7 +63,24 @@ win = sqw(win);
 wout = copy(win);
 
 if isa(sym, 'SymopReflection')
-    wout.pix = sym.transform_pix(win.pix);
+    if wout.pix.is_filebacked
+
+        wout = wout.get_new_handle();
+        for i = 1:win.pix.num_pages
+            [wout.pix, curr_page] = wout.pix.load_page(i);
+            sel = ~sym.in_irreducible(curr_page(1:3, :));
+            curr_page(1:3, sel) = sym.transform_vec(curr_page(1:3, sel));
+            wout.pix.format_dump_data(curr_page);
+        end
+        wout = wout.finalise();
+
+    else
+
+        sel = ~sym.in_irreducible(wout.pix.q_coordinates);
+        wout.pix.q_coordinates(:, sel) = sym.transform_vec(wout.pix.q_coordinates(:, sel));
+
+    end
+
 else
     error('HORACE:symmetrise_sqw:not_implemented', ...
           'Symmetrise does not currently support %s', class(sym))
@@ -90,14 +106,13 @@ cross_points = box_intersect(cc_ranges, ...
 cc_exist_range = [cc_ranges,cross_points];
 
 % transform existing range into transformed range
-idx = sym.is_irreducible(cc_exist_range)
-
-cc_exist_range(:,idx) = obj.transform_vec(cc_exist_range(:,idx));
+idx = ~sym.in_irreducible(cc_exist_range);
+cc_exist_range(:,idx) = sym.transform_vec(cc_exist_range(:,idx));
 
 img_box_points = proj.transform_pix_to_img(cc_exist_range);
 img_db_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
 
-% add forth dimension to the range
+% add fourth dimension to the range
 all_sym_range = [img_db_range_minmax,existing_range(:,4)];
 
 % Extract existing binning: TODO: refactor using future ortho_axes, extract
@@ -124,9 +139,7 @@ for i=1:4
 end
 
 % Turn off horace_info output, but save for automatic clean-up on exit or cntrl-C (TGP 30/11/13)
-info_level = get(hor_config,'log_level');
-cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
-set(hor_config,'log_level',-1);
+cleanup_obj = set_temporary_config_options(hor_config, 'log_level', -1);
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin
@@ -141,6 +154,6 @@ ax = ax.check_combo_arg();
 dat = DnDBase.dnd(ax,proj,0,0,sum(wout.data.npix(:)));
 wout.data = dat;
 
-wout=cut(wout,proj,new_range_arg{:});
+wout = cut(wout,proj,new_range_arg{:});
 
 end
