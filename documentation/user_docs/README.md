@@ -41,10 +41,10 @@ The latest stable Horace documentation is also available from:
 https://pace-neutrons.github.io/Horace/stable
 
 where `/stable` can be omitted. The latest development version of the 
-documentation can be obtained by replacing `stable` with `unstable.
+documentation can be obtained by replacing `stable` with `unstable`.
 
-`Horace` and `Horace/stable` both immediately direct to the path of the 
-latest stable version, which is currently equivalent to:
+`Horace` and `Horace/stable` both immediately redirect to the path of the 
+latest stable version, which is currently:
 
 https://pace-neutrons.github.io/Horace/v3.6.3/ 
 
