@@ -52,4 +52,4 @@ Older versions are available; to see these, enter the Horace repo at the
 top level and switch to branch `gh-pages`.
 
 Details on the use of this branch to store release documentation can be
-found in 0002-use-github-for-documentation.md.
+found in `adr/0002-use-github-for-documentation.md`.
