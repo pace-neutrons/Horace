@@ -70,11 +70,7 @@ elseif ~iscell(win.header) && isstruct(win.header),
     angdeg=win.header.angdeg;
 end
 
-[b, arlu, angrlu, mess] = bmatrix(alatt, angdeg);
-
-if ~isempty(mess)
-    error('Problem in symmetrisation - sqw object does not have valid alatt and/or angdeg fields');
-end
+[b, arlu, angrlu] = bmatrix(alatt, angdeg);
 
 
 % The first 3 rows of the pix array specify the co-ordinates in Q of each
@@ -250,11 +246,3 @@ else
     error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
 end
 horace_info_level(Inf);
-
-
-
-
-
-
-
-

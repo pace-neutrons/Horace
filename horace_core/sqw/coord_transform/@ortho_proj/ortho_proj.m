@@ -82,9 +82,13 @@ classdef ortho_proj<aProjectionBase
     properties(Dependent,Hidden) %TODO: all this should go with new sqw design
         % renamed offset projection property
         uoffset
+        % LEGACY PROPERTY: (used for saving data in old file format)
         % Return the compatibility structure, which may be used as additional input to
         % data_sqw_dnd constructor
         compat_struct;
+        % return set of vectors, which define primary lattice cell if
+        % coordinate transformation is non-orthogonal
+        unit_cell;
     end
     properties(Hidden)
         % Developers option. Use old (v3 and below) subalgorithm in
@@ -123,9 +127,7 @@ classdef ortho_proj<aProjectionBase
             obj.label = {'\zeta','\xi','\eta','E'};
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
-                u_to_rlu =eye(3)/(2*pi);
-                [ul,vl,~,type]=obj.uv_from_data_rot(u_to_rlu,[1,1,1]);
-                obj = obj.init(ul,vl,[],'type',type);
+                obj = obj.init([1,0,0],[0,1,0],[],'type','aaa');
             else
                 obj = obj.init(varargin{:});
             end
@@ -194,6 +196,9 @@ classdef ortho_proj<aProjectionBase
                 obj = check_combo_arg_(obj);
             end
         end
+        function cell = get.unit_cell(obj)
+            cell = get_unit_cell_(obj);
+        end
         %
         function no=get.nonorthogonal(obj)
             no = obj.nonorthogonal_;
@@ -220,12 +225,14 @@ classdef ortho_proj<aProjectionBase
             % stored in sqw object ver < 4
             %
             [ur,vr,wr,tpe,nonortho]=obj.uv_from_data_rot(u_rot(1:3,1:3),ulen(1:3));
-
-            obj.u_ = ur;
-            obj.v_ = vr;
-            obj.w_ = wr;
-            obj.nonorthogonal_ = nonortho;
-            obj = check_and_set_type_(obj,tpe);
+            check = obj.do_check_combo_arg_;
+            obj.do_check_combo_arg_ = false;
+            obj.u = ur;
+            obj.v = vr;
+            obj.w = wr;
+            obj.type = tpe;
+            obj.nonorthogonal = nonortho;
+            obj.do_check_combo_arg_ = check;
             if obj.do_check_combo_arg_
                 obj = check_combo_arg_(obj);
             end
@@ -286,16 +293,18 @@ classdef ortho_proj<aProjectionBase
             %
             pix_cc = transform_img_to_pix_(obj,pix_hkl);
         end
+
         %
         function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
             % return the axes block, corresponding to this projection class.
             ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
             [~,~, ulen] = obj.uv_to_rot([1,1,1]);
             ax_bl.ulen  = ulen;
-            % TODO:  this should go. The projection will keep this property
-            % for itself unless it is specific axes block?
-            ax_bl.nonorthogonal = obj.nonorthogonal;
-
+            %
+            if obj.nonorthogonal
+                ax_bl.unit_cell = obj.unit_cell;
+                ax_bl.nonorthogonal = true;
+            end
         end
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
@@ -326,6 +335,7 @@ classdef ortho_proj<aProjectionBase
                     obj,pix_origin,varargin{:});
             end
         end
+        %
     end
     %----------------------------------------------------------------------
     methods(Access = protected)
@@ -334,7 +344,49 @@ classdef ortho_proj<aProjectionBase
             % property
             [~, mat] = obj.uv_to_rot();
             mat = [mat,[0;0;0];[0,0,0,1]];
-        end        
+        end
+
+        function  [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj,ustep)
+            % Determine the matrices used for conversion
+            % to/from image coordinate system from/to Crystal Cartesian
+            % (PixelData) coordinate system.
+            %
+            %   >> [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj)
+            %   >> [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj, ustep)
+            %
+            % The projection axes are three vectors that may or may not be orthogonal
+            % which are used to create the bins in an sqw object. The bin sizes are in ustep
+            %
+            % Input:
+            % ------
+            %   proj    projaxes object containing the information about projection axes
+            %           (u,v,[w])
+            %   ustep   Row vector giving step sizes along the projection axes as multiple
+            %           of the projection axes (e.g. [0.05,0.05,0.025]
+            %           Default if not given: [1,1,1] i.e. unit step
+            %
+            % Output:
+            % -------
+            %   rlu_to_ustep   Matrix to convert components of a vector expressed
+            %                  in r.l.u. to the components along the projection axes
+            %                  u1,u2,u3, as multiples of the step size along those axes
+            %                       Vstep(i) = rlu_to_ustep(i,j)*Vrlu(j)
+            %
+            %   u_rot        The projection axis vectors u_1, u_2, u_3 in reciprocal
+            %                lattice vectors. The ith column is u_i in r.l.u. i.e.
+            %                       ui = u_to_rlu(:,i)
+            %
+            %   ulen            Row vector of lengths of ui in Ang^-1
+            %
+            %
+            % Original author: T.G.Perring
+            %
+            if nargin==1
+                ustep = [1,1,1];
+            end
+            [rlu_to_ustep, u_rot, ulen] = projaxes_to_rlu_(proj,ustep);
+        end
+
         %------------------------------------------------------------------
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...
@@ -421,47 +473,6 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function  [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj,ustep)
-            % Determine the matrices partially used for conversion
-            % to/from image coordinate system from/to Crystal Cartesian
-            % (PixelData) coordinate system.
-            %
-            %   >> [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj)
-            %   >> [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj, ustep)
-            %
-            % The projection axes are three vectors that may or may not be orthogonal
-            % which are used to create the bins in an sqw object. The bin sizes are in ustep
-            %
-            % Input:
-            % ------
-            %   proj    projaxes object containing the information about projection axes
-            %           (u,v,[w])
-            %   ustep   Row vector giving step sizes along the projection axes as multiple
-            %           of the projection axes (e.g. [0.05,0.05,0.025]
-            %           Default if not given: [1,1,1] i.e. unit step
-            %
-            % Output:
-            % -------
-            %   rlu_to_ustep   Matrix to convert components of a vector expressed
-            %                  in r.l.u. to the components along the projection axes
-            %                  u1,u2,u3, as multiples of the step size along those axes
-            %                       Vstep(i) = rlu_to_ustep(i,j)*Vrlu(j)
-            %
-            %   u_rot        The projection axis vectors u_1, u_2, u_3 in reciprocal
-            %                lattice vectors. The ith column is u_i in r.l.u. i.e.
-            %                       ui = u_to_rlu(:,i)
-            %
-            %   ulen            Row vector of lengths of ui in Ang^-1
-            %
-            %
-            % Original author: T.G.Perring
-            %
-            if nargin==1
-                ustep = [1,1,1];
-            end
-            [rlu_to_ustep, u_rot, ulen] = projaxes_to_rlu_(proj,ustep);
-        end
-        %
         function [u,v,w,type,nonortho]=uv_from_data_rot(obj,u_rot_mat,ulen)
             % Extract initial u/v vectors, defining the plane in hkl from
             % lattice parameters and the matrix converting vectors
@@ -494,7 +505,7 @@ classdef ortho_proj<aProjectionBase
         function lst = data_sqw_dnd_export_list()
             % Method, which define the values to be extracted from projection
             % to convert to old style data_sqw_dnd class.
-            % New data_sqw_dnd class will contain the whole projection, so this 
+            % New data_sqw_dnd class will contain the whole projection, so this
             % is left for compatibility with old Horace
             lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
         end

@@ -305,15 +305,24 @@ classdef (Abstract) PixelDataBase < serializable
             % -------
             %   obj         A PixelData object containing all the pixels in the inputted
             %               PixelData objects
-            data_cell_array = cellfun(@(p) p.data, varargin, 'UniformOutput', false);
-            data = cat(2, data_cell_array{:});
-            obj = PixelDataBase.create(data);
+
+            % Take the dataclass of the first object.
+            obj = varargin{1}.cat(varargin{:});
         end
 
         function npix = bytes2pix(bytes)
             npix = bytes / sqw_binfile_common.FILE_PIX_SIZE;
         end
 
+        function loc_range = pix_minmax_ranges(data, current)
+        % Compute the minmax ranges in data in the appropriate format for
+        % PixelData objects
+            loc_range = [min(data,[],2),...
+                         max(data,[],2)]';
+            if exist('current', 'var')
+                loc_range = minmax_ranges(current,loc_range);
+            end
+        end
     end
 
     methods(Abstract)
@@ -333,7 +342,7 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = noisify(obj, varargin);
 
         obj = recalc_data_range(obj);
-
+        [obj,varargout] = reset_changed_coord_range(obj,range_type);
     end
 
     % the same interface on FB and MB files
@@ -361,8 +370,6 @@ classdef (Abstract) PixelDataBase < serializable
 
         prp = get_prop(obj, ind);
         obj = set_prop(obj, ind, val);
-
-        [obj,varargout] = reset_changed_coord_range(obj,range_type);
 
         % main part of get.data accessor
         data = get_raw_data(obj)
@@ -805,7 +812,7 @@ classdef (Abstract) PixelDataBase < serializable
 
     %======================================================================
     % SERIALIZABLE INTERFACE
-    properties(Constant,Access=private)
+    properties(Constant, Access=private)
         % list of filenames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         % Does not properly support filebased data. The decision is not to
@@ -816,7 +823,7 @@ classdef (Abstract) PixelDataBase < serializable
         % metadata contains data_range. If data_range have been set
         % directly, data may recalculate range, and metadata would override
         % it.
-        fields_to_save_ = {'data_wrap','metadata'};
+        fields_to_save_ = {'data_wrap', 'metadata'};
     end
 
     methods(Static)
@@ -846,7 +853,7 @@ classdef (Abstract) PixelDataBase < serializable
                 S.data = S.raw_data_;
             end
 
-            if isfield(S,'data') && (ischar(S.data)|| isstring(S.data))
+            if isfield(S,'data') && istext(S.data)
                 obj = PixelDataFileBacked();
             else
                 obj = PixelDataMemory();

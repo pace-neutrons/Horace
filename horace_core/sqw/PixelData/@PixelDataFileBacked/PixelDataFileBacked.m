@@ -86,6 +86,10 @@ classdef PixelDataFileBacked < PixelDataBase
         tmp_pix_obj = [];
     end
 
+    properties(Dependent)
+        offset;
+    end
+
     properties (Constant)
         is_filebacked = true;
     end
@@ -166,6 +170,14 @@ classdef PixelDataFileBacked < PixelDataBase
                     'Repeat', 1, ...
                     'Writable', update, ...
                     'Offset', obj.offset_ );
+
+            elseif isa(init, 'PixelDataMemory')
+
+                if isempty(obj.full_filename_)
+                    obj.full_filename = 'from_mem';
+                end
+
+                obj = set_raw_data_(obj,init.data);
 
             elseif istext(init)
                 if ~is_file(init)
@@ -277,6 +289,29 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
 
+        function [obj,unique_idx] = reset_changed_coord_range(obj,field_name)
+            % Recalculate and set appropriate range of pixel coordinates.
+            % The coordinates are defined by the selected field
+            %
+            % Sets up the property page_range defining the range of block
+            % of pixels changed at current iteration.
+
+            %NOTE:  This range calculations are incorrect unless
+            %       performed in a loop over all pix pages where initial
+            %       range is set to empty!
+            %
+            ind = obj.check_pixel_fields(field_name);
+
+            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
+                                                           obj.data_range_(:,ind));
+            if nargout > 1
+                unique_idx = unique(obj.run_idx);
+            end
+        end
+
+        function offset = get.offset(obj)
+            offset = obj.offset_;
+        end
     end
 
     %======================================================================
@@ -309,7 +344,7 @@ classdef PixelDataFileBacked < PixelDataBase
             np = max(ceil(obj.num_pixels/obj.DEFAULT_PAGE_SIZE),1);
         end
 
-        function  data =  get_raw_data(obj,page_number)
+        function data = get_raw_data(obj, page_number)
             if ~exist('page_number', 'var')
                 page_number = obj.page_num_;
             end
@@ -322,62 +357,85 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
         end
+
     end
 
     %======================================================================
     % File handling/migration
     methods
 
-        function obj = get_new_handle(obj)
-
-            if isempty(obj.full_filename)
-                obj.full_filename = 'in_mem';
-            end
+        function obj = get_new_handle(obj, f_accessor)
 
             % Always create a new PixTmpFile object
             % If others point to it, file will be kept
             % otherwise file will be cleared
-            obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
-            fh = fopen(obj.tmp_pix_obj.file_name, 'wb+');
+            if exist('f_accessor', 'var') && ~isempty(f_accessor)
+                obj.file_handle_ = f_accessor;
+            else
+                if isempty(obj.full_filename)
+                    obj.full_filename = 'in_mem';
+                end
+                obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
-            if fh<1
-                error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'Can not open data file %s for file-backed pixels',...
-                    obj.tmp_pix_obj.file_name);
+                fh = fopen(obj.tmp_pix_obj.file_name, 'wb+');
+
+                if fh<1
+                    error('HORACE:PixelDataFileBacked:runtime_error', ...
+                          'Can not open data file %s for file-backed pixels',...
+                          obj.tmp_pix_obj.file_name);
+                end
+
+                obj.file_handle_ = fh;
             end
 
-            obj.file_handle_ = fh;
         end
 
-        function format_dump_data(obj, pix)
+        function format_dump_data(obj, pix, start_idx)
             if isempty(obj.file_handle_)
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                     'Cannot dump data, object does not have open filehandle')
             end
 
-            fwrite(obj.file_handle_, single(pix), 'single');
+            if isa(obj.file_handle_, 'sqw_file_interface')
+                if ~exist('start_idx', 'var')
+                    start_idx = obj.get_page_idx_();
+                end
+                obj.file_handle_.put_raw_pix(pix, start_idx);
+            else
+                fwrite(obj.file_handle_, single(pix), 'single');
+            end
 
         end
 
         function obj = finalise(obj)
             if isempty(obj.file_handle_)
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'Cannot finalise writing, object does not have open filehandle')
+                      'Cannot finalise writing, object does not have open filehandle')
             end
 
-            fclose(obj.file_handle_);
-            obj.file_handle_ = [];
+            if isa(obj.file_handle_, 'sqw_file_interface')
+                obj.full_filename = obj.file_handle_.full_filename;
+                obj.file_handle_ = obj.file_handle_.put_pix_metadata(obj);
+                % Force pixel update
+                obj.file_handle_ = obj.file_handle_.put_num_pixels(obj.num_pixels);
 
-            obj.f_accessor_ = [];
-            obj.offset_ = 0;
-            obj.full_filename = obj.tmp_pix_obj.file_name;
-            obj.f_accessor_ = memmapfile(obj.full_filename, ...
-                'format', obj.get_memmap_format(), ...
-                'Repeat', 1, ...
-                'Writable', true, ...
-                'offset', obj.offset_);
-            obj = obj.recalc_data_range('all');
+                obj = obj.init_from_file_accessor_(obj.file_handle_, false, true);
+                obj.file_handle_ = [];
+
+            else
+                fclose(obj.file_handle_);
+                obj.file_handle_ = [];
+
+                obj.f_accessor_ = [];
+                obj.offset_ = 0;
+                obj.full_filename = obj.tmp_pix_obj.file_name;
+                obj.f_accessor_ = memmapfile(obj.full_filename, ...
+                                             'format', obj.get_memmap_format(), ...
+                                             'Repeat', 1, ...
+                                             'Writable', true, ...
+                                             'offset', obj.offset_);
+            end
         end
 
         function format = get_memmap_format(obj)
@@ -386,6 +444,55 @@ classdef PixelDataFileBacked < PixelDataBase
 
     end
 
+    methods(Static)
+        function obj = cat(varargin)
+        % Concatenate the given PixelData objects' pixels. This function performs
+        % a straight-forward data concatenation.
+        %
+        %   >> joined_pix = PixelDataBase.cat(pix_data1, pix_data2);
+        %
+        % Input:
+        % ------
+        %   varargin    A cell array of PixelData objects
+        %
+        % Output:
+        % -------
+        %   obj         A PixelData object containing all the pixels in the inputted
+        %               PixelData objects
+
+            if isempty(varargin)
+                obj = PixelDataFileBacked();
+            elseif numel(varargin) == 1
+                obj = PixelDataFileBacked(varargin{1});
+            end
+
+            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
+            if any(is_ldr)
+                ldr = varargin{is_ldr};
+                varargin = varargin(~is_ldr);
+            else
+                ldr = [];
+            end
+
+            obj = PixelDataFileBacked();
+
+            obj.num_pixels_ = sum(cellfun(@(x) x.num_pixels, varargin));
+
+            obj = obj.get_new_handle(ldr);
+
+            start_idx = 1;
+            for i = 1:numel(varargin)
+                curr_pix = varargin{i};
+                for page = 1:curr_pix.num_pages
+                    [curr_pix,data] = curr_pix.load_page(page);
+                    obj.format_dump_data(data, start_idx);
+                    start_idx = start_idx + size(data,2);
+                end
+            end
+
+            obj = obj.finalise();
+        end
+    end
 
     %======================================================================
     % other getter/setter
@@ -426,7 +533,17 @@ classdef PixelDataFileBacked < PixelDataBase
             end
 
             ldr = sqw_formats_factory.instance().get_loader(in_file);
-            obj = init_from_file_accessor_(obj,ldr,false,true);
+
+            obj.full_filename = in_file;
+            obj.offset_ = val.offset;
+            obj.num_pixels_ = val.npix;
+            obj.f_accessor_ = memmapfile(obj.full_filename, ...
+                                         'Format', obj.get_memmap_format(), ...
+                                         'Repeat', 1, ...
+                                         'Writable', false, ...
+                                         'Offset', obj.offset_);
+            obj.page_num_ = 1;
+            fac_range  = ldr.get_data_range();
         end
 
         function prp = get_prop(obj, fld)
@@ -455,29 +572,6 @@ classdef PixelDataFileBacked < PixelDataBase
 
             % this operation will probably lead to invalid results.
             obj=obj.reset_changed_coord_range(fld);
-        end
-
-        function [obj,unique_idx] = reset_changed_coord_range(obj,field_name)
-            % Recalculate and set appropriate range of pixel coordinates.
-            % The coordinates are defined by the selected field
-            %
-            % Sets up the property page_range defining the range of block
-            % of pixels changed at current iteration.
-
-            %NOTE:  This range calculations are incorrect unless
-            %       performed in a loop over all pix pages where initial
-            %       range is set to empty!
-            %
-            ind = obj.check_pixel_fields(field_name);
-
-            loc_range = [min(obj.data(ind,:),[],2),...
-                max(obj.data(ind,:),[],2)]';
-
-            range = minmax_ranges(obj.data_range_(:,ind),loc_range);
-            obj.data_range_(:,ind)  = range;
-            if nargout > 1
-                unique_idx = unique(obj.run_idx);
-            end
         end
     end
 

@@ -25,53 +25,49 @@ function wout=symmetrise_sqw(win,v1,v2,v3)
 
 %==============================
 %Some checks on the inputs:
-win=sqw(win);
+
+if numel(win) ~= 1
+    error('HORACE:symmetrise_sqw:invalid_argument', ...
+          'symmetrisation only implemented for single sqw object, not arrays of objects. Use a for-loop to deal with arrays');
+end
+
+if ~has_pixels(win)
+    %what we should actually do here is go to the dnd-symmetrise function
+    %of the correct dimensionality
+    error('HORACE:symmetrise_sqw:invalid_argument', ...
+          'input object must be sqw type with detector pixel information');
+end
+
+if numel(v1)~=3 || numel(v2)~=3 || numel(v3)~=3
+    error('HORACE:symmetrise_sqw:invalid_argument', ...
+          'the vectors v1, v2 and v3 must all have 3 elements');
+end
+
+
+win = sqw(win);
 wout = copy(win);
 
 %New code (problem spotted by Matt Mena for case when using a single
 %contributing spe file):
 header = win.experiment_info;
 
-if numel(win)~=1
-    error('HORACE:symmetrise_sqw:invalid_argument', ...
-        'symmetrisation only implemented for single sqw object, not arrays of objects. Use a for-loop to deal with arrays');
-end
 
-if ~has_pixels(win)
-    %what we should actually do here is go to the dnd-symmetrise function
-    %of the correct dimensionality
-    error('HORACE:symmetrise_sqw:invalid_argument', ...    
-    'input object must be sqw type with detector pixel information');
-end
-
-if numel(v1)~=3 || numel(v2)~=3 || numel(v3)~=3
-    error('HORACE:symmetrise_sqw:invalid_argument', ...    
-    'the vectors v1, v2 and v3 must all have 3 elements');
-end
-
-if all(size(v1)==[3,1])
+if isequal(size(v1), [3,1])
     v1=v1';
 end
-if all(size(v2)==[3,1])
+if isequal(size(v2), [3,1])
     v2=v2';
 end
-if all(size(v3)==[3,1])
+if isequal(size(v3), [3,1])
     v3=v3';
 end
-
-
-%========================
 
 %Get B-matrix and reciprocal lattice vectors and angles
 s1 = header.samples{1};
 alatt=s1.alatt;
 angdeg=s1.angdeg;
 
-[b, arlu, angrlu, mess] = bmatrix(alatt, angdeg);
-
-if ~isempty(mess)
-    error('Problem in symmetrisation - sqw object does not have valid alatt and/or angdeg fields');
-end
+[b, arlu, angrlu] = bmatrix(alatt, angdeg);
 
 
 % The first 3 rows of the pix array specify the co-ordinates in Q of each

@@ -34,10 +34,12 @@ end
 
 %proj_given = true;
 if proj_given
-    % Interpolate image and accumulate interpolated data for cut
+    % Interpolate image on non-commensurate grid and accumulate interpolated 
+    % data for cut
     [s, e, npix] = cut_interpolate_data_( ...
-        w, tag_proj,targ_axes);%
+        w, tag_proj,targ_axes);
 else
+    % ingegrate signal and error withing commensurate grids
     [s, e, npix,targ_axes] = cut_integrate_data_( ...
         w, targ_axes);
 end
@@ -95,14 +97,10 @@ function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)
 % npix       Array defining how many pixels are contained in each image
 %            bin. size(npix) == size(s). As the data are interpolated,
 %            the number of pixels may become fractional
+npix = obj.npix;
+s = obj.s.*npix ;
+e = obj.e.*(npix.^2);
 
-%obj.proj.targ_proj = targ_proj;
-targ_proj.targ_proj = obj.proj;
-
-s = obj.s.*obj.npix;
-e = obj.e.*(obj.npix.^2);
-[source_nodes,densities,cell_sizes] = obj.axes.get_density({s,e,obj.npix});
-
-[s,e,npix] = targ_axes.interpolate_data(source_nodes,densities,cell_sizes,targ_proj);
+[s,e,npix] = targ_axes.interpolate_data(obj.axes,obj.proj,{s,e,npix},targ_proj);
 
 [s, e] = normalize_signal(s, e, npix);

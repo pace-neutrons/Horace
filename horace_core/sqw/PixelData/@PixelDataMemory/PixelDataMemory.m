@@ -147,6 +147,69 @@ classdef PixelDataMemory < PixelDataBase
             pix_idx_end   = obj.num_pixels;
         end
 
+        function [obj,varargout]=reset_changed_coord_range(obj,field_name)
+            % Recalculate and set appropriate range of pixel coordinates.
+            % The coordinates are defined by the selected field
+            %
+            % Sets up the property page_range defining the range of block
+            % of pixels changed at current iteration.
+
+            if isempty(obj.data_)
+                obj.data_range_   = PixelDataBase.EMPTY_RANGE;
+                return
+            end
+            if iscell(field_name)
+                ind = obj.check_pixel_fields(field_name);
+            else
+                ind = obj.FIELD_INDEX_MAP_(field_name);
+            end
+
+            obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:));
+            if nargout>1
+                varargout{1} = unique(obj.run_idx);
+            end
+        end
+    end
+
+    methods(Static)
+        function obj = cat(varargin)
+        % Concatenate the given PixelData objects' pixels. This function performs
+        % a straight-forward data concatenation.
+        %
+        %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
+        %
+        % Input:
+        % ------
+        %   varargin    A cell array of PixelData objects
+        %
+        % Output:
+        % -------
+        %   obj         A PixelData object containing all the pixels in the inputted
+        %               PixelData objects
+
+            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
+
+            if any(is_ldr)
+                obj = PixelDataFileBacked(varargin);
+                return
+            end
+
+            if isempty(varargin)
+                obj = PixelDataMemory();
+            elseif numel(varargin) == 1
+                obj = PixelDataMemory(varargin{1});
+            end
+
+            obj = PixelDataMemory();
+            for i = 1:numel(varargin)
+                curr_pix = varargin{i};
+                for page = 1:curr_pix.num_pages
+                    [curr_pix,data] = curr_pix.load_page(page);
+                    obj.data = [obj.data, data];
+                end
+            end
+            obj = obj.recalc_data_range();
+        end
     end
 
     methods(Access=protected)
@@ -185,30 +248,6 @@ classdef PixelDataMemory < PixelDataBase
 
         function prp = get_prop(obj, fld)
             prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
-        end
-
-        function [obj,varargout]=reset_changed_coord_range(obj,field_name)
-            % Recalculate and set appropriate range of pixel coordinates.
-            % The coordinates are defined by the selected field
-            %
-            % Sets up the property page_range defining the range of block
-            % of pixels changed at current iteration.
-
-            if isempty(obj.data_)
-                obj.data_range_   = PixelDataBase.EMPTY_RANGE;
-                return
-            end
-            if iscell(field_name)
-                ind = obj.check_pixel_fields(field_name);
-            else
-                ind = obj.FIELD_INDEX_MAP_(field_name);
-            end
-
-            range = [min(obj.data_(ind,:),[],2),max(obj.data_(ind,:),[],2)]';
-            obj.data_range_(:,ind)   = range;
-            if nargout>1
-                varargout{1} =  unique(obj.run_idx);
-            end
         end
 
         function obj=set_data_wrap(obj,val)

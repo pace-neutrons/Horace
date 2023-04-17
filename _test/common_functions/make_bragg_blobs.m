@@ -44,13 +44,11 @@ esig=p(3)/sqrt(log(256));
 % Conversion matrix to turn h,k,l into correponding values for the lattice defined by parameters
 % -------------------------------------------------------------------------------------
 % b0 is the matrix to convert rlu in the reference lattice to crystal Cartesian coords
-[b0,arlu,angrlu,mess] = bmatrix(lattice0(1:3),lattice0(4:6));
-if ~isempty(mess), error(mess), end
+[b0,arlu,angrlu] = bmatrix(lattice0(1:3),lattice0(4:6));
 
 % b is the matrix to convert rlu in the true lattice to crystal Cartesian coords
 if exist('lattice','var')
-    [b,arlu,angrlu,mess] = bmatrix(lattice(1:3),lattice(4:6));
-    if ~isempty(mess), error(mess), end
+    [b,arlu,angrlu] = bmatrix(lattice(1:3),lattice(4:6));
 else
     b=b0;
 end

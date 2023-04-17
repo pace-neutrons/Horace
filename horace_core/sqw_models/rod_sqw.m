@@ -27,10 +27,7 @@ function weight = rod_sqw (qh,qk,ql,en,pars,lattice,rlp)
 amp=pars(1);
 qsig=pars(2)/sqrt(log(256));
 
-[b,~,~,mess] = bmatrix(lattice(1:3),lattice(4:6));
-if ~isempty(mess)
-    error(mess)
-end
+b = bmatrix(lattice(1:3),lattice(4:6));
 
 % Get h,k,l in new lattice and get weight
 qrlu=[qh(:),qk(:),ql(:)]';

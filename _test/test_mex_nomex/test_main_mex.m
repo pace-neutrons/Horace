@@ -188,7 +188,7 @@ classdef test_main_mex < TestCase
             test_sqw.pix  = pix;
 
             hc.use_mex = false;
-            new_sqw = recompute_bin_data_tester(test_sqw);
+            new_sqw = recompute_bin_data(test_sqw);
             s = new_sqw.data.s;
             e = new_sqw.data.e;
             assertElementsAlmostEqual(4*s,npix);
@@ -201,13 +201,13 @@ classdef test_main_mex < TestCase
 
             hc.use_mex = true;
             par.threads = 1;
-            new_sqw1 = recompute_bin_data_tester(test_sqw);
+            new_sqw1 = recompute_bin_data(test_sqw);
             assertElementsAlmostEqual(new_sqw1.data.s,s)
             assertElementsAlmostEqual(new_sqw1.data.e,e)
 
             hc.use_mex = true;
             par.threads = 8;
-            new_sqw2 = recompute_bin_data_tester(test_sqw);
+            new_sqw2 = recompute_bin_data(test_sqw);
             assertElementsAlmostEqual(new_sqw2.data.s,s)
             assertElementsAlmostEqual(new_sqw2.data.e,e)
 

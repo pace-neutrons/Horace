@@ -51,7 +51,7 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %                  e.g. ...,'free_alatt',[1,0,1],... allows only lattice parameter b to vary
 %   free_angdeg     Array length 3 of zeros or ones, 1=free, 0=fixed
 %                  e.g. ...,'free_lattice',[1,1,0],... fixes lattice angle gam buts allows alf and bet to vary
-%   bind_alatt      Cell array of cell arrays following multifit convention of fixing the ratio of one lattice 
+%   bind_alatt      Cell array of cell arrays following multifit convention of fixing the ratio of one lattice
 %                   parameter to another, e.g. fix the ratio of a and b to be 1, but have c independent: {{2,1}}
 %                   IMPORTANT - YOU MUST USE THIS ARGUMENT IN CONJUNCTION
 %                   WITH free_alatt option - if you fix the ratio of a and
@@ -71,7 +71,7 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %
 %   rotmat          Rotation matrix that relates crystal Cartesian coordinate frame of the refined
 %                  lattice and orientation as a rotation of the initial crystal frame. Coordinates
-%                  in the two frames are related by 
+%                  in the two frames are related by
 %                       v(i)= rotmat(i,j)*v0(j)
 %
 %   distance        Distances between peak positions and points given by true indexes, in input
@@ -98,103 +98,20 @@ arglist=struct('fix_lattice',0,'fix_alatt',0,'fix_alatt_ratio',0,'fix_angdeg',0,
 flags={'fix_lattice','fix_alatt','fix_alatt_ratio','fix_angdeg','fix_orientation'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
+% if the options are consistent
+check_options_consistency(present,opt);
+
 % Check input arguments
-if size(rlu0,2)~=3 || size(rlu0,1)<2 || numel(size(rlu0))~=2
-    error('Must be at least two input reciprocal lattice vectors, each given as triples (h,k,l)')
-end
-if numel(size(rlu))~=2 || ~all(size(rlu0)==size(rlu))
-    error('Must be the same number of reciprocal lattice vectors in reference and new coordinate frames, each given as a triple (h,k,l)')
-end
-if ~all(isfinite(rlu0(:)))  % catch case of rlu not being found - a common input is from bragg_positions
-    error('One or more positions of the true Bragg peak positions (input argument ''rlu'') is not finite.')
-end
+lattice0 = check_input_arguments(rlu0,rlu,alatt0,angdeg0);
 
-if isnumeric(alatt0) && numel(alatt0)==3 && all(alatt0>0) && isnumeric(angdeg0) && numel(angdeg0)==3  && all(angdeg0>0)
-    lattice0=[alatt0(:)',angdeg0(:)'];
-else
-    error('Check reference lattice parameters')
-end
-
-% Check if initial lattice parameters for refinement, if given
-lattice_init=lattice0;
-if numel(args)>=1
-    if numel(args{1})==3 && isnumeric(args{1}) && all(args{1}>0)
-        lattice_init(1:3)=args{1}(:)';
-    else
-        error('Check initial lattice parameters ([a,b,c]) for refinement')
-    end
-end
-if numel(args)==2
-    if numel(args{2})==3 && isnumeric(args{2}) && all(args{2}>0)
-        lattice_init(4:6)=args{2}(:)';
-    else
-        error('Check initial lattice angles ([alf,bet,gam]) for refinement')
-    end
-end
-if numel(args)>2
-    error('Check number of input arguments')
-end
-
-% Check options
-if present.free_alatt
-    if islognum(opt.free_alatt) && numel(opt.free_alatt)==3
-        if opt.fix_lattice || opt.fix_alatt || opt.fix_alatt_ratio
-            error('Cannot use the option ''free_alatt'' with other keywords fixing lattice parameters a,b,c')
-        end
-    else
-        error('Check value of ''free_alatt'' option')
-    end
-end
-
-if present.bind_alatt
-    if ~present.free_alatt
-        error('Must use bind_alatt in conjunction with free_alatt option - type "help refine_crystal" for details');
-    end
-    if ~iscell(opt.bind_alatt)
-        error('bind_alatt input must be a cell array - type "help refine_crystal" for details');
-    end
-    for i=1:numel(opt.bind_alatt)
-        if ~iscell(opt.bind_alatt{i})
-            error('bind_alatt must be a cell array of cell array(s)');
-        elseif numel(opt.bind_alatt{i})~=2
-            error('bind_alatt must be a cell array of cell array(s). The inner cell arrays must have only 2 (integer) elements in range 1 to 3');
-        elseif opt.bind_alatt{i}{1}>3 || opt.bind_alatt{i}{1}<1 || opt.bind_alatt{i}{2}>3 || opt.bind_alatt{i}{2}<1
-            error('bind_alatt must be a cell array of cell array(s). The inner cell arrays must have only 2 (integer) elements in range 1 to 3');
-        else
-            for j=1:2
-                if opt.free_alatt(opt.bind_alatt{i}{j})==0
-                    error('If one lattice parameter is bound to another then free_alatt must be =1 for both of them');
-                end
-            end
-        end
-    end
-end
-
-if present.free_angdeg
-    if islognum(opt.free_angdeg) && numel(opt.free_angdeg)==3
-        if opt.fix_lattice || opt.fix_angdeg
-            error('Cannot use the option ''free_angdeg'' with other keywords fixing lattice parameters alf,bet,gam')
-        end
-    else
-        error('Check value of ''free_angdeg'' option')
-    end
-end
-
-if opt.fix_lattice && ...
-        ((present.fix_alatt && ~opt.fix_alatt) || (present.fix_angdeg && ~opt.fix_angdeg) || (present.fix_alatt_ratio && ~opt.fix_alatt_ratio))
-    error('Check consistency of options to fix lattice parameters')
-elseif opt.fix_alatt && (present.fix_alatt_ratio && ~opt.fix_alatt_ratio) 
-    error('Check consistency of options to fix lattice parameters')
-end
+% Check initial lattice parameters for refinement, if given, are acceptable
+lattice_init = check_additional_args(lattice0,args{:});
 
 
 % Perform calculations
 % --------------------
-[b0,arlu,angrlu,mess] = bmatrix(lattice0(1:3),lattice0(4:6));
-if ~isempty(mess), error(mess), end
-
-[binit,arlu,angrlu,mess] = bmatrix(lattice_init(1:3),lattice_init(4:6));
-if ~isempty(mess), error(mess), end
+[b0,arlu,angrlu] = bmatrix(lattice0(1:3),lattice0(4:6));
+[binit,arlu,angrlu] = bmatrix(lattice_init(1:3),lattice_init(4:6));
 
 vcryst0=b0*rlu0';       % crystal Cartesian coords in reference lattice
 vcryst_init=binit*rlu'; % crystal Cartesian coords in initial lattice
@@ -267,8 +184,7 @@ alatt=fitpar.p(1:3);
 angdeg=fitpar.p(4:6);
 distance=sqrt(sum(reshape(distance,3,nv).^2,1))';
 
-[b,arlu,angrlu,mess] = bmatrix(alatt,angdeg);
-if ~isempty(mess), error(mess), end
+[b,arlu,angrlu] = bmatrix(alatt,angdeg);
 rlu_corr=b\rotmat*b0;
 
 
@@ -360,7 +276,7 @@ function [rotmat,ok,mess] = rotmat_from_uv (u0,v0,u,v)
 %
 %   u0, v0  Coordinates of two vectors in frame S0
 %   u, v    Coordinates of same vectors in frame S
-% 
+%
 %   rotmat  Matrix that relates a vector expressed in the two frames as
 %               r(i) = rotmat(i,j)*r0(j)
 
@@ -391,3 +307,113 @@ y=y/norm(y);    % to account for rounding errors
 xyz=[x,y,z];
 ok=true;
 mess='';
+%--------------------------------------------------------------------------
+function check_options_consistency(present,opt)
+% Check options are consistent
+if present.free_alatt
+    if islognum(opt.free_alatt) && numel(opt.free_alatt)==3
+        if opt.fix_lattice || opt.fix_alatt || opt.fix_alatt_ratio
+            error('Cannot use the option ''free_alatt'' with other keywords fixing lattice parameters a,b,c')
+        end
+    else
+        error('Check value of ''free_alatt'' option')
+    end
+end
+
+if present.bind_alatt
+    if ~present.free_alatt
+        error('HORACE:lattice_functions:invalid_argument', ...
+            'Must use bind_alatt in conjunction with free_alatt option - type "help refine_crystal" for details');
+    end
+    if ~iscell(opt.bind_alatt)
+        error('HORACE:lattice_functions:invalid_argument', ...
+            'bind_alatt input must be a cell array - type "help refine_crystal" for details');
+    end
+    for i=1:numel(opt.bind_alatt)
+        if ~iscell(opt.bind_alatt{i})
+            error('HORACE:lattice_functions:invalid_argument', ...
+                'bind_alatt must be a cell array of cell array(s)');
+        elseif numel(opt.bind_alatt{i})~=2
+            error('HORACE:lattice_functions:invalid_argument', ...
+                'bind_alatt must be a cell array of cell array(s). The inner cell arrays must have only 2 (integer) elements in range 1 to 3');
+        elseif opt.bind_alatt{i}{1}>3 || opt.bind_alatt{i}{1}<1 || opt.bind_alatt{i}{2}>3 || opt.bind_alatt{i}{2}<1
+            error('HORACE:lattice_functions:invalid_argument', ...
+                'bind_alatt must be a cell array of cell array(s). The inner cell arrays must have only 2 (integer) elements in range 1 to 3');
+        else
+            for j=1:2
+                if opt.free_alatt(opt.bind_alatt{i}{j})==0
+                    error('HORACE:lattice_functions:invalid_argument', ...
+                        'If one lattice parameter is bound to another then free_alatt must be =1 for both of them');
+                end
+            end
+        end
+    end
+end
+
+if present.free_angdeg
+    if islognum(opt.free_angdeg) && numel(opt.free_angdeg)==3
+        if opt.fix_lattice || opt.fix_angdeg
+            error('HORACE:lattice_functions:invalid_argument', ...
+                'Cannot use the option ''free_angdeg'' with other keywords fixing lattice parameters alf,bet,gam')
+        end
+    else
+        error('HORACE:lattice_functions:invalid_argument', ...
+            'Check value of ''free_angdeg'' option')
+    end
+end
+
+if opt.fix_lattice && ...
+        ((present.fix_alatt && ~opt.fix_alatt) || (present.fix_angdeg && ~opt.fix_angdeg) || (present.fix_alatt_ratio && ~opt.fix_alatt_ratio))
+    error('HORACE:lattice_functions:invalid_argument', ...
+        'Check consistency of options to fix lattice parameters')
+elseif opt.fix_alatt && (present.fix_alatt_ratio && ~opt.fix_alatt_ratio)
+    error('HORACE:lattice_functions:invalid_argument', ...
+        'Check consistency of options to fix lattice parameters')
+end
+%
+function lattice0 = check_input_arguments(rlu0,rlu,alatt0,angdeg0)
+if size(rlu0,2)~=3 || size(rlu0,1)<2 || numel(size(rlu0))~=2
+    error('HORACE:lattice_functions:invalid_argument', ...
+        'Must be at least two input reciprocal lattice vectors, each given as triples (h,k,l)')
+end
+if numel(size(rlu))~=2 || ~all(size(rlu0)==size(rlu))
+    error('HORACE:lattice_functions:invalid_argument', ...
+        'Must be the same number of reciprocal lattice vectors in reference and new coordinate frames, each given as a triple (h,k,l)')
+end
+if ~all(isfinite(rlu0(:)))  % catch case of rlu not being found - a common input is from bragg_positions
+    error('HORACE:lattice_functions:invalid_argument', ...
+        'One or more positions of the true Bragg peak positions (input argument ''rlu'') is not finite.')
+end
+
+if isnumeric(alatt0) && numel(alatt0)==3 && all(alatt0>0) && isnumeric(angdeg0) && numel(angdeg0)==3  && all(angdeg0>0)
+    lattice0=[alatt0(:)',angdeg0(:)'];
+else
+    error('HORACE:lattice_functions:invalid_argument', ...
+        'Check reference lattice parameters')
+end
+%
+function lattice_init = check_additional_args(lattice0,varargin)
+lattice_init=lattice0;
+if numel(varargin)>=1
+    if numel(varargin{1})==3 && isnumeric(varargin{1}) && all(varargin{1}>0)
+        lattice_init(1:3)=varargin{1}(:)';
+    else
+        error('HORACE:lattice_functions:invalid_argument', ...
+            'Initial lattice parameters ([a,b,c]) should contan 3-vector of initial lattice parameters to fit.\n It is: %s', ...
+            disp2str(varargin{1}))
+    end
+end
+if numel(varargin)==2
+    if numel(varargin{2})==3 && isnumeric(varargin{2}) && all(varargin{2}>0)
+        lattice_init(4:6)=varargin{2}(:)';
+    else
+        error('HORACE:lattice_functions:invalid_argument', ...
+            'Initial lattice angles ([alf,bet,gam]) should contan 3-vector of initial lattice angles to fit.\n It is: %s', ...
+            disp2str(varargin{2}))
+    end
+end
+if numel(varargin)>2
+    error('HORACE:lattice_functions:invalid_argument', ...
+        'Incorrect number of input arguments: (%d). Should be from 0 to 2', ...
+        numel(varargin));
+end
