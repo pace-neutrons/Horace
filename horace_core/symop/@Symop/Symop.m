@@ -226,55 +226,10 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
             % Transform proj
             b = bmatrix(proj.alatt, proj.angdeg);
 
-            % Get bounding box of pbin
-%             bb = [pbin{1}(1) pbin{1}(end)
-%                   pbin{2}(1) bind{2}(end)
-%                   pbin{3}(1) pbin(3}(end)];
-
             for i=numel(obj):-1:1
                 [proj, sgn(i)] = obj(i).transform_proj_single(b, proj);
-%                 bb = obj(i).transform_vec(bb);
             end
 
-
-%
-%
-%
-%             sgntot = prod(sgn);     % +1 or -1 depending on even or odd number of reflections
-%
-%             if sgntot == -1
-%                 % odd number of reflections
-%                 % Does not work for non-orthogonal axes. The problem is that reflections
-%                 % do not have a simple relationship
-%                 % Find an axis to invert. Invert an integration axis (then there are no
-%                 % problems with order of bins in the sqw object); if none, then invert axis 3
-%                 invert = cellfun(@numel, pbin) == 2;
-%
-%                 if invert(3)
-%                     pbin{3} = -flip(pbin{3});
-%                     proj.w = -proj.w;
-%
-%                 elseif invert(2)
-%                     pbin{2} = -flip(pbin{2});
-%                     proj.v = -proj.v;
-%
-%                 elseif invert(1)
-%                     pbin{1} = -flip(pbin{1});
-%                     proj.u = -proj.u;
-%
-%                 else
-%                     % The following is correct if the true bin descriptor is given
-%                     % i.e. the interval is an integer multiple of the step size
-%                     nbin = (pbin{3}(3) - pbin{3}(1)) / pbin{3}(2);
-%                     if floor(nbin) ~= nbin
-%                         error('HORACE:symop:invalid_argument', ...
-%                               'Range along third projection axis is not an integer multiple of bin size');
-%                     end
-%                     pbin{3} = -flip(pbin{3});
-%                     proj.w = -proj.w;
-%
-%                 end
-%             end
         end
     end
 

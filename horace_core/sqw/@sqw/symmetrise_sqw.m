@@ -63,28 +63,53 @@ win = sqw(win);
 wout = copy(win);
 
 if isa(sym, 'SymopReflection')
-    if wout.pix.is_filebacked
+    fold = numel(sym);
+elseif isa(sym, 'SymopRotation')
+    warning('HORACE:symmetrise_sqw:rotation', ...
+            'SymopRotation support in symmetrise is currently experimental and untested')
 
-        wout = wout.get_new_handle();
-        for i = 1:win.pix.num_pages
-            [wout.pix, curr_page] = wout.pix.load_page(i);
-            sel = ~sym.in_irreducible(curr_page(1:3, :));
-            curr_page(1:3, sel) = sym.transform_vec(curr_page(1:3, sel));
-            wout.pix.format_dump_data(curr_page);
-        end
-        wout = wout.finalise();
+    fold = 360 / sym.theta_deg;
 
-    else
-
-        sel = ~sym.in_irreducible(wout.pix.q_coordinates);
-        wout.pix.q_coordinates(:, sel) = sym.transform_vec(wout.pix.q_coordinates(:, sel));
-
+    if numel(sym) ~= 1
+        error('HORACE:symmetrise_sqw:invalid_argument', ...
+              'Rotational symmetry only possible for single rotation')
     end
+
+    if floor(fold) ~= fold
+        error('HORACE:symmetrise_sqw:invalid_argument', ...
+              ['Rotation must be an n-fold mapping onto the full circle.\n', ...
+               'Fold : %1.3f'], fold)
+    end
+
+    sym = repmat(sym, fold, 1);
 
 else
     error('HORACE:symmetrise_sqw:not_implemented', ...
           'Symmetrise does not currently support %s', class(sym))
 end
+
+if wout.pix.is_filebacked
+
+    wout = wout.get_new_handle();
+    for i = 1:win.pix.num_pages
+        [wout.pix, curr_page] = wout.pix.load_page(i);
+        for i = 1:fold
+            sel = ~sym(i).in_irreducible(curr_page(1:3, :));
+            curr_page(1:3, sel) = sym(i).transform_vec(curr_page(1:3, sel));
+        end
+        wout.pix.format_dump_data(curr_page);
+    end
+    wout = wout.finalise();
+
+else
+
+    for i = 1:fold
+        sel = ~sym(i).in_irreducible(wout.pix.q_coordinates);
+        wout.pix.q_coordinates(:, sel) = sym(i).transform_vec(wout.pix.q_coordinates(:, sel));
+    end
+
+end
+
 
 %=========================================================================
 % Transform Ranges:
@@ -106,8 +131,10 @@ cross_points = box_intersect(cc_ranges, ...
 cc_exist_range = [cc_ranges,cross_points];
 
 % transform existing range into transformed range
-idx = ~sym.in_irreducible(cc_exist_range);
-cc_exist_range(:,idx) = sym.transform_vec(cc_exist_range(:,idx));
+for i = 1:fold
+    idx = ~sym(i).in_irreducible(cc_exist_range);
+    cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
+end
 
 img_box_points = proj.transform_pix_to_img(cc_exist_range);
 img_db_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
