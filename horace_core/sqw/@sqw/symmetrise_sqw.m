@@ -10,8 +10,14 @@ function wout=symmetrise_sqw(win,varargin)
 %
 % sym
 %     Symmetry operation over which to reduce data
-%       If rotation will map to positive quadrant as much as possible
-%       rotation about theta will reduce all
+%       For reflections this is an array of SymopReflections
+%          which are applied in sequence taking the values
+%          for which coords'*cross(u, v) > 0
+%          reducing the data onto the minimal set
+%       For rotations this is a single SymopRotation
+%          which will apply 360/theta_deg rotations
+%          to reduce data into the positive quadrant
+%          ** N.B. ** 360/theta_deg MUST be integral
 %
 % v1 and v2 are two vectors which lie in the plane of the reflection plane.
 % v3 is a vector connecting the plane to the origin (i.e. specifies an
