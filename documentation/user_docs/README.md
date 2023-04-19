@@ -48,6 +48,9 @@ latest stable version, which is currently:
 
 https://pace-neutrons.github.io/Horace/v3.6.3/ 
 
+This version number should be changed when a new release is produced; details
+for this can be found in `smg/10_build_release_process.md`.
+
 Older versions are available; to see these, enter the Horace repo at the 
 top level and switch to branch `gh-pages`.
 
