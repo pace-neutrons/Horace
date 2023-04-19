@@ -43,7 +43,7 @@ if all(id>=1) && all(rem(id,1)==0)
     end
     
     % Check if unique identifiers
-    if any(diff(id)==0) % array is sorted so check adjacent differences
+    if ~unique(id) % array is sorted so check adjacent differences
         ok = false;
         mess = 'identifiers must be unique';
         ix = [];

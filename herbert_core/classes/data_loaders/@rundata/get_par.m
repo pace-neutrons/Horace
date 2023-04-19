@@ -7,16 +7,17 @@ function [par,this]=get_par(this,format)
 % Input:
 % ------
 
-%   rundata_instance    Properly initiated instance of the rundata class
-%  '-array','-nohorace'   return results as 6xndet array of coordinates
+%   this == rundata_instance    Properly initiated instance of the rundata class
+%  '-array','-nohorace'         return results as 6xndet array of coordinates
 %
 % Output:
 % -------
 %   par                 Detector parameters
 %
-
-%CM:get_par():note this is the @rundata method, there is also the
-%data_loaders method
+%
+% one of the GET_PAR methods for retrieving detpar from data.
+% note this is the @rundata method, there is also the
+% method in data_loaders method
 
 if isempty(this.det_par)
     if isempty(this.loader_)

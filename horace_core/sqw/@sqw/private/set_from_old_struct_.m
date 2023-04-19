@@ -38,13 +38,9 @@ if ~isfield(S,'version') || S.version<4
         end
         if isfield(ss,'detpar') && ~isempty(ss.detpar)
             detector = IX_detector_array(ss.detpar);
-            updated_arrays = ss.experiment_info.detector_arrays;
-            %for j=1:ss.experiment_info.n_runs
-                updated_arrays = ...
-                    updated_arrays.add_copies_(detector, ss.experiment_info.n_runs);
-            %end
             ss.experiment_info.detector_arrays = ...
-                updated_arrays;
+                ss.experiment_info.detector_arrays.add_copies_(detector, ...
+                                                               ss.experiment_info.n_runs);
         end
         if isfield(ss,'data_')
             ss.data = ss.data_;

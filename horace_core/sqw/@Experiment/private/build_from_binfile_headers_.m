@@ -11,12 +11,11 @@ inst = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst'
 detc = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array'); %cell(n_header,1);
 for i=1:n_header
     if iscell(header)
-        [exper(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(header{i});
         hdr = header{i};
     else
-        [exper(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(header(i));
         hdr = header(i);
     end
+    [exper(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(hdr);
     if ~isfield(hdr,'instrument') || isempty(hdr.instrument)
         inst{i} = IX_null_inst();
     else

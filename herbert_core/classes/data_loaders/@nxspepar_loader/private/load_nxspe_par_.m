@@ -40,7 +40,7 @@ if n_det == obj.n_det_in_par_ && ~isempty(obj.det_par_) && ~force_reload
     % it should be either a detpar struct or an IX_detector_array (not yet
     % supported) so catch anything else (should not be a raw array)
     if ~isstruct(par)
-        error('not a detpar struct');
+        error('HERBERT:load_nxspe_par_:invalid_argument','not a detpar struct');
     end
 else
     % in this case, we will change obj.det_par_ from the data read into par
@@ -80,7 +80,8 @@ if return_array
     if isstruct(par)
         par = get_hor_format(par,''); % convert Horace detpar struct to raw array
     elseif isa(par,'IX_detector_array')
-        error('use of convert this type to raw array not yet supported');
+        error('HERBERT:load_nxspe_par_:invalid_argument', ...
+              'use of convert this type to raw array not yet supported');
     end
     if getphx
         par = a_detpar_loader_interface.convert_par2phx(par);

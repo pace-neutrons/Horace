@@ -348,7 +348,7 @@ classdef unique_references_container < serializable
                     end
                     if any(b>numel(self.idx_))
                         error('HERBERT:unique_references_container:invalid_argument',...
-                            'subscript must be within range');
+                            'subscript must be within range 1:%d',numel(self.idx_));
                     end
                     glindex = self.idx_(b);
                     glc = self.global_container('value',self.global_name_);

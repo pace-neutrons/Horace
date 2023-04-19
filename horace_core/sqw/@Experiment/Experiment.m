@@ -2,8 +2,8 @@ classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
 
     properties(Access=private)
-        % if no other instrument input is provided Exeriment instrument
-        % remain empty.
+        % String input here (a) invalid value so should be caught if not
+        % redefined later (b) describes what the construction process is.
         instruments_ = "initialised in constructor";
         detector_arrays_ = "initialised in constructor";
         samples_ = "initialised in constructor";
@@ -125,7 +125,7 @@ classdef Experiment < serializable
                     % add to default compressed container
                     % this must be of the right size to define number of
                     % runs for the experiment - the other fields can handle
-                    % adding duplicates once they know this number
+                    % adding duplicates once they know this numberval,
                     obj.expdata_ = expdata;
                 elseif isempty(expdata)
                     % do nothing, leave default array container empty
@@ -142,18 +142,26 @@ classdef Experiment < serializable
                 
                                 
             elseif nargin == 1 
-                if ~iscell(varargin{1})
+                arg = varargin{1};
+                if ~iscell(arg)
                     % make arg a cell
-                    varargin{1} = { varargin{1} };
+                    arg = { arg };
+                end
+                if ~obj.isoldheader(arg{1})
+                    error('HORACE:Experiment:invalid_argument', ...
+                           ['single argument is not an oldstyle header struct', ...
+                            ' or cell of such structs']);
                 end
                 % now have cell array of headers, init_ will process
+                varargin{1} = arg;
+                
             else
-                error(['the other cases do not yet have examples',...
-                       'so catching them here until we can do them',...
+                error('HORACE:Experiment:invalid_argument', ...
+                      ['the other cases do not yet have examples ',...
+                       'so catching them here until we can do them ',...
                        'properly']);
             end
-            tmpp = init_(obj,varargin{:});
-            obj = tmpp;
+            obj = init_(obj,varargin{:});
         end
         
         %
@@ -530,7 +538,11 @@ classdef Experiment < serializable
                 obj.(field) = obj.(field).add(val);
 
             elseif ( isa(val, type) &&                       ...
-                     numel(val) == 1 )              ...
+                     numel(val) == 1 )                       ...
+                   ||                                        ...
+                   ( iscell(val)                          && ...
+                     numel(val) == 1                      && ...
+                     isa(val{1}, type) )
                 % assume we're adding n_runs identical copies
                 % 
                 % add to default compressed container
@@ -708,13 +720,8 @@ classdef Experiment < serializable
     end
     methods(Static)
         function ishdr = isoldheader(val)
-            % hacky - 
-            ishdr = true;
-            if ~isstruct(val)
-                ishdr = false;
-            elseif ~isfield(val,{'alatt','angdeg','efix','emode'})
-                ishdr = false;
-            end
+            ishdr = isstruct(val) && ...
+                    all(isfield(val,{'alatt','angdeg','efix','emode'}));
         end
         
         function obj = loadobj(S)

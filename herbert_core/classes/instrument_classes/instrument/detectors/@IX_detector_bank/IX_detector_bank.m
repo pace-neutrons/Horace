@@ -106,10 +106,14 @@ classdef IX_detector_bank < serializable
                     iout = stringmatchi(varargin{1},types);
                     if isscalar(iout)
                         % convert varargin{2} to dmat, either unchanged if
-                        % already dmat, or converted from rotvec to dmat
+                        % already dmat, or converted from rotvec to dmat.
                         % also extract no. detectors as per dmat
                         [ok,mess,ndet0,dmat] = det_orient_trans (varargin{2}, types{iout}, 'dmat');
-                        if ~ok, error(mess); end
+                        if ~ok
+                            error( ...
+                             'HERBERT:IX_detector_bank_constructor:invalid_argument', ...
+                             mess); 
+                        end
                     else
                         error(HERBERT:IX_detector_bank_constructor:invalid_argument', ...
                           'Unrecognised or ambiguous orientation type')
@@ -200,120 +204,20 @@ classdef IX_detector_bank < serializable
         end
         
         %------------------------------------------------------------------
-        % Set/get methods for dependent properties (individual)
+        % Set methods for dependent properties (individual)
         %
-        % Checks that rely on interdependencies must go above
-        
-        %{
-        function obj = set.id (obj,val)
-        %SET.ID sets ALL the id numbers for detectors
-            if numel(val)==numel(obj.id_)
-                % checks val is positive non-duplicate integers
-                % and gives the permutation ix to make it ascending order
-                [ok,mess,ix] = is_integer_id(val);
-                if ok
-                    obj.id_ = val(:);
-                    if ~isempty(ix)
-                        % reorder id to match reordering of the
-                        % x2/phi/azim/dmat/det
-                        obj.id_   = obj.id_(ix);
-                        obj.x2_   = x2_exp(ix);
-                        obj.phi_  = phi_exp(ix);
-                        obj.azim_ = azim_exp(ix);
-                        obj.dmat_ = obj.dmat_(:,:,ix);
-                        obj.det_  = obj.det_.reorder(ix);
-                    end
-                else
-                    error('HORACE:IX_detector_bank:set.id', ['Detector ',mess]);
-                end
-            else
-                error('HORACE:IX_detector_bank:set.id', ...
-                      ['The number of detector identifiers must match ' ...
-                       'the current number']);
-            end
-        end
-        
-        function obj=set.x2(obj,val)
-            obj.x2_ = expand_args_by_ref (obj.x2_, val);
-        end
-        
-        function obj=set.phi(obj,val)
-            obj.phi_ = expand_args_by_ref (obj.phi_, val);
-        end
-        
-        function obj=set.azim(obj,val)
-            obj.azim_ = expand_args_by_ref (obj.azim_, val);
-        end
-        
-        function obj=set.dmat(obj,val)
-            [ok,mess,ndet0] = det_orient_trans (val, 'dmat');
-            if ~ok, error(mess), end
-            
-            if ok
-                if obj.ndet == ndet0
-                    obj.dmat_ = val;
-                elseif ndet0==1
-                    obj.dmat_ = repmat(val,[1,1,obj.ndet]);
-                else
-                    error('Number of detector orientations must be scalar or match the number of detector identifiers')
-                end
-            else
-                error(mess)
-            end
-        end
-        
-        function obj=set.det(obj,val)
-            obj.det_ = val;     % checks correct type
-            if val.ndet~=obj.ndet
-                if val.ndet==1
-                    obj.det_ = val.replicate(obj.ndet);
-                else
-                    error('The number of detectors must match be unity or equal the number of detector identifiers')
-                end
-            end
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg(true);
-            end
-        end
-        
-        function obj = check_combo_arg(obj,do_recompute_components)
-            % verify interdependent variables and the validity of the
-            % obtained serializable object. Return the result of the check
-
-            % Throw if the properties are inconsistent and return without
-            % problem it they are not, after recomputing pdf table if
-            % requested.
-            if ~exist('do_recompute_components','var')
-                do_recompute_components = true;
-            end
-            if do_recompute_components
-            if numel(val)==numel(obj.id_)
-                % checks val is positive non-duplicate integers
-                % and gives the permutation ix to make it ascending order
-                [ok,mess,ix] = is_integer_id(val);
-                if ok
-                    obj.id_ = val(:);
-                    if ~isempty(ix)
-                        % reorder id to match reordering of the
-                        % x2/phi/azim/dmat/det
-                        obj.id_   = obj.id_(ix);
-                        obj.x2_   = x2_exp(ix);
-                        obj.phi_  = phi_exp(ix);
-                        obj.azim_ = azim_exp(ix);
-                        obj.dmat_ = obj.dmat_(:,:,ix);
-                        obj.det_  = obj.det_.reorder(ix);
-                    end
-                else
-                    error('HORACE:IX_detector_bank:set.id', ['Detector ',mess]);
-                end
-            else
-                error('HORACE:IX_detector_bank:set.id', ...
-                      ['The number of detector identifiers must match ' ...
-                       'the current number']);
-            end
-            end
-        end
-        %}
+        % Set/get methods that rely on interdependencies between the properties
+        % having been resolved before the set must go above.
+        % 
+        % Set methods for individual properties are no longer
+        % supported. The combined collection of properties must be input so
+        % that e.g. x2 values are in the same order as the group/id that
+        % they correspond to. This class can then sort all properties by
+        % id, usually to have the ids in ascending order to allow merging
+        % of detectors. Once sorted the internal order will not correspond
+        % to the order of data held externally and no further sets by
+        % property should be considered. Instead, a new IX_detector_bank
+        % should be constructed from the data available.
         
         %------------------------------------------------------------------
         % Get methods for dependent properties
@@ -348,6 +252,7 @@ classdef IX_detector_bank < serializable
         %------------------------------------------------------------------
         
     end
+    
     methods
             % SERIALIZABLE interface
         %------------------------------------------------------------------

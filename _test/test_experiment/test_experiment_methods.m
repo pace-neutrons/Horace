@@ -132,26 +132,26 @@ classdef test_experiment_methods < TestCase
             rec_exp = Experiment.build_from_binfile_headers(hdrs_cell);
             assertFalse(rec_exp.runid_recalculated);
             assertTrue(isa(rec_exp,'Experiment'));
+            assertEqual(rec_exp.n_runs, 1);
 
             assertEqual(rec_exp.expdata,exp.expdata(2));
             assertEqual(rec_exp.runid_map.keys,{20});
             assertEqual(rec_exp.runid_map.values,{1});
-
-            % properties are now recovered from the header so these
-            % tests are invalid
-            % these properties are only partially recovered from headers
-            %assertEqual(rec_exp.samples{1},IX_samp('',[1.1,2.2,3.2],[90,91,92]));
-            % instrument is not recovered from headers
-            %assertEqual(rec_exp.instruments{1},IX_null_inst());
             
-            % instead compare reconstructed data for element 1 against 
+            assertEqual(rec_exp.detector_arrays.n_runs, 0);
+
+            % properties are now recovered from old headers so we can 
+            % compare reconstructed data for element 1 against 
             % the original element 2
             assertEqual(rec_exp.instruments{1},exp.instruments{2});
             assertEqual(rec_exp.samples{1},exp.samples{2});
             
             % note that detector detpars are not held in the headers so any
             % detectors in exp will not have been passed to rec_exp via
-            % the reconstruction via hdrs_cell
+            % the reconstruction via hdrs_cell. To ensure that exp does
+            % have the required detector_array data, do this test
+            assertEqual(exp.detector_arrays.n_objects, 3);
+            assertEqual(exp.detector_arrays.n_unique_objects, 1);
         end
 
 

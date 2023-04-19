@@ -80,7 +80,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
 
             assertTrue(isa(expt.samples{1},'IX_null_sample'));
             assertTrue(isa(expt.instruments{1},'IX_null_inst'));
-            assertTrue(expt.detector_arrays.n_runs==0);
+            assertEqual(expt.detector_arrays.n_runs, 0);
             assertTrue(isempty(expt.expdata));
         end
         function test_constructor_raises_error_with_invalid_single_input(~)

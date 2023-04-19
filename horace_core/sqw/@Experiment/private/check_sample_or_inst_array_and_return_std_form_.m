@@ -1,7 +1,8 @@
-function std_form = check_sample_or_inst_or_detector_array_and_return_std_form_(...
+function std_form = check_sample_or_inst_array_and_return_std_form_(...
     sid,class_base)
 % The function is the common part of the checks to set sample
-% or instrument methods.
+% or instrument methods. Now also includes detector arrays but leaving that
+% out of the function name to simplify code.
 %
 % check if input is sample or instrument type input and return
 % standard form of the class, to store within the class method.
