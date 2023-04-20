@@ -66,8 +66,8 @@ classdef SymopRotation < Symop
         % For any `u` not parallel to `n` and v = R*u;
         % The planes defined by UN, VN encapsulate the reduced region
         % And thus any coordinate `q` from `Q` where
-        % q*(u x n) > 0 && q*(n x v) > 0
-        % belong to the irreducible set
+        % q*(n x u) > 0 && q*(v x n) > 0
+        % belong to the irreducible set in the upper right quadrant
             n = obj.n / norm(obj.n);
             if sum(abs(n - [1; 0; 0])) > 1e-1
                 u = [1; 0; 0];
@@ -76,8 +76,8 @@ classdef SymopRotation < Symop
             end
 
             v = obj.transform_vec(u);
-            normvec_u = cross(u, n);
-            normvec_v = cross(n, v);
+            normvec_u = cross(n, u);
+            normvec_v = cross(v, n);
 
             selected = (coords'*normvec_u > 0 & ...
                         coords'*normvec_v > 0);

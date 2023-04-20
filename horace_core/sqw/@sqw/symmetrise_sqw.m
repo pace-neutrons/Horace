@@ -54,7 +54,7 @@ end
 
 if numel(varargin) == 1 && isa(varargin{1}, 'Symop')
 
-    sym = varargin{1}
+    sym = varargin{1};
 elseif numel(varargin) == 3
 
     sym = SymopReflection(varargin{:});
@@ -72,9 +72,10 @@ if isa(sym, 'SymopReflection')
     fold = numel(sym);
 elseif isa(sym, 'SymopRotation')
     warning('HORACE:symmetrise_sqw:rotation', ...
-            'SymopRotation support in symmetrise is currently experimental and untested')
+            'SymopRotation support in symmetrise is currently experimental')
 
-    fold = 360 / sym.theta_deg;
+    % Don't need to do the 360 mapping (last == ID)
+    fold = (360 / sym.theta_deg) - 1;
 
     if numel(sym) ~= 1
         error('HORACE:symmetrise_sqw:invalid_argument', ...
@@ -84,7 +85,7 @@ elseif isa(sym, 'SymopRotation')
     if floor(fold) ~= fold
         error('HORACE:symmetrise_sqw:invalid_argument', ...
               ['Rotation must be an n-fold mapping onto the full circle.\n', ...
-               'Fold : %1.3f'], fold)
+               'Fold : %1.3f'], fold+1)
     end
 
     sym = repmat(sym, fold, 1);
@@ -130,18 +131,21 @@ exp_range = expand_box(existing_range(1,1:3), existing_range(2,1:3));
 cc_ranges = proj.transform_img_to_pix(exp_range);
 
 % identify intersection points between the image range and the symmetry plane
-cross_points = box_intersect(cc_ranges, ...
-                             [sym.u+sym.offset,sym.v+sym.offset,sym.offset]);
+if isa(sym, 'SymopReflection')
+    cross_points = box_intersect(cc_ranges, ...
+                                 [sym.u+sym.offset,sym.v+sym.offset,sym.offset]);
 
-% and combine all them together
-cc_exist_range = [cc_ranges,cross_points];
+    % and combine all them together
+    cc_exist_range = [cc_ranges,cross_points];
 
-% transform existing range into transformed range
-for i = 1:fold
-    idx = ~sym(i).in_irreducible(cc_exist_range);
-    cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
+    % transform existing range into transformed range
+    for i = 1:fold
+        idx = ~sym(i).in_irreducible(cc_exist_range);
+        cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
+    end
+elseif isa(sym, 'SymopRotation')
+
 end
-
 img_box_points = proj.transform_pix_to_img(cc_exist_range);
 img_db_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
 
