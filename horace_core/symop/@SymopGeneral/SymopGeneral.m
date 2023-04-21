@@ -11,7 +11,7 @@ classdef SymopGeneral < Symop
     methods
 
         function obj = set.W(obj, val)
-            if  ~obj.is_3x3matrix(val) || abs(det(val)) - 1 > 1e-4
+            if  ~obj.is_3x3matrix(val) || abs(det(val)) ~= 1
                 error('HORACE:symop:invalid_argument', ...
                       'Motion matrix W must be a 3x3 matrix with determinant 1, det: %d', det(val));
             end
@@ -22,14 +22,7 @@ classdef SymopGeneral < Symop
             W = obj.W_;
         end
 
-        function selected = in_irreducible(~, ~)
-        % Compute whether the coordinates in `coords` are in the irreducible
-        % set following the operation
-            error('HORACE:symop:not_implemented', ...
-                  'Cannot compute the irreducible set from general 3x3 transform');
-        end
-
-        function R = calculate_transform(obj, ~)
+        function R = calculate_transform(obj, Minv)
         % Get transformation matrix for the symmetry operator in an orthonormal frame
         %
         % The transformation matrix converts the components of a vector which is
@@ -49,7 +42,7 @@ classdef SymopGeneral < Symop
         % ------
         %   obj     Symmetry operator object (scalar)
         %   Minv    Matrix to convert components of a vector given in rlu to those
-        %             in an orthonormal frame
+        %             in an orthonormal frame, this is used by SymopRotation
         %
         % Output:
         % -------
@@ -59,15 +52,15 @@ classdef SymopGeneral < Symop
         end
 
         function local_disp(obj)
-            fprintf('Sym op: \n')
-            if any(obj.offset)
-                fprintf(' % 6.4f % 6.4f % 6.4f   % 6.4f\n', obj.W(1, :), obj.offset(1));
-                fprintf(' % 6.4f % 6.4f % 6.4f + % 6.4f\n', obj.W(2, :), obj.offset(2));
-                fprintf(' % 6.4f % 6.4f % 6.4f   % 6.4f\n', obj.W(3, :), obj.offset(3));
+            disp('Sym op:')
+            if any(obj.offset ~= 0)
+                fprintf(' % 1d % 1d % 1d    % g\n', obj.W(1, :), obj.offset(1));
+                fprintf(' % 1d % 1d % 1d  + % g\n', obj.W(2, :), obj.offset(2));
+                fprintf(' % 1d % 1d % 1d    % g\n', obj.W(3, :), obj.offset(3));
             else
-                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(1, :));
-                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(2, :));
-                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(3, :));
+                fprintf(' % 1d % 1d % 1d\n', obj.W(1, :));
+                fprintf(' % 1d % 1d % 1d\n', obj.W(2, :));
+                fprintf(' % 1d % 1d % 1d\n', obj.W(3, :));
             end
         end
     end
