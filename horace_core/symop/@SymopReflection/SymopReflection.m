@@ -95,9 +95,7 @@ classdef SymopReflection < Symop
             % Create reflection matrix in the orthonormal frame
             R = eye(3) - 2*(n*n');
         end
-    end
 
-    methods(Access=protected)
         function local_disp(obj)
             disp('Reflection operator:')
             disp([' In-plane u (rlu): ',mat2str(obj.u, 2)])
