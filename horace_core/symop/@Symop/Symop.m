@@ -11,7 +11,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
 %
 % EXAMPLES:
 %   Equivalent points are reached by general 3x3 Matrix transform
-%       s = Symop([1,0,0; 0 -1 0; 0,0,-1], [1,1,1]);
+%       s = SymopGeneral([1,0,0; 0 -1 0; 0,0,-1], [1,1,1]);
 %       s = Symop.create([1,0,0; 0 -1 0; 0,0,-1], [1,1,1]);
 %
 %   Identity (no-op) transform
