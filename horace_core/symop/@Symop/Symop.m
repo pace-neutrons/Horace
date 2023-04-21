@@ -1,4 +1,4 @@
-classdef Symop < matlab.mixin.Heterogeneous
+classdef(Abstract) Symop < matlab.mixin.Heterogeneous
 % Symmetry operator describing equivalent points
 %
 % A symmetry operator object describes how equivalent points are defined by
@@ -39,23 +39,18 @@ classdef Symop < matlab.mixin.Heterogeneous
 %   transform_pix   - Transform pixel coordinates into symmetry related coordinates
 %   transform_proj  - Transform projection axes description by the symmetry operation
 
-    properties (Dependent)
+    properties(Dependent)
         % Offset of transform
         offset;
         % General transformation matrix for operator
-        W;
+        R;
     end
 
     properties (Access=private)
         offset_ = [0; 0; 0];  % offset vector for symmetry operator (rlu) (col)
     end
 
-    properties(Access=protected)
-        W_ = eye(3);
-    end
-
     methods
-
         function obj = Symop(W, offset)
             if nargin == 0
                 return
@@ -89,48 +84,17 @@ classdef Symop < matlab.mixin.Heterogeneous
             obj.offset_ = val(:);
         end
 
-        function obj = set.W(obj, val)
-            if  ~obj.is_3x3matrix(val) || abs(det(val)) ~= 1
-                error('HORACE:symop:invalid_argument', ...
-                      'Motion matrix W must be a 3x3 matrix with determinant 1, det: %d', det(val));
-            end
-            obj.W_ = reshape(val, [3 3]); % Just requires 9 elements & numeric
-        end
-
-        function W = get.W(obj)
+        function R = get.R(obj)
         % Compute general transformation matrix for operator
         % Computing so as to generate it for Symop subclasses
-            W = obj.transform_vec(eye(3));
+            R = obj.transform_vec(eye(3));
         end
 
-        function R = calculate_transform(obj, Minv)
-        % Get transformation matrix for the symmetry operator in an orthonormal frame
-        %
-        % The transformation matrix converts the components of a vector which is
-        % related by the symmetry operation into the equivalent vector. The
-        % coordinates of the vector are expressed in an orthonormal frame.
-        %
-        % For example, if the symmetry operation is a rotation by -90 degrees about
-        % [0,0,1] in a cubic lattice with lattice parameter 2*pi, the point [0.3,0.1,2]
-        % is transformed into [0.1,-0.3,2].
-        %
-        % The transformation matrix accounts for reflection or rotation, but not
-        % translation, which is associated with the offset in the symmetry operator.
-        %
-        %   >> R = calculate_transform (obj, Minv)
-        %
-        % Input:
-        % ------
-        %   obj     Symmetry operator object (scalar)
-        %   Minv    Matrix to convert components of a vector given in rlu to those
-        %             in an orthonormal frame, this is used by SymopRotation
-        %
-        % Output:
-        % -------
-        %   R       Transformation matrix to be applied to the components of a
-        %          vector given in the orthonormal frame for which Minv is defined
-            R = obj.W_;
-        end
+    end
+
+    methods(Abstract)
+        R = calculate_transform(obj, Minv)
+        local_disp(obj)
     end
 
     methods(Sealed)
@@ -151,7 +115,9 @@ classdef Symop < matlab.mixin.Heterogeneous
             end
 
             for i = numel(obj):-1:1
-                vec = calculate_transform(eye(3)) * vec;
+                vec = vec - obj(i).offset;
+                vec = obj(i).calculate_transform(eye(3)) * vec;
+                vec = vec + obj(i).offset;
             end
         end
 
@@ -161,15 +127,15 @@ classdef Symop < matlab.mixin.Heterogeneous
             if isscalar(obj)
                 obj.local_disp();
             else
-                disp('[')
+                disp('[');
                 for i = obj
                     i.local_disp();
                 end
-                disp(']')
+                disp(']');
             end
         end
 
-        function pix = transform_pix(obj, upix_to_rlu, upix_offset, pix)
+        function pix = transform_pix(obj, pix)
         % Transform pixel coordinates into symmetry related coordinates
         %
         % The transformation converts the components of a vector which is
@@ -197,33 +163,15 @@ classdef Symop < matlab.mixin.Heterogeneous
         %   pix_out     Transformed pixel array (3 x n array).
 
             % Check input
-            if ~isequal(size(upix_to_rlu), [3,3])
-                error('HORACE:symop:invalid_argument', ...
-                      'Check upix_to_rlu is a 3x3 matrix')
-            elseif ~(numel(upix_offset)==3 || numel(upix_offset)==4)
-                error('HORACE:symop:invalid_argument', ...
-                      'Check upix_offset is a vector length 3|4')
-            elseif isempty(obj)
+            if isempty(obj)
                 error('HORACE:symop:invalid_argument', ...
                       'Empty symmetry operation object array')
             end
 
             % Get transformation
-            n = numel(obj);
-
-            Minv = upix_to_rlu(1:3,1:3) \ eye(3);  % seems to be slightly better than inv(M)
-            Rtot = obj(end).calculate_transform(Minv);
-            Om = obj(end).compute_offset(Rtot, Minv, upix_offset(1:3));
-
-            for i=n-1:-1:1
-                R = obj(i).calculate_transform(Minv);
-                O = obj(i).compute_offset(R, Minv, upix_offset(1:3));
-                Rtot = Rtot * R;
-                Om = R \ Om + O;
+            for i = numel(obj):-1:1
+                pix.coordinates = obj(i).transform_vec(pix.coordinates)
             end
-
-            % Transform pixels
-            pix = Rtot \ pix_in + Om;
 
         end
 
@@ -346,21 +294,6 @@ classdef Symop < matlab.mixin.Heterogeneous
         end
     end
 
-    methods(Access=protected)
-        function local_disp(obj)
-            disp('Sym op:')
-            if any(obj.offset ~= 0)
-                fprintf(' % 1d % 1d % 1d    % g\n', obj.W(1, :), obj.offset(1));
-                fprintf(' % 1d % 1d % 1d  + % g\n', obj.W(2, :), obj.offset(2));
-                fprintf(' % 1d % 1d % 1d    % g\n', obj.W(3, :), obj.offset(3));
-            else
-                fprintf(' % 1d % 1d % 1d\n', obj.W(1, :));
-                fprintf(' % 1d % 1d % 1d\n', obj.W(2, :));
-                fprintf(' % 1d % 1d % 1d\n', obj.W(3, :));
-            end
-        end
-    end
-
     methods(Static)
         function obj = create(varargin)
         % Create a symmetry operator object.
@@ -425,14 +358,14 @@ classdef Symop < matlab.mixin.Heterogeneous
                     obj = SymopRotation(varargin{:});
                 elseif Symop.check_args(varargin)
 
-                    obj = Symop(varargin{:});
+                    obj = SymopGeneral(varargin{:});
                 else
 
                     error('HORACE:symop:invalid_argument', ...
                           ['Constructor arguments should be one of:\n', ...
                            '- Rotation:   symop(3vector, scalar, [3vector])\n', ...
                            '- Reflection: symop(3vector, 3vector, [3vector])\n', ...
-                           '- Motion:     symop(3x3matrix, [3vector])\n', ...
+                           '- General:    symop(3x3matrix, [3vector])\n', ...
                            'Received: %s'], disp2str(varargin));
 
                 end
