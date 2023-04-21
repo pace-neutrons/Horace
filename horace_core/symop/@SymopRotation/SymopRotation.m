@@ -88,9 +88,7 @@ classdef SymopRotation < Symop
             % Perform active rotation (hence reversal of sign of theta
             R = rotvec_to_rotmat(-obj.theta_deg_*n/norm(n));
         end
-    end
 
-    methods(Access=protected)
         function local_disp(obj)
             disp(['Rotation operator:'])
             disp(['       axis (rlu): ',mat2str(obj.n)])
