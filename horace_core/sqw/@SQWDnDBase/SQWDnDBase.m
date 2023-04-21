@@ -55,12 +55,12 @@ classdef (Abstract) SQWDnDBase
             %TODO remove this doing Ticket #730
             save_xye_(obj,varargin{:});
         end
+        wout = recompute_bin_data(w);
     end
     
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
-        wout = recompute_bin_data(w);
         wout = sqw_eval_nopix_(win, sqwfunc, all_bins, pars);
     end
     
