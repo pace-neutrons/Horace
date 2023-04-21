@@ -83,8 +83,11 @@ lat = obj.lattice.set_rad();
 [~, u_to_rlu] = obj.lattice.calc_proj_matrix();
 ulen = [1,1,1];
 offset = [0;0;0;0];
-proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg);
-proj = proj.set_from_data_mat(u_to_rlu,ulen);
+proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg,'type','ppr');
+% the projection should define unit transformation from pix to image
+
+proj = proj.set_from_data_mat(u_to_rlu ,ulen);
+proj.type= 'ppr';
 
 sqw_data = DnDBase.dnd(axes_bl,proj);
 

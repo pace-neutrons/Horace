@@ -398,11 +398,12 @@ classdef ortho_proj<aProjectionBase
                 rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);
                 % Modern alignment with rotation matrix attached to pixel
                 % coordinate system
+               
                 rlu_to_u = rlu_to_ustep;
                 if alignment_needed
                     u_to_rlu  = rlu_to_u\alignment_mat;
                 else
-                    u_to_rlu = inv(rlu_to_ustep);
+                    u_to_rlu = inv(rlu_to_u);
                 end
             else% Legacy alignment, with multiplication of rotation matrix
                 % and u_to_rlu transformation matrix;
