@@ -64,7 +64,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                   0  0  0  0  0  0  0  0  1  1 -1 -1
                   1  1 -1 -1  0  0  0  0  0  0  0  0];
             Ws = mat2cell(reshape(Ws,[3,3,12]),3,3,ones(12,1));
-            this.sym2 = squeeze(cellfun(@SymopGeneral, Ws, 'UniformOutput', false));
+            obj.sym2 = squeeze(cellfun(@SymopGeneral, Ws, 'UniformOutput', false));
             % setup projection and binning specifications
             obj.proj2 = ortho_proj([1,0,0],[0,1,0]);
             obj.ubin2 = [-0.5, 0.05, 0.5];
@@ -91,57 +91,61 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         % Tests
         %------------------------------------------------------------------------
 
+        function test_cut_sym_identity_stripped(obj)
+            tsqw = sqw.generate_cube_sqw(10);
+
+            res_sqw = cut(tsqw, ortho_proj([1 0 0], [0 1 0]), ...
+                          [-5 5], [0 1 1.5], [-1.5 1 1.5], [-5 5]);
+            res_sqw2 = cut(tsqw, ortho_proj([1 0 0], [0 1 0]), ...
+                           [-5 5], [0 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                           {SymopIdentity()});
+            res_sqw3 = cut(tsqw, ortho_proj([1 0 0], [0 1 0]), ...
+                           [-5 5], [0 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                           SymopIdentity());
+
+            assertEqual(res_sqw, res_sqw2)
+            assertEqual(res_sqw, res_sqw3)
+
+        end
+
         function test_cut_sym_no_dup_2_identity(obj)
         % Test symmetrisation, does not duplicate pixels
         % Even if we cut identity twice.
         % `id` is defined as 2 identical reflections because
         % `SymopIdentity`s are filtered from ops.
 
+
             op = SymopReflection([1 0 0], [0 1 0], [0 0 0]);
             id = [op, op]; % Reflect reflect back
+            tsqw = sqw.generate_cube_sqw(10);
 
-            obj.data2.pix = PixelDataMemory(obj.data2.pix);
-            w1sym = cut(obj.data2, obj.proj2, obj.ubin2, ...
-                        obj.vbin2, obj.wbin2, obj.ebin2);
+            res_sqw = cut(tsqw, ortho_proj([1 0 0], [0 1 0]), ...
+                          [-5 5], [0 1 1.5], [-1.5 1 1.5], [-5 5]);
+            res_sqw2 = cut(tsqw, ortho_proj([1 0 0], [0 1 0]), ...
+                           [-5 5], [0 1 1.5], [-1.5 1 1.5], [-5 5], ...
+                           {id});
 
-            w2sym = cut(obj.data2, obj.proj2, obj.ubin2, ...
-                        obj.vbin2, obj.wbin2, obj.ebin2, ...
-                        {SymopIdentity(), id});
+            assertEqual(res_sqw.data, res_sqw2.data)
 
-            sqw2 = symmetrise_sqw(sqw1, SymopRotation([1 0 0], 90))
-
-            [ok, mess] = equal_to_tol(w1sym.data.s, w2sym.data.s, 'ignore_str', 1);
-            if ~ok
-                error(mess)
-            end
-            [ok, mess] = equal_to_tol(w1sym.data.e, w2sym.data.e, 'ignore_str', 1);
-            if ~ok
-                error(mess)
-            end
-            [ok, mess] = equal_to_tol(w1sym.data.npix, w2sym.data.npix, 'ignore_str', 1);
-            if ~ok
-                error(mess)
-            end
         end
 
         function test_cut_sym_reflect_half_to_whole_cut(obj)
             op = SymopReflection([0 1 0], [0 0 1], [0 0 0]);
 
-            wtmp = symmetrise_sqw(obj.data2, [0 1 0], [0 0 1], [0 0 0]);
-            wtmp.pix = PixelDataMemory(wtmp.pix);
-            ubin_half = [0 0.05 0.5];
+            data = sqw.generate_cube_sqw(10);
+            wtmp = symmetrise_sqw(data, [0 1 0], [0 0 1], [0 0 0]);
+            proj = ortho_proj([1 0 0], [0 1 0]);
+            ubin_half = [2 1 5];
 
-            w1sym = cut(wtmp, obj.proj2, obj.ubin_half, ...
+            w1sym = cut(wtmp, proj, ubin_half, ...
                         obj.vbin2, obj.wbin2, obj.ebin2);
 
-            w2sym = cut(obj.data2, obj.proj2, ubin_half, ...
+            w2sym = cut(data, proj, ubin_half, ...
                         obj.vbin2, obj.wbin2, obj.ebin2, ...
                         {SymopIdentity(), op});
 
             [ok, mess] = equal_to_tol(w1sym.data.s, w2sym.data.s, 'ignore_str', 1);
             if ~ok
-                numel(w1sym.data.s)
-                numel(w2sym.data.s)
                 error(mess)
             end
             [ok, mess] = equal_to_tol(w1sym.data.e, w2sym.data.e, 'ignore_str', 1);
@@ -188,10 +192,29 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         % Test multiple overlapping symmetry related cuts, some of
         % which contribute zero pixels to the result.
 
+            obj.data2.pix = PixelDataMemory(obj.data2.pix);
             c = cut(obj.data2, obj.proj2, ...
                     obj.ubin2, obj.vbin2, obj.wbin2, obj.ebin2, ...
                     obj.sym2);
-            obj.assertEqualToTolWithSave(c, obj.tol_sp,'ignore_str',1);
+
+            cref = obj.getReferenceDataset('test_cut_sqw_sym_ptgr', 'c');
+
+            c.data.s
+            cref.data.s
+            [ok, mess] = equal_to_tol(c.data.s, cref.data.s, 'ignore_str', 1);
+            if ~ok
+                error(mess)
+            end
+            [ok, mess] = equal_to_tol(c.data.e, cref.data.e, 'ignore_str', 1);
+            if ~ok
+                error(mess)
+            end
+            [ok, mess] = equal_to_tol(c.data.npix, cref.data.npix, 'ignore_str', 1);
+            if ~ok
+                error(mess)
+            end
+
+%             obj.assertEqualToTolWithSave(c, obj.tol_sp,'ignore_str',1);
         end
 
         function test_multicut_1(obj)
