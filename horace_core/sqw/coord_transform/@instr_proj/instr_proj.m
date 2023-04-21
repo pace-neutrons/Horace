@@ -24,12 +24,11 @@ classdef instr_proj<aProjectionBase
     % ------
     % arguments requested by constructor:
     %   lattice -- initialized version of oriented lattice class defining
-    %          the crystal lattice and its orientation with relatively to
-    %          the beam.
-    %   efix   incident energy for direct instrument and crystal analyser
-    %          energy(ies) for indirect. Ignored for elastic
-    %   emode  -- the operational mode of instrument (1-direct, 2-indirect,
-    %          0 - elastic)
+    %              the crystal lattice and its orientation w.r.t. the beam.
+    %   efix    -- incident energy for direct instrument and crystal analyser
+    %              energy(ies) for indirect. Ignored for elastic
+    %   emode   -- the operational mode of instrument (1-direct, 2-indirect,
+    %              0 - elastic)
     %
     %
     % The optional arguments control goniometer settings, used to fix the
@@ -45,9 +44,10 @@ classdef instr_proj<aProjectionBase
         %      energy(ies) for indirect. Ignored for elastic
         %
         emode % type of instrument (1-direct,2-indirect,0 - elastic)
-        %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
         %
-        lattice; % accessor to the oriented lattice, which holds all properties above
+        lattice; % accessor to the oriented lattice, which holds all
+        % properties related to gonitometer and lattice (lattice is not
+        % used)
     end
 
     properties(Access=protected)
@@ -109,7 +109,6 @@ classdef instr_proj<aProjectionBase
             end
             obj.efix_ = val(:)';
         end
-
         %
         function emd = get.emode(obj)
             emd  = obj.emode_;
@@ -131,12 +130,12 @@ classdef instr_proj<aProjectionBase
             obj.alatt = val.alatt;
             obj.angdeg = val.angdeg;
         end
-        %------------------------------------------------------------------
-        %
-        %------------------------------------------------------------------
-        % Particular implementation of aProjectionBase abstract interface
-        % and overloads for specific methods
-        %------------------------------------------------------------------
+    end
+    %======================================================================
+    % Particular implementation of aProjectionBase abstract interface
+    % and overloads for specific methods
+    %----------------------------------------------------------------------
+    methods
         function pix_coord = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in instrument frame into
             % into Crystal Cartesian coordinate system.
@@ -202,26 +201,15 @@ classdef instr_proj<aProjectionBase
             % other parameters
             ax_bl.ulen  = [1,1,1,1];
             ax_bl.label = obj.label;
+        end
+        function varargout = get_pix_img_transformation(obj,ndim,varargin)
+            % return parameters of transformation used for conversion from pixels
+            % to image coordinate system
+            error('HORACE:inst_proj:not_implemented', ...
+                'this method have not yet been implemnted')
+        end
 
-        end
         %
-        function  flds = saveableFields(obj)
-            flds = saveableFields@aProjectionBase(obj);
-            flds = [flds(:);obj.fields_to_save_(:)];
-        end
-    end
-    %----------------------------------------------------------------------
-    properties(Constant, Access=private)
-        fields_to_save_ = {'lattice','efix','emode'}
-    end
-    %----------------------------------------------------------------------
-    methods(Static)
-        function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
-            % savable class
-            obj = instr_proj();
-            obj = loadobj@serializable(S,obj);
-        end
     end
     methods(Access = protected)
         function  mat = get_u_to_rlu_mat(obj)
@@ -233,6 +221,8 @@ classdef instr_proj<aProjectionBase
             mat = obj.lattice.calc_proj_matrix();
             mat = [mat,zeros(3,1);[0,0,0,1]];
         end
+    end
+    methods(Access = protected)
         function  alat = get_alatt_(obj)
             % get lattice from oriented lattice property
             alat  = obj.lattice.alatt;
@@ -251,5 +241,26 @@ classdef instr_proj<aProjectionBase
             proj = ortho_proj();
         end
 
+    end
+    %=====================================================================
+    % SERIALIZABLE INTERFACE
+    %----------------------------------------------------------------------
+    properties(Constant, Access=private)
+        fields_to_save_ = {'lattice','efix','emode'}
+    end
+    %----------------------------------------------------------------------
+    methods(Static)
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % savable class
+            obj = instr_proj();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
+    methods
+        function  flds = saveableFields(obj)
+            flds = saveableFields@aProjectionBase(obj);
+            flds = [flds(:);obj.fields_to_save_(:)];
+        end
     end
 end

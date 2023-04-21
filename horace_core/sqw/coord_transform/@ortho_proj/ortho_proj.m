@@ -79,13 +79,24 @@ classdef ortho_proj<aProjectionBase
         nonorthogonal; % Indicates if non-orthogonal axes are permitted (if true)
         %
     end
-    properties(Dependent,Hidden) %TODO: all this should go with new sqw design
-        % renamed offset projection property
+    properties(Dependent,Hidden)
+        % renamed offset projection property kep to support old interface
         uoffset
+        % Two properties below are responsible for support of old binary
+        % file format and legacy alingment
+        %
         % LEGACY PROPERTY: (used for saving data in old file format)
-        % Return the compatibility structure, which may be used as additional input to
-        % data_sqw_dnd constructor
+        % Return the compatibility structure, which may be used as
+        % additional input to data_sqw_dnd constructor
         compat_struct;
+
+        % LEGACY PROPERTY:
+        % inverted UB matrix (u_to_rlu), set directly to projection. Kept
+        % in new code as old aligned files modify it and there are no way
+        % of identifying if the file was aligned or not. Modern code
+        % calculates this matrix on request.
+        ub_inv_legacy
+
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
         unit_cell;
@@ -95,6 +106,11 @@ classdef ortho_proj<aProjectionBase
         % ortho-ortho transformation to identify cells which may contribute
         % to a cut. Correct value is chosen on basis of performance analysis
         convert_targ_to_source=true;
+        % property used by bragg_positions routine for realigning already
+        %  aligned old version sqw files. If set to true, existing legacy
+        %  alignment matrix is ignored and cut is performed from
+        %  misaligned source file
+        ignore_legacy_alignment = false;
     end
 
     properties(Access=protected)
@@ -111,8 +127,9 @@ classdef ortho_proj<aProjectionBase
         ortho_ortho_offset_;
 
         % inverted ub matrix, used to support alignment as in Horace 3.xxx
-        % as real ub matrix is multiplied by alignment matrix
-        ub_inv_compat_ = [];
+        % as real ub matrix is multiplied by alignment matrix there and
+        % there are no way of indetifying if this happened or not.
+        ub_inv_legacy_ = [];
     end
 
     methods
@@ -149,7 +166,8 @@ classdef ortho_proj<aProjectionBase
                     obj = obj.from_old_struct(varargin{1});
                 end
             else
-                opt =  [ortho_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
+                % constructor does not accept legacy alignment matrix
+                opt =  [ortho_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
                     opt,false,varargin{:});
@@ -238,11 +256,23 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function obj = set_ub_inv_compat(obj,ub_inv)
+        function ub_inv = get.ub_inv_legacy(obj)
+            ub_inv = obj.ub_inv_legacy_;
+        end
+        function obj = set.ub_inv_legacy(obj,val)
+            % no comprehencive checks performed here.  It is compartibility
+            % with old file format. The method should be used
+            % by saveobj/loadobj only
+            obj.ub_inv_legacy_ = val;
+        end
+        function obj = set_ub_inv_compat(obj,u_to_rlu)
             % Set up inverted ub matrix, used to support alignment as in
             % Horace 3.xxx where the real inverted ub matrix is multiplied
             % by alignment matrix.
-            obj.ub_inv_compat_ = ub_inv;
+            if any(size(u_to_rlu)>3)
+                u_to_rlu = u_to_rlu(1:3,1:3);
+            end
+            obj.ub_inv_legacy_ = u_to_rlu;
         end
         %------------------------------------------------------------------
         % OLD from new sqw object creation interface.
@@ -335,6 +365,69 @@ classdef ortho_proj<aProjectionBase
                     obj,pix_origin,varargin{:});
             end
         end
+        %
+        function [u_to_rlu,shift]=get_pix_img_transformation(obj,ndim,varargin)
+            % Return the transformation, necessary for conversion from pix
+            % to image coordinate system and vise-versa if the projaxes is
+            % defined
+            % Input:
+            % ndim -- number of dimensions in the pixels coordinate array
+            %         (3 or 4). Depending on this number the routine
+            %         returns 3D or 4D transformation matrix
+            % Optional:
+            % pix_transf_info
+            %      -- PixelDataBase or pix_metadata class, providing the
+            %         informarion about pixel alignment. If present and
+            %         pixels are misaligned, contains additional rotation
+            %         matrix, used for aligning the pixels data into
+            %         Crystal Cartesian coordinate system
+            %
+            if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
+                pix = varargin{1};
+                if pix.is_misaligned
+                    alignment_needed = true;
+                    alignment_mat = pix.alignment_matr;
+                else
+                    alignment_needed = false;
+                end
+            else
+                alignment_needed = false;
+            end
+            %
+            if isempty(obj.ub_inv_legacy)
+                rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);
+                % Modern alignment with rotation matrix attached to pixel
+                % coordinate system
+                rlu_to_u = rlu_to_ustep;
+                if alignment_needed
+                    u_to_rlu  = rlu_to_u\alignment_mat;
+                else
+                    u_to_rlu = inv(rlu_to_ustep);
+                end
+            else% Legacy alignment, with multiplication of rotation matrix
+                % and u_to_rlu transformation matrix;
+                u_to_rlu = obj.ub_inv_legacy;
+                rlu_to_u = inv(u_to_rlu);
+            end
+            %
+            if ndim==4
+                shift  = obj.offset;
+                rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
+                u_to_rlu = [u_to_rlu,[0;0;0];[0,0,0,1]];
+            elseif ndim == 3
+                shift  = obj.offset(1:3);
+            else
+                error('HORACE:orhto_proj:invalid_argument',...
+                    'The ndim input may be 3 or 4  actually it is: %s',...
+                    evalc('disp(ndim)'));
+            end
+            if nargout == 2
+                % convert shift, expressed in hkl into crystal Cartesian
+                shift = rlu_to_u *shift';
+            else % do not convert anything
+            end
+        end
+
         %
     end
     %----------------------------------------------------------------------
@@ -435,44 +528,6 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function [rot_to_img,shift]=get_pix_img_transformation(obj,ndim,varargin)
-            % Return the transformation, necessary for conversion from pix
-            % to image coordinate system and vise-versa if the projaxes is
-            % defined
-            % Input:
-            % ndim -- number of dimensions in the pixels coordinate array
-            %         (3 or 4). Depending on this number the routine
-            %         returns 3D or 4D transformation matrix
-            %
-            rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);
-            if isempty(obj.ub_inv_compat_)
-                b_mat  = bmatrix(obj.alatt, obj.angdeg);
-                rot_to_img = rlu_to_ustep/b_mat;
-                rlu_to_u  = b_mat;
-            else
-                u_to_rlu_ = obj.ub_inv_compat_;
-                rot_to_img = rlu_to_ustep*u_to_rlu_;
-                rlu_to_u = inv(u_to_rlu_);
-            end
-            %
-            if ndim==4
-                shift  = obj.offset;
-                rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
-                rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
-            elseif ndim == 3
-                shift  = obj.offset(1:3);
-            else
-                error('HORACE:orhto_proj:invalid_argument',...
-                    'The ndim input may be 3 or 4  actually it is: %s',...
-                    evalc('disp(ndim)'));
-            end
-            if nargin == 2
-                % convert shift, expressed in hkl into crystal Cartesian
-                shift = rlu_to_u *shift';
-            else % do not convert anything
-            end
-        end
-        %
         function [u,v,w,type,nonortho]=uv_from_data_rot(obj,u_rot_mat,ulen)
             % Extract initial u/v vectors, defining the plane in hkl from
             % lattice parameters and the matrix converting vectors
@@ -505,8 +560,9 @@ classdef ortho_proj<aProjectionBase
         function lst = data_sqw_dnd_export_list()
             % Method, which define the values to be extracted from projection
             % to convert to old style data_sqw_dnd class.
-            % New data_sqw_dnd class will contain the whole projection, so this
-            % is left for compatibility with old Horace
+            % New data_sqw_dnd class (rather dnd class) contains the whole
+            % projection, so this method is left for compatibility with
+            % old Horace
             lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
         end
     end
@@ -536,7 +592,8 @@ classdef ortho_proj<aProjectionBase
         end
     end
     properties(Constant, Access=private)
-        fields_to_save_ = {'u','v','w','nonorthogonal','type'}
+        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';...
+            'ub_inv_legacy'} % ignored in constructor
     end
     methods(Static)
         function obj = loadobj(S)
