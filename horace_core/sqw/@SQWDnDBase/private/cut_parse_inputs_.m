@@ -412,6 +412,8 @@ function sym_out = check_sym_arg(sym)
 
 if ~iscell(sym)   % make a cell array for convenience
     sym = {sym};
+else
+    sym = sym(:);
 end
 
 keep = true(size(sym));

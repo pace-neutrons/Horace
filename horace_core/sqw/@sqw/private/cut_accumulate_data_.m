@@ -122,6 +122,8 @@ function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_w_pixels(pix, 
         fprintf('*** Got data for %d pixels -- processing data...', candidate_pix.num_pixels);
     end
 
+    npix
+
     if isscalar(targ_proj)
         [npix, s, e, pix_retained, unique_runid] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
 
@@ -146,6 +148,7 @@ function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_w_pixels(pix, 
         unique_runid = unique_runid';
     end
 
+    npix
     if ll >= 1
         fprintf(' ----->  %s  %d pixels\n', pixel_contrib_name, npix_step_retained);
     end
