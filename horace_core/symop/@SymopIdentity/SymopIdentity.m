@@ -47,9 +47,7 @@ classdef SymopIdentity < Symop
         %          vector given in the orthonormal frame for which Minv is defined
             R = Minv * eye(3);
         end
-    end
 
-    methods(Access=protected)
         function local_disp(obj)
             disp('Identity operator (no symmetrisation)')
         end

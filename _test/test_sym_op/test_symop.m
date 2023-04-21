@@ -2,14 +2,14 @@ classdef test_symop < TestCase
 
     properties(Constant)
         ref_op = SymopReflection([1 0 0], [0 0 1]); % Reflection in Y
-        ref_op_mat = Symop([ 1  0  0
-                             0  -1 0
-                             0  0  1]);
+        ref_op_mat = SymopGeneral([ 1  0  0
+                                    0  -1 0
+                                    0  0  1]);
 
         rot_op = SymopRotation([1 0 0], 90);      % Rotation 90deg about X
-        rot_op_mat = Symop([ 1  0  0
-                             0  0 -1
-                             0  1  0]);
+        rot_op_mat = SymopGeneral([ 1  0  0
+                                    0  0 -1
+                                    0  1  0]);
 
         % rot about Y 90deg Rot about Z 90deg
         mot_op_comp = [SymopRotation([0 1 0], 90), ...
@@ -17,9 +17,9 @@ classdef test_symop < TestCase
                        SymopReflection([1 0 0], [0 1 0]), ...
                        SymopReflection([0 0 1], [1 0 0])];
 
-        mot_op = Symop([0  0 -1
-                        1  0  0
-                        0 -1  0]);
+        mot_op = SymopGeneral([0  0 -1
+                               1  0  0
+                               0 -1  0]);
 
         binning = {[0 0.1 1], [0 0.1 1], [0 0.1 1]};
 
@@ -65,7 +65,7 @@ classdef test_symop < TestCase
 
             % Non-zero offset
             assertExceptionThrown(@() SymopIdentity(eye(3), [1 0 0]), 'HORACE:symop:invalid_argument');
-       end
+        end
 
         function test_symop_create_reflection(obj)
             out = Symop.create([1 0 0], [0 1 0]);
@@ -95,7 +95,7 @@ classdef test_symop < TestCase
 
             % Test colinear vectors
             assertExceptionThrown(@() SymopReflection([1 0 0], [1 0 0]), 'HORACE:symop:invalid_argument');
-       end
+        end
 
         function test_symop_create_rotation(obj)
             out = Symop.create([1 0 0], 120);
@@ -122,23 +122,23 @@ classdef test_symop < TestCase
                                                      -1 0 0
                                                      0  0 1], [1 1 0]), 'HORACE:symop:invalid_argument');
             assertExceptionThrown(@() SymopRotation([0  1 0; -1 0 0]), 'MATLAB:minrhs');
-       end
+        end
 
-       function test_symop_create_matrix(obj)
+        function test_symop_create_matrix(obj)
             out = Symop.create([ 0  0 -1
                                  -1  0  0
                                  0  1  0]);
             assertTrue(isa(out, 'Symop'))
-            assertEqual(out.W,  [0  0 -1
+            assertEqual(out.R,  [0  0 -1
                                  -1 0  0
                                  0  1  0])
             assertEqual(out.offset, [0; 0; 0])
         end
 
         function test_matrix_constructor(obj)
-            out = Symop([-1  0 0
-                         0  -1 0
-                         0   0 1], [3  3  3]);
+            out = SymopGeneral([-1  0 0
+                                0  -1 0
+                                0   0 1], [3  3  3]);
             assertTrue(isa(out, 'Symop'))
             assertEqual(out.W,  [-1  0  0
                                  0  -1  0
@@ -190,9 +190,9 @@ classdef test_symop < TestCase
         end
 
         function test_apply_vec_matrix(obj)
-            op = Symop([0  0 -1
-                        -1 0  0
-                        0  1  0]);
+            op = SymopGeneral([0  0 -1
+                               -1 0  0
+                               0  1  0]);
             testvec = [1; 0; 0];
             outvec = op.transform_vec(testvec);
 
@@ -200,9 +200,9 @@ classdef test_symop < TestCase
         end
 
         function test_apply_matrix_matrix(obj)
-            op = Symop([0  0 -1
-                        -1 0  0
-                        0  1  0]);
+            op = SymopGeneral([0  0 -1
+                               -1 0  0
+                               0  1  0]);
             testvec = eye(3);
             outvec = op.transform_vec(testvec);
 
