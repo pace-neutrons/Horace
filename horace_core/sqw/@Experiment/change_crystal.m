@@ -1,4 +1,4 @@
-function obj=change_crystal(obj,alignment_info,varargin)
+function obj=change_crystal(obj,alignment_info,proj)
 %  Change fields in the experiment with correction related to change crystal
 %  lattice parameters and orientation
 %
@@ -10,20 +10,20 @@ function obj=change_crystal(obj,alignment_info,varargin)
 %                   about the crystal alignment, returned by refine_crystal
 %                   routine. Type:
 %                  >> help refine_crystal  for more details.
+% proj            -- the instance of the projection, which converts pixels
+%                   from
 
 % Change fields of Experiment as required
-if ~isa(alignment_info,'crystal_alignment_info') || nargin>2
-    error('HORACE:Experiment:invalid_argument',...
-        ['Old interface to modify the crystal alighnment is deprecated.\n', ...
-        ' Use crystal_alignment_info class obtained from "refine_crystal" routine to realign crystal.\n', ...
-        ' Call >>help refine_crystal for the details']);
-end
 
+% TODO: NEED CHANGES, insufficient for new projection
 sam = obj.samples;
 exper = obj.expdata;
 alatt = alignment_info.alatt;
 angdeg = alignment_info.angdeg;
-compat_mode = alignment_info.compat_mode;
+compat_mode = alignment_info.legacy_mode;
+if compat_mode
+    rlu_corr = alignment_info.get_corr_mat(proj);
+end
 for i=1:obj.n_runs
     s = sam{i};
     s.alatt=alatt;

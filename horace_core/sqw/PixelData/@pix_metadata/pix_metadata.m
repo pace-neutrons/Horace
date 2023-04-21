@@ -119,6 +119,7 @@ classdef pix_metadata < serializable
         function obj = set.alignment_matr(obj,val)
             obj = set_alignment_matr_(obj,val);
         end
+
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

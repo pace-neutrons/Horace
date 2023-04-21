@@ -135,6 +135,7 @@ u2_rlu = u_to_rlu(:,2)';    % second projection axis in rlu
 B = bmatrix (hdr.alatt, hdr.angdeg);
 
 peak_problem=false(size(rlu));
+
 for i=1:size(rlu,1)
     % Extract Q point through which to get three orthogonal cuts
     Qrlu = rlu(i,:);
@@ -144,16 +145,20 @@ for i=1:size(rlu,1)
     %   - proj.u along Q, to get maximum resolution in d-spacing
     %   - proj.v defined by whichever of u1, u2 projection axes is closer
     %     to perpendicular to Q (to avoid collinearity)
-    proj.uoffset=Qrlu;  % centre of cut is the nominal Bragg peak position
-    proj.u=Qrlu;
+    offset=Qrlu;  % centre of cut is the nominal Bragg peak position
+    u=Qrlu;
     c1 = cosangle(B,u1_rlu,Qrlu);
     c2 = cosangle(B,u2_rlu,Qrlu);
     if abs(c1)<=abs(c2)
-        proj.v=u1_rlu;
+        v=u1_rlu;
     else
-        proj.v=u2_rlu;
+        v=u2_rlu;
     end
-    proj.type='aaa';        % force unit length of projection axes to be 1 Ang^-1
+    type='aaa';        % force unit length of projection axes to be 1 Ang^-1
+    proj = ortho_proj('u',u,'v',v,'type',type,'offset',offset);
+
+    % if old file has been already aligned, ignore this alignment
+    proj.ignore_legacy_alignment = true;
 
     % radial_cut_length, radial_bin_width, radial_thickness,...
     % trans_cut_length, trans_bin_width, trans_thickness, energy_window)

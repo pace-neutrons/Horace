@@ -67,9 +67,6 @@ function alighment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 %                  for the crystal alignment. The class contains the
 %                  following fields, calculated by the procedure:
 %
-%      rlu_corr       Conversion matrix to relate notional rlu to true rlu, accounting for the the
-%                     refined crystal lattice parameters and orientation
-%                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
 %      alatt          Refined lattice parameters [a,b,c] (Angstroms)
 %      angdeg         Refined lattice angles [alf,bet,gam] (degrees)
 %      rotmat         Rotation matrix that relates crystal Cartesian coordinate frame of the refined
@@ -114,7 +111,7 @@ lattice_init = check_additional_args(lattice0,args{:});
 
 % Perform calculations
 % --------------------
-b0 = bmatrix(lattice0(1:3),lattice0(4:6));
+b0    = bmatrix(lattice0(1:3),lattice0(4:6));
 binit = bmatrix(lattice_init(1:3),lattice_init(4:6));
 
 vcryst0=b0*rlu0';       % crystal Cartesian coords in reference lattice
@@ -187,16 +184,12 @@ if ~isreal(fitpar.p)
 end
 
 
-rotvec=fitpar.p(7:9);
-rotangle=norm(rotvec)*(180/pi);
-rotmat=rotvec_to_rotmat2(rotvec);
-alatt=fitpar.p(1:3);
-angdeg=fitpar.p(4:6);
+rotvec = fitpar.p(7:9);
+alatt  = fitpar.p(1:3);
+angdeg = fitpar.p(4:6);
 distance=sqrt(sum(reshape(distance,3,nv).^2,1))';
 
-b = bmatrix(alatt,angdeg);
-rlu_corr=b\rotmat*b0;
-alighment_info = crystal_alignment_info(rlu_corr,alatt,angdeg,distance,rotangle);
+alighment_info = crystal_alignment_info(alatt,angdeg,rotvec,distance);
 
 
 %============================================================================================================

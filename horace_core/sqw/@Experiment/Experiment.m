@@ -200,7 +200,7 @@ classdef Experiment < serializable
     methods
         %Change fields in the experiment with corrections related to aligned
         %crystal lattice parameters and orientation
-        obj=change_crystal(obj,alignment_info)
+        obj=change_crystal(obj,alignment_info,varargin)
 
         % add or reset instrument, related to the given experiment object
         % array of instruments, or function, which defines the instrument

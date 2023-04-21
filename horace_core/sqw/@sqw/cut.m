@@ -111,11 +111,18 @@ if dnd_type
 end
 
 return_cut = nargout > 0;
+
 %
 % Set up new projection properties, related to lattice. This together with
 % projection inputs defines pixels-to-image transformation.
 [targ_proj, pbin, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
     obj.data,return_cut, varargin{:});
+
+% if we are realigneing old format file, legacy alignment matrix should be
+% ignored
+if targ_proj.ignore_legacy_alignment
+    obj.data.proj.ub_inv_legacy_alignment = [];
+end
 
 % old file format alignment. Only ortho_proj is supported
 if ~isempty(obj.data.proj.ub_inv_legacy_alignment)

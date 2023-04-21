@@ -22,17 +22,18 @@ function [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_pars_correct (u, v,
 %   u,v                     Vectors (in rlu) used to define the scattering plane, as expressed in the notional lattice
 %   alatt0, angdeg0         Lattice parameters of notional lattice: [a,b,c], [alf,bet,gam] (in Ang and deg)
 %   omega0, dpsi0, gl0, gs0 Misorientation angles of the vectors u and v as used in the calculation of the sqw object (deg)
-%   rlu_corr                 Matrix to convert notional rlu in the current crystal lattice to the rlu in the new
+%   rlu_corr or crystal_alignment_info class instance
+%                          both provide matrix to convert notional rlu in the current crystal lattice to the rlu in the new
 %                          crystal lattice together with any re-orientation of the crystal. The matrix is defined by
 %                               qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
 %                          This matrix can be obtained from refining the lattice and orientation with the function
 %                          refine_crystal (type >> help refine_crystal  for more details).
 % OPTIONAL:
-%   u_new, v_new            Replacement vectors u, v that define the scattering plane. Normally these would not
+%   u_new, v_new           Replacement vectors u, v that define the scattering plane. Normally these would not
 %                          be given, and the input u and v will be used. The extent to which u_new and v_new do not
 %                          correctly give the true scattering plane will be accommodated in the output
 %                          misorientation angles dpsi, gl and gs below. (Default: input arguments u and v)
-%   omega_new               Replacement value for the orientation of the virtual goniometer arcs with reference
+%   omega_new              Replacement value for the orientation of the virtual goniometer arcs with reference
 %                          to which dpsi, gl, gs will be calculated. (Default: input argument omega) (deg)
 %
 % Output:
@@ -62,6 +63,9 @@ b_matrix0 = bmatrix(alatt0, angdeg0);        % bmat takes Vrlu to Vxtal_cart
 ub_matrix0 = ubmatrix(u, v, b_matrix0);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 
 % Get matrix to convert from rlu defined by true lattice parameters to orthonormal frame defined by u,v;
+if isa(rlu_corr,'crystal_alignment_info')
+    rlu_corr = rlu_corr.rlu_corr;
+end
 [alatt,angdeg,rotmat]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
 
 b_matrix = bmatrix(alatt, angdeg);     % bmat takes Vrlu to Vxtal_cart

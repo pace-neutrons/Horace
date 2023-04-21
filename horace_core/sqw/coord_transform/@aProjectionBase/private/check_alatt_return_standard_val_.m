@@ -1,4 +1,4 @@
-function alat = check_alatt_return_standard_val_(obj,val)
+function [alat,defined] = check_alatt_return_standard_val_(obj,val)
 % verify if input lattice parameters belong to acceptable range and have
 % acceptable form (either 3-vector or single value, defining 3 equal
 % lattice parameters)
@@ -8,6 +8,12 @@ function alat = check_alatt_return_standard_val_(obj,val)
 %
 % Throws if lattice parameters can not be transformed into standard form
 %
+ defined = false;
+if isempty(val)
+    alat = [];
+    return;
+end
+
 if numel(val) == 1
     val = abs(val);
     alat = [val,val,val];
@@ -23,6 +29,6 @@ end
 if any(val<obj.tol_)
     error('HORACE:aProjectionBase:invalid_argument',...
         'input value for lattice may be a single positive number or 3-element vector, with any element bigger then 0. In fact it is: %s',...
-        evalc('disp(val)'));
-    
+        evalc('disp(val)'));   
 end
+defined = true;

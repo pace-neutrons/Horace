@@ -39,11 +39,17 @@ end
 % Perform operations
 % ------------------
 wout = obj;
+
 for i=1:numel(obj)
+    proj = obj(i).data.proj;    % undmodified projection to change
+    if ~isempty(proj.ub_inv_legacy_alignment)
+        alignment_info.legacy_mode = true;
+    end
     wout(i).data = obj(i).data.change_crystal(alignment_info);
-    wout(i).experiment_info = obj(i).experiment_info.change_crystal(alignment_info);
+    wout(i).experiment_info = obj(i).experiment_info.change_crystal(alignment_info,proj);
     %
-    if ~alignment_info.compat_mode
-        wout(i).pix = obj(i).pix.change_crystal(alignment_info);
+    if ~alignment_info.legacy_mode
+        alignment_mat = alignment_info.get_corr_mat(proj);
+        wout(i).pix.alignment_matr = alignment_mat;
     end
 end

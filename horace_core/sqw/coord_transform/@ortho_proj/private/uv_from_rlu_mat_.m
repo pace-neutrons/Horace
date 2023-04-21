@@ -51,8 +51,7 @@ if nonortho
     u = uvw(:,1);
     v = uvw(:,2);
     w = uvw(:,3);
-    
-else
+else % ortho
     ulen_inv = 1./ulen(:)';
     ubinv = u_rot_mat.*repmat(ulen_inv,3,1);
     ubmat = inv(ubinv); % correctly recovered ubmatrix; ulen matrix extracted
@@ -106,7 +105,7 @@ function  [type] = find_type(u_rot_vec,ulen)
 Li = norm(u_rot_vec);
 if abs(Li-ulen)< 4*eps('single')
     type = 'p';
-elseif ulen == 1 
+elseif ulen == 1
     type = 'a';
     % check?
 else

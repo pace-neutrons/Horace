@@ -56,17 +56,26 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     properties(Dependent,Hidden)
+        % TWO PROPERTIES USED IN SERIALIATION:
+        % Their appearence this way is caused by need to access to pixel
+        % data array from third party applications
+        %
+        % The property contains the pixel data layout in
+        % memory or on disk and all additional properties describing
+        % pix array, like its size, shape, alignment, etc
+        metadata;
+        % the property contains or describes the pixel data array itself
+        % contains if the array fits area or describes it if the only
+        % possible location of this array is disk.
+        data_wrap;
+        %------------------------------------------------------------------
         % size of the pixel chunk to loat in memory for further processing
         % in filebacked operations
         default_page_size;
-        % The property, which describes the pixel data layout on disk or in
-        % memory and all additional properties describing pix array
-        metadata;
-        data_wrap;
-        % The property returns data if PixelData are in Crystal Cartesian
-        % coordinate system or raw data (not multiplied by alignment
-        % matrix)
-        % if pixels are misaligned.
+
+        % The property returns page of data if PixelData are in Crystal Cartesian
+        % coordinate system or page of raw data (not multiplied by alignment
+        % matrix) if pixels are misaligned.
         raw_data;
     end
 
@@ -551,14 +560,6 @@ classdef (Abstract) PixelDataBase < serializable
         end
         function obj = set.alignment_matr(obj,val)
             obj = set_alignment_matr_(obj,val);
-        end
-        function obj = change_crystal(obj,alignment_data)
-            if ~isa(alignment_data,'crystal_alignment_info')
-                error('HORACE:PixelDataBase:invalid_argument',...
-                    'change_crystal method requests crystal_alignment_info class as input. You provided: %s', ...
-                    class(alignment_data));
-            end
-            obj.alignment_matr = alignment_data.rotmat;
         end
         %
         function data = get.raw_data(obj)

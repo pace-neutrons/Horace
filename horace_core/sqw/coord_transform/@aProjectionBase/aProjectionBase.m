@@ -83,6 +83,10 @@ classdef aProjectionBase < serializable
         lab2;
         lab3;
         lab4;
+        % returns true if lattice parameters have been set up
+        alatt_defined
+        % returns true if lattice angles have been set up
+        angdeg_defined
     end
 
     properties(Constant, Access=protected)
@@ -97,6 +101,8 @@ classdef aProjectionBase < serializable
     properties(Access=protected)
         alatt_ = [2*pi,2*pi,2*pi]; %unit-sized lattice vector
         angdeg_= [90,90,90];
+        % true if both alatt and angdeg have been correctly set-up
+        lattice_defined_= [false,false];
         %------------------------------------
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         offset_  = [0,0,0,0] %Offset of origin of projection axes in image units
@@ -276,6 +282,13 @@ classdef aProjectionBase < serializable
         end
         function obj = set.do_3D_transformation(obj,val)
             obj.do_3D_transformation_ = logical(val);
+        end
+        %------------------------------------------------------------------
+        function def = get.alatt_defined(obj)
+            def = obj.lattice_defined_(1);
+        end
+        function def = get.angdeg_defined(obj)
+            def = obj.lattice_defined_(2);
         end
     end
     %======================================================================
@@ -556,7 +569,8 @@ classdef aProjectionBase < serializable
             alat  = obj.alatt_;
         end
         function obj = check_and_set_alatt(obj,val)
-            obj.alatt_ = check_alatt_return_standard_val_(obj,val);
+            [obj.alatt_,defined] = check_alatt_return_standard_val_(obj,val);
+            obj.lattice_defined_(1) = defined;
         end
         function   proj = get_target_proj(obj)
             proj = obj.targ_proj_;
@@ -566,7 +580,8 @@ classdef aProjectionBase < serializable
             angdeg  = obj.angdeg_;
         end
         function obj = check_and_set_andgdeg(obj,val)
-            obj.angdeg_ = check_angdeg_return_standard_val_(obj,val);
+            [obj.angdeg_,defined] = check_angdeg_return_standard_val_(obj,val);
+            obj.lattice_defined_(2) = defined;
         end
         %
         function obj = check_and_set_targ_proj(obj,val)
@@ -717,6 +732,10 @@ classdef aProjectionBase < serializable
         % into crystal Cartesian system or other source coordinate system,
         % defined by projection
         [pix_cc,varargout] = transform_img_to_pix(obj,pix_transformed,varargin);
+
+        % return parameters of transformation used for conversion from pixels
+        % to image coordinate system
+        varargout = get_pix_img_transformation(obj,ndim,varargin);
     end
     methods(Abstract,Access=protected)
         % function returns u_to_rlu matrix for appropriate coordinate

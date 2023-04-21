@@ -100,6 +100,11 @@ classdef ortho_proj<aProjectionBase
         % ortho-ortho transformation to identify cells which may contribute
         % to a cut. Correct value is chosen on basis of performance analysis
         convert_targ_to_source=true;
+        % property used by bragg_positions routine for realigning already
+        %  aligned old version sqw files. If set to true, existing legacy
+        %  alignment matrix is ignored and cut is performed from
+        %  misaligned source file
+        ignore_legacy_alignment = false;
     end
 
     properties(Access=protected)
@@ -254,11 +259,14 @@ classdef ortho_proj<aProjectionBase
             % by saveobj/loadobj only
             obj.ub_inv_legacy_alignment_ = val;
         end
-        function obj = set_ub_inv_compat(obj,ub_inv)
+        function obj = set_ub_inv_compat(obj,u_to_rlu)
             % Set up inverted ub matrix, used to support alignment as in
             % Horace 3.xxx where the real inverted ub matrix is multiplied
             % by alignment matrix.
-            obj.ub_inv_legacy_alignment_ = ub_inv;
+            if any(size(u_to_rlu)>3)
+                u_to_rlu = u_to_rlu(1:3,1:3);
+            end
+            obj.ub_inv_legacy_alignment_ = u_to_rlu;
         end
         %------------------------------------------------------------------
         % OLD from new sqw object creation interface.
@@ -351,6 +359,69 @@ classdef ortho_proj<aProjectionBase
                     obj,pix_origin,varargin{:});
             end
         end
+        %
+        function [u_to_rlu,shift]=get_pix_img_transformation(obj,ndim,varargin)
+            % Return the transformation, necessary for conversion from pix
+            % to image coordinate system and vise-versa if the projaxes is
+            % defined
+            % Input:
+            % ndim -- number of dimensions in the pixels coordinate array
+            %         (3 or 4). Depending on this number the routine
+            %         returns 3D or 4D transformation matrix
+            % Optional:
+            % pix_transf_info
+            %      -- PixelDataBase or pix_metadata class, providing the
+            %         informarion about pixel alignment. If present and
+            %         pixels are misaligned, contains additional rotation
+            %         matrix, used for aligning the pixels data into
+            %         Crystal Cartesian coordinate system
+            %
+            if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
+                pix = varargin{1};
+                if pix.is_misaligned
+                    alignment_needed = true;
+                    alignment_mat = pix.alignment_matr;
+                else
+                    alignment_needed = false;
+                end
+            else
+                alignment_needed = false;
+            end
+            %
+            if isempty(obj.ub_inv_legacy_alignment_)
+                rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);                
+                % Modern alignment with rotation matrix attached to pixel
+                % coordinate system
+                rlu_to_u = rlu_to_ustep;
+                if alignment_needed
+                    u_to_rlu  = rlu_to_u\alignment_mat;
+                else
+                    u_to_rlu = inv(rlu_to_ustep);                                    
+                end
+            else% Legacy alignment, with multiplication of rotation matrix
+                % and u_to_rlu transformation matrix;
+                u_to_rlu = obj.ub_inv_legacy_alignment_;
+                rlu_to_u = inv(u_to_rlu);
+            end
+            %
+            if ndim==4
+                shift  = obj.offset;
+                rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
+                u_to_rlu = [u_to_rlu,[0;0;0];[0,0,0,1]];
+            elseif ndim == 3
+                shift  = obj.offset(1:3);
+            else
+                error('HORACE:orhto_proj:invalid_argument',...
+                    'The ndim input may be 3 or 4  actually it is: %s',...
+                    evalc('disp(ndim)'));
+            end
+            if nargout == 2
+                % convert shift, expressed in hkl into crystal Cartesian
+                shift = rlu_to_u *shift';
+            else % do not convert anything
+            end
+        end
+        
         %
     end
     %----------------------------------------------------------------------
@@ -448,69 +519,6 @@ classdef ortho_proj<aProjectionBase
             if obj.do_generic_
                 obj.ortho_ortho_transf_mat_ = [];
                 obj.ortho_ortho_offset_ = [];
-            end
-        end
-        %
-        function [rot_to_img,shift]=get_pix_img_transformation(obj,ndim,varargin)
-            % Return the transformation, necessary for conversion from pix
-            % to image coordinate system and vise-versa if the projaxes is
-            % defined
-            % Input:
-            % ndim -- number of dimensions in the pixels coordinate array
-            %         (3 or 4). Depending on this number the routine
-            %         returns 3D or 4D transformation matrix
-            % Optional:
-            % pix_transf_info
-            %      -- PixelDataBase or pix_metadata class, providing the
-            %         informarion about pixel alignment. If present and
-            %         pixels are misaligned, contains additional rotation
-            %         matrix, used for aligning the pixels data into
-            %         Crystal Cartesian coordinate system
-            %
-            if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
-                pix = varargin{1};
-                if pix.is_misaligned
-                    alignment_needed = true;
-                    alignment_mat = pix.alignment_matr;
-                else
-                    alignment_needed = false;
-                end
-            else
-                alignment_needed = false;
-            end
-            rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);
-            %
-            if isempty(obj.ub_inv_legacy_alignment_)
-                % Modern alignment with rotation matrix attached to pixel
-                % coordinate system
-                b_mat  = bmatrix(obj.alatt, obj.angdeg);
-                rot_to_img = rlu_to_ustep/b_mat;
-                rlu_to_u  = b_mat;
-                if alignment_needed
-                    rot_to_img  = rot_to_img*alignment_mat;
-                end
-            else% Legacy alignment, with multiplication of rotation matrix
-                % and u_to_rlu transformation matrix;
-                u_to_rlu_ = obj.ub_inv_legacy_alignment_;
-                rot_to_img = rlu_to_ustep*u_to_rlu_;
-                rlu_to_u = inv(u_to_rlu_);
-            end
-            %
-            if ndim==4
-                shift  = obj.offset;
-                rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
-                rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
-            elseif ndim == 3
-                shift  = obj.offset(1:3);
-            else
-                error('HORACE:orhto_proj:invalid_argument',...
-                    'The ndim input may be 3 or 4  actually it is: %s',...
-                    evalc('disp(ndim)'));
-            end
-            if nargout == 2
-                % convert shift, expressed in hkl into crystal Cartesian
-                shift = rlu_to_u *shift';
-            else % do not convert anything
             end
         end
         %

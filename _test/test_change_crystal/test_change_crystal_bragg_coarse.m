@@ -79,7 +79,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             % Get correction matrix from the 3 peak positions:
             % ------------------------------------------------
-            [rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real,...
+            alignment_info = refine_crystal(rlu_real,...
                 obj.alatt, obj.angdeg, bp,...
                 'fix_angdeg','fix_alatt_ratio');
             %'fix_lattice');
@@ -92,7 +92,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             copyfile(obj.misaligned_sqw_file,sim_sqw_file_corr)
             cleanup_obj=onCleanup(@()delete(sim_sqw_file_corr));
 
-            change_crystal_sqw(sim_sqw_file_corr,rlu_corr)
+            change_crystal_sqw(sim_sqw_file_corr,alignment_info)
             rlu0_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj,...
                 bp, half_len, half_thick, bin_width);
 
@@ -101,7 +101,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             %
             [alatt_c, angdeg_c, dpsi_deg, gl_deg, gs_deg] = ...
                 crystal_pars_correct (obj.u, obj.v, obj.alatt, obj.angdeg, ...
-                0, 0, 0, 0, rlu_corr);
+                0, 0, 0, 0, alignment_info);
             %
             %
             assertElementsAlmostEqual(alatt_c,obj.alatt,'absolute',0.01)
@@ -147,19 +147,36 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             corr = refine_crystal(rlu_real,...
                 obj.alatt, obj.angdeg, bp);
 
-            wout_legacy = change_crystal (fit_obj,corr);
-            wout_pix     = fit_obj;
-            % This all will be packed in new change crystal:
-            proj0 = wout_pix.data.proj;
-            proj0.alatt = corr.alatt;
-            proj0.angdeg = corr.angdeg;
-            wout_pix.data.proj = proj0;
-            wout_pix.pix.alignment_matr  = corr.rotmat;
-            wout_pix.experiment_info = change_crystal(wout_pix.experiment_info,corr);
+            proj = fit_obj.data.proj;
+            proj = proj.set_ub_inv_compat(proj.u_to_rlu);
+            wout_legacy = fit_obj;
+            wout_legacy.data.proj = proj;
+            wout_legacy = change_crystal (wout_legacy,corr);
 
-            cut_range = wout_legacy.targ_range(proj,'-binning');
-            cut_old = cut(wout_legacy,proj,cut_range{:});
-            cut_new = cut(wout_pix,proj,cut_range{:});
+            wout_align = change_crystal (fit_obj,corr);
+
+            pix_sample  = PixelDataMemory(eye(9));
+            pix_aligned = pix_sample;
+            pix_aligned.alignment_matr = wout_align.pix.alignment_matr; 
+
+            pix_leg = wout_legacy.data.proj.transform_pix_to_img(pix_sample);
+            pix_al  = wout_align.data.proj.transform_pix_to_img(pix_aligned);  
+            assertElementsAlmostEqual(pix_al,pix_leg);
+
+            %cut_range = wout_legacy.targ_range(proj,'-binning');
+            %img_range = wout_legacy.targ_range(proj);
+            %img_range_pix = wout_pix.targ_range(proj);
+            %assertElementsAlmostEqual(img_range,img_range_pix);
+            cr = [-0.3,-2,-1.8,-0.5;3.5,4.2,2,0.5];
+
+            cut_old1d = cut(wout_legacy,proj,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
+            cut_new1d  = cut(wout_align,proj,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
+
+            assertEqualToTol(cut_old1d,cut_new1d);
+
+            ranges = {[cr(1,1),0.05,cr(2,1)],[cr(1,2),0.1,cr(2,2)],[cr(1,3),0.1,cr(2,3)],[cr(1,4),0.1,cr(2,4)]};
+            cut_old = cut(wout_legacy,proj,ranges{:});
+            cut_new = cut(wout_align,proj,ranges{:});
 
             assertEqualToTol(cut_old,cut_new);
 
