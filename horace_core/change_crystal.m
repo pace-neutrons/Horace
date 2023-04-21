@@ -53,12 +53,12 @@ for i=1:numel(filenames)
         exp_info= ld.get_exp_info('-all');
         exp_info = change_crystal(exp_info,alignment_info);
         %
-        if alignment_info.compat_mode
+        if alignment_info.legacy_mode
             ld = ld.put_headers(exp_info);
         else
-			pix_info = ld.get_pix_metadata();
+            pix_info = ld.get_pix_metadata();
             pix_info = pix_info.change_crystal(alignment_info);
-			ld = ld.put_pix_metadata(pix_info);            
+            ld = ld.put_pix_metadata(pix_info);
         end
         ld = ld.put_samples(exp_info.samples);
     end

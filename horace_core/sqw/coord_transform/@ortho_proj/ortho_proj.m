@@ -80,7 +80,7 @@ classdef ortho_proj<aProjectionBase
         %
     end
     properties(Dependent,Hidden)
-        % renamed offset projection property
+        % renamed offset projection property kep to support old interface
         uoffset
         % Two properties below are responsible for support of old binary
         % file format and legacy alingment
@@ -89,8 +89,14 @@ classdef ortho_proj<aProjectionBase
         % Return the compatibility structure, which may be used as
         % additional input to data_sqw_dnd constructor
         compat_struct;
-        %
-        ub_inv_legacy_alignment
+
+        % LEGACY PROPERTY:
+        % inverted UB matrix (u_to_rlu), set directly to projection. Kept
+        % in new code as old aligned files modify it and there are no way
+        % of identifying if the file was aligned or not. Modern code
+        % calculates this matrix on request.
+        ub_inv_legacy
+
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
         unit_cell;
@@ -123,7 +129,7 @@ classdef ortho_proj<aProjectionBase
         % inverted ub matrix, used to support alignment as in Horace 3.xxx
         % as real ub matrix is multiplied by alignment matrix there and
         % there are no way of indetifying if this happened or not.
-        ub_inv_legacy_alignment_ = [];
+        ub_inv_legacy_ = [];
     end
 
     methods
@@ -250,14 +256,14 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function ub_inv = get.ub_inv_legacy_alignment(obj)
-            ub_inv = obj.ub_inv_legacy_alignment_;
+        function ub_inv = get.ub_inv_legacy(obj)
+            ub_inv = obj.ub_inv_legacy_;
         end
-        function obj = set.ub_inv_legacy_alignment(obj,val)
+        function obj = set.ub_inv_legacy(obj,val)
             % no comprehencive checks performed here.  It is compartibility
             % with old file format. The method should be used
             % by saveobj/loadobj only
-            obj.ub_inv_legacy_alignment_ = val;
+            obj.ub_inv_legacy_ = val;
         end
         function obj = set_ub_inv_compat(obj,u_to_rlu)
             % Set up inverted ub matrix, used to support alignment as in
@@ -266,7 +272,7 @@ classdef ortho_proj<aProjectionBase
             if any(size(u_to_rlu)>3)
                 u_to_rlu = u_to_rlu(1:3,1:3);
             end
-            obj.ub_inv_legacy_alignment_ = u_to_rlu;
+            obj.ub_inv_legacy_ = u_to_rlu;
         end
         %------------------------------------------------------------------
         % OLD from new sqw object creation interface.
@@ -388,19 +394,19 @@ classdef ortho_proj<aProjectionBase
                 alignment_needed = false;
             end
             %
-            if isempty(obj.ub_inv_legacy_alignment_)
-                rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);                
+            if isempty(obj.ub_inv_legacy)
+                rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);
                 % Modern alignment with rotation matrix attached to pixel
                 % coordinate system
                 rlu_to_u = rlu_to_ustep;
                 if alignment_needed
                     u_to_rlu  = rlu_to_u\alignment_mat;
                 else
-                    u_to_rlu = inv(rlu_to_ustep);                                    
+                    u_to_rlu = inv(rlu_to_ustep);
                 end
             else% Legacy alignment, with multiplication of rotation matrix
                 % and u_to_rlu transformation matrix;
-                u_to_rlu = obj.ub_inv_legacy_alignment_;
+                u_to_rlu = obj.ub_inv_legacy;
                 rlu_to_u = inv(u_to_rlu);
             end
             %
@@ -421,7 +427,7 @@ classdef ortho_proj<aProjectionBase
             else % do not convert anything
             end
         end
-        
+
         %
     end
     %----------------------------------------------------------------------
@@ -587,7 +593,7 @@ classdef ortho_proj<aProjectionBase
     end
     properties(Constant, Access=private)
         fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';...
-            'ub_inv_legacy_alignment'} % ignored in constructor
+            'ub_inv_legacy'} % ignored in constructor
     end
     methods(Static)
         function obj = loadobj(S)

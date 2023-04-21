@@ -34,8 +34,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 argi = {'test_change_crystal_bragg_coarse',test_ref_data};
             else
                 argi = {varargin{1},test_ref_data};
-            end
 
+            end
             obj= obj@TestCaseWithSave(argi{:});
             %
             hpc = hpc_config;
@@ -121,10 +121,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
         end
         function test_levacy_vs_pix_alignment(obj)
-            proj.u=obj.u;
-            proj.v=obj.v;
-
-
             % theoretical bragg points postioons
             bp=[...
                 0, -1,  0; ...
@@ -157,26 +153,35 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             pix_sample  = PixelDataMemory(eye(9));
             pix_aligned = pix_sample;
-            pix_aligned.alignment_matr = wout_align.pix.alignment_matr; 
+            pix_aligned.alignment_matr = wout_align.pix.alignment_matr;
 
             pix_leg = wout_legacy.data.proj.transform_pix_to_img(pix_sample);
-            pix_al  = wout_align.data.proj.transform_pix_to_img(pix_aligned);  
+            pix_al  = wout_align.data.proj.transform_pix_to_img(pix_aligned);
             assertElementsAlmostEqual(pix_al,pix_leg);
 
-            %cut_range = wout_legacy.targ_range(proj,'-binning');
+            proj_leg = wout_legacy.data.proj;
+            leg_cut_range = wout_legacy.targ_range(proj_leg);
+
+            proj_al = wout_align.data.proj;
+            al_cut_range = wout_align.targ_range(proj_al);
+            assertElementsAlmostEqual(leg_cut_range,al_cut_range);
+
+            mix_cut_range = wout_legacy.targ_range(proj_al);
+            assertElementsAlmostEqual(mix_cut_range,al_cut_range);
+
             %img_range = wout_legacy.targ_range(proj);
             %img_range_pix = wout_pix.targ_range(proj);
             %assertElementsAlmostEqual(img_range,img_range_pix);
             cr = [-0.3,-2,-1.8,-0.5;3.5,4.2,2,0.5];
 
-            cut_old1d = cut(wout_legacy,proj,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
-            cut_new1d  = cut(wout_align,proj,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
+            cut_old1d = cut(wout_legacy,proj_leg,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
+            cut_new1d  = cut(wout_align,proj_leg,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
 
             assertEqualToTol(cut_old1d,cut_new1d);
 
             ranges = {[cr(1,1),0.05,cr(2,1)],[cr(1,2),0.1,cr(2,2)],[cr(1,3),0.1,cr(2,3)],[cr(1,4),0.1,cr(2,4)]};
-            cut_old = cut(wout_legacy,proj,ranges{:});
-            cut_new = cut(wout_align,proj,ranges{:});
+            cut_old = cut(wout_legacy,proj_leg,ranges{:});
+            cut_new = cut(wout_align,proj_leg,ranges{:});
 
             assertEqualToTol(cut_old,cut_new);
 
@@ -212,26 +217,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertEqualWithSave(obj,wcut);
             assertEqualWithSave(obj,wpeak);
         end
-
-        function delete(obj)
-            %
-            set(hpc_config,obj.hpc_restore);
-
-            ws = warning('off','MATLAB:DELETE:Permission');
-
-            delete(obj.misaligned_sqw_file);
-
-            % Delete temporary nxs files
-            for i=1:numel(obj.nxs_file)
-                try
-                    delete(obj.nxs_file{i})
-                catch
-                end
-            end
-            warning(ws);
-            delete@TestCaseWithSave(obj);
-        end
-
+ 
     end
     methods(Access=private)
         %
@@ -299,6 +285,23 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                     obj.u, obj.v, obj.psi, 0, 0, 0, 0);
             end
 
+        end
+       function delete(obj)
+            %
+            set(hpc_config,obj.hpc_restore);
+
+            ws = warning('off','MATLAB:DELETE:Permission');
+
+            delete(obj.misaligned_sqw_file);
+
+            % Delete temporary nxs files
+            for i=1:numel(obj.nxs_file)
+                try
+                    delete(obj.nxs_file{i})
+                catch
+                end
+            end
+            warning(ws);
         end
     end
 end

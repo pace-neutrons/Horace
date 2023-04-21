@@ -74,13 +74,6 @@ if ~(opts.head || opts.his)
 end
 
 
-% % CRYSTAL ALIGNMENT FIXTURE: #TODO: #892 modify  and remove!
-% proj = sqw_skel.data.proj;
-% if isa(proj,'ortho_proj')
-%     header_av = sqw_skel.experiment_info.header_average();
-%     sqw_skel.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
-% end
-
 if opts.nopix
     sqw_skel = rmfield(sqw_skel,'pix');
 else

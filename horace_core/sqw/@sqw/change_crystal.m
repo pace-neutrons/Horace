@@ -42,7 +42,7 @@ wout = obj;
 
 for i=1:numel(obj)
     proj = obj(i).data.proj;    % undmodified projection to change
-    if ~isempty(proj.ub_inv_legacy_alignment)
+    if ~isempty(proj.ub_inv_legacy)
         alignment_info.legacy_mode = true;
     end
     wout(i).data = obj(i).data.change_crystal(alignment_info);

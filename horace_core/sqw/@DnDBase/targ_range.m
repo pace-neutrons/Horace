@@ -19,11 +19,24 @@ else
     source_proj = obj.proj;
     if isstruct(targ_proj) % allow input to be a structure
         if serializable.is_serial_struct(targ_proj)
-            targ_proj = serializable.from_struct(targ_proj);            
+            targ_proj = serializable.from_struct(targ_proj);
         else
             op = ortho_proj();
             targ_proj = op.from_bare_struct(targ_proj);
         end
+    end
+    if ~targ_proj.alatt_defined
+        targ_proj.alatt = source_proj.alatt;
+    end
+    if ~targ_proj.angdeg_defined
+        targ_proj.angdeg = source_proj.angdeg;
+    end
+    if ~isempty(source_proj.ub_inv_legacy) && ~isa(targ_proj,'ortho_proj')
+        warning('HORACE:old_file_format', ...
+            ['\n Non-triclinic projections are fully supported by version 4.0 and higher Horace sqw objects only.\n', ...
+            ' If you use alignled sqw object produced by old Horace version,\n', ...
+            ' the resulting cut with non-triclinic projection will be performed on misaligned data\n', ...
+            ' Convert old misaligned data into new file-format and realign these data again to use cuts with not-triclinic projections.']);
     end
     %
     % cross-assign appropriate projections to enable possible optimizations
@@ -67,9 +80,9 @@ function range = search_for_range(obj,source_proj)
 [range0,dE_range] = transf_range(obj,source_proj,1);
 difr = 1;
 node_mult = 2;
-while difr>1.e-3 && node_mult<33 % node multiplier doubles number of points 
-% on each iteration step and goes 2,4,8,16,32. As the number of points increases on the hull,
-% it is still not too big number so memory requests are acceptable.
+while difr>1.e-3 && node_mult<33 % node multiplier doubles number of points
+    % on each iteration step and goes 2,4,8,16,32. As the number of points increases on the hull,
+    % it is still not too big number so memory requests are acceptable.
     range = transf_range(obj,source_proj,node_mult);
     difr = calc_difr(range0,range);
     range0 = range;

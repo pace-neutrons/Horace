@@ -157,8 +157,10 @@ classdef crystal_alignment_info < serializable
             %              refined crystal lattice parameters and orientation
             %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
             % b)
-            %  legacy_mode == false -> corr_mat == q-coordinates correction
+            %  legacy_mode == false -> corr_mat == the matrix which rotates
+            %                                      misaligned q-coordinates
             %                                      to Crystal Cartezian
+            %                                      coordinate system
             %
             %  qframe_corr  rotation matrix to
             if ~isa(proj,'ortho_proj')
@@ -172,7 +174,7 @@ classdef crystal_alignment_info < serializable
                 corr_mat=b\obj.rotmat*b0;
             else
                 u_to_rlu = proj.get_pix_img_transformation(3); % uncorrected  U0*B0
-                corr_mat = (u_to_rlu*b0)\obj.rotmat; % U0B0/b0*rotmat
+                corr_mat = (u_to_rlu*b0)\obj.rotmat; % U0B0/b0*rotmat = rotmatOld\rotmat_new
             end
         end
     end

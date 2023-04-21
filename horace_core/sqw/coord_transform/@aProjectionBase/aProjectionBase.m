@@ -49,8 +49,9 @@ classdef aProjectionBase < serializable
         % Internal properties, used by algorithms and better not to be
         % exposed to users
         %
-        targ_proj;   % the target projection, used by cut to transform from
-        %              source to target coordinate system
+        targ_proj; % the target projection, used by cut to transform from
+        %            source to target coordinate system. Normally set 
+        %            by cut algorithm.
         %
         % Old confusing u_to_rlu matrix value
         %

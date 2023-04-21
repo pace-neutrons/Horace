@@ -32,8 +32,8 @@ wout = obj;
 alatt  = alignment_info.alatt;
 angdeg = alignment_info.angdeg;
 for i=1:numel(obj)
-    test_mode = alignment_info.legacy_mode || ~isempty(obj.proj.ub_inv_legacy_alignment);    
-    if test_mode
+    legacy_mode = alignment_info.legacy_mode || ~isempty(obj.proj.ub_inv_legacy);    
+    if legacy_mode
         this_alignment = alignment_info;
         this_alignment.legacy_mode  = true;
         rlu_corr = this_alignment.get_corr_mat(obj.proj);        

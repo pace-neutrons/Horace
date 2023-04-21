@@ -15,7 +15,7 @@ function obj=change_crystal(obj,alignment_info,proj)
 
 % Change fields of Experiment as required
 
-% TODO: NEED CHANGES, insufficient for new projection
+%
 sam = obj.samples;
 exper = obj.expdata;
 alatt = alignment_info.alatt;
@@ -36,6 +36,8 @@ for i=1:obj.n_runs
         exper(i).cv=(rlu_corr*exper(i).cv')';
         exper(i).uoffset(1:3)=rlu_corr*exper(i).uoffset(1:3);
         exper(i).u_to_rlu(1:3,1:3)=rlu_corr*exper(i).u_to_rlu(1:3,1:3);
+    else
+        
     end
 end
 obj.samples = sam;
