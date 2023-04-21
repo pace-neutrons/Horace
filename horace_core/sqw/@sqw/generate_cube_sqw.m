@@ -1,6 +1,16 @@
 function out = generate_cube_sqw(shape)
-    % Generate a cube of SQW data FOR TESTING CUT/SYMMETRISE
-    % The data will be invalid in most circumstances
+% Generate a cube of evenly-spaced SQW data
+%
+% For even counts these are:
+%   [-X/2 + 0.5 : 1 : X/2 - 0.5] i.e. for 2 -> [-0.5 0.5]
+% For odd counts these are:
+%   [-floor(X/2):floor(X/2)] i.e. for 3 -> [-1 0 1]
+%
+% FOR TESTING CUT/SYMMETRISE
+% The data will be invalid in most circumstances and may
+% result in errors or invalid results if used outside of
+% cut/symmetrise
+%
     out = sqw();
 
     if isscalar(shape) && isnumeric(shape)
@@ -11,9 +21,10 @@ function out = generate_cube_sqw(shape)
         if mod(shape, 2) == 0
             col = [-shape/2 + 0.5:shape/2 - 0.5];
         else
-            col = [-floor(shape/2):floor(shape/2)];
+            col = [-(shape-1)/2:(shape-1)/2];
         end
 
+        % Calculate cartesian product of positions to generate all grid points
         for i = 1:ndim
             coords(i, :) = repmat(repelem(col, shape^(i-1)), 1, shape^(ndim-i));
         end
