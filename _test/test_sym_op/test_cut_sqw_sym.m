@@ -62,7 +62,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                   0  0  0  0  0  0  0  0  1  1 -1 -1
                   1  1 -1 -1  0  0  0  0  0  0  0  0];
             Ws = mat2cell(reshape(Ws,[3,3,12]),3,3,ones(12,1));
-            this.sym2 = squeeze(cellfun(@Symop, Ws, 'UniformOutput', false));
+            this.sym2 = squeeze(cellfun(@Symop.create, Ws, 'UniformOutput', false));
             % setup projection and binning specifications
             obj.proj2 = ortho_proj([1,0,0],[0,1,0]);
             obj.ubin2 = [0, 0.05, 0.5];
