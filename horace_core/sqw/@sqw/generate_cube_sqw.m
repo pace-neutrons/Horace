@@ -16,25 +16,33 @@ function out = generate_cube_sqw(shape)
     if isscalar(shape) && isnumeric(shape)
         ndim = 4;
         npix = shape^ndim;
-        coords = zeros(9, npix);
+        pix_data = zeros(9, npix);
+
 
         if mod(shape, 2) == 0
-            col = [-shape/2 + 0.5:shape/2 - 0.5];
+            minloc = -shape/2 + 0.5;
+            maxloc = shape/2 - 0.5;
         else
-            col = [-(shape-1)/2:(shape-1)/2];
+            minloc = -(shape-1)/2;
+            maxloc = (shape-1)/2;
         end
+        col = [minloc:1:maxloc];
 
         % Calculate cartesian product of positions to generate all grid points
-        for i = 1:ndim
-            coords(i, :) = repmat(repelem(col, shape^(i-1)), 1, shape^(ndim-i));
+        for dim = 1:ndim
+            pix_data(dim, :) = repmat(repelem(col, shape^(dim-1)), 1, shape^(ndim-dim));
         end
-        coords(5, :) = repelem(1, 1, npix);
-        coords(6:end, :) = repmat(1:npix, 4, 1);
+
+        % Set run_idxs to 1 (needs to be ones to avoid conflicts with expdata)
+        pix_data(5, :) = ones(1, npix);
+        % set detector_idx, energy_idx, signal, variance to 1:npix
+        pix_data(6:9, :) = repmat(1:npix, 4, 1);
+
     else
         error('HORACE:sqw:not_implemented', 'Currently no support for non-cube data')
     end
 
-    pix = PixelDataMemory(coords);
+    pix = PixelDataMemory(pix_data);
     out.pix = pix;
     samp = IX_sample([1 1 1], [90 90 90]);
     expdata = struct( ...
@@ -68,9 +76,10 @@ function out = generate_cube_sqw(shape)
     out.data.npix = npix;
 
     out = cut(out, ortho_proj([1 0 0], [0 1 0]), ...
-              [-shape 1 shape], ...
-              [-shape 1 shape], ...
-              [-shape 1 shape], ...
-              [-shape 1 shape]);
+              [minloc 1 maxloc], ...
+              [minloc 1 maxloc], ...
+              [minloc 1 maxloc], ...
+              [minloc 1 maxloc]);
+    out.data.npix
 
 end

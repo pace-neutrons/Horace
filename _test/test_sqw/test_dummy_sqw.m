@@ -101,17 +101,23 @@ classdef test_dummy_sqw < TestCase
             assertElementsAlmostEqual(pix,pix1,'absolute',1.e-7);
         end
 
+
         function test_gen_cube_2x2x2x2(obj)
             tsqw = sqw.generate_cube_sqw(2);
 
             assertTrue(isa(tsqw,'sqw'));
             assertEqual(tsqw.pix.num_pixels, 2^4);
 
+            % Test that all generated coordinates are unique
             tval = tsqw.pix.coordinates';
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
+            % Test that all values are unique
             tval = tsqw.pix.get_fields({'detector_idx', 'signal', 'variance'})';
             assertEqual(unique(tval, 'rows', 'stable'), tval);
+
+            % One pixel per bin
+            assertTrue(all(tsqw.data.npix == 1, 'all'))
 
         end
 
@@ -120,12 +126,17 @@ classdef test_dummy_sqw < TestCase
 
             assertTrue(isa(tsqw,'sqw'));
             assertEqual(tsqw.pix.num_pixels, 3^4);
+
+            % Test that all generated coordinates are unique
             tval = tsqw.pix.coordinates';
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
+            % Test that all values are unique
             tval = tsqw.pix.get_fields({'detector_idx', 'signal', 'variance'})';
             assertEqual(unique(tval, 'rows', 'stable'), tval);
 
+            % One pixel per bin
+            assertTrue(all(tsqw.data.npix == 1, 'all'))
         end
 
     end
