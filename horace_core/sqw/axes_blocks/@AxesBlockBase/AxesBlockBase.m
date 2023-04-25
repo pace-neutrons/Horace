@@ -374,6 +374,7 @@ classdef AxesBlockBase < serializable
             % according to realigh_axes method of this axes block
             data_out = rebin_data_(obj,data_in,other_ax);
         end
+        %
         function ax_block_al = realign_bin_edges(obj,ax_block)
             % align input axes block to have the same or commensurate
             % bin sizes as this axes block and the integration ranges equal

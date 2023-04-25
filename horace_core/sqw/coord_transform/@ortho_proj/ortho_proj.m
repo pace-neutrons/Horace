@@ -125,6 +125,9 @@ classdef ortho_proj<aProjectionBase
         function obj=ortho_proj(varargin)
             obj = obj@aProjectionBase();
             obj.label = {'\zeta','\xi','\eta','E'};
+            % try to use specific range-range identification algorithm,
+            % suitable for ortho-ortho transformamation
+            obj.do_generic = false;
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
                 obj = obj.init([1,0,0],[0,1,0],[],'type','aaa');
@@ -393,10 +396,7 @@ classdef ortho_proj<aProjectionBase
                 cur_axes_block,targ_proj,targ_axes_block)
             % get indexes of cells which may contributing into the cut.
             %
-            if isempty(obj.ortho_ortho_transf_mat_)
-                contrib_ind= get_contrib_cell_ind@aProjectionBase(obj,...
-                    cur_axes_block,targ_proj,targ_axes_block);
-            elseif obj.convert_targ_to_source
+            if ~obj.do_generic
                 contrib_ind= get_contrib_orthocell_ind_(obj,...
                     cur_axes_block,targ_axes_block);
             else
@@ -416,7 +416,7 @@ classdef ortho_proj<aProjectionBase
             % if both projections are ortho_proj
             %
             obj = check_and_set_targ_proj@aProjectionBase(obj,val);
-            if isa(obj.targ_proj_,'ortho_proj') && ~obj.do_generic
+            if isa(obj.targ_proj_,'ortho_proj') && ~obj.disable_srce_to_targ_optimization
                 obj = set_ortho_ortho_transf_(obj);
             else
                 obj.ortho_ortho_transf_mat_ = [];
