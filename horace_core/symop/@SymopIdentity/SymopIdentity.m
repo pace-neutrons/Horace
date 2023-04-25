@@ -19,6 +19,12 @@ classdef SymopIdentity < Symop
             end
         end
 
+        function selected = in_irreducible(obj, coords)
+        % Compute whether the coordinates in `coords` are in the irreducible
+        % set following the operation
+            selected = true(size(coords));
+        end
+
         function R = calculate_transform(obj, Minv)
         % Get transformation matrix for the symmetry operator in an orthonormal frame
         %
