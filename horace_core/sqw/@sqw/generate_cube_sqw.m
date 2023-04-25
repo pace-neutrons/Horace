@@ -80,6 +80,5 @@ function out = generate_cube_sqw(shape)
               [minloc 1 maxloc], ...
               [minloc 1 maxloc], ...
               [minloc 1 maxloc]);
-    out.data.npix
 
 end
