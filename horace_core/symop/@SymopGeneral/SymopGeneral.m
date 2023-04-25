@@ -22,6 +22,13 @@ classdef SymopGeneral < Symop
             W = obj.W_;
         end
 
+        function selected = in_irreducible(obj, coords)
+        % Compute whether the coordinates in `coords` are in the irreducible
+        % set following the operation
+            error('HORACE:symop:not_implemented', ...
+                  'Cannot compute the irreducible set from general 3x3 transform');
+        end
+
         function R = calculate_transform(obj, Minv)
         % Get transformation matrix for the symmetry operator in an orthonormal frame
         %
