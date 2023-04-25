@@ -301,7 +301,6 @@ classdef aProjectionBase < serializable
         function obj = set.disable_srce_to_targ_optimization(obj,val)
             obj.disable_srce_to_targ_optimization_ = logical(val);
         end
-    end
         %------------------------------------------------------------------
         function def = get.alatt_defined(obj)
             def = obj.lattice_defined_(1);
