@@ -137,5 +137,3 @@ if range(end) < range(1) && ~(numel(range) == 3 && range(2) < 0)
 end
 
 end
-
-end
