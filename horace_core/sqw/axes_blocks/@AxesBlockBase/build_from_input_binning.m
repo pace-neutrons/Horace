@@ -72,7 +72,11 @@ switch numel(bin_req)
     range = bin_default;
 
   case 1 % Rebin
-    if bin_req == 0 % this may fail if bin_default is integration axis
+    if bin_req == 0
+        if numel(bin_default) == 2 % this may fail if bin_default is integration axis
+            error('HORACE:build_from_input_binning:invalid_argument', ...
+                  'User has requested auto-rebin (pbin = [0]) across integration axis (%d).', ind);
+        end
         bin_req = bin_default(2);
     end
     range = [bin_default(1),bin_req,bin_default(end)];
@@ -83,7 +87,7 @@ switch numel(bin_req)
     if isinf(range(1))
         range(1) = bin_default(1);
     end
-    if isinf(bin_req(end))
+    if isinf(range(end))
         range(end) = bin_default(end);
     end
 
@@ -107,7 +111,7 @@ switch numel(bin_req)
     if isinf(range(1))
         range(1) = bin_default(1);
     end
-    if isinf(bin_req(end))
+    if isinf(range(end))
         range(end) = bin_default(end);
     end
 
@@ -121,7 +125,7 @@ switch numel(bin_req)
     end
 end
 
-% check if nbins < 1, so it is actually integration range
+% check if number of expected bins < 1, so it is actually integration range
 if numel(range) == 3 && range(3) - range(1) < range(2)
     range = [range(1),range(3)];
 end
@@ -129,7 +133,7 @@ end
 % check validity of data ranges
 if range(end) < range(1) && ~(numel(range) == 3 && range(2) < 0)
     error('HORACE:AxesBlockBase:invalid_argument',...
-        'Upper limit greater or equal to the lower limit - check axis N: %d',ind);
+          'Upper limit (%f) less than the lower limit (%f) for positive step - check axis N: d', range(end), range(1), ind);
 end
 
 end
