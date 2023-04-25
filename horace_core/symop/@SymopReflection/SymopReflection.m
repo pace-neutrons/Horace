@@ -3,6 +3,7 @@ classdef SymopReflection < Symop
     properties(Dependent)
         u;
         v;
+        normvec;
     end
 
     properties(Access=private)
@@ -59,6 +60,17 @@ classdef SymopReflection < Symop
 
         function v = get.v(obj)
             v = obj.v_;
+        end
+
+        function normvec = get.normvec(obj)
+            normvec = cross(obj.u, obj.v);
+            normvec = normvec / norm(normvec);
+        end
+
+        function selected = in_irreducible(obj, coords)
+        % Compute whether the coordinates in `coords` are in the irreducible
+        % set following the operation
+            selected = coords'*obj.normvec > 0;
         end
 
         function R = calculate_transform(obj, Minv)
