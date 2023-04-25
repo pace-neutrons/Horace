@@ -86,6 +86,10 @@ classdef PixelDataFileBacked < PixelDataBase
         tmp_pix_obj = [];
     end
 
+    properties(Dependent)
+        offset;
+    end
+
     properties (Constant)
         is_filebacked = true;
     end
@@ -275,6 +279,10 @@ classdef PixelDataFileBacked < PixelDataBase
         end
         % public getter for unmodified page data
         data =  get_raw_data(obj,varargin)
+
+        function offset = get.offset(obj)
+            offset = obj.offset_;
+        end
     end
 
     %======================================================================
@@ -285,7 +293,7 @@ classdef PixelDataFileBacked < PixelDataBase
             % If others point to it, file will be kept
             % otherwise file will be cleared
 
-            if exist('f_accessor', 'var')
+            if exist('f_accessor', 'var') && ~isempty(f_accessor)
                 obj.file_handle_ = f_accessor;
             else
                 if isempty(obj.full_filename)
@@ -383,19 +391,25 @@ classdef PixelDataFileBacked < PixelDataBase
             %   obj         A PixelData object containing all the pixels in the inputted
             %               PixelData objects
 
+            if isempty(varargin)
+                obj = PixelDataFileBacked();
+            elseif numel(varargin) == 1
+                obj = PixelDataFileBacked(varargin{1});
+            end
+
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
-            ldr = varargin{is_ldr};
-            varargin = varargin(~is_ldr);
+            if any(is_ldr)
+                ldr = varargin{is_ldr};
+                varargin = varargin(~is_ldr);
+            else
+                ldr = [];
+            end
 
             obj = PixelDataFileBacked();
 
             obj.num_pixels_ = sum(cellfun(@(x) x.num_pixels, varargin));
 
-            if isempty(ldr)
-                obj = obj.get_new_handle();
-            else
-                obj = obj.get_new_handle(ldr);
-            end
+            obj = obj.get_new_handle(ldr);
 
             start_idx = 1;
             obj.data_range = PixelDataBase.EMPTY_RANGE;
