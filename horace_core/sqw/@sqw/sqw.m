@@ -648,4 +648,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
     end
 
+    methods(Static, Hidden)
+        out = generate_cube_sqw(shape)
+    end
+
 end
