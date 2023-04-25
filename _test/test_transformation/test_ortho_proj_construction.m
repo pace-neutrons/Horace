@@ -140,6 +140,42 @@ classdef test_ortho_proj_construction<TestCase
             assertElementsAlmostEqual(proj.v,[0,1,1])
             assertElementsAlmostEqual(proj.w,[0,-1,1])
         end
+
+
+        function test_get_set_from_data_matrix_ppp_not90(~)
+            proj1 = ortho_projTester([1,0,0],[0,1,0],[0,0,1],...
+                'alatt',[2,4,3],'angdeg',[85,91,92],...
+                'label',{'a','b','c','d'},'type','ppp');
+
+            [~, u_to_rlu, ulen] = proj1.projaxes_to_rlu_public([1,1,1]);
+
+            pror = ortho_projTester('alatt',[2,4,3],'angdeg',[85,91,92],...
+                'label',{'a','b','c','d'});
+            pror = pror.set_from_data_mat(u_to_rlu,ulen);
+
+            tpixo = proj1.transform_pix_to_img(eye(3));
+            tpixr = pror.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+        end
+
+
+        function test_get_set_from_data_matrix_ppr_not90(~)
+            proj1 = ortho_projTester('alatt',[2,4,3],'angdeg',[92,87,98],...
+                'label',{'a','b','c','d'},'type','ppr');
+
+            [~, u_to_rlu, ulen] = proj1.projaxes_to_rlu_public([1,1,1]);
+
+            pror = ortho_projTester('alatt',[2,4,3],'angdeg',[92,87,98],...
+                'label',{'a','b','c','d'});
+            pror = pror.set_from_data_mat(u_to_rlu,ulen);
+
+
+            tpixo = proj1.transform_pix_to_img(eye(3));
+            tpixr = pror.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+
+        end
+
         function test_get_set_from_data_matrix_ppp(~)
             proj1 = ortho_projTester([1,0,0],[0,1,0],[0,0,1],...
                 'alatt',[2,4,3],'angdeg',[90,90,90],...
@@ -150,11 +186,10 @@ classdef test_ortho_proj_construction<TestCase
             pror = ortho_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
                 'label',{'a','b','c','d'});
             pror = pror.set_from_data_mat(u_to_rlu,ulen);
-            % TODO: This is something wrong as inputs are not recovered.
-            % Is this correct? Should (can I fix this?)
-            proj1.type  ='ppr';
-            proj1.w = [];
-            assertEqualToTol(pror,proj1,'tol',[1.e-9,1.e-9]);
+
+            tpixo = proj1.transform_pix_to_img(eye(3));
+            tpixr = pror.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
         end
 
 
@@ -168,6 +203,11 @@ classdef test_ortho_proj_construction<TestCase
                 'label',{'a','b','c','d'});
             pror = pror.set_from_data_mat(u_to_rlu,ulen);
             assertEqualToTol(pror,proj1,'tol',[1.e-9,1.e-9]);
+
+            tpixo = proj1.transform_pix_to_img(eye(3));
+            tpixr = pror.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+
         end
 
         function test_get_projection_from_cut3D_sqw(~)
@@ -245,6 +285,12 @@ classdef test_ortho_proj_construction<TestCase
 
             assertTrue(prj_or.nonorthogonal);
             assertTrue(prj_rec.nonorthogonal);
+
+            % this is what is what is only important for any transformation
+            tpixo = prj_or.transform_pix_to_img(eye(3));
+            tpixr = prj_rec.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+            
         end
 
         function test_getset_nonortho_proj_aaa_110(~)
@@ -271,6 +317,12 @@ classdef test_ortho_proj_construction<TestCase
 
             assertTrue(prj_or.nonorthogonal);
             assertTrue(prj_rec.nonorthogonal);
+
+            % this is what is what is only important for any transformation
+            tpixo = prj_or.transform_pix_to_img(eye(3));
+            tpixr = prj_rec.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+            
         end
         function test_getset_nonortho_proj_aaa_100(~)
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
@@ -296,6 +348,12 @@ classdef test_ortho_proj_construction<TestCase
 
             assertTrue(prj_or.nonorthogonal);
             assertTrue(prj_rec.nonorthogonal);
+
+            % this is what is what is only important for any transformation
+            tpixo = prj_or.transform_pix_to_img(eye(3));
+            tpixr = prj_rec.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+            
         end
         function test_getset_nonortho_proj_ppp_110(~)
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
@@ -325,6 +383,12 @@ classdef test_ortho_proj_construction<TestCase
             % BUT:
             assertEqual(prj_or.type,'ppp')
             assertEqual(prj_rec.type,'rrr')
+
+            % this is what is what is only important for any transformation
+            tpixo = prj_or.transform_pix_to_img(eye(3));
+            tpixr = prj_rec.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+            
         end
         function test_getset_nonortho_proj_par_110(~)
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
@@ -353,9 +417,37 @@ classdef test_ortho_proj_construction<TestCase
             assertTrue(prj_rec.nonorthogonal);
             % BUT:
             assertEqual(prj_or.type,'par')
-            assertEqual(prj_rec.type,'rar')            
+            assertEqual(prj_rec.type,'rar')
+
+            % this is what is what is only important for any transformation
+            tpixo = prj_or.transform_pix_to_img(eye(3));
+            tpixr = prj_rec.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+            
         end
-        
+        function test_unit_transf_from_triclinic(~)
+
+            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+                'angdeg',[85 95 83],'type','ppr');
+            b_m = bmatrix([3, 4 5],[85 95 83]);
+            pr_unit = prj_or.set_from_data_mat(eye(3),1./diag(b_m));
+
+            tpixo = pr_unit.transform_pix_to_img(eye(3));            
+            assertElementsAlmostEqual(tpixo,eye(3));
+        end
+
+
+        function test_unit_transf_from_cubic(~)
+
+            prj_or = ortho_projTester('alatt',[3, 4 5], ...
+                'angdeg',[90 90 90],'type','ppr');
+            b_m = bmatrix([3, 4 5],[90 90 90]);
+            pr_unit = prj_or.set_from_data_mat(eye(3),1./diag(b_m));
+
+            tpixo = pr_unit.transform_pix_to_img(eye(3));            
+            assertElementsAlmostEqual(tpixo,eye(3));
+        end
+
 
         function test_getset_nonortho_proj_ppp_100(~)
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
@@ -385,6 +477,12 @@ classdef test_ortho_proj_construction<TestCase
             % BUT:
             assertEqual(prj_or.type,'ppp')
             assertEqual(prj_rec.type,'rrr')
+
+            % this is what is what is only important for any transformation
+            tpixo = prj_or.transform_pix_to_img(eye(3));
+            tpixr = prj_rec.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+            
         end
 
         function test_getset_nonortho_proj_rrr_100(~)
@@ -412,6 +510,12 @@ classdef test_ortho_proj_construction<TestCase
             % and the matrices are correct!
             assertTrue(prj_or.nonorthogonal);
             assertTrue(prj_rec.nonorthogonal);
+
+            % this is what is what is only important for any transformation
+            tpixo = prj_or.transform_pix_to_img(eye(3));
+            tpixr = prj_rec.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+            
         end
 
 
@@ -441,6 +545,12 @@ classdef test_ortho_proj_construction<TestCase
             % and the matrices are correct!
             assertTrue(prj_or.nonorthogonal);
             assertFalse(prj_rec.nonorthogonal);
+
+            % this is what is what is only important for any transformation
+            tpixo = prj_or.transform_pix_to_img(eye(3));
+            tpixr = prj_rec.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr,'absolute',1.e-5);
+            
         end
 
         %
@@ -505,6 +615,12 @@ classdef test_ortho_proj_construction<TestCase
             [~, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
             assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]])
             assertElementsAlmostEqual(data.ulen(1:3),ulen');
+
+            % this is what is what is only important for any transformation
+            tpixo = proj1.transform_pix_to_img(eye(3));
+            tpixr = proj.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpixo,tpixr);
+            
         end
     end
 end

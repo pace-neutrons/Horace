@@ -33,25 +33,13 @@ vx = b_mat * vv';
 nx = cross(ux, vx);  nx = nx/norm(nx);
 wx = b_mat * ww'  ;  wx = wx/norm(wx);
 if norm(cross(nx, wx)) > 1e-8
-    nonortho = true;
+    ortho = false;
 else
-    nonortho = false;
+    ortho = true;
 end
+nonortho = ~ortho;
 
-if nonortho
-    uvw = [uu',vv',ww'];
-    type = cell(3,1);
-    for i=1:3
-        type{i} = find_type(u_rot_mat(i,:),ulen(i));
-        if type{i} ~= 'a'
-            uvw(:,i) =  uvw(:,i)/ulen(i);
-        end
-    end
-    type = [type{:}];
-    u = uvw(:,1);
-    v = uvw(:,2);
-    w = uvw(:,3);
-else % ortho
+if ortho    
     ulen_inv = 1./ulen(:)';
     ubinv = u_rot_mat.*repmat(ulen_inv,3,1);
     ubmat = inv(ubinv); % correctly recovered ubmatrix; ulen matrix extracted
@@ -98,7 +86,20 @@ else % ortho
     if lt{3} ~= 'p'
         w = [];
     end
-    type = [lt{:}];
+    type = [lt{:}];    
+else % non-ortho
+    uvw = [uu',vv',ww'];
+    type = cell(3,1);
+    for i=1:3
+        type{i} = find_type(u_rot_mat(i,:),ulen(i));
+        if type{i} ~= 'a'
+            uvw(:,i) =  uvw(:,i)/ulen(i);
+        end
+    end
+    type = [type{:}];
+    u = uvw(:,1);
+    v = uvw(:,2);
+    w = uvw(:,3);
 end
 
 function  [type] = find_type(u_rot_vec,ulen)

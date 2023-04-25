@@ -81,13 +81,17 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
 
 lat = obj.lattice.set_rad();
 [~, u_to_rlu] = obj.lattice.calc_proj_matrix();
-ulen = [1,1,1];
 offset = [0;0;0;0];
-proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg,'type','ppr');
-% the projection should define unit transformation from pix to image
+% set projection lattice
+proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg);
+% the projection should define unit transformation from pix to image as pix
+% frame and image frame coincide during generation
+b_m = lat.bmatrix();
+ulen = 1./diag(b_m);
+proj = proj.set_from_data_mat(eye(3) ,ulen );
+%TODO: need checks
+axes_bl.ulen =ulen;
 
-proj = proj.set_from_data_mat(u_to_rlu ,ulen);
-proj.type= 'ppr';
 
 sqw_data = DnDBase.dnd(axes_bl,proj);
 
