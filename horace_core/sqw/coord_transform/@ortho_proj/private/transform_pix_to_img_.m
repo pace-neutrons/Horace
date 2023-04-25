@@ -19,17 +19,12 @@ if isa(pix_input,'PixelDataBase')
     pix_transf = zeros(4, pix_input.num_pixels);
     shift_ei = obj.offset(4) ~= 0;
 
-    for i = 1:pix_input.num_pages
-        pix_input.page_num = i;
-        [start_idx, end_idx] = pix_input.get_page_idx_();
-        pix_transf(1:3, start_idx:end_idx) = ...
-            rot_to_img * (pix_input.q_coordinates - shift);
+    pix_transf(1:3, :) = rot_to_img * (pix_input.q_coordinates - shift);
 
-        if shift_ei
-            pix_transf(4, start_idx:end_idx) = pix_input.dE - obj.offset(4);
-        else
-            pix_transf(4, start_idx:end_idx) = pix_input.dE;
-        end
+    if shift_ei
+        pix_transf(4, :) = pix_input.dE - obj.offset(4);
+    else
+        pix_transf(4, :) = pix_input.dE;
     end
 
 else
@@ -37,7 +32,7 @@ else
     % if its 3-d -- matrix is 3-dimensional and energy is not shifted
     % anyway
     ndim = size(pix_input, 1);
-    [rot_to_img,shift]=obj.get_pix_img_transformation(ndim);
+    [rot_to_img, shift]=obj.get_pix_img_transformation(ndim);
 
     pix_transf = rot_to_img * (pix_input - shift);
 end
