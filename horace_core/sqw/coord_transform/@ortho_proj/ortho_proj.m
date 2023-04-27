@@ -444,7 +444,7 @@ classdef ortho_proj<aProjectionBase
             %         (3 or 4). Depending on this number the routine
             %         returns 3D or 4D transformation matrix
             %
-            [~,rlu_to_u] = projaxes_to_rlu_(obj, [1,1,1]);
+            [rlu_to_u,u_to_rlu] = projaxes_to_rlu_(obj, [1,1,1]);
             if isempty(obj.ub_inv_compat_)
                 b_mat  = bmatrix(obj.alatt, obj.angdeg);
                 rot_to_img = rlu_to_u/b_mat;
