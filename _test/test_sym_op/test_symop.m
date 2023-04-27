@@ -129,20 +129,20 @@ classdef test_symop < TestCase
                                  -1  0  0
                                  0  1  0]);
             assertTrue(isa(out, 'Symop'))
-            assertEqual(out.W,  [0  0 -1
+            assertEqual(out.R,  [0  0 -1
                                  -1 0  0
                                  0  1  0])
             assertEqual(out.offset, [0; 0; 0])
         end
 
         function test_matrix_constructor(obj)
-            out = Symop.create([ 0  0 -1
-                                 -1  0  0
-                                 0  1  0], [3; 3; 3]);
+            out = SymopGeneral([-1  0 0
+                                0  -1 0
+                                0   0 1], [3  3  3]);
             assertTrue(isa(out, 'Symop'))
-            assertEqual(out.W,  [0  0 -1
-                                 -1 0  0
-                                 0  1  0])
+            assertEqual(out.W,  [-1  0  0
+                                 0  -1  0
+                                 0   0  1])
             assertEqual(out.offset, [3; 3; 3])
         end
 
@@ -237,7 +237,7 @@ classdef test_symop < TestCase
 
             assertEqualToTol(out_proj.u, [1, 0, 0], 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, [0, -1, 0], 'abstol', 1e-10)
-            assertEqualToTol(out_bin, {[0 0.1 1], [0 0.1 1], [0 0.1 1]})
+            assertEqualToTol(out_bin, {[0 0.1 1], [0 0.1 1], [-1 -0.1 0]})
 
             [out_proj_mat, out_bin_mat] = obj.ref_op_mat.transform_proj(obj.proj, obj.binning);
             assertEqualToTol(out_proj.u, out_proj_mat.u, 'abstol', 1e-10)

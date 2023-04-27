@@ -87,7 +87,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         function R = get.R(obj)
         % Compute general transformation matrix for operator
         % Computing so as to generate it for Symop subclasses
-            R = obj.transform_vec(eye(3));
+            R = obj.calculate_transform(eye(3));
         end
 
     end
@@ -117,7 +117,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
 
             for i = numel(obj):-1:1
                 vec = vec - obj(i).offset;
-                vec = obj(i).calculate_transform(eye(3)) * vec;
+                vec = obj(i).R * vec;
                 vec = vec + obj(i).offset;
             end
         end
@@ -235,13 +235,16 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         % Note this function uses matrix Minv which transforms from rlu to
         % orthonormal components
 
-            u_new = obj.transform_vec(proj.u(:));
-            v_new = obj.transform_vec(proj.v(:));
+
+            u_new = obj.R * proj.u(:);
+            v_new = obj.R * proj.v(:);
+            offset_new = proj.offset(:);
+            offset_new(1:3) = obj.transform_vec(offset_new(1:3));
             if ~isempty(proj.w)
-                w_new = obj.transform_vec(proj.w(:));
-                proj = proj.set_axes(u_new, v_new, w_new);
+                w_new = obj.R * proj.w(:);
+                proj = proj.set_axes(u_new, v_new, w_new, offset_new);
             else
-                proj = proj.set_axes(u_new, v_new);
+                proj = proj.set_axes(u_new, v_new, [], offset_new);
             end
 
         end
