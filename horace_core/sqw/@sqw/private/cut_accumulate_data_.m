@@ -123,8 +123,6 @@ function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_w_pixels(pix, 
         fprintf('*** Got data for %d pixels -- processing data...', candidate_pix.num_pixels);
     end
 
-    npix
-
     if isscalar(targ_proj)
         [npix, s, e, pix_retained, unique_runid] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
 
@@ -149,7 +147,6 @@ function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_w_pixels(pix, 
         unique_runid = unique_runid';
     end
 
-    npix
     if ll >= 1
         fprintf(' ----->  %s  %d pixels\n', pixel_contrib_name, npix_step_retained);
     end
@@ -395,17 +392,19 @@ else
     pixel_contrib_name ='included';
 end
 
-if nargin == 4  && log_level > 1 % no pixels contributed in the cut
-    if use_tmp_files
+if log_level > 1
+
+    if use_tmp_files && ~keep_pixels
         fprintf('*** Cutting %s sqw object; returning result %s --> ignored as cut contains no pixels\n', ...
-            obj_type, target);
-    else
+                obj_type, target);
+    elseif ~keep_pixels
         fprintf('*** Cutting %s sqw object; returning result %s; cut contains no pixels\n', ...
-            obj_type, target);
+                obj_type, target);
+    else
+        fprintf('*** Cutting %s sqw object; returning result %s; retuning pixels - %s\n', ...
+                obj_type, target, pix_state);
     end
-else
-    fprintf('*** Cutting %s sqw object; returning result %s; retuning pixels - %s\n', ...
-        obj_type, target, pix_state);
+
 end
 
 end

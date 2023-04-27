@@ -77,5 +77,9 @@ if nout>1
     nin = nout;
 end
 
+end
+
 function is = isfilename_(x)
 is = istext(x) && ~strncmp(x,'-',1);
+
+end

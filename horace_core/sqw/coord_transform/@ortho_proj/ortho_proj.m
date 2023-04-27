@@ -120,7 +120,7 @@ classdef ortho_proj<aProjectionBase
         % Interfaces:
         %------------------------------------------------------------------
         % set u,v & w simultaneously
-        obj = set_axes (obj, u, v, w)
+        obj = set_axes (obj, u, v, w, offset)
         %------------------------------------------------------------------
         function obj=ortho_proj(varargin)
             obj = obj@aProjectionBase();
