@@ -91,6 +91,10 @@ classdef aProjectionBase < serializable
         lab2;
         lab3;
         lab4;
+        % returns true if lattice parameters have been set up
+        alatt_defined
+        % returns true if lattice angles have been set up
+        angdeg_defined
     end
 
     properties(Constant, Access=protected)
@@ -105,6 +109,8 @@ classdef aProjectionBase < serializable
     properties(Access=protected)
         alatt_ = [2*pi,2*pi,2*pi]; %unit-sized lattice vector
         angdeg_= [90,90,90];
+        % true if both alatt and angdeg have been correctly set-up
+        lattice_defined_= [false,false];
         %------------------------------------
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         offset_  = [0,0,0,0] %Offset of origin of projection axes in image units
@@ -295,6 +301,13 @@ classdef aProjectionBase < serializable
         function obj = set.disable_srce_to_targ_optimization(obj,val)
             obj.disable_srce_to_targ_optimization_ = logical(val);
         end
+        %------------------------------------------------------------------
+        function def = get.alatt_defined(obj)
+            def = obj.lattice_defined_(1);
+        end
+        function def = get.angdeg_defined(obj)
+            def = obj.lattice_defined_(2);
+        end
     end
     %======================================================================
     % MAIN PROJECTION OPERATIONS
@@ -310,10 +323,10 @@ classdef aProjectionBase < serializable
             if ~exist('targ_proj','var')
                 targ_proj = [];
             else
-                %obj.do_generic = true;    %| DEBUGGING generic algorithm,
-                %                           | disable specialization
-                targ_proj.do_generic = obj.do_generic;
-                targ_proj.disable_srce_to_targ_optimization = obj.disable_srce_to_targ_optimization;
+                if isa(targ_proj,class(obj))
+                    targ_proj.do_generic = obj.do_generic;
+                    targ_proj.disable_srce_to_targ_optimization = obj.disable_srce_to_targ_optimization;
+                end
 
                 % Assign target projection to verify if optimization is
                 % available and enable if it available
@@ -576,7 +589,8 @@ classdef aProjectionBase < serializable
             alat  = obj.alatt_;
         end
         function obj = check_and_set_alatt(obj,val)
-            obj.alatt_ = check_alatt_return_standard_val_(obj,val);
+            [obj.alatt_,defined] = check_alatt_return_standard_val_(obj,val);
+            obj.lattice_defined_(1) = defined;
         end
         function   proj = get_target_proj(obj)
             proj = obj.targ_proj_;
@@ -586,7 +600,8 @@ classdef aProjectionBase < serializable
             angdeg  = obj.angdeg_;
         end
         function obj = check_and_set_andgdeg(obj,val)
-            obj.angdeg_ = check_angdeg_return_standard_val_(obj,val);
+            [obj.angdeg_,defined] = check_angdeg_return_standard_val_(obj,val);
+            obj.lattice_defined_(2) = defined;
         end
         %
         function obj = check_and_set_targ_proj(obj,val)
