@@ -494,7 +494,7 @@ classdef ortho_proj<aProjectionBase
                 cur_axes_block,targ_proj,targ_axes_block)
             % get indexes of cells which may contributing into the cut.
             %
-            if ~obj.do_generic
+            if obj.convert_targ_to_source && isa(targ_proj,class(obj))
                 contrib_ind= get_contrib_orthocell_ind_(obj,...
                     cur_axes_block,targ_axes_block);
             else

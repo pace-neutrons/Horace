@@ -41,6 +41,7 @@ classdef test_dummy_sqw < TestCase
             %this.par_file=fullfile(this.results_path,'96dets.par');
             obj.par_file=fullfile(common_data,'gen_sqw_96dets.nxspe');
         end
+
         function test_det_from_q_invalid(obj)
             f = @()build_det_from_q_range('wrong_detpar',obj.gen_sqw_par{2:end});
 
@@ -50,6 +51,7 @@ classdef test_dummy_sqw < TestCase
             assertExceptionThrown(f,'HORACE:build_det_from_q_range:invalid_argument');
 
         end
+
         function test_det_from_q_range1D(obj)
             % check if build_det_from_q_range is working and producing
             % reasonable result.
@@ -57,6 +59,7 @@ classdef test_dummy_sqw < TestCase
             assertTrue(isstruct(det));
             assertEqual(numel(det.group),11*11*11)
         end
+
         function build_det_from_q_range3D(obj)
             det=build_det_from_q_range([0,0.1,1;0,0.2,2;0,0.3,3],...
                 obj.gen_sqw_par{2:end});
@@ -64,7 +67,7 @@ classdef test_dummy_sqw < TestCase
             assertEqual(numel(det.group),11*11*11)
 
         end
-        %
+
         function test_build_dummy_sqw(obj)
             % build dummy sqw using detector positions and without detector
             % positions.
@@ -97,5 +100,44 @@ classdef test_dummy_sqw < TestCase
             pix1 = tsqw2.pix.coordinates;
             assertElementsAlmostEqual(pix,pix1,'absolute',1.e-7);
         end
+
+
+        function test_gen_cube_2x2x2x2(obj)
+            tsqw = sqw.generate_cube_sqw(2);
+
+            assertTrue(isa(tsqw,'sqw'));
+            assertEqual(tsqw.pix.num_pixels, 2^4);
+
+            % Test that all generated coordinates are unique
+            tval = tsqw.pix.coordinates';
+            assertEqual(unique(tval, 'rows', 'stable'), tval);
+
+            % Test that all values are unique
+            tval = tsqw.pix.get_fields({'detector_idx', 'signal', 'variance'})';
+            assertEqual(unique(tval, 'rows', 'stable'), tval);
+
+            % One pixel per bin
+            assertTrue(all(tsqw.data.npix == 1, 'all'))
+
+        end
+
+        function test_gen_cube_3x3x3x3(obj)
+            tsqw = sqw.generate_cube_sqw(3);
+
+            assertTrue(isa(tsqw,'sqw'));
+            assertEqual(tsqw.pix.num_pixels, 3^4);
+
+            % Test that all generated coordinates are unique
+            tval = tsqw.pix.coordinates';
+            assertEqual(unique(tval, 'rows', 'stable'), tval);
+
+            % Test that all values are unique
+            tval = tsqw.pix.get_fields({'detector_idx', 'signal', 'variance'})';
+            assertEqual(unique(tval, 'rows', 'stable'), tval);
+
+            % One pixel per bin
+            assertTrue(all(tsqw.data.npix == 1, 'all'))
+        end
+
     end
 end

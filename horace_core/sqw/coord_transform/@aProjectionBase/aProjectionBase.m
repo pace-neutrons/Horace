@@ -71,10 +71,11 @@ classdef aProjectionBase < serializable
         do_generic;
         % testing property. Normaly transformation from source to target
         % coordinate system in cut can be optimized as each transformation
-        % is described by a transformation matrix and the final
-        % transformation is the production of these matrices.
+        % is described by transformation matrices and the final
+        % transformation is the production of all these matrices.
         % if the property set to true, the transformation performed in two
-        % steps
+        % steps, namely tranforming from image to pixel coordinate system
+        % and then from pixel to other image coordinate system.
         disable_srce_to_targ_optimization
         % check if a projection should use 3D transformation assuming that
         % energy axis is orthogonal to q-axes, which is much more efficient
@@ -323,10 +324,10 @@ classdef aProjectionBase < serializable
             if ~exist('targ_proj','var')
                 targ_proj = [];
             else
-                %obj.do_generic = true;    %| DEBUGGING generic algorithm,
-                %                           | disable specialization
-                targ_proj.do_generic = obj.do_generic;
-                targ_proj.disable_srce_to_targ_optimization = obj.disable_srce_to_targ_optimization;
+                if isa(targ_proj,class(obj))
+                    targ_proj.do_generic = obj.do_generic;
+                    targ_proj.disable_srce_to_targ_optimization = obj.disable_srce_to_targ_optimization;
+                end
 
                 % Assign target projection to verify if optimization is
                 % available and enable if it available

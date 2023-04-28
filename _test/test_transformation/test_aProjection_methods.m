@@ -93,11 +93,14 @@ classdef test_aProjection_methods <TestCase
 
         function test_set_angdeg_empty_throws(~)
             ap = aProjectionTester();
-            function sap()
-                ap.angdeg= [];
-            end
-            assertExceptionThrown(@sap,...
-                'HORACE:aProjectionBase:invalid_argument');
+            assertFalse(ap.angdeg_defined);
+            ap.angdeg = 90;
+            assertEqual(ap.angdeg,[90,90,90])
+            assertTrue(ap.angdeg_defined);
+
+            ap.angdeg = [];
+            assertFalse(ap.angdeg_defined);
+            assertTrue(isempty(ap.angdeg));
         end
 
         function test_set_angdeg_matrix_throws(~)
@@ -138,11 +141,13 @@ classdef test_aProjection_methods <TestCase
 
         function test_set_lattice_empty_throws(~)
             ap = aProjectionTester();
-            function sap()
-                ap.alatt= [];
-            end
-            assertExceptionThrown(@sap,...
-                'HORACE:aProjectionBase:invalid_argument');
+            assertFalse(ap.alatt_defined);
+            ap.alatt = 10;
+            assertTrue(ap.alatt_defined);
+            assertEqual(ap.alatt,[10,10,10]);
+            ap.alatt = [];
+            assertTrue(isempty(ap.alatt));
+            assertFalse(ap.alatt_defined);
         end
 
         function test_set_lattice_matrix_throws(~)
@@ -226,7 +231,7 @@ classdef test_aProjection_methods <TestCase
         end
         function test_set_throws_wrong_numel(~)
             ap = aProjectionTester();
-            assertFalse(ap.do_generic);
+            assertTrue(ap.do_generic);
 
             function setter()
                 ap.do_generic = [1,10];
@@ -237,7 +242,7 @@ classdef test_aProjection_methods <TestCase
 
         function test_set_throws_wrong_type(~)
             ap = aProjectionTester();
-            assertFalse(ap.do_generic);
+            assertTrue(ap.do_generic);
 
             function setter()
                 ap.do_generic = 'b';
@@ -248,10 +253,10 @@ classdef test_aProjection_methods <TestCase
 
         function test_set_get_generic(~)
             ap = aProjectionTester();
-            assertFalse(ap.do_generic);
-
-            ap.do_generic = true;
             assertTrue(ap.do_generic);
+
+            ap.do_generic = false;
+            assertFalse(ap.do_generic);
         end
     end
 end
