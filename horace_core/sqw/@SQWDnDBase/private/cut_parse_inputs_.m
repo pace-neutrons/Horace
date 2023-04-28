@@ -195,10 +195,11 @@ end
 if proj_given 
     % check if the projection have no lattice defined and define the
     % lattice for cut
-    default_proj = ortho_proj;
-    if all(default_proj.alatt == proj.alatt) && all(default_proj.angdeg == proj.angdeg)
+    if ~proj.alatt_defined
         proj.alatt = obj.proj.alatt;
-        proj.angdeg = obj.proj.angdeg;
+    end
+    if ~proj.angdeg_defined
+        proj.angdeg = obj.proj.angdeg;        
     end
 else % it may be fewer parameters then actual dimensions and
     % if no projection is given, we would like to append missing binning

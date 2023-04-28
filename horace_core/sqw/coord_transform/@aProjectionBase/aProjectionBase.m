@@ -68,6 +68,14 @@ classdef aProjectionBase < serializable
         % particular projection-projection pair of transformations,
         % optimized for specific projection-projection pair of classes
         do_generic;
+        % testing property. Normaly transformation from source to target
+        % coordinate system in cut can be optimized as each transformation
+        % is described by transformation matrices and the final
+        % transformation is the production of all these matrices.
+        % if the property set to true, the transformation performed in two
+        % steps, namely tranforming from image to pixel coordinate system
+        % and then from pixel to other image coordinate system.
+        disable_srce_to_targ_optimization
         % check if a projection should use 3D transformation assuming that
         % energy axis is orthogonal to q-axes, which is much more efficient
         % then doing full 4D transformation, where projection may be
@@ -83,6 +91,10 @@ classdef aProjectionBase < serializable
         lab2;
         lab3;
         lab4;
+        % returns true if lattice parameters have been set up
+        alatt_defined
+        % returns true if lattice angles have been set up
+        angdeg_defined
     end
 
     properties(Constant, Access=protected)
@@ -97,6 +109,8 @@ classdef aProjectionBase < serializable
     properties(Access=protected)
         alatt_ = [2*pi,2*pi,2*pi]; %unit-sized lattice vector
         angdeg_= [90,90,90];
+        % true if both alatt and angdeg have been correctly set-up
+        lattice_defined_= [false,false];
         %------------------------------------
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         offset_  = [0,0,0,0] %Offset of origin of projection axes in image units
@@ -113,7 +127,10 @@ classdef aProjectionBase < serializable
         % if true, disable optimized transformation over
         % specific pairs of the projection types if such optimization
         % is available
-        do_generic_ = false;
+        do_generic_ = true;
+        % if true, disables optimization of the transfornation from source
+        % to target coordinate system.
+        disable_srce_to_targ_optimization_ = false;
         % majority of projections have energy axis orthogonal to other
         % coordinate axes, so it is much more efficient to analyse 3D
         % transformations only.  Specific projections (and test routines)
@@ -277,6 +294,20 @@ classdef aProjectionBase < serializable
         function obj = set.do_3D_transformation(obj,val)
             obj.do_3D_transformation_ = logical(val);
         end
+        %
+        function is = get.disable_srce_to_targ_optimization(obj)
+            is = obj.disable_srce_to_targ_optimization_;
+        end
+        function obj = set.disable_srce_to_targ_optimization(obj,val)
+            obj.disable_srce_to_targ_optimization_ = logical(val);
+        end
+        %------------------------------------------------------------------
+        function def = get.alatt_defined(obj)
+            def = obj.lattice_defined_(1);
+        end
+        function def = get.angdeg_defined(obj)
+            def = obj.lattice_defined_(2);
+        end
     end
     %======================================================================
     % MAIN PROJECTION OPERATIONS
@@ -292,9 +323,11 @@ classdef aProjectionBase < serializable
             if ~exist('targ_proj','var')
                 targ_proj = [];
             else
-                %targ_proj.do_generic = true;    %| DEBUGGING generic algorithm,
-                %source_proj.do_generic = true;  %| disable specialization
-                %
+                if isa(targ_proj,class(obj))
+                    targ_proj.do_generic = obj.do_generic;
+                    targ_proj.disable_srce_to_targ_optimization = obj.disable_srce_to_targ_optimization;
+                end
+
                 % Assign target projection to verify if optimization is
                 % available and enable if it available
                 targ_proj.targ_proj = obj;
@@ -556,7 +589,8 @@ classdef aProjectionBase < serializable
             alat  = obj.alatt_;
         end
         function obj = check_and_set_alatt(obj,val)
-            obj.alatt_ = check_alatt_return_standard_val_(obj,val);
+            [obj.alatt_,defined] = check_alatt_return_standard_val_(obj,val);
+            obj.lattice_defined_(1) = defined;
         end
         function   proj = get_target_proj(obj)
             proj = obj.targ_proj_;
@@ -566,7 +600,8 @@ classdef aProjectionBase < serializable
             angdeg  = obj.angdeg_;
         end
         function obj = check_and_set_andgdeg(obj,val)
-            obj.angdeg_ = check_angdeg_return_standard_val_(obj,val);
+            [obj.angdeg_,defined] = check_angdeg_return_standard_val_(obj,val);
+            obj.lattice_defined_(2) = defined;
         end
         %
         function obj = check_and_set_targ_proj(obj,val)
