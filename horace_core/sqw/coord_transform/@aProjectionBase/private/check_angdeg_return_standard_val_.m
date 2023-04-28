@@ -24,8 +24,8 @@ elseif size(val,1)==3 && size(val,2)==1
     angdeg = abs(val');
 else
     error('HORACE:aProjectionBase:invalid_argument',...
-        'input value for %s may be a single number or 3-element vector. In fact it is: %s',...
-        prop_name,evalc('disp(val)'));
+        'input value for angdeg may be a single number or 3-element vector. In fact it is: %s',...
+        evalc('disp(val)'));
 end
 valid = arrayfun(@(x)(x>obj.tol_ && x<180),val,'UniformOutput',true);
 if ~all(valid)

@@ -369,7 +369,7 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function [u_to_rlu,shift]=get_pix_img_transformation(obj,ndim,varargin)
+        function [u_to_img,shift]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
             % to image coordinate system and vise-versa if the projaxes is
             % defined
@@ -397,27 +397,31 @@ classdef ortho_proj<aProjectionBase
                 alignment_needed = false;
             end
             %
+            [rlu_to_u,u_to_img,ulen] = projaxes_to_rlu_(obj, [1,1,1]);            
             if isempty(obj.ub_inv_legacy)
-                rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);
                 % Modern alignment with rotation matrix attached to pixel
-                % coordinate system
-               
-                rlu_to_u = rlu_to_ustep;
+                % coordinate system               
                 if alignment_needed
-                    u_to_rlu  = rlu_to_u\alignment_mat;
+                    u_to_img  = rlu_to_u\alignment_mat;
                 else
-                    u_to_rlu = inv(rlu_to_u);
                 end
+                u_to_img = u_to_img./ulen;
+                rlu_to_u  = bmatrix(obj.alatt, obj.angdeg);
             else% Legacy alignment, with multiplication of rotation matrix
                 % and u_to_rlu transformation matrix;
-                u_to_rlu = obj.ub_inv_legacy;
-                rlu_to_u = inv(u_to_rlu);
+                %u_to_rlu = obj.ub_inv_legacy;
+                %rlu_to_u = inv(u_to_rlu);
+
+                u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
+                u_to_img  = rlu_to_u*u_to_rlu_;
+                rlu_to_u = inv(u_to_rlu_);
+                
             end
             %
             if ndim==4
                 shift  = obj.offset;
                 rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
-                u_to_rlu = [u_to_rlu,[0;0;0];[0,0,0,1]];
+                u_to_img = [u_to_img,[0;0;0];[0,0,0,1]];
             elseif ndim == 3
                 shift  = obj.offset(1:3);
             else

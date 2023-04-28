@@ -23,7 +23,7 @@ function [w, data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
 % --------
 %   w              - Output sqw object
 %   data_range     - Actual range of pixels and pixels data (2x9 array of min/max values.
-%                    The pixels coordinates (first 4 columns) are inside of 
+%                    The pixels coordinates (first 4 columns) are inside of
 %                    the input coordinate range.
 
 
@@ -82,13 +82,16 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
 lat = obj.lattice.set_rad();
 [~, u_to_rlu] = obj.lattice.calc_proj_matrix();
 offset = [0;0;0;0];
+b_m = lat.bmatrix();
+ulen = diag(b_m);
 % set projection lattice
-proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg);
+proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg, ...
+    'type','aaa','u',[ulen(1),0,0],'v',[0,ulen(2),0],'w',[0,0,ulen(3)]);
 % the projection should define unit transformation from pix to image as pix
 % frame and image frame coincide during generation
-b_m = lat.bmatrix();
-ulen = 1./diag(b_m);
-proj = proj.set_from_data_mat(eye(3) ,ulen );
+
+
+%proj = proj.set_from_data_mat(eye(3) ,ulen);
 %TODO: need checks
 axes_bl.ulen =ulen;
 
