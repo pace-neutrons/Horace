@@ -41,8 +41,12 @@ else
     error('HERBERT:object_lookup:invalid_argument', 'Invalid number of input arguments')
 end
 
-A = obj.object_store_(obj.indx_{iarray});
-A = reshape(A,obj.sz_{iarray});
+if iarray <= numel(obj.indx_)
+    A = obj.object_store_(obj.indx_{iarray});
+    A = reshape(A,obj.sz_{iarray});
+else
+    error('HERBERT:object_lookup:invalid_argument', 'Array index out of range')
+end
 
 end
 

@@ -103,7 +103,7 @@ if ~obj.filled
 end
 
 % Parse the input arguments
-[ind, ielmts, randfunc, args, split] = parse_args_rand_ind (varargin{:});
+[ind, ielmts, randfunc, args, split] = parse_rand_ind (varargin{:});
 
 % Create an array of indicies to the unique objects stored in obj,
 % corresponding to the input index array ind
@@ -114,10 +114,10 @@ X = rand_ind_private (obj.object_store_, ind_unique_obj, ielmts, randfunc, args,
 
 
 %------------------------------------------------------------------
-function varargout = rand_ind_private (obj_array, ind, ielmts, randfunc, args, split)
+function varargout = rand_ind_private (obj, ind, ielmts, randfunc, args, split)
 % Given a list of indices, find location and number of unique occurences
 %
-%   >> X = rand_ind_private (obj_array, ind)
+%   >> X = rand_ind_private (obj, ind)
 %
 % Efficient computation is achieved by a making a single call to the random
 % sampling function for each unique object referred to in the index array ind.
@@ -126,9 +126,9 @@ function varargout = rand_ind_private (obj_array, ind, ielmts, randfunc, args, s
 %
 % Input:
 % ------
-%   obj_array   Array of objects from which random samples must be pulled
+%   obj         Array of objects from which random samples must be pulled
 %
-%   ind         Array of indices of elements of obj_array for which random
+%   ind         Array of indices of elements of obj for which random
 %              samples are pulled.
 %
 %   ielmts      If not empty, an array the same size as input argument ind that
@@ -177,31 +177,27 @@ function varargout = rand_ind_private (obj_array, ind, ielmts, randfunc, args, s
 %                       [3,1]               [1,1,5]         [3,1,5]
 
 
+present_ielmts = ~isempty(ielmts);
+
 % Sort the ind and create an index array that relates back to the
-% original ordering
+% original ordering. Additionally, if ielmts exists, turn it into a column
+% and reorder to match sorting of ind if it was sorted.
 if issorted(ind(:)) % case that the array is already sorted
-    if ind(1)~=ind(end)
-        B = ind(:);
-        ix = [];    % empty will indicate that no reordering is needed later
-    else
-        % *** NEEDS ATTENTION ***
-        % *** CASE OF SINGLE UNIQUE OBJECT ***
-        % *** SPLITTING P(i) ? ***
-        X = obj_array(ind(1)).rand(size(ind), varargin{:});    % all ind(:) are the same
-        return
+    B = ind(:);
+    ix = [];    % empty will indicate that no reordering is needed later
+    if present_ielmts
+        iel = ielmts(:);
     end
 else
     [B, ix] = sort(ind(:));
+    if present_ielmts
+        iel = reshape (ielmts(ix), [], 1);  % column vector
+    end
 end
 nend = [find(diff(B)); numel(B)];
 nbeg = 1 + [0;nend(1:end-1)];
 nel = nend - nbeg + 1;
 indu = B(nbeg);     % the unique element index numbers
-
-if ~(isempty(ix) || ~isempty(ielmts))
-    % If ind was sorted, then if it exists reorder ielmts ot match
-    iel = reshape (ielmts(ix), [], 1);  % column vector
-end
 
 % Split arguments requested by iargs into stacks of arrays, the size of the
 % stacks matching the size of ind
@@ -209,34 +205,43 @@ args_split = split_args (args(split), size(ind), ix, nel);
 args_tmp = cell(size(args));
 args_tmp(~split) = args(~split);   % arguments that are not split
 
-% Determine size of output arguments from first call to randfunc
+
+% Determine sizes of the underlying output arguments from a call to randfunc
+% by making the call for the first unique object in the (sorted) index ind
 nout = nargout;
 args_tmp(split) = args_split(:,1);
-if isempty(ielmts)
+if ~present_ielmts
     % Case of randfunc acting on each unique object as a whole, with a
-    % size descriptor passed to randfunc: syntax
+    % size descriptor passed to randfunc. Syntax:
     %   [X1, X2,...] = randfunc (object, sz, p1, p2,...)
     [Xtmp{1:nout}] = randfunc (obj(indu(1)), [nel(1),1], args_tmp{:});
 else
     % Case of randfunc acting on elements within each unique object, with
-    % an index array that says which elements
+    % an index array that says which elements. Syntax:
     %   [X1, X2,...] = randfunc (object, ielmts, p1, p2, ...)
-    [Xtmp{1:nout}] = randfunc (obj(indu(1)), iel(1), args_tmp{:});
+    [Xtmp{1:nout}] = randfunc (obj(indu(1)), iel(nbeg(1):nend(1)), args_tmp{:});
 end
-sz = cellfun (@size, Xtmp, 'UniformOutput', false);             % sizes of outputs from first call
-sz_root = cellfun (@(x)size_array_split(x, [nel(1),1]), sz);    % sizes of underlying output arrays
+sz = cellfun (@size, Xtmp, 'UniformOutput', false); % sizes of outputs from first call
+sz_root = cellfun (@(x)size_array_split(x, [nel(1),1]), sz, 'UniformOutput', false);
 
-% Fill cell array with output from unique objects
+
+% Fill cell array with output from unique objects. Each element of the cell
+% array is a 2D array, the first dimension equal to the number of elements in
+% the underlying corresponding output array from randfunc, and the second
+% dimension equal to the number of elements in ind
 X = cellfun (@(x)(NaN([prod(x),numel(ind)])), sz_root, 'UniformOutput', false);
 for i = 1:numel(indu)
+    % Skip the evaluation of randfunc for indu(1), as it has already been
+    % done
     if i>1
-        args_tmp(split) = args_split{:,i};
-        if isempty(ielmts)
+        args_tmp(split) = args_split(:,i);
+        if ~present_ielmts
             [Xtmp{1:nout}] = randfunc (obj(indu(i)), [nel(i),1], args_tmp{:});
         else
-            [Xtmp{1:nout}] = randfunc (obj(indu(i)), iel(i), args_tmp{:});
+            [Xtmp{1:nout}] = randfunc (obj(indu(i)), iel(nbeg(i):nend(i)), args_tmp{:});
         end
     end
+    % Fill appropriate columns of the elements of X, accounting for reordering of ind
     if ~isempty(ix)
         ixu = ix(nbeg(i):nend(i));
     else
@@ -247,23 +252,5 @@ for i = 1:numel(indu)
     end
 end
 
-% Reshape output
-varargout = cellfun(@(x,y)reshape(x,size_array_stack(y,size(ind))), X, sz0, 'UniformOutput', false);
-
-
-
-
-% Determine the size of the random sample for a single element, then
-% loop over the number of unique elements making vectorised call to the
-% random sampling function. Finally, re-order the random samples back to
-% the order of the input array ind
-sz = size(obj_array(indu(1)).rand(1), varargin{:});    % size of random array returned by object rand method
-
-X = NaN(prod(sz),nend(end));
-for i=1:numel(indu)
-    X(:,nbeg(i):nend(i)) = obj_array(indu(i)).rand(nel(i),1,varargin{:});
-end
-if ~isempty(ix)
-    X(:,ix) = X;
-end
-X = squeeze(reshape(X,[sz,size(ind)]));
+% Reshape output arguments
+varargout = cellfun(@(x,y)reshape(x,size_array_stack(y,size(ind))), X, sz_root, 'UniformOutput', false);

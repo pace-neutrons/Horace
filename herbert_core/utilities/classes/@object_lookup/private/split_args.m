@@ -23,11 +23,11 @@ function [args_split, args_first] = split_args (args, sz_stack, ix, nelmts)
 %
 % Output:
 % -------
-%   args_split  Cell array size(numel(arg),numel(nelmt)) containing the
+%   args_split  Cell array size(numel(args),numel(nelmt)) containing the
 %              split arguments, retaining the inner dimensions of the
 %              stacked arrays.
 %
-%   args_first  Cell array size(numel(arg),1) containing the split
+%   args_first  Cell array size(numel(args),1) containing the split
 %              arguments for the first element in ix. Useful to provide
 %              example arguments for test function calls.
 

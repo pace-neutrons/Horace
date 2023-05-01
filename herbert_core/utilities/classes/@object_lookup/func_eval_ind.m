@@ -1,9 +1,7 @@
 function varargout = func_eval_ind (obj, varargin)
-% Evaluate a function or an object method for indexed occurences in an object lookup table
+% Evaluate a function or method for indexed occurences in an object lookup table
 %
 %   >> [X1, X2,...] = func_eval_ind (obj, iarray, ind, funchandle, p1, p2,...)
-%   >> [X1, X2,...] = func_eval_ind (obj, ind, funchandle, p1, p2,...)
-%
 %
 % Very similar to arrayfun. The purpose is to evaluate functions of the form:
 %       [X1, X2, X3...] = my_function (object, p1, p2,...)
@@ -77,16 +75,7 @@ end
 
 % Parse the input arguments
 narg = numel(varargin);
-if narg>=2 && isa(varargin{2},'function_handle')
-    if numel(obj.indx_)==1
-        iarray = 1;
-        ind = varargin{1};
-        funchandle = varargin{2};
-        arg = varargin(3:end);
-    else
-        error('Must give index to the object array from which samples are to be drawn')
-    end
-elseif narg>=3 && isa(varargin{3},'function_handle')
+if narg>=3 && isa(varargin{3},'function_handle')
     iarray = varargin{1};
     if ~isscalar(iarray)
         error('Index to original object array, ''iarray'', must be a scalar')

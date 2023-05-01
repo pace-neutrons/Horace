@@ -160,7 +160,7 @@ classdef test_object_lookup < TestCaseWithSave
             ind = randselection (1:numel(obj.carr1), sz); 
             
             % Create array of random values
-            xsamp = rand_ind (obj.c_lookup1, 1, ind);
+            xsamp = rand_ind (obj.c_lookup1, 1, ind, @rand);
             
             % Test that the distributions for each of the elements of the
             % stored array match the expected distributions
@@ -182,7 +182,7 @@ classdef test_object_lookup < TestCaseWithSave
             ind = randselection (1:numel(obj.carr2), sz); 
             
             % Create array of random values
-            xsamp = rand_ind (obj.c_lookup1, 2, ind);
+            xsamp = rand_ind (obj.c_lookup1, 2, ind, @rand);
             
             % Test that the distributions for each of the elements of the
             % stored array match the expected distributions
@@ -203,7 +203,7 @@ classdef test_object_lookup < TestCaseWithSave
             ind = randselection (1:numel(obj.carr3), sz); 
             
             % Create array of random values
-            xsamp = rand_ind (obj.c_lookup1, 3, ind);
+            xsamp = rand_ind (obj.c_lookup1, 3, ind, @rand);
             
             % Test that the distributions for each of the elements of the
             % stored array match the expected distributions
@@ -227,7 +227,7 @@ classdef test_object_lookup < TestCaseWithSave
             ind = reshape (sort(ind(:)), sz);
             
             % Create array of random values
-            xsamp = rand_ind (obj.c_lookup1, 3, ind);
+            xsamp = rand_ind (obj.c_lookup1, 3, ind, @rand);
             
             % Test that the distributions for each of the elements of the
             % stored array match the expected distributions
@@ -252,7 +252,7 @@ classdef test_object_lookup < TestCaseWithSave
             ind = randselection ([2,5,4], sz); 
             
             % Create array of random values
-            xsamp = rand_ind (obj.c_lookup1, 1, ind);
+            xsamp = rand_ind (obj.c_lookup1, 1, ind, @rand);
             
             % Test that the distributions for each of the elements of the
             % stored array match the expected distributions

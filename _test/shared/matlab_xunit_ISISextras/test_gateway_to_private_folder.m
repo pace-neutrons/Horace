@@ -1,5 +1,5 @@
-function varargout = test_gateway_private_function (func_name, varargin)
-% Gateway function to enable test of functions in /private folder of a class
+function varargout = test_gateway_to_private_folder (func_name, varargin)
+% Gateway to enable test of functions and methods in class /private folder
 %
 % This function gives access to functions in the .../@my_class/private
 % folder, which otherwise cannot be directly called or debugged. Such a
@@ -13,7 +13,7 @@ function varargout = test_gateway_private_function (func_name, varargin)
 %       function varargout = test_gateway (func_name, varargin)
 %           % Access functions in the /private folder for testing purposes
 %           varargout = cell(1, nargout);
-%           [varargout{:}] = test_gateway_private_function (func_name, varargin{:});
+%           [varargout{:}] = test_gateway__to_private_folder (func_name, varargin{:});
 %       end
 %   end
 %       :

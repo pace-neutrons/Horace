@@ -1,4 +1,4 @@
-classdef testclass
+classdef testclass_for_test_gateway
     % Class to provide some simple functionality to test the functions
     % that act as gateways to functions in a class definition folder, or
     % files that define functions or methods in the private folder of a
@@ -10,10 +10,10 @@ classdef testclass
     end
     
     methods
-        function obj = testclass(name, age)
-            % testclass constructor
+        function obj = testclass_for_test_gateway (name, age)
+            % testclass_for_test_gateway constructor
             %
-            %   >> obj = testclass(name, age)
+            %   >> obj = testclass_for_test_gateway (name, age)
             
             if ischar(name)
                 obj.name = name;
@@ -71,7 +71,7 @@ classdef testclass
         function varargout = test_gateway (func_name, varargin)
             % Access functions in the /private folder for testing purposes
             varargout = cell(1, nargout);
-            [varargout{:}] = test_gateway_private_function (func_name, varargin{:});
+            [varargout{:}] = test_gateway_to_private_folder (func_name, varargin{:});
         end
     end
     
