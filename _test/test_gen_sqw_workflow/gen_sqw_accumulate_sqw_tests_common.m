@@ -378,6 +378,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % symmetrise in memory
             w_inm = read_sqw(sqw_file_base);
             v1=[0,1,0]; v2=[0,0,1]; v3=[0,0,0];
+
+            w_inm.pix = PixelDataMemory(w_inm.pix);
+
             w_mem_sym=symmetrise_sqw(w_inm,v1,v2,v3);
             % return the configuration to the state,
             % specified by tests
