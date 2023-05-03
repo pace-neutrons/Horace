@@ -98,6 +98,7 @@ end
 if wout.pix.is_filebacked
 
     wout = wout.get_new_handle();
+
     for i = 1:win.pix.num_pages
         [wout.pix, curr_page] = wout.pix.load_page(i);
         for i = 1:fold
@@ -106,7 +107,7 @@ if wout.pix.is_filebacked
         end
         wout.pix.format_dump_data(curr_page);
     end
-    wout = wout.finalise();
+    wout.pix = wout.pix.finalise();
 
 else
 
