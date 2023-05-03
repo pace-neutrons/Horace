@@ -130,14 +130,14 @@ classdef ortho_proj<aProjectionBase
         % as real ub matrix is multiplied by alignment matrix there and
         % there are no way of indetifying if this happened or not.
         ub_inv_legacy_ = [];
+
+        u_to_img_cache_ = [];
+        u_offset_cache_ = [];
     end
 
     methods
         %------------------------------------------------------------------
         % Interfaces:
-        %------------------------------------------------------------------
-        % set u,v & w simultaneously
-        obj = set_axes (obj, u, v, w)
         %------------------------------------------------------------------
         function obj=ortho_proj(varargin)
             obj = obj@aProjectionBase();
@@ -189,7 +189,7 @@ classdef ortho_proj<aProjectionBase
         function obj = set.u(obj,val)
             obj.u_ = obj.check_and_brush3vector(val);
             if obj.do_check_combo_arg_
-                obj = check_combo_arg_(obj);
+                obj = check_combo_arg(obj);
             end
         end
         %
@@ -199,7 +199,7 @@ classdef ortho_proj<aProjectionBase
         function obj = set.v(obj,val)
             obj.v_ = obj.check_and_brush3vector(val);
             if obj.do_check_combo_arg_
-                obj = check_combo_arg_(obj);
+                obj = check_combo_arg(obj);
             end
 
         end
@@ -214,7 +214,7 @@ classdef ortho_proj<aProjectionBase
             end
             obj.w_ = obj.check_and_brush3vector(val);
             if obj.do_check_combo_arg_
-                obj = check_combo_arg_(obj);
+                obj = check_combo_arg(obj);
             end
         end
         function cell = get.unit_cell(obj)
@@ -226,6 +226,9 @@ classdef ortho_proj<aProjectionBase
         end
         function obj=set.nonorthogonal(obj,val)
             obj = check_and_set_nonorthogonal_(obj,val);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         %
         function typ=get.type(obj)
@@ -234,9 +237,20 @@ classdef ortho_proj<aProjectionBase
         function obj=set.type(obj,type)
             obj = check_and_set_type_(obj,type);
             if obj.do_check_combo_arg_
-                obj = check_combo_arg_(obj);
+                obj = check_combo_arg(obj);
             end
-
+        end
+        %
+        function obj = set_unary_cache(obj)
+            % set transformation cache to unity, to make source_to_target
+            % and target_to_source transformation unary.
+            %
+            % Used in gen_sqw to set up initial pixel_image projection, as
+            % generated sqw object conains image in Crystal Cartesian
+            % coordinate system regardless of state of lattice
+            %
+            obj.u_to_img_cache_ = eye(4);
+            obj.u_offset_cache_ = zeros(4,1);
         end
         % -----------------------------------------------------------------
         % OLD sqw object interface compatibility functions
@@ -385,6 +399,11 @@ classdef ortho_proj<aProjectionBase
             %         matrix, used for aligning the pixels data into
             %         Crystal Cartesian coordinate system
             %
+            if ~isempty(obj.u_to_img_cache_)
+                u_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
+                shift    = obj.u_offset_cache_(1:ndim);
+                return;
+            end
             if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
                 pix = varargin{1};
                 if pix.is_misaligned
@@ -397,25 +416,24 @@ classdef ortho_proj<aProjectionBase
                 alignment_needed = false;
             end
             %
-            [rlu_to_u,u_to_img,ulen] = projaxes_to_rlu_(obj, [1,1,1]);            
+
             if isempty(obj.ub_inv_legacy)
+                [img_to_u,u_to_img] = projaxes_to_rlu_(obj);                
                 % Modern alignment with rotation matrix attached to pixel
-                % coordinate system               
+                % coordinate system
                 if alignment_needed
-                    u_to_img  = rlu_to_u\alignment_mat;
+                    u_to_img  = img_to_u\alignment_mat;
                 else
                 end
-                u_to_img = u_to_img./ulen;
-                rlu_to_u  = bmatrix(obj.alatt, obj.angdeg);
+                rlu_to_u  = bmatrix(obj.alatt, obj.angdeg);                
+                %u_to_img = u_to_img./repmat(ulen(:)',3,1);
+                %u_to_img = u_to_img%/rlu_to_u;
             else% Legacy alignment, with multiplication of rotation matrix
-                % and u_to_rlu transformation matrix;
-                %u_to_rlu = obj.ub_inv_legacy;
-                %rlu_to_u = inv(u_to_rlu);
-
+                rlu_to_u = projaxes_to_rlu_legacy_(obj, [1,1,1]);
                 u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
                 u_to_img  = rlu_to_u*u_to_rlu_;
                 rlu_to_u = inv(u_to_rlu_);
-                
+
             end
             %
             if ndim==4
@@ -431,7 +449,7 @@ classdef ortho_proj<aProjectionBase
             end
             if nargout == 2
                 % convert shift, expressed in hkl into crystal Cartesian
-                shift = rlu_to_u *shift';
+                shift = rlu_to_u *shift(:);
             else % do not convert anything
             end
         end
@@ -579,11 +597,13 @@ classdef ortho_proj<aProjectionBase
         function wout = check_combo_arg (w)
             % Check validity of interdependent fields
             %
-            %   >> [ok, mess,obj] = check_combo_arg(w)
+            %   >> obj = check_combo_arg(w)
             %
             % Throws HORACE:ortho_proj:invalid_argument with the message
             % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
+            % 
+            % Set's up the transformation caches
             %
             wout = check_combo_arg_(w);
         end

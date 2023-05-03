@@ -50,7 +50,7 @@ classdef aProjectionBase < serializable
         % exposed to users
         %
         targ_proj; % the target projection, used by cut to transform from
-        %            source to target coordinate system. Normally set 
+        %            source to target coordinate system. Normally set
         %            by cut algorithm.
         %
         % Old confusing u_to_rlu matrix value
@@ -243,6 +243,11 @@ classdef aProjectionBase < serializable
         end
         function obj = set.offset(obj,val)
             obj = check_and_set_offset_(obj,val);
+            if obj.do_check_combo_arg_ % does nothing here, but
+                % will recalculate caches in children
+                obj = obj.check_combo_arg();
+            end
+
         end
         %
         function tl = get.title(obj)
@@ -592,6 +597,10 @@ classdef aProjectionBase < serializable
         function obj = check_and_set_alatt(obj,val)
             [obj.alatt_,defined] = check_alatt_return_standard_val_(obj,val);
             obj.lattice_defined_(1) = defined;
+            if obj.do_check_combo_arg_ % it does nothing here, but
+                % will recalculate caches in children
+                obj = obj.check_combo_arg();
+            end
         end
         function   proj = get_target_proj(obj)
             proj = obj.targ_proj_;
@@ -603,6 +612,10 @@ classdef aProjectionBase < serializable
         function obj = check_and_set_andgdeg(obj,val)
             [obj.angdeg_,defined] = check_angdeg_return_standard_val_(obj,val);
             obj.lattice_defined_(2) = defined;
+            if obj.do_check_combo_arg_ % it does nothing here, but
+                % will recalculate caches in children
+                obj = obj.check_combo_arg();
+            end
         end
         %
         function obj = check_and_set_targ_proj(obj,val)

@@ -20,3 +20,9 @@ else
             'Vector w is coplanar (or almost coplanar) with u and v');
     end
 end
+if obj.alatt_defined && obj.angdeg_defined
+    obj.u_to_img_cache_ = [];
+    [obj.u_to_img_cache_,obj.u_offset_cache_] = obj.get_pix_img_transformation(4);
+else
+    obj = obj.set_unary_cache();
+end
