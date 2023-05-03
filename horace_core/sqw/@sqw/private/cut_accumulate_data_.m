@@ -125,7 +125,7 @@ function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_w_pixels(pix, 
 
     if isscalar(targ_proj)
         [npix, s, e, pix_retained, unique_runid] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
-
+        npix_step_retained = pix_retained.num_pixels;
     else
         pix_retained = cell(numel(targ_proj), 1);
         pix_indx = cell(numel(targ_proj), 1);

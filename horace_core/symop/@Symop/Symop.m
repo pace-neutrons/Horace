@@ -235,7 +235,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         % Note this function uses matrix Minv which transforms from rlu to
         % orthonormal components
 
-
             u_new = obj.R * proj.u(:);
             v_new = obj.R * proj.v(:);
             offset_new = proj.offset(:);
