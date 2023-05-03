@@ -59,7 +59,7 @@ else
 end
 
 if isempty(block_starts)
-    report_cut_type(obj,log_level-1,false,keep_pixels,'no_pixels');
+    report_cut_type(obj,log_level-1,false,keep_pixels);
 
     % No pixels in range, we can return early
     pix_out = PixelDataBase.create();
