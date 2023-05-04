@@ -454,7 +454,7 @@ classdef AxesBlockBase < serializable
                 source_axes,source_proj, data,proj);
         end
         %
-        function [npix,s,e,pix_ok,unique_runid,pix_indx,ok] = bin_pixels(obj,coord_transf,varargin)
+        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
             %
@@ -464,6 +464,7 @@ classdef AxesBlockBase < serializable
             % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
             % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
             % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
+            % >>[npix,s,e,pix_ok,unque_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
             % Where
             % Inputs:
             % coord_transf
@@ -499,8 +500,9 @@ classdef AxesBlockBase < serializable
             %              -- if provided, the routine changes type of pixels
             %                 it gets on input, into double. if not, output
             %                 pixels will keep their initial type
-            % -nomex and -force_mex options can not be used together.
-            % '-return_ok' -- For DnD only cuts returns `ok` in `pix_ok`
+            %   N.B. -nomex and -force_mex options can not be used together.
+            % '-return_selected' -- Returns `selected` in `pix_ok`
+            %                       for use with DnD cuts where fewer args are requested
             %
             % Returns:
             % npix    -- the array, containing the numbers of pixels
@@ -524,7 +526,7 @@ classdef AxesBlockBase < serializable
             %            is requested, pixels_ok are not sorted according
             %            to bins, but every element of pix_ok array
             %            corresponds to the appropriate pix_indx.
-            % ok     -- numerical array of indices of selected pixels after
+            % selected -- numerical array of indices of selected pixels after
             %            binning
             %
             % Note:
@@ -542,7 +544,7 @@ classdef AxesBlockBase < serializable
                 obj.normalize_bin_input(coord_transf,mode,varargin{:});
             %
             % bin pixels
-            [npix,s,e,pix_ok,unique_runid,pix_indx,ok] = bin_pixels_(obj,coord_transf,mode,...
+            [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_(obj,coord_transf,mode,...
                 npix,s,e,pix_cand,unique_runid,argi{:});
         end
         %

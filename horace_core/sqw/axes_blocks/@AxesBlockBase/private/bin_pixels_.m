@@ -39,7 +39,7 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 %              -- if provided, the routine changes type of pixels
 %                 it gets on input, into double. if not, output
 %                 pixels will keep their initial type.
-% '-return_ok'
+% '-return_selected'
 %              -- sets pix_ok to return the indices of selected pixels
 %                 for use with DnD cuts where fewer args are requested
 %--------------------------------------------------------------------------
@@ -55,8 +55,7 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 %      -- if num_outputs >=4, returns input pix_cand contributed to
 %         the the cut and sorted by grid cell or left unsorted,
 %         depending on requested pix_indx output.
-%         IF '-return_ok' passed, contains indices of kept pixels
-%         akin to `selected`
+%         IF '-return_selected' passed, contains indices of kept pixels
 % unique_runid
 %      -- if num_outputs >=5, array, containing the unique runids from the
 %         pixels, contributed to the cut. If input unique_runid was not
@@ -77,18 +76,18 @@ pix_indx = [];
 selected = [];
 
 force_double = false;
-return_ok = false;
+return_selected = false;
 
-options = {'-force_double', '-return_ok'};
+options = {'-force_double', '-return_selected'};
 % keep unused argi parameter to tell parse_char_options to ignore
 % unknown options
-[ok,mess,force_double,return_ok,argi]=parse_char_options(varargin,options);
+[ok,mess,force_double,return_selected,argi]=parse_char_options(varargin,options);
 if ~ok
     error('HORACE:AxesBlockBase:invalid_argument',mess)
 end
-if return_ok && nout ~= 4
+if return_selected && nout ~= 4
     error('HORACE:AxesBlockBase:invalid_argument', ...
-          'return_ok requested for non pixel cut')
+          'return_selected requested for non pixel cut')
 end
 
 bin_array_size  = obj.nbins_all_dims; % arrays of this size will be allocated too
@@ -121,7 +120,7 @@ if ~any(ok)
         if iscell(pix_cand)
             pix_ok = zeros(size(s));
             selected = [];
-        elseif return_ok
+        elseif return_selected
             pix_ok = [];
         else
             pix_ok = PixelDataBase.create();
@@ -217,7 +216,7 @@ end
 
 if nout > 6
     selected = find(ok);
-elseif return_ok
+elseif return_selected
     pix_ok = find(ok);
     return
 end

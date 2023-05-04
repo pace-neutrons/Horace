@@ -100,16 +100,19 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_object_mb_fb(obj)
-            %sqw_obj = read_sqw(obj.sqw_file);
+            clObj = set_temporary_config_options(hor_config, 'mem_chunk_size', 10000);
+
             sqw_obj = obj.sqw_4d;
             ref_par = obj.ref_params;
+
+            sqw_obj.pix = PixelDataFilebacked(sqw_obj.pix);
             sqw_cut_fb = cut(sqw_obj,ref_par{:});
 
             sqw_obj.pix = PixelDataMemory(sqw_obj.pix);
             sqw_cut_mb = cut(sqw_obj,ref_par{:});
 
-            % Can only test data here
-            % Could forcibly sort pix
+            % Pix are in different order due to paged application in FileBacked
+            % Can only compare binned data here
             assertEqualToTol(sqw_cut_mb.data, sqw_cut_fb.data, ...
                              obj.FLOAT_TOL, 'ignore_str', true);
 
@@ -543,6 +546,88 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(cut1,indata{1});
             assertEqual(cut2,indata{2});
         end
+
+        %------------------------------------------------------------------
+
+        function test_multicut_1(obj)
+        % Test multicut capability for cuts that are adjacent
+        % Note that the last cut has no pixels retained - a good test too!
+            skipTest("New dnd (d2d) not supported yet #878");
+
+            range = [0,0.2];    % range of cut
+            step = 0.01;        % Q step
+            bin = [range(1)+step/2,step,range(2)-step/2];
+            width = [-0.15,0.15];  % Width in Ang^-1 of cuts
+            args = {obj.ref_params{1}, bin, width, width};
+
+            % Must use '-pix' to properly handle pixel double counting in general
+            w1 = cut(obj.sqw_4d, args{:}, [106,4,114,4], '-pix');
+            w2 = repmat(sqw,[3,1]);
+
+
+            for i=1:3
+                tmp = cut(obj.sqw_4d, args{:}, 102+4*i+[-2,2], '-pix');
+                w2(i) = tmp;
+            end
+            assertEqualToTol(w1, w2, obj.tol_sp,'ignore_str',1)
+
+            % Save dnd only to save disk space
+            d1=dnd(w1);
+            obj.assertEqualToTolWithSave(d1, obj.tol_sp,'ignore_str',1);
+            d2=dnd(w2);
+            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
+        end
+
+        function test_multicut_2(obj)
+        % Test multicut capability for cuts that are adjacent
+        % Last couple of cuts have no pixels read or are even outside the range
+        % of the input data
+
+            range = [0,0.2];    % range of cut
+            step = 0.01;        % Q step
+            bin = [range(1)+step/2,step,range(2)-step/2];
+            width = [-0.15,0.15];  % Width in Ang^-1 of cuts
+            args = {obj.ref_params{1}, bin, width, width};
+
+        % Must use '-pix' to properly handle pixel double counting in general
+            w1 = cut(obj.sqw_4d, args{:}, [110,2,118,2], '-pix');
+            w2 = repmat(sqw,[5,1]);
+            for i=1:5
+                w2(i) = cut(obj.sqw_4d, args{:}, 108+2*i+[-1,1], '-pix');
+            end
+            assertEqualToTol(w1, w2, obj.tol_sp,'ignore_str',1)
+
+            % Save dnd only to save disk space
+            d1=dnd(w1);
+            obj.assertEqualToTolWithSave(d1, obj.tol_sp,'ignore_str',1);
+            d2=dnd(w2);
+            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
+        end
+
+        function test_multicut_3(obj)
+        % Test multicut capability for cuts that overlap adjacent cuts
+
+            range = [0,0.2];    % range of cut
+            step = 0.01;        % Q step
+            bin = [range(1)+step/2,step,range(2)-step/2];
+            width = [-0.15,0.15];  % Width in Ang^-1 of cuts
+            args = {obj.ref_params{1}, bin, width, width};
+
+        % Must use '-pix' to properly handle pixel double counting in general
+            w1 = cut(obj.sqw_4d, args{:}, [106,4,114,8], '-pix');
+            w2 = repmat(sqw,[3,1]);
+            for i=1:3
+                w2(i) = cut(obj.sqw_4d, args{:}, 102+4*i+[-4,4], '-pix');
+            end
+            assertEqualToTol(w1, w2, obj.tol_sp,'ignore_str',1)
+
+            % Save dnd only to save disk space
+            d1=dnd(w1);
+            obj.assertEqualToTolWithSave(d1, obj.tol_sp,'ignore_str',1);
+            d2=dnd(w2);
+            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
+        end
+
         %------------------------------------------------------------------
 
         function test_cut_multiple_sqw_files(obj)

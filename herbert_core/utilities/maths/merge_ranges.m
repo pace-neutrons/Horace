@@ -1,6 +1,7 @@
 function [starts, lengths] = merge_ranges(starts, lengths)
 % Merges cell arrays of intervals (defined as starts and lengths to read) into
-% single block of starts, lengths eliminating overlap.
+% single block of starts, lengths eliminating any overlap between adjacent
+% intervals to create a single compound interval from any set of overlapping integrals.
 
     if numel(starts) ~= numel(lengths) || ...
             ~isequal(cellfun(@numel, starts), cellfun(@numel, lengths))
