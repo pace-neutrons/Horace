@@ -54,8 +54,6 @@ if numel(obj.data.npix) == 1 % single bin original grid
     block_starts = 1;
     block_sizes = obj.data.npix;
 else
-    block_starts = cell(numel(targ_proj), 1);
-    block_sizes = cell(numel(targ_proj), 1);
     [block_starts, block_sizes] = arrayfun(@(proj, ax) sproj.get_nrange(obj.data.npix, saxes, ax, proj), ...
                                            targ_proj, targ_axes, 'UniformOutput', false);
     [block_starts, block_sizes] = merge_ranges(block_starts, block_sizes);
@@ -166,7 +164,7 @@ function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_no_pixels(pix,
         [npix, s, e] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
     else
         for i = 1:numel(targ_proj)
-            [npix, s, e, selected] = targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e, '-return_ok');
+            [npix, s, e, selected] = targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e, '-return_selected');
             candidate_pix = candidate_pix.tag(selected);
         end
     end
@@ -272,7 +270,7 @@ function [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(pix, blo
             [npix, s, e] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
         else
             for i = 1:numel(targ_proj)
-                [npix, s, e, selected] = targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e, '-return_ok');
+                [npix, s, e, selected] = targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e, '-return_selected');
                 candidate_pix = candidate_pix.tag(selected);
             end
         end

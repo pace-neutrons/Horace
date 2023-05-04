@@ -95,6 +95,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             w2sym = cut(obj.data, obj.proj, obj.bin,...
                         obj.width, obj.width, obj.ebins, obj.sym);
 
+            %% TODO Regenerate test data with new axes
             w2symref = obj.getReferenceDataset('test_cut_sym_with_pix', 'w2sym');
 
             [ok, mess] = equal_to_tol(w2sym.data.s, w2symref.data.s, 'ignore_str', 1);
@@ -119,7 +120,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             obj.assertEqualToTolWithSave(d2sym, obj.tol_sp,'ignore_str',1);
         end
 
-        function test_cut_sqw_sym_ptgr(obj)
+        function test_cut_sqw_sym_P2__1_3(obj)
         % Test multiple overlapping symmetry related cuts, some of
         % which contribute zero pixels to the result.
 
@@ -128,6 +129,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                     obj.ubin2, obj.vbin2, obj.wbin2, obj.ebin2, ...
                     obj.sym2);
 
+            %% TODO Regenerate test data with new axes && New Fn name
             cref = obj.getReferenceDataset('test_cut_sqw_sym_ptgr', 'c');
 
             c.data.s
@@ -146,87 +148,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             end
 
 %             obj.assertEqualToTolWithSave(c, obj.tol_sp,'ignore_str',1);
-        end
-
-        function test_multicut_1(obj)
-        % Test multicut capability for cuts that are adjacent
-        % Note that the last cut has no pixels retained - a good test too!
-            skipTest("New dnd (d2d) not supported yet #878");
-
-            % Must use '-pix' to properly handle pixel double counting in general
-            w1 = cut(obj.data, obj.proj, obj.bin,...
-                     obj.width, obj.width, [106,4,114,4], '-pix');
-            w2 = repmat(sqw,[3,1]);
-            for i=1:3
-                tmp = cut(obj.data, obj.proj, obj.bin,...
-                          obj.width, obj.width, 102+4*i+[-2,2], '-pix');
-                w2(i) = tmp;
-            end
-            assertEqualToTol(w1, w2, obj.tol_sp,'ignore_str',1)
-
-            % Save dnd only to save disk space
-            d1=dnd(w1);
-            obj.assertEqualToTolWithSave(d1, obj.tol_sp,'ignore_str',1);
-            d2=dnd(w2);
-            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
-        end
-
-        function test_multicut_2(obj)
-        % Test multicut capability for cuts that are adjacent
-        % Last couple of cuts have no pixels read or are even outside the range
-        % of the input data
-
-        % Must use '-pix' to properly handle pixel double counting in general
-            w1 = cut(obj.data, obj.proj, obj.bin,...
-                     obj.width, obj.width, [110,2,118,2], '-pix');
-            w2 = repmat(sqw,[5,1]);
-            for i=1:5
-                w2(i) = cut(obj.data, obj.proj, obj.bin,...
-                            obj.width, obj.width, 108+2*i+[-1,1], '-pix');
-            end
-            assertEqualToTol(w1, w2, obj.tol_sp,'ignore_str',1)
-
-            % Save dnd only to save disk space
-            d1=dnd(w1);
-            obj.assertEqualToTolWithSave(d1, obj.tol_sp,'ignore_str',1);
-            d2=dnd(w2);
-            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
-        end
-
-        function test_multicut_3(obj)
-        % Test multicut capability for cuts that overlap adjacent cuts
-
-        % Must use '-pix' to properly handle pixel double counting in general
-            w1 = cut(obj.data, obj.proj, obj.bin,...
-                          obj.width, obj.width, [106,4,114,8], '-pix');
-            w2 = repmat(sqw,[3,1]);
-            for i=1:3
-                w2(i) = cut(obj.data, obj.proj, obj.bin,...
-                                 obj.width, obj.width, 102+4*i+[-4,4], '-pix');
-            end
-            assertEqualToTol(w1, w2, obj.tol_sp,'ignore_str',1)
-
-            % Save dnd only to save disk space
-            d1=dnd(w1);
-            obj.assertEqualToTolWithSave(d1, obj.tol_sp,'ignore_str',1);
-            d2=dnd(w2);
-            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
-        end
-
-        function test_cut_with_pix(obj)
-        % Test a simple cut keeping pixels
-
-            w2 = cut(obj.data, obj.proj, obj.bin,...
-                     obj.width, obj.width, obj.ebins, '-pix');
-            obj.assertEqualToTolWithSave(w2, obj.tol_sp,'ignore_str',1);
-        end
-
-        function test_cut_with_nopix(obj)
-        % Test a simple cut without keeping pixels
-
-            d2 = cut(obj.data, obj.proj, obj.bin,...
-                     obj.width, obj.width, obj.ebins, '-nopix');
-            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
         end
 
         %------------------------------------------------------------------------

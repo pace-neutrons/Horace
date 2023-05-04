@@ -69,6 +69,11 @@ function [proj, pbin, sym, opt] = ...
 %                   s2 = symop ([1,0,0],[0,0,1],[1,1,1]);
 %                   % For all four symmetry related cuts:
 %                   sym = {s1,s2,[s1,s2]};
+%                    The following cuts will be accumulated:
+%                       -- Apply identity (original binning)
+%                       -- Apply s1
+%                       -- Apply s2
+%                       -- Apply s2*s1
 %
 %NOTE:
 % The cut bin ranges are expressed in the coordinate system related to

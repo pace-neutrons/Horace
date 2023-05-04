@@ -475,7 +475,7 @@ classdef aProjectionBase < serializable
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
         %------------------------------------------------------------------
-        function [npix,s,e,pix_ok,unique_runid,pix_indx,ok] = bin_pixels(obj, ...
+        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj, ...
                 axes,pix_cand,npix,s,e,varargin)
             % Convert pixels into the coordinate system defined by the
             % projection and bin them into the coordinate system defined
@@ -515,8 +515,8 @@ classdef aProjectionBase < serializable
             %           PixelData object (as input pix_candidates) containing
             %           pixels contributing to the grid and sorted according
             %           to the axes block grid.
-            %           IF '-return_ok' passed and only npix,s,e requested
-            %            instead contains indices of kept pixels akin to `ok` below
+            %           IF '-return_selected' passed and only npix,s,e requested
+            %            instead contains indices of kept pixels (cf. `selected`)
             %
             % unique_runid -- the run-id (tags) for the runs, which
             %           contributed into the cut
@@ -524,7 +524,7 @@ classdef aProjectionBase < serializable
             %           bin. If this index is requested, the pix_ok object
             %           remains unsorted according to the bins and the
             %           follow up sorting of data by the bins is expected
-            % ok     -- numerical array of indices of selected pixels after
+            % selected  -- numerical array of indices of selected pixels after
             %            binning
             %
             % Optional arguments transferred without any change to
@@ -540,7 +540,9 @@ classdef aProjectionBase < serializable
             %                 it gets on input, into double. if not, output
             %                 pixels will keep their initial type
             % -nomex and -force_mex options can not be used together.
-            % '-return_ok' -- For DnD only cuts returns `ok` in `pix_ok`
+            % '-return_selected' -- returns `selected` in `pix_ok`
+            %             (For DnD only cuts fewer arguments are returned this uses
+            %              the pix_ok slot)
 
             pix_transformed = obj.transform_pix_to_img(pix_cand);
             switch(nargout)
@@ -562,7 +564,7 @@ classdef aProjectionBase < serializable
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
                 case(7)
-                    [npix,s,e,pix_ok,unique_runid,pix_indx,ok]=...
+                    [npix,s,e,pix_ok,unique_runid,pix_indx,selected]=...
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
                 otherwise

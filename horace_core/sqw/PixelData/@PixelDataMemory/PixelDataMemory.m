@@ -160,9 +160,13 @@ classdef PixelDataMemory < PixelDataBase
     methods
         function obj = tag(obj, selected)
         % Function to tag pixels to avoid e.g. duplicating pixels on
-        % cut Returned pixels has negative sign on detector index When
-        % operation is complete should discard pixels or use `untag`
-        % function
+        % cut. Returned pixels have negative sign on detector index. When
+        % operation is complete caller should discard pixels or use `untag`
+        % function (below).
+        %
+        % Input
+        % ------
+        %   selected     indices of pixels to be tagged
             if ~exist('selected', 'var')
                 selected = [1:obj.num_pixels];
             end
@@ -173,9 +177,14 @@ classdef PixelDataMemory < PixelDataBase
         end
 
         function obj = untag(obj, selected)
-        % Function to untag pixels when operation finished. Should
-        % generally be called without `selected` specified to untag
-        % all pixels
+        % Function to untag pixels when operation finished.
+        %
+        % Should generally be called without `selected` specified to
+        % untag all pixels.
+        %
+        % Input
+        % ------
+        %   selected     indices of pixels to be untagged
             if ~exist('selected', 'var')
                 selected = [1:obj.num_pixels];
             end
@@ -202,20 +211,10 @@ classdef PixelDataMemory < PixelDataBase
         % -------
         %   obj         A PixelData object containing all the pixels in the inputted
         %               PixelData objects
-            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
-                obj = PixelDataMemory(varargin{1});
-                return;
-            end
 
-            if isempty(varargin)
-                obj = PixelDataMemory();
-                return;
-            elseif numel(varargin) == 1
-                if isa(varargin{1}, 'PixelDataFileBacked')
-                    obj = PixelDataMemory(varargin{1});
-                elseif isa(varargin{1}, 'PixelDataMemory')
-                    obj = varargin{1};
-                end
+            if isempty(varargin) || ...
+                    (isscalar(varargin) && isa(varargin{1}, 'PixelDataBase'))
+                obj = PixelDataMemory(varargin{:});
                 return;
             end
 
