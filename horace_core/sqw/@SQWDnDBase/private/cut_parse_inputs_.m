@@ -62,11 +62,11 @@ function [proj, pbin, sym, opt] = ...
 %                  by which a symmetry related cut is to be accumulated.
 %                   Must have class symop.
 %
-%                   For several symmetry related cuts, provide a cell array
+%                For several symmetry related cuts, provide a cell array
 %                  of symmetry operators and/or arrays of symmetry operators
 %           EXAMPLES
-%                   s1 = symop ([1,0,0],[0,1,0],[1,1,1]);
-%                   s2 = symop ([1,0,0],[0,0,1],[1,1,1]);
+%                   s1 = SymopReflection([1,0,0],[0,1,0],[1,1,1]);
+%                   s2 = SymopReflection([1,0,0],[0,0,1],[1,1,1]);
 %                   % For all four symmetry related cuts:
 %                   sym = {s1,s2,[s1,s2]};
 %                    The following cuts will be accumulated:
