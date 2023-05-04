@@ -1,4 +1,4 @@
-function [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu_(proj,ustep)
+function [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu_legacy_(proj,ustep)
 % Determine matrices to convert rlu <=> projection axes, and the scaler
 %
 %

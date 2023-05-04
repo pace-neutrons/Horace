@@ -36,8 +36,8 @@ classdef ortho_proj<aProjectionBase
     % the arguments below, or alternatively the arguments
     %
     % Required arguments:
-    %   u      [1x3] Vector of first axis (r.l.u.) defining cut plain and projection axes
-    %   v      [1x3] Vector of second axis (r.l.u.) defining cut plain and projection axes
+    %   u    [1x3] Vector of first axis  (r.l.u.) defining cut plane and projection axes
+    %   v    [1x3] Vector of second axis (r.l.u.) defining cut plane and projection axes
     %
     % Optional arguments:
     %   w           [1x3] Vector of third axis (r.l.u.) - only needed if the third
@@ -66,6 +66,9 @@ classdef ortho_proj<aProjectionBase
     %               Default:
     %                   'ppr'  if w not given
     %                   'ppp'  if w is given
+    %
+    % Also accepts these and aProjectionBase properties as set of key-values 
+    % pairs following standard serializable class constructor agreements.
     %
 
     % Original author: T.G.Perring
@@ -399,11 +402,6 @@ classdef ortho_proj<aProjectionBase
             %         matrix, used for aligning the pixels data into
             %         Crystal Cartesian coordinate system
             %
-            if ~isempty(obj.u_to_img_cache_)
-                u_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
-                shift    = obj.u_offset_cache_(1:ndim);
-                return;
-            end
             if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
                 pix = varargin{1};
                 if pix.is_misaligned
@@ -415,6 +413,15 @@ classdef ortho_proj<aProjectionBase
             else
                 alignment_needed = false;
             end
+            if ~isempty(obj.u_to_img_cache_)
+                u_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
+                shift    = obj.u_offset_cache_(1:ndim);
+                if alignment_needed
+                    u_to_img  = u_to_img*alignment_mat;                    
+                end
+                return;
+            end
+            
             %
 
             if isempty(obj.ub_inv_legacy)

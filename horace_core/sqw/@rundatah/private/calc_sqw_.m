@@ -82,18 +82,13 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
 lat = obj.lattice.set_rad();
 [~, u_to_rlu] = obj.lattice.calc_proj_matrix();
 offset = [0;0;0;0];
-b_m = lat.bmatrix();
-ulen = diag(b_m);
-% set projection lattice
-proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg, ...
-    'type','aaa','u',[ulen(1),0,0],'v',[0,ulen(2),0],'w',[0,0,ulen(3)]);
-% the projection should define unit transformation from pix to image as pix
-% frame and image frame coincide during generation
 
-
-%proj = proj.set_from_data_mat(eye(3) ,ulen);
-%TODO: need checks
-axes_bl.ulen =ulen;
+% set projection lattice, which transforms initial pixel coordinates to
+% initial image coordinates. As initial image coordinates are Crystal
+% Cartesian, the initial projection does unary transformation regardless of
+% from crystal Cartesian pixels to crystal Cartesian image 
+proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg, 'type','aaa');
+%proj = proj.set_unary_cache();
 
 
 sqw_data = DnDBase.dnd(axes_bl,proj);

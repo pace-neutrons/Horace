@@ -33,7 +33,7 @@ end
 
 [rot_to_img,shift]=obj.get_pix_img_transformation(ndim,pix_input);
 %
-pix_transf= ((bsxfun(@minus,pix_cc,shift))'*rot_to_img')';
+pix_transf= ((bsxfun(@minus,pix_cc,shift))'*rot_to_img)';
 if input_is_obj
     if shift_ei
         ei = pix_input.dE -obj.offset(4);

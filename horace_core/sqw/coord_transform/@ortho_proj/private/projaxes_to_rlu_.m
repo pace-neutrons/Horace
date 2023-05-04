@@ -71,7 +71,7 @@ if proj.nonorthogonal
             u_to_img(:,i) = uvw(:,i)/max(abs(uvw(:,i)));
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
             ulen(i) = 1;
-            u_to_img(:,i) = ubinv(:,i)*((2*pi)/alatt(i));
+            u_to_img(:,i) = ubinv(:,i)/bvec(i);
         elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
             ulen(i) = veclen;
             u_to_img(:,i) = uvw(:,i);

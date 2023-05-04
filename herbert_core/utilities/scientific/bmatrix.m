@@ -15,9 +15,9 @@ function [b, arlu, angrlu] = bmatrix(alatt, angdeg)
 %   b       B matrix of Busing & Levy [3x3 matrix]
 %   arlu    Reciprocal lattice vectors (Ang^-1) [row vector]
 %   angrlu  Reciprocal lattice angles (deg) [row vector]
-%   mess    Error message
-%               - all OK:   empty
-%               - if error: message, and b, arlu, angrlu are empty
+%
+%   Throws HORACE:bmatrix:invalid_argument if latice angles are negative,
+%   or large then 180 deg or lattice parameters are less or equal to zero
 %
 %
 % Matrix B is used to tranform components of a vector in r.l.u. to those
