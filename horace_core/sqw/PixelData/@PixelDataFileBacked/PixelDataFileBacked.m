@@ -473,8 +473,10 @@ classdef PixelDataFileBacked < PixelDataBase
 
             if isempty(varargin)
                 obj = PixelDataFileBacked();
+                return
             elseif numel(varargin) == 1
                 obj = PixelDataFileBacked(varargin{1});
+                return
             end
 
             if isempty(varargin)
