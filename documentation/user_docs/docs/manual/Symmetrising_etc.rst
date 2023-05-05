@@ -31,7 +31,7 @@ a ``SymopReflection`` is as follows:
    SymopReflection(v1, v2, offset)
    >> sym = SymopReflection([1 0 0], [0 1 0], [0 0 0]); % Reflection across the Z axis
 
-**N.B.** For any ``Symop`` constructor the offset can be omitted and it will default to [0 0 0].
+**N.B.** For any ``Symop`` constructor the offset can be omitted and it will default to ``[0 0 0]``.
 
 Rotations
 ---------
@@ -44,6 +44,17 @@ axis of rotation, the angle (in degrees) of rotation and a point on the axis (th
 
    SymopRotation(axis, angle, offset)
    >> sym = SymopRotation([0 0 1], 60, [0 0 0]); % Rotation of 60 degrees about th Z axis
+
+``SymopRotation`` also provides a convenience method for generating the appropriate set of symmetry operations for
+cutting/reducing an n-Fold rotationally symmetric dataset about an axis. This takes a scalar integer and two
+3-vectors. The number of reductions (for an angle of ``360/nFold`` each time) and the axis and offset of the rotation as
+above.
+
+::
+
+   SymopRotation.fold(nFold, axis, offset)
+   >> sym = SymopRotation.fold(4, [0 0 1], [0 0 0]);   % Ready to cut from a 4-fold rotationally symmetric dataset about Z
+
 
 General Transformations
 -----------------------
@@ -72,6 +83,25 @@ applying the transform to the identity (for which ``R`` is a convenience propert
              0    1.0000         0
        -1.0000         0    0.0000
 
+   >> sym.transform_vec(eye(3))
+
+    ans =
+
+        0.0000         0    1.0000
+             0    1.0000         0
+       -1.0000         0    0.0000
+
+Groups of symmetry operators
+----------------------------
+
+For a more complex transformation involving a series of rotations and reflections it is possible to construct an array
+of transformations to be applied in sequence (as a series of pre-multiplications, i.e. applied in the reverse order of
+the list).
+
+::
+
+   % Rotate 90 deg about X, Reflect across X, Rotate back 90 deg about X
+   >> big_sym = [SymopRotation([1 0 0], 90), SymopReflection([0 1 0], [0 0 1]), SymopRotation([1 0 0], -90)];
 
 
 Commands for cuts and slices
@@ -91,48 +121,64 @@ projection, accumulate the symmetrically-related pixels into the primary binning
 coordinates according to the symmetry operations as though the S(**Q**, w) had been wholly symmetrised.
 
 ::
-   w1 = sqw(data);
-   sym = SymopReflection([1 0 0], [0 0 1]);
-   w2 = cut(
 
-Symmetrise SQW
---------------
+   >> w1 = sqw(data);
+   >> sym = SymopReflection([0 1 0], [0 0 1]);
 
-It is possible to do symmetric reduction operations on sqw objects, e.g. to combine specified symmetrically equivalent
-wavevectors such as (-1,0,0) and (1,0,0), for example. The advantage of doing this is that for a given cut or slice you
-are able to include data from many more detector pixels, thus improving the statistical quality of your data.
+   % Cut from 1 to 3 in X, accumulated with -1 to -3 reflected across the X-axis
+   >> w2 = cut(w1, ortho_proj([1 0 0], [0 1 0]), [1 0.1 3], [-inf inf], [-inf inf], [-inf inf], sym);
+   >> w3 = cut(w1, ortho_proj([1 0 0], [0 1 0]), [1 0.1 3], [1 0.1 3], [-inf inf], [-inf inf], sym)
 
+Symmetrise entire SQW
+=====================
 
-Symmetrising data in memory
----------------------------
+``symmetrise_sqw``
+------------------
+
+It is possible to reduce an entire dataset at once by symmetry, transforming all pixels according to the symmetry
+operations and accumulating the transformed pixels into the bins appropriately. This is done through the
+``symmetrise_sqw`` function, the signature for which is below:
 
 ::
 
-   v1=[0,1,0]; v2=[0,0,1]; v3=[0,0,0]; wout=symmetrise_sqw(win,v1,v2,v3);
+   >> w1 = sqw(data);
+   >> sym = SymopReflection([0 1 0], [0 0 1]); % Reflect about X-axis
+   >> w2 = symmetrise_sqw(w1, sym);
 
+It is also possible to reduce data through a rotationally symmetric operation, this can be done in one of 2 ways:
 
-The object ``wout`` is reflected in the plane specified by the vectors ``v1``, ``v2``, and ``v3``. ``v1`` and ``v2`` are
-vectors which lie parallel to the plane but are not parallel to one another. ``v3`` specifies the offset from Q=(0,0,0)
-of the reflection plane. In the above example the plane reflects (-1,0,0) to (1,0,0).
+::
 
-As you can notice, ``symmetrise_sqw`` works on *sqw* objects, stored in memory (the Matlab workspace). Therefore the
-size in memory of a given object can often act as a limitation on what data can be symmetrised. e.g. a large 3d volume
-may contain information from so many detector pixels that symmetrising it requires more memory than is available on your
-computer.
+   >> w1 = sqw(data);
+   >> sym = SymopRotation([0 0 1], 60);  % Perform a 6-fold symmetric roation about Z
+   >> w2 = symmetrise(w1, sym);
+   >> sym = SymopRotation.fold(6, [0 0 1]); % Same as above
+   >> w3 = symmetrise(w1, sym);
+   >> equal_to_tol(w2, w3);
 
-Symmetrising whole data files
------------------------------
+     ans =
 
-If you need to symmetrise a large *sqw* object, it can be done during *sqw* object generation, i.e. during generation of
-the *sqw* file. ``gen_sqw`` function has a special option **transform_sqw** which can be used with any method,
-transforming an existing *sqw* object into another *sqw* object in memory.
+       logical
+
+        1
+
+A ``SymopRotation`` attempts to map the data into the positive quadrant (though for angle > 90 degrees | folds < 4, this
+will fill the positive quadrant and spill into a negative domain).
+
+``gen_sqw``
+-----------
+
+If you need to symmetrise a large ``sqw`` object, it can be done during ``sqw`` generation, i.e. during generation of
+the ``sqw`` file. The ``gen_sqw`` function has a special option ``transform_sqw`` which can be used with any method,
+transforming an S(**q**, w) at generation time.
 
 For example:
 
 ::
 
+   sym = SymopReflection(v1, v2, offset);
    gen_sqw (spefile, par_file, sym_sqw_file, efix, emode, alatt, angdeg,...  u, v, psi, omega, dpsi, gl,
-            gs,'transform_sqw',@(x)(symmetrise_sqw(x,v1,v2,v3)))
+            gs, 'transform_sqw', @(x)(symmetrise_sqw(x,sym)))
 
 
 or, more generally:
@@ -140,58 +186,57 @@ or, more generally:
 ::
 
    gen_sqw (spefile, par_file, sym_sqw_file, efix, emode, alatt, angdeg,...  u, v, psi, omega, dpsi, gl,
-            gs,'transform_sqw',@(x)(user_symmetrisation_routine(x))
+            gs, 'transform_sqw', @user_symmetrisation_routine)
 
 
-where *spefile, par_file, etc...* are the options used during initial *sqw* file generation (see :ref:`Generating SQW
-files <manual/Generating_SQW_files:Generating SQW files>`). The first ``gen_sqw`` would build a *sqw* file reflected as
-in the example for the reflection in memory, but with the transformation applied to the entire dataset. In the second,
-more general, case the user defined function (in a m-file on the Matlab path) can define multiple symmetrisation
-operations that are applied sequentially to the entire data. An example is as follows, which folds a cubic system so
-that all eight of the symmetrically equivalent (1,0,0) type positions are folded on to each other:
+where ``spefile``, ``par_file``, etc... are the options used during initial *sqw* file generation (see :ref:`Generating
+SQW files <manual/Generating_SQW_files:Generating SQW files>`). The first ``gen_sqw`` would build a ``.sqw`` file
+reflected as in the example for the reflection above. In the second, more general, case the user defined function (in a
+``.m``-file on the Matlab path) can define multiple symmetrisation operations that are applied sequentially to the entire
+data. An example is as follows, which folds a cubic system so that all eight of the symmetrically equivalent (1,0,0)
+type positions are folded on to each other:
 
 ::
 
    function wout = user_symmetrisation_routine(win)
 
-   wout=symmetrise_sqw(win,[1,1,0],[0,0,1],[0,0,0]);%fold about line (1,1,0) in HK plane
-   wout=symmetrise_sqw(wout,[-1,1,0],[0,0,1],[0,0,0]);%fold about line (-1,1,0) in HK plane
-   wout=symmetrise_sqw(wout,[1,0,1],[0,1,0],[0,0,0]);%fold about line (1,0,1) in HL plane
-   wout=symmetrise_sqw(wout,[1,0,-1],[0,1,0],[0,0,0]);%fold about line (1,0,-1) in HL plane
+   wout=symmetrise_sqw(win, SymopReflection([1,1,0], [0,0,1]));%fold about line (1,1,0) in HK plane
+   wout=symmetrise_sqw(wout,SymopReflection([-1,1,0],[0,0,1]));%fold about line (-1,1,0) in HK plane
+   wout=symmetrise_sqw(wout,SymopReflection([1,0,1], [0,1,0]));%fold about line (1,0,1) in HL plane
+   wout=symmetrise_sqw(wout,SymopReflection([1,0,-1],[0,1,0]));%fold about line (1,0,-1) in HL plane
 
 
-**VERY IMPORTANT NOTE 1**: When defining the function to apply the symmetrisation (as above) one can ONLY use
+**Note 1**: When defining the function to apply the symmetrisation (as above) one can ONLY use
  symmetrisation operations, given by ``symmetrise_sqw``. Any other transformations may modify the data ranges in
  unexpected ways, making the resulting transformed *sqw* file into complete nonsense!
 
-
-**Note 2**: when a complex transformation is run on the isiscompute cluster in parallel mode, one may want to increase
- number of MPI workers to increase ``gen_sqw`` speed during symmetrisation (if the cluster load permits that). The
- current default number of workers is optimal for using the maximal bandwidth of parallel file system. If bigger
- computations are performed in memory, it could be beneficial to increase number of workers to use more CPU power. This
- can be done by issuing the following commands:
-
-::
-
-   hpc = hpc_config hpc.parallel_workers_number= 16
-
-
-This instructs Horace to use 16 MPI workers instead of the default of 8, enabled by **hpc on** command.
-
-**Note 3**: MPI workers are normal Matlab sessions which inherit basic Matlab path and initiate Horace themselves if the
- Horace path is not stored by the user (Its not usually recommended and may be impossible for multiusers machines). The
- workers do not process Matlab's *startup.m* file. The user's symmetrisation routine has to be available on the worker's
- Matlab path, so the best way to achieve this is to put the routine into current Matlab working folder -- the folder
- where you run the symmetrisation script itself. If this routine uses some additional users functions, located elsewhere
- on a custom user path, these routines have to be intiated by the user routine. This can be achieved by the following
- piece of code added in the beginning of your custom symmetrization routine:
+**Note 2**: MPI workers are normal Matlab sessions which inherit basic Matlab path and initiate Horace themselves if the
+ Horace path is not stored by the user (It's not usually recommended and may be impossible for multiuser machines). The
+ workers do not process Matlab's ``startup.m`` file. The user's symmetrisation routine has to be available on the worker's
+ Matlab path. The best way to achieve this is to put the routine into current Matlab working folder -- the folder
+ from which you run the symmetrisation. If this routine uses some additional user functions, located elsewhere
+ on a custom user path, these routines have to be intialised by the user routine. This can be achieved by the following
+ piece of code added to the beginning of your custom symmetrisation routine:
 
 ::
 
    if isempty(which('my_additional_user_routine')) addpath('/home/myFedID/path_to_my_additional_user_routine'); end
 
+
+Alternatively with an array of ``Symop``s this could be done in one step as:
+
+::
+
+   sym = [SymopReflection([1,1,0], [0,0,1])
+          SymopReflection([-1,1,0],[0,0,1])
+          SymopReflection([1,0,1], [0,1,0])
+          SymopReflection([1,0,-1],[0,1,0])];
+   gen_sqw (spefile, par_file, sym_sqw_file, efix, emode, alatt, angdeg,...  u, v, psi, omega, dpsi, gl,
+            gs, 'transform_sqw', @(x)(symmetrise_sqw(x,sym)))
+
+
 Combining
-*********
+=========
 
 ::
 
@@ -203,10 +248,8 @@ statistics. The output object will have a combined value for the integration ran
 L=1 and L=2 will result in an output for which the stated value of L is L=1.5. Two objects which use different
 projection axes can be combined. The output object will have the projection axes of w1.
 
-.. _Symmetrising_etc_rebin_sqw:
-
 Rebinning
-*********
+=========
 
 Resize the bin boundaries along one or more axes, and rebin the data accordingly. There are several possibilities for
 the input format:
@@ -235,7 +278,8 @@ As above, but specifying new upper and lower limits along each of the axes to be
 Rebin the sqw object ``win`` with the boundaries (and projection axes) of the template object ``w2``.
 
 
-Symmetrise data, then unfold back to original range ***************************************************
+Symmetrise data, then unfold back to original range
+===================================================
 
 **N.B.** For producing plots only, any analysis on these results will be invalid due to double / treble / etc. counting
  of data.
@@ -248,57 +292,72 @@ quadrants.
 
 ::
 
-   %The original data proj2.u=[1,0,0]; proj2.v=[0,1,0]; proj2.type='rrr'; proj2.uoffset=[0,0,0,0];
-   hkplane=cut_sqw(sqw_file,proj2,[-2,0.05,2],[-2,0.05,2],[-0.05,0.05],[13,16]); plot(smooth(d2d(hkplane)));
+   %The original data
+   proj2 = ortho_proj([1,0,0], [0,1,0]);
+   hkplane = cut_sqw(sqw_file,proj2,[-2,0.05,2],[-2,0.05,2],[-0.05,0.05],[13,16]);
+   plot(smooth(d2d(hkplane)));
 
-   %Fold twice to get into a quadrant. Note order of vectors fold1=symmetrise_sqw(hkplane,[0,0,1],[0,1,0],[0,0,0]);
-   fold2=symmetrise_sqw(fold1,[1,0,0],[0,0,1],[0,0,0]);
+   %Fold twice to get into a quadrant. Note order of vectors
+   sym = [SymopReflection([0,0,1],[0,1,0])
+          SymopReflection([1,0,0],[0,0,1])];
+   fold2 = symmetrise_sqw(hkplane,sym);
 
-   %Check the result plot(smooth(d2d(fold2)));
+   %Check the result
+   plot(smooth(d2d(fold2)));
 
-   %Fold this back again (reverse order of vectors in first fold) fold2a=symmetrise_sqw(fold2,[0,1,0],[0,0,1],[0,0,0]);
+   %Fold this back again (reverse order of vectors in first fold)
+   sym = SymopReflection([0,1,0],[0,0,1]);
+   fold2a = symmetrise_sqw(fold2,sym);
    plot(smooth(d2d(fold2a)))
 
-   %Combine with what you started with combi1=combine_sqw(fold2,fold2a); plot(smooth(d2d(combi1)));
+   %Combine with what you started with
+   combi1 = combine_sqw(fold2,fold2a);
+   plot(smooth(d2d(combi1)));
 
-   %Fold back again (reverse order of vectors in second fold) fold3a=symmetrise_sqw(combi1,[0,0,1],[1,0,0],[0,0,0]);
+   %Fold back again (reverse order of vectors in second fold)
+   sym = SymopReflection([0,0,1],[1,0,0]);
+   fold3a = symmetrise_sqw(combi1, sym);
    plot(fold3a)
 
-   %Combine and plot combi2=combine_sqw(combi1,fold3a); plot(smooth(d2d(combi2)));
+   %Combine and plot
+   combi2 = combine_sqw(combi1,fold3a);
+   plot(smooth(d2d(combi2)));
 
 
-Correcting for magnetic form factor ***********************************
+Correcting for magnetic form factor
+***********************************
 
 Horace allows basic correction of scattering intensity from simple ions by adjusting it by the magnetic form factor
 according to formulas provided in International Tables of Crystallography, Vol C. (see, for example `here
 <https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html>`__)
 
-The class **MagneticIons** contains the tables of fitting parameters, used to calculate changes in scattering intensity
-due to changes in magnetic form factor and defines the method *correct_mag_ff*, which takes a memory based **sqw**
-object as input and returns a similar object, with intensities adjusted by the magnetic form factor:
+The class ``MagneticIons`` contains the tables of fitting parameters, used to calculate changes in scattering intensity
+due to changes in magnetic form factor and defines the method ``correct_mag_ff``, which takes an ``sqw`` object as input
+and returns a similar object, with intensities adjusted by the magnetic form factor:
 
 ::
 
-   mff = MagneticIons('Fe0'); w2_fixed = mff.correct_mag_ff(w2);
+   mff = MagneticIons('Fe0');
+   w2_fixed = mff.correct_mag_ff(w2);
 
 
 Where 'Fe0' is the name of the ion for which the magnetic form factor is calculated. **This method should be applied
 only once**.
 
-The auxiliary **MagneticIons**'s method *IonNames* returns the cell array of ion names, which are currently tabulated in
-Horace and for which scattering can be corrected using the expression above. Additional **MagneticIons** methods
-*calc_mag_ff* and *apply_mag_ff* allow one to calculate magnetic form factor on or apply magnetic form factor to the
+The auxiliary ``MagneticIons``'s method ``IonNames`` returns the cell array of ion names, which are currently tabulated in
+Horace and for which scattering can be corrected using the expression above. Additional ``MagneticIons`` methods
+``calc_mag_ff`` and ``apply_mag_ff`` allow one to calculate magnetic form factor on or apply magnetic form factor to the
 dataset provided.
+
 
 Commands for entire datasets
 ============================
 
-
 **For application of symmetry operations to the entire sqw file when it is being generated, see** :ref:`above
- <manual/Symmetrising_etc:Symmetrising whole data files>`
+ <manual/Symmetrising_etc:Symmetrise entire SQW>`
 
-It is possible to make a new .sqw data file that has had a specified symmetrisation performed on it for a certain data
-range. You specify which Brillouin zone you are interested in, and then tell Horace which Brillouin zones are
+It is possible to make a new ``.sqw`` data file that has had a specified symmetrisation performed on it for a certain
+data range. You specify which Brillouin zone you are interested in, and then tell Horace which Brillouin zones are
 symmetrically equivalent to this one. Data are then cut from all of these zones and combined with the data from your
 original choice. The result is output to a new file. For example:
 
@@ -316,8 +375,8 @@ number specifying the desired step size along h, k, and l of the 4-dimensional o
 argument ``transf_list`` is optional.
 
 For the basic case detailed above, data from all permutations of ``pos=[h,k,l]`` will be included in the output
-file. The *cut_transf* objects in the ``transf_list`` array by default are reflections described by the transformation
-matrix, specified by *cut_transf.transf_matrix* property.
+file. The ``cut_transf`` objects in the ``transf_list`` array by default are reflections described by the transformation
+matrix, specified by ``cut_transf.transf_matrix`` property.
 
 If you wish to be more restrictive then you can either use:
 
@@ -330,7 +389,7 @@ or
 
 ::
 
-transf_list=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,zonelist);
+   transf_list=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,zonelist);
 
 
 The keywords that can be used are as follows:
@@ -366,22 +425,32 @@ to each zone before combining is specified by the keyword **correct_fun**.
 
 ::
 
-   data_source= fullfile(pwd,'Data','Fe_ei200.sqw'); proj.u = [1,0,0]; proj.v = [0,1,0];
+   data_source = fullfile(pwd,'Data','Fe_ei200.sqw');
+   proj = ortho_proj([1,0,0], [0,1,0]);
 
-   % move all zones into the centre.  pos = [0,0,0];
+   % move all zones into the centre.
+   pos = [0,0,0];
 
-   % define function to fix magnetic form-factor different for <1,1,0> and <2,0,0> zones.  mff =
-   MagneticIons('Fe0'); fixer = @(ws)(mff.fix_magnetic_ff(ws));
+   % define function to fix magnetic form-factor different for <1,1,0> and <2,0,0> zones.
+   mff = MagneticIons('Fe0');
+   fixer = @(ws)(mff.fix_magnetic_ff(ws));
 
-   erange = [0,2,200]; outfile = fullfile(pwd,'Data','Fe_ei200shift110allSymmetries.sqw');
+   erange = [0,2,200];
+   outfile = fullfile(pwd,'Data','Fe_ei200shift110allSymmetries.sqw');
 
-   % all zones to combine zonelist = {[1,1,0],[1,-1,0],[-1,1,0],[0,1,1],[0,1,-1],[0,-1,1],...
-   [1,0,1],[1,0,-1],[-1,0,1]},...  [2,0,0],[-2,0,0],[0,2,0],[0,-2,0],[0,0,2],[0,0,2]}; % tansf_list =
-   combine_equivalent_zones(data_source,proj,pos,...  0.01,erange,outfile,zonelist,...
-   'symmetry_type','shift','correct_fun',fixer);
+   % all zones to combine
+   zonelist = {[1,1,0],[1,-1,0],[-1,1,0], ...
+               [0,1,1],[0,1,-1],[0,-1,1], ...
+               [1,0,1],[1,0,-1],[-1,0,1], ...
+               [2,0,0],[-2,0,0],[0,2,0], ...
+               [0,-2,0],[0,0,2],[0,0,2]};
+
+   transf_list = combine_equivalent_zones(data_source,proj,pos,...
+                                          0.01,erange,outfile,zonelist,...
+                                          'symmetry_type','shift','correct_fun',fixer);
 
 
-**symmetry_type** currently can be *sigma* (for reflections) or *shift* (for moving different zones).
+``symmetry_type`` currently can be ``sigma`` (for reflections) or ``shift`` (for moving different zones).
 
 The sample script above also generates duplicated pixels, as the [2,0,0] zones are moved into [0,0,0]
 positions and the same zones at the edges of the cuts (e.g [1,1,0]+-1) will be accounted for twice. The
@@ -397,5 +466,5 @@ Limitations
 - ``combine_equivalent_zones`` has to perform some memory and hdd-access intensive calculations, which
   should ideally be performed on `high performance computing cluster
   <http://www.isis.stfc.ac.uk/groups/excitations/data-analysis-computers/connecting-to-isiscomputendrlacuk-using-nomachine15120.html>`__. The
-  amount of memory used by the code is controlled by **hor_config** parameter **mem_chunk_size** and is
+  amount of memory used by the code is controlled by ``hor_config`` parameter ``mem_chunk_size`` and is
   approximately 10 times larger then the amount, specified by this parameter.
