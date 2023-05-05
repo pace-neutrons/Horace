@@ -130,5 +130,24 @@ classdef SymopRotation < Symop
                   Symop.is_3vector(argin{1}) && ...
                   isscalar(argin{2});
         end
+
+        function sym = fold(nfold, axis, offset)
+        % Generate cell array of symmetry required for a n-Fold rotational symmetry reduction
+            validateattributes(nfold, {'numeric'}, {'integer'})
+
+            if ~exist('offset', 'var')
+                offset = [0; 0; 0];
+            end
+
+            sym = cell(nfold, 1);
+
+            ang = 360 / nfold;
+
+            sym{1} = SymopIdentity();
+            for i = 2:nfold
+                sym{i} = SymopRotation(axis, ang*(i-1), offset);
+            end
+
+        end
     end
 end
