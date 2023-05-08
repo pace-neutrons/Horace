@@ -10,33 +10,48 @@ classdef test_recip_lattice < TestCase
             end
             obj = obj@TestCase(name);
         end
+        function test_tricl_all(~)
+            alatt = [1,2,3];
+            angdeg = [80,70,110];
+
+            [b_vectors,normbec,angvec,dir_vec_directions] = direct2recip(alatt,angdeg);
+
+            [abc_adjucent_vect,alatt_r,angdeg_r,res_vec_directions] = direct2recip(normbec,angvec);
+
+            assertElementsAlmostEqual(alatt_r,alatt)
+            assertElementsAlmostEqual(angdeg_r,angdeg )            
+
+            [bmat,brlu,angrlu] = bmatrix(alatt,angdeg);
+
+
+            assertElementsAlmostEqual(brlu,normbec)            
+            assertElementsAlmostEqual(angrlu,angvec)            
+
+            assertElementsAlmostEqual(bmat./brlu,res_vec_directions)            
+        end
+
+        
 
         function test_tricl_sharp(~)
             alatt = [1,2,3];
-            angdeg = [80,70,90];            
+            angdeg = [80,70,90];
 
-            bb = direct2recip(alatt,angdeg);
+            [b_vectors,normbec,angvec,dir_vec] = direct2recip(alatt,angdeg);
 
-            [bm,arlu,angrlu] = bmatrix(alatt,angdeg);
+            [direct_lattice_ort,alatt_r,angdeg_r,res_vec] = direct2recip(normbec,angvec);
 
-            b1 = norm(bb(:,1));
-            b2 = norm(bb(:,2));            
-            b3 = norm(bb(:,3));
-            
-            a1 = acosd(bb(:,1)'*bb(:,2)/b1/b2);
-            a2 = acosd(bb(:,1)'*bb(:,3)/b1/b3);            
-            a3 = acosd(bb(:,2)'*bb(:,3)/b2/b3);                        
+            assertElementsAlmostEqual(alatt_r,alatt)
+            assertElementsAlmostEqual(angdeg_r,angdeg )            
 
-            assertEqual(angrlu(1),a1);
-            assertEqual(angrlu(2),a2);            
-            assertEqual(angrlu(3),a3);            
+            [bmat,brlu,angrlu] = bmatrix(alatt,angdeg);
 
-            assertEqualToTol(b1,arlu(1));
-            assertEqualToTol(b2,arlu(2));            
-            assertEqualToTol(b3,arlu(3));                        
 
+            assertElementsAlmostEqual(brlu,normbec)            
+            assertElementsAlmostEqual(angrlu,angvec)            
+
+            assertElementsAlmostEqual(bmat./brlu,res_vec)            
         end
-        
+
 
         function test_ortho_recip(~)
             bb = direct2recip([1,2,3],[90,90,90]);

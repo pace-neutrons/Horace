@@ -40,8 +40,8 @@ end
 nonortho = ~ortho;
 
 if ortho    
-    ulen_inv = 1./ulen(:)';
-    ubinv = u_rot_mat.*repmat(ulen_inv,3,1);
+    %ulen_inv = 1./ulen(:)';
+    ubinv = u_rot_mat.*repmat(ulen,3,1);
     ubmat = inv(ubinv); % correctly recovered ubmatrix; ulen matrix extracted
 
     %ubmat = umat*b_mat;

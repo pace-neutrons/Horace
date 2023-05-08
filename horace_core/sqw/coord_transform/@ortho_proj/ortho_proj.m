@@ -122,6 +122,8 @@ classdef ortho_proj<aProjectionBase
         w_ = []
         nonorthogonal_=false
         type_='ppr'
+        % if requested type has been set directly or 
+        type_is_defined_explicitly_ = false;
         %
         % The properties used to optimize from_current_to_targ method
         % transformation, if both current and target projections are
@@ -174,6 +176,13 @@ classdef ortho_proj<aProjectionBase
             else
                 % constructor does not accept legacy alignment matrix
                 opt =  [ortho_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
+                % check if the type is defined explicityly
+                n_type = find(ismember(opt,'type'));
+                is_keys = cellfun(@istext,varargin);                
+                if ismember('type',varargin(is_keys)) || ... % defined as key-value pair
+                    (numel(varargin)>n_type && ischar(varargin{n_type}) && numel(varargin{n_type}) == 3) % defined as positional parameter
+                    obj.type_is_defined_explicitly_ = true;
+                end
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
                     opt,false,varargin{:});
@@ -240,6 +249,7 @@ classdef ortho_proj<aProjectionBase
         function obj=set.type(obj,type)
             obj = check_and_set_type_(obj,type);
             if obj.do_check_combo_arg_
+                obj.type_is_defined_explicityly_ = true;
                 obj = check_combo_arg(obj);
             end
         end
@@ -472,7 +482,7 @@ classdef ortho_proj<aProjectionBase
             mat = [mat,[0;0;0];[0,0,0,1]];
         end
 
-        function  [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj,ustep)
+        function  [rlu_to_u, u_rot, ulen] = uv_to_rot(proj,varargin)
             % Determine the matrices used for conversion
             % to/from image coordinate system from/to Crystal Cartesian
             % (PixelData) coordinate system.
@@ -507,10 +517,8 @@ classdef ortho_proj<aProjectionBase
             %
             % Original author: T.G.Perring
             %
-            if nargin==1
-                ustep = [1,1,1];
-            end
-            [rlu_to_ustep, u_rot, ulen] = projaxes_to_rlu_(proj,ustep);
+
+            [rlu_to_u, u_rot, ulen] = projaxes_to_rlu_(proj);
         end
 
         %------------------------------------------------------------------
