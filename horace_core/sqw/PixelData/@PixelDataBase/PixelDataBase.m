@@ -812,7 +812,7 @@ classdef (Abstract) PixelDataBase < serializable
 
     %======================================================================
     % SERIALIZABLE INTERFACE
-    properties(Constant,Access=private)
+    properties(Constant, Access=private)
         % list of filenames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         % Does not properly support filebased data. The decision is not to
@@ -823,7 +823,7 @@ classdef (Abstract) PixelDataBase < serializable
         % metadata contains data_range. If data_range have been set
         % directly, data may recalculate range, and metadata would override
         % it.
-        fields_to_save_ = {'data_wrap','metadata'};
+        fields_to_save_ = {'data_wrap', 'metadata'};
     end
 
     methods(Static)
@@ -853,7 +853,7 @@ classdef (Abstract) PixelDataBase < serializable
                 S.data = S.raw_data_;
             end
 
-            if isfield(S,'data') && (ischar(S.data)|| isstring(S.data))
+            if isfield(S,'data') && istext(S.data)
                 obj = PixelDataFileBacked();
             else
                 obj = PixelDataMemory();

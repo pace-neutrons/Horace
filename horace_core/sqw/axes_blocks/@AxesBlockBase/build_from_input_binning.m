@@ -55,6 +55,7 @@ targ_img_range = cellfun(@(i,bin_rec,bin_def)parse_pbin(i,bin_rec,bin_def),...
 new_axes_block = feval(axes_class_name);
 new_axes_block = new_axes_block.init(targ_img_range{:});
 
+end
 
 function range = parse_pbin(ind,bin_req,bin_default)
 % get defined binning range from the various input parameters
@@ -66,55 +67,73 @@ function range = parse_pbin(ind,bin_req,bin_default)
 % range  vector containing the defined bin ranges i.e. the ranges
 %        either copied from requested or from default values
 %
-if isempty(bin_req)
+switch numel(bin_req)
+  case 0 % Default
     range = bin_default;
-elseif numel(bin_req) == 1
-    if bin_req == 0 % this may fail if bin_default is integration axis
+
+  case 1 % Rebin
+    if bin_req == 0
+        if numel(bin_default) == 2 % this may fail if bin_default is integration axis
+            error('HORACE:build_from_input_binning:invalid_argument', ...
+                  'User has requested auto-rebin (pbin = [0]) across integration axis (%d).', ind);
+        end
         bin_req = bin_default(2);
     end
-    range  = [bin_default(1),bin_req,bin_default(end)];
-else
+    range = [bin_default(1),bin_req,bin_default(end)];
+
+  case 2 % Integration
+
     range = bin_req;
     if isinf(range(1))
         range(1) = bin_default(1);
     end
-    if isinf(bin_req(end))
+    if isinf(range(end))
         range(end) = bin_default(end);
     end
-    if numel(range) == 3 && range(2)==0
+
+    border = abs(SQWDnDBase.border_size);
+    % we need correct integration range for cut to work but some old file
+    if abs(range(2)-range(1))<2*border  % formats do not store proper
+                                        % img_range and store [centerpoint, centerpoint] for
+                                        % integration ranges. Here we try to mitigate this.
+        av_pt = 0.5*(range(1)+range(2));
+        if abs(av_pt) < border
+            range(1) = -border;
+            range(2) =  border;
+        else
+            range(1) = av_pt*(1 - border);
+            range(2) = av_pt*(1 + border);
+        end
+    end
+
+  case 3 % Projection
+    range = bin_req;
+    if isinf(range(1))
+        range(1) = bin_default(1);
+    end
+    if isinf(range(end))
+        range(end) = bin_default(end);
+    end
+
+    if range(2) == 0
         if numel(bin_default) == 3
             range(2) = bin_default(2);
         else % integrate in ranges, defined by default bin boundaries if step is 0
-            % and the default bin boundaries are integration boundaries
+             % and the default bin boundaries are integration boundaries
             range = [range(1),range(3)];
         end
     end
-    if numel(range) == 2
-        border = abs(SQWDnDBase.border_size);
-        % we need correct integration range for cut to work but some old file 
-        if abs(range(2)-range(1))<2*border  % formats do not store proper
-            % img_range and store [centerpoint, centerpoint] for 
-            % integration ranges. Here we try to mitigate this.
-            av_pt = 0.5*(range(1)+range(2));
-            if abs(av_pt) < border
-                range(1) = -border;
-                range(2) =  border;
-            else
-                range(1) = av_pt*(1 - border);
-                range(2) = av_pt*(1 + border);
-            end
-        end
-    end
 end
-if numel(range)==3 % check if min+step >= max, so it is actually integration range
-    % regardless of anything
-    if range(1)+range(2)>=range(3)
-        range = [range(1),range(3)];
-    end
+
+% check if number of expected bins < 1, so it is actually integration range
+if numel(range) == 3 && range(3) - range(1) < range(2)
+    range = [range(1),range(3)];
 end
 
 % check validity of data ranges
-if range(end) < range(1)
+if range(end) < range(1) && ~(numel(range) == 3 && range(2) < 0)
     error('HORACE:AxesBlockBase:invalid_argument',...
-        'Upper limit greater or equal to the lower limit - check axis N: %d',ind);
+          'Upper limit (%f) less than the lower limit (%f) for positive step - check axis N: d', range(end), range(1), ind);
+end
+
 end
