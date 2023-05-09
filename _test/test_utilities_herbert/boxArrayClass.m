@@ -130,9 +130,10 @@ classdef boxArrayClass
                 shift1col = [0;0;0];
                 shift1row = [0;0;0];
                 shift12 = [0;0;0];
+                
             elseif nargin~=5
                 error('HERBERT:boxArrayClass:invalid_argument', ...
-                    'Check number of arguments')
+                    'Check number of shift arguments')
             end
             
             npnt = numel(ielmts);
@@ -216,16 +217,19 @@ classdef boxArrayClass
             
             % Confirm all data has correct size
             if ~isequal(size(x1col), size_array_stack ([3,1], sz))
-                error('HERBERT:boxClass:invalid_argument', ...
-                    'Size of x1col is inconsistent with size of ielmts')
+                ok = false;
+                mess = 'Size of x1col is inconsistent with other point data';
+                return
             end
             if ~isequal(size(x1row), size_array_stack ([1,3], sz))
-                error('HERBERT:boxClass:invalid_argument', ...
-                    'Size of x1row is inconsistent with size of ielmts')
+                ok = false;
+                mess = 'Size of x1row is inconsistent with other point data';
+                return
             end
             if ~isequal(size(x12), size_array_stack ([3,2], sz))
-                error('HERBERT:boxClass:invalid_argument', ...
-                    'Size of x12 is inconsistent with size of ielmts')
+                ok = false;
+                mess = 'Size of x12 is inconsistent with other point data';
+                return
             end
             
             if nargin==5
@@ -246,7 +250,7 @@ classdef boxArrayClass
 
             for i=1:npnt
                 [ok, mess] = validate_points_in_box (obj.box(ielmts(i)), ...
-                    x1col_2D(:,i), x1row_2D(:,i)', x12_3D(:,:,i), ...
+                    [1,1], x1col_2D(:,i), x1row_2D(:,i)', x12_3D(:,:,i), ...
                     s1col(:,i), s1row(:,i), s12(:,i));
                 if ~ok
                     return

@@ -216,7 +216,8 @@ classdef boxClass_test < TestCaseWithSave
             x12 = [5.3, 981, 10100; 5.15, 990, 10050]';
             
             % Validate
-            [ok, mess] = validate_points_in_box (obj.box, x1col, x1row, x12);
+            sz = [1,1];
+            [ok, mess] = validate_points_in_box (obj.box, sz, x1col, x1row, x12);
             assertTrue(ok, mess)
         end
         
@@ -230,7 +231,8 @@ classdef boxClass_test < TestCaseWithSave
             x12 = [5.3, 981, 10100; 5.15, 990, 10050]';
             
             % Validate
-            ok = validate_points_in_box (obj.box, x1col, x1row, x12);
+            sz = [1,1];
+            ok = validate_points_in_box (obj.box, sz, x1col, x1row, x12);
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
@@ -251,7 +253,8 @@ classdef boxClass_test < TestCaseWithSave
             x12 = x12 + repmat(shift12,[1,2]);
             
             % Validate
-            [ok, mess] = validate_points_in_box (obj.box, x1col, x1row, x12, ...
+            sz = [1,1];
+            [ok, mess] = validate_points_in_box (obj.box, sz, x1col, x1row, x12, ...
                 shift1c, shift1r, shift12);
             assertTrue(ok, mess)
         end
@@ -274,7 +277,8 @@ classdef boxClass_test < TestCaseWithSave
             x12 = x12 + repmat(shift12,[1,2]);
             
             % Validate
-            ok = validate_points_in_box (obj.box, x1col, x1row, x12, ...
+            sz = [1,1];
+            ok = validate_points_in_box (obj.box, sz, x1col, x1row, x12, ...
                 shift1c, shift1r, shift12);
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
 
@@ -297,7 +301,7 @@ classdef boxClass_test < TestCaseWithSave
             
             % Check fails if pass shifts to validation, but don't shift
             % x1col, x1row and x12
-            ok = validate_points_in_box (obj.box, x1col, x1row, x12, ...
+            ok = validate_points_in_box (obj.box, sz, x1col, x1row, x12, ...
                 shift1c, shift1r, shift12);
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
             
@@ -306,7 +310,7 @@ classdef boxClass_test < TestCaseWithSave
             x1row = x1row + shift1r';
             x12 = x12 + repmat(shift12,[1,2]);
             
-            [ok, mess] = validate_points_in_box (obj.box, x1col, x1row, x12, ...
+            [ok, mess] = validate_points_in_box (obj.box, sz, x1col, x1row, x12, ...
                 shift1c, shift1r, shift12);
             assertTrue(ok, mess)
             
@@ -314,7 +318,7 @@ classdef boxClass_test < TestCaseWithSave
             ind = numel(x12)/2;
             dx = 10*max(abs(shift12(:)));
             x12(ind) = x12(ind) + dx;  % some large value way out of the box
-            ok = validate_points_in_box (obj.box, x1col, x1row, x12, ...
+            ok = validate_points_in_box (obj.box, sz, x1col, x1row, x12, ...
                 shift1c, shift1r, shift12);
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
@@ -338,7 +342,7 @@ classdef boxClass_test < TestCaseWithSave
             
             % Check fails if pass shifts to validation, but don't shift
             % x1col, x1row and x12
-            ok = validate_points_in_box (obj.box, x1col, x1row, x12, ...
+            ok = validate_points_in_box (obj.box, sz, x1col, x1row, x12, ...
                 shift1c, shift1r, shift12);
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
             
@@ -349,7 +353,7 @@ classdef boxClass_test < TestCaseWithSave
             shift12_tmp = reshape(shift12, sz_tmp);
             x12 = x12 + cat(2,shift12_tmp,shift12_tmp);
             
-            [ok, mess] = validate_points_in_box (obj.box, x1col, x1row, x12, ...
+            [ok, mess] = validate_points_in_box (obj.box, sz, x1col, x1row, x12, ...
                 shift1c, shift1r, shift12);
             assertTrue(ok, mess)
             
@@ -357,11 +361,73 @@ classdef boxClass_test < TestCaseWithSave
             ind = numel(x12)/2;
             dx = 10*max(abs(shift12(:)));
             x12(ind) = x12(ind) + dx;  % some large value way out of the box
-            ok = validate_points_in_box (obj.box, x1col, x1row, x12, ...
+            ok = validate_points_in_box (obj.box, sz, x1col, x1row, x12, ...
                 shift1c, shift1r, shift12);
             assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
         end
         
+        function test_validate_points_in_box_5a (obj)
+            % Test validation for a multiple points, with single shift
+            % Testing size: column vector
+            
+            % Points in unshifted box
+            sz = [1,6];
+            x1col = [5.3; 981; 10099] + 0.01*rand(size_array_stack([3,1],sz));
+            x1row = [4.5, 1019, 9999] + 0.01*rand(size_array_stack([1,3],sz));
+            x12 = [5.3, 981, 10099; 5.15, 990, 10049]' + ...
+                0.01*rand(size_array_stack([3,2],sz));
+
+            % Validate
+            [ok, mess] = validate_points_in_box (obj.box, sz, x1col, x1row, x12);
+            assertTrue(ok, mess)
+
+            % Confirm failure if give incorrect expected size
+            sz_false = [1,5];
+            ok = validate_points_in_box (obj.box, sz_false, x1col, x1row, x12);
+            assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
+        end
+        
+        function test_validate_points_in_box_5b (obj)
+            % Test validation for a multiple points, with single shift
+            % Testing size: 2D array
+            
+            % Points in unshifted box
+            sz = [4,6];
+            x1col = [5.3; 981; 10099] + 0.01*rand(size_array_stack([3,1],sz));
+            x1row = [4.5, 1019, 9999] + 0.01*rand(size_array_stack([1,3],sz));
+            x12 = [5.3, 981, 10099; 5.15, 990, 10049]' + ...
+                0.01*rand(size_array_stack([3,2],sz));
+
+            % Validate
+            [ok, mess] = validate_points_in_box (obj.box, sz, x1col, x1row, x12);
+            assertTrue(ok, mess)
+
+            % Confirm failure if give incorrect expected size
+            sz_false = [2,12];  % same number of elements, different shape
+            ok = validate_points_in_box (obj.box, sz_false, x1col, x1row, x12);
+            assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
+        end
+        
+        function test_validate_points_in_box_5c (obj)
+            % Test validation for a multiple points, with single shift
+            % Testing size: weird array
+            
+            % Points in unshifted box
+            sz = [1,1,4,6];
+            x1col = [5.3; 981; 10099] + 0.01*rand(size_array_stack([3,1],sz));
+            x1row = [4.5, 1019, 9999] + 0.01*rand(size_array_stack([1,3],sz));
+            x12 = [5.3, 981, 10099; 5.15, 990, 10049]' + ...
+                0.01*rand(size_array_stack([3,2],sz));
+
+            % Validate
+            [ok, mess] = validate_points_in_box (obj.box, sz, x1col, x1row, x12);
+            assertTrue(ok, mess)
+
+            % Confirm failure if give incorrect expected size
+            sz_false = [1,4,6];
+            ok = validate_points_in_box (obj.box, sz_false, x1col, x1row, x12);
+            assertFalse(ok, 'ERROR: validate_points_in_box should have failed')
+        end
         
         %--------------------------------------------------------------------------
         % Test rand_position output; assumes we have tested validate_points_in_box
@@ -374,7 +440,7 @@ classdef boxClass_test < TestCaseWithSave
             [x1col, x1row, x12] = rand_position (obj.box, sz);
             
             % Validate
-            [ok, mess] = validate_points_in_box (obj.box, x1col, x1row, x12);
+            [ok, mess] = validate_points_in_box (obj.box, sz, x1col, x1row, x12);
             assertTrue(ok, mess)
         end
         
@@ -389,7 +455,7 @@ classdef boxClass_test < TestCaseWithSave
             [x1col, x1row, x12] = rand_position (obj.box, sz, shift1c, shift1r, shift12);
             
             % Validate
-            [ok, mess] = validate_points_in_box (obj.box, x1col, x1row, x12, ...
+            [ok, mess] = validate_points_in_box (obj.box, sz, x1col, x1row, x12, ...
                 shift1c, shift1r, shift12);
             assertTrue(ok, mess)
         end
@@ -407,7 +473,7 @@ classdef boxClass_test < TestCaseWithSave
             [x1col, x1row, x12] = rand_position (obj.box, sz, shift1c, shift1r, shift12);
             
             % Validate
-            [ok, mess] = validate_points_in_box (obj.box, x1col, x1row, x12, ...
+            [ok, mess] = validate_points_in_box (obj.box, sz, x1col, x1row, x12, ...
                 shift1c, shift1r, shift12);
             assertTrue(ok, mess)
         end
@@ -456,11 +522,11 @@ classdef boxClass_test < TestCaseWithSave
             x12_3D = reshape (x12, [3,2,35]);
             for i=1:prod(sz)
                 if ind(i)==1
-                    [ok, mess] = validate_points_in_box (obj.box, ...
+                    [ok, mess] = validate_points_in_box (obj.box, [1,1], ...
                         x1col_2D(:,i), x1row_2D(:,i)', x12_3D(:,:,i), ...
                         shift1c_1, shift1r_1, shift12_1);
                 else
-                    [ok, mess] = validate_points_in_box (obj.box, ...
+                    [ok, mess] = validate_points_in_box (obj.box, [1,1], ...
                         x1col_2D(:,i), x1row_2D(:,i)', x12_3D(:,:,i), ...
                         shift1c_2, shift1r_2, shift12_2);
                 end

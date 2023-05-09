@@ -92,7 +92,8 @@ end
 ind_unique_obj = reshape (obj.indx_{iarray}(ind), size(ind));   % retain shape of ind
 
 % Call a private function that evaluates only once per unique object instance
-[varargout{1:nargout}] = func_eval_ind_private (obj.object_store_, ind_unique_obj, funchandle, arg);
+[varargout{1:nargout}] = func_eval_ind_private (obj.object_store_, ...
+    ind_unique_obj, funchandle, arg);
 
 
 %------------------------------------------------------------------

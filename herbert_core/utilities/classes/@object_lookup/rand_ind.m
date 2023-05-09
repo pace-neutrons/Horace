@@ -1,29 +1,53 @@
-function X = rand_ind (obj, iarray, varargin)
-% Generate random points for indexed occurences in an object lookup table
+function varargout = rand_ind (obj, iarray, varargin)
+% Generate random samples for indexed occurences in an object_lookup
 %
 %   >> [X1, X2,...] = rand_ind (obj, iarray, ind, randfunc)
-%   >> [X1, X2,...] = rand_ind (obj, iarray, ind, ielmts, randfunc)
-%
-%   >> [X1, X2,...]X = rand_ind (..., randfunc, p1, p2, ...)
-%
+%   >> [X1, X2,...] = rand_ind (..., randfunc, p1, p2, ...)
 %   >> [X1, X2,...] = rand_ind (..., 'split', randfunc, p1, p2, ...)
 %   >> [X1, X2,...] = rand_ind (..., 'split', iargs, randfunc, p1, p2, ...)
 %
-% The purpose is to return random points for a set of objects defined by
-% index arguments iarray and ind from a random sampling method of the form:
+% The purpose is to return random points from an array of objects, defined by
+% index iarray into the compressed array-of-arrays held in argument obj, and
+% then select one random sample per element in that array as indexed by
+% the array ind.
 %
-%   [X1, X2,...] = randfunc (object)               % generate a single random point
-%   [X1, X2,...] = randfunc (object, n)            % n x n matrix of random points
-%   [X1, X2,...] = randfunc (object, sz)           % array of size sz
+% It requires a random sampling method of the form:
+%
+%   [X1, X2,...] = randfunc (object)               % generate a single random sample
+%   [X1, X2,...] = randfunc (object, sz)           % array of random samples size sz
+%   [X1, X2,...] = randfunc (..., p1, p2, ...)     % with further optional arguments
+%   
+%   where the argument object is one element of the array of objects (as
+%   selected by obj and iarray), and X1, X2,... are random samples, for
+%   example random scalars, vectors or any other object, or any mixture of 
+%   object types.
+%
+%   If there are optional arguments p1, p2,..., it is required that the
+%   method can internally resolve any ambiguities between p1 and sz.
+%
+%   The other conventional forms for the syntax of the Matlab intrinsic
+%   random number generator rand are acceptable so long as the method can
+%   distinguish them from the above syntax i.e.
+%   [X1, X2,...] = randfunc (object, n)            % n x n matrix of random samples
 %   [X1, X2,...] = randfunc (object, sz1, sz2,...) % array of size [sz1,sz2,...]
-%
 %   [X1, X2,...] = randfunc (..., p1, p2, ...)     % with further optional arguments
 %
-% If particular elements of the objects are selected by the input argument
-% ielmts, then the form must be
+%
+% If elements of the object array defined by obj and iarray have themselves 
+% internal indexing, then random samples from individual elements within
+% the elements of the array can be output by two index arrays ind and
+% ielmts (both of the same shape and size) that together act as a double
+% index. The syntax is otherwise the same:
+%
+%   >> [X1, X2,...] = rand_ind (obj, iarray, ind, ielmts, randfunc)
+%   >> [X1, X2,...] = rand_ind (..., randfunc, p1, p2, ...)
+%   >> [X1, X2,...] = rand_ind (..., 'split', randfunc, p1, p2, ...)
+%   >> [X1, X2,...] = rand_ind (..., 'split', iargs, randfunc, p1, p2, ...)
+%
+% Here the random sampling method has a different form:
 %
 %   [X1, X2,...] = randfunc (object, ielmts)
-%   [X1, X2,...] = randfunc (object, ielmts, p1, p2, ...)
+%   [X1, X2,...] = randfunc (object, ielmts, p1, p2, ...)   % with optional arguments
 %
 % See below for further details.
 %
@@ -110,7 +134,8 @@ end
 ind_unique_obj = reshape (obj.indx_{iarray}(ind), size(ind));   % retain shape of ind
 
 % Call a private function that efficiently randomly samples the objects
-X = rand_ind_private (obj.object_store_, ind_unique_obj, ielmts, randfunc, args, split);
+[varargout{1:nargout}] = rand_ind_private (obj.object_store_, ...
+    ind_unique_obj, ielmts, randfunc, args, split);
 
 
 %------------------------------------------------------------------
