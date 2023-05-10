@@ -212,15 +212,6 @@ classdef instr_proj<aProjectionBase
         %
     end
     methods(Access = protected)
-        function  mat = get_u_to_rlu_mat(obj)
-            % By name, it should be u_to_rlu matrix, but by meaning --
-            % transformation from pixel coordinate system to image
-            % coordinate system -- it should be spec_to_u matrix as pixels
-            % here are instrument and image -- Crystal Cartesian coordinate
-            % system. Using meaining. TODO: #954 Clarify.
-            mat = obj.lattice.calc_proj_matrix();
-            mat = [mat,zeros(3,1);[0,0,0,1]];
-        end
     end
     methods(Access = protected)
         function  alat = get_alatt_(obj)

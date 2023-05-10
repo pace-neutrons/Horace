@@ -772,9 +772,6 @@ classdef aProjectionBase < serializable
         varargout = get_pix_img_transformation(obj,ndim,varargin);
     end
     methods(Abstract,Access=protected)
-        % function returns u_to_rlu matrix for appropriate coordinate
-        % system
-        mat = get_u_to_rlu_mat(obj);
     end
     %======================================================================
     % Serializable interface

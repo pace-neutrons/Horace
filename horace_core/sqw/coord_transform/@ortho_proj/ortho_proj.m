@@ -67,7 +67,7 @@ classdef ortho_proj<aProjectionBase
     %                   'ppr'  if w not given
     %                   'ppp'  if w is given
     %
-    % Also accepts these and aProjectionBase properties as set of key-values 
+    % Also accepts these and aProjectionBase properties as set of key-values
     % pairs following standard serializable class constructor agreements.
     %
 
@@ -122,7 +122,7 @@ classdef ortho_proj<aProjectionBase
         w_ = []
         nonorthogonal_=false
         type_='ppr'
-        % if requested type has been set directly or 
+        % if requested type has been set directly or has default values
         type_is_defined_explicitly_ = false;
         %
         % The properties used to optimize from_current_to_targ method
@@ -178,9 +178,9 @@ classdef ortho_proj<aProjectionBase
                 opt =  [ortho_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
                 % check if the type is defined explicityly
                 n_type = find(ismember(opt,'type'));
-                is_keys = cellfun(@istext,varargin);                
+                is_keys = cellfun(@istext,varargin);
                 if ismember('type',varargin(is_keys)) || ... % defined as key-value pair
-                    (numel(varargin)>n_type && ischar(varargin{n_type}) && numel(varargin{n_type}) == 3) % defined as positional parameter
+                        (numel(varargin)>n_type && ischar(varargin{n_type}) && numel(varargin{n_type}) == 3) % defined as positional parameter
                     obj.type_is_defined_explicitly_ = true;
                 end
                 [obj,remains] = ...
@@ -249,21 +249,8 @@ classdef ortho_proj<aProjectionBase
         function obj=set.type(obj,type)
             obj = check_and_set_type_(obj,type);
             if obj.do_check_combo_arg_
-                obj.type_is_defined_explicityly_ = true;
                 obj = check_combo_arg(obj);
             end
-        end
-        %
-        function obj = set_unary_cache(obj)
-            % set transformation cache to unity, to make source_to_target
-            % and target_to_source transformation unary.
-            %
-            % Used in gen_sqw to set up initial pixel_image projection, as
-            % generated sqw object conains image in Crystal Cartesian
-            % coordinate system regardless of state of lattice
-            %
-            obj.u_to_img_cache_ = eye(4);
-            obj.u_offset_cache_ = zeros(4,1);
         end
         % -----------------------------------------------------------------
         % OLD sqw object interface compatibility functions
@@ -396,7 +383,7 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function [u_to_img,shift]=get_pix_img_transformation(obj,ndim,varargin)
+        function [u_to_img,shift,ulen]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
             % to image coordinate system and vise-versa if the projaxes is
             % defined
@@ -427,28 +414,27 @@ classdef ortho_proj<aProjectionBase
                 u_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
                 shift    = obj.u_offset_cache_(1:ndim);
                 if alignment_needed
-                    u_to_img  = u_to_img*alignment_mat;                    
+                    u_to_img  = u_to_img*alignment_mat;
+                end
+                if nargout == 3 %usually for tests
+                    [~,~,ulen] = projaxes_to_rlu_(obj);
+                else
+                    ulen = [];
                 end
                 return;
             end
-            
             %
-
             if isempty(obj.ub_inv_legacy)
-                [img_to_u,u_to_img] = projaxes_to_rlu_(obj);                
+                [img_to_u,u_to_img,ulen,rlu_to_u] = projaxes_to_rlu_(obj);
                 % Modern alignment with rotation matrix attached to pixel
                 % coordinate system
                 if alignment_needed
                     u_to_img  = img_to_u\alignment_mat;
-                else
                 end
-                rlu_to_u  = bmatrix(obj.alatt, obj.angdeg);                
-                %u_to_img = u_to_img./repmat(ulen(:)',3,1);
-                %u_to_img = u_to_img%/rlu_to_u;
             else% Legacy alignment, with multiplication of rotation matrix
                 rlu_to_u = projaxes_to_rlu_legacy_(obj, [1,1,1]);
                 u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
-                u_to_img  = rlu_to_u*u_to_rlu_;
+                u_to_img  = (rlu_to_u*u_to_rlu_)';
                 rlu_to_u = inv(u_to_rlu_);
 
             end
@@ -475,52 +461,6 @@ classdef ortho_proj<aProjectionBase
     end
     %----------------------------------------------------------------------
     methods(Access = protected)
-        function  mat = get_u_to_rlu_mat(obj)
-            % overloadable accessor for getting value for ub matrix
-            % property
-            [~, mat] = obj.uv_to_rot();
-            mat = [mat,[0;0;0];[0,0,0,1]];
-        end
-
-        function  [rlu_to_u, u_rot, ulen] = uv_to_rot(proj,varargin)
-            % Determine the matrices used for conversion
-            % to/from image coordinate system from/to Crystal Cartesian
-            % (PixelData) coordinate system.
-            %
-            %   >> [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj)
-            %   >> [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj, ustep)
-            %
-            % The projection axes are three vectors that may or may not be orthogonal
-            % which are used to create the bins in an sqw object. The bin sizes are in ustep
-            %
-            % Input:
-            % ------
-            %   proj    projaxes object containing the information about projection axes
-            %           (u,v,[w])
-            %   ustep   Row vector giving step sizes along the projection axes as multiple
-            %           of the projection axes (e.g. [0.05,0.05,0.025]
-            %           Default if not given: [1,1,1] i.e. unit step
-            %
-            % Output:
-            % -------
-            %   rlu_to_ustep   Matrix to convert components of a vector expressed
-            %                  in r.l.u. to the components along the projection axes
-            %                  u1,u2,u3, as multiples of the step size along those axes
-            %                       Vstep(i) = rlu_to_ustep(i,j)*Vrlu(j)
-            %
-            %   u_rot        The projection axis vectors u_1, u_2, u_3 in reciprocal
-            %                lattice vectors. The ith column is u_i in r.l.u. i.e.
-            %                       ui = u_to_rlu(:,i)
-            %
-            %   ulen            Row vector of lengths of ui in Ang^-1
-            %
-            %
-            % Original author: T.G.Perring
-            %
-
-            [rlu_to_u, u_rot, ulen] = projaxes_to_rlu_(proj);
-        end
-
         %------------------------------------------------------------------
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...
@@ -617,12 +557,11 @@ classdef ortho_proj<aProjectionBase
             % Throws HORACE:ortho_proj:invalid_argument with the message
             % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
-            % 
+            %
             % Set's up the transformation caches
             %
             wout = check_combo_arg_(w);
-        end
-        %------------------------------------------------------------------
+        end        %------------------------------------------------------------------
         function ver  = classVersion(~)
             ver = 6;
         end

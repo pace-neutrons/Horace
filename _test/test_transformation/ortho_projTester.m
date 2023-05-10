@@ -31,10 +31,6 @@ classdef ortho_projTester < ortho_proj
         function sh=get.ortho_ortho_offset(obj)
             sh = obj.ortho_ortho_offset_;
         end
-        function [rot_to_img,shift]=get_pix_img_transformation_public(obj,ndim,varargin)
-            [rot_to_img,shift]=obj.get_pix_img_transformation(ndim,varargin{:});
-            %
-        end
         %
     end
 end

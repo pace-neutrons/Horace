@@ -21,8 +21,9 @@ function [b,varargout] = direct2recip(alatt, angdeg)
 %  b_norm   3-vector of the length of the reciprocal lattice vectors in
 %           units of 2*p/lengs of direct lattice
 %  rlu_angl 3-vector of angles between the vectors of reciprocal lattice
-%  dir_mat  3x3 matrix of the coordinates of the unit vectors of the
-%           direct lattice attached to the lattice provided as input
+%  dir_mat  3x3 matrix of the coordinates of the vectors of the
+%           direct lattice in the orthogonal coordinate system attached to
+%           the direct lattice
 %
 
 if max(angdeg)>=180 || min(angdeg)<=0

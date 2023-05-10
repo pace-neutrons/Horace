@@ -10,6 +10,27 @@ classdef test_recip_lattice < TestCase
             end
             obj = obj@TestCase(name);
         end
+        function test_other_tricl_all(~)
+            alatt = [1,2,3];
+            angdeg = [85,110,95];
+
+            [b_vectors,normbec,angvec,dir_vec_directions] = direct2recip(alatt,angdeg);
+
+            [abc_adjucent_vect,alatt_r,angdeg_r,res_vec_directions] = direct2recip(normbec,angvec);
+
+            assertElementsAlmostEqual(alatt_r,alatt)
+            assertElementsAlmostEqual(angdeg_r,angdeg )
+
+            [bmat,brlu,angrlu] = bmatrix(alatt,angdeg);
+
+
+            assertElementsAlmostEqual(brlu,normbec)
+            assertElementsAlmostEqual(angrlu,angvec)
+
+            assertElementsAlmostEqual(bmat./brlu,res_vec_directions)
+        end
+
+
         function test_tricl_all(~)
             alatt = [1,2,3];
             angdeg = [80,70,110];
@@ -19,18 +40,18 @@ classdef test_recip_lattice < TestCase
             [abc_adjucent_vect,alatt_r,angdeg_r,res_vec_directions] = direct2recip(normbec,angvec);
 
             assertElementsAlmostEqual(alatt_r,alatt)
-            assertElementsAlmostEqual(angdeg_r,angdeg )            
+            assertElementsAlmostEqual(angdeg_r,angdeg )
 
             [bmat,brlu,angrlu] = bmatrix(alatt,angdeg);
 
 
-            assertElementsAlmostEqual(brlu,normbec)            
-            assertElementsAlmostEqual(angrlu,angvec)            
+            assertElementsAlmostEqual(brlu,normbec)
+            assertElementsAlmostEqual(angrlu,angvec)
 
-            assertElementsAlmostEqual(bmat./brlu,res_vec_directions)            
+            assertElementsAlmostEqual(bmat./brlu,res_vec_directions)
         end
 
-        
+
 
         function test_tricl_sharp(~)
             alatt = [1,2,3];
@@ -41,15 +62,15 @@ classdef test_recip_lattice < TestCase
             [direct_lattice_ort,alatt_r,angdeg_r,res_vec] = direct2recip(normbec,angvec);
 
             assertElementsAlmostEqual(alatt_r,alatt)
-            assertElementsAlmostEqual(angdeg_r,angdeg )            
+            assertElementsAlmostEqual(angdeg_r,angdeg )
 
             [bmat,brlu,angrlu] = bmatrix(alatt,angdeg);
 
 
-            assertElementsAlmostEqual(brlu,normbec)            
-            assertElementsAlmostEqual(angrlu,angvec)            
+            assertElementsAlmostEqual(brlu,normbec)
+            assertElementsAlmostEqual(angrlu,angvec)
 
-            assertElementsAlmostEqual(bmat./brlu,res_vec)            
+            assertElementsAlmostEqual(bmat./brlu,res_vec)
         end
 
 

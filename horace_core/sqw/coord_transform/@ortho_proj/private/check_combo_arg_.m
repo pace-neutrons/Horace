@@ -20,9 +20,20 @@ else
             'Vector w is coplanar (or almost coplanar) with u and v');
     end
 end
+if ~obj.type_is_defined_explicitly_
+    if isempty(obj.w)
+        obj.type_(3) = 'r';
+    else
+        obj.type_(3) = 'p';
+    end
+end
 if obj.alatt_defined && obj.angdeg_defined
-    obj.u_to_img_cache_ = [];
     [obj.u_to_img_cache_,obj.u_offset_cache_] = obj.get_pix_img_transformation(4);
 else
-    obj = obj.set_unary_cache();
+    % set transformation cache to unity, to make source_to_target
+    % and target_to_source transformation unary.
+    %
+    % Used for define transformation without lattice
+    obj.u_to_img_cache_ = eye(4);
+    obj.u_offset_cache_ = zeros(4,1);
 end

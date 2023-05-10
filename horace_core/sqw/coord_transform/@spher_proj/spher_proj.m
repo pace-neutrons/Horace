@@ -208,15 +208,6 @@ classdef spher_proj<aProjectionBase
     end
 
     methods(Access = protected)
-        function mat = get_u_to_rlu_mat(obj)
-            % TODO: #954 NEEDS verification:
-            % u_to_rlu matrix used to tranfer offset expressed in Crystal Cartesian
-            % into rlu (normally this matrix contans inverse operation)
-            %
-            bm = bmatrix(obj.alatt,obj.angdeg);
-            mat = inv(bm);
-            mat = [mat,zeros(3,1);[0,0,0,1]];
-        end
     end
     %=====================================================================
     % SERIALIZABLE INTERFACE
