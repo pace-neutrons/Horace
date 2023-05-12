@@ -12,5 +12,5 @@ function pix_cc = transform_img_to_pix_(obj,pix_data)
 ndim = size(pix_data,1);
 [pix_to_img,offset]=obj.get_pix_img_transformation(ndim);
 %
-pix_cc= (bsxfun(@plus,pix_to_img'\pix_data,offset));
+pix_cc= (bsxfun(@plus,pix_to_img'\pix_data,offset(:)));
 

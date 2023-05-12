@@ -1,4 +1,4 @@
-function [ub, mess, umat] = ubmatrix (u, v, b)
+function [ub, umat] = ubmatrix (u, v, b)
 % Calculate UB matrix that transforms components of a vector given in r.l.u.
 % into the components in an orthonormal frame defined by the two vectors
 % u and v (each given in r.l.u)
@@ -38,7 +38,6 @@ function [ub, mess, umat] = ubmatrix (u, v, b)
 % Horace v0.1   J. van Duijn, T.G.Perring
 
 try
-    mess = '';
     u = u(:);   % convert to column vector
     v = v(:);   % convert to column vector
 
@@ -52,11 +51,8 @@ try
     umat = [e1';e2';e3']/det([e1';e2';e3']);    % renormalise to ensure determinant = 1
     ub = umat*b;
 catch
-    ub = [];
-    umat = [];
-    mess = 'Problem calculating UB matrix. Check u and v are not parallel';
-    if nargout < 1
-        error('HORACE:ubmatrix:invalid_argument',mess);
-    end
+    error('HORACE:ubmatrix:invalid_argument', ...
+        'Problem calculating UB matrix. Check u (%s) and v (%s)are not parallel',...
+		mat2str(u'),mat2str(v'));
 end
 

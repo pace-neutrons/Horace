@@ -23,6 +23,9 @@ function [u,v,w,type,nonortho]=uv_from_rlu_mat_(obj,u_rot_mat,ulen)
 %u_rot_mat(:,i) = ubinv(:,i)*ulen(i);
 
 b_mat = bmatrix(obj.alatt,obj.angdeg); % converts hkl to Crystal Cartesian
+%u_rot_mat = b_mat\u_rot_mat; % old style transformation matrix need this
+% to define the transformation
+
 % get_proj_and_pbin(w) T.G.Perring   30 September 2018
 % Extracted from it on 19/07/2022;
 uu = u_rot_mat(:, 1)';

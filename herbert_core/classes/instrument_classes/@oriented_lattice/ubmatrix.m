@@ -45,8 +45,4 @@ end
 
 u=obj.u';    % convert to column vector
 v=obj.v';    % convert to column vector
-[ub,mess, umat] = ubmatrix (u, v, b);
-if ~isempty(mess)
-    error('ORIENTED_LATTISE:invalid_argument',mess);
-end
-
+[ub,umat] = ubmatrix (u, v, b);

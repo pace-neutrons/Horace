@@ -40,7 +40,7 @@ elseif narg>=1 && narg<=4
     end
 
     b0 = bmatrix(alatt0,angdeg0);
-    b = bmatrix(alatt,angdeg);
+    b  = bmatrix(alatt,angdeg);
 
     if narg<=2
         rlu_corr=b\b0;
@@ -66,10 +66,8 @@ elseif narg>=1 && narg<=4
         end
         u0=header_ave.cu;
         v0=header_ave.cv;
-        [ub0,mess] = ubmatrix(u0,v0,b0);
-        if ~isempty(mess); error('HORACE:change_crystal:invalid_argument',mess); end
-        [ub,mess] = ubmatrix(u,v,b);
-        if ~isempty(mess); error('HORACE:change_crystal:invalid_argument',mess); end
+        ub0 = ubmatrix(u0,v0,b0);
+        ub  = ubmatrix(u,v,b);
         rlu_corr=ub\ub0;
     end
 

@@ -31,9 +31,9 @@ else % if pix_input is 4-d, this will use 4-D matrix and shift
     input_is_obj = false;
 end
 
-[pix_to_img,shift]=obj.get_pix_img_transformation(ndim,pix_input);
+[pix_to_img,offset]=obj.get_pix_img_transformation(ndim,pix_input);
 %
-pix_transf= ((bsxfun(@minus,pix_cc,shift))'*pix_to_img)';
+pix_transf= ((pix_to_img'*bsxfun(@minus,pix_cc,offset(:))));
 if input_is_obj
     if shift_ei
         ei = pix_input.dE -obj.offset(4);

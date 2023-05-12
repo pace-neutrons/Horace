@@ -1,4 +1,4 @@
-function [img_to_u, u_to_img, ulen,b_mat] = projaxes_to_rlu_(obj)
+function [u_to_img,ulen,b_mat,obj] = projaxes_to_rlu_(obj)
 % Determine matrices to convert rlu <=> projection axes, and the scaler
 %
 %
@@ -38,10 +38,12 @@ function [img_to_u, u_to_img, ulen,b_mat] = projaxes_to_rlu_(obj)
 u=obj.u;
 v=obj.v;
 b_vec_directions = b_mat./rlu_vec_len;
-ubmat_norm = ubmatrix(u,v,b_vec_directions);  % get UB matrix normalized by rlu vector length
-umat = ubmat_norm/b_vec_directions;
+[ubmat,umat] = ubmatrix(u,v,b_mat);  % get UB matrix normalized by rlu vector length
+
+
 type=obj.type;
 if isempty(obj.w) %
+    ubmat_norm = ubnat./b_vec_directions(:)';
     % the purpose of selecting default w with 'r' scale would be
     % providing the same thickness expressed in hkl cut regardless of the
     % cut direction. This may not have physical meaning for triclinic
@@ -51,17 +53,14 @@ if isempty(obj.w) %
     w = w/norm(w);
 else
     w=obj.w;
-    if ubmat_norm(3,:)*w'<0
+    if ubmat(3,:)*w'<0
         w=-w;       % ensure u,v,w make a rh set
+        obj.w_ = w;
     end
 end
 
 uvw=[u(:),v(:),w(:)];
-
-
-img_to_u = zeros(3,3);
 ulen = zeros(1,3);
-
 
 if obj.nonorthogonal
     uvw_orth=b_mat*uvw;  % u,v,w in the orthonormal coordinate system
@@ -73,35 +72,35 @@ if obj.nonorthogonal
     r_norm = max(veclen);
     % Keep non-orthogonality of u,v, and w (if given)
     for i=1:3
+        uvw_orth(:,i) = uvw_orth(:,i)/veclen(i);
         if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
             ulen(i) = r_norm;
-            uvw_orth(:,i) = uvw_orth(:,i)*(r_norm/veclen(i));
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
             ulen(i) = 1;
-            uvw_orth(:,i) = uvw_orth(:,i)/veclen(i); % get unit vector in this direction
         elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
             ulen(i) = veclen(i);
         end
-        img_to_u(:,i) = uvw_orth(:,i);
     end
+    u_to_img = inv(uvw_orth)./(ulen(:)');
 else
-    uvw_orth=ubmat_norm.*rlu_vec_len(:)*uvw;  % u,v,w in the orthonormal
-    %                    coordinate system frame defined by u (along u) and v and
-    %                    aligned with rotated Crystal Cartesian system
-    %                    (A^-1)
+    uvw_orth=ubmat*uvw;  % u,v,w in the orthonormal
+    %                   coordinate system frame defined by u (along u) and v and
+    %                   aligned with rotated Crystal Cartesian system
+    %                   (A^-1)
 
     i = 1:3;
-    coord_norm = arrayfun(@(i)norm(rlu_vec_len(i)*ubmat_norm(:,i)),i);
-    r_norm = min(coord_norm);
+    vec_len = arrayfun(@(i)norm(ubmat(:,i)),i);
+    r_norm = min(vec_len);
     for i=1:3
         if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
             ulen(i) = r_norm;
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
             ulen(i) = 1;            % length of ui in Ang^-1
         elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
-            ulen(i) = norm(uvw_orth(:,i));
+            ulen(i) = abs(uvw_orth(i,i));
         end
-        img_to_u(:,i) = umat(:,i)*ulen(i);
     end
+    u_to_img = inv(umat)./(ulen(:)');
 end
-u_to_img = inv(img_to_u);   % matrix to convert a vector in r.l.u. to no. steps along u1, u2, u3
+
+

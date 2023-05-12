@@ -383,7 +383,7 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function [u_to_img,shift,ulen]=get_pix_img_transformation(obj,ndim,varargin)
+        function [u_to_img,shift,ulen,obj]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
             % to image coordinate system and vise-versa if the projaxes is
             % defined
@@ -416,8 +416,8 @@ classdef ortho_proj<aProjectionBase
                 if alignment_needed
                     u_to_img  = u_to_img*alignment_mat;
                 end
-                if nargout == 3 %usually for tests
-                    [~,~,ulen] = projaxes_to_rlu_(obj);
+                if nargout >= 3 %usually for tests, ulen retrieved too.
+                    [~,~,ulen,~,obj] = projaxes_to_rlu_(obj);
                 else
                     ulen = [];
                 end
@@ -425,18 +425,17 @@ classdef ortho_proj<aProjectionBase
             end
             %
             if isempty(obj.ub_inv_legacy)
-                [img_to_u,u_to_img,ulen,rlu_to_u] = projaxes_to_rlu_(obj);
+                [u_to_img,ulen,rlu_to_u,obj] = projaxes_to_rlu_(obj);
                 % Modern alignment with rotation matrix attached to pixel
                 % coordinate system
                 if alignment_needed
-                    u_to_img  = img_to_u\alignment_mat;
+                    u_to_img  = u_to_img*alignment_mat;
                 end
             else% Legacy alignment, with multiplication of rotation matrix
-                rlu_to_u = projaxes_to_rlu_legacy_(obj, [1,1,1]);
+                rlu_to_u  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
                 u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
                 u_to_img  = (rlu_to_u*u_to_rlu_)';
-                rlu_to_u = inv(u_to_rlu_);
-
+                rlu_to_u  = inv(u_to_rlu_);
             end
             %
             if ndim==4
