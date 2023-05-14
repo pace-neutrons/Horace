@@ -30,6 +30,7 @@ classdef IX_det_He3tube < IX_det_abstractType
 
         % Other dependent properties:
         inner_rad   % Inner radius of tube(m)
+        
         % Other dependent properties required by abstract template
         ndet        % Number of detectors
     end
@@ -53,19 +54,20 @@ classdef IX_det_He3tube < IX_det_abstractType
             %   atms        3He partial pressure(s) (atmospheres)
 
             if nargin>0
-                % define parameters accepted by constructor as keys and also the
+                % Define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
                 % provided without their names
                 pos_params = obj.saveableFields();
-                % set positional parameters and key-value pairs and check their
+                
+                % Set positional parameters and key-value pairs and check their
                 % consistency using public setters interface. Run
-                % check_compo_arg after all settings have been done.
-                [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
-                    true,varargin{:});
+                % check_combo_arg after all settings have been done.
+                [obj, remains] = set_positional_and_key_val_arguments (obj, ...
+                    pos_params, true, varargin{:});
                 if ~isempty(remains)
                     error('HERBERT:IX_det_He3tube:invalid_argument', ...
-                        'Unrecognised extra parameters provided as input to IX_det_He3tube constructor: %s',...
-                        disp2str(remains));
+                        ['Unrecognised extra parameters provided as input to ',...
+                        'IX_det_He3tube constructor: %s'], disp2str(remains));
                 end
             end
         end
@@ -148,9 +150,12 @@ classdef IX_det_He3tube < IX_det_abstractType
         %------------------------------------------------------------------
 
     end
+    
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    %======================================================================
+
     methods
-        % SERIALIZABLE INTERFACE
-        %------------------------------------------------------------------
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
@@ -162,7 +167,8 @@ classdef IX_det_He3tube < IX_det_abstractType
             flds = obj.saveableFields();
             if ~all(obj.mandatory_field_set_)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
-                    'Must give all mandatory inputs namely: %s\n. Properties: %s have not been set', ...
+                    ['Must give all mandatory inputs namely: %s\n',...
+                    'Properties: %s have not been set'], ...
                     disp2str(flds),...
                     disp2str(flds(~obj.mandatory_field_set_)));
 
@@ -172,7 +178,8 @@ classdef IX_det_He3tube < IX_det_abstractType
             % wall thickness
             if  ~all(obj.dia_>=2*obj.wall_)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
-                    'Tube diameter(s) must be greater or equal to twice the wall thickness(es)')
+                    ['Tube diameter(s) must be greater or equal to twice ',...
+                    'the wall thickness(es)'])
             end
         end
         function flds = saveableFields(~)
@@ -185,8 +192,9 @@ classdef IX_det_He3tube < IX_det_abstractType
             ver = 2;
         end
     end
+    
+    %----------------------------------------------------------------------
     methods(Access=protected)
-        %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the
             % previous version of the object.
@@ -203,11 +211,10 @@ classdef IX_det_He3tube < IX_det_abstractType
             % optimization here is possible to not to use the public
             % interface. But is it necessary? its the question
             obj = from_old_struct@serializable(obj,inputs);
-
         end
     end
 
-    %------------------------------------------------------------------
+    %----------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
             % overloaded loadobj method, calling generic method of
@@ -217,8 +224,6 @@ classdef IX_det_He3tube < IX_det_abstractType
             obj = IX_det_He3tube();
             obj = loadobj@serializable(S,obj);
         end
-        %------------------------------------------------------------------
-
     end
     %======================================================================
 end

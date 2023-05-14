@@ -2,20 +2,27 @@ classdef IX_detector_bank < serializable
     % Defines a detector bank for detectors of one type, for example, helium
     % tubes, or slab detectors. The object contains detector positional
     % information and the detector information for a detector bank of a single
-    % detector type. 
+    % detector type.
     
     properties (Access=private)
-        class_version_ = 1; % Class version number
-        id_  = []        % Detector identifiers, integers greater than 0 (column vector, in ascending order)
-        x2_  = []        % Sample-detector distance (m) (column vector)
-        phi_ = []        % Scattering angle (degrees, in range 0 to 180) (column vector)
-        azim_= []        % Azimuthal angle (degrees) (column vector)
-        dmat_= eye(3);  % Detector orientation matrix [3,3,ndet]
-        det_ = IX_det_slab     % scalar object of IX_det_abstractType
+        % Class version number
+        class_version_ = 1;
+        % Detector identifiers, integers greater than 0 (column vector, ascending)
+        id_  = []
+        % Sample-detector distance (m) (column vector)
+        x2_  = []
+        % Scattering angle (degrees, in range 0 to 180) (column vector)
+        phi_ = []
+        % Azimuthal angle (degrees) (column vector)
+        azim_= []
+        % Detector orientation matrix [3,3,ndet]
+        dmat_= eye(3);
+        % Scalar object of IX_det_abstractType
+        det_ = IX_det_slab
     end
     
     properties (Dependent)
-        % Detector identifiers, integers greater than 0 (column vector, in ascending order)
+        % Detector identifiers, integers greater than 0 (column vector, ascending)
         id
         % Sample-detector distance (m) (column vector)
         x2
@@ -36,26 +43,24 @@ classdef IX_detector_bank < serializable
         det
         % Number of detectors (get access only):
         ndet
-        
-        % combined - all the above in one field
-        % bypasses the expand_args_by_ref of the individual sets
+        % Combined - all the above in one field
+        % Bypasses the expand_args_by_ref of the individual sets
         combined
     end
-
+    
     properties(Constant,Access=private)
         % fields_to_save_ = {'id','x2','phi','azim', 'dmat', 'det', 'ndet'};
         fields_to_save_ = {'combined'};
     end
     
-
-
+    
     methods
         %------------------------------------------------------------------
         % Constructor
         function obj = IX_detector_bank (id, x2, phi, azim, det, varargin)
             % Construct a detector bank
             %
-            %   >> obj = IX_detector_bank (id, x2, phi, azim, detector_type)
+            %   >> obj = IX_detector_bank (id, x2, phi, azim, det)
             %
             %   >> obj = IX_detector_bank (..., 'rotvec', V)
             % *OR*
@@ -68,27 +73,32 @@ classdef IX_detector_bank < serializable
             %   x2          Sample - detector distances
             %   phi         Scattering angles (degrees) (in range 0 - 180 degrees)
             %   azim        Azimuthal angles (degrees)
-            %   det         Object (or array of objects, one per detector) of a
-            %              class that inherits IX_det_abstractType e.g. IX_det_He3tube
+            %   det         Properties for a detector or array of detectors.
+            %               An instance of a class such as IX_det_He3tube
+            %              or IX_det_slab that inherits IX_det_abstractType
             %
             % Optional arguments defining detector orientations:
             %
-            %   One and only one of the follow can be given. The default if none is
-            %   The default if none is given is that the detector coordinate frame is
-            %  the same as the secondary spectrometer coordinate frame i.e. the default
-            %  is: 'dmat',eye(3)
+            % The detector orientation can be defined using one and only one
+            % of the following:
             %
-            %   'rotvec',V  Rotation vector(s) that gives the orientation of the detector
-            %              coordinate frame(s) with respect to the secondary spectrometer
-            %              frame.
-            %               Vector length 3 or array size [3,ndet] (degrees).
-            %               The detector frame is obtained by rotation according to the vector
-            %              which has components in the secondary frame given by V
+            %   'rotvec',V  Rotation vector(s) that gives the orientation
+            %              of the detector coordinate frame(s) with respect
+            %               to the secondary spectrometer frame.
+            %               Vector length 3 or array size [3,ndet] (degrees)
+            %               The detector frame is obtained by rotation according
+            %              to the vector which has components in the secondary
+            %              spectrometer coordinate frame given by V.
             %
-            %   'dmat',D    Rotation matrix that gives components in secondary spectrometer
-            %              coordinate frame given those in the detector coordinate frame:
+            %   'dmat',D    Rotation matrix that returns the components of
+            %              a vector in the secondary spectrometer coordinate
+            %              frame given those in the detector coordinate frame:
             %                       xf(i) = Sum_j [D(i,j) xdet(j)]
             %               Array size [3,3] or [3,3,ndet]
+            %
+            % The default if neither is given is that the detector coordinate
+            % frame is the same as the secondary spectrometer coordinate
+            % frame i.e. the default is: 'dmat',eye(3)
             
             if nargin==0, return, end   % Default single detector
             
@@ -102,13 +112,16 @@ classdef IX_detector_bank < serializable
                 if numel(varargin)==2 && is_string(varargin{1}) && ~isempty(varargin{1})
                     iout = stringmatchi(varargin{1},types);
                     if isscalar(iout)
-                        [ok,mess,ndet0,dmat] = det_orient_trans (varargin{2}, types{iout}, 'dmat');
+                        [ok,mess,ndet0,dmat] = det_orient_trans (varargin{2},...
+                            types{iout}, 'dmat');
                         if ~ok, error(mess); end
                     else
-                        error('Unrecognised or ambiguous orientation type')
+                        error('HERBERT:IX_detector_bank:invalid_argument',...
+                            'Unrecognised or ambiguous orientation type')
                     end
                 else
-                    error('Must supply one and only one detector orientation description')
+                    error('HERBERT:IX_detector_bank:invalid_argument',...
+                        'Must supply one and only one detector orientation description')
                 end
             end
             
@@ -119,10 +132,12 @@ classdef IX_detector_bank < serializable
                 if ndet>=1
                     obj.id_ = id(:);
                 else
-                    error('There must be at least one detector identifier')
+                    error('HERBERT:IX_detector_bank:invalid_argument',...
+                        'There must be at least one detector identifier')
                 end
             else
-                error(['Detector ',mess])
+                error('HERBERT:IX_detector_bank:invalid_argument',...
+                    ['Detector ',mess])
             end
             
             % Check position coordinates
@@ -147,7 +162,9 @@ classdef IX_detector_bank < serializable
             elseif ndet0==1 % must have ndet>1, as scalar case already caught
                 obj.dmat_ = repmat(dmat,[1,1,ndet]);
             else
-                error('Number of detector orientations must be unity or match the number of detector identifiers')
+                error('HERBERT:IX_detector_bank:invalid_argument',...
+                    ['The number of detector orientations must be unity or ',...
+                    'match the number of detector identifiers'])
             end
             
             % Check detector parameters
@@ -159,10 +176,13 @@ classdef IX_detector_bank < serializable
             elseif det.ndet==1  % must have ndet>1, as scalar case already caught
                 obj.det_ = obj.det_.replicate(ndet);
             else
-                error('Number of detectors must be unity or match the number of detector identifiers')
+                error('HERBERT:IX_detector_bank:invalid_argument',...
+                    ['The number of detectors must be unity or match the ',...
+                    'number of detector identifiers'])
             end
             
         end
+        
         %------------------------------------------------------------------
         % Set methods
         %
@@ -176,14 +196,15 @@ classdef IX_detector_bank < serializable
         
         function obj = set.x2_(obj,val)
             if isempty(val)
-                % keeps shape of val as shape of empty val(:) is different 
+                % keeps shape of val as shape of empty val(:) is different
                 obj.x2_ = val;
                 return;
             end
             if all(val(:) >= 0)
                 obj.x2_ = val(:);
             else
-                error('Sample - detector distance(s) must be greater or equal to zero')
+                error('HERBERT:IX_detector_bank:invalid_argument',...
+                    'Sample - detector distance(s) must be greater or equal to zero')
             end
         end
         
@@ -196,13 +217,15 @@ classdef IX_detector_bank < serializable
             if all(val(:) >= 0) && all(val(:)<180)
                 obj.phi_ = val(:);
             else
-                error('Scattering angle(s) must lie in the range 0 inclusive to 180 degrees exclusive')
+                error('HERBERT:IX_detector_bank:invalid_argument',...
+                    ['Scattering angle(s) must lie in the range 0 inclusive ',...
+                    'to 180 degrees exclusive'])
             end
         end
         
         function obj = set.azim_(obj,val)
             if isempty(val)
-                % keeps shape of val as shape of empty val(:) is different                
+                % keeps shape of val as shape of empty val(:) is different
                 obj.azim_ = val;
                 return;
             end
@@ -219,7 +242,8 @@ classdef IX_detector_bank < serializable
             if isa(val,'IX_det_abstractType') && isscalar(val)
                 obj.det_ = val;
             else
-                error('Detector type must be a single IX_det_abstractType object')
+                error('HERBERT:IX_detector_bank:invalid_argument',...
+                    'Detector type must be a single IX_det_abstractType object')
             end
         end
         
@@ -260,10 +284,12 @@ classdef IX_detector_bank < serializable
                         obj.det_  = obj.det_.reorder(ix);
                     end
                 else
-                    error(['Detector ',mess])
+                    error('HERBERT:IX_detector_bank:invalid_argument',...
+                        ['Detector ',mess])
                 end
             else
-                error('The number of detector identifiers must match the current number')
+                error('HERBERT:IX_detector_bank:invalid_argument',...
+                    'The number of detector identifiers must match the current number')
             end
         end
         
@@ -289,7 +315,9 @@ classdef IX_detector_bank < serializable
                 elseif ndet0==1
                     obj.dmat_ = repmat(val,[1,1,obj.ndet]);
                 else
-                    error('Number of detector orientations must be scalar or match the number of detector identifiers')
+                    error('HERBERT:IX_detector_bank:invalid_argument',...
+                        ['The number of detector orientations must be scalar ',...
+                        'or match the number of detector identifiers'])
                 end
             else
                 error(mess)
@@ -302,7 +330,9 @@ classdef IX_detector_bank < serializable
                 if val.ndet==1
                     obj.det_ = val.replicate(obj.ndet);
                 else
-                    error('The number of detectors must match be unity or equal the number of detector identifiers')
+                    error('HERBERT:IX_detector_bank:invalid_argument',...
+                        ['The number of detectors must match be unity or ',...
+                        'equal the number of detector identifiers'])
                 end
             end
         end
@@ -340,28 +370,31 @@ classdef IX_detector_bank < serializable
         %------------------------------------------------------------------
         
     end
+    
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    %======================================================================
+    
     methods
-            % SERIALIZABLE interface
-        %------------------------------------------------------------------
         function ver  = classVersion(~)
-            % define version of the class to store in mat-files
+            % Define version of the class to store in mat-files
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
             ver = 1;
         end
-        %
+        
         function flds = saveableFields(~)
-            % get independent fields, which fully define the state of the
+            % Get independent fields, which fully define the state of the
             % serializable object.
             flds = IX_detector_bank.fields_to_save_;
         end
     end
-        
-    %------------------------------------------------------------------
+    
+    %----------------------------------------------------------------------
     methods (Static)
         %{
-        function obj = loadobj(S)
+function obj = loadobj(S)
             % Static method used my Matlab load function to support custom
             % loading.
             %
@@ -391,12 +424,10 @@ classdef IX_detector_bank < serializable
         %}
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % saveable class 
+            % saveable class
             obj = IX_detector_bank();
             obj = loadobj@serializable(S,obj);
         end
-        %------------------------------------------------------------------
-        
     end
     %======================================================================
     

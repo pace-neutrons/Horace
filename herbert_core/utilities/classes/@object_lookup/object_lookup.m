@@ -39,7 +39,6 @@ classdef object_lookup
     %   object_array    - retrieve a given object array from the set of object arrays
     %   object_elements - retrieve one or more elements from a given object array in the set
     %
-    %   func_eval       - evaluate a method or function for indexed occurences in the object_lookup
     %   func_eval_ind   - evaluate a method or function for indexed occurences in the object_lookup
     %                     with indexed function arguments too
     %   rand_ind        - generate random points for indexed occurences in object_lookup

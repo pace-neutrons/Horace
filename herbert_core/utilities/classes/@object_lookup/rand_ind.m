@@ -78,7 +78,7 @@ function varargout = rand_ind (obj, iarray, varargin)
 %       [X1, X2,...] = randfunc (object, sz1, sz2,...) % array of size [sz1,sz2,...]
 %       [X1, X2,...] = randfunc (..., p1, p2, ...)     % with further optional arguments
 %                           % It is assumed that the method can resolve any ambiguities
-%                           % between p1 and n, sz or szn
+%                           % between p1 and n, sz or sz1, sz2,...
 %
 %               - If ielmts is present:
 %       [X1, X2,...] = randfunc (object, ielmts)
