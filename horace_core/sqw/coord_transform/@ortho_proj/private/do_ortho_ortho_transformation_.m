@@ -30,7 +30,7 @@ end
 
 %
 shift = obj.ortho_ortho_offset_(1:3);
-pix_transf= (bsxfun(@plus,pix_coord'*obj.ortho_ortho_transf_mat_,shift))';
+pix_transf= (bsxfun(@plus,obj.ortho_ortho_transf_mat_*pix_coord,shift(:)));
 
 if input_is_obj
     if shift_ei

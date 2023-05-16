@@ -88,7 +88,7 @@ offset = [0;0;0;0];
 % Cartesian, the initial projection does unary transformation regardless of
 % from crystal Cartesian pixels to crystal Cartesian image 
 proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg, 'type','aaa');
-%proj = proj.set_unary_cache();
+
 
 
 sqw_data = DnDBase.dnd(axes_bl,proj);

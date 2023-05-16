@@ -138,6 +138,7 @@ classdef ortho_proj<aProjectionBase
 
         u_to_img_cache_ = [];
         u_offset_cache_ = [];
+        ulen_cache_     = [];
     end
 
     methods
@@ -345,7 +346,7 @@ classdef ortho_proj<aProjectionBase
         function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
             % return the axes block, corresponding to this projection class.
             ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
-            [~,~, ulen] = obj.uv_to_rot([1,1,1]);
+            [~,~,ulen]  = obj.get_pix_img_transformation(3);
             ax_bl.ulen  = ulen;
             %
             if obj.nonorthogonal
@@ -410,16 +411,12 @@ classdef ortho_proj<aProjectionBase
             else
                 alignment_needed = false;
             end
-            if ~isempty(obj.u_to_img_cache_)
+            if ~isempty(obj.u_to_img_cache_) && isempty(obj.ub_inv_legacy)
                 u_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
                 shift    = obj.u_offset_cache_(1:ndim);
+                ulen     = obj.ulen_cache_;
                 if alignment_needed
                     u_to_img  = u_to_img*alignment_mat;
-                end
-                if nargout >= 3 %usually for tests, ulen retrieved too.
-                    [~,~,ulen,~,obj] = projaxes_to_rlu_(obj);
-                else
-                    ulen = [];
                 end
                 return;
             end
@@ -432,7 +429,7 @@ classdef ortho_proj<aProjectionBase
                     u_to_img  = u_to_img*alignment_mat;
                 end
             else% Legacy alignment, with multiplication of rotation matrix
-                rlu_to_u  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
+                [rlu_to_u,~,ulen]  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
                 u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
                 u_to_img  = (rlu_to_u*u_to_rlu_)';
                 rlu_to_u  = inv(u_to_rlu_);
@@ -461,6 +458,10 @@ classdef ortho_proj<aProjectionBase
     %----------------------------------------------------------------------
     methods(Access = protected)
         %------------------------------------------------------------------
+        function   mat = get_u_to_rlu_mat(obj)
+            mat = obj.get_pix_img_transformation(4);
+        end
+        
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)

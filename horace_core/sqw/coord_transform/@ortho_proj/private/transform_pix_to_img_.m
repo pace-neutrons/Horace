@@ -33,6 +33,8 @@ end
 
 [pix_to_img,offset]=obj.get_pix_img_transformation(ndim,pix_input);
 %
+% transposed pix_to_image transformation, as the transformation is defined
+% as column vectors and pixel_data here are also column vectors.
 pix_transf= ((pix_to_img'*bsxfun(@minus,pix_cc,offset(:))));
 if input_is_obj
     if shift_ei

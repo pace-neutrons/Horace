@@ -11,6 +11,7 @@ function pix_cc = transform_img_to_pix_(obj,pix_data)
 
 ndim = size(pix_data,1);
 [pix_to_img,offset]=obj.get_pix_img_transformation(ndim);
-%
+% transposed pix_to_image transformation, as the transformation is defined
+% as column vectors and pixel_data here are also column vectors.
 pix_cc= (bsxfun(@plus,pix_to_img'\pix_data,offset(:)));
 

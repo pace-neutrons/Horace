@@ -590,6 +590,13 @@ classdef aProjectionBase < serializable
     end
     %======================================================================
     methods(Access = protected)
+        function   mat = get_u_to_rlu_mat(obj)
+            if obj.alatt_defined && obj.angdeg_defined
+                mat = inv(bmatrix(obj.alatt,obj.angdeg));
+            else
+                mat  = eye(3);
+            end
+        end
         function  alat = get_alatt_(obj)
             % overloadable alatt accessor
             alat  = obj.alatt_;

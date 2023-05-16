@@ -636,6 +636,9 @@ classdef AxesBlockBase < serializable
         % axis organized in cellarray of 4 axis.
 
         volume = calc_bin_volume(obj,axis_cell)
+        %
+        [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
+                data_plot_titles(obj,dnd_obj)        
     end
     %======================================================================
     methods(Access=protected)

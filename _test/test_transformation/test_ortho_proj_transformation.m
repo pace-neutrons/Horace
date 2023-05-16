@@ -311,6 +311,8 @@ classdef test_ortho_proj_transformation<TestCase
         function test_transformation_scale_rrr_ortho_rot_xyz(~)
 
             lat_par = [2,3,4];
+            len = (2*pi)./lat_par;
+
             proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[-1,1,1],'v',[1,0,0],'w',[0,1,0],'type','rrr');
 
@@ -321,14 +323,17 @@ classdef test_ortho_proj_transformation<TestCase
             assertFalse(proj.nonorthogonal)
 
 
-            img_coord = proj.transform_pix_to_img(eye(3));
+            pix_coord = eye(3).*len;
+            img_coord = proj.transform_pix_to_img(pix_coord);
 
-            len = (2*pi)./lat_par;
-            scale = 1/len(3);
-
-            assertElementsAlmostEqual(norm(img_coord(:,1)),scale );
-            assertElementsAlmostEqual(norm(img_coord(:,2)),scale);
-            assertElementsAlmostEqual(norm(img_coord(:,3)),scale);
+            % can not find a way to calculate the resulting transformation
+            % except the use the proj altogithm itself, though have some
+            % ideas
+            sample = [...
+                -1.0000    0.4444    0.2500;...
+                1.5625    1.0000    0.5625;...
+                -0.0000    1.0000   -1.0000];
+            assertElementsAlmostEqual(img_coord,sample,'absolute',1.e-4);
 
         end
 
@@ -336,24 +341,27 @@ classdef test_ortho_proj_transformation<TestCase
         function test_transformation_scale_rrr_ortho_rot_xy(~)
 
             lat_par = [2,3,4];
+            len = (2*pi)./lat_par;
             proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[-1,1,0],'v',[1,1,0],'w',[0,0,1],'type','rrr');
 
             assertEqual(proj.type,'rrr')
             assertEqual(proj.u,[-1,1,0])
             assertEqual(proj.v,[1,1,0])
-            assertEqual(proj.w,[0,0,1])
+            assertEqual(proj.w,[0,0,-1])
             assertFalse(proj.nonorthogonal)
 
+            pix_coord = eye(3).*len;
+            img_coord = proj.transform_pix_to_img(pix_coord);
 
-            img_coord = proj.transform_pix_to_img(eye(3));
-
-
-            scale = 1/len(3);
-
-            assertElementsAlmostEqual(norm(img_coord(:,1)),scale );
-            assertElementsAlmostEqual(norm(img_coord(:,2)),scale);
-            assertElementsAlmostEqual(norm(img_coord(:,3)),scale);
+            % can not find a way to calculate the resulting transformation
+            % except the use the proj altogithm itself, though have some
+            % ideas
+            sample = [...
+                -1.0000    0.4444         0;...
+                1.0000     1.0000         0;...
+                0          0       -1.0000];
+            assertElementsAlmostEqual(img_coord,sample,'absolute',1.e-4);
 
         end
 
@@ -368,13 +376,11 @@ classdef test_ortho_proj_transformation<TestCase
             assertEqual(proj.w,[0,0,1])
             assertFalse(proj.nonorthogonal)
 
-
-            img_coord = proj.transform_pix_to_img(eye(3));
-
             len = (2*pi)./lat_par;
-            exp_coord = eye(3)/len(3);
+            pix_coord = eye(3).*len;
+            img_coord = proj.transform_pix_to_img(pix_coord);
 
-            assertElementsAlmostEqual(img_coord,exp_coord);
+            assertElementsAlmostEqual(img_coord,eye(3));
         end
         % PPP
         %------------------------------------------------------------------
@@ -420,29 +426,34 @@ classdef test_ortho_proj_transformation<TestCase
 
         function test_transformation_scale_ppp_ortho_rot_xyz(~)
 
-            lat_par = [2,3,4];
+            lat_par = [1,2,3];
             proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
-                'u',[-1,1,1],'v',[1,0,0],'w',[0,1,0],'type','ppp');
+                'u',[-1,1,1],'v',[1,1,0],'w',[0,1,0],'type','ppp');
 
             assertEqual(proj.type,'ppp')
             assertEqual(proj.u,[-1,1,1])
-            assertEqual(proj.v,[1,0,0])
+            assertEqual(proj.v,[1,1,0])
 
             assertFalse(proj.nonorthogonal)
 
 
             img_coord = proj.transform_pix_to_img(eye(3));
 
-            len = (2*pi)./lat_par;
+            % can not find a way to calculate the resulting transformation
+            % except the use the proj altogithm itself
+            sample = [...
+                -0.1169    0.0585    0.0390;...
+                0.0854     0.1475    0.0349;...
+                -0.1592    0.3183   -0.9549];
 
-            assertElementsAlmostEqual(norm(img_coord(:,1)),1/sqrt(3)/len(1));
+            assertElementsAlmostEqual(img_coord,sample,'absolute',1.e-4);
         end
 
 
         function test_transformation_scale_ppp_ortho_rot_xy(~)
 
             lat_par = [1,2,3];
-            len = (2*pi)./lat_par;            
+            len = (2*pi)./lat_par;
             proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[-1,1,0],'v',[1,1,0],'w',[0,0,1]);
 
@@ -459,15 +470,15 @@ classdef test_ortho_proj_transformation<TestCase
             assertElementsAlmostEqual(pix_coord,pix_rec);
 
 
-            assertElementsAlmostEqual(norm(img_coord(:,1)),norm([0.8,0.5]));
-            assertElementsAlmostEqual(norm(img_coord(:,2)),1/sqrt(2)/len(2));
-            assertElementsAlmostEqual(norm(img_coord(:,3)),1/len(3));
+            assertElementsAlmostEqual(img_coord(:,1), [-0.8;0.5; 0]);
+            assertElementsAlmostEqual(img_coord(:,2), [ 0.2;0.5; 0]);
+            assertElementsAlmostEqual(img_coord(:,3), [ 0;  0;  -1]);
 
         end
         function test_transformation_scale_ppp_ortho_rot_xy_qubic(~)
 
             lat_par = 3;
-            len = (2*pi)./lat_par;            
+            len = (2*pi)./lat_par;
             proj = ortho_proj('alatt',lat_par,'angdeg',90, ...
                 'u',[-1,1,0],'v',[1,1,0],'w',[0,0,1]);
 
@@ -478,7 +489,7 @@ classdef test_ortho_proj_transformation<TestCase
             assertFalse(proj.nonorthogonal)
 
 
-            pix_coord = [eye(3).*len,eye(3).*len];
+            pix_coord = [eye(3).*len',eye(3).*len'];
             img_coord = proj.transform_pix_to_img(pix_coord);
             pix_rec = proj.transform_img_to_pix(img_coord);
             assertElementsAlmostEqual(pix_coord,pix_rec);
@@ -487,9 +498,7 @@ classdef test_ortho_proj_transformation<TestCase
             assertElementsAlmostEqual(norm(img_coord(:,1)),1/sqrt(2));
             assertElementsAlmostEqual(norm(img_coord(:,2)),1/sqrt(2));
             assertElementsAlmostEqual(norm(img_coord(:,3)),1);
-
         end
-        
 
         function test_transformation_scale_ppp_ortho(~)
 
@@ -501,12 +510,12 @@ classdef test_ortho_proj_transformation<TestCase
             assertEqual(proj.w,[0,0,1])
             assertFalse(proj.nonorthogonal)
 
-
-            img_coord = proj.transform_pix_to_img(eye(3));
-
             len = (2*pi)./lat_par;
+            rlu_exp = [eye(3),ones(3,1)];
+            pix_coord = [eye(3).*len',ones(3,1).*len'];
+            img_coord = proj.transform_pix_to_img(pix_coord);
 
-            assertElementsAlmostEqual(diag(img_coord)',1./len);
+            assertElementsAlmostEqual(img_coord,rlu_exp);
         end
         % AAA
         %------------------------------------------------------------------

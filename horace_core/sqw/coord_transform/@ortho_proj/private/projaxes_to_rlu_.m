@@ -14,18 +14,15 @@ function [u_to_img,ulen,b_mat,obj] = projaxes_to_rlu_(obj)
 %
 % Output:
 % -------
-%   img_to_u      Matrix to convert components of a vector expressed
-%                 in image coordinate system to the components along the projection axes
-%                 u1,u2,u3, as multiples of the step size along those axes
-%                       Vstep(i) = rlu_to_ustep(i,j)*Vrlu(j)
-%
-%   u_to_img      The projection axis vectors u_1, u_2, u_3 in reciprocal
-%                 lattice vectors. The ith column is u_i in r.l.u. i.e.
-%                 ui = u_to_rlu(:,i)
-%
-%   ulen          Row vector of scales of ui in Ang^-1
-%   b_mat         Matrix transforimng hkl coordinate system into Crystal
-%                 Cartesian coordinate system
+%   img_to_u    Matrix to convert components of a vector expressed
+%               in image coordinate system to the components along the projection axes
+%               u1,u2,u3, as multiples of the step size along those axes
+%                   Vstep(i) = rlu_to_ustep(i,j)*Vrlu(j)
+%   ulen        Row vector of scales of ui in Ang^-1
+%   b_mat       Matrix transforimng hkl coordinate system into Crystal
+%               Cartesian coordinate system
+%   obj         the projection object iteslf modified if necessary so that
+%               u,v,w form a rh set if initial object wectors were not
 %
 %
 % Original author: T.G.Perring; J. van Duijn; Horace v0.1
@@ -43,12 +40,11 @@ b_vec_directions = b_mat./rlu_vec_len;
 
 type=obj.type;
 if isempty(obj.w) %
-    ubmat_norm = ubnat./b_vec_directions(:)';
     % the purpose of selecting default w with 'r' scale would be
     % providing the same thickness expressed in hkl cut regardless of the
     % cut direction. This may not have physical meaning for triclinic
     % lattice, but in this case you should provide w manually
-    uv_ortho = ubmat_norm*[u(:),v(:)];
+    uv_ortho = b_vec_directions*[u(:),v(:)];
     w = cross(uv_ortho(:,1),uv_ortho(:,2));
     w = w/norm(w);
 else
@@ -61,13 +57,14 @@ end
 
 uvw=[u(:),v(:),w(:)];
 ulen = zeros(1,3);
+i = 1:3;
+
 
 if obj.nonorthogonal
     uvw_orth=b_mat*uvw;  % u,v,w in the orthonormal coordinate system
     %                    frame attached to reciprocal lattice
     %                    vectors, i.e. Crystal Cartezian coordinate system
 
-    i = 1:3;
     veclen = arrayfun(@(i)norm(uvw_orth(:,i)),i);
     r_norm = max(veclen);
     % Keep non-orthogonality of u,v, and w (if given)
@@ -88,16 +85,22 @@ else
     %                   aligned with rotated Crystal Cartesian system
     %                   (A^-1)
 
-    i = 1:3;
-    vec_len = arrayfun(@(i)norm(ubmat(:,i)),i);
-    r_norm = min(vec_len);
+    % Different r normalization. Is it more reasonable then the other one?
+    %vec_len = arrayfun(@(i)norm(ubmat(:,i)),i);
+    % r_norm = min(vec_len);
     for i=1:3
         if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
-            ulen(i) = r_norm;
+            %ulen(i) = r_norm; -- is this what corresponds to the statement
+            %                     above?
+            ulen(i) = max(abs(ubmat(:,i))); % make the projection of Q-vector to
+            %                          % each axis of UB coordinates to be
+            % unary. HORACE  3.6 and below option
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
             ulen(i) = 1;            % length of ui in Ang^-1
         elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
-            ulen(i) = abs(uvw_orth(i,i));
+            ulen(i) = abs(uvw_orth(i,i)); % lentgh of the projections of
+            % the Q-coordinates onto the axes of the rotated according to U
+            % orthonormal coordinate system with x-axis along b_1
         end
     end
     u_to_img = inv(umat)./(ulen(:)');
