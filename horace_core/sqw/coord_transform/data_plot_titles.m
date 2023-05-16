@@ -67,7 +67,7 @@ for i=1:length(iax)
     else
         iint_ave=0;
     end
-    uofftot=uofftot+iint_ave*u_to_rlu(:,iax(i));  % overall displacement of plot volume in (rlu;en)
+    uofftot(iax(i))=uofftot(iax(i))+iint_ave;  % overall displacement of plot volume in (rlu;en)
 end
 
 % Axes and integration titles
@@ -180,7 +180,8 @@ for j=1:4
             title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
             display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_vector{j}];
         else
-            error ('ERROR: Axis is neither plot axis nor integration axis')
+            error ('HORACE:sqw:runtime_error', ...
+                'ERROR: Axis is neither plot axis nor integration axis')
         end
 
     else
@@ -251,7 +252,8 @@ for j=1:4
             title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
             display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_vector{j}];
         else
-            error ('ERROR: Axis is neither plot axis nor integration axis')
+            error ('HORACE:sqw:runtime_error', ...
+                'ERROR: Axis is neither plot axis nor integration axis')
         end
     end
 end

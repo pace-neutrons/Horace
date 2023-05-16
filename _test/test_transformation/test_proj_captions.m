@@ -12,11 +12,16 @@ classdef test_proj_captions<TestCase
             range = ones(2,4);
             range(1,1) = -2;
             range(2,1) =  2;
+            range(1,2) = -range(2,2);
+            range(1,3) = -range(2,3);
 
             range(1,4) = -5;
             range(2,4) = 20;
+            proj  = ortho_proj('alatt',2,'angdeg',90,'u',[1,1,0],'v',[-1,1,0]);                        
             ab = ortho_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
-            proj  = ortho_proj('alatt',2,'angdeg',90,'u',[1,1,0],'v',[-1,1,0]);
+            [~,~,ulen]  = proj.get_pix_img_transformation(3);
+            ab.ulen  = ulen;
+
             this.data= d2d(ab,proj);
         end
 
@@ -70,20 +75,21 @@ classdef test_proj_captions<TestCase
             assertEqual(title_main{2},'My Sample');
 
             assertEqual(numel(title_pax),2);
-            assertEqual(title_pax{2},['[-1+\zeta, 1+\zeta, 1] (',char(197),'^{-1})']);
+            assertEqual(title_pax{2},['[0.1592\zeta, 0.1592\zeta, 0] in 4.4429 ', ...
+                char(197),'^{-1}']);
             assertEqual(title_pax{1},' (meV)');
 
             assertEqual(numel(title_iax),2);
-            assertEqual(title_iax{1},'1 \leq \xi \leq 1 in [-\xi, \xi, 0]');
-            assertEqual(title_iax{2},'1 \leq \eta \leq 1 in [0, 0, \eta]');
+            assertEqual(title_iax{1},'-1 \leq \xi \leq 1 in [-0.1592\xi, 0.1592\xi, 0]');
+            assertEqual(title_iax{2},'-1 \leq \eta \leq 1 in [0, 0, 0.3183\eta]');
 
             assertEqual(numel(display_pax),2);
-            assertEqual(display_pax{2},'\zeta = -2:0.08:2 in [-1+\zeta, 1+\zeta, 1]');
+            assertEqual(display_pax{2},'\zeta = -2:0.08:2 in [0.1592\zeta, 0.1592\zeta, 0]');
             assertEqual(display_pax{1},'E = -5:0.625:20');
 
             assertEqual(numel(display_iax),2);
-            assertEqual(display_iax{1},'1 =< \xi =< 1 in [-\xi, \xi, 0]');
-            assertEqual(display_iax{2},'1 =< \eta =< 1 in [0, 0, \eta]');
+            assertEqual(display_iax{1},'-1 =< \xi =< 1 in [-0.1592\xi, 0.1592\xi, 0]');
+            assertEqual(display_iax{2},'-1 =< \eta =< 1 in [0, 0, 0.3183\eta]');
 
             assertEqual(energy_axis,4);
 
@@ -101,20 +107,20 @@ classdef test_proj_captions<TestCase
             assertTrue(isempty(title_main{1}));
 
             assertEqual(numel(title_pax),2);
-            assertEqual(title_pax{1},['[\zeta, 2+\zeta, 2] (',char(197),'^{-1})']);
+            assertEqual(title_pax{1},['[1+0.1592\zeta, 1+0.1592\zeta, 1] in 4.4429 ',char(197),'^{-1}']);
             assertEqual(title_pax{2},'[0, 0, 0, 1+E] (meV)'); % Re #954 why 0,0,0, why not 1,1,1,1+dE
 
             assertEqual(numel(title_iax),2);
-            assertEqual(title_iax{1},'1 \leq \xi \leq 1 in [1-\xi, 1+\xi, 1]');
-            assertEqual(title_iax{2},'1 \leq \eta \leq 1 in [1, 1, 1+\eta]');
+            assertEqual(title_iax{1},'-1 \leq \xi \leq 1 in [1-0.1592\xi, 1+0.1592\xi, 1]');
+            assertEqual(title_iax{2},'-1 \leq \eta \leq 1 in [1, 1, 1+0.3183\eta]');
 
             assertEqual(numel(display_pax),2);
-            assertEqual(display_pax{1},'\zeta = -2:0.08:2 in [\zeta, 2+\zeta, 2]');
+            assertEqual(display_pax{1},'\zeta = -2:0.08:2 in [1+0.1592\zeta, 1+0.1592\zeta, 1]');
             assertEqual(display_pax{2},'E = -5:0.625:20 in [0, 0, 0, 1+E]'); % Re #954 why 0, why not 1,1,1,1+dE
 
             assertEqual(numel(display_iax),2);
-            assertEqual(display_iax{1},'1 =< \xi =< 1 in [1-\xi, 1+\xi, 1]');
-            assertEqual(display_iax{2},'1 =< \eta =< 1 in [1, 1, 1+\eta]');
+            assertEqual(display_iax{1},'-1 =< \xi =< 1 in [1-0.1592\xi, 1+0.1592\xi, 1]');
+            assertEqual(display_iax{2},'-1 =< \eta =< 1 in [1, 1, 1+0.3183\eta]');
 
             assertEqual(energy_axis,4);
 
@@ -131,20 +137,20 @@ classdef test_proj_captions<TestCase
             assertTrue(isempty(title_main{1}));
 
             assertEqual(numel(title_pax),2);
-            assertEqual(title_pax{1},['[-1+\zeta, 1+\zeta, 1] (',char(197),'^{-1})']);
+            assertEqual(title_pax{1},['[0.1592\zeta, 0.1592\zeta, 0] in 4.4429 ',char(197),'^{-1}']);
             assertEqual(title_pax{2},' (meV)');
 
             assertEqual(numel(title_iax),2);
-            assertEqual(title_iax{1},'1 \leq \xi \leq 1 in [-\xi, \xi, 0]');
-            assertEqual(title_iax{2},'1 \leq \eta \leq 1 in [0, 0, \eta]');
+            assertEqual(title_iax{1},'-1 \leq \xi \leq 1 in [-0.1592\xi, 0.1592\xi, 0]');
+            assertEqual(title_iax{2},'-1 \leq \eta \leq 1 in [0, 0, 0.3183\eta]');
 
             assertEqual(numel(display_pax),2);
-            assertEqual(display_pax{1},'\zeta = -2:0.08:2 in [-1+\zeta, 1+\zeta, 1]');
+            assertEqual(display_pax{1},'\zeta = -2:0.08:2 in [0.1592\zeta, 0.1592\zeta, 0]');
             assertEqual(display_pax{2},'E = -5:0.625:20');
 
             assertEqual(numel(display_iax),2);
-            assertEqual(display_iax{1},'1 =< \xi =< 1 in [-\xi, \xi, 0]');
-            assertEqual(display_iax{2},'1 =< \eta =< 1 in [0, 0, \eta]');
+            assertEqual(display_iax{1},'-1 =< \xi =< 1 in [-0.1592\xi, 0.1592\xi, 0]');
+            assertEqual(display_iax{2},'-1 =< \eta =< 1 in [0, 0, 0.3183\eta]');
 
             assertEqual(energy_axis,4);
 

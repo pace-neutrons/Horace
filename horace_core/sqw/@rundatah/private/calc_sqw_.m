@@ -85,8 +85,10 @@ offset = [0;0;0;0];
 
 % set projection lattice, which transforms initial pixel coordinates to
 % initial image coordinates. As initial image coordinates are Crystal
-% Cartesian, the initial projection does unary transformation regardless of
-% from crystal Cartesian pixels to crystal Cartesian image 
+% Cartesian, the initial projection does unary transformation
+% from crystal Cartesian pixels to crystal Cartesian image.
+% Initial crystal orientation vrt. the beam have been accounted for by
+% transformation to spectrometer coordinate system
 proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg, 'type','aaa');
 
 

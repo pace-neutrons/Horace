@@ -459,7 +459,7 @@ classdef ortho_proj<aProjectionBase
     methods(Access = protected)
         %------------------------------------------------------------------
         function   mat = get_u_to_rlu_mat(obj)
-            mat = obj.get_pix_img_transformation(4);
+            [mat,~,ulen] = obj.get_pix_img_transformation(4);
         end
         
         %
