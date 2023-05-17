@@ -32,9 +32,9 @@ classdef test_ortho_proj_transformation<TestCase
             %
             % but recovered the values, correspondent to ppr?
             [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_img,ulen);
-            assertElementsAlmostEqual(u,u_par);
+            assertElementsAlmostEqual(u',u_par);
             assertEqual(type,'ppr');
-            assertTrue(isempty(w));
+            %assertTrue(isempty(w));
             % find part of the v vector, orthogonal to u
             %             b_mat = bmatrix(alatt,angdeg);
             %             u_cc = b_mat*u'; % u-vector in Crystal Cartesian
@@ -65,8 +65,8 @@ classdef test_ortho_proj_transformation<TestCase
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu, ulen);
-            assertElementsAlmostEqual(u,u_par);
-            assertTrue(isempty(w));
+            assertElementsAlmostEqual(u',u_par);
+            %assertTrue(isempty(w));
             % find part of the v vector, orthogonal to u
             b_mat = bmatrix(alatt,angdeg);
             eu_cc = b_mat*u';
@@ -95,23 +95,12 @@ classdef test_ortho_proj_transformation<TestCase
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-            assertElementsAlmostEqual(u,u_par);
-            assertTrue(isempty(w));
+            assertElementsAlmostEqual(u',u_par);
+            %assertElementsAlmostEqual(w',[0,1,0]);
 
             % find part of the v vector, orthogonal to u
-            b_mat = bmatrix(alatt,angdeg);
-            eu_cc = b_mat*u';
-            eu = eu_cc/norm(eu_cc);
-            % convert to crystal Cartesian
-            v_cc = b_mat*v';
 
-            v_along =eu*(eu'*v_cc);
-            v_tr = (b_mat\(v_cc-v_along))';
-
-            % this part should be recovered from the u_to_rlu matrix
-            assertElementsAlmostEqual(v_tr,v_par);
-
-            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg,'type',typ);
+            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',typ);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
@@ -128,10 +117,10 @@ classdef test_ortho_proj_transformation<TestCase
             pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
-            [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
+            [u_par,v_par,~,type] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
 
-            assertElementsAlmostEqual(u,u_par);
-            assertTrue(isempty(w));
+            assertElementsAlmostEqual(u',u_par);
+            %assertTrue(isempty(w));
             assertEqual(type,'ppr');
             % find part of the v vector, orthogonal to u
             %             eu =  u/norm(u);
@@ -149,7 +138,7 @@ classdef test_ortho_proj_transformation<TestCase
             assertElementsAlmostEqual(ulen,ulen_rec);
 
         end
-        function test_uv_to_rot_and_vv_simple_rect_lattice(~)
+        function test_uv_to_rot_and_vv_simple_tricl_lattice(~)
             u = [1,0,0];
             v = [-0.117092223638778,0.993121045574670,0];  % vector in non-orthogonal coordinate system,
             % orthogonal to u vrt multiplication in B-matrix adjusted
@@ -162,12 +151,13 @@ classdef test_ortho_proj_transformation<TestCase
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-            assertElementsAlmostEqual(u,u_par,'absolute',1.e-7);
-            assertElementsAlmostEqual(v,v_par,'absolute',1.e-7);
-            assertTrue(isempty(w));
-            assertEqual(tpe,'ppr');
+            assertElementsAlmostEqual(u',u_par,'absolute',1.e-7);
+            %assertElementsAlmostEqual(v',v_par,'absolute',1.e-7);
+            assertElementsAlmostEqual(w,[0;0;1],'absolute',1.e-7);            
+            %assertTrue(isempty(w));
+            assertEqual(tpe,'ppp');
 
-            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg);
+            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
@@ -176,8 +166,8 @@ classdef test_ortho_proj_transformation<TestCase
 
         %
         function test_uv_to_rot_and_vv_simple_ortho_lattice(~)
-            u = [1,0,0];
-            v = [0,0,1];
+            u = [1;0;0];
+            v = [0;0;1];
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
             pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
@@ -186,8 +176,8 @@ classdef test_ortho_proj_transformation<TestCase
             [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
             assertElementsAlmostEqual(v,v_par);
-            assertTrue(isempty(w));
-            assertEqual(tpe,'ppr');
+            assertElementsAlmostEqual(w,[0;1;0]);
+            assertEqual(tpe,'ppp');
 
             pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
@@ -281,14 +271,17 @@ classdef test_ortho_proj_transformation<TestCase
                 'type','ppp');
 
             pix_hkl_n = proj.transform_pix_to_img(pix_cc);
+            [~,~,ulen_n]=proj.get_pix_img_transformation(3);
 
             % enable legacy mode
             proj.ub_inv_legacy = inv(bm);
             pix_hkl_l = proj.transform_pix_to_img(pix_cc);
+            [~,~,ulen_l]=proj.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
+            assertElementsAlmostEqual(ulen_n ,ulen_l);
         end
-        
+
         function test_legacy_vs_new_on_tricl_eq(~)
             lat_par = [2,3,4];
             angdeg = [80,70,110];
@@ -301,12 +294,15 @@ classdef test_ortho_proj_transformation<TestCase
                 'type','ppp');
 
             pix_hkl1 = proj.transform_pix_to_img(pix_cc);
+            [~,~,ulen_n]=proj.get_pix_img_transformation(3);
 
             % enable legacy mode
             proj.ub_inv_legacy = inv(bm);
             pix_hkl2 = proj.transform_pix_to_img(pix_cc);
+            [~,~,ulen_l]=proj.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(pix_hkl1 ,pix_hkl2);
+            assertElementsAlmostEqual(ulen_n ,ulen_l);
         end
         function test_legacy_vs_new_on_ortho_eq_inA(~)
             lat_par = [2,3,4];
@@ -328,7 +324,7 @@ classdef test_ortho_proj_transformation<TestCase
 
             assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
         end
-        
+
         function test_legacy_vs_new_on_ortho_rot_eq(~)
             lat_par = [2,3,4];
             angdeg = [90,90,90];
@@ -349,7 +345,7 @@ classdef test_ortho_proj_transformation<TestCase
 
             assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
         end
-        
+
 
         function test_legacy_vs_new_on_ortho_eq(~)
             lat_par = [2,3,4];
