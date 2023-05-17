@@ -266,6 +266,111 @@ classdef test_ortho_proj_transformation<TestCase
             pix_rec = proj.transform_img_to_pix(pix_transf);
             assertEqual(pix_rec,pix);
         end
+        % Legacy vs new
+        %------------------------------------------------------------------
+        function test_legacy_vs_new_on_tricl_rot_eq(~)
+            lat_par = [2,3,4];
+            angdeg = [80,70,110];
+
+            pix_hkl = [eye(3),ones(3,1),[1;1;0]];
+            bm = bmatrix(lat_par,angdeg);
+            pix_cc = bm'*pix_hkl;
+
+            proj = ortho_proj('alatt',lat_par,'angdeg',angdeg, ...
+                'u',[1,-1,0],'v',[1,1,0],'w',[0,0,1], ...
+                'type','ppp');
+
+            pix_hkl_n = proj.transform_pix_to_img(pix_cc);
+
+            % enable legacy mode
+            proj.ub_inv_legacy = inv(bm);
+            pix_hkl_l = proj.transform_pix_to_img(pix_cc);
+
+            assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
+        end
+        
+        function test_legacy_vs_new_on_tricl_eq(~)
+            lat_par = [2,3,4];
+            angdeg = [80,70,110];
+
+            pix_hkl = [eye(3),ones(3,1),[1;1;0]];
+            bm = bmatrix(lat_par,angdeg);
+            pix_cc = bm'*pix_hkl;
+
+            proj = ortho_proj('alatt',lat_par,'angdeg',angdeg,'w',[0,0,1], ...
+                'type','ppp');
+
+            pix_hkl1 = proj.transform_pix_to_img(pix_cc);
+
+            % enable legacy mode
+            proj.ub_inv_legacy = inv(bm);
+            pix_hkl2 = proj.transform_pix_to_img(pix_cc);
+
+            assertElementsAlmostEqual(pix_hkl1 ,pix_hkl2);
+        end
+        function test_legacy_vs_new_on_ortho_eq_inA(~)
+            lat_par = [2,3,4];
+            angdeg = [90,90,90];
+
+            pix_hkl = [eye(3),ones(3,1),[1;1;0]];
+            bm = bmatrix(lat_par,angdeg);
+            pix_cc = bm'*pix_hkl;
+
+            proj = ortho_proj('alatt',lat_par,'angdeg',angdeg, ...
+                'u',[1,-1,0],'v',[1,1,0],'w',[0,0,1], ...
+                'type','aaa');
+
+            pix_hkl_n = proj.transform_pix_to_img(pix_cc);
+
+            % enable legacy mode
+            proj.ub_inv_legacy = inv(bm);
+            pix_hkl_l = proj.transform_pix_to_img(pix_cc);
+
+            assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
+        end
+        
+        function test_legacy_vs_new_on_ortho_rot_eq(~)
+            lat_par = [2,3,4];
+            angdeg = [90,90,90];
+
+            pix_hkl = [eye(3),ones(3,1),[1;1;0]];
+            bm = bmatrix(lat_par,angdeg);
+            pix_cc = bm'*pix_hkl;
+
+            proj = ortho_proj('alatt',lat_par,'angdeg',angdeg, ...
+                'u',[1,-1,0],'v',[1,1,0],'w',[0,0,1], ...
+                'type','ppp');
+
+            pix_hkl_n = proj.transform_pix_to_img(pix_cc);
+
+            % enable legacy mode
+            proj.ub_inv_legacy = inv(bm);
+            pix_hkl_l = proj.transform_pix_to_img(pix_cc);
+
+            assertElementsAlmostEqual(pix_hkl_n ,pix_hkl_l);
+        end
+        
+
+        function test_legacy_vs_new_on_ortho_eq(~)
+            lat_par = [2,3,4];
+            angdeg = [90,90,90];
+
+            pix_hkl = [eye(3),ones(3,1),[1;1;0]];
+            bm = bmatrix(lat_par,angdeg);
+            pix_cc = bm'*pix_hkl;
+
+            proj = ortho_proj('alatt',lat_par,'angdeg',angdeg,'w',[0,0,1], ...
+                'type','ppp');
+
+            pix_hkl1 = proj.transform_pix_to_img(pix_cc);
+
+            % enable legacy mode
+            proj.ub_inv_legacy = inv(bm);
+            pix_hkl2 = proj.transform_pix_to_img(pix_cc);
+
+            assertElementsAlmostEqual(pix_hkl1 ,pix_hkl2);
+        end
+
         % RRR
         %------------------------------------------------------------------
         function test_transformation_scale_rrr_nonortho_eq_ortho_at_ortho_lat(~)
