@@ -90,7 +90,13 @@ classdef IX_detector_bank < serializable
             %                       xf(i) = Sum_j [D(i,j) xdet(j)]
             %               Array size [3,3] or [3,3,ndet]
             
-            if nargin==0, return, end   % Default single detector
+            
+            obj = obj@serializable();
+            
+            % Default single detector
+            if nargin==0
+                return
+            end   
             
             % Parse detector orientation. Must have one and just one of the keyval
             % present, and no other parameters
@@ -102,9 +108,9 @@ classdef IX_detector_bank < serializable
                       'must be 2 or 0 optional arguments to describe orientation type and value');
             else
                 types = {'dmat','rotvec'}; % unpack this from det_orient_trans(); for ease of reading
-                if is_string(varargin{1}) && ~isempty(varargin{1})
+                if ~isempty(varargin{1}) && is_string(varargin{1})
                     iout = stringmatchi(varargin{1},types);
-                    if isscalar(iout)
+                    if ~isempty(iout) % varargin{1} is in types
                         % convert varargin{2} to dmat, either unchanged if
                         % already dmat, or converted from rotvec to dmat.
                         % also extract no. detectors as per dmat
@@ -125,56 +131,64 @@ classdef IX_detector_bank < serializable
             end
             % dmat is now a 'dmat' type i.e. with size [3,3,ndet0]
             
-            % Check detector identifiers
-            %                         [ok,mess,ix] = is_integer_id(id);
-            % detector ids must not be empty
-            if isempty(id)
-                error('HERBERT:IX_detector_bank_constructor:invalid_argument','detector ids empty');
+            % Check detector identifiers, find perm into ascending order
+            % and return id converted to column vector, sorted. Return ok==false if ids are
+            % empty, not unique, or not positive integer.
+            %
+            % NB id is sorted to allow later operations to remove
+            % duplicates easily
+            %
+            [ok,mess,ix,~,id] = is_integer_id(id);
+            if ~ok
+                error('HERBERT:IX_detector_bank_constructor:invalid_argument',mess);
             end
-            % detector ids must be positive integers
-            if ~all(id>=1) || ~all(rem(id,1)==0)
-                error('HERBERT:IX_detector_bank_constructor:invalid_argument','detector ids not integer and positive');
-            end
-            % convert detector ids to column vector, set no. detectors as per id
-            obj.id_ = id(:);
-                ndet = numel(id);
             
-            % NB accept detector ids as-is for ordering; do not force
-            % ascending order (or any order)
+            % set no. detectors as per id
+            ndet = numel(id);
             
             % Expand position coordinates to vectors if input as scalars
-            % (i.e. constant over all vectors)
-            % NB in the examples in the tests, id is a row vector,
-            % x2/phi/axim are column vectors. The expand_args_by_ref
-            % function converts x2/phi/azim to rows by reshaping to the
-            % size of id
+            % (i.e. constant over all vectors) and columnize from the shape
+            % of id, which is now columnized
             [x2_exp, phi_exp, azim_exp] = expand_args_by_ref (id, x2, phi, azim);
             
             % Set object properties from argument expansion
-            % the output is forced to be column vectors as previously done
-            % in the underscore setters. Note that it is now assumed that
-            % x2/phi/azim are not empty
-            obj.x2_   = x2_exp(:);
-            obj.phi_  = phi_exp(:);
-            obj.azim_ = azim_exp(:);
+            % Note that it is now assumed that x2/phi/azim are not empty
+            obj.id_   = id; % already sorted if need be in is_integer_id
+            if isempty(ix)
+                obj.x2_   = x2_exp;
+                obj.phi_  = phi_exp;
+                obj.azim_ = azim_exp;
+            else
+                obj.x2_   = x2_exp(ix);
+                obj.phi_  = phi_exp(ix);
+                obj.azim_ = azim_exp(ix);
+            end
             
             % Repeat for detector orientation
             if ndet0==ndet % dmat size matches id size
+                if isempty(ix)
                     obj.dmat_ = dmat;
+                else
+                    obj.dmat_ = dmat(:,:,ix);
+                end
             elseif ndet0==1 % dmat is a single [3,3] value
                 obj.dmat_ = repmat(dmat,[1,1,ndet]); % expand its size to agree with id
             else
                 error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
-                      'Number of detector orientations must be unity or match the number of detector identifiers')
+                      ['Number of detector orientations must be unity ', ...
+                       'or match the number of detector identifiers']);
             end
             
             % Repeat for detector objects
             obj.det_ = det;     % this assignment will check correct class of det
             if det.ndet==1  % must make ndet>1, as scalar case already caught
                 obj.det_ = obj.det_.replicate(ndet);
-            elseif det.ndet ~= ndet
+            elseif det.ndet ~= ndet && ~isempty(ix)
+                obj.det_ = obj.det_.reorder(ix);
+            else
                 error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
-                      'Number of detectors must be unity or match the number of detector identifiers')
+                      ['Number of detectors must be unity ',  ...
+                       'or match the number of detector identifiers'])
             end
             
         end
@@ -195,6 +209,7 @@ classdef IX_detector_bank < serializable
         end
         
         function obj = set.combined(obj,val)
+            % this assumes all values are consistent
             obj.id_ = val.id;
             obj.x2_ = val.x2;
             obj.phi_ = val.phi;

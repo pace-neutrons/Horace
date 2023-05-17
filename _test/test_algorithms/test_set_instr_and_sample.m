@@ -91,10 +91,19 @@ classdef test_set_instr_and_sample < TestCase
                 '-ignore_date','ignore_str',1);
 
             % Dummy sample, empty sample
-            set_sample_horace(tmpsqwfile,[]);
-            tmp=sqw(tmpsqwfile);
+            % the code now requires that the sample should be set to a
+            % valid value, not empty [], so do this
+            nullsamp = IX_samp();
+            nullsamp.name = 'null';
+            % nullsamp must have alatt and angdeg set otherwise they will
+            % be reset to other available values in the sqw. If that were
+            % not done, the two internal samples would end up different
+            nullsamp.alatt = [0 0 0];
+            nullsamp.angdeg = [0 0 0];
             ws = obj.ds.f1_1;
-            ws.experiment_info.samples = [];
+            ws.experiment_info.samples = nullsamp;
+            set_sample_horace(tmpsqwfile,nullsamp);
+            tmp=sqw(tmpsqwfile);
             assertEqualToTol(ws,tmp,[5.e-8,5.e-8], ...
                 '-ignore_date','ignore_str',1); 
 

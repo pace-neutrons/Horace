@@ -1,11 +1,11 @@
-function [ok,mess,ix,perm] = is_integer_id(id_in)
+function [ok,mess,ix,perm,id] = is_integer_id(id_in)
 % Check that identifiers are unique, and return indexing array
 %
 %   >> [ok,mess,ix,perm] = is_integer_id(id)
 %
 % Input:
 % ------
-%   id      Input index array
+%   id_in   Input index array
 %
 % Output:
 % -------
@@ -15,15 +15,19 @@ function [ok,mess,ix,perm] = is_integer_id(id_in)
 %           If already sorted in ascending order, ix = []
 %           If not, ix is such that id_in(ix) is sorted in ascending order
 %   perm    True if id is a permutation of the integers 1:numel(id)
+%   id      Input index array id_in sorted after conversion to column vector
+
+% columnize
+id = id_in(:);
 
 % empty id_in will crash the all(id>=1) below
-if isempty(id_in)
+if isempty(id)
     ok = false;
-    mess = 'HERBERT:is_integer_id:invalid_argument';
+    mess = 'id array must not be empty';
+    ix = [];
+    perm = false;
     return;
 end
-
-id = id_in(:);
 
 ok = true;
 mess = '';
@@ -37,13 +41,14 @@ if all(id>=1) && all(rem(id,1)==0)
     elseif issorted(flipud(id)) % reverse direction sorted
         ix = (numel(id):-1:1)'; % column vector of descending contiguous sequence
         perm = (id(end)==1 && id(1)==numel(id));% check perm goes from N to 1
+        id = id(ix);
     else
         [id,ix] = sort(id);
         perm = (id(1)==1 && id(end)==numel(id));
     end
     
-    % Check if unique identifiers
-    if ~unique(id) % array is sorted so check adjacent differences
+    % Check if unique identifiers; use diff rather than unique for efficiency (TGP)
+    if any(diff(id)==0) % array is sorted so check adjacent differences
         ok = false;
         mess = 'identifiers must be unique';
         ix = [];

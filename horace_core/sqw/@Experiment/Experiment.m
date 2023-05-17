@@ -4,9 +4,9 @@ classdef Experiment < serializable
     properties(Access=private)
         % String input here (a) invalid value so should be caught if not
         % redefined later (b) describes what the construction process is.
-        instruments_ = "initialised in constructor";
-        detector_arrays_ = "initialised in constructor";
-        samples_ = "initialised in constructor";
+        instruments_ = 'initialised in constructor';
+        detector_arrays_ = 'initialised in constructor';
+        samples_ = 'initialised in constructor';
         samples_set_ = false; % Two prperties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set
@@ -559,7 +559,7 @@ classdef Experiment < serializable
             else
                 error('HORACE:Experiment:invalid_argument', ...
                       ['input is not empty, does not have the right number ' ...
-                       'of runs, or if not of type %s'], type);
+                       'of runs, or is not of type %s'], type);
             end
         end
     end
@@ -658,9 +658,9 @@ classdef Experiment < serializable
         % the order is important as in this order the component will be set
         % during deserialization, so this order is chosen to avoid
         % repetitive unnecessary checks
-        fields_to_save_ = {'detector_arrays','instruments','samples',...
-            'expdata'};
+        fields_to_save_ = { 'expdata','detector_arrays','instruments','samples'};
     end
+    
     methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files

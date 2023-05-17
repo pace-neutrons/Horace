@@ -76,12 +76,14 @@ classdef unique_references_container < serializable
     % be modified.
     %
     %USAGE WITH SQW OBJECTS
-    % The instruments and samples in the experiment_info field of an SQW
+    % The instruments, detectors and samples in the experiment_info field of an SQW
     % are stored as unique_references_arrays. The global names for these
     % uses are
     % GLOBAL_NAME_INSTRUMENTS_CONTAINER
     % and
-    % GLOBAL_NAME_SAMPLES_CONTAINER.
+    % GLOBAL_NAME_SAMPLES_CONTAINER
+    % and
+    % GLOBAL_NAME_DETECTORS_CONTAINER.
     % You are free to use other categories for your own containers but
     % should leave these categories for Horace's SQW objects.
     %
@@ -343,12 +345,17 @@ classdef unique_references_container < serializable
                 case {'()','{}'}
                     b = idxstr(1).subs{:};
                     if any(b<1)
-                        error('HERBERT:unique_references_container:invalid_argument',...
+                        error('HERBERT:unique_references_container:invalid_subscript', ...
                             'subscript must be positive');
                     end
                     if any(b>numel(self.idx_))
-                        error('HERBERT:unique_references_container:invalid_argument',...
-                            'subscript must be within range 1:%d',numel(self.idx_));
+                        if numel(self.idx_)>0
+                            error('HERBERT:unique_references_container:invalid_subscript',...
+                                'subscript must be less than %d',numel(self.idx_));
+                        else
+                            error('HERBERT:unique_references_container:invalid_subscript',...
+                              'container is empty and cannot take a subscript');
+                        end
                     end
                     glindex = self.idx_(b);
                     glc = self.global_container('value',self.global_name_);
@@ -613,18 +620,17 @@ classdef unique_references_container < serializable
         end
         
         function [self] = replace_all(self,obj)
-            %REPLACE - substitute object obj at position nuix in container
-            % Equivalent to self{nuix}=1 (which would not work inside the
-            % container) and used to implement it.
+            %REPLACE_ALL - substitute object obj at all positions in container
             %
             % Input
             % -----
-            % - obj:  object to be inserted into the container
-            % - nuix: (non-unique index) position at which it is to be
-            %         inserted.
-            % The old value is overwritten.
+            % - obj:  objects to be inserted into the container
+            %         to replace all existing content
+            %
+            % The old values are overwritten.
 
-            [glindex, ~] = self.global_container('value',self.global_name_).find_in_container(obj);
+            [glindex, ~] = self.global_container('value',self.global_name_) ...
+                               .find_in_container(obj);
             if isempty(glindex)
                 [glcont,glindex] = ...
                     self.global_container('value',self.global_name_).add(obj);

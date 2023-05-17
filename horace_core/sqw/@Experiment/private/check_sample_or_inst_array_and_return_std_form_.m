@@ -34,13 +34,16 @@ if isa(sid,'unique_references_container')
     global_name = sid.global_name;
     if strcmp(class_base, 'IX_samp') && ...
             ~strcmp(global_name, 'GLOBAL_NAME_SAMPLES_CONTAINER')
-        error('container is for samples but global container is not');
+        error('HORACE:Experiment:invalid_argument',...
+              'container is for samples but global container is not');
     elseif strcmp(class_base, 'IX_inst') && ...
             ~strcmp(global_name, 'GLOBAL_NAME_INSTRUMENTS_CONTAINER')
-        error('container is for instruments but global container is not');
+        error('HORACE:Experiment:invalid_argument',...
+              'container is for instruments but global container is not');
     elseif strcmp(class_base, 'IX_detector_array') && ...
             ~strcmp(global_name, 'GLOBAL_NAME_DETECTORS_CONTAINER')
-        error('container is for detectors but global container is not');
+        error('HORACE:Experiment:invalid_argument',...
+              'container is for detectors but global container is not');
     end
     std_form = sid;
     return
@@ -62,13 +65,7 @@ end
 std_form = unique_references_container(global_name,class_base);
 
 if isempty(sid)
-    if strcmp(class_base,'IX_samp')
-        std_form = std_form.add(IX_null_sample());
-    elseif strcmp(class_base, 'IX_inst')
-        std_form = std_form.add(IX_null_inst());
-    else
-        error('should not have empty detector');
-    end
+    ; %error('prefer that empty data be dealt with before getting here');
 elseif iscell(sid)
     is = cellfun(@(x)isa(x,class_base),sid);
     if ~all(is)

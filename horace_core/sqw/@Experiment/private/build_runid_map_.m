@@ -12,7 +12,9 @@ if numel(unique_runid) ~= obj.n_runs || any(isnan(unique_runid))
     run_ids = id;
     exp = obj.expdata_;
     for i=1:nruns
-        exp(i).run_id = run_ids(i);
+        exp(i).run_id = run_ids(i); % this is a very convoluted way of saying 
+                                    % exp(i).run_id = i; but run_ids and id
+                                    % are needed to form the map below.
     end
     obj.expdata_ = exp;
     obj.runid_recalculated_ = true;
