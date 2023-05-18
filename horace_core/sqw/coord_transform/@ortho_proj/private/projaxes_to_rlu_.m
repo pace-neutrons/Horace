@@ -44,6 +44,9 @@ if isempty(obj.w) %
     % providing the same thickness expressed in hkl cut regardless of the
     % cut direction. This may not have physical meaning for triclinic
     % lattice, but in this case you should provide w manually
+    %
+    % Above is the idea, have not been implemented. Just make w-vector
+    % orthogonal to everything u,v.
     uv_ortho = b_vec_directions*[u(:),v(:)];
     w = cross(uv_ortho(:,1),uv_ortho(:,2));
     w = w/norm(w);
@@ -57,33 +60,29 @@ end
 
 uvw=[u(:),v(:),w(:)];
 ulen = zeros(1,3);
-i = 1:3;
+uvw_orth=ubmat*uvw;  % u,v,w in the orthonormal
+%                   coordinate system frame defined by u (along u) and v and
+%                   aligned with rotated Crystal Cartesian system
+%                   in (A^-1)
 
 
 if obj.nonorthogonal
-    uvw_orth=b_mat*uvw;  % u,v,w in the orthonormal coordinate system
-    %                    frame attached to reciprocal lattice
-    %                    vectors, i.e. Crystal Cartezian coordinate system
-
+    transf = (b_vec_directions)*uvw;
+    i=1:3;
     veclen = arrayfun(@(i)norm(uvw_orth(:,i)),i);
-    r_norm = max(veclen);
     % Keep non-orthogonality of u,v, and w (if given)
     for i=1:3
-        uvw_orth(:,i) = uvw_orth(:,i)/veclen(i);
+        transf(:,i) = transf(:,i)/norm(transf(:,i));        
         if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
-            ulen(i) = r_norm;
+            ulen(i) = max(abs(uvw_orth(:,i)));
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
             ulen(i) = 1;
         elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
             ulen(i) = veclen(i);
         end
     end
-    u_to_img = inv(uvw_orth)./(ulen(:)');
+    u_to_img = inv(transf)./(ulen(:));
 else
-    uvw_orth=ubmat*uvw;  % u,v,w in the orthonormal
-    %                   coordinate system frame defined by u (along u) and v and
-    %                   aligned with rotated Crystal Cartesian system
-    %                   (A^-1)
 
     % Different r normalization. Is it more reasonable then the other one?
     %vec_len = arrayfun(@(i)norm(ubmat(:,i)),i);
@@ -94,7 +93,6 @@ else
             %                     above?
             ulen(i) = max(abs(ubmat(:,i))); % make the projection of Q-vector to
             %                          % each axis of UB coordinates to be
-            % unary. HORACE  3.6 and below option
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
             ulen(i) = 1;            % length of ui in Ang^-1
         elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
@@ -103,7 +101,10 @@ else
             % orthonormal coordinate system with x-axis along b_1
         end
     end
-    u_to_img = inv(umat)./(ulen(:)');
+    % u-matrix here is arranged in rows to be multipled by b-matrix. What
+    % about normalization in columns? Look at goniometer equation 
+    % (Boosing &Levy) to choose correct order
+    u_to_img = inv(umat)./(ulen(:));
 end
 
 

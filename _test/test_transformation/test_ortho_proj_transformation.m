@@ -153,7 +153,7 @@ classdef test_ortho_proj_transformation<TestCase
             [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
             assertElementsAlmostEqual(u',u_par,'absolute',1.e-7);
             %assertElementsAlmostEqual(v',v_par,'absolute',1.e-7);
-            assertElementsAlmostEqual(w,[0;0;1],'absolute',1.e-7);            
+            assertElementsAlmostEqual(w,[0;0;1],'absolute',1.e-7);
             %assertTrue(isempty(w));
             assertEqual(tpe,'ppp');
 
@@ -179,7 +179,8 @@ classdef test_ortho_proj_transformation<TestCase
             assertElementsAlmostEqual(w,[0;1;0]);
             assertEqual(tpe,'ppp');
 
-            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg);
+            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg', ...
+                angdeg,'type',tpe);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
@@ -373,19 +374,30 @@ classdef test_ortho_proj_transformation<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            proj = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
+            len = (2*pi)./lat_par;            
+            projn = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
                 'type','rrr','nonorthogonal',true);
-            assertEqual(proj.type,'rrr')
-            assertEqual(proj.u,[1,0,0])
-            assertEqual(proj.v,[0,1,0])
-            assertEqual(proj.w,[0,0,1])
-            assertTrue(proj.nonorthogonal)
+            assertEqual(projn.type,'rrr')
+            assertEqual(projn.u,[1,0,0])
+            assertEqual(projn.v,[0,1,0])
+            assertEqual(projn.w,[0,0,1])
+            assertTrue(projn.nonorthogonal)
 
-            img_coord = proj.transform_pix_to_img(eye(3));
+            pix_cc = eye(3).*len;
 
-            len = (2*pi)./lat_par;
-            exp_coord = eye(3)./len(1);
-            assertElementsAlmostEqual(img_coord,exp_coord);
+            imgn_coord = projn.transform_pix_to_img(pix_cc);
+            projo = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
+                'type','rrr','nonorthogonal',false);
+            assertEqual(projo.type,'rrr')
+            assertEqual(projo.u,[1,0,0])
+            assertEqual(projo.v,[0,1,0])
+            assertEqual(projo.w,[0,0,1])
+            assertFalse(projo.nonorthogonal)
+            imgo_coord = projo.transform_pix_to_img(pix_cc);            
+            assertElementsAlmostEqual(imgn_coord,imgo_coord);            
+
+            assertElementsAlmostEqual(imgn_coord,eye(3));                        
+
         end
         function test_transformation_scale_rrr_ortho_rot_xyz_tricl_invertable(~)
 
@@ -431,9 +443,9 @@ classdef test_ortho_proj_transformation<TestCase
             % except the use the proj altogithm itself, though have some
             % ideas
             sample = [...
-                -1.0000    0.4444    0.2500;...
-                1.5625    1.0000    0.5625;...
-                -0.0000    1.0000   -1.0000];
+                -1.0000    0.5556         0;...
+                1.2500    1.0000    0.7322;...
+                0.9603    0.7682   -1.0000];
             assertElementsAlmostEqual(img_coord,sample,'absolute',1.e-4);
 
         end
@@ -543,9 +555,9 @@ classdef test_ortho_proj_transformation<TestCase
             % can not find a way to calculate the resulting transformation
             % except the use the proj altogithm itself
             sample = [...
-                -0.1169    0.0585    0.0390;...
-                0.0854     0.1475    0.0349;...
-                -0.1592    0.3183   -0.9549];
+                -0.1169    0.0670   -0.0213;...
+                0.0746    0.1475    0.0543;...
+                0.2912    0.2046   -0.9549];
 
             assertElementsAlmostEqual(img_coord,sample,'absolute',1.e-4);
         end
@@ -683,8 +695,8 @@ classdef test_ortho_proj_transformation<TestCase
                 'type','aaa','nonorthogonal',false);
             img_or = proj.transform_pix_to_img(pic_cc);
 
-            flipmat = [0,-1,0;1,0,0;0,0,1];
-            img_nonor  = flipmat*img_nonor;
+            %flipmat = [0,-1,0;1,0,0;0,0,1];
+            %img_nonor  = flipmat*img_nonor;
             assertElementsAlmostEqual(img_nonor ,  img_or);
         end
 

@@ -30,12 +30,11 @@ end
 %u_rot_mat = b_mat\u_rot_mat; % old style transformation matrix need this
 % to define the transformation
 
-uu = ulen(1)*u_to_img(:, 1)';
-vv = ulen(2)*u_to_img(:, 2)';
-ww = ulen(3)*u_to_img(:, 3)';
-nx = cross(uu, vv);  nx = nx/norm(nx);
-wx = ww/norm(ww);
-if norm(cross(nx, wx)) > 1e-8
+umatinv = u_to_img.*ulen(:)';
+err = 1.e-8;
+if umatinv(:,1)'*umatinv(:,2) > err || ...
+   umatinv(:,1)'*umatinv(:,3) > err || ...
+   umatinv(:,2)'*umatinv(:,3) > err 
     ortho = false;
 else
     ortho = true;
@@ -44,7 +43,7 @@ nonortho = ~ortho;
 
 if ortho
     %ulen_inv = 1./ulen(:)';
-    umatinv = u_to_img.*repmat(ulen,3,1);
+    
     umat = inv(umatinv);
     ubmat = umatinv\b_mat; % correctly recovered ubmatrix; ulen matrix extracted
 
@@ -59,13 +58,12 @@ if ortho
     v_tr = umat(:,2);
     v = v_tr/norm(v_tr);
     %
-    w=umat(:,3);  % perpendicular to u and v, length 1 Ang^-1, forms rh set with u and v
-
+    w=umat(:,3)/norm(umat(:,3));  % perpendicular to u and v
 
     uvw=[u(:),v(:),w(:)];
-    uvw_orthonorm=ubmat*uvw;    % u,v,w in the orthonormal (Crystal Cartesian)
+    uvw_orth=ubmat'*uvw;  % u,v,w in the orthonormal
     %   frame defined by u and v
-    ulen_new = abs(diag(uvw_orthonorm));
+    ulen_new = abs(diag(uvw_orth));
     lt = cell(3,1);
     for i=1:3
         if ulen(i)==1
