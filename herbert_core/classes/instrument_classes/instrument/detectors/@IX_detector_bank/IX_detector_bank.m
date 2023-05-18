@@ -181,10 +181,12 @@ classdef IX_detector_bank < serializable
             
             % Repeat for detector objects
             obj.det_ = det;     % this assignment will check correct class of det
-            if det.ndet==1  % must make ndet>1, as scalar case already caught
+            if det.ndet==ndet
+                if ~isempty(ix)
+                    obj.det_  = obj.det_.reorder(ix);
+                end
+            elseif det.ndet==1  % must have ndet>1, as scalar case already caught
                 obj.det_ = obj.det_.replicate(ndet);
-            elseif det.ndet ~= ndet && ~isempty(ix)
-                obj.det_ = obj.det_.reorder(ix);
             else
                 error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
                       ['Number of detectors must be unity ',  ...
