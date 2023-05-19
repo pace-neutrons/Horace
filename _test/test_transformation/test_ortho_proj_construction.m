@@ -290,7 +290,7 @@ classdef test_ortho_proj_construction<TestCase
             tpixo = prj_or.transform_pix_to_img(eye(3));
             tpixr = prj_rec.transform_pix_to_img(eye(3));
             assertElementsAlmostEqual(tpixo,tpixr);
-            
+
         end
 
         function test_getset_nonortho_proj_aaa_110(~)
@@ -322,7 +322,7 @@ classdef test_ortho_proj_construction<TestCase
             tpixo = prj_or.transform_pix_to_img(eye(3));
             tpixr = prj_rec.transform_pix_to_img(eye(3));
             assertElementsAlmostEqual(tpixo,tpixr);
-            
+
         end
         function test_getset_nonortho_proj_aaa_100(~)
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
@@ -353,7 +353,7 @@ classdef test_ortho_proj_construction<TestCase
             tpixo = prj_or.transform_pix_to_img(eye(3));
             tpixr = prj_rec.transform_pix_to_img(eye(3));
             assertElementsAlmostEqual(tpixo,tpixr);
-            
+
         end
         function test_getset_nonortho_proj_ppp_110(~)
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
@@ -388,7 +388,7 @@ classdef test_ortho_proj_construction<TestCase
             tpixo = prj_or.transform_pix_to_img(eye(3));
             tpixr = prj_rec.transform_pix_to_img(eye(3));
             assertElementsAlmostEqual(tpixo,tpixr);
-            
+
         end
         function test_getset_nonortho_proj_par_110(~)
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
@@ -423,7 +423,7 @@ classdef test_ortho_proj_construction<TestCase
             tpixo = prj_or.transform_pix_to_img(eye(3));
             tpixr = prj_rec.transform_pix_to_img(eye(3));
             assertElementsAlmostEqual(tpixo,tpixr);
-            
+
         end
         function test_unit_transf_from_triclinic(~)
 
@@ -432,7 +432,7 @@ classdef test_ortho_proj_construction<TestCase
             b_m = bmatrix([3, 4 5],[85 95 83]);
             pr_unit = prj_or.set_from_data_mat(eye(3),1./diag(b_m));
 
-            tpixo = pr_unit.transform_pix_to_img(eye(3));            
+            tpixo = pr_unit.transform_pix_to_img(eye(3));
             assertElementsAlmostEqual(tpixo,eye(3));
         end
 
@@ -444,7 +444,7 @@ classdef test_ortho_proj_construction<TestCase
             b_m = bmatrix([3, 4 5],[90 90 90]);
             pr_unit = prj_or.set_from_data_mat(eye(3),1./diag(b_m));
 
-            tpixo = pr_unit.transform_pix_to_img(eye(3));            
+            tpixo = pr_unit.transform_pix_to_img(eye(3));
             assertElementsAlmostEqual(tpixo,eye(3));
         end
 
@@ -482,7 +482,7 @@ classdef test_ortho_proj_construction<TestCase
             tpixo = prj_or.transform_pix_to_img(eye(3));
             tpixr = prj_rec.transform_pix_to_img(eye(3));
             assertElementsAlmostEqual(tpixo,tpixr);
-            
+
         end
 
         function test_getset_nonortho_proj_rrr_100(~)
@@ -515,7 +515,7 @@ classdef test_ortho_proj_construction<TestCase
             tpixo = prj_or.transform_pix_to_img(eye(3));
             tpixr = prj_rec.transform_pix_to_img(eye(3));
             assertElementsAlmostEqual(tpixo,tpixr);
-            
+
         end
 
 
@@ -550,7 +550,7 @@ classdef test_ortho_proj_construction<TestCase
             tpixo = prj_or.transform_pix_to_img(eye(3));
             tpixr = prj_rec.transform_pix_to_img(eye(3));
             assertElementsAlmostEqual(tpixo,tpixr,'absolute',1.e-5);
-            
+
         end
 
         %
@@ -572,21 +572,26 @@ classdef test_ortho_proj_construction<TestCase
             data.pax=[1,2,3,4];
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
-            ax = ortho_axes.get_from_old_data(data);
-            proj = ortho_proj.get_from_old_data(data);
+            %ax = ortho_axes.get_from_old_data(data);
+            proj0 = ortho_proj.get_from_old_data(data);
 
-            do = data_sqw_dnd(ax,proj);
+            %do = data_sqw_dnd(ax,proj);
 
-            proj1=do.get_projection();
-            opt = ortho_projTester(proj1);
+            %proj1=do.get_projection();
+            %opt = ortho_projTester(proj1);
+            projr = proj0;
+            projr.ub_inv_legacy = inv(bmatrix(data.alatt,data.angdeg));
 
-            [~, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
-            assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]],...
-                'absolute',1.e-4)
-            assertElementsAlmostEqual(data.ulen(1:3),ulen');
+            pix_cc = [eye(3),ones(3,1)];
+            % this is what is what is only important for any transformation
+            tpixo = proj0.transform_pix_to_img(pix_cc);
+            tpixr = projr.transform_pix_to_img(pix_cc);
+            assertElementsAlmostEqual(tpixo,tpixr);
+            
+
         end
 
-        function test_get_projection_from_original_sqw_data(~)
+        function test_get_projection_from_legacy_sqw_data(~)
 
             data = struct();
             data.alatt = [2,3,4];
@@ -601,26 +606,29 @@ classdef test_ortho_proj_construction<TestCase
             data.iint=[];
             data.p={1:10;1:20;1:30;1:40};
             ax = ortho_axes.get_from_old_data(data);
-            proj = ortho_proj.get_from_old_data(data);
-            do = data_sqw_dnd(ax,proj);
+            proj0 = ortho_proj.get_from_old_data(data);
 
-            proj = ortho_proj('alatt',data.alatt,'angdeg',data.angdeg,...
+
+            projr = ortho_proj('alatt',data.alatt,'angdeg',data.angdeg,...
                 'label',{'a','b','c','d'},'type','aaa');
 
-            proj1=do.get_projection();
-            assertEqualToTol(proj,proj1,'tol',[1.e-9,1.e-9])
+            %proj1=do.get_projection();
+            % assertEqualToTol(proj,proj1,'tol',[1.e-9,1.e-9])
 
-            opt = ortho_projTester(proj1);
+            % should we keep this -- the transformation matrices are now
+            % different
+            %opt = ortho_projTester(proj0);
 
-            [~, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
-            assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]])
-            assertElementsAlmostEqual(data.ulen(1:3),ulen');
+            %[~, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
+            %assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]])
+            %assertElementsAlmostEqual(data.ulen(1:3),ulen');
 
+            pix_cc = [eye(3),ones(3,1)];
             % this is what is what is only important for any transformation
-            tpixo = proj1.transform_pix_to_img(eye(3));
-            tpixr = proj.transform_pix_to_img(eye(3));
+            tpixo = proj0.transform_pix_to_img(pix_cc);
+            tpixr = projr.transform_pix_to_img(pix_cc);
             assertElementsAlmostEqual(tpixo,tpixr);
-            
+
         end
     end
 end

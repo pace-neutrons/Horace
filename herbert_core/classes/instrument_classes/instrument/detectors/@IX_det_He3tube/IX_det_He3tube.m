@@ -146,7 +146,6 @@ classdef IX_det_He3tube < IX_det_abstractType
             val = numel(obj.dia_);
         end
         %------------------------------------------------------------------
-
     end
     methods
         % SERIALIZABLE INTERFACE

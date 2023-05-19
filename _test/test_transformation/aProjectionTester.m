@@ -29,6 +29,12 @@ classdef aProjectionTester < aProjectionBase
             % Transform pixels expressed in image coordinate coordinate systems
             % into crystal cartezian system
         end
+        %
+        function [u_to_img,shift,ulen,obj]=get_pix_img_transformation(obj,ndim,varargin)
+            u_to_img = eye(ndim);
+            shift    = zeros(1,ndim);
+            ulen     = ones(1,ndim);
+        end
 
 
     end

@@ -32,8 +32,8 @@ classdef test_ortho_proj_transformation<TestCase
             %
             % but recovered the values, correspondent to ppr?
             [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_img,ulen);
-%            assertElementsAlmostEqual(u',u_par);
-%            assertEqual(type,'ppr');
+            %            assertElementsAlmostEqual(u',u_par);
+            %            assertEqual(type,'ppr');
             %assertTrue(isempty(w));
             % find part of the v vector, orthogonal to u
             %             b_mat = bmatrix(alatt,angdeg);
@@ -66,16 +66,16 @@ classdef test_ortho_proj_transformation<TestCase
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu, ulen);
-%            assertElementsAlmostEqual(u',u_par);
-%             %assertTrue(isempty(w));
-%             % find part of the v vector, orthogonal to u
-%             b_mat = bmatrix(alatt,angdeg);
-%             eu_cc = b_mat*u';
-%             eu = eu_cc/norm(eu_cc);
-%             % convert to crystal Cartesian
-%             v_cc = b_mat*v';
-%             v_along =eu*(eu'*v_cc);
-%             v_tr = (b_mat\(v_cc-v_along))';
+            %            assertElementsAlmostEqual(u',u_par);
+            %             %assertTrue(isempty(w));
+            %             % find part of the v vector, orthogonal to u
+            %             b_mat = bmatrix(alatt,angdeg);
+            %             eu_cc = b_mat*u';
+            %             eu = eu_cc/norm(eu_cc);
+            %             % convert to crystal Cartesian
+            %             v_cc = b_mat*v';
+            %             v_along =eu*(eu'*v_cc);
+            %             v_tr = (b_mat\(v_cc-v_along))';
             % this part should be recovered from the u_to_rlu matrix
             %assertElementsAlmostEqual(v_tr,v_par);
 
@@ -96,7 +96,7 @@ classdef test_ortho_proj_transformation<TestCase
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-%            assertElementsAlmostEqual(u',u_par);
+            %            assertElementsAlmostEqual(u',u_par);
             %assertElementsAlmostEqual(w',[0,1,0]);
 
             % find part of the v vector, orthogonal to u
@@ -143,11 +143,11 @@ classdef test_ortho_proj_transformation<TestCase
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-%            assertElementsAlmostEqual(u',u_par,'absolute',1.e-7);
+            %            assertElementsAlmostEqual(u',u_par,'absolute',1.e-7);
             %assertElementsAlmostEqual(v',v_par,'absolute',1.e-7);
-%            assertElementsAlmostEqual(w,[0;0;1],'absolute',1.e-7);
+            %            assertElementsAlmostEqual(w,[0;0;1],'absolute',1.e-7);
             %assertTrue(isempty(w));
-%            assertEqual(tpe,'ppp');
+            %            assertEqual(tpe,'ppp');
 
             pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg, ...
                 'type',tpe);
@@ -167,10 +167,10 @@ classdef test_ortho_proj_transformation<TestCase
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
             [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-%             assertElementsAlmostEqual(u,u_par);
-%             assertElementsAlmostEqual(v,v_par);
-%             assertElementsAlmostEqual(w,[0;1;0]);
-%             assertEqual(tpe,'ppp');
+            %             assertElementsAlmostEqual(u,u_par);
+            %             assertElementsAlmostEqual(v,v_par);
+            %             assertElementsAlmostEqual(w,[0;1;0]);
+            %             assertEqual(tpe,'ppp');
 
             pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg', ...
                 angdeg,'type',tpe);

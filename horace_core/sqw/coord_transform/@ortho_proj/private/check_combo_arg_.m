@@ -27,21 +27,18 @@ if ~obj.type_is_defined_explicitly_
         obj.type_(3) = 'p';
     end
 end
-if obj.alatt_defined && obj.angdeg_defined
-    obj.u_to_img_cache_ = [];
-    obj.u_offset_cache_ = [];    
-    obj.ulen_cache_     = [];    
-    [u_to_img_cache,u_offset_cache,ulen,obj] = ...
-        obj.get_pix_img_transformation(4);
-    obj.u_to_img_cache_ = u_to_img_cache;
-    obj.u_offset_cache_ = u_offset_cache;    
-    obj.ulen_cache_     = ulen;
-else
-    % set transformation cache to unity, to make source_to_target
-    % and target_to_source transformation unary.
-    %
-    % Used for define transformation without lattice
-    obj.u_to_img_cache_ = eye(4);
-    obj.u_offset_cache_ = zeros(4,1);
-    obj.ulen_cache_     = ones(3,1);
+if ~obj.alatt_defined
+    obj.alatt_ = 2*[pi,pi,pi];
 end
+if ~obj.angdeg_defined
+    obj.angdeg_ = 90*ones(1,3);
+end
+
+obj.u_to_img_cache_ = [];
+obj.u_offset_cache_ = [];
+obj.ulen_cache_     = [];
+[u_to_img_cache,u_offset_cache,ulen,obj] = ...
+    obj.get_pix_img_transformation(4);
+obj.u_to_img_cache_ = u_to_img_cache;
+obj.u_offset_cache_ = u_offset_cache;
+obj.ulen_cache_     = ulen;
