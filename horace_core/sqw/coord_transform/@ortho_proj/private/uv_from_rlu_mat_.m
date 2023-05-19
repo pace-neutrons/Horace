@@ -23,9 +23,10 @@ function [u,v,w,type,nonortho]=uv_from_rlu_mat_(obj,u_to_img,ulen,varargin)
 %u_rot_mat(:,i) = ubinv(:,i)*ulen(i);
 
 if ~isempty(varargin)
-    b_mat = varargin{1};
+    b_mat       = varargin{1};
+    rlu_vec_len = varargin{2};
 else
-    b_mat = bmatrix(obj.alatt,obj.angdeg); % converts hkl to Crystal Cartesian
+    [b_mat,rlu_vec_len] = bmatrix(obj.alatt,obj.angdeg); % converts hkl to Crystal Cartesian
 end
 %u_rot_mat = b_mat\u_rot_mat; % old style transformation matrix need this
 % to define the transformation
@@ -33,8 +34,8 @@ end
 umatinv = u_to_img.*ulen(:)';
 err = 1.e-8;
 if umatinv(:,1)'*umatinv(:,2) > err || ...
-   umatinv(:,1)'*umatinv(:,3) > err || ...
-   umatinv(:,2)'*umatinv(:,3) > err 
+        umatinv(:,1)'*umatinv(:,3) > err || ...
+        umatinv(:,2)'*umatinv(:,3) > err
     ortho = false;
 else
     ortho = true;
@@ -42,28 +43,18 @@ end
 nonortho = ~ortho;
 
 if ortho
-    %ulen_inv = 1./ulen(:)';
-    
     umat = inv(umatinv);
     ubmat = umatinv\b_mat; % correctly recovered ubmatrix; ulen matrix extracted
+    % unit vectors directed along vectors of rotated reciprocal lattice
+    % (non-orthogonal)
+    %b_vec = b_mat./rlu_vec_len(:)';
 
+    uvw_norm_hkl = b_mat\umat';   % normalized to 1 orthogonal part of u,v,w
+    %  in hkl frame defined by u and v
+
+    uvw  = ubmat*uvw_norm_hkl; % orthogonal part of uvw in Crystal Cartesian
+    ulen_new = abs(diag(uvw));
     %
-    u_dir = umat(:,1);
-    % unit vector, parallel to u:
-    u = u_dir/norm(u_dir);
-
-    % the length of the v-vector, orthogonal to u (unit vector)
-    % in fact real v-vector is not fully recoverable. We can
-    % recover only its orthogonal part
-    v_tr = umat(:,2);
-    v = v_tr/norm(v_tr);
-    %
-    w=umat(:,3)/norm(umat(:,3));  % perpendicular to u and v
-
-    uvw=[u(:),v(:),w(:)];
-    uvw_orth=ubmat'*uvw;  % u,v,w in the orthonormal
-    %   frame defined by u and v
-    ulen_new = abs(diag(uvw_orth));
     lt = cell(3,1);
     for i=1:3
         if ulen(i)==1
@@ -76,13 +67,15 @@ if ortho
                 lt{i} = 'r';
             else
                 lt{i} = 'p';
-                uvw(:,i) = uvw(:,i)*(ulen(i)/ulen_new(i));
+                uvw_norm_hkl(:,i) = uvw_norm_hkl(:,i)*(ulen(i)/ulen_new(i));
             end
         end
     end
-    u = uvw(:,1);
-    v = uvw(:,2);
-    w = uvw(:,3);
+    % normalize u to make u== 1 to look nice
+    nrm = norm(uvw_norm_hkl(:,1));
+    u = uvw_norm_hkl(:,1)/nrm;
+    v = uvw_norm_hkl(:,2);
+    w = uvw_norm_hkl(:,3);
     %     if lt{3} == 'r'
     %         w = [];
     %     end

@@ -40,85 +40,6 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(ax.unit_cell,[1,1,0,0;0,1,0,0;1,1,1,0;0,0,0,1]');
         end
         %------------------------------------------------------------------
-        function test_rotation_and_shift_4D(~)
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,1],...
-                'alatt',alatt,'angdeg',angdeg);
-            prb = ortho_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,2],...
-                'alatt',alatt,'angdeg',angdeg);
-            pra.targ_proj = prb;
-            pix = eye(4);
-
-            pix_transf_spec = pra.from_this_to_targ_coord(pix);
-
-            pra.do_generic = true;
-            pix_transf_gen = pra.from_this_to_targ_coord(pix);
-
-            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
-        end
-
-        function test_rotation_and_shift_3D(~)
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,0],...
-                'alatt',alatt,'angdeg',angdeg);
-            prb = ortho_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,0],...
-                'alatt',alatt,'angdeg',angdeg);
-            pra.targ_proj = prb;
-            pix = eye(4);
-
-            pix_transf_spec = pra.from_this_to_targ_coord(pix);
-
-            pra.do_generic = true;
-            pix_transf_gen = pra.from_this_to_targ_coord(pix);
-
-            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
-        end
-
-        function test_rotation_no_shift(~)
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg);
-            prb = ortho_projTester([1,1,0],[1,-1,0],'alatt',alatt,'angdeg',angdeg);
-            pra.targ_proj = prb;
-            pix = eye(4);
-
-            pix_transf_spec = pra.from_this_to_targ_coord(pix);
-
-            pra.do_generic = true;
-            pix_transf_gen = pra.from_this_to_targ_coord(pix);
-
-            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
-        end
-
-        function test_two_same_proj_define_unit_transf(~)
-            u = [1,1,0];
-            v = [1,-1,0];
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
-            pra.targ_proj = pra;
-            pix = eye(4);
-
-            pix_transf = pra.from_this_to_targ_coord(pix);
-            assertElementsAlmostEqual(pix,pix_transf);
-
-        end
-
-        function test_from_this_to_targ_throws_no_targ(~)
-            u = [1,1,0];
-            v = [1,-1,0];
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
-            pix = eye(4);
-
-            assertExceptionThrown(@()from_this_to_targ_coord(pra,pix),...
-                'HORACE:aProjectionBase:runtime_error');
-
-        end
-        %------------------------------------------------------------------
         function test_bin_range_05_samp_proj2Drot45_3D_opt_vs4D_generic_withdE(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalent 3d+1 transformation. Should give equal results
@@ -458,5 +379,91 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(sum(w.npix(:)),sum(wc.npix(:)));
         end
         %------------------------------------------------------------------
+        %
+        %------------------------------------------------------------------
+        function test_rotation_and_shift_4D(~)
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+            pra = ortho_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,1],...
+                'alatt',alatt,'angdeg',angdeg);
+            prb = ortho_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,2],...
+                'alatt',alatt,'angdeg',angdeg);
+            pra.targ_proj = prb;
+            pix = eye(4);
+
+            pix_transf_spec = pra.from_this_to_targ_coord(pix);
+
+            pra.do_generic = true;
+            pix_transf_gen = pra.from_this_to_targ_coord(pix);
+
+            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
+        end
+
+        function test_rotation_and_shift_3D(~)
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+            pra = ortho_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,0],...
+                'alatt',alatt,'angdeg',angdeg);
+            prb = ortho_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,0],...
+                'alatt',alatt,'angdeg',angdeg);
+            pra.targ_proj = prb;
+            pix = eye(4);
+
+            pix_transf_spec = pra.from_this_to_targ_coord(pix);
+
+            pra.do_generic = true;
+            pix_transf_gen = pra.from_this_to_targ_coord(pix);
+
+            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
+        end
+
+        function test_rotation_no_shift(~)
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+            pra = ortho_projTester([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg);
+            prb = ortho_projTester([1,1,0],[1,-1,0],'alatt',alatt,'angdeg',angdeg);
+
+            pix = eye(4);
+
+            pra.disable_srce_to_targ_optimization = true;            
+            pra.targ_proj  = prb;
+            pix_transf_gen = pra.from_this_to_targ_coord(pix);
+
+            pra.disable_srce_to_targ_optimization = false;
+            pra.targ_proj  = prb;
+            pix_transf_spec = pra.from_this_to_targ_coord(pix);
+
+
+            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
+        end
+        %------------------------------------------------------------------
+        function test_two_same_proj_define_unit_transf(~)
+            u = [1,1,0];
+            v = [1,-1,0];
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+            pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
+            pra.targ_proj = pra;
+            pix = eye(4);
+
+            pix_transf = pra.from_this_to_targ_coord(pix);
+            assertElementsAlmostEqual(pix,pix_transf);
+
+        end
+
+        function test_from_this_to_targ_throws_no_targ(~)
+            u = [1,1,0];
+            v = [1,-1,0];
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+            pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
+            pix = eye(4);
+
+            assertExceptionThrown(@()from_this_to_targ_coord(pra,pix),...
+                'HORACE:aProjectionBase:runtime_error');
+
+        end
+
+
     end
 end

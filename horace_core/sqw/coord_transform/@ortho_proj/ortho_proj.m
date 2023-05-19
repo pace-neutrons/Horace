@@ -431,7 +431,7 @@ classdef ortho_proj<aProjectionBase
             else% Legacy alignment, with multiplication of rotation matrix
                 [rlu_to_u,~,ulen]  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
                 u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
-                u_to_img  = (u_to_rlu_*rlu_to_u);
+                u_to_img  = (rlu_to_u*u_to_rlu_)';
                 rlu_to_u  = inv(u_to_rlu_);
             end
             %

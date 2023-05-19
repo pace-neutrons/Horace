@@ -47,9 +47,10 @@ if isempty(obj.w) %
     %
     % Above is the idea, have not been implemented. Just make w-vector
     % orthogonal to everything u,v.
-    uv_ortho = b_vec_directions*[u(:),v(:)];
+    uv_ortho = b_mat*[u(:),v(:)];
     w = cross(uv_ortho(:,1),uv_ortho(:,2));
-    w = w/norm(w);
+    w = w/norm(w); % this is w orthogonal to u,v in Crystal Cartesian
+    w = b_mat\w;   % this is this w in hkl;
 else
     w=obj.w;
     if ubmat(3,:)*w'<0
@@ -72,7 +73,7 @@ if obj.nonorthogonal
     veclen = arrayfun(@(i)norm(uvw_orth(:,i)),i);
     % Keep non-orthogonality of u,v, and w (if given)
     for i=1:3
-        transf(:,i) = transf(:,i)/norm(transf(:,i));        
+        transf(:,i) = transf(:,i)/norm(transf(:,i));
         if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
             ulen(i) = max(abs(uvw_orth(:,i)));
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
@@ -81,7 +82,9 @@ if obj.nonorthogonal
             ulen(i) = veclen(i);
         end
     end
-    u_to_img = inv(transf)./(ulen(:));
+    % transpose transformation matrix to be consistent with umat below,
+    % whihc arranged in rows
+    u_to_img = inv(transf')./(ulen(:)');
 else
 
     % Different r normalization. Is it more reasonable then the other one?
@@ -102,9 +105,9 @@ else
         end
     end
     % u-matrix here is arranged in rows to be multipled by b-matrix. What
-    % about normalization in columns? Look at goniometer equation 
+    % about normalization in columns? Look at goniometer equation
     % (Boosing &Levy) to choose correct order
-    u_to_img = inv(umat)./(ulen(:));
+    u_to_img = inv(umat)./(ulen(:)');
 end
 
 
