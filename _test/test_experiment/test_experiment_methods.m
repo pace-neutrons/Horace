@@ -167,15 +167,6 @@ classdef test_experiment_methods < TestCase
             assertEqualToTol(rec_exp.expdata,exp.expdata);
             assertEqual(exp.runid_map.keys,rec_exp.runid_map.keys);
             assertEqual(exp.runid_map.values,rec_exp.runid_map.values);
-
-            % these properties are now fully recovered from the
-            % conversion so the resets are not required
-            %
-            % these properties are only partially recovered from headers
-            % sin
-            %exp.samples{1} = IX_samp('',[1,2,3],[91,90,89]);
-            %exp.samples{2} = IX_samp('',[1.1,2.2,3.2],[90,91,92]);
-            %exp.samples{3} = IX_samp('',[1.2,2.3,3.3],[89,92,91]);
             assertEqual(rec_exp.samples,exp.samples);
 
             % instruments are not recovered from old headers at all
