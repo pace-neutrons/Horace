@@ -160,7 +160,7 @@ classdef pix_data_block < data_block
             pix_size = uint64(obj.n_rows*4);
             npix =  idivide(all_pix_size ,pix_size);
             err = rem(all_pix_size,pix_size);
-            if err>eps("single")
+            if err>eps('single')
                 error('HORACE:data_block:invalid_argument', ...
                     'Provided size of pix_data block %d does not contans whole number of pixels (%d)', ...
                     val,npix)
