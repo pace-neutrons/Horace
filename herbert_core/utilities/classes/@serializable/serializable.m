@@ -313,14 +313,14 @@ classdef (Abstract=true) serializable
             obj = from_struct_(in_struct,existing_obj);
         end
         function is = is_serial_struct(val)
-            % helper method to check if the input structure is obtained 
+            % helper method to check if the input structure is obtained
             % using serializable to_struct method or just some structure
             % (may be bare_struct or may be not)
-             if isstruct(val) 
-                 is = isfield(val,'serial_name') && isfield(val,'version');
-             else
-                 is = false;
-             end
+            if isstruct(val)
+                is = isfield(val,'serial_name') && isfield(val,'version');
+            else
+                is = false;
+            end
         end
 
         function [obj,nbytes] = deserialize(byte_array,pos)
@@ -385,9 +385,15 @@ classdef (Abstract=true) serializable
             % the modern structure, this method needs the specific overloading
             % to allow loadobj to recover new structure from an old structure.
             %
-            %if isfield(inputs,'version') % do checks for previous versions
-            %   Add appropriate code to convert from specific version to
-            %   modern version
+            % Piece of the code to add to the custom overload of
+            % "from_old_structure" function:
+            %if ~isfield(inputs,'version')
+            %   Add the code which processes old structure, inhereted from
+            %   very old serializable classes, which do not store version
+            %   whith them.
+            %elseif inputs.version < obj.classVersion()
+            %   Add appropriate code to convert from previous class version
+            %   modern class version version
             %end
             if isfield(inputs,'array_dat')
                 obj = obj.from_bare_struct(inputs.array_dat);
