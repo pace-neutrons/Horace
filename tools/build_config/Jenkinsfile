@@ -110,19 +110,20 @@ pipeline {
       steps {
         script {
           if (env.BUILD_DOCS?.toBoolean()) {
+            // Limiting sphinxcontrib-matlabdomain version due to use of Python 3.8 features in latest
             if (isUnix()) {
               sh '''
             module load python/3.6 &&
             pip install --user --upgrade pip &&
             pip install --user sphinx &&
             pip install --user sphinx_rtd_theme &&
-            pip install --user sphinxcontrib-matlabdomain
+            pip install --user sphinxcontrib-matlabdomain==0.14.1
             '''
             } else {
               powershell '''
              pip install --user sphinx
              pip install --user sphinx_rtd_theme
-             pip install --user sphinxcontrib-matlabdomain
+             pip install --user sphinxcontrib-matlabdomain==0.14.1
             '''
             }
           }
