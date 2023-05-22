@@ -145,7 +145,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         % [0,0,1] in a cubic lattice with lattice parameter 2*pi, the point [0.3;0.1;2]
         % is transformed into [0.1;-0.3;2].
         %
-        %   >> pix = transform_pix (obj, upix_to_rlu, upix_offset, pix_in)
+        %   >> pix = transform_pix (obj, pix_in)
         %
         % Input:
         % ------
@@ -157,24 +157,24 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         %
         %   upix_offset Offset of origin of pixel coordinate frame (rlu) (vector length 3)
         %
-        %   pix         Pixel coordinates (3 x n array).
+        %   pix         PixelData object
         %
         % Output:
         % -------
-        %   pix_out     Transformed pixel array (3 x n array).
+        %   pix         Transformed PixelData object
 
             % Check input
             if ~isa(pix, 'PixelDataBase')
-                error('HORACE:symop:invalid_argument', ...
+                error('HORACE:Symop:invalid_argument', ...
                       'Transform pix requires pixels');
             end
 
             % Get transformation
             if isa(pix, 'PixelDataMemory')
-                sel = obj.in_irreducible(new_coords);
-                pix.q_coordinates(:, ~sel) = obj.transform_vec(new_coords(:, ~sel));
+                sel = obj.in_irreducible(pix.q_coordinates)
+                pix.q_coordinates(:, ~sel) = obj.transform_vec(pix.q_coordinates(:, ~sel))
             else
-                error('HORACE:symop:not_implemented', ...
+                error('HORACE:Symop:not_implemented', ...
                       'filebacked pix reduction not possible')
             end
 
