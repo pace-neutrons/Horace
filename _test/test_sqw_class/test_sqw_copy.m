@@ -22,6 +22,7 @@ classdef test_sqw_copy < TestCase
 
         function test_copy_returns_distinct_object(obj)
             sqw_obj = sqw(obj.test_sqw_1d_fullpath);
+            sqw_obj.pix = PixelDataMemory(sqw_obj.pix);
             sqw_copy = sqw(sqw_obj);
 
             sqw_copy.main_header.title = 'test_copy';

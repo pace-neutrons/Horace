@@ -75,9 +75,6 @@ pix_ok = [];
 pix_indx = [];
 selected = [];
 
-force_double = false;
-return_selected = false;
-
 options = {'-force_double', '-return_selected'};
 % keep unused argi parameter to tell parse_char_options to ignore
 % unknown options
@@ -109,7 +106,7 @@ end
 % collapse first dimension, all along it should be ok for pixel be ok
 if is_pix
     % Add filter for duplicated pix
-    ok = all(coord>=r1 & coord<=r2,1) & pix_cand.detector_idx > 0;
+    ok = all(coord>=r1 & coord<=r2,1) & pix_cand.detector_idx >= 0;
 else
     ok = all(coord>=r1 & coord<=r2,1);
 end

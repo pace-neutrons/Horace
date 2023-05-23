@@ -1,4 +1,4 @@
-classdef sqw_tester<sqw
+classdef sqw_tester < sqw
     % the class to test protected methods of sqw class.
     properties
     end
@@ -13,13 +13,15 @@ classdef sqw_tester<sqw
             [proj, pbin] = obj.get_proj_and_pbin();
         end
     end
+
     methods(Static)
-        %
-        function [proj, pbin, opt] = process_and_validate_cut_inputs_public(...
-                data,return_cut, varargin)
-            [proj,pbin,opt] = ...
-                SQWDnDBase.process_and_validate_cut_inputs(data,return_cut, varargin{:});
+
+        % Sym is last here to avoid conflicting with old API
+        function [proj, pbin, opt, sym] = process_and_validate_cut_inputs_public(...
+                data, return_cut, varargin)
+            [proj, pbin, sym, opt] = ...
+                SQWDnDBase.process_and_validate_cut_inputs(data, return_cut, varargin{:});
         end
-        
+
     end
 end
