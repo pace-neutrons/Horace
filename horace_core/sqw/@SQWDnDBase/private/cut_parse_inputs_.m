@@ -201,7 +201,7 @@ if numel(par) < npbin_expected
 elseif numel(par) > npbin_expected
     error('HORACE:cut:invalid_argument',...
           'Unrecognised additional input(s): "%s" were provided to cut',...
-          par(npbin_expected+1:end));
+          disp2str(par(npbin_expected+1:end)));
 end
 
 pbin = par(1:npbin_expected);
