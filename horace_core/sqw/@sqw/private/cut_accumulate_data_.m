@@ -250,6 +250,7 @@ function [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(pix, blo
     % are less than, or equal to, a pixel page size
     block_chunks = split_data_blocks(block_starts, block_sizes, chunk_size);
     num_chunks = numel(block_chunks);
+    npix_tot_retained = 0;
 
     for iter = 1:num_chunks
         % Get pixels that will likely contribute to the cut
