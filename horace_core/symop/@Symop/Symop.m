@@ -231,15 +231,36 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         % Note this function uses matrix Minv which transforms from rlu to
         % orthonormal components
 
-            u_new = obj.R * proj.u(:);
-            v_new = obj.R * proj.v(:);
-            offset_new = proj.offset(:);
-            offset_new(1:3) = obj.transform_vec(offset_new(1:3));
-            if ~isempty(proj.w)
-                w_new = obj.R * proj.w(:);
-                proj = proj.set_axes(u_new, v_new, w_new, offset_new);
-            else
-                proj = proj.set_axes(u_new, v_new, [], offset_new);
+            switch class(proj)
+              case 'ortho_proj'
+
+                u_new = obj.R * proj.u(:);
+                v_new = obj.R * proj.v(:);
+                offset_new = proj.offset(:);
+                offset_new(1:3) = obj.transform_vec(offset_new(1:3));
+                if ~isempty(proj.w)
+                    w_new = obj.R * proj.w(:);
+                    proj = proj.set_axes(u_new, v_new, w_new, offset_new);
+                else
+                    proj = proj.set_axes(u_new, v_new, [], offset_new);
+                end
+
+              case 'spher_proj'
+
+                %% TODO non-aligned ez/ey not supported
+                % ez_new = obj.R * proj.ez(:);
+                % ey_new = obj.R * proj.ey(:);
+
+%                 offset_new = proj.offset(:);
+%                 offset_new(1:3) = obj.transform_vec(offset_new(1:3));
+%
+%                 proj.offset = offset_new;
+
+              otherwise
+
+                error('HORACE:Symop:not_implemented', ...
+                      'Cannot transform projection class "%s"', class(proj));
+
             end
 
         end
