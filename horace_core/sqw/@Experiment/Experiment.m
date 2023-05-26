@@ -144,7 +144,9 @@ classdef Experiment < serializable
             elseif nargin == 1 
                 arg = varargin{1};
                 if ~iscell(arg)
-                    % make arg a cell
+                    % make arg a cell so that it is a cell array regardless
+                    % of whether it is a single header struct or a cell
+                    % array of header structs
                     arg = { arg };
                 end
                 if ~obj.isoldheader(arg{1})

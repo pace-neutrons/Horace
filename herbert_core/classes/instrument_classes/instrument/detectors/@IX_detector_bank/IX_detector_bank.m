@@ -131,14 +131,11 @@ classdef IX_detector_bank < serializable
             end
             % dmat is now a 'dmat' type i.e. with size [3,3,ndet0]
             
-            % Check detector identifiers, find perm into ascending order
+            % Check detector identifiers, 
             % and return id converted to column vector, sorted. Return ok==false if ids are
             % empty, not unique, or not positive integer.
             %
-            % NB id is sorted to allow later operations to remove
-            % duplicates easily
-            %
-            [ok,mess,ix,~,id] = is_integer_id(id);
+            [ok,mess,ix] = is_integer_id_nosort(id);
             if ~ok
                 error('HERBERT:IX_detector_bank_constructor:invalid_argument',mess);
             end
@@ -185,7 +182,7 @@ classdef IX_detector_bank < serializable
                 if ~isempty(ix)
                     obj.det_  = obj.det_.reorder(ix);
                 end
-            elseif det.ndet==1  % must have ndet>1, as scalar case already caught
+            elseif det.ndet==1  % must make ndet>1, as scalar case already caught
                 obj.det_ = obj.det_.replicate(ndet);
             else
                 error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
@@ -226,42 +223,154 @@ classdef IX_detector_bank < serializable
         % Set/get methods that rely on interdependencies between the properties
         % having been resolved before the set must go above.
         % 
-        % Set methods for individual properties are no longer
-        % supported. The combined collection of properties must be input so
-        % that e.g. x2 values are in the same order as the group/id that
-        % they correspond to. This class can then sort all properties by
-        % id, usually to have the ids in ascending order to allow merging
-        % of detectors. Once sorted the internal order will not correspond
-        % to the order of data held externally and no further sets by
-        % property should be considered. Instead, a new IX_detector_bank
-        % should be constructed from the data available.
+
+        % Set methods continue to be supported for the purposes of
+        % (a) recalibrating an instrument
+        % (b) changing the detector for instrument design purposes
+        % set.combine is still used for load/save
         
         %------------------------------------------------------------------
-        % Get methods for dependent properties
+        % Get/set methods for dependent properties
+        
+        % ------------------------------
+        % property id
+         
         function val = get.id(obj)
             val = obj.id_;
         end
+        
+        function obj = set.id (obj,val)
+            
+            % NOTE: the new ids must be the same size as the old one; hence
+            % the property values do not need to be resized at this point.
+            % If the number of detectors changes, then a new bank must be
+            % constructed.
+            if numel(val)==numel(obj.id_)
+                [ok,mess,~] = is_integer_id_nosort(val);
+                if ok
+                    obj.id_ = val(:);
+                else
+                    error('HERBERT:IX_detector_bank:invalid_argument', ...
+                           ['Detector id state issue',mess]);
+                end
+            else
+                error('HERBERT:IX_detector_bank:invalid_argument', ...
+                      'The new number of detector identifiers must match the previous number');
+            end
+            
+            if obj.do_check_combo_arg()
+                obj.check_combo_arg();
+            end
+            
+        end
+        
+        % -----------------------------
+        % property x2
         
         function val = get.x2(obj)
             val = obj.x2_;
         end
         
+        function obj=set.x2(obj,val)
+            obj.x2_ = expand_args_by_ref (obj.id_, val);
+            
+            if obj.do_check_combo_arg()
+                obj.check_combo_arg();
+            end
+        end
+
+        % -----------------------------
+        % property phi
+        
         function val = get.phi(obj)
             val = obj.phi_;
         end
+        
+        function obj=set.phi(obj,val)
+            obj.phi_ = expand_args_by_ref (obj.id_, val);
+            
+            
+            if obj.do_check_combo_arg()
+                obj.check_combo_arg();
+            end
+        end
+
+        % -----------------------------
+        % property azim
         
         function val = get.azim(obj)
             val = obj.azim_;
         end
         
+        function obj=set.azim(obj,val)
+            obj.azim_ = expand_args_by_ref (obj.id_, val);
+            
+            
+            if obj.do_check_combo_arg()
+                obj.check_combo_arg();
+            end
+        end
+
+        % -----------------------------
+        % property dmat
+        
         function val = get.dmat(obj)
             val = obj.dmat_;
         end
+        
+        function obj=set.dmat(obj,val)
+            [ok,mess,ndet0] = det_orient_trans (val, 'dmat');
+            if ~ok, error('HERBERT:IX_detector_bank:invalid_argument',mess), end
+            
+            if obj.ndet == ndet0
+                obj.dmat_ = val; % assign as-is
+            elseif ndet0==1
+                obj.dmat_ = repmat(val,[1,1,obj.ndet]); % scalar input, make duplicates
+            else
+                error('HERBERT:IX_detector_bank:invalid_argument', ...
+                       ['Number of detector orientations must be scalar ', ...
+                        'or match the number of detector identifiers']);
+            end
+            
+            if obj.do_check_combo_arg()
+                obj.check_combo_arg();
+            end
+        end
+        
+        % -----------------------------
+        % property det
         
         function val = get.det(obj)
             val = obj.det_;
         end
         
+        function obj=set.det(obj,val)
+            % check correct type
+            if isa(val,'IX_det_abstractType') && isscalar(val)
+                obj.det_ = val;
+            else
+                error('HERBERT:IX_detector_bank:invalid_argument', ...
+                      'Detector type must be a single IX_det_abstractType object')
+            end
+            
+            if val.ndet==obj.ndet
+                obj.det_=val;
+            else
+                if val.ndet==1
+                    obj.det_ = val.replicate(obj.ndet);
+                else
+                    error('HERBERT:IX_detector_bank:invalid_argument', ...
+                          ['The number of detectors must match be unity or ', ...
+                           'equal the number of detector identifiers']);
+                end
+            end
+            
+            if obj.do_check_combo_arg()
+                obj.check_combo_arg();
+            end
+        end
+        
+
         function val = get.ndet(obj)
             val = obj.det_.ndet;
         end

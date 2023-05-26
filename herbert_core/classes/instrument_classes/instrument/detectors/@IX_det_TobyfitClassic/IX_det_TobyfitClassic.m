@@ -59,6 +59,12 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
                         'Unrecognised extra parameters provided as input to IX_det_TobyfitClassic constructor: %s',...
                         disp2str(remains));
                 end
+            else
+                oldval = obj.do_check_combo_arg_;
+                obj.do_check_combo_arg_ = false;
+                obj.dia = obj.dia;
+                obj.height = obj.height;
+                obj.do_check_combo_arg_ = oldval;
             end
         end
 

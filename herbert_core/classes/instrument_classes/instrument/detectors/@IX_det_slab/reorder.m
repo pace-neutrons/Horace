@@ -23,7 +23,13 @@ end
 
 % Reorder the detector arrays
 obj_out = obj;
-obj_out.depth_  = obj.depth_(ix);
-obj_out.width_  = obj.width_(ix);
-obj_out.height_ = obj.height_(ix);
-obj_out.atten_  = obj.atten_(ix);
+
+store_check = obj_out.do_check_combo_arg_;
+obj_out.do_check_combo_arg_ = false;
+
+obj_out.depth  = obj.depth_(ix);
+obj_out.width  = obj.width_(ix);
+obj_out.height = obj.height_(ix);
+obj_out.atten  = obj.atten_(ix);
+
+obj_out.do_check_combo_arg_ = store_check;
