@@ -42,6 +42,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             hc.saveable = false;
             hc.log_level= 0;
         end
+
         function tearDown(obj)
             set(hor_config,obj.horace_config);
         end
@@ -57,7 +58,6 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             assertFalse(ok);
             assertEqual(mess, 'Objects being compared are not the same type');
         end
-
 
         function test_the_same_sqw_objects_are_equal_with_no_pix_reorder(obj)
             sqw_copy = obj.sqw_2d;
@@ -78,6 +78,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             shuffled_sqw.pix = obj.shuffle_pixel_bin_rows(pix, npix);
 
             assertTrue(equal_to_tol(shuffled_sqw, original_sqw));
+            % Check that disabling reorder causes them to be not equal
+            assertFalse(equal_to_tol(shuffled_sqw, original_sqw, 'reorder', false));
         end
 
         function test_paged_sqw_objects_equal_if_pix_within_each_bin_shuffled(obj)

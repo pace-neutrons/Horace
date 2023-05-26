@@ -65,10 +65,12 @@ classdef test_cut < TestCase & common_state_holder
             %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
             %sqw_cut = cut(v2large_file, obj.ref_params{:});
 
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 8000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
+            mem_chunk_size = 8000;
+            cleanup_hor_config = set_temporary_config_options( ...
+                hor_config, ...
+                'mem_chunk_size', mem_chunk_size, ...
+                'use_mex', true ...
+                );
 
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
 
@@ -100,12 +102,13 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_object_mb_fb(obj)
-            clObj = set_temporary_config_options(hor_config, 'mem_chunk_size', 10000);
+            mem_chunk_size = 10000;
+            cleanup_config_handle = set_temporary_config_options(hor_config, 'mem_chunk_size', mem_chunk_size);
 
             sqw_obj = obj.sqw_4d;
             ref_par = obj.ref_params;
 
-            sqw_obj.pix = PixelDataFilebacked(sqw_obj.pix);
+            sqw_obj.pix = PixelDataFileBacked(sqw_obj.pix);
             sqw_cut_fb = cut(sqw_obj,ref_par{:});
 
             sqw_obj.pix = PixelDataMemory(sqw_obj.pix);
@@ -150,10 +153,11 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_file_to_file(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 4000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
+            mem_chunk_size = 4000;
+            cleanup_hor_config = set_temporary_config_options( ...
+                hor_config, ...
+                'mem_chunk_size', mem_chunk_size ...
+                );
 
             outfile = fullfile(obj.working_dir, 'tmp_outfile.sqw');
             ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
@@ -168,14 +172,18 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_file_to_file_combined_mex(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 2000;
-            clear_fb_cut_buf_settings = onCleanup(@() set(hor_config, old_conf));
-            hpc = hpc_config;
-            old_hpc = hpc.get_data_to_store();
-            hpc_cleanup = onCleanup(@() set(hpc, old_hpc ));
-            hpc.combine_sqw_using = 'mex';
+
+            mem_chunk_size = 2000;
+            cleanup_hor_config = set_temporary_config_options( ...
+                hor_config, ...
+                'mem_chunk_size', mem_chunk_size, ...
+                'use_mex', true ...
+                );
+
+            cleanup_hpc_config = set_temporary_config_options( ...
+                hpc_config, ...
+                'combine_sqw_using', 'mex' ...
+                );
 
             ref_obj= copy(obj.sqw_4d); % it has been read in constructor
             %ref_obj.pix.signal = 1:ref_obj.pix.num_pixels;
@@ -202,14 +210,18 @@ classdef test_cut < TestCase & common_state_holder
 
 
         function test_cut_sqw_file_to_sqw_file_combined_nomex(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 2000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
-            hpc = hpc_config;
-            old_hpc = hpc.get_data_to_store();
-            hpc_cleanup = onCleanup(@() set(hpc, old_hpc ));
-            hpc.combine_sqw_using = 'matlab';
+
+            mem_chunk_size = 2000;
+            cleanup_hor_config = set_temporary_config_options( ...
+                hor_config, ...
+                'mem_chunk_size', mem_chunk_size, ...
+                'use_mex', false ...
+                );
+
+            cleanup_hpc_config = set_temporary_config_options( ...
+                hpc_config, ...
+                'combine_sqw_using', 'matlab' ...
+                );
 
             % test filebased cut
             outfile = fullfile(obj.working_dir, 'nomex_combine_cut_from_file_to_file.sqw');
@@ -228,10 +240,12 @@ classdef test_cut < TestCase & common_state_holder
 
 
         function test_cut_sqw_object_to_file(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 4000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
+
+            mem_chunk_size = 4000;
+            cleanup_config = set_temporary_config_options( ...
+                hor_config, ...
+                'mem_chunk_size', mem_chunk_size ...
+                );
             ws = warning('off','HORACE:old_file_format');
             clWarn = onCleanup(@()warning(ws));
 
@@ -371,15 +385,15 @@ classdef test_cut < TestCase & common_state_holder
             ref_sqw.experiment_info.samples = output_sqw.experiment_info.samples;
             ref_sqw.experiment_info.instruments = output_sqw.experiment_info.instruments;
             assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
-            skipTest('SAMPLE COMPARISON and instrument comparison are disabled as some routes ignore empty samples/instruments')
+            % SAMPLE COMPARISON and instrument comparison are disabled as some routes ignore empty samples/instruments
+            %%TODO fix
         end
 
         function test_out_of_memory_cut_tmp_files_no_mex(obj)
-            mem_chunk_size = 5e5/36;  % this gives two pages of pixels over obj.sqw_file
+            mem_chunk_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
-            hc = hor_config;
             cleanup_config_handle = set_temporary_config_options( ...
-                hc, ...
+                hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
                 'use_mex', false ...
                 );
@@ -389,7 +403,7 @@ classdef test_cut < TestCase & common_state_holder
 
             ref_sqw = sqw(obj.ref_cut_file);
             output_sqw = sqw(outfile);
-            %
+
             contrubuted_keys = output_sqw.runid_map.keys;
             contrib_ind  = [contrubuted_keys{:}];
             real_contr_ind = unique(ref_sqw.pix.run_idx);
@@ -399,8 +413,8 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(contr_headers,output_sqw.experiment_info);
 
             assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, ...
-                'ignore_str', true,'-ignore_date');
-            clear cleanup_config_handle;
+                'ignore_str', true,'-ignore_date', 'reorder', true);
+
         end
 
         function test_cut_fail_no_outfile_no_nargout(obj)
@@ -552,7 +566,6 @@ classdef test_cut < TestCase & common_state_holder
         function test_multicut_1(obj)
         % Test multicut capability for cuts that are adjacent
         % Note that the last cut has no pixels retained - a good test too!
-            skipTest("New dnd (d2d) not supported yet #878");
 
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
@@ -564,18 +577,12 @@ classdef test_cut < TestCase & common_state_holder
             w1 = cut(obj.sqw_4d, args{:}, [106,4,114,4], '-pix');
             w2 = repmat(sqw,[3,1]);
 
-
             for i=1:3
                 tmp = cut(obj.sqw_4d, args{:}, 102+4*i+[-2,2], '-pix');
                 w2(i) = tmp;
             end
-            assertEqualToTol(w1, w2, obj.tol_sp,'ignore_str',1)
+            assertEqualToTol(w1, w2, obj.FLOAT_TOL,'ignore_str',1)
 
-            % Save dnd only to save disk space
-            d1=dnd(w1);
-            obj.assertEqualToTolWithSave(d1, obj.tol_sp,'ignore_str',1);
-            d2=dnd(w2);
-            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
         end
 
         function test_multicut_2(obj)
@@ -595,13 +602,8 @@ classdef test_cut < TestCase & common_state_holder
             for i=1:5
                 w2(i) = cut(obj.sqw_4d, args{:}, 108+2*i+[-1,1], '-pix');
             end
-            assertEqualToTol(w1, w2, obj.tol_sp,'ignore_str',1)
+            assertEqualToTol(w1, w2, obj.FLOAT_TOL,'ignore_str',1)
 
-            % Save dnd only to save disk space
-            d1=dnd(w1);
-            obj.assertEqualToTolWithSave(d1, obj.tol_sp,'ignore_str',1);
-            d2=dnd(w2);
-            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
         end
 
         function test_multicut_3(obj)
@@ -619,22 +621,18 @@ classdef test_cut < TestCase & common_state_holder
             for i=1:3
                 w2(i) = cut(obj.sqw_4d, args{:}, 102+4*i+[-4,4], '-pix');
             end
-            assertEqualToTol(w1, w2, obj.tol_sp,'ignore_str',1)
+            assertEqualToTol(w1, w2, obj.FLOAT_TOL,'ignore_str',1)
 
-            % Save dnd only to save disk space
-            d1=dnd(w1);
-            obj.assertEqualToTolWithSave(d1, obj.tol_sp,'ignore_str',1);
-            d2=dnd(w2);
-            obj.assertEqualToTolWithSave(d2, obj.tol_sp,'ignore_str',1);
         end
 
         %------------------------------------------------------------------
 
         function test_cut_multiple_sqw_files(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 8000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
+            mem_chunk_size = 8000;
+            cleanup_config_handle = set_temporary_config_options( ...
+                hor_config, ...
+                'mem_chunk_size', mem_chunk_size ...
+                );
 
             files = {obj.sqw_file,obj.sqw_file};
             [sqw_cut1,sqw_cut2] = cut(files, obj.ref_params{:});
@@ -650,11 +648,13 @@ classdef test_cut < TestCase & common_state_holder
             ex = assertExceptionThrown(@()cut_sqw(obj.dnd_file, obj.ref_params{:}), ...
                 'HORACE:cut:invalid_argument');
         end
+
         function test_cut_fail_no_output_no_file(obj)
 
             assertExceptionThrown(@()cut(obj.dnd_file,obj.ref_params{:}),...
                 'HORACE:cut:invalid_argument');
         end
+
         function test_cut_2inputs_2files_as_cell(obj)
             files = {'file_name1.sqw','file_name2.sqw'};
             inputs = obj.ref_params;

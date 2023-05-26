@@ -117,5 +117,7 @@ end
 
 function clean_up_tmp_files(pix_comb_info)
 % Manually clean-up temporary files created by a pix_combine_info object
-    delete(pix_comb_info.infiles);
+    for nfile = 1:numel(pix_comb_info.infiles)
+        delete(pix_comb_info.infiles{nfile});
+    end
 end
