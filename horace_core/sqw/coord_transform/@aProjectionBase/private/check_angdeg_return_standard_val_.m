@@ -1,4 +1,4 @@
-function angdeg = check_angdeg_return_standard_val_(obj,val)
+function [angdeg,defined] = check_angdeg_return_standard_val_(obj,val)
 % verify if input lattice angles belong to acceptable range (+-180 deg,
 % negative angles treated as positive) and have
 % acceptable form (either 3-vector of angles or single value, defining 3 equal
@@ -10,6 +10,11 @@ function angdeg = check_angdeg_return_standard_val_(obj,val)
 % Throws if lattice angles can not be transformed into standard form
 %
 %
+defined = false;
+if isempty(val)
+    angdeg = [];
+    return;
+end
 if numel(val) == 1
     val = abs(val);
     angdeg = [val,val,val];
@@ -20,7 +25,7 @@ elseif size(val,1)==3 && size(val,2)==1
 else
     error('HORACE:aProjectionBase:invalid_argument',...
         'input value for angdeg may be a single number or 3-element vector. In fact it is: %s',...
-        evalc('disp(val)'));
+        disp2str(val));
 end
 valid = arrayfun(@(x)(x>obj.tol_ && x<180),val,'UniformOutput',true);
 if ~all(valid)
@@ -28,3 +33,4 @@ if ~all(valid)
         'input value for angdeg may be a number in the range 0<x<180. In fact it is: %s',...
         evalc('disp(val)'));
 end
+defined = true;

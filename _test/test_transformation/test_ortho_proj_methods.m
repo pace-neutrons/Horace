@@ -283,7 +283,7 @@ classdef test_ortho_proj_methods<TestCase
         %
         function test_binning_range_half_sampe_proj2Drot90(~)
             proj1 = ortho_proj([1,0,0],[0,1,0]);
-            proj1.do_generic = true;
+
             dbr = [0,0,0,0;1,1,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
@@ -294,7 +294,7 @@ classdef test_ortho_proj_methods<TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab1 = ortho_axes(bin1{:});
             proj2 = ortho_proj([0,1,0],[-1,0,0]);
-            proj2.do_generic = true;
+
 
 
             [bl_start,bl_size] = proj1.get_nrange(npix,ab0,ab1,proj2);
@@ -304,7 +304,7 @@ classdef test_ortho_proj_methods<TestCase
             % if you carefully analyse the image
             assertEqual(numel(bl_start),7);
             assertEqual(bl_start,[45,56,67,78,89,100,111]);
-            assertEqual(bl_size, ones(1,7)*2);
+            assertEqual(bl_size, ones(1,7)*1);
         end
         function test_binning_range_half_sampe_proj2D_offset_eq_ranges_shif(~)
             proj1 = ortho_proj([1,0,0],[0,1,0]);
