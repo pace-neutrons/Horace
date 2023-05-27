@@ -63,6 +63,8 @@ classdef test_IX_detectors_3 < TestCaseWithSave
         
         %--------------------------------------------------------------------------
         function test_det_bank_saveload (self)
+            
+            % test save and load for the current version (v2)
             [dets, det_array] = construct_detectors(self);
             det = dets(1);
             id = (1:99)';
@@ -74,6 +76,11 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             clob = onCleanup(@()(delete('detbank.mat')));
             data = load('detbank.mat');
             assertEqual(data.bank, bank);
+            
+            % test load for a .mat file produced by saving the previous
+            % version 1 (using the 'combined' field)
+            data_v1 = load('detbank_v1.mat');
+            assertEqual(data_v1.bank, bank);
         end
         
         %--------------------------------------------------------------------------

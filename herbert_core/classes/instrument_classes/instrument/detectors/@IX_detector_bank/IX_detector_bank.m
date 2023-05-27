@@ -43,8 +43,8 @@ classdef IX_detector_bank < serializable
     end
 
     properties(Constant,Access=private)
-        % fields_to_save_ = {'id','x2','phi','azim', 'dmat', 'det', 'ndet'};
-        fields_to_save_ = {'combined'};
+        fields_to_save_ = {'id','x2','phi','azim', 'dmat', 'det'};
+        %fields_to_save_ = {'combined'};
     end
     
 
@@ -140,7 +140,8 @@ classdef IX_detector_bank < serializable
                 error('HERBERT:IX_detector_bank_constructor:invalid_argument',mess);
             end
             
-            % set no. detectors as per id
+            % make id a column vector and set no. detectors as per id
+            id = id(:);
             ndet = numel(id);
             
             % Expand position coordinates to vectors if input as scalars
@@ -245,7 +246,9 @@ classdef IX_detector_bank < serializable
             % the property values do not need to be resized at this point.
             % If the number of detectors changes, then a new bank must be
             % constructed.
-            if numel(val)==numel(obj.id_)
+            % UNLESS: the old ids are empty, so initialising a default
+            % object
+            if numel(val)==numel(obj.id_) || isempty(obj.id_)
                 [ok,mess,~] = is_integer_id_nosort(val);
                 if ok
                     obj.id_ = val(:);
@@ -258,7 +261,7 @@ classdef IX_detector_bank < serializable
                       'The new number of detector identifiers must match the previous number');
             end
             
-            if obj.do_check_combo_arg()
+            if obj.do_check_combo_arg_
                 obj.check_combo_arg();
             end
             
@@ -274,7 +277,7 @@ classdef IX_detector_bank < serializable
         function obj=set.x2(obj,val)
             obj.x2_ = expand_args_by_ref (obj.id_, val);
             
-            if obj.do_check_combo_arg()
+            if obj.do_check_combo_arg_
                 obj.check_combo_arg();
             end
         end
@@ -290,7 +293,7 @@ classdef IX_detector_bank < serializable
             obj.phi_ = expand_args_by_ref (obj.id_, val);
             
             
-            if obj.do_check_combo_arg()
+            if obj.do_check_combo_arg_
                 obj.check_combo_arg();
             end
         end
@@ -306,7 +309,7 @@ classdef IX_detector_bank < serializable
             obj.azim_ = expand_args_by_ref (obj.id_, val);
             
             
-            if obj.do_check_combo_arg()
+            if obj.do_check_combo_arg_
                 obj.check_combo_arg();
             end
         end
@@ -322,17 +325,36 @@ classdef IX_detector_bank < serializable
             [ok,mess,ndet0] = det_orient_trans (val, 'dmat');
             if ~ok, error('HERBERT:IX_detector_bank:invalid_argument',mess), end
             
+            ok = true;
+            % basic checks against existing data (new data is scalar or
+            % same number of detectors as old data)
             if obj.ndet == ndet0
                 obj.dmat_ = val; % assign as-is
             elseif ndet0==1
                 obj.dmat_ = repmat(val,[1,1,obj.ndet]); % scalar input, make duplicates
+            % otherwise we may be looking at loadobj onto a default
+            % detector bank in which case obj.ndet==1 and we get the number
+            % of detectors from obj.id_, which MUST have been set
+            % previously
+            elseif obj.ndet == 1 && numel(obj.id_)>0
+                if numel(obj.id_)==ndet0
+                    obj.dmat_ = val;
+                elseif ndet0 == 1
+                    obj.dmat_ = repmat(val,[1,1,numel(obj.id_)]);
+                else
+                    ok = false;
+                end
             else
+                ok = false;
+            end
+            
+            if ~ok
                 error('HERBERT:IX_detector_bank:invalid_argument', ...
                        ['Number of detector orientations must be scalar ', ...
                         'or match the number of detector identifiers']);
             end
             
-            if obj.do_check_combo_arg()
+            if obj.do_check_combo_arg_
                 obj.check_combo_arg();
             end
         end
@@ -365,12 +387,14 @@ classdef IX_detector_bank < serializable
                 end
             end
             
-            if obj.do_check_combo_arg()
+            if obj.do_check_combo_arg_
                 obj.check_combo_arg();
             end
         end
-        
 
+        % -----------------------------
+        % property ndet (read-only)
+        
         function val = get.ndet(obj)
             val = obj.det_.ndet;
         end
@@ -387,13 +411,38 @@ classdef IX_detector_bank < serializable
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 1;
+            ver = 2;
         end
         %
         function flds = saveableFields(~)
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = IX_detector_bank.fields_to_save_;
+        end
+    end
+    
+    methods (Access=protected)
+        function obj = from_old_struct(obj,inputs)
+            if isfield(inputs,'version')
+                if inputs.version == 1
+                    % unexpectedly it turns out that version 1, which saves
+                    % a struct using the combined property, can be
+                    % processed by the serializable from_old struct.
+                    % the code from that method is copied here so it can be
+                    % alterned if required.
+                    if isfield(inputs,'array_dat')
+                        obj = obj.from_bare_struct(inputs.array_dat);
+                    else
+                        obj = obj.from_bare_struct(inputs);
+                    end
+                else
+                    % other versioned input is passed to the serializable code
+                    obj = from_old_struct@serializable(obj,inputs);
+                end
+            else
+                % unversioned input is passed to the serializable code
+                obj = from_old_struct@serializable(obj,inputs);
+            end
         end
     end
         
