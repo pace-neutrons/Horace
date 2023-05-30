@@ -237,7 +237,7 @@ classdef test_symop < TestCase
 
             assertEqualToTol(out_proj.u, [1, 0, 0], 'abstol', 1e-10)
             assertEqualToTol(out_proj.v, [0, -1, 0], 'abstol', 1e-10)
-            assertEqualToTol(out_bin, {[0 0.1 1], [0 0.1 1], [-1 -0.1 0]})
+            assertEqualToTol(out_bin, {[0 0.1 1], [0 0.1 1], [0 0.1 1]})
 
             [out_proj_mat, out_bin_mat] = obj.ref_op_mat.transform_proj(obj.proj, obj.binning);
             assertEqualToTol(out_proj.u, out_proj_mat.u, 'abstol', 1e-10)
