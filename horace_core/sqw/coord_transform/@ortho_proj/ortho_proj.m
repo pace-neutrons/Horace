@@ -258,8 +258,7 @@ classdef ortho_proj<aProjectionBase
         % -----------------------------------------------------------------
         function obj = set_from_data_mat(obj,u_to_img,ulen)
             % build correct projection from input u_to_img transformation
-            % and ulen matrices. These matrices can be obtained from 
-            % u_to_rlu and ulen matrices 
+            % and ulen matrices.
             %
             [ur,vr,wr,tpe,nonortho]=obj.uv_from_data_rot(u_to_img(1:3,1:3),ulen(1:3));
             check = obj.do_check_combo_arg;
@@ -461,10 +460,10 @@ classdef ortho_proj<aProjectionBase
         %------------------------------------------------------------------
         function   mat = get_u_to_rlu_mat(obj)
             [mat,~,ulen] = obj.get_pix_img_transformation(4);
-            %mat = mat.*ulen; --> old style u_to_rlu used in captions 
-			% converts transformation into hkl
+            mat = mat.*[ulen(:)',1]; %--> old style u_to_rlu used in captions
+            % converts transformation into hkl
         end
-        
+
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)

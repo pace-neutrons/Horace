@@ -244,15 +244,16 @@ classdef (Abstract=true) serializable
             %Throw if the properties are inconsistent and return without
             %problem it they are not.
         end
-        % Developer property. Intended for creating algorithms, which
-        % change bunch of interdependent properties one after another
-        % without overloading the class.
-        % Set this property to false at the beginning, change interdependent
-        % properties, run check_combo_arg after setting all interdependent
-        % properties to its values so if check_combo_arg throws the error,
-        % the interdependent properties are inconsistent and the object is
-        % invalid.
         function do = get.do_check_combo_arg(obj)
+            % Developer property. Intended for creating algorithms, which
+            % change bunch of interdependent properties one after another
+            % without overloading the class.
+            % Set this property to false at the beginning, change interdependent
+            % properties, run check_combo_arg after setting all interdependent
+            % properties to its values so if check_combo_arg throws the error,
+            % the interdependent properties are inconsistent and the object is
+            % invalid.
+
             do = obj.do_check_combo_arg_;
         end
         function obj = set.do_check_combo_arg(obj,val)

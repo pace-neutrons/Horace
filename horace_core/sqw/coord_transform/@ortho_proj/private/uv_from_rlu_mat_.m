@@ -33,9 +33,9 @@ end
 
 umatinv = u_to_img.*ulen(:)';
 err = 1.e-8;
-if umatinv(:,1)'*umatinv(:,2) > err || ...
-        umatinv(:,1)'*umatinv(:,3) > err || ...
-        umatinv(:,2)'*umatinv(:,3) > err
+if abs(umatinv(:,1)'*umatinv(:,2)) > err || ...
+        abs(umatinv(:,1)'*umatinv(:,3)) > err || ...
+        abs(umatinv(:,2)'*umatinv(:,3)) > err
     ortho = false;
 else
     ortho = true;
@@ -81,7 +81,7 @@ if ortho
     %     end
     type = [lt{:}];
 else % non-ortho
-    uvw = [uu',vv',ww'];
+    uvw = inv(umatinv');
     type = cell(3,1);
     for i=1:3
         type{i} = find_type(u_to_img(i,:),ulen(i));

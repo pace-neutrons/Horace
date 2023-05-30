@@ -27,7 +27,7 @@ classdef test_recip_lattice < TestCase
             assertElementsAlmostEqual(brlu,normbec)
             assertElementsAlmostEqual(angrlu,angvec)
 
-            assertElementsAlmostEqual(bmat./brlu,res_vec_directions)
+            assertElementsAlmostEqual(bmat./brlu(:)',res_vec_directions)
         end
 
 
@@ -48,7 +48,7 @@ classdef test_recip_lattice < TestCase
             assertElementsAlmostEqual(brlu,normbec)
             assertElementsAlmostEqual(angrlu,angvec)
 
-            assertElementsAlmostEqual(bmat./brlu,res_vec_directions)
+            assertElementsAlmostEqual(bmat./brlu(:)',res_vec_directions)
         end
 
 
@@ -70,7 +70,7 @@ classdef test_recip_lattice < TestCase
             assertElementsAlmostEqual(brlu,normbec)
             assertElementsAlmostEqual(angrlu,angvec)
 
-            assertElementsAlmostEqual(bmat./brlu,res_vec)
+            assertElementsAlmostEqual(bmat./brlu(:)',res_vec)
         end
 
 

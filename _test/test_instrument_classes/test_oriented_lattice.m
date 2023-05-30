@@ -181,7 +181,7 @@ classdef test_oriented_lattice< TestCase
             f=@()subsasgn(ol,struct('type','.','subs','angdeg'),[-400,0,0]);
             assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
 
-            %assertEqual(mess,'field ''angldeg'' does not define correct 3D lattice');
+            %assertEqual(mess,'field ''angdeg'' does not define correct 3D lattice');
             %ol.angldeg = [45,120,45]
             f=@()subsasgn(ol,struct('type','.','subs','angdeg'),[45,120,50]);
             assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
@@ -232,7 +232,7 @@ classdef test_oriented_lattice< TestCase
             assertTrue(ol.is_defined('alatt'));
             assertFalse(ol.is_defined('angdeg'));
 
-            assertEqual(ol.alatt,[1,2,3]) % key arguments redefines positional argumeent
+            assertEqual(ol.alatt,[1,2,3]) % key arguments redefines positional argument
             assertEqual(ol.angular_units,'deg')
             ol.angular_units = 'r';
             assertEqual(ol.psi,20*pi/180)
@@ -247,7 +247,7 @@ classdef test_oriented_lattice< TestCase
             assertTrue(ol.is_defined('alatt'));
             assertFalse(ol.is_defined('angdeg'));
 
-            assertEqual(ol.alatt,[2,3,4]) % key arguments redefines positional argumeent
+            assertEqual(ol.alatt,[2,3,4]) % key arguments redefines positional argument
             assertEqual(ol.angular_units,'deg')
             ol = ol.set_rad();
             assertEqual(ol.psi,20*pi/180)

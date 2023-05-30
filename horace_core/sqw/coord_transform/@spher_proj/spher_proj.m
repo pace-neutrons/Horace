@@ -44,7 +44,9 @@ classdef spher_proj<aProjectionBase
         hor2matlab_transf_ = ...
             [0,0,1;... % The transformation from
             1 ,0,0;... % Horace pixel coordinate system to the axes above to
-            0 ,1,0];   % allow to use MATLAB sph2cart/cart2sph functions.  
+            0 ,1,0];   % allow to use MATLAB sph2cart/cart2sph functions. 
+        % the matrix arranged in rows, as multipled by 3xNpix matrix of
+        % Q-coordinates
 
 
         pix_to_matlab_transf_ ; % the transformation used for conversion

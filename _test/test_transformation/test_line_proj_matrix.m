@@ -1,4 +1,4 @@
-classdef test_ortho_proj_matrix<TestCase
+classdef test_line_proj_matrix<TestCase
     % Test transformations matices, used in conversion between instrument
     % and Crystal Cartesian coordinate system
     %
@@ -8,7 +8,7 @@ classdef test_ortho_proj_matrix<TestCase
     end
     
     methods
-        function this=test_ortho_proj_matrix(name)
+        function this=test_line_proj_matrix(name)
             this=this@TestCase(name);
         end
         % tests themself

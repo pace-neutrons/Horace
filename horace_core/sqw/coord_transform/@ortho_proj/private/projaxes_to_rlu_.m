@@ -46,8 +46,8 @@ if isempty(obj.w) %
     % lattice, but in this case you should provide w manually
     %
     % Above is the idea, have not been implemented. Just make w-vector
-    % orthogonal to everything u,v.
-    uv_ortho = b_mat*[u(:),v(:)];
+    % orthogonal to u,v plain
+    uv_ortho = b_vec_directions*[u(:),v(:)];
     w = cross(uv_ortho(:,1),uv_ortho(:,2));
     w = w/norm(w); % this is w orthogonal to u,v in Crystal Cartesian
     w = b_mat\w;   % this is this w in hkl;
@@ -68,7 +68,7 @@ uvw_orth=ubmat*uvw;  % u,v,w in the orthonormal
 
 
 if obj.nonorthogonal
-    transf = (b_vec_directions)*uvw;
+    transf = b_vec_directions*uvw;
     i=1:3;
     veclen = arrayfun(@(i)norm(uvw_orth(:,i)),i);
     % Keep non-orthogonality of u,v, and w (if given)

@@ -1,4 +1,4 @@
-classdef test_ortho_proj_construction<TestCase
+classdef test_line_proj_construction<TestCase
     % testing ortho_proj class constructor
     %
     properties
@@ -6,9 +6,9 @@ classdef test_ortho_proj_construction<TestCase
     end
 
     methods
-        function this=test_ortho_proj_construction(varargin)
+        function this=test_line_proj_construction(varargin)
             if nargin == 0
-                name = 'test_ortho_proj_construction';
+                name = 'test_line_proj_construction';
             else
                 name = varargin{1};
             end

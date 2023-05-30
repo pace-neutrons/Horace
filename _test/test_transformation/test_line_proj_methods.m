@@ -1,4 +1,4 @@
-classdef test_ortho_proj_methods<TestCase
+classdef test_line_proj_methods<TestCase
     % The tests to verify main ortho_proj methods.
     %
     properties
@@ -11,9 +11,9 @@ classdef test_ortho_proj_methods<TestCase
     end
 
     methods
-        function this=test_ortho_proj_methods(varargin)
+        function this=test_line_proj_methods(varargin)
             if nargin == 0
-                name = 'test_ortho_proj_class';
+                name = 'test_line_proj_methods';
             else
                 name = varargin{1};
             end
