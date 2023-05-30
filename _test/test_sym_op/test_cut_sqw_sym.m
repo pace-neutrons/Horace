@@ -17,7 +17,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         vbin2
         wbin2
         ebin2
-
     end
 
     methods
@@ -66,7 +65,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             obj.sym2 = squeeze(cellfun(@SymopGeneral, Ws, 'UniformOutput', false));
             % setup projection and binning specifications
             obj.proj2 = ortho_proj([1,0,0],[0,1,0]);
-            obj.ubin2 = [-0.5, 0.05, 0.5];
+            obj.ubin2 = [0, 0.05, 0.5];
             obj.vbin2 = [-0.1, 0.1];
             obj.wbin2 = [-0.1, 0.1];
             obj.ebin2 = [-2, 2];
@@ -95,21 +94,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             w2sym = cut(obj.data, obj.proj, obj.bin,...
                         obj.width, obj.width, obj.ebins, obj.sym);
 
-            %% TODO Regenerate test data with new axes
-            w2symref = obj.getReferenceDataset('test_cut_sym_with_pix', 'w2sym');
-
-            [ok, mess] = equal_to_tol(w2sym.data.s, w2symref.data.s, 'ignore_str', 1);
-            if ~ok
-                error(mess)
-            end
-            [ok, mess] = equal_to_tol(w2sym.data.e, w2symref.data.e, 'ignore_str', 1);
-            if ~ok
-                error(mess)
-            end
-            [ok, mess] = equal_to_tol(w2sym.data.npix, w2symref.data.npix, 'ignore_str', 1);
-            if ~ok
-                error(mess)
-            end
+            obj.assertEqualToTolWithSave(w2sym, obj.tol_sp,'ignore_str',1);
         end
 
         function test_cut_sym_with_nopix(obj)
@@ -124,30 +109,11 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         % Test multiple overlapping symmetry related cuts, some of
         % which contribute zero pixels to the result.
 
-            obj.data2.pix = PixelDataMemory(obj.data2.pix);
             c = cut(obj.data2, obj.proj2, ...
                     obj.ubin2, obj.vbin2, obj.wbin2, obj.ebin2, ...
                     obj.sym2);
 
-            %% TODO Regenerate test data with new axes && New Fn name
-            cref = obj.getReferenceDataset('test_cut_sqw_sym_ptgr', 'c');
-
-            c.data.s
-            cref.data.s
-            [ok, mess] = equal_to_tol(c.data.s, cref.data.s, 'ignore_str', 1);
-            if ~ok
-                error(mess)
-            end
-            [ok, mess] = equal_to_tol(c.data.e, cref.data.e, 'ignore_str', 1);
-            if ~ok
-                error(mess)
-            end
-            [ok, mess] = equal_to_tol(c.data.npix, cref.data.npix, 'ignore_str', 1);
-            if ~ok
-                error(mess)
-            end
-
-%             obj.assertEqualToTolWithSave(c, obj.tol_sp,'ignore_str',1);
+            obj.assertEqualToTolWithSave(c, obj.tol_sp,'ignore_str',1);
         end
 
         %------------------------------------------------------------------------
