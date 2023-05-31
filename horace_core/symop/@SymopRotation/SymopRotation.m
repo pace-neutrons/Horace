@@ -116,10 +116,10 @@ classdef SymopRotation < Symop
         end
 
         function local_disp(obj)
-            disp(['Rotation operator:'])
-            disp(['       axis (rlu): ',mat2str(obj.n)])
-            disp(['      angle (deg): ',num2str(obj.theta_deg)])
-            disp(['     offset (rlu): ',mat2str(obj.offset)])
+            fprintf('Rotation operator:\n');
+            fprintf('       axis (rlu): %s\n', mat2str(obj.n, 2));
+            fprintf('      angle (deg): %5.2f\n', obj.theta_deg);
+            fprintf('     offset (rlu): %s\n', mat2str(obj.offset, 2));
         end
     end
 
