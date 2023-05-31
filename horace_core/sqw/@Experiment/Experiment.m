@@ -405,11 +405,19 @@ classdef Experiment < serializable
         %
         % GEN_SQW interface
         %------------------------------------------------------------------
-        function [avh,ebins_are_the_same] = header_average(obj)
+        function [avh,ebins_are_the_same] = header_average(obj, data)
             % very crude implementation for the header, average over all
             % runs.
             %
-            if isempty(obj.expdata)
+            if nargin>1 % second arg is a data_sqw_dnd object
+                        % and provides default lattice parms
+                alatt = data.alatt;
+                angdeg = data.angdeg;
+            else
+                alatt = [];
+                angdeg = [];
+            end
+            if isempty(obj.expdata) % true if zero runs
                 avh = [];
             else
                 avh = obj.expdata_(1);
@@ -419,15 +427,21 @@ classdef Experiment < serializable
             else
                 ebins_are_the_same=[];
             end
-            if isempty(avh)
+            if isempty(avh) % because zero runs, get lattice parms from data
                 avh = struct();
-            else
+                avh.alatt = alatt;
+                avh.angdeg = angdeg;
+            else % there is at least one run, get lattice parms from first sample
                 avh = avh.to_bare_struct();
-            end
-            sampl = obj.samples_{1};
-            if ~isempty(sampl)
-                avh.alatt = sampl.alatt;
-                avh.angdeg = sampl.angdeg;
+                sampl = obj.samples_{1};
+                if ~isempty(sampl)
+                    avh.alatt = sampl.alatt;
+                    avh.angdeg = sampl.angdeg;
+                else % but if that sample is empty (shouldn't happen, but
+                     % just in case) go back to the defaults from data
+                    avh.alatt = alatt;
+                    avh.angdeg = angdeg;
+                end
             end
         end
         %------------------------------------------------------------------
