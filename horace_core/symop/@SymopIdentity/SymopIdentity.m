@@ -19,13 +19,13 @@ classdef SymopIdentity < Symop
             end
         end
 
-        function selected = in_irreducible(obj, coords)
+        function selected = in_irreducible(~, coords)
         % Compute whether the coordinates in `coords` are in the irreducible
         % set following the operation
             selected = true(size(coords));
         end
 
-        function R = calculate_transform(obj, Minv)
+        function R = calculate_transform(~, Minv)
         % Get transformation matrix for the symmetry operator in an orthonormal frame
         %
         % The transformation matrix converts the components of a vector which is
@@ -51,10 +51,10 @@ classdef SymopIdentity < Symop
         % -------
         %   R       Transformation matrix to be applied to the components of a
         %          vector given in the orthonormal frame for which Minv is defined
-            R = Minv * eye(3);
+            R = Minv;
         end
 
-        function local_disp(obj)
+        function local_disp(~)
             disp('Identity operator (no symmetrisation)')
         end
     end
