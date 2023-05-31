@@ -109,10 +109,10 @@ classdef SymopReflection < Symop
         end
 
         function local_disp(obj)
-            disp('Reflection operator:')
-            disp([' In-plane u (rlu): ',mat2str(obj.u, 2)])
-            disp([' In-plane v (rlu): ',mat2str(obj.v, 2)])
-            disp(['     offset (rlu): ',mat2str(obj.offset, 2)])
+            fprintf('Reflection operator:\n');
+            fprintf(' In-plane u (rlu): %s\n', mat2str(obj.u, 2));
+            fprintf(' In-plane v (rlu): %s\n', mat2str(obj.v, 2));
+            fprintf('     offset (rlu): %s\n', mat2str(obj.offset, 2));
         end
     end
 

@@ -171,11 +171,11 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
 
             % Get transformation
             if isa(pix, 'PixelDataMemory')
-                sel = obj.in_irreducible(pix.q_coordinates)
-                pix.q_coordinates(:, ~sel) = obj.transform_vec(pix.q_coordinates(:, ~sel))
+                sel = obj.in_irreducible(pix.q_coordinates);
+                pix.q_coordinates(:, ~sel) = obj.transform_vec(pix.q_coordinates(:, ~sel));
             else
                 error('HORACE:Symop:not_implemented', ...
-                      'filebacked pix reduction not possible')
+                      'filebacked pix reduction not possible');
             end
 
         end
@@ -227,7 +227,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
             b = bmatrix(proj.alatt, proj.angdeg);
 
             for i=numel(obj):-1:1
-                [proj, sgn(i)] = obj(i).transform_proj_single(b, proj);
+                proj = obj(i).transform_proj_single(b, proj);
             end
 
         end
