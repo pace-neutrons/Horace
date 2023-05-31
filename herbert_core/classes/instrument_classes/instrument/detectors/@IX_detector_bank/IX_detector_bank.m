@@ -400,7 +400,20 @@ classdef IX_detector_bank < serializable
         end
         
         %------------------------------------------------------------------
-        
+                %
+        function obj = check_combo_arg(obj)
+            % verify consistency of IX_detector_bank containers
+            %
+            % Inputs:
+            % obj  -- the initialized instance of IX_detector_bank obj
+            %
+            % Returns: unchanged object if IX_detector_bank components are
+            %          consistent.
+            %          Throws HORACE:IX_detector_bank:invalid_argument with
+            %          details of the issue if they are not
+            obj = check_combo_arg_(obj);
+        end
+
     end
     
     methods
