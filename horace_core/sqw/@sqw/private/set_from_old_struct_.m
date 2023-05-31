@@ -81,6 +81,9 @@ if ~isfield(S,'version') || S.version<4
                 ss.pix = ss.data.pix;
                 ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
             end
+        else
+            error('HORACE:sqw:invalid_argument', ...
+                'Can not load old sqw object which does not contain "data" field')
         end
         % we need compartibility matrix as can not distinguish between
         % old=style aligned and non-aligned data

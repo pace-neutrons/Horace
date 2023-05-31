@@ -31,16 +31,15 @@ function [u_to_img,ulen,b_mat,obj] = projaxes_to_rlu_(obj)
 
 
 [b_mat,rlu_vec_len] = bmatrix(obj.alatt, obj.angdeg);
-
+ b_vec_directions = b_mat./rlu_vec_len;
 u=obj.u;
 v=obj.v;
-b_vec_directions = b_mat./rlu_vec_len;
 [ubmat,umat] = ubmatrix(u,v,b_mat);  % get UB matrix normalized by rlu vector length
 
 
 type=obj.type;
 if isempty(obj.w) %
-    % the purpose of selecting default w with 'r' scale would be
+    % the possible purpose of selecting default w with 'r' scale would be
     % providing the same thickness expressed in hkl cut regardless of the
     % cut direction. This may not have physical meaning for triclinic
     % lattice, but in this case you should provide w manually
@@ -48,9 +47,11 @@ if isempty(obj.w) %
     % Above is the idea, have not been implemented. Just make w-vector
     % orthogonal to u,v plain
     uv_ortho = b_vec_directions*[u(:),v(:)];
-    w = cross(uv_ortho(:,1),uv_ortho(:,2));
-    w = w/norm(w); % this is w orthogonal to u,v in Crystal Cartesian
-    w = b_mat\w;   % this is this w in hkl;
+    w = cross(uv_ortho(:,1),uv_ortho(:,2));  % this is w orthogonal to u,v
+    w = w/norm(w);                           % in Crystal Cartesian
+    w = b_vec_directions\w; % this is unit-length vector w in hkl-aligned system;
+    % w it is not used in orthogonal case, just provided for convenience. 
+    % Used in non-orthogonal case only
 else
     w=obj.w;
     if ubmat(3,:)*w'<0

@@ -72,8 +72,9 @@ if ortho
         end
     end
     % normalize u to make u== 1 to look nice
-    nrm = norm(uvw_norm_hkl(:,1));
-    u = uvw_norm_hkl(:,1)/nrm;
+    %nrm = norm(uvw_norm_hkl(:,1));
+    %u = uvw_norm_hkl(:,1)/nrm;
+    u = uvw_norm_hkl(:,1);
     v = uvw_norm_hkl(:,2);
     w = uvw_norm_hkl(:,3);
     %     if lt{3} == 'r'

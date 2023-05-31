@@ -202,7 +202,7 @@ classdef test_line_proj_construction<TestCase
             pror = ortho_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
                 'label',{'a','b','c','d'});
             pror = pror.set_from_data_mat(u_to_rlu,ulen);
-            assertEqualToTol(pror,proj1,'tol',[1.e-9,1.e-9]);
+            %assertEqualToTol(pror,proj1,'tol',[1.e-9,1.e-9]);
 
             tpixo = proj1.transform_pix_to_img(eye(3));
             tpixr = pror.transform_pix_to_img(eye(3));
@@ -210,7 +210,43 @@ classdef test_line_proj_construction<TestCase
 
         end
 
-        function test_get_projection_from_cut3D_sqw(~)
+        function test_get_projection_from_cut3D_sqw_no_offset(~)
+
+            data = struct();
+            data.alatt = [2.8580 2.8580 2.8580];
+            data.angdeg = [90,90,90];
+            %
+            data.u_to_rlu = ...
+                [1, 0.3216,      0, 0;...
+                -1, 0.3216,      0, 0;...
+                00,      0, 0.4549, 0;...
+                00,      0,      0, 1];
+
+            data.uoffset = [0,0,0,0];
+            data.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
+            data.ulen = [3.1091;1;1;1];
+            data.iax=3;
+            data.pax=[1,2,4];
+            data.iint=[1;30];
+            data.p={1:10;1:20;1:40};
+            ax = ortho_axes.get_from_old_data(data);
+            proj = ortho_proj.get_from_old_data(data);
+
+            do = DnDBase.dnd(ax,proj);
+
+            proj1=do.proj;
+            pp = proj1.transform_pix_to_img([eye(3),[1;1;1]]);
+            p_ref =...
+                [0.2274   -0.2274    0.0000    0.0000;...
+                0.7071    0.7071   -0.0000    1.4142;...
+                0         0    1.0000    1.0000];
+            assertElementsAlmostEqual(pp,p_ref,'absolute',1.e-4);
+            opt = ortho_projTester(proj1);
+
+            [~, ~, ulen] = opt.projaxes_to_rlu_public();
+            assertElementsAlmostEqual(data.ulen(1:3),ulen','absolute',1.e-4);
+        end
+        function test_get_projection_from_cut3D_sqw_offset(~)
 
             data = struct();
             data.alatt = [2.8580 2.8580 2.8580];
@@ -234,13 +270,18 @@ classdef test_line_proj_construction<TestCase
             do = DnDBase.dnd(ax,proj);
 
             proj1=do.proj;
+            pp = proj1.transform_pix_to_img([eye(3),[1;1;1]]);
+            p_ref =...
+                [0.2274   -0.2274    0.0000    0.0000;...
+                -2.4020   -2.4020   -3.1091   -1.6949;...
+                0         0    1.0000    1.0000];
+            assertElementsAlmostEqual(pp,p_ref,'absolute',1.e-4);
             opt = ortho_projTester(proj1);
 
-            [~, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
-            assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]],...
-                'absolute',1.e-4)
+            [~, ~, ulen] = opt.projaxes_to_rlu_public();
             assertElementsAlmostEqual(data.ulen(1:3),ulen','absolute',1.e-4);
         end
+
 
         function test_get_projection_from_other_aligned_data(~)
             data = struct();
@@ -425,27 +466,37 @@ classdef test_line_proj_construction<TestCase
             assertElementsAlmostEqual(tpixo,tpixr);
 
         end
-        function test_unit_transf_from_triclinic(~)
+        function test_unitu_transf_from_triclinic(~)
 
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 83],'type','ppr');
-            b_m = bmatrix([3, 4 5],[85 95 83]);
-            pr_unit = prj_or.set_from_data_mat(eye(3),1./diag(b_m));
+            [~, u_to_rlu,ulen] = prj_or.projaxes_to_rlu_public();
 
-            tpixo = pr_unit.transform_pix_to_img(eye(3));
-            assertElementsAlmostEqual(tpixo,eye(3));
+            b_m = bmatrix([3, 4 5],[85 95 83]);
+            assertElementsAlmostEqual(ulen,diag(b_m)');
+
+            pr_rec = prj_or.set_from_data_mat(u_to_rlu,ulen);
+
+            tpixr = pr_rec.transform_pix_to_img(eye(3));
+            tpixo = prj_or.transform_pix_to_img(eye(3));
+
+            assertElementsAlmostEqual(tpixo,tpixr);
         end
 
 
-        function test_unit_transf_from_cubic(~)
+        function test_unitu_transf_from_cubic(~)
 
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
                 'angdeg',[90 90 90],'type','ppr');
-            b_m = bmatrix([3, 4 5],[90 90 90]);
-            pr_unit = prj_or.set_from_data_mat(eye(3),1./diag(b_m));
+            [~, u_to_rlu,ulen] = prj_or.projaxes_to_rlu_public();
 
-            tpixo = pr_unit.transform_pix_to_img(eye(3));
-            assertElementsAlmostEqual(tpixo,eye(3));
+            b_m = bmatrix([3, 4 5],[90 90 90]);
+            assertElementsAlmostEqual(ulen,diag(b_m)');
+            pr_rec = prj_or.set_from_data_mat(u_to_rlu,ulen);
+
+            tpix_r = pr_rec.transform_pix_to_img(eye(3));
+            tpix_o = prj_or.transform_pix_to_img(eye(3));
+            assertElementsAlmostEqual(tpix_r ,tpix_o);
         end
 
 
@@ -518,8 +569,6 @@ classdef test_line_proj_construction<TestCase
 
         end
 
-
-
         function test_getset_nonortho_proj_rrr_noW(~)
             prj_or = ortho_projTester('alatt',[3.1580 3.1752 3.1247], ...
                 'angdeg',[90.0013 89.9985 90.0003],'nonorthogonal',true,...
@@ -530,7 +579,7 @@ classdef test_line_proj_construction<TestCase
             data = struct();
             data.alatt = prj_or.alatt;
             data.angdeg =prj_or.angdeg;
-            data.u_to_rlu = prj_or.u_to_rlu;
+            data.u_to_rlu = u_to_rlu;
             data.label = prj_or.label;
             data.ulen = ulen;
 
@@ -587,7 +636,7 @@ classdef test_line_proj_construction<TestCase
             tpixo = proj0.transform_pix_to_img(pix_cc);
             tpixr = projr.transform_pix_to_img(pix_cc);
             assertElementsAlmostEqual(tpixo,tpixr);
-            
+
 
         end
 

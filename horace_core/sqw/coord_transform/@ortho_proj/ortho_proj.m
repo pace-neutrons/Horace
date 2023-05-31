@@ -446,7 +446,7 @@ classdef ortho_proj<aProjectionBase
                     'The ndim input may be 3 or 4  actually it is: %s',...
                     evalc('disp(ndim)'));
             end
-            if nargout == 2
+            if nargout > 1
                 % convert shift, expressed in hkl into crystal Cartesian
                 shift = rlu_to_u *shift(:);
             else % do not convert anything
