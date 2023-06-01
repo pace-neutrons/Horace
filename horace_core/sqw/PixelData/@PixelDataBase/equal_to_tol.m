@@ -49,7 +49,6 @@ function [ok, mess] = equal_to_tol(obj, other_pix, varargin)
 
 [opt, argi] = parse_args(varargin{:});
 
-
 [ok, mess] = validate_other_pix(obj, other_pix);
 if ~ok
     return
@@ -60,9 +59,7 @@ if ~opt.reorder && opt.fraction == 1
 elseif opt.fraction ~= 1
     [ok, mess] = compare_frac(obj, other_pix, opt.fraction, argi);
 else
-    [ok, mess] = compare_reorder(obj, other_pix, opt, argi)
-end
-
+    [ok, mess] = compare_reorder(obj, other_pix, opt, argi);
 end
 
 end
@@ -78,6 +75,8 @@ function [ok, mess] = compare_raw(obj, other_pix, argi)
 
             [ok, mess] = equal_to_tol(obj.data, other_pix.data, argi{:});
             if ~ok
+                [start_idx, end_idx] = obj.get_page_idx_();
+                mess = process_message(mess, start_idx);
                 break;
             end
         end
@@ -98,6 +97,7 @@ function [ok, mess] = compare_raw(obj, other_pix, argi)
             [ok, mess] = equal_to_tol(fb.data, other.data(:, start_idx:end_idx), argi{:});
 
             if ~ok
+                mess = process_message(mess, start_idx);
                 break;
             end
 
@@ -105,53 +105,61 @@ function [ok, mess] = compare_raw(obj, other_pix, argi)
 
     else
         [ok, mess] = equal_to_tol(obj.data, other_pix.data, argi{:});
+        mess = process_message(mess);
     end
+
+
 end
 
 function [ok, mess] = compare_frac(obj, other_pix, frac, argi)
 
-    compare_spacing = floor(1 / opt.fraction);
-    compare_count = num_pixels * opt.fraction;
-    chunk_size = get(hor_config, 'mem_chunk_size');
+    compare_spacing = floor(1 / frac);
+    compare_count = obj.num_pixels * frac;
+    chunk_size = get(hor_config, 'mem_chunk_size')*compare_spacing;
 
-    for i = 1:chunk_size:compare_count
-        range = round(i:compare_spacing:i+chunk_size);
-        candidate_a = get_data(obj, range);
-        candidate_b = get_data(other_pix, range);
+    for i = 1:chunk_size:obj.num_pixels
+        lim = min(i+chunk_size, obj.num_pixels);
+        range = round(i:compare_spacing:lim);
+        candidate_a = get_fields(obj, 'all', range);
+        candidate_b = get_fields(other_pix, 'all', range);
         [ok, mess] = equal_to_tol(candidate_a, candidate_b, argi{:});
 
         if ~ok
+            mess = process_message(mess, i, compare_spacing);
             break;
         end
     end
 
 end
 
-function [ok, mess] = compare_reorder(obj, other_pix, opt, argi)
+function [ok, mess] = compare_reorder(pix1, pix2, opt, argi)
 
     if isempty(opt.npix)
         error('HORACE:equal_to_tol:invalid_argument', ...
               'Requested pixel reorder, did not provide npix')
     end
 
-    if sum(npix) ~= obj.num_pixels
+    if sum(opt.npix) ~= pix1.num_pixels
         error('HORACE:equal_to_tol:invalid_argument', ...
               'Given npix array does not match number of pixels')
     end
 
     compare_spacing = floor(1 / opt.fraction);
-    chunk_size = get(hor_config, 'mem_chunk_size');
+    chunk_size = get(hor_config, 'mem_chunk_size')*compare_spacing;
 
     nend = cumsum(opt.npix);
 
-    compare_count = numel(ibin);
+    compare_count = opt.fraction * pix1.num_pixels;
 
     prev = 0;
     points = [0:chunk_size:compare_count, compare_count+1];
 
-    for i = numel(points)
+    ibin = find(opt.npix);
+    ibinarr = replicate_iarray(ibin, opt.npix(ibin)); % bin index for each retained pixel
+    prev = 1;
 
-        curr = find(nend > points(i+1), 1);
+    for i = 1:numel(points)-1
+        curr = find(nend > points(i+1), 1) - 1;
 
         if nend(curr - 1) == points(i+1)  % Falls on bin boundary
             curr = curr - 1;
@@ -159,22 +167,26 @@ function [ok, mess] = compare_reorder(obj, other_pix, opt, argi)
             curr = numel(nend);
         end
 
-        curr_ipix = points(i)+1:compare_spacing:points(i+1);
+        curr_ipix = prev:compare_spacing:nend(curr);
+        curr_ibinarr = ibinarr(curr_ipix);
+
 
         sort_by = {'run_idx', 'detector_idx', 'energy_idx'};
-        s1 = pix1.get_pixels(curr_ipix);
-        [~, ix] = sortrows([ibinarr, s1.get_fields(sort_by)']);
-        s1 = s1.get_pixels(ix);
 
+        s1 = pix1.get_pixels(curr_ipix);
+        [~, ix1] = sortrows([curr_ibinarr, s1.get_fields(sort_by)']);
+        s1 = s1.get_fields('all', ix1);
         s2 = pix2.get_pixels(curr_ipix);
-        [~, ix] = sortrows([ibinarr, pix2.get_fields(sort_by)']);
-        s2 = s2.get_pixels(ix);
+        [~, ix2] = sortrows([curr_ibinarr, s2.get_fields(sort_by)']);
+        s2 = s2.get_fields('all', ix2);
 
         % Now compare retained pixels
         [ok, mess] = equal_to_tol(s1, s2, argi{:});
         if ~ok
+            mess = process_message(mess, prev, compare_spacing, ix1, ix2);
             break
         end
+        prev = nend(curr)+1;
     end
 
 end
@@ -205,13 +217,47 @@ function [opt, argi] = parse_args(varargin)
     parser.addParameter('nan_equal', true, @islognumscalar);
     parser.addParameter('name_a', 'input_1', @ischar);
     parser.addParameter('name_b', 'input_2', @ischar);
-    parser.addParameter('reorder', true, @islognumscalar);
+    parser.addParameter('reorder', false, @islognumscalar);
     parser.addParameter('npix', [], @isnumeric);
     parser.addParameter('fraction', 1, @(x) isnumeric(x) && x > 0 && x <= 1)
     parser.KeepUnmatched = true;  % ignore unmatched parameters
     parser.parse(varargin{:});
 
     opt = parser.Results;
+
+    if isscalar(opt.tol) && opt.tol < 0
+        opt.tol = [0, abs(opt.tol)];
+    end
+
     % Args for base equal_to_tol
     argi = {'tol', opt.tol, 'nan_equal', opt.nan_equal, 'name_a', opt.name_a, 'name_b', opt.name_b};
+end
+
+function mess = process_message(mess, offset, spacing, ix1, ix2)
+    % Reprocess error message to give accurate pixel numbers and column name
+    [match, str] = regexp(mess, 'element \((\d+)\)', 'tokens', 'split');
+    if isempty(match)
+        return;
+    end
+
+    if ~exist('spacing', 'var')
+        spacing = 1;
+    end
+    if ~exist('offset', 'var')
+        offset = 0;
+    end
+
+
+    ind = str2num(match{1}{1});
+
+    pix = floor(ind / 9);
+    col = PixelDataBase.COLS{mod(ind, 9)+1};
+
+    if ~exist('ix1', 'var')
+        mess = sprintf([str{1} 'pixel %d (col=%s)'], offset + spacing*pix, col);
+    else % Need to find original index
+        mess = sprintf([str{1} 'pixels %d and %d respectively (col=%s)'], offset + spacing*ix1(pix), ...
+                       offset + spacing*ix2(pix), col);
+    end
+
 end

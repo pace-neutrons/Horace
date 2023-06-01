@@ -40,7 +40,7 @@ for idx = 1:numel(class_fields)
         continue;
     end
     if ismember(field_name,{'runid_map','creation_date'}) % runid maps will
-        %  be compared as part of experiment and creation date  as part of 
+        %  be compared as part of experiment and creation date  as part of
         % components comparison
         continue;
     end
@@ -53,7 +53,7 @@ for idx = 1:numel(class_fields)
         end
         if strcmp(field_name,'data') && isa(tmp1,'DnDBase')
             tmp1.creation_date = tmp2.creation_date;
-            tmp2.creation_date = tmp1.creation_date;            
+            tmp2.creation_date = tmp1.creation_date;
         end
     end
     name1 = [name_a,'.',field_name];
@@ -65,62 +65,8 @@ for idx = 1:numel(class_fields)
     end
 end
 
-% Perform pixel comparisons
-if (~opt.reorder && opt.fraction == 1) || isempty(w1.pix) || isempty(w2.pix)
-    % Test strict equality of all pixels including cases where one PixelData is empty
-    [ok, mess] = equal_to_tol(w1.pix, w2.pix, args{:}, 'name_a', name_a, 'name_b', name_b);
-else
-    % Test pixels in a fraction of non-empty bins, accounting for reordering of pixels
-    % if required
-
-    % Check a subset of the bins with reordering
-    npix = w1.data.npix(:);
-    nend = cumsum(npix); % we already know that w1.data.npix and w2.data.npix are equal
-    nbeg = nend - npix + 1;
-
-    if opt.fraction > 0 && any(npix ~= 0)
-        % Testing of bins requested and there is least one bin with more than one pixel
-        % Get indices of bins to test
-        ibin = find(npix > 0);
-        num_non_empty = numel(ibin);
-        if opt.fraction < 1
-            ind = round(1:(1 / opt.fraction):numel(ibin))'; % Test only a fraction of the non-empty bins
-            ibin = ibin(ind);
-        end
-        if horace_info_level >= 1
-            disp(['                       Number of bins = ', num2str(numel(npix))])
-            disp(['             Number of non-empty bins = ', num2str(num_non_empty)])
-            disp(['Number of bins that will be reordered = ', num2str(numel(ibin))])
-            disp(' ')
-        end
-        % Get the pixel indicies
-        ipix = replicate_iarray(nbeg(ibin), npix(ibin)) + sawtooth_iarray(npix(ibin)) - 1;
-        ibinarr = replicate_iarray(ibin, npix(ibin)); % bin index for each retained pixel
-        % Now test contents for equality
-        pix1 = w1.pix;
-        pix1 = pix1.move_to_first_page();
-        pix2 = w2.pix;
-        pix2 = pix2.move_to_first_page();
-        name_a = [name_a, '.pix'];
-        name_b = [name_b, '.pix'];
-
-        if opt.reorder
-            % Sort retained pixels by bin and then run,det,energy bin indicies
-            sort_by = {'run_idx', 'detector_idx', 'energy_idx'};
-            [~, ix] = sortrows([ibinarr, pix1.get_fields(sort_by, ipix)']);
-            s1 = pix1.get_pixels(ipix);
-            s1 = s1.get_pixels(ix);
-
-            [~, ix] = sortrows([ibinarr, pix2.get_fields(sort_by, ipix)']);
-            s2 = pix2.get_pixels(ipix);
-            s2 = s2.get_pixels(ix);
-
-            % Now compare retained pixels
-            [ok, mess] = equal_to_tol(s1, s2, args{:}, 'name_a', name_a, 'name_b', name_b);
-        else
-            s1 = pix1.get_pixels(ipix);
-            s2 = pix2.get_pixels(ipix);
-            [ok, mess] = equal_to_tol(s1, s2, args{:}, 'name_a', name_a, 'name_b', name_b);
-        end
-    end
+% Compare pix
+[ok, mess] = equal_to_tol(w1.pix, w2.pix, args{:}, ...
+                          'reorder', opt.reorder, 'npix', w1.data.npix(:), 'fraction', opt.fraction, ...
+                          'name_a', [name_a, '.pix'], 'name_a', [name_b, '.pix']);
 end

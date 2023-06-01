@@ -51,17 +51,17 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
         function test_the_same_sqw_objects_are_equal(obj)
             sqw_copy = obj.sqw_2d;
-            assertTrue(equal_to_tol(obj.sqw_2d, sqw_copy));
+            assertEqualToTol(obj.sqw_2d, sqw_copy);
         end
 
         function test_the_same_sqw_objects_are_equal_with_no_pix_reorder(obj)
             sqw_copy = obj.sqw_2d;
-            assertTrue(equal_to_tol(obj.sqw_2d, sqw_copy, 'reorder', false));
+            assertEqualToTol(obj.sqw_2d, sqw_copy, 'reorder', false);
         end
 
         function test_the_same_sqw_objects_are_equal_if_testing_fraction_of_pix(obj)
             sqw_copy = obj.sqw_2d;
-            assertTrue(equal_to_tol(obj.sqw_2d, sqw_copy, 'fraction', 0.5));
+            assertEqualToTol(obj.sqw_2d, sqw_copy, 'fraction', 0.5);
         end
 
         function test_same_sqw_objs_equal_if_pixels_in_each_bin_shuffled(obj)
@@ -72,7 +72,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             shuffled_sqw = original_sqw;
             shuffled_sqw.pix = obj.shuffle_pixel_bin_rows(pix, npix);
 
-            assertTrue(equal_to_tol(shuffled_sqw, original_sqw));
+            assertEqualToTol(shuffled_sqw, original_sqw);
         end
 
         function test_paged_sqw_objects_equal_if_pix_within_each_bin_shuffled(obj)
@@ -92,7 +92,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             shuffled_sqw = copy(original_sqw);
             shuffled_sqw.pix = shuffled_pix;
 
-            assertTrue(equal_to_tol(shuffled_sqw, original_sqw));
+            assertEqualToTol(shuffled_sqw, original_sqw);
         end
 
         function test_paged_sqw_ne_if_pix_within_bin_shuffled_and_reorder_false(obj)
@@ -117,12 +117,12 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
         function test_the_same_sqw_objects_are_equal_with_paged_pix(obj)
             sqw_copy = obj.sqw_2d_paged;
-            assertTrue(equal_to_tol(obj.sqw_2d_paged, sqw_copy));
+            assertEqualToTol(obj.sqw_2d_paged, sqw_copy);
         end
 
         function test_the_same_sqw_objs_eq_if_fraction_of_pix_and_pix_are_paged(obj)
             sqw_copy = obj.sqw_2d_paged;
-            assertTrue(equal_to_tol(obj.sqw_2d_paged, sqw_copy, 'fraction', 0.5));
+            assertEqualToTol(obj.sqw_2d_paged, sqw_copy, 'fraction', 0.5);
         end
 
         function test_paged_and_non_paged_version_of_same_sqw_file_are_equal(obj)
@@ -149,7 +149,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             sqw_copy = copy(original_sqw);
 
             assertFalse(equal_to_tol(original_sqw, obj.sqw_2d, 'nan_equal', true));
-            assertTrue(equal_to_tol(sqw_copy, original_sqw, 'nan_equal', true));
+            assertEqualToTol(sqw_copy, original_sqw, 'nan_equal', true);
         end
 
         function test_using_fraction_argument_only_tests_fraction_of_the_bins(obj)
@@ -167,14 +167,8 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
             fraction = 0.5;
             % get the bins to zero out
-            bins_to_edit = round(2:(1/fraction):numel(npix));
-
-            bin_end_idxs = cumsum(npix);
-            bin_start_idxs = bin_end_idxs - npix + 1;
-            for i = 1:numel(bins_to_edit)
-                bin_num = bins_to_edit(i);
-                edited_data(:, bin_start_idxs(bin_num):bin_end_idxs(bin_num)) = 0;
-            end
+            bins_to_edit = round(2:2:30);
+            edited_data(:, bins_to_edit) = 0;
 
             pix = obj.get_pix_with_fake_faccess(data);
             edited_pix = obj.get_pix_with_fake_faccess(edited_data);
@@ -189,7 +183,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             % check equal_to_tol false when comparing all bins
             assertFalse(equal_to_tol(edited_sqw, original_sqw, 'fraction', 1));
             % check equal_to_tol true when comparing a fraction of the bins
-            assertTrue(equal_to_tol(edited_sqw, original_sqw, 'fraction', fraction));
+            assertEqualToTol(edited_sqw, original_sqw, 'fraction', fraction);
         end
 
         function test_using_fraction_argument_is_faster_than_comparing_all_pix(obj)
@@ -219,7 +213,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
         function test_equal_to_tol_can_be_called_with_negative_tol_for_rel_tol(obj)
             sqw_copy = copy(obj.sqw_2d_paged);
             rel_tol = 1e-5;
-            assertTrue(equal_to_tol(sqw_copy, obj.sqw_2d_paged, -rel_tol));
+            assertEqualToTol(sqw_copy, obj.sqw_2d_paged, -rel_tol);
 
             % find first non-zero signal value
             sig_idx = find(sqw_copy.data.s > 0, 1);
@@ -231,10 +225,10 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             assertFalse(equal_to_tol(sqw_copy, obj.sqw_2d_paged, -rel_tol));
 
             % check increasing the rel_tol by 1% returns true
-            assertTrue(equal_to_tol(sqw_copy, obj.sqw_2d_paged, -rel_tol*1.01))
+            assertEqualToTol(sqw_copy, obj.sqw_2d_paged, -rel_tol*1.01);
 
             % check absolute tolerance still true
-            assertTrue(equal_to_tol(sqw_copy, obj.sqw_2d_paged, value_diff + 1e-8));
+            assertEqualToTol(sqw_copy, obj.sqw_2d_paged, value_diff + 1e-8);
         end
     end
 
