@@ -31,27 +31,34 @@ function [u_to_img,ulen,b_mat,obj] = projaxes_to_rlu_(obj)
 
 
 [b_mat,rlu_vec_len] = bmatrix(obj.alatt, obj.angdeg);
- b_vec_directions = b_mat./rlu_vec_len;
+b_vec_directions = b_mat./rlu_vec_len;
 u=obj.u;
 v=obj.v;
 [ubmat,umat] = ubmatrix(u,v,b_mat);  % get UB matrix normalized by rlu vector length
-
+% umatrix contains its vectors arranged in rows
 
 type=obj.type;
 if isempty(obj.w) %
-    % the possible purpose of selecting default w with 'r' scale would be
-    % providing the same thickness expressed in hkl cut regardless of the
-    % cut direction. This may not have physical meaning for triclinic
-    % lattice, but in this case you should provide w manually
-    %
-    % Above is the idea, have not been implemented. Just make w-vector
-    % orthogonal to u,v plain
-    uv_ortho = b_vec_directions*[u(:),v(:)];
-    w = cross(uv_ortho(:,1),uv_ortho(:,2));  % this is w orthogonal to u,v
-    w = w/norm(w);                           % in Crystal Cartesian
-    w = b_vec_directions\w; % this is unit-length vector w in hkl-aligned system;
-    % w it is not used in orthogonal case, just provided for convenience. 
-    % Used in non-orthogonal case only
+    if obj.nonorthogonal
+        % the possible purpose of selecting default w with 'r' scale would be
+        % providing the same thickness expressed in hkl cut regardless of the
+        % cut direction. This may not have physical meaning for triclinic
+        % lattice, but in this case you should provide w manually
+        %
+        % Above is the idea, have not been implemented. Just make w-vector
+        % orthogonal to u,v plain
+        u_ortho = b_mat*u(:);
+        v_ortho = b_mat*v(:);
+        uv_ortho = [u_ortho(:)/norm(u_ortho),v_ortho(:)/norm(v_ortho)];
+        w = cross(uv_ortho(:,1),uv_ortho(:,2));  % this is w orthogonal to u,v
+        w = w/norm(w);                           % in Crystal Cartesian
+        w = b_vec_directions\w; % this is unit-length vector w in hkl-aligned system;
+        obj.w_ = w;
+    else
+        % w it is not used in orthogonal case, just provided for convenience.
+        % Used in non-orthogonal case only
+        w = zeros(3,1);
+    end
 else
     w=obj.w;
     if ubmat(3,:)*w'<0
@@ -66,28 +73,27 @@ uvw_orth=ubmat*uvw;  % u,v,w in the orthonormal
 %                   coordinate system frame defined by u (along u) and v and
 %                   aligned with rotated Crystal Cartesian system
 %                   in (A^-1)
-
-
-if obj.nonorthogonal
-    transf = b_vec_directions*uvw;
-    i=1:3;
-    veclen = arrayfun(@(i)norm(uvw_orth(:,i)),i);
+if obj.nonorthogonal                  % V_c = Transf*B*V_hkl -- Defining Tr
+    transf0 = b_mat*uvw;
+    transf  = transf0;
+    veclen = zeros(3,1);
     % Keep non-orthogonality of u,v, and w (if given)
     for i=1:3
-        transf(:,i) = transf(:,i)/norm(transf(:,i));
+        veclen(i) = norm(transf(:,i));
+        transf(:,i) = transf0(:,i)/veclen(i); % make the vectors to 
+        %                                      be unit vectors
         if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
-            ulen(i) = max(abs(uvw_orth(:,i)));
+            ulen(i) = max(abs(transf0(:,i)));
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
             ulen(i) = 1;
         elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
-            ulen(i) = veclen(i);
+            ulen(i) = abs(transf0(i,i));
         end
     end
-    % transpose transformation matrix to be consistent with umat below,
-    % whihc arranged in rows
+    % transpose transformation matrix to be consistent with umat below.
+    % as u-matrix arrangement is rows, make transf arranged in rows
     u_to_img = inv(transf')./(ulen(:)');
-else
-
+else                                        % V_c = U*B*V_hkl -- defining U
     % Different r normalization. Is it more reasonable then the other one?
     %vec_len = arrayfun(@(i)norm(ubmat(:,i)),i);
     % r_norm = min(vec_len);
@@ -108,7 +114,5 @@ else
     % u-matrix here is arranged in rows to be multipled by b-matrix. What
     % about normalization in columns? Look at goniometer equation
     % (Boosing &Levy) to choose correct order
-    u_to_img = inv(umat)./(ulen(:)');
+    u_to_img = umat'./(ulen(:)');
 end
-
-

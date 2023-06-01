@@ -82,15 +82,13 @@ if ortho
     %     end
     type = [lt{:}];
 else % non-ortho
-    uvw = inv(umatinv');
+    uvw_cc = inv(umatinv)'; % that's uvw in CC
     type = cell(3,1);
     for i=1:3
         type{i} = find_type(u_to_img(i,:),ulen(i));
-        if type{i} ~= 'a'
-            uvw(:,i) =  uvw(:,i)/ulen(i);
-        end
     end
     type = [type{:}];
+    uvw = b_mat\uvw_cc;
     u = uvw(:,1);
     v = uvw(:,2);
     w = uvw(:,3);

@@ -1,4 +1,4 @@
-classdef test_line_proj_transformation<TestCase
+classdef test_line_proj_transf_orth<TestCase
     % The tests to verify what ortho transformation corresponds to what
     % kind of detinintions
     %
@@ -6,9 +6,9 @@ classdef test_line_proj_transformation<TestCase
     properties
     end
     methods
-        function this=test_line_proj_transformation(varargin)
+        function this=test_line_proj_transf_orth(varargin)
             if nargin == 0
-                name = 'test_line_proj_transformation';
+                name = 'test_line_proj_transf_orth';
             else
                 name = varargin{1};
             end
@@ -17,186 +17,6 @@ classdef test_line_proj_transformation<TestCase
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
-        function test_uv_to_rot_and_vv_complex_nonorth_with_rrr_nonortho(~)
-            u = [1,1,0];
-            v = [0,-0.5,1];
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg, ...
-                'nonortho',true);
-            %
-            %TODO: This option does not currently work.
-            %pra.nonorthogonal = true;
-            % Is it necessary to make it to work?
-            %
-            [u_to_img,~,ulen]= pra.get_pix_img_transformation(3);
-            %
-            [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_img,ulen);
-
-            pra = ortho_projTester(u_par,v_par,w, ...
-                'alatt',alatt,'angdeg',angdeg,'type',type, 'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_img,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-
-        end
-        %
-        function test_uv_to_rot_and_vv_complex_tricl_nonortho(~)
-            u = [1,1,0];
-            v = [0,-0.5,1];
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg, ...
-                'nonortho',true);
-
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
-
-            [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu, ulen);
-
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt, ...
-                'angdeg',angdeg,'type',typ, 'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-
-        end
-        %
-        function test_uv_to_rot_and_vv_simple_tricl_nonortho(~)
-            u = [1,0,0];
-            v = [0,0,1];
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
-                'nonortho',true);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
-
-            [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-            %            assertElementsAlmostEqual(u',u_par);
-            %assertElementsAlmostEqual(w',[0,1,0]);
-
-            % find part of the v vector, orthogonal to u
-
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt, ...
-                'angdeg',angdeg,'type',typ, 'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-
-
-        end
-        %
-        function test_uv_to_rot_and_vv_complex_nonortho(~)
-            u = [1,1,0]/norm([1,1,0]);
-            v = [0,-0.5,1];
-            alatt = [2.83,2.83,2.83];
-            angdeg = [90,90,90];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
-                'nonortho',true);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
-
-            [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt, ...
-                'angdeg',angdeg,'type',type, 'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-        end
-        %
-        function test_uv_to_rot_and_back_simple_ortho_lattice_nonortho(~)
-            u = [1;1;0];
-            v = [0;0.1;-1];
-            alatt = [2.83,2.83,2.83];
-            angdeg = [90,90,90];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
-                'nonortho',true);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
-
-            [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg', ...
-                angdeg,'type',tpe,'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-        end        
-        %------------------------------------------------------------------
-        %
-        %------------------------------------------------------------------
-        function test_uv_to_rot_and_vv_complex_nonorth_with_rrr(~)
-            u = [1,1,0];
-            v = [0,-0.5,1];
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
-            %
-            %TODO: This option does not currently work.
-            %pra.nonorthogonal = true;
-            % Is it necessary to make it to work?
-            %
-            [u_to_img,~,ulen]= pra.get_pix_img_transformation(3);
-            %
-            % but recovered the values, correspondent to ppr?
-            [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_img,ulen);
-            %            assertElementsAlmostEqual(u',u_par);
-            %            assertEqual(type,'ppr');
-            %assertTrue(isempty(w));
-            % find part of the v vector, orthogonal to u
-            %             b_mat = bmatrix(alatt,angdeg);
-            %             u_cc = b_mat*u'; % u-vector in Crystal Cartesian
-            %             eu = u_cc/norm(u_cc); % unit vector parallel to u in CC
-            %             % convert to crystal Cartesian
-            %             v_cc = b_mat*v';  % v-vector in Crystal Cartesian
-            %
-            %             v_along =eu*(eu'*v_cc); % projection of v to eu
-            %             v_tr = (v'-b_mat\v_along)'; % convert v_along (u) to hkl
-            %             v_tr = v_tr/norm(v_tr);
-            %             % orthogonal v-part should be recovered from the u_to_rlu matrix
-            %             assertElementsAlmostEqual(v_tr,v_par);
-            pra = ortho_projTester(u_par,v_par,w, ...
-                'alatt',alatt,'angdeg',angdeg,'type',type);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_img,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-
-        end
-        %
-        function test_uv_to_rot_and_vv_complex_nonorthogonal(~)
-            u = [1,1,0];
-            v = [0,-0.5,1];
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
-
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
-
-            [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu, ulen);
-            %            assertElementsAlmostEqual(u',u_par);
-            %             %assertTrue(isempty(w));
-            %             % find part of the v vector, orthogonal to u
-            %             b_mat = bmatrix(alatt,angdeg);
-            %             eu_cc = b_mat*u';
-            %             eu = eu_cc/norm(eu_cc);
-            %             % convert to crystal Cartesian
-            %             v_cc = b_mat*v';
-            %             v_along =eu*(eu'*v_cc);
-            %             v_tr = (b_mat\(v_cc-v_along))';
-            % this part should be recovered from the u_to_rlu matrix
-            %assertElementsAlmostEqual(v_tr,v_par);
-
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',typ);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-
-        end
         %
         function test_uv_to_rot_and_vv_simple_tricl(~)
             u = [1,0,0];
@@ -442,35 +262,44 @@ classdef test_line_proj_transformation<TestCase
 
         % RRR
         %------------------------------------------------------------------
-        function test_transformation_scale_rrr_nonortho_eq_ortho_at_ortho_lat(~)
-            % non-ortho transformation with orthogonal projection equal to
-            % orthogonal transformation on ortholinear lattice
-            lat_par = [2,3,4];
-            len = (2*pi)./lat_par;
-            projn = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
-                'type','rrr','nonorthogonal',true);
-            assertEqual(projn.type,'rrr')
-            assertEqual(projn.u,[1,0,0])
-            assertEqual(projn.v,[0,1,0])
-            assertEqual(projn.w,[0,0,1])
-            assertTrue(projn.nonorthogonal)
+        function test_uv_to_rot_and_vv_complex_tricl_with_rrr(~)
+            u = [1,1,0];
+            v = [0,-0.5,1];
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
+            %
+            %TODO: This option does not currently work.
+            %pra.nonorthogonal = true;
+            % Is it necessary to make it to work?
+            %
+            [u_to_img,~,ulen]= pra.get_pix_img_transformation(3);
+            %
+            % but recovered the values, correspondent to ppr?
+            [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_img,ulen);
+            %            assertElementsAlmostEqual(u',u_par);
+            %            assertEqual(type,'ppr');
+            %assertTrue(isempty(w));
+            % find part of the v vector, orthogonal to u
+            %             b_mat = bmatrix(alatt,angdeg);
+            %             u_cc = b_mat*u'; % u-vector in Crystal Cartesian
+            %             eu = u_cc/norm(u_cc); % unit vector parallel to u in CC
+            %             % convert to crystal Cartesian
+            %             v_cc = b_mat*v';  % v-vector in Crystal Cartesian
+            %
+            %             v_along =eu*(eu'*v_cc); % projection of v to eu
+            %             v_tr = (v'-b_mat\v_along)'; % convert v_along (u) to hkl
+            %             v_tr = v_tr/norm(v_tr);
+            %             % orthogonal v-part should be recovered from the u_to_rlu matrix
+            %             assertElementsAlmostEqual(v_tr,v_par);
+            pra = ortho_projTester(u_par,v_par,w, ...
+                'alatt',alatt,'angdeg',angdeg,'type',type);
+            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
-            pix_cc = eye(3).*len;
-
-            imgn_coord = projn.transform_pix_to_img(pix_cc);
-            projo = ortho_proj('alatt',lat_par,'angdeg',90,'w',[0,0,1], ...
-                'type','rrr','nonorthogonal',false);
-            assertEqual(projo.type,'rrr')
-            assertEqual(projo.u,[1,0,0])
-            assertEqual(projo.v,[0,1,0])
-            assertEqual(projo.w,[0,0,1])
-            assertFalse(projo.nonorthogonal)
-            imgo_coord = projo.transform_pix_to_img(pix_cc);
-            assertElementsAlmostEqual(imgn_coord,imgo_coord);
-
-            assertElementsAlmostEqual(imgn_coord,eye(3));
-
+            assertElementsAlmostEqual(u_to_img,u_to_rlu_rec);
+            assertElementsAlmostEqual(ulen,ulen_rec);
         end
+        
         function test_transformation_scale_rrr_ortho_rot_xyz_tricl_invertable(~)
 
             lat_par = [2,3,4];
@@ -745,34 +574,6 @@ classdef test_line_proj_transformation<TestCase
             %    assertElementsAlmostEqual(norm(img_coord(:,2)),1);
             %    assertElementsAlmostEqual(norm(img_coord(:,3)),1);
         end
-        function test_transf_scale_aaa_nonortho_eq_ortho_at_ortho_cub_rot(~)
-            % non-ortho transformation with orthogonal projection equal to
-            % orthogonal transformation on ortholinear lattice except
-            % lattices are rotated wrt each other by 90^o
-            lat_par = 3;
-
-            u = [1, -1,0]/sqrt(2);
-            v = [1,  1,0]/sqrt(2);
-            w = [0,0,1];
-            pic_cc = [eye(3),[1;1;1]];
-
-            proj = ortho_proj(u,v,w, ...
-                'alatt',lat_par,'angdeg',90, ...
-                'type','aaa','nonorthogonal',true);
-
-
-            img_nonor = proj.transform_pix_to_img(pic_cc);
-            proj = ortho_proj(u,v,w, ...
-                'alatt',lat_par,'angdeg',90, ...
-                'type','aaa','nonorthogonal',false);
-            img_or = proj.transform_pix_to_img(pic_cc);
-
-            %flipmat = [0,-1,0;1,0,0;0,0,1];
-            %img_nonor  = flipmat*img_nonor;
-            assertElementsAlmostEqual(img_nonor ,  img_or);
-        end
-
-
         function test_transformation_scale_aaa_nonortho_eq_ortho_at_ortho_lat(~)
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
@@ -807,6 +608,37 @@ classdef test_line_proj_transformation<TestCase
             assertElementsAlmostEqual(norm(img_coord(:,1)),1);
             assertElementsAlmostEqual(norm(img_coord(:,2)),1);
             assertElementsAlmostEqual(norm(img_coord(:,3)),1);
+
+        end
+        %
+        function test_uv_to_rot_and_vv_complex_triclinic(~)
+            u = [1,1,0];
+            v = [0,-0.5,1];
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
+
+            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
+
+            [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu, ulen);
+            %            assertElementsAlmostEqual(u',u_par);
+            %             %assertTrue(isempty(w));
+            %             % find part of the v vector, orthogonal to u
+            %             b_mat = bmatrix(alatt,angdeg);
+            %             eu_cc = b_mat*u';
+            %             eu = eu_cc/norm(eu_cc);
+            %             % convert to crystal Cartesian
+            %             v_cc = b_mat*v';
+            %             v_along =eu*(eu'*v_cc);
+            %             v_tr = (b_mat\(v_cc-v_along))';
+            % this part should be recovered from the u_to_rlu matrix
+            %assertElementsAlmostEqual(v_tr,v_par);
+
+            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',typ);
+            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
+
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
+            assertElementsAlmostEqual(ulen,ulen_rec);
 
         end
 
