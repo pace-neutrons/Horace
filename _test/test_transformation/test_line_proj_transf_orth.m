@@ -132,7 +132,7 @@ classdef test_line_proj_transf_orth<TestCase
 
             pix_transf = proj.transform_pix_to_img(pix);
             assertEqual(size(pix_transf),[4,5]);
-            pix_rec = proj.transform_img_to_pix(pix_transf);
+            pix_rec = proj.transform_img_to_pix(pix_transf);get_from_old_data
             assertElementsAlmostEqual(pix_rec,pix);
         end
         %

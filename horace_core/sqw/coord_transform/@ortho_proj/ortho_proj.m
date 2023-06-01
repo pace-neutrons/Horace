@@ -99,6 +99,8 @@ classdef ortho_proj<aProjectionBase
         % of identifying if the file was aligned or not. Modern code
         % calculates this matrix on request.
         ub_inv_legacy
+        %
+        u_to_rlu_legacy; % old u_to_rlu transformation matrix, multiplied by b-matrix
 
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
@@ -276,6 +278,10 @@ classdef ortho_proj<aProjectionBase
         %
         function ub_inv = get.ub_inv_legacy(obj)
             ub_inv = obj.ub_inv_legacy_;
+        end
+        function u2rlu_leg = get.u_to_rlu_legacy(obj)
+            [~,u2rlu_leg] = projaxes_to_rlu_legacy_(obj,[1,1,1]); 
+            u2rlu_leg = [[u2rlu_leg,zeros(3,1)];[0,0,0,1]];
         end
         function obj = set.ub_inv_legacy(obj,val)
             % no comprehencive checks performed here.  It is compartibility
