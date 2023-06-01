@@ -139,7 +139,7 @@ function [ok, mess] = compare_reorder(pix1, pix2, opt, argi)
               'Requested pixel reorder, did not provide npix')
     end
 
-    if sum(opt.npix) ~= pix1.num_pixels
+    if sum(opt.npix, 'all') ~= pix1.num_pixels
         error('HORACE:equal_to_tol:invalid_argument', ...
               'Given npix array does not match number of pixels')
     end
