@@ -45,35 +45,29 @@ nonortho = ~ortho;
 if ortho
     umat = inv(umatinv);
     ubmat = umatinv\b_mat; % correctly recovered ubmatrix; ulen matrix extracted
-    % unit vectors directed along vectors of rotated reciprocal lattice
-    % (non-orthogonal)
-    %b_vec = b_mat./rlu_vec_len(:)';
 
-    uvw_norm_hkl = b_mat\umat';   % normalized to 1 orthogonal part of u,v,w
+    uvw_orth_hkl = (b_mat\umat');   % orthogonal part of u,v,w
     %  in hkl frame defined by u and v
 
-    uvw  = ubmat*uvw_norm_hkl; % orthogonal part of uvw in Crystal Cartesian
-    ulen_new = abs(diag(uvw));
     %
     lt = cell(3,1);
     for i=1:3
         if ulen(i)==1
             lt{i} = 'a';
-        elseif abs(ulen(i)-ulen_new(i))<1.e-7
-            lt{i} = 'p';
         else % should be 'p' or 'r' depending on the length of the
             % initial u v or w vector
             if abs(ulen(i)-max(abs(ubmat(:,i))))<1.e-7
                 lt{i} = 'r';
             else
-                lt{i} = 'p';
-                uvw_norm_hkl(:,i) = uvw_norm_hkl(:,i)*(ulen(i)/ulen_new(i));
+                lt{i} = 'p'; % p includes vector length so it has to be adjusted
+                uvw_orth_hkl(:,i) = uvw_orth_hkl(:,i)*ulen(i);
             end
         end
     end
-    u = uvw_norm_hkl(:,1);
-    v = uvw_norm_hkl(:,2);
-    w = uvw_norm_hkl(:,3);
+    u = uvw_orth_hkl(:,1);
+    v = uvw_orth_hkl(:,2);
+    w = uvw_orth_hkl(:,3);
+
     type = [lt{:}];
 else % non-ortho
     uvw_cc = inv(umatinv)'; % that's uvw in CC
@@ -82,10 +76,10 @@ else % non-ortho
         type{i} = find_type(u_to_img(i,:),ulen(i));
     end
     type = [type{:}];
-    uvw = b_mat\uvw_cc;
-    u = uvw(:,1);
-    v = uvw(:,2);
-    w = uvw(:,3);
+    uvw_cc = b_mat\uvw_cc;
+    u = uvw_cc(:,1);
+    v = uvw_cc(:,2);
+    w = uvw_cc(:,3);
 end
 
 function  [type] = find_type(u_rot_vec,ulen)
