@@ -247,7 +247,7 @@ if ~isa(pix.data,'double') && force_double
     pix = PixelDataBase.create(double(pix.data));
 end
 
-if nout ~= 6 && ndims > 0
+if nout < 6 && ndims > 0
     pix = sort_pix(pix,pix_indx,npix1,varargin{:});
 end
 
