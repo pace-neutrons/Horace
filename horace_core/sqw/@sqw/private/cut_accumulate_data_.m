@@ -198,6 +198,7 @@ function [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(pix, bloc
 
     pix_retained = PixelDataFileBacked().get_new_handle();
     pix_ix_retained = cell(1, num_chunks*num_proj);
+    j = 0;
 
     for iter = 1:num_chunks
         % Get pixels that will likely contribute to the cut
@@ -216,6 +217,7 @@ function [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(pix, bloc
 
         % Pix not sorted here
         for i = 1:num_proj
+            j = j + 1;
             [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
                 targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
 
@@ -230,8 +232,7 @@ function [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(pix, bloc
 
             % Retain only the pixels that contributed to the cut
             pix_retained.format_dump_data(pix_ok.data);
-            pix_ix_retained{num_proj*(iter-1) + i} = pix_indx;
-
+            pix_ix_retained{j} = pix_indx;
 
         end
 
