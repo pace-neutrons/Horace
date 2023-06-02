@@ -12,7 +12,10 @@ end
 if isfield(data_struct,'uoffset')
     data_struct.offset = data_struct.uoffset;
 end
-use_u_to_rlu_transitional = isfield(data_struct,'u_to_rlu');
+if isfield(data_struct,'u_to_rlu_legacy')
+    data_struct.u_to_rlu  = data_struct.u_to_rlu_legacy;
+end
+use_u_to_rlu_transitional =  isfield(data_struct,'u_to_rlu');
 
 proj.do_check_combo_arg = false;
 proj = proj.from_bare_struct(data_struct);

@@ -56,7 +56,8 @@ if isempty(obj.w) %
         obj.w_ = w;
     else
         % w it is not used in orthogonal case, just provided for convenience.
-        % Used in non-orthogonal case only
+        % Used in non-orthogonal case only. 'p' which would use w, is not
+        % possible 
         w = zeros(3,1);
     end
 else
