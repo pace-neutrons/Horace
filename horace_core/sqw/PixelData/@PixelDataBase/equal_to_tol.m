@@ -167,9 +167,11 @@ function [ok, mess] = compare_reorder(pix1, pix2, opt, argi)
     prev = 1;
 
     for i = 1:numel(points)-1
-        curr = find(nend > points(i+1), 1) - 1;
+        curr = find(nend(prev:end) > points(i+1), 1) + prev - 1;
 
-        if nend(curr - 1) == points(i+1)  % Falls on bin boundary
+        if curr == prev
+            curr = prev + 1;
+        elseif nend(curr) == points(i+1)  % Falls on bin boundary
             curr = curr - 1;
         elseif isempty(curr)             % Falls after end of array
             curr = numel(nend);
@@ -254,7 +256,6 @@ function mess = process_message(mess, offset, spacing, ix1, ix2)
     if ~exist('offset', 'var')
         offset = 0;
     end
-
 
     ind = str2num(match{1}{1});
 
