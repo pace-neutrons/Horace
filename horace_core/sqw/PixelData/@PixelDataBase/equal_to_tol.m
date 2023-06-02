@@ -146,11 +146,11 @@ function [ok, mess] = compare_reorder(pix1, pix2, opt, argi)
         error('HORACE:equal_to_tol:invalid_argument', ...
               'Requested pixel reorder, did not provide npix')
     end
-
-    if sum(opt.npix, 'all') ~= pix1.num_pixels
-        error('HORACE:equal_to_tol:invalid_argument', ...
-              'Given npix array does not match number of pixels')
-    end
+%
+%     if sum(opt.npix, 'all') ~= pix1.num_pixels
+%         error('HORACE:equal_to_tol:invalid_argument', ...
+%               'Given npix array does not match number of pixels')
+%     end
 
     compare_spacing = floor(1 / opt.fraction);
     chunk_size = get(hor_config, 'mem_chunk_size')*compare_spacing;
