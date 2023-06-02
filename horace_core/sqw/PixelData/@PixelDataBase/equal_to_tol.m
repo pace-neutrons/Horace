@@ -1,4 +1,4 @@
-function [ok, mess] = equal_to_tol(obj, other_pix, varargin)
+function [ok, mess] = equal_to_tol(pix, other_pix, varargin)
 %% EQUAL_TO_TOL Check if two PixelData objects are equal to a given tolerance
 %
 % Input:
@@ -29,6 +29,14 @@ function [ok, mess] = equal_to_tol(obj, other_pix, varargin)
 %               1e-4            absolute tolerance, equivalent to [1e-4, 0]
 %               -1e-6           relative tolerance, equivalent to [0, 1e-6]
 %
+% reorder    Boolean testing whether the pixels should be reordered within bins
+%            to ensure equality between pixels representing  equivalent DnD objects
+%
+% npix       Required if reorder is true to determine binning and permitted reorders
+%
+% fraction   Value between 0 and 1 which determines what fraction of pixels are
+%            compared. E.g. for fraction 1/3 every 3rd pixel is compared.
+%
 % Keyword Input:
 % ---------------
 % nan_equal  Treat NaNs as equal (true or false; default=true).
@@ -47,35 +55,35 @@ function [ok, mess] = equal_to_tol(obj, other_pix, varargin)
 %            (default = 'input_2').
 %
 
-[opt, argi] = parse_args(varargin{:});
+    [opt, argi] = parse_args(varargin{:});
 
-[ok, mess] = validate_other_pix(obj, other_pix);
-if ~ok
-    return
+    [ok, mess] = validate_other_pix(pix, other_pix);
+    if ~ok
+        return
+    end
+
+    if ~opt.reorder && opt.fraction == 1
+        [ok, mess] = compare_raw(pix, other_pix, argi);
+    elseif opt.fraction ~= 1
+        [ok, mess] = compare_frac(pix, other_pix, opt.fraction, argi);
+    else
+        [ok, mess] = compare_reorder(pix, other_pix, opt, argi);
+    end
+
 end
 
-if ~opt.reorder && opt.fraction == 1
-    [ok, mess] = compare_raw(obj, other_pix, argi);
-elseif opt.fraction ~= 1
-    [ok, mess] = compare_frac(obj, other_pix, opt.fraction, argi);
-else
-    [ok, mess] = compare_reorder(obj, other_pix, opt, argi);
-end
-
-end
-
-function [ok, mess] = compare_raw(obj, other_pix, argi)
-    is_fb = [obj.is_filebacked, other_pix.is_filebacked];
+function [ok, mess] = compare_raw(pix, other_pix, argi)
+    is_fb = [pix.is_filebacked, other_pix.is_filebacked];
 
     if all(is_fb)
 
-        for i = 1:obj.num_pages
-            obj.page_num = i;
+        for i = 1:pix.num_pages
+            pix.page_num = i;
             other_pix.page_num = i;
 
-            [ok, mess] = equal_to_tol(obj.data, other_pix.data, argi{:});
+            [ok, mess] = equal_to_tol(pix.data, other_pix.data, argi{:});
             if ~ok
-                [start_idx, end_idx] = obj.get_page_idx_();
+                [start_idx, end_idx] = pix.get_page_idx_();
                 mess = process_message(mess, start_idx);
                 break;
             end
@@ -83,11 +91,11 @@ function [ok, mess] = compare_raw(obj, other_pix, argi)
 
     elseif any(is_fb)
         if is_fb(1)
-            fb = obj;
+            fb = pix;
             other = other_pix;
         else
             fb = other_pix;
-            other = obj;
+            other = pix;
         end
 
         for i = 1:fb.num_pages
@@ -104,23 +112,23 @@ function [ok, mess] = compare_raw(obj, other_pix, argi)
         end
 
     else
-        [ok, mess] = equal_to_tol(obj.data, other_pix.data, argi{:});
+        [ok, mess] = equal_to_tol(pix.data, other_pix.data, argi{:});
         mess = process_message(mess);
     end
 
 
 end
 
-function [ok, mess] = compare_frac(obj, other_pix, frac, argi)
+function [ok, mess] = compare_frac(pix, other_pix, frac, argi)
 
     compare_spacing = floor(1 / frac);
-    compare_count = obj.num_pixels * frac;
+    compare_count = pix.num_pixels * frac;
     chunk_size = get(hor_config, 'mem_chunk_size')*compare_spacing;
 
-    for i = 1:chunk_size:obj.num_pixels
-        lim = min(i+chunk_size, obj.num_pixels);
+    for i = 1:chunk_size:pix.num_pixels
+        lim = min(i+chunk_size, pix.num_pixels);
         range = round(i:compare_spacing:lim);
-        candidate_a = get_fields(obj, 'all', range);
+        candidate_a = get_fields(pix, 'all', range);
         candidate_b = get_fields(other_pix, 'all', range);
         [ok, mess] = equal_to_tol(candidate_a, candidate_b, argi{:});
 
@@ -191,22 +199,22 @@ function [ok, mess] = compare_reorder(pix1, pix2, opt, argi)
 
 end
 
-function [ok, mess] = validate_other_pix(obj, other_pix)
+function [ok, mess] = validate_other_pix(pix, other_pix)
     ok = true;
     mess = '';
 
     if ~isa(other_pix, 'PixelDataBase')
         ok = false;
         mess = sprintf('Objects of class ''%s'' and ''%s'' cannot be equal.', ...
-                       class(obj), class(other_pix));
+                       class(pix), class(other_pix));
         return
     end
 
-    if obj.num_pixels ~= other_pix.num_pixels
+    if pix.num_pixels ~= other_pix.num_pixels
         ok = false;
         mess = sprintf(['PixelData objects are not equal. ' ...
                         'Argument 1 has %i pixels, argument 2 has %i'], ...
-                       obj.num_pixels, other_pix.num_pixels);
+                       pix.num_pixels, other_pix.num_pixels);
         return
     end
 end
@@ -234,7 +242,7 @@ function [opt, argi] = parse_args(varargin)
 end
 
 function mess = process_message(mess, offset, spacing, ix1, ix2)
-    % Reprocess error message to give accurate pixel numbers and column name
+% Reprocess error message to give accurate pixel numbers and column name
     [match, str] = regexp(mess, 'element \((\d+)\)', 'tokens', 'split');
     if isempty(match)
         return;
