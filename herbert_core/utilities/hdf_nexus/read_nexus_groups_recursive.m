@@ -11,17 +11,32 @@ function datastruct = read_nexus_groups_recursive(filename, nexus_path)
     %   nexus_path (string) - the NeXus path to the required group.
     %   group_struct - the group structure of part of a h5info output
     %
-    if nargin == 1 && isstruct(filename) && isfield(filename, 'Filename')
+    switch class(filename)
+      case 'struct'
+        if ~isfield(filename, 'Filename')
+            error('HERBERT:hdf_nexus:read_nexus_groups_recursive', 'filename and nexus_path must be strings');
+        elseif exist('nexus_path', 'var')
+            error('HERBERT:hdf_nexus:read_nexus_groups_recursive', 'filename provided as struct, but nexus_path also provided');
+        end
+
         dinfo = filename;
         filename = dinfo.Filename;
-    elseif isstring(filename) || ischar(filename)
+      case {'string', 'char'}
+        if ~exist('nexus_path', 'var')
+            error('HERBERT:hdf_nexus:read_nexus_groups_recursive', 'filename provided as string, but nexus_path not provided');
+        end
+
         if isstring(nexus_path) || ischar(nexus_path)
             dinfo = h5info(filename, nexus_path);
         else
             dinfo = nexus_path;
         end
-    else
-        error('read_nexus_groups_recursive: filename and nexus_path must be strings');
+
+      otherwise
+        error('HERBERT:hdf_nexus:read_nexus_groups_recursive', ...
+              'filename (%s) and nexus_path (%s) must be struct, char or string', ...
+              class(filename), class(nexus_path));
+
     end
     datastruct = read_nexus_datasets(filename, dinfo);
     for ii = 1:numel(dinfo.Groups)

@@ -252,7 +252,7 @@ classdef test_loader_nxspe < TestCase
             nxspes = {'inst_let_ei3p7_240_120.nxspe', 'inst_maps_ei400_600hz.nxspe', ...
                       'inst_merlin_ei120_600hz.nxspe'};
             for ii = 1:numel(nxspes)
-                nxspe_inst = loader_nxspe(f_name(obj, nxspes{ii})).load_instrument();
+                nxspe_inst = loader_nxspe(f_name(obj, nxspes{ii})).get_instrument();
                 assertEqual(nxspe_inst.to_struct(), ref_inst{ii}.to_struct(), '', [1e-9, 0.01]);
             end
         end

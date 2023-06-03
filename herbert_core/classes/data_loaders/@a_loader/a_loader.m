@@ -339,14 +339,14 @@ classdef a_loader < a_detpar_loader_interface
 
             save_nxspe_internal(obj,filename,efix,psi,remaining{:});
         end
-        function rv = can_load_instrument(obj)
+        function rv = has_loaded_instrument(obj)
             % Method to determine if this loader can load (optional) instrument
             % information from the data file. Default is false.
             % Subclasses should implement their own checks if they can load instrument
             rv = false;
         end
-        function instrument = load_instrument(obj)
-            error('HERBERT:a_loader:not_implemented', 'load_instrument is not implemented for this loader');
+        function instrument = get_instrument(obj)
+            error('HERBERT:a_loader:not_implemented', 'get_instrument is not implemented for this loader');
         end
         % -----------------------------------------------------------------
         % ---- SETTERS GETTERS FOR CLASS PROPERTIES     -------------------

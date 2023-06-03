@@ -141,8 +141,10 @@ classdef loader_nxspe < a_loader
                 obj.nexus_instrument_ = obj.read_instrument_info_();
             catch ME
                 if strcmp(ME.identifier, 'HERBERT:loader_nxspe:missing_instrument_fields')
-                    warning(ME.identifier, ME.message)
+                    warning(ME.identifier, ME.message);
                 end
+                % Ignore all other errors; instrument info not guaranteed to
+                % be in all nxspe files; its absence is not an error.
             end
             if ~isempty(fh) % call from loaders factory
                 defined_fields = fields(fh);
@@ -220,10 +222,10 @@ classdef loader_nxspe < a_loader
                 obj.n_detindata_ = [];
             end
         end
-        function rv = can_load_instrument(obj)
+        function rv = has_loaded_instrument(obj)
             rv = ~isempty(obj.nexus_instrument_);
         end
-        function instrument = load_instrument(obj)
+        function instrument = get_instrument(obj)
             if ~isempty(obj.nexus_instrument_)
                 instrument = obj.nexus_instrument_;
             else
@@ -264,18 +266,20 @@ classdef loader_nxspe < a_loader
             end
         end
         function instrument = read_instrument_info_(obj)
-            filename = obj.file_name;
-            if isempty(filename)
+            if ~isempty(obj.file_name)
+                filename = obj.file_name;
+            else
                 filename = obj.par_file_name;
             end
-            root_dir = obj.root_nexus_dir;
-            if isempty(root_dir)
+            if ~isempty(obj.root_nexus_dir)
+                root_dir = obj.root_nexus_dir;
+            else
                 root_dir = find_root_nexus_dir(filename);
             end
             h5inst = h5info(filename, [root_dir '/instrument']);
             dataset = read_nexus_groups_recursive(h5inst);
             % Instrument we support must have 'moderator' and 'source' components
-            if ~isfield(dataset, 'moderator') || ~isfield(dataset, 'source')
+            if ~any(isfield(dataset, {'moderator', 'source'}))
                 error('HERBERT:loader_nxspe:invalid_instrument', ...
                       'nxspe file has instrument data incompatible with Horace');
             end
@@ -286,9 +290,9 @@ classdef loader_nxspe < a_loader
             % as we only have two types of instruments supported at present
             errmsg = ['nxspe file has incomplete instrument data. Please manually set ' ...
                        'instrument data if you want to perform resolution convolution.'];
-            if isfield(dataset, 'shaping_chopper') && isfield(dataset, 'mono_chopper')
+            if all(isfield(dataset, {'shaping_chopper', 'mono_chopper'}))
                 % The struct must have also have 'horiz_div', and 'vert_div' fields
-                if ~isfield(dataset, 'horiz_div') || ~isfield(dataset, 'vert_div')
+                if ~any(isfield(dataset, {'horiz_div', 'vert_div'}))
                     error('HERBERT:loader_nxspe:missing_instrument_fields', errmsg);
                 end
                 instrument = obj.read_disk_inst_(dataset, source, moderator);
