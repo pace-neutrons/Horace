@@ -279,7 +279,7 @@ classdef loader_nxspe < a_loader
                 error('HERBERT:loader_nxspe:invalid_instrument', ...
                       'nxspe file has instrument data incompatible with Horace');
             end
-            source = IX_source(dataset.source.Name.value, '', dataset.source.frequency.value);
+            source = IX_source(dataset.source.Name.value, '', double(dataset.source.frequency.value));
             moderator = obj.read_inst_moderator_(dataset);
             % NXSPE files *must* have a "fermi" component, so we distinguish
             % instrument types based on presence of 'shaping_chopper' and 'mono_chopper'
@@ -313,7 +313,7 @@ classdef loader_nxspe < a_loader
                 error('HERBERT:loader_nxspe:invalid_moderator', ...
                       'moderator model in instrument info not understandable by Horace.');
             end
-            moderator = IX_moderator(ds.moderator.transforms.MOD_T_AXIS.value, ...
+            moderator = IX_moderator(abs(ds.moderator.transforms.MOD_T_AXIS.value), ...
                                      ds.moderator.transforms.MOD_R_AXIS.value, ...
                                      pulse_model, parameters);
         end
@@ -326,24 +326,24 @@ classdef loader_nxspe < a_loader
                                      ds.fermi.r_slit.value, ds.fermi.slit.value);
             ei = ds.fermi.energy.value;
             name = ds.name.value;
-            instrument = IX_inst_DGfermi(mod, aperture, fermi, ei, '-name', name, '-source', src);
+            instrument = IX_inst_DGfermi(mod, aperture, fermi, ei, 'name', name, 'source', src);
         end
         function instrument = read_disk_inst_(obj, ds, src, mod)
             % Construct an IX_inst_DGdisk from a NeXus data structure
             ch1 = ds.shaping_chopper;
             slot_width = tand(abs(diff(ch1.slit_edges.value))) * ch1.radius.value;
-            ch1 = IX_doubledisk_chopper('chopper_1', ch1.transforms.CH1_T_AXIS.value, ...
+            ch1 = IX_doubledisk_chopper('chopper_1', abs(ch1.transforms.CH1_T_AXIS.value), ...
                                         ch1.rotation_speed.value, ch1.radius.value, slot_width);
             ch5 = ds.mono_chopper;
             slot_width = tand(abs(diff(ch5.slit_edges.value))) * ch5.radius.value;
-            ch5 = IX_doubledisk_chopper('chopper_5', ch5.transforms.CH5_T_AXIS.value, ...
+            ch5 = IX_doubledisk_chopper('chopper_5', abs(ch5.transforms.CH5_T_AXIS.value), ...
                                         ch5.rotation_speed.value, ch5.radius.value, slot_width);
-            dt = ds.horiz_div.data;
-            hdiv = IX_divergence_profile(dt.Horizontal_Divergence.value, dt.Normalised_Beam_Profile.value);
-            dt = ds.vert_div.data;
-            vdiv = IX_divergence_profile(dt.Vertical_Divergence.value, dt.Normalised_Beam_Profile.value);
+            ang = ds.horiz_div.data.Horizontal_Divergence.value / 180 * pi;
+            hdiv = IX_divergence_profile(ang, ds.horiz_div.data.Normalised_Beam_Profile.value);
+            ang = ds.vert_div.data.Vertical_Divergence.value / 180 * pi;
+            vdiv = IX_divergence_profile(ang, ds.vert_div.data.Normalised_Beam_Profile.value);
             instrument = IX_inst_DGdisk(mod, ch1, ch5, hdiv, vdiv, ds.fermi.energy.value, ...
-                                        '-name', ds.name.value, '-source', src);
+                                        'name', ds.name.value, 'source', src);
         end
     end
     
