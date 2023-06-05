@@ -30,11 +30,10 @@ end
 function [iseq,mess] = eq_single(obj1,obj2,name_a_val,name_b_val,varargin)
 % compare single pair of ortho_proj checking the transformation itself
 %
-[~,shift_1]=obj1.get_pix_img_transformation(3);
-[~,shift_2]= obj2.get_pix_img_transformation(3);
-[~, rot_to_img_1, ulen1] = obj1.uv_to_rot([1,1,1]);
-[~, rot_to_img_2, ulen2] = obj2.uv_to_rot([1,1,1]);
-[mat_eq,mess1] = equal_to_tol(rot_to_img_1,rot_to_img_2, ...
+[u_to_img_1,shift_1,ulen1] = obj1.get_pix_img_transformation(3);
+[u_to_img_2,shift_2,ulen2] = obj2.get_pix_img_transformation(3);
+
+[mat_eq,mess1] = equal_to_tol(u_to_img_1,u_to_img_2, ...
     'name_a',[name_a_val,'u_to_img'],'name_b',[name_b_val,'u_to_img'],varargin{:});
 [shift_eq,mess2] = equal_to_tol(shift_1,shift_2, ...
     'name_a',[name_a_val,'u_to_img'],'name_b',[name_b_val,'u_to_img'],varargin{:});

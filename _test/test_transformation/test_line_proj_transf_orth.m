@@ -80,12 +80,17 @@ classdef test_line_proj_transf_orth<TestCase
             %assertTrue(isempty(w));
             %            assertEqual(tpe,'ppp');
 
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg, ...
+            prb = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg, ...
                 'type',tpe);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
 
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
             assertElementsAlmostEqual(ulen,ulen_rec);
+
+
+            % check projection comparison operator itself, which compares 
+            % these operators internaly
+            assertEqual(pra,prb,'absolute',1.e-5);            
         end
 
         %
