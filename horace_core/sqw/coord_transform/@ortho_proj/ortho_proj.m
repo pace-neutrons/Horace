@@ -534,6 +534,35 @@ classdef ortho_proj<aProjectionBase
             flds = saveableFields@aProjectionBase(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
+        function [is,mess] = eq(obj,other_obj,varargin)
+            % Overloaded equality operator comparing the projection
+            % transformation rather then 
+            % 
+            %
+            % Inputs:
+            % other_obj -- the object or array of objects to compare with
+            % current object
+            % Optional:
+            % any set of parameters equal_to_tol function would accept
+            if nargout == 2
+                [is,mess] = eq_(obj,other_obj,varargin{:});
+            else
+                is = eq_(obj,other_obj,varargin{:});
+            end
+        end        
+        function [nis,mess] = ne(obj,other_obj,varargin)
+            % Non-equal operator
+            %
+            % ensure usage of  overloaded eq_ operator rather then parent
+            % ne operator
+            if nargout == 2
+                [is,mess] = eq_(obj,other_obj,varargin{:});
+            else
+                is = eq_(obj,other_obj,varargin{:});
+            end
+            nis = ~is;
+        end
+        
     end
     properties(Constant, Access=private)
         fields_to_save_ = {'u','v','w','nonorthogonal','type'}
