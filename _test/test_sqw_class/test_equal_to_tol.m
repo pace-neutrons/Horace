@@ -8,6 +8,9 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         test_sqw_file_path;
         sqw_2d;
         sqw_2d_paged;
+
+        test_dnd_file_path;
+        dnd_2d;
     end
 
     methods
@@ -20,6 +23,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
             pths = horace_paths;
             obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
+            obj.test_dnd_file_path = fullfile(pths.test_common, 'dnd_2d.sqw');
 
             % sqw_2d_1.sqw has ~25,000 pixels, at 5000 pixels per page gives us 5
             % pages of pixel data
@@ -46,16 +50,16 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             set(hor_config,obj.horace_config);
         end
 
+        function test_the_same_sqw_objects_are_equal(obj)
+            sqw_copy = obj.sqw_2d;
+            assertEqualToTol(obj.sqw_2d, sqw_copy);
+        end
+
         function test_sqw_and_d2d_objects_are_not_equal(obj)
             dnd_2d_ = read_dnd(obj.test_dnd_file_path);
             [ok, mess] = equal_to_tol(obj.sqw_2d, dnd_2d_);
             assertFalse(ok);
             assertEqual(mess, 'Objects being compared are not the same type');
-        end
-
-        function test_the_same_sqw_objects_are_equal(obj)
-            sqw_copy = obj.sqw_2d;
-            assertEqualToTol(obj.sqw_2d, sqw_copy);
         end
 
         function test_the_same_sqw_objects_are_equal_with_no_pix_reorder(obj)
@@ -186,7 +190,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             % check equal_to_tol false when comparing all bins
             assertFalse(equal_to_tol(edited_sqw, original_sqw, 'fraction', 1));
             % check equal_to_tol true when comparing a fraction of the bins
-            assertEqualToTol(edited_sqw, original_sqw, 'fraction', fraction);
+            assertEqualToTol(edited_sqw, original_sqw, 'fraction', fraction, 'reorder', false);
         end
 
         function test_using_fraction_argument_is_faster_than_comparing_all_pix(obj)

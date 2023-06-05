@@ -62,12 +62,12 @@ function [ok, mess] = equal_to_tol(pix, other_pix, varargin)
         return
     end
 
-    if ~opt.reorder && opt.fraction == 1
-        [ok, mess] = compare_raw(pix, other_pix, argi);
+    if opt.reorder
+        [ok, mess] = compare_reorder(pix, other_pix, opt, argi);
     elseif opt.fraction ~= 1
         [ok, mess] = compare_frac(pix, other_pix, opt.fraction, argi);
     else
-        [ok, mess] = compare_reorder(pix, other_pix, opt, argi);
+        [ok, mess] = compare_raw(pix, other_pix, argi);
     end
 
 end
@@ -157,7 +157,7 @@ function [ok, mess] = compare_reorder(pix1, pix2, opt, argi)
 
     nend = cumsum(opt.npix);
 
-    compare_count = opt.fraction * pix1.num_pixels;
+    compare_count = pix1.num_pixels;
 
     prev = 0;
     points = [0:chunk_size:compare_count, compare_count+1];
@@ -177,21 +177,21 @@ function [ok, mess] = compare_reorder(pix1, pix2, opt, argi)
             curr = numel(nend);
         end
 
-        curr_ipix = prev:compare_spacing:nend(curr);
+        curr_ipix = prev:nend(curr);
         curr_ibinarr = ibinarr(curr_ipix);
-
 
         sort_by = {'run_idx', 'detector_idx', 'energy_idx'};
 
         s1 = pix1.get_pixels(curr_ipix);
         [~, ix1] = sortrows([curr_ibinarr, s1.get_fields(sort_by)']);
         s1 = s1.get_fields('all', ix1);
+
         s2 = pix2.get_pixels(curr_ipix);
         [~, ix2] = sortrows([curr_ibinarr, s2.get_fields(sort_by)']);
         s2 = s2.get_fields('all', ix2);
 
         % Now compare retained pixels
-        [ok, mess] = equal_to_tol(s1, s2, argi{:});
+        [ok, mess] = equal_to_tol(s1(:, 1:compare_spacing:end), s2(:, 1:compare_spacing:end), argi{:});
         if ~ok
             mess = process_message(mess, prev, compare_spacing, ix1, ix2);
             break
