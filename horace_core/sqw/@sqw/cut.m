@@ -125,13 +125,17 @@ if targ_proj.ignore_legacy_alignment
 end
 
 % old file format alignment. Only ortho_proj is supported
-if ~isempty(obj.data.proj.ub_inv_legacy) && ~isa(targ_proj,'ortho_proj')
+if ~isempty(obj.data.proj.ub_inv_legacy) 
+    if isa(targ_proj,'ortho_proj') % transfer legacy alignment matrix to 
+        % new projection to keep legacy alignment
+        targ_proj = targ_proj.set_ub_inv_compat(obj.data.proj.ub_inv_legacy);
+    else
     warning('HORACE:old_file_format', ...
         ['\n Non-triclinic projections are fully supported by version 4.0 and higher Horace sqw objects only.\n', ...
         ' If you use alignled sqw object produced by old Horace version,\n', ...
         ' the resulting cut with non-triclinic projection will be performed on misaligned data\n', ...
         ' Convert old misaligned data into new file-format and realign these data again to use cuts with not-triclinic projections.']);
-
+    end
 end
 %
 sz = size(pbin);
