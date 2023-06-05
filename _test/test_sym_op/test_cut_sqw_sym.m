@@ -75,7 +75,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             obj.tol_sp = [1e-6,1e-6];
 
             % Save line - must be the last line
-            obj.save()
+            obj.save();
         end
 
         function setUp(obj)
@@ -95,7 +95,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             w2sym = cut(obj.data, obj.proj, obj.bin,...
                         obj.width, obj.width, obj.ebins, obj.sym);
 
-            obj.assertEqualToTolWithSave(w2sym, obj.tol_sp,'ignore_str',1);
+            obj.assertEqualToTolWithSave(w2sym.data, obj.tol_sp,'ignore_str',1);
         end
 
         function test_cut_sym_with_nopix(obj)
@@ -114,7 +114,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                     obj.ubin2, obj.vbin2, obj.wbin2, obj.ebin2, ...
                     obj.sym2);
 
-            obj.assertEqualToTolWithSave(c, obj.tol_sp,'ignore_str',1);
+            obj.assertEqualToTolWithSave(c.data, obj.tol_sp,'ignore_str',1);
         end
 
         %------------------------------------------------------------------------
