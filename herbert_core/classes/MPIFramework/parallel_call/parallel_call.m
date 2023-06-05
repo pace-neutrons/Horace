@@ -17,6 +17,10 @@ function varargout = parallel_call(func, args, varargin)
 
         varargout{1} = parallel_mf_func_eval(func, nWorkers, args);
 
+      case 'cut'
+
+        varargout{1} = parallel_cut_eval(nWorkers, args);
+
       otherwise
         error('HERBERT:parallel_call:invalid_argument', ...
               'Unsupported parallel function (%s)', func_info.name)
