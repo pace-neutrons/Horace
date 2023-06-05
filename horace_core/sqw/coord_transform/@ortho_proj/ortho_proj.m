@@ -536,29 +536,32 @@ classdef ortho_proj<aProjectionBase
         end
         function [is,mess] = eq(obj,other_obj,varargin)
             % Overloaded equality operator comparing the projection
-            % transformation rather then 
-            % 
+            % transformation rather then all projection properties
             %
             % Inputs:
             % other_obj -- the object or array of objects to compare with
             % current object
             % Optional:
             % any set of parameters equal_to_tol function would accept
+            names = cell(2,1);            
             if nargout == 2
-                [is,mess] = eq_(obj,other_obj,varargin{:});
+                names{1} = inputname(1);
+                names{2} = inputname(2);                
+                [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
             else
-                is = eq_(obj,other_obj,varargin{:});
+                is = eq_(obj,other_obj,nargout,names,varargin{:});
             end
-        end        
+        end
         function [nis,mess] = ne(obj,other_obj,varargin)
             % Non-equal operator
             %
-            % ensure usage of  overloaded eq_ operator rather then parent
-            % ne operator
+            names = cell(2,1);                        
             if nargout == 2
-                [is,mess] = eq_(obj,other_obj,varargin{:});
+                names{1} = inputname(1);
+                names{2} = inputname(2);                
+                [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
             else
-                is = eq_(obj,other_obj,varargin{:});
+                is = eq_(obj,other_obj,nargout,names,varargin{:});
             end
             nis = ~is;
         end
