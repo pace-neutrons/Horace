@@ -163,17 +163,20 @@ transformation.
    This is currently only defined for ``SymopReflection`` and ``SymopRotation`` (which is why ``SymopGeneral`` is not
    currently permitted for symmetric reductions).
 
-The irreducible region for ``SymopReflection`` is defined as the the positive half-volume with respect to the normal vector of the plane of reflection. Mathematically this is defined as:
+The irreducible region for ``SymopReflection`` is defined as the the positive half-volume with respect to the normal
+vector of the plane of reflection. Mathematically this is defined as:
 
 .. math::
 
    \lbrace{}\vec{q} \in{} Q ~|~
    \vec{q} \cdot{} (\vec{u}\times{}\vec{v}) > 0 \rbrace{}
 
-where :math:`Q` is the set of coordinates to be transformed and :math:`\vec{u}` and :math:`\vec{v}` are the vectors defining the plane of reflection.
+where :math:`Q` is the set of coordinates to be transformed and :math:`\vec{u}` and :math:`\vec{v}` are the vectors
+defining the plane of reflection.
 
 The irreducible region for ``SymopRotation`` is defined as the wedge bounded in the upper-right (positive) quadrant in
-the q-coordinate space by the planes defined by the x-axis and the axis of rotation; and the transformed x-axis and the axis of rotation.
+the q-coordinate space by the planes defined by the absolute (relative to the q-coordinates) x-axis and the axis of
+rotation; and the transformed x-axis and the axis of rotation.
 
 .. note::
 
@@ -451,22 +454,31 @@ Alternatively with an array of ``Symop`` objects this could be done in one step 
 Cutting
 =======
 
-In order to do a symmetrised cut, the ordinary ``cut`` function (see :ref:`manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut_sqw`) is used with the appropriate symmetry
+In order to do a symmetrised cut, the ordinary ``cut`` function (see
+:ref:`manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:cut_sqw`) is used with the appropriate symmetry
 operations additionally passed into the function as an argument after the bin axes specification (see example
 below). The ``cut`` operation will then use the symmetry operations to compute the transformations of the given
-projection, accumulate the symmetrically-related pixels into the primary binning axes and transform their pixel
-coordinates according to the symmetry operations as though the |SQW| had been symmetrised.
+projection, accumulate the symmetrically-related pixels into the primary binning axes (the cut region specified in the
+``cut`` operation) and transform their pixel coordinates according to the symmetry operations as though the |SQW| had
+been symmetrised.
 
 .. code-block:: matlab
 
    >> w1 = sqw(data);
    >> sym = SymopReflection([0 1 0], [0 0 1]);
 
-   % Cut from 1 to 3 in X, accumulated with -1 to -3 reflected across the X-axis
+   % Cut from 1 to 3 in X, accumulated with -1 to -3 reflected across the Y-axis
    >> w2 = cut(w1, ortho_proj([1 0 0], [0 1 0]), [1 0.1 3], [-inf inf], [-inf inf], [-inf inf], sym);
    % Take 2D cut from w1
    >> w3 = cut(w1, ortho_proj([1 0 0], [0 1 0]), [1 0.1 3], [1 0.1 3], [-inf inf], [-inf inf], sym)
 
+.. figure:: symexample.png
+   :align: center
+   :width: 500
+
+   Diagrammatic representation of ``w3``'s cut.  The primary axes are specified between (1,1) and (3, 3). The reflection
+   about the Y-axis captures the region between (-1, 1) and (-3, 3) which are transformed by the symmetry operation into
+   the primary axes and accumulated into the cut.
 
 Combining
 =========
