@@ -564,6 +564,22 @@ classdef test_serializable_class < TestCase
             assertEqual(tc,tc_rec);
         end
 
+        function test_eq_false_with_message(~)
+            tc = serializableTester1();
+            tc.Prop_class1_1 = 20;
+            tc.Prop_class1_2 = cell(1,10);
+
+            tc1 = tc;
+            tc1.Prop_class1_1 = 10;
+
+            [is,mess] = tc.eq(tc1);
+            assertFalse(is);
+            assertEqual(mess, ...
+                'tc.Prop_class1_1 and tc1.Prop_class1_1: Relative and absolute tolerance failure; max. error = 10 (absolute) at element (1)');
+        end
+
+        
+
         %------------------------------------------------------------------
 
         function test_pos_constructor_char_pos_sets_key(~)
