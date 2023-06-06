@@ -217,4 +217,4 @@ are folded on to each other:
 
 
 see very important notes on the technical details of symmeterising a whole dataset in
-:ref:`manual/Symmetrising_etc:Commands for entire datasets`.
+:ref:`manual/Symmetrising_etc:Symmetrising whole data files`.

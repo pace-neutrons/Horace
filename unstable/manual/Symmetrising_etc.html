@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Symmetry Operations &mdash; Horace  documentation</title>
+  <title>Symmetrising etc &mdash; Horace  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -16,7 +16,6 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -54,34 +53,20 @@
 <li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Symmetry Operations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#symmetry-operators">Symmetry Operators</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#reflections">Reflections</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#rotations">Rotations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#general-transformations">General Transformations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#groups-of-symmetry-operators">Groups of symmetry operators</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#irreducible-region">Irreducible region</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Symmetrising etc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#commands-for-cuts-and-slices">Commands for cuts and slices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#symmetrising">Symmetrising</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#combining">Combining</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rebinning">Rebinning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#symmetrise-data-then-unfold-back-to-original-range">Symmetrise data, then unfold back to original range</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#correcting-for-magnetic-form-factor">Correcting for magnetic form factor</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#symop-methods">Symop Methods</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#transform-vec"><code class="docutils literal notranslate"><span class="pre">transform_vec</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#transform-pix"><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#transform-proj"><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#commands-for-entire-datasets">Commands for entire datasets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#advanced-usage">Advanced usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#limitations">Limitations</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#commands-for-cuts-and-slices">Commands for cuts and slices</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#symmetrising">Symmetrising</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#symmetrise-sqw"><code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#gen-sqw"><code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#cutting">Cutting</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#combining">Combining</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#rebinning">Rebinning</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#symmetrise-data-then-unfold-back-to-original-range">Symmetrise data, then unfold back to original range</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#commands-for-entire-datasets">Commands for entire datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#advanced-usage">Advanced usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#limitations">Limitations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
@@ -121,7 +106,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
-      <li class="breadcrumb-item active">Symmetry Operations</li>
+      <li class="breadcrumb-item active">Symmetrising etc</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/manual/Symmetrising_etc.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -131,444 +116,73 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="symmetry-operations">
-<h1>Symmetry Operations<a class="headerlink" href="#symmetry-operations" title="Permalink to this heading"></a></h1>
-<section id="symmetry-operators">
-<h2>Symmetry Operators<a class="headerlink" href="#symmetry-operators" title="Permalink to this heading"></a></h2>
-<p>Symmetry operators or “sym op”s define the transformation between sets of symmetry related sets. In Horace these are
-implemented as the <code class="docutils literal notranslate"><span class="pre">Symop</span></code> class, which is subclassed to represent the three basic forms of symmetry operations:</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code></dt><dd><p>A reflection across a plane</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code></dt><dd><p>A rotation about an axis</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">SymopGeneral</span></code></dt><dd><p>A general matrix transform which may be the product of a series of reflections and rotations</p>
-</dd>
-</dl>
-</li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Symmetry operators are, by definition, non-scaling transformations and as such must have a determinant of
-<code class="docutils literal notranslate"><span class="pre">1</span></code> (Rotation) or <code class="docutils literal notranslate"><span class="pre">-1</span></code> (Reflection).</p>
-</div>
-<section id="reflections">
-<h3>Reflections<a class="headerlink" href="#reflections" title="Permalink to this heading"></a></h3>
-<p>Reflections are implemented as the <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> class and are defined in Horace by three 3-vectors; two vectors
-which define the plane of reflection, and a vector which defines a point on the plane (the offset). The constructor for
-a <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> is as follows:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">SymopReflection</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="w"> </span><span class="n">v2</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="c">% Reflection across the Z axis</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For any <code class="docutils literal notranslate"><span class="pre">Symop</span></code> constructor the offset can be omitted and it will default to <code class="docutils literal notranslate"><span class="pre">[0</span> <span class="pre">0</span> <span class="pre">0]</span></code>.</p>
-</div>
-</section>
-<section id="rotations">
-<h3>Rotations<a class="headerlink" href="#rotations" title="Permalink to this heading"></a></h3>
-<p>Rotations are implemented as the <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> class and are defined by two 3-vectors and a scalar; these are the
-axis of rotation, the angle (in degrees) of rotation and a point on the axis (the offset). The constructor for a
-<code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> is as follows:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">SymopRotation</span><span class="p">(</span><span class="nb">axis</span><span class="p">,</span><span class="w"> </span><span class="nb">angle</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="c">% Rotation of 60 degrees about th Z axis</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> also provides a convenience method for generating the appropriate set of symmetry operations for
-cutting/reducing an n-Fold rotationally symmetric dataset about an axis. This takes a scalar integer and two
-3-vectors; the number of reductions (for an angle of <code class="docutils literal notranslate"><span class="pre">360/nFold</span></code> each time) and the axis and offset of the rotation as
-above.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">SymopRotation</span><span class="p">.</span><span class="n">fold</span><span class="p">(</span><span class="n">nFold</span><span class="p">,</span><span class="w"> </span><span class="nb">axis</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">.</span><span class="n">fold</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span><span class="w">   </span><span class="c">% Ready to cut from a 4-fold rotationally symmetric dataset about Z</span>
-
-<span class="n">sym</span><span class="w"> </span><span class="p">=</span>
-
-<span class="w">  </span>4<span class="n">x1</span><span class="w"> </span><span class="nb">cell</span><span class="w"> </span><span class="n">array</span>
-
-<span class="w">    </span><span class="p">{</span>1<span class="n">x1</span><span class="w"> </span><span class="n">SymopIdentity</span><span class="p">}</span>
-<span class="w">    </span><span class="p">{</span>1<span class="n">x1</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">}</span>
-<span class="w">    </span><span class="p">{</span>1<span class="n">x1</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">}</span>
-<span class="w">    </span><span class="p">{</span>1<span class="n">x1</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">}</span>
-
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">celldisp</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
-
-<span class="n">sym</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
-
-<span class="n">Identity</span><span class="w"> </span><span class="s">operator</span><span class="w"> </span><span class="s">(no</span><span class="w"> </span><span class="s">symmetrisation)</span>
-
-
-<span class="n">sym</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
-
-<span class="n">Rotation</span><span class="w"> </span><span class="s">operator:</span>
-<span class="w">       </span><span class="nb">axis</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">]</span>
-<span class="w">      </span><span class="nb">angle</span><span class="w"> </span><span class="p">(</span><span class="n">deg</span><span class="p">):</span><span class="w"> </span><span class="mi">90</span>
-<span class="w">     </span><span class="n">offset</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-
-
-<span class="n">sym</span><span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
-
-<span class="n">Rotation</span><span class="w"> </span><span class="s">operator:</span>
-<span class="w">       </span><span class="nb">axis</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">]</span>
-<span class="w">      </span><span class="nb">angle</span><span class="w"> </span><span class="p">(</span><span class="n">deg</span><span class="p">):</span><span class="w"> </span><span class="mi">180</span>
-<span class="w">     </span><span class="n">offset</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-
-
-<span class="n">sym</span><span class="p">{</span><span class="mi">4</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
-
-<span class="n">Rotation</span><span class="w"> </span><span class="s">operator:</span>
-<span class="w">       </span><span class="nb">axis</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">]</span>
-<span class="w">      </span><span class="nb">angle</span><span class="w"> </span><span class="p">(</span><span class="n">deg</span><span class="p">):</span><span class="w"> </span><span class="mi">270</span>
-<span class="w">     </span><span class="n">offset</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-</pre></div>
-</div>
-</section>
-<section id="general-transformations">
-<h3>General Transformations<a class="headerlink" href="#general-transformations" title="Permalink to this heading"></a></h3>
-<p>Generalised matrix transforms are implemented as the <code class="docutils literal notranslate"><span class="pre">SymopGeneral</span></code> class and are defined by a 3x3 matrix and a
-3-vector. These are the transform itself and the offset. The constructor for a <code class="docutils literal notranslate"><span class="pre">SymopGeneral</span></code> is as follows:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">SymopGeneral</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopGeneral</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">                       </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">                       </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="c">% Reflection across y=x</span>
-</pre></div>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The matrix defining a <code class="docutils literal notranslate"><span class="pre">SymopGeneral</span></code> must have a determinant of <code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">-1</span></code> or else this will result
-in an error.</p>
-</div>
-<p>It should be noted that it is possible to get the general transformation from any of the other transformation types by
-applying the transform to the identity (for which <code class="docutils literal notranslate"><span class="pre">R</span></code> is a convenience property), though this does not consider offsets.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="p">.</span><span class="n">R</span>
-
-<span class="w"> </span><span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-
-<span class="w">     </span><span class="mf">0.0000</span><span class="w">         </span><span class="mi">0</span><span class="w">    </span><span class="mf">1.0000</span>
-<span class="w">          </span><span class="mi">0</span><span class="w">    </span><span class="mf">1.0000</span><span class="w">         </span><span class="mi">0</span>
-<span class="w">    </span><span class="o">-</span><span class="mf">1.0000</span><span class="w">         </span><span class="mi">0</span><span class="w">    </span><span class="mf">0.0000</span>
-
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="p">.</span><span class="n">transform_vec</span><span class="p">(</span><span class="nb">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-
-<span class="w"> </span><span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-
-<span class="w">     </span><span class="mf">0.0000</span><span class="w">         </span><span class="mi">0</span><span class="w">    </span><span class="mf">1.0000</span>
-<span class="w">          </span><span class="mi">0</span><span class="w">    </span><span class="mf">1.0000</span><span class="w">         </span><span class="mi">0</span>
-<span class="w">    </span><span class="o">-</span><span class="mf">1.0000</span><span class="w">         </span><span class="mi">0</span><span class="w">    </span><span class="mf">0.0000</span>
-</pre></div>
-</div>
-</section>
-<section id="groups-of-symmetry-operators">
-<h3>Groups of symmetry operators<a class="headerlink" href="#groups-of-symmetry-operators" title="Permalink to this heading"></a></h3>
-<p>For a more complex transformation involving a series of rotations and reflections it is possible to construct an array
-of transformations to be applied in sequence (as a series of pre-multiplications, i.e. applied in the reverse order of
-the list).</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Rotate 90 deg about X, Reflect across X, Rotate back 90 deg about X</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">big_sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">90</span><span class="p">),</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">-</span><span class="mi">90</span><span class="p">)];</span>
-</pre></div>
-</div>
-</section>
-<section id="irreducible-region">
-<h3>Irreducible region<a class="headerlink" href="#irreducible-region" title="Permalink to this heading"></a></h3>
-<p id="irreducible"><code class="docutils literal notranslate"><span class="pre">Symop</span></code> transformations on pixels take what we call the irreducible region into account when transforming. The
-irreducible region exists to ensure that symmetry reductions reduce the data, rather than mapping the data across the symmetry
-transformation.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This is currently only defined for <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> and <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> (which is why <code class="docutils literal notranslate"><span class="pre">SymopGeneral</span></code> is not
-currently permitted for symmetric reductions).</p>
-</div>
-<p>The irreducible region for <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> is defined as the the positive half-volume with respect to the normal vector of the plane of reflection. Mathematically this is defined as:</p>
-<div class="math notranslate nohighlight">
-\[\lbrace{}\vec{q} \in{} Q ~|~
-\vec{q} \cdot{} (\vec{u}\times{}\vec{v}) &gt; 0 \rbrace{}\]</div>
-<p>where <span class="math notranslate nohighlight">\(Q\)</span> is the set of coordinates to be transformed and <span class="math notranslate nohighlight">\(\vec{u}\)</span> and <span class="math notranslate nohighlight">\(\vec{v}\)</span> are the vectors defining the plane of reflection.</p>
-<p>The irreducible region for <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> is defined as the wedge bounded in the upper-right (positive) quadrant in
-the q-coordinate space by the planes defined by the x-axis and the axis of rotation; and the transformed x-axis and the axis of rotation.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In the special case of rotation about the x-axis, the y-axis is used to define the wedge instead of the x-axis.</p>
-</div>
-<p>Mathematically, this is defined as:</p>
-<div class="math notranslate nohighlight">
-\[\lbrace{}\vec{q} \in{} Q ~|~
-\vec{q} \cdot{} (\vec{n} \times{} \vec{u}) &gt; 0 \wedge{} \vec{q} \cdot{} (\vec{v} \times{} \vec{n}) &gt; 0 \rbrace{},
-\textrm{where}~~ \vec{u}, \vec{n} \textrm{ and } \vec{v} \textrm{ are not co-planar}\]</div>
-<p>where <span class="math notranslate nohighlight">\(Q\)</span> is the set of coordinates to be transformed, <span class="math notranslate nohighlight">\(\vec{n}\)</span> is the axis of rotation, <span class="math notranslate nohighlight">\(\vec{u}\)</span> is the x- (or y-) axis (as above) and <span class="math notranslate nohighlight">\(\vec{v}\)</span> is the transformed <span class="math notranslate nohighlight">\(\vec{u}\)</span>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For an angle &gt; 90 degrees or folds &lt; 4, this will cover the positive quadrant and some of a negative domain.</p>
-</div>
-</section>
-</section>
-<section id="symop-methods">
-<h2>Symop Methods<a class="headerlink" href="#symop-methods" title="Permalink to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">Symop</span></code> objects have methods to transform a variety of methods to transform objects which may be related by symmetry. These
-are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">transform_vec</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code></p></li>
-</ul>
-<p>Which transform numeric vectors, <code class="docutils literal notranslate"><span class="pre">PixelDataBase</span></code> objects and <code class="docutils literal notranslate"><span class="pre">aProjection</span></code> objects respectively.</p>
-<section id="transform-vec">
-<h3><code class="docutils literal notranslate"><span class="pre">transform_vec</span></code><a class="headerlink" href="#transform-vec" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">transform_vec</span></code> takes a 3xN list of 3-vectors to transform. This method can be applied directly from a single
-<code class="docutils literal notranslate"><span class="pre">Symop</span></code> or from an array (but not cell array) of <code class="docutils literal notranslate"><span class="pre">Symop</span></code> objects (see: <a class="reference internal" href="#groups-of-symmetry-operators"><span class="std std-ref">Groups of symmetry operators</span></a>).</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span>
-
-<span class="n">sym</span><span class="w"> </span><span class="p">=</span>
-
-<span class="n">Reflection</span><span class="w"> </span><span class="s">operator:</span>
-<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-<span class="w">     </span><span class="n">offset</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="p">.</span><span class="n">transform_vec</span><span class="p">([</span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">])</span>
-
-<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-
-<span class="w">     </span><span class="mi">3</span>
-<span class="w">     </span><span class="mi">6</span>
-<span class="w">    </span><span class="o">-</span><span class="mi">1</span>
-</pre></div>
-</div>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">big_sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">90</span><span class="p">),</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">-</span><span class="mi">90</span><span class="p">)];</span>
-<span class="w">                         </span><span class="c">%v1|v2|v3|v4|v5</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">big_sym</span><span class="p">.</span><span class="n">transform_vec</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span>
-<span class="w">                          </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">                          </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">])</span>
-
-<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-<span class="w">    </span><span class="c">%v1&#39;| v2&#39;|  v3&#39;|  v4&#39;|  v5&#39;</span>
-<span class="w">    </span><span class="o">-</span><span class="mi">1</span><span class="w">    </span><span class="o">-</span><span class="mi">3</span><span class="w">    </span><span class="o">-</span><span class="mi">5</span><span class="w">    </span><span class="o">-</span><span class="mi">1</span><span class="w">    </span><span class="o">-</span><span class="mi">3</span>
-<span class="w">     </span><span class="mi">2</span><span class="w">     </span><span class="mi">2</span><span class="w">     </span><span class="mi">4</span><span class="w">     </span><span class="mi">6</span><span class="w">     </span><span class="mi">1</span>
-<span class="w">     </span><span class="mi">6</span><span class="w">     </span><span class="mi">3</span><span class="w">     </span><span class="mi">1</span><span class="w">     </span><span class="mi">3</span><span class="w">     </span><span class="mi">6</span>
-</pre></div>
-</div>
-</section>
-<section id="transform-pix">
-<h3><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code><a class="headerlink" href="#transform-pix" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code> takes a <code class="docutils literal notranslate"><span class="pre">PixelDataBase</span></code> derived object and transforms the contained pixel q-coordinates according to
-the symmetry operations and returns a new object with the transformed pixels.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">transform_pix</span></code> takes the <code class="docutils literal notranslate"><span class="pre">Symop</span></code> object’s <a class="reference internal" href="#irreducible"><span class="std std-ref">irreducible region</span></a> into
-account and does not transform the pixels which are considered to be within the irreducible region.</p>
-</div>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span>
-<span class="c">% 5 pixels in memory</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">PixelDataMemory</span><span class="p">(</span><span class="nb">rand</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">));</span>
-<span class="c">% Put pixels outside of &quot;positive quadrant&quot;</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix</span><span class="p">.</span><span class="n">q_coordinates</span><span class="p">(:,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="p">])</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="n">pix</span><span class="p">.</span><span class="n">q_coordinates</span><span class="p">(:,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="p">]);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix_new</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sym</span><span class="p">.</span><span class="n">transform_pix</span><span class="p">(</span><span class="n">pix</span><span class="p">);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix</span><span class="p">.</span><span class="n">data</span>
-
-<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-
-<span class="w">   </span><span class="o">-</span><span class="mf">0.4898</span><span class="w">   </span><span class="o">-</span><span class="mf">0.1190</span><span class="w">    </span><span class="mf">0.6991</span><span class="w">    </span><span class="mf">0.8143</span><span class="w">    </span><span class="mf">0.8308</span><span class="w"> </span><span class="c">% q_x</span>
-<span class="w">   </span><span class="o">-</span><span class="mf">0.4456</span><span class="w">   </span><span class="o">-</span><span class="mf">0.4984</span><span class="w">    </span><span class="mf">0.8909</span><span class="w">    </span><span class="mf">0.2435</span><span class="w">    </span><span class="mf">0.5853</span><span class="w"> </span><span class="c">% q_y</span>
-<span class="w">   </span><span class="o">-</span><span class="mf">0.6463</span><span class="w">   </span><span class="o">-</span><span class="mf">0.9597</span><span class="w">    </span><span class="mf">0.9593</span><span class="w">    </span><span class="mf">0.9293</span><span class="w">    </span><span class="mf">0.5497</span><span class="w"> </span><span class="c">% q_z</span>
-<span class="w">    </span><span class="mf">0.7094</span><span class="w">    </span><span class="mf">0.3404</span><span class="w">    </span><span class="mf">0.5472</span><span class="w">    </span><span class="mf">0.3500</span><span class="w">    </span><span class="mf">0.9172</span><span class="w"> </span><span class="c">% dE</span>
-<span class="w">    </span><span class="mf">0.7547</span><span class="w">    </span><span class="mf">0.5853</span><span class="w">    </span><span class="mf">0.1386</span><span class="w">    </span><span class="mf">0.1966</span><span class="w">    </span><span class="mf">0.2858</span><span class="w"> </span><span class="c">% run_idx</span>
-<span class="w">    </span><span class="mf">0.2760</span><span class="w">    </span><span class="mf">0.2238</span><span class="w">    </span><span class="mf">0.1493</span><span class="w">    </span><span class="mf">0.2511</span><span class="w">    </span><span class="mf">0.7572</span><span class="w"> </span><span class="c">% detector_idx</span>
-<span class="w">    </span><span class="mf">0.6797</span><span class="w">    </span><span class="mf">0.7513</span><span class="w">    </span><span class="mf">0.2575</span><span class="w">    </span><span class="mf">0.6160</span><span class="w">    </span><span class="mf">0.7537</span><span class="w"> </span><span class="c">% energy_idx</span>
-<span class="w">    </span><span class="mf">0.6551</span><span class="w">    </span><span class="mf">0.2551</span><span class="w">    </span><span class="mf">0.8407</span><span class="w">    </span><span class="mf">0.4733</span><span class="w">    </span><span class="mf">0.3804</span><span class="w"> </span><span class="c">% signal</span>
-<span class="w">    </span><span class="mf">0.1626</span><span class="w">    </span><span class="mf">0.5060</span><span class="w">    </span><span class="mf">0.2543</span><span class="w">    </span><span class="mf">0.3517</span><span class="w">    </span><span class="mf">0.5678</span><span class="w"> </span><span class="c">% variance</span>
-
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">pix_new</span><span class="p">.</span><span class="n">data</span>
-
-<span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-
-<span class="w">   </span><span class="o">-</span><span class="mf">0.4898</span><span class="w">   </span><span class="o">-</span><span class="mf">0.1190</span><span class="w">    </span><span class="mf">0.6991</span><span class="w">    </span><span class="mf">0.8143</span><span class="w">    </span><span class="mf">0.8308</span><span class="w"> </span><span class="c">% q_x</span>
-<span class="w">   </span><span class="o">-</span><span class="mf">0.4456</span><span class="w">   </span><span class="o">-</span><span class="mf">0.4984</span><span class="w">    </span><span class="mf">0.8909</span><span class="w">    </span><span class="mf">0.2435</span><span class="w">    </span><span class="mf">0.5853</span><span class="w"> </span><span class="c">% q_y</span>
-<span class="w">    </span><span class="mf">0.6463</span><span class="w">    </span><span class="mf">0.9597</span><span class="w">    </span><span class="mf">0.9593</span><span class="w">    </span><span class="mf">0.9293</span><span class="w">    </span><span class="mf">0.5497</span><span class="w"> </span><span class="c">% q_z</span>
-<span class="w">    </span><span class="mf">0.7094</span><span class="w">    </span><span class="mf">0.3404</span><span class="w">    </span><span class="mf">0.5472</span><span class="w">    </span><span class="mf">0.3500</span><span class="w">    </span><span class="mf">0.9172</span><span class="w"> </span><span class="c">% dE</span>
-<span class="w">    </span><span class="mf">0.7547</span><span class="w">    </span><span class="mf">0.5853</span><span class="w">    </span><span class="mf">0.1386</span><span class="w">    </span><span class="mf">0.1966</span><span class="w">    </span><span class="mf">0.2858</span><span class="w"> </span><span class="c">% run_idx</span>
-<span class="w">    </span><span class="mf">0.2760</span><span class="w">    </span><span class="mf">0.2238</span><span class="w">    </span><span class="mf">0.1493</span><span class="w">    </span><span class="mf">0.2511</span><span class="w">    </span><span class="mf">0.7572</span><span class="w"> </span><span class="c">% detector_idx</span>
-<span class="w">    </span><span class="mf">0.6797</span><span class="w">    </span><span class="mf">0.7513</span><span class="w">    </span><span class="mf">0.2575</span><span class="w">    </span><span class="mf">0.6160</span><span class="w">    </span><span class="mf">0.7537</span><span class="w"> </span><span class="c">% energy_idx</span>
-<span class="w">    </span><span class="mf">0.6551</span><span class="w">    </span><span class="mf">0.2551</span><span class="w">    </span><span class="mf">0.8407</span><span class="w">    </span><span class="mf">0.4733</span><span class="w">    </span><span class="mf">0.3804</span><span class="w"> </span><span class="c">% signal</span>
-<span class="w">    </span><span class="mf">0.1626</span><span class="w">    </span><span class="mf">0.5060</span><span class="w">    </span><span class="mf">0.2543</span><span class="w">    </span><span class="mf">0.3517</span><span class="w">    </span><span class="mf">0.5678</span><span class="w"> </span><span class="c">% variance</span>
-</pre></div>
-</div>
-</section>
-<section id="transform-proj">
-<h3><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code><a class="headerlink" href="#transform-proj" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code> is used to transform subclasses of the <code class="docutils literal notranslate"><span class="pre">aProjection</span></code> type. It is an internal function which creates a new projection with the symmetries applied and is not normally needed by users, but is recorded here for completeness.</p>
-</section>
-</section>
+  <section id="symmetrising-etc">
+<h1>Symmetrising etc<a class="headerlink" href="#symmetrising-etc" title="Permalink to this heading"></a></h1>
+<p>It is possible to do combinational operations on sqw objects, e.g. to combine specified symmetrically equivalent wavevectors such as (-1,0,0) and (1,0,0), for example. The advantage of doing this is that for a given cut or slice you are able to include data from many more detector pixels, thus improving the statistical quality of your data.</p>
 <section id="commands-for-cuts-and-slices">
 <h2>Commands for cuts and slices<a class="headerlink" href="#commands-for-cuts-and-slices" title="Permalink to this heading"></a></h2>
-<p>In Horace it is possible to symmetrise by 3 methods:</p>
-<ul class="simple">
-<li><p>symmetrise whole S(<strong>Q</strong>, <span class="math notranslate nohighlight">\(\omega{}\)</span>) objects using <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code></p></li>
-<li><p>symmetrise and extract subsets of S(<strong>Q</strong>, <span class="math notranslate nohighlight">\(\omega{}\)</span>) objects using <code class="docutils literal notranslate"><span class="pre">cut</span></code></p></li>
-<li><p>equivalently to <code class="docutils literal notranslate"><span class="pre">cut</span></code> with symmetry, it is possible to use <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code> and then <code class="docutils literal notranslate"><span class="pre">cut</span></code></p></li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>While <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code> then <code class="docutils literal notranslate"><span class="pre">cut</span></code> is possible, it is not recommended unless the intermediate symmetrised S(<strong>Q</strong>, <span class="math notranslate nohighlight">\(\omega{}\)</span>) is
-required. This approach has the overhead of transforming all pixels in S(<strong>Q</strong>, <span class="math notranslate nohighlight">\(\omega{}\)</span>), while <code class="docutils literal notranslate"><span class="pre">cut</span></code> has optimisations to
-transform only those that might contribute to the result.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Symmetrisation maps the pixels outside the <a class="reference internal" href="#irreducible"><span class="std std-ref">irreducible region</span></a> into their respective symmetry related sites. This means that subsequent binning/cutting of the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object will see these pixels as being on the symmetry related site rather than their original location.</p>
-<p>Symmetrising an S(<strong>Q</strong>, <span class="math notranslate nohighlight">\(\omega{}\)</span>) is an irreversible operation and overwriting saved <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> files may lead to loss of information.</p>
-</div>
-</section>
 <section id="symmetrising">
-<h2>Symmetrising<a class="headerlink" href="#symmetrising" title="Permalink to this heading"></a></h2>
-<section id="symmetrise-sqw">
-<span id="id1"></span><h3><code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code><a class="headerlink" href="#symmetrise-sqw" title="Permalink to this heading"></a></h3>
-<p id="sym-sqw">It is possible to reduce an entire dataset at once by symmetry, transforming all pixels according to the symmetry
-operations and accumulating the transformed pixels into the bins appropriately. This is done through the
-<code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code> function, the signature for which is below:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span><span class="w"> </span><span class="c">% Reflect about X-axis</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">sym</span><span class="p">);</span>
+<span id="symmetrising-etc-symmetrise-sqw"></span><h3>Symmetrising<a class="headerlink" href="#symmetrising" title="Permalink to this heading"></a></h3>
+<section id="symmetrising-data-in-memory">
+<h4>Symmetrising data in memory<a class="headerlink" href="#symmetrising-data-in-memory" title="Permalink to this heading"></a></h4>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">v1</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">v2</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span><span class="w"> </span><span class="n">v3</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">wout</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">,</span><span class="n">v3</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>It is also possible to reduce data through a rotationally symmetric operation, this can be done in one of 2 ways:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Perform a 6-fold rotational reduction about Z</span>
-<span class="c">% The resulting wedge with be a 60 degree segment</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">60</span><span class="p">);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">sym</span><span class="p">);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">.</span><span class="n">fold</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span><span class="w"> </span><span class="c">% Same as above</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">sym</span><span class="p">);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">equal_to_tol</span><span class="p">(</span><span class="n">w2</span><span class="p">,</span><span class="w"> </span><span class="n">w3</span><span class="p">);</span>
-
-<span class="w">  </span><span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-
-<span class="w">    </span><span class="nb">logical</span>
-
-<span class="w">     </span><span class="mi">1</span>
-</pre></div>
-</div>
-<p>A <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> maps pixels into the <a class="reference internal" href="#irreducible"><span class="std std-ref">irreducible region</span></a>)</p>
+<p>The object <code class="docutils literal notranslate"><span class="pre">wout</span></code> is reflected in the plane specified by the vectors <code class="docutils literal notranslate"><span class="pre">v1</span></code>, <code class="docutils literal notranslate"><span class="pre">v2</span></code>, and <code class="docutils literal notranslate"><span class="pre">v3</span></code>. <code class="docutils literal notranslate"><span class="pre">v1</span></code> and <code class="docutils literal notranslate"><span class="pre">v2</span></code> are vectors which lie parallel to the plane but are not parallel to one another. <code class="docutils literal notranslate"><span class="pre">v3</span></code> specifies the offset from Q=(0,0,0) of the reflection plane. In the above example the plane reflects (-1,0,0) to (1,0,0).</p>
+<p>As you can notice, <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code> works on <em>sqw</em> objects, stored in memory (the Matlab workspace). Therefore the size in memory of a given object can often act as a limitation on what data can be symmetrised. e.g. a large 3d volume may contain information from so many detector pixels that symmetrising it requires more memory than is available on your computer.</p>
 </section>
-<section id="gen-sqw">
-<h3><code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code><a class="headerlink" href="#gen-sqw" title="Permalink to this heading"></a></h3>
-<p id="id2">If you need to symmetrise a large <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, it can also be done during <code class="docutils literal notranslate"><span class="pre">sqw</span></code> generation, i.e. during generation of
-the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file, rather than after the object has been created. The <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> function has a special option <code class="docutils literal notranslate"><span class="pre">transform_sqw</span></code> which can be used with any method,
-transforming an S(<strong>Q</strong>, <span class="math notranslate nohighlight">\(\omega{}\)</span>) at generation time.</p>
+<section id="symmetrising-whole-data-files">
+<h4>Symmetrising whole data files<a class="headerlink" href="#symmetrising-whole-data-files" title="Permalink to this heading"></a></h4>
+<p>If you need to symmetrise a large <em>sqw</em> object, it can be done during <em>sqw</em> object generation, i.e. during generation of the <em>sqw</em> file. <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> function has a special option <strong>transform_sqw</strong> which can be used with any method, transforming an existing <em>sqw</em> object into another <em>sqw</em> object in memory.</p>
 <p>For example:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="w"> </span><span class="n">v2</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span>
-<span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="c">  u, v, psi, omega, dpsi, gl,</span>
-<span class="w">         </span><span class="n">gs</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">@(</span><span class="n">x</span><span class="p">)(</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">sym</span><span class="p">)))</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span>
+<span class="w">    </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,@(</span><span class="n">x</span><span class="p">)(</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">,</span><span class="n">v3</span><span class="p">)))</span>
 </pre></div>
 </div>
 <p>or, more generally:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="c">  u, v, psi, omega, dpsi, gl,</span>
-<span class="w">         </span><span class="n">gs</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">user_symmetrisation_routine</span><span class="p">)</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span>
+<span class="w">    </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,@(</span><span class="n">x</span><span class="p">)(</span><span class="n">user_symmetrisation_routine</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>where <code class="docutils literal notranslate"><span class="pre">spefile</span></code>, <code class="docutils literal notranslate"><span class="pre">par_file</span></code>, etc… are the options used during initial <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file generation (see
-<a class="reference internal" href="Generating_SQW_files.html#generating-sqw-files"><span class="std std-ref">Generating SQW files</span></a>).  The first <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> would build a
-<code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file reflected as in the example for the reflection above. In the second, more general, case the user defined
-function (in a <code class="docutils literal notranslate"><span class="pre">.m</span></code>-file on the Matlab path) can define multiple symmetrisation operations that are applied
-sequentially to the entire data. An example is as follows, which folds a cubic system so that all eight of the
-symmetrically equivalent (1,0,0) type positions are folded on to each other:</p>
+<p>where <em>spefile, par_file, etc…</em> are the options used during initial <em>sqw</em> file generation (see <a class="reference internal" href="Generating_SQW_files.html#generating-sqw-files"><span class="std std-ref">Generating SQW files</span></a>). The first <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> would build a <em>sqw</em> file reflected as in the example for the reflection in memory, but with the transformation applied to the entire dataset. In the second, more general, case the user defined function (in a m-file on the Matlab path) can define multiple symmetrisation operations that are applied sequentially to the entire data. An example is as follows, which folds a cubic system so that all eight of the symmetrically equivalent (1,0,0) type positions are folded on to each other:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>wout<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">user_symmetrisation_routine</span><span class="p">(</span>win<span class="p">)</span>
 
-<span class="c">%fold about line (1,1,0) in HK plane</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]));</span>
-<span class="c">%fold about line (-1,1,0) in HK plane</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">wout</span><span class="p">,</span><span class="n">SymopReflection</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]));</span>
-<span class="c">%fold about line (1,0,1) in HL plane</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">wout</span><span class="p">,</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]));</span>
-<span class="c">%fold about line (1,0,-1) in HL plane</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">wout</span><span class="p">,</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]));</span>
-
-<span class="k">end</span>
+<span class="n">wout</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="c">%fold about line (1,1,0) in HK plane</span>
+<span class="n">wout</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">wout</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="c">%fold about line (-1,1,0) in HK plane</span>
+<span class="n">wout</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">wout</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="c">%fold about line (1,0,1) in HL plane</span>
+<span class="n">wout</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">wout</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="c">%fold about line (1,0,-1) in HL plane</span>
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>When defining the function to apply the symmetrisation (as above) one can only use symmetry operations supported by
-<code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code>. Any other transformations may modify the data ranges in unexpected ways, making the resulting
-transformed <em>sqw</em> file into complete nonsense!</p>
+<p><strong>VERY IMPORTANT NOTE 1</strong>: When defining the function to apply the symmetrisation (as above) one can ONLY use symmetrisation operations, given by <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code>. Any other transformations may modify the data ranges in unexpected ways, making the resulting transformed <em>sqw</em> file into complete nonsense!</p>
+<p><strong>Note 2</strong>: when a complex transformation is run on the isiscompute cluster in parallel mode, one may want to increase number of MPI workers to increase <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> speed during symmetrisation (if the cluster load permits that). The current default number of workers is optimal for using the maximal bandwidth of parallel file system. If bigger computations are performed in memory, it could be beneficial to increase number of workers to use more CPU power. This can be done by issuing the following commands:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">hpc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hpc_config</span>
+<span class="n">hpc</span><span class="p">.</span><span class="n">parallel_workers_number</span><span class="p">=</span><span class="w"> </span><span class="mi">16</span>
+</pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>MPI workers are normal Matlab sessions which inherit basic Matlab path and initiate Horace themselves if the Horace
-path is not stored by the user (It’s not usually recommended and may be impossible for multiuser machines). The
-workers do not process Matlab’s <code class="docutils literal notranslate"><span class="pre">startup.m</span></code> file. The user’s symmetrisation routine has to be available on the
-worker’s Matlab path. The best way to achieve this is to put the routine into current Matlab working folder – the
-folder from which you run the symmetrisation. If this routine uses some additional user functions, located elsewhere
-on a custom user path, these routines have to be intialised by the user routine. This can be achieved by the
-following piece of code added to the beginning of your custom symmetrisation routine:</p>
-</div>
+<p>This instructs Horace to use 16 MPI workers instead of the default of 8, enabled by <strong>hpc on</strong> command.</p>
+<p><strong>Note 3</strong>: MPI workers are normal Matlab sessions which inherit basic Matlab path and initiate Horace themselves if the Horace path is not stored by the user (Its not usually recommended and may be impossible for multiusers machines). The workers do not process Matlab’s <em>startup.m</em> file. The user’s symmetrisation routine has to be available on the worker’s Matlab path, so the best way to achieve this is to put the routine into current Matlab working folder – the folder where you run the symmetrisation script itself. If this routine uses some additional users functions, located elsewhere on a custom user path, these routines have to be intiated by the user routine. This can be achieved by the following piece of code added in the beginning of your custom symmetrization routine:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="nb">isempty</span><span class="p">(</span><span class="nb">which</span><span class="p">(</span><span class="s">&#39;my_additional_user_routine&#39;</span><span class="p">))</span>
-<span class="w">    </span><span class="nb">addpath</span><span class="p">(</span><span class="s">&#39;/home/myFedID/path_to_my_additional_user_routine&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="nb">addpath</span><span class="p">(</span><span class="s">&#39;/home/myFedID/path_to_my_additional_user_routine&#39;</span><span class="p">);</span>
 <span class="k">end</span>
 </pre></div>
 </div>
-<p>Alternatively with an array of <code class="docutils literal notranslate"><span class="pre">Symop</span></code> objects this could be done in one step as:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-<span class="w">       </span><span class="n">SymopReflection</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-<span class="w">       </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-<span class="w">       </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])];</span>
-<span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="c">  u, v, psi, omega, dpsi, gl,</span>
-<span class="w">         </span><span class="n">gs</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">@(</span><span class="n">x</span><span class="p">)(</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">sym</span><span class="p">)))</span>
-</pre></div>
-</div>
 </section>
-</section>
-<section id="cutting">
-<h2>Cutting<a class="headerlink" href="#cutting" title="Permalink to this heading"></a></h2>
-<p>In order to do a symmetrised cut, the ordinary <code class="docutils literal notranslate"><span class="pre">cut</span></code> function (see <a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html#cut-sqw"><span class="std std-ref">cut_sqw</span></a>) is used with the appropriate symmetry
-operations additionally passed into the function as an argument after the bin axes specification (see example
-below). The <code class="docutils literal notranslate"><span class="pre">cut</span></code> operation will then use the symmetry operations to compute the transformations of the given
-projection, accumulate the symmetrically-related pixels into the primary binning axes and transform their pixel
-coordinates according to the symmetry operations as though the S(<strong>Q</strong>, <span class="math notranslate nohighlight">\(\omega{}\)</span>) had been symmetrised.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
-
-<span class="c">% Cut from 1 to 3 in X, accumulated with -1 to -3 reflected across the X-axis</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">ortho_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]),</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="w"> </span><span class="n">inf</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="w"> </span><span class="n">inf</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="w"> </span><span class="n">inf</span><span class="p">],</span><span class="w"> </span><span class="n">sym</span><span class="p">);</span>
-<span class="c">% Take 2D cut from w1</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">ortho_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]),</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="w"> </span><span class="n">inf</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="w"> </span><span class="n">inf</span><span class="p">],</span><span class="w"> </span><span class="n">sym</span><span class="p">)</span>
-</pre></div>
-</div>
 </section>
 <section id="combining">
-<h2>Combining<a class="headerlink" href="#combining" title="Permalink to this heading"></a></h2>
+<span id="symmetrising-etc-combine-sqw"></span><h3>Combining<a class="headerlink" href="#combining" title="Permalink to this heading"></a></h3>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Combine two <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects (<code class="docutils literal notranslate"><span class="pre">w1</span></code> and <code class="docutils literal notranslate"><span class="pre">w2</span></code>) of the same dimensionality into a single <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object in order to
-improve statistics.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The output object will have a combined value for the integration range e.g. combining two 2d slices taken at L=1 and
-L=2 will result in an output for which the stated value of L is L=1.5.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Two objects which use different projection axes can be combined. The output object will have the projection axes of
-<code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p>
-</div>
+<p>Combine two sqw objects (w1 and w2) of the SAME dimensionality into a single sqw object in order to improve statistics. The output object will have a combined value for the integration range e.g. combining two 2d slices taken at L=1 and L=2 will result in an output for which the stated value of L is L=1.5. Two objects which use different projection axes can be combined. The output object will have the projection axes of w1.</p>
 </section>
 <section id="rebinning">
-<h2>Rebinning<a class="headerlink" href="#rebinning" title="Permalink to this heading"></a></h2>
-<p>Resize the bin boundaries along one or more axes, and rebin the data accordingly. There are several possibilities for
-the input format:</p>
+<span id="symmetrising-etc-rebin-sqw"></span><h3>Rebinning<a class="headerlink" href="#rebinning" title="Permalink to this heading"></a></h3>
+<p>Resize the bin boundaries along one or more axes, and rebin the data accordingly. There are several possibilities for the input format:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rebin_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="n">step1</span><span class="p">,</span><span class="n">step2</span><span class="p">,</span><span class="k">...</span><span class="c">)</span>
 </pre></div>
 </div>
-<p>Rebin the sqw object <code class="docutils literal notranslate"><span class="pre">win</span></code> with bins along the first axis that have width <code class="docutils literal notranslate"><span class="pre">step1</span></code>, bins along the second axis (if
-there is one) with width <code class="docutils literal notranslate"><span class="pre">step2</span></code>, and so on. The original limits of the axes will be retained. To leave an axis
-unaltered, the corresponding step argument can be set to 0.</p>
+<p>Rebin the sqw object <code class="docutils literal notranslate"><span class="pre">win</span></code> with bins along the first axis that have width <code class="docutils literal notranslate"><span class="pre">step1</span></code>, bins along the second axis (if there is one) with width <code class="docutils literal notranslate"><span class="pre">step2</span></code>, and so on. The original limits of the axes will be retained. To leave an axis unaltered, the corresponding step argument can be set to 0.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rebin_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,[</span><span class="n">lo1</span><span class="p">,</span><span class="n">step1</span><span class="p">,</span><span class="n">hi1</span><span class="p">],[</span><span class="n">lo2</span><span class="p">,</span><span class="n">step2</span><span class="p">,</span><span class="n">hi2</span><span class="p">],</span><span class="k">...</span><span class="c">)</span>
 </pre></div>
 </div>
@@ -579,72 +193,60 @@ unaltered, the corresponding step argument can be set to 0.</p>
 <p>Rebin the sqw object <code class="docutils literal notranslate"><span class="pre">win</span></code> with the boundaries (and projection axes) of the template object <code class="docutils literal notranslate"><span class="pre">w2</span></code>.</p>
 </section>
 <section id="symmetrise-data-then-unfold-back-to-original-range">
-<h2>Symmetrise data, then unfold back to original range<a class="headerlink" href="#symmetrise-data-then-unfold-back-to-original-range" title="Permalink to this heading"></a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>For producing plots only, any analysis on these results will be invalid due to multiple counting of data.</p>
-</div>
-<p>Below we show a script that uses the <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">combine_sqw</span></code> commands to reduce a dataset and then unfold
-it. In the example we have a constant energy slice in the (h,k)-plane which we reduce twice to obtain the positive
-quadrant. We then reflect the result in the opposite direction and combine with the positive quadrant, then reflect this
-and combine. This produces an image which covers all four quadrants of the original with the reduced dataset (thereby increasing
-the counts four-fold).</p>
+<h3>Symmetrise data, then unfold back to original range<a class="headerlink" href="#symmetrise-data-then-unfold-back-to-original-range" title="Permalink to this heading"></a></h3>
+<p><strong>N.B.</strong> For producing plots only, any analysis on these results will be invalid due to double / treble / etc. counting of data.</p>
+<p>Below we show a script that uses the <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">combine_sqw</span></code> commands to fold a dataset and then unfold. In the example we have a constant energy slice in the (h,k)-plane which we fold twice to obtain the positive quadrant. We then unfold the result in the opposite direction and combine with the positive quadrant, then unfold this and combine. This produces an image which covers all four quadrants with suitably folded versions of just one of the quadrants.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%The original data</span>
-<span class="n">proj2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">ortho_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
-<span class="n">hkplane</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut_sqw</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="n">proj2</span><span class="p">,[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">],[</span><span class="mi">13</span><span class="p">,</span><span class="mi">16</span><span class="p">]);</span>
+<span class="n">proj2</span><span class="p">.</span><span class="n">u</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj2</span><span class="p">.</span><span class="n">v</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj2</span><span class="p">.</span><span class="n">type</span><span class="p">=</span><span class="s">&#39;rrr&#39;</span><span class="p">;</span><span class="w"> </span><span class="n">proj2</span><span class="p">.</span><span class="n">uoffset</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">hkplane</span><span class="p">=</span><span class="n">cut_sqw</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="n">proj2</span><span class="p">,[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">],[</span><span class="mi">13</span><span class="p">,</span><span class="mi">16</span><span class="p">]);</span>
 <span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">hkplane</span><span class="p">)));</span>
 
 <span class="c">%Fold twice to get into a quadrant. Note order of vectors</span>
-<span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-<span class="w">       </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])];</span>
-<span class="n">fold2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">hkplane</span><span class="p">,</span><span class="n">sym</span><span class="p">);</span>
+<span class="n">fold1</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">hkplane</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">fold2</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">fold1</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
 
 <span class="c">%Check the result</span>
 <span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">fold2</span><span class="p">)));</span>
 
 <span class="c">%Fold this back again (reverse order of vectors in first fold)</span>
-<span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]);</span>
-<span class="n">fold2a</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">fold2</span><span class="p">,</span><span class="n">sym</span><span class="p">);</span>
+<span class="n">fold2a</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">fold2</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
 <span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">fold2a</span><span class="p">)))</span>
 
 <span class="c">%Combine with what you started with</span>
-<span class="n">combi1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">fold2</span><span class="p">,</span><span class="n">fold2a</span><span class="p">);</span>
+<span class="n">combi1</span><span class="p">=</span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">fold2</span><span class="p">,</span><span class="n">fold2a</span><span class="p">);</span>
 <span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">combi1</span><span class="p">)));</span>
 
 <span class="c">%Fold back again (reverse order of vectors in second fold)</span>
-<span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
-<span class="n">fold3a</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">combi1</span><span class="p">,</span><span class="w"> </span><span class="n">sym</span><span class="p">);</span>
+<span class="n">fold3a</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">combi1</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
 <span class="nb">plot</span><span class="p">(</span><span class="n">fold3a</span><span class="p">)</span>
 
 <span class="c">%Combine and plot</span>
-<span class="n">combi2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">combi1</span><span class="p">,</span><span class="n">fold3a</span><span class="p">);</span>
+<span class="n">combi2</span><span class="p">=</span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">combi1</span><span class="p">,</span><span class="n">fold3a</span><span class="p">);</span>
 <span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">combi2</span><span class="p">)));</span>
 </pre></div>
 </div>
 </section>
+<section id="correcting-for-magnetic-form-factor">
+<h3>Correcting for magnetic form factor<a class="headerlink" href="#correcting-for-magnetic-form-factor" title="Permalink to this heading"></a></h3>
+<p>Horace allows basic correction of scattering intensity from simple ions by adjusting it by the magnetic form factor according to formulas provided in International Tables of Crystallography, Vol C. (see, for example <a class="reference external" href="https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html">here</a>)</p>
+<p>The class <strong>MagneticIons</strong> contains the tables of fitting parameters, used to calculate changes in scattering intensity due to changes in magnetic form factor and defines the method <em>correct_mag_ff</em>, which takes a memory based <strong>sqw</strong> object as input and returns a similar object, with intensities adjusted by the magnetic form factor:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">mff</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">MagneticIons</span><span class="p">(</span><span class="s">&#39;Fe0&#39;</span><span class="p">);</span>
+<span class="n">w2_fixed</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mff</span><span class="p">.</span><span class="n">correct_mag_ff</span><span class="p">(</span><span class="n">w2</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Where ‘Fe0’ is the name of the ion for which the magnetic form factor is calculated. <strong>This method should be applied only once</strong>.</p>
+<p>The auxiliary <strong>MagneticIons</strong>’s method <em>IonNames</em> returns the cell array of ion names, which are currently tabulated in Horace and for which scattering can be corrected using the expression above. Additional <strong>MagneticIons</strong> methods <em>calc_mag_ff</em> and <em>apply_mag_ff</em> allow one to calculate magnetic form factor on or apply magnetic form factor to the dataset provided.</p>
+</section>
+</section>
 <section id="commands-for-entire-datasets">
 <h2>Commands for entire datasets<a class="headerlink" href="#commands-for-entire-datasets" title="Permalink to this heading"></a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For application of symmetry operations to the entire sqw file when it is being generated, <a class="reference internal" href="#id2"><span class="std std-ref">see above</span></a></p>
-</div>
-<p>It is possible to make a new <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> data file that has had a specified symmetrisation performed on it for a certain
-data range. You specify which Brillouin zone you are interested in, and then tell Horace which Brillouin zones are
-symmetrically equivalent to this one. Data are then cut from all of these zones and combined with the data from your
-original choice. The result is output to a new file. For example:</p>
+<p><strong>For application of symmetry operations to the entire sqw file when it is being generated, see</strong> <a class="reference internal" href="#symmetrising-whole-data-files"><span class="std std-ref">above</span></a></p>
+<p>It is possible to make a new .sqw data file that has had a specified symmetrisation performed on it for a certain data range. You specify which Brillouin zone you are interested in, and then tell Horace which Brillouin zones are symmetrically equivalent to this one. Data are then cut from all of these zones and combined with the data from your original choice. The result is output to a new file. For example:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">transf_list</span><span class="p">=</span><span class="n">combine_equivalent_zones</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">qstep</span><span class="p">,</span><span class="n">erange</span><span class="p">,</span><span class="n">outfile</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>where <code class="docutils literal notranslate"><span class="pre">data_source</span></code> is the master <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file, <code class="docutils literal notranslate"><span class="pre">proj</span></code> is the projection structure array (the same format as that
-used for <code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code>), <code class="docutils literal notranslate"><span class="pre">pos</span></code> is a 3-element vector [h,k,l] specifying the Brillouin zone of interest. <code class="docutils literal notranslate"><span class="pre">qstep</span></code> is a
-single number specifying the desired step size along h, k, and l of the 4-dimensional output object <code class="docutils literal notranslate"><span class="pre">wout</span></code>. <code class="docutils literal notranslate"><span class="pre">erange</span></code>
-is a 3-element vector specifying [lo,step,hi] for the energy range to be cut. Finally, <code class="docutils literal notranslate"><span class="pre">outfile</span></code> is the .sqw filename
-(including path and .sqw extension) where the symmetrised data will be saved. <code class="docutils literal notranslate"><span class="pre">transf_list</span></code> is the cell array of
-<code class="docutils literal notranslate"><span class="pre">cut_transf</span></code> classes where each element describes a transformation, applied to a particular zone. Note that the output
-argument <code class="docutils literal notranslate"><span class="pre">transf_list</span></code> is optional.</p>
-<p>For the basic case detailed above, data from all permutations of <code class="docutils literal notranslate"><span class="pre">pos=[h,k,l]</span></code> will be included in the output
-file. The <code class="docutils literal notranslate"><span class="pre">cut_transf</span></code> objects in the <code class="docutils literal notranslate"><span class="pre">transf_list</span></code> array by default are reflections described by the transformation
-matrix, specified by <code class="docutils literal notranslate"><span class="pre">cut_transf.transf_matrix</span></code> property.</p>
+<p>where <code class="docutils literal notranslate"><span class="pre">data_source</span></code> is the master .sqw file, <code class="docutils literal notranslate"><span class="pre">proj</span></code> is the projection structure array (the same format as that used for <code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code>), <code class="docutils literal notranslate"><span class="pre">pos</span></code> is a 3-element vector [h,k,l] specifying the Brillouin zone of interest. <code class="docutils literal notranslate"><span class="pre">qstep</span></code> is a single number specifying the desired step size along h, k, and l of the 4-dimensional output object <code class="docutils literal notranslate"><span class="pre">wout</span></code>. <code class="docutils literal notranslate"><span class="pre">erange</span></code> is a 3-element vector specifying [lo,step,hi] for the energy range to be cut. Finally, <code class="docutils literal notranslate"><span class="pre">outfile</span></code> is the .sqw filename (including path and .sqw extension) where the symmetrised data will be saved. <code class="docutils literal notranslate"><span class="pre">transf_list</span></code> is the cell array of <code class="docutils literal notranslate"><span class="pre">cut_transf</span></code> classes where each element describes a transformation, applied to particular zone. Note that the output argument <code class="docutils literal notranslate"><span class="pre">transf_list</span></code> is optional.</p>
+<p>For the basic case detailed above, data from all permutations of <code class="docutils literal notranslate"><span class="pre">pos=[h,k,l]</span></code> will be included in the output file. The <em>cut_transf</em> objects in the <code class="docutils literal notranslate"><span class="pre">transf_list</span></code> array by default are reflections described by the transformation matrix, specified by <em>cut_transf.transf_matrix</em> property.</p>
 <p>If you wish to be more restrictive then you can either use:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">transf_list</span><span class="p">=</span><span class="n">combine_equivalent_zones</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">qstep</span><span class="p">,</span><span class="n">erange</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">keyword</span><span class="p">);</span>
 </pre></div>
@@ -654,43 +256,26 @@ matrix, specified by <code class="docutils literal notranslate"><span class="pre
 </pre></div>
 </div>
 <p>The keywords that can be used are as follows:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">-ab</span></code></p>
-<p>combines all equivalent zones with the same value of L (i.e. (H,K,L), (-H,K,L), (H,-K,L), (-H,-K,L), (K,H,L),
-(-K,H,L), (K,-H,L), and (-K,-H,L))</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-ac</span></code></p>
-<p>combines all equivalent zones with the same K</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-bc</span></code></p>
-<p>combines equivalent zones with the same H</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-cyclic</span></code> / <code class="docutils literal notranslate"><span class="pre">-cycwithneg</span></code></p>
-<p>combines all equivalent zones that are cyclic permutations of (H,K,L)</p>
-</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-ab</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-ac</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-bc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-cyclic</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-cycwithneg</span></code></p></li>
 </ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">-cyclic</span></code> ignores sign changes, whereas <code class="docutils literal notranslate"><span class="pre">-cycwithneg</span></code> includes sign changes.</p>
-</div>
-<p>If you wish to specify which zones to combine manually, this can be done by specifying the argument
-<code class="docutils literal notranslate"><span class="pre">zonelist</span></code>. This is a cell array, with each element a 3-element vector. For example you might have:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">pos</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
-<span class="n">zonelist</span><span class="p">={[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]}</span>
-</pre></div>
-</div>
-</section>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">-ab</span></code></dt><dd><p>combines all equivalent zones with the same value of L (i.e. (H,K,L), (-H,K,L), (H,-K,L), (-H,-K,L), (K,H,L), (-K,H,L), (K,-H,L), and (-K,-H,L)). <code class="docutils literal notranslate"><span class="pre">-ac</span></code> combines all equivalent zones with the same K, and <code class="docutils literal notranslate"><span class="pre">-bc</span></code> combines equivalent zones with the same H.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-cyclic</span></code></dt><dd><p>combines all equivalent zones that are cyclic permutations of (H,K,L) <strong>with no sign changes</strong>, whereas <code class="docutils literal notranslate"><span class="pre">-cycwithneg</span></code> <strong>does</strong> include sign changes.</p>
+</dd>
+</dl>
+<p>If you wish to specify which zones to combine manually, this can be done by specifying the argument <code class="docutils literal notranslate"><span class="pre">zonelist</span></code>. This is a cell array, with each element a 3-element vector. For example you might have <code class="docutils literal notranslate"><span class="pre">pos=[1,2,3]</span></code>, and <code class="docutils literal notranslate"><span class="pre">zonelist={[1,2,3],[3,2,1],[2,3,1],[2,1,3],[3,1,2]}</span></code>.</p>
 <section id="advanced-usage">
-<h2>Advanced usage<a class="headerlink" href="#advanced-usage" title="Permalink to this heading"></a></h2>
-<p>By default <code class="docutils literal notranslate"><span class="pre">combine_equivalent_zones</span></code> generates a set of reflections, transforming equivalent zones into the target
-one. For specified Brillouin zones the user can modify transformations to use symmetry, specific to their problem. E.g,
-one can specify shifts, which use the symmetry of the reciprocal lattice to unite various zones together. To combine
-zones, located at inequivalent <code class="docutils literal notranslate"><span class="pre">hkl</span></code> positions one may need to apply a correction function. The script below gives the
-example of combining all equivalent zones and correcting for the magnetic form factor. The shift transformation is
-defined by the <code class="docutils literal notranslate"><span class="pre">symmetry_type</span></code> keyword, and the function to apply to each zone before combining is specified by the
-<code class="docutils literal notranslate"><span class="pre">correct_fun</span></code> keyword.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="nb">pwd</span><span class="p">,</span><span class="s">&#39;Data&#39;</span><span class="p">,</span><span class="s">&#39;Fe_ei200.sqw&#39;</span><span class="p">);</span>
-<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">ortho_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<h3>Advanced usage<a class="headerlink" href="#advanced-usage" title="Permalink to this heading"></a></h3>
+<p>By default <code class="docutils literal notranslate"><span class="pre">combine_equivalent_zones</span></code> generates a set of reflections, transforming equivalent zones into the target one. For specified Brillouin zones the user can modify transformations to use symmetry, specific to his or her problem. E.g, one can specify shifts, which use the symmetry of the reciprocal lattice to unite various zones together. To combine zones, located at inequivalent hkl positions one may need to apply a correction function. The script below gives the example of combining all equivalent zones and correcting for the magnetic form factor. The shift transformation is defined by the <strong>symmetry_type</strong> keyword, and the function to apply to each zone before combining is specified by the keyword <strong>correct_fun</strong>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="nb">pwd</span><span class="p">,</span><span class="s">&#39;Data&#39;</span><span class="p">,</span><span class="s">&#39;Fe_ei200.sqw&#39;</span><span class="p">);</span>
+<span class="n">proj</span><span class="p">.</span><span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">proj</span><span class="p">.</span><span class="n">v</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
 
 <span class="c">% move all zones into the centre.</span>
 <span class="n">pos</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span>
@@ -703,33 +288,25 @@ defined by the <code class="docutils literal notranslate"><span class="pre">symm
 <span class="n">outfile</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="nb">pwd</span><span class="p">,</span><span class="s">&#39;Data&#39;</span><span class="p">,</span><span class="s">&#39;Fe_ei200shift110allSymmetries.sqw&#39;</span><span class="p">);</span>
 
 <span class="c">% all zones to combine</span>
-<span class="n">zonelist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="k">...</span>
-<span class="w">            </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="k">...</span>
-<span class="w">            </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="k">...</span>
-<span class="w">            </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="k">...</span>
-<span class="w">            </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]};</span>
-
-<span class="n">transf_list</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">combine_equivalent_zones</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="k">...</span>
-<span class="w">                                       </span><span class="mf">0.01</span><span class="p">,</span><span class="n">erange</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">zonelist</span><span class="p">,</span><span class="k">...</span>
-<span class="w">                                       </span><span class="s">&#39;symmetry_type&#39;</span><span class="p">,</span><span class="s">&#39;shift&#39;</span><span class="p">,</span><span class="s">&#39;correct_fun&#39;</span><span class="p">,</span><span class="n">fixer</span><span class="p">);</span>
+<span class="n">zonelist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="k">...</span>
+<span class="w">    </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]},</span><span class="k">...</span>
+<span class="w">    </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]};</span>
+<span class="c">%</span>
+<span class="n">tansf_list</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">combine_equivalent_zones</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="k">...</span>
+<span class="w">    </span><span class="mf">0.01</span><span class="p">,</span><span class="n">erange</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">zonelist</span><span class="p">,</span><span class="k">...</span>
+<span class="w">    </span><span class="s">&#39;symmetry_type&#39;</span><span class="p">,</span><span class="s">&#39;shift&#39;</span><span class="p">,</span><span class="s">&#39;correct_fun&#39;</span><span class="p">,</span><span class="n">fixer</span><span class="p">);</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">symmetry_type</span></code> currently can be <code class="docutils literal notranslate"><span class="pre">sigma</span></code> (for reflections) or <code class="docutils literal notranslate"><span class="pre">shift</span></code> (for moving different zones).</p>
-<p>The sample script above also generates duplicated pixels, as the <code class="docutils literal notranslate"><span class="pre">[2,0,0]</span></code> zones are moved into <code class="docutils literal notranslate"><span class="pre">[0,0,0]</span></code> positions
-and the same zones at the edges of the cuts (e.g <code class="docutils literal notranslate"><span class="pre">[1,1,0]+-1</span></code>) will be accounted for twice. The direction of the
-projection should be changed to avoid this.</p>
+<p><strong>symmetry_type</strong> currently can be <em>sigma</em> (for reflections) or <em>shift</em> (for moving different zones).</p>
+<p>The sample script above also generates duplicated pixels, as the [2,0,0] zones are moved into [0,0,0] positions and the same zones at the edges of the cuts (e.g [1,1,0]+-1) will be accounted for twice. The direction of the projection should be changed to avoid this.</p>
 </section>
 <section id="limitations">
-<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this heading"></a></h2>
+<h3>Limitations<a class="headerlink" href="#limitations" title="Permalink to this heading"></a></h3>
 <ul class="simple">
-<li><p>At present <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">combine_sqw</span></code>, and <code class="docutils literal notranslate"><span class="pre">rebin_sqw</span></code> work ONLY for sqw objects, since they
-require access to individual detector pixel information. The functions will work for any dimensionality
-of object, however.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">combine_equivalent_zones</span></code> has to perform some memory and hdd-access intensive calculations, which
-should ideally be performed on <a class="reference external" href="http://www.isis.stfc.ac.uk/groups/excitations/data-analysis-computers/connecting-to-isiscomputendrlacuk-using-nomachine15120.html">high performance computing cluster</a>. The
-amount of memory used by the code is controlled by <code class="docutils literal notranslate"><span class="pre">hor_config</span></code> parameter <code class="docutils literal notranslate"><span class="pre">mem_chunk_size</span></code> and is
-approximately 10 times larger then the amount, specified by this parameter.</p></li>
+<li><p>At present <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">combine_sqw</span></code>, and <code class="docutils literal notranslate"><span class="pre">rebin_sqw</span></code> work ONLY for sqw objects, since they require access to individual detector pixel information. The functions will work for any dimensionality of object, however.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">combine_equivalent_zones</span></code> has to perform some memory and hdd-access intensive calculations, which should ideally be performed on <a class="reference external" href="http://www.isis.stfc.ac.uk/groups/excitations/data-analysis-computers/connecting-to-isiscomputendrlacuk-using-nomachine15120.html">high performance computing cluster</a>. The amount of memory used by the code is controlled by <strong>hor_config</strong> parameter <strong>mem_chunk_size</strong> and is approximately 10 times larger then the amount, specified by this parameter.</p></li>
 </ul>
+</section>
 </section>
 </section>
 
@@ -745,7 +322,7 @@ approximately 10 times larger then the amount, specified by this parameter.</p><
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on May 24, 2023, 7:22:09 PM.
+      <span class="lastupdated">Last updated on Jun 6, 2023, 4:10:21 PM.
       </span></p>
   </div>
 
