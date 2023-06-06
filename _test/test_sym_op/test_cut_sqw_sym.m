@@ -158,7 +158,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
 
             % Save dnd only to save disk space
             d1=dnd(w1);
-            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
             this.assertEqualToTolWithSave (d1, this.tol_sp,'ignore_str',1);
             d2=dnd(w2);
             this.assertEqualToTolWithSave (d2, this.tol_sp,'ignore_str',1);
@@ -183,7 +182,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
 
             % Save dnd only to save disk space
             d1=dnd(w1);
-            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
             this.assertEqualToTolWithSave (d1, this.tol_sp,'ignore_str',1);
             d2=dnd(w2);
             this.assertEqualToTolWithSave (d2, this.tol_sp,'ignore_str',1);
@@ -222,7 +220,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
 
             d2 = cut_sqw (this.data_source, this.proj, this.bin,...
                 this.width, this.width, this.ebins, '-nopix');
-            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
             this.assertEqualToTolWithSave (d2, this.tol_sp,'ignore_str',1);
         end
 
