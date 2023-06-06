@@ -1,4 +1,4 @@
-function [wout,log_info] = cut_single_(w, targ_proj, targ_axes, keep_pix, outfile,log_level)
+function [wout,log_info] = cut_single_(w, targ_proj, targ_axes, opt, log_level)
 %%CUT_SINGLE Perform a cut on a single sqw object
 %
 % Input:
@@ -28,7 +28,7 @@ return_cut = nargout > 0;
 
 % Accumulate image and pixel data for cut
 [s, e, npix, pix_out,runid_contributed] = cut_accumulate_data_( ...
-    w, targ_proj, targ_axes, keep_pix, log_level, return_cut);
+    w, targ_proj, targ_axes, opt.keep_pix, log_level, return_cut);
 
 if isa(pix_out, 'pix_combine_info')
     % Make sure we clean up temp files.
@@ -86,17 +86,17 @@ else
 end
 
 % Write result to file if necessary
-if exist('outfile', 'var') && ~isempty(outfile)
+if ~isempty(opt.outfile)
     if log_level >= 0
-        disp(['*** Writing cut to output file ', outfile, '...']);
+        disp(['*** Writing cut to output file ', opt.outfile, '...']);
     end
 
     try
-        save(wout, outfile);
+        save(wout, opt.outfile);
     catch ME
         error('HORACE:cut_sqw:io_error', ...
               'Error writing to file ''%s''.\n%s: %s', ...
-              outfile, ME.identifier, ME.message);
+              opt.outfile, ME.identifier, ME.message);
     end
 end
 
