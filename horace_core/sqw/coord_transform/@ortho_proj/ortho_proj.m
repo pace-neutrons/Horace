@@ -300,8 +300,6 @@ classdef ortho_proj<aProjectionBase
         end
         %------------------------------------------------------------------
         % OLD from new sqw object creation interface.
-        % TODO: remove when new SQW object is fully implemented
-        %
         function off = get.uoffset(obj)
             off = obj.offset';
         end
@@ -611,8 +609,7 @@ classdef ortho_proj<aProjectionBase
         
     end
     properties(Constant, Access=private)
-        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';...
-            'ub_inv_legacy'} % ignored in constructor
+        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';'ub_inv_legacy'} 
     end
     methods(Static)
         function obj = loadobj(S)

@@ -36,7 +36,7 @@ function [iseq,mess] = eq_single(obj1,obj2,name_a_val,name_b_val,varargin)
 [mat_eq,mess1] = equal_to_tol(u_to_img_1,u_to_img_2, ...
     'name_a',[name_a_val,'u_to_img'],'name_b',[name_b_val,'u_to_img'],varargin{:});
 if ~mat_eq
-    mess1 = sprintf('rot_to_img: %s\n',mess1);
+    mess1 = sprintf('Q_to_img: %s\n',mess1);
 end
 [shift_eq,mess2] = equal_to_tol(shift_1,shift_2, ...
     'name_a',[name_a_val,'u_to_img'],'name_b',[name_b_val,'u_to_img'],varargin{:});
