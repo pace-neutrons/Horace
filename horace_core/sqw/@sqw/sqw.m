@@ -607,7 +607,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 4;
+            ver = 5;
+            % version 5 -- support for loading previous version 
+            % data and setting ub_inv_legacy matrix in case if the data
+            % were realigned
         end
 
         function flds = saveableFields(~)

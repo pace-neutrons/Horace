@@ -116,3 +116,16 @@ if isfield(S,'array_dat')
 else
     obj = obj.from_bare_struct(S);
 end
+if S.version == 4
+    % may contain legacy alignment not stored in projection. Deal with this here
+    proj = obj.data.proj;
+    header_av = obj.experiment_info.header_average();
+    if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
+        u_to_rlu = header_av.u_to_rlu(1:3,1:3);
+        if any(abs(lower_part(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
+            % no alignment, otherwise, be cautions
+            obj.data.proj = proj.set_ub_inv_compat(u_to_rlu);
+        end
+    end
+end
+

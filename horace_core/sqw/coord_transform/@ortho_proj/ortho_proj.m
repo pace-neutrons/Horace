@@ -280,7 +280,7 @@ classdef ortho_proj<aProjectionBase
             ub_inv = obj.ub_inv_legacy_;
         end
         function u2rlu_leg = get.u_to_rlu_legacy(obj)
-            [~,u2rlu_leg] = projaxes_to_rlu_legacy_(obj,[1,1,1]); 
+            [~,u2rlu_leg] = projaxes_to_rlu_legacy_(obj,[1,1,1]);
             u2rlu_leg = [[u2rlu_leg,zeros(3,1)];[0,0,0,1]];
         end
         function obj = set.ub_inv_legacy(obj,val)
@@ -579,37 +579,50 @@ classdef ortho_proj<aProjectionBase
             % Overloaded equality operator comparing the projection
             % transformation rather then all projection properties
             %
+            % Different projection property values may define the same
+            % transformation, so the projections, which define the same
+            % transformation should be considered the equal.
+            %
             % Inputs:
             % other_obj -- the object or array of objects to compare with
-            % current object
+            %               current object
             % Optional:
-            % any set of parameters equal_to_tol function would accept
-            names = cell(2,1);            
+            % any set of parameters equal_to_tol function would accept, as
+            % eq uses equal_to_tol function internaly
+            %
+            % Returns:
+            % True if the objects define the sampe pixel transformation and
+            %      false if not.
+            % Optional:
+            % message, describing in more details where non-equality
+            % occures (used in unit tests to indicate the details of
+            % inequality)
+            names = cell(2,1);
             if nargout == 2
                 names{1} = inputname(1);
-                names{2} = inputname(2);                
+                names{2} = inputname(2);
                 [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
             else
                 is = eq_(obj,other_obj,nargout,names,varargin{:});
             end
         end
         function [nis,mess] = ne(obj,other_obj,varargin)
-            % Non-equal operator
+            % Non-equality operator expressed through equality operator
             %
-            names = cell(2,1);                        
+            names = cell(2,1);
             if nargout == 2
                 names{1} = inputname(1);
-                names{2} = inputname(2);                
+                names{2} = inputname(2);
                 [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
             else
                 is = eq_(obj,other_obj,nargout,names,varargin{:});
             end
             nis = ~is;
         end
-        
+
     end
     properties(Constant, Access=private)
-        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';'ub_inv_legacy'} 
+        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';'ub_inv_legacy'}
     end
     methods(Static)
         function obj = loadobj(S)

@@ -380,7 +380,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 error('HORACE:DnDBase:invalid_argument',...
                     'npix values can not be negative')
             end
-
             obj = set_senpix(obj,npix,'npix');
         end
         %

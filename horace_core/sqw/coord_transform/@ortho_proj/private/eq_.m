@@ -1,7 +1,38 @@
 function [is,mess] = eq_(obj,other_obj,narg_out,names,varargin)
 % Check equality of two ortho projections or two arrays of
-% ortho_projections
+% ortho_projections comparting the projection transformation
+% instrad of  all projection properties
 %
+% Different projection property values may define the same
+% transformation, so the projections, which define the same
+% transformation should be considered the equal.
+%
+% Inputs:
+% obj       -- object or array of objects to compare
+% other_obj -- the object or array of objects to compare with
+%               current object
+% narg_out  -- numer of output arguments the class method has been called
+%              if narg_out>1, indicateds that the information message about
+%              the detailed reason of non-equality should be formed
+% names     -- two element sellarray containg the names of the variables
+%              the calling function was invoked with. May contain more
+%              detailed information about the calling variables, if the
+%              operation was invoked withinh equal_to_tol comparison.
+%              empty 2-element cellarray if narg_out = 1
+% Optional:
+% varargin  -- cellarray of parameters, eq operation has been called with
+%              Directly transferred to equal_to_toll function.
+%              Contains any set of parameters equal_to_tol function would
+%              accept, as eq uses equal_to_tol function internaly.
+%
+% Returns:
+% True if the objects define the sampe pixel transformation and
+%      false if not.
+% Optional:
+% message, describing in more details where non-equality
+% occures (used in unit tests to indicate the details of an
+% inequality)
+
 
 [is,mess,name_a,name_b,namer,argi] = obj.process_inputs_for_eq(other_obj,narg_out,names,varargin{:});
 if ~is
