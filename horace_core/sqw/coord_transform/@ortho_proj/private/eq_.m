@@ -35,11 +35,21 @@ function [iseq,mess] = eq_single(obj1,obj2,name_a_val,name_b_val,varargin)
 
 [mat_eq,mess1] = equal_to_tol(u_to_img_1,u_to_img_2, ...
     'name_a',[name_a_val,'u_to_img'],'name_b',[name_b_val,'u_to_img'],varargin{:});
+if ~mat_eq
+    mess1 = sprintf('rot_to_img: %s\n',mess1);
+end
 [shift_eq,mess2] = equal_to_tol(shift_1,shift_2, ...
     'name_a',[name_a_val,'u_to_img'],'name_b',[name_b_val,'u_to_img'],varargin{:});
+if ~shift_eq
+    mess2 = sprintf('shift(s): %s\n',mess2);
+end
 
 [len_eq,mess3] = equal_to_tol(ulen1,ulen2, ...
     'name_a',name_a_val,'name_b',name_b_val,varargin{:});
+if ~len_eq
+    mess3 = sprintf('ulen(s): %s\n',mess3);
+end
+
 
 iseq = mat_eq && shift_eq && len_eq;
 mess = [mess1, mess2,mess3];
