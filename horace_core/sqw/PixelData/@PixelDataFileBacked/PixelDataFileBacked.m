@@ -469,10 +469,14 @@ classdef PixelDataFileBacked < PixelDataBase
 
             if isempty(varargin)
                 obj = PixelDataFileBacked();
-                return
+                return;
             elseif numel(varargin) == 1
-                obj = PixelDataFileBacked(varargin{1});
-                return
+                if isa(varargin{1}, 'PixelDataMemory')
+                    obj = PixelDataFileBacked(varargin{1});
+                elseif isa(varargin{1}, 'PixelDataFileBacked')
+                    obj = varargin{1};
+                end
+                return;
             end
 
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);

@@ -124,7 +124,7 @@ if isa(sym, 'SymopReflection')
         cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
     end
 elseif isa(sym, 'SymopRotation')
-    ; % Do nothing
+    cc_exist_range = [cc_ranges]; % Keep old range
 end
 
 img_box_points = proj.transform_pix_to_img(cc_exist_range);
@@ -158,7 +158,9 @@ for i=1:4
 end
 
 % Turn off horace_info output, but save for automatic clean-up on exit or cntrl-C (TGP 30/11/13)
-cleanup_obj = set_temporary_config_options(hor_config, 'log_level', -1);
+oll = get(hor_config, 'log_level');
+set(hor_config, 'log_level', -1);
+cleanup_obj = onCleanup(@()set(hor_config, 'log_level', oll));
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin
