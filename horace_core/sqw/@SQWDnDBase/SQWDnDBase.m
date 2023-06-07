@@ -1,7 +1,7 @@
 classdef (Abstract) SQWDnDBase < serializable
     %SQWDnDBase Abstract SQW/DnD object base class
     %
-    %   Abstract class defining common API and atrributes of the SQW and
+    %   Abstract class defining common API and attributes of the SQW and
     %   DnD objects
     methods (Abstract)
         %------------------------------------------------------------------
@@ -10,7 +10,7 @@ classdef (Abstract) SQWDnDBase < serializable
         pixels = has_pixels(win);     % Check if sqw or dnd object has pixels.
         %                             % DnD object always returns false.
         save_xye(obj,varargin);       % save xye data into file
-        s=xye(w, null_value);         % return a strucute, containing xye data
+        s=xye(w, null_value);         % return a structure, containing xye data
         %
         wout = smooth(win, varargin); % Run smooth operation over DnD
         %                             % objects or sqw objects without pixels
@@ -62,6 +62,10 @@ classdef (Abstract) SQWDnDBase < serializable
         % build the axes block which specified by projection and target cut
         % parameters
         [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, input_pbin,varagin);
+        %
+        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
+        %                             % centres of the bins of an n-dimensional
+        %                             % sqw or dnd dataset.        
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -109,10 +113,6 @@ classdef (Abstract) SQWDnDBase < serializable
         [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
         %                             % of the bins of an n-dimensional sqw
         %                             % or dnd dataset
-        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
-        %                             % centres of the bins of an n-dimensional
-        %                             % sqw or dnd dataset.
-
         % rebin an object to the other object with the dimensionality
         % smaller then the dimensionality of the current object
         obj = rebin(obj,varargin);

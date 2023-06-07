@@ -1,9 +1,9 @@
-function qw=calculate_qw_bins(win,optstr)
+function qw=calculate_qw_bins(win,varargin)
 % Calculate qh,qk,ql,en for the centres of the bins of an n-dimensional sqw or dnd dataset
 %
 %   >> qw=calculate_qw_bins(win)
-%   >> qw=calculate_qw_bins(win,'boundaries')
-%   >> qw=calculate_qw_bins(win,'edges')
+%   >> qw=calculate_qw_bins(win,'-boundaries')
+%   >> qw=calculate_qw_bins(win,'-edges')
 %
 % Input:
 % ------
@@ -31,8 +31,4 @@ if numel(win)~=1
         'Only a single object is valid - cannot take an array of %s objects',...
          class(win))
 end
-if nargin == 2
-    qw = win.data.calculate_qw_bins(optstr);
-else
-    qw = win.data.calculate_qw_bins();    
-end
+qw = win.data.calculate_qw_bins(varargin{:});

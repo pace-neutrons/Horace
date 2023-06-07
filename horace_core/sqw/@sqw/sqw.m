@@ -233,6 +233,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %              (e.g. lattice if undefined, etc)
             [targ_ax_block,targ_proj] = w.data_.define_target_axes_block(targ_proj, pbin,varargin{:});
         end
+        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
+        %                             % centres of the bins of an n-dimensional
+        %                             % sqw or dnd dataset.        
     end
     %======================================================================
     % ACCESSORS TO OBJECT PROPERTIES and construction
@@ -559,7 +562,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % standard output used in sqw construction
         args = parse_sqw_args_(obj,varargin)
 
-        function obj = init_from_file_(~, in_filename, file_backed)
+        function obj = init_from_file_(obj, in_filename, file_backed)
             % Parse SQW from file
             %
             % An error is raised if the data file is identified not a SQW object
@@ -570,10 +573,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     in_filename);
             end
             if file_backed
-                [obj,ldr] = ldr.get_sqw('-file_backed');                
+                [sqw_struc,ldr] = ldr.get_sqw('-file_backed','-sqw_struc');                
             else
-                [obj,ldr] = ldr.get_sqw();
+                [sqw_struc,ldr] = ldr.get_sqw('-sqw_struc');
             end
+            obj = init_from_loader_struct_(obj, sqw_struc);           
             ldr.delete();            
         end
 
@@ -581,7 +585,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % initialize object contents using structure, obtained from
             % file loader
             obj.main_header = data_struct.main_header;
-            obj.header = data_struct.header;
+            if isfield(data_struct,'header') % support for old data
+                obj.experiment_info = data_struct.header;                
+            else
+                obj.experiment_info = data_struct.experiment_info;
+            end
             obj.detpar = data_struct.detpar;
             obj.data = data_struct.data;
             obj.pix = data_struct.pix;

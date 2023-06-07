@@ -1,17 +1,17 @@
-function qsqr_w = calculate_qsqr_w_bins (win,optstr)
+function qsqr_w = calculate_qsqr_w_bins (win,varargin)
 % Calculate |Q|^2 for the centres of the bins of an n-dimensional sqw dataset
 %
 %   >> qsqr_w = calculate_qsqr_w_bins (win)
-%   >> qsqr_w = calculate_qsqr_w_bins (win,'boundaries')
-%   >> qsqr_w = calculate_qsqr_w_bins (win,'edges')
+%   >> qsqr_w = calculate_qsqr_w_bins (win,'-boundaries')
+%   >> qsqr_w = calculate_qsqr_w_bins (win,'-edges')
 %
 % Input:
 % ------
 %   win         Input sqw object
 %
 % Optional arguments:
-% 'boundaries'  Return qh,qk,ql,en at verticies of bins, not centres
-% 'edges'       Return qh,qk,ql,en at verticies of the hyper cuboid that
+% '-boundaries'  Return qh,qk,ql,en at vertices of bins, not centres
+% '-edges'       Return qh,qk,ql,en at vertices of the hyper cuboid that
 %              encloses the plot axes
 %
 % Output:
@@ -34,11 +34,7 @@ end
 B = bmatrix(win.data.alatt, win.data.angdeg);
 
 % Get the bin centres in hkl
-if ~exist('optstr','var')
-    qhkl_w = calculate_qw_bins (win);
-else
-    qhkl_w = calculate_qw_bins (win,optstr);
-end
+qhkl_w = win.calculate_qw_bins (varargin{:});
 
 % Convert to crystal Cartesian coordinates and sum the squares
 qcryst = [qhkl_w{1}, qhkl_w{2}, qhkl_w{3}] * B';

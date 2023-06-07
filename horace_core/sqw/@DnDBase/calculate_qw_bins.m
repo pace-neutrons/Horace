@@ -1,4 +1,4 @@
-function qw=calculate_qw_bins(win,optstr)
+function qw=calculate_qw_bins(win,varargin)
 % Calculate qh,qk,ql,en for the centres of the bins of an n-dimensional sqw or dnd dataset
 %
 %   >> qw=calculate_qw_bins(win)
@@ -13,6 +13,7 @@ function qw=calculate_qw_bins(win,optstr)
 % 'boundaries'  Return qh,qk,ql,en at verticies of bins, not centres
 % 'edges'       Return qh,qk,ql,en at verticies of the hyper cuboid that
 %               encloses the plot axes
+% '3D'          return only q-edges (no
 %
 % Output:
 % -------
@@ -29,78 +30,48 @@ function qw=calculate_qw_bins(win,optstr)
 if numel(win)~=1
     error('HORACE:DnDBase:invalid_argument', ...
         'Only a single object is valid - cannot take an array of %s objects',...
-         class(win))
+        class(win))
 end
-
-opt.boundaries=false;
-opt.edges=false;
-if nargin==2
-    if strcmpi(optstr,'boundaries')
-        opt.boundaries=true;
-    elseif strcmpi(optstr,'edges')
-        opt.edges=true;
-    end
+options = {'-boundaries','-edges','-3D'};
+argi = cellfun(@check_dash,varargin,'UniformOutput',false);
+[ok,mess,boundaries,edges,do_3D] = parse_char_options(argi,options);
+if ~ok
+    error('HORACE:DnDBase:invalid_argument',mess)
 end
-
-u0 = win.offset;
-% Remove/redo #835
-u = win.proj.u_to_rlu;
-iax = win.iax;
-iint = win.iint;
-pax = win.pax;
-
-ptot=u0;
-for i=1:length(iax)
-    % get offset from integration axis, accounting for non-finite limit(s)
-    if isfinite(iint(1,i)) && isfinite(iint(2,i))
-        iint_ave=0.5*(iint(1,i)+iint(2,i));
-    else
-        iint_ave=0;
-    end
-    ptot=ptot+iint_ave*u(:,iax(i));  % overall displacement of plot volume in (rlu;en)
+if boundaries && edges
+    error('HORACE:DnDBase:invalid_argument', ...
+        'boundaries and edges can not be provided together')
 end
-
-% Create list of Q and energy points
-if length(pax)>1
-    ptemp=cell(1,length(pax));
-    for i=1:length(pax)
-        if opt.boundaries
-            ptemp{i}=win.p{i};
-        elseif opt.edges
-            ptemp{i}=[win.p{i}(1); win.p{i}(end)];
-        else
-            ptemp{i}=0.5 .* (win.p{i}(1:end-1) + win.p{i}(2:end));
-        end
-    end
-    pp=ndgridcell(ptemp);
-    qh=ptot(1)*ones(size(pp{1}));
-    qk=ptot(2)*ones(size(pp{1}));
-    ql=ptot(3)*ones(size(pp{1}));
-    en=ptot(4)*ones(size(pp{1}));
-    for i=1:length(pax)
-        qh = qh + pp{i}*u(1,pax(i));
-        qk = qk + pp{i}*u(2,pax(i));
-        ql = ql + pp{i}*u(3,pax(i));
-        en = en + pp{i}*u(4,pax(i));
-    end
-elseif length(pax)==1
-    if opt.boundaries
-        pp=win.p{1};
-    elseif opt.edges
-        pp=[win.p{1}(1); win.p{1}(end)];
-    else
-        pp=0.5 .* (win.p{1}(2:end) + win.p{1}(1:end-1));
-    end
-    qh=ptot(1) + pp*u(1,pax(1));
-    qk=ptot(2) + pp*u(2,pax(1));
-    ql=ptot(3) + pp*u(3,pax(1));
-    en=ptot(4) + pp*u(4,pax(1));
+if boundaries
+    argi = {'-plot_edges'};
+elseif edges
+    argi = {'-plot_edges','-hull'};
 else
-    qh=ptot(1);
-    qk=ptot(2);
-    ql=ptot(3);
-    en=ptot(4);
+    argi = {'-bin_centre'};
+end
+if do_3D
+    argi = ['-3D';argi(:)'];
 end
 
+nodes = win.axes.get_bin_nodes(argi{:});
+
+proj = win.proj;
+proj_hkl = ortho_proj([1,0,0],[0,1,0],[0,0,1], ...
+    'alatt',proj.alatt,'angdeg',proj.angdeg,'type','ppp');
+% enable possible pix-image optimization
+
+proj.targ_proj     = proj_hkl;
+pix_hkl = proj.from_this_to_targ_coord(nodes);
 % package as cell array of column vectors for convenience with fitting routines etc.
-qw = {qh(:), qk(:), ql(:), en(:)};
+if do_3D
+    qw = {pix_hkl(1,:)', pix_hkl(2,:)', pix_hkl(3,:)'};
+else
+    qw = {pix_hkl(1,:)', pix_hkl(2,:)', pix_hkl(3,:)',pix_hkl(4,:)'};
+end
+
+function out_str = check_dash(in_str)
+if strncmp(in_str,'-',1)
+    out_str = in_str;
+else
+    out_str =strjoin({'-',in_str},'');
+end

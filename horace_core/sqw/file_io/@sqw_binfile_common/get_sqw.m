@@ -127,7 +127,7 @@ if opts.legacy
     varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
     varargout{4} = sqw_struc.pix;
-elseif opts.head || opts.his
+elseif opts.head || opts.his || opts.sqw_struc
     sqw_object  = sqw_struc;
 else
     sqw_object = sqw(sqw_struc);
