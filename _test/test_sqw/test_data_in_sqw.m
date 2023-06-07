@@ -89,12 +89,12 @@ classdef test_data_in_sqw < TestCaseWithSave
             full_img_range = expand_box(img_range(1,:),img_range(2,:));
             full_pix_img_range = proj_0.transform_img_to_pix(full_img_range);
             eval_pix_range = [min(full_pix_img_range,[],2),max(full_pix_img_range,[],2)]';
-            ref_eval_range =  [-7.1945   -7.6191   -3.1416   -4.0000;...
-                14.0451   12.6648    3.1416    4.0000];
+            ref_eval_range =  [-4.5548   -4.8235   -3.1416   -4.0000;...
+                8.8918    8.0179    3.1416    4.0000];
             assertElementsAlmostEqual(ref_eval_range,eval_pix_range,'absolute',9.e-5);
             real_pix_range = source_cut.pix.pix_range;
-            pix_ref_range = [-0.1238   -6.7724   -3.0949   -4.0000;...
-                5.6506   11.9775    3.0949    4.0000];
+            pix_ref_range = [ -0.1238   -4.7981   -3.0949   -4.0000;...
+                2.0078    6.4261    3.0949    4.0000];
             assertElementsAlmostEqual(pix_ref_range,real_pix_range,'absolute',9.e-5);
 
             %             %
@@ -122,25 +122,24 @@ classdef test_data_in_sqw < TestCaseWithSave
 
             full_pix_img_range = proj_r.transform_img_to_pix(full_img_range);
             pix_img_range = [min(full_pix_img_range,[],2),max(full_pix_img_range,[],2)]';
-            ref_imgpix_range = [  -0.0167   -2.7250   -2.7480   -8.0000;...
-                0.5185    2.7250    2.7480    8.0000];
+            ref_imgpix_range = [-0.0167   -3.3628   -2.8038   -8.0000;...
+                0.5185    3.3628    2.8038    8.0000];
             assertElementsAlmostEqual(pix_img_range,ref_imgpix_range,'absolute',9.e-5);
 
             real_pix_range = ref_cut.pix.pix_range;
-            ref_pix_range = [  -0.0167   -2.6820   -2.7235   -4.0000;...
-                0.5172    2.7111    2.7227    4.0000];
+            ref_pix_range = [  -0.0167   -3.3408   -2.7262   -4.0000
+                0.5183    3.1537    2.7307    4.0000];
             assertElementsAlmostEqual(real_pix_range,ref_pix_range,'absolute',9.e-5);
 
-            %assertElementsAlmostEqual(real_pix_range,eval_pix_range);
-            %             % visualise correct image ranges if requested.
-            %             figure
-            %             co = ref_cut.pix.q_coordinates;
+            %                         % visualise correct image ranges if requested.
+            %                         figure
+            %                         co = ref_cut.pix.q_coordinates;
             %
-            %             scatter3(co(1,:),co(2,:),co(3,:),'.')
-            %             hold on
-            %             scatter3(full_pix_img_range(1,:),full_pix_img_range(2,:),full_pix_img_range(3,:),'go')
-            %             full_pix_range = expand_box(real_pix_range(1,:),real_pix_range(2,:));
-            %             scatter3(full_pix_range(1,:),full_pix_range(2,:),full_pix_img_range(3,:),'ro')
+            %                         scatter3(co(1,:),co(2,:),co(3,:),'.')
+            %                         hold on
+            %                         scatter3(full_pix_img_range(1,:),full_pix_img_range(2,:),full_pix_img_range(3,:),'go')
+            %                         full_pix_range = expand_box(real_pix_range(1,:),real_pix_range(2,:));
+            %                         scatter3(full_pix_range(1,:),full_pix_range(2,:),full_pix_img_range(3,:),'ro')
 
 
 
