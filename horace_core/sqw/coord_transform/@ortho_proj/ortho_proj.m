@@ -280,6 +280,8 @@ classdef ortho_proj<aProjectionBase
             ub_inv = obj.ub_inv_legacy_;
         end
         function u2rlu_leg = get.u_to_rlu_legacy(obj)
+            % U_to_rlu legacy is the matrix, returned by appropriate
+            % operation in Horace version < 4.0
             [~,u2rlu_leg] = projaxes_to_rlu_legacy_(obj,[1,1,1]);
             u2rlu_leg = [[u2rlu_leg,zeros(3,1)];[0,0,0,1]];
         end
