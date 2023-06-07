@@ -18,6 +18,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             'variance'};
 
         warning_cache;
+        initial_mem_chunk_size
     end
 
     properties (Constant)
@@ -51,6 +52,11 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
         function obj = test_PixelDataBase(~)
             obj = obj@TestCase('test_PixelData');
             obj.warning_cache = warning('off','HORACE:old_file_format');
+            hc = hor_config;
+            if hc.saveable
+                obj.initial_mem_chunk_size = hc.mem_chunk_size;
+            end
+            hc.saveable = false;
 
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
 
@@ -76,6 +82,11 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
 
         function delete(obj)
             warning(obj.warning_cache);
+            hc = hor_config;
+            hc.saveable = true;
+            if ~isempty(obj.initial_mem_chunk_size)
+                hc.mem_chunk_size = obj.initial_mem_chunk_size;
+            end
         end
 
         % --- Tests for in-memory operations ---
@@ -1135,9 +1146,9 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             warning('off', 'HOR_CONFIG:set_mem_chunk_size');
             clobW = onCleanup(@() warning('on', 'HOR_CONFIG:set_mem_chunk_size'));
             hc = hor_config;
-            mch_sz = hc.mem_chunk_size;
             hc.mem_chunk_size = npix;
-            clob = onCleanup(@()set(hc, 'mem_chunk_size', mch_sz));
+            clob = onCleanup(@()clear_config(obj,hc));
+            
 
             pix = PixelDataFileBacked(data);
             pix_range = [min(data(1:4, :), [], 2), ...
@@ -1157,8 +1168,10 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
                 func(pix, i);
             end
         end
-
+        function clear_config(obj,hc)
+            if ~isempty(obj.initial_mem_chunk_size)
+                hc.mem_chunk_size = obj.initial_mem_chunk_size;
+            end
+        end
     end
-
-
 end

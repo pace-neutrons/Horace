@@ -16,7 +16,10 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             obj = obj@TestCase('test_pixels_equal');
 
             hc = hor_config();
-            obj.old_config = hc.get_data_to_store();
+            if hc.saveable
+                obj.old_config = hc.get_data_to_store();
+                hc.saveable = false;
+            end
 
             pths = horace_paths;
             obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
@@ -33,20 +36,29 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
         end
 
         function delete(obj)
-            set(hor_config, obj.old_config);
+            if ~isempty(obj.old_config)
+                hc = hor_config;
+                set(hor_config, obj.old_config);
+                hc.saveable = true;
+            end
         end
 
-        function setUp(~)
+        function setUp(obj)
             hc = hor_config();
-            hc.saveable = false;
-            hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
+            if hc.saveable
+                obj.old_config = hc.get_data_to_store();
+                hc.saveable = false;
+                hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
+            end
         end
 
         function tearDown(obj)
             hc = hor_config();
-            obj.old_config = hc.get_data_to_store();
+
             hc.saveable = true;
-            set(hc,obj.old_config);
+            if ~isempty(obj.old_config)
+                set(hc,obj.old_config);
+            end
         end
 
         function test_the_same_sqw_objects_are_equal(obj)
