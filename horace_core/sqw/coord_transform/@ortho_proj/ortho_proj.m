@@ -105,6 +105,9 @@ classdef ortho_proj<aProjectionBase
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
         unit_cell;
+        % scaling factors for transformation from pix to image coordinate
+        % system
+        ulen
     end
     properties(Hidden)
         % Developers option. Use old (v3 and below) subalgorithm in
@@ -253,6 +256,14 @@ classdef ortho_proj<aProjectionBase
             obj = check_and_set_type_(obj,type);
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
+            end
+        end
+        %
+        function ul = get.ulen(obj)
+            if isempty(obj.ulen_cache_)
+                ul = ones(1,4);
+            else
+                ul = obj.ulen_cache_;
             end
         end
         % -----------------------------------------------------------------

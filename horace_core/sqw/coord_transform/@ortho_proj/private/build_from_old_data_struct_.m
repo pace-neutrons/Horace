@@ -23,13 +23,13 @@ proj = proj.from_bare_struct(data_struct);
 %--------------------------------------------------------------------------
 % recover from old data, where u_to_rlu matrix is stored instead of
 % projection itself
+proj.do_check_combo_arg = true;
 if use_u_to_rlu_transitional
     u_transf = (inv(data_struct.u_to_rlu(1:3,1:3))/bmatrix(proj.alatt,proj.angdeg))';
     proj = proj.set_from_data_mat(u_transf,data_struct.ulen(1:3));
+else
+    proj = proj.check_combo_arg();
 end
-% if ~isempty(bmat_inv_ext)
-%     proj = proj.set_ub_inv_compat(bmat_inv_ext(1:3,1:3));
-% end
-proj.do_check_combo_arg = true;
-proj = proj.check_combo_arg();
+
+
 
