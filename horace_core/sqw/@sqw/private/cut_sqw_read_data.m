@@ -1,8 +1,8 @@
-function [ok, mess, main_header, header, detpar, data, npixtot, pix_position] = ...
+function [main_header, header, detpar, data, npixtot, pix_position] = ...
     cut_sqw_read_data (data_source, hor_log_level)
 % Return all cut information, excluding pixels if data_source is a file
 %
-%   >> [ok, mess, main_header, header, detpar, data, npixtot, pix_position] = ...
+%   >> [main_header, header, detpar, data, npixtot, pix_position] = ...
 %                       cut_sqw_read_data (data_source, hor_log_level)
 %
 % Input:
@@ -12,8 +12,6 @@ function [ok, mess, main_header, header, detpar, data, npixtot, pix_position] = 
 %
 % Output:
 % -------
-%   ok              True if all OK, false otherwise
-%   mess            Error message if not OK, empty string '' otherwise
 %   main_header     Main header block
 %   header          Header block
 %   detpar          Detector parameter block
@@ -28,29 +26,24 @@ if hor_log_level>=1
     disp('--------------------------------------------------------------------------------')
 end
 
-ok = true;
-mess = '';
-
-if ischar(data_source)
+if istext(data_source)
     % Data_source is a file
-    if hor_log_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
+    if hor_log_level>=0
+        disp(['Taking cut from data in file ',data_source,'...']);
+    end
     if hor_log_level>=1
         bigtic;
     end
 
     ld = sqw_formats_factory.instance().get_loader(data_source);
     data_type = ld.data_type;
+
     if ~strcmpi(data_type,'a')
-        ok = false;
-        mess = 'Data file is not sqw file with pixel information - cannot take cut';
-        main_header = struct();
-        header = struct();
-        detpar = struct();
-        data = struct();
-        npixtot = [];
-        pix_position = [];
-        return
+        ld.delete();
+        error('HORACE:cut_sqw_sym:invalid_argument', ...
+              'Data file is not sqw file with pixel information - cannot take cut');
     end
+
     main_header = ld.get_main_header();
     header = ld.get_exp_info('-all');
     detpar = ld.get_detpar();
@@ -68,12 +61,15 @@ else
     % Data source is an sqw object in memory
     % For convenience, unpack the fields that themselves are major data structures
     % (no memory penalty as MATLAB just passes pointers)
-    if hor_log_level>=0, disp('Taking cut from sqw object...'), end
+    if hor_log_level>=0
+        disp('Taking cut from sqw object...');
+    end
+
     main_header = data_source.main_header;
     header = data_source.experiment_info;
     detpar = data_source.detpar;
     data   = data_source.data;
-    npixtot= data.pix.num_pixels;
+    npixtot= data_source.pix.num_pixels;
     pix_position = [];
 
     if hor_log_level>=1

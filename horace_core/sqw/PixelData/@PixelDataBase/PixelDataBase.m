@@ -787,6 +787,9 @@ classdef (Abstract) PixelDataBase < serializable
             pix_fields = obj.check_pixel_fields(pix_fields);
 
             if exist('abs_pix_indices', 'var')
+                if isempty(abs_pix_indices)
+                    return;
+                end
                 if ~isindex(abs_pix_indices)
                     error('HORACE:PixelDataBase:invalid_argument', ...
                           'abs_pix_indices must be logical or numeric array of pixels to modify');

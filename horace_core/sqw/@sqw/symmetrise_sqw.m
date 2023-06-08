@@ -26,7 +26,7 @@ function wout=symmetrise_sqw(win,varargin)
 % sym = SymopReflection([0,1,0],[0,0,1],[1,0,0]);
 % e.g. wout=symmetrise_sqw(win, sym)
 % The object win is symmetrised in the plane specified by [0,1,0] and
-% [0,1,0] (i.e a mirror plane which reflects [-1,0,0] on to [1,0,0]). v3
+% [0,0,1] (i.e a mirror plane which reflects [-1,0,0] on to [1,0,0]). v3
 % is [1,0,0], so the plane is offset from the origin. This means that
 % [-1,0,0] --> [3,0,0] etc.
 %
@@ -124,8 +124,9 @@ if isa(sym, 'SymopReflection')
         cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
     end
 elseif isa(sym, 'SymopRotation')
-    ; % Do nothing
+    cc_exist_range = [cc_ranges]; % Keep old range
 end
+
 img_box_points = proj.transform_pix_to_img(cc_exist_range);
 img_db_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
 
@@ -143,20 +144,23 @@ for i=1:4
     new_range_arg{i} = all_sym_range(:,i)';
     if paxis(i)
         npax = npax+1;
-        np = numel(wout.data.p{npax});
+        is_proj_axis = numel(wout.data.p{npax}) > 1;
         range = new_range_arg{i};
         dist = range(2)-range(1);
-        if np>1
-            step = dist/(np-1);
+        if is_proj_axis
+            step = wout.data.p{npax}(2) - wout.data.p{npax}(1);
+            % Ranges are bin-centres
+            new_range_arg{i} = [range(1), step, range(2)];
         else
-            step = dist;
+            new_range_arg{i} = range
         end
-        new_range_arg{i} = [range(1),step,range(2)];
     end
 end
 
 % Turn off horace_info output, but save for automatic clean-up on exit or cntrl-C (TGP 30/11/13)
-cleanup_obj = set_temporary_config_options(hor_config, 'log_level', -1);
+oll = get(hor_config, 'log_level');
+set(hor_config, 'log_level', -1);
+cleanup_obj = onCleanup(@()set(hor_config, 'log_level', oll));
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin

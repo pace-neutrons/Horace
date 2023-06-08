@@ -426,8 +426,12 @@ classdef PixelDataFileBacked < PixelDataBase
 
             else
                 fclose(obj.file_handle_);
-                obj.file_handle_ = [];
+                if obj.num_pixels_ == 0
+                    obj = PixelDataMemory();
+                    return;
+                end
 
+                obj.file_handle_ = [];
                 obj.f_accessor_ = [];
                 obj.offset_ = 0;
                 obj.full_filename = obj.tmp_pix_obj.file_name;
@@ -436,6 +440,7 @@ classdef PixelDataFileBacked < PixelDataBase
                                              'Repeat', 1, ...
                                              'Writable', true, ...
                                              'offset', obj.offset_);
+
             end
         end
 
@@ -463,10 +468,14 @@ classdef PixelDataFileBacked < PixelDataBase
 
             if isempty(varargin)
                 obj = PixelDataFileBacked();
-                return
+                return;
             elseif numel(varargin) == 1
-                obj = PixelDataFileBacked(varargin{1});
-                return
+                if isa(varargin{1}, 'PixelDataMemory')
+                    obj = PixelDataFileBacked(varargin{1});
+                elseif isa(varargin{1}, 'PixelDataFileBacked')
+                    obj = varargin{1};
+                end
+                return;
             end
 
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
