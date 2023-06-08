@@ -353,9 +353,9 @@ classdef test_ortho_proj_construction<TestCase
             assertTrue(prj_rec.nonorthogonal);
             % BUT:
             assertEqual(prj_or.type,'par')
-            assertEqual(prj_rec.type,'rar')
+            assertEqual(prj_rec.type,'rar')            
         end
-
+        
 
         function test_getset_nonortho_proj_ppp_100(~)
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
