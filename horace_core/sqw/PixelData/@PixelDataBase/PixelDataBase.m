@@ -393,7 +393,7 @@ classdef (Abstract) PixelDataBase < serializable
         %------------------------------------------------------------------
         % set non-unary alignment martix and recalculate or invalidate pix averages
         % part of alignment_mart setter
-        obj = set_alignment(obj,val);
+        obj = set_alignment_matrix(obj,val);
         %------------------------------------------------------------------
         % paging
         page_size = get_page_size(obj);
@@ -559,7 +559,7 @@ classdef (Abstract) PixelDataBase < serializable
             matr = obj.alignment_matr_;
         end
         function obj = set.alignment_matr(obj,val)
-            obj = set_alignment_matr_(obj,val);
+            obj = set_alignment_matrix(obj,val);
         end
         %
         function data = get.raw_data(obj)
@@ -772,6 +772,20 @@ classdef (Abstract) PixelDataBase < serializable
     end
     % Helper methods.
     methods(Access=protected)
+        function obj = set_alignment(obj,val,pix_average_treatment_function)
+            % set non-unary alignment martix and recalculate or invalidate
+            % pix averages.
+            % Part of alignment_mart setter
+            % Inputs:
+            % obj    -- initial object
+            % val    -- 3x3 alignment matrix or empty value if matrix
+            %           invalidation is requested
+            % pix_average_treatment_function
+            %        -- the function used for recalculion or invalidation
+            %           of pixel averages
+            obj = set_alignment_matr_(obj,val,pix_average_treatment_function);
+        end
+        
         function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
                 parse_get_pix_args(obj,varargin)
 

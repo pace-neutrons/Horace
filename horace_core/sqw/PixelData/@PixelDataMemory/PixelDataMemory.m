@@ -187,7 +187,6 @@ classdef PixelDataMemory < PixelDataBase
                 obj = PixelDataMemory(varargin{1});
             end
 
-            obj = PixelDataMemory();
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
                 for page = 1:curr_pix.num_pages
@@ -201,6 +200,11 @@ classdef PixelDataMemory < PixelDataBase
     %======================================================================
     % implementation of PixelDataBase abstract protected interface
     methods(Access=protected)
+        function obj = set_alignment_matrix(obj,val)
+            % set new alignment matrix and recalculate new pixel ranges
+            % if alignment changes            
+            obj = obj.set_alignment(val,@reset_changed_coord_range);
+        end
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
             num_pix = size(obj.data_,2);
@@ -252,13 +256,6 @@ classdef PixelDataMemory < PixelDataBase
             obj.data_ = val.data;
         end
         %------------------------------------------------------------------
-        function obj = set_alignment(obj,val)
-            % set non-unary alignment martix and recalculate pix averages
-            % Part of alignment_mart setter
-            obj.alignment_matr_ = val;
-            obj.is_misaligned_ = true;
-            obj=obj.reset_changed_coord_range('q_coordinates');
-        end
     end
     %----------------------------------------------------------------------
     % PAGING

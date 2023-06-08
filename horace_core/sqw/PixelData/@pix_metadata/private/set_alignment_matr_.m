@@ -4,10 +4,11 @@ function  obj = set_alignment_matr_(obj,val)
 if isempty(val)
     obj.alignment_matr_ = eye(3);
     obj.is_misaligned_  = false;
+    return;
 end
 if ~isnumeric(val)
     error('HORACE:PixelDataBase:invalid_argument', ...
-        'Alignment matrix must be 3x3 numeric matrix. Attempt to set class: %s', ...
+        'Alignment matrix must be 3x3 numeric matrix. Attempt to set value of class: %s', ...
         class(val));
 end
 if any(size(val) ~= [3,3])

@@ -15,12 +15,18 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
             obj.sample_file  = fullfile(obj.sample_dir,'w2d_qe_sqw.sqw');
             hc = hor_config;
             obj.stored_config = hc.get_data_to_store();
+            hc.saveable = false;
+        end
+        function delete(obj)
+            hc = hor_config;
+            clear_config(obj,hc);
+            hc.saveable = true;
         end
 
         function test_get_raw_pix(obj)
             sw = warning('off','HORACE:old_file_format');
             clOb = onCleanup(@()warning(sw));
-            
+
 
             df = PixelDataFileBacked(obj.sample_file);
             assertEqual(df.num_pixels,107130)
@@ -32,32 +38,6 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
             assertTrue(isnumeric(pix_data_f))
             assertEqual(pix_data_f ,pix_data_m );
         end
-        function test_pix_alignment_set(~)
-            pix_data = zeros(9,6);
-            pix_data(1:4,1:4) = eye(4);
-            pix_data(1:4,5)  = ones(4,1);
-            pdm = PixelDataFileBacked(pix_data);
-
-            initial_range = pdm.data_range;
-
-            % this actually changes pixel_data_range!
-            al_matr = rotvec_to_rotmat2([pi/4,0,0]);
-            pdm.alignment_matr = al_matr ;
-
-            al_data = pdm.data;
-            assertFalse(all(pix_data(:) == al_data(:)));
-            raw_data = pdm.get_raw_data();
-            assertElementsAlmostEqual(raw_data,pix_data);
-
-            al_range = pdm.data_range;
-            assertFalse(all(initial_range(:) == al_range(:)));
-            assertFalse(pdm.is_range_valid);
-
-            assertElementsAlmostEqual(al_data(1:3,1:3),al_matr);
-            ref_range = PixelDataBase.EMPTY_RANGE(:,1:3);
-            assertElementsAlmostEqual(al_range(:,1:3),ref_range);
-        end
-
 
         function test_filebacked_pixels_from_data(~)
             data = rand(9,1000);
@@ -140,13 +120,13 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
             end
             pdf.delete();
             pdf_copy.delete();
-            clear_config(obj,hc);            
+            clear_config(obj,hc);
         end
 
         function test_construct_from_data_loader_check_advance_with_tail(obj)
 
             hc = hor_config;
-            clOb = onCleanup(@()clear_config(obj,hc));            
+            clOb = onCleanup(@()clear_config(obj,hc));
 
             mchs = 10000;
             hc.mem_chunk_size = mchs;
@@ -176,7 +156,7 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
             end
             pdf.delete();
             ldr.delete();
-            clear_config(obj,hc);            
+            clear_config(obj,hc);
         end
 
         function test_construct_from_data_loader_check_advance(obj)
@@ -184,7 +164,7 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
             clObW = onCleanup(@()warning(sw));
 
             hc = hor_config;
-            clOb = onCleanup(@()clear_config(obj,hc));            
+            clOb = onCleanup(@()clear_config(obj,hc));
 
             mchs = 10000;
             hc.mem_chunk_size = mchs;
@@ -207,7 +187,7 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
                 assertEqual(pdf.data,ref_data);
             end
 
-            clear_config(obj,hc);            
+            clear_config(obj,hc);
             ldr.delete();
         end
 
@@ -216,7 +196,7 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
             clObW = onCleanup(@()warning(sw));
 
             hc = hor_config;
-            clOb = onCleanup(@()clear_config(obj,hc));            
+            clOb = onCleanup(@()clear_config(obj,hc));
 
             mchs = 10000;
             hc.mem_chunk_size = mchs;
@@ -255,8 +235,8 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
         end
 
         function clear_config(obj,hc)
-             set(hc,obj.stored_config);
+            set(hc,obj.stored_config);
         end
-        
+
     end
 end

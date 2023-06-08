@@ -1,4 +1,4 @@
-function  obj = set_alignment_matr_(obj,val)
+function  obj = set_alignment_matr_(obj,val,pix_agerage_proc_function)
 %SET_ALIGNMENT_MATR_ helper property which checks and sets alignment matrix
 % to the PixelData class.
 %
@@ -7,9 +7,14 @@ function  obj = set_alignment_matr_(obj,val)
 % coordinate pixel coordinate system differs from Crystal Cartesian due to
 % erroneous alignment.
 %
+was_misaligned = obj.is_misaligned;
+prev_matr      = obj.alignment_matr_;
 if isempty(val)
     obj.alignment_matr_ = eye(3);
     obj.is_misaligned_ = false;
+    if was_misaligned
+        obj = pix_agerage_proc_function(obj,'q_coordinates');
+    end
     return;
 end
 if ~isnumeric(val)
@@ -23,11 +28,9 @@ if any(size(val) ~= [3,3])
         mat2str(val))
 end
 %
-difr = val - eye(3);
+difr = val - prev_matr;
 if max(abs(difr(:))) > 1.e-8
-    % abstract generic method, overloaded for different pixel classes
-    obj = obj.set_alignment(val);
-else
-    obj.alignment_matr_ = eye(3);
-    obj.is_misaligned_ = false;
+     obj.alignment_matr_ = val;
+     obj.is_misaligned_ = true;
+     obj = pix_agerage_proc_function(obj,'q_coordinates');
 end

@@ -481,12 +481,10 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
         %------------------------------------------------------------------
-        function obj = set_alignment(obj,val)
-            % set non-unary alignment martix and recalculate pix averages
-            % Part of alignment_mart setter
-            obj.alignment_matr_ = val;
-            obj.is_misaligned_ = true;
-            obj=obj.invalidate_range('q_coordinates');
+        function obj = set_alignment_matrix(obj,val)
+            % set non-unary alignment martix and invalidate pixel averages
+            % if alignment changes
+            obj = obj.set_alignment(val,@invalidate_range);
         end
     end
     %----------------------------------------------------------------------
