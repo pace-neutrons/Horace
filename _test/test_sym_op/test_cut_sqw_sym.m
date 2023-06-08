@@ -38,7 +38,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             % Cut projection and ranges etc
             s100 = SymopReflection([1,0,0],[0,0,1],[1,1,0]);
             sdiag= SymopReflection([1,1,0],[0,0,1],[1,1,0]);
-            this.sym = {sdiag,s100,[sdiag,s100]};
+            obj.sym = {sdiag,s100,[sdiag,s100]};
 
             obj.proj = ortho_proj([1,-1,0], [1,1,0]/sqrt(2), 'offset', [1,1,0], 'type', 'paa');
             range = [0,0.2];    % range of cut
@@ -62,7 +62,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                   0  0  0  0  0  0  0  0  1  1 -1 -1
                   1  1 -1 -1  0  0  0  0  0  0  0  0];
             Ws = mat2cell(reshape(Ws,[3,3,12]),3,3,ones(12,1));
-            this.sym2 = squeeze(cellfun(@Symop.create, Ws, 'UniformOutput', false));
+            obj.sym2 = squeeze(cellfun(@SymopGeneral, Ws, 'UniformOutput', false));
             % setup projection and binning specifications
             obj.proj2 = ortho_proj([1,0,0],[0,1,0]);
             obj.ubin2 = [0, 0.05, 0.5];

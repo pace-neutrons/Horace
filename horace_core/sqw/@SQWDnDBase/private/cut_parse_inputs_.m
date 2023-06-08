@@ -233,7 +233,7 @@ if opt.proj_given
         proj.alatt = source_proj.alatt;
     end
     if ~proj.angdeg_defined
-        proj.angdeg = source_proj.angdeg;
+        proj.angdeg = obj.proj.angdeg;
     end
 
 else % it may be fewer parameters then actual dimensions and
@@ -399,7 +399,7 @@ end
 function sym_out = check_sym_arg(sym)
 % Checks on symmetry description - check valid, and remove empty descriptions
 %
-%   >> sym_out = check_sym_arg(sym)
+%   >> sym_out = cut_sqw_check_sym_arg (sym)
 %
 % Input:
 % ------
@@ -415,7 +415,7 @@ function sym_out = check_sym_arg(sym)
 %   sym_out Cell array of symmetry descriptions from input sym, each one a
 %             scalar or row vector of Symop objects.
 %
-%           Always add identity in addition to other kept symops
+%           Always adds one SymopIdentity.
 %
 %           Empty symmetry descriptions or identity descriptions
 %             are removed from the cell array.
@@ -438,7 +438,7 @@ for i=1:numel(sym)
               ~all(arrayfun(@(x) isa(x, 'SymopIdentity'), sym{i}));
 end
 
-%Always add identity in addition to other kept symops
+% Always return identity
 sym_out = [{SymopIdentity()}; sym(keep)];
 
 end

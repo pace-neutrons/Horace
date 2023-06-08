@@ -3,14 +3,6 @@ function [starts, lengths] = merge_ranges(starts, lengths)
 % single block of starts, lengths eliminating any overlap between adjacent
 % intervals to create a single compound interval from any set of overlapping integrals.
 
-    if ~iscell(starts)
-        starts = {starts};
-    end
-
-    if ~iscell(lengths)
-        lengths = {lengths};
-    end
-
     if numel(starts) ~= numel(lengths) || ...
             ~isequal(cellfun(@numel, starts), cellfun(@numel, lengths))
         error('HERBERT:merge_ranges:invalid_arguments', ...

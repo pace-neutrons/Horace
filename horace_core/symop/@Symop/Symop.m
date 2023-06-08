@@ -87,7 +87,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         function R = get.R(obj)
         % Compute general transformation matrix for operator
         % Computing so as to generate it for Symop subclasses
-            R = obj.transform_vec(eye(3));
+            R = obj.calculate_transform(eye(3));
         end
 
     end
@@ -117,7 +117,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
 
             for i = numel(obj):-1:1
                 vec = vec - obj(i).offset;
-                vec = obj(i).calculate_transform(eye(3)) * vec;
+                vec = obj(i).R * vec;
                 vec = vec + obj(i).offset;
             end
         end
@@ -166,7 +166,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
             % Check input
             if ~isa(pix, 'PixelDataBase')
                 error('HORACE:Symop:invalid_argument', ...
-                      'Transform pix requires pixels');
+                      'transform_pix requires pixels');
             end
 
             % Get transformation
@@ -175,7 +175,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
                 pix.q_coordinates(:, ~sel) = obj.transform_vec(pix.q_coordinates(:, ~sel));
             else
                 error('HORACE:Symop:not_implemented', ...
-                      'filebacked pix reduction not possible');
+                      'filebacked pix symmetry reduction not possible')
             end
 
         end
@@ -213,44 +213,54 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         % a right-hand coordinate set. Strictly, the condition only applies to the
         % third axis when all three momentum axes are plot axes.
 
-            if isempty(obj)
-                error('HORACE:symop:invalid_argument', ...
-                      'Empty symmetry operation object array')
-            end
-
-            if proj.nonorthogonal
-                error('HORACE:symop:invalid_argument', ...
-                      'Symmetry transformed non-orthogonal projections not supported');
+            % Check input
+            if ~isa(proj, 'aProjectionBase')
+                error('HORACE:Symop:invalid_argument', ...
+                      'transform_proj requires projection');
             end
 
             % Transform proj
-            b = bmatrix(proj.alatt, proj.angdeg);
-
             for i=numel(obj):-1:1
-                proj = obj(i).transform_proj_single(b, proj);
+                proj = obj(i).transform_proj_single(proj);
             end
-
         end
     end
 
     methods (Access=private)
-        function [proj, sgn] = transform_proj_single (obj, Minv, proj)
+        function [proj, sgn] = transform_proj_single (obj, proj)
         % Note this function uses matrix Minv which transforms from rlu to
         % orthonormal components
 
-            R = obj.calculate_transform(Minv);
+            switch class(proj)
+              case 'ortho_proj'
 
-            sgn = round(det(R));    % will be +1 for rotation, -1 for reflection
+                u_new = obj.R * proj.u(:);
+                v_new = obj.R * proj.v(:);
+                offset_new = proj.offset(:);
+                offset_new(1:3) = obj.transform_vec(offset_new(1:3));
+                if ~isempty(proj.w)
+                    w_new = obj.R * proj.w(:);
+                    proj = proj.set_axes(u_new, v_new, w_new, offset_new);
+                else
+                    proj = proj.set_axes(u_new, v_new, [], offset_new);
+                end
 
-            proj.offset(1:3) = Minv \ R * Minv * (proj.offset(1:3)'-obj.offset_) + obj.offset_;
+              case 'spher_proj'
 
-            u_new = (Minv \ R * Minv * proj.u(:));
-            v_new = (Minv \ R * Minv * proj.v(:));
-            if ~isempty(proj.w)
-                w_new = (Minv \ R * Minv * proj.w(:));
-                proj = proj.set_axes(u_new, v_new, w_new);
-            else
-                proj = proj.set_axes(u_new, v_new);
+                %% TODO non-aligned ez/ey not supported
+                % ez_new = obj.R * proj.ez(:);
+                % ey_new = obj.R * proj.ey(:);
+
+%                 offset_new = proj.offset(:);
+%                 offset_new(1:3) = obj.transform_vec(offset_new(1:3));
+%
+%                 proj.offset = offset_new;
+
+              otherwise
+
+                error('HORACE:Symop:not_implemented', ...
+                      'Cannot transform projection class "%s"', class(proj));
+
             end
 
         end

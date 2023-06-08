@@ -115,18 +115,6 @@ if use_mex
 end
 
 if ~use_mex
-    ix = cat(1, pix_ix_retained{:});
-
-    clear pix_ix_retained;
-
-    if issorted(ix)
-        pix = pix_retained{1};
-        return;
-    end
-
-    [~,ind] = sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-    clear ix;          % clear big arrays so that final output variable pix is not way up the stack
-
     % maintain type of pix
     pix = pix_retained{1}.cat(pix_retained{:});
     clear pix_retained;
@@ -134,6 +122,18 @@ if ~use_mex
         pix = PixelDataMemory();
         return;
     end
+
+    ix = cat(1, pix_ix_retained{:});
+
+    clear pix_ix_retained;
+
+    if issorted(ix)
+        return;
+    end
+
+    [~,ind] = sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
+    clear ix;          % clear big arrays so that final output variable pix is not way up the stack
+
 
     if pix.is_filebacked
         mch_sz = get(hor_config, 'mem_chunk_size');
