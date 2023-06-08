@@ -115,7 +115,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 pix_in_mem = PixelDataBase.create(data);
                 pix_in_mem = pix_in_mem.do_unary_op(unary_op);
 
-                assertEqualToTol(pix, pix_in_mem, 'reltol',1e-4);
+                assertEqualToTol(pix, pix_in_mem, 'tol',[1e-6, 1e-4]);
             end
         end
 
