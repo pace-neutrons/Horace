@@ -19,10 +19,10 @@ else
         acc_idx = unique([1:3,idx]);
         data = double(obj.f_accessor_.Data.data(acc_idx, ...
             pix_idx_start:pix_idx_end));
-        pix_coord = (data(1:3,:)'*obj.alignment_matr_');
+        pix_coord = obj.alignment_matr_*data(1:3,:);
         % modify only data, which were aligned (e.g. in range 1:3)
         conv_idx = idx(idx<4);
-        data(conv_idx,:) = pix_coord(:,conv_idx)';
+        data(conv_idx,:) = pix_coord(conv_idx,:);
         prp = data(idx,:);
     else
         prp = double(obj.f_accessor_.Data.data(idx, ...

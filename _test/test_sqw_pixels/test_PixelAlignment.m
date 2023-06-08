@@ -21,7 +21,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             al_matr = rotvec_to_rotmat2([0,0,pi/4]);
             pdm.alignment_matr = al_matr ;
 
-            ref_data = (pix_data(1:3,:)'*al_matr')';
+            ref_data = al_matr*pix_data(1:3,:);
 
             assertEqual(pdm.u1,ref_data(1,:))
             assertEqual(pdm.u2,ref_data(2,:))
@@ -46,12 +46,12 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             pdf.alignment_matr = al_matr ;
             assertTrue(pdf.is_misaligned);            
 
-            ref_al_data = (pix_data(1:3,:)'*al_matr')';
+            ref_al_data = al_matr*pix_data(1:3,:);
             ref_data = pix_data;
             ref_data(1:3,:) = ref_al_data;
 
-            al_data = pdf.data;
-            assertElementsAlmostEqual(ref_data,al_data);
+            aligned_data = pdf.data;
+            assertElementsAlmostEqual(ref_data,aligned_data);
 
             raw_data = pdf.get_raw_data();
             assertElementsAlmostEqual(raw_data,pix_data);
@@ -60,7 +60,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             assertFalse(all(initial_range(:) == al_range(:)));
             assertFalse(pdf.is_range_valid);
 
-            assertElementsAlmostEqual(al_data(1:3,1:3),al_matr);
+            assertElementsAlmostEqual(aligned_data(1:3,1:3),al_matr);
             ref_range = PixelDataBase.EMPTY_RANGE(:,1:3);
             assertElementsAlmostEqual(al_range(:,1:3),ref_range);
         end
@@ -74,7 +74,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             al_matr = rotvec_to_rotmat2([0,0,pi/4]);
             pdm.alignment_matr = al_matr ;
 
-            ref_data = (pix_data(1:3,:)'*al_matr')';
+            ref_data = al_matr*pix_data(1:3,:);
 
             assertEqual(pdm.u1,ref_data(1,:))
             assertEqual(pdm.u2,ref_data(2,:))
@@ -100,12 +100,12 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             assertTrue(pdm.is_misaligned);
 
-            ref_al_data = (pix_data(1:3,:)'*al_matr')';
+            ref_al_data = al_matr*pix_data(1:3,:);
             ref_data = pix_data;
             ref_data(1:3,:) = ref_al_data;
 
-            al_data = pdm.data;
-            assertElementsAlmostEqual(ref_data,al_data);
+            aligned_data = pdm.data;
+            assertElementsAlmostEqual(ref_data,aligned_data);
 
             raw_data = pdm.get_raw_data();
             assertElementsAlmostEqual(raw_data,pix_data);
@@ -113,17 +113,11 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             al_range = pdm.data_range;
             assertFalse(all(initial_range(:) == al_range(:)));
 
-            assertElementsAlmostEqual(al_data(1:3,1:3),al_matr);
+            assertElementsAlmostEqual(aligned_data(1:3,1:3),al_matr);
             ref_range =[  ...
                 0,   0,       -0.7071,   0; ...
                 1.,  1.4142,   0.7071,   1.0 ];
             assertElementsAlmostEqual(al_range(:,1:4),ref_range,'absolute',1.e-4);
         end
-
-
-        function clear_config(obj,hc)
-            set(hc,obj.stored_config);
-        end
-
     end
 end
