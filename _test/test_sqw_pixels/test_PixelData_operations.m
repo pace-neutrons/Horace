@@ -146,10 +146,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 pix_in_mem = PixelDataMemory(data);
                 pix_in_mem = pix_in_mem.do_unary_op(unary_op);
 
-                [ok,mess] = equal_to_tol(pix,pix_in_mem,'reltol',4e-4);
-                assertTrue(ok, ...
-                    sprintf('Large difference in results of file and memory backed operations for operation N%d,: "@%s".\n Reason: %s', ...
-                    i,func2str(unary_op),mess));
+                assertEqualToTol(pix, pix_in_mem, 'tol',[1e-6, 1e-4]);
             end
             clear_config(obj,hc);
         end

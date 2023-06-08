@@ -115,7 +115,6 @@ classdef PixelDataFileBacked < PixelDataBase
 
         pix_out = do_unary_op(obj, unary_op);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
 
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
         pix_out = get_fields(obj, fields, abs_pix_indices);

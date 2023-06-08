@@ -86,7 +86,6 @@ classdef PixelDataMemory < PixelDataBase
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         pix_out = do_unary_op(obj, unary_op);
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
 
 
 
