@@ -129,20 +129,20 @@ classdef test_symop < TestCase
                                  -1  0  0
                                  0  1  0]);
             assertTrue(isa(out, 'Symop'))
-            assertEqual(out.R,  [0  0 -1
+            assertEqual(out.W,  [0  0 -1
                                  -1 0  0
                                  0  1  0])
             assertEqual(out.offset, [0; 0; 0])
         end
 
         function test_matrix_constructor(obj)
-            out = SymopGeneral([-1  0 0
-                                0  -1 0
-                                0   0 1], [3  3  3]);
+            out = Symop.create([ 0  0 -1
+                                 -1  0  0
+                                 0  1  0], [3; 3; 3]);
             assertTrue(isa(out, 'Symop'))
-            assertEqual(out.W,  [-1  0  0
-                                 0  -1  0
-                                 0   0  1])
+            assertEqual(out.W,  [0  0 -1
+                                 -1 0  0
+                                 0  1  0])
             assertEqual(out.offset, [3; 3; 3])
         end
 

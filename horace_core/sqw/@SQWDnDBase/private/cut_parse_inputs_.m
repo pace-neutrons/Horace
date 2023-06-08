@@ -57,10 +57,10 @@ function [proj, pbin, sym, opt] = ...
 %                                cut integrates the axis over 105-107, the
 %                                second over 109-111 and the third 113-115.
 %
-%   sym             Symmetry operator (or an array of symmetry operators
+%   sym          Symmetry operator (or an array of symmetry operators
 %                  to be applied in the order sym(1), sym(2),...)
 %                  by which a symmetry related cut is to be accumulated.
-%                   Must have class symop.
+%                   Must be a subclass of Symop.
 %
 %                For several symmetry related cuts, provide a cell array
 %                  of symmetry operators and/or arrays of symmetry operators
@@ -111,7 +111,7 @@ function [proj, pbin, sym, opt] = ...
 %                               given by 'width'
 %                               If width=0, it is taken to be equal to pstep.
 %
-%  sym              symop, or array/cell array thereof
+%  sym              Symop, or array/cell array thereof
 %
 % Output:          Returns the aruments in standard form
 % -------
@@ -404,15 +404,20 @@ function sym_out = check_sym_arg(sym)
 % ------
 %   sym     Symmetry description, or cell array of symmetry descriptions.
 %           A symmetry description can be:
-%           - Scalar symop object
-%           - Array of symop objects (multiple symops to be performed in sequence)
+%           - Scalar Symop object
+%           - Array of Symop objects (multiple Symops to be performed in sequence)
 %           - Empty argument (which will be removed)
 %
 % Output:
 % -------
-%   sym_out Cell array of symmetry descriptions, each one a scalar or row vector
-%           of symop objects. Empty symmetry descriptions or identity descriptions
-%           are removed from the cell array.
+%
+%   sym_out Cell array of symmetry descriptions from input sym, each one a
+%             scalar or row vector of Symop objects.
+%
+%           Always adds one SymopIdentity.
+%
+%           Empty symmetry descriptions or identity descriptions
+%             are removed from the cell array.
 
 if ~iscell(sym)   % make a cell array for convenience
     sym = {sym};

@@ -40,7 +40,7 @@ classdef test_cut_sym_cube < TestCase
         end
 
         function test_cut_sym_no_dup_2_identity(obj)
-        % Test symmetrisation, does not duplicate pixels in overlap region
+        % Test that symmetrisation does not duplicate pixels in overlap region
         % Cut identity twice (full overlap)
         % `id` is defined as 2 identical reflections because
         % `SymopIdentity`s are filtered from ops.

@@ -106,3 +106,5 @@ argout = func(dummy_obj,w,args{:});
 % Package output arguments
 % ------------------------
 argout = horace_function_pack_output(w,argout{:});
+
+end

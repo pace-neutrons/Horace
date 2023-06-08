@@ -13,12 +13,11 @@ classdef test_cut_inputs < TestCase
             ab = ortho_axes('nbins_all_dims',[1,10,1,10],'img_range',[-2,-3,-4,0;1,2,3,20]);
             obj.sample_d2d_obj= d2d(ab,obj.sample_proj);
         end
-
         function test_invalid_binning_throws(obj)
-            function out = checker()
+            function out= checker()
                 th = sqw_tester();
-                out = th.process_and_validate_cut_inputs_public( ...
-                    obj.sample_d2d_obj, true, [-1,0.1,1], [0,1,10], [0,1]);
+                out = th.process_and_validate_cut_inputs_public(...
+                    obj.sample_d2d_obj,true, [-1,0.1,1],[0,1,10],[0,1]);
             end
 
             ex = assertExceptionThrown(@checker,...
@@ -27,10 +26,10 @@ classdef test_cut_inputs < TestCase
         end
 
         function test_extra_arg_throws(obj)
-            function out = checker()
+            function out= checker()
                 th = sqw_tester();
                 out = th.process_and_validate_cut_inputs_public(...
-                    obj.sample_d2d_obj, true, [-1,0.1,1], [0,1,10], '-extra');
+                    obj.sample_d2d_obj,true, [-1,0.1,1],[0,1,10],'-extra');
             end
 
             ex = assertExceptionThrown(@checker,...
