@@ -1,12 +1,7 @@
 function proj =  build_from_old_data_struct_(proj,data_struct,varargin)
 % build projection from a structure, stored by previous version(s) of Horace
 %
-% if ~isempty(header_av)
-%     bmat_inv_ext  =  header_av.u_to_rlu;
-% else
-%     bmat_inv_ext   = [];
-%     %bmat =     bmatrix(alatt,angdeg);
-% end
+
 if isfield(data_struct,'ulabel')
     data_struct.label = data_struct.ulabel;
 end

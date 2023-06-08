@@ -141,6 +141,8 @@ classdef ortho_proj<aProjectionBase
         % there are no way of indetifying if this happened or not.
         ub_inv_legacy_ = [];
 
+        % Caches, containing main matrices, used in the transformation
+        % this projection defines
         u_to_img_cache_ = [];
         u_offset_cache_ = [];
         ulen_cache_     = [];
@@ -363,8 +365,8 @@ classdef ortho_proj<aProjectionBase
         function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
             % return the axes block, corresponding to this projection class.
             ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
-            [~,~,ulen]  = obj.get_pix_img_transformation(3);
-            ax_bl.ulen  = ulen;
+            [~,~,scales]  = obj.get_pix_img_transformation(3);
+            ax_bl.ulen  = scales;
             %
             if obj.nonorthogonal
                 ax_bl.unit_cell = obj.unit_cell;
@@ -476,8 +478,8 @@ classdef ortho_proj<aProjectionBase
     methods(Access = protected)
         %------------------------------------------------------------------
         function   mat = get_u_to_rlu_mat(obj)
-            [mat,~,ulen] = obj.get_pix_img_transformation(4);
-            mat = mat.*[ulen(:)',1]; %--> old style u_to_rlu used in captions
+            [mat,~,scales] = obj.get_pix_img_transformation(4);
+            mat = mat.*[scales(:)',1]; %--> old style u_to_rlu used in captions
             % converts transformation into hkl
         end
 
