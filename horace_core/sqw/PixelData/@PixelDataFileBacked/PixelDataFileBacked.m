@@ -390,12 +390,6 @@ classdef PixelDataFileBacked < PixelDataBase
             %   obj         A PixelData object containing all the pixels in the inputted
             %               PixelData objects
 
-            if isempty(varargin)
-                obj = PixelDataFileBacked();
-            elseif numel(varargin) == 1
-                obj = PixelDataFileBacked(varargin{1});
-            end
-
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
             if any(is_ldr)
                 ldr = varargin{is_ldr};

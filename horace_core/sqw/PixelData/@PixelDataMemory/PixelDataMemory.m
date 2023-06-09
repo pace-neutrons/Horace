@@ -180,11 +180,7 @@ classdef PixelDataMemory < PixelDataBase
                 return
             end
 
-            if isempty(varargin)
-                obj = PixelDataMemory();
-            elseif numel(varargin) == 1
-                obj = PixelDataMemory(varargin{1});
-            end
+            obj = PixelDataMemory();            
 
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};

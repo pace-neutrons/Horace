@@ -160,7 +160,7 @@ function [ok, mess] = compare_reorder(pix1, pix2, opt, argi)
     compare_count = pix1.num_pixels;
 
     prev = 0;
-    points = [0:chunk_size:compare_count, compare_count+1];
+    points = [prev:chunk_size:compare_count, compare_count+1];
 
     ibin = find(opt.npix);
     ibinarr = replicate_iarray(ibin, opt.npix(ibin)); % bin index for each retained pixel

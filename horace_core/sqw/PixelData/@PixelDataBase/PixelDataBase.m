@@ -380,22 +380,9 @@ classdef (Abstract) PixelDataBase < serializable
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
 
+
     end
-
-        function cnt = get_field_count(obj, field)
-            cnt = numel(obj.FIELD_INDEX_MAP_(field));
-        end
-
-        data_out = get_fields(obj, pix_fields, varargin)
-        pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
-            recalculate_pix_ranges,keep_precision);
-
-        obj = set_fields(obj, data, fields, abs_pix_indices);
-
-        [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
-    end
-
+    %======================================================================
     methods(Abstract,Access=protected)
         % Main part of get.num_pixels accessor
         num_pix = get_num_pixels(obj);
@@ -422,11 +409,10 @@ classdef (Abstract) PixelDataBase < serializable
     end
     %======================================================================
     % the same interface on FB and MB files
-    methods
-        function cnt = get_field_count(obj, field)
+    methods       
+       function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
         end
-
 
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
@@ -434,7 +420,7 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_fields(obj, data, fields, abs_pix_indices);
 
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
-        %
+        [ok, mess] = equal_to_tol(obj, other_pix, varargin);        
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
             % to allow
