@@ -95,14 +95,12 @@ if obj.nonorthogonal                  % V_c = Transf*B*V_hkl -- Defining Tr
     % as u-matrix arrangement is rows, make transf arranged in rows
     u_to_img = inv(transf')./(ulen(:)');
 else                                        % V_c = U*B*V_hkl -- defining U
-    % Different r normalization. Is it more reasonable then the other one?
-    %vec_len = arrayfun(@(i)norm(ubmat(:,i)),i);
-    % r_norm = min(vec_len);
+    ubmatinv = inv(ubmat);
     for i=1:3
-        if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
-            %ulen(i) = r_norm; -- is this what corresponds to the statement
-            %                     above?
-            ulen(i) = max(abs(ubmat(:,i))); % make the projection of Q-vector to
+        if lower(type(i))=='r' 
+            % The scale sets the lengs of projection of i-th reciprocal lattice vector
+            % rotated into target coordinate system onoto original hkl system, equal to 1
+            ulen(i) = 1/max(abs(ubmatinv(:,i))); 
             %                          % each axis of UB coordinates to be
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
             ulen(i) = 1;            % length of ui in Ang^-1
@@ -114,6 +112,9 @@ else                                        % V_c = U*B*V_hkl -- defining U
     end
     % u-matrix here is arranged in rows to be multipled by b-matrix. What
     % about normalization in columns? Look at goniometer equation
-    % (Boosing &Levy) to choose correct order
-    u_to_img = umat'./(ulen(:)');
+    % (Boosing &Levy) to choose correct order.
+    % Here we do umat in lhs arranged into rows, so transformed to columns
+    % (one inversion) inverted to be on rhs (other inversion). 
+    % so umat (one inversion looks missing? or extra)
+    u_to_img = (umat./(ulen(:)));
 end

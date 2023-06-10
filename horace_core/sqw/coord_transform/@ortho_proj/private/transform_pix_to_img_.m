@@ -35,7 +35,7 @@ end
 %
 % transposed pix_to_image transformation, as the transformation is defined
 % as column vectors and pixel_data here are also column vectors.
-pix_transf= ((pix_to_img'*bsxfun(@minus,pix_cc,offset(:))));
+pix_transf= ((pix_to_img*bsxfun(@minus,pix_cc,offset(:))));
 if input_is_obj
     if shift_ei
         ei = pix_input.dE -obj.offset(4);
