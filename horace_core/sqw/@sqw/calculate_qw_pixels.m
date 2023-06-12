@@ -23,31 +23,47 @@ if numel(win)~=1
     error('HORACE:sqw:invalid_argument', ...
         'Only a single sqw object is valid - cannot take an array of sqw objects')
 end
-
-header_ave = header_average(win);
-
-u0 = header_ave.uoffset;
-u = header_ave.u_to_rlu(1:3,1:3);
-
-% Assume that the first three axes are Q, and the 4th axis is energy
-if ~isequal(u, eye(3))   % not identity matrix, so need to perform matrix transformation
-    urlu=u*win.pix.q_coordinates;
-    qh=urlu(1,:)';
-    qk=urlu(2,:)';
-    ql=urlu(3,:)';
+proj = win.data.proj;
+% we need the projection into real hkl, aligned with Crystal Cartesian, not
+% rotated wrt it.
+qw_proj = ortho_proj('alatt',proj.alatt,'angdeg',proj.angdeg, ...
+    'u',[1,0,0],'v',[0,1,0],'w',[0,0,1], ...
+    'type','ppp','offset',proj.offset);
+if isa(proj,'ortho_proj') && ~isempty(proj.ub_inv_legacy)
+    % support legacy crystal alignment:
+    qw_proj = qw_proj.set_ub_inv_compat(proj.ub_inv_legacy);
+proj       = win.data.proj;
+offset     = win.data.proj.offset;
+% Re #1034 is this necessary?
+%hkl_offset = offset(1:3);
+% we need the projection into real hkl, aligned with Crystal Cartesian, not
+% rotated wrt it.
+if isempty(proj.ub_inv_legacy)
+    b_mat = bmatrix(proj.alatt,proj.angdeg);
+    % Pixels are never offset? % Re #1034 is this necessary?
+    %qw = b_mat\win.pix.q_coordinates+hkl_offset(:) ;
+    qw = b_mat\win.pix.q_coordinates;
 else
-    qh=win.pix.u1';
-    qk=win.pix.u2';
-    ql=win.pix.u3';
+    % support legacy crystal alignment. TODO: Should go in a future
+    % Pixels are never offset? % Re #1034 is this necessary?    
+    %qw = proj.ub_inv_legacy*win.pix.q_coordinates-hkl_offset(:);
+    qw = proj.ub_inv_legacy*win.pix.q_coordinates;
 end
-en=win.pix.dE';
 
-if ~u0(1)==0, qh=qh+u0(1); end
-if ~u0(2)==0, qk=qk+u0(2); end
-if ~u0(3)==0, ql=ql+u0(3); end
-if ~u0(4)==0, en=en+u0(4); end
+if abs(offset(4))>4*eps('single')
+    % Re #1034 is this necessary?    
+    % en = win.pix.dE+offset(4);
+else
+    en = win.pix.dE;    
+end
+
+qw = qw_proj.transform_pix_to_img(win.pix);
+
+
+
+
+
 
 % package as cell array of column vectors for convenience with fitting routines etc.
-qw = {qh(:), qk(:), ql(:), en(:)};
-
-end
+qw = {qw(1,:)', qw(2,:)', qw(3,:)', qw(4,:)'};
+qw = {qw(1,:)', qw(2,:)', qw(3,:)', en(:)};
