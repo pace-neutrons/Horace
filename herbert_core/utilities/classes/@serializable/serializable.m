@@ -516,9 +516,5 @@ classdef (Abstract=true) serializable
             [is,mess,name_a,name_b,namer,argi] = process_inputs_for_eq_(obj,rhs_obj,narg_out, ...
                 names,varargin{:});
         end
-
     end
-
-
-
 end
