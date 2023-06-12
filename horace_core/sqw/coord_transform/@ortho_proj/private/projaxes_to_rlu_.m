@@ -93,7 +93,7 @@ if obj.nonorthogonal                  % V_c = Transf*B*V_hkl -- Defining Tr
     end
     % transpose transformation matrix to be consistent with umat below.
     % as u-matrix arrangement is rows, make transf arranged in rows
-    u_to_img = inv(transf')./(ulen(:)');
+    u_to_img = inv(transf)./(ulen(:));
 else                                        % V_c = U*B*V_hkl -- defining U
     ubmatinv = inv(ubmat);
     for i=1:3
