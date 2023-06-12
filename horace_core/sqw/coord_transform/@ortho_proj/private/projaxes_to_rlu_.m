@@ -115,6 +115,6 @@ else                                        % V_c = U*B*V_hkl -- defining U
     % (Boosing &Levy) to choose correct order.
     % Here we do umat in lhs arranged into rows, so transformed to columns
     % (one inversion) inverted to be on rhs (other inversion). 
-    % so umat (one inversion looks missing? or extra)
+    % so umat (one inversion looks missing? or what?. This gives previous Horace result)
     u_to_img = (umat./(ulen(:)));
 end

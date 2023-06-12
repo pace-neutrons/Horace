@@ -52,7 +52,7 @@ classdef test_line_proj_transf_orth<TestCase
             [u_par,v_par,~,type] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
 
             assertElementsAlmostEqual(u',u_par);
-            assertEqual(type,'ppr');
+            assertEqual(type,'prr');
 
             pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg,'type',type);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
@@ -88,9 +88,9 @@ classdef test_line_proj_transf_orth<TestCase
             assertElementsAlmostEqual(ulen,ulen_rec);
 
 
-            % check projection comparison operator itself, which compares 
+            % check projection comparison operator itself, which compares
             % these operators internaly
-            assertEqual(pra,prb,'absolute',1.e-5);            
+            assertEqual(pra,prb,'absolute',1.e-5);
         end
 
         %
@@ -304,7 +304,7 @@ classdef test_line_proj_transf_orth<TestCase
             assertElementsAlmostEqual(u_to_img,u_to_rlu_rec);
             assertElementsAlmostEqual(ulen,ulen_rec);
         end
-        
+
         function test_transformation_scale_rrr_ortho_rot_xyz_tricl_invertable(~)
 
             lat_par = [2,3,4];
@@ -349,9 +349,9 @@ classdef test_line_proj_transf_orth<TestCase
             % except the use the proj altogithm itself, though have some
             % ideas
             sample = [...
-                -1.0000    0.4444    0.2500;...
-                1.5625    1.0000    0.5625;...
-                -0.0000    1.0000   -1.0000];
+                -0.5902    0.2623    0.1475;...
+                0.5902    0.3777    0.2125;...
+                0    0.6400   -0.6400];
             assertElementsAlmostEqual(img_coord,sample,'absolute',1.e-4);
 
         end
@@ -377,9 +377,9 @@ classdef test_line_proj_transf_orth<TestCase
             % except the use the proj altogithm itself, though have some
             % ideas
             sample = [...
-                -1.0000    0.4444         0;...
-                1.0000     1.0000         0;...
-                0          0       -1.0000];
+                -0.6923    0.3077         0;...
+                0.6923    0.6923         0;...
+                0         0   -1.0000];
             assertElementsAlmostEqual(img_coord,sample,'absolute',1.e-4);
 
         end
@@ -713,7 +713,7 @@ classdef test_line_proj_transf_orth<TestCase
             img_len_expected = [1;1;1];
             assertElementsAlmostEqual(diag(img_coord),img_len_expected);
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         function test_transformation_scale_aaa_ortholat_nonortho_invertable(~)
             %
             lat_par = [2,3,4];
@@ -731,7 +731,7 @@ classdef test_line_proj_transf_orth<TestCase
 
             assertElementsAlmostEqual(pix_cc,pix_rec );
         end
-        
+
         function test_transformation_scale_aaa_ortho_invertable(~)
             lat_par = [2,3,4];
             proj = ortho_proj([-1,1,0],[1,1,0],[0,0,1], ...

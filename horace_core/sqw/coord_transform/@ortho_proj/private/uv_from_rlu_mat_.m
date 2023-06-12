@@ -31,11 +31,11 @@ end
 %u_rot_mat = b_mat\u_rot_mat; % old style transformation matrix need this
 % to define the transformation
 
-umatinv = u_to_img.*ulen(:)';
+umat = u_to_img.*ulen(:);
 err = 1.e-8;
-if abs(umatinv(:,1)'*umatinv(:,2)) > err || ...
-        abs(umatinv(:,1)'*umatinv(:,3)) > err || ...
-        abs(umatinv(:,2)'*umatinv(:,3)) > err
+if abs(umat(:,1)'*umat(:,2)) > err || ...
+        abs(umat(:,1)'*umat(:,3)) > err || ...
+        abs(umat(:,2)'*umat(:,3)) > err
     ortho = false;
 else
     ortho = true;
@@ -43,20 +43,21 @@ end
 nonortho = ~ortho;
 
 if ortho
-    umat = inv(umatinv);
-    ubmat = umatinv\b_mat; % correctly recovered ubmatrix; ulen matrix extracted
+    ubmat = umat*b_mat; % correctly recovered ubmatrix; ulen matrix extracted
 
     uvw_orth_hkl = (b_mat\umat');   % orthogonal part of u,v,w
     %  in hkl frame defined by u and v
 
     %
     lt = cell(3,1);
+    ubmatinv = inv(ubmat);
     for i=1:3
+        ulen_i_r = 1/max(abs(ubmatinv(:,i)));
         if ulen(i)==1
             lt{i} = 'a';
         else % should be 'p' or 'r' depending on the length of the
             % initial u v or w vector
-            if abs(ulen(i)-max(abs(ubmat(:,i))))<1.e-7
+            if abs(ulen(i)-ulen_i_r)<1.e-7
                 lt{i} = 'r';
             else
                 lt{i} = 'p'; % p includes vector length so it has to be adjusted
