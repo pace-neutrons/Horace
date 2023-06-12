@@ -57,7 +57,7 @@ for i=1:numel(filenames)
             ld = ld.put_headers(exp_info);
         else
             pix_info = ld.get_pix_metadata();
-            pix_info = pix_info.change_crystal(alignment_info);
+            pix_info.alignment_matr = alignment_info.rotmat;
             ld = ld.put_pix_metadata(pix_info);
         end
         ld = ld.put_samples(exp_info.samples);

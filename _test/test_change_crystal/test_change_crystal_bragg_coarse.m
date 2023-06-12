@@ -58,6 +58,24 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             %
             obj.save();
         end
+        function delete(obj)
+            %
+            set(hpc_config,obj.hpc_restore);
+
+            ws = warning('off','MATLAB:DELETE:Permission');
+
+            delete(obj.misaligned_sqw_file);
+
+            % Delete temporary nxs files
+            for i=1:numel(obj.nxs_file)
+                try
+                    delete(obj.nxs_file{i})
+                catch
+                end
+            end
+            warning(ws);
+        end
+
         function test_u_alighnment_tf_way(obj)
             % Fit Bragg peak positions
             % ------------------------
@@ -217,7 +235,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertEqualWithSave(obj,wcut);
             assertEqualWithSave(obj,wpeak);
         end
- 
+
     end
     methods(Access=private)
         %
@@ -285,23 +303,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                     obj.u, obj.v, obj.psi, 0, 0, 0, 0);
             end
 
-        end
-       function delete(obj)
-            %
-            set(hpc_config,obj.hpc_restore);
-
-            ws = warning('off','MATLAB:DELETE:Permission');
-
-            delete(obj.misaligned_sqw_file);
-
-            % Delete temporary nxs files
-            for i=1:numel(obj.nxs_file)
-                try
-                    delete(obj.nxs_file{i})
-                catch
-                end
-            end
-            warning(ws);
         end
     end
 end

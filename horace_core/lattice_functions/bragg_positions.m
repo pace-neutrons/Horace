@@ -99,14 +99,14 @@ if istext(w)    % assume a file name
     file_type_ok=is_sqw_type_file(w);
     if ~isscalar(file_type_ok) || ~file_type_ok
         error('HORACE:lattice_functions:invalid_argument', ...
-            'File %s must be sqw type',w);
+            'File %s must be a sqw/dnd type',w);
     end
-    hdr=read_dnd(w);    % get header information as extracted from the 'data' field
+    img=read_dnd(w);    % get header information as extracted from the 'data' field
 elseif isa(w,'sqw') && has_pixels(w(1))
     if numel(w)~=1
         error('Data must be a single sqw object, not an array (or empty)')
     end
-    hdr=w.data;
+    img=w.data;
 else
     error('Object must be sqw type')
 end
@@ -127,12 +127,11 @@ wcut=repmat(IX_dataset_1d,npeaks,3);
 wpeak=repmat(IX_dataset_1d,npeaks,3);
 
 % Get matrix to convert rlu to projection axes
-u_to_rlu = hdr.u_to_rlu(1:3,1:3);
-u1_rlu = u_to_rlu(:,1)';    % first projection axis in rlu
-u2_rlu = u_to_rlu(:,2)';    % second projection axis in rlu
-
+proj = img.proj;
+u1_rlu = proj.u;
+u2_rlu = proj.v;
 % Get the matrix to convert rlu to crystal Cartesian coordinates
-B = bmatrix (hdr.alatt, hdr.angdeg);
+B = bmatrix (img.alatt, img.angdeg);
 
 peak_problem=false(size(rlu));
 
@@ -155,7 +154,8 @@ for i=1:size(rlu,1)
         v=u2_rlu;
     end
     type='aaa';        % force unit length of projection axes to be 1 Ang^-1
-    proj = ortho_proj('u',u,'v',v,'type',type,'offset',offset);
+    proj = ortho_proj('u',u,'v',v,'type',type,'offset',offset, ...
+        'alatt',img.alatt,'angdeg',img.angdeg);
 
     % if old file has been already aligned, ignore this alignment
     proj.ignore_legacy_alignment = true;
@@ -210,11 +210,13 @@ for i=1:size(rlu,1)
     wpeak(i,3)=w1a_3_pk;
 
     % Get matrix to convert upos0 to rlu
-    upos2rlu=w1a_1.u_to_rlu(1:3,1:3);
+    proj = w1a_1.proj;
 
     % Convert peak position into r.l.u.
     if all(isfinite(upos0))
-        rlu0(i,:)=(upos2rlu*upos0)' + Qrlu;
+        %TODO:  Re #825 Optimization possible 
+        upos_cc = proj.transform_img_to_pix(upos0(:));
+        rlu0(i,:)= (B\upos_cc(:))';
     else
         peak_problem(i,:)=~isfinite(upos0);
         rlu0(i,:)=NaN;
