@@ -88,7 +88,7 @@ classdef test_line_proj_methods<TestCase
         function test_binning_range_05_samp_proj2Drot45_3D_opt_vs4D_generic(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalent 3d+1 transformation. Should give the same results
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
             proj1.do_generic = true;
             proj1.do_3D_transformation = false;
             proj1.convert_targ_to_source = false;
@@ -102,7 +102,7 @@ classdef test_line_proj_methods<TestCase
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([1,1,0],[1,-1,0]);
+            proj2 = ortho_proj([1,1,0],[1,-1,0],'alatt',2,'angdeg',90);
             %
             proj2.do_generic = true;
             proj2.do_3D_transformation = false;
@@ -138,7 +138,7 @@ classdef test_line_proj_methods<TestCase
         function test_binning_range_half_sampe_proj2Drot45(~)
             % compare default generic cut (3D+1 now) with
             % old-style ranges cut
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
             proj1.do_generic = true;
             proj1.convert_targ_to_source = false;
 
@@ -151,7 +151,7 @@ classdef test_line_proj_methods<TestCase
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([1,1,0],[-1,1,0]);
+            proj2 = ortho_proj([1,1,0],[-1,1,0],'alatt',2,'angdeg',90);
             proj2.do_generic = true;
             proj2.convert_targ_to_source = false;
 
@@ -203,7 +203,7 @@ classdef test_line_proj_methods<TestCase
         end
         %
         function test_binning_range_half_sampe_proj2Drot90(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
 
             dbr = [0,0,0,0;1,1,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
@@ -214,7 +214,7 @@ classdef test_line_proj_methods<TestCase
             bin1 = {[0.5,0.1,dbr(2,1)];[0,0.1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([0,1,0],[-1,0,0]);
+            proj2 = ortho_proj([0,1,0],[-1,0,0],'alatt',1,'angdeg',90);
 
 
 
@@ -228,7 +228,7 @@ classdef test_line_proj_methods<TestCase
             assertEqual(bl_size, ones(1,7)*1);
         end
         function test_binning_range_half_sampe_proj2D_offset_eq_ranges_shif(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
 
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
