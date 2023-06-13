@@ -1,4 +1,4 @@
-classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
+classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
     % Collection of placeholder tests to simple run the migrated API functions: these MUST be replaced
     % with more comprehensive tests as soon as possible
 
@@ -14,13 +14,21 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
 
 
     methods
-        function obj = test_migrated_apis(~)
-            obj = obj@TestCase('test_migrated_apis');
+        function obj = test_migrated_apis(varargin)
+            this_data_path = fileparts(mfilename('fullpath'));
+            test_data = fullfile(this_data_path,'test_migrated_apis.mat');
+            if nargin == 0
+                argi = {test_data};
+            else
+                argi = {varargin{1},test_data};
+            end
+            obj = obj@TestCaseWithSave(argi{:});
             pths = horace_paths;
 
             obj.test_sqw_1d_fullpath = fullfile(pths.test_common, obj.sqw_file_1d_name);
             obj.test_sqw_2d_fullpath = fullfile(pths.test_common, obj.sqw_file_2d_name);
             obj.test_sqw_4d_fullpath = fullfile(pths.test_common, obj.sqw_file_4d_name);
+            obj.save();
         end
 
         %% Calculate
@@ -33,6 +41,8 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             assertEqual(size(q{2}), [176, 1]);
             assertEqual(size(q{3}), [176, 1]);
             assertEqual(en, 0);
+            qen = [q,en];
+            assertEqualWithSave(obj,qen);
         end
         function test_calculate_qsqr_bins(obj)
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
@@ -52,21 +62,30 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             qsqr_w = sqw_obj.calculate_qsqr_w_bins('boundaries');
             assertEqual(size(qsqr_w{1}), [204, 1]);
             assertEqual(size(qsqr_w{2}), [204, 1]);
+            assertEqualWithSave(obj,qsqr_w);
         end
         function test_calculate_qsqr_w_bins_edges(obj)
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
             qsqr_w = sqw_obj.calculate_qsqr_w_bins('edges');
             assertEqual(size(qsqr_w{1}), [4, 1]);
             assertEqual(size(qsqr_w{2}), [4, 1]);
+            assertEqualWithSave(obj,qsqr_w);
         end
         function test_calculate_qsqr_w_pixels(obj)
+            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
+            qsqr_w = sqw_obj.calculate_qsqr_w_bins();
+            assertEqualWithSave(obj,qsqr_w);
         end
-        %        function test_calculate_qw_bins(obj)
-        %            % tested as part of sqw_eval_nopix and calc_qsqr_w_bin calls
-        %        end
-        %        function test_calculate_qw_pixels(obj)
-        %            % tested as part of shift_pixels
-        %        end
+        function test_calculate_qw_bins(obj)
+            dnd_obj = read_dnd(obj.test_sqw_2d_fullpath);
+            qw = calculate_qw_bins(dnd_obj);
+            assertEqualWithSave(obj,qw);
+        end
+        function test_calculate_qw_pixels(obj)
+            sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
+            qw=calculate_qw_pixels(sqw_obj);
+            assertEqualWithSave(obj,qw);
+        end
         %        function test_calculate_qw_pixels2(obj)
         %            % tested as part of calc_qsqr_w_pixels
         %        end
@@ -74,9 +93,6 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
         %            % tested as part of test_get_nearest_pixels
         %        end
 
-        %% Change
-        function test_change_crystal(obj)
-        end
 
         %% Compact/slim
         function test_compact(obj)
@@ -158,23 +174,16 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
 
             sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
             wout_disp  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, params);
+            assertEqualToTolWithSave(obj,wout_disp,'ignore_str', true,'tol',[1.e-6,1.e-6])
 
-            expected = load('test_migrated_apis_data.mat', 'wout_disp');
-
-            assertEqualToTol(expected.wout_disp.data, wout_disp, ...
-                'ignore_str', true,'tol',[1.e-6,1.e-6]);
         end
         function test_dispersion_with_disp_and_weight_retval(obj)
             params = {'scale', 10};
             sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
             [wout_disp, wout_weight]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, params);
 
-            expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
-
-            assertEqualToTol(expected.wout_disp.data, wout_disp, ...
-                'ignore_str', true,'tol',[1.e-6,1.e-6]);
-            assertEqualToTol(expected.wout_weight.data, wout_weight, ...
-                'ignore_str', true,'tol',[1.e-6,1.e-6]);
+            assertEqualToTolWithSave(obj,wout_disp,'ignore_str', true,'tol',[1.e-6,1.e-6])
+            assertEqualToTolWithSave(obj,wout_weight,'ignore_str', true,'tol',[1.e-6,1.e-6])
         end
 
         %% gets
@@ -362,11 +371,7 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             s = sqw(obj.test_sqw_2d_fullpath);
             result = s.xye();
 
-            expected = load('test_migrated_apis_data.mat', 'xye_test');
-
-            assertEqualToTol(result.x, expected.xye_test.x,'tol',[1.e-7,1.e-7]);
-            assertEqualToTol(result.y, expected.xye_test.y);
-            assertEqualToTol(result.e, expected.xye_test.e);
+            assertEqualWithSave(obj,result,'tol',[1.e-7,1.e-7]);
         end
 
         function test_xye_sets_NaN_default_null_value(obj)
