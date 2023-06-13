@@ -100,7 +100,7 @@ classdef ortho_proj<aProjectionBase
         % in new code as old aligned files modify it and there are no way
         % of identifying if the file was aligned or not. Modern code
         % calculates this matrix on request.
-        ub_inv_legacy        
+        ub_inv_legacy
     end
 
     properties(Access=protected)
@@ -255,7 +255,7 @@ classdef ortho_proj<aProjectionBase
         end
         function ub_inv = get.ub_inv_legacy(obj)
             ub_inv = obj.ub_inv_compat_;
-        end        
+        end
         %------------------------------------------------------------------
         % OLD from new sqw object creation interface.
         % TODO: remove when new SQW object is fully implemented
@@ -274,6 +274,30 @@ classdef ortho_proj<aProjectionBase
         % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
         %------------------------------------------------------------------
+        function pix_hkl = transform_img_to_hkl(obj,img_coord,varargin)
+            % Converts from image coordinate system to hkl coordinate
+            % system
+            %
+            % Should be overloaded to optimize for a particular case to
+            % improve efficiency.
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in. The target projection has to be
+            %              set up
+            %
+            % pix_origin   4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system, defined by
+            %              this projection
+            % Ouput:
+            % pix_targ -- 4xNpix or 3xNpix array of pixel coordinates in
+            %             hkl (physical) coordinate system (4-th
+            %             coordinate, if requested, is the energy transfer)
+
+
+            pix_hkl = transform_img_to_hkl_(obj,img_coord,varargin{:});
+        end
+
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in crystal Cartesian coordinate systems
             % into image coordinate system
@@ -354,8 +378,10 @@ classdef ortho_proj<aProjectionBase
         function  mat = get_u_to_rlu_mat(obj)
             % overloadable accessor for getting value for ub matrix
             % property
-            [~, mat] = obj.uv_to_rot();
-            mat = [mat,[0;0;0];[0,0,0,1]];
+            mat = obj.transform_img_to_hkl(eye(4));
+%            [~, mat] = obj.uv_to_rot();
+%            mat = [mat,[0;0;0];[0,0,0,1]];
+            
         end
 
         function  [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj,ustep)
@@ -552,10 +578,10 @@ classdef ortho_proj<aProjectionBase
             % current object
             % Optional:
             % any set of parameters equal_to_tol function would accept
-            names = cell(2,1);            
+            names = cell(2,1);
             if nargout == 2
                 names{1} = inputname(1);
-                names{2} = inputname(2);                
+                names{2} = inputname(2);
                 [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
             else
                 is = eq_(obj,other_obj,nargout,names,varargin{:});
@@ -564,17 +590,17 @@ classdef ortho_proj<aProjectionBase
         function [nis,mess] = ne(obj,other_obj,varargin)
             % Non-equal operator
             %
-            names = cell(2,1);                        
+            names = cell(2,1);
             if nargout == 2
                 names{1} = inputname(1);
-                names{2} = inputname(2);                
+                names{2} = inputname(2);
                 [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
             else
                 is = eq_(obj,other_obj,nargout,names,varargin{:});
             end
             nis = ~is;
         end
-        
+
     end
     properties(Constant, Access=private)
         fields_to_save_ = {'u','v','w','nonorthogonal','type'}

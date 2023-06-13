@@ -28,10 +28,6 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
         %
         wout = func_eval(win, func_handle, pars, varargin);
-
-        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
-        %                             % centres of the bins of an n-dimensional
-        %                             % sqw or dnd dataset.        
     end
     %======================================================================
     % METHODS, Available on SQW but requesting only DND object for
@@ -66,6 +62,13 @@ classdef (Abstract) SQWDnDBase < serializable
         % build the axes block which specified by projection and target cut
         % parameters
         [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, input_pbin,varagin);
+        %
+        qw=calculate_qw_bins(win,varargin) % Calculate qh,qk,ql,en for the
+        %                             % centres of the bins of an n-dimensional
+        %                             % sqw or dnd dataset.                
+        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
+        %                             % of the bins of an n-dimensional sqw
+        %                             % or dnd dataset        
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -148,10 +151,6 @@ classdef (Abstract) SQWDnDBase < serializable
         cl = save(w, varargin);
 
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
-
-        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
-        %                             % of the bins of an n-dimensional sqw
-        %                             % or dnd dataset
 
         % rebin an object to the other object with the dimensionality
         % smaller then the dimensionality of the current object

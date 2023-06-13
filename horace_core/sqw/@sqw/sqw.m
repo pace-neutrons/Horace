@@ -238,6 +238,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % n-dimensional sqw dataset
             qw = win.data.calculate_qw_bins(varargin{:});
         end
+        function [q,en]=calculate_q_bins(win)     
+            [q,en] = win.data.calculate_q_bins();            
+        end
     end
     %======================================================================
     % ACCESSORS TO OBJECT PROPERTIES and construction

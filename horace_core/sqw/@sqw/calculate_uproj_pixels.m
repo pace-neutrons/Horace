@@ -36,7 +36,7 @@ if exist('step','var')
     end
 end
 
-img_coord = win.data.proj.transform_pix_to_img(win.pix.coordinates);
+img_coord = win.data.proj.transform_pix_to_img(win.pix);
 
 if do_step
     % Get bin centres and step sizes
