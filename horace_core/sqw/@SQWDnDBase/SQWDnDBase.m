@@ -28,6 +28,10 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
         %
         wout = func_eval(win, func_handle, pars, varargin);
+
+        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
+        %                             % centres of the bins of an n-dimensional
+        %                             % sqw or dnd dataset.        
     end
     %======================================================================
     % METHODS, Available on SQW but requesting only DND object for
@@ -148,9 +152,6 @@ classdef (Abstract) SQWDnDBase < serializable
         [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
         %                             % of the bins of an n-dimensional sqw
         %                             % or dnd dataset
-        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
-        %                             % centres of the bins of an n-dimensional
-        %                             % sqw or dnd dataset.
 
         % rebin an object to the other object with the dimensionality
         % smaller then the dimensionality of the current object

@@ -95,6 +95,12 @@ classdef ortho_proj<aProjectionBase
         % ortho-ortho transformation to identify cells which may contribute
         % to a cut. Correct value is chosen on basis of performance analysis
         convert_targ_to_source=true;
+        % LEGACY PROPERTY:
+        % inverted UB matrix (u_to_rlu), set directly to projection. Kept
+        % in new code as old aligned files modify it and there are no way
+        % of identifying if the file was aligned or not. Modern code
+        % calculates this matrix on request.
+        ub_inv_legacy        
     end
 
     properties(Access=protected)
@@ -247,6 +253,9 @@ classdef ortho_proj<aProjectionBase
             % by alignment matrix.
             obj.ub_inv_compat_ = ub_inv;
         end
+        function ub_inv = get.ub_inv_legacy(obj)
+            ub_inv = obj.ub_inv_compat_;
+        end        
         %------------------------------------------------------------------
         % OLD from new sqw object creation interface.
         % TODO: remove when new SQW object is fully implemented

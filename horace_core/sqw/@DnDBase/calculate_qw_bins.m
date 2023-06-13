@@ -56,19 +56,7 @@ end
 nodes = win.axes.get_bin_nodes(argi{:});
 
 proj = win.proj;
-proj_hkl = ortho_proj([1,0,0],[0,1,0],[0,0,1], ...
-    'alatt',proj.alatt,'angdeg',proj.angdeg,'type','ppp');
-% enable possible pix-image optimization
-
-proj.targ_proj     = proj_hkl;
-pix_hkl = proj.from_this_to_targ_coord(nodes);
-% package as cell array of column vectors for convenience with fitting routines etc.
-if do_3D
-    qw = {pix_hkl(1,:)', pix_hkl(2,:)', pix_hkl(3,:)'};
-nodes = win.axes.get_bin_nodes(argi{:});
-
-proj = win.proj;
-pix_cc = proj.from_img_to_pix(nodes);
+pix_cc = proj.transform_img_to_pix(nodes);
 % Optimization possible as new method of aProjection!
 if isempty(proj.ub_inv_legacy)
     b_mat = bmatrix(proj.alatt,proj.angdeg);
@@ -80,7 +68,6 @@ end
 if do_3D
     qw = {pix_hkl(1,:)', pix_hkl(2,:)', pix_hkl(3,:)'};
 else
-    qw = {pix_hkl(1,:)', pix_hkl(2,:)', pix_hkl(3,:)',pix_hkl(4,:)'};
     qw = {pix_hkl(1,:)', pix_hkl(2,:)', pix_hkl(3,:)',pix_cc(4,:)'};
 end
 

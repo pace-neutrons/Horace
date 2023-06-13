@@ -1,5 +1,6 @@
 function [nodes,en_axis,npoints_in_axes,bin_volume] = ...
-    calc_bin_nodes_(obj,call_nargout,do3D,halo,bin_edges,bin_centre,dens_interp, ...
+    calc_bin_nodes_(obj,call_nargout,do3D,halo,bin_edges,bin_centre, ...
+    dens_interp, plot_edges,...
     axes_only,ngrid_form,hull,varargin)
 % build 3D or 4D vectors, containing all nodes of the AxesBlockBase grid,
 % constructed over AxesBlockBase axes.
@@ -18,6 +19,9 @@ function [nodes,en_axis,npoints_in_axes,bin_volume] = ...
 % dens_interp
 %           -- if true, return grid used to define density, bin centres for
 %              projection axes and bin edges of integrated dimensions.
+% plot_edges-- if true, return bin_edges as used for plotting dispersion
+%              i.e. bin edges for plot axes and bin centers for integration
+%              axes
 % bin_centre
 %           -- if true, return grid used for integration by summation in
 %              centre-points, namely, points are in the centre of cells and
@@ -57,10 +61,15 @@ function [nodes,en_axis,npoints_in_axes,bin_volume] = ...
 %           vector of bin volumes for the grid returned grid if axes bin
 %           volumes differ
 
-n_pos_arg = 10; % number of positional arguments always present as inputs (excluding varargin)
-if bin_centre && bin_edges
+n_pos_arg = 11; % number of positional arguments always present as inputs (excluding varargin)
+if bin_centre && (bin_edges || plot_edges)
     error('Horace:AxesBlockBase:invalid_argument',...
-        '"-bin_edges" and "-bin_centre" keys can not be used together')
+        '"-bin_centre" can not be used with "-bin_edges" or "-plot_edges" keys')
+end
+if bin_edges && plot_edges
+    error('Horace:AxesBlockBase:invalid_argument',...
+        '"-bin_edges" can not be used together with "-plot_edges" keys')
+
 end
 if ngrid_form && hull
     error('HORACE:AxesBlockBase:invalid_argument',...
@@ -113,7 +122,7 @@ else
     bin_volume  = [];
 end
 
-if bin_centre || dens_interp
+if bin_centre || dens_interp || plot_edges
     is_pax = false(4,1);
     is_pax(obj.pax) = true;
 
@@ -121,14 +130,15 @@ if bin_centre || dens_interp
     % grid.
     for i=1:4
         if is_pax(i)
+            if ~plot_edges
             axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
+            end
         else % integration axis
             if dens_interp  % may be necessary if cell size is provided, not for
                %  default range which is already defined by this formula                
                 axes{i} = [obj.img_range(1,i),obj.img_range(2,i)];
             else 
                 axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
-                
             end
         end
         npoints_in_axes(i) = numel(axes{i});
@@ -142,9 +152,13 @@ if hull
         if halo
             ax_hull{i} = [ax(1:2),ax(end-1:end)];
         else
+            if plot_edges && ~is_pax(i)
+                ax_hull{i} = 0.5*(ax(1)+ax(end));
+            else
             ax_hull{i} = [ax(1),ax(end)];
         end
     end
+end
 end
 
 if axes_only
@@ -170,6 +184,9 @@ if do3D
     En = en_axis;
 else
     if hull
+        if plot_edges
+            [Xn,Yn,Zn,En] = ndgrid(ax_hull{:});
+        else
         [Xn1,Yn1,Zn1,En1] = ndgrid(ax_hull{1},axes{2},axes{3},axes{4});
         [Xn2,Yn2,Zn2,En2] = ndgrid(axes{1},ax_hull{2},axes{3},axes{4});
         [Xn3,Yn3,Zn3,En3] = ndgrid(axes{1},axes{2},ax_hull{3},axes{4});
@@ -179,6 +196,7 @@ else
         Yn = [Yn1(:);Yn2(:);Yn3(:);Yn4(:)]';
         Zn = [Zn1(:);Zn2(:);Zn3(:);Zn4(:)]';
         En = [En1(:);En2(:);En3(:);En4(:)]';
+        end
     else
         [Xn,Yn,Zn,En] = ndgrid(axes{:});
     end

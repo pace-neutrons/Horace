@@ -62,29 +62,29 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             qsqr_w = sqw_obj.calculate_qsqr_w_bins('boundaries');
             assertEqual(size(qsqr_w{1}), [204, 1]);
             assertEqual(size(qsqr_w{2}), [204, 1]);
-            assertEqualWithSave(obj,qsqr_w);
+            assertEqualToTolWithSave(obj,qsqr_w,'tol',1.e-9);
         end
         function test_calculate_qsqr_w_bins_edges(obj)
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
             qsqr_w = sqw_obj.calculate_qsqr_w_bins('edges');
             assertEqual(size(qsqr_w{1}), [4, 1]);
             assertEqual(size(qsqr_w{2}), [4, 1]);
-            assertEqualWithSave(obj,qsqr_w);
+            assertEqualToTolWithSave(obj,qsqr_w,'tol',1.e-9);
         end
         function test_calculate_qsqr_w_pixels(obj)
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
             qsqr_w = sqw_obj.calculate_qsqr_w_bins();
-            assertEqualWithSave(obj,qsqr_w);
+            assertEqualToTolWithSave(obj,qsqr_w,'tol',1.e-9);
         end
         function test_calculate_qw_bins(obj)
             dnd_obj = read_dnd(obj.test_sqw_2d_fullpath);
             qw = calculate_qw_bins(dnd_obj);
-            assertEqualWithSave(obj,qw);
+            assertEqualToTolWithSave(obj,qw,'tol',1.e-9);
         end
         function test_calculate_qw_pixels(obj)
             sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
             qw=calculate_qw_pixels(sqw_obj);
-            assertEqualWithSave(obj,qw);
+            assertEqualToTolWithSave(obj,qw,'tol',1.e-9);
         end
         %        function test_calculate_qw_pixels2(obj)
         %            % tested as part of calc_qsqr_w_pixels
