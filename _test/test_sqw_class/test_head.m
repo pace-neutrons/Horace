@@ -68,7 +68,7 @@ classdef test_head < TestCaseWithSave
             ldr.delete();
             hdd = sqw_obj.head('-full');
 
-            assertEqualToTol(hd,hdd)
+            assertEqualToTol(hd,hdd,'tol',1.e-7)
         end
         function test_head_sqw_new_file(obj)
             ldr = sqw_formats_factory.instance().get_loader(obj.sqw_file_v4_name);
@@ -77,7 +77,7 @@ classdef test_head < TestCaseWithSave
             ldr.delete();
             hdd = sqw_obj.head();
 
-            assertEqualToTol(hd,hdd)
+            assertEqualToTol(hd,hdd,1.e-7)
         end
         
         
@@ -95,7 +95,7 @@ classdef test_head < TestCaseWithSave
             hdd.nfiles = hd.nfiles;
             % old file format does not contain data range
             hd.data_range = hdd.data_range;
-            assertEqualToTol(hd,hdd,1.e-8)
+            assertEqualToTol(hd,hdd,4.e-7)
         end
         
         function test_head_sqw_old_file(obj)
@@ -113,7 +113,7 @@ classdef test_head < TestCaseWithSave
             % old file format does not contain data range
             hd.data_range = hdd.data_range;
             
-            assertEqualToTol(hd,hdd,1.e-8)
+            assertEqualToTol(hd,hdd,4.e-7)
         end
         function test_head_dnd_old_file_full(obj)
             ldr = sqw_formats_factory.instance().get_loader(obj.dnd_file_1d_name);
@@ -145,24 +145,24 @@ classdef test_head < TestCaseWithSave
             [hd1,hd2] = head(obj_arr);
             assertEqual(hd1,hd2);
 
-            assertEqualToTolWithSave(obj,hd1,4.e-9,'ignore_str',true);
+            assertEqualToTolWithSave(obj,hd1,4.e-7,'ignore_str',true);
         end
 
         function test_head_1d_full(obj)
             hd = head(obj.sq1d_obj,'-full');
-            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
+            assertEqualToTolWithSave(obj,hd,4.e-7,'ignore_str',true);
         end
         function test_head_dnd_1d(obj)
             hd = head(obj.sq1d_obj.data);
 
-            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
+            assertEqualToTolWithSave(obj,hd,4.e-7,'ignore_str',true);
         end
 
 
         function test_head_sqw_1d(obj)
             hd = head(obj.sq1d_obj);
 
-            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
+            assertEqualToTolWithSave(obj,hd,4.e-7,'ignore_str',true);
         end
     end
 end

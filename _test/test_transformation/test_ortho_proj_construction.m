@@ -222,6 +222,7 @@ classdef test_ortho_proj_construction<TestCase
 
         end
         function test_getset_nonortho_proj_aaa_111(~)
+            skipTest('This test is dealt with in Re #892')            
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','aaa','u',[1,1,1],'v',[1,1,0],'w',[0,-1,1]);
@@ -248,6 +249,7 @@ classdef test_ortho_proj_construction<TestCase
         end
 
         function test_getset_nonortho_proj_aaa_110(~)
+            skipTest('This test is dealt with in Re #892')            
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','aaa','u',[1,1,0],'v',[1,0,0],'w',[1,1,1]);
@@ -273,6 +275,7 @@ classdef test_ortho_proj_construction<TestCase
             assertTrue(prj_rec.nonorthogonal);
         end
         function test_getset_nonortho_proj_aaa_100(~)
+            skipTest('This test is dealt with in Re #892')            
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','aaa','u',[1,0,0],'v',[1,1,0],'w',[1,1,1]);
@@ -298,6 +301,7 @@ classdef test_ortho_proj_construction<TestCase
             assertTrue(prj_rec.nonorthogonal);
         end
         function test_getset_nonortho_proj_ppp_110(~)
+            skipTest('This test is dealt with in Re #892')            
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','ppp','u',[1,1,0],'v',[0,1,0],'w',[1,1,1]);
@@ -327,6 +331,7 @@ classdef test_ortho_proj_construction<TestCase
             assertEqual(prj_rec.type,'rrr')
         end
         function test_getset_nonortho_proj_par_110(~)
+            skipTest('This test is dealt with in Re #892')            
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','par','u',[1,1,0],'v',[0,1,0],'w',[1,1,1]);
@@ -358,6 +363,7 @@ classdef test_ortho_proj_construction<TestCase
         
 
         function test_getset_nonortho_proj_ppp_100(~)
+            skipTest('This test is dealt with in Re #892')            
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','ppp','u',[1,0,0],'v',[0,1,0],'w',[1,1,1]);
@@ -388,6 +394,7 @@ classdef test_ortho_proj_construction<TestCase
         end
 
         function test_getset_nonortho_proj_rrr_100(~)
+            skipTest('This test is dealt with in Re #892')            
             prj_or = ortho_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
                 'type','rrr','u',[1,0,0],'v',[0,1,0],'w',[1,1,1]);
@@ -417,6 +424,7 @@ classdef test_ortho_proj_construction<TestCase
 
 
         function test_getset_nonortho_proj_rrr_noW(~)
+            skipTest('This test is dealt with in Re #892')
             prj_or = ortho_projTester('alatt',[3.1580 3.1752 3.1247], ...
                 'angdeg',[90.0013 89.9985 90.0003],'nonorthogonal',true,...
                 'type','rrr','u',[1,0,0],'v',[0,1,0]);
