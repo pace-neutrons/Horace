@@ -108,6 +108,8 @@ classdef dnd_metadata < serializable
                 obj.proj = dnd_obj.proj;
                 if dnd_obj.creation_date_defined
                     obj.creation_date_str = dnd_obj.creation_date;
+                else
+                    obj.creation_date_str = datetime('now');
                 end
             else
                 flds = obj.saveableFields();

@@ -110,6 +110,7 @@ for iw = 1:numel(win)
 
 
     cov_hkle{iw} = transform_matrix (cov_x, dq_mat);
+    %TODO: Re #1040 this code is not consistent with generic projection:
     cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(wtmp.data.u_to_rlu));
 
     rlu_to_spec = invert_matrix (spec_to_rlu);

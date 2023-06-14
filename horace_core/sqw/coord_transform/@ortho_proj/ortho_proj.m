@@ -132,7 +132,7 @@ classdef ortho_proj<aProjectionBase
             obj = obj@aProjectionBase();
             obj.label = {'\zeta','\xi','\eta','E'};
             % try to use specific range-range identification algorithm,
-            % suitable for ortho-ortho transformamation
+            % suitable for ortho-ortho transformation
             obj.do_generic = false;
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
@@ -473,7 +473,7 @@ classdef ortho_proj<aProjectionBase
         %
         function [rot_to_img,shift]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
-            % to image coordinate system and vise-versa if the projaxes is
+            % to image coordinate system and vice-versa if the projaxes is
             % defined
             % Input:
             % ndim -- number of dimensions in the pixels coordinate array
@@ -609,7 +609,7 @@ classdef ortho_proj<aProjectionBase
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % savable class
+            % saveable class
             obj = ortho_proj();
             obj = loadobj@serializable(S,obj);
         end

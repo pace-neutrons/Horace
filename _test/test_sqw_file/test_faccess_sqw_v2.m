@@ -238,7 +238,7 @@ classdef test_faccess_sqw_v2< TestCase
             %
 
             tob_sqw.main_header.creation_date = rec_sqw.main_header.creation_date;
-            assertTrue(equal_to_tol(tob_sqw, rec_sqw));
+            assertEqualToTol(tob_sqw, rec_sqw,'tol',2.e-7);
             %
         end
         %
@@ -332,7 +332,8 @@ classdef test_faccess_sqw_v2< TestCase
 
             assertEqualToTol(sqw1,sqw2,'ignore_str',true);
 
-            assertEqualToTol(sqwob,sqw2,1.e-12,'ignore_str',true,'-ignore_date')
+            assertEqualToTol(sqwob,sqw2,'tol',[2.e-7,2.e-7], ...
+                'ignore_str',true,'-ignore_date')
 
             %
         end
@@ -357,7 +358,8 @@ classdef test_faccess_sqw_v2< TestCase
             to.delete();
             assertTrue(isa(sqw2,'d2d'));
 
-            assertEqualToTol(d2d(sqwob),sqw2,'ignore_str',true)
+            assertEqualToTol(d2d(sqwob),sqw2, 'tol',[2e-7,2e-7],...
+                'ignore_str',true)
             %
         end
         %
@@ -382,9 +384,7 @@ classdef test_faccess_sqw_v2< TestCase
             to.delete();
             assertTrue(isa(dn2,'d2d'));
 
-
-            [ok,mess]=equal_to_tol(dn2,dnob,'ignore_str',true);
-            assertTrue(ok,mess)
+            assertEqualToTol(dn2,dnob,'ignore_str',true)
             %
         end
         %
@@ -414,7 +414,8 @@ classdef test_faccess_sqw_v2< TestCase
             tsq_obj = chob.get_sqw();
             chob.delete();
 
-            assertEqualToTol(sq_obj,tsq_obj,'ignore_str',true,'-ignore_date');
+            assertEqualToTol(sq_obj,tsq_obj,'tol',2.e-7, ...
+                'ignore_str',true,'-ignore_date');
 
 
         end

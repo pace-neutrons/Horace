@@ -151,6 +151,12 @@ elseif numel(par)~=0
 end
 
 if ~isempty(proj) && ~isa(proj,'ortho_proj')
+    if ~isfield(proj,'alatt')
+        proj.alatt = alatt;
+    end
+    if ~isfield(proj,'angdeg')
+        proj.angdeg = angdeg;
+    end    
     proj = ortho_proj(proj);
 end
 
