@@ -234,6 +234,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %              (e.g. lattice if undefined, etc)
             [targ_ax_block, targ_proj] = w.data_.define_target_axes_block(targ_proj, pbin, sym);
         end
+        function qw=calculate_qw_bins(win,varargin)
+            % Calculate qh,qk,ql,en for the centres of the bins of an
+            % n-dimensional sqw dataset
+            qw = win.data.calculate_qw_bins(varargin{:});
+        end
+        function [q,en]=calculate_q_bins(win)
+            [q,en] = win.data.calculate_q_bins();
+        end
     end
     %======================================================================
     % ACCESSORS TO OBJECT PROPERTIES and construction

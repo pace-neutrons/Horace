@@ -88,6 +88,43 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         %------------------------------------------------------------------------
         % Tests
         %------------------------------------------------------------------------
+        function test_cut_sym_no_dup_2_identity(obj)
+        % Test symmetrisation, does not duplicate pixels
+        % Even if we cut identity twice.
+        % `id` is defined as 2 identical reflections because
+        % `SymopIdentity`s are filtered from ops.
+
+            op = SymopReflection([1 0 0], [0 1 0], [0 0 0]);
+            id = [op, op]; % Reflect reflect back
+
+            obj.data2.pix = PixelDataMemory(obj.data2.pix);
+            w1sym = cut(obj.data2, obj.proj2, obj.ubin2, ...
+                        obj.vbin2, obj.wbin2, obj.ebin2);
+
+            w2sym = cut(obj.data2, obj.proj2, obj.ubin2, ...
+                        obj.vbin2, obj.wbin2, obj.ebin2, ...
+                        {SymopIdentity(), id});
+
+            assertEqualToTol(w1sym.data.s, w2sym.data.s, 'ignore_str', 1);
+        end
+
+        function test_cut_sym_reflect_half_to_whole_cut(obj)
+            op = SymopReflection([0 1 0], [0 0 1], [0 0 0]);
+
+            wtmp = symmetrise_sqw(obj.data2, [0 1 0], [0 0 1], [0 0 0]);
+            wtmp.pix = PixelDataMemory(wtmp.pix);
+            ubin_half = [0 0.05 0.5];
+
+            w1sym = cut(wtmp, obj.proj2, obj.ubin_half, ...
+                        obj.vbin2, obj.wbin2, obj.ebin2);
+
+            w2sym = cut(obj.data2, obj.proj2, ubin_half, ...
+                        obj.vbin2, obj.wbin2, obj.ebin2, ...
+                        {SymopIdentity(), op});
+
+            assertEqualToTol(w1sym.data.s, w2sym.data.s, 'ignore_str', 1);
+
+        end
 
         function test_cut_sym_with_pix(obj)
         % Test symmetrisation, keeping pixels

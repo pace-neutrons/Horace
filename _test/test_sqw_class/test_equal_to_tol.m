@@ -49,6 +49,13 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             hc.saveable = true;            
         end
 
+        function setUp(obj)
+            hc = hor_config();
+            hc.saveable = false;
+            obj.log_level= hc.log_level;
+            hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
+        end
+
         function tearDown(obj)
             hc = hor_config();            
             hc.log_level = obj.log_level;
@@ -84,9 +91,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             shuffled_sqw = original_sqw;
             shuffled_sqw.pix = obj.shuffle_pixel_bin_rows(pix, npix);
 
-            assertTrue(equal_to_tol(shuffled_sqw, original_sqw));
-            % Check that disabling reorder causes them to be not equal
-            assertFalse(equal_to_tol(shuffled_sqw, original_sqw, 'reorder', false));
+            assertEqualToTol(shuffled_sqw, original_sqw);
         end
 
         function test_paged_sqw_objects_equal_if_pix_within_each_bin_shuffled(obj)

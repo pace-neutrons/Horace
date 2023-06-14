@@ -21,13 +21,7 @@ classdef ParallelCut < JobExecutor
             data = obj.loop_data_{1};
             common = obj.common_data_;
 
-            w_out = cut(data, common.args{:});
-            if w_out.pix.is_filebacked
-                % Need to preserve tmp files
-                cellfun(@(w) save(w, w.full_filename), w_out);
-            end
-            obj.task_outputs = w_out;
-
+            cut(data.w, common.args{:}, data.tmp_files);
         end
 
         function obj = do_job(obj)

@@ -243,10 +243,8 @@ if ndims > 1 % convert to 1D indices
 end
 pix = pix_ok;
 
-% TODO: this should be moved to get_pixels
-% when PixelData is separated into file accessor and memory accessor
-if ndims > 0 && nout ~= 6
-    pix = sort_pix(pix, pix_indx, npix1, varargin{:});
+if ~isa(pix.data,'double') && force_double
+    pix = PixelDataBase.create(double(pix.data));
 end
 
 if nout < 6 && ndims > 0

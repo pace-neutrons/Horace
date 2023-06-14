@@ -1,29 +1,54 @@
 function wout = parallel_cut_eval(nWorkers, args);
 
     w = args{1};
-    if ~iscell(w)
-        w = {w};
-    end
     args = args(2:end);
 
-    switch class(w{1})
-      case {'cell'}
-        if iscellstr()
-            w = cellfun(@sqw, w{1});
-        end
-      case {'char', 'string'}
-        w{1} = sqw(w{1});
-      case {'d1d', 'd2d', 'd3d', 'd4d', 'sqw'}
-        ; %Do nothing
-      otherwise
-        error('HERBERT:parallel_cut:invalid_argument', ...
-              'Cannot perform parallel cut on object of class %s', class(w{1}))
+    if istext(args{end})
+        outfile = args{end};
+        args = args{1:end-1};
+    else
+        outfile = [];
     end
 
-    w
-    loop_data = cellfun(@(x) distribute(x, nWorkers, false), w, 'UniformOutput', false);
-    loop_data{1}
+    tmp_files = cell(nWorkers, 1);
+    filenames = cell(nWorkers, 1);
 
+    for i = 1:nWorkers
+        switch class(w)
+          case {'cell'}
+            if iscellstr(w)
+                tmp_files{i} = cellfun(@TmpFileHandler, w);
+                w = cellfun(@sqw, w, 'UniformOutput', false')
+            elseif all(cellfun(@(x) isa(x, 'sqw'), w))
+                tmp_files{i} = cellfun(@(x) TmpFileHandler(x.full_filename), w);
+            else
+                error('HERBERT:parallel_cut:invalid_argument', ...
+                      'Cannot perform parallel cut on object of class %s', class(w))
+
+            end
+          case {'char', 'string'}
+            tmp_files{i} = TmpFileHandler(w);
+            w = {sqw(w)};
+          case {'sqw'} % 'd1d', 'd2d', 'd3d', 'd4d',
+            tmp_files{i} = TmpFileHandler(w.full_filename);
+            w = {w};
+          otherwise
+            error('HERBERT:parallel_cut:invalid_argument', ...
+                  'Cannot perform parallel cut on object of class %s', class(w))
+        end
+        filenames{i} = arrayfun(@(x) x.file_name, tmp_files{i}, 'UniformOutput', false);
+    end
+
+    ws = cellfun(@(x) distribute(x, nWorkers, false), w, 'UniformOutput', false);
+
+    loop_data = struct('tmp_files', filenames, 'w', {cell(numel(w), 1)});
+    for worker = 1:nWorkers
+        for nw = 1:numel(w)
+            loop_data(worker).w{nw} = ws{nw}(worker);
+        end
+    end
+
+    loop_data = mat2cell(loop_data, ones(nWorkers, 1));
     common_data = struct('args', {args});
 
     jd = JobDispatcher('ParallelCut');
@@ -34,19 +59,19 @@ function wout = parallel_cut_eval(nWorkers, args);
               'Parallel execution of SQW eval failed');
     end
 
-    wout = cellfun(@copy, w, 'UniformOutput', false);
+    if isempty(outfile)
+        tmp_outfile = TmpFileHandler(w{1}.full_filename);
+        outfile = tmp_outfile.file_name;
+        write_nsqw_to_sqw([filenames{:}], outfile, '-parallel');
+        wout = sqw(outfile);
 
-    if iscell(res{1})
-        extract = @(x, i) x{i}.pix.data;
+        if wout.pix.is_filebacked % Preserve pix
+            tmp_outfile.file_name = '';
+            clear tmp_outfile;
+        end
     else
-        extract = @(x, i) x(i).pix.data;
-    end
-
-    % Recombine data
-    for i = 1:numel(wout)
-        pix = cellfun(extract, res, repmat({i}, size(res)), 'UniformOutput', false);
-        wout{i}.pix.data = horzcat(pix{:});
-        [wout{i}.data.s, wout{i}.data.e] = wout{i}.pix.compute_bin_data(wout{i}.data.npix);
+        write_nsqw_to_sqw([filenames{:}], outfile, '-parallel');
+        wout = [];
     end
 
 end

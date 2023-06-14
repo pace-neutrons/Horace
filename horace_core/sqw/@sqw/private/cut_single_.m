@@ -38,11 +38,11 @@ end
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data(...
-    targ_axes, targ_proj, s, e, npix, pix_out,keep_pix);
+    targ_axes, targ_proj, s, e, npix, pix_out, opt.keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
 % dnd.
-if keep_pix
+if opt.keep_pix
     wout = sqw();
     wout.main_header = w.main_header;
     wout.detpar = w.detpar;

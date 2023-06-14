@@ -126,9 +126,12 @@ if dnd_type
 end
 
 return_cut = nargout > 0;
-[targ_proj, pbin, sym, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
-    obj.data, return_cut, varargin{:});
 
+% verify if source projection is ortho_projection as
+% it may contain legacy alignment, we do not want transfer to other
+% projections. (TODO: need to be converted into recent alignment)
+source_is_ortho_proj = isa(obj.data.proj,'ortho_proj');
+%
 % Set up new projection properties, related to lattice. This together with
 % projection inputs defines pixels-to-image transformation.
 [targ_proj, pbin, sym, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
@@ -143,6 +146,20 @@ if source_is_ortho_proj && target_is_ortho_proj && targ_proj.ignore_legacy_align
     obj.data.proj.ub_inv_legacy = [];
 end
 
+% old file format alignment. Only ortho_proj is supported
+if  source_is_ortho_proj && ~isempty(obj.data.proj.ub_inv_legacy)
+    if target_is_ortho_proj % transfer legacy alignment matrix to
+        % new projection to keep legacy alignment
+        targ_proj = targ_proj.set_ub_inv_compat(obj.data.proj.ub_inv_legacy);
+    else
+    warning('HORACE:old_file_format', ...
+        ['\n Non-triclinic projections are fully supported by version 4.0 and higher Horace sqw objects only.\n', ...
+        ' If you use aligned sqw object produced by old Horace version,\n', ...
+        ' the resulting cut with non-triclinic projection will be performed on misaligned data\n', ...
+        ' Convert old misaligned data into new file-format and realign these data again to use cuts with not-triclinic projections.']);
+    end
+end
+%
 sz = size(pbin);
 
 % This loop enables multi-cuts
