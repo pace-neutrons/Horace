@@ -83,10 +83,10 @@ classdef ortho_proj<aProjectionBase
         %
     end
     properties(Dependent,Hidden)
-        % renamed offset projection property kep to support old interface
+        % renamed offset projection property keep to support old interface
         uoffset
         % Two properties below are responsible for support of old binary
-        % file format and legacy alingment
+        % file format and legacy alignment
         %
         % LEGACY PROPERTY: (used for saving data in old file format)
         % Return the compatibility structure, which may be used as
@@ -110,7 +110,7 @@ classdef ortho_proj<aProjectionBase
         ulen
     end
     properties(Hidden)
-        % Developers option. Use old (v3 and below) subalgorithm in
+        % Developers option. Use old (v3 and below) sub-algorithm in
         % ortho-ortho transformation to identify cells which may contribute
         % to a cut. Correct value is chosen on basis of performance analysis
         convert_targ_to_source=true;
@@ -138,7 +138,7 @@ classdef ortho_proj<aProjectionBase
 
         % inverted ub matrix, used to support alignment as in Horace 3.xxx
         % as real ub matrix is multiplied by alignment matrix there and
-        % there are no way of indetifying if this happened or not.
+        % there are no way of identifying if this happened or not.
         ub_inv_legacy_ = [];
 
         % Caches, containing main matrices, used in the transformation
@@ -184,7 +184,7 @@ classdef ortho_proj<aProjectionBase
             else
                 % constructor does not accept legacy alignment matrix
                 opt =  [ortho_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
-                % check if the type is defined explicityly
+                % check if the type is defined explicitly
                 n_type = find(ismember(opt,'type'));
                 is_keys = cellfun(@istext,varargin);
                 if ismember('type',varargin(is_keys)) || ... % defined as key-value pair
@@ -299,7 +299,7 @@ classdef ortho_proj<aProjectionBase
             u2rlu_leg = [[u2rlu_leg,zeros(3,1)];[0,0,0,1]];
         end
         function obj = set.ub_inv_legacy(obj,val)
-            % no comprehencive checks performed here.  It is compartibility
+            % no comprehensive checks performed here.  It is compatibility
             % with old file format. The method should be used
             % by saveobj/loadobj only
             obj.ub_inv_legacy_ = val;
@@ -429,7 +429,7 @@ classdef ortho_proj<aProjectionBase
         %
         function [u_to_img,shift,ulen,obj]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
-            % to image coordinate system and vise-versa if the projaxes is
+            % to image coordinate system and vice-versa if the projaxes is
             % defined
             % Input:
             % ndim -- number of dimensions in the pixels coordinate array
@@ -438,7 +438,7 @@ classdef ortho_proj<aProjectionBase
             % Optional:
             % pix_transf_info
             %      -- PixelDataBase or pix_metadata class, providing the
-            %         informarion about pixel alignment. If present and
+            %         information about pixel alignment. If present and
             %         pixels are misaligned, contains additional rotation
             %         matrix, used for aligning the pixels data into
             %         Crystal Cartesian coordinate system
@@ -503,51 +503,11 @@ classdef ortho_proj<aProjectionBase
             % property
             mat =obj.get_pix_img_transformation(4);
         end
-            if ~isempty(obj.u_to_img_cache_) && isempty(obj.ub_inv_legacy)
-                u_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
-                shift    = obj.u_offset_cache_(1:ndim);
-                ulen     = obj.ulen_cache_;
-                if alignment_needed
-                    u_to_img  = u_to_img*alignment_mat;
-                end
-                return;
-            end
-            %
-            if isempty(obj.ub_inv_legacy)
-                [u_to_img,ulen,rlu_to_u,obj] = projaxes_to_rlu_(obj);
-                % Modern alignment with rotation matrix attached to pixel
-                % coordinate system
-                if alignment_needed
-                    u_to_img  = u_to_img*alignment_mat;
-                end
-            else% Legacy alignment, with multiplication of rotation matrix
-                [rlu_to_u,~,ulen]  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
-                u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
-                u_to_img  = (rlu_to_u*u_to_rlu_);
-                rlu_to_u  = inv(u_to_rlu_);
-            end
-            %
-            if ndim==4
-                shift  = obj.offset;
-                rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
-                u_to_img = [u_to_img,[0;0;0];[0,0,0,1]];
-            elseif ndim == 3
-                shift  = obj.offset(1:3);
-            else
-                error('HORACE:orhto_proj:invalid_argument',...
-                    'The ndim input may be 3 or 4  actually it is: %s',...
-                    evalc('disp(ndim)'));
-            end
-            if nargout > 1
-                % convert shift, expressed in hkl into crystal Cartesian
-                shift = rlu_to_u *shift(:);
-            else % do not convert anything
-            end
-        end
-
         %
     end
     %----------------------------------------------------------------------
+    methods(Access = protected)
+        %------------------------------------------------------------------
         function   mat = get_u_to_rlu_mat(obj)
             [mat,~,scales] = obj.get_pix_img_transformation(4);
             mat = mat.*[scales(:)',1]; %--> old style u_to_rlu used in captions
@@ -674,14 +634,14 @@ classdef ortho_proj<aProjectionBase
             %               current object
             % Optional:
             % any set of parameters equal_to_tol function would accept, as
-            % eq uses equal_to_tol function internaly
+            % eq uses equal_to_tol function internally
             %
             % Returns:
-            % True if the objects define the sampe pixel transformation and
+            % True if the objects define the sample pixel transformation and
             %      false if not.
             % Optional:
             % message, describing in more details where non-equality
-            % occures (used in unit tests to indicate the details of
+            % occurs (used in unit tests to indicate the details of
             % inequality)
             names = cell(2,1);
             if nargout == 2
