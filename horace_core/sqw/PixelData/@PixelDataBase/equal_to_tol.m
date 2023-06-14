@@ -142,61 +142,51 @@ end
 
 function [ok, mess] = compare_reorder(pix1, pix2, opt, argi)
 
-    if isempty(opt.npix)
+    npix = opt.npix;
+
+    if isempty(npix)
         error('HORACE:equal_to_tol:invalid_argument', ...
               'Requested pixel reorder, did not provide npix')
     end
 %
-%     if sum(opt.npix, 'all') ~= pix1.num_pixels
+%     if sum(npix, 'all') ~= pix1.num_pixels
 %         error('HORACE:equal_to_tol:invalid_argument', ...
 %               'Given npix array does not match number of pixels')
 %     end
 
+    % In case of reorder, fraction is relative to bins rather than pixels.
     compare_spacing = floor(1 / opt.fraction);
-    chunk_size = get(hor_config, 'mem_chunk_size')*compare_spacing;
+    mem_chunk_size = get(hor_config, 'mem_chunk_size');
 
-    nend = cumsum(opt.npix);
+    bin_end = cumsum(npix);
+    bin_start = bin_end - npix + 1;
 
-    compare_count = pix1.num_pixels;
+    selected_bins = find(npix);
+    selected_bins = selected_bins(1:compare_spacing:end);
 
-    prev = 0;
-    points = [0:chunk_size:compare_count, compare_count+1];
+    pix_ind = replicate_iarray(bin_start(selected_bins), npix(selected_bins)) + sawtooth_iarray(npix(selected_bins)) - 1;
+    bin_ind = replicate_iarray(selected_bins, npix(selected_bins)); % bin index for each retained pixel
 
-    ibin = find(opt.npix);
-    ibinarr = replicate_iarray(ibin, opt.npix(ibin)); % bin index for each retained pixel
-    prev = 1;
-
-    for i = 1:numel(points)-1
-        curr = find(nend(prev:end) > points(i+1), 1) + prev - 1;
-
-        if curr == prev
-            curr = prev + 1;
-        elseif nend(curr) == points(i+1)  % Falls on bin boundary
-            curr = curr - 1;
-        elseif isempty(curr)             % Falls after end of array
-            curr = numel(nend);
-        end
-
-        curr_ipix = prev:nend(curr);
-        curr_ibinarr = ibinarr(curr_ipix);
+    for i = 1:mem_chunk_size:numel(pix_ind)
+        curr_pix_ind = pix_ind(i:min(i+mem_chunk_size-1, numel(pix_ind)));
+        curr_bin_ind = bin_ind(i:min(i+mem_chunk_size-1, numel(pix_ind)));
 
         sort_by = {'run_idx', 'detector_idx', 'energy_idx'};
 
-        s1 = pix1.get_pixels(curr_ipix);
-        [~, ix1] = sortrows([curr_ibinarr, s1.get_fields(sort_by)']);
+        s1 = pix1.get_pixels(curr_pix_ind);
+        [~, ix1] = sortrows([curr_bin_ind, s1.get_fields(sort_by)']);
         s1 = s1.get_fields('all', ix1);
 
-        s2 = pix2.get_pixels(curr_ipix);
-        [~, ix2] = sortrows([curr_ibinarr, s2.get_fields(sort_by)']);
+        s2 = pix2.get_pixels(curr_pix_ind);
+        [~, ix2] = sortrows([curr_bin_ind, s2.get_fields(sort_by)']);
         s2 = s2.get_fields('all', ix2);
 
         % Now compare retained pixels
-        [ok, mess] = equal_to_tol(s1(:, 1:compare_spacing:end), s2(:, 1:compare_spacing:end), argi{:});
+        [ok, mess] = equal_to_tol(s1, s2, argi{:});
         if ~ok
-            mess = process_message(mess, prev, compare_spacing, ix1, ix2);
-            break
+            mess = process_message(mess, i, compare_spacing, ix1, ix2);
+            return;
         end
-        prev = nend(curr)+1;
     end
 
 end
@@ -209,7 +199,7 @@ function [ok, mess] = validate_other_pix(pix, other_pix)
         ok = false;
         mess = sprintf('Objects of class ''%s'' and ''%s'' cannot be equal.', ...
                        class(pix), class(other_pix));
-        return
+        return;
     end
 
     if pix.num_pixels ~= other_pix.num_pixels
@@ -217,7 +207,7 @@ function [ok, mess] = validate_other_pix(pix, other_pix)
         mess = sprintf(['PixelData objects are not equal. ' ...
                         'Argument 1 has %i pixels, argument 2 has %i'], ...
                        pix.num_pixels, other_pix.num_pixels);
-        return
+        return;
     end
 end
 
