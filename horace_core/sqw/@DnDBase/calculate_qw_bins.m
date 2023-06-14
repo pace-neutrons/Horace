@@ -13,7 +13,7 @@ function qw=calculate_qw_bins(win,varargin)
 % 'boundaries'  Return qh,qk,ql,en at verticies of bins, not centres
 % 'edges'       Return qh,qk,ql,en at verticies of the hyper cuboid that
 %               encloses the plot axes
-% '3D'          return only q-edges (no
+% '3D'          return only q-edges (no energy bins)
 %
 % Output:
 % -------
@@ -54,21 +54,13 @@ if do_3D
 end
 
 nodes = win.axes.get_bin_nodes(argi{:});
-
 proj = win.proj;
-pix_cc = proj.from_img_to_pix(nodes);
-% Optimization possible as new method of aProjection!
-if isempty(proj.ub_inv_legacy)
-    b_mat = bmatrix(proj.alatt,proj.angdeg);
-    pix_hkl = b_mat\pix_cc(1:3,:);    
-else
-    pix_hkl = proj.ub_inv_legacy*pix_cc(1:3,:);    
-end
+pix_hkl = proj.transform_img_to_hkl(nodes);
 % package as cell array of column vectors for convenience with fitting routines etc.
 if do_3D
     qw = {pix_hkl(1,:)', pix_hkl(2,:)', pix_hkl(3,:)'};
 else
-    qw = {pix_hkl(1,:)', pix_hkl(2,:)', pix_hkl(3,:)',pix_cc(4,:)'};
+    qw = {pix_hkl(1,:)', pix_hkl(2,:)', pix_hkl(3,:)',pix_hkl(4,:)'};
 end
 
 function out_str = check_dash(in_str)

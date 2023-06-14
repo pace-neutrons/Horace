@@ -156,7 +156,7 @@ classdef ortho_proj<aProjectionBase
             obj = obj@aProjectionBase();
             obj.label = {'\zeta','\xi','\eta','E'};
             % try to use specific range-range identification algorithm,
-            % suitable for ortho-ortho transformamation
+            % suitable for ortho-ortho transformation
             obj.do_generic = false;
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
@@ -329,6 +329,30 @@ classdef ortho_proj<aProjectionBase
         % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
         %------------------------------------------------------------------
+        function pix_hkl = transform_img_to_hkl(obj,img_coord,varargin)
+            % Converts from image coordinate system to hkl coordinate
+            % system
+            %
+            % Should be overloaded to optimize for a particular case to
+            % improve efficiency.
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in. The target projection has to be
+            %              set up
+            %
+            % pix_origin   4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system, defined by
+            %              this projection
+            % Ouput:
+            % pix_targ -- 4xNpix or 3xNpix array of pixel coordinates in
+            %             hkl (physical) coordinate system (4-th
+            %             coordinate, if requested, is the energy transfer)
+
+
+            pix_hkl = transform_img_to_hkl_(obj,img_coord,varargin{:});
+        end
+
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in crystal Cartesian coordinate systems
             % into image coordinate system
@@ -472,11 +496,58 @@ classdef ortho_proj<aProjectionBase
             end
         end
 
+    %----------------------------------------------------------------------
+    methods(Access = protected)
+        function  mat = get_u_to_rlu_mat(obj)
+            % overloadable accessor for getting value for ub matrix
+            % property
+            mat =obj.get_pix_img_transformation(4);
+        end
+            if ~isempty(obj.u_to_img_cache_) && isempty(obj.ub_inv_legacy)
+                u_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
+                shift    = obj.u_offset_cache_(1:ndim);
+                ulen     = obj.ulen_cache_;
+                if alignment_needed
+                    u_to_img  = u_to_img*alignment_mat;
+                end
+                return;
+            end
+            %
+            if isempty(obj.ub_inv_legacy)
+                [u_to_img,ulen,rlu_to_u,obj] = projaxes_to_rlu_(obj);
+                % Modern alignment with rotation matrix attached to pixel
+                % coordinate system
+                if alignment_needed
+                    u_to_img  = u_to_img*alignment_mat;
+                end
+            else% Legacy alignment, with multiplication of rotation matrix
+                [rlu_to_u,~,ulen]  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
+                u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
+                u_to_img  = (rlu_to_u*u_to_rlu_);
+                rlu_to_u  = inv(u_to_rlu_);
+            end
+            %
+            if ndim==4
+                shift  = obj.offset;
+                rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
+                u_to_img = [u_to_img,[0;0;0];[0,0,0,1]];
+            elseif ndim == 3
+                shift  = obj.offset(1:3);
+            else
+                error('HORACE:orhto_proj:invalid_argument',...
+                    'The ndim input may be 3 or 4  actually it is: %s',...
+                    evalc('disp(ndim)'));
+            end
+            if nargout > 1
+                % convert shift, expressed in hkl into crystal Cartesian
+                shift = rlu_to_u *shift(:);
+            else % do not convert anything
+            end
+        end
+
         %
     end
     %----------------------------------------------------------------------
-    methods(Access = protected)
-        %------------------------------------------------------------------
         function   mat = get_u_to_rlu_mat(obj)
             [mat,~,scales] = obj.get_pix_img_transformation(4);
             mat = mat.*[scales(:)',1]; %--> old style u_to_rlu used in captions
@@ -642,7 +713,7 @@ classdef ortho_proj<aProjectionBase
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % savable class
+            % saveable class
             obj = ortho_proj();
             obj = loadobj@serializable(S,obj);
         end

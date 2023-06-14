@@ -24,30 +24,9 @@ if numel(win)~=1
 end
 
 
-proj       = win.data.proj;
-offset     = win.data.proj.offset;
-% Re #1034 is this necessary?
-%hkl_offset = offset(1:3);
-% we need the projection into real hkl, aligned with Crystal Cartesian, not
-% rotated wrt it.
-if isempty(proj.ub_inv_legacy)
-    b_mat = bmatrix(proj.alatt,proj.angdeg);
-    % Pixels are never offset? % Re #1034 is this necessary?
-    %qw = b_mat\win.pix.q_coordinates+hkl_offset(:) ;
-    qw = b_mat\win.pix.q_coordinates;
-else
-    % support legacy crystal alignment. TODO: Should go in a future
-    % Pixels are never offset? % Re #1034 is this necessary?    
-    %qw = proj.ub_inv_legacy*win.pix.q_coordinates-hkl_offset(:);
-    qw = proj.ub_inv_legacy*win.pix.q_coordinates;
-end
-if abs(offset(4))>4*eps('single')
-    % Re #1034 is this necessary?    
-    % en = win.pix.dE+offset(4);
-else
-    en = win.pix.dE;    
-end
+proj    = win.data.proj;
+[qw,en] = proj.transform_pix_to_hkl(win.pix);
 
 % package as cell array of column vectors for convenience with fitting routines etc.
-qw = {qw(1,:)', qw(2,:)', qw(3,:)', en(:)};
+qw = {qw(1,:)', qw(2,:)', qw(3,:)',en(:)};
 

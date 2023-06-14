@@ -265,6 +265,11 @@ classdef aProjectionBase < serializable
             %
             mat = get_u_to_rlu_mat(obj);
         end
+        function bm = bmatrix(obj)
+            % Return b-matrix defined on the lattice, this projection
+            % contain
+            bm = bmatrix(obj.alatt,obj.angdeg);
+        end
 
         %----------------------------------------------------------------
         function obj = set.lab1(obj,val)
@@ -496,6 +501,55 @@ classdef aProjectionBase < serializable
                     error('HORACE:aProjectionBase:invalid_argument',...
                         'This function requests 1,3,4,5 or 6 output arguments');
             end
+        end
+        function [pix_hkl,en] = transform_pix_to_hkl(obj,pix_coord,varargin)
+            % Converts from pixel coordinate system (Crystal Cartesian)
+            % to hkl coordinate system
+            %
+            % Should be overloaded to optimize for a particular case to
+            % improve efficiency.
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in. The target projection has to be
+            %              set up
+            %
+            % pix_origin-- 4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system, defined by
+            %              this projection
+            %
+            % Output:
+            % pix_hkl  -- 4xNpix or 3xNpix array of pixel coordinates in
+            %             hkl (physical) coordinate system (4-th
+            %             coordinate, if requested, is the energy transfer)
+            [pix_hkl,en] = transform_pix_to_hkl_(obj,pix_coord,varargin{:});
+            if nargout == 1
+                pix_hkl = [pix_hkl;en];
+            end
+        end
+
+
+        function pix_hkl = tansform_img_to_hkl(obj,img_coord,varargin)
+            % Converts from image coordinate system to hkl coordinate
+            % system
+            %
+            % Should be overloaded to optimize for a particular case to
+            % improve efficiency.
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in. The target projection has to be
+            %              set up
+            %
+            % pix_origin-- 4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system, defined by
+            %              this projection
+            %
+            % Output:
+            % pix_hkl   -- 4xNpix or 3xNpix array of pixel coordinates in
+            %               hkl (physical) coordinate system (4-th
+            %               coordinate, if requested, is the energy transfer)
+            pix_hkl = obj.bmatrix\obj.transform_img_to_pix(img_coord,varargin{:});
         end
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)

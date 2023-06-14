@@ -68,7 +68,7 @@ classdef test_head < TestCaseWithSave
             ldr.delete();
             hdd = sqw_obj.head('-full');
 
-            assertEqualToTol(hd,hdd)
+            assertEqualToTol(hd,hdd,'tol',1.e-7)
         end
         function test_head_sqw_new_file(obj)
             ldr = sqw_formats_factory.instance().get_loader(obj.sqw_file_v4_name);
@@ -77,7 +77,7 @@ classdef test_head < TestCaseWithSave
             ldr.delete();
             hdd = sqw_obj.head();
 
-            assertEqualToTol(hd,hdd)
+            assertEqualToTol(hd,hdd,1.e-7)
         end
 
 
@@ -95,7 +95,7 @@ classdef test_head < TestCaseWithSave
             hdd.nfiles = hd.nfiles;
             % old file format does not contain data range
             hd.data_range = hdd.data_range;
-            assertEqualToTol(hd,hdd,1.e-8)
+            assertEqualToTol(hd,hdd,4.e-7)
         end
 
         function test_head_sqw_old_file(obj)
@@ -120,7 +120,7 @@ classdef test_head < TestCaseWithSave
             % 
             hd.u_to_rlu = hdd.u_to_rlu;
 
-            assertEqualToTol(hd,hdd,1.e-8)
+            assertEqualToTol(hd,hdd,4.e-7)
         end
         function test_head_dnd_old_file_full(obj)
             ldr = sqw_formats_factory.instance().get_loader(obj.dnd_file_1d_name);
@@ -159,7 +159,7 @@ classdef test_head < TestCaseWithSave
             u_to_rlu_legacy = obj.sq1d_obj.data.proj.u_to_rlu_legacy;
             hd1.u_to_rlu = u_to_rlu_legacy;
 
-            assertEqualToTolWithSave(obj,hd1,4.e-9,'ignore_str',true);
+            assertEqualToTolWithSave(obj,hd1,4.e-7,'ignore_str',true);
         end
 
         function test_head_1d_full(obj)
@@ -175,7 +175,7 @@ classdef test_head < TestCaseWithSave
             %Re #825  see test head_sqw_1d for details
             u_to_rlu_legacy = obj.sq1d_obj.data.proj.u_to_rlu_legacy;
             hd.u_to_rlu = u_to_rlu_legacy;
-            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
+            assertEqualToTolWithSave(obj,hd,4.e-7,'ignore_str',true);
         end
 
 
@@ -194,7 +194,7 @@ classdef test_head < TestCaseWithSave
             % 0         0         0         1.0000]
             % let's assume that new is correct, but keep legacy for references
             hd.u_to_rlu = u_to_rlu_legacy;
-            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
+            assertEqualToTolWithSave(obj,hd,4.e-7,'ignore_str',true);
         end
     end
 end

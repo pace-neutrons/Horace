@@ -32,8 +32,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         data;
 
         % access to pixel information, if any such information is
-        % stored within an object. May also return pix_combine_info or
-        % filebased pixels. (TODO -- this should be modified)
+        % stored within an object. May also contain pix_combine_info or
+        % filebased pixels.
         pix;
 
         % The date of the sqw object file creation. As the date is defined both
@@ -233,9 +233,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %              (e.g. lattice if undefined, etc)
             [targ_ax_block,targ_proj] = w.data_.define_target_axes_block(targ_proj, pbin,varargin{:});
         end
-        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
-        %                             % centres of the bins of an n-dimensional
-        %                             % sqw or dnd dataset.        
+        function qw=calculate_qw_bins(win,varargin)
+            % Calculate qh,qk,ql,en for the centres of the bins of an
+            % n-dimensional sqw dataset
+            qw = win.data.calculate_qw_bins(varargin{:});
+        end
+        function [q,en]=calculate_q_bins(win)
+            [q,en] = win.data.calculate_q_bins();
+        end
     end
     %======================================================================
     % ACCESSORS TO OBJECT PROPERTIES and construction
