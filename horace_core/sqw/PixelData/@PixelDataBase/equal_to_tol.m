@@ -62,6 +62,13 @@ function [ok, mess] = equal_to_tol(pix, other_pix, varargin)
         return
     end
 
+    % Empty pix equal, validate proves both empty
+    if pix.num_pixels == 0
+        ok = true;
+        mess = [];
+        return;
+    end
+
     if opt.reorder
         [ok, mess] = compare_reorder(pix, other_pix, opt, argi);
     elseif opt.fraction ~= 1

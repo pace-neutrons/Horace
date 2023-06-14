@@ -68,5 +68,5 @@ end
 % Compare pix
 [ok, mess] = equal_to_tol(w1.pix, w2.pix, args{:}, ...
                           'reorder', opt.reorder, 'npix', w1.data.npix(:), 'fraction', opt.fraction, ...
-                          'name_a', [name_a, '.pix'], 'name_a', [name_b, '.pix']);
+                          'name_a', [name_a, '.pix'], 'name_b', [name_b, '.pix']);
 end
