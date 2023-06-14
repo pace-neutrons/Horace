@@ -378,11 +378,7 @@ classdef ortho_proj<aProjectionBase
         function  mat = get_u_to_rlu_mat(obj)
             % overloadable accessor for getting value for ub matrix
             % property
-            offset = obj.offset;
-            obj.offset = zeros(4,1);
-            mat = obj.transform_img_to_hkl(eye(4));
-            obj.offset = offset;
-
+            mat =obj.get_pix_img_transformation(4);
         end
 
         function  [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj,ustep)
