@@ -19,12 +19,15 @@ function obj = from_struct_ (S, obj_template)
 % Optional:
 %   obj_template     Scalar instance of the class to be recovered. It must be a
 %                   serializable object.
-%                    This is used to over-ride the class type held in the input
-%                   structure S if it was created with to_struct acting on a
-%                   serializable class.
-%                    If S was not created by to_struct, then obj_template
-%                   provides the template object into which to attempt to load
-%                   the structure.
+%                    If not given, then the class name held in the input
+%                   structure S is used.
+%                    If the structure comes from a pre-serializable version of a
+%                   class (so S does not contain the class name) then
+%                   obj_template is used to give the output class type.
+%                    Lastly, obj_template can be used to over-ride the class
+%                   type held in the input structure S if it was created with
+%                   to_struct acting on a serializable class. This is an
+%                   uncommon scenario.
 %
 % Output:
 % -------
@@ -56,23 +59,17 @@ end
 
 
 % Recover object
-current_version = obj.classVersion();
-if isfield(S,'version')
-    % Structure was created by to_struct acting on a serializable object
-    if S.version == current_version
-        % Structure was created with current class version
-        if isfield (S, 'array_dat')
-            obj = obj.from_bare_struct (S.array_dat);   % array of objects
-        else
-            obj = obj.from_bare_struct (S);     % scalar instance
-        end
+if isfield(S,'version') && S.version == obj.classVersion()
+    % Structure was created by to_struct acting on the current version of a
+    % serializable object
+    if isfield (S, 'array_dat')
+        obj = obj.from_bare_struct (S.array_dat);   % array of objects
     else
-        % Structure has a different version; assume that we are trying to read
-        % a structure created by an older version of the serializable class
-        obj = obj.from_old_struct (S);
+        obj = obj.from_bare_struct (S);     % scalar instance
     end
 else
-    % Structure has a different provenance e.g. camefrom to_bare_struct_ or some
-    % older format that predates the use of serializable
+    % Structure was created from an earlier version of a serializable object, or
+    % has a different provenance e.g. came from an older format that predates
+    % the use of serializable
     obj = obj.from_old_struct (S);
 end

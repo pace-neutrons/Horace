@@ -3,8 +3,14 @@ function S_updated = convert_old_struct (obj, S, ver)
 %
 %   >> S_updated = convert_old_struct (obj, S, ver)
 %
-% This is the default method that returns the input structure unaltered.
+% This is the default method for handling structures created from earlier class
+% versions. It returns the input structure unaltered, which in simple cases will
+% be sufficient. This method explicitly exists so that this default behaviour
+% can be overridden for a particular class to customise the handling of older
+% class versions - see below.
 %
+% Overloading: customising how structures from earlier class versions are updated
+% -------------------------------------------------------------------------------
 % For any particular class, overload this method to implement customised
 % updating for all earlier class version numbers. This is not necessary if the
 % differences are only from the addition of properties that can be set from the
@@ -13,23 +19,28 @@ function S_updated = convert_old_struct (obj, S, ver)
 % The outline of a function when the current version is 3 might look like:
 %
 %   function S_updated = convert_old_struct (obj, S, ver)
+%   % Update the structure created for scalar instance of an object
+%
 %   if ver==2
 %           :
 %       S_updated = ...
+%
 %   elseif ver==1
 %           :
 %       S_updated = ...
-%   elseif isnan(ver)
+%
+%   elseif isnan(ver)   % serializable sets ver==NaN if no version is determined
 %       % Pre-serializable structure
 %           :
 %       S_updated = ...
-% end
+%   end
 %
 %
-% If the design pattern for the class is very complex, it might be necessary to
+% If the design pattern for your class is very complex, it might be necessary to
 % have a more sophisticated handling of earlier versions that requires that the
 % method from_old_struct be overloaded. Details are in the help to the method
 % <a href="matlab:help('serializable/from_old_struct');">from_old_struct</a>.
+%
 %
 % Input:
 % ------
@@ -51,6 +62,8 @@ function S_updated = convert_old_struct (obj, S, ver)
 %                  version. The fields must match the names returned by the
 %                  class method saveable().
 
+
+% For the default behaviour the object and version number are unused
 S_updated = S;
 
 end

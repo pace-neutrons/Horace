@@ -3,22 +3,26 @@ function obj = from_old_struct (obj, S)
 %
 %   >> function obj = from_old_struct (obj, S)
 %
-% The method is called by loadobj or deserialize in the case when the input
-% structure derives from an earlier version of the class, or from a structure
-% that pre-dates the use of serializable - or indeed a structure with any other
-% provenance.
+% The method is ultimately called by loadobj or deserialize in the case when the
+% input structure derives from an earlier version of the class, or from a
+% structure that pre-dates the use of serializable (or indeed a structure with
+% any other provenance).
 %
-% Overloading this method to deal with older class versions
-% ---------------------------------------------------------
-% This function interfaces the default from_bare_struct method,
-% which will recover objects created from earlier versions if the differences
-% are only from the addition of properties that can be set from the default
-% values in the latest object constructor.
+% Overloading: customising how structures from earlier class versions are updated
+% -------------------------------------------------------------------------------
+% In the simplest cases when the older structure has missing fields which can 
+% simply be filled from default properties of the current object version,
+% nothing needs to be done.
 %
-% In general, however, if the saved object was an earlier version of the class
-% you need to overload this method for your class so that it can handle all the
-% structures you want to be able to convert. The most general form of the method
-% to add to your classdef file is:
+% In most other cases, all that is needed is to overload the default 
+% serializable method convert_old_struct. For details see 
+% <a href="matlab:help('serializable/convert_old_struct');">convert_old_struct</a>.
+%
+% If the design pattern for your class is particularly complex it might be
+% necessary to have a more sophisticated handling of earlier versions that
+% requires that this method is overloaded.
+%
+% The most general form of the method to add to your classdef file is:
 %
 %      :
 %   methods(Access=protected)
@@ -109,10 +113,30 @@ function obj = from_old_struct (obj, S)
 %                  argument obj.
 
 
-if isfield (S, 'array_dat')
-    obj = obj.from_bare_struct (S.array_dat);   % array of objects
+% Convert older structure to one that would be produced by the current class
+% version
+if isfield (S, 'version')
+    % Created from earlier class version
+    ver = S.version;
+    if isfield (S, 'array_dat')
+        % S corresponds to an array of objects
+        datastruct = arrayfun (@(x)convert_old_struct(obj,x,ver), S.array_dat);
+    else
+        datastruct = convert_old_struct (obj, S, ver);
+    end
 else
-    obj = obj.from_bare_struct (S);     % scalar instance
+    % Created from version before the class was defined as a child class of
+    % serializable
+    ver = NaN;    % convention for no explicit version
+    if numel(S) > 1
+        % S corresponds to an array of objects
+        datastruct = arrayfun (@(x)convert_old_struct(obj,x,ver), S);
+    else
+        datastruct = convert_old_struct (obj, S, ver);
+    end
 end
+
+% Recover the object or object array
+obj = obj.from_bare_struct (datastruct);
 
 end

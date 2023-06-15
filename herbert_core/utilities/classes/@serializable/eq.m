@@ -1,21 +1,28 @@
 function [iseq, mess] = eq (obj1, obj2, varargin)
 % Return logical variable stating if two serializable objects are equal or not
 %
-%   >> 
-
-% the generic equality operator, allowing comparison of
-% serializable objects
+%   >> [iseq, mess] = eq (obj1, obj2)
+%   >> [iseq, mess] = eq (obj1, obj2, p1, p2, ...)
 %
-% Inputs:
-% other_obj -- the object or array of objects to compare with
-% current object
+% Input:
+% ------
+%   obj1        Object on left-hand side
+%
+%   obj2        Object on right-hand side
+%
 % Optional:
-% any set of parameters equal_to_tol function would accept
+%   p1, p2,...  Any set of parameters that the equal_to_tol function accepts
+%
+% See also equal_to_tol
 
+
+names = cell(2,1);
 if nargout == 2
-    [iseq, mess] = eq_(obj1, obj2, varargin{:});
+    names{1} = inputname(1);
+    names{2} = inputname(2);
+    [iseq, mess] = eq_ (obj1, obj2, nargout, names, varargin{:});
 else
-    iseq = eq_ (obj1, obj2, varargin{:});
+    iseq = eq_ (obj1, obj2, nargout, names, varargin{:});
 end
 
 end

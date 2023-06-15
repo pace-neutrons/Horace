@@ -1,13 +1,32 @@
 function [isne, mess] = ne (obj1, obj2, varargin)
 % Return logical variable stating if two serializable objects are unequal or not
 %
-%   >> 
+%   >> [iseq, mess] = ne (obj1, obj2)
+%   >> [iseq, mess] = ne (obj1, obj2, p1, p2, ...)
+%
+% Input:
+% ------
+%   obj1        Object on left-hand side
+%
+%   obj2        Object on right-hand side
+%
+% Optional:
+%   p1, p2,...  Any set of parameters that the equal_to_tol function accepts
+%
+% See also equal_to_tol
 
+% TODO: can be done more efficiently as eq needs to check all
+% the fields and ne may return when found first non-equal field
+
+
+names = cell(2,1);
 if nargout == 2
-    [is, mess] = eq_ (obj1, obj2, varargin{:});
+    names{1} = inputname(1);
+    names{2} = inputname(2);
+    [iseq, mess] = eq_ (obj1, obj2, nargout, names, varargin{:});
 else
-    is = eq_ (obj1, obj2, varargin{:});
+    iseq = eq_ (obj1, obj2, nargout, names, varargin{:});
 end
-isne = ~is;
+isne = ~iseq;
 
 end

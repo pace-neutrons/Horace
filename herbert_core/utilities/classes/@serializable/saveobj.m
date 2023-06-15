@@ -16,22 +16,14 @@ function S = saveobj (obj)
 %
 % Input:
 % ------
-%   obj     Scalar instance of the object class object
+%   obj     Scalar instance of the object class object.
 %
 % Output:
 % -------
-%   S       Structure created from obj that is to be saved
-%
-% Adds the field "version" to the result of 'to_struct
-%                operation
-%.version     -- containing result of getVersion
-%                function, to distinguish between different
-%                stored versions of a serializable class
-%------------------------------------------------------------------
-% Generic loadobj and saveobj
-% - to enable custom saving to .mat files and bytestreams
-% - to enable older class definition compatibility
-%------------------------------------------------------------------
+%   S       Structure created from obj that is to be saved.
+%           For details on the format of the struture created by saveobj, see
+%           <a href="matlab:help('serializable/to_struct');">to_struct</a>.
+
 
 S = to_struct (obj);
 

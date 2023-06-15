@@ -11,20 +11,20 @@ function obj = loadobj (S, obj_template)
 % Dealing with older class versions
 % ---------------------------------
 % By default this method interfaces with default serializable class methods
-% which will recover objects created from the current version, and earlier
-% versions too if the differences are only from the addition of properties that
-% can be set from the default values in the latest object constructor.
+% which will recover objects created from the current class version. They will
+% also recover from earlier versions if the differences are only from the
+% addition of properties that can be set from the default values in the latest
+% object default constructor.
 %
-% In general, however, if the saved object was an earlier version of the class
-% you need to write a method for your class called from_old_struct
-% that will convert the structure to one that follows the latest structure. 
-% Details about what is required are in <a href="matlab:help('serializable/from_old_struct');">from_old_struct</a>.
+% More generally, it is necessary to write a method called convert_old_struct to
+% convert an earlier structure to the current version, and in the case of 
+% particularly complex class designs the method from_old_struct (for details see
+% <a href="matlab:help('serializable/convert_old_struct');">convert_old_struct</a> and <a href="matlab:help('serializable/from_old_struct');">from_old_struct</a>)
 %
 % If the saved object is sufficiently old that it was not based on the
 % serializable class, then in addition you need to overload the loadobj method.
-% In your class definition, add the following method into the class definition
-% file, substituting the name of your class in place of "my_class" but otherwise
-% leaving the code unchanged:
+% In your class definition file, add the following method, substituting the name
+% of your class in place of "my_class" but otherwise leaving the code unchanged:
 %
 %      :
 %   methods (Static)
@@ -41,17 +41,17 @@ function obj = loadobj (S, obj_template)
 %
 % Input:
 % ------
-%   S       Either (1) an object of the class, or (2) a structure or structure
-%          array previously obtained by the saveobj method.
+%   S               Either (1) an object of the class, or (2) a structure or
+%                   structure array previously obtained by the saveobj method.
 %
-%   obj     The instance of a serializable class to recover from the input
-%           structure S.
+%   obj_template    The instance of a serializable class to recover from the
+%                   input structure S.
 %
 % Output:
 % -------
-%   obj     Either (1) the object passed without change, or (2) an
-%           object (or object array) created from the input structure
-%           (or structure array)
+%   obj             Either (1) the object passed without change, or (2) an
+%                   object (or object array) created from the input structure
+%                   (or structure array)
 
 
 if isstruct(S)

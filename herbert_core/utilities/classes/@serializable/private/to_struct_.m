@@ -42,6 +42,7 @@ if isfield(S,'serial_name') || isfield(S,'version')
         ['The input object cannot have properties with the protected names:\n',...
         '''serial_name'' and ''version'''])
 end
+
 class_name = class(obj);
 version = obj.classVersion();
 if numel(obj)>1

@@ -19,12 +19,15 @@ function obj = from_struct (S, obj_template)
 % Optional:
 %   obj_template     Scalar instance of the class to be recovered. It must be a
 %                   serializable object.
-%                    This is used to over-ride the class type held in the input
-%                   structure S if it was created with to_struct acting on a
-%                   serializable class.
-%                    If S was not created by to_struct, then obj_template
-%                   provides the template object into which to attempt to load
-%                   the structure.
+%                    If not given, then the class name held in the input
+%                   structure S is used.
+%                    If the structure comes from a pre-serializable version of a
+%                   class (so S does not contain the class name) then
+%                   obj_template is used to give the output class type.
+%                    Lastly, obj_template can be used to over-ride the class
+%                   type held in the input structure S if it was created with
+%                   to_struct acting on a serializable class. This is an
+%                   uncommon scenario.
 %
 % Output:
 % -------
