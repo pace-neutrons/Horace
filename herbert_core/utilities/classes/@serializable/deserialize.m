@@ -11,7 +11,7 @@ function [obj, nbytes] = deserialize (byte_array, pos)
 %               sequence to deserialize on the assumption that the byte stream
 %               from that point was created using the method serialize. One
 %               object (or object array) will be deserialized.
-%               Default: pos = 1
+%               Default: pos=1
 %
 % Output:
 % -------

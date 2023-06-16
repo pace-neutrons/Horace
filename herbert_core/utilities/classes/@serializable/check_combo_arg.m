@@ -11,13 +11,14 @@ function obj = check_combo_arg (obj)
 %               obj = check_combo_arg (obj);
 %           end
 %               :
+%
 % Method functionality:
 % - The method must throw an error if the properties are not consistent.
 % - Update properties of the object if necessary
 % - Recompute any cached properties that are derived from the set properties,
 %   for example a probability distribution lookup table. Additional input
 %   arguments can be provided to check_combo_arg ensure that this is only
-%   done when necessary, for example, see IX_fermi_chopper/check_combo_arg
+%   done when necessary. For an example, see IX_fermi_chopper/check_combo_arg.
 %
 % EXAMPLE
 %

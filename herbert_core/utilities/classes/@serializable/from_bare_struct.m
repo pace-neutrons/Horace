@@ -20,7 +20,7 @@ function obj = from_bare_struct (obj_template, S)
 % OVERLOADING:
 % ------------
 % If the method "to_bare_struct" has been overloaded, then an overloaded version
-% of this method will likely be required too.
+% of this method will be required too.
 %
 %
 % Input:

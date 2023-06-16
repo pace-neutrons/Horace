@@ -22,7 +22,7 @@ function obj = from_old_struct (obj, S)
 % necessary to have a more sophisticated handling of earlier versions that
 % requires that this method is overloaded.
 %
-% The most general form of the method to add to your classdef file is:
+% A typical general form of the method to add to your classdef file is:
 %
 %      :
 %   methods(Access=protected)
@@ -76,22 +76,7 @@ function obj = from_old_struct (obj, S)
 %   need to be able to branch on the structure representing a single object or
 %   an object array.
 %
-% 2) The form can be simpler, for example, if there has only been one version
-%   since the class was serialised - when the code could look like:
-%
-%   methods(Access=protected)
-%       function obj = from_old_struct (obj, S)
-%           if ~isfield (S, 'version')
-%               % Created from version before the class was defined as a 
-%               % child class of serializable
-%                   :
-%               S_updated = ...
-%           end
-%           obj = from_old_struct@serializable (obj, S_updated);
-%       end
-%   end
-%
-% 3) In some complex class designs then the final conversion may have to call
+% 2) In some complex class designs then the final conversion may have to call
 %   an overloaded version of from_old_struct for some other class, or there to
 %   be other variations on the general form.
 %

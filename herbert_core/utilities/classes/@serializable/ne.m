@@ -1,5 +1,5 @@
 function [isne, mess] = ne (obj1, obj2, varargin)
-% Return logical variable stating if two serializable objects are unequal or not
+% Return a logical variable stating if two serializable objects are unequal or not
 %
 %   >> [iseq, mess] = ne (obj1, obj2)
 %   >> [iseq, mess] = ne (obj1, obj2, p1, p2, ...)

@@ -1,5 +1,5 @@
 function S = saveobj (obj)
-% Perform custom conversion to structure prior to saving with Matlab save.
+% Perform custom conversion to a structure prior to saving with Matlab save.
 %
 %   >> S = saveobj (obj)
 %

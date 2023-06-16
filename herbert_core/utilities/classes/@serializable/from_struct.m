@@ -9,7 +9,7 @@ function obj = from_struct (S, obj_template)
 %   S                Structure or structure array of data with the structure as
 %                   created by the method to_struct.
 %                    This could be from the current version of a serializable
-%                   class, or an earlier version of the class.
+%                   class, or from an earlier version of the class.
 %                    If the structure has a different form then an attempt is
 %                   made to recover an object based on template object, if it is
 %                   provided (see below). This will be the case when the

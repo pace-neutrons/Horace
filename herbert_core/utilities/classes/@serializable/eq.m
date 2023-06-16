@@ -1,5 +1,5 @@
 function [iseq, mess] = eq (obj1, obj2, varargin)
-% Return logical variable stating if two serializable objects are equal or not
+% Return a logical variable stating if two serializable objects are equal or not
 %
 %   >> [iseq, mess] = eq (obj1, obj2)
 %   >> [iseq, mess] = eq (obj1, obj2, p1, p2, ...)

@@ -46,7 +46,7 @@ classdef (Abstract=true) serializable
     %           function ver = classVersion (~)
     %               % Return the class version number
     %               ver = 2;
-    %           end    
+    %           end
     %
     %    - A method that returns a cell array with the names of the public fields
     %      that fully define the state of an object, and which therefore are the
@@ -54,18 +54,18 @@ classdef (Abstract=true) serializable
     %       EXAMPLE:
     %           function flds = saveableFields (~)
     %               % Return cellarray of public properties defining the class
-    %               flds = {'dia','height','wall','atms'}; 
+    %               flds = {'dia','height','wall','atms'};
     %           end
     %
     %
     % Validation of properties of a serializable object
     % -------------------------------------------------
-    % To simplify writing a class that satisfies the requirements of properties and
-    % their validation in item (2) of "Class requirements" above, use the
-    % serializable validation interface as follows:
+    % To write a class that satisfies the requirements of properties and their
+    % validation in item (2) of "Class requirements" above, use the serializable
+    % validation interface as follows:
     %
     %   - Write a public method for your class called check_combo_arg that checks
-    %     the mutual validity of interdependent properties, and throw an error
+    %     the mutual validity of interdependent properties, and throws an error
     %     they are not:
     %
     %           function obj = check_combo_arg (obj)
@@ -91,40 +91,34 @@ classdef (Abstract=true) serializable
     %   - Recompute any cached properties that are derived from the set properties,
     %     for example a probability distribution lookup table. Additional input
     %     arguments can be provided to check_combo_arg ensure that this is only
-    %     done when necessary, for example, see IX_fermi_chopper/check_combo_arg
+    %     done when necessary - for an example, see IX_fermi_chopper/check_combo_arg
     %
     % Serializable also provides a protected method to simplify the code of your
     % class constructor, called set_positional_and_key_val_arguments. It also
     % internally disables validation of interdependent properties until they have
     % all been set.
     %
-    % Typically the value of do_check_combo_arg_ is only needs to fetched in your
+    % Typically you only need to query the value of do_check_combo_arg_  in your
     % class set methods. Under some circumstances it may be useful to set to false,
     % set multiple properties, and then reset do_check_combo_arg_ to true. For an
     % example see IX_moderator/set_mod_pulse.
-    %
-    % *** NOT YET UNDERSTOOD BY TGP: ******
-    % Use of dependent hidden property do_check_combo_arg and related protected
-    % method set_do_check_combo_arg. Used when performing validation in rather
-    % special circustances it seems. See original notes with property definition
-    % below and the method interface in the "Object validation" block below.
-    % *************************************
     %
     %
     % Supporting older class versions
     % -------------------------------
     % When serializable objects are written to a bytestream or a .mat file, they are
     % first converted to a structure that also holds the class name and version
-    % number, which are used when recovering the original object.
+    % number. This information is used when recovering the original object.
     %
     % To be able to recover an object from an earlier class version, there are three
     % cases to consider:
     %
     % (1) In the simplest case of missing properties that can be set from the
-    %   default values of the current class, no modifications are required.
+    %   default property values in the current class. This is handled by
+    %   serializable interface and no action is required.
     %
     % (2) In most other cases, all that is needed is to overload the default
-    %   serializable method convert_old_struct so that customised conversion are
+    %   serializable method convert_old_struct so that customised conversion is
     %   performed for each of the previous supported class versions. For details see
     %   <a href="matlab:help('serializable/convert_old_struct');">convert_old_struct</a>.
     %
@@ -150,10 +144,28 @@ classdef (Abstract=true) serializable
     %       end
     %   end
     %    :
+    %
+    %
+    % --------------------------------------------------------------------------
+    % Summary of customisation
+    % --------------------------------------------------------------------------
+    % Serializable Methods:
+    %
+    % Required:
+    %   classVersion    - Return the current class version number
+    %   saveableFields  - Return the names of public properties which fully define the object state.
+    %
+    % If interdependent property values:
+    %   check_combo_arg - Check validity of interdependent properties
+    %
+    % If reading older class versions, then overload:
+    %   convert_old_struct - Update structure created from earlier class versions
+    %   from_old_struct    - Update earlier structures in complex design patterns
+    %   loadobj            - If an old class version pre-dates serializable
 
 
     properties (Access=protected)
-        % Developer property. It is a logical check-status flag:
+        % Flag to control validation checking of interdependent properties
         % - Set to false to disable interdependent property checks for child
         %   property setters
         % - Set to true to enable those checks
@@ -161,7 +173,7 @@ classdef (Abstract=true) serializable
     end
 
     properties (Dependent, Hidden)
-        % Developer property. 
+        % Developer property
         % - Use when you wants to change a number of interdependent properties
         %   one after another and do not want to overload the class. Use with
         %   caution, as you may get an invalid object if the property is used
@@ -178,8 +190,9 @@ classdef (Abstract=true) serializable
     %---------------------------------------------------------------------------
     methods
         function obj = serializable()
-            % Class constructor. Does nothing except enable methods of the base
-            % serializable class to be accessed
+            % Class constructor.
+            % Does nothing except enable methods of the base serializable class
+            % to be accessed.
         end
     end
 
@@ -187,10 +200,11 @@ classdef (Abstract=true) serializable
     %   ABSTRACT INTERFACE THAT MUST BE DEFINED IN CHILD CLASS
     %---------------------------------------------------------------------------
     methods (Abstract, Access=public)
-        % Returns the version number of the class to store.
-        % It is assumed that Each new version would presumably read
-        % the older version, so version substitution is based on this
-        % number.
+        % Returns the current class version number.
+        % It is presumed that each new version will be able to read older
+        % versions. The version number is stored when the object is saved or
+        % serialized, so conversion to the current version can be performed
+        % based on this number.
         %
         % EXAMPLE:
         %       :
@@ -201,9 +215,7 @@ classdef (Abstract=true) serializable
         %        :
         ver = classVersion (obj)
 
-        % Return cellarray of public property names, which fully define
-        % the state of a serializable object, so when the field values are
-        % provided, the object can be fully restored from these values.
+        % Return the names of public properties which fully define the object state.
         %
         % EXAMPLE:
         %       :
@@ -335,6 +347,7 @@ classdef (Abstract=true) serializable
     end
 
     methods
+        % *** NOT YET UNDERSTOOD BY TGP: ******
         % Developer property. Intended for creating algorithms, which
         % change bunch of interdependent properties one after another
         % without overloading the class.
@@ -355,6 +368,7 @@ classdef (Abstract=true) serializable
 
     methods(Access=protected)
         function obj = set_do_check_combo_arg (obj, val)
+            % *** NOT YET UNDERSTOOD BY TGP: ******
             % Overloadable setter for checking interdependent properties.
             % May be overloaded by children for example to change the check
             % in compositing properties which values are in turn serializable

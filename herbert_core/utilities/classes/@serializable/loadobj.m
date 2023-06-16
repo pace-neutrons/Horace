@@ -1,5 +1,5 @@
 function obj = loadobj (S, obj_template)
-% Method used by Matlab load function to reconstruct object from custom storage
+% Method used by the Matlab load function to reconstruct object from custom storage
 %
 %   >> obj = loadobj (S)
 %   >> obj = loadobj (S, obj_template)
@@ -17,9 +17,13 @@ function obj = loadobj (S, obj_template)
 % object default constructor.
 %
 % More generally, it is necessary to write a method called convert_old_struct to
-% convert an earlier structure to the current version, and in the case of 
-% particularly complex class designs the method from_old_struct (for details see
-% <a href="matlab:help('serializable/convert_old_struct');">convert_old_struct</a> and <a href="matlab:help('serializable/from_old_struct');">from_old_struct</a>)
+% convert an earlier structure to the current version. For details, see
+% <a href="matlab:help('serializable/convert_old_struct');">convert_old_struct</a>
+%
+% In the case of particularly complex class designs the method from_old_struct
+% will need to be overloaded instead (although it may be convenient to write an
+% overloaded convert_old_struct to simplify the code). For details see
+% <a href="matlab:help('serializable/from_old_struct');">from_old_struct</a>)
 %
 % If the saved object is sufficiently old that it was not based on the
 % serializable class, then in addition you need to overload the loadobj method.
