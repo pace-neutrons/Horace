@@ -30,5 +30,10 @@ classdef ortho_projTester < ortho_proj
             sh = obj.ortho_ortho_offset_;
         end
         %
+        function obj = build_from_old_struct_public(obj,inputs,varargin)
+            % Restore object from the legacy structure, stored in old sqw
+            % files
+            obj = obj.from_old_struct(obj,inputs,varargin{:});
+        end
     end
 end

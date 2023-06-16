@@ -105,8 +105,8 @@ classdef ortho_proj<aProjectionBase
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
         unit_cell;
-        % scaling factors for transformation from pix to image coordinate
-        % system
+        % scaling factors used in transformation from pix to image
+        % coordinate system
         ulen
     end
     properties(Hidden)
