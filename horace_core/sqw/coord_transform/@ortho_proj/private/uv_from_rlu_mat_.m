@@ -31,7 +31,7 @@ end
 %u_rot_mat = b_mat\u_rot_mat; % old style transformation matrix need this
 % to define the transformation
 
-umat = (u_to_img.*ulen(:)')'; % umat vectors arranged in rows
+umat = (u_to_img.*ulen(:)')'; %Recover umat, umat vectors arranged in rows
 err = 1.e-8;
 cross_proj = [umat(1,:)*umat(2,:)',umat(1,:)*umat(3,:)',umat(2,:)*umat(3,:)'];
 if any(abs(cross_proj) > err)
@@ -48,7 +48,7 @@ if ortho
     umat(2,:) = umat(2,:)- (umat(1,:)*cross_proj(1)+umat(3,:)*cross_proj(2));
     umat(3,:) = umat(3,:)- (umat(1,:)*cross_proj(2)+umat(2,:)*(umat(2,:)*umat(3,:)'));    
 
-    uvw_orth_hkl = (b_mat\umat)';   % orthogonal part of u,v,w
+    uvw_orth_hkl = (b_mat\umat');   % orthogonal part of u,v,w
     %  in hkl frame defined by u and v
 
     %
