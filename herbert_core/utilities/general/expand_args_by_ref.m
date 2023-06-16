@@ -1,5 +1,5 @@
 function varargout = expand_args_by_ref (Aref, varargin)
-% Expand the number of input arguments to vectors
+% Expand input arguments to arrays
 %
 %   >> [B1,B2,B3...] = expand_args (Aref,A1,A2,A3...)
 %

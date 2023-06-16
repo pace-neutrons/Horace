@@ -1,7 +1,7 @@
-function alf = macro_xs_dia (obj, npath, ind, wvec)
+function alf = macro_xs_dia (obj, ind, npath, wvec)
 % Path length through a 3He tube in multiples of the macroscopic absorption cross-section
 %
-%   >> alf = macro_xs_dia (obj, ind, wvec)
+%   >> alf = macro_xs_dia (obj, ind, npath, wvec)
 %
 % The diameter is divided by the sin of the angle of the neutron path
 % w.r.t. the tube axis. That is, the return argument alf is distance through
@@ -10,10 +10,10 @@ function alf = macro_xs_dia (obj, npath, ind, wvec)
 % Input:
 % ------
 %   obj         IX_det_He3tube object
+%   ind         Indices of detector elements. Scalar or array
 %   npath       Unit vectors along the neutron path in the detector coordinate
 %               frame for each detector. Array size [3,n] where n is the
 %               number of indices (see ind below)
-%   ind         Indices of detector elements. Scalar or array
 %   wvec        Wavevector of absorbed neutrons (Ang^-1). Scalar or array
 %
 % If both ind and wvec are arrays, they must have the same number of elements
@@ -48,8 +48,6 @@ function alf = macro_xs_dia (obj, npath, ind, wvec)
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Define constant so that alf=const*atms*inner_rad(m)/(wvec*sintheta)
@@ -70,4 +68,3 @@ else    % both non-scalar
     alf = (const * reshape(dist_press, size(wvec))) ./ wvec;
     
 end
-

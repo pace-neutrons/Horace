@@ -1,7 +1,7 @@
 function obj_out = replicate (obj, n)
 % Replicate detector elements to make n-fold larger detector array
 %
-%   >> obj_out = reorder (obj, n)
+%   >> obj_out = replicate (obj, n)
 %
 % Input:
 % ------

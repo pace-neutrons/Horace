@@ -1,5 +1,5 @@
 function X = rand (obj, varargin)
-% Return an array of random points in detector(s) in a detector bank
+% Random points in detector(s) in a detector bank
 %
 %   >> X = rand (obj, wvec)
 %   >> X = rand (obj, ind, wvec)
@@ -49,5 +49,4 @@ function X = rand (obj, varargin)
 % Original author: T.G.Perring
 
 
-[~, ind] = parse_ind_wvec_ (obj.det, varargin{:});
-X = rand (obj.det, squeeze(obj.dmat(1,:,ind(:))), varargin{:});
+X = func_eval (obj, @rand, varargin{:});

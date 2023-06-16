@@ -7,9 +7,8 @@ classdef IX_det_He3tube < IX_det_abstractType
     % The class does not define the position or orientation, which is done
     % elsewhere.
 
-
     % Original author: T.G.Perring
-    %
+    
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
@@ -85,7 +84,7 @@ classdef IX_det_He3tube < IX_det_abstractType
                 obj = obj.check_combo_arg();
             end
         end
-        %
+        
         function obj=set.height(obj,val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
@@ -98,7 +97,7 @@ classdef IX_det_He3tube < IX_det_abstractType
             end
 
         end
-        %
+        
         function obj=set.wall(obj,val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
@@ -110,7 +109,7 @@ classdef IX_det_He3tube < IX_det_abstractType
                 obj = obj.check_combo_arg();
             end
         end
-        %
+        
         function obj=set.atms(obj,val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
@@ -122,6 +121,7 @@ classdef IX_det_He3tube < IX_det_abstractType
                 obj = obj.check_combo_arg();
             end
         end
+        
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function val = get.dia(obj)
@@ -156,17 +156,29 @@ classdef IX_det_He3tube < IX_det_abstractType
     %======================================================================
 
     methods
+        function ver = classVersion(~)
+            % Current version of class definition
+            ver = 2;
+        end
+        
+        function flds = saveableFields(~)
+            % Return cellarray of properties defining the class
+            flds = {'dia','height','wall','atms'};
+        end
+
         function obj = check_combo_arg(obj)
-            % verify interdependent variables and the validity of the
+            % Verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
             %
-            % Throw if the properties are inconsistent and return without
+            % Recompute any cached arguments
+            %
+            % Throw an error if the properties are inconsistent and return without
             % problem it they are not, after recomputing pdf table if
             % requested.
 
             flds = obj.saveableFields();
             if ~all(obj.mandatory_field_set_)
-                error('HERBERT:IX_det_He3tube:invalid_argument',...
+                error ('HERBERT:IX_det_He3tube:invalid_argument',...
                     ['Must give all mandatory inputs namely: %s\n',...
                     'Properties: %s have not been set'], ...
                     disp2str(flds),...
@@ -177,20 +189,12 @@ classdef IX_det_He3tube < IX_det_abstractType
             % Check the consistency of tube diameter and
             % wall thickness
             if  ~all(obj.dia_>=2*obj.wall_)
-                error('HERBERT:IX_det_He3tube:invalid_argument',...
+                error ('HERBERT:IX_det_He3tube:invalid_argument',...
                     ['Tube diameter(s) must be greater or equal to twice ',...
                     'the wall thickness(es)'])
             end
         end
-        function flds = saveableFields(~)
-            % Return cellarray of properties defining the class
-            %
-            flds = {'dia','height','wall','atms'};
-        end
-
-        function ver = classVersion(~)
-            ver = 2;
-        end
+        
     end
     
     %----------------------------------------------------------------------
@@ -226,4 +230,5 @@ classdef IX_det_He3tube < IX_det_abstractType
         end
     end
     %======================================================================
+    
 end

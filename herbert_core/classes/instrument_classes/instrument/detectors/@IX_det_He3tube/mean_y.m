@@ -1,20 +1,20 @@
-function val = mean_y (obj, npath_in, varargin)
+function val = mean_y (obj, varargin)
 % Mean position of absorption in a 3He cylindrical tube along the y-axis
 %
 %   >> val = mean_y (obj, npath, wvec)
-%   >> val = mean_y (obj, npath, ind, wvec)
+%   >> val = mean_y (obj, ind, npath, wvec)
 %
 % Input:
 % ------
 %   obj         IX_det_He3tube object
 %
+%   ind         Indices of detectors for which to calculate. Scalar or array.
+%               Default: all detectors (i.e. ind = 1:ndet) as a row vector.
+%
 %   npath       Unit vectors along the neutron path in the detector coordinate
 %               frame for each detector. Vector length 3 or an array size [3,n]
 %               where n is the number of indices (see ind below). If a vector
 %               then npath is expanded internally to [3,n] array.
-%
-%   ind         Indices of detectors for which to calculate. Scalar or array.
-%               Default: all detectors (i.e. ind = 1:ndet) as a row vector.
 %
 %   wvec        Wavevector of absorbed neutrons (Ang^-1). Scalar or array.
 %               If both ind and wvec are arrays, then they must have the same
@@ -39,5 +39,5 @@ function val = mean_y (obj, npath_in, varargin)
 % Original author: T.G.Perring
 
 
-sz = parse_npath_ind_wvec_ (obj, npath_in, varargin{:});
+sz = parse_ind_npath_ind_wvec_ (obj, varargin{:});
 val = zeros(sz);

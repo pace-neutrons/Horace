@@ -56,12 +56,11 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
                     true,varargin{:});
                 if ~isempty(remains)
                     error('HERBERT:IX_det_TobyfitClassic:invalid_argument', ...
-                        'Unrecognised extra parameters provided as input to IX_det_TobyfitClassic constructor: %s',...
-                        disp2str(remains));
+                        ['Unrecognised extra parameters provided as input to ',...
+                        'IX_det_TobyfitClassic constructor: %s'], disp2str(remains));
                 end
             end
         end
-
 
         %------------------------------------------------------------------
         % Set methods for dependent properties
@@ -105,10 +104,12 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
         %------------------------------------------------------------------
 
     end
+    
     %======================================================================
+    % SERIALIZABLE INTERFACE
+    %======================================================================
+
     methods
-        % SERIALIZABLE INTERFACE
-        %------------------------------------------------------------------
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
@@ -120,13 +121,15 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
             flds = obj.saveableFields();
             if ~all(obj.mandatory_field_set_)
                 error('HERBERT:IX_det_TobyfitClassic:invalid_argument',...
-                    'Must give all mandatory inputs namely: %s\n. Properties: %s have not been set', ...
+                    ['Must give all mandatory inputs namely: %s\n',...
+                    'Properties: %s have not been set'], ...
                     disp2str(flds),...
                     disp2str(flds(~obj.mandatory_field_set_)));
 
             end
             obj = obj.expand_internal_propeties_to_max_length(flds);                        
         end
+        
         function flds = saveableFields(~)
             % Return cellarray of properties defining the class
             %
@@ -137,8 +140,9 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
             ver = 2;
         end
     end
+    
+    %----------------------------------------------------------------------
     methods(Access=protected)
-        %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the
             % previous version of the object.
@@ -169,8 +173,7 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
             obj = IX_det_TobyfitClassic();
             obj = loadobj@serializable(S,obj);
         end
-        %------------------------------------------------------------------
     end
+    %======================================================================
 
 end
-

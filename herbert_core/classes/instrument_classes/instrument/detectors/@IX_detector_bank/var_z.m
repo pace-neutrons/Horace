@@ -18,7 +18,7 @@ function val = var_z (obj, varargin)
 %
 % Output:
 % -------
-%   val         Variance of absorption along the z-axis(m^2)
+%   val         Variance of absorption along the z-axis (m^2)
 %               The shape is whichever of ind or wvec is an array.
 %
 %               Note:
@@ -33,5 +33,4 @@ function val = var_z (obj, varargin)
 % Original author: T.G.Perring
 
 
-[~, ind] = parse_ind_wvec_ (obj.det, varargin{:});
-val = var_z (obj.det, squeeze(obj.dmat(1,:,ind(:))), varargin{:});
+val = func_eval (obj, @var_z, varargin{:});

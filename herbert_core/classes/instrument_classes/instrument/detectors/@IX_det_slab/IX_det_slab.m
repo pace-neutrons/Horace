@@ -1,22 +1,20 @@
 classdef IX_det_slab < IX_det_abstractType
     % IX_det_slab Slab detector type
-    % Defines the size and absorption of a cuboidal detector
+    % Defines the size and absorption of an array of cuboidal detectors.
     %
     % The class does not define the position or orientation, which is done
     % elsewhere.
 
-
     % Original author: T.G.Perring
-    %
-
+    
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % may require checks against the other properties
-        depth_  = 0;    % Column vector
-        width_  = 0;    % Column vector
-        height_ = 0;    % Column vector
-        atten_  = 0;    % Column vector
+        depth_  = zeros(0,1);    % Column vector
+        width_  = zeros(0,1);    % Column vector
+        height_ = zeros(0,1);    % Column vector
+        atten_  = zeros(0,1);    % Column vector
         mandatory_field_set_ = false(1,4);
     end
 
@@ -51,9 +49,9 @@ classdef IX_det_slab < IX_det_abstractType
             % All arguments can be scalar or arrays; all arrays must have the
             % same number of elements
             %
-            %   depth       Depth of detector elements (m)      (x axis)
-            %   width       Width of detector elements (m)       (y axis)
-            %   height      Height of detector elements (m)   (z axis)
+            %   depth       Depth of detector elements (m) (x axis)
+            %   width       Width of detector elements (m) (y axis)
+            %   height      Height of detector elements (m) (z axis)
             %   atten       Attenuation distance at 2200 m/s (m)
 
             if nargin>0
@@ -68,13 +66,11 @@ classdef IX_det_slab < IX_det_abstractType
                     true,varargin{:});
                 if ~isempty(remains)
                     error('HERBERT:IX_det_slab:invalid_argument', ...
-                        'Unrecognised extra parameters provided as input to IX_fermi_chopper constructor: %s',...
-                        disp2str(remains));
+                        ['Unrecognised extra parameters provided as input to ',...
+                        'IX_det_slab constructor: %s'], disp2str(remains));
                 end
             end
         end
-
-        %------------------------------------------------------------------
 
         %------------------------------------------------------------------
         % Set methods for dependent properties
@@ -154,10 +150,12 @@ classdef IX_det_slab < IX_det_abstractType
         %------------------------------------------------------------------
 
     end
+    
     %======================================================================
+    % SERIALIZABLE INTERFACE
+    %======================================================================
+
     methods
-        % SERIALIZABLE INTERFACE
-        %------------------------------------------------------------------
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
@@ -169,13 +167,15 @@ classdef IX_det_slab < IX_det_abstractType
             flds = obj.saveableFields();
             if ~all(obj.mandatory_field_set_)
                 error('HERBERT:IX_det_slab:invalid_argument',...
-                    'Must give all mandatory inputs namely: %s\n. Properties: %s have not been set', ...
+                    ['Must give all mandatory inputs namely: %s\n',...
+                    'Properties: %s have not been set'], ...
                     disp2str(flds),...
                     disp2str(flds(~obj.mandatory_field_set_)));
 
             end
             obj = obj.expand_internal_propeties_to_max_length(flds);            
         end
+        
         function flds = saveableFields(~)
             % Return cellarray of properties defining the class
             %
@@ -186,8 +186,9 @@ classdef IX_det_slab < IX_det_abstractType
             ver = 2;
         end
     end
+    
+    %----------------------------------------------------------------------
     methods(Access=protected)
-        %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the
             % previous version of the object.
@@ -218,9 +219,7 @@ classdef IX_det_slab < IX_det_abstractType
             obj = IX_det_slab();
             obj = loadobj@serializable(S,obj);
         end
-        %------------------------------------------------------------------
     end
-
-
+    %======================================================================
+    
 end
-

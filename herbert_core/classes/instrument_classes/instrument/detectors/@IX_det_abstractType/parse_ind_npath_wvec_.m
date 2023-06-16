@@ -1,20 +1,20 @@
-function [sz, npath, ind, wvec] = parse_npath_ind_wvec_ (obj, npath_in, varargin)
+function [sz, ind, npath, wvec] = parse_ind_npath_wvec_ (obj, varargin)
 % Check that the detector indices and wavevectors are consistently sized arrays
 %
-%   >> [sz, npath, ind, wvec] = parse_npath_ind_wvec_ (obj, npath_in, wvec_in)
+%   >> [sz, ind, npath, wvec] = parse_ind_npath_wvec_ (obj, npath_in, wvec_in)
 %
-%   >> [sz, npath, ind, wvec] = parse_npath_ind_wvec_ (obj, npath_in, ind_in, wvec_in)
+%   >> [sz, ind, npath, wvec] = parse_ind_npath_wvec_ (obj, ind_in, npath_in, wvec_in)
 %
 %
 % Input:
 % ------
+%   ind_in      Indices of detectors for which to calculate. Scalar or array.
+%               Default: all detectors (i.e. ind = 1:ndet) as a row vector.
+%
 %   npath_in    Unit vectors along the neutron path in the detector coordinate
 %               frame for each detector. Vector length 3 or an array size [3,n]
 %               where n is the number of indices (see ind below). If a vector
 %               then npath is expanded to [3,n] array.
-%
-%   ind_in      Indices of detectors for which to calculate. Scalar or array.
-%               Default: all detectors (i.e. ind = 1:ndet) as a row vector.
 %
 %   wvec_in     Wavevector of absorbed neutrons (Ang^-1). Scalar or array.
 %               If both ind and wvec are arrays, then they must have the same
@@ -35,16 +35,23 @@ function [sz, npath, ind, wvec] = parse_npath_ind_wvec_ (obj, npath_in, varargin
 
 
 % Check ind and wvec
-[sz, ind, wvec] = parse_ind_wvec_ (obj, varargin{:});
+narg = numel(varargin);
+if narg==2
+    [sz, ind, wvec] = parse_ind_wvec_ (obj, varargin{2});
+    npath = varargin{1};
+elseif narg==3
+    [sz, ind, wvec] = parse_ind_wvec_ (obj, varargin{1}, varargin{3});
+    npath = varargin{2};
+else
+    error ('parse_ind_npath_wvec_:invalid_arguments', ['Check the size and ',...
+        'shape of ''npath'': must a vector length 3 or array size [3,n]'])
+end
 
 % Check the neutron path unit vectors
-if numel(npath_in)==3
-    npath = npath_in(:);
-elseif numel(size(npath_in))==2 && size(npath_in,1)==3 && ...
-        size(npath_in,2)==numel(ind)
-    npath = npath_in;
-else
-    error ('parse_npath_ind_wvec_:invalid_arguments', ['Check the size and ',...
+if numel(npath)==3
+    npath = npath(:);   % make column vector
+elseif ~numel(size(npath))==2 || ~size(npath,1)==3 || size(npath,2)~=numel(ind)
+    error ('parse_ind_npath_wvec_:invalid_arguments', ['Check the size and ',...
         'shape of ''npath'': must a vector length 3 or array size [3,n]'])
 end
 
@@ -52,6 +59,6 @@ nlen = sqrt(sum(npath.^2,1));
 if all(nlen>0)
     npath = npath./(repmat(nlen,3,1));
 else
-    error ('parse_npath_ind_wvec_:invalid_arguments',...
+    error ('parse_ind_npath_wvec_:invalid_arguments',...
         'One or more neutron path direction vectors has zero length')
 end

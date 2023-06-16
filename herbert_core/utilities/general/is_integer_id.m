@@ -16,10 +16,13 @@ function [ok,mess,ix,perm] = is_integer_id(id_in)
 %           If not, ix is such that id_in(ix) is sorted in ascending order
 %   perm    True if id is a permutation of the integers 1:numel(id)
 
-% empty id_in will crash the all(id>=1) below
+
+% Empty id_in will crash the all(id>=1) below
 if isempty(id_in)
     ok = false;
-    mess = 'HERBERT:is_integer_id:invalid_argument';
+    mess = 'empty index array';
+    ix = [];
+    perm = false;
     return;
 end
 

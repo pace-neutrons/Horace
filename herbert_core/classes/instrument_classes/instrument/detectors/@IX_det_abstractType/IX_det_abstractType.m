@@ -76,6 +76,10 @@ classdef (Abstract) IX_det_abstractType < serializable
         X = rand (obj, varargin)
     end
     
+    %======================================================================
+    % SERIALIZABLE INTERFACE
+    %======================================================================
+
     methods(Access=protected)
         function obj = expand_internal_propeties_to_max_length (obj, flds)
             % Method runs over the class properties and expands these

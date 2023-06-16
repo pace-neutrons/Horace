@@ -7,22 +7,22 @@ classdef IX_detector_bank < serializable
     properties (Access=private)
         % Class version number
         class_version_ = 1;
-        % Detector identifiers, integers greater than 0 (column vector, ascending)
-        id_  = []
+        % Detector identifiers, integers greater than 0 (column vector)
+        id_  = zeros(0,1);
         % Sample-detector distance (m) (column vector)
-        x2_  = []
+        x2_  = zeros(0,1);
         % Scattering angle (degrees, in range 0 to 180) (column vector)
-        phi_ = []
+        phi_ = zeros(0,1);
         % Azimuthal angle (degrees) (column vector)
-        azim_= []
+        azim_= zeros(0,1);
         % Detector orientation matrix [3,3,ndet]
-        dmat_= eye(3);
-        % Scalar object of IX_det_abstractType
-        det_ = IX_det_slab
+        dmat_= zeros(3,3,0);
+        % Scalar object of IX_det_abstractType 
+        det_ = repmat(IX_det_slab,[1,0]);
     end
     
     properties (Dependent)
-        % Detector identifiers, integers greater than 0 (column vector, ascending)
+        % Detector identifiers, integers greater than 0 (column vector)
         id
         % Sample-detector distance (m) (column vector)
         x2
@@ -48,8 +48,7 @@ classdef IX_detector_bank < serializable
         combined
     end
     
-    properties(Constant,Access=private)
-        % fields_to_save_ = {'id','x2','phi','azim', 'dmat', 'det', 'ndet'};
+    properties(Constant, Access=private)
         fields_to_save_ = {'combined'};
     end
     
@@ -77,7 +76,7 @@ classdef IX_detector_bank < serializable
             %               An instance of a class such as IX_det_He3tube
             %              or IX_det_slab that inherits IX_det_abstractType
             %
-            % Optional arguments defining detector orientations:
+            % Optional arguments:
             %
             % The detector orientation can be defined using one and only one
             % of the following:
@@ -109,12 +108,16 @@ classdef IX_detector_bank < serializable
                 ndet0 = 1;
             else
                 types = det_orient_trans();
-                if numel(varargin)==2 && is_string(varargin{1}) && ~isempty(varargin{1})
+                type_in = varargin{1};
+                if numel(varargin)==2 && is_string(type_in) && ~isempty(type_in)
                     iout = stringmatchi(varargin{1},types);
                     if isscalar(iout)
-                        [ok,mess,ndet0,dmat] = det_orient_trans (varargin{2},...
+                        [ok, mess, ndet0, dmat] = det_orient_trans (varargin{2},...
                             types{iout}, 'dmat');
-                        if ~ok, error(mess); end
+                        if ~ok
+                            error('HERBERT:IX_detector_bank:invalid_argument',...
+                                mess);
+                        end
                     else
                         error('HERBERT:IX_detector_bank:invalid_argument',...
                             'Unrecognised or ambiguous orientation type')
@@ -126,7 +129,7 @@ classdef IX_detector_bank < serializable
             end
             
             % Check detector identifiers
-            [ok,mess,ix] = is_integer_id(id);
+            [ok, mess, ix] = is_integer_id (id);
             if ok
                 ndet = numel(id);
                 if ndet>=1
@@ -142,15 +145,9 @@ classdef IX_detector_bank < serializable
             
             % Check position coordinates
             [x2_exp, phi_exp, azim_exp] = expand_args_by_ref (id, x2, phi, azim);
-            if isempty(ix)
-                obj.x2_   = x2_exp;
-                obj.phi_  = phi_exp;
-                obj.azim_ = azim_exp;
-            else
-                obj.x2_   = x2_exp(ix);
-                obj.phi_  = phi_exp(ix);
-                obj.azim_ = azim_exp(ix);
-            end
+            obj.x2_   = x2_exp;
+            obj.phi_  = phi_exp;
+            obj.azim_ = azim_exp;
             
             % Check detector orientation
             if ndet==ndet0
@@ -376,7 +373,7 @@ classdef IX_detector_bank < serializable
     %======================================================================
     
     methods
-        function ver  = classVersion(~)
+        function ver = classVersion(~)
             % Define version of the class to store in mat-files
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
@@ -393,35 +390,6 @@ classdef IX_detector_bank < serializable
     
     %----------------------------------------------------------------------
     methods (Static)
-        %{
-function obj = loadobj(S)
-            % Static method used my Matlab load function to support custom
-            % loading.
-            %
-            %   >> obj = loadobj(S)
-            %
-            % Input:
-            % ------
-            %   S       Either (1) an object of the class, or (2) a structure
-            %           or structure array
-            %
-            % Output:
-            % -------
-            %   obj     Either (1) the object passed without change, or (2) an
-            %           object (or object array) created from the input structure
-            %       	or structure array)
-            
-            % The following is boilerplate code; it calls a class-specific function
-            % called loadobj_private_ that takes a scalar structure and returns
-            % a scalar instance of the class
-            
-            if isobject(S)
-                obj = S;
-            else
-                obj = arrayfun(@(x)loadobj_private_(x), S);
-            end
-        end
-        %}
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class

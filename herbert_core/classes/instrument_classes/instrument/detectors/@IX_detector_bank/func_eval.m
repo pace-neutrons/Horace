@@ -1,91 +1,48 @@
-function val = func_eval (obj, func_handle, argnam, varargin)
-% Evaluate method of a detector bank on an array of detector banks
+function val = func_eval (obj, func_handle, varargin)
+% Evaluate a function for index and waveector
 %
-% For all detectors in all banks:
-%   >> val = func (obj, func_handle, argnam, arg1, arg2, ...)
-%
-% For indicated detectors:
-%   >> val = func (obj, func_handle, argnam, ind, arg1, arg2, ...)
-%
-%
-% The syntax of the methods to be evaluated is:
-%   >> val = func (<IX_detector_bank object>, arg1, arg2,...)      % all detectors
-%   >> val = func (<IX_detector_bank object>, ind, arg1, arg2,...)
-%
+%   >> X = func_eval (obj, func_handle, wvec)       % for default indices
+%   >> X = func_eval (obj, func_handle, ind, wvec)  % specific indices
 %
 % Input:
 % ------
-%   obj         Array of IX_detector_bank objects
+%   obj         IX_detector_bank object
 %
-%   func_handle Handle to a method of IX_detector_bank which is to evaluated
-%
-%   argnam      Character string or cell array of strings of the names of
-%               numerical arguments that are expected other than 'ind' below
+%   func_handle Function handle e.g. effic or mean, which has one of the
+%               following syntax:
+%               	val = effic (obj, wvec)
+%               	val = effic (obj, ind, wvec)
 %
 %   ind         Indices of detectors for which to calculate. Scalar or array.
-%               Default: all detectors (i.e. ind = 1 to sum of ndet for each bank)
+%               Default: all detectors (i.e. ind = 1:ndet) as a row vector.
 %
-%   arg1,arg2.. Numerical parameters whose names were given in 'argnam'.
-%               Each argument must be a scalar or an array, with all arrays
-%               having the same number of elements, including 'ind'.
+%   wvec        Wavevector of absorbed neutrons (Ang^-1). Scalar or array.
+%               If both ind and wvec are arrays, then they must have the same
+%               number of elements, but not necessarily the same shape.
+%
 %
 % Output:
 % -------
-%   val         Efficiency (in range 0 to 1)
-%               The shape is whichever of ind or wvec is an array.
+%   val         Array of output values.
+%               The output is formed by stacking the output for each single
+%               detector into a larger array, with the size of
+%               the stacking array being whichever of ind or wvec is an
+%               array.
+%
+%               Note:
+%                 - if ind is a scalar, the calculation is performed for
+%                  that value at each of the values of wvec
+%                 - if wvec is a scalar, the calculation is performed for
+%                  that value at each of the values of ind
+%
 %               If both ind and wvec are arrays, the shape is that of wvec
 
 
-% Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
+% Parse to get detector indices and wavevectors, and check consistency of sizes
+[sz, ind, wvec] = parse_ind_wvec_ (obj.det, varargin{:});
 
+% Unit vectors along the neutron path(s) in the detector coordinate frame(s)
+npath = reshape (obj.dmat(1,:,ind(:)), [3,prod(sz)]);
 
-try
-    nel = arrayfun(@(x)(x.ndet),obj);
-    [sz, ix, ibank, ind, args] = parse_ind_args (nel, argnam, varargin{:});
-    
-    nbank = numel(ibank);
-    if nbank>1
-        val_cell = cell(1,nbank);
-        for i=1:nbank
-            args_bank = extract_args (args,i);
-            val_cell{i} = func_handle (obj(ibank(i)), ind{i}, args_bank{:});
-            if i==1
-                sz_data = get_size_data (val_cell{1}, numel(ind{1}));
-            end
-            val_cell{i} = reshape(val_cell{i}, prod(sz_data), numel(ind{i}));
-        end
-        val = cell2mat (val_cell);  % 2D array size [nval_per_point, npnts]
-    else
-        val = func_handle (obj(ibank), ind, args{:});
-        sz_data = get_size_data (val, numel(ind));
-        val = reshape(val, prod(sz_data), numel(ind));
-    end
-    
-    % Reorder and then resize the output array
-    val = val(:,ix);
-    if prod(sz_data)==1     % scalar data per detector
-        val = reshape(val, sz);
-    else
-        val = reshape(val,[sz_data,sz]);
-        val = squeeze(val);
-    end
-    
-catch ME
-    ME.throwAsCaller()
-end
-
-%--------------------------------------------------------------------------
-function args_single = extract_args (args,i)
-% Given a cell array containing a list of arguments, pick out element ind
-% of any cell array arguments. The other arguments are returned in full.
-
-narg = numel(args);
-args_single = cell(1,narg);
-if narg>0
-    cellarg = cellfun(@iscell,args);
-    args_single(cellarg) = cellfun(@(x)(x{i}), args(cellarg), 'uniformOutput', false);
-    args_single(~cellarg)= args(~cellarg);
-end
-
+% Compute the function for the detector(s)
+val = func_handle (obj.det, ind, npath, wvec);

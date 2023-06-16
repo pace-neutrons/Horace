@@ -1,20 +1,20 @@
-function X = rand (obj, npath_in, varargin)
-% Return an array of random points in a 3He cylindrical tube detector
+function X = rand (obj, varargin)
+% Random points in a 3He cylindrical tube detector
 %
 %   >> X = rand (obj, npath, wvec)
-%   >> X = rand (obj, npath, ind, wvec)
+%   >> X = rand (obj, ind, npath, wvec)
 %
 % Input:
 % ------
 %   obj         IX_det_He3tube object
 %
+%   ind         Indices of detectors for which to calculate. Scalar or array.
+%               Default: all detectors (i.e. ind = 1:ndet) as a row vector.
+%
 %   npath       Unit vectors along the neutron path in the detector coordinate
 %               frame for each detector. Vector length 3 or an array size [3,n]
 %               where n is the number of indices (see ind below). If a vector
 %               then npath is expanded internally to [3,n] array.
-%
-%   ind         Indices of detectors for which to calculate. Scalar or array.
-%               Default: all detectors (i.e. ind = 1:ndet) as a row vector.
 %
 %   wvec        Wavevector of absorbed neutrons (Ang^-1). Scalar or array.
 %               If both ind and wvec are arrays, then they must have the same
@@ -54,11 +54,11 @@ function X = rand (obj, npath_in, varargin)
 % Original author: T.G.Perring
 
 
-[sz, npath, ind, wvec] = parse_npath_ind_wvec_ (obj, npath_in, varargin{:});
-alf = macro_xs_dia (obj, npath, ind, wvec);
+[sz, ind, npath, wvec] = parse_ind_npath_wvec_ (obj, varargin{:});
+alf = macro_xs_dia (obj, ind, npath, wvec);
 
 % Reduced units
-[x,y] = rand_xy2 (alf(:));  
+[x,y] = rand_xy2 (alf(:));
 
 % Convert to true units
 % (Note that we do not need to multiply by cosine to project perpendicular

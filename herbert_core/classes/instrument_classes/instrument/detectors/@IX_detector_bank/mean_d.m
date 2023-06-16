@@ -35,5 +35,4 @@ function val = mean_d (obj, varargin)
 % Original author: T.G.Perring
 
 
-[~, ind] = parse_ind_wvec_ (obj.det, varargin{:});
-val = mean_d (obj.det, squeeze(obj.dmat(1,:,ind(:))), varargin{:});
+val = func_eval (obj, @mean_d, varargin{:});
