@@ -2,6 +2,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
     properties
         horace_config;
+        log_level 
 
         ALL_IN_MEM_PG_SIZE = 1e12;
 
@@ -41,20 +42,23 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         end
 
         function delete(obj)
-            if ~isempty(obj.old_config)
-                hc = hor_config;
-                set(hor_config, obj.old_config);
-                hc.saveable = true;
+            hc = hor_config;            
+            if ~isempty(obj.horace_config)
+                set(hor_config, obj.horace_config);
+            end
+            hc.saveable = true;            
         end
 
-        function setUp(~)
+        function setUp(obj)
             hc = hor_config();
             hc.saveable = false;
+            obj.log_level= hc.log_level;
             hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
         end
 
         function tearDown(obj)
-            set(hor_config,obj.horace_config);
+            hc = hor_config();            
+            hc.log_level = obj.log_level;
         end
 
         function test_the_same_sqw_objects_are_equal(obj)
@@ -274,5 +278,4 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         end
 
     end
-
 end

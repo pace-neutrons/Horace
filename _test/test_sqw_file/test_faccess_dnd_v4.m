@@ -301,7 +301,7 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
             orig_img = org_dnd.proj.transform_pix_to_img(pix_cc);
             samp_img = sample_dnd.proj.transform_pix_to_img(pix_cc);
             assertElementsAlmostEqual(orig_img,samp_img);
-            sample_dnd.proj = orig_dnd.proj;
+            sample_dnd.proj = org_dnd.proj;
 
             assertEqualToTol(org_dnd,sample_dnd,'tol',1.e-12,'-ignore_date');
         end

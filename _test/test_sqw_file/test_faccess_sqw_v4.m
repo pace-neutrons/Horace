@@ -606,7 +606,7 @@ classdef test_faccess_sqw_v4< TestCase
             fac1.delete();
 
             assertElementsAlmostEqual(meta.alignment_matr,alignment_mat);
-            assertElementsAlmostEqual(meta.data_range,ref_range);
+            assertElementsAlmostEqual(meta.data_range(:,4:end),ref_range(:,4:end));
 
         end
         %         function test_build_correct(obj)

@@ -17,11 +17,12 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
         function obj = test_migrated_apis(varargin)
             ref_data = fullfile(fileparts(mfilename('fullpath')),'test_migrated_apis_ref_data');
             if nargin == 0
-                argi = {ref_data};
+                name = 'test_migrated_apis';
             else
-                argi = {varargin{1};ref_data};
+                name = varargin{1};
             end
-            obj = obj@TestCaseWithSave(argi{:});            
+
+            obj = obj@TestCaseWithSave(name,ref_data);            
             pths = horace_paths;
 
             obj.test_sqw_1d_fullpath = fullfile(pths.test_common, obj.sqw_file_1d_name);
@@ -70,7 +71,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             assertEqual(size(qsqr_w{2}), [4, 1]);
             assertEqualToTolWithSave(obj,qsqr_w,'tol',1.e-5);
         end
-        function test_calculate_qsqr_w_pixels(~)
+        function test_calculate_qsqr_w_pixels(obj)
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
             qsqr_w = sqw_obj.calculate_qsqr_w_bins();
             assertEqualToTolWithSave(obj,qsqr_w,'tol',1.e-5);
@@ -278,7 +279,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
                 [-0.05, 0.05], [-0.25, 0.25]};
             expected_proj = ortho_proj( ...
                 [1,1,0], [1.1102e-16 1.1102e-16 1],[1 -1.0000 0], ...
-                'alatt',4.2275,...
+                'alatt',4.2275,'angdeg',90,...
                 'nonorthogonal', 0, ...
                 'label', {'\zeta'  '\xi'  '\eta'  'E'});
 
