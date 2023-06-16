@@ -265,10 +265,15 @@ classdef aProjectionBase < serializable
             %
             mat = get_u_to_rlu_mat(obj);
         end
-        function bm = bmatrix(obj)
+        function bm = bmatrix(obj,ndim)
             % Return b-matrix defined on the lattice, this projection
-            % contain
+            % contains
             bm = bmatrix(obj.alatt,obj.angdeg);
+            if nargin == 2 && ndim == 4
+                bm4 = eye(4);
+                bm4(1:3,1:3) = bm;
+                bm = bm4;
+            end
         end
 
         %----------------------------------------------------------------

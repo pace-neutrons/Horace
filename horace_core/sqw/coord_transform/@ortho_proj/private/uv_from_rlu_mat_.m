@@ -31,26 +31,29 @@ end
 %u_rot_mat = b_mat\u_rot_mat; % old style transformation matrix need this
 % to define the transformation
 
-umat = u_to_img.*ulen(:);
+umat = (u_to_img.*ulen(:)')'; % umat vectors arranged in rows
 err = 1.e-8;
-if abs(umat(:,1)'*umat(:,2)) > err || ...
-        abs(umat(:,1)'*umat(:,3)) > err || ...
-        abs(umat(:,2)'*umat(:,3)) > err
+cross_proj = [umat(1,:)*umat(2,:)',umat(1,:)*umat(3,:)',umat(2,:)*umat(3,:)'];
+if any(abs(cross_proj) > err)
     ortho = false;
 else
     ortho = true;
 end
 nonortho = ~ortho;
+ubmat = umat*b_mat; % correctly recovered ubmatrix; ulen matrix extracted
+ubmatinv = inv(ubmat);
 
 if ortho
-    ubmat = umat*b_mat; % correctly recovered ubmatrix; ulen matrix extracted
+    % orthogonolize to suppress round-off errors
+    umat(2,:) = umat(2,:)- (umat(1,:)*cross_proj(1)+umat(3,:)*cross_proj(2));
+    umat(3,:) = umat(3,:)- (umat(1,:)*cross_proj(2)+umat(2,:)*(umat(2,:)*umat(3,:)'));    
 
-    uvw_orth_hkl = (b_mat\umat');   % orthogonal part of u,v,w
+    uvw_orth_hkl = (b_mat\umat)';   % orthogonal part of u,v,w
     %  in hkl frame defined by u and v
 
     %
     lt = cell(3,1);
-    ubmatinv = inv(ubmat);
+
     for i=1:3
         ulen_i_r = 1/max(abs(ubmatinv(:,i)));
         if ulen(i)==1
@@ -71,7 +74,7 @@ if ortho
 
     type = [lt{:}];
 else % non-ortho
-    uvw_cc = inv(umatinv)'; % that's uvw in CC
+    uvw_cc = umat; % that's uvw in CC
     type = cell(3,1);
     for i=1:3
         type{i} = find_type(u_to_img(i,:),ulen(i));

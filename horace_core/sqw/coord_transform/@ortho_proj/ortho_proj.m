@@ -457,7 +457,7 @@ classdef ortho_proj<aProjectionBase
             if ~isempty(obj.u_to_img_cache_) && isempty(obj.ub_inv_legacy)
                 u_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
                 shift    = obj.u_offset_cache_(1:ndim);
-                ulen     = obj.ulen_cache_;
+                ulen     = obj.ulen_cache_(1:ndim);
                 if alignment_needed
                     u_to_img  = u_to_img*alignment_mat;
                 end
@@ -482,6 +482,7 @@ classdef ortho_proj<aProjectionBase
                 shift  = obj.offset;
                 rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
                 u_to_img = [u_to_img,[0;0;0];[0,0,0,1]];
+                ulen = [ulen(:)',1];
             elseif ndim == 3
                 shift  = obj.offset(1:3);
             else
@@ -495,23 +496,21 @@ classdef ortho_proj<aProjectionBase
             else % do not convert anything
             end
         end
-
-    %----------------------------------------------------------------------
-    methods(Access = protected)
-        function  mat = get_u_to_rlu_mat(obj)
-            % overloadable accessor for getting value for ub matrix
-            % property
-            mat =obj.get_pix_img_transformation(4);
-        end
-        %
     end
     %----------------------------------------------------------------------
     methods(Access = protected)
         %------------------------------------------------------------------
         function   mat = get_u_to_rlu_mat(obj)
-            [mat,~,scales] = obj.get_pix_img_transformation(4);
-            mat = mat.*[scales(:)',1]; %--> old style u_to_rlu used in captions
-            % converts transformation into hkl
+            % get old u_to_rlu transformation matrix from current
+            % transformation matrix.
+            %
+            % u_to_rlu defines the projection from
+            %mat = obj.get_pix_img_transformation(4);
+            %mat = obj.bmatrix(4)\mat;
+
+            [mat,~,scale] = obj.get_pix_img_transformation(4);
+            mat = mat.*(scale(:)');
+
         end
 
         %

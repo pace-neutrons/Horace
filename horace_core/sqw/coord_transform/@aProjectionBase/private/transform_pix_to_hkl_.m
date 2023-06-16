@@ -11,14 +11,20 @@ function [pix_hkl,ei] = transform_pix_to_hkl_(obj,pix_input,varargin)
 %            into hkl coordinate system
 %
 
+alignment_needed = false;
 if isa(pix_input,'PixelDataBase')
     pix_cc = pix_input.q_coordinates;
     ndim = 3;
     input_is_obj = true;
+    if pix_input.is_misaligned
+        alignment_needed = true;
+        alignment_mat = pix_input.alignment_matr;
+    end
 else % if pix_input is 4-d,
     ndim = size(pix_input,1);
     pix_cc = pix_input(1:3,:);
     input_is_obj = false;
+
 end
 
 if ~isempty(obj.ub_inv_legacy) % legacy alignment
@@ -27,7 +33,11 @@ else
     transf_to_hkl = obj.bmatrix();
 end
 %
-pix_hkl= transf_to_hkl\pix_cc;
+if alignment_needed
+    pix_hkl= (transf_to_hkl\alignment_mat)*pix_cc;
+else
+    pix_hkl= transf_to_hkl\pix_cc;
+end
 
 if input_is_obj
     ei = pix_input.dE;
