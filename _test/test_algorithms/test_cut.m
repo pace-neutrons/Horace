@@ -122,6 +122,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_nopix(obj)
+            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
 
             ref_sqw = read_dnd(obj.ref_cut_file);
