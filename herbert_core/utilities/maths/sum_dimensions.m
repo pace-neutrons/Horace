@@ -24,6 +24,7 @@ switch ndim
   case 2
     if isvector(a)  % Row or column vector
                     % Must ensure the output is a column vector (benign effect on scalar)
+        s = cell(1, 1);
         s{1} = a(:);
     else
         s=cell(1,2);

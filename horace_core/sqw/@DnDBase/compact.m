@@ -1,17 +1,17 @@
 function dout = compact(din)
-% Squeezes the data range in a dnd object to eliminate empty bins
+% Squeezes the data range in a dnd object or array of such objects to eliminate empty bins
 %
 % Syntax:
 %   >> dout = compact(din)
 %
 % Input:
 % ------
-%   din         Input object
+%   din         Input object(s)
 %
 % Output:
 % -------
-%   dout        Output object, with length of axes reduced to yield the
-%               smallest cuboid that contains the non-empty bins.
+%   dout        Output object(s), with length of axes reduced to yield the
+%               smallest cuboid for each input object that contains the non-empty bins.
 %
 
 %Loop over the number of input objects:
