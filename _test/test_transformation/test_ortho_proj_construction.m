@@ -441,6 +441,10 @@ classdef test_ortho_proj_construction<TestCase
             % and the matrices are correct!
             assertTrue(prj_or.nonorthogonal);
             assertFalse(prj_rec.nonorthogonal);
+
+            % check projection comparison operator itself, which compares 
+            % these operators internaly
+            assertEqual(prj_or,prj_rec,'absolute',1.e-5);
         end
 
         %

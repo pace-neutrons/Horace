@@ -70,6 +70,12 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     properties(Constant,Access=protected)
+        COLS = {'u1', 'u2', 'u3', 'dE', ...
+                'run_idx', ...
+                'detector_idx', ...
+                'energy_idx', ...
+                'signal', ...
+                'variance'};
         FIELD_INDEX_MAP_ = containers.Map(...
             {'u1', 'u2', 'u3', 'dE', ...
             'coordinates', ...
@@ -334,7 +340,6 @@ classdef (Abstract) PixelDataBase < serializable
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         pix_out = do_unary_op(obj, unary_op);
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
 
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
         pix_out = mask(obj, mask_array, npix);
@@ -362,6 +367,7 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_fields(obj, data, fields, abs_pix_indices);
 
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
+        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
     end
 
     methods(Abstract,Access=protected)

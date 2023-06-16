@@ -68,8 +68,8 @@ name_b = inputname(2);
 if isempty(name_b)
     name_b ='B';
 end
-if nargin<4 && isa(A,'serializable') && ismethod(A,'eq')
-    [ok,custom_message] = eq(A,B);
+if nargin<4 && isa(A,'serializable')
+    [ok,custom_message] = eq(A,B,'name_a',name_a,'name_b',name_b);
     if ok
         return
     end
