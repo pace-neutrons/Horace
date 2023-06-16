@@ -115,12 +115,7 @@ if any(abs(lower_part(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
     proj = sqw_struc.data.proj;      % no alignment, otherwise, may be aligned may be not
     sqw_struc.data.proj = proj.set_ub_inv_compat(u_to_rlu);
 end
-% check if sqw object is newly generated sqw object with image coordinate
-% system and pixel coordinate system beeing aligned and adjust projection
-% accordingly. If not, the projection does not change
-if ~(opts.norange || sqw_struc.pix.num_pixels == 0)
-    sqw_struc = obj.update_projection(sqw_struc);
-end
+%
 if opts.legacy
     sqw_object = sqw_struc.main_header;
     varargout{1} = sqw_struc.experiment_info;

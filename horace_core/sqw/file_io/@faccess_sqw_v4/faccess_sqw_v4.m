@@ -189,7 +189,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             npix =  pix_data_bl.npixels;
         end
         function [obj,missinig_fields] = copy_contents(obj,other_obj,varargin)
-            % Copy infromation, relevant to new file format from the old file format
+            % Copy information, relevant to new file format from the old file format
             [obj,missinig_fields] = copy_contents@binfile_v4_common(obj,other_obj,varargin{:});
             if ~PixelDataBase.do_filebacked(other_obj.npixels)
                 return;
@@ -217,8 +217,8 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
                 %log_level = config_store.instance().get_value('hor_config','log_level');
                 if log_level > 0
                     fprintf(2,['*** Recalculating actual data range missing in file %s:\n', ...
-                        '*** This is one-off operation occuring during upgrade from file format version %d to file format version %d\n',...
-                        '*** Do not interrupt this operation after the page count completeon, as the input data file may become corrupted\n'],...
+                        '*** This is one-off operation occurring during upgrade from file format version %d to file format version %d\n',...
+                        '*** Do not interrupt this operation after the page count completion, as the input data file may become corrupted\n'],...
                         obj.full_filename,other_obj.faccess_version,obj.faccess_version);
                 end
                 [pix,unique_pix_id] = sqw_obj.pix.recalc_data_range();
@@ -231,7 +231,7 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
             % recovered for original sqw file (image coordinates system 
             % is Crystal Cartesian). 
             sqw_obj = other_obj.update_projection(sqw_obj);
-            % define number of confrinuting files, which is stored in sqw
+            % define number of contributing files, which is stored in sqw
             % object header, but necessary for sqw_file_interface (not any
             % more but historically to be able to recover headers)
             obj.num_contrib_files_ = sqw_obj.main_header.nfiles;
