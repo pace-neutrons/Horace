@@ -19,7 +19,11 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             obj = obj@TestCase('test_equal_to_tol');
 
             hc = hor_config();
-            obj.horace_config = hc.get_data_to_store();
+
+            if hc.saveable
+                obj.horace_config  = hc.get_data_to_store();
+                hc.saveable = false;
+            end
 
             pths = horace_paths;
             obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
@@ -37,7 +41,10 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         end
 
         function delete(obj)
-            set(hor_config, obj.horace_config);
+            if ~isempty(obj.old_config)
+                hc = hor_config;
+                set(hor_config, obj.old_config);
+                hc.saveable = true;
         end
 
         function setUp(~)
