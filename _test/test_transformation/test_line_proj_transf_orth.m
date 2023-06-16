@@ -41,6 +41,8 @@ classdef test_line_proj_transf_orth<TestCase
 
         end
         function test_uv_to_rot_and_vv_complex_vs_legacy(~)
+            % recovery from old u_to_rlu, stored in old versions of 
+            % sqw files
             u = [1,1,0]/norm([1,1,0]);
             v = [0,-0.5,1];
             alatt = [2.83,2.83,2.83];
@@ -57,13 +59,11 @@ classdef test_line_proj_transf_orth<TestCase
             pix_cc = [eye(3),ones(3,1)];
 
             img_orig =  pra.transform_pix_to_img(pix_cc);
-            img_rec  =  rec.transform_pix_to_img(pix_cc);            
+            img_rec  =  rec.transform_pix_to_img(pix_cc);
 
             assertElementsAlmostEqual(img_orig,img_rec );
-
-
+            assertEqualToTol(pra,rec,'tol',1.e-12);
         end
-        
         %
         function test_uv_to_rot_and_vv_complex(~)
             u = [1,1,0]/norm([1,1,0]);
@@ -75,12 +75,13 @@ classdef test_line_proj_transf_orth<TestCase
 
             [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
 
-            pra = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',type);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
+            prr = ortho_projTester(u_par,v_par,w,'alatt',alatt,'angdeg',angdeg,'type',type);
 
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-
+            pix_cc = [eye(3),ones(3,1)];
+            img_orig =  pra.transform_pix_to_img(pix_cc);
+            img_rec  =  prr.transform_pix_to_img(pix_cc);
+            assertElementsAlmostEqual(img_orig,img_rec );
+            assertEqualToTol(pra,prr,'tol',1.e-12);
         end
         function test_uv_to_rot_and_vv_simple_tricl_lattice(~)
             u = [1,0,0];

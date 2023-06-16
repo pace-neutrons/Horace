@@ -21,7 +21,7 @@ proj = proj.from_bare_struct(data_struct);
 % projection itself
 proj.do_check_combo_arg = true;
 if use_u_to_rlu_transitional
-    u_transf = (inv(data_struct.u_to_rlu(1:3,1:3))/bmatrix(proj.alatt,proj.angdeg))';
+    u_transf = inv(data_struct.u_to_rlu(1:3,1:3))/bmatrix(proj.alatt,proj.angdeg);
     proj = proj.set_from_data_mat(u_transf,data_struct.ulen(1:3));
 else
     proj = proj.check_combo_arg();

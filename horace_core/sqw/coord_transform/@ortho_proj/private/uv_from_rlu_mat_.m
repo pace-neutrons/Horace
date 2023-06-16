@@ -31,7 +31,8 @@ end
 %u_rot_mat = b_mat\u_rot_mat; % old style transformation matrix need this
 % to define the transformation
 
-umat = (u_to_img.*ulen(:)')'; %Recover umat, umat vectors arranged in rows
+%umat = (u_to_img.*ulen(:)')'; %Recover umat, umat vectors arranged in rows
+umat = (u_to_img.*ulen(:)); %Recover umat, umat vectors arranged in rows
 err = 1.e-8;
 cross_proj = [umat(1,:)*umat(2,:)',umat(1,:)*umat(3,:)',umat(2,:)*umat(3,:)'];
 if any(abs(cross_proj) > err)

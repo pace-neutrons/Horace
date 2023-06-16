@@ -1,12 +1,10 @@
 function proj = get_projection(obj,header_av)
 % Extract the ortho_proj used to build old style data_sqw_dnd object
-% from the object itself.
+% from the object structure, stored by previous versions of the Horace.
 %
 % This function just returns the projection for new (year 2021) sqw objects
 % but used for compatibility with old sqw objects.
 %
-% TODO: needs refactoring with new projection. A bit dodgy in current state
-% will go to compartibility with old versions in a future.
 %
 alatt=obj.alatt;
 angdeg=obj.angdeg;
@@ -32,8 +30,7 @@ end
 pix_range = obj.pix.pix_range-repmat(shift,2,1);
 difr = obj.img_db_range - pix_range;
 if  ~isempty(bmat_inv_ext) && all(abs(difr(:))<=1.e-4) % the input is the raw sqw object
-    u_transf = (inv(bmat_inv_ext(1:3,1:3))/bmatrix(proj.alatt,proj.angdeg))';
-    
+	u_transf = inv(data_struct.u_to_rlu(1:3,1:3))/bmatrix(proj.alatt,proj.angdeg);    
     proj = proj.set_from_data_mat(u_transf,[1,1,1]);
 else % the input is the cut
     u_transf = (inv(obj.u_to_rlu(1:3,1:3))/bmatrix(proj.alatt,proj.angdeg))';
