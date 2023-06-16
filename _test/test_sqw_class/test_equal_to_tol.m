@@ -174,8 +174,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
             fraction = 0.5;
             % get the bins to zero out
-            bins_to_edit = round(2:2:30);
-            edited_data(:, bins_to_edit) = 0;
+            edited_data(:, 11:15) = 0;
+            edited_data(:, 22:24) = 0;
 
             pix = obj.get_pix_with_fake_faccess(data);
             edited_pix = obj.get_pix_with_fake_faccess(edited_data);
@@ -190,7 +190,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             % check equal_to_tol false when comparing all bins
             assertFalse(equal_to_tol(edited_sqw, original_sqw, 'fraction', 1));
             % check equal_to_tol true when comparing a fraction of the bins
-            assertEqualToTol(edited_sqw, original_sqw, 'fraction', fraction, 'reorder', false);
+            assertEqualToTol(edited_sqw, original_sqw, 'fraction', fraction, 'reorder', true);
         end
 
         function test_using_fraction_argument_is_faster_than_comparing_all_pix(obj)
