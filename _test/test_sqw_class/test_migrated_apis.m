@@ -175,7 +175,6 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
             wout_disp  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, params);
             assertEqualToTolWithSave(obj,wout_disp,'tol',[1.e-6,1.e-6],'ignore_str', true)
-
         end
         function test_dispersion_with_disp_and_weight_retval(obj)
             params = {'scale', 10};
