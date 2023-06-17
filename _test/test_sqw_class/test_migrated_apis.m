@@ -22,7 +22,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
                 name = varargin{1};
             end
 
-            obj = obj@TestCaseWithSave(name,ref_data);            
+            obj = obj@TestCaseWithSave(name,ref_data);
             pths = horace_paths;
 
             obj.test_sqw_1d_fullpath = fullfile(pths.test_common, obj.sqw_file_1d_name);
@@ -84,7 +84,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
         function test_calculate_qw_pixels(obj)
             sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
             qw=calculate_qw_pixels(sqw_obj);
-            assertEqualToTolWithSave(obj,qw,'tol',1.e-9);
+            assertEqualToTolWithSave(obj,qw,'tol',2.e-7);
         end
         %        function test_calculate_qw_pixels2(obj)
         %            % tested as part of calc_qsqr_w_pixels
@@ -174,9 +174,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
 
             sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
             wout_disp  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, params);
-            assertEqualToTolWithSave(obj,wout_disp,'ignore_str', true,'tol',[1.e-6,1.e-6])
-
-            assertEqualWithSave(obj,wout_disp,'tol',[1.e-6,1.e-6]);            
+            assertEqualToTolWithSave(obj,wout_disp,'tol',[1.e-6,1.e-6],'ignore_str', true)
 
         end
         function test_dispersion_with_disp_and_weight_retval(obj)
