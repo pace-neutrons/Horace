@@ -51,6 +51,6 @@ if calc_transformation
     obj.ulen_cache_     = ulen;
 else
     obj.u_to_img_cache_ = eye(4);
-    obj.u_offset_cache_ = zeros(1,4);
+    obj.u_offset_cache_ = zeros(4,1);
     obj.ulen_cache_     = ones(1,4);
 end

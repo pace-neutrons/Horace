@@ -61,8 +61,8 @@ end
 function [iseq,mess] = eq_single(obj1,obj2,name_a_val,name_b_val,varargin)
 % compare single pair of ortho_proj checking the transformation itself
 %
-[u_to_img_1,shift_1,ulen1] = obj1.get_pix_img_transformation(3);
-[u_to_img_2,shift_2,ulen2] = obj2.get_pix_img_transformation(3);
+[u_to_img_1,shift_1,ulen1] = obj1.get_pix_img_transformation(4);
+[u_to_img_2,shift_2,ulen2] = obj2.get_pix_img_transformation(4);
 
 [mat_eq,mess1] = equal_to_tol(u_to_img_1,u_to_img_2, ...
     'name_a',[name_a_val,'.u_to_img'],'name_b',[name_b_val,'.u_to_img'],varargin{:});
