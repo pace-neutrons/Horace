@@ -163,11 +163,11 @@ classdef test_dnd_constructor < TestCaseWithSave
             d2d_obj = read_dnd(obj.test_dnd_2d_fullpath);
 
             expected_ulen = [2.101896, 1.486265, 2.101896, 1.0000];
-            expected_u_to_rlu = [
-                0.3364, 0.3364,     0,0;
-                0     ,     0.,0.6728,0; 
-                0.3364,-0.3364,     0,0;
-                0     ,      0,     0,1];
+            expected_u_to_rlu = [...
+                +0.7071    0.5000  0        0;...
+                -0.0000    0.0000  1.4142   0;...
+                +0.7071   -0.5000  0.0000   0;...
+                +0         0       0        1.0000];
 
 
             % expected data populated from instance of test object
@@ -183,11 +183,11 @@ classdef test_dnd_constructor < TestCaseWithSave
             d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
             expected_ulen = [2.101896, 1.486265, 2.101896, 1.0000];
-            expected_u_to_rlu = [
-                0.3364, 0.3364,     0,0;
-                0     ,     0.,0.6728,0; 
-                0.3364,-0.3364,     0,0;
-                0     ,      0,     0,1];
+            expected_u_to_rlu = [...
+                +0.7071    0.5000  0        0;...
+                -0.0000    0.0000  1.4142   0;...
+                +0.7071   -0.5000  0.0000   0;...
+                +0         0       0        1.0000];
 
             % expected data populated from instance of test object
             assertTrue(isa(d2d_obj, 'd2d'));
