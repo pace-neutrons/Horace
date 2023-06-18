@@ -50,37 +50,61 @@ classdef test_refine_crystal < TestCase
             % ---------------------------------------
             % The refinement involves a least-squares fit, so will not be exact, hence the large tolerance
 
-            [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
+            algn_inf = refine_crystal( ...
                 obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base,obj.bragg_peak_measured);
-            fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
+            algn_inf.legacy_mode = true;
+            proj = ortho_proj('alatt',obj.alatt_base,'angdeg',obj.angdeg_base);
+            fit_data = struct('rlu_corr',algn_inf.get_corr_mat(proj), ...
+                'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
+                'rotmat',algn_inf.rotmat);
 
             [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
             assertTrue(ok,mess)
         end
         function test_fit_from_different_lattice_and_angle(obj)
 
-            [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
-                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base,obj.bragg_peak_measured,[5.1,5.2,5.3],[92,88,91]);
-            fir_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
+            algn_inf = refine_crystal( ...
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base, ...
+                obj.bragg_peak_measured,[5.1,5.2,5.3],[92,88,91]);
+            algn_inf.legacy_mode = true;
+            proj = ortho_proj('alatt',obj.alatt_base,'angdeg',obj.angdeg_base);
+            fit_data = struct('rlu_corr',algn_inf.get_corr_mat(proj), ...
+                'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
+                'rotmat',algn_inf.rotmat);
 
-            [ok,mess]=equal_to_tol(fir_data,obj.ref_data,1e-9);
+
+
+            [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
             assertTrue(ok,mess)
         end
         function test_fit_from_different_lattice(obj)
 
 
-            [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
-                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base,obj.bragg_peak_measured,[5.1,5.2,5.3],[90,90,90]);
-            fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
+            algn_inf= refine_crystal( ...
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base, ...
+                obj.bragg_peak_measured,[5.1,5.2,5.3],[90,90,90]);
+            algn_inf.legacy_mode = true;
+            proj = ortho_proj('alatt',obj.alatt_base,'angdeg',obj.angdeg_base);
+            fit_data = struct('rlu_corr',algn_inf.get_corr_mat(proj), ...
+                'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
+                'rotmat',algn_inf.rotmat);
 
+            
             [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
             assertTrue(ok,mess)
         end
         function test_fit_from_different_lattice_fix_angles(obj)
 
-            [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
-                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base,obj.bragg_peak_measured,[5.1,5.2,5.3],[90,90,90],'fix_ang');
-            fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
+            algn_inf = refine_crystal( ...
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base, ...
+                obj.bragg_peak_measured,[5.1,5.2,5.3],[90,90,90],'fix_ang');
+            algn_inf.legacy_mode = true;
+            proj = ortho_proj('alatt',obj.alatt_base,'angdeg',obj.angdeg_base);
+            fit_data = struct('rlu_corr',algn_inf.get_corr_mat(proj), ...
+                'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
+                'rotmat',algn_inf.rotmat);
+
+
 
             [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
             assertTrue(ok,mess)
@@ -88,19 +112,29 @@ classdef test_refine_crystal < TestCase
 
         function test_fit_with_rotation_fix_ang(obj)
 
-            [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
-                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base,obj.bragg_peak_mnoise,'fix_ang');
-            fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
+            algn_inf = refine_crystal( ...
+                obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base, ...
+                obj.bragg_peak_mnoise,'fix_ang');
+            algn_inf.legacy_mode = true;
+            proj = ortho_proj('alatt',obj.alatt_base,'angdeg',obj.angdeg_base);
+            fit_data = struct('rlu_corr',algn_inf.get_corr_mat(proj), ...
+                'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
+                'rotmat',algn_inf.rotmat);
+
 
             [ok,mess]=equal_to_tol(fit_data,obj.answer_r ,-3e-2,'min_denominator',1);
             assertTrue(ok,mess)
         end
         function test_fit_with_rot_latt_guess_fix_ang(obj)
 
-            [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
+            algn_inf = refine_crystal( ...
                 obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base, ...
                 obj.bragg_peak_mnoise,[5.1,5.2,5.3],[90,90,90],'fix_ang');
-            fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
+            algn_inf.legacy_mode = true;
+            proj = ortho_proj('alatt',obj.alatt_base,'angdeg',obj.angdeg_base);
+            fit_data = struct('rlu_corr',algn_inf.get_corr_mat(proj), ...
+                'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
+                'rotmat',algn_inf.rotmat);
 
             [ok,mess]=equal_to_tol(fit_data,obj.answer_r ,-3e-2,'min_denominator',1);
             assertTrue(ok,mess)
@@ -108,10 +142,15 @@ classdef test_refine_crystal < TestCase
 
         function test_fit_with_rot_free_alatt(obj)
 
-            [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal( ...
+            algn_inf  = refine_crystal( ...
                 obj.bragg_peak_expected,obj.alatt_base,obj.angdeg_base, ...
                 obj.bragg_peak_mnoise,[5.1,5.2,5.3],[90,90,90],'free_alatt',[1,0,1]);
-            fit_data = struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat);
+            algn_inf.legacy_mode = true;
+            proj = ortho_proj('alatt',obj.alatt_base,'angdeg',obj.angdeg_base);
+            fit_data = struct('rlu_corr',algn_inf.get_corr_mat(proj), ...
+                'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
+                'rotmat',algn_inf.rotmat);
+
 
             [ok,mess]=equal_to_tol(fit_data,obj.answer_r ,-5e-2,'min_denominator',1);
             assertTrue(ok,mess)

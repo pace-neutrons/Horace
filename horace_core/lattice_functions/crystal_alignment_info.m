@@ -163,12 +163,12 @@ classdef crystal_alignment_info < serializable
             %                                      coordinate system
             %
             %  qframe_corr  rotation matrix to
-            if ~isa(proj,'ortho_proj')
+            if ~isa(proj,'ortho_proj')  
                 error('HORACE:lattice_functions:invalid_argument', ...
                     'Alignment can currently be performed on sqw objects with triclinic projections only')
             end
 
-            b0 = bmatrix(proj.alatt,proj.angdeg);
+            b0 = proj.bmatrix();
             if obj.legacy_mode
                 b  = bmatrix(obj.alatt,obj.angdeg);
                 corr_mat=b\obj.rotmat*b0;
