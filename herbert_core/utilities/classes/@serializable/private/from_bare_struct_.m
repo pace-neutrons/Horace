@@ -30,6 +30,19 @@ if numel(obj_template)~=1
         'The input template object must be a scalar instance')
 end
 
+% *** Special case
+% Catch the case of an empty input structure with no fields as meaning
+% just return the template object. This is because we have used the case of
+% such a structure as meaning 'not assigned' in the past. This is possibly
+% poor design as a valid object to save/load is one with no fields and no
+% size. Serializable also interprets an empty object *with* fields in the
+% same way - again possibly inconsistent design. Catch this case too until
+% a robust design is made. 
+if numel(S)==0
+    obj = obj_template;
+    return
+end
+
 % Create default output object array to be updated from the input structure
 nobj = numel(S);
 if nobj == 1
