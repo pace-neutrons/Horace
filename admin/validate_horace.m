@@ -153,21 +153,6 @@ cleanup_obj = onCleanup(@() ...
 
 % Run unit tests
 % --------------
-% Set Horace and Herbert configurations to the defaults (but don't save)
-% (The validation should be done starting with the defaults, otherwise an error
-%  may be due to a poor choice by the user of configuration parameters)
-set(hoc, 'defaults');
-
-% Special unit tests settings.
-hoc.init_tests = true; % initialise unit tests
-hoc.use_mex = ~nomex;
-hoc.force_mex_if_use_mex = forcemex;
-
-if talkative
-    hoc.log_level = 1; % force log level high.
-else
-    hoc.log_level = -1; % turn off informational output
-end
 
 argi = {'-verbose'};
 if nodisp_skipped
@@ -188,29 +173,20 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     time = bigtic();
 
     parfor i = 1:numel(test_folders_full)
+        test_stage_reset();
         test_ok(i) = runtests(test_folders_full{i}, argi{:})
-        % Run after each stage
-        validate_horace_cleanup(cur_horace_config, ...
-                                cur_hpc_config, ...
-                                cur_par_config, ...
-                                test_folders, ...
-                                initial_warn_state)
     end
 
     bigtoc(time,  '===COMPLETED UNIT TESTS IN PARALLEL');
 
 else
+
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
 
     for i = 1:numel(test_folders_full)
+        test_stage_reset();
         test_ok(i) = runtests(test_folders_full{i}, argi{:})
-        % Run after each stage
-        validate_horace_cleanup(cur_horace_config, ...
-                                cur_hpc_config, ...
-                                cur_par_config, ...
-                                test_folders, ...
-                                initial_warn_state)
     end
 
     bigtoc(time,  '===COMPLETED UNIT TESTS RUN ');
@@ -228,17 +204,43 @@ end
 
 end
 
+function test_stage_reset()
+% Run before each stage
+% Set Horace configurations to the defaults (but don't save)
+% (The validation should be done starting with the defaults, otherwise an error
+%  may be due to a poor choice by the user of configuration parameters)
+
+set(hoc, 'defaults');
+set(hpc, 'defaults');
+set(par, 'defaults');
+
+% Special unit tests settings.
+hoc.init_tests = true; % initialise unit tests
+hoc.use_mex = ~nomex;
+hoc.force_mex_if_use_mex = forcemex;
+
+if talkative
+    hoc.log_level = 1; % force log level high.
+else
+    hoc.log_level = -1; % turn off informational output
+end
+
+end
+
 function validate_horace_cleanup(cur_horace_config, cur_hpc_config, cur_par_config, test_folders, initial_warn_state)
+% Reset the configurations, and remove unit test folders from the path
+
 set(hor_config, cur_horace_config);
 set(hpc_config, cur_hpc_config);
 set(parallel_config, cur_par_config);
 
 warn = warning('off',  'all'); % avoid warning on deleting non-existent path
-% Reset the configurations, and remove unit test folders from the path
+
 % Clear up the test folders, previously placed on the path
 for i = 1:numel(test_folders)
     rmpath(test_folders{i});
 end
+
 warning(initial_warn_state);
 
 end
