@@ -83,6 +83,12 @@ classdef ortho_proj<aProjectionBase
         %
     end
     properties(Dependent,Hidden)
+        % Old confusing u_to_rlu matrix value
+        %
+        % Matrix to convert from image coordinate system to hklE coordinate
+        % system (in rlu)
+        u_to_rlu
+
         % renamed offset projection property keep to support old interface
         uoffset
         % Two properties below are responsible for support of old binary
@@ -94,13 +100,15 @@ classdef ortho_proj<aProjectionBase
         compat_struct;
 
         % LEGACY PROPERTY:
-        % inverted UB matrix (u_to_rlu), set directly to projection. Kept
+        % inverted B matrix, obtained from headers and set on
+        % projection when loading realigned data from
         % in new code as old aligned files modify it and there are no way
         % of identifying if the file was aligned or not. Modern code
         % calculates this matrix on request.
         ub_inv_legacy
         %
-        u_to_rlu_legacy; % old u_to_rlu transformation matrix, multiplied by b-matrix
+        u_to_rlu_legacy; % old u_to_rlu transformation matrix,
+        % calculated by original Toby algorithm.
 
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
@@ -143,8 +151,8 @@ classdef ortho_proj<aProjectionBase
 
         % Caches, containing main matrices, used in the transformation
         % this projection defines
-        u_to_img_cache_ = [];
-        u_offset_cache_ = [];
+        q_to_img_cache_ = [];
+        q_offset_cache_ = [];
         ulen_cache_     = [];
     end
 
@@ -267,6 +275,17 @@ classdef ortho_proj<aProjectionBase
             else
                 ul = obj.ulen_cache_;
             end
+        end
+        %------------------------------------------------------------------
+        function mat = get.u_to_rlu(obj)
+            % get old u_to_rlu transformation matrix from current
+            % transformation matrix.
+            %
+            % u_to_rlu defines the transformation from coodrinates in
+            % image coordinate system to pixels in hkl(dE) (rlu) coordinate
+            % system
+            %
+            mat = inv(obj.bmatrix(4)*obj.get_pix_img_transformation(4));
         end
         % -----------------------------------------------------------------
         % OLD sqw object interface compatibility functions
@@ -446,7 +465,10 @@ classdef ortho_proj<aProjectionBase
             % q_to_img -- matrix used to transform pixels in Crystal
             %             Cartesian coordinate system to image coordinate
             %             system
-            % shift    -- the offset 
+            % shift    -- the offset of image coordinates expressed in
+            %             Crystal Cartesian coordinate system
+            % ulen     -- array of scales along the image axes used in the
+            %             transformation
             %
             if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
                 pix = varargin{1};
@@ -459,9 +481,9 @@ classdef ortho_proj<aProjectionBase
             else
                 alignment_needed = false;
             end
-            if ~isempty(obj.u_to_img_cache_) && isempty(obj.ub_inv_legacy)
-                q_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
-                shift    = obj.u_offset_cache_(1:ndim);
+            if ~isempty(obj.q_to_img_cache_) && isempty(obj.ub_inv_legacy)
+                q_to_img = obj.q_to_img_cache_(1:ndim,1:ndim);
+                shift    = obj.q_offset_cache_(1:ndim);
                 ulen     = obj.ulen_cache_(1:ndim);
                 if alignment_needed
                     q_to_img  = q_to_img*alignment_mat;
@@ -470,7 +492,7 @@ classdef ortho_proj<aProjectionBase
             end
             %
             if isempty(obj.ub_inv_legacy)
-                [q_to_img,ulen,rlu_to_u,obj] = projaxes_to_rlu_(obj);
+                [q_to_img,ulen,rlu_to_q,obj] = projtransf_to_img_(obj);
                 % Modern alignment with rotation matrix attached to pixel
                 % coordinate system
                 if alignment_needed
@@ -480,12 +502,12 @@ classdef ortho_proj<aProjectionBase
                 [rlu_to_u,~,ulen]  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
                 u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
                 q_to_img  = (rlu_to_u*u_to_rlu_);
-                rlu_to_u  = inv(u_to_rlu_);
+                rlu_to_q  = inv(u_to_rlu_);
             end
             %
             if ndim==4
                 shift  = obj.offset;
-                rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
+                rlu_to_q  = [rlu_to_q,[0;0;0];[0,0,0,1]];
                 q_to_img = [q_to_img,[0;0;0];[0,0,0,1]];
                 ulen = [ulen(:)',1];
             elseif ndim == 3
@@ -497,7 +519,7 @@ classdef ortho_proj<aProjectionBase
             end
             if nargout > 1
                 % convert shift, expressed in hkl into crystal Cartesian
-                shift = rlu_to_u *shift(:);
+                shift = rlu_to_q *shift(:);
             else % do not convert anything
             end
         end
@@ -505,20 +527,6 @@ classdef ortho_proj<aProjectionBase
     %----------------------------------------------------------------------
     methods(Access = protected)
         %------------------------------------------------------------------
-        function   mat = get_u_to_rlu_mat(obj)
-            % get old u_to_rlu transformation matrix from current
-            % transformation matrix.
-            %
-            % u_to_rlu defines the projection from
-            %mat = obj.get_pix_img_transformation(4);
-            %mat = obj.bmatrix(4)\mat;
-
-            [mat,~,scale] = obj.get_pix_img_transformation(4);
-            mat = mat.*(scale(:)');
-
-        end
-
-        %
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)
             % get indexes of cells which may contributing into the cut.

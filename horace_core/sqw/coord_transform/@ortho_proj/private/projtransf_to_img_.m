@@ -1,21 +1,22 @@
-function [u_to_img,ulen,b_mat,obj] = projaxes_to_rlu_(obj)
+function [q_to_img,ulen,b_mat,obj] = projtransf_to_img_(obj)
 % Determine matrices to convert rlu <=> projection axes, and the scaler
 %
 %
-%   >> [img_to_u, u_to_img, ulen] = projaxes_to_rlu_(proj)
+%   >> [q_to_img,ulen,b_mat,obj] = projaxes_to_rlu_(proj)
 %
 % The projection axes are three vectors that may or may not be orthogonal
 % which are used to create the bins in an sqw object. The bin sizes are in ustep
 %
 % Input:
 % ------
-%   proj    ortho_proj object containing information about projection axes
+%   proj   ortho_proj object containing information about the transformation
 %          (type >> help ortho_proj for details)
 %
 % Output:
 % -------
-%   img_to_u    Matrix to convert components of a vector expressed
-%               in image coordinate system to the components along the projection axes
+%   q_to_img    Matrix to convert components of a vector expressed
+%               in Crystal Cartesian coordinate system to the components 
+%               along the image axes
 %               u1,u2,u3, as multiples of the step size along those axes
 %                   Vstep(i) = rlu_to_ustep(i,j)*Vrlu(j)
 %   ulen        Row vector of scales of ui in Ang^-1
@@ -93,7 +94,7 @@ if obj.nonorthogonal                  % V_c = Transf*B*V_hkl -- Defining Tr
     end
     % transpose transformation matrix to be consistent with umat below.
     % as u-matrix arrangement is rows, make transf arranged in rows
-    u_to_img = inv(transf)./(ulen(:));
+    q_to_img = inv(transf)./(ulen(:));
 else                                        % V_c = U*B*V_hkl -- defining U
     ubmatinv = inv(ubmat);
     for i=1:3
@@ -116,5 +117,5 @@ else                                        % V_c = U*B*V_hkl -- defining U
     % Here we do umat in lhs arranged into rows, so transformed to columns
     % (one inversion) inverted to be on rhs (other inversion). 
     % so umat (one inversion looks missing? or what?. This gives previous Horace result)
-    u_to_img = (umat./(ulen(:)));
+    q_to_img = (umat./(ulen(:)));
 end

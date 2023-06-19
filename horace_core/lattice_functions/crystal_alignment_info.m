@@ -195,7 +195,7 @@ classdef crystal_alignment_info < serializable
                 corr_mat=b\obj.rotmat*b0;
             else
                 q_to_img = proj.get_pix_img_transformation(3); % uncorrected  U0*B0
-                corr_mat = (q_to_img*b0)\obj.rotmat; % U0B0/b0*rotmat = rotmatOld\rotmat_new
+                corr_mat = (b0*q_to_img)\obj.rotmat; % U0B0/b0*rotmat = rotmatOld\rotmat_new
             end
         end
     end
