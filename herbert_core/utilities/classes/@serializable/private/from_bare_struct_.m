@@ -1,63 +1,115 @@
-function obj = from_bare_struct_(obj,inputs)
-% Restore object from the fields, previously obtained by to_struct method
+function obj = from_bare_struct_ (obj_template, S)
+% Restore object or object array from a structure
+%
+%   >> obj = from_bare_struct_ (obj_template, S)
 %
 % Input:
-% inputs  -- structure or structure array of data, fully defining the
-%            internal state of the object.
-% check_validity - if true, check if the object build from the input
-%            structure is valid using serializable validify methods
+% ------
+%   obj_template    Scalar instance of the class to be recovered.
+%                   This is needed because the structure created by the method
+%                  to_bare_struct does not contain the class type. The object
+%                  is used to provide the class to be recovered, and the value
+%                  of any missing properties if recovering from an older
+%                  version. 
+%
+%   S               Structure or structure array of data with the structure as
+%                  created by the method to_bare_struct.
+%                   Note that structures created by to_struct (i.e. with the
+%                  fields 'serial_name', 'version' and (if from an array of 
+%                  objects) 'array_dat' are *NOT* valid.
+%
 % Output:
-% obj    --  fully defined object or array of objects, with contents
-%            restored
-%
-nobj = numel(inputs);
-if nobj>1
-    obj = repmat(obj,size(inputs));
+% -------
+%   obj             Object or array of objects of the same class as the input
+%                  argument obj_template.
+
+
+% Check input
+if numel(obj_template)~=1
+    error('HERBERT:serializable:invalid_argument',...
+        'The input template object must be a scalar instance')
 end
-%--------------------------------------------------------------------------
-% complex verification of intersection of input and output fields is
-% necessary for supporting classes with variable field set depending on the
+
+% *** Special case
+% Catch the case of an empty input structure with no fields as meaning
+% just return the template object. This is because we have used the case of
+% such a structure as meaning 'not assigned' in the past. This is possibly
+% poor design as a valid object to save/load is one with no fields and no
+% size. Serializable also interprets an empty object *with* fields in the
+% same way - again possibly inconsistent design. Catch this case too until
+% a robust design is made. 
+if numel(S)==0
+    obj = obj_template;
+    return
+end
+
+% Create default output object array to be updated from the input structure
+nobj = numel(S);
+if nobj == 1
+    obj = obj_template;
+else
+    obj = repmat(obj_template, size(S));
+end
+
+% Find the fields to be set from the structure
+% (The complex verification of intersection of input and output fields is
+% necessary for supporting classes with a variable field set depending on the
 % state of the object. Also support inheritance, when partial object
-% (parent) is restored from full child structure.
-%
-% The question if one should allow this to happen (e.g. heterogeneous
-% arrays) remains open
-fields_to_set = obj(1).saveableFields();
-fields_present = fieldnames(inputs);
-is_present = ismember(fields_to_set,fields_present);
+% (parent) is restored from full child structure. The question if one should
+% allow this to happen - for example heterogeneous arrays - remains open.
+fields_to_set = obj_template.saveableFields();
+fields_present = fieldnames(S);
+is_present = ismember (fields_to_set, fields_present);
 if ~any(is_present)
+    % There are no fields in the object to recover that are in the structure, so
+    % the return object is just the template object, suitably repeated to the
+    % size of the inoput structure.
     return;
 end
 if ~all(is_present)
     fields_to_set = fields_to_set(is_present);
 end
-%--------------------------------------------------------------------------
-%
-obj_in = cell(nobj,1);
+
+% There are properties to be set from the input structure
+% Set properties without checking interdependecies by turning off the method
+% check_combo_arg, turning on and performing the check only when all properties
+% have been updated.
+obj_cellarray = cell(nobj,1);
 for i=1:nobj
     obj(i).do_check_combo_arg_ = false;
-    obj(i) = set_obj(obj(i),inputs(i),fields_to_set);
+    obj(i) = set_obj (obj(i), S(i), fields_to_set);
     obj(i).do_check_combo_arg_ = true;
-    % check interdependent properties. If the object is invalid,
-    % it throws the exception
-    obj_in{i} = obj(i).check_combo_arg();
+    % Check interdependent properties. If the object is invalid, an
+    % exception is thrown
+    obj_cellarray{i} = obj(i).check_combo_arg();
 end
-obj = [obj_in{:}];
+obj = [obj_cellarray{:}];
 if nobj > 1
-    obj = reshape(obj,size(inputs));
+    obj = reshape(obj,size(S));
 end
 
-end % function from_bare_struct_
+end
+
+%-------------------------------------------------------------------------------
+function obj = set_obj (obj, S, fields_names)
+% Set properties of an object from the named fields of the scalar structure S
 %
-function obj = set_obj(obj,inputs,flds)
-for i=1:numel(flds)
-    fld = flds{i};
-    val = inputs.(fld);
+%   >> obj = set_obj (obj, S, fields_names)
+%
+% Note that this function is recursive in that a field that contains a structure
+% that corresponds to a serializable object it is sent to from_struct to recover
+% the object.
+
+for i=1:numel(fields_names)
+    field_name = fields_names{i};
+    val = S.(field_name);
     if isstruct(val)
-        if  isfield(val,'serial_name')
-            val = serializable.from_struct(val);
+        if isfield(val,'serial_name')
+            % Structure is one that has been created by to_struct
+            val = serializable.from_struct (val);
         end
     end
-    obj.(fld) = val;
+    obj.(field_name) = val;
 end
-end % function set_obj
+
+end
