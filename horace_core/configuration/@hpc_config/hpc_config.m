@@ -132,8 +132,6 @@ classdef hpc_config < config_base
         use_mex_for_combine
         % if true, launch separate Matlab session(s) to generate tmp files
         accum_in_separate_process
-        % number of sessions to launch to calculate additional files
-        accumulating_process_num
     end
 
     properties(Access=protected,Hidden = true)
@@ -194,10 +192,6 @@ classdef hpc_config < config_base
 
         function accum = get.accum_in_separate_process(obj)
             accum = get_or_restore_field(obj,'build_sqw_in_parallel');
-        end
-
-        function accum = get.accumulating_process_num(obj)
-            accum = get_or_restore_field(obj,'parallel_workers_number');
         end
 
         function accum = get.build_sqw_in_parallel(obj)

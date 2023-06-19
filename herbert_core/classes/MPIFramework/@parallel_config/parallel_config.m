@@ -122,7 +122,6 @@ classdef parallel_config<config_base
         cluster_config;
 
         % number of workers to deploy in parallel jobs
-        accumulating_process_num;
         parallel_workers_number;
 
         % Threading using auto-calculated threads used in Slurm because
@@ -468,10 +467,6 @@ classdef parallel_config<config_base
             end
 
             config_store.instance().store_config(obj,'cluster_config',the_config);
-        end
-
-        function obj = set.accumulating_process_num(obj,val)
-            obj.parallel_workers_number = val;
         end
 
         function obj = set.parallel_workers_number(obj,val)
