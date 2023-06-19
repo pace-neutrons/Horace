@@ -37,6 +37,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         end
 
         function delete(obj)
+            delete@common_sqw_class_state_holder(obj)
             set(hor_config, obj.horace_config);
         end
 

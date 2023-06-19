@@ -3,7 +3,7 @@ classdef common_sqw_class_state_holder < common_state_holder
     % completed
     properties
     end
-    
+
     methods
         function obj = common_sqw_class_state_holder()
             %
@@ -24,10 +24,9 @@ classdef common_sqw_class_state_holder < common_state_holder
             delete@common_state_holder(obj);
             call_count = obj.call_count();
             if call_count == 0
-                old_warm = obj.store_holder('','old_warn_state_sqw_class');
-                warning(old_warm);
+                old_warn = obj.store_holder('','old_warn_state_sqw_class');
+                warning(old_warn);
             end
         end
     end
 end
-
