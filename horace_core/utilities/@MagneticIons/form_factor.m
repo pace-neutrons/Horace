@@ -21,10 +21,10 @@ function FF = form_factor(self,h,k,l,varargin)
 if numel(varargin) > 1 && nargin > 5 && ~isempty(varargin{2})
     rlu_to_Q = varargin{2};
 else
-    rlu_to_Q = self.rlu_to_Qmat_;    
+    rlu_to_Q = self.hkl_to_Qmat_;
 
 end
-q = rlu_to_Q*[h';k';l'];    
+q = rlu_to_Q*[h';k';l'];
 
 
 q2 = (q(1,:).*q(1,:)+q(2,:).*q(2,:)+q(3,:).*q(3,:))/(16*pi*pi);

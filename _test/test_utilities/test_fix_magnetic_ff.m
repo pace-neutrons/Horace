@@ -62,7 +62,6 @@ classdef test_fix_magnetic_ff< TestCase
         end
         %
         function test_correct_magnetif_ff(this)
-            skipTest("Something was going on with the dirty page flag");
             fsqw = this.sample_sqw;
             %
             mff = MagneticIons('Fe1');
@@ -70,14 +69,14 @@ classdef test_fix_magnetic_ff< TestCase
             inv_sqw = mff.correct_mag_ff(fsqw_with_mag);
 
             assertElementsAlmostEqual(fsqw.data.s,inv_sqw.data.s);
-            assertElementsAlmostEqual(fsqw.data.pix.data,inv_sqw.data.pix.data);
+            assertElementsAlmostEqual(fsqw.pix.data,inv_sqw.pix.data);
 
-            fsqw_s   = struct(fsqw);
-            inv_sqw_s= struct(inv_sqw);
+            fsqw_s   = fsqw.to_struct();
+            inv_sqw_s= inv_sqw.to_struct();
             fsqw_s.data.s = [];
             inv_sqw_s.data.s=[];
-            fsqw_s.data.pix = PixelDataBase.create();
-            inv_sqw_s.data.pix = PixelDataBase.create();
+            fsqw_s.pix = PixelDataBase.create();
+            inv_sqw_s.pix = PixelDataBase.create();
 
             tol = 1e-6; % added to get signal comparison to pass
             % now fails with different dirty page flag
@@ -92,13 +91,7 @@ classdef test_fix_magnetic_ff< TestCase
             assertElementsAlmostEqual(fdnd.s,inv_dnd.s);
             assertElementsAlmostEqual(fdnd.e,inv_dnd.e);
 
-            fdnd_s   = struct(fdnd);
-            inv_dnd_s= struct(inv_dnd);
-            fdnd_s.s = [];
-            inv_dnd_s.s=[];
-            fdnd_s.e = [];
-            inv_dnd_s.e=[];
-            assertEqual(fdnd_s,inv_dnd_s);
+            assertEqualToTol(fdnd,inv_dnd,'tol',1.e-12,'-ignore_date')
 
         end
         function test_dnd_vs_sqw(this)

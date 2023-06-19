@@ -26,9 +26,9 @@ function magFF=calc_mag_ff(self,win)
 %
 % Get conversion matrix used to change from rlu to wave-vector in A^(-1)
 if isa(win,'sqw')
-    self.rlu_to_Qmat_ = win.data.proj.bmatrix();
+    self.hkl_to_Qmat_ = win.data.proj.bmatrix();
 else
-    self.rlu_to_Qmat_ = data.proj.bmatrix();
+    self.hkl_to_Qmat_ = win.proj.bmatrix();
 end
 
 magFF=sqw_eval(win,@(h,k,l,en,argi)form_factor(self,h,k,l,en,argi),[]);
