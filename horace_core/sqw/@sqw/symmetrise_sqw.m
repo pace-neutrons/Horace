@@ -70,7 +70,7 @@ wout = copy(win);
 
 [sym, fold] = validate_sym(sym);
 transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
-wout = wout.apply(transforms, {}, false);
+wout = wout.apply(transforms, {win.data.proj}, false);
 
 %=========================================================================
 % Transform Ranges:

@@ -67,10 +67,16 @@ classdef SymopReflection < Symop
             normvec = normvec / norm(normvec);
         end
 
-        function selected = in_irreducible(obj, coords)
+        function selected = in_irreducible(obj, coords, proj)
         % Compute whether the coordinates in `coords` are in the irreducible
         % set following the operation
-            selected = coords'*obj.normvec > 0;
+
+            if exist('proj', 'var')
+                selected = coords'*proj.transform_img_to_pix(obj.normvec) > 0;
+            else
+                selected = coords'*obj.normvec > 0;
+            end
+
         end
 
         function R = calculate_transform(obj, Minv)
