@@ -124,16 +124,11 @@ classdef parallel_config<config_base
         % number of workers to deploy in parallel jobs
         parallel_workers_number;
 
-        % Threading using auto-calculated threads used in Slurm because
-        % remote machine probably doesn't have same number of cores as
-        % local machine
-        is_auto_par_threads;
-
         % Number of threads to use.
         threads;
 
         % Number of threads to use in MPIFramework.
-        par_threads;
+        parallel_threads;
 
         % Information method returning the list of the parallel clusters,
         % known to Herbert. You can not add or change a cluster
@@ -212,7 +207,7 @@ classdef parallel_config<config_base
         % Redirect IO to host and other debug features
         debug;
 
-        % Threading using auto-calculated threads used in Slurm because
+        % Threading using auto-calculated threads; used in Slurm because
         % remote machine probably doesn't have same number of cores as
         % local machine
         is_auto_parallel_threads;
@@ -233,7 +228,7 @@ classdef parallel_config<config_base
             'cluster_config', ...
             'parallel_workers_number',...
             'threads', ...
-            'par_threads', ...
+            'parallel_threads', ...
             'shared_folder_on_local', ...
             'shared_folder_on_remote', ...
             'working_directory', ...
@@ -260,7 +255,7 @@ classdef parallel_config<config_base
         % default auto threads
         threads_ = 0;
         % default auto threads
-        par_threads_ = 0;
+        parallel_threads_ = 0;
 
         % default remote folder is unset
         shared_folder_on_local_ ='';
@@ -325,8 +320,8 @@ classdef parallel_config<config_base
             conf = obj.get_or_restore_field('cluster_config');
         end
 
-        function tf = get.is_auto_par_threads(obj)
-            n_threads = get_or_restore_field(obj,'par_threads');
+        function tf = get.is_auto_parallel_threads(obj)
+            n_threads = get_or_restore_field(obj,'parallel_threads');
             tf = n_threads < 1;
         end
 
@@ -341,8 +336,8 @@ classdef parallel_config<config_base
             end
         end
 
-        function n_threads=get.par_threads(obj)
-            n_threads = get_or_restore_field(obj, 'par_threads');
+        function n_threads=get.parallel_threads(obj)
+            n_threads = get_or_restore_field(obj, 'parallel_threads');
             n_workers = get_or_restore_field(obj, 'parallel_workers_number');
             n_poss_threads = floor(obj.n_cores/n_workers);
 
@@ -493,17 +488,17 @@ classdef parallel_config<config_base
             config_store.instance().store_config(obj,'threads',n_threads);
         end
 
-        function obj = set.par_threads(obj,n_threads)
+        function obj = set.parallel_threads(obj,n_threads)
             n_threads = floor(n_threads);
             n_workers = get_or_restore_field(obj, 'parallel_workers_number');
             n_poss_threads = floor(obj.n_cores/n_workers);
 
             if n_threads < 0
-                error('HERBERT:parallel_config:invalid_argument', 'par_threads must be positive or 0 (automatic)')
+                error('HERBERT:parallel_config:invalid_argument', 'parallel_threads must be positive or 0 (automatic)')
             elseif n_threads > n_poss_threads
-                warning('HERBERT:parallel_config:par_threads', 'Number of par threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
+                warning('HERBERT:parallel_config:parallel_threads', 'Number of par threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
             end
-            config_store.instance().store_config(obj,'par_threads',n_threads);
+            config_store.instance().store_config(obj,'parallel_threads',n_threads);
         end
 
         function obj = set.slurm_commands(obj,val)
