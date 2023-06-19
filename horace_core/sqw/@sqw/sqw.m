@@ -25,7 +25,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         detpar;
 
         experiment_info;
-
         % The information about the N-D neutron image, containing
         % combined and bin-averaged information about the
         % neutron experiment.
@@ -508,7 +507,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         obj = set_efix(obj,efix,emode);
 
         % Change the crystal lattice and orientation of an sqw object or array of objects
-        wout = change_crystal (obj,varargin)
+        wout = change_crystal (obj,alignment_info)
 
         %TODO: Special call on interface for different type of instruments
         %      from generic object, which may contain any instrument is

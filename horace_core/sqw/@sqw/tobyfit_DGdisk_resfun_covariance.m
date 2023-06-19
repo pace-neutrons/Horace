@@ -131,13 +131,13 @@ end
 
 %=============================================================================
 function Cout = transform_matrix (C,B)
-% Compute the matrix product Cout = B * C * B' for nD matricies
+% Compute the matrix product Cout = B * C * B' for nD matrices
 % B can be a 2D matrix and dimension expansion is performed
 
 szC = size(C);
 szB = size(B);
 if numel(szC)==2 && numel(szB)==2
-    % Just do straighforward matlab matric multiplication
+    % Just do straightforward MATLAB matric multiplication
     Cout = B * C * B';
 else
     if numel(szB)==2

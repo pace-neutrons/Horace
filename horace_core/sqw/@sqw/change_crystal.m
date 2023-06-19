@@ -49,7 +49,6 @@ for i=1:numel(obj)
     wout(i).experiment_info = obj(i).experiment_info.change_crystal(alignment_info,proj);
     %
     if ~alignment_info.legacy_mode
-        alignment_mat = alignment_info.get_corr_mat(proj);
-        wout(i).pix.alignment_matr = alignment_mat;
+        wout(i).pix.alignment_matr = alignment_info.rotmat;
     end
 end

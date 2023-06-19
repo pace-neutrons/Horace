@@ -82,15 +82,26 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             proj.u=obj.u;
             proj.v=obj.v;
 
+            % theoretical bragg points positions
+            bp=[...
+                0, -1,  0; ...
+                1,  2,  0; ...
+                0, -1,  1];
 
-            %bp=[0,-1,-1; 0,-1,0; 1,2,0; 2,3,0; 0,-1,1;0,0,1];
-            % bp=   [0,-1,0;  3,  1,   0; 2  ,0,0];  %;0,0,1
-            bp=[0,-1,0; 1,2,0; 0,-1,1]; %;0,0,1
+            % the bragg points positions found by fitting measured bragg
+            % peaks shape to Gaussian and identifying the Gaussian centerpoints
+            % See test_u_alighnment_tf_way for the procedure of obtaining
+            % them. The operation is:
+            %[rlu_real,width,wcut,wpeak]=bragg_positions(obj.misaligned_sqw_file,...
+            %    bp, 1.5, 0.02, 0.4, 1.5, 0.02, 0.4, 2, 'gauss');
+            rlu_real = [...
+                0.0372,-0.9999, 0.0521;...
+                0.9200, 2.0328,-0.1568;...
+                0.1047,-0.9425, 1.0459];
+            
 
             half_len=0.5; half_thick=0.25; bin_width=0.025;
 
-            [rlu_real,width,wcut,wpeak]=bragg_positions(obj.misaligned_sqw_file,...
-                bp, 1.5, 0.02, 0.4, 1.5, 0.02, 0.4, 2, 'gauss');
             %[rlu0,width,wcut,wpeak]=bragg_positions(read_sqw(sim_sqw_file), proj, rlu, half_len, half_thick, bin_width);
             %bragg_positions_view(wcut,wpeak)
 
@@ -139,7 +150,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
         end
         function test_levacy_vs_pix_alignment(obj)
-            % theoretical bragg points postioons
+            % theoretical bragg points positions
             bp=[...
                 0, -1,  0; ...
                 1,  2,  0; ...
@@ -162,7 +173,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 obj.alatt, obj.angdeg, bp);
 
             proj = fit_obj.data.proj;
-            proj = proj.set_ub_inv_compat(proj.u_to_rlu);
+            proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
             wout_legacy = fit_obj;
             wout_legacy.data.proj = proj;
             wout_legacy = change_crystal (wout_legacy,corr);
@@ -184,23 +195,34 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             al_cut_range = wout_align.targ_range(proj_al);
             assertElementsAlmostEqual(leg_cut_range,al_cut_range);
 
-            mix_cut_range = wout_legacy.targ_range(proj_al);
-            assertElementsAlmostEqual(mix_cut_range,al_cut_range);
+            % This is not correct and should not. One projecton contans
+            % alignment matrix attached to B-matrix and another one does not
+            % (alignment is on pixels only)
+            %mix_cut_range = wout_legacy.targ_range(proj_al);
+            %assertElementsAlmostEqual(mix_cut_range,al_cut_range);
 
-            %img_range = wout_legacy.targ_range(proj);
-            %img_range_pix = wout_pix.targ_range(proj);
-            %assertElementsAlmostEqual(img_range,img_range_pix);
             cr = [-0.3,-2,-1.8,-0.5;3.5,4.2,2,0.5];
 
             cut_old1d = cut(wout_legacy,proj_leg,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
             cut_new1d  = cut(wout_align,proj_leg,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');
+
+            assertEqual(cut_old1d.experiment_info.n_runs, ...
+                cut_new1d.experiment_info.n_runs)
+            % old alignment changes the direction of cu,cv components and
+            % new one does not so they can not be compared directly.
+            cut_old1d.experiment_info = cut_new1d.experiment_info;
 
             assertEqualToTol(cut_old1d,cut_new1d);
 
             ranges = {[cr(1,1),0.05,cr(2,1)],[cr(1,2),0.1,cr(2,2)],[cr(1,3),0.1,cr(2,3)],[cr(1,4),0.1,cr(2,4)]};
             cut_old = cut(wout_legacy,proj_leg,ranges{:});
             cut_new = cut(wout_align,proj_leg,ranges{:});
-
+            
+            assertEqual(cut_old.experiment_info.n_runs, ...
+                cut_new.experiment_info.n_runs)
+            % old alignment changes the direction of cu,cv components and
+            % new one does not so they can not be compared directly.
+            cut_old.experiment_info = cut_new.experiment_info;
             assertEqualToTol(cut_old,cut_new);
 
         end

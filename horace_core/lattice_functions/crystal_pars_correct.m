@@ -64,9 +64,13 @@ ub_matrix0 = ubmatrix(u, v, b_matrix0);     % ubmat takes Vrlu to V in orthonorm
 
 % Get matrix to convert from rlu defined by true lattice parameters to orthonormal frame defined by u,v;
 if isa(rlu_corr,'crystal_alignment_info')
-    rlu_corr = rlu_corr.rlu_corr;
+    alatt = rlu_corr.alatt;
+    angdeg = rlu_corr.angdeg;
+    rlu_corr = rlu_corr.get_corr_mat(alatt0,angdeg0);
+else
+    [alatt,angdeg,rotmat]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
 end
-[alatt,angdeg,rotmat]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
+
 
 b_matrix = bmatrix(alatt, angdeg);     % bmat takes Vrlu to Vxtal_cart
 ub_matrix = ubmatrix(u_new, v_new, b_matrix);       % ubmat takes Vrlu to V in orthonormal frame defined by u, v
@@ -81,7 +85,7 @@ rot_om0  = [cos(omega0),-sin(omega0),0; sin(omega0),cos(omega0),0; 0,0,1];
 corr0 = (rot_om0 * (rot_dpsi0*rot_gl0*rot_gs0) * rot_om0');
 % Matrix to convert from rlu to orthonormal frame S
 % (Vs = (Corr*UB)*Vrlu, where Corr=Om0 * M(dpsi0,gl0,gs0) * Om0')
-rlu0_to_S = corr0*ub_matrix0; 
+rlu0_to_S = corr0*ub_matrix0;
 
 % Use the fact that Vs is also given by Vs=(Corr_true*UBtrue)*Vrlu_true, and Vrlu_true= rlu_corr*Vrlu, to determine M(dpsi,gl,gs):
 % for true lattice:

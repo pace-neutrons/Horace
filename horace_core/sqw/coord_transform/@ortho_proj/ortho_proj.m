@@ -427,7 +427,7 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function [u_to_img,shift,ulen,obj]=get_pix_img_transformation(obj,ndim,varargin)
+        function [q_to_img,shift,ulen,obj]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
             % to image coordinate system and vice-versa if the projaxes is
             % defined
@@ -442,6 +442,11 @@ classdef ortho_proj<aProjectionBase
             %         pixels are misaligned, contains additional rotation
             %         matrix, used for aligning the pixels data into
             %         Crystal Cartesian coordinate system
+            % Outiputs:
+            % q_to_img -- matrix used to transform pixels in Crystal
+            %             Cartesian coordinate system to image coordinate
+            %             system
+            % shift    -- the offset 
             %
             if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
                 pix = varargin{1};
@@ -455,33 +460,33 @@ classdef ortho_proj<aProjectionBase
                 alignment_needed = false;
             end
             if ~isempty(obj.u_to_img_cache_) && isempty(obj.ub_inv_legacy)
-                u_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
+                q_to_img = obj.u_to_img_cache_(1:ndim,1:ndim);
                 shift    = obj.u_offset_cache_(1:ndim);
                 ulen     = obj.ulen_cache_(1:ndim);
                 if alignment_needed
-                    u_to_img  = u_to_img*alignment_mat;
+                    q_to_img  = q_to_img*alignment_mat;
                 end
                 return;
             end
             %
             if isempty(obj.ub_inv_legacy)
-                [u_to_img,ulen,rlu_to_u,obj] = projaxes_to_rlu_(obj);
+                [q_to_img,ulen,rlu_to_u,obj] = projaxes_to_rlu_(obj);
                 % Modern alignment with rotation matrix attached to pixel
                 % coordinate system
                 if alignment_needed
-                    u_to_img  = u_to_img*alignment_mat;
+                    q_to_img  = q_to_img*alignment_mat;
                 end
             else% Legacy alignment, with multiplication of rotation matrix
                 [rlu_to_u,~,ulen]  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
                 u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
-                u_to_img  = (rlu_to_u*u_to_rlu_);
+                q_to_img  = (rlu_to_u*u_to_rlu_);
                 rlu_to_u  = inv(u_to_rlu_);
             end
             %
             if ndim==4
                 shift  = obj.offset;
                 rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
-                u_to_img = [u_to_img,[0;0;0];[0,0,0,1]];
+                q_to_img = [q_to_img,[0;0;0];[0,0,0,1]];
                 ulen = [ulen(:)',1];
             elseif ndim == 3
                 shift  = obj.offset(1:3);

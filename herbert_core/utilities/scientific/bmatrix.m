@@ -31,16 +31,20 @@ function [b, arlu, angrlu] = bmatrix(alatt, angdeg)
 %
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
-
+if ~isnumeric(alatt) || ~isnumeric(angdeg) || any(size(alatt) ~= size(angdeg)) || numel(alatt) ~=3
+    error('HORACE:bmatrix:invalid_argument', ...
+        'bmatrix input should contain two 3-element vectors containing lattice parameters and lattice angles.\n It is: %s, %s',...
+        disp2str(alatt),disp2str(angdeg));
+end
 
 if max(angdeg)>=180 || min(angdeg)<=0
     error('HORACE:bmatrix:invalid_argument', ...
-          'some lattice angles bigger than 180 deg or less than 0 deg');
+        'some lattice angles bigger than 180 deg or less than 0 deg');
 end
 
 if min(alatt)<= 0
     error('HORACE:bmatrix:invalid_argument', ...
-          'Some lattice parameters are less than 0');
+        'Some lattice parameters are less than 0');
 end
 
 
@@ -49,8 +53,8 @@ cosa = cos(ang);
 sina = abs(sin(ang));
 
 a = [1 ,      cosa(3),    cosa(2);...
-     cosa(3),      1 ,    cosa(1);...
-     cosa(2), cosa(1),      1    ];
+    cosa(3),      1 ,    cosa(1);...
+    cosa(2), cosa(1),      1    ];
 
 q = sqrt(abs(det(a)));
 
@@ -62,8 +66,8 @@ bb = acos( (cosa(3)*cosa(1)-cosa(2))/(sina(3)*sina(1)) );
 cc = acos( (cosa(1)*cosa(2)-cosa(3))/(sina(1)*sina(2)) );
 % b-matix as in Acta Cryst. (1967). 22, 457
 b = [arlu(1), arlu(2)*cos(cc)     ,  arlu(3)*cos(bb)             ;...
-     0      , arlu(2)*abs(sin(cc)), -arlu(3)*abs(sin(bb))*cosa(1);...
-     0      , 0                   , 2*pi/alatt(3)                ];
+    0      , arlu(2)*abs(sin(cc)), -arlu(3)*abs(sin(bb))*cosa(1);...
+    0      , 0                   , 2*pi/alatt(3)                ];
 
 angrlu = rad2deg([aa, bb, cc]);
 

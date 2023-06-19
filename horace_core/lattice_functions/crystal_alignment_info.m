@@ -145,10 +145,26 @@ classdef crystal_alignment_info < serializable
             obj.rotvec_= val;
         end
         %======================================================================
-        function corr_mat = get_corr_mat(obj,proj)
+        function corr_mat = get_corr_mat(obj,varargin)
             % Return corrections, necessary for modifying sqw object
             % parameters to become aligned
-            % Depending on alignment mode, (legacy_mode ) the
+            % Usage:
+            %>> corr_mat = obj.get_corr_mat(original_proj)
+            % Or
+            %>> corr_mat = obj.get_corr_mat(alatt0,angdeg0)
+            % where:
+            % original_proj -- the projection, used to generate misaligned
+            %                  sqw file (with invalid lattice parameters ==
+            %                  only lattice is used
+            % Or
+            % alatt0         -- misaligned source file lattice parameters
+            % angdeg0        -- misaligned source file lattice angles
+            %
+            % Output:
+            % corr_mat       -- the matrix used for modification of the
+            %                   transformation from pixels to image
+            %                   coordinate system
+            % Depending on alignment mode, (legacy_mode true of false) the
             % correction matrix takes form:
             % a)
             %  legacy_mode == true -> corr_mat == rlu_corr
@@ -158,23 +174,28 @@ classdef crystal_alignment_info < serializable
             %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
             % b)
             %  legacy_mode == false -> corr_mat == the matrix which rotates
-            %                                      misaligned q-coordinates
-            %                                      to Crystal Cartezian
-            %                                      coordinate system
+            %                  misaligned q-coordinates (pixel coordinates)
+            %                  to Crystal Cartezian coordinate system
             %
             %  qframe_corr  rotation matrix to
-            if ~isa(proj,'ortho_proj')  
+            if isa(varargin{1},'ortho_proj')
+                b0 = varargin{1}.bmatrix();
+                legacy_mode_ = obj.legacy_mode;
+            elseif nargin == 3 && isnumeric(varargin{1}) && isnumeric(varargin{2})
+                b0 = bmatrix(varargin{:});
+                legacy_mode_ = true;
+            else
                 error('HORACE:lattice_functions:invalid_argument', ...
-                    'Alignment can currently be performed on sqw objects with triclinic projections only')
+                    'Method accepts either ortho_proj class, or two-element initial lattice parameters vector.\n Provided: %s', ...
+                    disp2str(varargin));
             end
 
-            b0 = proj.bmatrix();
-            if obj.legacy_mode
+            if legacy_mode_
                 b  = bmatrix(obj.alatt,obj.angdeg);
                 corr_mat=b\obj.rotmat*b0;
             else
-                u_to_rlu = proj.get_pix_img_transformation(3); % uncorrected  U0*B0
-                corr_mat = (u_to_rlu*b0)\obj.rotmat; % U0B0/b0*rotmat = rotmatOld\rotmat_new
+                q_to_img = proj.get_pix_img_transformation(3); % uncorrected  U0*B0
+                corr_mat = (q_to_img*b0)\obj.rotmat; % U0B0/b0*rotmat = rotmatOld\rotmat_new
             end
         end
     end
