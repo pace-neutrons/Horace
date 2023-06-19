@@ -188,10 +188,6 @@ classdef parallel_config<config_base
         % evaluated on a remote worker equal to shared_folder_on_remote value
         working_directory;
 
-        % Information field:
-        % true, if working directory have not ever been set
-        wkdir_is_default;
-
         % if set up, specifies the mpiexc program with full path to it,
         % used to launch parallel jobs instead of internal mpiexec
         % program, provided with Horace. Must be used when you compiled
@@ -215,6 +211,15 @@ classdef parallel_config<config_base
 
         % Redirect IO to host and other debug features
         debug;
+
+        % Threading using auto-calculated threads used in Slurm because
+        % remote machine probably doesn't have same number of cores as
+        % local machine
+        is_auto_parallel_threads;
+
+        % Information field:
+        % true, if working directory has not ever been set
+        wkdir_is_default;
     end
 
     properties(Constant,Access=private)

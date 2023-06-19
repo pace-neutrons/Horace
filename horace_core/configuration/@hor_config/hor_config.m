@@ -113,6 +113,10 @@ classdef hor_config < config_base
         % filebased PixelData if pixel_page_size is smaller then
         % appropriate mem_chunk_size expressed in bytes.
         pixel_page_size
+
+        % Information field:
+        % true, if working directory has not ever been set
+        wkdir_is_default;
     end
 
     properties(Access=protected, Hidden=true)
@@ -201,7 +205,7 @@ classdef hor_config < config_base
             doinit = get_or_restore_field(this,'init_tests');
         end
 
-        function is = wkdir_is_default(~)
+        function is = get.wkdir_is_default(~)
             % return true if working directory has not been set and refers
             % to default (system tmp) directory
             % Usage
