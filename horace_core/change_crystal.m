@@ -1,4 +1,4 @@
-function change_crystal(filenames,alignment_info,varargin)
+function out = change_crystal(in_data,alignment_info,varargin)
 % Change the crystal lattice and orientation of an sqw object stored in a file
 % or celarray of files
 %
@@ -12,9 +12,10 @@ function change_crystal(filenames,alignment_info,varargin)
 %   w           Input sqw object
 %
 % alignment_info -- class helper containing all information about crystal
-%                   realignment
+%                   realignment, produced by refine_crystal procedure.
 %
-%              >> help refine_crystal  for more details).
+%              do:
+%              >> help refine_crystal  for more details.
 %
 % Output:
 % -------
@@ -34,8 +35,8 @@ function change_crystal(filenames,alignment_info,varargin)
 
 % Parse input
 % -----------
-if ischar(filenames)
-    filenames = {filenames};
+if ischar(in_data)
+    in_data = {in_data};
 end
 if ~isa(alignment_info,'crystal_alignment_info') || nargin>2
     error('HORACE:change_crystal:invalid_argument',...
@@ -45,26 +46,32 @@ if ~isa(alignment_info,'crystal_alignment_info') || nargin>2
 end
 
 % Perform operations
-for i=1:numel(filenames)
-    ld = sqw_formats_factory.instance().get_loader(filenames{i});
-    data    = ld.get_dnd();
-    ld = ld.set_file_to_update();
-    if ld.sqw_type
-        exp_info= ld.get_exp_info('-all');
-        exp_info = change_crystal(exp_info,alignment_info);
-        %
-        if alignment_info.legacy_mode
-            ld = ld.put_headers(exp_info);
-        else
-            pix_info = ld.get_pix_metadata();
-            pix_info.alignment_matr = alignment_info.rotmat;
-            ld = ld.put_pix_metadata(pix_info);
+out = cell(1,numel(in_data));
+for i=1:numel(in_data)
+    if isa(in_data{i},'SQWDnDBase')
+        out{i} = in_data{i}.change_crystal(alignment_info);
+    else
+        out{i} = in_data{i};
+        ld = sqw_formats_factory.instance().get_loader(in_data{i});
+        data    = ld.get_dnd();
+        ld = ld.set_file_to_update();
+        if ld.sqw_type
+            exp_info= ld.get_exp_info('-all');
+            exp_info = change_crystal(exp_info,alignment_info);
+            %
+            if alignment_info.legacy_mode
+                ld = ld.put_headers(exp_info);
+            else
+                pix_info = ld.get_pix_metadata();
+                pix_info.alignment_matr = alignment_info.rotmat;
+                ld = ld.put_pix_metadata(pix_info);
+            end
+            ld = ld.put_samples(exp_info.samples);
         end
-        ld = ld.put_samples(exp_info.samples);
-    end
-    data= data.change_crystal(alignment_info);
-    ld = ld.put_dnd_metadata(data);
+        data= data.change_crystal(alignment_info);
+        ld = ld.put_dnd_metadata(data);
 
-    ld.delete();
-    clear ld;
+        ld.delete();
+        clear ld;
+    end
 end

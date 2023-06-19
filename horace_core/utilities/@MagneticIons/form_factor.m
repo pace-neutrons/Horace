@@ -17,15 +17,14 @@ function FF = form_factor(self,h,k,l,varargin)
 % for the selected ion.
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 if numel(varargin) > 1 && nargin > 5 && ~isempty(varargin{2})
-    u_2_rlu = inv(varargin{2});
+    rlu_to_Q = varargin{2};
 else
-    u_2_rlu = self.u_2_rlu_;    
+    rlu_to_Q = self.rlu_to_Qmat_;    
 
 end
-q = u_2_rlu\[h';k';l'];    
+q = rlu_to_Q*[h';k';l'];    
 
 
 q2 = (q(1,:).*q(1,:)+q(2,:).*q(2,:)+q(3,:).*q(3,:))/(16*pi*pi);
