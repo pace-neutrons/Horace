@@ -145,14 +145,14 @@ classdef ClusterSlurm < ClusterWrapper
 
             par = parallel_config();
             comm = par.slurm_commands;
-            
+
             [n_nodes, cores_per_node] = obj.get_remote_info(comm);
 
-            if par.is_auto_par_threads
+            if par.is_auto_parallel_threads
                 % If user not specified threads to use assume MPI applications are not wanting to be threaded
                 target_threads = 1;
             else
-                target_threads = par.par_threads;
+                target_threads = par.parallel_threads;
             end
 
             req_nodes = ceil(n_workers / cores_per_node);
