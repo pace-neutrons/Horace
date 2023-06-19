@@ -173,7 +173,7 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     time = bigtic();
 
     parfor i = 1:numel(test_folders_full)
-        test_stage_reset();
+        test_stage_reset(hoc, hpc, par);
         test_ok(i) = runtests(test_folders_full{i}, argi{:})
     end
 
@@ -185,7 +185,7 @@ else
     time = bigtic();
 
     for i = 1:numel(test_folders_full)
-        test_stage_reset();
+        test_stage_reset(hoc, hpc, par);
         test_ok(i) = runtests(test_folders_full{i}, argi{:})
     end
 
@@ -204,7 +204,7 @@ end
 
 end
 
-function test_stage_reset()
+function test_stage_reset(hoc, hpc, par)
 % Run before each stage
 % Set Horace configurations to the defaults (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
