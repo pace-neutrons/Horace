@@ -1,7 +1,7 @@
-function [is,mess,name_a,name_b,namer,argi] = process_inputs_for_eq_(lhs_obj,rhs_obj, ...
-    narg_out,names,varargin)
+function [is, mess, name_a, name_b, namer, argi] = process_inputs_for_eq_ (...
+    lhs_obj, rhs_obj, narg_out, names, varargin)
 % Check equality of two serializable objects
-%
+
 mess = '';
 is_tol = cellfun(@(x)((ischar(x)||isstring(x))&&ismember(x,{'tol','abstol','reltol'})), ...
     varargin);
@@ -14,7 +14,7 @@ end
 if numel(lhs_obj) ~= numel(rhs_obj)
     is = false;
     if nargout>1
-        [name1,name2] = check_and_extract_name(names{1},names{2},argi{:});            
+        [name1,name2] = check_and_extract_name(names{1},names{2},argi{:});
         mess = sprintf('number of elements in %s (%d) is not equal to number of elements in %s (%d)',...
             name1,numel(lhs_obj),name2,numel(rhs_obj));
     end
@@ -23,7 +23,7 @@ end
 if any(size(lhs_obj) ~= size(rhs_obj))
     is = false;
     if nargout>1
-        [name1,name2] = check_and_extract_name(names{1},names{2},argi{:});                    
+        [name1,name2] = check_and_extract_name(names{1},names{2},argi{:});
         mess = sprintf('Shape of %s is not equal to shape of %s', ...
             name1,name2);
     end
@@ -43,7 +43,9 @@ if nargout>1
     end
 end
 
+end
 
+%-------------------------------------------------------------------------------
 function [name_a,name_b,argi] = check_and_extract_name(input_name1,input_name2,varargin)
 name_a_default = 'lhs_obj';
 name_b_default = 'rhs_obj';
@@ -72,4 +74,6 @@ if any(is_name)
     end
 else
     argi = varargin;
+end
+
 end
