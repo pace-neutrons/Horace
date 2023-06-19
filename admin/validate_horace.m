@@ -125,7 +125,7 @@ test_folders_full = fullfile(test_path, test_folders);
 
 hoc = hor_config();
 hpc = hpc_config();
-pcf = parallel_config();
+par = parallel_config();
 % (Validation must always return Horace and Herbert to their initial states, regardless
 %  of any changes made in the test routines)
 
@@ -137,7 +137,7 @@ warning('off', 'MATLAB:class:DestructorError');
 % only get the public i.e. not sealed, fields
 cur_horace_config = hoc.get_data_to_store();
 cur_hpc_config = hpc.get_data_to_store();
-cur_par_config = pcf.get_data_to_store();
+cur_par_config = par.get_data_to_store();
 
 % remove configurations from memory. Ensure only stored configurations are
 % stored
@@ -173,8 +173,8 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     time = bigtic();
 
     parfor i = 1:numel(test_folders_full)
-        test_stage_reset(hoc, hpc, par);
-        test_ok(i) = runtests(test_folders_full{i}, argi{:})
+        test_stage_reset(hoc, hpc, par, nomex, forcemex, talkative);
+        test_ok(i) = runtests(test_folders_full{i}, argi{:});
     end
 
     bigtoc(time,  '===COMPLETED UNIT TESTS IN PARALLEL');
@@ -185,8 +185,8 @@ else
     time = bigtic();
 
     for i = 1:numel(test_folders_full)
-        test_stage_reset(hoc, hpc, par);
-        test_ok(i) = runtests(test_folders_full{i}, argi{:})
+        test_stage_reset(hoc, hpc, par, nomex, forcemex, talkative);
+        test_ok(i) = runtests(test_folders_full{i}, argi{:});
     end
 
     bigtoc(time,  '===COMPLETED UNIT TESTS RUN ');
@@ -204,28 +204,29 @@ end
 
 end
 
-function test_stage_reset(hoc, hpc, par)
+function test_stage_reset(hoc, hpc, par, nomex, forcemex, talkative)
 % Run before each stage
 % Set Horace configurations to the defaults (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
 
-set(hoc, 'defaults');
-set(hpc, 'defaults');
-set(par, 'defaults');
+    set(hoc, 'defaults');
+    set(hpc, 'defaults');
+    % set(par, 'defaults');
 
-% Special unit tests settings.
-hoc.init_tests = true; % initialise unit tests
-hoc.use_mex = ~nomex;
-hoc.force_mex_if_use_mex = forcemex;
+    % Special unit tests settings.
+    hoc.init_tests = true; % initialise unit tests
+    hoc.use_mex = ~nomex;
+    hoc.force_mex_if_use_mex = forcemex;
 
-if talkative
-    hoc.log_level = 1; % force log level high.
-else
-    hoc.log_level = -1; % turn off informational output
+    if talkative
+        hoc.log_level = 1; % force log level high.
+    else
+        hoc.log_level = -1; % turn off informational output
+    end
+
 end
 
-end
 
 function validate_horace_cleanup(cur_horace_config, cur_hpc_config, cur_par_config, test_folders, initial_warn_state)
 % Reset the configurations, and remove unit test folders from the path
