@@ -98,10 +98,10 @@ classdef (Abstract=true) serializable
     % internally disables validation of interdependent properties until they have
     % all been set.
     %
-    % Typically you only need to query the value of do_check_combo_arg_  in your
-    % class set methods. Under some circumstances it may be useful to set to false,
-    % set multiple properties, and then reset do_check_combo_arg_ to true. For an
-    % example see IX_moderator/set_mod_pulse.
+    % Typically you only need to query the value of do_check_combo_arg_ in your
+    % class set methods. Under some circumstances it may be useful to set it to
+    % false, set multiple properties, and then reset do_check_combo_arg_ to true.
+    % For an example see IX_moderator/set_mod_pulse.
     %
     %
     % Supporting older class versions
@@ -147,7 +147,7 @@ classdef (Abstract=true) serializable
     %
     %
     % --------------------------------------------------------------------------
-    % Summary of customisation
+    % Summary of methods a developer may need to customise
     % --------------------------------------------------------------------------
     % Serializable Methods:
     %
@@ -161,7 +161,7 @@ classdef (Abstract=true) serializable
     % If reading older class versions, then overload:
     %   convert_old_struct - Update structure created from earlier class versions
     %   from_old_struct    - Update earlier structures in complex design patterns
-    %   loadobj            - If an old class version pre-dates serializable
+    %   loadobj            - If an old class version pre-dates the serializable interface
 
 
     properties (Access=protected)
@@ -256,7 +256,7 @@ classdef (Abstract=true) serializable
         % The optional input object over-rides the object class type held in the
         % structure, and provides any missing fields if recovering from an
         % incomplete structure.
-        obj = from_struct (S, obj_template)
+        obj = from_struct (S, varargin)
     end
 
     methods
@@ -347,7 +347,6 @@ classdef (Abstract=true) serializable
     end
 
     methods
-        % *** NOT YET UNDERSTOOD BY TGP: ******
         % Developer property. Intended for creating algorithms, which
         % change bunch of interdependent properties one after another
         % without overloading the class.
@@ -368,10 +367,11 @@ classdef (Abstract=true) serializable
 
     methods(Access=protected)
         function obj = set_do_check_combo_arg (obj, val)
-            % *** NOT YET UNDERSTOOD BY TGP: ******
-            % Overloadable setter for checking interdependent properties.
-            % May be overloaded by children for example to change the check
-            % in compositing properties which values are in turn serializable
+            % Allows overloading the property do_check_combo_arg_ over the tree
+            % of serializable objects where each contains its own 
+            % do_check_combo_ property or inheritance of different serializable
+            % objects where parent and a child have their own do_check_combo_arg_
+            % property.
             obj.do_check_combo_arg_ = logical (val);
         end
     end
