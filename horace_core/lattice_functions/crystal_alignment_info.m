@@ -16,7 +16,7 @@ classdef crystal_alignment_info < serializable
     %
     %   angdeg          Refined lattice angles [alf,bet,gam] (degrees)
     %
-    %   rotmat         Inverse U matrix contatining U part of the transformation
+    %   rotmat         Inverse U matrix containing U part of the transformation
     %                  from misaligned coordinate system to aligned hkl
     %                  coordinate system.
     %
@@ -37,14 +37,14 @@ classdef crystal_alignment_info < serializable
         distance % Distances between peak positions and points given by
         %          true indexes, in input argument rlu, in the refined
         %          crystal lattice. (Ang^-1)
-        rotvec   % Three rotation angles, which define the rotation matrtix
+        rotvec   % Three rotation angles, which define the rotation matrix
         %          (radian)
         rotangle %  Angle of rotation corresponding to rotmat (to give a
         %           measure of the misorientation) (degrees)
 
     end
     properties(Hidden)
-        % align crystal in legacy mode, changing u_to_rlu matrix rather
+        % align crystal in legacy mode, changing b-matrix rather
         % then rotating pixels and adjusting lattice separately.
         legacy_mode = false;
     end
@@ -175,7 +175,7 @@ classdef crystal_alignment_info < serializable
             % b)
             %  legacy_mode == false -> corr_mat == the matrix which rotates
             %                  misaligned q-coordinates (pixel coordinates)
-            %                  to Crystal Cartezian coordinate system
+            %                  to Crystal Cartesian coordinate system
             %
             %  qframe_corr  rotation matrix to
             if isa(varargin{1},'ortho_proj')

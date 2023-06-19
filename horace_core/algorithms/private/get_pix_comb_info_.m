@@ -81,7 +81,7 @@ end
 % At present, we insist that the contributing spe data are distinct in that:
 %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
 %   - emode, lattice parameters, u, v, sample must be the same for all spe data input
-% We must have same data information for alatt, angdeg, uoffset, u_to_rlu, ulen, pax, iint, p
+% We must have same data information for transforming pixels coordinates to image coordinates
 % This guarantees that the pixels are independent (the data may be the same if an spe file name is repeated, but
 % it is assigned a different Q, and is in the spirit of independence)
 [header_combined,nspe] = Experiment.combine_experiments(header,allow_equal_headers,drop_subzone_headers);

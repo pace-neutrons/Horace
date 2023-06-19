@@ -30,7 +30,7 @@ for i=1:obj.n_runs
     s.angdeg=angdeg;
     sam{i} = s;
     if compat_mode % the mode which produces alignment using rlu_correction
-        % rather then Crystal Cartesian alighment matrix. Used for tests
+        % rather then Crystal Cartesian alignment matrix. Used for tests
         % only
         exper(i).cu=(rlu_corr*exper(i).cu')';
         exper(i).cv=(rlu_corr*exper(i).cv')';

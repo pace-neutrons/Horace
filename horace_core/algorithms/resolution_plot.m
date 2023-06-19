@@ -267,8 +267,7 @@ else
     proj = fudge_proj('alatt',lat.alatt,'angdeg',lat.angdeg); % deal with fuge_projection Ticket #840
     proj.spec_to_rlu = spec_to_rlu;
 end
-%proj = proj.set_ub_inv_compat(spec_to_rlu); % This operation was in the
-%                                              previous code and it looks completely wrong
+%
 ax = ortho_axes('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));
 ax.label = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 
@@ -299,7 +298,7 @@ end
 
 % If newplot, then tidy up the plot
 if newplot
-    % Delete the meaningless colorslider and unwanted title
+    % Delete the meaningless colour-slider and unwanted title
     colorslider('delete')
     delete(get(gca,'title'))
 

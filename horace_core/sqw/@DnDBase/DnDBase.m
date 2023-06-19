@@ -48,7 +48,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         u_to_rlu % Matrix (4x4) of projection axes in hkle representation
         %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         ulen;
-        u_to_rlu_legacy % old legacy u_to_rlu multiplied by b-matrix
+        u_to_rlu_legacy % old legacy u_to_rlu produced by Toby's code. 
+		% used in tests and loading old format files
         % 
         creation_date_defined; % True, if creation date is known and written with file
         %------------------------------------------------------------------

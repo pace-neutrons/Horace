@@ -367,7 +367,6 @@ classdef test_line_proj_construction<TestCase
 
             %do = data_sqw_dnd(ax,proj);
 
-            %proj1=do.get_projection();
             %opt = ortho_projTester(proj1);
             projr = proj0;
             projr.ub_inv_legacy = inv(bmatrix(data.alatt,data.angdeg));
@@ -401,17 +400,6 @@ classdef test_line_proj_construction<TestCase
 
             projr = ortho_proj('alatt',data.alatt,'angdeg',data.angdeg,...
                 'label',{'a','b','c','d'},'type','aaa');
-
-            %proj1=do.get_projection();
-            % assertEqualToTol(proj,proj1,'tol',[1.e-9,1.e-9])
-
-            % should we keep this -- the transformation matrices are now
-            % different
-            %opt = ortho_projTester(proj0);
-
-            %[~, u_to_rlu, ulen] = opt.projaxes_to_rlu_public([1,1,1]);
-            %assertElementsAlmostEqual(data.u_to_rlu,[[u_to_rlu,[0;0;0]];[0,0,0,1]])
-            %assertElementsAlmostEqual(data.ulen(1:3),ulen');
 
             pix_cc = [eye(3),ones(3,1)];
             % this is what is what is only important for any transformation

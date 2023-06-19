@@ -61,16 +61,11 @@ header_ave=header.header_average();
 tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
 % TGP (15/5/2015) I am not sure if this is necessary: both the header and data sections are saved as float32, so
 % should be rounded identically.
-ok =equal_to_relerr(header_ave.alatt, data.alatt, tol, 1) &...
-    equal_to_relerr(header_ave.angdeg, data.angdeg, tol, 1) &...
-    equal_to_relerr(header_ave.offset, data.offset, tol, 1) &...
-    equal_to_relerr(header_ave.u_to_rlu(:), data.u_to_rlu(:), tol, 1) &...
-    equal_to_relerr(header_ave.ulen, data.ulen, tol, 1);
+[ok,mess] =equal_to_tol(data_ref,data,'tol',tol);
 if ~ok
-    ok=false;
-    mess='The sqw to which to accumulate does not have the correct projection axes for this operation.';
-    header={}; grid_size=[]; img_db_range=[];
-    return
+    error('HORACE:algorithms:invalid_argument',...
+       'the tmp file to combine: %s does not have the the projections for operations. Reason %s',...
+        ldr.filename,mess)
 end
 
 grid_size =data.nbins_all_dims;
