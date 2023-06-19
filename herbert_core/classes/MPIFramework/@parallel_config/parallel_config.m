@@ -35,6 +35,8 @@ classdef parallel_config<config_base
     %                      cluster, running selected cluster.
     % threads            - How many computational threads to use in parallel
     %                      and in MEX
+    % parallel_threads   - Number of computational threads to use on remote
+    %                      workers
     % ---------------------------------------------------------------------
     % shared_folder_on_local - The folder on your working machine containing
     %                          the job input and output data.
@@ -55,7 +57,7 @@ classdef parallel_config<config_base
     % =====================================================================
     % known_clusters       - Information method returning the list of
     %                        the parallel clusters, known to Herbert.
-    % known_clust_configs  - Information method returning the list of
+    % known_cluster_configs- Information method returning the list of
     %                        the configurations, available for the selected
     %                        cluster.
     % ---------------------------------------------------------------------
@@ -150,7 +152,7 @@ classdef parallel_config<config_base
         % The cluster used by parpool and slurm clusters are using the default
         % configurations selected in parallel computing toolbox GUI for
         % parpool and slurm database configuration for slurm.
-        known_clust_configs;
+        known_cluster_configs;
 
         % The folder on your working machine containing the job input and
         % output data mounted on local machine and available from the remote
@@ -413,7 +415,7 @@ classdef parallel_config<config_base
             end
         end
 
-        function clust_configs = get.known_clust_configs(obj)
+        function clust_configs = get.known_cluster_configs(obj)
             % information about clusters (cluster configurations),
             % available for the selected cluster
             fram = obj.parallel_cluster;
@@ -458,7 +460,7 @@ classdef parallel_config<config_base
             % Throws HERBERT:parallel_config:invalid_argument if the cluster
             % configuration is invalid or not available on the current system.
 
-            opt = obj.known_clust_configs;
+            opt = obj.known_cluster_configs;
             if strcmpi(opt{1},'none')
                 the_config = 'none';
             else
