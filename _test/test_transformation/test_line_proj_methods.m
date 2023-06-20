@@ -429,12 +429,9 @@ classdef test_line_proj_methods<TestCase
         %------------------------------------------------------------------
         %
         function test_cut_dnd(this)
-            ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
-            clob0 = onCleanup(@()warning(ws));
-            hc = hor_config();
-            cur_mex = hc.use_mex;
-            hc.use_mex = 0;
-            clob = onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            clob0 = set_temporary_warning('off','HORACE:realign_bin_edges:invalid_argument');
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
+
             [w, grid_size, pix_range]=dummy_sqw (this.fake_sqw_par{:});
             w = dnd(w{1});
             w.s = ones(size(w.s));

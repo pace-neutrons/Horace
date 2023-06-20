@@ -23,8 +23,7 @@ classdef test_unique_references < TestCase
         function test_save_load_two_objects_add_to_experiment(~)
             clObC = onCleanup(@()unique_references_container.global_container('CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER'));
             %
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
 
 
             ex1 = Experiment();
@@ -63,7 +62,7 @@ classdef test_unique_references < TestCase
             wkdir = tmp_dir();
             sample_file = fullfile(wkdir,'test_save_load_add_to_experiment.mat');
             save(sample_file,'ex');
-            clOb = onCleanup(@()delete(sample_file ));
+            clOb = onCleanup(@()delete(sample_file));
 
             ld = load(sample_file);
             assertEqual(ld.ex,ex);
@@ -71,8 +70,7 @@ classdef test_unique_references < TestCase
         %
         %------------------------------------------------------------------
         function test_basic_doubles_container(~)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             urc = unique_references_container('GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES', 'double');
             urc.global_container('CLEAR', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
             glc = urc.global_container('value', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
@@ -119,8 +117,7 @@ classdef test_unique_references < TestCase
         end
 
         function test_save_load(~)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             urc = unique_references_container('GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES', 'double');
             urc.global_container('CLEAR', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
             glc = urc.global_container('value', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
@@ -134,8 +131,7 @@ classdef test_unique_references < TestCase
         end
 
         function test_add_multiple(~)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             urc = unique_references_container('GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES', 'double');
             urc.global_container('CLEAR', 'GLOBAL_NAME_TEST_BASIC_DOUBLES_CONTAINER_DOUBLES');
             urc = urc.add([0.222 0.333 0.444]);
@@ -150,8 +146,7 @@ classdef test_unique_references < TestCase
         end
 
         function test_basic_instruments_container(obj)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
 
 
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER', 'IX_inst');
@@ -230,8 +225,7 @@ classdef test_unique_references < TestCase
         end
 
         function test_add_non_unique_objects(obj)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
 
             % make a unique_objects_container (empty)
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER', 'IX_inst');
@@ -283,8 +277,7 @@ classdef test_unique_references < TestCase
         end
 
         function test_replace_unique_different_number_throw(~)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
 
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS');
             urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS','char');
@@ -318,8 +311,7 @@ classdef test_unique_references < TestCase
         end
 
         function test_replace_unique_objects_with_cellarray_throw(~)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
 
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS');
             urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS','char');
@@ -346,7 +338,7 @@ function test_replace_unique_same_number_works(~)
             urc(1) = 'aaaaa';
             urc(2) = 'bbbb';
             urc(3) = 'bbbb';
-            
+
             uoc2 = unique_objects_container('baseclass','char');
             uoc2(1) = 'dd';
             uoc2(2) = 'cc';
@@ -359,10 +351,8 @@ function test_replace_unique_same_number_works(~)
         %}
 
         function test_baseclass_issues(obj)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb1 = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             % legal constructor with no arguments but cannot be used until
             % populated e.g. with loadobj
@@ -398,8 +388,7 @@ function test_replace_unique_same_number_works(~)
 
         %----------------------------------------------------------------
         function test_add_similar_non_unique_objects(obj)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
 
             mi2 = merlin_instrument(190, 700, 'g');
             assertFalse( isequal(obj.mi1,mi2) );
@@ -462,10 +451,8 @@ function test_replace_unique_same_number_works(~)
         end
         %----------------------------------------------------------------
         function test_add_different_types(obj)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb1 = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
             urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
@@ -503,8 +490,7 @@ function test_replace_unique_same_number_works(~)
         %----------------------------------------------------------------
         function test_change_serializer(obj)
             % Test different serializers
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
             urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
             glc = urc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
@@ -538,8 +524,7 @@ function test_replace_unique_same_number_works(~)
         end
         %----------------------------------------------------------------
         function test_global_container_spans_multiple_containers(obj)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
 
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
             urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
@@ -563,10 +548,8 @@ function test_replace_unique_same_number_works(~)
         end
         %----------------------------------------------------------------
         function test_subscripting_type(obj)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb1 = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
@@ -584,10 +567,8 @@ function test_replace_unique_same_number_works(~)
         end
         %----------------------------------------------------------------
         function test_subscripting_type_hlp_ser(obj)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb1 = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
@@ -614,8 +595,7 @@ function test_replace_unique_same_number_works(~)
         %----------------------------------------------------------------
         function test_subscripting_type_hlp_ser_wrong_subscript_plus(obj)
             % additional tests for other subscript functions
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
             function set_urc()
@@ -627,8 +607,7 @@ function test_replace_unique_same_number_works(~)
         %----------------------------------------------------------------
         function test_subscripting_type_hlp_ser_wrong_subscript_minus(obj)
             % additional tests for other subscript functions
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
             function set_urc()
@@ -640,8 +619,7 @@ function test_replace_unique_same_number_works(~)
         end
         %-----------------------------------------------------------------
         function test_expand_to_nruns(obj)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
             urc{1} = obj.mi1;
@@ -656,8 +634,7 @@ function test_replace_unique_same_number_works(~)
         end
         %-----------------------------------------------------------------
         function test_serialization_empty(obj)
-            ws = warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
             urc_str = urc.to_struct();

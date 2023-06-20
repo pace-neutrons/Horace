@@ -37,10 +37,11 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             end
             obj= obj@TestCaseWithSave(argi{:});
-            %
-            hpc = hpc_config;
-            obj.hpc_restore = hpc.get_data_to_store;
-            hpc.saveable = false;
+
+            obj.hpc_restore = set_temporary_config_options(hpc_config, ...
+                                                           'build_sqw_in_parallel', false, ...
+                                                           'combine_sqw_using', 'mex_code' ...
+                                                           );
 
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
@@ -277,11 +278,10 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             obj.misaligned_sqw_file = sim_sqw_file;
 
-            hpc = hpc_config;
-            hpc_ds = hpc.get_data_to_store;
-            clob2 = onCleanup(@()set(hpc_config,hpc_ds));
-            hpc.combine_sqw_using = 'matlab';
-            hpc.build_sqw_in_parallel = 0;
+            clob2 = set_temporary_config_options(hpc_config, ...
+                                                 'combine_sqw_using', 'matlab', ...
+                                                 'build_sqw_in_parallel', false ...
+                                                 );
 
             obj.nxs_file =cell(size(obj.psi));
             nxs_file_exist = true;
@@ -336,5 +336,21 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             end
 
         end
+
+        function delete(obj)
+
+            clob = set_temporary_warning('off','MATLAB:DELETE:Permission');
+
+            delete(obj.misaligned_sqw_file);
+
+            % Delete temporary nxs files
+            for i=1:numel(obj.nxs_file)
+                try
+                    delete(obj.nxs_file{i})
+                catch
+                end
+            end
+        end
+
     end
 end

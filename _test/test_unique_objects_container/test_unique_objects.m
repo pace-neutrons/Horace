@@ -129,7 +129,7 @@ classdef test_unique_objects < TestCase
                 'HERBERT:unique_objects_container:invalid_set');
 
         end
-        
+
         function test_save_load(~)
             uoc = unique_objects_container();
             uoc(1) = 'aaaaa';
@@ -147,14 +147,14 @@ classdef test_unique_objects < TestCase
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
             uoc(3) = 'bbbb';
-            function maythrow() 
+            function maythrow()
                 uoc.unique_objects = {'dd','cc'};
             end
             assertExceptionThrown(@maythrow,'HERBERT:unique_objects_container:invalid_set');
             uoc.do_check_combo_arg = false;
-            uoc.unique_objects = {'dd','cc'};            
+            uoc.unique_objects = {'dd','cc'};
             uoc.do_check_combo_arg = false;
-            
+
             assertEqual(uoc(1),'dd')
             assertEqual(uoc(2),'cc')
             assertEqual(uoc(3),'cc')
@@ -175,7 +175,7 @@ classdef test_unique_objects < TestCase
 
             assertEqual(uoc.n_objects,8);
             assertEqual(uoc.n_unique,5);
-            
+
             % resetting the baseclass will invalidate some of the contents
             % and hence is not approved for normal use; this just checks
             % the rest of the contents is compliant with the new
@@ -244,9 +244,7 @@ classdef test_unique_objects < TestCase
         %----------------------------------------------------------------
         function test_add_different_types(obj)
             %disp('Test: test_add_different_types');
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
-
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             uoc = unique_objects_container();
             uoc = uoc.add(obj.mi1);
@@ -295,8 +293,7 @@ classdef test_unique_objects < TestCase
             assertEqual( numel(uoc.unique_objects), 2);
         end
         function test_constructor_arguments_with_type(obj)
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             uoc = unique_objects_container('baseclass','IX_inst');
             uoc = uoc.add(obj.mi1);
@@ -312,8 +309,7 @@ classdef test_unique_objects < TestCase
             %}
         end
         function test_constructor_arguments_type_serializer(obj)
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialise);
 
@@ -336,8 +332,7 @@ classdef test_unique_objects < TestCase
             assertEqual( numel(uoc.unique_objects), 2);
         end
         function test_subscripting_type(obj)
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             uoc = unique_objects_container('baseclass','IX_inst');
             uoc{1} = obj.mi1;
@@ -352,8 +347,7 @@ classdef test_unique_objects < TestCase
             %}
         end
         function test_subscripting_type_hlp_ser(obj)
-            ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialise);
             uoc{1} = obj.mi1;
@@ -363,10 +357,10 @@ classdef test_unique_objects < TestCase
             assertEqual( numel(uoc.unique_objects), 1);
             %{
             Turns out that hashes are not portable between all Matlab
-            versions and platforms, so suppressing this bit.            
+            versions and platforms, so suppressing this bit.
             u1 = uint8(...
                 [124   197    72   173   189    40   141    89   154   200    43   138   160    63   243   121] ...
-                );            
+                );
             assertEqual( u1, uoc.stored_hashes(1,:) );
             %}
         end

@@ -71,10 +71,7 @@ classdef test_cut < TestCase & common_state_holder
             %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
             %sqw_cut = cut(v2large_file, obj.ref_params{:});
 
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 8000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
+            cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 8000);
 
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
 
@@ -137,10 +134,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_from_an_sqw_file_to_another_sqw_file(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 4000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
+            cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 4000);
 
             outfile = fullfile(obj.working_dir, 'tmp_outfile.sqw');
             ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
@@ -155,15 +149,9 @@ classdef test_cut < TestCase & common_state_holder
         end
         %
         function test_cut_from_an_sqw_file_to_another_sqw_file_combined_mex(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 2000;
-            clear_fb_cut_buf_settings = onCleanup(@() set(hor_config, old_conf));
-            hpc = hpc_config;
-            old_hpc = hpc.get_data_to_store();
-            hpc_cleanup = onCleanup(@() set(hpc, old_hpc ));
-            hpc.combine_sqw_using = 'mex';
-            %
+            clear_fb_cut_buf_settings = set_temporary_config_options(hor_config, 'mem_chunk_size', 2000);
+            hpc_cleanup = set_temporary_config_options(hpc_config, 'combine_sqw_using', 'mex');
+
             ref_obj= copy(obj.sqw_4d); % it has been read in constructor
             %ref_obj.pix.signal = 1:ref_obj.pix.num_pixels;
             %ref_obj.pix.data = single(ref_obj.pix.data);
@@ -183,20 +171,13 @@ classdef test_cut < TestCase & common_state_holder
             ref_par = obj.ref_params;
             ref_cut = cut(ref_obj,ref_par{:});
 
-
             assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
         end
 
 
         function test_cut_from_an_sqw_file_to_another_sqw_file_combined_nomex(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 2000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
-            hpc = hpc_config;
-            old_hpc = hpc.get_data_to_store();
-            hpc_cleanup = onCleanup(@() set(hpc, old_hpc ));
-            hpc.combine_sqw_using = 'matlab';
+            cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 4000);
+            hpc_cleanup = set_temporary_config_options(hpc_config, 'combine_sqw_using', 'matlab');
 
             % test filebased cut
             outfile = fullfile(obj.working_dir, 'nomex_combine_cut_from_file_to_file.sqw');
@@ -216,12 +197,8 @@ classdef test_cut < TestCase & common_state_holder
 
 
         function test_cut_from_an_sqw_object_to_an_sqw_file(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 4000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
-            ws = warning('off','HORACE:old_file_format');
-            clWarn = onCleanup(@()warning(ws));
+            cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 4000);
+            clWarn = set_temporary_warning('off','HORACE:old_file_format');
 
             sqw_obj = read_sqw(obj.sqw_file);
 
@@ -525,10 +502,7 @@ classdef test_cut < TestCase & common_state_holder
         %------------------------------------------------------------------
 
         function test_take_a_cut_from_multiple_sqw_files(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 8000;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
+            cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 8000);
 
             files = {obj.sqw_file,obj.sqw_file};
             [sqw_cut1,sqw_cut2] = cut(files, obj.ref_params{:});

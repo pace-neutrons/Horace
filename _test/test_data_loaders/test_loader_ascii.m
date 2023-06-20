@@ -361,19 +361,15 @@ classdef test_loader_ascii < TestCase
                 skipTest('no get_ascii_file.mex found so the test has been disabled')
             end
 
-            hc = hor_config;
-            config_data = hc.get_data_to_store();
-            clob = onCleanup(@()set(hc,config_data));
-
             spe_file = fullfile(obj.test_data_path,'MAP10001.spe');
             par_file = fullfile(obj.test_data_path,obj.test_par_file);
             ld = loader_ascii(spe_file,par_file);
 
-            hc.use_mex = true;
+            clob = set_temporary_config_options(hor_config, 'use_mex', true);
             [Smex,Emex,enMex] = ld.load_data();
             detMex = ld.load_par('-array');
 
-            hc.use_mex = false;
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
             [Snom,Enom,enNom] = ld.load_data();
             detNom = ld.load_par('-array');
 

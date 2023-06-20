@@ -70,8 +70,7 @@ classdef test_read_all< TestCase
         end
 
         function obj = test_read_horace(obj)
-            warning('off','SQW_FILE_IO:legacy_data');
-            clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
+            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             out = read_horace(obj.sample_file);
             assertTrue(isa(out,'d2d'));
@@ -101,5 +100,3 @@ classdef test_read_all< TestCase
 
     end
 end
-
-

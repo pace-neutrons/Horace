@@ -90,8 +90,7 @@ classdef test_loader_nxspe < TestCase
             % should throw; first argument has to be an existing file name
             % disable warning about escape sequences in warning on matlab
             % 2009
-            ws = warning('off','HERBERT:nxspepar_loader:invalid_argument');
-            clob = onCleanup(@()warning(ws));
+            clob = set_temporary_warning('off','HERBERT:nxspepar_loader:invalid_argument');
             nxl = loader_nxspe(f_name(obj,'missing_file.nxspe'));
             assertFalse(nxl.isvalid);
             assertTrue(isempty(nxl.efix));

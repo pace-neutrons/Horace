@@ -148,11 +148,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             %tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
         end
         function obj = file_cut_array_vs_file_small_buf(obj)
-            hc = hor_config;
-            mem_chunk_size = hc.mem_chunk_size;
-            clob = onCleanup(@()set(hor_config,'mem_chunk_size',mem_chunk_size));
-
-            hc.mem_chunk_size = 2000;
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 2000);
 
             %
             tmp_file=fullfile(tmp_dir,'test_file_input_tmp.sqw');
@@ -192,11 +188,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
         end
 
         function test_cut_file_multichunk_vs_memory(obj)
-            hc = hor_config;
-            mem_chunk_size = hc.mem_chunk_size;
-            clob = onCleanup(@()set(hor_config,'mem_chunk_size',mem_chunk_size));
-
-            hc.mem_chunk_size = 2000;
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 2000);
 
             % ---------------------------
             proj2.u=[-1,1,0];
@@ -210,11 +202,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
         end
         %
         function test_cut_sqw_and_cut_from_sqw_file_and_memory_based(obj)
-            hc = hor_config;
-            mem_chunk_size = hc.mem_chunk_size;
-            clob = onCleanup(@()set(hor_config,'mem_chunk_size',mem_chunk_size));
-
-            hc.mem_chunk_size = 2000;
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 2000);
 
             % Cut of sqw objects or files
             % ---------------------------
@@ -283,13 +271,13 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             % Checking there isn't something here I've missed which makes
             % read a necessity, or whether it can be removed.
             tmp=sqw(obj.sqw2d_name{2});
-            assertEqualToTol(obj.sqw2d_arr(2),tmp,1.e-12,'ignore_str',1)                        
+            assertEqualToTol(obj.sqw2d_arr(2),tmp,1.e-12,'ignore_str',1)
 
             tmp=sqw(obj.sqw2d_name{2});
-            assertEqualToTol(obj.sqw2d_arr(2),tmp,1.e-12,'ignore_str',1)                        
+            assertEqualToTol(obj.sqw2d_arr(2),tmp,1.e-12,'ignore_str',1)
 
             tmp=read_horace(obj.sqw2d_name{2});
-            assertEqualToTol(obj.sqw2d_arr(2),tmp,1.e-12,'ignore_str',1)            
+            assertEqualToTol(obj.sqw2d_arr(2),tmp,1.e-12,'ignore_str',1)
         end
 
         function test_dnd_constructor_equal_to_read_dnd(obj)

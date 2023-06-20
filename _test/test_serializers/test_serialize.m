@@ -127,10 +127,7 @@ classdef test_serialize < TestCaseWithSave
         end
 
         function test_ser_serializeble_obj(~)
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
             %--------------------------------------------------------------
             serCl = serializableTester2();
             serCl.Prop_class2_1=100;

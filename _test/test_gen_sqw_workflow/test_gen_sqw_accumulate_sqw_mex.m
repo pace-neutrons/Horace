@@ -69,16 +69,9 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
                 clob1 = onCleanup(@()obj.tearDown());
             end
 
-            hc = hor_config;
-            par = parallel_config;
-            orig_threads = par.threads;
-            orig_use_mex = hc.use_mex;
 
-            clob2 = onCleanup(@()set(par,'threads', orig_threads));
-            clob3 = onCleanup(@()set(hc,'use_mex', orig_use_mex));
-
-            hc.use_mex=true;
-            par.threads = 8;
+            clob_hc = set_temporary_config_options(hor_config, 'use_mex', true);
+            clob_pc = set_temporary_config_options(parallel_config, 'threads', 8);
 
             %-------------------------------------------------------------
 
@@ -92,6 +85,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             sqw_file_123_t8=fullfile(tmp_dir,'sqw_123_mex8_threading.sqw');             % output sqw file
             sqw_file_123_t1=fullfile(tmp_dir,'sqw_123_mex1_threading.sqw');        % output sqw file
             clob3=onCleanup(@()obj.delete_files(sqw_file_123_t8,sqw_file_123_t1,spe_file_names{:}));
+
             % ---------------------------------------
             % Test gen_sqw
             % ---------------------------------------
@@ -100,10 +94,10 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             % Make some cuts:
             % ---------------
             obj.proj.u=[1,0,0.1]; obj.proj.v=[0,0,1];
-            par.threads = 8;
             gen_sqw (spe_file_names, '', sqw_file_123_t8, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
-            par.threads = 1;
+            clob_pc = set_temporary_config_options(parallel_config, 'threads', 1);
+
             gen_sqw (spe_file_names, '', sqw_file_123_t1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
             % Test results

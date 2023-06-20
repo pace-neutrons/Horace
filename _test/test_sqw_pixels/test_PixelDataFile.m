@@ -24,8 +24,7 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
         end
 
         function test_get_raw_pix(obj)
-            sw = warning('off','HORACE:old_file_format');
-            clOb = onCleanup(@()warning(sw));
+            clOb = set_temporary_warning('off','HORACE:old_file_format');
 
 
             df = PixelDataFileBacked(obj.sample_file);
@@ -55,8 +54,7 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
         end
 
         function test_get_pix(obj)
-            sw = warning('off','HORACE:old_file_format');
-            clOb = onCleanup(@()warning(sw));
+            clOb = set_temporary_warning('off','HORACE:old_file_format');
 
             df = PixelDataFileBacked(obj.sample_file);
             assertEqual(df.num_pixels,107130)
@@ -70,8 +68,7 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
 
 
         function test_serialize_deserialize_full(obj)
-            sw = warning('off','HORACE:old_file_format');
-            clOb = onCleanup(@()warning(sw));
+            clOb = set_temporary_warning('off','HORACE:old_file_format');
 
             df = PixelDataFileBacked(obj.sample_file);
             assertEqual(df.num_pixels,107130)
@@ -160,15 +157,10 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
         end
 
         function test_construct_from_data_loader_check_advance(obj)
-            sw = warning('off','HORACE:old_file_format');
-            clObW = onCleanup(@()warning(sw));
-
-            hc = hor_config;
-            clOb = onCleanup(@()clear_config(obj,hc));
+            clobW = set_temporary_warning('off','HORACE:old_file_format');
 
             mchs = 10000;
-            hc.mem_chunk_size = mchs;
-            hc.log_level = -1;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', mchs, 'log_level', -1);
 
             ldr = sqw_formats_factory.instance().get_loader(obj.sample_file);
             assertTrue(PixelDataBase.do_filebacked(ldr.npixels));
@@ -192,15 +184,10 @@ classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
         end
 
         function test_construct_from_data_loader_check_pages(obj)
-            sw = warning('off','HORACE:old_file_format');
-            clObW = onCleanup(@()warning(sw));
-
-            hc = hor_config;
-            clOb = onCleanup(@()clear_config(obj,hc));
+            clObW = set_temporary_warning('off','HORACE:old_file_format');
 
             mchs = 10000;
-            hc.mem_chunk_size = mchs;
-            hc.log_level = -1;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', mchs, 'log_level', -1);
 
             ldr = sqw_formats_factory.instance().get_loader(obj.sample_file);
             assertTrue(PixelDataBase.do_filebacked(ldr.npixels));

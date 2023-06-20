@@ -16,7 +16,7 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             if isempty(which(worker))
                 obj.skip_cluster_tests = true;
             else
-                obj.skip_cluster_tests= false;
+                obj.skip_cluster_tests = false;
             end
 
         end

@@ -242,14 +242,10 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % various amounts of noise to various detectors according to the
             % ordering
 
+            % uses Matlab single thread to generate source sqw files
+            clob_hc = set_temporary_config_options(hor_config, 'use_mex', false);
+            clob_pc = set_temporary_config_options(parallel_config, 'threads', 1);
 
-            hc = hor_config();
-            um = hc.get_data_to_store;
-            clob = onCleanup(@()set(hc,um));
-            hc.use_mex = false; % so use Matlab single thread to generate source sqw files
-            hpcc = hpc_config();
-            ds1 = hpcc.get_data_to_store;
-            clob1 = onCleanup(@()set(hpcc ,ds1));
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             for i=1:n_files
                 if ~(exist(spe_files{i},'file') == 2)
@@ -357,17 +353,12 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % ---------------------------------------
 
             [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
-            hh = hpc_config;
-            hh.saveable = false;
-            hpc_settings = hh.get_data_to_store();
-            hpc_config_cleanup = onCleanup(@()set(hpc_config,hpc_settings));
-            hh.build_sqw_in_parallel = false;
-            hh.combine_sqw_using = 'mex_code';
-            hc = hor_config;
-            hc.saveable = false;
-            hc_settings = hc.get_data_to_store();
-            hc_config_cleanup = onCleanup(@()set(hor_config,hc_settings));
-            hc.delete_tmp = 1;
+
+            hpc_config_cleanup = set_temporary_config_options(hpc_config, ...
+                                                              'build_sqw_in_parallel', false, ...
+                                                              'combine_sqw_using', 'mex_code' ...
+                                                             );
+            hc_config_cleanup = set_temporary_config_options(hor_config, 'delete_tmp', true);
 
             % Test symmetrisation ---------------------------------------
             % Standard reference file. Done serially with mex combining for
@@ -512,15 +503,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
             new_names = gen_sqw_accumulate_sqw_tests_common.rename_file_list(spe_names(3:4),'.tnxs');
             co3 = onCleanup(@()gen_sqw_accumulate_sqw_tests_common.rename_file_list(new_names,'.nxspe'));
-            %
-            hc = hor_config;
-            ohc = hc.get_data_to_store();
-            hc.saveable = false;
-            co5 = onCleanup(@()set(hc,ohc));
+
             % Allow nan-s and inf-s to keep masked pixels, to ensure
             % consistency of estimated and actual pix_ranges
-            hc.ignore_nan = false;
-            hc.ignore_inf = false;
+            co5 = set_temporary_config_options(hor_config, ...
+                                               'ignore_nan', false, ...
+                                               'ignore_inf', false ...
+                                               );
 
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
@@ -596,11 +585,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             end
             %-------------------------------------------------------------
             % Do not delete tmp file for future accumulation
-            hc = hor_config;
-            recovery = hc.get_data_to_store();
-            hc.saveable = false;
-            hc.delete_tmp = false;
-            co2 = onCleanup(@()set(hc,recovery));
+
+            co2 = set_temporary_config_options(hor_config, 'delete_tmp', false);
+
             %-------------------------------------------------------------
 
             % build test files if they have not been build
@@ -678,11 +665,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
             %-------------------------------------------------------------
             % Do not delete tmp file for future accumulation
-            hc = hor_config;
-            recovery = hc.get_data_to_store();
-            hc.saveable = false;
-            hc.delete_tmp = false;
-            co2 = onCleanup(@()set(hc,recovery));
+
+            co2 = set_temporary_config_options(hor_config, 'delete_tmp', false);
+
             %-------------------------------------------------------------
 
             % build test files if they have not been build

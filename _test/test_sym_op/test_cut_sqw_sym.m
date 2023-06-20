@@ -1,7 +1,6 @@
 classdef test_cut_sqw_sym < TestCaseWithSave
     % Test of various operations associated with symmetrisation
     properties
-        log_level
         data_source
         data
         sym
@@ -18,7 +17,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         vbin2
         wbin2
         ebin2
-
     end
 
     methods
@@ -29,9 +27,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                 name = 'test_cut_sqw_sym';
             end
             this@TestCaseWithSave(name)
-
-            % Get Horace log level
-            this.log_level = get(hor_config,'log_level');
 
             % Read in data
             this_path = fileparts(mfilename('fullpath'));
@@ -90,8 +85,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
 
             skipTest("cut_sym needs modification to work with new cut #805")
             % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
+            clOb = set_temporary_config_options(hor_config, 'log_level', -1); % turn off output
 
             w2sym = cut_sqw_sym (this.data_source, this.proj, this.bin,...
                 this.width, this.width, this.ebins, this.sym, '-pix');
@@ -102,8 +96,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             % Test symmetrisation, without keeping pixels
             skipTest("cut_sym needs modification to work with new cut #805")
             % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
+            clOb = set_temporary_config_options(hor_config, 'log_level', -1); % turn off output
 
             d2sym = cut_sqw_sym (this.data_source, this.proj, this.bin,...
                 this.width, this.width, this.ebins, this.sym, '-nopix');
@@ -116,8 +109,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             % Note that the last cut has no pixels retained - a good test too!
             skipTest("New dnd (d2d) not supported yet #878");
             % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
+            clOb = set_temporary_config_options(hor_config, 'log_level', -1); % turn off output
 
             % Must use '-pix' to properly handle pixel double counting in general
             w1 = cut_sqw (this.data_source, this.proj, this.bin,...
@@ -143,8 +135,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             % Last couple of cuts have no pixels read or are even outside the range
             % of the input data
             % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
+            clOb = set_temporary_config_options(hor_config, 'log_level', -1); % turn off output
 
             % Must use '-pix' to properly handle pixel double counting in general
             w1 = cut_sqw (this.data_source, this.proj, this.bin,...
@@ -167,8 +158,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         function test_multicut_3 (this)
             % Test multicut capability for cuts that overlap adjacent cuts
             % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
+            clOb = set_temporary_config_options(hor_config, 'log_level', -1); % turn off output
 
             % Must use '-pix' to properly handle pixel double counting in general
             w1 = cut_sqw (this.data_source, this.proj, this.bin,...
@@ -193,8 +183,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             % which contribute zero pixels to the result.
             skipTest("cut_sym needs modification to work with new cut #805")
             % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
+            clOb = set_temporary_config_options(hor_config, 'log_level', -1); % turn off output
 
             [c, s] = cut_sqw_sym(this.data2, this.proj2, ...
                 this.ubin2, this.vbin2, this.wbin2, this.ebin2, ...
@@ -215,8 +204,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         function test_cut_with_nopix (this)
             % Test a simple cut without keeping pixels
             % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
+            clOb = set_temporary_config_options(hor_config, 'log_level', -1); % turn off output
 
             d2 = cut_sqw (this.data_source, this.proj, this.bin,...
                 this.width, this.width, this.ebins, '-nopix');

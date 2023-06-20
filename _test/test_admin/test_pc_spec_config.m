@@ -58,17 +58,13 @@ classdef test_pc_spec_config < TestCase
         end
 
         function test_constructor_and_initial_op(obj)
-            parc = parallel_config();
-            co2 = parc.get_data_to_store();
-            clob_par = onCleanup(@()set(parc,co2));
+            clob_par = set_temporary_config_options(parallel_config);
+            clob_hc = set_temporary_config_options(hor_config);
+            clob_hpc = set_temporary_config_options(hpc_config);
 
+            pc = parallel_config();
             hc = hor_config();
-            co3 = hc.get_data_to_store();
-            clob_hc = onCleanup(@()set(hc,co3));
-
             hpc = hpc_config();
-            co4 = hpc.get_data_to_store();
-            clob_hpc = onCleanup(@()set(hpc,co4));
 
             cm = opt_config_manager();
             source_dir = fileparts(which('opt_config_manager.m'));
@@ -84,7 +80,6 @@ classdef test_pc_spec_config < TestCase
             assertTrue(is_file(conf_file));
 
             ll = hc.log_level;
-            hc.saveable = false;
 
             % set up different numer of threads
             hc.log_level= ll+1;

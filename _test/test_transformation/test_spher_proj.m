@@ -149,7 +149,7 @@ classdef test_spher_proj<TestCase
             pix_cc = proj.transform_img_to_pix(spher);
             assertElementsAlmostEqual(eye(3),pix_cc );
         end
-        
+
 
 
         function test_set_direction_010(~)

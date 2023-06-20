@@ -45,16 +45,13 @@ classdef test_faccess_sqw_v4< TestCase
                 delete(tf);
             end
             assertFalse(is_file(tf));
-            %
-            ws = warning('off','HORACE:old_file_format');
-            clOnConf = onCleanup(@()warning(ws));
-            %
+
+            clOnConf = set_temporary_warning('off','HORACE:old_file_format');
+
             ref_sqw = read_sqw(obj.sample_file);
             ref_sqw.data.s = ref_sqw.data.s*2; % do sample modification
-            hc    = hor_config;
-            mchs  = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            clobConf = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
+
+            clobConf = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
 
             % ensure filebacked operations for tests. Interface is generic
             assertTrue(PixelDataBase.do_filebacked(ref_sqw.npixels))
@@ -114,10 +111,7 @@ classdef test_faccess_sqw_v4< TestCase
             % test file
         end
         function obj = test_save_load_sqwV4_crossbuf(obj)
-            hc    = hor_config;
-            mchs  = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
+            clob1 = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
 
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3_1.sqw');
@@ -160,18 +154,15 @@ classdef test_faccess_sqw_v4< TestCase
             tf = fullfile(tmp_dir,'test_upgrade_v2tov4_fb.sqw');
             clObF = onCleanup(@()file_delete(tf));
             copyfile(obj.old_origin,tf,'f');
-            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
-            clObW = onCleanup(@()warning(ws));
+            clobW = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
 
             ldr = sqw_formats_factory.instance().get_loader(tf);
             w_old = ldr.get_sqw('-ver');
             %------------ Now the test setting and test
-            hc = hor_config;
-            rec = hc.get_data_to_store();
-            clObConfig = onCleanup(@()set(hc,rec));
-            hc.saveable = false;
+
             % 4324 pixels, let's ensure pixels in file are treated as filebacked
-            hc.mem_chunk_size = 500;
+            clObConfig = set_temporary_config_options(hor_config, 'mem_chunk_size', 500);
+
             assertTrue(PixelDataBase.do_filebacked(4324));
 
             fac = ldr.upgrade_file_format(tf);
@@ -184,9 +175,7 @@ classdef test_faccess_sqw_v4< TestCase
             w_new = fac.get_sqw('-ver');
             fac.delete();
 
-
             assertEqualToTol(w_old,w_new,1.e-12,'-ignore_date','ignore_str',true)
-
 
             fac1 = sqw_formats_factory.instance().get_loader(tf);
             assertEqual(fac1.faccess_version,4.0)
@@ -332,8 +321,7 @@ classdef test_faccess_sqw_v4< TestCase
         function test_read_sqwV2_save_sqwV4(obj)
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3.sqw');
-            warning('off','SQW_FILE_IO:legacy_data');
-            clob0 = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
+            clob0 = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             so = faccess_sqw_v2(samp_f);
             sqw_ob = so.get_sqw();
@@ -523,11 +511,8 @@ classdef test_faccess_sqw_v4< TestCase
             assertExceptionThrown(f, 'HORACE:validate_ranges:invalid_argument');
         end
         function obj = test_write_read_correctV4_filebacked(obj)
-            %
-            hc    = hor_config;
-            mchs  = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            clobC = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
+
+            clobC = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
 
             samp_f = obj.sample_file;
             assertTrue(PixelDataBase.do_filebacked(4000))

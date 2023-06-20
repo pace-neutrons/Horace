@@ -16,15 +16,11 @@ hor_tes = test_SQW_GENCUT_perf(... % Load previous performance result, do not re
     fullfile(fileparts(mfilename('fullpath')),'test_SQW_GENCUT_perf_PerfRez.xml'));
 %
 hpcc = hpc_config;
-conf_2store = hpcc.get_data_to_store;
-clob = onCleanup(@()set(hpcc,conf_2store));
-hpcc.saveable = false;
+clob = set_temporary_config_options(hpc_config);
 hpcc.build_sqw_in_parallel = 0;
 
 hrc = hor_config;
-hrc.saveable = false;
-hrc.delete_tmp = false;
-clob1 = onCleanup(@()set(hrc,'delete_tmp',true));
+clob1 = set_temporary_config_options(hor_config);
 
 
 hor_tes.n_files_to_use=10;
@@ -52,11 +48,11 @@ for i=1:numel(n_workers)
         per1 = perf_rez.(tn{1});
         per2 = perf_rez.(tn{2});
     end
-    
+
     perf_graph(i,1) = n_workers(i);
     perf_graph(i,2) = per1.time_sec/hor_tes.data_size;
     perf_graph(i,3) = per2.time_sec/hor_tes.data_size;
-    
+
 end
 % Process some averages to display
 min_gen_time = min(perf_graph(:,2));
@@ -109,7 +105,7 @@ for i=1:n_buf
     if i== n_buf
         keep_tmp = '';
     end
-    
+
     combine_method = hor_tes.combine_method_name(addinfo);
     test_name = ['combine_tmp_using_',combine_method];
     per = hor_tes.known_performance(test_name);
@@ -121,12 +117,12 @@ for i=1:n_buf
             plot(comb_perf(:,1),comb_perf(:,2),'o-');
             return
         end
-        
+
         per = perf_rez.(test_name);
     end
     comb_perf(i,1) = buf;
     comb_perf(i,2) = per.time_sec/hor_tes.data_size;
-    
+
 end
 min_comb_time = round(min(comb_perf(:,2))*hor_tes.data_size/60,1);
 max_comb_time = round(max(comb_perf(:,2))*hor_tes.data_size/60,1);
@@ -141,5 +137,3 @@ title(title_string)
 
 ylabel('Processing Time (sec/GB)')
 xlabel('IO buffer size');
-
-
