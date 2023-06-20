@@ -150,14 +150,27 @@ elseif numel(par)~=0
         'Check the number and type of optional arguments')
 end
 
-if ~isempty(proj) && ~isa(proj,'ortho_proj')
-    if ~isfield(proj,'alatt')
-        proj.alatt = alatt;
+% create standard projection and assign lattice to it
+if ~isempty(proj)
+    if isa(proj,'ortho_proj')
+        if ~proj.alatt_defined
+            proj.alatt = alatt;
+        end
+        if ~proj.angdeg_defined
+            proj.angdeg = angdeg;
+        end
+    elseif isstruct(proj)
+        if ~isfield(proj,'alatt')
+            proj.alatt = alatt;
+        end
+        if ~isfield(proj,'angdeg')
+            proj.angdeg = angdeg;
+        end
+        proj = ortho_proj(proj);
+    else
+        error('HORACE:resolution_plot:invalid_argument',...
+            'projection, if provided, must be an instance of ortho_proj class or structure convertable into it');
     end
-    if ~isfield(proj,'angdeg')
-        proj.angdeg = angdeg;
-    end    
-    proj = ortho_proj(proj);
 end
 
 if ~(isnumeric(pax) && (numel(pax)==2 || numel(pax)==3) &&...
@@ -255,7 +268,7 @@ wres.detpar = detpar;
 
 
 % Make data structure
-if ~isempty(proj) 
+if ~isempty(proj)
     proj.do_check_combo_arg = false;
     proj.alatt = lat.alatt;
     proj.angdeg = lat.angdeg;

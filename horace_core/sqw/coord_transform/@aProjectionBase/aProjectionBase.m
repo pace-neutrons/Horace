@@ -255,8 +255,16 @@ classdef aProjectionBase < serializable
             obj.title_ = val;
         end
         function bm = bmatrix(obj,ndim)
-            % Return b-matrix defined on the lattice, this projection
-            % contains
+            % Return b-matrix defined on this projection lattice.
+            %
+            % B-matrix is the Busing-Levy matrix which relates a vector,
+            % expressed in Crystal Cartesian coordinate system with a
+            % vector in the coordinate system attached to reciprocal lattice.
+            % Optional Input:
+            % ndim -- if provided and equal to 4, retun the 4x4 matrix
+            %         rather then 3x3 standard matrix, with unit expansion
+            %         to forth dimension (e.g. add rows/columnth with 0
+            %         except 1 as 4th element of diagonal.
             bm = bmatrix(obj.alatt,obj.angdeg);
             if nargin == 2 && ndim == 4
                 bm4 = eye(4);
