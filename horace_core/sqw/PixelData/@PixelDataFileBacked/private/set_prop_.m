@@ -21,8 +21,9 @@ if obj.is_misaligned_
     obj.alignment_matr_= eye(3);
 end
 
-% this operation will probably lead to invalid results as to be
+% Single call to this setter will lead to invalid results as to be
 % correct, the check should run over whole pages range.
+%
 % it will be correct if set_prop was run within the loop over
 % whole file and initial range was initialized properly
 obj=obj.reset_changed_coord_range(fld);

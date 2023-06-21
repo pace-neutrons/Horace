@@ -83,12 +83,12 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             proj.v=obj.v;
 
             % theoretical bragg points positions
-            bp=[...
+            bragg_pos=[...
                 0, -1,  0; ...
                 1,  2,  0; ...
                 0, -1,  1];
 
-            % the bragg points positions found by fitting measured bragg
+            % the Bragg points positions found by fitting measured Bragg
             % peaks shape to Gaussian and identifying the Gaussian centerpoints
             % See test_u_alighnment_tf_way for the procedure of obtaining
             % them. The operation is:
@@ -109,7 +109,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % Get correction matrix from the 3 peak positions:
             % ------------------------------------------------
             alignment_info = refine_crystal(rlu_real,...
-                obj.alatt, obj.angdeg, bp,...
+                obj.alatt, obj.angdeg, bragg_pos,...
                 'fix_angdeg','fix_alatt_ratio');
             %'fix_lattice');
 
@@ -123,10 +123,10 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             change_crystal_sqw(sim_sqw_file_corr,alignment_info)
             rlu0_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj,...
-                bp, half_len, half_thick, bin_width);
+                bragg_pos, half_len, half_thick, bin_width);
 
             % problem in
-            assertElementsAlmostEqual(bp,rlu0_corr,'absolute',half_thick);
+            assertElementsAlmostEqual(bragg_pos,rlu0_corr,'absolute',half_thick);
             %
             [alatt_c, angdeg_c, dpsi_deg, gl_deg, gs_deg] = ...
                 crystal_pars_correct (obj.u, obj.v, obj.alatt, obj.angdeg, ...
@@ -145,19 +145,19 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 obj.u, obj.v, obj.psi, 0, dpsi_deg, gl_deg, gs_deg);
 
             rlu1_corr=get_bragg_positions(read_sqw(realigned_sqw_file), ...
-                proj, bp, half_len, half_thick, bin_width);
-            assertElementsAlmostEqual(bp,rlu1_corr,'absolute',half_thick);
+                proj, bragg_pos, half_len, half_thick, bin_width);
+            assertElementsAlmostEqual(bragg_pos,rlu1_corr,'absolute',half_thick);
             assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
         end
-        function test_levacy_vs_pix_alignment(obj)
-            % theoretical bragg points positions
-            bp=[...
+        function test_legacy_vs_pix_alignment(obj)
+            % theoretical Bragg points positions
+            bragg_pos=[...
                 0, -1,  0; ...
                 1,  2,  0; ...
                 0, -1,  1];
 
             fit_obj = read_sqw(obj.misaligned_sqw_file);
-            % the bragg points positions found by fitting measured bragg
+            % the Bragg points positions found by fitting measured Bragg
             % peaks shape to Gaussian and identifying the Gaussian centerpoints
             % See test_u_alighnment_tf_way for the procedure of obtaining
             % them
@@ -170,7 +170,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % Get correction matrix from the 3 peak positions:
             % ------------------------------------------------
             corr = refine_crystal(rlu_real,...
-                obj.alatt, obj.angdeg, bp);
+                obj.alatt, obj.angdeg, bragg_pos);
 
             proj = fit_obj.data.proj;
             proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
@@ -195,12 +195,13 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             al_cut_range = wout_align.targ_range(proj_al);
             assertElementsAlmostEqual(leg_cut_range,al_cut_range);
 
-            % This is not correct and should not. One projecton contans
+            % This is not correct and should not. One projection contains
             % alignment matrix attached to B-matrix and another one does not
             % (alignment is on pixels only)
             %mix_cut_range = wout_legacy.targ_range(proj_al);
             %assertElementsAlmostEqual(mix_cut_range,al_cut_range);
 
+            % test cut ranges:
             cr = [-0.3,-2,-1.8,-0.5;3.5,4.2,2,0.5];
 
             cut_old1d = cut(wout_legacy,proj_leg,[cr(1,1),0.05,cr(2,1)],cr(:,2)',cr(:,3)',cr(:,4)');

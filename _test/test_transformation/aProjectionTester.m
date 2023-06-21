@@ -21,13 +21,13 @@ classdef aProjectionTester < aProjectionBase
             % into the result.
         end
         function pix_cc = transform_pix_to_img(~,pix_cc,varargin)
-            % Transform pixels expressed in crystal cartezian coordinate systems
+            % Transform pixels expressed in crystal Cartesian coordinate systems
             % into image coordinate system
 
         end
         function pix_cc = transform_img_to_pix(~,pix_cc,varargin)
             % Transform pixels expressed in image coordinate coordinate systems
-            % into crystal cartezian system
+            % into crystal Cartesian system
         end
         %
         function [u_to_img,shift,ulen,obj]=get_pix_img_transformation(obj,ndim,varargin)

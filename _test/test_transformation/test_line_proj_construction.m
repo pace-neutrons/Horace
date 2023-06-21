@@ -39,7 +39,7 @@ classdef test_line_proj_construction<TestCase
             assertEqual(proj.type,'aaa');
         end
 
-        function test_constructor_third_long_throws(~)
+        function test_constructor_third_long_argument_throws(~)
             err=assertExceptionThrown(...
                 @()ortho_proj([1,0,0],[0,1,0],[1,1,1,1],'alatt',[2,3,4],'angdeg',[80,70,85]),...
                 'HORACE:aProjectionBase:invalid_argument');
@@ -47,7 +47,7 @@ classdef test_line_proj_construction<TestCase
             assertEqual(err.message,samp);
         end
 
-        function test_constructor_third_zero_throws(~)
+        function test_constructor_third_zero_argument_throws(~)
             err=assertExceptionThrown(...
                 @()ortho_proj([1,0,0],[0,1,0],[0,0,0],'alatt',[2,3,4],'angdeg',[80,70,85]),...
                 'HORACE:aProjectionBase:invalid_argument');

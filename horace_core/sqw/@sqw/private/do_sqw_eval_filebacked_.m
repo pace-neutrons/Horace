@@ -41,15 +41,19 @@ v_ind = wout.pix.check_pixel_fields('variance');
 pix = wout.pix;
 pix.data_range = PixelDataBase.EMPTY_RANGE;
 
-npg = wout.pix.num_pages
+npg = wout.pix.num_pages;
+
+proj    = win.data.proj;
 for i = 1:npg
 	pix.page_num = i;
     data = pix.data;
     npix_chunk = npix_chunks{i};
     idx_chunk = idxs(:, i);
 
-	wout.pix = pix;
-    qw = calculate_qw_pixels(wout);
+    [qw,en] = proj.transform_pix_to_hkl(pix);
+    % package as cell array of column vectors for convenience with fitting routines etc.
+    qw = {qw(1,:)', qw(2,:)', qw(3,:)',en(:)};
+
     sig_chunk = sqwfunc(qw{:}, pars{:});
 
     data(s_ind, :) = sig_chunk;

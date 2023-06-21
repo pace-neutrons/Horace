@@ -86,12 +86,13 @@ classdef ortho_proj<aProjectionBase
         % Old confusing u_to_rlu matrix value
         %
         % Matrix to convert from image coordinate system to hklE coordinate
-        % system (in rlu)
+        % system (in rlu or hkle -- both are the same, two different 
+        % name schemes are used)
         u_to_rlu
 
-        % renamed offset projection property keep to support old interface
+        % renamed offset projection property kept to support old interface
         uoffset
-        % Two properties below are responsible for support of old binary
+        % Three properties below are responsible for support of old binary
         % file format and legacy alignment
         %
         % LEGACY PROPERTY: (used for saving data in old file format)
@@ -101,10 +102,11 @@ classdef ortho_proj<aProjectionBase
 
         % LEGACY PROPERTY:
         % inverted B matrix, obtained from headers and set on
-        % projection when loading realigned data from
-        % in new code as old aligned files modify it and there are no way
+        % projection when loading realigned data from file in the new code
+        % as old aligned files modify it and there are no way
         % of identifying if the file was aligned or not. Modern code
-        % calculates this matrix on request.
+        % calculates this matrix on request using alignment matrix attached
+        % to pixels
         ub_inv_legacy
         %
         u_to_rlu_legacy; % old u_to_rlu transformation matrix,
@@ -114,7 +116,7 @@ classdef ortho_proj<aProjectionBase
         % coordinate transformation is non-orthogonal
         unit_cell;
         % scaling factors used in transformation from pix to image
-        % coordinate system
+        % coordinate system. Defined by type property
         ulen
     end
     properties(Hidden)

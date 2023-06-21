@@ -1,12 +1,12 @@
 function [vector, index] = lower_part(mat)
-%LOWER_PART return lover part of a square matrix
+%LOWER_PART return lower part of a square matrix
 %
 % Inputs:
 % mat    -- square 2D matrix.
 % Outputs:
 % vector -- vector containing elements located under main diagonal of the matrix
 % index  -- the linear indexes of these elements if matrix is treated as 1D matrix
-%           use ind2sub to conver these indexes into 2D indexes
+%           use ind2sub to convert these indexes into 2D indexes
 %
 % Example:
 %>> mat = [1,2,3;

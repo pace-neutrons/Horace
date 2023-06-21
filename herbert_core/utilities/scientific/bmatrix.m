@@ -16,11 +16,11 @@ function [b, arlu, angrlu] = bmatrix(alatt, angdeg)
 %   arlu    Reciprocal lattice vectors (Ang^-1) [row vector]
 %   angrlu  Reciprocal lattice angles (deg) [row vector]
 %
-%   Throws HORACE:bmatrix:invalid_argument if latice angles are negative,
-%   or large then 180 deg or lattice parameters are less or equal to zero
+%   Throws HORACE:bmatrix:invalid_argument if lattice angles are negative,
+%   or larger then 180 deg or lattice parameters are less or equal to zero
 %
 %
-% Matrix B is used to tranform components of a vector in r.l.u. to those
+% Matrix B is used to transform components of a vector in r.l.u. to those
 % in crystal cartesian coordinates , that is, an orthonormal frame in which
 % x || a*, z || cross(a*,b*), y perp. x,y
 %

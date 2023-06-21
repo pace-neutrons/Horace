@@ -58,8 +58,7 @@ classdef test_refine_crystal < TestCase
                 'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
                 'rotmat',algn_inf.rotmat);
 
-            [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
-            assertTrue(ok,mess)
+            assertEqualToTol(fit_data,obj.ref_data,1e-9);
         end
         function test_fit_from_different_lattice_and_angle(obj)
 
@@ -72,10 +71,7 @@ classdef test_refine_crystal < TestCase
                 'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
                 'rotmat',algn_inf.rotmat);
 
-
-
-            [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
-            assertTrue(ok,mess)
+            assertEqualToTol(fit_data,obj.ref_data,1e-9);
         end
         function test_fit_from_different_lattice(obj)
 
@@ -89,9 +85,7 @@ classdef test_refine_crystal < TestCase
                 'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
                 'rotmat',algn_inf.rotmat);
 
-            
-            [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
-            assertTrue(ok,mess)
+            assertEqualToTol(fit_data,obj.ref_data,1e-9);
         end
         function test_fit_from_different_lattice_fix_angles(obj)
 
@@ -104,10 +98,7 @@ classdef test_refine_crystal < TestCase
                 'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
                 'rotmat',algn_inf.rotmat);
 
-
-
-            [ok,mess]=equal_to_tol(fit_data,obj.ref_data,1e-9);
-            assertTrue(ok,mess)
+            assertEqualToTol(fit_data,obj.ref_data,1e-9);
         end
 
         function test_fit_with_rotation_fix_ang(obj)
@@ -121,9 +112,7 @@ classdef test_refine_crystal < TestCase
                 'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
                 'rotmat',algn_inf.rotmat);
 
-
-            [ok,mess]=equal_to_tol(fit_data,obj.answer_r ,-3e-2,'min_denominator',1);
-            assertTrue(ok,mess)
+            assertEqualToTol(fit_data,obj.answer_r,-3e-2,'min_denominator',1);
         end
         function test_fit_with_rot_latt_guess_fix_ang(obj)
 
@@ -136,8 +125,7 @@ classdef test_refine_crystal < TestCase
                 'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
                 'rotmat',algn_inf.rotmat);
 
-            [ok,mess]=equal_to_tol(fit_data,obj.answer_r ,-3e-2,'min_denominator',1);
-            assertTrue(ok,mess)
+            assertEqualToTol(fit_data,obj.answer_r,-3e-2,'min_denominator',1);
         end
 
         function test_fit_with_rot_free_alatt(obj)
@@ -151,10 +139,7 @@ classdef test_refine_crystal < TestCase
                 'alatt',algn_inf.alatt,'angdeg',algn_inf.angdeg, ...
                 'rotmat',algn_inf.rotmat);
 
-
-            [ok,mess]=equal_to_tol(fit_data,obj.answer_r ,-5e-2,'min_denominator',1);
-            assertTrue(ok,mess)
-
+            assertEqualToTol(fit_data,obj.answer_r,-5e-2,'min_denominator',1);
         end
     end
     methods(Static,Access=private)
