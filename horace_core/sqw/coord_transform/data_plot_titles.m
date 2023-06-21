@@ -1,4 +1,4 @@
-function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data)
+function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data,proj)
 % Get titling and caption information for an sqw data structure
 %
 % Syntax:
@@ -34,7 +34,7 @@ Angstrom=char(197);     % Angstrom symbol
 file = fullfile(data.filepath,data.filename);
 title = data.title;
 
-uoff = data.offset;
+offset = data.offset;
 if isa(data,'DnDBase')
     % every projections now have to have this, though it may have different
     % meaning for different projecions
@@ -59,7 +59,10 @@ for i=1:length(pax)
 end
 
 
-uofftot=uoff;
+
+% iint offset is expressed in image coordinate system so we need to convert
+% it into hkl coordinate system
+iint_offset = zeros(4,1);
 for i=1:length(iax)
     % get offset from integration axis, accounting for non-finite limit(s)
     if isfinite(iint(1,i)) && isfinite(iint(2,i))
@@ -67,8 +70,15 @@ for i=1:length(iax)
     else
         iint_ave=0;
     end
-    uofftot(iax(i))=uofftot(iax(i))+iint_ave;  % overall displacement of plot volume in (rlu;en)
+    iint_offset(iax(i))= iint_ave;  % overall displacement of plot volume image coordinate system
 end
+if ~isempty(proj) && isa(proj,"aProjectionBase")
+    iint_hkle = proj.tansform_img_to_hkl(iint_offset(:));
+else
+    iint_hkle = data.u_to_rlu*iint_offset(:);
+end
+% overal displacement of plot volume in hkle;
+offset_tot= offset(:)' + iint_hkle(:)';
 
 % Axes and integration titles
 % Character representations of input data
@@ -78,13 +88,13 @@ uoff_ch=cell(1,4);
 uofftot_ch=cell(1,4);
 u_to_rlu_ch=cell(4,4);
 for j=1:4
-    if abs(uoff(j)) > small
-        uoff_ch{j} = num2str(uoff(j),'%+11.4g');
+    if abs(offset(j)) > small
+        uoff_ch{j} = num2str(offset(j),'%+11.4g');
     else
         uoff_ch{j} = num2str(0,'%+11.4g');
     end
-    if abs(uofftot(j)) > small
-        uofftot_ch{j} = num2str(uofftot(j),'%+11.4g');
+    if abs(offset_tot(j)) > small
+        uofftot_ch{j} = num2str(offset_tot(j),'%+11.4g');
     else
         uofftot_ch{j} = num2str(0,'%+11.4g');
     end

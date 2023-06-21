@@ -89,128 +89,118 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
 
 
         %--------------------------------------------------------------------------
-        function test_differentDetectors(S)
+        function test_differentDetectors(obj)
             % Test that the ellipsoid has the correct kinematic behaviour in
             % N,S,E,W detectors (always tilted towards incident wavevector)
 
             % All four plots should have the intersection  at +ve de on right of plot
 
             % Envelope pointing slightly in 1st quadrant
-            wwW = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
-                S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
+            wwW = resolution_plot(obj.ebin, obj.inst, obj.samp, obj.det_W, obj.ei, obj.efix,...
+                obj.alatt, obj.angdeg, obj.u, obj.v, 0, 0, 0, 0, 0);
 
             % Envelope pointing slightly in 4th quadrant
-            wwE = resolution_plot(S.ebin, S.inst, S.samp, S.det_E, S.ei, S.efix,...
-                S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
+            wwE = resolution_plot(obj.ebin, obj.inst, obj.samp, obj.det_E, obj.ei, obj.efix,...
+                obj.alatt, obj.angdeg, obj.u, obj.v, 0, 0, 0, 0, 0);
 
             % Envelope pointing slightly in 1st quadrant
-            wwN = resolution_plot(S.ebin, S.inst, S.samp, S.det_N, S.ei, S.efix,...
-                S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, [1,3,4]);
+            wwN = resolution_plot(obj.ebin, obj.inst, obj.samp, obj.det_N, obj.ei, obj.efix,...
+                obj.alatt, obj.angdeg, obj.u, obj.v, 0, 0, 0, 0, 0, [1,3,4]);
 
             % Envelope pointing slightly in 4th quadrant
-            wwS = resolution_plot(S.ebin, S.inst, S.samp, S.det_S, S.ei, S.efix,...
-                S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, [1,3,4]);
+            wwS = resolution_plot(obj.ebin, obj.inst, obj.samp, obj.det_S, obj.ei, obj.efix,...
+                obj.alatt, obj.angdeg, obj.u, obj.v, 0, 0, 0, 0, 0, [1,3,4]);
 
             % Save
-            assertEqualToTolWithSave (S, wwW, 'tol', [1e-12,1e-12])
-            assertEqualToTolWithSave (S, wwE, 'tol', [1e-12,1e-12])
-            assertEqualToTolWithSave (S, wwN, 'tol', [1e-12,1e-12])
-            assertEqualToTolWithSave (S, wwS, 'tol', [1e-12,1e-12])
+            assertEqualToTolWithSave (obj, wwW, 'tol', [1e-12,1e-12])
+            assertEqualToTolWithSave (obj, wwE, 'tol', [1e-12,1e-12])
+            assertEqualToTolWithSave (obj, wwN, 'tol', [1e-12,1e-12])
+            assertEqualToTolWithSave (obj, wwS, 'tol', [1e-12,1e-12])
 
         end
 
 
         %--------------------------------------------------------------------------
-        function test_projaxes_1(S)
+        function test_projaxes_1(obj)
             % Test when projection axes are the same as the spectrometer axes
             %
             % The two plots should look identical
     
            
-            ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
-                S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
+            ww1 = resolution_plot(obj.ebin, obj.inst, obj.samp, obj.det_W, obj.ei, obj.efix,...
+                obj.alatt, obj.angdeg, obj.u, obj.v, 0, 0, 0, 0, 0);
 
-            proj.u = S.u;
-            proj.v = S.v;
+            proj.u = obj.u;
+            proj.v = obj.v;
             proj.type = 'aaa';
-            ww2 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
-                S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, proj);
+            ww2 = resolution_plot(obj.ebin, obj.inst, obj.samp, obj.det_W, obj.ei, obj.efix,...
+                obj.alatt, obj.angdeg, obj.u, obj.v, 0, 0, 0, 0, 0, proj);
 
 
             % Save
-            assertEqualToTolWithSave (S, ww1, 'tol', [1e-12,1e-12])
-            skipTest('Re #1042 it is currently depends on projection. And generally it should. (special cases may be different)')
-            % Should be the same, as does not depend on crystal orientation
+            assertEqualToTolWithSave (obj, ww1, 'tol', [1e-12,1e-12])
             assertEqualToTol (ww1, ww2, 'tol', [1e-12,1e-12])            
-            assertEqualToTolWithSave (S, ww2, 'tol', [1e-12,1e-12])
+            assertEqualToTolWithSave (obj, ww2, 'tol', [1e-12,1e-12])
 
         end
 
 
         %--------------------------------------------------------------------------
-        function test_projaxes_2(S)
+        function test_projaxes_2(obj)
             % Test that when the projection axes are normalised to rlu that the
             % plot axes are scaled correctly
             %
             % The plots should look the same, but the axes changed
 
-            ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
-                S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
+            ww1 = resolution_plot(obj.ebin, obj.inst, obj.samp, obj.det_W, obj.ei, obj.efix,...
+                obj.alatt, obj.angdeg, obj.u, obj.v, 0, 0, 0, 0, 0);
             aspect1 = get(gca,'DataAspectRatio');
             % Check aspect ratio of plots
             assertEqualToTol (aspect1(1:2), [1,1], 'tol', [1e-12,1e-12])
 
-            proj.u = S.u;
-            proj.v = S.v;
+            proj.u = obj.u;
+            proj.v = obj.v;
             proj.type = 'rrr';
-            ww2 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
-                S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, proj);
+            ww2 = resolution_plot(obj.ebin, obj.inst, obj.samp, obj.det_W, obj.ei, obj.efix,...
+                obj.alatt, obj.angdeg, obj.u, obj.v, 0, 0, 0, 0, 0, proj);
             aspect2 = get(gca,'DataAspectRatio');
 
             % Save
-            assertEqualToTolWithSave (S, ww1, 'tol', [1e-12,1e-12])
-            skipTest('Re #1042 it is currently depends on projection. And generally it should. (special cases may be different)')            
-            assertEqualToTolWithSave (S, ww2, 'tol', [1e-12,1e-12])
+            assertEqualToTolWithSave (obj, ww1, 'tol', [1e-12,1e-12])
+            assertEqualToTolWithSave (obj, ww2, 'tol', [1e-12,1e-12])
 
-
-            skipTest('Check with Toby about what aspec ration is and how it works #801')
-            assertEqualToTol (aspect2(1:2), [1/S.ulen,1/S.vlen], 'tol', [1e-12,1e-12])
-
-
+            assertEqualToTol (aspect2(1:2), [1/obj.ulen,1/obj.vlen], 'tol', [1e-12,1e-12])            
         end
 
 
         %--------------------------------------------------------------------------
-        function test_projaxes_3(S)
+        function test_projaxes_3(obj)
             % Test that when the projection axes are rotated by 90 degrees that the
             % covariance matrix is appropriately changed.
             %
             % The second plot should look like the first, but rotated clockwise by 90 deg
 
-            proj.u = S.u;
-            proj.v = S.v;
+            proj.u = obj.u;
+            proj.v = obj.v;
             proj.type = 'rrr';
             
-            ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
-                S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, proj);
+            ww1 = resolution_plot(obj.ebin, obj.inst, obj.samp, obj.det_W, obj.ei, obj.efix,...
+                obj.alatt, obj.angdeg, obj.u, obj.v, 0, 0, 0, 0, 0, proj);
             aspect1 = get(gca,'DataAspectRatio');
             
 
-            ww2 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
-                S.alatt, S.angdeg, S.u, S.v, 90, 0, 0, 0, 0, proj);
-            aspect2 = get(gca,'DataAspectRatio');
+            ww2 = resolution_plot(obj.ebin, obj.inst, obj.samp, obj.det_W, obj.ei, obj.efix,...
+                obj.alatt, obj.angdeg, obj.u, obj.v, 90, 0, 0, 0, 0, proj);
+            aspect2 = get(gca,'DataAspectRatio');            
+
+            % Compare with references
+            assertEqualToTolWithSave (obj, ww1, 'tol', [1e-12,1e-12])
+            assertEqualToTolWithSave (obj, ww2, 'tol', [1e-12,1e-12])
 
 
-            % Save
-            skipTest('Re #1042 it is currently depends on projection. And generally it should. (special cases may be different)')                                    
-            assertEqualToTolWithSave (S, ww1, 'tol', [1e-12,1e-12])
-            assertEqualToTolWithSave (S, ww2, 'tol', [1e-12,1e-12])
-
-            skipTest('Check with Toby about what aspect ratio is and how it works #801')
             % Check aspect ratio of plots
-            assertEqualToTol (aspect1(1:2), [1/S.ulen,1/S.vlen], 'tol', [1e-12,1e-12])
-            assertEqualToTol (aspect2(1:2), [1/S.ulen,1/S.vlen], 'tol', [1e-12,1e-12])
-
+            assertEqualToTol (aspect2(1:2), [1/obj.ulen,1/obj.vlen], 'tol', [1e-12,1e-12])
+            assertEqualToTol (aspect1(1:2), [1/obj.ulen,1/obj.vlen], 'tol', [1e-12,1e-12])            
 
             %--------------------------------------------------------------------------
         end

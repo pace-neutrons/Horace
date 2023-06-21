@@ -41,7 +41,7 @@ classdef test_line_proj_transf_orth<TestCase
 
         end
         function test_uv_to_rot_and_vv_complex_vs_legacy(~)
-            % recovery from old u_to_rlu, stored in old versions of 
+            % recovery from old u_to_rlu, stored in old versions of
             % sqw files
             u = [1,1,0]/norm([1,1,0]);
             v = [0,-0.5,1];
@@ -286,9 +286,28 @@ classdef test_line_proj_transf_orth<TestCase
 
             assertElementsAlmostEqual(pix_hkl1 ,pix_hkl2);
         end
-
-        % RRR
+    end
+    % RRR
+    %================================
+    methods
         %------------------------------------------------------------------
+        function test_transf_rrr_new_vs_legacy_orthorhombic_lat(~)
+            lat_par = [2,3,4];
+            proj = ortho_proj([1,1,0],[0,0,1],'alatt',lat_par,'angdeg',90, ...
+                'type','rrr');
+            assertEqual(proj.type,'rrr')
+            assertEqual(proj.u,[1,1,0])
+            assertEqual(proj.v,[0,0,1])
+            assertTrue(isempty(proj.w))
+            assertFalse(proj.nonorthogonal)
+
+            u_to_rlu = proj.u_to_rlu;
+            u_to_rlu_legacy = proj.u_to_rlu_legacy;
+
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_legacy);
+        end
+
+
         function test_uv_to_rot_and_vv_complex_tricl_with_rrr(~)
             u = [1,1,0];
             v = [0,-0.5,1];
@@ -423,7 +442,26 @@ classdef test_line_proj_transf_orth<TestCase
 
             assertElementsAlmostEqual(img_coord,eye(3));
         end
-        % PPP
+    end
+    % PPP
+    %==================================================================
+    methods
+        function test_transf_ppp_new_vs_legacy_orthorhombic_lat(~)
+            lat_par = [2,3,4];
+            proj = ortho_proj([1,1,0],[0,0,1],[0,1,0],'alatt',lat_par,'angdeg',90, ...
+                'type','ppp');
+            assertEqual(proj.type,'ppp')
+            assertEqual(proj.u,[1,1,0])
+            assertEqual(proj.v,[0,0,1])
+            assertEqual(proj.w,[0,-1,0])
+            assertFalse(proj.nonorthogonal)
+
+            u_to_rlu = proj.u_to_rlu;
+            u_to_rlu_legacy = proj.u_to_rlu_legacy;
+
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_legacy);
+        end
+        
         %------------------------------------------------------------------
         function test_transformation_scale_ppp_nonortho_eq_ortho_at_ortho_lat(~)
             % non-ortho transformation with orthogonal projection equal to
@@ -459,7 +497,6 @@ classdef test_line_proj_transf_orth<TestCase
             pix_cc = [eye(3),eye(3)];
             img_coord = proj.transform_pix_to_img(pix_cc );
             pix_rec   = proj.transform_img_to_pix(img_coord );
-
 
             assertElementsAlmostEqual(pix_rec,pix_rec);
         end
@@ -558,7 +595,10 @@ classdef test_line_proj_transf_orth<TestCase
 
             assertElementsAlmostEqual(img_coord,rlu_exp);
         end
-        % AAA
+    end
+    % AAA
+    %==================================================================
+    methods
         %------------------------------------------------------------------
         function test_transformation_scale_aaa_nonortho_tricl_invertable(~)
 

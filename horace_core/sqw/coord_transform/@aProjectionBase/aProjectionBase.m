@@ -551,7 +551,8 @@ classdef aProjectionBase < serializable
             % pix_hkl   -- 4xNpix or 3xNpix array of pixel coordinates in
             %               hkl (physical) coordinate system (4-th
             %               coordinate, if requested, is the energy transfer)
-            pix_hkl = obj.bmatrix\obj.transform_img_to_pix(img_coord,varargin{:});
+            ndim = size(img_coord,1);
+            pix_hkl = obj.bmatrix(ndim)\obj.transform_img_to_pix(img_coord,varargin{:});
         end
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)

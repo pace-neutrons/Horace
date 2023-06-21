@@ -113,7 +113,7 @@ for iw = 1:numel(win)
     %TODO: Re #1040 this code is not consistent with generic projection:
     if ~isa(wtmp.data.proj,'ortho_proj')
         error('HORACE:sqw:not_implemented', ...
-            'resolution can not currently be calculated for any projection except linear projection')
+            'resolution can not yet be calculated for any projection except linear projection')
     end
     cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(wtmp.data.u_to_rlu));
 

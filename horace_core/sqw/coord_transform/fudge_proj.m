@@ -12,5 +12,14 @@ classdef fudge_proj < ortho_proj
         end
     end
     methods(Access = protected)
+        function  mat = get_u_to_rlu_mat(obj)
+            % u_to_rlu defines the transformation from coodrinates in
+            % image coordinate system to pixels in hkl(dE) (rlu) coordinate
+            % system
+            %
+            mat = eye(4);
+            mat(1:3,1:3) = obj.spec_to_rlu;
+        end
+
     end
 end

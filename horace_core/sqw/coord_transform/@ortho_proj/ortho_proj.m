@@ -285,7 +285,7 @@ classdef ortho_proj<aProjectionBase
             % image coordinate system to pixels in hkl(dE) (rlu) coordinate
             % system
             %
-            mat = inv(obj.bmatrix(4)*obj.get_pix_img_transformation(4));
+            mat = get_u_to_rlu_mat(obj);
         end
         % -----------------------------------------------------------------
         % OLD sqw object interface compatibility functions
@@ -526,6 +526,13 @@ classdef ortho_proj<aProjectionBase
     end
     %----------------------------------------------------------------------
     methods(Access = protected)
+        function  mat = get_u_to_rlu_mat(obj)
+            % u_to_rlu defines the transformation from coodrinates in
+            % image coordinate system to pixels in hkl(dE) (rlu) coordinate
+            % system
+            %
+            mat = inv(obj.get_pix_img_transformation(4)*obj.bmatrix(4));
+        end
         %------------------------------------------------------------------
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)
