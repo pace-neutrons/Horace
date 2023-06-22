@@ -222,7 +222,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertEqual(cut_old.experiment_info.n_runs, ...
                 cut_new.experiment_info.n_runs)
             % old alignment changes the direction of cu,cv components and
-            % new one does not so they can not be compared directly.
+            % new one does not so they can not be compared directly. Yet!
             cut_old.experiment_info = cut_new.experiment_info;
             assertEqualToTol(cut_old,cut_new);
 
