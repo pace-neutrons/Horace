@@ -86,7 +86,7 @@ classdef ortho_proj<aProjectionBase
         % Old confusing u_to_rlu matrix value
         %
         % Matrix to convert from image coordinate system to hklE coordinate
-        % system (in rlu or hkle -- both are the same, two different 
+        % system (in rlu or hkle -- both are the same, two different
         % name schemes are used)
         u_to_rlu
 
@@ -666,8 +666,22 @@ classdef ortho_proj<aProjectionBase
             % inequality)
             names = cell(2,1);
             if nargout == 2
-                names{1} = inputname(1);
-                names{2} = inputname(2);
+                if nargin>2
+                    argi = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false);
+                    is = ismember(argi,'name_a');
+                    if any(is)
+                        ind = find(is);
+                        names{1} = varargin{ind+1};
+                    end
+                    is = ismember(argi,'name_b');
+                    if any(is)
+                        ind = find(is);
+                        names{2} = varargin{ind+1};
+                    end
+                else
+                    names{1} = inputname(1);
+                    names{2} = inputname(2);
+                end
                 [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
             else
                 is = eq_(obj,other_obj,nargout,names,varargin{:});
@@ -724,7 +738,6 @@ classdef ortho_proj<aProjectionBase
                 header_av = [];
             end
             obj = build_from_old_data_struct_(obj,inputs,header_av);
-
         end
     end
 end

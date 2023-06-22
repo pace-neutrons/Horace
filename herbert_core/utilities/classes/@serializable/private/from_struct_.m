@@ -71,5 +71,8 @@ else
     % Structure was created from an earlier version of a serializable object, or
     % has a different provenance e.g. came from an older format that predates
     % the use of serializable
+    obj.do_check_combo_arg_ = false;
     obj = obj.from_old_struct (S);
+    obj.do_check_combo_arg_ = true;    
+    obj = obj.check_combo_arg();
 end

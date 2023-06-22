@@ -1,7 +1,7 @@
 function proj =  build_from_old_data_struct_(proj,data_struct,varargin)
 % build projection from a structure, stored by previous version(s) of Horace
 %
-
+proj.do_check_combo_arg = false;
 if isfield(data_struct,'ulabel')
     data_struct.label = data_struct.ulabel;
 end
@@ -22,6 +22,7 @@ if use_u_to_rlu_transitional
 end
 % this has to be last operation, as it needs fully defined projection class
 if isfield(data_struct,'uoffset')
-    data_struct.img_offset = data_struct.uoffset;
+    proj.img_offset = data_struct.uoffset;
 end
-
+proj.do_check_combo_arg = true;
+proj = proj.check_combo_arg();
