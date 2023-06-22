@@ -26,6 +26,7 @@ classdef test_line_proj_methods<TestCase
             this.fake_sqw_par{1} = en;
             this.fake_sqw_par{2} = this.par_file;
         end
+
         %------------------------------------------------------------------
         function test_get_axes_block_nonortho(~)
             alatt = [2.83,2,3.83];
@@ -39,6 +40,75 @@ classdef test_line_proj_methods<TestCase
             assertTrue(ax.nonorthogonal)
             assertEqual(ax.unit_cell,[1,1,0,0;0,1,0,0;1,1,1,0;0,0,0,1]');
         end
+
+    end
+    %------------------------------------------------------------------
+    methods % Test offset
+        function test_get_set_img_offset_ppr_scales_hkl(~)
+            alatt = [2,2,2];
+            angdeg = 90;
+
+            pra = ortho_proj([1,-1,0],[1, 1,0],'alatt',alatt,'angdeg',angdeg);
+            assertEqual(pra.offset,zeros(1,4));
+            in_offset = [1,1,0,0];
+            pra.img_offset = [0,1,0,0];
+            assertElementsAlmostEqual(pra.img_offset,[0,1,0,0],'absolute',1.e-12);
+            assertElementsAlmostEqual(pra.offset,in_offset,'absolute',1.e-12);
+
+        end
+
+        function test_get_set_hkl_offset_ppr_scales(~)
+            alatt = [2,2,2];
+            angdeg = 90;
+
+            pra = ortho_proj([1,-1,0],[1, 1,0],'alatt',alatt,'angdeg',angdeg);
+            assertEqual(pra.offset,zeros(1,4));
+            in_offset = [1,1,0,0];
+            pra.offset = in_offset;
+            assertElementsAlmostEqual(pra.offset,in_offset,'absolute',1.e-12);
+
+            assertElementsAlmostEqual(pra.img_offset,[0,1,0,0],'absolute',1.e-12);
+
+        end
+
+        function test_set_img_offset_get_offset_scaled(~)
+            alatt = [1,2,3];
+            angdeg = 90;
+
+            pra = ortho_proj([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg,'type','aaa');
+            assertEqual(pra.offset,zeros(1,4));
+            in_offset = [1,1,0,0];
+            img_offset = in_offset.*(2*pi./[alatt,1]);
+            pra.img_offset = img_offset;
+
+            assertElementsAlmostEqual(pra.img_offset,img_offset,'absolute',1.e-12);
+            assertElementsAlmostEqual(pra.offset,in_offset,'absolute',1.e-12);
+        end
+
+        function test_set_offset_get_img_offset_scaled(~)
+            alatt = [1,2,3];
+            angdeg = 90;
+
+            pra = ortho_proj([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg,'type','aaa');
+            assertEqual(pra.offset,zeros(1,4));
+            in_offset = [1,1,0,0];
+            pra.offset = in_offset;
+            assertEqual(pra.offset,in_offset);
+            img_offset = in_offset.*(2*pi./[alatt,1]);
+
+            assertElementsAlmostEqual(pra.img_offset,img_offset,'absolute',1.e-12);
+        end
+
+        function test_img_offset_zero(~)
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+
+            pra = ortho_proj([1,1,0],[0, 1,0],'w',[1,1,1],'alatt',alatt,'angdeg',angdeg);
+            assertEqual(pra.offset,zeros(1,4));
+            assertEqual(pra.offset,pra.img_offset);
+        end
+    end
+    methods  % Bining ranges
         %------------------------------------------------------------------
         function test_bin_range_05_samp_proj2Drot45_3D_opt_vs4D_generic_withdE(~)
             % full 4D transformation with orthogonal dE axis tested against
@@ -354,7 +424,8 @@ classdef test_line_proj_methods<TestCase
             assertEqual(bl_start,1);
             assertEqual(bl_end,numel(npix));
         end
-        %
+    end
+    methods % CUT parts
         %------------------------------------------------------------------
         %
         function test_cut_dnd(this)
@@ -425,7 +496,7 @@ classdef test_line_proj_methods<TestCase
 
             pix = eye(4);
 
-            pra.disable_srce_to_targ_optimization = true;            
+            pra.disable_srce_to_targ_optimization = true;
             pra.targ_proj  = prb;
             pix_transf_gen = pra.from_this_to_targ_coord(pix);
 
@@ -458,12 +529,8 @@ classdef test_line_proj_methods<TestCase
             angdeg = [95,85,97];
             pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
             pix = eye(4);
-
             assertExceptionThrown(@()from_this_to_targ_coord(pra,pix),...
                 'HORACE:aProjectionBase:runtime_error');
-
         end
-
-
     end
 end

@@ -255,8 +255,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 0.18    0.13   0.1;...
                 0.1     0.07   0.1];
             assertElementsAlmostEqual(width,width_sample,'absolute',1.e-1);
-            assertEqualWithSave(obj,wcut);
-            assertEqualWithSave(obj,wpeak);
+            assertEqualWithSave(obj,wcut,1.e-12);
+            assertEqualWithSave(obj,wpeak,1.e-12);
         end
 
     end

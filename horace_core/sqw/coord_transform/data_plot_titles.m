@@ -73,12 +73,13 @@ for i=1:length(iax)
     iint_offset(iax(i))= iint_ave;  % overall displacement of plot volume image coordinate system
 end
 if ~isempty(proj) && isa(proj,"aProjectionBase")
-    iint_hkle = proj.tansform_img_to_hkl(iint_offset(:));
+    offset_tot = proj.tansform_img_to_hkl(iint_offset(:));
 else
     iint_hkle = data.u_to_rlu*iint_offset(:);
+    offset_tot= offset(:)' + iint_hkle(:)';    
 end
 % overal displacement of plot volume in hkle;
-offset_tot= offset(:)' + iint_hkle(:)';
+
 
 % Axes and integration titles
 % Character representations of input data

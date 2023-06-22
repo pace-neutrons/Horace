@@ -55,7 +55,7 @@ if any(is_positional)
             ' Looks like some keys from key-value pairs have been identified as property values'],...
             sum(is_positional),numel(positional_arg_names))
     end
-    pos_arg_val = argi(is_positional);
+    pos_arg_val   = argi(is_positional);
     pos_arg_names = positional_arg_names(1:numel(pos_arg_val));
     % Extract and set up positional arguments, which should always come
     % first
@@ -153,7 +153,7 @@ for i=1:numel(varargin)
         % character parameter may be a key for some property or character value
         % for a char positional parameter
 
-        % if char value starts with '-' its probablyt a key
+        % if char value starts with '-' its probabyt a key
         if ischar(obj.(key_list{i})) || isstring(obj.(key_list{i}))
             if strncmp(par,'-',1)
                 par = extractAfter(par,1);

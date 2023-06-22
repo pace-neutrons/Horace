@@ -44,6 +44,9 @@ classdef aProjectionBase < serializable
         %
         title % this method would allow change cut title if non-empty value
         %     % is provided to the projection, which defines title
+        %
+        img_offset; % Convenience property, providing/accepting the offset
+        %           % expressed in the image coodinate system
     end
     properties(Dependent,Hidden)
         % Internal properties, used by algorithms and better not to be
@@ -230,17 +233,37 @@ classdef aProjectionBase < serializable
         function obj=set.label(obj,val)
             obj = check_and_set_labels_(obj,val);
         end
-        %
-        function uoffset = get.offset(this)
-            uoffset = this.offset_;
+        %------------------------------------------------------------------
+        function offset = get.offset(obj)
+            offset = obj.offset_;
         end
         function obj = set.offset(obj,val)
-            obj = check_and_set_offset_(obj,val);
+            obj.offset_ = check_offset_(obj,val);
             if obj.do_check_combo_arg_ % does nothing here, but
                 % will recalculate caches in children
                 obj = obj.check_combo_arg();
             end
+        end
+        function uoffset = get.img_offset(obj)
+            % convert hkl offset into Crystal Cartesian
+            hkl_offset = obj.offset_(:);
+            % nullify internal offset to kill side effects of offset to
+            % pix->img transformation. Results are local anyway.
+            obj.offset = zeros(1,4);
+            pix_offset_cc = obj.bmatrix(4)*hkl_offset;
+            uoffset = (obj.transform_pix_to_img(pix_offset_cc))';
+        end
+        function obj = set.img_offset(obj,val)
+            % check common offset properties (shape, size) numeric value
+            % and set offset_ in invalid units
+            img_offset_ = check_offset_(obj,val);
+            obj.offset  = zeros(0,4); % nullify any previous offset
+            % to avoid side effects from transformations using public
+            % interface
 
+            % transform offset into hkl coordinate system and set it
+            % using public interface (check interdependent properties)
+            obj.offset  = (obj.transform_img_to_hkl(img_offset_(:)))';
         end
         %
         function tl = get.title(obj)

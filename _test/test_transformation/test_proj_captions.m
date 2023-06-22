@@ -113,9 +113,9 @@ classdef test_proj_captions<TestCase
             assertEqual(numel(title_pax),2);
             %assertEqual(title_pax{1},['[1+0.7071\zeta, 1-0.7071\zeta, 1] in 4.4429 ',char(197),'^{-1}']);
             % not sure it is better 
-            assertEqual(title_pax{1},['[2+\zeta, 2+\zeta, 2] in 4.4429 ',char(197),'^{-1}']);
+            assertEqual(title_pax{1},['[1+\zeta, 1+\zeta, 1] in 4.4429 ',char(197),'^{-1}']);
                 
-            assertEqual(title_pax{2},'[0, 0, 0, 2+E] (meV)'); % Re #954 why 0,0,0, why not 1,1,1,1+dE
+            assertEqual(title_pax{2},'[0, 0, 0, 1+E] (meV)'); % Re #954 why 0,0,0, why not 1,1,1,1+dE
 
             assertEqual(numel(title_iax),2);
             %assertEqual(title_iax{1},'-1 \leq \xi \leq 1 in [1+0.7071\xi, 1+0.7071\xi, 1]');
@@ -124,8 +124,8 @@ classdef test_proj_captions<TestCase
 
             assertEqual(numel(display_pax),2);
             %assertEqual(display_pax{1},'\zeta = -2:0.08:2 in [1+0.7071\zeta, 1-0.7071\zeta, 1]');
-            assertEqual(display_pax{1},'\zeta = -2:0.08:2 in [2+\zeta, 2+\zeta, 2]');
-            assertEqual(display_pax{2},'E = -5:0.625:20 in [0, 0, 0, 2+E]'); % Re #954 why 0, why not 1,1,1,1+dE
+            assertEqual(display_pax{1},'\zeta = -2:0.08:2 in [1+\zeta, 1+\zeta, 1]');
+            assertEqual(display_pax{2},'E = -5:0.625:20 in [0, 0, 0, 1+E]'); % Re #954 why 0, why not 1,1,1,1+dE
 
             assertEqual(numel(display_iax),2);
             %assertEqual(display_iax{1},'-1 =< \xi =< 1 in [1+0.7071\xi, 1+0.7071\xi, 1]');
