@@ -130,14 +130,13 @@ classdef test_serialise < TestCase
 
         %------------------------------------------------------------------
         function test_ser_pixdata(~)
-            skipTest('PixelData serialisation is not implemented yet')
             test_obj = PixelDataBase.create();
 
-            ser = hlp_serialise(test_obj);
-            test_obj_rec = hlp_deserialise(ser);
+            ser = serialise(test_obj);
+            test_obj_rec = deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
 
-            size = hlp_serial_sise(test_obj);
+            size = serial_size(test_obj);
             assertEqual(size,numel(ser));
         end
 

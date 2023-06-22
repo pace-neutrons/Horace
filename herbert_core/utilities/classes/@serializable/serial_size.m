@@ -23,6 +23,8 @@ function [nbytes, S] = serial_size (obj)
 %           the object using the "from_struct" method.
 
 S = to_struct (obj);
-nbytes = serial_size (S);   % calls utility function, not this method
+nbytes = serial_size (S) + 1;   % calls utility function, not this method
+% adds 1 as first byte of the serializable class would be serializable
+% class ID
 
 end

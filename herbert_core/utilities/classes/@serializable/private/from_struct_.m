@@ -72,23 +72,16 @@ else
     % has a different provenance e.g. came from an older format that predates
     % the use of serializable
     if isfield(S,'array_dat')
-        obj = repmat(obj,size(S.array_dat));
-        array_data = S.array_dat;
-        for i=1:numel(array_data)
-            obj(i).do_check_combo_arg = false;
-            obj(i) = obj(i).from_old_struct (array_data(i));
-            obj(i).do_check_combo_arg = true;
-            obj(i) = obj(i).check_combo_arg();
-        end
-    else
-        if numel(S)>1
-            obj = repmat(obj,size(S));
-        end
-        for i=1:numel(S)
-            obj(i).do_check_combo_arg = false;
-            obj(i) = obj(i).from_old_struct (S);
-            obj(i).do_check_combo_arg = true;
-            obj(i) = obj(i).check_combo_arg();
-        end
+        S = S.array_dat;
     end
+    if numel(S)>1
+        obj = repmat(obj,size(S));
+    end
+    for i=1:numel(S)
+        obj(i).do_check_combo_arg = false;
+        obj(i) = obj(i).from_old_struct (S(i));
+        obj(i).do_check_combo_arg = true;
+        obj(i) = obj(i).check_combo_arg();
+    end
+
 end
