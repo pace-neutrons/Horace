@@ -34,8 +34,8 @@ classdef test_axes_block_interpolation < TestCase
 
             ab_interp = ortho_axes(bin0{:});
             % define source and target coordinate systems
-            source_proj = ortho_proj([1,0,0],[0,1,0]);
-            targ_proj = ortho_proj([1/sqrt(2),1/sqrt(2),0],[1/sqrt(2),-1/sqrt(2),0]);
+            source_proj = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            targ_proj = ortho_proj([1/sqrt(2),1/sqrt(2),0],[1/sqrt(2),-1/sqrt(2),0],'alatt',1,'angdeg',90);
             si = ab_interp.interpolate_data(ab_base,source_proj,data,targ_proj);
 
             assertElementsAlmostEqual(si,data,'absolute',0.1)
@@ -59,8 +59,8 @@ classdef test_axes_block_interpolation < TestCase
 
             ab_interp = ortho_axes(bin0{:});
             % define source and target coordinate systems
-            source_proj = ortho_proj([1,0,0],[0,1,0]);
-            targ_proj = ortho_proj([1,0,0],[0,1,0]);
+            source_proj = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            targ_proj = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             si = ab_interp.interpolate_data(ab_base,source_proj,data,targ_proj );
 
             cs = size(si);
@@ -92,7 +92,7 @@ classdef test_axes_block_interpolation < TestCase
             % points
             %cs = size(si);
             %assertElementsAlmostEqual(si(1:cs(1)-1,1:cs(2)-1), ...
-                %    data(1:cs(1)-1,1:cs(2)-1),'absolute',1e-2)
+            %    data(1:cs(1)-1,1:cs(2)-1),'absolute',1e-2)
         end
         function test_interp_1D_frac_points_int_coeff(~)
             dbr = [0,-2,-3,0;pi,2,3,10];
@@ -138,20 +138,20 @@ classdef test_axes_block_interpolation < TestCase
 
             ab_interp = ortho_axes('img_range',dbr,'nbins_all_dims',[8,1,1,1]);
 
-            proj = ortho_proj();
+            proj = ortho_proj('alatt',1,'angdeg',90);
             si = ab_interp.interpolate_data(ab_base,proj ,data,proj );
 
             assertEqualToTol(sum(si),sum(data),1.e-12);
             %density= [0,0,1.25,7.5,1.25,0,0,0]; % This is the density
-            %distribution, but proper integration in centre-points recovers 
+            %distribution, but proper integration in centre-points recovers
             %the initial data
             assertElementsAlmostEqual(si,data')
 
 
             ab_interp = ortho_axes('img_range',dbr+0.5,'nbins_all_dims',[8,1,1,1]);
-            si = ab_interp.interpolate_data(ab_base,proj ,data,proj );            
-            sample= [0,0,5,5,0,0,0,0]; 
-            assertElementsAlmostEqual(si,sample')            
+            si = ab_interp.interpolate_data(ab_base,proj ,data,proj );
+            sample= [0,0,5,5,0,0,0,0];
+            assertElementsAlmostEqual(si,sample')
         end
         %
         function test_interp_1D_half_points_int_coeff(~)

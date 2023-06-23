@@ -21,7 +21,7 @@ classdef ortho_proj<aProjectionBase
     %
     %   >> proj = ortho_proj(...,'nonorthogonal',nonorthogonal,..)
     %   >> proj = ortho_proj(...,'type',type,...)
-    %   >> proj = ortho_proj(...,'uoffset',uoffset,...)
+    %   >> proj = ortho_proj(...,'offset',offset,...)
     %   >> proj = ortho_proj(...,'label',labelcellstr,...)
     %   >> proj = ortho_proj(...,'lab1',labelstr,...)
     %                   :
@@ -90,8 +90,6 @@ classdef ortho_proj<aProjectionBase
         % name schemes are used)
         u_to_rlu
 
-        % renamed offset projection property kept to support old interface
-        uoffset
         % Three properties below are responsible for support of old binary
         % file format and legacy alignment
         %
@@ -335,10 +333,6 @@ classdef ortho_proj<aProjectionBase
             obj.ub_inv_legacy_ = u_to_rlu;
         end
         %------------------------------------------------------------------
-        % OLD from new sqw object creation interface.
-        function off = get.uoffset(obj)
-            off = obj.offset';
-        end
         function str= get.compat_struct(obj)
             str = struct();
             flds = obj.data_sqw_dnd_export_list;
@@ -472,6 +466,11 @@ classdef ortho_proj<aProjectionBase
             % ulen     -- array of scales along the image axes used in the
             %             transformation
             %
+            if ~obj.alatt_defined||~obj.angdeg_defined
+                error('HORACE:ortho_proj:runtime_error', ...
+                    'Attempt to use coordinate transformations before lattice is defined. Define lattice parameters first')
+            end
+
             if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
                 pix = varargin{1};
                 if pix.is_misaligned
@@ -634,6 +633,9 @@ classdef ortho_proj<aProjectionBase
             % Set's up the transformation caches
             %
             wout = check_combo_arg_(w);
+            % check arguments, possibly related to image offset (if
+            % defined)
+            wout = check_combo_arg@aProjectionBase(wout);
         end        %------------------------------------------------------------------
         function ver  = classVersion(~)
             ver = 6;
@@ -687,6 +689,7 @@ classdef ortho_proj<aProjectionBase
                 is = eq_(obj,other_obj,nargout,names,varargin{:});
             end
         end
+        %
         function [nis,mess] = ne(obj,other_obj,varargin)
             % Non-equality operator expressed through equality operator
             %

@@ -21,8 +21,13 @@ if use_u_to_rlu_transitional
     proj = proj.set_from_data_mat(u_transf,data_struct.ulen(1:3));
 end
 % this has to be last operation, as it needs fully defined projection class
+% containing the lattice
 if isfield(data_struct,'uoffset')
     proj.img_offset = data_struct.uoffset;
 end
+if isfield(data_struct,'img_offset')
+    proj.img_offset = data_struct.img_offset;
+end
+
 proj.do_check_combo_arg = true;
 proj = proj.check_combo_arg();

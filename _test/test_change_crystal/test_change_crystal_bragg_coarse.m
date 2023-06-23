@@ -40,8 +40,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             %
             hpc = hpc_config;
             obj.hpc_restore = hpc.get_data_to_store;
-            hpc.build_sqw_in_parallel=0;
-            hpc.combine_sqw_using = 'mex_code';
+            hpc.saveable = false;
 
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
@@ -58,24 +57,13 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             %
             obj.save();
         end
-        function delete(obj)
-            %
-            set(hpc_config,obj.hpc_restore);
-
-            ws = warning('off','MATLAB:DELETE:Permission');
-
-            delete(obj.misaligned_sqw_file);
-
-            % Delete temporary nxs files
-            for i=1:numel(obj.nxs_file)
-                try
-                    delete(obj.nxs_file{i})
-                catch
-                end
-            end
-            warning(ws);
+        function setUp(~)
+            hpc = hpc_config;
+            hpc.saveable = false;
+            hpc.build_sqw_in_parallel=0;
+            hpc.combine_sqw_using = 'mex_code';
         end
-
+        %
         function test_u_alighnment_tf_way(obj)
             % Fit Bragg peak positions
             % ------------------------
@@ -98,7 +86,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 0.0372,-0.9999, 0.0521;...
                 0.9200, 2.0328,-0.1568;...
                 0.1047,-0.9425, 1.0459];
-            
+
 
             half_len=0.5; half_thick=0.25; bin_width=0.025;
 
@@ -218,7 +206,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             ranges = {[cr(1,1),0.05,cr(2,1)],[cr(1,2),0.1,cr(2,2)],[cr(1,3),0.1,cr(2,3)],[cr(1,4),0.1,cr(2,4)]};
             cut_old = cut(wout_legacy,proj_leg,ranges{:});
             cut_new = cut(wout_align,proj_leg,ranges{:});
-            
+
             assertEqual(cut_old.experiment_info.n_runs, ...
                 cut_new.experiment_info.n_runs)
             % old alignment changes the direction of cu,cv components and
@@ -255,8 +243,28 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                 0.18    0.13   0.1;...
                 0.1     0.07   0.1];
             assertElementsAlmostEqual(width,width_sample,'absolute',1.e-1);
-            assertEqualWithSave(obj,wcut,1.e-12);
-            assertEqualWithSave(obj,wpeak,1.e-12);
+            assertEqualToTolWithSave(obj,wcut,1.e-12);
+            assertEqualToTolWithSave(obj,wpeak,1.e-12);
+        end
+        %------------------------------------------------------------------
+        function delete(obj)
+            %
+            hpc = hpc_config;
+            set(hpc,obj.hpc_restore);
+            hpc.saveable = true;
+
+            ws = warning('off','MATLAB:DELETE:Permission');
+
+            delete(obj.misaligned_sqw_file);
+
+            % Delete temporary nxs files
+            for i=1:numel(obj.nxs_file)
+                try
+                    delete(obj.nxs_file{i})
+                catch
+                end
+            end
+            warning(ws);
         end
 
     end

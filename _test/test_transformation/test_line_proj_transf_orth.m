@@ -838,7 +838,7 @@ classdef test_line_proj_transf_orth<TestCase
         %
         function test_transform_to_img_and_back_reverts_noprojaxis(~)
             pix = ones(4,5);
-            proj = ortho_proj();
+            proj = ortho_proj('alatt',1,'angdeg',90);
             pix_transf = proj.transform_pix_to_img(pix);
             assertEqual(size(pix_transf),[4,5]);
             pix_rec = proj.transform_img_to_pix(pix_transf);

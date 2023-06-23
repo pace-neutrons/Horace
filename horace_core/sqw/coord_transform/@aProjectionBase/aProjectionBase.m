@@ -92,6 +92,9 @@ classdef aProjectionBase < serializable
         alatt_defined
         % returns true if lattice angles have been set up
         angdeg_defined
+        % old interface to img_offset for old scripts accepting a
+        % structure, containign this value
+        uoffset
     end
 
     properties(Constant, Access=protected)
@@ -137,6 +140,10 @@ classdef aProjectionBase < serializable
         % algorithmically simpler so actively used in tests.
         do_3D_transformation_ = true;
         %------------------------------------------------------------------
+        % temporary variable used to keep img_offset if one is set to the
+        % projection, until hkl offset can be properly calculated (lattice
+        % and coordinate transformations are fully defined)
+        tmp_img_offset_holder_ = [];
     end
     %======================================================================
     % ACCESSORS AND CONSTRUCTION
@@ -239,6 +246,8 @@ classdef aProjectionBase < serializable
         end
         function obj = set.offset(obj,val)
             obj.offset_ = check_offset_(obj,val);
+            obj.tmp_img_offset_holder_ = []; % just in case if you set up 
+            % one and then another but reconsiliation have not happened yet
             if obj.do_check_combo_arg_ % does nothing here, but
                 % will recalculate caches in children
                 obj = obj.check_combo_arg();
@@ -246,6 +255,14 @@ classdef aProjectionBase < serializable
         end
         function uoffset = get.img_offset(obj)
             % convert hkl offset into Crystal Cartesian
+            if ~isempty(obj.tmp_img_offset_holder_)
+                uoffset = obj.tmp_img_offset_holder_;
+                return;
+            end
+            if ~obj.alatt_defined || ~obj.angdeg_defined
+                uoffset = [];
+                return;
+            end
             hkl_offset = obj.offset_(:);
             % nullify internal offset to kill side effects of offset to
             % pix->img transformation. Results are local anyway.
@@ -256,14 +273,10 @@ classdef aProjectionBase < serializable
         function obj = set.img_offset(obj,val)
             % check common offset properties (shape, size) numeric value
             % and set offset_ in invalid units
-            img_offset_ = check_offset_(obj,val);
-            obj.offset  = zeros(0,4); % nullify any previous offset
-            % to avoid side effects from transformations using public
-            % interface
-
-            % transform offset into hkl coordinate system and set it
-            % using public interface (check interdependent properties)
-            obj.offset  = (obj.transform_img_to_hkl(img_offset_(:)))';
+            obj.tmp_img_offset_holder_ = check_offset_(obj,val);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
         %
         function tl = get.title(obj)
@@ -288,6 +301,11 @@ classdef aProjectionBase < serializable
             %         rather then 3x3 standard matrix, with unit expansion
             %         to forth dimension (e.g. add rows/columnth with 0
             %         except 1 as 4th element of diagonal.
+            if ~obj.alatt_defined||~obj.angdeg_defined
+                error('HORACE:aProjectionBase:runtime_error', ...
+                    'Attempt to use coordinate transformations before lattice parameters are defined. Define lattice parametes first')
+            end
+
             bm = bmatrix(obj.alatt,obj.angdeg);
             if nargin == 2 && ndim == 4
                 bm4 = eye(4);
@@ -343,6 +361,13 @@ classdef aProjectionBase < serializable
         end
         function def = get.angdeg_defined(obj)
             def = obj.lattice_defined_(2);
+        end
+        % OLD sqw object creation interface.
+        function off = get.uoffset(obj)
+            off = obj.img_offset;
+        end
+        function obj = set.uoffset(obj,val)
+            obj.img_offset = val;
         end
     end
     %======================================================================
@@ -867,6 +892,22 @@ classdef aProjectionBase < serializable
             flds = {'alatt','angdeg','offset','label'};
             if ~isempty(obj.title)
                 flds = [flds(:);'title']';
+            end
+        end
+        % validation
+        function obj = check_combo_arg (obj)
+            % check if the img_offset has been set and transform it into
+            % hkl offset if all necessary class properties are defined
+            if ~isempty(obj.tmp_img_offset_holder_) && obj.alatt_defined && obj.angdeg_defined
+                img_offset_ = obj.tmp_img_offset_holder_(:);
+                obj.offset  = zeros(0,4); % nullify any previous offset
+                % to avoid side effects from transformations using public
+                % interface
+
+                % transform offset into hkl coordinate system and set it
+                % using public interface (check interdependent properties)
+                obj.offset  = (obj.transform_img_to_hkl(img_offset_))';
+                obj.tmp_img_offset_holder_ = [];
             end
         end
     end

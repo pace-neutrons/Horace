@@ -30,7 +30,6 @@ classdef test_change_crystal_bragg_fine < TestCase
             obj.sim_sqw_file_corr=fullfile(dir_out,'test_change_crystal_bragg_fine_sim_corr.sqw'); % output file for correction
             hp = hpc_config;
             obj.hpc_config_data = hp.get_data_to_store();
-            hp.combine_sqw_using = 'mex_code';
 
 
             % Data for creation of test sqw file
@@ -81,6 +80,13 @@ classdef test_change_crystal_bragg_fine < TestCase
                 end
             end
         end
+        function setUp(~)
+            hpc = hpc_config;
+            hpc.saveable = false;
+            hpc.build_sqw_in_parallel=0;
+            hpc.combine_sqw_using = 'mex_code';
+        end
+
         function test_alignment_from_bragg_peaks(obj)
             % Fit Bragg peak positions
             % ------------------------
@@ -120,7 +126,7 @@ classdef test_change_crystal_bragg_fine < TestCase
             assertTrue(max(abs(rlu0_corr(:)-rlu(:)))<=obj.qfwhh, ...
                 'Problem in refinement of crystal orientation and lattice parameters')
         end
-        
+
         function test_get_bragg_peaks(obj)
             % Fit Bragg peak positions
             % ------------------------
@@ -153,7 +159,10 @@ classdef test_change_crystal_bragg_fine < TestCase
         function delete(obj)
             %
             % restore old hpc configuration
-            set(hpc_config,obj.hpc_config_data);
+            hpc = hpc_config;
+            set(hpc,obj.hpc_restore);
+            hpc.saveable = true;
+
 
             ws = warning('off','MATLAB:DELETE:Permission');
 

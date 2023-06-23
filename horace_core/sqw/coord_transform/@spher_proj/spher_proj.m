@@ -86,7 +86,7 @@ classdef spher_proj<aProjectionBase
                     obj = obj.from_bare_struct(varargin{1});
                 end
             else
-                opt =  [ortho_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
+                opt =  [spher_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
                     opt,false,varargin{:});
@@ -230,6 +230,7 @@ classdef spher_proj<aProjectionBase
             % successful
             %
             obj = check_combo_arg_(obj);
+            obj = check_combo_arg@aProjectionBase(obj);            
         end
         %------------------------------------------------------------------
         function ver  = classVersion(~)
@@ -250,7 +251,5 @@ classdef spher_proj<aProjectionBase
             obj = spher_proj();
             obj = loadobj@serializable(S,obj);
         end
-    end
-    methods(Access=protected)
     end
 end

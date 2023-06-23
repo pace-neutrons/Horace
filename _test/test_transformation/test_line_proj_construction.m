@@ -14,6 +14,39 @@ classdef test_line_proj_construction<TestCase
             end
             this=this@TestCase(name);
         end
+        function test_no_lattice_uoffset_hangs_before_lattice_defined(~)
+            proj = ortho_proj([1,0,0],[0,1,0],...
+                'angdeg',90);
+            proj.img_offset = [1,1,0,0];
+            assertEqual(proj.img_offset,[1,1,0,0]);
+            assertEqual(proj.offset,[0,0,0,0]);
+            proj.alatt = 2;
+            assertElementsAlmostEqual(proj.img_offset,proj.offset);
+        end
+        function test_no_lattice_not_calculated_before_lattice_defined(~)
+            proj = ortho_proj([1,0,0],[0,1,0],...
+                'alatt',[2,3,4]);
+            proj.offset = [1,1,0,0];
+            assertTrue(isempty(proj.img_offset));
+            proj.angdeg = 90;
+            assertElementsAlmostEqual(proj.img_offset,proj.offset);
+        end
+
+        function test_no_lattice_throws_on_acces_to_transf(~)
+            proj = ortho_proj([1,0,0],[0,1,0],...
+                'alatt',[2,3,4],'type','aaa',...
+                'w',[0,0,1]);
+            assertExceptionThrown(@()transform_pix_to_img(proj,ones(4,1)), ...
+                'HORACE:ortho_proj:runtime_error');
+        end
+
+        function test_no_lattice_throws_on_b_matrix(~)
+            proj = ortho_proj([1,0,0],[0,1,0],...
+                'alatt',[2,3,4],'type','aaa',...
+                'w',[0,0,1]);
+            assertExceptionThrown(@()bmatrix(proj), ...
+                'HORACE:aProjectionBase:runtime_error');
+        end
 
         function test_constructor_keys_overrides_positional(~)
             proj = ortho_proj([1,0,0],[0,1,0],...
@@ -115,6 +148,8 @@ classdef test_line_proj_construction<TestCase
             assertElementsAlmostEqual(proj.offset,[0,0,0,0])
             assertEqual(proj.type,'aaa')
             full_box = expand_box([0,0,0,0],[1,1,1,1]);
+            proj.alatt = 1;
+            proj.angdeg = 90;
             pixi = proj.transform_pix_to_img(full_box );
             assertElementsAlmostEqual(full_box,pixi);
             pixp = proj.transform_img_to_pix(pixi);
