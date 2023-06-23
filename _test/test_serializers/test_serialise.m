@@ -132,12 +132,22 @@ classdef test_serialise < TestCase
         function test_ser_pixdata(~)
             test_obj = PixelDataBase.create();
 
-            ser = serialise(test_obj);
-            test_obj_rec = deserialise(ser);
+            ser = serialize(test_obj);
+            test_obj_rec = serializable.deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
 
             size = serial_size(test_obj);
             assertEqual(size,numel(ser));
+
+            ser = serialise(test_obj);
+            test_obj_rec = deserialise(ser);
+            assertEqual(test_obj, test_obj_rec)
+
+            size2 = serialise_size(test_obj);
+            assertEqual(size2,numel(ser));
+
+            assertEqual(size2,size+1);
+            
         end
 
         % Test null
