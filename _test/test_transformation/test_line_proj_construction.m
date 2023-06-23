@@ -48,7 +48,7 @@ classdef test_line_proj_construction<TestCase
                 'HORACE:aProjectionBase:runtime_error');
         end
 
-        function test_constructor_keys_overrides_positional(~)
+        function test_constructor_keys_overrides_positional_argument(~)
             proj = ortho_proj([1,0,0],[0,1,0],...
                 'alatt',[2,3,4],'type','aaa','nonorthogonal',true,...
                 'w',[0,0,1]);
@@ -96,7 +96,7 @@ classdef test_line_proj_construction<TestCase
                 'Input can not be a 0-vector: [0,0,0] with all components smaller then tol = 1e-12')
         end
 
-        function test_incorrect_constructor_throws_on_positional(~)
+        function test_incorrect_constructor_throws_on_positional_argument(~)
             err= assertExceptionThrown(...
                 @()ortho_proj([1,0,0],1,'alatt',[2,3,4],'angdeg',[80,70,85]),...
                 'HORACE:aProjectionBase:invalid_argument');
@@ -104,7 +104,7 @@ classdef test_line_proj_construction<TestCase
                 'Input should be non-zero length numeric vector with 3 components. It is: "1"')
         end
 
-        function test_incorrect_constructor_throws_on_combo(~)
+        function test_incorrect_constructor_throws_on_combo_check(~)
             assertExceptionThrown(...
                 @()ortho_proj([1,0,0],[1,0,0],'alatt',[2,3,4],'angdeg',[80,70,85]),...
                 'HORACE:ortho_proj:invalid_argument');
@@ -121,7 +121,7 @@ classdef test_line_proj_construction<TestCase
         end
 
 
-        function test_set_wrong_u(~)
+        function test_set_collinear_u_throws(~)
             proj = ortho_proj([1,0,0],[0,1,0],'alatt',[2,3,4],'angdeg',[80,70,85]);
             function test_wrong()
                 proj.u = [0,1,0];
@@ -156,7 +156,7 @@ classdef test_line_proj_construction<TestCase
             assertElementsAlmostEqual(full_box,pixp);
         end
         %
-        function test_invalid_constructor_throw(~)
+        function test_invalid_constructor_throws(~)
             f = @()ortho_proj([0,1,0]);
             assertExceptionThrown(f,'HORACE:ortho_proj:invalid_argument');
         end
@@ -267,9 +267,9 @@ classdef test_line_proj_construction<TestCase
             ax = ortho_axes.get_from_old_data(data);
             proj = ortho_proj.get_from_old_data(data);
 
-            do = DnDBase.dnd(ax,proj);
+            dobj = DnDBase.dnd(ax,proj);
 
-            proj1=do.proj;
+            proj1=dobj.proj;
             pp = proj1.transform_pix_to_img([eye(3),[1;1;1]]);
             p_ref =[...
                 0.2274   -0.2274    0.0000    0.0000;...
@@ -290,8 +290,8 @@ classdef test_line_proj_construction<TestCase
             data.u_to_rlu = ...
                 [1, 0.3216,      0, 0;...
                 -1, 0.3216,      0, 0;...
-                00,      0, 0.4549, 0;...
-                00,      0,      0, 1];
+                +0,      0, 0.4549, 0;...
+                +0,      0,      0, 1];
             data.uoffset = [1,1,0,0];      %(4x1)
             data.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
             data.ulen = [3.1091;1;1;1];
@@ -309,7 +309,7 @@ classdef test_line_proj_construction<TestCase
             p_ref =[...
                 -0.7726   -1.2274   -1.0000   -1.0000;...
                 -0.2929   -0.2929   -1.0000    0.4142;...
-                +     0         0    1.0000    1.0000];
+                +0         0         1.0000    1.0000];
             assertElementsAlmostEqual(pp,p_ref,'absolute',1.e-4);
             opt = ortho_projTester(proj1);
 
@@ -411,8 +411,6 @@ classdef test_line_proj_construction<TestCase
             tpixo = proj0.transform_pix_to_img(pix_cc);
             tpixr = projr.transform_pix_to_img(pix_cc);
             assertElementsAlmostEqual(tpixo,tpixr);
-
-
         end
 
         function test_get_projection_from_legacy_sqw_data(~)
@@ -441,7 +439,6 @@ classdef test_line_proj_construction<TestCase
             tpixo = proj0.transform_pix_to_img(pix_cc);
             tpixr = projr.transform_pix_to_img(pix_cc);
             assertElementsAlmostEqual(tpixo,tpixr);
-
         end
     end
 end

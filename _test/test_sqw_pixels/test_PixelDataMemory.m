@@ -39,7 +39,7 @@ classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
             df_rec = serializable.from_struct(df_struc);
             assertEqual(df,df_rec);
         end
-        %
+        %------------------------------------------------------------------
         %
         function test_data_constructor(~)
             pdm = PixelDataMemory(ones(9,20));

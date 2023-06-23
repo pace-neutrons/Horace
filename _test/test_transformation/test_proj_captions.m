@@ -9,16 +9,16 @@ classdef test_proj_captions<TestCase
         function this=test_proj_captions(name)
             this=this@TestCase(name);
             %sqw/dnd data structure with fields used in caption
-            range = ones(2,4);
-            range(1,1) = -2;
-            range(2,1) =  2;
-            range(1,2) = -range(2,2);
-            range(1,3) = -range(2,3);
+            obj_range = ones(2,4);
+            obj_range(1,1) = -2;
+            obj_range(2,1) =  2;
+            obj_range(1,2) = -obj_range(2,2);
+            obj_range(1,3) = -obj_range(2,3);
 
-            range(1,4) = -5;
-            range(2,4) = 20;
+            obj_range(1,4) = -5;
+            obj_range(2,4) = 20;
             proj  = ortho_proj('alatt',2,'angdeg',90,'u',[1,1,0],'v',[-1,1,0]);                        
-            ab = ortho_axes('img_range',range,'nbins_all_dims',[50,1,1,40]);
+            ab = ortho_axes('img_range',obj_range,'nbins_all_dims',[50,1,1,40]);
             [~,~,ulen]  = proj.get_pix_img_transformation(3);
             ab.ulen  = ulen;
 

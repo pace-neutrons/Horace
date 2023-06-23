@@ -67,5 +67,5 @@ function out_str = check_dash(in_str)
 if strncmp(in_str,'-',1)
     out_str = in_str;
 else
-    out_str =strjoin({'-',in_str},'');
+    out_str =['-',in_str];
 end

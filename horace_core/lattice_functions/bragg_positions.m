@@ -119,10 +119,10 @@ end
 % Fit Peaks
 % ---------
 % Initialise output arguments
-szrlu = size(rlu);
-rlu0=zeros(szrlu );
-width=zeros(szrlu);
-npeaks=size(rlu,1);
+szrlu  = size(rlu);
+rlu0   = zeros(szrlu );
+width  = zeros(szrlu);
+npeaks = szrlu(1);
 wcut=repmat(IX_dataset_1d,npeaks,3);
 wpeak=repmat(IX_dataset_1d,npeaks,3);
 
@@ -214,7 +214,7 @@ for i=1:size(rlu,1)
 
     % Convert peak position into r.l.u.
     if all(isfinite(upos0))
-        %TODO:  Re #825 Optimization possible 
+        %TODO:  Re #825 Optimization possible
         upos_cc = proj.transform_img_to_pix(upos0(:));
         rlu0(i,:)= (B\upos_cc(:))';
     else
@@ -282,32 +282,33 @@ if size(rlu,2)~=3 || npeaks==0
 end
 
 % Get cut binning and integration for each projection axes
-if ~isscalar(radial_cut_length) || ~isnumeric(radial_cut_length) || radial_cut_length<=0
+is_positive_scalar = @(x) isscalar(x) && isnumeric(x) && x > 0;
+if ~is_positive_scalar(radial_cut_length)
     error('HORACE:lattice_functions:invalid_argument',...
         'Radial cut length must be a positive number greater than zero. It is: %s', ...
         disp2str(radial_cut_length))
 end
-if ~isscalar(radial_bin_width) || ~isnumeric(radial_bin_width) || radial_bin_width<=0
+if ~is_positive_scalar(radial_bin_width)
     error('HORACE:lattice_functions:invalid_argument',...
         'Radial bin width must be a positive number greater than zero. It is: %s', ...
         disp2str(radial_bin_width))
 end
-if ~isscalar(radial_thickness) || ~isnumeric(radial_thickness) || radial_thickness<=0
+if ~is_positive_scalar(radial_thickness)
     error('HORACE:lattice_functions:invalid_argument',...
         'Radial thickness must be a positive number greater than zero. It is: %s', ...
         disp2str(radial_thickness))
 end
-if ~isscalar(trans_cut_length) || ~isnumeric(trans_cut_length) || trans_cut_length<=0
+if ~is_positive_scalar(trans_cut_length)
     error('HORACE:lattice_functions:invalid_argument',...
         'Transverse cut length is a positive number greater than zero. It is: %s', ...
         disp2str(trans_cut_length))
 end
-if ~isscalar(trans_bin_width) || ~isnumeric(trans_bin_width) || trans_bin_width<=0
+if ~is_positive_scalar(trans_bin_width)
     error('HORACE:lattice_functions:invalid_argument',...
         'Transverse bin width bust be a positive number greater than zero. It is: %s', ...
         disp2str(trans_bin_width))
 end
-if ~isscalar(trans_thickness) || ~isnumeric(trans_thickness) || trans_thickness<=0
+if ~is_positive_scalar(trans_thickness)
     error('HORACE:lattice_functions:invalid_argument',...
         'Transverse thickness must be a positive number greater than zero. It is: %s', ...
         disp2str(trans_thickness))
@@ -315,7 +316,7 @@ end
 
 % Parse parameters:
 arglist = struct('bin_relative',0,'bin_absolute',0,'inner',0,'outer',0,'gaussian',0);
-flags = {'bin_relative','bin_absolute','inner','outer','gaussian'};
+flags = fieldnames(arglist);
 [args,opt] = parse_arguments(varargin,arglist,flags);
 if numel(args)>1
     error('HORACE:lattice_functions:invalid_argument',...
@@ -355,7 +356,7 @@ optsum=(opt.inner+opt.outer+opt.gaussian);
 if optsum==0
     opt.outer=true;
 elseif optsum~=1
-    error( ...
+    error('HORACE:lattice_functions:invalid_argument', ...
         'Incorrect peak options: %s', ...
         disp2str(optsum))
 end
@@ -369,6 +370,7 @@ elseif opt.outer
 elseif opt.gaussian
     gau=true;
 else
-    error('Logic problem - see T.G.Perring')
+    error('HORACE:lattice_functions:runtime_error', ...
+        'Logic problem - see T.G.Perring')
 end
 

@@ -160,7 +160,7 @@ classdef test_change_crystal_bragg_fine < TestCase
             %
             % restore old hpc configuration
             hpc = hpc_config;
-            set(hpc,obj.hpc_restore);
+            set(hpc,obj.hpc_config_data);
             hpc.saveable = true;
 
 

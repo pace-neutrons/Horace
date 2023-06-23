@@ -1,4 +1,4 @@
-function wout = change_crystal (obj,alignment_info)
+function wout = change_crystal (obj,alignment_info,varargin)
 % Change the crystal lattice and orientation of an sqw object or array of objects
 %
 %
@@ -30,8 +30,8 @@ function wout = change_crystal (obj,alignment_info)
 
 if ~isa(alignment_info,'crystal_alignment_info') || nargin>2
     error('HORACE:sqw:invalid_argument',...
-        ['Old interface to modify the crystal alighnment is deprecated.\n', ...
-        ' Use crystal_alignment_info class obtained from "refine_crystal" routine to realign crystal.\n', ...
+        ['Old interface to modify the crystal alignment is deprecated.\n', ...
+        ' Use crystal_alignment_info object obtained from "refine_crystal" routine to realign crystal.\n', ...
         ' Call >>help refine_crystal for the details']);
 end
 
@@ -41,7 +41,7 @@ end
 wout = obj;
 
 for i=1:numel(obj)
-    proj = obj(i).data.proj;    % undmodified projection to change
+    proj = obj(i).data.proj;    % unmodified projection to change
     if ~isempty(proj.ub_inv_legacy)
         alignment_info.legacy_mode = true;
     end
@@ -49,6 +49,8 @@ for i=1:numel(obj)
     wout(i).experiment_info = obj(i).experiment_info.change_crystal(alignment_info,proj);
     %
     if ~alignment_info.legacy_mode
+        % this invalidates q-range of pixels for filebacked pixels and
+        % recalculates it for memory-based pixels
         wout(i).pix.alignment_matr = alignment_info.rotmat;
     end
 end

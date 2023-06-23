@@ -31,7 +31,7 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
             assertEqual(pdm.q_coordinates,ref_data)
             assertEqual(pdm.coordinates,[ref_data;[0,0,0,1,1]]);
         end
-        
+
 
         function test_pix_alignment_set_filebacked_ranges(~)
             pix_data = zeros(9,6);
@@ -41,10 +41,12 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             initial_range = pdf.data_range;
 
-            % this actually changes pixel_data_range!
+
             al_matr = rotvec_to_rotmat2([pi/4,0,0]);
+            % this actually changes pixel_data_range, as actual pixel
+            % coordinate change
             pdf.alignment_matr = al_matr ;
-            assertTrue(pdf.is_misaligned);            
+            assertTrue(pdf.is_misaligned);
 
             ref_al_data = al_matr*pix_data(1:3,:);
             ref_data = pix_data;
@@ -94,8 +96,9 @@ classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
 
             initial_range = pdm.data_range;
 
-            % this actually changes pixel_data_range!
             al_matr = rotvec_to_rotmat2([pi/4,0,0]);
+            % this actually changes pixel_data_range, as actual pixel
+            % coordinate change
             pdm.alignment_matr = al_matr;
 
             assertTrue(pdm.is_misaligned);

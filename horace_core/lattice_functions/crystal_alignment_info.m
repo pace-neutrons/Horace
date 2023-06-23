@@ -49,13 +49,9 @@ classdef crystal_alignment_info < serializable
         legacy_mode = false;
     end
     properties(Access = protected)
-        alatt_ = ones(1,3)/pi % Refined lattice parameters [a,b,c] (Angstroms)
-        angdeg_ =ones(1,3)*90; % Refined lattice angles [alf,bet,gam] (degrees)
+        alatt_  = [1/pi,1/pi,1/pi]  % Refined lattice parameters [a,b,c] (Angstroms)
+        angdeg_ = [90,90,90]; % Refined lattice angles [alf,bet,gam] (degrees)
         rotmat_ = eye(3) % Rotation matrix that relates crystal Cartesian coordinate
-        lattice0_ = [ones(1,3)/pi,ones(1,3)*90];
-        %        frame of the refined lattice and orientation as a rotation
-        %        of the initial crystal frame. Coordinates
-        %        are related by:   v(i)= rotmat(i,j)*v0(j)
 
         distance_ = [];% Distances between peak positions and points given by true indexes, in input
         %          argument rlu, in the refined crystal lattice. (Ang^-1)
@@ -100,7 +96,7 @@ classdef crystal_alignment_info < serializable
             vec = obj.rotvec_;
         end
         function ang = get.rotangle(obj)
-            ang =norm(obj.rotvec)*(180/pi);
+            ang =rad2deg(norm(obj.rotvec));
         end
         %------------------------------------------------------------------
         function obj = set.alatt(obj,val)
@@ -187,7 +183,7 @@ classdef crystal_alignment_info < serializable
                 legacy_mode_ = true;
             else
                 error('HORACE:lattice_functions:invalid_argument', ...
-                    'Method accepts either ortho_proj class, or two-element initial lattice parameters vector.\n Provided: %s', ...
+                    'Method accepts either ortho_proj class instance, or two-element initial lattice parameters vector.\n Provided: %s', ...
                     disp2str(varargin));
             end
 

@@ -83,10 +83,10 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
         function delete(obj)
             warning(obj.warning_cache);
             hc = hor_config;
-            hc.saveable = true;
             if ~isempty(obj.initial_mem_chunk_size)
                 hc.mem_chunk_size = obj.initial_mem_chunk_size;
             end
+            hc.saveable = true;
         end
 
         % --- Tests for in-memory operations ---
@@ -1148,7 +1148,7 @@ classdef test_PixelDataBase < TestCase & common_pix_class_state_holder
             hc = hor_config;
             hc.mem_chunk_size = npix;
             clob = onCleanup(@()clear_config(obj,hc));
-            
+
 
             pix = PixelDataFileBacked(data);
             pix_range = [min(data(1:4, :), [], 2), ...

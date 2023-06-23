@@ -1,17 +1,15 @@
-function alighment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
+function aligment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 % Refine crystal orientation and lattice parameters
 %
-%   >> alighment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu)
-%   >> alighment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu, alatt_init, angdeg_init)
+%   >> aligment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu)
+%   >> aligment_info = refine_crystal(rlu0, alatt0, angdeg0, rlu, alatt_init, angdeg_init)
 %
 % In addition, there are keyword arguments to control the refinement e.g.
-%   >> alighment_info = refine_crystal(..., 'fix_angdeg')
-%   >> alighment_info = refine_crystal(..., 'free_alatt', [1,0,1])
+%   >> aligment_info = refine_crystal(..., 'fix_angdeg')
+%   >> aligment_info = refine_crystal(..., 'free_alatt', [1,0,1])
 %
-% In all cases, further output arguments can be returned:
-%   >> [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(...)
 %
-% This function is used to get a matrix that relates the coordinates of a vector (h0,k0,l0)
+% This function is used to get the information necessary to relate the coordinates of a vector (h0,k0,l0)
 % as expressed in an initial or reference lattice to the coordinates (h,k,l) in the true lattice.
 % It does this by taking a set of points (h0,k0,l0) and the corresponding set of true indices
 % (h,k,l), and refining the lattice parameters and orientation. The refined lattice parameters
@@ -26,22 +24,22 @@ function alighment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 %                   (n x 3 matrix, n=no. reflections)
 %   alatt0          Reference lattice parameters [a,b,c] (Angstroms), which
 %                   would provide bragg peaks at rlu0
-%   angdeg0         Reference lattice angles [alf,bet,gam] (deg), which
+%   angdeg0         Reference lattice angles [alph,bet,gam] (deg), which
 %                   would provide bragg peaks at rlu0
 %   rlu             True indexes of reciprocal lattice vectors (n x 3 matrix)
 %
 % Optional input parameter:
 %   alatt_init     Initial lattice parameters for start of refinement [a,b,c] (Angstroms)
-%   angdeg_init    Initial lattice angles for start of refinement [alf,bet,gam] (deg)
+%   angdeg_init    Initial lattice angles for start of refinement [alph,bet,gam] (deg)
 %                  If one or both of alatt_init and angdeg_init are not given, then the corresponding
 %                  reference lattice parameters are taken as the initial values for refinement.
 %
 % Keywords (more than one is permitted if not inconsistent)
-%   fix_lattice     Fix all lattice parameters [a,b,c,alf,bet,gam]
+%   fix_lattice     Fix all lattice parameters [a,b,c,alph,bet,gam]
 %                   i.e. only allow crystal orientation to be refined
-%   fix_alatt       Fix [a,b,c] but allow lattice angles alf, bet and gam to be refined
+%   fix_alatt       Fix [a,b,c] but allow lattice angles alph, bet and gam to be refined
 %                   together with crystal orientation
-%   fix_angdeg      Fix [alf,bet,gam] but allow lattice parameters [a,b,c] to be refined
+%   fix_angdeg      Fix [alph,bet,gam] but allow lattice parameters [a,b,c] to be refined
 %                   together with crystal orientation
 %   fix_alatt_ratio Fix the ratio of the lattice parameters as given by the values in
 %                   lattice_init, but allow the overall scale of the lattice to be refined
@@ -52,7 +50,7 @@ function alighment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 %   free_alatt      Array length 3 of zeros or ones, 1=free, 0=fixed
 %                   e.g. ...,'free_alatt',[1,0,1],... allows only lattice parameter b to vary
 %   free_angdeg     Array length 3 of zeros or ones, 1=free, 0=fixed
-%                   e.g. ...,'free_lattice',[1,1,0],... fixes lattice angle gam buts allows alf and bet to vary
+%                   e.g. ...,'free_lattice',[1,1,0],... fixes lattice angle gam buts allows alph and bet to vary
 %   bind_alatt      Cell array of cell arrays following multifit convention of fixing the ratio of one lattice
 %                   parameter to another, e.g. fix the ratio of a and b to be 1, but have c independent: {{2,1}}
 %                   IMPORTANT - YOU MUST USE THIS ARGUMENT IN CONJUNCTION
@@ -64,11 +62,11 @@ function alighment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 % Output:
 % -------
 %  alighment_info  -- helper class, which contains information, necessary
-%                  for the crystal alignment. The class contains the
-%                  following fields, calculated by the procedure:
+%                     for the crystal alignment. The class contains the
+%                     following fields, calculated by the procedure:
 %
 %      alatt          Refined lattice parameters [a,b,c] (Angstroms)
-%      angdeg         Refined lattice angles [alf,bet,gam] (degrees)
+%      angdeg         Refined lattice angles [alph,bet,gam] (degrees)
 %      rotmat         Rotation matrix that relates crystal Cartesian coordinate frame of the refined
 %                     lattice and orientation as a rotation of the initial crystal frame. Coordinates
 %                     in the two frames are related by
@@ -79,9 +77,6 @@ function alighment_info = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 %      rotangle       Angle of rotation corresponding to rotmat (to give a measure
 %                     of the misorientation) (degrees)
 %
-% The output argument rlu_corr, together with the input alatt0 and angdeg0, are sufficient to compute
-% the other output arguments. That is why Horace functions that use the output of this function will
-% generally only require rlu_corr.
 %
 % EXAMPLES
 %   Want to refine crystal orientation only:
@@ -189,7 +184,7 @@ alatt  = fitpar.p(1:3);
 angdeg = fitpar.p(4:6);
 distance=sqrt(sum(reshape(distance,3,nv).^2,1))';
 
-alighment_info = crystal_alignment_info(alatt,angdeg,rotvec,distance);
+aligment_info = crystal_alignment_info(alatt,angdeg,rotvec,distance);
 
 
 %============================================================================================================
@@ -204,9 +199,9 @@ function dist = reciprocal_space_deviation (x1,x2,x3,p,rlu)
 % -------
 %   x1,x2,x3    Array of coordinates in reference crystal Cartesian coordinates
 %              This is n x 3 array repeated three times along first dimension
-%   p           Parameters that can be fitted: [a,b,c,alf,bet,gam,theta1,theta2,theta3]
+%   p           Parameters that can be fitted: [a,b,c,alph,bet,gam,theta1,theta2,theta3]
 %               a,b,c           lattice parameters (Ang)
-%               alf,bet,gam     lattice angles (deg)
+%               alph,bet,gam     lattice angles (deg)
 %               theta1,theta2,theta3    components of rotation vector linking
 %                                          crystal Cartesian coordinates
 %                                           v(i)=R_theta(i,j)*v0(j)
@@ -363,7 +358,7 @@ if present.free_angdeg
     if islognum(opt.free_angdeg) && numel(opt.free_angdeg)==3
         if opt.fix_lattice || opt.fix_angdeg
             error('HORACE:lattice_functions:invalid_argument', ...
-                'Cannot use the option ''free_angdeg'' with other keywords fixing lattice parameters alf,bet,gam')
+                'Cannot use the option ''free_angdeg'' with other keywords fixing lattice parameters alph,bet,gam')
         end
     else
         error('HORACE:lattice_functions:invalid_argument', ...
@@ -417,7 +412,7 @@ if numel(varargin)==2
         lattice_init(4:6)=varargin{2}(:)';
     else
         error('HORACE:lattice_functions:invalid_argument', ...
-            'Initial lattice angles ([alf,bet,gam]) should contan 3-vector of initial lattice angles to fit.\n It is: %s', ...
+            'Initial lattice angles ([alph,bet,gam]) should contan 3-vector of initial lattice angles to fit.\n It is: %s', ...
             disp2str(varargin{2}))
     end
 end
