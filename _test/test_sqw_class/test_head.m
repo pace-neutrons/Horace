@@ -112,13 +112,6 @@ classdef test_head < TestCaseWithSave
             hdd.nfiles = hd.nfiles;
             % old file format does not contain data range
             hd.data_range = hdd.data_range;
-            %
-            %Re #825 head from loader returs legacy u_to_rlu and head from 
-            % loader return different u_to_rlu matrix (one -- legacy, other
-            % -- from current transformation
-            % which one is correct is the question
-            % 
-            hd.u_to_rlu = hdd.u_to_rlu;
 
             assertEqualToTol(hd,hdd,4.e-7)
         end
@@ -140,11 +133,7 @@ classdef test_head < TestCaseWithSave
             hd = ldr.head();
             dnd_obj = ldr.get_dnd('-verbatim');
             ldr.delete();
-            hdd = head(dnd_obj);
-            %Re #825  see test head_sqw_1d for details
-            u_to_rlu_legacy = dnd_obj.proj.u_to_rlu_legacy;
-            hdd.u_to_rlu = u_to_rlu_legacy;
-            
+            hdd = head(dnd_obj);           
 
             % no creation date in old files
             hdd.creation_date = hd.creation_date;
@@ -155,26 +144,17 @@ classdef test_head < TestCaseWithSave
             obj_arr = [obj.sq1d_obj,obj.sq1d_obj];
             [hd1,hd2] = head(obj_arr);
             assertEqual(hd1,hd2);
-            %Re #825  see test head_sqw_1d for details
-            u_to_rlu_legacy = obj.sq1d_obj.data.proj.u_to_rlu_legacy;
-            hd1.u_to_rlu = u_to_rlu_legacy;
 
             assertEqualToTolWithSave(obj,hd1,4.e-7,'ignore_str',true);
         end
 
         function test_head_1d_full(obj)
             hd = head(obj.sq1d_obj,'-full');
-            %Re #825  see test head_sqw_1d for details
-            u_to_rlu_legacy = obj.sq1d_obj.data.proj.u_to_rlu_legacy;
-            hd.u_to_rlu = u_to_rlu_legacy;
             
             assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
         end
         function test_head_dnd_1d(obj)
             hd = head(obj.sq1d_obj.data);
-            %Re #825  see test head_sqw_1d for details
-            u_to_rlu_legacy = obj.sq1d_obj.data.proj.u_to_rlu_legacy;
-            hd.u_to_rlu = u_to_rlu_legacy;
             assertEqualToTolWithSave(obj,hd,4.e-7,'ignore_str',true);
         end
 
@@ -182,18 +162,6 @@ classdef test_head < TestCaseWithSave
         function test_head_sqw_1d(obj)
             hd = head(obj.sq1d_obj);
             u_to_rlu_legacy = obj.sq1d_obj.data.proj.u_to_rlu_legacy;
-            %Re #825  h_to_rlu_legacy ==
-            %[ 1.0000    0.0000    1.0000         0;...
-            %  1.0000    0.0000   -1.0000         0;...
-            %  0.0000    1.0000    0.0000         0;...
-            %   0         0         0    1.0000];
-            % and new u_to_rlu is
-            %[0.7071   -0.0000    0.7071         0
-            % 0.7071    0.0000   -0.7071         0
-            % 0         1.0000    0.0000         0
-            % 0         0         0         1.0000]
-            % let's assume that new is correct, but keep legacy for references
-            hd.u_to_rlu = u_to_rlu_legacy;
             assertEqualToTolWithSave(obj,hd,4.e-7,'ignore_str',true);
         end
     end
