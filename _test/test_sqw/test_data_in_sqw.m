@@ -51,7 +51,7 @@ classdef test_data_in_sqw < TestCaseWithSave
         function test_loadobj_v0_v1(obj)
             ax = ortho_axes([ 1,0.01,2],[-1,1],[0,1],[0,1,10],...
                 'label',{'\zeta','\xi','\eta','E'});
-            ref_obj = data_sqw_dnd(ax,ortho_proj());
+            ref_obj = data_sqw_dnd(ax,ortho_proj('alatt',2*pi,'angdeg',90));
             % occasionally old objects contain npix == 1
             ref_obj.npix = ones(size(ref_obj.npix));
 

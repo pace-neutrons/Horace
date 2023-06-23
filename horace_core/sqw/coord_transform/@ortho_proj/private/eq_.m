@@ -61,8 +61,36 @@ end
 function [iseq,mess] = eq_single(obj1,obj2,name_a_val,name_b_val,varargin)
 % compare single pair of ortho_proj checking the transformation itself
 %
-[u_to_img_1,shift_1,ulen1] = obj1.get_pix_img_transformation(4);
-[u_to_img_2,shift_2,ulen2] = obj2.get_pix_img_transformation(4);
+if obj1.alatt_defined && obj1.angdeg_defined
+    [u_to_img_1,shift_1,ulen1] = obj1.get_pix_img_transformation(4);
+    obj1_undefined = false;
+else
+    obj1_undefined = true;
+end
+if obj2.alatt_defined && obj2.angdeg_defined
+    [u_to_img_2,shift_2,ulen2] = obj2.get_pix_img_transformation(4);
+    obj2_undefined = false;
+else
+    obj2_undefined = true;
+end
+
+if obj1_undefined && obj2_undefined
+    [iseq,mess] = equal_to_tol(obj1.to_bare_struct(),obj2.to_bare_struct(), ...
+        'name_a',['Undefined object: ', name_a_val],'name_b',['Undefined object: ',name_b_val], ...
+        varargin{:});
+    return;
+elseif obj1_undefined && ~obj2_undefined
+    iseq = false;
+    mess = sprintf('Object %s is undefined and Object %s is defined\n', ...
+        name_a_val,name_b_val);
+    return
+elseif ~obj1_undefined && obj2_undefined
+    iseq = false;
+    mess = sprintf('Object %s is defined and Object %s is undefined\n', ...
+        name_a_val,name_b_val);
+    return
+end
+% both defined to compare them properly
 
 [mat_eq,mess1] = equal_to_tol(u_to_img_1,u_to_img_2, ...
     'name_a',[name_a_val,'.u_to_img'],'name_b',[name_b_val,'.u_to_img'],varargin{:});
