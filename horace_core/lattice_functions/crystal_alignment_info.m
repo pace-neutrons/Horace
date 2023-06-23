@@ -181,6 +181,7 @@ classdef crystal_alignment_info < serializable
             if isa(varargin{1},'ortho_proj')
                 b0 = varargin{1}.bmatrix();
                 legacy_mode_ = obj.legacy_mode;
+                proj = varargin{1};
             elseif nargin == 3 && isnumeric(varargin{1}) && isnumeric(varargin{2})
                 b0 = bmatrix(varargin{:});
                 legacy_mode_ = true;

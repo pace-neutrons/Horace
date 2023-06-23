@@ -32,7 +32,7 @@ wout = obj;
 alatt  = alignment_info.alatt;
 angdeg = alignment_info.angdeg;
 for i=1:numel(obj)
-    legacy_mode = alignment_info.legacy_mode || ~isempty(obj.proj.ub_inv_legacy);
+    legacy_mode = alignment_info.legacy_mode || ~isempty(obj(i).proj.ub_inv_legacy);
     if legacy_mode
         this_alignment = alignment_info;
         this_alignment.legacy_mode  = true;

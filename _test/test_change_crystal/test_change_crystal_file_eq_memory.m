@@ -12,8 +12,12 @@ classdef test_change_crystal_file_eq_memory < TestCase
 
     properties
         % We assume only that change_crystal_sqw(<filename>,rlu_corr) works, as tested in another routine
-        rlu_corr =[1.0817    0.0088   -0.2016;  0.0247    1.0913    0.1802;    0.1982   -0.1788    1.0555];
+        rlu_corr =[...
+            1.0817    0.0088   -0.2016;
+            0.0247    1.0913    0.1802;
+            0.1982   -0.1788    1.0555];
 
+        alignmnent_info;
         tmpdir
         wref
 
@@ -32,13 +36,28 @@ classdef test_change_crystal_file_eq_memory < TestCase
 
             wref_file='wref.sqw';
             % First create initial sqw and dnd objects, and corresponding files
-            obj.wref=read_sqw(wref_file);
+            wref_=read_sqw(wref_file);
+            obj.wref = wref_;
             obj.w2_1=section(obj.wref, [0,1], [150,200]);
             obj.w2_2=section(obj.wref, [0,1], [200,250]);
 
             % Create file names
             % -----------------
             obj.tmpdir=tmp_dir;
+            proj0 = wref_.data.proj;
+            % let's assume that only reciprocal lattice vector length and
+            % orientation have changed here. It is not true, but the
+            % purpose of the test is to verify if the transformation works
+            % on file and in memory, not if it is physiclly valid.
+            % So it has to be just notinally valid
+            b0_inf = wref_.header_average.u_to_rlu;
+            scale = norm(obj.rlu_corr);
+            rotmat = obj.rlu_corr/scale;
+            rotvec = rotmat_to_rotvec2(rotmat);
+            bm_modified = inv(b0_inf(1:3,1:3))/scale;
+            lat_mod = 2*pi/bm_modified(1,1);
+            obj.alignmnent_info = crystal_alignment_info( ...
+                [lat_mod,lat_mod,lat_mod],proj0.angdeg,rotvec,eye(3));
 
         end
         function test_change_crystal_sqw_array_in_file_eq_change_in_memory(obj)
@@ -52,9 +71,9 @@ classdef test_change_crystal_file_eq_memory < TestCase
             w2arr = [obj.w2_1,obj.w2_2];
 
             
-            ref_ans = change_crystal(w2arr,obj.rlu_corr);
+            ref_ans = change_crystal(w2arr,obj.alignmnent_info);
 
-            change_crystal({w2c_1_file,w2c_2_file},obj.rlu_corr);
+            change_crystal({w2c_1_file,w2c_2_file},obj.alignmnent_info);
             w2c_1=read_sqw(w2c_1_file);
             w2c_2=read_sqw(w2c_2_file);
 
@@ -73,9 +92,9 @@ classdef test_change_crystal_file_eq_memory < TestCase
             clOb = onCleanup(@()delete(w2c_1_file));
             save(obj.w2_1,w2c_1_file);
 
-            ref_ans = change_crystal(obj.w2_1,obj.rlu_corr);
+            ref_ans = change_crystal(obj.w2_1,obj.alignmnent_info);
 
-            change_crystal_sqw(w2c_1_file,obj.rlu_corr);
+            change_crystal_sqw(w2c_1_file,obj.alignmnent_info);
             w2c_1=read_sqw(w2c_1_file);
 
             assertEqualToTol(w2c_1, ref_ans,[2.e-7,2e-7], ...
@@ -92,17 +111,17 @@ classdef test_change_crystal_file_eq_memory < TestCase
             save(d2_2,d2c_2_file);
             d2arr = [d2_1,d2_2];
 
-            ref_ans = change_crystal(d2arr,obj.rlu_corr);
+            ref_ans = change_crystal(d2arr,obj.alignmnent_info);
 
-            change_crystal({d2c_1_file,d2c_2_file},obj.rlu_corr);
+            change_crystal({d2c_1_file,d2c_2_file},obj.alignmnent_info);
             d2c_1=read_dnd(d2c_1_file);
             d2c_2=read_dnd(d2c_2_file);
 
 
-            assertEqualToTol(d2c_1, ref_ans(1),[2.e-7,2e-7], ...
+            assertEqualToTol(d2c_1, ref_ans(1),[1.e-9,1e-9], ...
                 'nan_equal',true,'ignore_str',true);
 
-            assertEqualToTol(d2c_2, ref_ans(2),[2.e-7,2e-7], ...
+            assertEqualToTol(d2c_2, ref_ans(2),[1.e-9,1e-9], ...
                 'nan_equal',true,'ignore_str',true);
         end
 
@@ -113,9 +132,9 @@ classdef test_change_crystal_file_eq_memory < TestCase
             d2_1=dnd(obj.w2_1);
             save(d2_1,d2c_1_file);
 
-            ref_ans = change_crystal(d2_1,obj.rlu_corr);
+            ref_ans = change_crystal(d2_1,obj.alignmnent_info);
 
-            change_crystal(d2c_1_file,obj.rlu_corr);
+            change_crystal(d2c_1_file,obj.alignmnent_info);
             d2c_1=read_dnd(d2c_1_file);
 
             assertEqualToTol(d2c_1, ref_ans,[2.e-7,2e-7], ...

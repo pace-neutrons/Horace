@@ -95,7 +95,8 @@ classdef test_change_crystal_bragg_fine < TestCase
 
 
             % Should get approximately: rlu0=;
-            rlu0 = [1.052,-0.142,0.722;
+            rlu0 = [
+                1.052,-0.142,0.722;
                 0.199,0.732,1.036;
                 0.158,-0.135,0.886;
                 0.895,0.015,-0.158;
@@ -127,17 +128,23 @@ classdef test_change_crystal_bragg_fine < TestCase
             proj.u=[1,0,0];
             proj.v=[0,1,0];
 
-            rlu=[1,0,1; 0,1,1; 0,0,1; 1,0,0; 0,-1,0];
+            rlu=[...
+                1,0,1;
+                0,1,1;
+                0,0,1;
+                1,0,0;
+                0,-1,0];
             half_len=0.5; half_thick=0.25; bin_width=0.025;
 
             sqw_to_ref = sqw(obj.sim_sqw_file);
 
             rlu0=get_bragg_positions(sqw_to_ref, proj, rlu, half_len, half_thick, bin_width);
             % Should get approximately: rlu0=;
-            ref_rlu = [1.052,-0.142,0.722;
-                0.199,0.732,1.036;
-                0.158,-0.135,0.886;
-                0.895,0.015,-0.158;
+            ref_rlu = [...
+                +1.052,-0.142,0.722;
+                +0.199,0.732,1.036;
+                +0.158,-0.135,0.886;
+                +0.895,0.015,-0.158;
                 -0.015,-0.900,-0.158];
 
             assertElementsAlmostEqual(rlu0,ref_rlu,'absolute',1.e-2)
