@@ -346,7 +346,7 @@ function test_replace_unique_same_number_works(~)
             urc(1) = 'aaaaa';
             urc(2) = 'bbbb';
             urc(3) = 'bbbb';
-            
+
             uoc2 = unique_objects_container('baseclass','char');
             uoc2(1) = 'dd';
             uoc2(2) = 'cc';
@@ -592,10 +592,10 @@ function test_replace_unique_same_number_works(~)
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
             urc = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
             glc = urc.global_container('value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            glc.convert_to_stream_f = @hlp_serialize;
+            glc.convert_to_stream_f = @hlp_serialise;
             unique_references_container.global_container('reset','GLOBAL_NAME_INSTRUMENTS_CONTAINER',glc);
             glc = urc.global_container('value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
-            assertEqual( glc.convert_to_stream_f, @hlp_serialize);
+            assertEqual( glc.convert_to_stream_f, @hlp_serialise);
             urc{1} = obj.mi1;
             urc{2} = obj.nul_sm1;
             [lwn,lw] = lastwarn;

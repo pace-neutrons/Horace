@@ -151,8 +151,8 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             ldrs = sqw_formats_factory.instance().supported_accessors;
             for i=1:numel(ldrs)
                 fo = ldrs{i};
-                by = hlp_serialize(fo);
-                fr = hlp_deserialize(by);
+                by = hlp_serialise(fo);
+                fr = hlp_deserialise(by);
                 assertEqual(fo,fr);
             end
         end
@@ -160,4 +160,3 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
     end
 
 end
-

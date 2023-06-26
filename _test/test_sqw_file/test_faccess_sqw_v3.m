@@ -97,7 +97,7 @@ classdef test_faccess_sqw_v3< TestCase
             ver_obj.experiment_info.runid_recalculated = true;
             assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date','ignore_str',true);
         end
-        
+
         %
         function obj = test_init_and_get(obj)
             to = faccess_sqw_v3();
@@ -309,8 +309,8 @@ classdef test_faccess_sqw_v3< TestCase
             fo = faccess_sqw_v3();
             fo = fo.init(obj.sample_file);
 
-            by = hlp_serialize(fo);
-            fr = hlp_deserialize(by);
+            by = hlp_serialise(fo);
+            fr = hlp_deserialise(by);
 
             assertEqual(fo,fr);
         end

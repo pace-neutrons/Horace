@@ -1,11 +1,11 @@
 function [bytes,data_sz] = serialize_si_block_(obj,data,type)
 % Serialize an instrument or sample data block.
-% 
+%
 %
 % The block contains theheader, describing the class name
 % (instrument or sample) together with classes version  and
 % the sample/instrument  information, serialized according to the
-% algorithm, enspired by hlp_serialize/hlp_deserialize.
+% algorithm, inspired by hlp_serialise/hlp_deserialise.
 %
 %
 
@@ -17,7 +17,7 @@ if isempty(data)
 else
     % new instrument:
     % get format used to convert data into bytes
-    
+
     % obtain formatter, to use for the instrument or sample header.
     form = obj.get_si_head_form(type);
     % build block descriptor, to describe common sample/instrument block
@@ -31,9 +31,9 @@ else
     %sz = obj.([type,'_pos_'])-obj.([type,'_head_pos_']);
     %
     % get the format of sample or instrument:
-    
+
     data_form = obj.get_si_form();
-    if data_block.all_same        
+    if data_block.all_same
         if iscell(data)
             bytes2 = obj.sqw_serializer_.serialize(data{1},data_form);
         else
@@ -45,5 +45,3 @@ else
     data_sz = numel(bytes2);
     bytes = [bytes;bytes2'];
 end
-
-

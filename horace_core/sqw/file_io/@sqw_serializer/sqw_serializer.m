@@ -5,7 +5,7 @@ classdef sqw_serializer
     %
     % Used mainly by old sqw file formatters while more modern file formatters
     % inherit serializable class and deploy separate Horace serializer.
-    % 
+    %
     properties(Constant,Access=private)
         base_classes_ = {'double','single','int8','uint8','int16','uint16',...
             'int32','uint32','int64','uint64','float64'};
@@ -156,7 +156,7 @@ classdef sqw_serializer
             % of the class and recover new instance of this class at
             % deserialization.
             %
-            bytes = hlp_serialize('sqw_serializer');
+            bytes = hlp_serialise('sqw_serializer');
         end
     end
     methods(Static)
@@ -164,7 +164,7 @@ classdef sqw_serializer
             % Retrieve message object from sequence of bytes
             % produced by saveobj method.
 
-            ser_struc = hlp_deserialize(ls);
+            ser_struc = hlp_deserialise(ls);
             if strcmp(ser_struc,'sqw_serializer')
                 obj = sqw_serializer();
             else
@@ -177,5 +177,3 @@ classdef sqw_serializer
 
 
 end
-
-
