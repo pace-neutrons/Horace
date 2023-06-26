@@ -349,7 +349,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             bsp = hc.build_sqw_in_parallel;
 
             if n_workers <= 0 % keep existing number of workers unchanged
-                % Null cleanup
+                % Because caller demands onCleanup object is returned, return null op
                 clob = onCleanup(@()(0));
 
                 if bsp
