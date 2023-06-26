@@ -409,7 +409,7 @@ classdef Experiment < serializable
             % very crude implementation for the header, average over all
             % runs.
             %
-            if exists('data', 'var') % second arg is a data_sqw_dnd object
+            if exist('data', 'var') % second arg is a data_sqw_dnd object
                                      % and provides default lattice parms
                 alatt = data.alatt;
                 angdeg = data.angdeg;
