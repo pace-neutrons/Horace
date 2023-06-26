@@ -257,10 +257,9 @@ if accumulate_old_sqw    % combine with existing sqw file
 
     else
         % Check that the sqw file has the correct type to which to accumulate
-        [ok,mess,header_sqw,grid_size_sqw,pix_db_range_sqw,data_range_present_sqw]=...
+        [header_sqw,grid_size_sqw,pix_db_range_sqw,data_range_present_sqw]=...
             gen_sqw_check_sqwfile_valid(sqw_file);
         % Check that the input spe data are distinct
-        if ~ok, error(mess), end
         % It is expected that one would not run replicate and accumulate
         % together and add replicated files without run_id changes after
         % first accumulation because the files with identical run-ids will
