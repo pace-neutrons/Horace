@@ -151,6 +151,7 @@ classdef test_iMPI_methods< TestCase
             clob3 = onCleanup(@()set(mis,'is_deployed',false,'is_tested',false));
 
             clob = set_temporary_config_options(parallel_config, 'shared_folder_on_local', obj.working_dir);
+            pc = parallel_config;
 
             mpi_comm = MessagesFilebased('test_iMPI_worker');
             mpi_comm.mess_exchange_folder = pc.shared_folder_on_local;

@@ -20,7 +20,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
 
             cleanup_obj_hc = set_temporary_config_options(hor_config, 'use_mex', true);
 
-            this.skip_tests = ~hc.use_mex;
+            this.skip_tests = ~get(hor_config, 'use_mex');
 
             this.tmp_data_folder = tmp_dir;
             pths = horace_paths;
