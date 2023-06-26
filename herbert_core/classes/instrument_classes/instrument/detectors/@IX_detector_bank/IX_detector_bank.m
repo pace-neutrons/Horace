@@ -103,10 +103,7 @@ classdef IX_detector_bank < serializable
             if numel(varargin)==0
                 dmat = eye(3);
                 ndet0 = 1;
-            elseif numel(varargin)~=2
-                error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
-                      'must be 2 or 0 optional arguments to describe orientation type and value');
-            else
+            elseif numel(varargin) == 2
                 types = {'dmat','rotvec'}; % unpack this from det_orient_trans(); for ease of reading
                 if ~isempty(varargin{1}) && is_string(varargin{1})
                     iout = stringmatchi(varargin{1},types);
@@ -121,13 +118,16 @@ classdef IX_detector_bank < serializable
                              mess); 
                         end
                     else
-                        error(HERBERT:IX_detector_bank_constructor:invalid_argument', ...
+                        error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
                           'Unrecognised or ambiguous orientation type')
                     end
                 else
                     error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
                           'first optional argument must be a non-empty char/string');
                 end
+            else
+                error('HERBERT:IX_detector_bank_constructor:invalid_argument', ...
+                      'must be 2 or 0 optional arguments to describe orientation type and value');
             end
             % dmat is now a 'dmat' type i.e. with size [3,3,ndet0]
             
@@ -216,6 +216,8 @@ classdef IX_detector_bank < serializable
             obj.azim_ = val.azim;
             obj.dmat_ = val.dmat;
             obj.det_ = val.det;
+
+            obj.check_combo_arg();
         end
         
         %------------------------------------------------------------------

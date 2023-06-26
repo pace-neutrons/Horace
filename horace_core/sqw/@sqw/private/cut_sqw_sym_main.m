@@ -161,7 +161,7 @@ end
 % -----------------------------------------------------------------------------------------
 % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
 % This could be generalised later - but with repercussions in many routines
-header_ave=header_average(header);
+header_ave=header_average(header,data);
 
 
 % Update projection by current projection, and reorder binning descriptors

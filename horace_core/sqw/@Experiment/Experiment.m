@@ -134,11 +134,11 @@ classdef Experiment < serializable
                           'input is not empty or IX_experiment');
                 end
                                 
-                obj = obj.check_input_for_consistency(detector_arrays, 'IX_detector_array');
+                obj = obj.add_input_with_checks(detector_arrays, 'IX_detector_array');
                 
-                obj = obj.check_input_for_consistency(instruments,     'IX_inst');
+                obj = obj.add_input_with_checks(instruments,     'IX_inst');
                 
-                obj = obj.check_input_for_consistency(samples,         'IX_samp');
+                obj = obj.add_input_with_checks(samples,         'IX_samp');
                 
                                 
             elseif nargin == 1 
@@ -409,8 +409,8 @@ classdef Experiment < serializable
             % very crude implementation for the header, average over all
             % runs.
             %
-            if nargin>1 % second arg is a data_sqw_dnd object
-                        % and provides default lattice parms
+            if exists('data', 'var') % second arg is a data_sqw_dnd object
+                                     % and provides default lattice parms
                 alatt = data.alatt;
                 angdeg = data.angdeg;
             else
@@ -501,8 +501,8 @@ classdef Experiment < serializable
                 sample_or_instrument,class_base);
         end
         
-        function obj = check_input_for_consistency(obj, val,type)
-            % CHECK_INPUT_FOR_CONSISTENCY
+        function obj = add_input_with_checks(obj, val,type)
+            % ADD_INPUT_WITH_CHECKS
             % Add val to one of the unique_reference_container properties.
             % This makes sure that the right thing is added and any
             % duplicates are handled.
@@ -571,7 +571,7 @@ classdef Experiment < serializable
 
             elseif isempty(val)
                 % do nothing, leave default compressed container empty
-
+                ;
             else
                 error('HORACE:Experiment:invalid_argument', ...
                       ['input is not empty, does not have the right number ' ...
@@ -705,6 +705,8 @@ classdef Experiment < serializable
             obj = check_combo_arg_(obj);
         end
     end
+    
+    
     %----------------------------------------------------------------------
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)

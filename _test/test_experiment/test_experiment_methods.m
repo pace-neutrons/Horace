@@ -99,13 +99,13 @@ classdef test_experiment_methods < TestCase
 
             assertEqual(hdrs_cell{1}.filename,'a1')
 
-            rec_exp = Experiment.build_from_binfile_headers(hdrs_cell);
+            reconstructed_exp = Experiment.build_from_binfile_headers(hdrs_cell);
             % here as the detectors weren't originally in the headers but in
             % a detpar in the parent sqw. As there is no parent sqw for
             % this test, the detectors are just reinserted.
-            rec_exp.detector_arrays = exp.detector_arrays;
-            assertTrue(rec_exp.runid_recalculated);
-            assertTrue(isa(rec_exp,'Experiment'));
+            reconstructed_exp.detector_arrays = exp.detector_arrays;
+            assertTrue(reconstructed_exp.runid_recalculated);
+            assertTrue(isa(reconstructed_exp,'Experiment'));
 
             % runid_map is recalculated with runid-s from 1 to 3
             expd = exp.expdata;
@@ -114,12 +114,12 @@ classdef test_experiment_methods < TestCase
             end
             exp.expdata = expd;
 
-            assertEqual(rec_exp.expdata,exp.expdata);
-            assertEqual(rec_exp.runid_map.keys,exp.runid_map.keys);
-            assertEqual(rec_exp.runid_map.values,exp.runid_map.values);
+            assertEqual(reconstructed_exp.expdata,exp.expdata);
+            assertEqual(reconstructed_exp.runid_map.keys,exp.runid_map.keys);
+            assertEqual(reconstructed_exp.runid_map.values,exp.runid_map.values);
 
-            assertEqual(rec_exp.samples,exp.samples);
-            assertEqual(rec_exp.instruments,exp.instruments);
+            assertEqual(reconstructed_exp.samples,exp.samples);
+            assertEqual(reconstructed_exp.instruments,exp.instruments);
 
         end
         function test_to_from_old_structure_single_head(obj)

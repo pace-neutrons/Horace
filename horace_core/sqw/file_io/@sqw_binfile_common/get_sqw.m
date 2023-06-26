@@ -108,7 +108,7 @@ end
 data_opt= [opt1, opt2];
 sqw_struc.data = obj.get_data(data_opt{:});
 proj = sqw_struc.data.proj;
-header_av = exp_info.header_average();
+header_av = exp_info.header_average(sqw_struc.data);
 sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 
 if ~opts.nopix && obj.npixels>0

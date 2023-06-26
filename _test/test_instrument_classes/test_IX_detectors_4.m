@@ -31,12 +31,13 @@ classdef test_IX_detectors_4 < TestCaseWithSave
             assertEqual(dsl.ndet, 9);
             
             save('dsl.mat','dsl');
-            hhh = load('dsl.mat');
-            assertEqual(hhh.dsl.depth, depth);
-            assertEqual(hhh.dsl.width, width);
-            assertEqual(hhh.dsl.height, height);
-            assertEqual(hhh.dsl.atten, atten);
-            assertEqual(hhh.dsl.ndet, 9);
+            clob1 = onCleanup( @()delete('dsl.mat'));
+            loaded_data_1 = load('dsl.mat');
+            assertEqual(loaded_data_1.dsl.depth, depth);
+            assertEqual(loaded_data_1.dsl.width, width);
+            assertEqual(loaded_data_1.dsl.height, height);
+            assertEqual(loaded_data_1.dsl.atten, atten);
+            assertEqual(loaded_data_1.dsl.ndet, 9);
             
             dsl = IX_det_slab();
             assertEqual(dsl.depth,0);
@@ -45,8 +46,9 @@ classdef test_IX_detectors_4 < TestCaseWithSave
             assertEqual(dsl.atten,0);
             assertEqual(dsl.ndet,1);
             save('dsl2.mat','dsl');
-            kkk = load('dsl2.mat');
-            assertEqual(kkk.dsl, dsl);
+            loaded_data_2 = load('dsl2.mat');
+            clob2 = onCleanup( @()delete('dsl2.mat'));
+            assertEqual(loaded_data_2.dsl, dsl);
             ;
         end
         
@@ -62,22 +64,20 @@ classdef test_IX_detectors_4 < TestCaseWithSave
             assertEqual(det.ndet,9);
             
             save('tfc.mat','det');
-            mmm = load('tfc.mat');
-            assertEqual(mmm.det, det);
+            clob1 = onCleanup(@()delete('tfc.mat'));
+            loaded_data_1 = load('tfc.mat');
+            assertEqual(loaded_data_1.det, det);
             
             det = IX_det_TobyfitClassic();
             assertEqual(det.dia, 0);
             assertEqual(det.height, 0);
             assertEqual(det.ndet,1);
             
-            %struct(det)
-            
             save('tfc2.mat','det');
-            nnn = load('tfc2.mat');
-            assertEqual(nnn.det, det);
+            clob2 = onCleanup(@()delete('tfc2.mat'));
+            loaded_data_2 = load('tfc2.mat');
+            assertEqual(loaded_data_2.det, det);
             
-            %struct(nnn.det)
-            ;
         end
         
         %--------------------------------------------------------------------------
@@ -86,7 +86,7 @@ classdef test_IX_detectors_4 < TestCaseWithSave
             height = (0.0001:0.001:0.0099)';
             wall = (1.8:18:179.999)';
             atms = (1.8:18:179.999)';
-            dia = wall.*2.2;
+            dia = wall.*2.2; % dia must be >2*wall, see IX_det_he3tube code
             tube = IX_det_He3tube(dia, height, wall, atms);
             assertEqual(tube.dia, dia);
             assertEqual(tube.wall, wall);

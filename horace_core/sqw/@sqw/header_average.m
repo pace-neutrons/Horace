@@ -6,7 +6,7 @@ function [header_ave, ebins_all_same]=header_average(obj)
 
 
 if nargout>1
-    [header_ave, ebins_all_same] = obj.experiment_info.header_average();
+    [header_ave, ebins_all_same] = obj.experiment_info.header_average(obj.data);
 else
-    header_ave = obj.experiment_info.header_average();
+    header_ave = obj.experiment_info.header_average(obj.data);
 end

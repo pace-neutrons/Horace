@@ -82,7 +82,7 @@ if ~isfield(S,'version') || S.version<4
             end
         end
         proj = ss.data.proj;
-        header_av = ss.experiment_info.header_average();
+        header_av = ss.experiment_info.header_average(ss.data);
         if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
             ss.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
         end

@@ -20,6 +20,7 @@ if obj.instruments_.n_runs ~= nruns
             obj.instruments_.n_runs,nruns);
     end
 end
+
 if obj.samples_.n_runs ~= nruns
     if obj.samples_.n_runs == 1 && nruns>0
         obj.samples_ = obj.samples_.replicate_runs(nruns);
@@ -41,6 +42,7 @@ if obj.detector_arrays_.n_runs ~= nruns
             mess,obj.detector_arrays_.n_runs,nruns);
     end
 end
+
 if ~isa(obj.runid_map_, 'containers.Map') &&isempty(obj.runid_map_)
     mess = sprintf('%s\n runid_map is not defined',mess);
 else

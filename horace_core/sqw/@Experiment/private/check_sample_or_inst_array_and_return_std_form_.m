@@ -9,7 +9,7 @@ function std_form = check_sample_or_inst_array_and_return_std_form_(...
 % Inputs:
 % sid             --object or collection of objects in any
 %                        standard form acceptable
-%                        of samples, instruments or detectors\
+%                        of samples, instruments or detectors
 % class_base      --base class for samples or instruments or detectors
 %                        depending on sample or instrument is
 %                        verified
@@ -64,9 +64,7 @@ else
 end
 std_form = unique_references_container(global_name,class_base);
 
-if isempty(sid)
-    ; %error('prefer that empty data be dealt with before getting here');
-elseif iscell(sid)
+if iscell(sid)
     is = cellfun(@(x)isa(x,class_base),sid);
     if ~all(is)
         error('HORACE:Experiment:invalid_argument', ...
@@ -85,6 +83,7 @@ elseif isa(sid,class_base)
     std_form = std_form.add(sid);
 else
     error('HORACE:Experiment:invalid_argument', ...
-        'Input must be a cellarray or array of %s objects . In fact it is %s',...
+        ['Input must be a cellarray or array or unique_objects_container ',...
+         'of %s objects . In fact it is %s'],...
         class_base,class(sid));
 end

@@ -106,7 +106,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             warning('on','MATLAB:structOnObject');
             % then check that the fields have been expanded and set by
             % the replicate function in the bank constructor.
-            assertEqual(mandatory,logical([1 1 1 1]));
+            assertEqual(mandatory,[true true true true]);
             assertEqual(bank.det.depth,zeros(99,1));
             assertEqual(bank.det.width,zeros(99,1));
             assertEqual(bank.det.depth,zeros(99,1));
@@ -117,9 +117,9 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             save('bank.mat','bank');
             clob = onCleanup(@()(delete('bank.mat')));            
             xxx = load('bank.mat');
-            warning('off','MATLAB:structOnObject');
+            ws = warning('off','MATLAB:structOnObject');
             mandatory = struct(bank.det).mandatory_field_set_;
-            warning('on','MATLAB:structOnObject');
+            warning(ws);
             % and these are the fields that have been expanded and set by
             % the replicate function in the bank constructor.
             assertEqual(mandatory,logical([1 1 1 1]));
@@ -180,7 +180,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             
             % test save and reload of the array
             save('arr.mat','arr');
-            clob = onCleanup(@()(delete('arr.mat')));  
+            clob2 = onCleanup(@()(delete('arr.mat')));  
             yyy = load('arr.mat');
             % test that the resulting internal detector bank is correct
             assertEqual(yyy.arr.det_bank.id, id);

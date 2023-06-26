@@ -25,8 +25,10 @@ ok=true;
 mess='';
 
 small=2e-7;
+lattice_parameters = struct('alatt',alatt,'angdeg',angdeg);
 for i=2:numel(win)
-    h_ave=header_average(win(i).experiment_info);
+    % could equally supply win(i).data instead of lattice parameters
+    h_ave=header_average(win(i).experiment_info, lattice_parameters);
     if any(abs(h_ave.alatt-alatt)>small) || any(abs(h_ave.angdeg-angdeg)>small)
         alatt=[0,0,0];
         angdeg=[0,0,0];

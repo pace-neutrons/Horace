@@ -30,7 +30,7 @@ ok = true;
 mess = '';
 
 % Check inputs are positive integers
-if all(id>=1) && all(rem(id,1)==0)
+if all(id>0) && all(rem(id,1)==0)
     % no sorting in this version of the function
     % so just construct the no-perm versions of ix and perm
     ix = [];

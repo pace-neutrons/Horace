@@ -61,7 +61,7 @@ else
     end
     
     % Store some parameters for later loops
-    header_ave=header_average(header);
+    header_ave=header_average(header,data);
     
     alatt = header_ave.alatt;
     angdeg = header_ave.angdeg;
@@ -78,7 +78,7 @@ else
         % -----------------------------------------------------------------------------------------
         % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
         % This could be generalized later - but with repercussions in many routines
-        header_ave=header_average(header);
+        header_ave=header_average(header,data);
         
         % 
         %TODO: THIS ALL SHOULD GO. Modify this.  This code may not work any more, update_pbins is deprecated

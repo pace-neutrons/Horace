@@ -33,7 +33,7 @@ ok = true;
 mess = '';
 
 % Check inputs are positive integers
-if all(id>=1) && all(rem(id,1)==0)
+if all(id>0) && all(rem(id,1)==0)
     % Determine if already sorted
     if issorted(id)
         ix = [];

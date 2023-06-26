@@ -253,7 +253,7 @@ classdef test_data_block < TestCase
 
 
             tob.experiment_info.instruments = IX_null_inst();
-            tob.experiment_info.samples = IX_samp;
+            tob.experiment_info.samples = IX_samp();
             [~,rec_obj] = dp1.get_sqw_block(fid,tob);
             [~,rec_obj] = dp2.get_sqw_block(fid,rec_obj);
             fclose(fid);
