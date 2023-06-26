@@ -1,14 +1,11 @@
 function [perf_graph,comb_perf]=profile_machine(force_perf_recalculation)
 % measures a machine performance as function of number of parallel workers
 % or returns the performance stored for this machine earlier.
-% if force_perf_recalculation is present, the previous perofmance results
+% if force_perf_recalculation is present and true, the previous performance results
 % are ignored and the performance is measured afresh.
 %
-if nargin>0
-    force_perf = true;
-else
-    force_perf = false;
-end
+
+force_perf = exist('force_perf_recalculation', 'var') && force_perf_recalculation;
 
 %hor_tes = test_SQW_GENCUT_perf(); % build new performance results per
 %                                  session
@@ -16,11 +13,10 @@ hor_tes = test_SQW_GENCUT_perf(... % Load previous performance result, do not re
     fullfile(fileparts(mfilename('fullpath')),'test_SQW_GENCUT_perf_PerfRez.xml'));
 %
 hpcc = hpc_config;
-clob = set_temporary_config_options(hpc_config);
-hpcc.build_sqw_in_parallel = 0;
+clob = set_temporary_config_options(hpc_config, 'build_sqw_in_parallel', false);
 
 hrc = hor_config;
-clob1 = set_temporary_config_options(hor_config);
+clob1 = set_temporary_config_options(hor_config, 'delete_tmp', false);
 
 
 hor_tes.n_files_to_use=10;

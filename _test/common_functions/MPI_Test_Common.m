@@ -93,7 +93,7 @@ classdef MPI_Test_Common < TestCase
                 switch ME.identifier
                   case {'HERBERT:parallel_config:invalid_argument', 'HERBERT:parallel_config:not_available'}
                     set_framework = false;
-                    warning(ME.identifier,'%s',ME.message);
+                    warning(ME.identifier, ME.message);
                   otherwise
                     rethrow(ME);
                 end

@@ -55,8 +55,8 @@ hor_tes.n_files_to_use = 50;
 % to test file combine operations separately.
 hc = hor_config;
 % get the data one needs to restore
-clob_tmp = set_temporary_config_options(hor_config);
-hc.delete_tmp = 0;
+clob_tmp = set_temporary_config_options(hor_config, 'delete_tmp', false);
+
 %--------------------------------------------------------------------------
 % run performance tests for medium size file
 medium_perf = hor_tes.workflow_performance(n_workers,selected_tests);

@@ -96,6 +96,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             obj.proj.u=[1,0,0.1]; obj.proj.v=[0,0,1];
             gen_sqw (spe_file_names, '', sqw_file_123_t8, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
+            clear clob_pc;
             clob_pc = set_temporary_config_options(parallel_config, 'threads', 1);
 
             gen_sqw (spe_file_names, '', sqw_file_123_t1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);

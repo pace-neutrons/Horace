@@ -59,6 +59,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
             assertTrue(~any(w_mex.pix.energy_idx==0),'en bin id can not be equal to 0');
 
 
+            clear cleanup_obj;
             cleanup_obj = set_temporary_config_options(hor_config, 'use_mex', false);
 
             dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
@@ -81,8 +82,6 @@ classdef test_dummy_sqw_bin_pix < TestCase
             if this.skip_tests
                 skipTest('MEX not enabled')
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state));
-            cleanup_obj2=onCleanup(@()set(parallel_config,'threads',this.current_thread_state));
 
             par_file=fullfile(this.sample_dir,'96dets.par');
 
@@ -115,7 +114,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
                        'found detectors with ID-s outside the allowed range');
             assertTrue(~any(w_mex.pix.energy_idx==0),'en bin id can not be equal to 0');
 
-            cleanup_obj_pc = set_temporary_config_options(parallel_config, 'threads', 8);
+            set(parallel_config, 'threads', 1);
 
             dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);

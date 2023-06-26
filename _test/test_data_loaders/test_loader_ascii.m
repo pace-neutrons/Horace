@@ -369,7 +369,7 @@ classdef test_loader_ascii < TestCase
             [Smex,Emex,enMex] = ld.load_data();
             detMex = ld.load_par('-array');
 
-            clob = set_temporary_config_options(hor_config, 'use_mex', false);
+            hor_config.use_mex = false;
             [Snom,Enom,enNom] = ld.load_data();
             detNom = ld.load_par('-array');
 

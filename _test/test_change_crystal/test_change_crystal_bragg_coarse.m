@@ -24,9 +24,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
         hpc_restore;
     end
-    properties(Access=private)
-        clob % cleanup object
-    end
+
     methods
         function obj = test_change_crystal_bragg_coarse(varargin)
             test_ref_data= fullfile(fileparts(mfilename('fullpath')),'test_change_crystal_coarse.mat');
@@ -47,6 +45,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % Add common functions folder to path, and get location of common data
             pths = horace_paths;
             common_data_dir = pths.test_common;
+
             % -----------------------------------------------------------------------------
             % generate shifted sqw file
             obj.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
@@ -55,16 +54,9 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             sim_sqw_file=fullfile(obj.dir_out,'test_change_crystal_coarse_sim.sqw'); % output file for simulation in reference lattice
             obj=obj.build_misaligned_source_file(sim_sqw_file);
-            %
-            obj.save();
+
         end
-        function setUp(~)
-            hpc = hpc_config;
-            hpc.saveable = false;
-            hpc.build_sqw_in_parallel=0;
-            hpc.combine_sqw_using = 'mex_code';
-        end
-        %
+
         function test_u_alighnment_tf_way(obj)
             % Fit Bragg peak positions
             % ------------------------
@@ -278,10 +270,10 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             obj.misaligned_sqw_file = sim_sqw_file;
 
-            clob2 = set_temporary_config_options(hpc_config, ...
-                                                 'combine_sqw_using', 'matlab', ...
-                                                 'build_sqw_in_parallel', false ...
-                                                 );
+            clob = set_temporary_config_options(hpc_config, ...
+                                                'combine_sqw_using', 'matlab', ...
+                                                'build_sqw_in_parallel', false ...
+                                               );
 
             obj.nxs_file =cell(size(obj.psi));
             nxs_file_exist = true;
