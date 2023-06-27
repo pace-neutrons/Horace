@@ -120,14 +120,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             % and the matrices are correct!
             assertTrue(prj_or.nonorthogonal);
             assertTrue(prj_rec.nonorthogonal);
-            % BUT:
-            assertEqual(prj_or.type,'ppp')
-            assertEqual(prj_rec.type,'prr')
 
-            % this is what is what is only important for any transformation
-            tpixo = prj_or.transform_pix_to_img(eye(3));
-            tpixr = prj_rec.transform_pix_to_img(eye(3));
-            assertElementsAlmostEqual(tpixo,tpixr);
+            assertEqualToTol(prj_or,prj_rec,1.e-9);
 
         end
 
@@ -194,11 +188,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             % and the matrices are correct!
             assertTrue(prj_or.nonorthogonal);
             assertTrue(prj_rec.nonorthogonal);
-            % BUT:
-            assertEqual(prj_or.type,'par')
-            assertEqual(prj_rec.type,'ppp')
 
-            assertEqualToTol(prj_or,prj_rec,1.e-9);            
+            assertEqualToTol(prj_or,prj_rec,1.e-9);
         end
 
 
@@ -462,7 +453,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            angdeg = [70,60,110];            
+            angdeg = [70,60,110];
             projn = ortho_proj([1,0,0],[1,1,0],[0,1,1], ...
                 'alatt',lat_par,'angdeg',angdeg,'type','ppp','nonorthogonal',true);
             assertEqual(projn.type,'ppp')
@@ -487,7 +478,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             % non-ortho transformation with orthogonal projection equal to
             % orthogonal transformation on ortholinear lattice
             lat_par = [2,3,4];
-            angdeg = [70,60,110];            
+            angdeg = [70,60,110];
             projn = ortho_proj([1,0,0],[1,1,0],[0,1,1], ...
                 'alatt',lat_par,'angdeg',angdeg,'type','aaa','nonorthogonal',true);
             assertEqual(projn.type,'aaa')
@@ -532,7 +523,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
             assertElementsAlmostEqual(ulen_n,ulen_l);
-        end        
+        end
         %------------------------------------------------------------------
         function test_transf_ppp_nonorthoR_at_ortho_lat_eq_legacy(~)
             % non-ortho transformation with orthogonal projection equal to
