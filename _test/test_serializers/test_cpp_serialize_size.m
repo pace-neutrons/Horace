@@ -1,4 +1,4 @@
-classdef test_cpp_serialise_size < TestCase
+classdef test_cpp_serialize_size < TestCase
     properties
         warned
         use_mex
@@ -6,11 +6,11 @@ classdef test_cpp_serialise_size < TestCase
     end
 
     methods
-        function this=test_cpp_serialise_size(varargin)
+        function this=test_cpp_serialize_size(varargin)
             if nargin>0
                 name = varargin{1};
             else
-                name  = 'test_cpp_serialise_size';
+                name  = 'test_cpp_serialize_size';
             end
             this = this@TestCase(name);
             this.warned = get(hor_config, 'log_level') > 0;

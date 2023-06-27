@@ -158,8 +158,8 @@ classdef test_serializable_class < TestCase
             %--------------------------------------------------------------
             % Serialize using C++
             data_size_c = c_serial_size(serCl);
-            ser_c     = c_serialise(serCl);
-            serCl_rec = c_deserialise(ser_c);
+            ser_c     = c_serialize(serCl);
+            serCl_rec = c_deserialize(ser_c);
 
             assertEqual(serCl, serCl_rec)
             assertEqual(data_size_c,numel(ser_c));
@@ -219,8 +219,8 @@ classdef test_serializable_class < TestCase
             % Serialize using C++
 
             data_size_c = c_serial_size(serCl);
-            ser_c     = c_serialise(serCl);
-            serCl_rec = c_deserialise(ser_c);
+            ser_c     = c_serialize(serCl);
+            serCl_rec = c_deserialize(ser_c);
 
             assertEqual(serCl, serCl_rec)
             assertEqual(data_size_c,numel(ser_c));
@@ -274,8 +274,8 @@ classdef test_serializable_class < TestCase
             %--------------------------------------------------------------
             % Serialize using C++
             data_size_c = c_serial_size(serCl);
-            ser_c     = c_serialise(serCl);
-            serCl_rec = c_deserialise(ser_c);
+            ser_c     = c_serialize(serCl);
+            serCl_rec = c_deserialize(ser_c);
 
             assertEqual(serCl, serCl_rec)
             assertEqual(data_size_c,numel(ser_c));
@@ -323,9 +323,9 @@ classdef test_serializable_class < TestCase
             % Serialize using C++
             data_size_c = c_serial_size(serCl);
 
-            ser_c     = c_serialise(serCl);
+            ser_c     = c_serialize(serCl);
 
-            [serCl_rec,nbytes] = c_deserialise(ser_c);
+            [serCl_rec,nbytes] = c_deserialize(ser_c);
 
             assertEqual(nbytes,numel(ser_c))
             assertEqual(serCl, serCl_rec)
@@ -376,9 +376,9 @@ classdef test_serializable_class < TestCase
             % Serialize using C++
             data_size_c = c_serial_size(serCl);
 
-            ser_c  = c_serialise(serCl);
+            ser_c  = c_serialize(serCl);
 
-            [serCl_rec,nbytes] = c_deserialise(ser_c);
+            [serCl_rec,nbytes] = c_deserialize(ser_c);
 
             assertEqual(nbytes,numel(ser_c))
             assertEqual(serCl, serCl_rec)

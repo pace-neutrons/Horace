@@ -45,39 +45,39 @@ function m = hlp_serialize(v)
 %    (C) 2010 Tim Hutt
 
 if any(size(v) > intmax('uint32'))
-    error("MATLAB:serialise:bad_size",...
-        "Dimensions of array exceed limit of uint32, cannot serialise.")
+    error("MATLAB:serialize:bad_size",...
+        "Dimensions of array exceed limit of uint32, cannot serialize.")
 end
 
 type = hlp_serial_types.type_mapping(v);
 switch type.name
     case {'logical', 'char', 'string', 'double', 'single', 'int8', ...
             'uint8','int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64'}
-        m = serialise_simple_data(v, type);
+        m = serialize_simple_data(v, type);
     case {'complex_double', 'complex_single', 'complex_int8',...
             'complex_uint8', 'complex_int16', 'complex_uint16', ...
             'complex_int32', 'complex_uint32', 'complex_int64',...
             'complex_uint64'}
-        m = serialise_complex_data(v, type);
+        m = serialize_complex_data(v, type);
     case {'sparse_logical', 'sparse_double', 'sparse_complex_double'}
-        m = serialise_sparse_data(v, type);
+        m = serialize_sparse_data(v, type);
     case 'struct'
-        m = serialise_struct(v, type);
+        m = serialize_struct(v, type);
     case 'cell'
-        m = serialise_cell(v, type);
+        m = serialize_cell(v, type);
     case {'value_object', 'handle_object_ref'}
-        m = serialise_object(v, type);
+        m = serialize_object(v, type);
     case 'function_handle'
-        m = serialise_function_handle(v, type);
+        m = serialize_function_handle(v, type);
     case {'serializable'}
         m = serialize_themselves(v,type);
     otherwise
-        error('MATLAB:hlp_serialize:bad_type', 'Cannot serialise type %s.', type.name);
+        error('MATLAB:hlp_serialize:bad_type', 'Cannot serialize type %s.', type.name);
 end
 end
 
 % Simple data types
-function m = serialise_simple_data(v, type)
+function m = serialize_simple_data(v, type)
 nElem = numel(v);
 comb_tag = hlp_serial_types.pack_data_tag(size(v),type);
 
@@ -96,7 +96,7 @@ end
 end
 
 % Complex data types
-function m = serialise_complex_data(v, type)
+function m = serialize_complex_data(v, type)
 nElem = numel(v);
 comb_tag = hlp_serial_types.pack_data_tag(size(v),type);
 
@@ -114,7 +114,7 @@ end
 end
 
 % Sparse data types
-function m = serialise_sparse_data(v, type)
+function m = serialize_sparse_data(v, type)
 
 [i,j,data] = find(v);
 %nElem = nzmax(v); % beware that we may serialize matrix with preallocated
@@ -138,7 +138,7 @@ m = [comb_tag; ...
 end
 
 % Struct array
-function m = serialise_struct(v, type)
+function m = serialize_struct(v, type)
 
 nElem = numel(v);
 if nElem>0
@@ -155,7 +155,7 @@ end
 if isempty(fieldNames)
     data = [];
 else
-    data = serialise_cell(struct2cell(v), hlp_serial_types.get_details('cell'));
+    data = serialize_cell(struct2cell(v), hlp_serial_types.get_details('cell'));
 end
 
 comb_tag = hlp_serial_types.pack_data_tag(size(v),type);
@@ -166,7 +166,7 @@ else
 end
 end
 
-function m = serialise_cell(v, type)
+function m = serialize_cell(v, type)
 % Cell array of heterogenous contents
 data = cellfun(@hlp_serialize,v,'UniformOutput',false);
 data = vertcat(data{:});
@@ -186,13 +186,13 @@ function m = serialize_themselves(v, type)
 m = [type.tag;v.serialize()];
 end
 
-function m = serialise_object(v, type)
+function m = serialize_object(v, type)
 %
 comb_tag = hlp_serial_types.pack_data_tag(size(v),type);
 nElem = numel(v);
 
-class_name = serialise_simple_data(class(v), hlp_serial_types.get_details('char'));
-% can object serialise/deserialise itself?
+class_name = serialize_simple_data(class(v), hlp_serial_types.get_details('char'));
+% can object serialize/deserialize itself?
 if ismethod(v, 'serialize')
     conts = arrayfun(@(x) (x.serialize()), v);
     ser_tag = uint8(0);
@@ -220,7 +220,7 @@ end
 end
 
 % Function handle
-function m = serialise_function_handle(v, type)
+function m = serialize_function_handle(v, type)
 % get the representation
 rep = functions(v);
 
@@ -241,19 +241,19 @@ switch rep.type
     case {'simple', 'classsimple'}
         % simple function
         m = [comb_tag; ... Tag
-            serialise_simple_data(rep.function, hlp_serial_types.get_details('char'))]; % Name of function
+            serialize_simple_data(rep.function, hlp_serial_types.get_details('char'))]; % Name of function
     case 'anonymous'
         % anonymous function
         m = [comb_tag; ... Tag
-            serialise_simple_data(char(v), hlp_serial_types.get_details('char')); ... % Code
-            serialise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'))]; % Workspace
+            serialize_simple_data(char(v), hlp_serial_types.get_details('char')); ... % Code
+            serialize_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'))]; % Workspace
 
     case {'scopedfunction','nested'}
         % scoped function
         m = [comb_tag; ... Tag
-            serialise_cell(rep.parentage, hlp_serial_types.get_details('cell'))]; % Parentage
+            serialize_cell(rep.parentage, hlp_serial_types.get_details('cell'))]; % Parentage
     otherwise
         warn_once('hlp_serialize:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
-        m = serialise_string(['<<hlp_serialize: function handle of type ' rep.type ' unsupported>>']);
+        m = serialize_string(['<<hlp_serialize: function handle of type ' rep.type ' unsupported>>']);
 end
 end

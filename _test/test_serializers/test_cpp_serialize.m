@@ -1,4 +1,4 @@
-classdef test_cpp_deserialise < TestCase
+classdef test_cpp_serialize < TestCase
     properties
         warned
         use_mex
@@ -6,11 +6,11 @@ classdef test_cpp_deserialise < TestCase
     end
 
     methods
-        function this=test_cpp_deserialise(varargin)
+        function this=test_cpp_serialize(varargin)
             if nargin>0
                 name = varargin{1};
             else
-                name  = 'test_cpp_deserialise';
+                name  = 'test_cpp_serialize';
             end
             this = this@TestCase(name);
             this.warned = get(hor_config, 'log_level') > 0;
@@ -28,20 +28,23 @@ classdef test_cpp_deserialise < TestCase
         end
 
         %------------------------------------------------------------------
+
         function test_ser_sample(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
+
             sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
 
-            bytes = c_serialise(sam1);
-            sam1rec = c_deserialise(bytes);
+            bytes = c_serialize(sam1);
+
+            sam1rec = hlp_deserialize(bytes);
             assertEqual(sam1,sam1rec);
 
             sam2=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
 
-            bytes = c_serialise(sam2);
-            sam2rec = c_deserialise(bytes);
+            bytes = c_serialize(sam2);
+            sam2rec = hlp_deserialize(bytes);
             assertEqual(sam2,sam2rec);
 
         end
@@ -54,21 +57,21 @@ classdef test_cpp_deserialise < TestCase
 
             % Create three different instruments
             inst1=create_test_instrument(95,250,'s');
-            bytes = c_serialise(inst1);
-            inst1rec = c_deserialise(bytes);
+            bytes = c_serialize(inst1);
+            inst1rec = hlp_deserialize(bytes);
             assertEqual(inst1,inst1rec);
 
 
             inst2=create_test_instrument(56,300,'s');
             inst2.flipper=true;
-            bytes = c_serialise(inst2);
-            inst2rec = c_deserialise(bytes);
+            bytes = c_serialize(inst2);
+            inst2rec = hlp_deserialize(bytes);
             assertEqual(inst2,inst2rec );
 
             inst3=create_test_instrument(195,600,'a');
             inst3.filter=[3,4,5];
-            bytes = c_serialise(inst3);
-            inst3rec = c_deserialise(bytes);
+            bytes = c_serialize(inst3);
+            inst3rec = hlp_deserialize(bytes);
             assertEqual(inst3,inst3rec );
 
         end
@@ -79,30 +82,29 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
-
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                 'dee',struct('a',10),'ei',int32([9;8;7]));
             test_obj = DataMessage(my_struc);
 
-            ser = c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser = c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec);
 
             test_obj = DataMessage(123456789);
 
-            ser = c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser = c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec);
 
             test_obj = DataMessage('This is a test message');
 
-            ser = c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser = c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec);
         end
 
         %------------------------------------------------------------------
-        function DISABLED_test_ser_datamessage_array(this)
+        function test_ser_datamessage_array(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -110,20 +112,8 @@ classdef test_cpp_deserialise < TestCase
                 'dee',struct('a',10),'ei',int32([9;8;7]));
             test_obj = [DataMessage(my_struc), DataMessage(10), DataMessage('Hello')];
 
-            ser = c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
-            assertEqual(test_obj, test_obj_rec)
-        end
-
-        %------------------------------------------------------------------
-        function DISABLED_test_ser_pixdata(this)
-            if ~this.use_mex
-                skipTest('MEX not enabled');
-            end
-            test_obj = PixelDataBase.create();
-
-            ser = c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser = c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -133,8 +123,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = [];
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
 
             assertEqual(test_obj, test_obj_rec)
         end
@@ -146,8 +136,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = true;
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -157,8 +147,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = [true, true, true];
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -169,8 +159,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = '';
-            ser = c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -180,8 +170,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = 'BEEP';
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -191,8 +181,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = ['BEEP','BOOP'; 'BLORP', 'BOP'];
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -203,8 +193,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = 10;
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -214,8 +204,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = 1:10;
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -225,8 +215,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = [1:10;1:10];
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -237,8 +227,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = 3+4i;
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -248,8 +238,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = [3+4i, 5+7i; 2+1i, 1-1i];
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -259,8 +249,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_obj = [3+4i, 2; 3+5i, 0];
-            ser =  c_serialise(test_obj);
-            test_obj_rec = c_deserialise(ser);
+            ser =  c_serialize(test_obj);
+            test_obj_rec = hlp_deserialize(ser);
             assertEqual(test_obj, test_obj_rec)
         end
 
@@ -271,8 +261,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_struct = struct([]);
-            ser =  c_serialise(test_struct);
-            test_struct_rec = c_deserialise(ser);
+            ser =  c_serialize(test_struct);
+            test_struct_rec = hlp_deserialize(ser);
             assertEqual(test_struct, test_struct_rec)
         end
 
@@ -282,8 +272,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_struct = struct();
-            ser =  c_serialise(test_struct);
-            test_struct_rec = c_deserialise(ser);
+            ser =  c_serialize(test_struct);
+            test_struct_rec = hlp_deserialize(ser);
             assertEqual(test_struct, test_struct_rec)
         end
 
@@ -293,8 +283,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_struct = struct('Hello', 13, 'Goodbye', 7, 'Beef', {{1, 2, 3}});
-            ser =  c_serialise(test_struct);
-            test_struct_rec = c_deserialise(ser);
+            ser =  c_serialize(test_struct);
+            test_struct_rec = hlp_deserialize(ser);
             assertEqual(test_struct, test_struct_rec)
         end
 
@@ -304,8 +294,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_struct = struct('HonkyTonk', {1, 2, 3});
-            ser =  c_serialise(test_struct);
-            test_struct_rec = c_deserialise(ser);
+            ser =  c_serialize(test_struct);
+            test_struct_rec = hlp_deserialize(ser);
             assertEqual(test_struct, test_struct_rec)
         end
 
@@ -315,8 +305,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_struct = struct('HonkyTonk', {1, 2, 3; 4, 5, 6; 7, 8, 9});
-            ser = c_serialise(test_struct);
-            test_struct_rec = c_deserialise(ser);
+            ser = c_serialize(test_struct);
+            test_struct_rec = hlp_deserialize(ser);
             assertEqual(test_struct, test_struct_rec)
         end
 
@@ -327,8 +317,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_sparse = sparse([],[],[]);
-            ser =  c_serialise(test_sparse);
-            test_sparse_rec = c_deserialise(ser);
+            ser =  c_serialize(test_sparse);
+            test_sparse_rec = hlp_deserialize(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
 
@@ -338,8 +328,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_sparse = sparse([],[],[],10,10);
-            ser =  c_serialise(test_sparse);
-            test_sparse_rec = c_deserialise(ser);
+            ser =  c_serialize(test_sparse);
+            test_sparse_rec = hlp_deserialize(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
 
@@ -349,8 +339,10 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_sparse = sparse(eye(1));
-            ser =  c_serialise(test_sparse);
-            test_sparse_rec = c_deserialise(ser);
+            ser =  c_serialize(test_sparse);
+            % Adjust C [0] -> MATLAB [1] indexing
+            ser(15:8:23) = ser(15:8:23) + 1;
+            test_sparse_rec = hlp_deserialize(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
 
@@ -360,8 +352,10 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_sparse = speye(10);
-            ser =  c_serialise(test_sparse);
-            test_sparse_rec = c_deserialise(ser);
+            ser =  c_serialize(test_sparse);
+            % Adjust C [0] -> MATLAB [1] indexing
+            ser(15:8:168) = ser(15:8:168) + 1;
+            test_sparse_rec = hlp_deserialize(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
 
@@ -371,8 +365,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_sparse = sparse([],[], complex([],[]));
-            ser =  c_serialise(test_sparse);
-            test_sparse_rec = c_deserialise(ser);
+            ser =  c_serialize(test_sparse);
+            test_sparse_rec = hlp_deserialize(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
 
@@ -382,8 +376,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_sparse = sparse([],[],complex([],[]),10,10);
-            ser =  c_serialise(test_sparse);
-            test_sparse_rec = c_deserialise(ser);
+            ser =  c_serialize(test_sparse);
+            test_sparse_rec = hlp_deserialize(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
 
@@ -393,19 +387,10 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_sparse = sparse(1, 1, 1i);
-            ser =  c_serialise(test_sparse);
-            test_sparse_rec = c_deserialise(ser);
-            assertEqual(test_sparse, test_sparse_rec)
-        end
-
-        %------------------------------------------------------------------
-        function test_ser_complex_sparse_list(this)
-            if ~this.use_mex
-                skipTest('MEX not enabled');
-            end
-            test_sparse = sparse(1:10, 1, 1i);
-            ser =  c_serialise(test_sparse);
-            test_sparse_rec = c_deserialise(ser);
+            ser =  c_serialize(test_sparse);
+            % Adjust C [0] -> MATLAB [1] indexing
+            ser(15:8:23) = ser(15:8:23) + 1;
+            test_sparse_rec = hlp_deserialize(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
 
@@ -414,32 +399,22 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
-            test_sparse = sparse(1:10, 1:10, 1i);
-            ser =  c_serialise(test_sparse);
-            test_sparse_rec = c_deserialise(ser);
+            test_sparse = sparse(1:10, 1, 1i);
+            ser =  c_serialize(test_sparse);
+            % Adjust C [0] -> MATLAB [1] indexing
+            ser(15:8:168) = ser(15:8:168) + 1;
+            test_sparse_rec = hlp_deserialize(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
 
         %% Test Function handle
-        %------------------------------------------------------------------
         function test_ser_function_handle(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
             test_func = @(x, y) (x^2 + y^2);
-            ser = c_serialise(test_func);
-            test_func_rec = c_deserialise(ser);
-            assertEqual(func2str(test_func), func2str(test_func_rec))
-        end
-
-        %------------------------------------------------------------------
-        function test_ser_function_handle_standard_func(this)
-            if ~this.use_mex
-                skipTest('MEX not enabled');
-            end
-            test_func = @sin;
-            ser = c_serialise(test_func);
-            test_func_rec = c_deserialise(ser);
+            ser = c_serialize(test_func);
+            test_func_rec = hlp_deserialize(ser);
             assertEqual(func2str(test_func), func2str(test_func_rec))
         end
 
@@ -450,8 +425,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             assertEqual(test_cell, test_cell_rec)
         end
 
@@ -461,8 +436,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {1 2 3 4};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             assertEqual(test_cell, test_cell_rec)
         end
 
@@ -472,8 +447,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {1 2 3; 4 5 6; 7 8 9};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             assertEqual(test_cell, test_cell_rec)
         end
 
@@ -483,8 +458,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {1+2i 2+3i 3+1i 4+10i};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             assertEqual(test_cell, test_cell_rec)
         end
 
@@ -494,8 +469,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {1+2i 2 3+1i 4};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             assertEqual(test_cell, test_cell_rec)
         end
 
@@ -505,8 +480,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {{1 2} {3 4} {4 5} {6 7}};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             assertEqual(test_cell, test_cell_rec)
         end
 
@@ -516,8 +491,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {true false false true false};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             assertEqual(test_cell, test_cell_rec)
         end
 
@@ -527,8 +502,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {'Hello' 'is' 'it' 'me' 'youre' 'looking' 'for'};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             assertEqual(test_cell, test_cell_rec)
         end
 
@@ -538,8 +513,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {struct('Hello', 5), struct('Goodbye', 'Chicken')};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             assertEqual(test_cell, test_cell_rec)
         end
 
@@ -549,8 +524,8 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {@(x,y) (x+y^2), @(a,b) (b-a)};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             test_cell = cellfun(@func2str, test_cell, 'UniformOutput',false);
             test_cell_rec = cellfun(@func2str, test_cell_rec, 'UniformOutput',false);
             assertEqual(test_cell, test_cell_rec)
@@ -562,21 +537,11 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             test_cell = {1, 'a', 1+2i, true, struct('boop', 1), {'Hello'}, @(x,y) (x+y^2)};
-            ser =  c_serialise(test_cell);
-            test_cell_rec = c_deserialise(ser);
+            ser =  c_serialize(test_cell);
+            test_cell_rec = hlp_deserialize(ser);
             test_cell{7} = func2str(test_cell{7});
             test_cell_rec{7} = func2str(test_cell_rec{7});
             assertEqual(test_cell, test_cell_rec)
-        end
-        function test_deserialize_invalid(obj)
-            skipTest('invalid arguments test disabled #817')
-            if ~obj.use_mex
-                skipTest('MEX not enabled');
-            end
-            input = 'wrong input';
-            [a,n]=hlp_deserialize(input);
-            assertExcetionThrown(@()c_deserialise(input),'');
-
         end
 
     end

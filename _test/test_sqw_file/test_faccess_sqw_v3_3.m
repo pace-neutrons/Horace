@@ -243,7 +243,7 @@ classdef test_faccess_sqw_v3_3< TestCase
         end
 
         %
-        function test_serialise_deserialise_faccess(obj)
+        function test_serialize_deserialize_faccess(obj)
             fo = faccess_sqw_v3_3();
             fo = fo.init(obj.sample_file);
 

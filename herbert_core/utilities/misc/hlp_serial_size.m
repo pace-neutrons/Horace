@@ -114,13 +114,13 @@ end
 function siz = serial_sise_object(v, type_str)
 
 siz = hlp_serial_types.calc_tag_size(size(v),type_str);
-% Serialise class name as char string
+% Serialize class name as char string
 siz =siz + serial_sise_simple_data(class(v), hlp_serial_types.get_details('char'));
 
 nElem  = numel(v);
 if nElem > 0
     siz =siz + 1; % add serialization tag size
-    if ismethod(v, 'serialize')    % can object serialise/deserialise itself?
+    if ismethod(v, 'serialize')    % can object serialize/deserialize itself?
         if ismethod(v,'serial_size')
             conts = arrayfun(@(x) (x.serial_size()), v);
             conts_siz = sum(conts);

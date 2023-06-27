@@ -1,10 +1,10 @@
 /*=========================================================
- * c_serialise.cpp
- * Serialise MATLAB object into a uint8 data stream
+ * c_serialize.cpp
+ * Serialize MATLAB object into a uint8 data stream
  *
  * See also:
- * hlp_serialise
- * hlp_deserialise
+ * hlp_serialize
+ * hlp_deserialize
  *
  * This is a MEX-file for MATLAB.
  *=======================================================*/
@@ -14,7 +14,7 @@
 #include <cmath>
 #include <vector>
 #include "../utility/version.h"
-#include "cpp_serialise.hpp"
+#include "cpp_serialize.hpp"
 
 template<typename T>
 inline void ser(uint8_t* data, size_t& memPtr, const std::vector<T>& data_in, const size_t amount) {
@@ -89,7 +89,7 @@ inline void write_header(uint8_t* data, size_t& memPtr, tag_type& tag,
 }
 
 
-void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
+void serialize(uint8_t* data, size_t& memPtr, const mxArray* input){
 
 
   tag_type tag = tag_data(input);
@@ -99,7 +99,7 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
 
   for (size_t i=0; i < nDims; i++) {
     if (dims[i] > DIM_MAX) {
-      mexErrMsgIdAndTxt("MATLAB:serialise:bad_size", "Dimensions of array exceed limit of uint32, cannot serialise.");
+      mexErrMsgIdAndTxt("MATLAB:serialize:bad_size", "Dimensions of array exceed limit of uint32, cannot serialize.");
     }
   }
 
@@ -198,7 +198,7 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
       // Fall back to MATLAB
       mxArray* conts;
       mxArray* arr = const_cast<mxArray*>(input);
-      mexCallMATLAB(1, &conts, 1, &arr, "hlp_serialise");
+      mexCallMATLAB(1, &conts, 1, &arr, "hlp_serialize");
       ser(data, memPtr, mxGetPr(conts), mxGetNumberOfElements(conts)*types_size[UINT8]);
     }
     break;
@@ -229,7 +229,7 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
 
       mxArray* conts;
       mexCallMATLAB(1, &conts, 1, &arr, "get_object_conts");
-      serialise(data, memPtr, conts);
+      serialize(data, memPtr, conts);
       mxDestroyArray(conts);
 
 
@@ -262,7 +262,7 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
         mxArray* conts;
         mxArray* arr = const_cast<mxArray*>(input);
         mexCallMATLAB(1, &conts, 1, &arr, "struct2cell");
-        serialise(data, memPtr, conts);
+        serialize(data, memPtr, conts);
       }
 
 
@@ -278,7 +278,7 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
         if (cellElem == nullptr) {
           cellElem = mxCreateUninitNumericMatrix(0, 0, mxDOUBLE_CLASS, (mxComplexity) 0);
         }
-        serialise(data, memPtr, cellElem);
+        serialize(data, memPtr, cellElem);
       }
 
     }
@@ -296,7 +296,7 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
 }
 
 
-/* MATLAB entry point c_serialise */
+/* MATLAB entry point c_serialize */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 
   //--------->  RETURN MEX-file version if requested;
@@ -310,7 +310,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 #ifdef MX_COMPAT_32
   for (i=0; i<nrhs; i++)  {
     if (mxIsSparse(prhs[i])) {
-      mexErrMsgIdAndTxt("MATLAB:c_serialise:NoSparseCompat",
+      mexErrMsgIdAndTxt("MATLAB:c_serialize:NoSparseCompat",
                         "MEX-files compiled on a 64-bit platform that use sparse array functions "
                         "need to be compiled using -largeArrayDims.");
     }
@@ -319,10 +319,10 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 #endif
 
   if (nlhs > 1) {
-    mexErrMsgIdAndTxt("MATLAB:c_serialise:badLHS", "Bad number of LHS arguments in c_serialise");
+    mexErrMsgIdAndTxt("MATLAB:c_serialize:badLHS", "Bad number of LHS arguments in c_serialize");
   }
   if (nrhs != 1) {
-    mexErrMsgIdAndTxt("MATLAB:c_serialise:badRHS", "Bad number of RHS arguments in c_serialise");
+    mexErrMsgIdAndTxt("MATLAB:c_serialize:badRHS", "Bad number of RHS arguments in c_serialize");
   }
 
   mxArray* size_arr;
@@ -330,9 +330,9 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
   mexCallMATLAB(1, &size_arr, 1, &arr, "c_serial_size");
   size_t size = (size_t) mxGetScalar(size_arr);
   mxArray* ser_arr = mxCreateUninitNumericMatrix(size, 1, mxUINT8_CLASS, (mxComplexity) 0);
-  uint8_t* serialised = (uint8_t *) mxGetData(ser_arr);
+  uint8_t* serialized = (uint8_t *) mxGetData(ser_arr);
   size_t memPtr = 0;
-  serialise(serialised, memPtr, arr);
+  serialize(serialized, memPtr, arr);
 
   plhs[0] = ser_arr;
 }

@@ -1,6 +1,6 @@
 /*=========================================================
- * c_deserialise.cpp
- * Deserialise serialised data back into a MATLAB object
+ * c_deserialize.cpp
+ * Deserialize serialized data back into a MATLAB object
  *
  * See also:
  * hlp_serialize
@@ -14,7 +14,7 @@
 #include <cmath>
 #include <vector>
 #include "../utility/version.h"
-#include "cpp_serialise.hpp"
+#include "cpp_serialize.hpp"
 
 template<typename T, typename A>
 inline void deser(const uint8_t* data, size_t& memPtr, std::vector<T, A>& output, const size_t amount) {
@@ -59,7 +59,7 @@ inline void read_data(uint8_t* data, size_t& memPtr, mxArray* output, const size
 }
 
 
-mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) {
+mxArray* deserialize(uint8_t* data, size_t& memPtr, size_t size, bool recursed) {
 
     mxArray* output = nullptr;
 
@@ -207,15 +207,15 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
     case FUNCTION_HANDLE:
     case FUNCTION_HANDLE + 64:
     {
-        mxArray* name = deserialise(data, memPtr, size, 1);
+        mxArray* name = deserialize(data, memPtr, size, 1);
         mexCallMATLAB(1, &output, 1, &name, "str2func");
         mxDestroyArray(name);
     }
     break;
     case FUNCTION_HANDLE + 128:
     {
-        mxArray* name = deserialise(data, memPtr, size, 1);
-        mxArray* workspace = deserialise(data, memPtr, size, 1);
+        mxArray* name = deserialize(data, memPtr, size, 1);
+        mxArray* workspace = deserialize(data, memPtr, size, 1);
         std::vector<mxArray*> input{ name, workspace };
         mexCallMATLAB(1, &output, 2, input.data(), "restore_function");
         mxDestroyArray(name);
@@ -224,7 +224,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
     break;
     case FUNCTION_HANDLE + 192:
     {
-        mxArray* parentage = deserialise(data, memPtr, size, 1);
+        mxArray* parentage = deserialize(data, memPtr, size, 1);
         const size_t len = (size_t)mxGetNumberOfElements(parentage);
 
         // Initial output
@@ -276,7 +276,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
 
             std::vector<mxArray*> results(2);
             std::vector<mxArray*> input{ mxName, mxData };
-            mexCallMATLAB(2, results.data(), 2, input.data(), "c_hlp_deserialise_object_self");
+            mexCallMATLAB(2, results.data(), 2, input.data(), "c_hlp_deserialize_object_self");
             output = results[0];
             memPtr += (size_t)mxGetScalar(results[1]);
             mxDestroyArray(mxName);
@@ -289,16 +289,16 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
         case SAVEOBJ:
         {
             mxArray* mxName = mxCreateString(name.data());
-            mxArray* conts = deserialise(data, memPtr, size, 1);
+            mxArray* conts = deserialize(data, memPtr, size, 1);
             std::vector<mxArray*> input{ mxName, conts };
-            mexCallMATLAB(1, &output, 2, input.data(), "c_hlp_deserialise_object_loadobj");
+            mexCallMATLAB(1, &output, 2, input.data(), "c_hlp_deserialize_object_loadobj");
             mxDestroyArray(conts);
             mxDestroyArray(mxName);
         }
         break;
         case STRUCTED:
         {
-            output = deserialise(data, memPtr, size, 1);
+            output = deserialize(data, memPtr, size, 1);
             mxSetClassName(output, name.data());
         }
         break;
@@ -327,7 +327,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
         output = mxCreateStructArray(nDims, dims, nFields, (const char**)mxData.data());
         if (nFields == 0) break;
 
-        mxArray* cellData = deserialise(data, memPtr, size, 1);
+        mxArray* cellData = deserialize(data, memPtr, size, 1);
 
         for (size_t obj = 0, elem = 0; obj < nElem; obj++) {
             for (uint32_t field = 0; field < nFields; field++, elem++) {
@@ -343,7 +343,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
     {
         output = mxCreateCellArray(nDims, dims);
         for (mwIndex i = 0; i < nElem; i++) {
-            mxArray* elem = deserialise(data, memPtr, size, 1);
+            mxArray* elem = deserialize(data, memPtr, size, 1);
             mxSetCell(output, i, elem);
         }
     }
@@ -360,7 +360,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
         mxSetPr(mxData, (double*)&data[memPtr]);
 
         std::vector<mxArray*> results(2);
-        mexCallMATLAB(2, results.data(), 1, &mxData, "hlp_deserialise");
+        mexCallMATLAB(2, results.data(), 1, &mxData, "hlp_deserialize");
         output = results[0];
         memPtr += (size_t)mxGetScalar(results[1]);
 
@@ -382,7 +382,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
     return output;
 }
 
-/* MATLAB entry point c_deserialise */
+/* MATLAB entry point c_deserialize */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 
     //--------->  RETURN MEX-file version if requested;
@@ -395,7 +395,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 #ifdef MX_COMPAT_32
     for (i = 0; i < nrhs; i++) {
         if (mxIsSparse(prhs[i])) {
-            mexErrMsgIdAndTxt("MATLAB:c_deserialise:NoSparseCompat",
+            mexErrMsgIdAndTxt("MATLAB:c_deserialize:NoSparseCompat",
                 "MEX-files compiled on a 64-bit platform that use sparse array functions "
                 "need to be compiled using -largeArrayDims.");
         }
@@ -404,10 +404,10 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 #endif
 
     if (nlhs > 2) {
-        mexErrMsgIdAndTxt("MATLAB:c_deserialise:badLHS", "Bad number of LHS arguments in c_deserialise");
+        mexErrMsgIdAndTxt("MATLAB:c_deserialize:badLHS", "Bad number of LHS arguments in c_deserialize");
     }
     if (nrhs < 1 || nrhs > 2) {
-        mexErrMsgIdAndTxt("MATLAB:c_deserialise:badRHS", "Bad number of RHS arguments in c_deserialise");
+        mexErrMsgIdAndTxt("MATLAB:c_deserialize:badRHS", "Bad number of RHS arguments in c_deserialize");
     }
 
     // the position of the data in the input bytes array. By default, it's 0
@@ -420,7 +420,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
     mwSize size = mxGetNumberOfElements(prhs[0]);
     uint8_t* data = (uint8_t*)mxGetPr(prhs[0]);
 
-    plhs[0] = deserialise(data, memPtr, size, 0);
+    plhs[0] = deserialize(data, memPtr, size, 0);
     size_t size_count = memPtr - initial_pos;
     if (nlhs == 2) {
         plhs[1] = mxCreateDoubleScalar((double)size_count);

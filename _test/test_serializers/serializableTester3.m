@@ -238,7 +238,7 @@ classdef serializableTester3 < serializable
             % Version 1:
             %   'dia','height','atms'
             %
-            % Unserialised: (set ver==NaN)
+            % Unserialized: (set ver==NaN)
             %   'dia', 'height'
             
             latest_version = 2;

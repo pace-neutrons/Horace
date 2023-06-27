@@ -23,7 +23,7 @@ if nargin==1
     pos = 1;
 end
 
-[S, nbytes] = deserialise (byte_array, pos);
+[S, nbytes] = deserialize (byte_array, pos);
 obj = serializable.from_struct (S);
 
 end
