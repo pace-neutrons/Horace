@@ -35,6 +35,8 @@ classdef parallel_config<config_base
     %                      cluster, running selected cluster.
     % threads            - How many computational threads to use in parallel
     %                      and in MEX
+    % parallel_threads   - Number of computational threads to use on remote
+    %                      workers
     % ---------------------------------------------------------------------
     % shared_folder_on_local - The folder on your working machine containing
     %                          the job input and output data.
@@ -55,7 +57,7 @@ classdef parallel_config<config_base
     % =====================================================================
     % known_clusters       - Information method returning the list of
     %                        the parallel clusters, known to Herbert.
-    % known_clust_configs  - Information method returning the list of
+    % known_cluster_configs- Information method returning the list of
     %                        the configurations, available for the selected
     %                        cluster.
     % ---------------------------------------------------------------------
@@ -120,19 +122,13 @@ classdef parallel_config<config_base
         cluster_config;
 
         % number of workers to deploy in parallel jobs
-        accumulating_process_num;
         parallel_workers_number;
-
-        % Threading using auto-calculated threads used in Slurm because
-        % remote machine probably doesn't have same number of cores as
-        % local machine
-        is_auto_par_threads;
 
         % Number of threads to use.
         threads;
 
         % Number of threads to use in MPIFramework.
-        par_threads;
+        parallel_threads;
 
         % Information method returning the list of the parallel clusters,
         % known to Herbert. You can not add or change a cluster
@@ -150,7 +146,7 @@ classdef parallel_config<config_base
         % The cluster used by parpool and slurm clusters are using the default
         % configurations selected in parallel computing toolbox GUI for
         % parpool and slurm database configuration for slurm.
-        known_clust_configs;
+        known_cluster_configs;
 
         % The folder on your working machine containing the job input and
         % output data mounted on local machine and available from the remote
@@ -187,10 +183,6 @@ classdef parallel_config<config_base
         % evaluated on a remote worker equal to shared_folder_on_remote value
         working_directory;
 
-        % Information field:
-        % true, if working directory have not ever been set
-        wkdir_is_default;
-
         % if set up, specifies the mpiexc program with full path to it,
         % used to launch parallel jobs instead of internal mpiexec
         % program, provided with Horace. Must be used when you compiled
@@ -214,6 +206,15 @@ classdef parallel_config<config_base
 
         % Redirect IO to host and other debug features
         debug;
+
+        % Threading using auto-calculated threads; used in Slurm because
+        % remote machine probably doesn't have same number of cores as
+        % local machine
+        is_auto_parallel_threads;
+
+        % Information field:
+        % true, if working directory has not ever been set
+        wkdir_is_default;
     end
 
     properties(Constant,Access=private)
@@ -227,7 +228,7 @@ classdef parallel_config<config_base
             'cluster_config', ...
             'parallel_workers_number',...
             'threads', ...
-            'par_threads', ...
+            'parallel_threads', ...
             'shared_folder_on_local', ...
             'shared_folder_on_remote', ...
             'working_directory', ...
@@ -254,7 +255,7 @@ classdef parallel_config<config_base
         % default auto threads
         threads_ = 0;
         % default auto threads
-        par_threads_ = 0;
+        parallel_threads_ = 0;
 
         % default remote folder is unset
         shared_folder_on_local_ ='';
@@ -319,8 +320,8 @@ classdef parallel_config<config_base
             conf = obj.get_or_restore_field('cluster_config');
         end
 
-        function tf = get.is_auto_par_threads(obj)
-            n_threads = get_or_restore_field(obj,'par_threads');
+        function tf = get.is_auto_parallel_threads(obj)
+            n_threads = get_or_restore_field(obj,'parallel_threads');
             tf = n_threads < 1;
         end
 
@@ -335,8 +336,8 @@ classdef parallel_config<config_base
             end
         end
 
-        function n_threads=get.par_threads(obj)
-            n_threads = get_or_restore_field(obj, 'par_threads');
+        function n_threads=get.parallel_threads(obj)
+            n_threads = get_or_restore_field(obj, 'parallel_threads');
             n_workers = get_or_restore_field(obj, 'parallel_workers_number');
             n_poss_threads = floor(obj.n_cores/n_workers);
 
@@ -413,7 +414,7 @@ classdef parallel_config<config_base
             end
         end
 
-        function clust_configs = get.known_clust_configs(obj)
+        function clust_configs = get.known_cluster_configs(obj)
             % information about clusters (cluster configurations),
             % available for the selected cluster
             fram = obj.parallel_cluster;
@@ -458,7 +459,7 @@ classdef parallel_config<config_base
             % Throws HERBERT:parallel_config:invalid_argument if the cluster
             % configuration is invalid or not available on the current system.
 
-            opt = obj.known_clust_configs;
+            opt = obj.known_cluster_configs;
             if strcmpi(opt{1},'none')
                 the_config = 'none';
             else
@@ -466,10 +467,6 @@ classdef parallel_config<config_base
             end
 
             config_store.instance().store_config(obj,'cluster_config',the_config);
-        end
-
-        function obj = set.accumulating_process_num(obj,val)
-            obj.parallel_workers_number = val;
         end
 
         function obj = set.parallel_workers_number(obj,val)
@@ -491,17 +488,17 @@ classdef parallel_config<config_base
             config_store.instance().store_config(obj,'threads',n_threads);
         end
 
-        function obj = set.par_threads(obj,n_threads)
+        function obj = set.parallel_threads(obj,n_threads)
             n_threads = floor(n_threads);
             n_workers = get_or_restore_field(obj, 'parallel_workers_number');
             n_poss_threads = floor(obj.n_cores/n_workers);
 
             if n_threads < 0
-                error('HERBERT:parallel_config:invalid_argument', 'par_threads must be positive or 0 (automatic)')
+                error('HERBERT:parallel_config:invalid_argument', 'parallel_threads must be positive or 0 (automatic)')
             elseif n_threads > n_poss_threads
-                warning('HERBERT:parallel_config:par_threads', 'Number of par threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
+                warning('HERBERT:parallel_config:parallel_threads', 'Number of par threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
             end
-            config_store.instance().store_config(obj,'par_threads',n_threads);
+            config_store.instance().store_config(obj,'parallel_threads',n_threads);
         end
 
         function obj = set.slurm_commands(obj,val)

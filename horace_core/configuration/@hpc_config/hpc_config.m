@@ -74,8 +74,8 @@ classdef hpc_config < config_base
         %            of MPI workers and the speed of parallel file system.
         % To select one of the options above, one can provide only first
         % distinctive input for any option. (e.g. ma, me or mp)
-
         combine_sqw_options;
+
         % If mex code is used for combining tmp files various thread
         % modes can be deployed for this operation:
         % namely:
@@ -116,7 +116,7 @@ classdef hpc_config < config_base
         % immutable reference to the class, which describes the parallel
         % configuration. To change the parallel configuration, work with
         % the configuration class itself;
-        parallel_configuration;
+        parallel_config;
 
         % helper read-only property, returning list of options, which
         % define hpc configuration. Set by saved_properties_list_
@@ -132,8 +132,6 @@ classdef hpc_config < config_base
         use_mex_for_combine
         % if true, launch separate Matlab session(s) to generate tmp files
         accum_in_separate_process
-        % number of sessions to launch to calculate additional files
-        accumulating_process_num
     end
 
     properties(Access=protected,Hidden = true)
@@ -196,10 +194,6 @@ classdef hpc_config < config_base
             accum = get_or_restore_field(obj,'build_sqw_in_parallel');
         end
 
-        function accum = get.accumulating_process_num(obj)
-            accum = get_or_restore_field(obj,'parallel_workers_number');
-        end
-
         function accum = get.build_sqw_in_parallel(obj)
             accum = get_or_restore_field(obj,'build_sqw_in_parallel');
         end
@@ -220,7 +214,7 @@ classdef hpc_config < config_base
             rem_f = config_store.instance.get_value('parallel_config','remote_folder');
         end
 
-        function config = get.parallel_configuration(~)
+        function config = get.parallel_config(~)
             config = parallel_config();
         end
 
