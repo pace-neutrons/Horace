@@ -75,21 +75,21 @@ uvw_orth=ubmat*uvw;  % u,v,w in the orthonormal
 %                   coordinate system frame defined by u (along u) and v and
 %                   aligned with rotated Crystal Cartesian system
 %                   in (A^-1)
-if obj.nonorthogonal                  % V_c = Transf*B*V_hkl -- Defining Tr
-    transf0 = b_mat*uvw;
-    transf  = transf0;
-    veclen = zeros(3,1);
-    % Keep non-orthogonality of u,v, and w (if given)
-    for i=1:3
-        veclen(i) = norm(transf(:,i));
-        transf(:,i) = transf0(:,i)/veclen(i); % make the vectors to 
-        %                                      be unit vectors
+if obj.nonorthogonal       % V_c = Transf*B*V_hkl -- Defining Transformation
+    transf  = b_mat*uvw; % The vectors of the projection in Crystal 
+    %                      Cartesian coordinates
+    % define appropriate normalization.
+    for i=1:3        
+        % make the transformation vectors to be unit vectors to be able 
+        %to project data  without distortions        
+        transf(:,i) = transf(:,i)/norm(transf(:,i));
+        veclen = norm(uvw_orth(:,i));
         if lower(type(i))=='r'      % normalise so ui has max(abs(h,k,l))=1
-            ulen(i) = max(abs(transf0(:,i)));
+            ulen(i) = veclen/max(abs(uvw(:,i)));
         elseif lower(type(i))=='a'  % ui normalised to 1 Ang^-1
             ulen(i) = 1;
         elseif lower(type(i))=='p'  % normalise so ui has length of projection of u,v,w along ui
-            ulen(i) = abs(transf0(i,i));
+            ulen(i) =veclen;
         end
     end
     % transpose transformation matrix to be consistent with umat below.

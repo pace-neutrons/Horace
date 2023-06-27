@@ -11,9 +11,9 @@ classdef ortho_projTester < ortho_proj
             obj = obj@ortho_proj(varargin{:});
         end
         %
-        function [img_to_u, u_to_img, ulen]=projaxes_to_rlu_public(obj,varargin)
-            [u_to_img,~,ulen]=obj.get_pix_img_transformation(3);
-            img_to_u = inv(u_to_img);
+        function [img_to_u, q_to_img, ulen]=projaxes_to_rlu_public(obj,varargin)
+            [q_to_img,~,ulen]=obj.get_pix_img_transformation(3);
+            img_to_u = inv(q_to_img);
         end
         %
         function [u,v,w,type]=uv_from_data_rot_public(obj,u_to_rlu,ustep)
