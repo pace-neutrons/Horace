@@ -18,26 +18,26 @@ function siz = hlp_serial_size(v)
 type = hlp_serial_types.type_mapping(v);
 switch type.name
     case {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64', 'complex_double', 'complex_single', 'complex_int8', 'complex_uint8', 'complex_int16', 'complex_uint16', 'complex_int32', 'complex_uint32', 'complex_int64', 'complex_uint64'}
-        siz = serial_sise_simple_data(v, type);
+        siz = serial_size_simple_data(v, type);
     case {'sparse_logical', 'sparse_double', 'sparse_complex_double'}
-        siz = serial_sise_sparse_data(v, type);
+        siz = serial_size_sparse_data(v, type);
     case 'struct'
-        siz = serial_sise_struct(v, type);
+        siz = serial_size_struct(v, type);
     case 'cell'
-        siz = serial_sise_cell(v, type);
+        siz = serial_size_cell(v, type);
     case {'value_object', 'handle_object_ref'}
-        siz = serial_sise_object(v, type);
+        siz = serial_size_object(v, type);
     case 'function_handle'
-        siz = serial_sise_function_handle(v, type);
+        siz = serial_size_function_handle(v, type);
     case 'serializable'
-        siz = serial_sise_itself(v, type);
+        siz = serial_size_itself(v, type);
     otherwise
-        error(['Cannot serial_sise ', type.name]);
+        error(['Cannot serial_size ', type.name]);
 end
 
 end
 
-function siz = serial_sise_simple_data(v, type_str)
+function siz = serial_size_simple_data(v, type_str)
 siz = hlp_serial_types.calc_tag_size(size(v),type_str);
 
 nElem = numel(v);
@@ -50,7 +50,7 @@ end
 end
 
 % Sparse data types
-function siz = serial_sise_sparse_data(v, type_str)
+function siz = serial_size_sparse_data(v, type_str)
 nElem = nnz(v);
 siz = hlp_serial_types.calc_tag_size(size(v),type_str,1)+...
     hlp_serial_types.dim_size + ... % add size for number of elements
@@ -64,7 +64,7 @@ siz = hlp_serial_types.calc_tag_size(size(v),type_str,1)+...
 end
 
 % Struct array
-function siz = serial_sise_struct(v, type_str)
+function siz = serial_size_struct(v, type_str)
 % Tag, Field Count, Field name lengths, Field name char data, #dimensions, dimensions
 fieldNames = fieldnames(v);
 nFields = numel(fieldNames);
@@ -75,7 +75,7 @@ fn_siz = hlp_serial_types.dim_size*(nFields+1) + ... Lengths of each field, +1 f
 
 if ~isempty(fieldNames)
     % Convert to cell, and calculate its size
-    data_siz = serial_sise_cell(struct2cell(v), hlp_serial_types.get_details('cell'));
+    data_siz = serial_size_cell(struct2cell(v), hlp_serial_types.get_details('cell'));
 else
     % Otherwise, no data
     data_siz = 0;
@@ -93,7 +93,7 @@ else
 end
 end
 
-function siz = serial_sise_cell(v, type_str)
+function siz = serial_size_cell(v, type_str)
 % Cell array of heterogenous contents
 data_siz = cellfun(@hlp_serial_size,v,'UniformOutput',false);
 data_siz = sum([data_siz{:}]);
@@ -106,16 +106,16 @@ else
 end
 end
 %
-function  siz = serial_sise_itself(v, ~)
+function  siz = serial_size_itself(v, ~)
 % one for tag;
 siz = v.serial_size()+1;
 end
 
-function siz = serial_sise_object(v, type_str)
+function siz = serial_size_object(v, type_str)
 
 siz = hlp_serial_types.calc_tag_size(size(v),type_str);
 % Serialize class name as char string
-siz =siz + serial_sise_simple_data(class(v), hlp_serial_types.get_details('char'));
+siz =siz + serial_size_simple_data(class(v), hlp_serial_types.get_details('char'));
 
 nElem  = numel(v);
 if nElem > 0
@@ -146,7 +146,7 @@ end
 end
 
 % Function handle
-function siz = serial_sise_function_handle(v, type_struc)
+function siz = serial_size_function_handle(v, type_struc)
 % get the representation
 rep = functions(v);
 %
@@ -156,21 +156,21 @@ switch rep.type
         % simple function: Tag & name
 
         siz = tag_size  +...
-            serial_sise_simple_data(rep.function, hlp_serial_types.get_details('char')); % String of name
+            serial_size_simple_data(rep.function, hlp_serial_types.get_details('char')); % String of name
     case 'anonymous'
         % anonymous function: Tag, Code, and reduced workspace
         siz = tag_size +...
-            serial_sise_simple_data(char(v), hlp_serial_types.get_details('char'))+... % Code
-            serial_sise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'));
+            serial_size_simple_data(char(v), hlp_serial_types.get_details('char'))+... % Code
+            serial_size_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'));
     case {'scopedfunction','nested'}
         %
         % scoped function: Tag and Parentage
         siz = tag_size + ... Tag
-            serial_sise_cell(rep.parentage, hlp_serial_types.get_details('cell')); % Parentage
+            serial_size_cell(rep.parentage, hlp_serial_types.get_details('cell')); % Parentage
     otherwise
         warn_once('hlp_serialize:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
         siz = tag_size+...
-            serial_sise_simple_data(['<<hlp_serialize: function handle of type ' rep.type ' unsupported>>'],...
+            serial_size_simple_data(['<<hlp_serialize: function handle of type ' rep.type ' unsupported>>'],...
             hlp_serial_types.get_details('char'));
 end
 end
