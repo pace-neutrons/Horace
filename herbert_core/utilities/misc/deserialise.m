@@ -29,4 +29,4 @@ if use_mex
     end
 end
 
-[ser,nbytes] = hlp_deserialise(a,pos);
+[ser,nbytes] = hlp_deserialize(a,pos);

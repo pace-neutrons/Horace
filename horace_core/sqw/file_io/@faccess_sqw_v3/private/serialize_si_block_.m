@@ -5,7 +5,7 @@ function [bytes,data_sz] = serialize_si_block_(obj,data,type)
 % The block contains theheader, describing the class name
 % (instrument or sample) together with classes version  and
 % the sample/instrument  information, serialized according to the
-% algorithm, inspired by hlp_serialise/hlp_deserialise.
+% algorithm, inspired by hlp_serialize/hlp_deserialize.
 %
 %
 

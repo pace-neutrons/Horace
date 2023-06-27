@@ -41,8 +41,8 @@ classdef test_instrument_save_load < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_DGdisk_bytestream (self)
             inst_ref = self.inst_DGdisk;
-            bytes = hlp_serialise(inst_ref);
-            inst = hlp_deserialise(bytes);
+            bytes = hlp_serialize(inst_ref);
+            inst = hlp_deserialize(bytes);
 
             assertEqual(inst_ref,inst)
         end
@@ -50,8 +50,8 @@ classdef test_instrument_save_load < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_DGfermi_bytestream (self)
             inst_ref = self.inst_DGfermi;
-            bytes = hlp_serialise(inst_ref);
-            inst = hlp_deserialise(bytes);
+            bytes = hlp_serialize(inst_ref);
+            inst = hlp_deserialize(bytes);
 
             assertEqual(inst_ref,inst)
         end

@@ -1,6 +1,6 @@
-function [v,nbytes] = hlp_deserialise(m,pos)
+function [v,nbytes] = hlp_deserialize(m,pos)
 % Convert a serialised byte vector back into the corresponding MATLAB data structure.
-% Data = hlp_deserialise(Bytes)
+% Data = hlp_deserialize(Bytes)
 %
 % In:
 %  m  :    a representation of the original data as a byte stream
@@ -10,12 +10,12 @@ function [v,nbytes] = hlp_deserialise(m,pos)
 %   Data  : some MATLAB data structure deseriaised from the bytes
 %  nbytes : number of bytes the structure occupies
 % See also:
-%   hlp_serialise
+%   hlp_serialize
 %
 % Examples:
-%   bytes = hlp_serialise(mydata);
+%   bytes = hlp_serialize(mydata);
 %   ... e.g. transfer the 'bytes' array over the network ...
-%   mydata = hlp_deserialise(bytes);
+%   mydata = hlp_deserialize(bytes);
 %
 %   Jacob Wilkins, SCD, STFC RAL,
 %   2020-12-24
@@ -57,7 +57,7 @@ switch typeID
     case 32
         [v,pos] = obj_deserialize_itself(m,pos);
     otherwise
-        error('HORACE:hlp_deserialise:invalid_argument', ...
+        error('HORACE:hlp_deserialize:invalid_argument', ...
             'Cannot deserialise tag with ID: %d at position %d.',typeID,pos);
 end
 end
@@ -246,7 +246,7 @@ switch fTag
             try
                 v = arg_report('handle',v,parentage{k});
             catch
-                error('MATLAB:deserialise_function_handle:hlp_deserialise',...
+                error('MATLAB:deserialise_function_handle:hlp_deserialize',...
                     'Cannot deserialise a function handle to a nested function.')
             end
         end

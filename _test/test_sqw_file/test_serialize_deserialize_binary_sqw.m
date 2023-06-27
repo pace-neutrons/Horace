@@ -425,8 +425,8 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
             %             assertEqual(recov,ob);
-            %             by = hlp_serialise(ob);
-            %             rec = hlp_deserialise(by);
+            %             by = hlp_serialize(ob);
+            %             rec = hlp_deserialize(by);
             %             assertEqual(rec,ob);
 
 

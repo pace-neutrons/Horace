@@ -24,4 +24,4 @@ if use_mex
     end
 end
 
-size = hlp_serial_sise(a);
+size = hlp_serial_size(a);

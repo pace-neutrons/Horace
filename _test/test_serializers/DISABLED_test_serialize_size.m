@@ -56,7 +56,7 @@ classdef DISABLED_test_serialize_size < TestCase
             % Create three different instruments
             inst1=create_test_instrument(95,250,'s');
             size1 = hlp_serial_size(inst1);
-            bytes = hlp_serialise(inst1);
+            bytes = hlp_serialize(inst1);
             assertEqual(size1,numel(bytes));
             
             inst2=create_test_instrument(56,300,'s');

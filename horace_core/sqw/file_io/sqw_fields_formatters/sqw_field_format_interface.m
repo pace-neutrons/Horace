@@ -14,7 +14,7 @@ classdef sqw_field_format_interface
     %
     % The new additions to the sqw obect format (i.e.
     % instrument and sample) are processed using functionality similar to
-    % the one provided by hlp_serialise/deserialise functions but accessed
+    % the one provided by hlp_serialize/deserialise functions but accessed
     % according to the interface, specified below.
     %
     properties(Constant,Access=protected)

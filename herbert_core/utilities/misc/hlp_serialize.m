@@ -1,8 +1,8 @@
-function m = hlp_serialise(v)
+function m = hlp_serialize(v)
 % Convert a MATLAB data structure into a compact byte vector.
-% Bytes = hlp_serialise(Data)
+% Bytes = hlp_serialize(Data)
 %
-% The original data structure can be recovered from the byte vector via hlp_deserialise.
+% The original data structure can be recovered from the byte vector via hlp_deserialize.
 %
 % In:
 %   Data : some MATLAB data structure
@@ -27,12 +27,12 @@ function m = hlp_serialise(v)
 %     declaration is not possible
 %
 % See also:
-%   hlp_deserialise
+%   hlp_deserialize
 %
 % Examples:
-%   bytes = hlp_serialise(mydata);
+%   bytes = hlp_serialize(mydata);
 %   ... e.g. transfer the 'bytes' array over the network ...
-%   mydata = hlp_deserialise(bytes);
+%   mydata = hlp_deserialize(bytes);
 %
 %    Jacob Wilkins, SCD, STFC RAL,
 %    2020-12-24
@@ -72,7 +72,7 @@ switch type.name
     case {'serializable'}
         m = serialize_themselves(v,type);
     otherwise
-        error('MATLAB:hlp_serialise:bad_type', 'Cannot serialise type %s.', type.name);
+        error('MATLAB:hlp_serialize:bad_type', 'Cannot serialise type %s.', type.name);
 end
 end
 
@@ -168,7 +168,7 @@ end
 
 function m = serialise_cell(v, type)
 % Cell array of heterogenous contents
-data = cellfun(@hlp_serialise,v,'UniformOutput',false);
+data = cellfun(@hlp_serialize,v,'UniformOutput',false);
 data = vertcat(data{:});
 
 comb_tag = hlp_serial_types.pack_data_tag(size(v),type);
@@ -210,7 +210,7 @@ else
         conts = arrayfun(@struct, v);
         ser_tag = uint8(2);
     end
-    conts = hlp_serialise(conts);
+    conts = hlp_serialize(conts);
 end
 if nElem == 0 % Null element
     m = [comb_tag; class_name];
@@ -253,7 +253,7 @@ switch rep.type
         m = [comb_tag; ... Tag
             serialise_cell(rep.parentage, hlp_serial_types.get_details('cell'))]; % Parentage
     otherwise
-        warn_once('hlp_serialise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
-        m = serialise_string(['<<hlp_serialise: function handle of type ' rep.type ' unsupported>>']);
+        warn_once('hlp_serialize:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
+        m = serialise_string(['<<hlp_serialize: function handle of type ' rep.type ' unsupported>>']);
 end
 end

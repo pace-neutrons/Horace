@@ -21,4 +21,4 @@ if use_mex
     end
 end
 
-ser = hlp_serialise(a);
+ser = hlp_serialize(a);

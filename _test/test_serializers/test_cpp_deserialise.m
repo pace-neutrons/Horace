@@ -574,7 +574,7 @@ classdef test_cpp_deserialise < TestCase
                 skipTest('MEX not enabled');
             end
             input = 'wrong input';
-            [a,n]=hlp_deserialise(input);
+            [a,n]=hlp_deserialize(input);
             assertExcetionThrown(@()c_deserialise(input),'');
 
         end

@@ -1,14 +1,14 @@
-function siz = hlp_serial_sise(v)
+function siz = hlp_serial_size(v)
 % Calculate the size (in bytes) of Matlab structure, which would be produced by
-% hlp_serialise routine. Deduced from hlp_serialise/
+% hlp_serialize routine. Deduced from hlp_serialize/
 %
 % See also:
-%   hlp_serialise
-%   hlp_deserialise
+%   hlp_serialize
+%   hlp_deserialize
 %
 % Examples:
-%   >>num_bytes = hlp_serial_sise(mydata);
-%   >>bytes = hlp_serialise(mydata)
+%   >>num_bytes = hlp_serial_size(mydata);
+%   >>bytes = hlp_serialize(mydata)
 %   >>numel(bytes) == num_bytes
 %   >>True
 %
@@ -95,7 +95,7 @@ end
 
 function siz = serial_sise_cell(v, type_str)
 % Cell array of heterogenous contents
-data_siz = cellfun(@hlp_serial_sise,v,'UniformOutput',false);
+data_siz = cellfun(@hlp_serial_size,v,'UniformOutput',false);
 data_siz = sum([data_siz{:}]);
 nElem = numel(v);
 siz = hlp_serial_types.calc_tag_size(size(v),type_str);
@@ -125,7 +125,7 @@ if nElem > 0
             conts = arrayfun(@(x) (x.serial_size()), v);
             conts_siz = sum(conts);
         else
-            conts_siz = hlp_serial_sise(arrayfun(@(x) (x.serialize()), v));
+            conts_siz = hlp_serial_size(arrayfun(@(x) (x.serialize()), v));
         end
     else
         try
@@ -137,7 +137,7 @@ if nElem > 0
         catch
             conts = arrayfun(@struct, v);
         end
-        conts_siz = hlp_serial_sise(conts);
+        conts_siz = hlp_serial_size(conts);
     end
     siz = siz+conts_siz;
 else
@@ -168,9 +168,9 @@ switch rep.type
         siz = tag_size + ... Tag
             serial_sise_cell(rep.parentage, hlp_serial_types.get_details('cell')); % Parentage
     otherwise
-        warn_once('hlp_serialise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
+        warn_once('hlp_serialize:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
         siz = tag_size+...
-            serial_sise_simple_data(['<<hlp_serialise: function handle of type ' rep.type ' unsupported>>'],...
+            serial_sise_simple_data(['<<hlp_serialize: function handle of type ' rep.type ' unsupported>>'],...
             hlp_serial_types.get_details('char'));
 end
 end

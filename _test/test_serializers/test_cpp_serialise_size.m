@@ -36,7 +36,7 @@ classdef test_cpp_serialise_size < TestCase
             test_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                 'dee',struct('a',10),'ei',int32([9;8;7]));
 
-            sz = hlp_serial_sise(test_struc);
+            sz = hlp_serial_size(test_struc);
             cpp = c_serial_size(test_struc);
             assertEqual(cpp,sz);
 
@@ -45,7 +45,7 @@ classdef test_cpp_serialise_size < TestCase
                 'dee',@(x)sin(x),'ei',[1,2,4]');
 
             cpp = c_serial_size(test_struc);
-            sz = hlp_serial_sise(test_struc);
+            sz = hlp_serial_size(test_struc);
             assertEqual(cpp,sz);
 
         end
@@ -57,13 +57,13 @@ classdef test_cpp_serialise_size < TestCase
             end
             sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
 
-            size1 = hlp_serial_sise(sam1);
+            size1 = hlp_serial_size(sam1);
             cpp = c_serial_size(sam1);
             assertEqual(size1,cpp);
 
             sam2=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
 
-            size2 = hlp_serial_sise(sam2);
+            size2 = hlp_serial_size(sam2);
             cpp = c_serial_size(sam2);
             assertEqual(size2,cpp);
 
@@ -78,19 +78,19 @@ classdef test_cpp_serialise_size < TestCase
 
             % Create three different instruments
             inst1=create_test_instrument(95,250,'s');
-            size1 = hlp_serial_sise(inst1);
+            size1 = hlp_serial_size(inst1);
             cpp = c_serial_size(inst1);
             assertEqual(size1,cpp);
 
             inst2=create_test_instrument(56,300,'s');
             inst2.flipper=true;
-            size2 = hlp_serial_sise(inst2);
+            size2 = hlp_serial_size(inst2);
             cpp = c_serial_size(inst2);
             assertEqual(size2,cpp);
 
             inst3=create_test_instrument(195,600,'a');
             inst3.filter=[3,4,5];
-            size3 = hlp_serial_sise(inst3);
+            size3 = hlp_serial_size(inst3);
             cpp = c_serial_size(inst3);
             assertEqual(size3,cpp);
 
@@ -106,19 +106,19 @@ classdef test_cpp_serialise_size < TestCase
             test_struc = DataMessage(my_struc);
 
             cpp = c_serial_size(test_struc);
-            sz = hlp_serial_sise(test_struc);
+            sz = hlp_serial_size(test_struc);
             assertEqual(cpp,sz);
 
             test_struc = DataMessage(123456789);
 
             cpp = c_serial_size(test_struc);
-            sz = hlp_serial_sise(test_struc);
+            sz = hlp_serial_size(test_struc);
             assertEqual(cpp,sz);
 
             test_struc = DataMessage('This is a test message');
 
             cpp = c_serial_size(test_struc);
-            sz = hlp_serial_sise(test_struc);
+            sz = hlp_serial_size(test_struc);
             assertEqual(cpp,sz);
         end
 
@@ -131,7 +131,7 @@ classdef test_cpp_serialise_size < TestCase
             test_obj = [DataMessage(my_struc), DataMessage(10), DataMessage('Hello')];
 
             cpp = c_serial_size(test_obj);
-            sz = hlp_serial_sise(test_obj);
+            sz = hlp_serial_size(test_obj);
             assertEqual(cpp,sz);
         end
 
@@ -142,7 +142,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = [];
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -155,7 +155,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = true;
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -166,7 +166,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = [true, true, true];
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -178,7 +178,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = '';
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -189,7 +189,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = 'BEEP';
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -200,7 +200,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = ['BEEP','BOOP'; 'BLORP', 'BOP'];
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -212,7 +212,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = 10;
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -223,7 +223,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = 1:10;
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -234,7 +234,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = [1:10;1:10];
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -246,7 +246,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = 3+4i;
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -257,7 +257,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = [3+4i, 5+7i; 2+1i, 1-1i];
             cpp = c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -268,7 +268,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_obj = [3+4i, 2; 3+5i, 0];
             cpp =  c_serial_size(test_obj);
-            ser_siz = hlp_serial_sise(test_obj);
+            ser_siz = hlp_serial_size(test_obj);
             assertEqual(cpp, ser_siz)
         end
 
@@ -280,7 +280,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_struct = struct([]);
             cpp = c_serial_size(test_struct);
-            ser_siz = hlp_serial_sise(test_struct);
+            ser_siz = hlp_serial_size(test_struct);
             assertEqual(cpp, ser_siz)
         end
 
@@ -291,7 +291,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_struct = struct();
             cpp =  c_serial_size(test_struct);
-            ser_siz = hlp_serial_sise(test_struct);
+            ser_siz = hlp_serial_size(test_struct);
             assertEqual(cpp, ser_siz)
         end
 
@@ -302,7 +302,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_struct = struct('Hello', 13, 'Goodbye', 7, 'Beef', {{1, 2, 3}});
             cpp = c_serial_size(test_struct);
-            ser_siz = hlp_serial_sise(test_struct);
+            ser_siz = hlp_serial_size(test_struct);
             assertEqual(cpp, ser_siz)
         end
 
@@ -313,7 +313,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_struct = struct('HonkyTonk', {1, 2, 3});
             cpp = c_serial_size(test_struct);
-            ser_siz = hlp_serial_sise(test_struct);
+            ser_siz = hlp_serial_size(test_struct);
             assertEqual(cpp, ser_siz)
         end
 
@@ -324,7 +324,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_struct = struct('HonkyTonk', {1, 2, 3; 4, 5, 6; 7, 8, 9});
             cpp = c_serial_size(test_struct);
-            ser_siz = hlp_serial_sise(test_struct);
+            ser_siz = hlp_serial_size(test_struct);
             assertEqual(cpp, ser_siz)
         end
 
@@ -336,7 +336,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_sparse = sparse([],[],[]);
             cpp = c_serial_size(test_sparse);
-            ser_siz = hlp_serial_sise(test_sparse);
+            ser_siz = hlp_serial_size(test_sparse);
             assertEqual(cpp, ser_siz)
         end
 
@@ -347,7 +347,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_sparse = sparse([],[],[],10,10);
             cpp = c_serial_size(test_sparse);
-            ser_siz = hlp_serial_sise(test_sparse);
+            ser_siz = hlp_serial_size(test_sparse);
             assertEqual(cpp, ser_siz)
         end
 
@@ -358,7 +358,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_sparse = sparse(eye(1));
             cpp = c_serial_size(test_sparse);
-            ser_siz = hlp_serial_sise(test_sparse);
+            ser_siz = hlp_serial_size(test_sparse);
             assertEqual(cpp, ser_siz)
         end
 
@@ -369,7 +369,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_sparse = sparse(eye(10));
             cpp = c_serial_size(test_sparse);
-            ser_siz = hlp_serial_sise(test_sparse);
+            ser_siz = hlp_serial_size(test_sparse);
             assertEqual(cpp, ser_siz)
         end
 
@@ -380,7 +380,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_sparse = sparse([],[], complex([],[]));
             cpp = c_serial_size(test_sparse);
-            ser_siz = hlp_serial_sise(test_sparse);
+            ser_siz = hlp_serial_size(test_sparse);
             assertEqual(cpp, ser_siz)
         end
 
@@ -391,7 +391,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_sparse = sparse([],[],complex([],[]),10,10);
             cpp = c_serial_size(test_sparse);
-            ser_siz = hlp_serial_sise(test_sparse);
+            ser_siz = hlp_serial_size(test_sparse);
             assertEqual(cpp, ser_siz)
         end
 
@@ -402,7 +402,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_sparse = sparse(1, 1, 1i);
             cpp = c_serial_size(test_sparse);
-            ser_siz = hlp_serial_sise(test_sparse);
+            ser_siz = hlp_serial_size(test_sparse);
             assertEqual(cpp, ser_siz)
         end
 
@@ -413,7 +413,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_sparse = sparse(1:10, 1, 1i);
             cpp = c_serial_size(test_sparse);
-            ser_siz = hlp_serial_sise(test_sparse);
+            ser_siz = hlp_serial_size(test_sparse);
             assertEqual(cpp, ser_siz)
         end
 
@@ -424,7 +424,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_func = @(x, y) (x^2 + y^2);
             cpp = c_serial_size(test_func);
-            ser_siz = hlp_serial_sise(test_func);
+            ser_siz = hlp_serial_size(test_func);
             assertEqual(cpp, ser_siz)
         end
 
@@ -436,7 +436,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
@@ -447,7 +447,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {1 2 3 4};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
@@ -458,7 +458,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {1 2 3; 4 5 6; 7 8 9};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
@@ -469,7 +469,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {1+2i 2+3i 3+1i 4+10i};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
@@ -480,7 +480,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {1+2i 2 3+1i 4};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
@@ -491,7 +491,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {{1 2} {3 4} {4 5} {6 7}};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
@@ -502,7 +502,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {true false false true false};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
@@ -513,7 +513,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {'Hello' 'is' 'it' 'me' 'youre' 'looking' 'for'};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
@@ -524,7 +524,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {struct('Hello', 5), struct('Goodbye', 'Chicken')};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
@@ -535,7 +535,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {@(x,y) (x+y^2), @(a,b) (b-a)};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
@@ -546,7 +546,7 @@ classdef test_cpp_serialise_size < TestCase
             end
             test_cell = {1, 'a', 1+2i, true, struct('boop', 1), {'Hello'}, @(x,y) (x+y^2)};
             cpp = c_serial_size(test_cell);
-            ser_siz = hlp_serial_sise(test_cell);
+            ser_siz = hlp_serial_size(test_cell);
             assertEqual(cpp, ser_siz)
         end
 
