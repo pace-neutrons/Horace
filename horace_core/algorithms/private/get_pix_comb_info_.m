@@ -71,7 +71,7 @@ end
     accumulate_headers_job.read_input_headers(infiles);
 undef = data_range == PixelDataBase.EMPTY_RANGE;
 if any(undef(:))
-    data_range = pix_combine_info.recalc_data_range_from_loaders(ldrs);
+    data_range = pix_combine_info.recalc_data_range_from_loaders(ldrs,keep_runid);
     data_range_calculated = true;
 else
     data_range_calculated = false;
@@ -84,20 +84,13 @@ end
 % We must have same data information for transforming pixels coordinates to image coordinates
 % This guarantees that the pixels are independent (the data may be the same if an spe file name is repeated, but
 % it is assigned a different Q, and is in the spirit of independence)
-[header_combined,nspe] = Experiment.combine_experiments(header,allow_equal_headers,drop_subzone_headers);
+[header_combined,nspe] = Experiment.combine_experiments(header,allow_equal_headers,keep_runid);
 %[header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
 
 
 img_range=datahdr{1}.img_range;
 for i=2:nfiles
     img_range=[min(img_range(1,:),datahdr{i}.img_range(1,:));max(img_range(2,:),datahdr{i}.img_range(2,:))];
-end
-if data_range_calculated
-    %TODO: THIS SHOULD WORK BUT IT DOES NOT. What is the problem?
-    %     if any(abs(pix_range(:)-img_range(:))> eps(single(1)))
-    %         error('HORACE:write_nsqw_to_sqw:runtime_error', ...
-    %             'Calculated pix range is different from calculated img_range -- this should not happen')
-    %     end
 end
 
 
@@ -111,7 +104,8 @@ else
 end
 mhc = main_header_cl('nfiles',nfiles_tot);
 
-if isa(datahdr{1},'dnd_metadata')
+if isa(datahdr{1},'dnd_metadata') % have to be all the same and it 
+    % should have been checked at previous stages
     ab = datahdr{1}.axes;
     proj = datahdr{1}.proj;
 else

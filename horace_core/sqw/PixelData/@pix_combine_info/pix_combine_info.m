@@ -441,8 +441,11 @@ classdef pix_combine_info < serializable
     end
     %----------------------------------------------------------------------
     methods(Static)
-        function data_range = recalc_data_range_from_loaders(ldrs)
+        function data_range = recalc_data_range_from_loaders(ldrs,keep_runid)
             % Recalculate pixels range using list of defined loaders
+            if nargin == 1
+                keep_runid = true;
+            end
             n_files = numel(ldrs);
             ldr = ldrs{1};
             data_range= ldr.get_data_range();
@@ -452,6 +455,11 @@ classdef pix_combine_info < serializable
                 data_range = [min([loc_range(1,:);data_range(1,:)],[],1);
                     max([loc_range(2,:);data_range(2,:)],[],1)];
             end
+            % the run_id will be recalculated according to the file names
+            if ~keep_runid
+                idx = PixelDataBase.field_index('run_idx');
+                data_range(:,idx) = [1;n_files];
+            end            
         end
     end
     %----------------------------------------------------------------------

@@ -196,7 +196,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertTrue(prj_rec.nonorthogonal);
             % BUT:
             assertEqual(prj_or.type,'par')
-            assertEqual(prj_rec.type,'ppp')
+            assertEqual(prj_rec.type,'ppr')
 
             % this is what is what is only important for any transformation
             tpixo = prj_or.transform_pix_to_img(eye(3));

@@ -461,7 +461,7 @@ classdef Experiment < serializable
             [args,npar] = check_and_expand_function_args_(varargin{:});
         end
 
-        function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,drop_subzone_headers)
+        function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,keep_runid)
             % take cellarray of experiments (e.g., generated from each runfile build
             % during gen_sqw generation)
             % and combine then together into single Experiment info class
@@ -494,6 +494,9 @@ classdef Experiment < serializable
                     instr{ic}  = exp_cellarray{i}.instruments{j};
                     sampl{ic}  = exp_cellarray{i}.samples{j};
                     expinfo(ic)= exp_cellarray{i}.expdata(j);
+                    if ~keep_runid
+                        expinfo(ic).run_id = ic;
+                    end                    
                     ic = ic+1;
                 end
             end

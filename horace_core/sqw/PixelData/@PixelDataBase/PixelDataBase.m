@@ -357,6 +357,10 @@ classdef (Abstract) PixelDataBase < serializable
                 loc_range = minmax_ranges(current,loc_range);
             end
         end
+        function idx = field_index(fld_name)
+            % function returns field indexes as function of the field name
+            idx = PixelDataBase.FIELD_INDEX_MAP_(fld_name);
+        end
     end
     %======================================================================
     methods(Abstract)
