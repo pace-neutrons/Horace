@@ -64,7 +64,11 @@ else
 end
 std_form = unique_references_container(global_name,class_base);
 
-if iscell(sid)
+if isempty(sid)
+    % implies the field was set empty in the constructor
+    % if so allow and take no action
+    ;
+elseif iscell(sid)
     is = cellfun(@(x)isa(x,class_base),sid);
     if ~all(is)
         error('HORACE:Experiment:invalid_argument', ...
