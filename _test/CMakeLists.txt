@@ -15,7 +15,7 @@
 # ========================================================================
 # ========================================================================
 
-set(TEST_DIRECTORIES_HERBERT
+set(TEST_DIRECTORIES_HORACE
     "test_admin"
     "test_data_loaders"
     "test_config"
@@ -35,8 +35,6 @@ set(TEST_DIRECTORIES_HERBERT
     "test_mpi/test_job_dispatcher_mpiexec"
     "test_mpi/test_job_dispatcher_parpool"
     "test_mpi/test_job_dispatcher_slurm"
-)
-set(TEST_DIRECTORIES_HORACE
     "test_algorithms"
     "test_ascii_column_data"
     "test_change_crystal"
@@ -87,19 +85,6 @@ set(ENV_VARIABLES
 )
 
 set(TEST_TIMEOUT_LENGTH "600") # 10 minutes
-foreach(_test_dir ${TEST_DIRECTORIES_HERBERT})
-    set(TEST_NAME "Matlab.${_test_dir}")
-    matlab_add_unit_test(
-        NAME "${TEST_NAME}"
-        CUSTOM_TEST_COMMAND "validate_herbert ${_test_dir} -verbose -exit_on_completion"
-        ADDITIONAL_PATH "${Horace_ROOT}/admin"
-        TIMEOUT ${TEST_TIMEOUT_LENGTH})
-    set_tests_properties("${TEST_NAME}"
-        PROPERTIES
-            ENVIRONMENT "${ENV_VARIABLES}"
-            TIMEOUT ${TEST_TIMEOUT_LENGTH}
-    )
-endforeach()
 
 foreach(_test_dir ${TEST_DIRECTORIES_HORACE})
     if("${_test_dir}" STREQUAL "test_sqw")
@@ -108,7 +93,7 @@ foreach(_test_dir ${TEST_DIRECTORIES_HORACE})
         set(TEST_TIMEOUT_LENGTH "2400")  # 40 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_nomex")
         set(TEST_TIMEOUT_LENGTH "2400")  # 40 minutes
-    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")    
+    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")
         set(TEST_TIMEOUT_LENGTH "2400")  # 40 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert")
         set(TEST_TIMEOUT_LENGTH "2400")  # 40 minutes.
