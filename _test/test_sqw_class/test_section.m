@@ -10,7 +10,9 @@ classdef test_section < TestCase
             test_sec = w.section([-3 3], [], [], []);
             test_cut = w.cut(ortho_proj([1 0 0], [0 1 0]), [-2.5 1 2.5],[],[],[]);
 
+
             assertEqualToTol(test_sec, test_cut);
+            assertTrue(obj.is_bins_subset_of(test_sec.data.axes.p, w.data.axes.p))
         end
 
         function obj = test_section_collapse_dim(obj)
@@ -19,17 +21,23 @@ classdef test_section < TestCase
             test_cut = w.cut(ortho_proj([1 0 0], [0 1 0]), [-1 0],[],[],[]);
 
             assertEqualToTol(test_sec, test_cut);
+
+            assertTrue(obj.is_bins_subset_of(...
+                [{test_sec.data.axes.iint'} test_sec.data.axes.p], ...
+                w.data.axes.p))
         end
 
         function obj = test_section_sqw_array(obj)
             w = sqw.generate_cube_sqw(10);
             test(1) = w;
             test(2) = w;
-            test_sec = test.section([-1 0], [], [], []);
-            test_cut = w.cut(ortho_proj([1 0 0], [0 1 0]), [-1 0],[],[],[]);
+            test_sec = test.section([-3 3], [], [], []);
+            test_cut = w.cut(ortho_proj([1 0 0], [0 1 0]), [-2.5 1 2.5],[],[],[]);
 
             assertEqualToTol(test_sec(1), test_cut);
             assertEqualToTol(test_sec(2), test_cut);
+            assertTrue(obj.is_bins_subset_of(test_sec(1).data.axes.p, w.data.axes.p))
+            assertTrue(obj.is_bins_subset_of(test_sec(2).data.axes.p, w.data.axes.p))
         end
 
         function obj = test_section_get_all_bins(obj)
@@ -87,6 +95,14 @@ classdef test_section < TestCase
 
         end
 
+    end
+
+    methods(Static)
+        function is = is_bins_subset_of(a, b)
+            is = cellfun(@ismember, a, b, 'UniformOutput', false);
+            is = cell2mat(is);
+            is = all(is);
+        end
     end
 
 end

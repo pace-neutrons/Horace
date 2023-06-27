@@ -69,9 +69,12 @@ for n=1:numel(win)
 
     nbins_all_dims = win(n).data.axes.nbins_all_dims;
     img_range = win(n).data.axes.img_range;
-    tmp = img_range;
-    %what actual indices of the projection axis along all DnD object indices
-    % axis are among all indices
+
+    % Range for selecting appropriate bins
+    cut_range = img_range;
+
+    % find directions which are plot/projection indices
+    % i.e. have bins
     p_ind = find(nbins_all_dims > 1);
 
     for i=1:ndim
@@ -109,7 +112,7 @@ for n=1:numel(win)
             img_range(:,p_ind(pax)) = [p{pax}(irange(1,pax))
                                        p{pax}(irange(2,pax)+1)];
 
-            tmp(:,p_ind(pax)) = [pcent(irange(1,pax))
+            cut_range(:,p_ind(pax)) = [pcent(irange(1,pax))
                                  pcent(irange(2,pax))];
 
             nbins_all_dims(p_ind(pax)) = irange(2,pax) - irange(1,pax)+1;
@@ -124,11 +127,11 @@ for n=1:numel(win)
     end
 
     new_axis_block = ortho_axes('nbins_all_dims',nbins_all_dims,...
-                                'img_range',tmp, ... % binning img_range temporarily
+                                'img_range',cut_range, ... % binning img_range temporarily
                                 'single_bin_defines_iax', win(n).data.axes.single_bin_defines_iax, ...
                                 'ulen', win(n).data.axes.ulen);
-    % Section signal, variance and npix arrays
 
+    % Section signal, variance and npix arrays
     data = DnDBase.dnd(new_axis_block, win(n).data.proj, ...
                        squeeze(win(n).data.s(array_section{:})), ...
                        squeeze(win(n).data.e(array_section{:})), ...
