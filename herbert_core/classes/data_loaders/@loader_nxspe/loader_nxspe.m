@@ -229,7 +229,7 @@ classdef loader_nxspe < a_loader
             if ~isempty(obj.nexus_instrument_)
                 instrument = obj.nexus_instrument_;
             else
-                instrument = self.read_instrument_info_();
+                instrument = obj.read_instrument_info_();
             end
         end
     end
@@ -288,18 +288,15 @@ classdef loader_nxspe < a_loader
             % NXSPE files *must* have a "fermi" component, so we distinguish
             % instrument types based on presence of 'shaping_chopper' and 'mono_chopper'
             % as we only have two types of instruments supported at present
-            errmsg = ['nxspe file has incomplete instrument data. Please manually set ' ...
-                       'instrument data if you want to perform resolution convolution.'];
-            if all(isfield(dataset, {'shaping_chopper', 'mono_chopper'}))
-                % The struct must have also have 'horiz_div', and 'vert_div' fields
-                if ~any(isfield(dataset, {'horiz_div', 'vert_div'}))
-                    error('HERBERT:loader_nxspe:missing_instrument_fields', errmsg);
-                end
+            if all(isfield(dataset, {'shaping_chopper', 'mono_chopper', ...
+                                     'horiz_div', 'vert_div'}))
                 instrument = obj.read_disk_inst_(dataset, source, moderator);
             else
-                % The struct must have also an 'aperture' field
+                % The struct must at least have an 'aperture' field
                 if ~isfield(dataset, 'aperture')
-                    error('HERBERT:loader_nxspe:missing_instrument_fields', errmsg);
+                    error('HERBERT:loader_nxspe:missing_instrument_fields', ...
+                          ['nxspe file has incomplete instrument data. Please manually ' ...
+                           'set instrument if you want to perform resolution convolution']);
                 end
                 instrument = obj.read_fermi_inst_(dataset, source, moderator);
             end
