@@ -101,7 +101,7 @@ size_t get_size(const mxArray *input) {
     {
       mxArray* conts;
       mxArray* arr = const_cast<mxArray *>(input);
-      mexCallMATLAB(1, &conts, 1, &arr, "hlp_serial_sise");
+      mexCallMATLAB(1, &conts, 1, &arr, "hlp_serial_size");
       size += (size_t) mxGetPr(conts)[0];
     }
     break;
