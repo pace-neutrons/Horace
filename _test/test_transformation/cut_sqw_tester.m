@@ -1,9 +1,9 @@
 classdef cut_sqw_tester < sqw
     % The class used for testing cut_sqw input parameters
-    
+
     properties
     end
-    
+
     methods
         function obj = cut_sqw_tester(varargin)
             if nargin == 0
@@ -17,14 +17,14 @@ classdef cut_sqw_tester < sqw
             end
             obj=obj@sqw(inputs{:});
         end
-        
-        function [proj, pbin, opt] = cut_inputs_tester(obj,return_cut,varargin)
+
+        function [proj, pbin, opt, sym] = cut_inputs_tester(obj,return_cut,varargin)
             % method to expose protected cut parameters parser for unit
             % tests.
             %
-            [proj, pbin, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
+            % Sym as final output to not affect old API
+            [proj, pbin, sym, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
                 obj.data,return_cut, varargin{:});
         end
     end
 end
-

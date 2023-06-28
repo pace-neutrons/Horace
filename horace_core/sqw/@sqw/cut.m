@@ -9,6 +9,8 @@ function wout = cut(obj, varargin)
 % Cut with new projection axes:
 %   >> wout = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
 %
+%   >> wout = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin, sym)
+%
 %   >> wout = cut (..., '-nopix')   % output cut is dnd class (i.e. only
 %                                   % image information is retained)
 %
@@ -86,6 +88,19 @@ function wout = cut(obj, varargin)
 %                                and phi; phi will be automatically increased
 %                                such that rdiff divides phi - plo.
 %
+%   sym             Symmetry operator (or an array of symmetry operators
+%                  to be applied in the order sym(1), sym(2),...)
+%                  by which a symmetry related cut is to be accumulated.
+%                   Must have class symop.
+%
+%                   For several symmetry related cuts, provide a cell array
+%                  of symmetry operators and/or arrays of symmetry operators
+%           EXAMPLES
+%                   s1 = symop ([1,0,0],[0,1,0],[1,1,1]);
+%                   s2 = symop ([1,0,0],[0,0,1],[1,1,1]);
+%                   % For all four symmetry related cuts:
+%                   sym = {s1,s2,[s1,s2]};
+%
 % NOTE:
 % All binning parameters are expressed in the coordinate system described by proj.
 %
@@ -100,7 +115,7 @@ if numel(obj) > 1
     wout = cut(num2cell(obj),varargin{:});
     return;
 end
-hc= hor_config;
+hc = hor_config;
 log_level = hc.log_level;
 
 dnd_type = obj.pix.num_pixels == 0;
@@ -146,30 +161,33 @@ if  source_is_ortho_proj && ~isempty(obj.data.proj.ub_inv_legacy)
 end
 %
 sz = size(pbin);
+
 % This loop enables multi-cuts
 if return_cut
     wout = cell(sz);
 end
+
 for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
-    [targ_ax_block,targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp);
+    [targ_ax_block, targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp, sym);
 
     if return_cut
-        wout{cut_num} = cut_single_(obj, targ_proj, targ_ax_block, ...
-                                    opt.keep_pix, opt.outfile, log_level);
+        wout{cut_num} = cut_single_(obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile, log_level);
     else
-        cut_single_(obj, targ_proj, targ_ax_block, ...
-                    opt.keep_pix, opt.outfile, log_level);
+        cut_single_(obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile, log_level);
     end
 end
+
 if return_cut
     wout = [wout{:}]';
 end
-% End function
 
-function log_progress(data_source,hor_log_level,npix_total)
+end
+
+function log_progress(data_source, hor_log_level, npix_total)
+
 if hor_log_level>=1
-    if ischar(data_source)
+    if istext(data_source)
         disp(['Number of points in input file: ',num2str(npixtot)])
         disp(['         Fraction of file read: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
         disp(['     Fraction of file retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
@@ -178,7 +196,10 @@ if hor_log_level>=1
         disp(['  Fraction of object processed: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
         disp(['   Fraction of object retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
     end
+
     disp(' ')
-    bigtoc('Total time in cut_sqw:',hor_log_level)
+    bigtoc('Total time in cut_sqw:', hor_log_level)
     disp('--------------------------------------------------------------------------------')
+end
+
 end

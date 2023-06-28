@@ -135,136 +135,71 @@ function varargout = cut_sym (varargin)
 
 % Parse input
 % -----------
-[w, args, mess] = horace_function_parse_input(nargout, varargin{:});
-if ~isempty(mess), error(mess); end
+[w, args] = horace_function_parse_input(nargout, varargin{:});
+
+if ~all(w.sqw_type(:) == w.sqw_type(1))
+    error('HORACE:cut_sym:invalid_argument', 'Data files must all be sqw type, or all dnd type with same dimensionality')
+end
+
+if ~w.sqw_type(1) || numel(args) >= 1 && ~isstruct(args{1})
+    % proj structure not given, so all sqw objects must have same dimensionality
+    if ~all(w.ndims == w.ndims(1))
+        error('All objects must have same dimensionality if not using new projection axes')
+    end
+end
 
 % Perform operations
 % ------------------
-nout=w.nargout_req;
-nw=numel(w.data);
-% HACK -- TODO: modify cut_sum to use the same interface as cut
+nout = w.nargout_req;
+nw = numel(w.data);
+% HACK -- TODO: modify cut_sym to use the same interface as cut
+
+if w.sqw_type(1);
+    cut_func = @(data, dims) cut_sqw_sym_main(data, dims, args{:});
+    class_func = @sqw;
+else
+    cut_func = @(data, dims) cut_dnd_sym_main(data, dims, args{:});
+    class_func = @dnd;
+end
+
 for i=1:nw
     if iscell(w(i).data)
-        if w(i).sqw_type(1)
-            w(i).data = sqw(w(i).loaders_list{1});
-        else
-            w(i).data = dnd(w(i).loaders_list{1});
-        end
+        w(i).data = class_func(w(i).loaders_list{1});
     end
 end
 
-if all(w.sqw_type(:))
-    % sqw type data
-    if numel(args)>=1 && ~isstruct(args{1}) % proj structure not given, so all sqw objects must have same dimensionality
-        if ~all(w.ndims==w.ndims(1))
-            error('All sqw objects must have same dimensionality if not using new projection axes')
-        end
-    end
-    for i=1:nw
-        if nout>0
-            if nout==1
-                if i==1
-                    wout=cut_sqw_sym_main(w(i).data,args{:});
-                    if nw>1
-                        cut_array = (numel(wout)>1);
-                        if ~cut_array
-                            wout=repmat(wout,size(w.data));     % make array
-                        else
-                            wout=repmat({wout},size(w.data));   % make cell array
-                        end
-                    end
-                else
-                    if ~cut_array
-                        wout(i)=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
-                    else
-                        wout{i}=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
-                    end
-                end
-            else
-                if i==1
-                    [wout,wsym]=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
-                    if nw>1
-                        cut_array = (numel(wout)>1);
-                        if ~cut_array
-                            wout=repmat(wout,size(w.data));     % make array
-                        else
-                            wout=repmat({wout},size(w.data));   % make cell array
-                        end
-                        wsym=repmat({wsym},size(w.data));   % make cell array
-                    end
-                else
-                    if ~cut_array
-                        [wout(i),wsym{i}]=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
-                    else
-                        [wout{i},wsym{i}]=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
-                    end
-                end
-            end
-        else
-            cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
-        end
-    end
-elseif ~any(w.sqw_type(:)) && all(w.ndims==w.ndims(1))
-    % dnd type data
-    for i=1:nw
-        if nout>0
-            if nout==1
-                if i==1
-                    wout=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
-                    if nw>1
-                        cut_array = (numel(wout)>1);
-                        if ~cut_array
-                            wout=repmat(wout,size(w.data));     % make array
-                        else
-                            wout=repmat({wout},size(w.data));   % make cell array
-                        end
-                    end
-                else
-                    if ~cut_array
-                        wout(i)=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
-                    else
-                        wout{i}=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
-                    end
-                end
-            else
-                if i==1
-                    [wout,wsym]=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
-                    if nw>1
-                        cut_array = (numel(wout)>1);
-                        if ~cut_array
-                            wout=repmat(wout,size(w.data));     % make array
-                        else
-                            wout=repmat({wout},size(w.data));   % make cell array
-                        end
-                        wsym=repmat({wsym},size(w.data));   % make cell array
-                    end
-                else
-                    if ~cut_array
-                        [wout(i),wsym{i}]=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
-                    else
-                        [wout{i},wsym{i}]=cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
-                    end
-                end
-            end
-        else
-            cut_dnd_sym_main(w.data(i),w.ndims(i),args{:});
-        end
-    end
-else
-    error('Data files must all be sqw type, or all dnd type with same dimensionality')
-end
+switch nout
+  case 0
 
-if nout>0
-    argout{1}=wout;
-    if nout==2
-        argout{2}=wsym;
-    end
-else
+    arrayfun(cut_func, w.data, w.ndims);
     argout={};
+
+  case 1
+
+    wout = arrayfun(cut_func, w.data, w.ndims, 'UniformOutput', false);
+
+    if numel(wout{1}) == 1
+        wout = cell2mat(wout);
+    end
+
+    argout = {wout};
+
+  case 2
+
+    [wout,wsym] = arrayfun(cut_func, w.data, w.ndims, 'UniformOutput', false);
+
+    if numel(wout{1}) == 1
+        wout = cell2mat(wout);
+    end
+
+    argout = {wout, wsym};
+
+  otherwise
+    error('HORACE:cut_sym:invalid_outputs', 'cut_sym called with too many outputs')
 end
 
 % Package output arguments
 % ------------------------
-[varargout,mess]=horace_function_pack_output(w,argout{:});
-if ~isempty(mess), error(mess), end
+varargout = horace_function_pack_output(w,argout{:});
 
+end
