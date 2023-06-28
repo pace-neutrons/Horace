@@ -665,14 +665,10 @@ classdef mfclass
             %   mf_handle       Handle to the legacy multifit function
             %   arg1, arg2,...  All arguments to pass to legacy function (including data)
 
-            try
-                [varargout{1:nargout}] = mf_handle (varargin{:});
-            catch ME
-                rethrow(ME);
-                %                 ex = MException('legacy_call:failure', '%s', ME.message);
-                %                 ex = ex.addCause(ME);
-                %                 throw(ex);
-            end
+            error('HORACE:tobyfit:deprecated', ...
+                  ['This function was used with the obsolete Tobyfit syntax.\n',...
+                   'Please migrate to the new Tobyfit syntax supported since January 2018\n',...
+                   'For details of the new syntax:  <a href="matlab:doc(''sqw/tobyfit'');">Click here</a>'])
         end
     end
 

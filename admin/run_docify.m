@@ -2,10 +2,9 @@ function run_docify()
     if ~exist('docify', 'file'), add_herbert_path(); end
     base_dir = fileparts(which('herbert_init'));
     docifiable_folders = {'applications/multifit', ...
-                          'applications/multifit_legacy', ...
                           'utilities'};
     for ii = 1:numel(docifiable_folders)
-        fld = join([base_dir '/' docifiable_folders{ii}], ''); 
+        fld = join([base_dir '/' docifiable_folders{ii}], '');
         docify(fld, '-recursive', '-list', 3, '-all')
     end
 end
