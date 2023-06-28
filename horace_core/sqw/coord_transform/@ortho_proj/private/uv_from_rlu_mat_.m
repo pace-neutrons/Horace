@@ -105,7 +105,7 @@ elseif ulen == 1
 else
     scale_p = ulen/veclen;
     scale_r = sqrt(ulen/veclen/max(abs(vec)));
-    if veclen*scale_r == ulen
+    if abs(veclen*scale_r - ulen)<4*eps("single")
         scale = scale_r;
         type = 'r';        
     else

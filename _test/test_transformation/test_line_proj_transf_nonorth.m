@@ -43,16 +43,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             % and the matrices are correct!
             assertTrue(prj_or.nonorthogonal);
             assertTrue(prj_rec.nonorthogonal);
-            % BUT:
-            assertEqual(prj_or.type,'ppp')
-            assertEqual(prj_rec.type,'rrp')
-
-            % this is what is what is only important for any transformation
-            pix_cc = [eye(3),ones(3,1)];
-            tpixo = prj_or.transform_pix_to_img(pix_cc);
-            tpixr = prj_rec.transform_pix_to_img(pix_cc);
-            assertElementsAlmostEqual(tpixo,tpixr);
-
+  
+            assertEqualToTol(prj_or,prj_rec,1.e-9);
         end
 
 
@@ -85,11 +77,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertTrue(prj_or.nonorthogonal);
             assertTrue(prj_rec.nonorthogonal);
 
-            % this is what is what is only important for any transformation
-            tpixo = prj_or.transform_pix_to_img(eye(3));
-            tpixr = prj_rec.transform_pix_to_img(eye(3));
-            assertElementsAlmostEqual(tpixo,tpixr);
 
+            assertEqualToTol(prj_or,prj_rec,1.e-9);            
         end
         %
         function test_getset_nonortho_proj_ppp_110(~)
