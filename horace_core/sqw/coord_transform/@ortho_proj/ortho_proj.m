@@ -204,7 +204,7 @@ classdef ortho_proj<aProjectionBase
                     obj = serializable.loadobj(varargin{1});
                 else
                     obj = obj.from_old_struct(varargin{1});
-                end                
+                end
             else
                 obj = init_by_input_parameters_(obj,varargin{:});
             end
@@ -567,6 +567,14 @@ classdef ortho_proj<aProjectionBase
         fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';'ub_inv_legacy'}
     end
     methods
+        function ver  = classVersion(~)
+            ver = 6;
+        end
+        function  flds = saveableFields(obj)
+            flds = saveableFields@aProjectionBase(obj);
+            flds = [flds(:);obj.fields_to_save_(:)];
+        end        
+        %------------------------------------------------------------------
         % check interdependent projection arguments
         function wout = check_combo_arg (w)
             % Check validity of interdependent fields
@@ -583,13 +591,6 @@ classdef ortho_proj<aProjectionBase
             % check arguments, possibly related to image offset (if
             % defined)
             wout = check_combo_arg@aProjectionBase(wout);
-        end        %------------------------------------------------------------------
-        function ver  = classVersion(~)
-            ver = 6;
-        end
-        function  flds = saveableFields(obj)
-            flds = saveableFields@aProjectionBase(obj);
-            flds = [flds(:);obj.fields_to_save_(:)];
         end
         function [is,mess] = eq(obj,other_obj,varargin)
             % Overloaded equality operator comparing the projection
