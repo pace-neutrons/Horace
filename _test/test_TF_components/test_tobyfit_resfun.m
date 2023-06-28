@@ -15,19 +15,23 @@ classdef test_tobyfit_resfun < TestCaseWithSave
             % Note: in the (hopefully) extremely rare case of needing to
             % regenerate the data, use the static method generate_data (see
             % elsewhere in this class definition)
-            data_file = 'test_tobyfit_resfun_data.mat';   % filename where cuts for tests are stored
-            obj = obj@TestCaseWithSave(name);
+            ref_data = 'test_tobyfit_resfun_output.mat';
+            if nargin == 0
+                name = 'test_tobyfit_resfun';
+            end
+            obj = obj@TestCaseWithSave(name,ref_data);
             
-            % Load sqw cuts
-            load (data_file, 'w2a','wce','w2b');
+            % Load reference sqw cuts
+            ref_data_file = 'test_tobyfit_resfun_data.mat';   % filename where cuts for tests are stored            
+            ld = load (ref_data_file, 'w2a','wce','w2b');
             
             % Add sample and instrument information to the RbMnF3 cuts
             sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
             sample.alatt = [4.2240 4.2240 4.2240];
             sample.angdeg = [90 90 90];
-            w2a=set_sample_and_inst(w2a,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
-            wce=set_sample_and_inst(wce,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
-            w2b=set_sample_and_inst(w2b,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+            w2a=set_sample_and_inst(ld.w2a,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+            wce=set_sample_and_inst(ld.wce,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
+            w2b=set_sample_and_inst(ld.w2b,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
             
             % Initialise test object properties
             obj.w2a = w2a;      % q-e plot along [0,0,1]

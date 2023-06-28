@@ -86,7 +86,7 @@ for n=1:numel(win)
                 irange(1,pax) = lis(1);
                 irange(2,pax) = lis(end);
                 img_range(:,p_ind(pax))    = ...
-                    [pcent(irange(1,pax));pcent(irange(1,pax))];
+                    [pcent(irange(1,pax));pcent(irange(2,pax))];
                 nbins_all_dims(p_ind(pax)) = irange(2,pax)-irange(1,pax)+1;
                 %wout(n).data.p{pax} = p{pax}(lis(1):lis(end)+1);
                 array_section{pax}=irange(1,pax):irange(2,pax);

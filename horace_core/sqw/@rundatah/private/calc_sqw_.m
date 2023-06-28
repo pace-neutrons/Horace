@@ -23,7 +23,7 @@ function [w, data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
 % --------
 %   w              - Output sqw object
 %   data_range     - Actual range of pixels and pixels data (2x9 array of min/max values.
-%                    The pixels coordinates (first 4 columns) are inside of 
+%                    The pixels coordinates (first 4 columns) are inside of
 %                    the input coordinate range.
 
 
@@ -35,21 +35,21 @@ if hor_log_level>-1
     disp('Calculating projections...');
 end
 
-proj = obj.get_projection();
+instproj = obj.get_projection();
 
-axes_bl = proj.get_proj_axes_block(pix_db_range_in,grid_size_in);
+axes_bl = instproj.get_proj_axes_block(pix_db_range_in,grid_size_in);
 [exp_info,data] = calc_sqw_data_and_header (obj,axes_bl);
 
 % in addition to standard operations, recalculates ortho_axes img_range if
 % the range has not been defined before:
 [data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
-    proj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);
+    instproj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);
 [data.s, data.e] = normalize_signal(data.s, data.e, data.npix);
-data.axes.img_range = axes_bl.img_range;
+data.axes.img_range = axes_bl.img_range; % the range the data are binned on
 
 exp_info.expdata(1).run_id = run_id;
 
-data_range = pix.data_range;
+data_range = pix.data_range; % the range pixels have
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
@@ -75,38 +75,30 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
 % Original author: T.G.Perring
 
 
-% TODO: CLARIFY! the projection here defines the transformation from pixels
-% (Crystal Cartesian) coordinate system to image (rlu) system. Does 4D
-% image produces by gen_sqw also should be in rlu? In
-% original Horace, it remains in Crystal Cartesian, but the projection says
-% that it is in rlu. See Ticket #839
-
 % Create header block
 % -------------------
 [fp,fn,fe]=fileparts(obj.data_file_name);
 
 lat = obj.lattice.set_rad();
-
-proj = ortho_proj('u',lat.u,'v',lat.v,'alatt',lat.alatt,'angdeg',lat.angdeg);
-%sqw_data = data_sqw_dnd(axes_bl, ...
-%    'alatt',lat.alatt,'angdeg',lat.angdeg);
-% Should be removed, and replaced by ortho_proj
 [~, u_to_rlu] = obj.lattice.calc_proj_matrix();
-ulen = [1,1,1,1];
-uoffset = [0;0;0;0];
-u_to_rlu =  [u_to_rlu,zeros(3,1);[0,0,0,1]];
-%sqw_data.u_to_rlu = eye(4); % conversion from pixels to image. Sould it be
-%unity here?
-proj = proj.set_from_data_mat(u_to_rlu ,ulen);
-%proj.u_to_rlu =u_to_rlu;
-% Old value creates confusion: sqw_data.u_to_rlu = u_to_rlu;
-axes_bl.ulen = ulen;
+offset = [0;0;0;0];
+
+% set projection lattice, which transforms initial pixel coordinates to
+% initial image coordinates. As initial image coordinates are Crystal
+% Cartesian, the initial projection does unary transformation
+% from crystal Cartesian pixels to crystal Cartesian image.
+% Initial crystal orientation vrt. the beam have been accounted for by
+% transformation to spectrometer coordinate system
+proj = ortho_proj('alatt',lat.alatt,'angdeg',lat.angdeg, 'type','aaa');
+
+
+
 sqw_data = DnDBase.dnd(axes_bl,proj);
 
 expdata = IX_experiment([fn,fe], [fp,filesep], ...
     obj.efix,obj.emode,lat.u,lat.v,...
     lat.psi,lat.omega,lat.dpsi,lat.gl,lat.gs,...
-    obj.en,uoffset,  u_to_rlu, ...
-    ulen,sqw_data.label,obj.run_id);
+    obj.en,offset,  u_to_rlu, ...
+    [1,1,1,1],sqw_data.label,obj.run_id);
 
 header = Experiment([],obj.instrument,obj.sample,expdata);

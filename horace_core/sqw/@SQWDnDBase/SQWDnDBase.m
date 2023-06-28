@@ -1,7 +1,7 @@
 classdef (Abstract) SQWDnDBase < serializable
     %SQWDnDBase Abstract SQW/DnD object base class
     %
-    %   Abstract class defining common API and atrributes of the SQW and
+    %   Abstract class defining common API and attributes of the SQW and
     %   DnD objects
     methods (Abstract)
         %------------------------------------------------------------------
@@ -10,7 +10,7 @@ classdef (Abstract) SQWDnDBase < serializable
         pixels = has_pixels(win);     % Check if sqw or dnd object has pixels.
         %                             % DnD object always returns false.
         save_xye(obj,varargin);       % save xye data into file
-        s=xye(w, null_value);         % return a strucute, containing xye data
+        s=xye(w, null_value);         % return a structure, containing xye data
         %
         wout = smooth(win, varargin); % Run smooth operation over DnD
         %                             % objects or sqw objects without pixels
@@ -62,6 +62,13 @@ classdef (Abstract) SQWDnDBase < serializable
         % build the axes block which specified by projection and target cut
         % parameters
         [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, input_pbin,varagin);
+        %
+        qw=calculate_qw_bins(win,varargin) % Calculate qh,qk,ql,en for the
+        %                             % centres of the bins of an n-dimensional
+        %                             % sqw or dnd dataset.                
+        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
+        %                             % of the bins of an n-dimensional sqw
+        %                             % or dnd dataset        
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -86,45 +93,6 @@ classdef (Abstract) SQWDnDBase < serializable
             [proj, pbin, opt]= cut_parse_inputs_(data,ndims, return_cut, varargin{:});
         end
         %
-        function [alatt,angdeg,cor_mat]=parse_change_crystal_arguments(alatt0,angdeg0,exper_info,varargin)
-            % process input parameters for change crystal routine and
-            % return standard form of the arguments to use in change_crystal
-            % Most commonly:
-            %   >> [alatt,angdeg,cor_mat] = change_crystal (alatt0,angdeg0,exper_info,rlu_corr)
-            %                               change lattice parameters and orientation
-            %
-            %  where
-            % alat0   -- initial lattice parametes stored in the sqw file
-            % angdeg0 -- initial lattice angles stored in the sqw file
-            % exper_info -- Experiment class, describing the experiment,
-            %             stored in sqw file
-            %             May be empty for dnd objects
-            %   rlu_corr    Matrix to convert notional rlu in the current crystal lattice to
-            %              the rlu in the the new crystal lattice together with any re-orientation
-            %              of the crystal. The matrix is defined by the matrix:
-            %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
-            %               This matrix can be obtained from refining the lattice and
-            %              orientation with the function refine_crystal (type
-            %              >> help refine_crystal  for more details).
-
-            %
-            % OR
-            %   >> [alatt,angdeg,cor_mat] = change_crystal (__,alatt)
-            %                               change just length of lattice vectors
-            %   >> [alatt,angdeg,cor_mat] = change_crystal (__, alatt, angdeg)
-            %                               change all lattice parameters
-            %   >> [alatt,angdeg,cor_mat] = change_crystal (__, alatt, angdeg, rotmat)
-            %                               change lattice parameters and orientation
-            %   >> [alatt,angdeg,cor_mat] = change_crystal (__, alatt, angdeg, u, v)   %
-            %                               change lattice parameters and redefine u, v
-            %                               (works on sqw objects only)
-            % where:
-            % alatt -- corrected lattice parameters
-            % angdeg -- corrected lattice angles
-
-            [alatt,angdeg,cor_mat]=parse_change_crystal_arguments_(alatt0,angdeg0,exper_info,varargin{:});
-        end
-
     end
 
     methods (Abstract, Access = protected)
@@ -144,13 +112,6 @@ classdef (Abstract) SQWDnDBase < serializable
         cl = save(w, varargin);
 
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
-
-        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
-        %                             % of the bins of an n-dimensional sqw
-        %                             % or dnd dataset
-        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
-        %                             % centres of the bins of an n-dimensional
-        %                             % sqw or dnd dataset.
 
         % rebin an object to the other object with the dimensionality
         % smaller then the dimensionality of the current object

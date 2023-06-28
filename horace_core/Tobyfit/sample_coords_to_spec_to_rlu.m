@@ -32,10 +32,9 @@ for i=2:nrun
     if ~isequal(sample,samples{i})
         error('HORACE:sample_coords_to_spec_to_rlu:invalid_argument', ...
             'Sample description must be identical for all contributing spe files');
-    end
+    end    
     si = samples{i};
     if ~all(alatt==si.alatt) || ~all(angdeg==si.angdeg)
-        ok=false;
         error('HORACE:sample_coords_to_spec_to_rlu:invalid_argument', ...
             'Lattice parameters must be identical for all contributing spe files');
     end
@@ -54,12 +53,12 @@ for i=1:nrun
     %    h=header;
     %end
     % Matrix to convert from laboratory frame to crystal Cartesian coordinates, and to rlu
-    [spec_to_u, ~, spec_to_rlu(:,:,i)]=calc_proj_matrix (s.alatt, s.angdeg, e.cu, e.cv, ...
+    [spec_to_cc, ~, spec_to_rlu(:,:,i)]=calc_proj_matrix (s.alatt, s.angdeg, e.cu, e.cv, ...
                                                          e.psi, e.omega, e.dpsi, e.gl, e.gs); % Vcryst = spec_to_u * Vspec
     % Matrix to convert from crystal Cartesian coordinates to frame defined by sample geometry (x,y axes in r.l.u.)
     b=bmatrix(s.alatt, s.angdeg);
-    [~,~,umat]=ubmatrix(xgeom, ygeom, b);   % Vsamp(i) = umat * Vcryst
+    [~,umat]=ubmatrix(xgeom, ygeom, b);   % Vsamp(i) = umat * Vcryst
     % Matrix to convert from sample coordinate frame to laboratory frame
-    s_mat(:,:,i)=spec_to_u\umat';  % use fact that inverse of umat is the same as transpose of umat
+    s_mat(:,:,i)=spec_to_cc\umat';  % use fact that inverse of umat is the same as transpose of umat
 end
 

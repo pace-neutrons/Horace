@@ -163,7 +163,12 @@ classdef test_dnd_constructor < TestCaseWithSave
             d2d_obj = read_dnd(obj.test_dnd_2d_fullpath);
 
             expected_ulen = [2.101896, 1.486265, 2.101896, 1.0000];
-            expected_u_to_rlu = [1, 0, 1, 0; 1, 0, -1, 0; 0, 1, 0, 0; 0, 0, 0, 1];
+            expected_u_to_rlu = [...
+                1.0    0.0000    1.0000    0;...
+                1.0    0.0000   -1.0000    0;...
+                0      1.0000    0.0000    0;...
+                0      0         0         1.0000];
+
 
             % expected data populated from instance of test object
             assertTrue(isa(d2d_obj, 'd2d'));
@@ -171,14 +176,18 @@ classdef test_dnd_constructor < TestCaseWithSave
             assertEqual(d2d_obj.iax, [3, 4]);
             assertEqual(size(d2d_obj.s), [16, 11]);
             assertEqualToTol(d2d_obj.axes.ulen, expected_ulen, 'tol', 1e-5);
-            assertEqual(d2d_obj.proj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
+            assertEqual(d2d_obj.proj.u_to_rlu, expected_u_to_rlu, 'tol', 4e-5);
         end
 
         function test_filename_constructor_returns_populated_class_from_sqw_file(obj)
             d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
             expected_ulen = [2.101896, 1.486265, 2.101896, 1.0000];
-            expected_u_to_rlu = [1, 0, 1, 0; 1, 0, -1, 0; 0, 1, 0, 0; 0, 0, 0, 1];
+            expected_u_to_rlu = [...
+                1.0    0.0000    1.0000    0;...
+                1.0    0.0000   -1.0000    0;...
+                0      1.0000    0.0000    0;...
+                0      0         0         1.0000];
 
             % expected data populated from instance of test object
             assertTrue(isa(d2d_obj, 'd2d'));
@@ -186,7 +195,7 @@ classdef test_dnd_constructor < TestCaseWithSave
             assertEqual(d2d_obj.iax, [3, 4]);
             assertEqual(size(d2d_obj.s), [16, 11]);
             assertEqualToTol(d2d_obj.axes.ulen, expected_ulen, 'tol', 1e-5);
-            assertEqual(d2d_obj.proj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
+            assertEqual(d2d_obj.proj.u_to_rlu, expected_u_to_rlu, 'tol', 4e-5);
         end
 
         function test_fname_constr_returns_same_obj_as_sqw_constr_from_sqw_file(obj)

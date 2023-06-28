@@ -30,7 +30,6 @@ classdef test_change_crystal_bragg_fine < TestCase
             obj.sim_sqw_file_corr=fullfile(dir_out,'test_change_crystal_bragg_fine_sim_corr.sqw'); % output file for correction
             hp = hpc_config;
             obj.hpc_config_data = hp.get_data_to_store();
-            hp.combine_sqw_using = 'mex_code';
 
 
             % Data for creation of test sqw file
@@ -81,6 +80,13 @@ classdef test_change_crystal_bragg_fine < TestCase
                 end
             end
         end
+        function setUp(~)
+            hpc = hpc_config;
+            hpc.saveable = false;
+            hpc.build_sqw_in_parallel=0;
+            hpc.combine_sqw_using = 'mex_code';
+        end
+
         function test_alignment_from_bragg_peaks(obj)
             % Fit Bragg peak positions
             % ------------------------
@@ -93,39 +99,70 @@ classdef test_change_crystal_bragg_fine < TestCase
 
             sqw_to_ref = sqw(obj.sim_sqw_file);
 
-            rlu0=get_bragg_positions(sqw_to_ref, proj, rlu, half_len, half_thick, bin_width);
+
             % Should get approximately: rlu0=;
-            ref_rlu = [1.052,-0.142,0.722;
+            rlu0 = [
+                1.052,-0.142,0.722;
                 0.199,0.732,1.036;
                 0.158,-0.135,0.886;
                 0.895,0.015,-0.158;
                 -0.015,-0.900,-0.158];
-
-            assertElementsAlmostEqual(rlu0,ref_rlu,'absolute',1.e-2)
 
             alatt = sqw_to_ref.data.proj.alatt;
             angdeg = sqw_to_ref.data.proj.angdeg;
 
             % Get correction matrix from the 5 peak positions:
             % ------------------------------------------------
-            [rlu_corr,alatt_fit,angdeg_fit,rotmat_fit] = refine_crystal(rlu0,alatt,angdeg,rlu,'fix_angdeg');
+            al_info = refine_crystal(rlu0,alatt,angdeg,rlu,'fix_angdeg');
 
 
             % Apply to a copy of the sqw object to see that the alignment is now OK
             % ---------------------------------------------------------------------
             copyfile(obj.sim_sqw_file,obj.sim_sqw_file_corr)
-            change_crystal_sqw(obj.sim_sqw_file_corr,rlu_corr)
+            change_crystal_sqw(obj.sim_sqw_file_corr,al_info)
             rlu0_corr=get_bragg_positions(sqw(obj.sim_sqw_file_corr), proj, rlu, half_len, half_thick, bin_width);
 
 
             assertTrue(max(abs(rlu0_corr(:)-rlu(:)))<=obj.qfwhh, ...
                 'Problem in refinement of crystal orientation and lattice parameters')
         end
+
+        function test_get_bragg_peaks(obj)
+            % Fit Bragg peak positions
+            % ------------------------
+
+            proj.u=[1,0,0];
+            proj.v=[0,1,0];
+
+            rlu=[...
+                1,0,1;
+                0,1,1;
+                0,0,1;
+                1,0,0;
+                0,-1,0];
+            half_len=0.5; half_thick=0.25; bin_width=0.025;
+
+            sqw_to_ref = sqw(obj.sim_sqw_file);
+
+            rlu0=get_bragg_positions(sqw_to_ref, proj, rlu, half_len, half_thick, bin_width);
+            % Should get approximately: rlu0=;
+            ref_rlu = [...
+                +1.052,-0.142,0.722;
+                +0.199,0.732,1.036;
+                +0.158,-0.135,0.886;
+                +0.895,0.015,-0.158;
+                -0.015,-0.900,-0.158];
+
+            assertElementsAlmostEqual(rlu0,ref_rlu,'absolute',1.e-2)
+        end
         %------------------------------------------------------------------
         function delete(obj)
             %
             % restore old hpc configuration
-            set(hpc_config,obj.hpc_config_data);
+            hpc = hpc_config;
+            set(hpc,obj.hpc_config_data);
+            hpc.saveable = true;
+
 
             ws = warning('off','MATLAB:DELETE:Permission');
 

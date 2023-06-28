@@ -27,6 +27,7 @@ classdef test_cut < TestCase & common_state_holder
             };
         sqw_4d;
         working_dir;
+        old_ws;
     end
 
     methods
@@ -49,6 +50,7 @@ classdef test_cut < TestCase & common_state_holder
             obj = obj@TestCase(name);
             obj.sqw_4d = read_sqw(obj.sqw_file);
             obj.working_dir = tmp_dir();
+            obj.old_ws = warning('off','HORACE:old_file_format');
 
             %
             if save_reference
@@ -57,6 +59,9 @@ classdef test_cut < TestCase & common_state_holder
                 sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
                 save(sqw_cut,obj.ref_cut_file);
             end
+        end
+        function delete(obj)
+            warning(obj.old_ws);
         end
         %
         function test_take_a_cut_from_an_sqw_file_single_chunk(obj)
@@ -104,7 +109,6 @@ classdef test_cut < TestCase & common_state_holder
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
 
             ref_sqw = read_dnd(obj.ref_cut_file);
-            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
         end
 
@@ -164,7 +168,7 @@ classdef test_cut < TestCase & common_state_holder
             %ref_obj.pix.signal = 1:ref_obj.pix.num_pixels;
             %ref_obj.pix.data = single(ref_obj.pix.data);
             ref_tfile = fullfile(obj.working_dir, 'mex_combine_source_from_file_to_file.sqw');
-            rf_cleanup = onCleanup(@()delete(ref_tfile ));
+            rf_cleanup = onCleanup(@()file_delete(ref_tfile ));
             save(ref_obj,ref_tfile);
 
             % test filebased cut

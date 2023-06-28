@@ -125,9 +125,9 @@ classdef PixelDataFileBacked < PixelDataBase
     methods
         function obj = PixelDataFileBacked(varargin)
             % Construct a File-backed PixelData object from the given data.
-            % construction initialises the underlying data as an empty (9 x 0)
+            %
+            % Empty construction initialises the underlying data as an empty (9 x 0)
             % array.
-
             if nargin == 0
                 return
             end
@@ -135,78 +135,47 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function obj = init(obj, varargin)
-            % Main part of the fileBacked constructor
+            % Main part of the fileBacked constructor.
+            %
+            % Initialize filebacked data using any available input
+            % information namely:
+            % >> fb = PixelDataFileBacked();
+            %
+            % 1:>> fb = fb.init(filename);
+            % 2:>> fb = fb.init(struct);
+            % 3:>> fb = fb.init(pixel_data_wrap,pixel_metadata);
+            % 4:>> fb = fb.init(other_PixelDataFileBacked);
+            % 5:>> fb = fb.init(instance_PixelDataMemory);
+            % 6:>> fb = fb.init(faccess_loader);
+            % Normally test mode:
+            % 7:>> fb = fb.init(number);
+            % 8:>> fb = fb.init(3xNpix array);
+            % Where
+            % 1: filename -- the name of existing sqw file
+            % 2: struct   -- the structure obtained from serializable
+            %                to_struct method, saveobj method or previous
+            %                versions of these methods.
+            % 3: pixel_data_wrap -- class-wrapper around pixel data informaion,
+            %                       obtained from obj.data_wrap property
+            %    pixel_metadata  -- class-wrapper aroung pixel metadata
+            %                       information obtained from obj.metadata
+            %                       property
+            % 4: other_PixelDataFileBacked
+            %             -- build PixelDataFileBacked from other instance
+            %                  of PixelDataFileBacked class
+            % 5: instance_PixelDataMemory
+            %             -- build PixelDataFileBacked from instance
+            %                of PixelDataMemory class
+            % 6: faccess_loader
+            %             -- initialized instance of binary faccess_sqw
+            %                 file loader
+            % 7: number   -- initialized single-paged data class with the
+            %                  provided number of empty pixels
+            % 8: 3xNpix array
+            %             -- initialize filebacked class from array of
+            %                data provided as input
 
-            % process possible update parameter
-            is_bool = cellfun(@islogical,varargin);
-            log_par = [varargin{is_bool} false(1,2)]; % Pad with false
-            update  = log_par(1);
-            norange = log_par(2);
-            argi = varargin(~is_bool);
-
-            if isscalar(argi)
-                init = argi{1};
-            else
-                % build from data/metadata pair
-                init = argi;
-            end
-
-            if iscell(init)
-                flds = obj.saveableFields();
-                obj = obj.set_positional_and_key_val_arguments(flds,false,argi);
-
-            elseif isstruct(init)
-                obj = obj.loadobj(init);
-
-            elseif isa(init, 'PixelDataFileBacked')
-                obj.offset_       = init.offset_;
-                obj.full_filename = init.full_filename;
-                obj.num_pixels_   = init.num_pixels;
-                obj.data_range    = init.data_range;
-                obj.tmp_pix_obj   = init.tmp_pix_obj;
-                obj.f_accessor_   = memmapfile(obj.full_filename, ...
-                    'Format', obj.get_memmap_format(), ...
-                    'Repeat', 1, ...
-                    'Writable', update, ...
-                    'Offset', obj.offset_ );
-
-            elseif isa(init, 'PixelDataMemory')
-
-                if isempty(obj.full_filename_)
-                    obj.full_filename = 'from_mem';
-                end
-
-                obj = set_raw_data_(obj,init.data);
-
-            elseif istext(init)
-                if ~is_file(init)
-                    error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                        'Cannot find file to load (%s)', init)
-                end
-
-                init = sqw_formats_factory.instance().get_loader(init);
-                obj = init_from_file_accessor_(obj,init,update,norange);
-
-            elseif isa(init, 'sqw_file_interface')
-                obj = init_from_file_accessor_(obj,init,update,norange);
-
-            elseif isnumeric(init)
-                % this is usually option for testing filebacked operations
-                if isscalar(init)
-                    init = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,abs(floor(init)));
-                end
-
-                if isempty(obj.full_filename_)
-                    obj.full_filename = 'from_mem';
-                end
-
-                obj = set_raw_data_(obj,init);
-            else
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'Cannot construct PixelDataFileBacked from class (%s)', class(init))
-            end
-
-            obj.page_num = 1;
+            obj = init_(obj,varargin{:});
         end
 
         function obj = move_to_first_page(obj)
@@ -302,11 +271,13 @@ classdef PixelDataFileBacked < PixelDataBase
             ind = obj.check_pixel_fields(field_name);
 
             obj.data_range_(:,ind) = obj.pix_minmax_ranges(obj.data(ind,:), ...
-                                                           obj.data_range_(:,ind));
+                obj.data_range_(:,ind));
             if nargout > 1
                 unique_idx = unique(obj.run_idx);
             end
         end
+        % public getter for unmodified page data
+        data =  get_raw_data(obj,varargin)
 
         function offset = get.offset(obj)
             offset = obj.offset_;
@@ -314,57 +285,9 @@ classdef PixelDataFileBacked < PixelDataBase
     end
 
     %======================================================================
-    % PAGING
-    methods(Access=protected)
-
-        function np = get_page_num(obj)
-            np = obj.page_num_;
-        end
-
-        function obj = set_page_num(obj,val)
-            if ~isnumeric(val) || ~isscalar(val) || val<1
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'page number should be positive numeric scalar. It is: %s',...
-                    disp2str(val))
-            elseif val > obj.num_pages
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'page number (%d) should not be bigger then total number of pages: %d',...
-                    val, obj.num_pages);
-            end
-
-            obj.page_num_ = val;
-        end
-
-        function page_size = get_page_size(obj)
-            page_size = min(obj.DEFAULT_PAGE_SIZE, obj.num_pixels);
-        end
-
-        function np = get_num_pages(obj)
-            np = max(ceil(obj.num_pixels/obj.DEFAULT_PAGE_SIZE),1);
-        end
-
-        function data = get_raw_data(obj, page_number)
-            if ~exist('page_number', 'var')
-                page_number = obj.page_num_;
-            end
-
-            if isempty(obj.f_accessor_)
-                data = obj.EMPTY_PIXELS;
-            else
-                [pix_idx_start, pix_idx_end] = obj.get_page_idx_(page_number);
-                data = double(obj.f_accessor_.Data.data(:, pix_idx_start:pix_idx_end));
-            end
-
-        end
-
-    end
-
-    %======================================================================
     % File handling/migration
     methods
-
         function obj = get_new_handle(obj, f_accessor)
-
             % Always create a new PixTmpFile object
             % If others point to it, file will be kept
             % otherwise file will be cleared
@@ -381,13 +304,12 @@ classdef PixelDataFileBacked < PixelDataBase
 
                 if fh<1
                     error('HORACE:PixelDataFileBacked:runtime_error', ...
-                          'Can not open data file %s for file-backed pixels',...
-                          obj.tmp_pix_obj.file_name);
+                        'Can not open data file %s for file-backed pixels',...
+                        obj.tmp_pix_obj.file_name);
                 end
 
                 obj.file_handle_ = fh;
             end
-
         end
 
         function format_dump_data(obj, pix, start_idx)
@@ -404,13 +326,12 @@ classdef PixelDataFileBacked < PixelDataBase
             else
                 fwrite(obj.file_handle_, single(pix), 'single');
             end
-
         end
 
         function obj = finalise(obj)
             if isempty(obj.file_handle_)
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
-                      'Cannot finalise writing, object does not have open filehandle')
+                    'Cannot finalise writing, object does not have open filehandle')
             end
 
             if isa(obj.file_handle_, 'sqw_file_interface')
@@ -430,40 +351,44 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.offset_ = 0;
                 obj.full_filename = obj.tmp_pix_obj.file_name;
                 obj.f_accessor_ = memmapfile(obj.full_filename, ...
-                                             'format', obj.get_memmap_format(), ...
-                                             'Repeat', 1, ...
-                                             'Writable', true, ...
-                                             'offset', obj.offset_);
+                    'format', obj.get_memmap_format(), ...
+                    'Repeat', 1, ...
+                    'Writable', true, ...
+                    'offset', obj.offset_);
             end
         end
 
-        function format = get_memmap_format(obj)
-            format = {'single',[PixelDataBase.DEFAULT_NUM_PIX_FIELDS, obj.num_pixels_],'data'};
+        function format = get_memmap_format(obj,tail)
+            if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile')
+                if nargin == 1
+                    tail = 0;
+                end
+                data_size = double([PixelDataBase.DEFAULT_NUM_PIX_FIELDS, obj.num_pixels_]);
+                if tail>0
+                    format = {'single',data_size,'data';'uint8',double(tail),'tail'};
+                else
+                    format = {'single',data_size,'data'};
+                end
+            else
+                format = obj.f_accessor_.Format;
+            end
         end
-
     end
-
     methods(Static)
         function obj = cat(varargin)
-        % Concatenate the given PixelData objects' pixels. This function performs
-        % a straight-forward data concatenation.
-        %
-        %   >> joined_pix = PixelDataBase.cat(pix_data1, pix_data2);
-        %
-        % Input:
-        % ------
-        %   varargin    A cell array of PixelData objects
-        %
-        % Output:
-        % -------
-        %   obj         A PixelData object containing all the pixels in the inputted
-        %               PixelData objects
-
-            if isempty(varargin)
-                obj = PixelDataFileBacked();
-            elseif numel(varargin) == 1
-                obj = PixelDataFileBacked(varargin{1});
-            end
+            % Concatenate the given PixelData objects' pixels. This function performs
+            % a straight-forward data concatenation.
+            %
+            %   >> joined_pix = PixelDataBase.cat(pix_data1, pix_data2);
+            %
+            % Input:
+            % ------
+            %   varargin    A cell array of PixelData objects
+            %
+            % Output:
+            % -------
+            %   obj         A PixelData object containing all the pixels in the inputted
+            %               PixelData objects
 
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
             if any(is_ldr)
@@ -480,100 +405,110 @@ classdef PixelDataFileBacked < PixelDataBase
             obj = obj.get_new_handle(ldr);
 
             start_idx = 1;
+            obj.data_range = PixelDataBase.EMPTY_RANGE;
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
-                for page = 1:curr_pix.num_pages
-                    [curr_pix,data] = curr_pix.load_page(page);
+                num_pages= curr_pix .num_pages;
+                for page = 1:num_pages
+                    curr_pix.page_num = i;
+                    data = curr_pix.data;
                     obj.format_dump_data(data, start_idx);
+                    obj.data_range = ...
+                        obj.pix_minmax_ranges(data, obj.data_range);
                     start_idx = start_idx + size(data,2);
                 end
             end
-
             obj = obj.finalise();
         end
     end
 
     %======================================================================
-    % other getter/setter
+    % implementation of PixelDataBase abstract protected interface
     methods (Access = protected)
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
             num_pix = obj.num_pixels_;
         end
-
         function ro = get_read_only(obj)
             % report if the file allows to be modified.
             % Main overloadable part of read_only property
             ro = isempty(obj.f_accessor_) || ~obj.f_accessor_.Writable;
         end
-
-        function obj = set_data_wrap(obj,val)
+        %------------------------------------------------------------------
+        function prp = get_prop(obj, fld)
+            % main part of PixelData property getter;
+            prp = get_prop_(obj,fld);
+        end
+        function obj = set_prop(obj, fld, val)
+            obj = set_prop_(obj,fld,val);
+        end
+        %
+        function obj=set_data_wrap(obj,val)
             % main part of pix_data_wrap setter overloaded for
             % PixDataFileBacked class
             if ~isa(val,'pix_data')
                 error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'pix_data_wrap property can be set to pix_data class instance only. Provided class is: %s', ...
+                    'pix_data_wrap property can be set by pix_data class instance only. Provided class is: %s', ...
                     class(val));
-            elseif ~(istext(val.data) || isempty(val.data))
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'Attempt to initialize PixelDataFileBacked using invalid pix_data values: %s', ...
-                    disp2str(val));
             end
-
-            in_file = val.data;
-
-            if isempty(in_file)
+            if isempty(val.data)
                 return;
+            elseif isnumeric(val.data)
+                init = val.data;
+            elseif istext(val.data)
+                % File-backed or loader construction
+                % input is a file path
+                init = sqw_formats_factory.instance().get_loader(val.data);
             end
-
-            if ~is_file(in_file)
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'Cannot find file for file-backed pixel data: %s', in_file)
-            end
-
-            ldr = sqw_formats_factory.instance().get_loader(in_file);
-
-            obj.full_filename = in_file;
-            obj.offset_ = val.offset;
-            obj.num_pixels_ = val.npix;
-            obj.f_accessor_ = memmapfile(obj.full_filename, ...
-                                         'Format', obj.get_memmap_format(), ...
-                                         'Repeat', 1, ...
-                                         'Writable', false, ...
-                                         'Offset', obj.offset_);
-            obj.page_num_ = 1;
-            fac_range  = ldr.get_data_range();
+            obj = obj.init(init);
         end
-
-        function prp = get_prop(obj, fld)
-            [pix_idx_start, pix_idx_end] = obj.get_page_idx_(obj.page_num_);
-
-            if isempty(obj.f_accessor_)
-                prp = zeros(obj.get_field_count(fld), 0);
-            else
-                prp = double(obj.f_accessor_.Data.data(obj.FIELD_INDEX_MAP_(fld), ...
-                    pix_idx_start:pix_idx_end));
+        %------------------------------------------------------------------
+        function data  = get_data(obj,page_number)
+            if nargin==1
+                page_number = 1;
+            end
+            data =  obj.get_raw_data(page_number);
+            if obj.is_misaligned_
+                pix_coord = obj.alignment_matr_*data(1:3,:);
+                data(1:3,:) = pix_coord;
             end
         end
-
-        function obj = set_prop(obj, fld, val)
-            if obj.read_only
-                error('HORACE:PixelDataFileBacked:invalid_argument',...
-                    'File %s is opened in read-only mode', obj.full_filename);
-            end
-            val = check_set_prop(obj,fld,val);
-
-            [pix_idx_start,pix_idx_end] = obj.get_page_idx_(obj.page_num_);
-            pix_idx_end = min(pix_idx_end,pix_idx_start-1+size(val,2));
-            indx = pix_idx_start:pix_idx_end;
-            flds = obj.FIELD_INDEX_MAP_(fld);
-            obj.f_accessor_.Data.data(flds, indx) = single(val);
-
-            % this operation will probably lead to invalid results.
-            obj=obj.reset_changed_coord_range(fld);
+        %------------------------------------------------------------------
+        function obj = set_alignment_matrix(obj,val)
+            % set non-unary alignment martix and invalidate pixel averages
+            % if alignment changes
+            obj = obj.set_alignment(val,@invalidate_range);
         end
     end
+    %----------------------------------------------------------------------
+    % PAGING
+    methods(Access=protected)
+        function np = get_page_num(obj)
+            np = obj.page_num_;
+        end
 
+        function obj = set_page_num(obj,val)
+            val = floor(val);
+            if ~isnumeric(val) || ~isscalar(val) || val<1
+                error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                    'page number should be positive numeric scalar. It is: %s',...
+                    disp2str(val))
+            elseif val > obj.num_pages
+                error('HORACE:PixelDataFileBacked:invalid_argument', ...
+                    'page number (%d) should not be bigger then total number of pages: %d',...
+                    val, obj.num_pages);
+            end
+            obj.page_num_ = val;
+        end
+
+        function page_size = get_page_size(obj)
+            page_size = min(obj.default_page_size, obj.num_pixels);
+        end
+
+        function np = get_num_pages(obj)
+            np = max(ceil(obj.num_pixels/obj.page_size),1);
+        end
+    end
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods(Static)

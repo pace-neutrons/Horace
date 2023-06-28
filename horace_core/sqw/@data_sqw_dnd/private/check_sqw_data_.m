@@ -27,11 +27,6 @@ function [type,obj] = check_sqw_data_(obj, type_in)
 % Original author: T.G.Perring
 %
 %
-%fields_a = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
-%    'pax';'p';'dax';'s';'e';'npix';'img_db_range';'pix';'axis_caption'}; % column
-
-%fields_bplus = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
-%    'pax';'p';'dax';'s';'e';'npix';'axis_caption'}; % column
 
 % Check input options flags - these better be OK if Horace is written correctly
 if ~exist('type_in','var')||isempty(type_in)

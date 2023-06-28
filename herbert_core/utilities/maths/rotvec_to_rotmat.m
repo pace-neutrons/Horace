@@ -36,7 +36,7 @@ function rotmat = rotvec_to_rotmat (theta, algorithm)
 %   rotvec_to_rotmat    Rotation vector in degrees
 %   rotvec_to_rotmat2   Rotation vector in radians
 
-theta=theta*(pi/180);   % convert to radians
+theta=deg2rad(theta);   % convert to radians
 if nargin==1
     rotmat = rotvec_to_rotmat2 (theta);
 else

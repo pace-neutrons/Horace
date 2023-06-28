@@ -1,28 +1,26 @@
-function obj = check_and_set_offset_(obj,offset)
-% Verify correct values for offset and set offset field
-% if validation is successful
+function off = check_offset_(obj,offset)
+% Verify correct values for offset and return offset as a 4-element row
 %
 if isnumeric(offset)
     if (numel(offset)==3)
-        off_=[offset(:);0]';
+        off=[offset(:);0]';
     elseif numel(offset)==4
-        off_=offset(:)';
+        off=offset(:)';
     elseif numel(offset) == 1
-        off_ = ones(1,4)*offset;
+        off = ones(1,4)*offset;
     elseif isempty(offset)
-        off_ = [0,0,0,0];
+        off = [0,0,0,0];
     else
         error('HORACE:aProjectionBase:invalid_argument',...
             'Vector offset must have form [h0,k0,l0] or [h0,k0,l0,e0] or be empty. Actually its size is: %s',...
             evalc('disp(size(offset))'));
     end
-    is_small = abs(off_)<obj.tol_;
+    is_small = abs(off)<obj.tol_;
     if any(is_small)
-        off_(is_small) = 0;
+        off(is_small) = 0;
     end
-    obj.offset_ = off_;
 elseif isempty(offset)
-    obj.offset_ = [0,0,0,0];
+    off = [0,0,0,0];
 else
     error('HORACE:aProjectionBase:invalid_argument',...
         'Vector offset must have form [h0,k0,l0] or [h0,k0,l0,0] or be empty. Actually it is: %s',...

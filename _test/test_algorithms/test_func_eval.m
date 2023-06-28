@@ -25,11 +25,14 @@ classdef test_func_eval < TestCase & common_state_holder
             8.2000, 8.2962, 8.3950, 8.4962, 8.6000, 8.7062, 8.8150, 8.9262, ...
             9.0400
             ];
+        old_ws
     end
 
     methods
         function obj = test_func_eval(~)
             obj = obj@TestCase('test_func_eval');
+            obj.old_ws = warning('off','HORACE:old_file_format');
+
             pths = horace_paths;
             obj.sqw_1d_file_path = fullfile(pths.test_common, 'sqw_1d_1.sqw');
             obj.sqw_2d_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
@@ -41,6 +44,9 @@ classdef test_func_eval < TestCase & common_state_holder
             obj.sqw_2d_obj_mb = obj.sqw_2d_obj_fb;
             obj.sqw_2d_obj_mb.pix = PixelDataMemory(obj.sqw_2d_obj_fb.pix);
 
+        end
+        function delete(obj)
+            warning(obj.old_ws);
         end
 
 
@@ -123,7 +129,7 @@ classdef test_func_eval < TestCase & common_state_holder
         function test_func_eval_on_array_of_sqw_objs_with_cell_arr_of_outfiles(obj)
             sqws_in = [obj.sqw_2d_obj_fb, obj.sqw_2d_obj_fb];
             outfiles = {gen_tmp_file_path('1'), gen_tmp_file_path('2')};
-            tmp_file_cleanup = onCleanup(@() cellfun(@(x) clean_up_file(x), outfiles));
+            tmp_file_cleanup = onCleanup(@() cellfun(@(x) file_delete(x), outfiles));
 
             sqws_out = func_eval(sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfiles);
 
@@ -177,7 +183,7 @@ classdef test_func_eval < TestCase & common_state_holder
 
         function test_output_file_of_out_of_memory_op_matches_reference_data(obj)
             mem_chunk_size = floor(24689/5); % all pixels from ref file (24689),
-                                             % split in 5-6 pages
+            % split in 5-6 pages
             config_cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', mem_chunk_size);
             sqw_out = func_eval(obj.sqw_2d_obj_fb, obj.quadratic, obj.quadratic_params);
 

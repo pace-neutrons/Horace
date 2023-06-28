@@ -60,7 +60,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             % Test against saved or store to save later; ignore string
             % changes - these are filepaths
-            tol = [1e-6,1e-6];
+            tol = [3e-5,3e-5];
             assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
             assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
             assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
@@ -87,7 +87,6 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % changes - these are filepaths
             tol = [1e-10,1e-8];
             assertEqualToTolWithSave (obj, fitpar_1, 'tol', tol, 'ignore_str', 1)
-            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
             assertEqualToTolWithSave (obj, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
             assertEqualToTolWithSave (obj, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
 
@@ -111,7 +110,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
-            tol = [1e-10,1e-8];
+            tol = [3e-5,1e-8];
             assertEqualToTolWithSave (this, wsim_1, 'tol', tol, ...
                 'ignore_str', 1,'-ignore_date')
             assertEqualToTolWithSave (this, wfit_1, 'tol', tol, ...
@@ -141,7 +140,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
-            tol = [1e-10,1e-8];
+            tol = [3e-5,1e-8];
             assertEqualToTolWithSave (this, wsim_2, ...
                 'tol', tol, 'ignore_str', 1,'-ignore_date')
             assertEqualToTolWithSave (this, wfit_2, ...

@@ -5,10 +5,10 @@ function obj = binary_op_pixels_(obj, pixel_data, binary_op, flip)
 
 if obj.num_pixels ~= pixel_data.num_pixels
     error('HORACE:PixelDataFileBacked:invalid_argument', ...
-          ['Cannot perform binary operation. PixelData objects ' ...
-           'must have equal number of pixels.\nFound ''%i'' pixels ' ...
-           'in second pixel_data, ''%i'' pixels required.'], ...
-          pixel_data.num_pixels, obj.num_pixels);
+        ['Cannot perform binary operation. PixelData objects ' ...
+        'must have equal number of pixels.\nFound ''%i'' pixels ' ...
+        'in second pixel_data, ''%i'' pixels required.'], ...
+        pixel_data.num_pixels, obj.num_pixels);
 end
 
 if isempty(obj.file_handle_)
@@ -18,9 +18,14 @@ s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 
 if pixel_data.is_filebacked
-
-    for i = 1:obj.num_pages
-        [obj, data] = obj.load_page(i);
+    obj.data_range = PixelDataBase.EMPTY_RANGE;
+    %
+    % TODO: #975 loop have to be moved level up calculating image in single
+    % loop too
+    num_pages= obj.num_pages;
+    for i = 1:num_pages
+        obj.page_num = i;
+        data = obj.data;
         pixel_data.page_num = i;
 
         this_sigvar = sigvar(obj.signal, obj.variance);
@@ -34,12 +39,21 @@ if pixel_data.is_filebacked
 
         obj.format_dump_data(data);
 
+        obj.data_range = ...
+            obj.pix_minmax_ranges(data, obj.data_range);
+
     end
 
 else
+    obj.data_range = PixelDataBase.EMPTY_RANGE;
+    %
+    % TODO: #975 loop have to be moved level up calculating image in single
+    % loop too
+    num_pages= obj.num_pages;
+    for i = 1:num_pages
+        obj.page_num = i;
+        data = obj.data;
 
-    for i = 1:obj.num_pages
-        [obj, data] = obj.load_page(i);
         [start_idx, end_idx] = obj.get_page_idx_(i);
 
         this_sigvar = sigvar(obj.signal, obj.variance);
@@ -53,10 +67,11 @@ else
         data(v_ind, :) = variance;
 
         obj.format_dump_data(data);
+        obj.data_range = ...
+            obj.pix_minmax_ranges(data, obj.data_range);
+
     end
 end
-
 obj = obj.finalise();
-obj = obj.recalc_data_range({'signal', 'variance'});
 
 end  % function

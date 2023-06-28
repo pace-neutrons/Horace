@@ -297,23 +297,32 @@ for i=1:numel(ind)
 
         s_ind = wout.pix.check_pixel_fields('signal');
         v_ind = wout.pix.check_pixel_fields('variance');
+		
+		pix = wout.pix;
+		pix.data_range = PixelDataBase.EMPTY_RANGE;
 
-        for page = 1:wout.pix.num_pages
-            [wout.pix, data] = wout.pix.load_page(page);
-            [start_idx, end_idx] = wout.pix.get_page_idx_(page);
+		npg = wout.pix.num_pages
+		for page = 1:npg
+			pix.page_num = page;
 
+            data = pix.data;
+            [start_idx, end_idx] = pix.get_page_idx_(page);
+		
             data(s_ind, :) = stmp(start_idx:end_idx)/mc_points;
             data(v_ind, :) = 0;
+			
+			pix.data_range = pix.pix_minmax_ranges(data, ...
+                                           pix.data_range);
 
-            wout.pix.format_dump_data(data);
+            pix.format_dump_data(data);
         end
-        wout.pix = wout.pix.finalise();
+        wout.pix = pix.finalise();
 
     else
         wout(i).pix.signal = stmp(:)'/mc_points;
         wout(i).pix.variance = zeros(1,numel(stmp));
     end
-
+    % TODO: #975 this have to be done during paging operations
     wout(i) = recompute_bin_data(wout(i));
 end
 

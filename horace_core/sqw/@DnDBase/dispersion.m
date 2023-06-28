@@ -118,7 +118,7 @@ for i=1:numel(win)
 
 
     % Compute dispersion relation at bin centres
-    qw = calculate_qw_bins(data);
+    qw = calculate_qw_bins(data,'-3D');
     if nargout(dispreln) < 2
         wdisp = dispreln(qw{1:3}, pars{:});  % only dispersion seems to be provided
     else

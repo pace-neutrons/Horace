@@ -17,7 +17,7 @@ ez = obj.ez/norm(obj.ez);
 obj.ez_ = ez;
 
 ey = obj.ey;
-ex = cross(ez,ey);
+ex = cross(ey,ez);
 nex = norm(ex);
 if nex < obj.tol_
     error('HORACE:spher_proj:invalid_argument', ...
@@ -25,8 +25,8 @@ if nex < obj.tol_
         mat2str(ez),mat2str(ey));
 end
 ex = ex/nex;
-ey = cross(ex,ez);
+ey = cross(ez,ex);
 obj.ey_ = ey/norm(ey);
-transf_mat = [ez;ey;ex];
+transf_mat = [ex;ey;ez];
 %TODO:  #954 scientific validation needed
 obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_*transf_mat;

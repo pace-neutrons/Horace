@@ -62,10 +62,13 @@ classdef pix_combine_info < serializable
         % PixelDataBase interface
         full_filename
         is_filebacked
+        % the property here to support PixelData interface. Never false, as
+        % this kind of data should be never (knowingly) misaligned
+        is_misaligned
     end
     %
     properties(Access=public)
-        npix_cumsum = [];  % auxiliary propery used by cut_sqw operating
+        npix_cumsum = [];  % auxiliary property used by cut_sqw operating
         %                   in file->file mode
         %                   and containing cumsum of npix array
         %                   where npix is the common npix image array for
@@ -109,7 +112,7 @@ classdef pix_combine_info < serializable
             %pos_pixstart -- array containing the locations of the pix
             %            array in binary sqw files on hdd. Size equal to
             %            number of contributing files.
-            %npix_each_file -- array containign number of pixels in each
+            %npix_each_file -- array containing number of pixels in each
             %            contributing sqw(tmp) file.
             %run_label
             %      --either
@@ -432,11 +435,17 @@ classdef pix_combine_info < serializable
         function is = get.is_filebacked(~)
             is = false;
         end
+        function is = get.is_misaligned(~)
+            is = false;
+        end
     end
     %----------------------------------------------------------------------
     methods(Static)
-        function data_range = recalc_data_range_from_loaders(ldrs)
+        function data_range = recalc_data_range_from_loaders(ldrs,keep_runid)
             % Recalculate pixels range using list of defined loaders
+            if nargin == 1
+                keep_runid = true;
+            end
             n_files = numel(ldrs);
             ldr = ldrs{1};
             data_range= ldr.get_data_range();
@@ -446,6 +455,11 @@ classdef pix_combine_info < serializable
                 data_range = [min([loc_range(1,:);data_range(1,:)],[],1);
                     max([loc_range(2,:);data_range(2,:)],[],1)];
             end
+            % the run_id will be recalculated according to the file names
+            if ~keep_runid
+                idx = PixelDataBase.field_index('run_idx');
+                data_range(:,idx) = [1;n_files];
+            end            
         end
     end
     %----------------------------------------------------------------------

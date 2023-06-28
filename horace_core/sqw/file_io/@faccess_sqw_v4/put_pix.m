@@ -140,7 +140,8 @@ elseif isa(input_obj,'PixelDataBase')  % write pixels stored in other file
 
     n_pages = input_obj.num_pages;
     for i = 1:n_pages
-        [input_obj, pix_data] = input_obj.load_page(i);
+        input_obj.page_num = i;
+        pix_data = input_obj.data;
 
         try
             fwrite(obj.file_id_, single(pix_data), 'float32');

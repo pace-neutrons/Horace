@@ -1,4 +1,4 @@
-function [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pbin,varargin)
+function [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pbin)
 % Define target axes block from existing axes, cut inputs and the projections
 % transforming the data into target image.
 

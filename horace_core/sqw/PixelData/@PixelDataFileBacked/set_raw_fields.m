@@ -28,19 +28,22 @@ if ~obj.read_only
 else
 
     obj = obj.get_new_handle();
+    obj.data_range = PixelDataBase.EMPTY_RANGE;
+    % TODO: #975 loop have to be moved level up calculating image in single
+    % TODO: Does this code makes any sence? Does it work.
+    num_pages= obj.num_pages;
+    for i = 1:num_pages
+        obj.page_num = i;
+        data = obj.data;
 
-    for i = 1:obj.num_pages
-        [obj, data] = obj.load_page(i);
-        [start_idx, end_idx] = obj.get_pix_idx_();
+        %[start_idx, end_idx] = obj.get_pix_idx_();
         [loc_indices, global_indices] = get_pg_idx_from_absolute_(obj, abs_pix_indices, i);
 
         data(field_indices, loc_indices) = data(global_indices);
         obj.format_dump_data(data);
+        obj.data_range = ...
+            obj.pix_minmax_ranges(data, obj.data_range);
 
     end
-
     obj = obj.finalise();
-
-end
-
 end

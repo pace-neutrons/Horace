@@ -39,8 +39,8 @@ classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
             df_rec = serializable.from_struct(df_struc);
             assertEqual(df,df_rec);
         end
-
-
+        %------------------------------------------------------------------
+        %
         function test_data_constructor(~)
             pdm = PixelDataMemory(ones(9,20));
             assertEqual(pdm.page_size,20);
@@ -48,7 +48,6 @@ classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
 
             assertEqual(pdm.pix_range,ones(2,4));
         end
-
         function test_empty_constructor(~)
             pdm = PixelDataMemory();
             assertEqual(pdm.page_size,0);

@@ -32,21 +32,14 @@ function obj = mask(obj, mask_array, varargin)
 %
 [mask_array, npix] = validate_input_args(obj, mask_array, varargin{:});
 
-if all(mask_array)
-    obj = obj;
-
-elseif ~any(mask_array)
+if ~any(mask_array)
     obj = PixelDataBase.create();
-
 elseif numel(mask_array) == obj.num_pixels %all specified
     obj = do_mask_file_backed_with_full_mask_array(obj, mask_array);
 
 else
     obj = do_mask_file_backed_with_npix(obj, mask_array, npix);
-
 end
-
-obj = obj.recalc_data_range('all');
 
 end
 
@@ -62,7 +55,7 @@ end
 mask_array = obj.logical_to_normal_index_(mask_array);
 obj.num_pixels_ = numel(mask_array);
 
-mem_chunk_size = obj.DEFAULT_PAGE_SIZE;
+mem_chunk_size = obj.default_page_size;
 obj.data_range = obj.EMPTY_RANGE;
 
 curr = 1;
@@ -71,10 +64,10 @@ for i = 1:mem_chunk_size:obj.num_pixels
     data = obj.get_fields('all', mask_array(i:i+block_size));
 
     obj.format_dump_data(data, curr);
-    obj.data_range = obj.pix_minmax_ranges(data, ...
-                                           obj.data_range);
+    obj.data_range = ...
+        obj.pix_minmax_ranges(data, obj.data_range);
 
-    curr = curr + block_size
+    curr = curr + block_size;
 end
 
 obj = obj.finalise();
@@ -95,14 +88,15 @@ if isempty(obj_out.file_handle_)
     obj_out = obj_out.get_new_handle();
 end
 
-[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.DEFAULT_PAGE_SIZE);
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.default_page_size);
 obj_out.num_pixels_ = sum(npix .* mask_array, 'all');
-obj.data_range = obj.EMPTY_RANGE;
+obj_out.data_range = obj.EMPTY_RANGE;
 
 curr = 1;
-
-for i = 1:obj.num_pages
-    [obj, data] = obj.load_page(i);
+npg = obj.num_pages;
+for i = 1:npg
+    obj.page_num = i;
+    data = obj.data;
     npix_for_page = npix_chunks{i};
     idx = idxs(:, i);
 
@@ -110,8 +104,8 @@ for i = 1:obj.num_pages
 
     data = data(:, mask_array_chunk);
 
-    obj.data_range = obj.pix_minmax_ranges(data, ...
-                                           obj.data_range);
+    obj_out.data_range = obj_out.pix_minmax_ranges(data, ...
+        obj_out.data_range);
 
     obj_out.format_dump_data(data, curr);
 
@@ -134,22 +128,22 @@ npix = parser.Results.npix;
 
 if numel(mask_array) ~= obj.num_pixels && isempty(npix)
     error('HORACE:mask:invalid_argument', ...
-          ['Error masking pixel data.\nThe input mask_array must have ' ...
-           'number of elements equal to the number of pixels or must ' ...
-           ' be accompanied by the npix argument. Found ''%i'' ' ...
-           'elements, ''%i'' or ''%i'' elements required.'], ...
-          numel(mask_array), obj.num_pixels, obj.page_size);
+        ['Error masking pixel data.\nThe input mask_array must have ' ...
+        'number of elements equal to the number of pixels or must ' ...
+        ' be accompanied by the npix argument. Found ''%i'' ' ...
+        'elements, ''%i'' or ''%i'' elements required.'], ...
+        numel(mask_array), obj.num_pixels, obj.page_size);
 
 elseif ~isempty(npix)
     if any(numel(npix) ~= numel(mask_array))
         error('HORACE:mask:invalid_argument', ...
-              ['Number of elements in mask_array and npix must be equal.\n' ...
-               'Found %i and %i elements'], numel(mask_array), numel(npix));
+            ['Number of elements in mask_array and npix must be equal.\n' ...
+            'Found %i and %i elements'], numel(mask_array), numel(npix));
     elseif sum(npix, 'all') ~= obj.num_pixels
-          error('HORACE:mask:invalid_argument', ...
-                ['The sum of npix must be equal to number of pixels.\n' ...
-                 'Found sum(npix) = %i, %i pixels required.'], ...
-                sum(npix, 'all'), obj.num_pixels);
+        error('HORACE:mask:invalid_argument', ...
+            ['The sum of npix must be equal to number of pixels.\n' ...
+            'Found sum(npix) = %i, %i pixels required.'], ...
+            sum(npix, 'all'), obj.num_pixels);
     end
 end
 

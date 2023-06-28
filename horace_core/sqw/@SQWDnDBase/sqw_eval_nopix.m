@@ -18,4 +18,3 @@ for i=1:numel(obj)
     obj(i).data = obj(i).data.sqw_eval_nopix(sqwfunc, all_bins, pars);
 end
 
-end

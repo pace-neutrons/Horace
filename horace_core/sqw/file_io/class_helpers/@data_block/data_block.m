@@ -3,10 +3,12 @@ classdef data_block < serializable
     % which faccess_sqw_v4 file format operates with.
     %
     % Block contains information about the block size, its location in the
-    % binary file and the ways of extracting these data from sqw/dnd object
-    % of interest or place this information into sqw/dnd object
+    % binary file (stored in BAT) and the ways of extracting these data
+    % from sqw/dnd object of interest or place this information into
+    % sqw/dnd object
 
     properties(Dependent)
+        % unique name of the data_block, identifying this block in BAT.
         block_name;
         % the name of the property of sqw/dnd object the block operates
         % with. E.g.: sqw_obj.experiment_info (experiment_info)
@@ -30,10 +32,10 @@ classdef data_block < serializable
         bat_format;
         % size (in bytes) this BAT record would occupy on hdd
         bat_record_size;
-        % return array of bytes, necessary to store and/or recover data block
-        % class from blockAllocationTable.
+        % return array of bytes, necessary to store and/or recover initilaized
+        % data block class from blockAllocationTable.
         bat_record;
-        % true if block size was initialized, i.e. its position
+        % true if block size was initialized, i.e. its file position
         % have been set
         initialized
     end

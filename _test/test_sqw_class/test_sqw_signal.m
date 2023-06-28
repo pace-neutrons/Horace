@@ -24,7 +24,7 @@ classdef test_sqw_signal < TestCaseWithSave
             w1modE = signal(obj.sqw_2d,'E');
 
             assertEqualToTolWithSave(obj,w1modE,'ignore_str',true, ...
-                'tol',[1.e-9,1.e-9]);
+                'tol',[1.e-9,1.e-9],'-ignore_date');
             
         end
 
@@ -32,7 +32,7 @@ classdef test_sqw_signal < TestCaseWithSave
             w1modQ = signal(obj.sqw_2d,'Q');
 
             assertEqualToTolWithSave(obj,w1modQ,'ignore_str',true, ...
-                'tol',[3.e-7,3.e-7]);
+                'tol',[3.e-7,3.e-7],'-ignore_date');
             
         end
 
@@ -40,14 +40,14 @@ classdef test_sqw_signal < TestCaseWithSave
             w2modL = signal(obj.sqw_2d,'l');
 
             assertEqualToTolWithSave(obj,w2modL,'ignore_str',true, ...
-                'tol',[1.e-9,1.e-9]);
+                'tol',[1.e-9,1.e-9],'-ignore_date');
 
         end
         function test_w2d2_option(obj)
             w2modD2 = signal(obj.sqw_2d,'d2');
 
             assertEqualToTolWithSave(obj,w2modD2,'ignore_str',true, ...
-                'tol',[1.e-9,1.e-9]);
+                'tol',[1.e-9,1.e-9],'-ignore_date');
             
         end
 
@@ -60,7 +60,7 @@ classdef test_sqw_signal < TestCaseWithSave
             w1modP1 = signal(obj.sqw_1d,'d1');
 
             assertEqualToTolWithSave(obj,w1modP1,'ignore_str',true, ...
-                'tol',[1.e-9,1.e-9]);
+                'tol',[1.e-9,1.e-9],'-ignore_date');
         end
 
     end

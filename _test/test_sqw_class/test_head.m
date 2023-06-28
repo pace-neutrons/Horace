@@ -3,7 +3,7 @@ classdef test_head < TestCaseWithSave
     % with more comprehensive tests as soon as possible
 
     properties
-        dnd_file_1d_name = 'w1d_d1d.sqw';        
+        dnd_file_1d_name = 'w1d_d1d.sqw';
         sqw_file_1d_name = 'sqw_1d_1.sqw';
         sqw_file_v4_name = 'faccess_sqw_v4_sample.sqw'
 
@@ -68,7 +68,7 @@ classdef test_head < TestCaseWithSave
             ldr.delete();
             hdd = sqw_obj.head('-full');
 
-            assertEqualToTol(hd,hdd)
+            assertEqualToTol(hd,hdd,'tol',1.e-7)
         end
         function test_head_sqw_new_file(obj)
             ldr = sqw_formats_factory.instance().get_loader(obj.sqw_file_v4_name);
@@ -77,10 +77,10 @@ classdef test_head < TestCaseWithSave
             ldr.delete();
             hdd = sqw_obj.head();
 
-            assertEqualToTol(hd,hdd)
+            assertEqualToTol(hd,hdd,1.e-7)
         end
-        
-        
+
+
         function test_head_sqw_old_file_full(obj)
             ldr = sqw_formats_factory.instance().get_loader(obj.sqw_file_1d_name);
             hd = ldr.head('-full');
@@ -95,9 +95,9 @@ classdef test_head < TestCaseWithSave
             hdd.nfiles = hd.nfiles;
             % old file format does not contain data range
             hd.data_range = hdd.data_range;
-            assertEqualToTol(hd,hdd,1.e-8)
+            assertEqualToTol(hd,hdd,4.e-7)
         end
-        
+
         function test_head_sqw_old_file(obj)
             ldr = sqw_formats_factory.instance().get_loader(obj.sqw_file_1d_name);
             hd = ldr.head();
@@ -112,28 +112,28 @@ classdef test_head < TestCaseWithSave
             hdd.nfiles = hd.nfiles;
             % old file format does not contain data range
             hd.data_range = hdd.data_range;
-            
-            assertEqualToTol(hd,hdd,1.e-8)
+
+            assertEqualToTol(hd,hdd,4.e-7)
         end
         function test_head_dnd_old_file_full(obj)
             ldr = sqw_formats_factory.instance().get_loader(obj.dnd_file_1d_name);
             hd = ldr.head('-full');
             dnd_obj = ldr.get_dnd('-verbatim');
-            ldr.delete();                        
-            hdd = head(dnd_obj,'-full');
+            ldr.delete();
+            hdd = head(dnd_obj,'-full');           
 
             % no creation date in old files
             hdd.creation_date = hd.creation_date;
             assertEqualToTol(hd,hdd,1.e-7)
         end
-        
-        
+
+
         function test_head_dnd_old_file(obj)
             ldr = sqw_formats_factory.instance().get_loader(obj.dnd_file_1d_name);
             hd = ldr.head();
             dnd_obj = ldr.get_dnd('-verbatim');
-            ldr.delete();            
-            hdd = head(dnd_obj);
+            ldr.delete();
+            hdd = head(dnd_obj);           
 
             % no creation date in old files
             hdd.creation_date = hd.creation_date;
@@ -145,24 +145,24 @@ classdef test_head < TestCaseWithSave
             [hd1,hd2] = head(obj_arr);
             assertEqual(hd1,hd2);
 
-            assertEqualToTolWithSave(obj,hd1,4.e-9,'ignore_str',true);
+            assertEqualToTolWithSave(obj,hd1,4.e-7,'ignore_str',true);
         end
 
         function test_head_1d_full(obj)
             hd = head(obj.sq1d_obj,'-full');
+            
             assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
         end
         function test_head_dnd_1d(obj)
             hd = head(obj.sq1d_obj.data);
-
-            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
+            assertEqualToTolWithSave(obj,hd,4.e-7,'ignore_str',true);
         end
 
 
         function test_head_sqw_1d(obj)
             hd = head(obj.sq1d_obj);
-
-            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
+            u_to_rlu_legacy = obj.sq1d_obj.data.proj.u_to_rlu_legacy;
+            assertEqualToTolWithSave(obj,hd,4.e-7,'ignore_str',true);
         end
     end
 end

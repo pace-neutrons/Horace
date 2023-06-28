@@ -1,4 +1,4 @@
-classdef test_ortho_proj_methods<TestCase
+classdef test_line_proj_methods<TestCase
     % The tests to verify main ortho_proj methods.
     %
     properties
@@ -11,9 +11,9 @@ classdef test_ortho_proj_methods<TestCase
     end
 
     methods
-        function this=test_ortho_proj_methods(varargin)
+        function this=test_line_proj_methods(varargin)
             if nargin == 0
-                name = 'test_ortho_proj_class';
+                name = 'test_line_proj_methods';
             else
                 name = varargin{1};
             end
@@ -26,6 +26,7 @@ classdef test_ortho_proj_methods<TestCase
             this.fake_sqw_par{1} = en;
             this.fake_sqw_par{2} = this.par_file;
         end
+
         %------------------------------------------------------------------
         function test_get_axes_block_nonortho(~)
             alatt = [2.83,2,3.83];
@@ -39,90 +40,80 @@ classdef test_ortho_proj_methods<TestCase
             assertTrue(ax.nonorthogonal)
             assertEqual(ax.unit_cell,[1,1,0,0;0,1,0,0;1,1,1,0;0,0,0,1]');
         end
-        %------------------------------------------------------------------
-        function test_rotation_and_shift_4D(~)
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,1],...
-                'alatt',alatt,'angdeg',angdeg);
-            prb = ortho_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,2],...
-                'alatt',alatt,'angdeg',angdeg);
-            pra.targ_proj = prb;
-            pix = eye(4);
 
-            pix_transf_spec = pra.from_this_to_targ_coord(pix);
+    end
+    %------------------------------------------------------------------
+    methods % Test offset
+        function test_get_set_img_offset_ppr_scales_hkl(~)
+            alatt = [2,2,2];
+            angdeg = 90;
 
-            pra.do_generic = true;
-            pix_transf_gen = pra.from_this_to_targ_coord(pix);
-
-            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
-        end
-
-        function test_rotation_and_shift_3D(~)
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,0],...
-                'alatt',alatt,'angdeg',angdeg);
-            prb = ortho_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,0],...
-                'alatt',alatt,'angdeg',angdeg);
-            pra.targ_proj = prb;
-            pix = eye(4);
-
-            pix_transf_spec = pra.from_this_to_targ_coord(pix);
-
-            pra.do_generic = true;
-            pix_transf_gen = pra.from_this_to_targ_coord(pix);
-
-            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
-        end
-
-        function test_rotation_no_shift(~)
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_projTester([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg);
-            prb = ortho_projTester([1,1,0],[1,-1,0],'alatt',alatt,'angdeg',angdeg);
-            pra.targ_proj = prb;
-            pix = eye(4);
-
-            pix_transf_spec = pra.from_this_to_targ_coord(pix);
-
-            pra.do_generic = true;
-            pix_transf_gen = pra.from_this_to_targ_coord(pix);
-
-            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
-        end
-
-        function test_two_same_proj_define_unit_transf(~)
-            u = [1,1,0];
-            v = [1,-1,0];
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
-            pra.targ_proj = pra;
-            pix = eye(4);
-
-            pix_transf = pra.from_this_to_targ_coord(pix);
-            assertElementsAlmostEqual(pix,pix_transf);
+            pra = ortho_proj([1,-1,0],[1, 1,0],'alatt',alatt,'angdeg',angdeg);
+            assertEqual(pra.offset,zeros(1,4));
+            in_offset = [1,1,0,0];
+            pra.img_offset = [0,1,0,0];
+            assertElementsAlmostEqual(pra.img_offset,[0,1,0,0],'absolute',1.e-12);
+            assertElementsAlmostEqual(pra.offset,in_offset,'absolute',1.e-12);
 
         end
 
-        function test_from_this_to_targ_throws_no_targ(~)
-            u = [1,1,0];
-            v = [1,-1,0];
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
-            pix = eye(4);
+        function test_get_set_hkl_offset_ppr_scales(~)
+            alatt = [2,2,2];
+            angdeg = 90;
 
-            assertExceptionThrown(@()from_this_to_targ_coord(pra,pix),...
-                'HORACE:aProjectionBase:runtime_error');
+            pra = ortho_proj([1,-1,0],[1, 1,0],'alatt',alatt,'angdeg',angdeg);
+            assertEqual(pra.offset,zeros(1,4));
+            in_offset = [1,1,0,0];
+            pra.offset = in_offset;
+            assertElementsAlmostEqual(pra.offset,in_offset,'absolute',1.e-12);
+
+            assertElementsAlmostEqual(pra.img_offset,[0,1,0,0],'absolute',1.e-12);
 
         end
+
+        function test_set_img_offset_get_offset_scaled(~)
+            alatt = [1,2,3];
+            angdeg = 90;
+
+            pra = ortho_proj([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg,'type','aaa');
+            assertEqual(pra.offset,zeros(1,4));
+            in_offset = [1,1,0,0];
+            img_offset = in_offset.*(2*pi./[alatt,1]);
+            pra.img_offset = img_offset;
+
+            assertElementsAlmostEqual(pra.img_offset,img_offset,'absolute',1.e-12);
+            assertElementsAlmostEqual(pra.offset,in_offset,'absolute',1.e-12);
+        end
+
+        function test_set_offset_get_img_offset_scaled(~)
+            alatt = [1,2,3];
+            angdeg = 90;
+
+            pra = ortho_proj([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg,'type','aaa');
+            assertEqual(pra.offset,zeros(1,4));
+            in_offset = [1,1,0,0];
+            pra.offset = in_offset;
+            assertEqual(pra.offset,in_offset);
+            img_offset = in_offset.*(2*pi./[alatt,1]);
+
+            assertElementsAlmostEqual(pra.img_offset,img_offset,'absolute',1.e-12);
+        end
+
+        function test_img_offset_zero(~)
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+
+            pra = ortho_proj([1,1,0],[0, 1,0],'w',[1,1,1],'alatt',alatt,'angdeg',angdeg);
+            assertEqual(pra.offset,zeros(1,4));
+            assertEqual(pra.offset,pra.img_offset);
+        end
+    end
+    methods  % Bining ranges
         %------------------------------------------------------------------
         function test_bin_range_05_samp_proj2Drot45_3D_opt_vs4D_generic_withdE(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalent 3d+1 transformation. Should give equal results
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             proj1.do_3D_transformation = false;
             proj1.convert_targ_to_source = false;
@@ -136,7 +127,7 @@ classdef test_ortho_proj_methods<TestCase
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[0.5*(dbr(1,4)+dbr(2,4)),1,dbr(2,4)]};
             ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([1,1,0],[1,-1,0]);
+            proj2 = ortho_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
             %
             proj2.do_generic = true;
             proj2.do_3D_transformation = false;
@@ -167,7 +158,7 @@ classdef test_ortho_proj_methods<TestCase
         function test_binning_range_05_samp_proj2Drot45_3D_opt_vs4D_generic(~)
             % full 4D transformation with orthogonal dE axis tested against
             % equivalent 3d+1 transformation. Should give the same results
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
             proj1.do_generic = true;
             proj1.do_3D_transformation = false;
             proj1.convert_targ_to_source = false;
@@ -181,7 +172,7 @@ classdef test_ortho_proj_methods<TestCase
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([1,1,0],[1,-1,0]);
+            proj2 = ortho_proj([1,1,0],[1,-1,0],'alatt',2,'angdeg',90);
             %
             proj2.do_generic = true;
             proj2.do_3D_transformation = false;
@@ -217,7 +208,7 @@ classdef test_ortho_proj_methods<TestCase
         function test_binning_range_half_sampe_proj2Drot45(~)
             % compare default generic cut (3D+1 now) with
             % old-style ranges cut
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
             proj1.do_generic = true;
             proj1.convert_targ_to_source = false;
 
@@ -230,7 +221,7 @@ classdef test_ortho_proj_methods<TestCase
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([1,1,0],[-1,1,0]);
+            proj2 = ortho_proj([1,1,0],[-1,1,0],'alatt',2,'angdeg',90);
             proj2.do_generic = true;
             proj2.convert_targ_to_source = false;
 
@@ -282,7 +273,7 @@ classdef test_ortho_proj_methods<TestCase
         end
         %
         function test_binning_range_half_sampe_proj2Drot90(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
 
             dbr = [0,0,0,0;1,1,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.1,dbr(2,2)];...
@@ -293,7 +284,7 @@ classdef test_ortho_proj_methods<TestCase
             bin1 = {[0.5,0.1,dbr(2,1)];[0,0.1,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab1 = ortho_axes(bin1{:});
-            proj2 = ortho_proj([0,1,0],[-1,0,0]);
+            proj2 = ortho_proj([0,1,0],[-1,0,0],'alatt',1,'angdeg',90);
 
 
 
@@ -307,7 +298,7 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(bl_size, ones(1,7)*1);
         end
         function test_binning_range_half_sampe_proj2D_offset_eq_ranges_shif(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',2,'angdeg',90);
 
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
@@ -337,7 +328,7 @@ classdef test_ortho_proj_methods<TestCase
         end
         %
         function test_binning_range_half_sampe_proj2D(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             dbr = [0,0,0,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
@@ -369,7 +360,7 @@ classdef test_ortho_proj_methods<TestCase
 
         end
         function test_binning_range_the_same_1D_dE(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
@@ -390,7 +381,7 @@ classdef test_ortho_proj_methods<TestCase
         end
         %
         function test_binning_range_the_same_4D(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
@@ -414,7 +405,7 @@ classdef test_ortho_proj_methods<TestCase
         end
         %
         function test_binning_range_the_same_1D(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             proj1.do_generic = true;
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
@@ -433,7 +424,8 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(bl_start,1);
             assertEqual(bl_end,numel(npix));
         end
-        %
+    end
+    methods % CUT parts
         %------------------------------------------------------------------
         %
         function test_cut_dnd(this)
@@ -460,256 +452,85 @@ classdef test_ortho_proj_methods<TestCase
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
-        function test_uv_to_rot_and_vv_complex_nonorth_with_rrr(~)
-            u = [1,1,0];
-            v = [0,-0.5,1];
+        function test_rotation_and_shift_4D(~)
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
-            %
-            %TODO: This option does not currently work.
-            %pra.nonorthogonal = true;
-            % Is it necessary to make it to work?
-            %
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
-            %
-            % but recovered the values, correspondent to ppr?
-            [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-            assertElementsAlmostEqual(u,u_par);
-            assertEqual(type,'ppr');
-            assertTrue(isempty(w));
-            % find part of the v vector, orthogonal to u
-            %             b_mat = bmatrix(alatt,angdeg);
-            %             u_cc = b_mat*u'; % u-vector in Crystal Cartesian
-            %             eu = u_cc/norm(u_cc); % unit vector parallel to u in CC
-            %             % convert to crystal Cartesian
-            %             v_cc = b_mat*v';  % v-vector in Crystal Cartesian
-            %
-            %             v_along =eu*(eu'*v_cc); % projection of v to eu
-            %             v_tr = (v'-b_mat\v_along)'; % convert v_along (u) to hkl
-            %             v_tr = v_tr/norm(v_tr);
-            %             % orthogonal v-part should be recovered from the u_to_rlu matrix
-            %             assertElementsAlmostEqual(v_tr,v_par);
-            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg,'type',type);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
+            pra = ortho_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,1],...
+                'alatt',alatt,'angdeg',angdeg);
+            prb = ortho_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,2],...
+                'alatt',alatt,'angdeg',angdeg);
+            pra.targ_proj = prb;
+            pix = eye(4);
 
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
+            pix_transf_spec = pra.from_this_to_targ_coord(pix);
 
+            pra.do_generic = true;
+            pix_transf_gen = pra.from_this_to_targ_coord(pix);
+
+            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
         end
-        %
-        function test_uv_to_rot_and_vv_complex_nonorthogonal(~)
-            u = [1,1,0];
-            v = [0,-0.5,1];
+
+        function test_rotation_and_shift_3D(~)
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
+            pra = ortho_projTester([1,0,0],[0, 1,0],'offset',[1,0,0,0],...
+                'alatt',alatt,'angdeg',angdeg);
+            prb = ortho_projTester([1,1,0],[1,-1,0],'offset',[1,1,1,0],...
+                'alatt',alatt,'angdeg',angdeg);
+            pra.targ_proj = prb;
+            pix = eye(4);
 
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
+            pix_transf_spec = pra.from_this_to_targ_coord(pix);
 
-            [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu, ulen);
-            assertElementsAlmostEqual(u,u_par);
-            assertTrue(isempty(w));
-            % find part of the v vector, orthogonal to u
-            b_mat = bmatrix(alatt,angdeg);
-            eu_cc = b_mat*u';
-            eu = eu_cc/norm(eu_cc);
-            % convert to crystal Cartesian
-            v_cc = b_mat*v';
-            v_along =eu*(eu'*v_cc);
-            v_tr = (b_mat\(v_cc-v_along))';
-            % this part should be recovered from the u_to_rlu matrix
-            assertElementsAlmostEqual(v_tr,v_par);
+            pra.do_generic = true;
+            pix_transf_gen = pra.from_this_to_targ_coord(pix);
 
-            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg,'type',typ);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-
+            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
         end
-        %
-        function test_uv_to_rot_and_vv_simple_nonorthogonal(~)
-            u = [1,0,0];
-            v = [0,0,1];
+
+        function test_rotation_no_shift(~)
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
+            pra = ortho_projTester([1,0,0],[0, 1,0],'alatt',alatt,'angdeg',angdeg);
+            prb = ortho_projTester([1,1,0],[1,-1,0],'alatt',alatt,'angdeg',angdeg);
 
-            [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-            assertElementsAlmostEqual(u,u_par);
-            assertTrue(isempty(w));
+            pix = eye(4);
 
-            % find part of the v vector, orthogonal to u
-            b_mat = bmatrix(alatt,angdeg);
-            eu_cc = b_mat*u';
-            eu = eu_cc/norm(eu_cc);
-            % convert to crystal Cartesian
-            v_cc = b_mat*v';
+            pra.disable_srce_to_targ_optimization = true;
+            pra.targ_proj  = prb;
+            pix_transf_gen = pra.from_this_to_targ_coord(pix);
 
-            v_along =eu*(eu'*v_cc);
-            v_tr = (b_mat\(v_cc-v_along))';
-
-            % this part should be recovered from the u_to_rlu matrix
-            assertElementsAlmostEqual(v_tr,v_par);
-
-            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg,'type',typ);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
+            pra.disable_srce_to_targ_optimization = false;
+            pra.targ_proj  = prb;
+            pix_transf_spec = pra.from_this_to_targ_coord(pix);
 
 
-        end
-        %
-        function test_uv_to_rot_and_vv_complex(~)
-            u = [1,1,0]/norm([1,1,0]);
-            v = [0,-0.5,1];
-            alatt = [2.83,2.83,2.83];
-            angdeg = [90,90,90];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
-
-            [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-
-            assertElementsAlmostEqual(u,u_par);
-            assertTrue(isempty(w));
-            assertEqual(type,'ppr');
-            % find part of the v vector, orthogonal to u
-            %             eu =  u/norm(u);
-            %             v_along =eu*(eu*v');
-            %             v_tr = v-v_along;
-            %             v_tr = v_tr/norm(v_tr);
-
-            % this part should be recovered from the u_to_rlu matrix
-            %assertElementsAlmostEqual(v_tr,v_par);
-
-            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg,'type',type);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-
-        end
-        function test_uv_to_rot_and_vv_simple_rect_lattice(~)
-            u = [1,0,0];
-            v = [-0.117092223638778,0.993121045574670,0];  % vector in non-orthogonal coordinate system,
-            % orthogonal to u vrt multiplication in B-matrix adjusted
-            % orthogonal coordinate system
-            alatt = [2.8,2,3.5];
-            angdeg = [92,85,95];
-            %bmat = bmatrix(alatt,angdeg);
-
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
-
-            [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-            assertElementsAlmostEqual(u,u_par,'absolute',1.e-7);
-            assertElementsAlmostEqual(v,v_par,'absolute',1.e-7);
-            assertTrue(isempty(w));
-            assertEqual(tpe,'ppr');
-
-            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-        end
-
-        %
-        function test_uv_to_rot_and_vv_simple_ortho_lattice(~)
-            u = [1,0,0];
-            v = [0,0,1];
-            alatt = [2.83,2.83,2.83];
-            angdeg = [90,90,90];
-            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
-
-            [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-            assertElementsAlmostEqual(u,u_par);
-            assertElementsAlmostEqual(v,v_par);
-            assertTrue(isempty(w));
-            assertEqual(tpe,'ppr');
-
-            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
+            assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
         end
         %------------------------------------------------------------------
-        %
-        %------------------------------------------------------------------
-        function test_transf_to_img_and_back_reverts_proj_ortho_3D_with_offset(~)
-            pix = ones(3,5);
-            proj = ortho_proj([1,0,0],[0,1,1],'offset',[1,0,0]);
-            proj.alatt = 3;
-            proj.angdeg = 90;
+        function test_two_same_proj_define_unit_transf(~)
+            u = [1,1,0];
+            v = [1,-1,0];
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+            pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
+            pra.targ_proj = pra;
+            pix = eye(4);
 
-            pix_transf = proj.transform_pix_to_img(pix);
-            assertEqual(size(pix_transf),[3,5]);
-            pix_rec = proj.transform_img_to_pix(pix_transf);
-            assertElementsAlmostEqual(pix_rec,pix);
+            pix_transf = pra.from_this_to_targ_coord(pix);
+            assertElementsAlmostEqual(pix,pix_transf);
+
         end
 
-        function test_transform_to_img_and_back_reverts_proj_ortho_3D(~)
-            pix = ones(3,5);
-            proj = ortho_proj([1,0,0],[0,1,1]);
-            proj.alatt = 3;
-            proj.angdeg = 90;
-
-            pix_transf = proj.transform_pix_to_img(pix);
-            assertEqual(size(pix_transf),[3,5]);
-            pix_rec = proj.transform_img_to_pix(pix_transf);
-            assertElementsAlmostEqual(pix_rec,pix);
-        end
-        %
-        function test_transform_to_img_and_back_reverts_noprojaxis(~)
-            pix = ones(4,5);
-            proj = ortho_proj();
-            pix_transf = proj.transform_pix_to_img(pix);
-            assertEqual(size(pix_transf),[4,5]);
-            pix_rec = proj.transform_img_to_pix(pix_transf);
-            assertEqual(pix_rec,pix);
-        end
-    end
-    methods(Access = protected)
-        %
-        function transform_to_img_and_back_reverts_proj_ortho_with_offset(~)
-            pix = ones(4,5);
-            proj = ortho_proj([1,0,0],[0,1,1],'offset',[1,1,1]);
-            proj.alatt = 3;
-            proj.angdeg = 90;
-
-            pix_transf = proj.transform_pix_to_img(pix);
-            assertEqual(size(pix_transf),[4,5]);
-            pix_rec = proj.transform_img_to_pix(pix_transf);
-            assertElementsAlmostEqual(pix_rec,pix);
-        end
-        %
-        function transform_to_img_and_back_reverts_proj_ortho(~)
-            pix = ones(4,5);
-            proj = ortho_proj([1,0,0],[0,1,1]);
-            proj.alatt = 3;
-            proj.angdeg = 90;
-
-            pix_transf = proj.transform_pix_to_img(pix);
-            assertEqual(size(pix_transf),[4,5]);
-            pix_rec = proj.transform_img_to_pix(pix_transf);
-            assertElementsAlmostEqual(pix_rec,pix);
-        end
-        %
-        function transform_to_img_and_back_reverts_proj_nonorth(~)
-            pix = ones(4,5);
-            proj = ortho_proj([1,0,0],[0,1,1]);
-            proj.alatt = [3,4,7];
-            proj.angdeg = [95,70,85];
-
-            pix_transf = proj.transform_pix_to_img(pix);
-            assertEqual(size(pix_transf),[4,5]);
-            pix_rec = proj.transform_img_to_pix(pix_transf);
-            assertElementsAlmostEqual(pix_rec,pix);
+        function test_from_this_to_targ_throws_no_targ(~)
+            u = [1,1,0];
+            v = [1,-1,0];
+            alatt = [2.83,2,3.83];
+            angdeg = [95,85,97];
+            pra = ortho_proj(u,v,'alatt',alatt,'angdeg',angdeg);
+            pix = eye(4);
+            assertExceptionThrown(@()from_this_to_targ_coord(pra,pix),...
+                'HORACE:aProjectionBase:runtime_error');
         end
     end
 end

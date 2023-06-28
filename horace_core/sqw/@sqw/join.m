@@ -144,6 +144,8 @@ wout.data.npix=zeros(sz);
 % build a new PixelData object from the contributing files data
 pix_ex = cellfun(@(x) x, pix(run_contributes), 'UniformOutput', false);
 [wout, ldr] = wout.get_new_handle();
+% TODO:  Re #1032  This is incorrect. Despite split is reversed, the pixels are not 
+% combined in correct order.
 wout.pix = wout.pix.cat(pix_ex{:}, ldr);
 for i=1:nfiles
     if run_contributes(i)
@@ -164,7 +166,8 @@ wout.data.e(~wout.data.npix)=0;
 % does the trick, but that is projection-specific and it might not be right
 % to build up a proj struct from the information present in a sqw.
 %
-% An alternative is to use the projection-axis cut form
+% An alternative is to use the projection-axis cut form.
+%TODO: Re #1032 This have to be done on 0-dimension d0d object as keys. This is not currently the case
 %   wout=cut_sqw(wout,[]...)
 % wrapped with commands to temporarily silence Horace.
 hc_log_level=get(hor_config,'log_level');

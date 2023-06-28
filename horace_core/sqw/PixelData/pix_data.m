@@ -91,9 +91,14 @@ classdef pix_data < serializable
             % should be also setter from filename, used for setting
             % filebased data
             if isnumeric(val)
-                obj.data_ = val;
-                obj.num_pix_fields_ = size(val,1);
-                obj.npix_           = size(val,2);
+                if isempty(val)
+                    obj.npix_ = 0;
+                    obj.data_ = [];
+                else
+                    obj.data_ = val;
+                    obj.num_pix_fields_ = size(val,1);
+                    obj.npix_           = size(val,2);
+                end
             elseif ischar(val)||isstring(val)
                 obj.data_ = val;
             else

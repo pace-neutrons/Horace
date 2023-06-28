@@ -575,6 +575,10 @@ classdef AxesBlockBase < serializable
             %           -- if present, return grid used to define density,
             %              bin centers for projection axes and bin edges for
             %              integrated dimensions.
+            % '-plot_edges' -- if present, return bin_edges as used for plotting dispersion
+            %              i.e. bin edges for plot axes and bin centers for integration
+            %              axes
+
             % '-axes_only'
             %           -- if provided, do not return 3D or 4D grid but
             %              just return the axes in each 3 or 4 dimensions
@@ -600,10 +604,10 @@ classdef AxesBlockBase < serializable
             %           4 dimensions
             %
             opt = {'-3D','-halo','-bin_edges','-bin_centre','-dens_interp',...
-                '-axes_only','-ngrid','-hull'};
+                '-plot_edges','-axes_only','-ngrid','-hull'};
             [ok,mess,...
                 do_3D,build_halo,bin_edges,bin_centre,dens_interp,...
-                axes_only,ngrid,hull,argi] ...
+                plot_edges,axes_only,ngrid,hull,argi] ...
                 = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:AxesBlockBase:invalid_argument',mess)
@@ -611,7 +615,7 @@ classdef AxesBlockBase < serializable
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 calc_bin_nodes_(obj,nargout,do_3D, ...
                 build_halo,bin_edges,bin_centre,dens_interp,...
-                axes_only,ngrid,hull,argi{:});
+                plot_edges,axes_only,ngrid,hull,argi{:});
         end
         %
         function nodes = dE_nodes(obj,varargin)
@@ -623,6 +627,12 @@ classdef AxesBlockBase < serializable
             nodes = dE_nodes_(obj,varargin{:});
         end
     end
+    methods(Abstract)
+        %
+        [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
+            data_plot_titles(obj,dnd_obj)
+    end
+
     methods(Abstract,Access=protected)
         % main setter for image range. Overloadable for different kind
         % of axes blocks.

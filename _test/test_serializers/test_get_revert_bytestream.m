@@ -11,70 +11,82 @@ classdef test_get_revert_bytestream< TestCase
             end
             this = this@TestCase(name);
         end
-        function test_obj_conversion(this)
+        function test_num_conversion(~)
 
             x=1000;
-            bs = get_bytestream_from_obj(x);
+            bs = serialise(x);
             assertTrue(isa(bs(1),'uint8'));
-            assertEqual(numel(bs),72);
+            assertEqual(numel(bs),14);
 
-            xc = get_obj_from_bytestream(bs);
+            xc = deserialise(bs);
 
             assertEqual(x,xc);
+        end
+        function test_string_conversion(~)
             %-----------------
             y = 'abra_cadbra';
-            bs = get_bytestream_from_obj(y);
+            bs = serialise(y);
             assertTrue(isa(bs(1),'uint8'));
-            assertEqual(numel(bs),80);
+            assertEqual(numel(bs),17);
 
-            yc = get_obj_from_bytestream(bs);
+            yc = deserialise(bs);
 
             assertEqual(y,yc);
             %-----------------
+        end
+        function test_struct_conversion(~)
+            x=1000;
+            y = 'abra_cadbra';
             z=struct('yyy',y,'xx',x);
 
-            bs = get_bytestream_from_obj(z);
+            bs = serialise(z);
             assertTrue(isa(bs(1),'uint8'));
-            assertEqual(numel(bs),216);
+            assertEqual(numel(bs),64);
 
-            zc = get_obj_from_bytestream(bs);
+            zc = deserialise(bs);
 
             assertEqual(z,zc);
             %-----------------
-
+        end
+        function test_sobj_conversion(~)
             t= IX_fermi_chopper(10,50,10,1,0.1);
             t.radius = 10;
             t.name = 'sloppy';
 
-            bs = get_bytestream_from_obj(t);
+            bs = serialise(t);
             assertTrue(isa(bs(1),'uint8'));
-            assertEqual(numel(bs),3504);
+            assertEqual(numel(bs),376);
 
-%            tc = get_obj_from_bytestream(bs);
+            tc = deserialise(bs);
 
-%            assertEqual(t,tc);
-
+            assertEqual(t,tc);
         end
 
         function test_mex_nomex(~)
-            if matlab_version_num>8.02
-                skipTest('Matlab 2014a+ can not currently run mex files build for lower matlab versions');
-            end
             mod = IX_moderator();
             mod.distance=10;
             mod.thickness = 1;
             mod.temperature = 7;
-
-            bs = get_bytestream_from_obj(mod ,'mex');
-            % try native conversion (where availible)
-            bsn = get_bytestream_from_obj(mod);
+            hc = hor_config;
+            hc.saveable = false;
+            use_mex = hc.use_mex;
+            clOb = onCleanup(@()set(hc,'use_mex',use_mex));
+            hc.use_mex = true;
+            bs = serialise(mod);
+            hc.use_mex = false;
+            bsn = serialise(mod);
             assertTrue(isa(bs(1),'uint8'));
-            assertEqual(numel(bs),896);
+            assertEqual(numel(bs),343);
 
             assertEqual(bs,bsn);
 
-%            modc = get_obj_from_bytestream(bs,'mex');
-%            assertEqual(mod,modc);
+            hc.use_mex = true;
+            modc = deserialise(bs);
+            assertEqual(mod,modc);
+            hc.use_mex = false;
+            modc = deserialise(bs);
+            assertEqual(mod,modc);
+
         end
 
 

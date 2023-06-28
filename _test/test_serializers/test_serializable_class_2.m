@@ -157,6 +157,7 @@ classdef test_serializable_class_2 < TestCaseWithSave
             % object functionality
             % serialize/deserialize treats the array as a whole, so exercises
             % the .array_dat field in to_struct/from_struct
+            serializableTester3.version_holder(2);            
             dets_ref = construct_detectors (obj);
 
             % Serialize detector array - ver1
@@ -173,7 +174,8 @@ classdef test_serializable_class_2 < TestCaseWithSave
             % Confirm that reserialisation of ver1 detectors results in version 2
             % classes, with value for property 'wall' from convert_old_struct            
             for i=1:numel(dets_ver1)
-                dets_ref(i).wall = 1e-6;
+                dets_ref(i).wall = 1e-7;
+                dets_ref(i).atms = 27;
             end
             assertEqual (dets_ref, dets_ver1_reserialized)
         end

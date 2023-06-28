@@ -192,14 +192,15 @@ else
             'Must give binning arguments for all four dimensions if new projection axes');
     end
 end
-if proj_given 
+if proj_given
     % check if the projection have no lattice defined and define the
     % lattice for cut
+    source_proj = obj.proj;
     if ~proj.alatt_defined
-        proj.alatt = obj.proj.alatt;
+        proj.alatt = source_proj.alatt;
     end
     if ~proj.angdeg_defined
-        proj.angdeg = obj.proj.angdeg;        
+        proj.angdeg = source_proj.angdeg;
     end
 else % it may be fewer parameters then actual dimensions and
     % if no projection is given, we would like to append missing binning

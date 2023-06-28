@@ -11,6 +11,7 @@ classdef IX_experiment < serializable
         %         % the experiment info
 
         en;  % array of all energy transfers, present in the experiment
+        u_to_rlu;
     end
 
     properties
@@ -25,7 +26,7 @@ classdef IX_experiment < serializable
         gl=0;
         gs=0;
         uoffset=[0,0,0,0];
-        u_to_rlu=[];
+
         ulen=[];
         ulabel=[];
     end
@@ -34,6 +35,7 @@ classdef IX_experiment < serializable
         filepath_='';
         run_id_ = NaN;
         en_ = zeros(0,1);
+        u_to_rlu_ = eye(3);
     end
     properties(Constant,Access=private)
         % fields, which fully define public interface to the class
@@ -104,6 +106,22 @@ classdef IX_experiment < serializable
             end
             obj.en_ = val(:);
         end
+        %
+        function mat = get.u_to_rlu(obj)
+            mat = eye(4);
+            mat(1:3,1:3) = obj.u_to_rlu_;
+        end
+        function obj = set.u_to_rlu(obj,val)
+            if all(size(val)== [4,4])
+                val = val(1:3,1:3);
+            end
+            if ~all(size(val) == [3,3])
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'input u_to_rlu matrix have to have size 3x3 or 4x4')
+            end
+            obj.u_to_rlu_ = val;
+        end
+
         %------------------------------------------------------------------
         % SQW_binfile_common methods related to saving to binfile and
         % run_id scrambling:
@@ -113,7 +131,7 @@ classdef IX_experiment < serializable
             %
             % Inputs:
             % Required:
-            % obj   -- the experiment data header object to convert - 
+            % obj   -- the experiment data header object to convert -
             % mode  --
             %    = '-inst_samp' : the next 2 arguments are an instrument
             %                     and sample respectively
@@ -156,8 +174,9 @@ classdef IX_experiment < serializable
                 old_hdr.alatt      = arg1;
                 old_hdr.angdeg     = arg2;
             else
-                error('HORACE:convert_to_binfile_header:invalid argument', ...
-                      'mode arg is not -inst_samp or -alatt_angdeg');
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'mode arg is not "-inst_samp" or "-alatt_angdeg". It is: %s', ...
+                    disp2str(mode));
             end
         end
         function obj = IX_experiment(varargin)
