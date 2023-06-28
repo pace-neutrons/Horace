@@ -1,6 +1,7 @@
 #ifndef H_FILE_PARAMETERS
 #define H_FILE_PARAMETERS
 
+#include <cstdint>
 #include <string>
 #include <map>
 #include <stdio.h>
@@ -26,7 +27,5 @@ public:
 private:
     static const std::map<std::string, int> fileParamNames;
 };
-
-
 
 #endif

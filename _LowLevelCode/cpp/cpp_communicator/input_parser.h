@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mex.h>
+#include <cstdint>
 #include <cstring>
 #include <sstream>
 #include <typeinfo>
@@ -98,7 +99,7 @@ struct InitParamHolder {
     int async_queue_length; // how many asynchronous messages could be placed into asynchronous queue
     int data_message_tag;    // the tag of a data message, to process synchronously.
     int interrupt_tag;    // the tag of an interrupt message, to process intermittently with any other type of messages.
-    int32_t debug_frmwk_param[2] = { 0,1 }; // in debug mode, this array contains fake labIndex and numLabs, 
+    int32_t debug_frmwk_param[2] = { 0,1 }; // in debug mode, this array contains fake labIndex and numLabs,
                               // used for testing framework in serial mode.
     InitParamHolder() :
         is_tested(false), async_queue_length(10), data_message_tag(8), interrupt_tag(100)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mex.h>
+#include <cstdint>
 #include <matrix.h>
 #include <limits>
 
