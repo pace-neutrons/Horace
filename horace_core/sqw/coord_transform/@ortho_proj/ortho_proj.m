@@ -12,10 +12,15 @@ classdef ortho_proj<aProjectionBase
     %             where proj_struct is the
     %             structure, containing any fields, with names, equal any
     %             public fields of the ortho_proj class
+    % As a standard serializable accepts full set of positional and
+    % key-value parameters, which constitute its properties
     %
     % Argument input:
     %   >> proj = ortho_proj(u,v)
     %   >> proj = ortho_proj(u,v,w)
+    %   Full positional parameters input (can be interrupted at any point:
+    %   >> proj = ...
+    %   ortho_proj(u,v,w,nonorthogonal,type,alatt,angdeg,offset,label,title,lab1,lab2,lab3,lab4)
     %
     %   plus any of the optional arguments, provided as key-value pair:
     %
@@ -27,6 +32,17 @@ classdef ortho_proj<aProjectionBase
     %                   :
     %   >> proj = ortho_proj(...,'lab4',labelstr,...)
     %
+    % Minimal functional form:
+    %   >> proj =  ortho_proj(u,v,'alatt',lat_param,'angdeg',lattice_angles_in_degrees);
+    %
+    %IMPORTANT:
+    % if you want to use ortho_proj as input for cut algorithm, it needs
+    % minimum two input parameters u and v, as lattice parameters for cut
+    % will be taken from sqw object if not provided with projection.
+    %
+    % For independent usage u,v and lattice parameters (minimal functional
+    % form) needs to be specified. Any other parameters have their reasonable
+    % defaults and need to change only if requred.
     %
     % Input:
     % ------
@@ -70,9 +86,9 @@ classdef ortho_proj<aProjectionBase
     % Also accepts these and aProjectionBase properties as set of key-values
     % pairs following standard serializable class constructor agreements.
     %
-
-    % Original author: T.G.Perring
-    %
+    % NOTE:
+    % constructor does not accept legacy ub_inv_legacy matrix, specified in
+    % the list of saveable properties.
     %
     properties(Dependent)
         u; %[1x3] Vector of first axis (r.l.u.)
@@ -188,25 +204,9 @@ classdef ortho_proj<aProjectionBase
                     obj = serializable.loadobj(varargin{1});
                 else
                     obj = obj.from_old_struct(varargin{1});
-                end
+                end                
             else
-                % constructor does not accept legacy alignment matrix
-                opt =  [ortho_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
-                % check if the type is defined explicitly
-                n_type = find(ismember(opt,'type'));
-                is_keys = cellfun(@istext,varargin);
-                if ismember('type',varargin(is_keys)) || ... % defined as key-value pair
-                        (numel(varargin)>n_type && ischar(varargin{n_type}) && numel(varargin{n_type}) == 3) % defined as positional parameter
-                    obj.type_is_defined_explicitly_ = true;
-                end
-                [obj,remains] = ...
-                    set_positional_and_key_val_arguments(obj,...
-                    opt,false,varargin{:});
-                if ~isempty(remains)
-                    error('HORACE:ortho_proj:invalid_argument',...
-                        'The parameters %s provided as input to ortho_proj initialization have not been recognized',...
-                        disp2str(remains));
-                end
+                obj = init_by_input_parameters_(obj,varargin{:});
             end
         end
         %-----------------------------------------------------------------
@@ -466,63 +466,7 @@ classdef ortho_proj<aProjectionBase
             % ulen     -- array of scales along the image axes used in the
             %             transformation
             %
-            if ~obj.alatt_defined||~obj.angdeg_defined
-                error('HORACE:ortho_proj:runtime_error', ...
-                    'Attempt to use coordinate transformations before lattice is defined. Define lattice parameters first')
-            end
-
-            if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
-                pix = varargin{1};
-                if pix.is_misaligned
-                    alignment_needed = true;
-                    alignment_mat = pix.alignment_matr;
-                else
-                    alignment_needed = false;
-                end
-            else
-                alignment_needed = false;
-            end
-            if ~isempty(obj.q_to_img_cache_) && isempty(obj.ub_inv_legacy)
-                q_to_img = obj.q_to_img_cache_(1:ndim,1:ndim);
-                shift    = obj.q_offset_cache_(1:ndim);
-                ulen     = obj.ulen_cache_(1:ndim);
-                if alignment_needed
-                    q_to_img  = q_to_img*alignment_mat;
-                end
-                return;
-            end
-            %
-            if isempty(obj.ub_inv_legacy)
-                [q_to_img,ulen,rlu_to_q,obj] = projtransf_to_img_(obj);
-                % Modern alignment with rotation matrix attached to pixel
-                % coordinate system
-                if alignment_needed
-                    q_to_img  = q_to_img*alignment_mat;
-                end
-            else% Legacy alignment, with multiplication of rotation matrix
-                [rlu_to_u,~,ulen]  = projaxes_to_rlu_legacy_(obj, [1,1,1]);
-                u_to_rlu_ = obj.ub_inv_legacy; % psi = 0; inverted b-matrix
-                q_to_img  = (rlu_to_u*u_to_rlu_);
-                rlu_to_q  = inv(u_to_rlu_);
-            end
-            %
-            if ndim==4
-                shift  = obj.offset;
-                rlu_to_q  = [rlu_to_q,[0;0;0];[0,0,0,1]];
-                q_to_img = [q_to_img,[0;0;0];[0,0,0,1]];
-                ulen = [ulen(:)',1];
-            elseif ndim == 3
-                shift  = obj.offset(1:3);
-            else
-                error('HORACE:orhto_proj:invalid_argument',...
-                    'The ndim input may be 3 or 4  actually it is: %s',...
-                    evalc('disp(ndim)'));
-            end
-            if nargout > 1
-                % convert shift, expressed in hkl into crystal Cartesian
-                shift = rlu_to_q *shift(:);
-            else % do not convert anything
-            end
+            [q_to_img,shift,ulen,obj]=get_pix_img_transformation_(obj,ndim,varargin{:});
         end
     end
     %----------------------------------------------------------------------
@@ -619,6 +563,9 @@ classdef ortho_proj<aProjectionBase
     %=====================================================================
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
+    properties(Constant, Access=private)
+        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';'ub_inv_legacy'}
+    end
     methods
         % check interdependent projection arguments
         function wout = check_combo_arg (w)
@@ -666,48 +613,40 @@ classdef ortho_proj<aProjectionBase
             % message, describing in more details where non-equality
             % occurs (used in unit tests to indicate the details of
             % inequality)
-            names = cell(2,1);
+
             if nargout == 2
                 if nargin>2
-                    argi = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false);
-                    is = ismember(argi,'name_a');
-                    if any(is)
-                        ind = find(is);
-                        names{1} = varargin{ind+1};
-                    end
-                    is = ismember(argi,'name_b');
-                    if any(is)
-                        ind = find(is);
-                        names{2} = varargin{ind+1};
-                    end
+                    names = ortho_proj.extract_eq_neq_names(varargin{:});
                 else
+                    names = cell(2,1);
                     names{1} = inputname(1);
                     names{2} = inputname(2);
                 end
                 [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
             else
-                is = eq_(obj,other_obj,nargout,names,varargin{:});
+                is = eq_(obj,other_obj,nargout,cell(2,1),varargin{:});
             end
         end
         %
         function [nis,mess] = ne(obj,other_obj,varargin)
             % Non-equality operator expressed through equality operator
             %
-            names = cell(2,1);
             if nargout == 2
-                names{1} = inputname(1);
-                names{2} = inputname(2);
+                if nargin > 2
+                    names = ortho_proj.extract_eq_neq_names(varargin{:});
+                else
+                    names{1} = inputname(1);
+                    names{2} = inputname(2);
+                end
                 [is,mess] = eq_(obj,other_obj,nargout,names,varargin{:});
             else
-                is = eq_(obj,other_obj,nargout,names,varargin{:});
+                is = eq_(obj,other_obj,nargout,cell(2,1),varargin{:});
             end
             nis = ~is;
         end
 
     end
-    properties(Constant, Access=private)
-        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';'ub_inv_legacy'}
-    end
+    %----------------------------------------------------------------------
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
@@ -736,11 +675,30 @@ classdef ortho_proj<aProjectionBase
             % structure does not contain a version or the version, stored
             % in the structure does not correspond to the current version
             % of the class.
-
             if ~exist('header_av', 'var')
                 header_av = [];
             end
             obj = build_from_old_data_struct_(obj,inputs,header_av);
+        end
+    end
+    methods(Static,Access=private)
+        function names = extract_eq_neq_names(varargin)
+            % function helps to parse inputs of eq/neq functions in case
+            % when it called within the chain of other functions containing
+            % input parameters
+            % if varargin contains
+            names = cell(2,1);
+            argi = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false);
+            is = ismember(argi,'name_a');
+            if any(is)
+                ind = find(is);
+                names{1} = varargin{ind+1};
+            end
+            is = ismember(argi,'name_b');
+            if any(is)
+                ind = find(is);
+                names{2} = varargin{ind+1};
+            end
         end
     end
 end

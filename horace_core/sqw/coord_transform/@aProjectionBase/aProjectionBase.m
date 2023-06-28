@@ -46,7 +46,7 @@ classdef aProjectionBase < serializable
         %     % is provided to the projection, which defines title
         %
         img_offset; % Convenience property, providing/accepting the offset
-        %           % expressed in the image coodinate system
+        %           % expressed in the image coodinate system.
     end
     properties(Dependent,Hidden)
         % Internal properties, used by algorithms and better not to be
@@ -93,7 +93,7 @@ classdef aProjectionBase < serializable
         % returns true if lattice angles have been set up
         angdeg_defined
         % old interface to img_offset for old scripts accepting a
-        % structure, containign this value
+        % structure, containign this value or old user scripts
         uoffset
     end
 
