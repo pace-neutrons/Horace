@@ -3,11 +3,13 @@ classdef test_cut_sym_cube < TestCase
     properties(Constant)
         nil = [0 0 0];
 
+        % Old style vector pairs (DEPRECATED)
         ref_x = {[0 1 0], [0 0 1]};
         ref_y = {[0 0 1], [1 0 0]};
         ref_z = {[1 0 0], [0 1 0]};
         ref_xy = {[0 0 1], [1 -1 0]};
 
+        % New style Symops
         ref_x_op = SymopReflection([0 1 0], [0 0 1]);
         ref_y_op = SymopReflection([1 0 0], [0 0 1]);
         ref_z_op = SymopReflection([1 0 0], [0 1 0]);

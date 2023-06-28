@@ -398,7 +398,7 @@ end
 function sym_out = check_sym_arg(sym)
 % Checks on symmetry description - check valid, and remove empty descriptions
 %
-%   >> sym_out = cut_sqw_check_sym_arg (sym)
+%   >> sym_out = check_sym_arg(sym)
 %
 % Input:
 % ------
@@ -414,7 +414,7 @@ function sym_out = check_sym_arg(sym)
 %   sym_out Cell array of symmetry descriptions from input sym, each one a
 %             scalar or row vector of Symop objects.
 %
-%           Always adds one SymopIdentity.
+%           Always add identity in addition to other kept symops
 %
 %           Empty symmetry descriptions or identity descriptions
 %             are removed from the cell array.
@@ -437,7 +437,7 @@ for i=1:numel(sym)
               ~all(arrayfun(@(x) isa(x, 'SymopIdentity'), sym{i}));
 end
 
-% Always return identity
+%Always add identity in addition to other kept symops
 sym_out = [{SymopIdentity()}; sym(keep)];
 
 end
