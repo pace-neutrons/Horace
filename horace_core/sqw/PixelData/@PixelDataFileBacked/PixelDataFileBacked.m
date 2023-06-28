@@ -427,10 +427,10 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.offset_ = 0;
                 obj.full_filename = obj.tmp_pix_obj.file_name;
                 obj.f_accessor_ = memmapfile(obj.full_filename, ...
-                    'format', obj.get_memmap_format(), ...
-                    'Repeat', 1, ...
-                    'Writable', true, ...
-                    'offset', obj.offset_);
+                                             'format', obj.get_memmap_format(), ...
+                                             'Repeat', 1, ...
+                                             'Writable', true, ...
+                                             'offset', obj.offset_);
 
             end
         end
@@ -467,8 +467,15 @@ classdef PixelDataFileBacked < PixelDataBase
         %   obj         A PixelData object containing all the pixels in the inputted
         %               PixelData objects
 
-            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
-                obj = PixelDataFileBacked(varargin{1});
+            if isempty(varargin)
+                obj = PixelDataFileBacked();
+                return;
+            elseif numel(varargin) == 1
+                if isa(varargin{1}, 'PixelDataMemory')
+                    obj = PixelDataFileBacked(varargin{1});
+                elseif isa(varargin{1}, 'PixelDataFileBacked')
+                    obj = varargin{1};
+                end
                 return;
             end
 
