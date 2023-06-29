@@ -11,9 +11,7 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 %            into coordinate system, related to the image (e.g. hkl system)
 %
 
-input_is_obj = isa(pix_input,'PixelDataBase')
-
-if input_is_obj
+if isa(pix_input,'PixelDataBase')
     if pix_input.is_misaligned
         pix_cc = pix_input.get_raw_data('q_coordinates');
     else
@@ -48,7 +46,7 @@ else
 
     % transposed pix_to_image transformation, as the transformation is defined
     % as column vectors and pixel_data here are also column vectors.
-    pix_transf= pix_to_img*(pix_cc - offset(:));
+    pix_transf= pix_to_img*(pix_input - offset(:));
 
 end
 
