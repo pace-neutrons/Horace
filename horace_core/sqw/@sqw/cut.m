@@ -134,7 +134,7 @@ source_is_ortho_proj = isa(obj.data.proj,'ortho_proj');
 %
 % Set up new projection properties, related to lattice. This together with
 % projection inputs defines pixels-to-image transformation.
-[targ_proj, pbin, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
+[targ_proj, pbin, sym, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
     obj.data,return_cut, varargin{:});
 
 % nasty legacy alignment business. TODO: deal with it
