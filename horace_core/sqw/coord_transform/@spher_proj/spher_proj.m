@@ -15,15 +15,18 @@ classdef spher_proj<aProjectionBase
     %
     %
     properties(Dependent)
-        ez; %[1x3] Unit vector of Z axis in spherical coordinate system
-        % where the elevation angle (MATLAB convention) is counted from.
-        % In Horace/Mantid convention this angle is named pi/2-theta.
-        % Default direction [0,0,1] is a beam direction for this coordinate system.
+        % [1x3] lattice vector in hkl coordinates defining the crystallographic 
+        % direction of Z axis of the spherical coordinate system this projection
+        % defines.
+        % (Z-axis of spherical coordinate system is the axis where the 
+        % elevation angle (MATLAB convention) is counted from.)
+        % In Horace/Mantid convention this angle is named theta = pi/2-elevation.
+        % Default direction is [1,0,0]        
+        ez; 
         %
-        ey; %[1x3] unit vector of axis in spherical coordinate system
-        % where the theta angle is counted from. The direction coincides
-        % with the crystal rotation axis here.
-
+        ex; %[1x3] lattice vector together with z-axis defining the crystal 
+        % rotation plain. Matlab names this angle atzimuth and it is phi
+        % angle in Horace/Mantid convention
         %
         type;  % units of the projection. Default add -- inverse Angstrom, degree, degree
         %      % possible options: rrr where first r is responsible for rlu
@@ -33,8 +36,8 @@ classdef spher_proj<aProjectionBase
     end
     properties(Access=private)
         %
-        ez_ = [0,0,1]
-        ey_ = [0,1,0]
+        ez_ = [1,0,0]
+        ex_ = [0,1,0]
         %
         type_ = 'add' % A^{-1}, degree, degree
         %------------------------------------
@@ -103,30 +106,19 @@ classdef spher_proj<aProjectionBase
         end
         function obj = set.ez(obj,val)
             val = aProjectionBase.check_and_brush3vector(val);
-            if any(val ~= [0,0,1])
-                warning('HORACE:spher_proj:not_implemented', ...
-                    'changes in beam-axis direction is not yet implemented')
-                val = [0,0,1];
-            end
-
             obj.ez_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
         %
-        function u = get.ey(obj)
-            u = obj.ey_;
+        function u = get.ex(obj)
+            u = obj.ex_;
         end
-        function obj = set.ey(obj,val)
+        function obj = set.ex(obj,val)
             val = aProjectionBase.check_and_brush3vector(val);
-            if any(val ~= [0,1,0])
-                warning('HORACE:spher_proj:not_implemented', ...
-                    'changes in rotation-axis direction is not yet implemented')
-                val = [0,1,0];
-            end
             
-            obj.ey_ = val;
+            obj.ex_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -180,7 +172,7 @@ classdef spher_proj<aProjectionBase
             ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
             ax_bl.angular_unit_is_rad = obj.type(2:3);
             %
-            %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear TODO: #954.
+            ax_bl.ulen  = [1,1,1,1];
         end
 
 
