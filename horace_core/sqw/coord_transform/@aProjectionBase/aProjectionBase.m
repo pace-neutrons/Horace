@@ -68,7 +68,7 @@ classdef aProjectionBase < serializable
         % testing property. Normally transformation from source to target
         % coordinate system in cut can be optimized as each transformation
         % is described by transformation matrices and the final
-        % transformation is the production of all these matrices.
+        % transformation is the product of all these matrices.
         % if the property set to true, the transformation performed in two
         % steps, namely transforming from image to pixel coordinate system
         % and then from pixel to other image coordinate system.

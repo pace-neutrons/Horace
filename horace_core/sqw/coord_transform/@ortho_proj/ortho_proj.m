@@ -40,7 +40,7 @@ classdef ortho_proj<aProjectionBase
     %
     %IMPORTANT:
     % if you want to use ortho_proj as input for cut algorithm, it needs
-    % minimum two input parameters u and v, (or their default values) as
+    % at least two input parameters u and v, (or their default values) as
     % the lattice parameters for cut will be taken from sqw object
     % if not provided with projection.
     %
@@ -590,7 +590,7 @@ classdef ortho_proj<aProjectionBase
             % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
             %
-            % Set's up the internal  image transformation caches.
+            % Sets up the internal image transformation caches.
             %
             wout = check_combo_arg_(w);
             % check arguments, possibly related to image offset (if
