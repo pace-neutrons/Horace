@@ -1,7 +1,7 @@
 function [q_to_img,shift,ulen,obj]=get_pix_img_transformation_(obj,ndim,varargin)
-%get_pix_img_transformation_             % Return the transformation, necessary for conversion from pix
-% to image coordinate system and vice-versa if the projaxes is
-% defined
+%get_pix_img_transformation_    Return the transformation, necessary for conversion
+%from pix to image coordinate system and vice-versa
+%
 % Input:
 % ndim -- number of dimensions in the pixels coordinate array
 %         (3 or 4). Depending on this number the routine
@@ -13,15 +13,14 @@ function [q_to_img,shift,ulen,obj]=get_pix_img_transformation_(obj,ndim,varargin
 %         pixels are misaligned, contains additional rotation
 %         matrix, used for aligning the pixels data into
 %         Crystal Cartesian coordinate system
-% Outiputs:
-% q_to_img -- matrix used to transform pixels in Crystal
-%             Cartesian coordinate system to image coordinate
-%             system
-% shift    -- the offset of image coordinates expressed in
-%             Crystal Cartesian coordinate system
-% ulen     -- array of scales along the image axes used in the
-%             transformation
-%
+% Outputs:
+% q_to_img -- [ndim x ndim] matrix used to transform pixels
+%             in Crystal Cartesian coordinate system to image
+%             coordinate system
+% shift    -- [1 x ndim] array of the offsets of image coordinates
+%              expressed in Crystal Cartesian coordinate system
+% ulen     -- [1 x ndim] array of scales along the image axes used
+%             in the transformation
 
 if ~obj.alatt_defined||~obj.angdeg_defined
     error('HORACE:ortho_proj:runtime_error', ...

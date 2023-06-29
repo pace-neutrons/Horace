@@ -449,8 +449,8 @@ classdef ortho_proj<aProjectionBase
         %
         function [q_to_img,shift,ulen,obj]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
-            % to image coordinate system and vice-versa if the projaxes is
-            % defined
+            % to image coordinate system and vice-versa.
+            %
             % Input:
             % ndim -- number of dimensions in the pixels coordinate array
             %         (3 or 4). Depending on this number the routine
@@ -466,10 +466,10 @@ classdef ortho_proj<aProjectionBase
             % q_to_img -- [ndim x ndim] matrix used to transform pixels
             %             in Crystal Cartesian coordinate system to image
             %             coordinate system
-            % shift    -- [1xndim] array of the offsets of image coordinates
-            %              expressed in Crystal Cartesian coordinate system
-            % ulen     -- [1xndim] array of scales along the image axes used
-            %             in the transformation
+            % shift    -- [1 x ndim] array of the offsets of image coordinates
+            %             expressed in Crystal Cartesian coordinate system
+            % ulen     -- [1 x ndim] array of scales along the image axes
+            %             used in the transformation
             %
             [q_to_img,shift,ulen,obj]=get_pix_img_transformation_(obj,ndim,varargin{:});
         end
