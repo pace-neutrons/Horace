@@ -214,9 +214,7 @@ for i=1:size(rlu,1)
 
     % Convert peak position into r.l.u.
     if all(isfinite(upos0))
-        %TODO:  Re #825 Optimization possible
-        upos_cc = proj.transform_img_to_pix(upos0(:));
-        rlu0(i,:)= (B\upos_cc(:))';
+        rlu0(i,:)= proj.transform_img_to_hkl(upos0(:))';
     else
         peak_problem(i,:)=~isfinite(upos0);
         rlu0(i,:)=NaN;
