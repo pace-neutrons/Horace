@@ -246,7 +246,7 @@ classdef aProjectionBase < serializable
         end
         function obj = set.offset(obj,val)
             obj.offset_ = check_offset_(obj,val);
-            obj.tmp_img_offset_holder_ = []; % just in case if you set up 
+            obj.tmp_img_offset_holder_ = []; % just in case if you set up
             % one and then another but reconsiliation have not happened yet
             if obj.do_check_combo_arg_ % does nothing here, but
                 % will recalculate caches in children
@@ -556,15 +556,12 @@ classdef aProjectionBase < serializable
             % Converts from pixel coordinate system (Crystal Cartesian)
             % to hkl coordinate system
             %
-            % Should be overloaded to optimize for a particular case to
-            % improve efficiency.
             % Inputs:
             % obj       -- current projection, describing the system of
             %              coordinates where the input pixels vector is
-            %              expressed in. The target projection has to be
-            %              set up
+            %              expressed in.
             %
-            % pix_origin-- 4xNpix or 3xNpix vector of pixels coordinates
+            % pix_coord -- 4xNpix or 3xNpix vector of pixels coordinates
             %              expressed in the coordinate system, defined by
             %              this projection
             %
@@ -578,13 +575,13 @@ classdef aProjectionBase < serializable
             end
         end
 
-
         function pix_hkl = tansform_img_to_hkl(obj,img_coord,varargin)
             % Converts from image coordinate system to hkl coordinate
             % system
             %
             % Should be overloaded to optimize for a particular case to
             % improve efficiency.
+            %
             % Inputs:
             % obj       -- current projection, describing the system of
             %              coordinates where the input pixels vector is
@@ -901,8 +898,9 @@ classdef aProjectionBase < serializable
             if ~isempty(obj.tmp_img_offset_holder_) && obj.alatt_defined && obj.angdeg_defined
                 img_offset_ = obj.tmp_img_offset_holder_(:);
                 obj.offset  = zeros(0,4); % nullify any previous offset
-                % to avoid side effects from transformations using public
-                % interface
+                % to avoid side effects from transformations
+                % Note the public interface -- necessary for
+                % clearing the children caches properly
 
                 % transform offset into hkl coordinate system and set it
                 % using public interface (check interdependent properties)

@@ -15,16 +15,14 @@ classdef spher_proj<aProjectionBase
     %
     %
     properties(Dependent)
-        % [1x3] lattice vector in hkl coordinates defining the crystallographic 
-        % direction of Z axis of the spherical coordinate system this projection
-        % defines.
-        % (Z-axis of spherical coordinate system is the axis where the 
-        % elevation angle (MATLAB convention) is counted from.)
+        ez;  % [1x3] unit vector specifying crystallographic direction of
+        % spherical coordinates Z-axis within the reciprocal lattice.
+        % Z-axis of spherical coordinate system is the axis where the
+        % elevation angle (MATLAB convention) is counted from.
         % In Horace/Mantid convention this angle is named theta = pi/2-elevation.
-        % Default direction is [1,0,0]        
-        ez; 
-        %
-        ex; %[1x3] lattice vector together with z-axis defining the crystal 
+        % Default direction is [1,0,0]
+
+        ex; %[1x3] lattice vector together with z-axis defining the crystal
         % rotation plain. Matlab names this angle atzimuth and it is phi
         % angle in Horace/Mantid convention
         %
@@ -45,9 +43,9 @@ classdef spher_proj<aProjectionBase
         % non-orthogonal
         %orhtonormal_ = true;
         hor2matlab_transf_ = ...
-            [0,0,1;... % The transformation from
-            1 ,0,0;... % Horace pixel coordinate system to the axes above to
-            0 ,1,0];   % allow to use MATLAB sph2cart/cart2sph functions. 
+            [1,0,0;... % The transformation from
+            0 ,1,0;... % Horace pixel coordinate system to the axes above to
+            0 ,0,1];   % allow to use MATLAB sph2cart/cart2sph functions.
         % the matrix arranged in rows, as multipled by 3xNpix matrix of
         % Q-coordinates
 
@@ -117,7 +115,7 @@ classdef spher_proj<aProjectionBase
         end
         function obj = set.ex(obj,val)
             val = aProjectionBase.check_and_brush3vector(val);
-            
+
             obj.ex_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
@@ -222,7 +220,7 @@ classdef spher_proj<aProjectionBase
             % successful
             %
             obj = check_combo_arg_(obj);
-            obj = check_combo_arg@aProjectionBase(obj);            
+            obj = check_combo_arg@aProjectionBase(obj);
         end
         %------------------------------------------------------------------
         function ver  = classVersion(~)

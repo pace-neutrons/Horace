@@ -177,37 +177,13 @@ classdef ortho_proj<aProjectionBase
         function obj = init(obj,varargin)
             % initialization routine taking any parameters non-default
             % constructor would take and initiating internal state of the
-            % projection class.
+            % ortho_proj class.
             %
             narg = numel(varargin);
             if narg == 0
                 return
             end
-            if narg == 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjectionBase'))
-                if isstruct(varargin{1}) && isfield(varargin{1},'serial_name')
-                    obj = serializable.loadobj(varargin{1});
-                else
-                    obj = obj.from_old_struct(varargin{1});
-                end
-            else
-                % constructor does not accept legacy alignment matrix
-                opt =  [ortho_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
-                % check if the type is defined explicitly
-                n_type = find(ismember(opt,'type'));
-                is_keys = cellfun(@istext,varargin);
-                if ismember('type',varargin(is_keys)) || ... % defined as key-value pair
-                        (numel(varargin)>n_type && ischar(varargin{n_type}) && numel(varargin{n_type}) == 3) % defined as positional parameter
-                    obj.type_is_defined_explicitly_ = true;
-                end
-                [obj,remains] = ...
-                    set_positional_and_key_val_arguments(obj,...
-                    opt,false,varargin{:});
-                if ~isempty(remains)
-                    error('HORACE:ortho_proj:invalid_argument',...
-                        'The parameters %s provided as input to ortho_proj initialization have not been recognized',...
-                        disp2str(remains));
-                end
-            end
+            obj = init_(obj,narg,varargin{:});
         end
         %-----------------------------------------------------------------
         %-----------------------------------------------------------------
@@ -363,9 +339,11 @@ classdef ortho_proj<aProjectionBase
             % pix_targ -- 4xNpix or 3xNpix array of pixel coordinates in
             %             hkl (physical) coordinate system (4-th
             %             coordinate, if requested, is the energy transfer)
-
-
-            pix_hkl = transform_img_to_hkl_(obj,img_coord,varargin{:});
+            if obj.disable_srce_to_targ_optimization
+                pix_hkl = transform_img_to_hkl@aProjectionBase(obj,img_coord,varargin{:});
+            else
+                pix_hkl = transform_img_to_hkl_(obj,img_coord,varargin{:});
+            end
         end
 
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)

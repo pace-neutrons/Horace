@@ -31,16 +31,29 @@ function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_
 % TODO: #954 NEEDS verification:
 rot_to_img = obj.pix_to_matlab_transf_;
 if ndim == 3
-    offset   = (bmatrix(obj.alatt,obj.angdeg)*obj.offset(1:3)')';
+    offset   = (obj.bmatrix()*obj.offset(1:3)')';
 elseif ndim == 4
     rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
-    offset3   = (bmatrix(obj.alatt,obj.angdeg)*obj.offset(1:3)')';
-    offset   = [offset3,obj.offset(4)];
+    offset   = (obj.bmatrix(4)*obj.offset(:)')';
 else
     error('HORACE:spher_proj:invalid_argument', ...
         'ndims can only be 3 and 4. Provided: %s', ...
         disp2str(ndim));
 end
+if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
+    pix = varargin{1};
+    if pix.is_misaligned
+        if ndim == 3
+            alignment_mat = pix.alignment_matr;
+        else
+            alignment_mat = eye(4);
+            alignment_mat(1:3,1:3) = pix.alignment_matr;
+        end
+        rot_to_img = rot_to_img*alignment_mat;
+    end
+end
+
+
 if obj.type_(2) == 'r'
     theta_to_ang = 1;
 else
