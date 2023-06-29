@@ -13,19 +13,19 @@ classdef ortho_proj<aProjectionBase
     %             structure, containing any fields, with names, equal any
     %             public fields of the ortho_proj class.
     %
-    % As a standard serializable class accepts full set of positional and
-    % key-value parameters, which constitute its properties
+    % As a standard serializable class, class ortho_proj accepts full set of
+    % positional and key-value parameters, which constitute its properties
     %
     % Argument input:
     %   >> proj = ortho_proj(u,v)
     %   >> proj = ortho_proj(u,v,w)
     %
     %   Full positional arguments input (can be truncated at any argument
-    %   leaving other arguments default)
+    %   leaving other arguments default):
     %   >> proj = ortho_proj(u,v,w,nonorthogonal,type,alatt,angdeg,...
     %                        offset,label,title,lab1,lab2,lab3,lab4)
     %
-    %   plus any of other arguments, provided as key-value pair:
+    %   plus any of other arguments, provided as key-value pair e.g.:
     %
     %   >> proj = ortho_proj(...,'nonorthogonal',nonorthogonal,..)
     %   >> proj = ortho_proj(...,'type',type,...)
@@ -35,16 +35,16 @@ classdef ortho_proj<aProjectionBase
     %                   :
     %   >> proj = ortho_proj(...,'lab4',labelstr,...)
     %
-    % Minimal functional form:
+    % Minimal fully functional form:
     %   >> proj =  ortho_proj(u,v,'alatt',lat_param,'angdeg',lattice_angles_in_degrees);
     %
     %IMPORTANT:
-    % if you want to use ortho_proj as input for cut algorithm, it needs
+    % if you want to use ortho_proj as input for the cut algorithm, it needs
     % at least two input parameters u and v, (or their default values) as
     % the lattice parameters for cut will be taken from sqw object
     % if not provided with projection.
     %
-    % For independent usage u,v and lattice parameters (minimal functional
+    % For independent usage u,v and lattice parameters (minimal fully functional
     % form) needs to be specified. Any other parameters have their reasonable
     % defaults and need to change only if change in their default values
     % is required.
@@ -92,8 +92,8 @@ classdef ortho_proj<aProjectionBase
     % pairs following standard serializable class constructor agreements.
     %
     % NOTE:
-    % constructor does not accept legacy ub_inv_legacy matrix, specified in
-    % the list of saveable properties.
+    % constructor does not accept legacy ub_inv_legacy matrix, even if it is specified
+    % in the list of saveable properties.
     %
     properties(Dependent)
         u; %[1x3] Vector of first axis (r.l.u.)

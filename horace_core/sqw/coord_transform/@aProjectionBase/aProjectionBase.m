@@ -93,8 +93,8 @@ classdef aProjectionBase < serializable
         % returns true if lattice angles have been set up
         angdeg_defined
         % old interface to img_offset for old data containing a
-        % structure with this value or old user scripts, which define
-		% structure with this value.
+        % structure with the value of this property, or old user scripts
+		% which define structure with this value.
         uoffset
     end
 
@@ -300,7 +300,7 @@ classdef aProjectionBase < serializable
             % Optional Input:
             % ndim -- if provided and equal to 4, return the 4x4 matrix
             %         rather then 3x3 standard matrix, with unit expansion
-            %         to forth dimension (e.g. add rows/columns with 0
+            %         to fourth dimension (e.g. add rows/columns with 0
             %         except 1 as 4th element of diagonal.
             if ~obj.alatt_defined||~obj.angdeg_defined
                 error('HORACE:aProjectionBase:runtime_error', ...

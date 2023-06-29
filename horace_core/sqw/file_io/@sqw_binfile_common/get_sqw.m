@@ -111,8 +111,8 @@ end
 % by alignment matrix
 header_av = exp_info.header_average;
 u_to_rlu  = header_av.u_to_rlu(1:3,1:3);
-if any(abs(lower_part(u_to_rlu))>1.e-7) % if all 0, its inverted B-matrix so certainly
-    proj = sqw_struc.data.proj;      % no alignment, otherwise, may be aligned may be not
+if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its inverted B-matrix so certainly
+    proj = sqw_struc.data.proj;         % no alignment, otherwise, may be aligned may be not
     sqw_struc.data.proj = proj.set_ub_inv_compat(u_to_rlu);
 end
 %

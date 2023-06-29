@@ -1,17 +1,20 @@
 function obj = init_by_input_parameters_(obj,varargin)
 %INIT_BY_INPUT_PARAMETERS_ is the helper allowing to support various mainly
-%outdate forms of input of the ortho_proj constructor.
+%outdated forms of input of the ortho_proj constructor.
 %
 % Inputs:
 % list of input parameters of projection, produced as set of positional
-% parameters and then key-value, key-value pairs.
+% parameters followed by number of key-value pairs.
 %
 % The positional parameters order is:
 %
 % u,v,w,nonorthogonal,type,alatt,angdeg,offset,label,title,lab1,lab2,lab3,lab4
-% First non-positional parameter considered to be key.
+%
+% First non-positional parameter considered to be a key.
+% Constructor does not accept legacy alignment matrix
+%
 
-% constructor does not accept legacy alignment matrix
+
 opt =  [ortho_proj.fields_to_save_(1:end-1);aProjectionBase.init_params(:)];
 % check if the type is defined explicitly
 n_type = find(ismember(opt,'type'));
@@ -25,7 +28,7 @@ is_uoffset = ismember(text_in,'uoffset');
 is_img_offset = ismember(text_in,'img_offset');
 if any(is_uoffset) && any(is_img_offset)
     error('HORACE:ortho_proj:invalid_argument',...    
-        'only one key describing image offset (img_offset or uoffser) may be provided as input')
+        'only one key describing image offset (img_offset or uoffset) may be provided as input')
 end
 is_uoffset = is_uoffset | is_img_offset;
 if any(is_uoffset)
