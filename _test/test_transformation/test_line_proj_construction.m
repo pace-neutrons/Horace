@@ -14,6 +14,22 @@ classdef test_line_proj_construction<TestCase
             end
             this=this@TestCase(name);
         end
+        function test_old_interface(~)
+            proj = ortho_proj([0,1,0],[1,0,0],[],'uoffset',[1,1,0,0]);
+            assertEqual(proj.u,[0,1,0]);
+            assertEqual(proj.v,[1,0,0]);
+            assertTrue(isempty(proj.w));
+            assertEqual(proj.type,'ppr');
+            assertEqual(proj.img_offset,[1,1,0,0]);
+            assertEqual(proj.img_offset,proj.uoffset);
+            assertEqual(proj.offset,zeros(1,4))
+
+            assertExceptionThrown(@()transform_pix_to_img(proj,ones(4,1)), ...
+                'HORACE:ortho_proj:runtime_error');
+            proj.alatt = 2*pi;
+            proj.angdeg = 90;
+            assertElementsAlmostEqual(proj.img_offset,proj.offset);
+        end
         function test_no_lattice_uoffset_hangs_before_lattice_defined(~)
             proj = ortho_proj([1,0,0],[0,1,0],...
                 'angdeg',90);

@@ -6,7 +6,7 @@ function urange_out=find_ranges_(this,urange_in)
 
 %TODO -- check urange is not shifted
 trans =  this.data_u_to_rlu_(1:3,1:3)\(this.ucentre-this.data_uoffset_(1:3));
-%this.data_u_to_rlu_\(this.data_uoffset_(1:3)-center)
+%this.data_u_to_rlu_\(this.data_uoffset_(1:3)-centre)
 [x1,x2,x3]=ndgrid(urange_in(:,1)-trans(1),urange_in(:,2)-trans(2),urange_in(:,3)-trans(1));
 if this.type(1)=='r'
     vertex_in=this.data_u_to_rlu_(1:3,1:3)*[x1(:)';x2(:)';x3(:)'];
