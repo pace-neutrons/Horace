@@ -105,7 +105,7 @@ classdef sqw_binfile_common < binfile_v2_common & sqw_file_interface
             % full metadata.
             %
             % Full the fields which do have correspondence in old file
-            % fomat
+            % format
             metadata = pix_metadata;
             metadata.full_filename = obj.full_filename;
             metadata.npix = obj.npixels;

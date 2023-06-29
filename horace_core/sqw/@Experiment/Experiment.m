@@ -362,6 +362,9 @@ classdef Experiment < serializable
             if ~isempty(sampl)
                 avh.alatt = sampl.alatt;
                 avh.angdeg = sampl.angdeg;
+            else
+                avh.alatt  = [];
+                avh.angdeg = [];
             end
         end
         %------------------------------------------------------------------

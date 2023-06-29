@@ -83,7 +83,7 @@ if ~isfield(S,'version') || S.version<4
             error('HORACE:sqw:invalid_argument', ...
                 'Can not load old sqw object which does not contain "data" field')
         end
-        % we need compartibility matrix as can not distinguish between
+        % we need compatibility matrix as can not distinguish between
         % old=style aligned and non-aligned data
         proj = ss.data.proj;
         header_av = ss.experiment_info.header_average();
