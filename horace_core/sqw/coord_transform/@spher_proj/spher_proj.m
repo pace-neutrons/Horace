@@ -77,6 +77,7 @@ classdef spher_proj<aProjectionBase
             % projection class.
             %
             if nargin == 1
+                obj = obj.check_combo_arg();
                 return
             end
             nargi = numel(varargin);

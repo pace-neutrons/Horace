@@ -116,26 +116,35 @@ classdef test_spher_proj<TestCase
         end
 
         function test_set_get_e(~)
-            % TODO: implement #967
-            ws = warning('off','HORACE:spher_proj:not_implemented');
-            clOb = onCleanup(@()warning(ws));
             proj = spher_proj();
-            proj.ez = [1,0,0];
-            % not implemented----------------
+            proj.ez = [0,0,1];
             assertEqual(proj.ez,[0,0,1])
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HORACE:spher_proj:not_implemented')
-            proj.ey = [0,0,1];
-            assertEqual(proj.ey,[0,1,0])
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HORACE:spher_proj:not_implemented')
-            skipTest('Beam axis reorientation have not yet been implemented See #967')
+            proj.ex = [1,0,0];
+            assertEqual(proj.ex,[1,0,0])
+            ref_vec = [...
+                1.,  1.,  1.; ... R
+                90, 90.,  0.; ... Theta
+                0,  90.,  0.; ... phi
+                ];
+            spher = proj.transform_pix_to_img(eye(3));
+
+            assertElementsAlmostEqual(ref_vec,spher);
         end
 
         function test_empty_constructor(~)
             proj = spher_proj();
-            assertEqual(proj.ez,[0,0,1]);
-            assertEqual(proj.ey,[0,1,0])
+            assertEqual(proj.ez,[1,0,0]);
+            assertEqual(proj.ex,[0,1,0])
+
+            ref_vec = [...
+                1,  1.,  1.; ... R
+                0, 90., 90.; ... Theta
+                0,  0., 90.; ... phi
+                ];
+            spher = proj.transform_pix_to_img(eye(3));
+
+            assertElementsAlmostEqual(ref_vec,spher);
+            
         end
     end
 end

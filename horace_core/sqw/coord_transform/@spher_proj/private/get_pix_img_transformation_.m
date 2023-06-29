@@ -1,4 +1,4 @@
-function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_(obj,ndim,varargin)
+function [rot_to_img,offset_cc,theta_to_ang,phi_to_ang]=get_pix_img_transformation_(obj,ndim,varargin)
 % Return the constants and parameters used for transformation
 % from Crystal Cartezian to spherical coordinate system and
 % back
@@ -15,7 +15,7 @@ function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_
 %         in Crystal Cartesian coordinates into oriented
 %         spherical coordinate system where angular coordinates
 %         are calculated
-% offset
+% offset_cc
 %     -- the centre of spherical coordinate system in Crystal
 %        Cartesian coordinates.
 % theta_to_ang
@@ -30,16 +30,28 @@ function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_
 %
 % TODO: #954 NEEDS verification:
 rot_to_img = obj.pix_to_matlab_transf_;
+offset_hkl = obj.offset(:);
+offset_present = any(abs(offset_hkl)>4*eps("single"));
+
 if ndim == 3
-    offset   = (obj.bmatrix()*obj.offset(1:3)')';
+    if offset_present
+        offset_cc   = (obj.bmatrix()*offset_hkl(1:3))';
+    else
+        offset_cc = zeros(1,3);
+    end
 elseif ndim == 4
     rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
-    offset   = (obj.bmatrix(4)*obj.offset(:)')';
+    if offset_present
+        offset_cc   = (obj.bmatrix(4)*offset_hkl)';
+    else
+        offset_cc = zeros(1,4);
+    end
 else
     error('HORACE:spher_proj:invalid_argument', ...
         'ndims can only be 3 and 4. Provided: %s', ...
         disp2str(ndim));
 end
+
 if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
     pix = varargin{1};
     if pix.is_misaligned

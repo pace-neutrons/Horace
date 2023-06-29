@@ -28,10 +28,10 @@ else % if pix_input is 4-d, this will use 4-D matrix and shift
     input_is_obj = false;
 end
 
-[rot_mat,offset,theta_to_ang,phi_to_ang] = obj.get_pix_img_transformation(ndim,pix_input);
+[rot_mat,offset_cc,theta_to_ang,phi_to_ang] = obj.get_pix_img_transformation(ndim,pix_input);
 
 %
-pix_transf= (rot_mat*(bsxfun(@minus,pix_cc,offset(:))));
+pix_transf= (rot_mat*(bsxfun(@minus,pix_cc,offset_cc(:))));
 [azimuth,elevation,r] = cart2sph(pix_transf(1,:),pix_transf(2,:),pix_transf(3,:));
 
 if ndim == 4

@@ -26,11 +26,11 @@ ney = norm(ey);
 if ney < obj.tol_
     error('HORACE:spher_proj:invalid_argument', ...
         'Input vectors ez(%s) and ex(%s) are parallel or almost parallel to each other', ...
-        mat2str(exz(:,2)'),mat2str(exz(:,1)'));
+        mat2str(exz(:,2)),mat2str(exz(:,1)));
 end
 ey = ey/ney; % should be 1 anyway, just in case to reduce round-off errors
 ex = cross(ey,uv_norm(:,2));
 
-transf_mat = [ex/norm(ex);ey;uv_norm(:,2)];
+transf_mat = [ex/norm(ex),ey,uv_norm(:,2)];
 %TODO:  #954 scientific validation needed
 obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_*transf_mat;
