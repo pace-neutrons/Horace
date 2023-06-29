@@ -7,7 +7,7 @@ classdef (Abstract) IX_det_abstractType < serializable
 
     methods (Abstract)
         %------------------------------------------------------------------
-        % General format of the methods must be
+        % General format of the methods that compute detector properties must be
         %
         %   >> val = func (obj, wvec)
         %   >> val = func (obj, ind, wvec)
@@ -81,28 +81,28 @@ classdef (Abstract) IX_det_abstractType < serializable
     %======================================================================
 
     methods(Access=protected)
-        function obj = expand_internal_propeties_to_max_length (obj, flds)
+        function obj = expand_internal_properties_to_max_length (obj, flds)
             % Method runs over the class properties and expands these
             % properties arrays to properties maximal length
             % identify maximal length of all saveble property values
 
-            % Store the previous state of check_combo_arg property
+            % Store the current state of do_check_combo_arg_
             old_state = obj.do_check_combo_arg_;            
 
-            % Disable check_combo in case if it has been enabled to work
+            % Disable check_combo_arg in case if it has been enabled to work
             % with public properties as with private one and not to re-run 
             % this function recursively
             obj.do_check_combo_arg_ = false;
 
-            num_elments = cellfun(@(x)numel(obj.(x)), flds);
-            max_len = max(num_elments);
+            num_elements = cellfun(@(x)numel(obj.(x)), flds);
+            max_len = max(num_elements);
 
             % what property have maximal length
-            ref_len = num_elments == max_len;
+            ref_len = (num_elements == max_len);
             if ~all(ref_len)
                 max_ind = find(ref_len,1); 
                 for i=1:numel(flds)
-                    if num_elments(i)~=max_len % expand prperty value to maximal length
+                    if num_elements(i)~=max_len % expand prperty value to maximal length
                         obj.(flds{i}) = ...
                             expand_args_by_ref( ...
                             obj.(flds{max_ind}),...
@@ -110,6 +110,8 @@ classdef (Abstract) IX_det_abstractType < serializable
                     end
                 end
             end
+            
+            % Restore incoming state of do_check_combo_arg_
             obj.do_check_combo_arg_ = old_state;
         end
     end

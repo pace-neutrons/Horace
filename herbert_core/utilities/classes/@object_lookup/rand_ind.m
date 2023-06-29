@@ -1,6 +1,17 @@
 function varargout = rand_ind (obj, iarray, varargin)
-% Generate random samples for indexed occurences in an object_lookup
+% Generate random samples for indexed occurences within a particular object array
+% There are two forms:
+%   - The indexed occurences are to objects in an object array:
+%       >> [X1, X2,...] = rand_ind (obj, iarray, ind, randfunc, ...)
+%     (the object array is defined by arguments obj and iarray)
 %
+%   - The indexed occurences are to objects that are themselves arrays:
+%   >> [X1, X2,...] = rand_ind (obj, iarray, ind, ielmts, randfunc, ...)
+%
+% Details are given below.
+%
+% Case 1: Indexed occurences are to objects in an object array
+% ------------------------------------------------------------
 %   >> [X1, X2,...] = rand_ind (obj, iarray, ind, randfunc)
 %   >> [X1, X2,...] = rand_ind (..., randfunc, p1, p2, ...)
 %   >> [X1, X2,...] = rand_ind (..., 'split', randfunc, p1, p2, ...)
@@ -11,7 +22,7 @@ function varargout = rand_ind (obj, iarray, varargin)
 % then select one random sample per element in that array as indexed by
 % the array ind.
 %
-% It requires a random sampling method of the form:
+% It requires a function handle to a random sampling method of the form:
 %
 %   [X1, X2,...] = randfunc (object)               % generate a single random sample
 %   [X1, X2,...] = randfunc (object, sz)           % array of random samples size sz
@@ -23,7 +34,8 @@ function varargout = rand_ind (obj, iarray, varargin)
 %   object types.
 %
 %   If there are optional arguments p1, p2,..., it is required that the
-%   method can internally resolve any ambiguities between p1 and sz.
+%   method can internally resolve any ambiguities between p1 and sz. The
+%   optional parameters p1, p2,... apply to all elements, 
 %
 %   The other conventional forms for the syntax of the Matlab intrinsic
 %   random number generator rand are acceptable so long as the method can
@@ -33,6 +45,8 @@ function varargout = rand_ind (obj, iarray, varargin)
 %   [X1, X2,...] = randfunc (..., p1, p2, ...)     % with further optional arguments
 %
 %
+% Case 2: Indexed occurences are to objects that are themselves arrays
+% --------------------------------------------------------------------
 % If elements of the object array defined by obj and iarray have themselves 
 % internal indexing, then random samples from individual elements within
 % the elements of the array can be output by two index arrays ind and

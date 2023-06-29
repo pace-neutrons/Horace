@@ -37,8 +37,8 @@ classdef IX_det_He3tube < IX_det_abstractType
     methods
         %------------------------------------------------------------------
         % Constructor
-        function obj=IX_det_He3tube(varargin)
-            % Constructor for cylindrical 3He detector
+        function obj = IX_det_He3tube (varargin)
+            % Constructor for a set of cylindrical 3He detector
             %
             %   >> obj = IX_det_He3tube (dia, height, wall, atms)
             %
@@ -51,6 +51,9 @@ classdef IX_det_He3tube < IX_det_abstractType
             %   height      Height of element(s) (m)
             %   wall        Wall thickness(es) (m)
             %   atms        3He partial pressure(s) (atmospheres)
+            %
+            % If no arguments are given, then the default is a single detector
+            % with zero dimensions and no gas pressure
 
             if nargin>0
                 % Define parameters accepted by constructor as keys and also the
@@ -168,13 +171,12 @@ classdef IX_det_He3tube < IX_det_abstractType
 
         function obj = check_combo_arg(obj)
             % Verify interdependent variables and the validity of the
-            % obtained serializable object. Return the result of the check
+            % obtained serializable object. Return the result of the check.
             %
-            % Recompute any cached arguments
+            % Recompute any cached arguments.
             %
-            % Throw an error if the properties are inconsistent and return without
-            % problem it they are not, after recomputing pdf table if
-            % requested.
+            % Throw an error if the properties are inconsistent and return
+            % without problem it they are not.
 
             flds = obj.saveableFields();
             if ~all(obj.mandatory_field_set_)
@@ -185,9 +187,10 @@ classdef IX_det_He3tube < IX_det_abstractType
                     disp2str(flds(~obj.mandatory_field_set_)));
 
             end
-            obj = obj.expand_internal_propeties_to_max_length(flds);
-            % Check the consistency of tube diameter and
-            % wall thickness
+            
+            obj = obj.expand_internal_properties_to_max_length(flds);
+            
+            % Check the consistency of tube diameter and wall thickness
             if  ~all(obj.dia_>=2*obj.wall_)
                 error ('HERBERT:IX_det_He3tube:invalid_argument',...
                     ['Tube diameter(s) must be greater or equal to twice ',...

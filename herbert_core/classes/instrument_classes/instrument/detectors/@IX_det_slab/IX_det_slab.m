@@ -11,10 +11,10 @@ classdef IX_det_slab < IX_det_abstractType
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % may require checks against the other properties
-        depth_  = zeros(0,1);    % Column vector
-        width_  = zeros(0,1);    % Column vector
-        height_ = zeros(0,1);    % Column vector
-        atten_  = zeros(0,1);    % Column vector
+        depth_  = 0;    % Detector element thicknesses (m) (column vector)
+        width_  = 0;    % Detector element widths (m) (column vector)
+        height_ = 0;    % Detector element heights (m) (column vector)
+        atten_  = 0;    % Attenuation length (to 1/e) at 2200 m/s (m) (column vector)
         mandatory_field_set_ = false(1,4);
     end
 
@@ -27,9 +27,6 @@ classdef IX_det_slab < IX_det_abstractType
 
         % Other dependent properties required by abstract template
         ndet    % Number of detectors        
-    end
-
-    properties (Dependent, Hidden)
     end
 
     methods
@@ -173,7 +170,7 @@ classdef IX_det_slab < IX_det_abstractType
                     disp2str(flds(~obj.mandatory_field_set_)));
 
             end
-            obj = obj.expand_internal_propeties_to_max_length(flds);            
+            obj = obj.expand_internal_properties_to_max_length(flds);            
         end
         
         function flds = saveableFields(~)

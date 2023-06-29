@@ -75,20 +75,20 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_constructor_3 (obj)
-            % Check fails if there are non-unique detector id values
-            id1 = obj.bank1.id;
-            id2 = obj.bank2.id;
-            idtmp = id2; idtmp(1) = id1(1);
-            bank_tmp = obj.bank2;
-            bank_tmp.id(1) = ban
-            ***
-            banks_123 = [obj.bank1, obj.bank2, obj.bank3];
-            D = IX_detector_array (banks_123, obj.bank4);
-            
-            banks_1234 = [obj.bank1 obj.bank2, obj.bank3, obj.bank4];
-            assertEqual (D.det_bank, banks_1234(:))
-        end
+%         function test_constructor_3 (obj)
+%             % Check fails if there are non-unique detector id values
+%             id1 = obj.bank1.id;
+%             id2 = obj.bank2.id;
+%             idtmp = id2; idtmp(1) = id1(1);
+%             bank_tmp = obj.bank2;
+%             bank_tmp.id(1) = ban
+%             ***
+%             banks_123 = [obj.bank1, obj.bank2, obj.bank3];
+%             D = IX_detector_array (banks_123, obj.bank4);
+%             
+%             banks_1234 = [obj.bank1 obj.bank2, obj.bank3, obj.bank4];
+%             assertEqual (D.det_bank, banks_1234(:))
+%         end
         
         %--------------------------------------------------------------------------
         function test_effic_1 (obj)

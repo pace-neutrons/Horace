@@ -1,5 +1,5 @@
 function val = func_eval (obj, func_handle, varargin)
-% Evaluate a function for index and waveector
+% Evaluate a function for array of detector indices and wavevector
 %
 %   >> X = func_eval (obj, func_handle, wvec)       % for default indices
 %   >> X = func_eval (obj, func_handle, ind, wvec)  % specific indices
@@ -8,8 +8,8 @@ function val = func_eval (obj, func_handle, varargin)
 % ------
 %   obj         IX_detector_array object
 %
-%   func_handle Function handle e.g. effic or mean, which has one of the
-%               following syntax:
+%   func_handle Function handle e.g. effic or mean, which follows one of
+%               the syntax options:
 %               	val = effic (obj, wvec)
 %               	val = effic (obj, ind, wvec)
 %

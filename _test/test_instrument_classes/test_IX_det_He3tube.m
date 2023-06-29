@@ -55,7 +55,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             eff_array = det_array.effic (obj.path, wvec);
             
             assertEqualToTol (effs, eff_array, 'tol',[1e-13,1e-13])
-%            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
+            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
         end
         
         %--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             eff_array = det_array.effic (ind, obj.path(:,ind), wvec);
             
             assertEqualToTol (effs, eff_array, 'tol',[1e-13,1e-13])
-%            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
+            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
         end
         
         %--------------------------------------------------------------------------
@@ -116,7 +116,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             eff_array = det_array.effic (ind, obj.path(:,ind), wvec(ind));
             
             assertEqualToTol (effs(ind), eff_array, 'tol',[1e-13,1e-13])
-%            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
+            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
         end
         
         %--------------------------------------------------------------------------

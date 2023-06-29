@@ -14,15 +14,16 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % require checks against the other properties
-        dia_ = 0;       % Outer diameter of tube (m)
-        height_ = 0     % Height (m)
+        dia_ = 0;       % Outer diameter of tube (m) (column vector)
+        height_ = 0     % Height (m) (column vector)
         mandatory_field_set_ = false(1,2);
     end
 
     properties (Dependent)
         % Mirrors of private properties
-        dia         % Outer diameter of tube (m)
-        height      % height (m)
+        dia         % Outer diameter of tube (m) (column vector)
+        height      % height (m) (column vector)
+        
         % Other dependent properties required by abstract template
         ndet        % Number of detectors
     end
@@ -110,13 +111,20 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
     %======================================================================
 
     methods
+        function ver = classVersion(~)
+            % Returns the current class version number.
+            ver = 2;
+        end
+        
+        function flds = saveableFields(~)
+            % Return the names of public properties which fully define the
+            % object state.
+            flds = {'dia','height'};
+        end
+
         function obj = check_combo_arg(obj)
-            % verify interdependent variables and the validity of the
-            % obtained serializable object. Return the result of the check
-            %
-            % Throw if the properties are inconsistent and return without
-            % problem it they are not, after recomputing pdf table if
-            % requested.
+            % Check validity of interdependent properties, updating them where
+            % necessary.
 
             flds = obj.saveableFields();
             if ~all(obj.mandatory_field_set_)
@@ -127,17 +135,7 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
                     disp2str(flds(~obj.mandatory_field_set_)));
 
             end
-            obj = obj.expand_internal_propeties_to_max_length(flds);                        
-        end
-        
-        function flds = saveableFields(~)
-            % Return cellarray of properties defining the class
-            %
-            flds = {'dia','height'};
-        end
-
-        function ver = classVersion(~)
-            ver = 2;
+            obj = obj.expand_internal_properties_to_max_length(flds);                        
         end
     end
     

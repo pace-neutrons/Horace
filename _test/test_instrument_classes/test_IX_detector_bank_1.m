@@ -1,5 +1,5 @@
 classdef test_IX_detector_bank_1 < TestCaseWithSave
-    % Test the calculation of quantities for IX_detector_array object
+    % Test the calculation of quantities for IX_detector_bank object
     properties
         dets
         id
@@ -63,16 +63,16 @@ classdef test_IX_detector_bank_1 < TestCaseWithSave
                 'rotvec', obj.rotvec);
             wvec = 10;
             
-            % Calculate for detector array
+            % Calculate for detector array directly
             ind = [1,2,3,4,5];
             paths = squeeze(bank.dmat(1,:,ind));     % extract paths from orientation matrices
             effs = effic (obj.dets, ind, paths, wvec);
             
-            % Calculate for IX_detector_bank
-            eff_array = bank.effic(wvec);
+            % Calculate from IX_detector_bank
+            eff_array = bank.effic (wvec);
             
             assertEqualToTol (effs, eff_array, 'tol',[1e-13,1e-13])
-%            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
+            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
         end
         
         %--------------------------------------------------------------------------
@@ -89,10 +89,10 @@ classdef test_IX_detector_bank_1 < TestCaseWithSave
             effs = effic (obj.dets, ind, paths, wvec);
             
             % Calculate for IX_detector_bank with explicit ind
-            eff_array = bank.effic(ind, wvec);
+            eff_array = bank.effic (ind, wvec);
             
             assertEqualToTol (effs, eff_array, 'tol',[1e-13,1e-13])
-%            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
+            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
         end
         
         %--------------------------------------------------------------------------
@@ -112,19 +112,20 @@ classdef test_IX_detector_bank_1 < TestCaseWithSave
             eff_array = bank.effic(ind, wvec);
             
             assertEqualToTol (effs, eff_array, 'tol',[1e-13,1e-13])
-%            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
+            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
         end
         
         %--------------------------------------------------------------------------
         function test_effic_4 (obj)
             % Test efficiency calculation for subset of dets and with
             % different wavlengths
+            % Make ind and wvec matrices for good measure!
             bank = IX_detector_bank (obj.id, obj.x2, obj.phi, obj.azim, obj.dets, ...
                 'rotvec', obj.rotvec);
             
             % Calculated for individual detectors
-            ind =   [3,1,4,1, 3,1,1,3];
-            wvec = [10,9,8,7,10,9,9,5]; % 1st,5th should be same; 2nd, 6th 7th the same
+            ind =   [3,1,4,1; 3,1,1,3]';
+            wvec = [10,9,8,7; 10,9,9,5]'; % 1st,5th should be same; 2nd, 6th 7th the same
             paths = squeeze(bank.dmat(1,:,ind));     % extract paths from orientation matrices
             effs = effic (obj.dets, ind, paths, wvec);
             
@@ -132,7 +133,26 @@ classdef test_IX_detector_bank_1 < TestCaseWithSave
             eff_array = bank.effic(ind, wvec);
             
             assertEqualToTol (effs, eff_array, 'tol',[1e-13,1e-13])
-%            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
+            assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_save_load_1 (obj)
+            % Test efficiency calculation for subset of dets and with
+            % different wavlengths
+            % Make ind and wvec matrices for good measure!s
+            bank = IX_detector_bank (obj.id, obj.x2, obj.phi, obj.azim, obj.dets, ...
+                'rotvec', obj.rotvec);
+            
+            % Save detector bank
+            test_file = fullfile (tmp_dir(), 'test_save_load_1.mat');
+            cleanup = onCleanup(@()delete(test_file));
+            save (test_file, 'bank');
+            
+            % Recover detector bank
+            tmp = load (test_file);
+            
+            assertEqual (bank, tmp.bank)
         end
         
     end
