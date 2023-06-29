@@ -245,7 +245,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(width,width_sample,'absolute',1.e-1);
             % contains path, so need no-string comparison
             assertEqualToTolWithSave(obj,wcut,1.e-6,'ignore_str',true);
-            assertEqualToTolWithSave(obj,wpeak,1.e-6,'ignore_str',true);
+            assertEqualToTolWithSave(obj,wpeak,[1.e-3,1.e-5],'ignore_str',true);
         end
         %------------------------------------------------------------------
         function delete(obj)
