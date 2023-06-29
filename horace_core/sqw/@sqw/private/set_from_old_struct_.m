@@ -83,13 +83,13 @@ if ~isfield(S,'version') || S.version<4
             error('HORACE:sqw:invalid_argument', ...
                 'Can not load old sqw object which does not contain "data" field')
         end
-        % we need compartibility matrix as can not distinguish between
+        % we need compatibility matrix as can not distinguish between
         % old=style aligned and non-aligned data
         proj = ss.data.proj;
         header_av = ss.experiment_info.header_average();
         if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
             u_to_rlu = header_av.u_to_rlu(1:3,1:3);
-            if any(abs(lower_part(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
+            if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
                 % no alignment, otherwise, be cautions
                 ss.data.proj = proj.set_ub_inv_compat(u_to_rlu);
             end
@@ -120,7 +120,7 @@ if S.version == 4
     header_av = obj.experiment_info.header_average();
     if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
         u_to_rlu = header_av.u_to_rlu(1:3,1:3);
-        if any(abs(lower_part(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
+        if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
             % no alignment, otherwise, be cautions
             obj.data.proj = proj.set_ub_inv_compat(u_to_rlu);
         end

@@ -31,7 +31,9 @@ classdef aProjectionBase < serializable
         angdeg       % angles between the lattice edges
         %
         offset; % Offset of origin of the projection in r.l.u.
-        %         and energy ie. [h; k; l; en] [row vector]
+        %         and energy i.e. [h; k; l; en] [row vector]
+        img_offset; % Convenience property, providing/accepting the offset
+        %           % expressed in the image coordinate system.
         %---------------------------------
         label % the method which allows user to change labels present on a
         %      cut
@@ -45,8 +47,6 @@ classdef aProjectionBase < serializable
         title % this method would allow change cut title if non-empty value
         %     % is provided to the projection, which defines title
         %
-        img_offset; % Convenience property, providing/accepting the offset
-        %           % expressed in the image coodinate system
     end
     properties(Dependent,Hidden)
         % Internal properties, used by algorithms and better not to be
@@ -65,12 +65,12 @@ classdef aProjectionBase < serializable
         % particular projection-projection pair of transformations,
         % optimized for specific projection-projection pair of classes
         do_generic;
-        % testing property. Normaly transformation from source to target
+        % testing property. Normally transformation from source to target
         % coordinate system in cut can be optimized as each transformation
         % is described by transformation matrices and the final
-        % transformation is the production of all these matrices.
+        % transformation is the product of all these matrices.
         % if the property set to true, the transformation performed in two
-        % steps, namely tranforming from image to pixel coordinate system
+        % steps, namely transforming from image to pixel coordinate system
         % and then from pixel to other image coordinate system.
         disable_srce_to_targ_optimization
         % check if a projection should use 3D transformation assuming that
@@ -81,7 +81,7 @@ classdef aProjectionBase < serializable
         % true, though testing or the projection used to identify position
         % of q-dE point in q-dE space may set this property to false.
         do_3D_transformation;
-        % Direct access to different parts of 4-component label celarray.
+        % Direct access to different parts of 4-component label cellarray.
         % sets up appropriate element of such array. Do not have a getter.
         % Do retrieve label as a whole.
         lab1;
@@ -92,8 +92,9 @@ classdef aProjectionBase < serializable
         alatt_defined
         % returns true if lattice angles have been set up
         angdeg_defined
-        % old interface to img_offset for old scripts accepting a
-        % structure, containign this value
+        % old interface to img_offset for old data containing a
+        % structure with the value of this property, or old user scripts
+		% which define structure with this value.
         uoffset
     end
 
@@ -128,7 +129,7 @@ classdef aProjectionBase < serializable
         % specific pairs of the projection types if such optimization
         % is available
         do_generic_ = true;
-        % if true, disables optimization of the transfornation from source
+        % if true, disables optimization of the transformation from source
         % to target coordinate system.
         disable_srce_to_targ_optimization_ = false;
         % majority of projections have energy axis orthogonal to other
@@ -247,7 +248,7 @@ classdef aProjectionBase < serializable
         function obj = set.offset(obj,val)
             obj.offset_ = check_offset_(obj,val);
             obj.tmp_img_offset_holder_ = []; % just in case if you set up
-            % one and then another but reconsiliation have not happened yet
+            % one and then another but reconciliation have not happened yet
             if obj.do_check_combo_arg_ % does nothing here, but
                 % will recalculate caches in children
                 obj = obj.check_combo_arg();
@@ -297,13 +298,14 @@ classdef aProjectionBase < serializable
             % expressed in Crystal Cartesian coordinate system with a
             % vector in the coordinate system attached to reciprocal lattice.
             % Optional Input:
-            % ndim -- if provided and equal to 4, retun the 4x4 matrix
+            % ndim -- if provided and equal to 4, return the 4x4 matrix
             %         rather then 3x3 standard matrix, with unit expansion
-            %         to forth dimension (e.g. add rows/columnth with 0
+            %         to fourth dimension (e.g. add rows/columns with 0
             %         except 1 as 4th element of diagonal.
             if ~obj.alatt_defined||~obj.angdeg_defined
                 error('HORACE:aProjectionBase:runtime_error', ...
-                    'Attempt to use coordinate transformations before lattice parameters are defined. Define lattice parametes first')
+                    ['Attempt to use coordinate transformations before lattice',
+					' parameters are defined. Define lattice parameters first'])
             end
 
             bm = bmatrix(obj.alatt,obj.angdeg);
