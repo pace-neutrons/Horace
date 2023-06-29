@@ -11,18 +11,21 @@ classdef ortho_proj<aProjectionBase
     %   >> proj = ortho_proj(proj_struct)
     %             where proj_struct is the
     %             structure, containing any fields, with names, equal any
-    %             public fields of the ortho_proj class
-    % As a standard serializable accepts full set of positional and
+    %             public fields of the ortho_proj class.
+    %
+    % As a standard serializable class accepts full set of positional and
     % key-value parameters, which constitute its properties
     %
     % Argument input:
     %   >> proj = ortho_proj(u,v)
     %   >> proj = ortho_proj(u,v,w)
-    %   Full positional parameters input (can be interrupted at any point:
-    %   >> proj = ...
-    %   ortho_proj(u,v,w,nonorthogonal,type,alatt,angdeg,offset,label,title,lab1,lab2,lab3,lab4)
     %
-    %   plus any of the optional arguments, provided as key-value pair:
+    %   Full positional arguments input (can be truncated at any argument
+    %   leaving other arguments default)
+    %   >> proj = ortho_proj(u,v,w,nonorthogonal,type,alatt,angdeg,...
+    %                        offset,label,title,lab1,lab2,lab3,lab4)
+    %
+    %   plus any of other arguments, provided as key-value pair:
     %
     %   >> proj = ortho_proj(...,'nonorthogonal',nonorthogonal,..)
     %   >> proj = ortho_proj(...,'type',type,...)
@@ -37,12 +40,14 @@ classdef ortho_proj<aProjectionBase
     %
     %IMPORTANT:
     % if you want to use ortho_proj as input for cut algorithm, it needs
-    % minimum two input parameters u and v, as lattice parameters for cut
-    % will be taken from sqw object if not provided with projection.
+    % minimum two input parameters u and v, (or their default values) as
+    % the lattice parameters for cut will be taken from sqw object
+    % if not provided with projection.
     %
     % For independent usage u,v and lattice parameters (minimal functional
     % form) needs to be specified. Any other parameters have their reasonable
-    % defaults and need to change only if requred.
+    % defaults and need to change only if change in their default values
+    % is required.
     %
     % Input:
     % ------
@@ -281,7 +286,7 @@ classdef ortho_proj<aProjectionBase
             % get old u_to_rlu transformation matrix from current
             % transformation matrix.
             %
-            % u_to_rlu defines the transformation from coodrinates in
+            % u_to_rlu defines the transformation from coordinates in
             % image coordinate system to pixels in hkl(dE) (rlu) coordinate
             % system
             %
@@ -457,14 +462,14 @@ classdef ortho_proj<aProjectionBase
             %         pixels are misaligned, contains additional rotation
             %         matrix, used for aligning the pixels data into
             %         Crystal Cartesian coordinate system
-            % Outiputs:
-            % q_to_img -- matrix used to transform pixels in Crystal
-            %             Cartesian coordinate system to image coordinate
-            %             system
-            % shift    -- the offset of image coordinates expressed in
-            %             Crystal Cartesian coordinate system
-            % ulen     -- array of scales along the image axes used in the
-            %             transformation
+            % Outputs:
+            % q_to_img -- [ndim x ndim] matrix used to transform pixels
+            %             in Crystal Cartesian coordinate system to image
+            %             coordinate system
+            % shift    -- [1xndim] array of the offsets of image coordinates
+            %              expressed in Crystal Cartesian coordinate system
+            % ulen     -- [1xndim] array of scales along the image axes used
+            %             in the transformation
             %
             [q_to_img,shift,ulen,obj]=get_pix_img_transformation_(obj,ndim,varargin{:});
         end
@@ -472,8 +477,8 @@ classdef ortho_proj<aProjectionBase
     %----------------------------------------------------------------------
     methods(Access = protected)
         function  mat = get_u_to_rlu_mat(obj)
-            % u_to_rlu defines the transformation from coodrinates in
-            % image coordinate system to pixels in hkl(dE) (rlu) coordinate
+            % u_to_rlu defines the transformation from coordinates in
+            % image coordinate system to coordinates in hkl(dE) (rlu) coordinate
             % system
             %
             mat = inv(obj.get_pix_img_transformation(4)*obj.bmatrix(4));
@@ -527,7 +532,7 @@ classdef ortho_proj<aProjectionBase
             % lattice parameters and the matrix converting vectors
             % used by data_sqw_dnd class.
             %
-            % partially inverting projaxes_to_rlu function of projaxes class
+            % partially inverting u_to_rlu matrix provided as input
             % as only orthogonal to u part of the v-vector can be recovered
             %
             % Inputs:
@@ -573,7 +578,7 @@ classdef ortho_proj<aProjectionBase
         function  flds = saveableFields(obj)
             flds = saveableFields@aProjectionBase(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
-        end        
+        end
         %------------------------------------------------------------------
         % check interdependent projection arguments
         function wout = check_combo_arg (w)
@@ -585,7 +590,7 @@ classdef ortho_proj<aProjectionBase
             % suggesting the reason for failure if the inputs are incorrect
             % w.r.t. each other.
             %
-            % Set's up the transformation caches
+            % Set's up the internal  image transformation caches.
             %
             wout = check_combo_arg_(w);
             % check arguments, possibly related to image offset (if
