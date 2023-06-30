@@ -184,7 +184,7 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqualToTol(w_new,w_new_new)
             % Cut projection is recovered correctly
             eq_cut = w_new_new.cut(w_new_new.data.proj,[],[],[],[]);
-            assertEqualToTol(eq_cut,w_new_new,1.e-7,'-ignore_date');
+            assertEqualToTol(eq_cut,w_new_new,1.e-7,'-ignore_date', 'ignore_str', true);
             % do clean-up as pixels hold access to the file, which can not
             % be deleted as memmapfile holds it
             w_new.pix = [];
@@ -622,17 +622,17 @@ classdef test_faccess_sqw_v4< TestCase
 
             rdd = to.get_sqw();
             to.delete();
-            % projection in sample contains w==[0,0,1], type='ppp' and projection 
+            % projection in sample contains w==[0,0,1], type='ppp' and projection
             % in rdd contains w == [], type='rrr'. Let's check both are
             % equivalent
             pix_cc = [eye(3),ones(3,1)];
             pr = rdd.data.proj.transform_pix_to_img(pix_cc);
-            po = sample.data.proj.transform_pix_to_img(pix_cc);            
+            po = sample.data.proj.transform_pix_to_img(pix_cc);
 
             assertElementsAlmostEqual(pr,po);
             % as they are equivalent, let's eliminate one for comparison to
             % work
-            sample.data.proj = rdd.data.proj; 
+            sample.data.proj = rdd.data.proj;
 
             assertEqualToTol(sample,rdd,1.e-15,'-ignore_date','ignore_str',true)
         end
