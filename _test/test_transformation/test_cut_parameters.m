@@ -87,12 +87,13 @@ classdef test_cut_parameters < TestCase
 
             bin_range = [50,50,1,1];
 
-            ax = spher_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            ax = spher_axes('img_range',data_range, ...
+                'nbins_all_dims',bin_range);
             proj = spher_proj();
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
-            targ_proj = ortho_proj();
+            targ_proj = ortho_proj('alatt',2*pi,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
             assertElementsAlmostEqual(range, ...
@@ -129,12 +130,13 @@ classdef test_cut_parameters < TestCase
 
             bin_range = [1,50,1,50];
 
-            ax = spher_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            ax = spher_axes('img_range',data_range,'nbins_all_dims', ...
+                bin_range );
             proj = spher_proj();
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
-            targ_proj = ortho_proj();
+            targ_proj = ortho_proj('alatt',2*pi,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
             ref_range = [...
