@@ -1,6 +1,6 @@
 classdef test_loader_ascii < TestCase
     properties
-        log_level;
+        clOb;
         matlab_warning;
         test_data_path;
         test_par_file = 'demo_par.par';
@@ -16,17 +16,8 @@ classdef test_loader_ascii < TestCase
             obj = obj@TestCase(name);
             pths = horace_paths;
             obj.test_data_path = pths.test_common;
-        end
-
-        function obj=setUp(obj)
-            obj.log_level = get(hor_config,'log_level');
-            set(hor_config,'log_level',-1,'-buffer');
-            obj.matlab_warning = warning ('off','all');
-        end
-
-        function obj=tearDown(obj)
-            set(hor_config,'log_level',obj.log_level,'-buffer');
-            warning (obj.matlab_warning);
+            obj.clOb = set_temporary_config_options(hor_config, 'log_level', -1);
+            obj.matlab_warning = set_temporary_warning('off', 'all');
         end
 
         function test_wrong_first_argument(~)
@@ -369,7 +360,7 @@ classdef test_loader_ascii < TestCase
             [Smex,Emex,enMex] = ld.load_data();
             detMex = ld.load_par('-array');
 
-            hor_config.use_mex = false;
+            hc.use_mex = false;
             [Snom,Enom,enNom] = ld.load_data();
             detNom = ld.load_par('-array');
 
