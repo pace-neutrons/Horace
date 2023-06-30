@@ -26,6 +26,10 @@ classdef spher_proj<aProjectionBase
         % rotation plain. Matlab names this angle atzimuth and it is phi
         % angle in Horace/Mantid convention
         %
+        % if z-axis of spherical coordinate system is directed along the beam
+        % ez,ex vectors of spherical projection coincide with u,v vectors
+        % used during sqw file generation
+        %
         type;  % units of the projection. Default add -- inverse Angstrom, degree, degree
         %      % possible options: rrr where first r is responsible for rlu
         %      units and two other -- for radian e.g. 'rdr' or adr are
@@ -42,13 +46,10 @@ classdef spher_proj<aProjectionBase
         % For the future. See if we want spherical projection in hkl,
         % non-orthogonal
         %orhtonormal_ = true;
-        hor2matlab_transf_ = ...
-            [1,0,0;... % The transformation from
-            0 ,1,0;... % Horace pixel coordinate system to the axes above to
-            0 ,0,1];   % allow to use MATLAB sph2cart/cart2sph functions.
-        % the matrix arranged in rows, as multipled by 3xNpix matrix of
-        % Q-coordinates
-
+        hor2matlab_transf_ = [...
+            0, 1, 0;... % The transformation from
+            0, 0, 1;... % Horace pixel coordinate system to the axes coordinates
+            1, 0, 0];   % to allow using MATLAB sph2cart/cart2sph functions.
 
         pix_to_matlab_transf_ ; % the transformation used for conversion
         % from pix coordinate system to spherical coordinate system
@@ -129,7 +130,8 @@ classdef spher_proj<aProjectionBase
         function obj = set.type(obj,val)
             obj = check_and_set_type_(obj,val);
         end
-        function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation(obj,ndim,varargin)
+        function [rot_to_img,offset,theta_to_ang,phi_to_ang,offset_present]=...
+            get_pix_img_transformation(obj,ndim,varargin)
             % Return the constants and parameters used for transformation
             % from Crystal Cartezian to spherical coordinate system and
             % back
@@ -157,10 +159,13 @@ classdef spher_proj<aProjectionBase
             %     -- depending on the projection type, the constant used to
             %        convert Phi angles in radians to Phi angles in
             %        degrees or vice versa.
+            % offset_present 
+            %     -- boolean true if any offset is not equal to 0 and false
+            %        if all offsets are zero
 
             %
-            % TODO: #954 NEEDS verification:
-            [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_(obj,ndim,varargin{:});
+            [rot_to_img,offset,theta_to_ang,phi_to_ang,offset_present] = ...
+                get_pix_img_transformation_(obj,ndim,varargin{:});
 
         end
         %------------------------------------------------------------------
@@ -205,6 +210,9 @@ classdef spher_proj<aProjectionBase
     %=====================================================================
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
+    properties(Constant, Access=private)
+        fields_to_save_ = {'ez','ex','type'}
+    end
     methods
         % check interdependent projection arguments
         function obj = check_combo_arg (obj)
@@ -231,9 +239,6 @@ classdef spher_proj<aProjectionBase
             flds = saveableFields@aProjectionBase(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
-    end
-    properties(Constant, Access=private)
-        fields_to_save_ = {'ez','ey','type'}
     end
     methods(Static)
         function obj = loadobj(S)

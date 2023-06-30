@@ -1,4 +1,5 @@
-function [rot_to_img,offset_cc,theta_to_ang,phi_to_ang]=get_pix_img_transformation_(obj,ndim,varargin)
+function [rot_to_img,offset_cc,theta_to_ang,phi_to_ang,offset_present]= ...
+    get_pix_img_transformation_(obj,ndim,varargin)
 % Return the constants and parameters used for transformation
 % from Crystal Cartezian to spherical coordinate system and
 % back

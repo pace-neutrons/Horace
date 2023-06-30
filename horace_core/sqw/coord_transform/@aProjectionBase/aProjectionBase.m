@@ -108,8 +108,8 @@ classdef aProjectionBase < serializable
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
-        alatt_ = [2*pi,2*pi,2*pi]; %unit-sized lattice vector
-        angdeg_= [90,90,90];
+        alatt_ = []; %unit-sized lattice vector
+        angdeg_= [];
         % true if both alatt and angdeg have been correctly set-up
         lattice_defined_= [false,false];
         %------------------------------------
@@ -304,8 +304,10 @@ classdef aProjectionBase < serializable
             %         except 1 as 4th element of diagonal.
             if ~obj.alatt_defined||~obj.angdeg_defined
                 error('HORACE:aProjectionBase:runtime_error', ...
-                    ['Attempt to use coordinate transformations before lattice',
-					' parameters are defined. Define lattice parameters first'])
+                    ['Attempt to use hkl-coordinate transformations before lattice',...
+					' parameters are defined.\n', ...
+                    ' You have alatt= %s, angdeg = %s. Define lattice parameters first'], ...
+                    mat2str(obj.alatt_),mat2str(obj.angdeg_))
             end
 
             bm = bmatrix(obj.alatt,obj.angdeg);
