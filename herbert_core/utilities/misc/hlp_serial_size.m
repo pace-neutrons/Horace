@@ -32,7 +32,7 @@ switch type.name
     case 'serializable'
         siz = serial_size_itself(v, type);
     otherwise
-        error(['Cannot serial_size ', type.name]);
+      error('HORACE:serial_size:invalid_argument', 'Cannot serialize type %s.', type.name);
 end
 
 end

@@ -72,7 +72,7 @@ switch type.name
     case {'serializable'}
         m = serialize_themselves(v,type);
     otherwise
-        error('MATLAB:hlp_serialize:bad_type', 'Cannot serialize type %s.', type.name);
+        error('MATLAB:hlp_serialize:invalid_argument', 'Cannot serialize type %s.', type.name);
 end
 end
 
