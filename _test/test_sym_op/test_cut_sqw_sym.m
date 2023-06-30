@@ -91,7 +91,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
 
         function test_cut_sym_with_pix(obj)
         % Test symmetrisation, keeping pixels
-            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
             w2sym = cut(obj.data, obj.proj, obj.bin,...
                         obj.width, obj.width, obj.ebins, obj.sym);
 
@@ -100,7 +99,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
 
         function test_cut_sym_with_nopix(obj)
         % Test symmetrisation, without keeping pixels
-            skipTest('Re #892 There is issue with cut alignment in master, sorted within the ticket #892')
             d2sym = cut(obj.data, obj.proj, obj.bin,...
                         obj.width, obj.width, obj.ebins, obj.sym, '-nopix');
 
