@@ -229,9 +229,9 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             trans_bin_width  = 0.02;
             trans_thickness  = 2;
 
-            [rlu_real,width,wcut,wpeak]=bragg_positions(obj.misaligned_sqw_file,...
-                bragg_pos,radial_cut_length,radial_bin_width, radial_thickness,...
-                trans_cut_length,trans_bin_width ,trans_thickness, 'gauss');
+            [rlu_real, width, wcut, wpeak]=bragg_positions(obj.misaligned_sqw_file, ...
+                bragg_pos, radial_cut_length, radial_bin_width, radial_thickness, ...
+                trans_cut_length, trans_bin_width, trans_thickness, 'gauss');
 
             rlu_sample = ...
                 [0.04   -0.9999    0.05;...
@@ -245,7 +245,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(width,width_sample,'absolute',1.e-1);
             % contains path, so need no-string comparison
             assertEqualToTolWithSave(obj,wcut,1.e-6,'ignore_str',true);
-            assertEqualToTolWithSave(obj,wpeak,[1.e-3,1.e-5],'ignore_str',true);
+            assertEqualToTolWithSave(obj,wpeak,1.e-6,'ignore_str',true);
         end
         %------------------------------------------------------------------
         function delete(obj)
