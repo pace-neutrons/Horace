@@ -7,16 +7,24 @@ Manipulating and extracting data from SQW files and objects
 cut
 ===
 
-There are various different forms of input for this function, the purpose of which is to take data from an SQW file and
-turn it into a n-dimensional cut which can be plotted, manipulated, etc. The "compulsory" inputs are given as follows:
+cut takes data from an SQW file and turns it into a cut of reduced size, either in range or dimensionality. The cut is
+itself an SQW object which can be plotted, manipulated, etc. The "compulsory" inputs are given as follows:
 
 .. code-block:: matlab
 
    my_cut = cut(data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
 
 
-Where ``data_source`` is either a string giving the full filename (including path) of the input SQW file or just the
-variable containing SQW object stored in memory.
+Cutting encompasses a rebinning of the pixels into the bins specified by the cut parameters (described below).
+These binned pixels will make up the ``DnD`` of the output object which contains information regarding the plottable
+data.
+
+
+Data Source
+-----------
+
+``data_source`` is either a string giving the full filename (including path) of the input SQW file or just the variable
+containing SQW object stored in memory from which the pixels will be taken.
 
 Projection
 ----------
@@ -24,16 +32,14 @@ Projection
 This defines the coordinate system you will use to plot the data.
 
 ``proj`` should be an instance of a ``projection`` (such as ``ortho_proj``, ``spher_proj``, etc.) containing information
-about the axes and the coordinate system you wish to use to plot the data. Because each point in the SQW file is
-labelled with h, k, and l (the reciprocal lattice vectors) and energy, it is possible, if you wish, to redefine the
-coordinate system with the one of your choice. For example you may wish to view the data in terms of
-(h,h,0)/(h,-h,0)/(0,0,l).
+about the axes and the coordinate system you wish to use to plot the data.
 
 .. note::
 
-   This is distinct from the vectors ``u`` and ``v`` that are specified in :ref:`gen_sqw
-   <manual/Generating_SQW_files:gen_sqw>`, which describe how the crystal is oriented with respect to the spectrometer
-   and are determined by the physical orientation of your sample.
+   Because each point in the SQW file is labelled with h, k, and l (the reciprocal lattice vectors) and energy, the
+   underlying pixels will be unchanged. It is possible to redefine the coordinate system with the one of your
+   choice; the projection merely describes how pixels will be binned and thus displayed.
+
 
 Lattice basis projections
 -------------------------
@@ -46,21 +52,33 @@ The ``ortho_proj`` structure has several mandatory fields:
 
 * ``proj.v``
 
-  3-vector of (h,k,l) specifying second viewing axis.
+  3-vector of (h,k,l) in the plane of the second viewing axis.
 
-  it is constructed to be in the plane of ``proj.u`` and ``proj.v`` and perpendicular to ``proj.u``.  The the third
+  The second viewing axis is constructed to be in the plane of ``proj.u`` and ``proj.v`` and perpendicular to ``proj.u``.  The the third
   viewing axes is defined as the cross product of the first two. The 4th axis is always energy and need not be
   specified.
 
 .. note::
 
-   ``u`` and ``v`` are defined in the lattice basis so if the following are specified:
+   The ``u`` and ``v`` of an ``ortho_proj`` are distinct from the vectors ``u`` and ``v`` that are specified in
+   :ref:`gen_sqw <manual/Generating_SQW_files:gen_sqw>`, which describe how the crystal is oriented with respect to the
+   spectrometer and are determined by the physical orientation of your sample.
+
+.. note::
+
+   ``u`` and ``v`` are defined in the reciprocal lattice basis so if the crystal axes are not orthogonal, the here are
+   not necessarily orthogonal in reciprocal space.
+
+   E.g.:
 
    .. code-block:: matlab
 
+      angdeg % => [60 60 90]
       proj = ortho_proj([1 0 0], [0 1 0]);
 
-   such that proj.u = (1,0,0) and proj.v = (0,1,0), the axes here are not orthoganal in reciprocal space.
+   such that proj.u = (1,0,0) and proj.v = (0,1,0). The reciprocal space projection will actually be offset according to
+   angdeg.
+
 
 There are optional fields too:
 
@@ -83,7 +101,9 @@ You may optionally choose to use non-orthogonal axes:
 
    proj = ortho_proj([1 0 0], [0 1 0], [0 0 1], 'nonorthogonal', true);
 
-This forces the axes to be the ones you define, even if they are not orthogonal in the crystal lattice basis.
+If you don't specify ``nonorthogonal``, or set it to ``false``, you will get orthogonal axes defined by ``u`` and ``v``
+normal to ``u`` and ``u`` x ``v``. Setting ``nonorthogonal`` to true forces the axes to be exactly the ones you define, even if
+they are not orthogonal in the crystal lattice basis.
 
 .. warning::
 
@@ -106,7 +126,7 @@ Binning arguments
 
 * ``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``
   specify the binning / integration arguments for the Q & Energy axes in
-  the target coordinate system. Each can independently have one of four different forms:
+  the target projection's coordinate system. Each can independently have one of four different forms:
 
 .. warning::
 
@@ -114,15 +134,15 @@ Binning arguments
    value in each component to ensure your cut is what you expect.
 
 * ``[]``
-  An empty binning range will use the current/previous binning axes in that dimension.
+  An empty binning range will use the source binning axes in that dimension.
 
 * ``[n]``
   if a single (scalar) number is given then that axis will be a plot axis and the bin width will be the
-  number you specify. The lower and upper limits are the (current|previous) binning axes in that dimension.
+  number you specify. The lower and upper limits are the source binning axes in that dimension.
 
 .. note::
 
-   A value of ``[0]`` is equivalent to ``[]`` and will use the (current|previous) binning axes.
+   A value of ``[0]`` is equivalent to ``[]`` and will use the source binning axes.
 
 * ``[lo,hi]``
   If you specify a vector with two components then the signal will be integrated over that axis between limits
@@ -141,7 +161,7 @@ Binning arguments
 
 .. note ::
 
-   If ``step`` is ``0``, the ``step`` is taken from the (current|previous) binning axes.
+   If ``step`` is ``0``, the ``step`` is taken from the source binning axes.
 
 .. warning::
 
@@ -152,20 +172,20 @@ Binning arguments
 
 * ``[lower, separation, upper, cut_width]``
 
-  A four-component binning axis defines multiple cuts with multiple integration limits in the selected direction.
+  A four-component binning axis defines **multiple** cuts with **multiple** integration limits in the selected direction.
   These components are:
 
   * ``lower``
 
-    minimum cut centre
+    minimum cut bin-centre
 
   * ``separation``
 
-    distance between cut centres
+    distance between cut bin-centres
 
   * ``upper``
 
-    maximum cut centre
+    approximate maximum cut bin-centre
 
   * ``cut_width``
 
@@ -214,15 +234,16 @@ To take a cut from an existing sqw or dnd object, retaining the existing project
 
 .. note::
 
-   You cannot change the binning in a dnd object, i.e. you can only set the integration ranges and have to use ``[]``
+   You cannot change the binning in a dnd object, i.e. you can only set the integration ranges, and have to use ``[]``
    for the plot axis. The only option you have is to change the range of the plot axis by specifying ``[lo1,0,hi1]``
-   instead of ``[]`` (the '0' means 'use existing bin size') Note that Note also that
+   instead of ``[]`` (the '0' means 'use existing bin size').
 
 
 section
 =======
 
-``section`` is an ``sqw`` method, which works like a cut but uses the existing bins of an ``sqw`` object.
+``section`` is an ``sqw`` method, which works like a cut but uses the existing bins of an ``sqw`` object rather than
+rebinning.
 
 .. code-block:: matlab
 
@@ -260,7 +281,8 @@ The parameters of section are as follows:
 
 .. note::
 
-   These parameters are specified by inclusive edge limits.
+   These parameters are specified by inclusive edge limits. Any ranges beyond the the ``sqw`` object's ``img_range``
+   will be reduced to only capture extant bins.
 
 .. warning::
 
@@ -370,21 +392,6 @@ save
 Saves the sqw object or dnd object ``object`` from the Matlab workspace into the file specified by ``filename``.
 
 
-save_xye
-========
-
-Save data in an sqw or dnd dataset to an ascii file.
-
-.. code-block:: matlab
-
-   filename = 'C:\\mprogs\\my_ascii_file.txt';
-   save_xye(w_in,filename);
-
-
-The format of the ascii file for an n-dimensional dataset is n columns of co-ordinates along each of the axes, plus one
-column of signal and another column of error (standard deviation).
-
-
 xye
 ===
 
@@ -398,6 +405,21 @@ Extract the bin centres, intensity and standard errors from an sqw or dnd object
 The output is a structure with fields S.x (bin centres if a 1D object, or cell array of vectors containing the bin
 centres along each axis if 2D, 3D or 4D object), S.y (array of intensities), S.e (array of estimated error on the
 intensities).
+
+
+save_xye
+========
+
+Save data in an sqw or dnd dataset to an ascii file.
+
+.. code-block:: matlab
+
+   filename = 'C:\\mprogs\\my_ascii_file.txt';
+   save_xye(w_in,filename);
+
+
+The format of the ascii file for an n-dimensional dataset is n columns of co-ordinates along each of the axes, plus one
+column of signal and another column of error (standard deviation).
 
 
 hkle
