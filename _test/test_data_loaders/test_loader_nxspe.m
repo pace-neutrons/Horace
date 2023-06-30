@@ -164,7 +164,7 @@ classdef test_loader_nxspe < TestCase
 
 
             % ads par data and return it as horace data
-            par=load_par(loader,'-horace');
+            par=load_par(loader); % -horace mode is now default
             % MAP11014.nxspe is version 1.1 nxspe file
             if get(hor_config,'log_level')>-1
                 warnStruct = warning('query', 'last');
@@ -243,6 +243,18 @@ classdef test_loader_nxspe < TestCase
             % obj should be fixed one day
             %assertElementsAlmostEqual(nxpse_phx(4,:),ascii_phx(4,:),'relative',1.e-2);
             %assertElementsAlmostEqual(nxpse_phx(5,:),ascii_phx(5,:),'relative',1.e-4);
+        end
+
+        function test_load_inst_info_from_nxspe(obj)
+            ref_inst = {let_instrument(3.7, 240, 120, 31, 2, '-version', 2) ...
+                        maps_instrument(400, 600, 's', '-version', 2, '-moderator', 'base2016') ...
+                        merlin_instrument(120, 600, 'g', '-moderator', 'base2016')};
+            nxspes = {'inst_let_ei3p7_240_120.nxspe', 'inst_maps_ei400_600hz.nxspe', ...
+                      'inst_merlin_ei120_600hz.nxspe'};
+            for ii = 1:numel(nxspes)
+                nxspe_inst = loader_nxspe(f_name(obj, nxspes{ii})).get_instrument();
+                assertEqual(nxspe_inst.to_struct(), ref_inst{ii}.to_struct(), '', [1e-9, 0.01]);
+            end
         end
 
         function test_warn_on_nxspe1_0(obj)
