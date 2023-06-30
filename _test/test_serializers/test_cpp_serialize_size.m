@@ -29,7 +29,7 @@ classdef test_cpp_serialize_size < TestCase
 
         %% Test Objects
         %------------------------------------------------------------------
-        function test_sise_struct(this)
+        function test_size_struct(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -136,7 +136,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %% Test null
-        function test_ser_sise_array_null(this)
+        function test_ser_size_array_null(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -149,7 +149,7 @@ classdef test_cpp_serialize_size < TestCase
 
         %% Test Logicals
         %------------------------------------------------------------------
-        function test_ser_sise_logical_scalar(this)
+        function test_ser_size_logical_scalar(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -160,7 +160,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_logical_array(this)
+        function test_ser_size_logical_array(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -172,7 +172,7 @@ classdef test_cpp_serialize_size < TestCase
 
         %% Test Characters
         %------------------------------------------------------------------
-        function test_ser_sise_chararray_null(this)
+        function test_ser_size_chararray_null(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -183,7 +183,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_chararray_scalar(this)
+        function test_ser_size_chararray_scalar(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -194,7 +194,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_chararray_array(this)
+        function test_ser_size_chararray_array(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -206,7 +206,7 @@ classdef test_cpp_serialize_size < TestCase
 
         %% Test Doubles
         %------------------------------------------------------------------
-        function test_ser_sise_double_scalar(this)
+        function test_ser_size_double_scalar(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -217,7 +217,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_double_list(this)
+        function test_ser_size_double_list(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -228,7 +228,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_double_array(this)
+        function test_ser_size_double_array(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -240,7 +240,7 @@ classdef test_cpp_serialize_size < TestCase
 
         %% Test Complexes
         %------------------------------------------------------------------
-        function test_ser_sise_complex_scalar(this)
+        function test_ser_size_complex_scalar(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -251,7 +251,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_complex_array(this)
+        function test_ser_size_complex_array(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -296,7 +296,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_struct_scalar(this)
+        function test_ser_size_struct_scalar(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -307,7 +307,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_struct_list(this)
+        function test_ser_size_struct_list(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -318,7 +318,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_struct_array(this)
+        function test_ser_size_struct_array(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -418,7 +418,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %% Test Function handle
-        function test_ser_sise_function_handle(this)
+        function test_ser_size_function_handle(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -430,7 +430,7 @@ classdef test_cpp_serialize_size < TestCase
 
         %% Test Cell Array
         %------------------------------------------------------------------
-        function test_ser_sise_cell_null(this)
+        function test_ser_size_cell_null(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -441,7 +441,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_numeric(this)
+        function test_ser_size_cell_homo_numeric(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -463,7 +463,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_complex(this)
+        function test_ser_size_cell_homo_complex(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -474,7 +474,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_mixed_complex(this)
+        function test_ser_size_cell_homo_mixed_complex(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -485,7 +485,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_cell(this)
+        function test_ser_size_cell_homo_cell(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -496,7 +496,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_bool(this)
+        function test_ser_size_cell_homo_bool(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -507,7 +507,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_string(this)
+        function test_ser_size_cell_homo_string(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -529,7 +529,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_function_handles(this)
+        function test_ser_size_cell_homo_function_handles(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
@@ -540,7 +540,7 @@ classdef test_cpp_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_hetero(this)
+        function test_ser_size_cell_hetero(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end

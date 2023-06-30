@@ -1,20 +1,19 @@
 classdef test_serialize_size < TestCase
-    properties
-    end
+
     methods
-        function this=test_serialize_size(varargin)
+        function obj=test_serialize_size(varargin)
             if nargin>0
                 name = varargin{1};
             else
                 name  = 'test_serialize_size';
             end
-            this = this@TestCase(name);
+            obj = obj@TestCase(name);
 
         end
 
         %% Test Objects
         %------------------------------------------------------------------
-        function test_sise_struct(~)
+        function test_size_struct(~)
             test_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                                 'dee',struct('a',10),'ei',int32([9;8;7]));
 
@@ -106,7 +105,7 @@ classdef test_serialize_size < TestCase
         end
 
         %% Test null
-        function test_ser_sise_array_null(~)
+        function test_ser_size_array_null(~)
             test_obj = [];
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -116,7 +115,7 @@ classdef test_serialize_size < TestCase
 
         %% Test Logicals
         %------------------------------------------------------------------
-        function test_ser_sise_logical_scalar(~)
+        function test_ser_size_logical_scalar(~)
             test_obj = true;
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -124,7 +123,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_logical_array(~)
+        function test_ser_size_logical_array(~)
             test_obj = [true, true, true];
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -133,7 +132,7 @@ classdef test_serialize_size < TestCase
 
         %% Test Characters
         %------------------------------------------------------------------
-        function test_ser_sise_chararray_null(~)
+        function test_ser_size_chararray_null(~)
             test_obj = '';
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -141,7 +140,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_chararray_scalar(~)
+        function test_ser_size_chararray_scalar(~)
             test_obj = 'BEEP';
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -149,7 +148,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_chararray_array(~)
+        function test_ser_size_chararray_array(~)
             test_obj = ['BEEP','BOOP'; 'BLORP', 'BOP'];
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -158,7 +157,7 @@ classdef test_serialize_size < TestCase
 
         %% Test Doubles
         %------------------------------------------------------------------
-        function test_ser_sise_double_scalar(~)
+        function test_ser_size_double_scalar(~)
             test_obj = 10;
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -166,7 +165,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_double_list(~)
+        function test_ser_size_double_list(~)
             test_obj = 1:10;
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -174,7 +173,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_double_array(~)
+        function test_ser_size_double_array(~)
             test_obj = [1:10;1:10];
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -183,7 +182,7 @@ classdef test_serialize_size < TestCase
 
         %% Test Complexes
         %------------------------------------------------------------------
-        function test_ser_sise_complex_scalar(~)
+        function test_ser_size_complex_scalar(~)
             test_obj = 3+4i;
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -191,7 +190,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_complex_array(~)
+        function test_ser_size_complex_array(~)
             test_obj = [3+4i, 5+7i; 2+1i, 1-1i];
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
@@ -224,7 +223,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_struct_scalar(~)
+        function test_ser_size_struct_scalar(~)
             test_struct = struct('Hello', 13, 'Goodbye', 7, 'Beef', {{1, 2, 3}});
             ser =  hlp_serialize(test_struct);
             ser_siz = hlp_serial_size(test_struct);
@@ -232,7 +231,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_struct_list(~)
+        function test_ser_size_struct_list(~)
             test_struct = struct('HonkyTonk', {1, 2, 3});
             ser =  hlp_serialize(test_struct);
             ser_siz = hlp_serial_size(test_struct);
@@ -240,7 +239,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_struct_array(~)
+        function test_ser_size_struct_array(~)
             test_struct = struct('HonkyTonk', {1, 2, 3; 4, 5, 6; 7, 8, 9});
             ser = hlp_serialize(test_struct);
             ser_siz = hlp_serial_size(test_struct);
@@ -313,7 +312,7 @@ classdef test_serialize_size < TestCase
         end
 
         %% Test Function handle
-        function test_ser_sise_function_handle(~)
+        function test_ser_size_function_handle(~)
             test_func = @(x, y) (x^2 + y^2);
             ser = hlp_serialize(test_func);
             ser_siz = hlp_serial_size(test_func);
@@ -322,7 +321,7 @@ classdef test_serialize_size < TestCase
 
         %% Test Cell Array
         %------------------------------------------------------------------
-        function test_ser_sise_cell_null(~)
+        function test_ser_size_cell_null(~)
             test_cell = {};
             ser =  hlp_serialize(test_cell);
             ser_siz = hlp_serial_size(test_cell);
@@ -330,7 +329,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_numeric(~)
+        function test_ser_size_cell_homo_numeric(~)
             test_cell = {1 2 3 4};
             ser =  hlp_serialize(test_cell);
             ser_siz = hlp_serial_size(test_cell);
@@ -346,7 +345,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_complex(~)
+        function test_ser_size_cell_homo_complex(~)
             test_cell = {1+2i 2+3i 3+1i 4+10i};
             ser =  hlp_serialize(test_cell);
             ser_siz = hlp_serial_size(test_cell);
@@ -354,7 +353,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_mixed_complex(~)
+        function test_ser_size_cell_homo_mixed_complex(~)
             test_cell = {1+2i 2 3+1i 4};
             ser =  hlp_serialize(test_cell);
             ser_siz = hlp_serial_size(test_cell);
@@ -362,7 +361,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_cell(~)
+        function test_ser_size_cell_homo_cell(~)
             test_cell = {{1 2} {3 4} {4 5} {6 7}};
             ser =  hlp_serialize(test_cell);
             ser_siz = hlp_serial_size(test_cell);
@@ -370,7 +369,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_bool(~)
+        function test_ser_size_cell_homo_bool(~)
             test_cell = {true false false true false};
             ser =  hlp_serialize(test_cell);
             ser_siz = hlp_serial_size(test_cell);
@@ -378,7 +377,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_string(~)
+        function test_ser_size_cell_homo_string(~)
             test_cell = {'Hello' 'is' 'it' 'me' 'youre' 'looking' 'for'};
             ser =  hlp_serialize(test_cell);
             ser_siz = hlp_serial_size(test_cell);
@@ -394,7 +393,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_homo_function_handles(~)
+        function test_ser_size_cell_homo_function_handles(~)
             test_cell = {@(x,y) (x+y^2), @(a,b) (b-a)};
             ser =  hlp_serialize(test_cell);
             ser_siz = hlp_serial_size(test_cell);
@@ -402,7 +401,7 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_sise_cell_hetero(~)
+        function test_ser_size_cell_hetero(~)
             test_cell = {1, 'a', 1+2i, true, struct('boop', 1), {'Hello'}, @(x,y) (x+y^2)};
             ser =  hlp_serialize(test_cell);
 
