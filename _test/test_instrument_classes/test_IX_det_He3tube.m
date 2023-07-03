@@ -39,6 +39,46 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             assertEqual (obj.atms(:), det_array.atms)
         end
         
+        function test_det_constructor_2 (obj)
+            % Test constructor with one scalar argument input
+            val = 0.00344;
+            det_array = IX_det_He3tube (obj.dia, obj.height, val, obj.atms);
+            assertEqual (obj.dia(:), det_array.dia)
+            assertEqual (obj.height(:), det_array.height)
+            assertEqual (val*ones(size(obj.dia(:))), det_array.wall)
+            assertEqual (obj.atms(:), det_array.atms)
+        end
+        
+        function test_det_constructor_3 (obj)
+            % Test constructor with insufficient input arguments
+            % Should throw error
+            assertExceptionThrown( ...
+                @()IX_det_He3tube (obj.dia, obj.height, obj.wall), ...
+                'HERBERT:serializable:invalid_argument');
+        end
+        
+        function test_det_constructor_4 (obj)
+            % Test constructor with too many input arguments
+            % Should throw error
+            assertExceptionThrown( ...
+                @()IX_det_He3tube (obj.dia, obj.height, obj.wall), ...
+                'HERBERT:serializable:invalid_argument');
+        end
+        
+        function test_det_constructor_5 (obj)
+            % Test constructor with mixed positional and keyword arguments in
+            % non-standard order
+            
+            % Reference array
+            [~, det_array_ref] = construct_detectors (obj);
+            
+            % Equivalent
+            det_array = IX_det_He3tube (obj.dia, obj.height, ...
+                'atms', obj.atms, 'wall', obj.wall);
+            
+            assertEqual (det_array_ref, det_array)
+        end
+        
         %--------------------------------------------------------------------------
         function test_effic_1 (obj)
             % Test efficiency calculation
@@ -174,6 +214,5 @@ classdef test_IX_det_He3tube < TestCaseWithSave
         
         %--------------------------------------------------------------------------
     end
-    
     
 end

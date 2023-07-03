@@ -1,5 +1,5 @@
 classdef IX_det_He3tube < IX_det_abstractType
-    % IX_det_He3tube Defines array of cylindrical 3He detectors
+    % IX_det_He3tube    Defines array of cylindrical 3He detectors
     % Defines cylindrical 3He gas tube properties on which efficiency,
     % depth of absorption etc depend, namely diameter, wall thickness
     % partial pressure of 3He.
@@ -17,7 +17,6 @@ classdef IX_det_He3tube < IX_det_abstractType
         height_ = 0     % Height (m) (column vector)
         wall_   = 0;    % Wall thickness (m) (column vector)
         atms_   = 0;    % 3He partial pressure (atmospheres) (column vector)
-        mandatory_field_set_ = false(1,4);
     end
 
     properties (Dependent)
@@ -59,67 +58,65 @@ classdef IX_det_He3tube < IX_det_abstractType
                 % Define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
                 % provided without their names
-                pos_params = obj.saveableFields();
+                [property_names, mandatory] = obj.saveableFields();
                 
                 % Set positional parameters and key-value pairs and check their
                 % consistency using public setters interface. Run
                 % check_combo_arg after all settings have been done.
+                % All is done within set_positional_and_key_val_arguments
+                options = struct('key_dash', true, 'mandatory_props', mandatory);
                 [obj, remains] = set_positional_and_key_val_arguments (obj, ...
-                    pos_params, true, varargin{:});
+                    property_names, options, varargin{:});
+                
                 if ~isempty(remains)
                     error('HERBERT:IX_det_He3tube:invalid_argument', ...
                         ['Unrecognised extra parameters provided as input to ',...
-                        'IX_det_He3tube constructor: %s'], disp2str(remains));
+                        'IX_det_He3tube constructor:\n %s'], disp2str(remains));
                 end
             end
         end
 
         %------------------------------------------------------------------
         % Set methods for dependent properties
-        function obj=set.dia(obj,val)
+        function obj = set.dia (obj, val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
                     'Tube diameter(s) must be greater or equal to zero')
             end
-            obj.dia_=val(:);
-            obj.mandatory_field_set_(1) = true;
+            obj.dia_ = val(:);
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
         
-        function obj=set.height(obj,val)
+        function obj = set.height (obj, val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
                     'Detector element height(s) must be greater or equal to zero')
             end
             obj.height_ = val(:);
-            obj.mandatory_field_set_(2) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
-
         end
         
-        function obj=set.wall(obj,val)
+        function obj = set.wall (obj, val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
                     'Wall thickness(es) must be greater or equal to zero')
             end
-            obj.wall_=val(:);
-            obj.mandatory_field_set_(3) = true;
+            obj.wall_ = val(:);
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
         
-        function obj=set.atms(obj,val)
+        function obj = set.atms (obj, val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
                     'Partial pressure(s) of 3He must be greater or equal to zero')
             end
             obj.atms_ = val(:);
-            obj.mandatory_field_set_(4) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -127,27 +124,27 @@ classdef IX_det_He3tube < IX_det_abstractType
         
         %------------------------------------------------------------------
         % Get methods for dependent properties
-        function val = get.dia(obj)
+        function val = get.dia (obj)
             val = obj.dia_;
         end
 
-        function val = get.height(obj)
+        function val = get.height (obj)
             val = obj.height_;
         end
 
-        function val = get.wall(obj)
+        function val = get.wall (obj)
             val = obj.wall_;
         end
 
-        function val = get.atms(obj)
+        function val = get.atms (obj)
             val = obj.atms_;
         end
 
-        function val = get.inner_rad(obj)
+        function val = get.inner_rad (obj)
             val = 0.5*(obj.dia_ - 2*obj.wall_);
         end
 
-        function val = get.ndet(obj)
+        function val = get.ndet (obj)
             val = numel(obj.dia_);
         end
         %------------------------------------------------------------------
@@ -164,9 +161,10 @@ classdef IX_det_He3tube < IX_det_abstractType
             ver = 2;
         end
         
-        function flds = saveableFields(~)
+        function [flds, mandatory] = saveableFields(~)
             % Return cellarray of properties defining the class
-            flds = {'dia','height','wall','atms'};
+            flds = {'dia', 'height', 'wall', 'atms'};
+            mandatory = true(1,4);
         end
 
         function obj = check_combo_arg(obj)
@@ -179,15 +177,8 @@ classdef IX_det_He3tube < IX_det_abstractType
             % without problem it they are not.
 
             flds = obj.saveableFields();
-            if ~all(obj.mandatory_field_set_)
-                error ('HERBERT:IX_det_He3tube:invalid_argument',...
-                    ['Must give all mandatory inputs namely: %s\n',...
-                    'Properties: %s have not been set'], ...
-                    disp2str(flds),...
-                    disp2str(flds(~obj.mandatory_field_set_)));
-
-            end
             
+            % Inherited method from IX_det_abstractType
             obj = obj.expand_internal_properties_to_max_length(flds);
             
             % Check the consistency of tube diameter and wall thickness
@@ -224,10 +215,8 @@ classdef IX_det_He3tube < IX_det_abstractType
     %----------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
-            % overloaded loadobj method, calling generic method of
-            % saveable class necessary for loading old class versions
-            % which are converted into structure when recovered as class is
-            % not available any more
+            % Boilerplate loadobj method, calling the generic loadobj method of
+            % the serializable class
             obj = IX_det_He3tube();
             obj = loadobj@serializable(S,obj);
         end

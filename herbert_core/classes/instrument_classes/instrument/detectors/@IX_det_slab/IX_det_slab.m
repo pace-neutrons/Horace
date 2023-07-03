@@ -1,5 +1,5 @@
 classdef IX_det_slab < IX_det_abstractType
-    % IX_det_slab Slab detector type
+    % IX_det_slab    Array of cuboidal detectors
     % Defines the size and absorption of an array of cuboidal detectors.
     %
     % The class does not define the position or orientation, which is done
@@ -15,7 +15,6 @@ classdef IX_det_slab < IX_det_abstractType
         width_  = 0;    % Detector element widths (m) (column vector)
         height_ = 0;    % Detector element heights (m) (column vector)
         atten_  = 0;    % Attenuation length (to 1/e) at 2200 m/s (m) (column vector)
-        mandatory_field_set_ = false(1,4);
     end
 
     properties (Dependent)
@@ -26,7 +25,7 @@ classdef IX_det_slab < IX_det_abstractType
         atten       % Attenuation length (to 1/e) at 2200 m/s (m) (column vector)
 
         % Other dependent properties required by abstract template
-        ndet    % Number of detectors        
+        ndet        % Number of detectors        
     end
 
     methods
@@ -52,71 +51,68 @@ classdef IX_det_slab < IX_det_abstractType
             %   atten       Attenuation distance at 2200 m/s (m)
 
             if nargin>0
-                % define parameters accepted by constructor as keys and also the
+                % Define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
                 % provided without their names
-                pos_params = obj.saveableFields();
-                % set positional parameters and key-value pairs and check their
+                [property_names, mandatory] = obj.saveableFields();
+
+                % Set positional parameters and key-value pairs and check their
                 % consistency using public setters interface. Run
-                % check_compo_arg after all settings have been done.
-                [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
-                    true,varargin{:});
+                % check_combo_arg after all settings have been done.
+                % All is done within set_positional_and_key_val_arguments
+                options = struct('key_dash', true, 'mandatory_props', mandatory);
+                [obj, remains] = set_positional_and_key_val_arguments (obj, ...
+                    property_names, options, varargin{:});
+                
                 if ~isempty(remains)
                     error('HERBERT:IX_det_slab:invalid_argument', ...
                         ['Unrecognised extra parameters provided as input to ',...
-                        'IX_det_slab constructor: %s'], disp2str(remains));
+                        'IX_det_slab constructor:\n %s'], disp2str(remains));
                 end
             end
         end
 
         %------------------------------------------------------------------
         % Set methods for dependent properties
-        function obj=set.depth(obj,val)
+        function obj = set.depth(obj, val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element depth(s) must be greater or equal to zero')
             end
             obj.depth_ = val(:);
-            obj.mandatory_field_set_(1) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
 
-        function obj=set.width(obj,val)
+        function obj = set.width(obj, val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element width(s) must be greater or equal to zero')
             end
             obj.width_ = val(:);
-            obj.mandatory_field_set_(2) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
-
-
         end
 
-        function obj=set.height(obj,val)
+        function obj = set.height(obj, val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element height(s) must be greater or equal to zero')
             end
             obj.height_ = val(:);
-
-            obj.mandatory_field_set_(3) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
 
-        function obj=set.atten(obj,val)
+        function obj = set.atten(obj, val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_slab:invalid_argument', ...
                     'Detector element attenuation length(s) must be greater or equal to zero')
             end
             obj.atten_ = val(:);
-            obj.mandatory_field_set_(4) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -143,7 +139,6 @@ classdef IX_det_slab < IX_det_abstractType
         function val = get.ndet(obj)
             val = numel(obj.depth_);
         end
-
         %------------------------------------------------------------------
 
     end
@@ -153,35 +148,31 @@ classdef IX_det_slab < IX_det_abstractType
     %======================================================================
 
     methods
-        function obj = check_combo_arg(obj)
-            % verify interdependent variables and the validity of the
-            % obtained serializable object. Return the result of the check
-            %
-            % Throw if the properties are inconsistent and return without
-            % problem it they are not, after recomputing pdf table if
-            % requested.
-
-            flds = obj.saveableFields();
-            if ~all(obj.mandatory_field_set_)
-                error('HERBERT:IX_det_slab:invalid_argument',...
-                    ['Must give all mandatory inputs namely: %s\n',...
-                    'Properties: %s have not been set'], ...
-                    disp2str(flds),...
-                    disp2str(flds(~obj.mandatory_field_set_)));
-
-            end
-            obj = obj.expand_internal_properties_to_max_length(flds);            
-        end
-        
-        function flds = saveableFields(~)
-            % Return cellarray of properties defining the class
-            %
-            flds = {'depth', 'width', 'height', 'atten'};
-        end
-
         function ver = classVersion(~)
             ver = 2;
         end
+        
+        function [flds, mandatory] = saveableFields(~)
+            % Return cellarray of properties defining the class
+            flds = {'depth', 'width', 'height', 'atten'};
+            mandatory = true(1,4);
+        end
+
+        function obj = check_combo_arg(obj)
+            % Verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check.
+            %
+            % Recompute any cached arguments.
+            %
+            % Throw an error if the properties are inconsistent and return
+            % without problem it they are not.
+
+            flds = obj.saveableFields();
+            
+            % Inherited method from IX_det_abstractType
+            obj = obj.expand_internal_properties_to_max_length(flds);            
+        end
+        
     end
     
     %----------------------------------------------------------------------
@@ -209,10 +200,8 @@ classdef IX_det_slab < IX_det_abstractType
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
-            % overloaded loadobj method, calling generic method of
-            % saveable class necessary for loading old class versions
-            % which are converted into structure when recovered as class is
-            % not available any more
+            % Boilerplate loadobj method, calling the generic loadobj method of
+            % the serializable class
             obj = IX_det_slab();
             obj = loadobj@serializable(S,obj);
         end

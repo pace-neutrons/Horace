@@ -1,5 +1,7 @@
 classdef (Abstract) IX_det_abstractType < serializable
-    % Abstract class that defines detector type
+    % Abstract class to be inherited by detector classes
+    % Defines one or more generic properties and required methods for all
+    % detector types.
 
     properties (Abstract, Dependent, Hidden)
         ndet    % number of detectors

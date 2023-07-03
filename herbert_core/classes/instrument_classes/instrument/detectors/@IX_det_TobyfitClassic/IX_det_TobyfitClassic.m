@@ -1,28 +1,27 @@
 classdef IX_det_TobyfitClassic < IX_det_abstractType
-    % Defines a detector type that reproduces the results of original Tobyfit.
-    % The tube axes are assumed always to be perpendicular to the neutron path.
-    % The distance variances and random points are returned as old Tobyfit.
-    % Efficiency is returned as unity and distance averages as zero.
+    % IX_det_TobyfitClassic    Reproduces results of original Tobyfit detectors
+    % Defines a detector type that reproduces the random point sampling of the
+    % original Tobyfit. The 3He tube axes are assumed always to be perpendicular
+    % to the neutron path. The distance variances and random points are returned
+    % as old Tobyfit. Efficiency is returned as unity and distance averages as
+    % zero.
     %
     % Created solely to enable tests of Tobyfit against the original version.
 
-
     % Original author: T.G.Perring
-    %
 
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
-        % require checks against the other properties
+        % may require checks against the other properties
         dia_ = 0;       % Outer diameter of tube (m) (column vector)
-        height_ = 0     % Height (m) (column vector)
-        mandatory_field_set_ = false(1,2);
+        height_ = 0;    % Height (m) (column vector)
     end
 
     properties (Dependent)
         % Mirrors of private properties
         dia         % Outer diameter of tube (m) (column vector)
-        height      % height (m) (column vector)
+        height      % Height (m) (column vector)
         
         % Other dependent properties required by abstract template
         ndet        % Number of detectors
@@ -46,44 +45,45 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
 
 
             if nargin>0
-                % define parameters accepted by constructor as keys and also the
+                % Define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
                 % provided without their names
-                pos_params = obj.saveableFields();
-                % set positional parameters and key-value pairs and check their
+                [property_names, mandatory] = obj.saveableFields();
+
+                % Set positional parameters and key-value pairs and check their
                 % consistency using public setters interface. Run
-                % check_compo_arg after all settings have been done.
-                [obj,remains] = set_positional_and_key_val_arguments(obj,pos_params,...
-                    true,varargin{:});
+                % check_combo_arg after all settings have been done.
+                % All is done within set_positional_and_key_val_arguments
+                [obj, remains] = set_positional_and_key_val_arguments (obj, ...
+                    property_names, options, varargin{:});
+                
                 if ~isempty(remains)
                     error('HERBERT:IX_det_TobyfitClassic:invalid_argument', ...
                         ['Unrecognised extra parameters provided as input to ',...
-                        'IX_det_TobyfitClassic constructor: %s'], disp2str(remains));
+                        'IX_det_TobyfitClassic constructor:\n %s'], disp2str(remains));
                 end
             end
         end
 
         %------------------------------------------------------------------
         % Set methods for dependent properties
-        function obj=set.dia(obj,val)
+        function obj = set.dia (obj, val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_TobyfitClassic:invalid_argument', ...
                     'Tube diameter(s) must be greater or equal to zero')
             end
             obj.dia_ = val(:);
-            obj.mandatory_field_set_(1) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
 
-        function obj=set.height(obj,val)
+        function obj = set.height (obj, val)
             if any(val(:) < 0)
                 error('HERBERT:IX_det_TobyfitClassic:invalid_argument', ...
                     'Detector element height(s) must be greater or equal to zero')
             end
             obj.height_ = val(:);
-            obj.mandatory_field_set_(2) = true;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -91,15 +91,15 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
 
         %------------------------------------------------------------------
         % Get methods for dependent properties
-        function val = get.dia(obj)
+        function val = get.dia (obj)
             val = obj.dia_;
         end
 
-        function val = get.height(obj)
+        function val = get.height (obj)
             val = obj.height_;
         end
 
-        function val = get.ndet(obj)
+        function val = get.ndet (obj)
             val = numel(obj.dia_);
         end
         %------------------------------------------------------------------
@@ -116,25 +116,25 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
             ver = 2;
         end
         
-        function flds = saveableFields(~)
+        function [flds, mandatory] = saveableFields(~)
             % Return the names of public properties which fully define the
             % object state.
             flds = {'dia','height'};
+            mandatory = true(1,2);
         end
 
         function obj = check_combo_arg(obj)
-            % Check validity of interdependent properties, updating them where
-            % necessary.
+            % Verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check.
+            %
+            % Recompute any cached arguments.
+            %
+            % Throw an error if the properties are inconsistent and return
+            % without problem it they are not.
 
             flds = obj.saveableFields();
-            if ~all(obj.mandatory_field_set_)
-                error('HERBERT:IX_det_TobyfitClassic:invalid_argument',...
-                    ['Must give all mandatory inputs namely: %s\n',...
-                    'Properties: %s have not been set'], ...
-                    disp2str(flds),...
-                    disp2str(flds(~obj.mandatory_field_set_)));
-
-            end
+            
+            % Inherited method from IX_det_abstractType
             obj = obj.expand_internal_properties_to_max_length(flds);                        
         end
     end
@@ -164,10 +164,8 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
-            % overloaded loadobj method, calling generic method of
-            % saveable class necessary for loading old class versions
-            % which are converted into structure when recovered as class is
-            % not available any more
+            % Boilerplate loadobj method, calling the generic loadobj method of
+            % the serializable class
             obj = IX_det_TobyfitClassic();
             obj = loadobj@serializable(S,obj);
         end
