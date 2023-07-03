@@ -20,6 +20,9 @@ classdef sqw_tester<sqw
             [proj,pbin,opt] = ...
                 SQWDnDBase.process_and_validate_cut_inputs(data,return_cut, varargin{:});
         end
-        
+        function args = parse_sqw_args_public(varargin)
+            args = sqw.parse_sqw_args(varargin{:});
+        end
+
     end
 end

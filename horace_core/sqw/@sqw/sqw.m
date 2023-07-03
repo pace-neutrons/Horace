@@ -260,7 +260,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %
             % here we go through the various options for what can
             % initialise an sqw object
-            args = parse_sqw_args_(obj,varargin{:});
+            args = sqw.parse_sqw_args(varargin{:});
 
             % i) copy - it is an sqw
             if ~isempty(args.sqw_obj)
@@ -277,7 +277,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     if args.file_backed
                         obj = args.data_struct.get_sqw('-file_backed');
                     else
-                        obj = args.data_struct.get_sqw();                        
+                        obj = args.data_struct.get_sqw();
                     end
                 elseif isfield(args.data_struct,'data')
                     if isfield(args.data_struct.data,'version')
@@ -540,6 +540,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
         end
     end
+    methods(Static,Access=protected)
+        function arg = parse_sqw_arguments(varargin)
+            % function checks and validates arguments of sqw constructor or
+            % sqw init function
+            arg = parse_sqw_arguments_(varargin{:});
+        end
+
+    end
 
     %----------------------------------------------------------------------
     methods(Static, Access=private)
@@ -571,18 +579,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %
             % An error is raised if the data file is identified not a SQW object
             ldr = sqw_formats_factory.instance().get_loader(in_filename);
-            if ~strcmpi(ldr.data_type, 'a') % not a valid sqw-type structure
+            if ~ldr.sqw_type % not a valid sqw-type structure
                 error('HORACE:sqw:invalid_argument',...
                     'Data file: %s does not contain valid sqw-type object',...
                     in_filename);
             end
             if file_backed
-                [sqw_struc,ldr] = ldr.get_sqw('-file_backed','-sqw_struc');                
+                [sqw_struc,ldr] = ldr.get_sqw('-file_backed','-sqw_struc');
             else
                 [sqw_struc,ldr] = ldr.get_sqw('-sqw_struc');
             end
-            obj = init_from_loader_struct_(obj, sqw_struc);           
-            ldr.delete();            
+            obj = init_from_loader_struct_(obj, sqw_struc);
+            ldr.delete();
         end
 
         function obj = init_from_loader_struct_(obj, data_struct)
@@ -590,7 +598,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % file loader
             obj.main_header = data_struct.main_header;
             if isfield(data_struct,'header') % support for old data
-                obj.experiment_info = data_struct.header;                
+                obj.experiment_info = data_struct.header;
             else
                 obj.experiment_info = data_struct.experiment_info;
             end
@@ -620,7 +628,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % the older version, so version substitution is based on this
             % number
             ver = 5;
-            % version 5 -- support for loading previous version 
+            % version 5 -- support for loading previous version
             % data and setting ub_inv_legacy matrix in case if the data
             % were realigned
         end

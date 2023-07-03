@@ -35,7 +35,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertTrue(isa(sqw_obj, 'SQWDnDBase'));
         end
 
-        function setUp(obj)
+        function setUp(~)
             set(hor_config,'mem_chunk_size',1e6);
         end
 
@@ -139,6 +139,11 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             mat_stored_old.data.axes.img_range = sqw_obj.data.img_range;
             assertEqualToTol(mat_stored_old, sqw_obj,[1.e-15,1.e-15], ...
                 'ignore_str',true,'-ignore_date');
+        end
+
+        function test_input_args_filebacked_default(~)
+            ars = sqw.parse_sqw_args_public();
+
         end
     end
 end

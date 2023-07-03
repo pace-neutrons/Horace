@@ -23,7 +23,12 @@ end
 
 input = parser.Results.input;
 args = struct('sqw_obj', [], 'filename', [], 'data_struct', [], ...
-              'file_backed', parser.Results.file_backed);
+    'file_backed', parser.Results.file_backed);
+if isempty(parser.UsingDefaults)
+    args.force_filebacked_selection = true;
+else
+    args.force_filebacked_selection = false;
+end
 
 if isa(input, 'SQWDnDBase')
     if isa(input, 'DnDBase')
