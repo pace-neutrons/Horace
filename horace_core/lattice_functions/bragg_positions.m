@@ -249,7 +249,10 @@ if ~isfinite(xcent) % unable to find a peak
 end
 
 % Now fit Gaussian
-[~,fitdata]=fit(w,@gauss_bkgd,[ypeak,xcent,width/2.3548,0,0]);
+kk = w.multifit();
+kk = kk.set_fun(@gauss_bkgd, [ypeak,xcent,width/2.3548,0,0]);
+[~, fitdata] = kk.fit();
+
 if all(isfinite(fitdata.sig)) && all(fitdata.sig>0)
     xcent=fitdata.p(2);
     width=2.3548*fitdata.p(3);
@@ -371,4 +374,3 @@ else
     error('HORACE:lattice_functions:runtime_error', ...
         'Logic problem - see T.G.Perring')
 end
-

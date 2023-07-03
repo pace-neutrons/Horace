@@ -11,4 +11,3 @@
 %   that you use multifit<func_suffix> instead. For more information about multifit<func_suffix>
 %   <a href="matlab:help('<class_name_with_slash>multifit<func_suffix>');">click here</a>.
 %
-%   Help for the legacy operation can be <a href="matlab:help('<class_name_with_slash>fit_legacy<func_suffix>');">found here</a>]
