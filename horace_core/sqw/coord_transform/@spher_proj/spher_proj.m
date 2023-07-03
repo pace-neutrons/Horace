@@ -48,9 +48,10 @@ classdef spher_proj<aProjectionBase
         % non-orthogonal
         %orhtonormal_ = true;
         hor2matlab_transf_ = [...
-            0, 1, 0;... % The transformation from
-            0, 0, 1;... % Horace pixel coordinate system to the axes coordinates
-            1, 0, 0];   % to allow using MATLAB sph2cart/cart2sph functions.
+            0, 1, 0, 0;... % The transformation from
+            0, 0, 1, 0;... % Horace pixel coordinate system to the axes coordinates
+            1, 0, 0, 0;... % to allow using MATLAB sph2cart/cart2sph functions.
+            0, 0, 0, 1];
 
         pix_to_matlab_transf_ ; % the transformation used for conversion
         % from pix coordinate system to spherical coordinate system

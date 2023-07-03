@@ -393,7 +393,7 @@ classdef ortho_proj<aProjectionBase
             % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
             %             expressed in crystal Cartesian coordinate system
             % Returns
-            % pix_cc -- pixels expressed in Crystal Cartesian coordinate
+            % pix_cc --  pixels expressed in Crystal Cartesian coordinate
             %            system
             %
             pix_cc = transform_img_to_pix_(obj,pix_hkl);
@@ -459,7 +459,7 @@ classdef ortho_proj<aProjectionBase
             % Outputs:
             % q_to_img -- [ndim x ndim] matrix used to transform pixels
             %             in Crystal Cartesian coordinate system to image
-            % coordinate system
+            %             coordinate system
             % shift    -- [1 x ndim] array of the offsets of image coordinates
             %             expressed in Crystal Cartesian coordinate system
             % ulen     -- [1 x ndim] array of scales along the image axes

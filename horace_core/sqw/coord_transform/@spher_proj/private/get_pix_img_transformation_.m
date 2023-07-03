@@ -34,24 +34,21 @@ rot_to_img = obj.pix_to_matlab_transf_;
 offset_hkl = obj.offset(:);
 offset_present = any(abs(offset_hkl)>4*eps("single"));
 
+
 if ndim == 3
-    if offset_present
-        offset_cc   = (obj.bmatrix()*offset_hkl(1:3))';
-    else
-        offset_cc = zeros(1,3);
-    end
-elseif ndim == 4
-    rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
-    if offset_present
-        offset_cc   = (obj.bmatrix(4)*offset_hkl)';
-    else
-        offset_cc = zeros(1,4);
-    end
-else
+    rot_to_img = rot_to_img(1:3,1:3);
+elseif ndim ~= 4
     error('HORACE:spher_proj:invalid_argument', ...
         'ndims can only be 3 and 4. Provided: %s', ...
         disp2str(ndim));
 end
+
+if offset_present
+    offset_cc   = (obj.bmatrix(ndim)*offset_hkl(1:ndim))';
+else
+    offset_cc = zeros(1,ndim);
+end
+
 
 if ~isempty(varargin) && (isa(varargin{1},'PixelDataBase')|| isa(varargin{1},'pix_metadata'))
     pix = varargin{1};

@@ -108,8 +108,8 @@ classdef aProjectionBase < serializable
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
-        alatt_ = []; %unit-sized lattice vector
-        angdeg_= [];
+        alatt_ = []; % holder for lattice parameters
+        angdeg_= []; % holder for lattice angles
         % true if both alatt and angdeg have been correctly set-up
         lattice_defined_= [false,false];
         %------------------------------------

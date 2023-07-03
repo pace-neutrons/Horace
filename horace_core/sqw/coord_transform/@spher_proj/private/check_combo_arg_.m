@@ -33,6 +33,6 @@ end
 e3 = e3/ne3; % should be 1 anyway, just in case to reduce round-off errors
 e2 = cross(e3,uv_norm(:,1));
 
-transf_mat = [uv_norm(:,1),e2/norm(e2),e3];
+transf_mat = [[uv_norm(:,1);0],[e2/norm(e2);0],[e3;0],[0;0;0;1]];
 %TODO:  #954 scientific validation needed
 obj.pix_to_matlab_transf_ = obj.hor2matlab_transf_*transf_mat';
