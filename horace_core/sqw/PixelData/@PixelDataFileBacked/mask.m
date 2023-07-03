@@ -52,7 +52,6 @@ if isempty(obj.file_handle_)
     obj = obj.get_new_handle();
 end
 
-obj.num_pixels_ = numel(keep_array);
 keep_array = logical(keep_array);
 
 mem_chunk_size = obj.default_page_size;
@@ -64,7 +63,7 @@ npix = obj.num_pixels;
 for i = 1:mem_chunk_size:npix
     obj.page_num = page;
     block_size = min(mem_chunk_size,npix-i+1);
-    page_keep = keep_array(i:i+block_size-1);    
+    page_keep = keep_array(i:i+block_size-1);
     data = obj.data(:,page_keep);
 
     block_size= size(data,2);
@@ -77,7 +76,7 @@ for i = 1:mem_chunk_size:npix
     page = page+1;
 end
 
-obj = obj.finalise();
+obj = obj.finalise(sum(keep_array));
 
 end
 
@@ -100,7 +99,6 @@ end
 keep_array = logical(keep_array);
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.default_page_size);
-obj_out.num_pixels_ = sum(npix(:) .* keep_array(:), 'all');
 obj_out.data_range = obj.EMPTY_RANGE;
 
 curr = 1;
@@ -109,7 +107,7 @@ for i = 1:npg
     obj.page_num = i;
     npix_for_page = npix_chunks{i};
     idx = idxs(:, i);
-    pixmask_array_chunk = repelem(keep_array(idx(1):idx(2)), npix_for_page);    
+    pixmask_array_chunk = repelem(keep_array(idx(1):idx(2)), npix_for_page);
 
     data = obj.data(:, pixmask_array_chunk);
 
@@ -125,6 +123,7 @@ for i = 1:npg
     curr = curr + size(data,2);
 end
 
+obj_out.num_pixels_ = sum(npix(:) .* keep_array(:), 'all');
 obj_out = obj_out.finalise();
 
 end

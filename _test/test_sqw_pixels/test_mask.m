@@ -228,6 +228,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             assertEqualToTol(new_sqw.data.img_range, sqw_obj.data.img_range, [0, 1e-7]);
             test_mask.check_filebacked_signal_averages(new_sqw);
         end
+
         function test_mask_works_in_memory(obj)
             masked_2d = mask(obj.sqw_2d, obj.mask_array_2d);
 
@@ -281,7 +282,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             assertEqual(raw_paged_pix, masked_2d.pix.data);
         end
 
-
         function test_mask_random_fraction_removes_perc_of_pix_in_mem(obj)
             sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
 
@@ -294,8 +294,8 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             test_mask.check_filebacked_signal_averages(new_sqw);
 
         end
+
         function test_mask_random_retains_correct_number_of_pix_on_file(obj)
-            skipTest('Re #1081 The test illustrates broken filebacked masking. Should be enabled as part of fixing the ticket')
             sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',true);
             new_pg_size = floor(obj.sqw_2d_num_pixels/6);
             clOb  = set_temporary_config_options(hor_config(), 'mem_chunk_size',new_pg_size);
@@ -308,7 +308,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             test_mask.check_filebacked_signal_averages(new_sqw);
         end
 
-
         function test_mask_random_retains_correct_number_of_pix_in_mem(obj)
             sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
 
@@ -320,14 +319,13 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             test_mask.check_filebacked_signal_averages(new_sqw);
         end
 
-
     end
 
     methods (Static)
         function check_filebacked_signal_averages(sqw_to_check)
             assertEqual(sqw_to_check.pix.num_pixels, sum(sqw_to_check.data.npix(:)));
             ssignal = 0;
-            serror  = 0;            
+            serror  = 0;
             pix = sqw_to_check.pix;
             for i=1:pix.num_pages
                 pix.page_num = i;
@@ -339,15 +337,16 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
             assertEqualToTol(serror, ...
                 sum(sqw_to_check.data.e(:).*sqw_to_check.data.npix(:).^2),'reltol',1.e-7);
-            
+
 
         end
+
         % -- Helpers --
         function [paged_sqw, masked_sqw,clOb] = get_paged_sqw(file_path, mask_array)
 
             paged_sqw = sqw(file_path,'file_backed', true);
             new_pg_size = floor(paged_sqw.pix.num_pixels/6);
-            clOb  = set_temporary_config_options(hor_config(), 'mem_chunk_size',new_pg_size);            
+            clOb  = set_temporary_config_options(hor_config(), 'mem_chunk_size',new_pg_size);
             masked_sqw = mask(paged_sqw, mask_array);
 
             test_mask.check_filebacked_signal_averages(paged_sqw);
