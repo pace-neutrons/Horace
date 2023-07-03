@@ -67,14 +67,16 @@ classdef test_dnd_metadata_data < TestCase
             assertTrue(isa(dnd_obj,'d2d'));
 
             dnd_met = dnd_obj.metadata;
+            dtt = datetime("now");
+
 
             input{1}.label = dnd_obj.label;
             assertEqual(dnd_met.axes,input{1});
             assertEqual(dnd_met.proj,input{2});
-            % save operation saves metadata with current date
+            % save or get_metadata operation generates metadata with current
+            % date  if it has not been defined earlier
             assertTrue(dnd_met.creation_date_defined);
 
-            dtt = datetime("now");
             assertEqual(dnd_met.creation_date_str, ...
                 main_header_cl.convert_datetime_to_str(dtt))
 
