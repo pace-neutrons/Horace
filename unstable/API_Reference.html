@@ -931,14 +931,25 @@ the background function(s). For the format of the fit functions:
 &lt;a href=”matlab:edit(‘example_sqw_flat_mode’);”&gt;Dispersionless excitations&lt;/a&gt;</p>
 <p>See also multifit multifit_sqw</p>
 </div></blockquote>
-<dl class="simple">
-<dt>[Help for legacy use (2017 and earlier):</dt><dd><p>If you are still using the legacy version then it is strongly recommended
-that you change to the new operation. Help for the legacy operation can
-be &lt;a href=”matlab:help(‘sqw/multifit_legacy_sqw_sqw’);”&gt;found here&lt;/a&gt;]</p>
-</dd>
-</dl>
+<blockquote>
+<div><p>method_name = ‘multifit_sqw_sqw’
+mfclass_name = ‘mfclass_Horace_sqw_sqw’
+function_tag = ‘of S(Q,w) ‘</p>
+<p>multifit_doc = fullfile(fileparts(which(‘multifit’)),’_docify’)
+sqw_doc = fullfile(fileparts(which(‘mfclass_Horace’)),’_docify’)</p>
+<p>doc_multifit_header = fullfile(multifit_doc,’doc_multifit_header.m’)
+doc_fit_functions = fullfile(sqw_doc,’doc_multifit_sqw_sqw_fit_functions_for_sqw.m’)</p>
+</div></blockquote>
+<blockquote>
+<div><blockquote>
+<div><p>&lt;#file:&gt;  &lt;doc_fit_functions&gt;</p>
+</div></blockquote>
+<p>See also multifit multifit_sqw</p>
+<p>&lt;#doc_end:&gt;</p>
+</div></blockquote>
 </dd></dl>
 
+<hr class="docutils" />
 <dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.uplus">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">uplus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.uplus" title="Permalink to this definition"></a></dt>
@@ -1203,7 +1214,6 @@ size.]</p>
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">multifit_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.multifit_func" title="Permalink to this definition"></a></dt>
 <dd><p>Simultaneously fit function(s) to one or more sqw objects</p>
 <blockquote>
-<div><blockquote>
 <div><p>&gt;&gt; myobj = multifit_func (w1, w2, …)      % w1, w2 objects or arrays of objects</p>
 </div></blockquote>
 <p>This creates a fitting object of class mfclass_Horace with the provided data,
@@ -1232,13 +1242,6 @@ the number of plot axes for each sqw object. For examples see:
 &lt;a href=”matlab:edit(‘example_2d_function’);”&gt;example_2d_function&lt;/a&gt;
 &lt;a href=”matlab:edit(‘example_3d_function’);”&gt;example_3d_function&lt;/a&gt;</p>
 <p>See also multifit_sqw multifit_sqw_sqw</p>
-</div></blockquote>
-<dl class="simple">
-<dt>[Help for legacy use (2017 and earlier):</dt><dd><p>If you are still using the legacy version then it is strongly recommended
-that you change to the new operation. Help for the legacy operation can
-be &lt;a href=”matlab:help(‘sqw/multifit_legacy_func’);”&gt;found here&lt;/a&gt;]</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="mat function">
@@ -1632,14 +1635,25 @@ axes for each sqw object. For examples see:
 &lt;a href=”matlab:edit(‘example_3d_function’);”&gt;example_3d_function&lt;/a&gt;</p>
 <p>See also multifit multifit_sqw_sqw</p>
 </div></blockquote>
-<dl class="simple">
-<dt>[Help for legacy use (2017 and earlier):</dt><dd><p>If you are still using the legacy version then it is strongly recommended
-that you change to the new operation. Help for the legacy operation can
-be &lt;a href=”matlab:help(‘sqw/multifit_legacy_sqw’);”&gt;found here&lt;/a&gt;]</p>
-</dd>
-</dl>
+<blockquote>
+<div><p>method_name = ‘multifit_sqw’
+mfclass_name = ‘mfclass_Horace_sqw’
+function_tag = ‘of S(Q,w) ‘</p>
+<p>multifit_doc = fullfile(fileparts(which(‘multifit’)),’_docify’)
+sqw_doc = fullfile(fileparts(which(‘mfclass_Horace’)),’_docify’)</p>
+<p>doc_multifit_header = fullfile(multifit_doc,’doc_multifit_header.m’)
+doc_fit_functions = fullfile(sqw_doc,’doc_multifit_sqw_fit_functions_for_sqw.m’)</p>
+</div></blockquote>
+<blockquote>
+<div><blockquote>
+<div><p>&lt;#file:&gt;  &lt;doc_fit_functions&gt;</p>
+</div></blockquote>
+<p>See also multifit multifit_sqw_sqw</p>
+<p>&lt;#doc_end:&gt;</p>
+</div></blockquote>
 </dd></dl>
 
+<hr class="docutils" />
 <dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.acsc">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">acsc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.acsc" title="Permalink to this definition"></a></dt>
@@ -2142,7 +2156,7 @@ of the sqw object(s).</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Jun 30, 2023, 8:04:26 AM.
+      <span class="lastupdated">Last updated on Jul 3, 2023, 2:43:54 PM.
       </span></p>
   </div>
 
