@@ -32,8 +32,6 @@ if nargin==1 || isempty(mask_array)
     return
 end
 
-[wout.data,mask_array] = mask(wout.data,mask_array);
-
 % Section the pix array, if non empty, and update pix_range
 if has_pixels(win)
     if wout.pix.is_filebacked
@@ -41,3 +39,5 @@ if has_pixels(win)
     end
     wout.pix = wout.pix.mask(mask_array, win.data.npix);
 end
+% mask appropriate data
+wout.data = mask(wout.data,mask_array);

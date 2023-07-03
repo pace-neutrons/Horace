@@ -83,6 +83,9 @@ function obj_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
 %
 
 obj_out = obj;
+if obj_out.is_misaligned
+    obj_out.alignment_matr = [];
+end
 
 if isempty(obj_out.file_handle_)
     obj_out = obj_out.get_new_handle();
@@ -100,9 +103,9 @@ for i = 1:npg
     npix_for_page = npix_chunks{i};
     idx = idxs(:, i);
 
-    mask_array_chunk = repelem(mask_array(idx(1):idx(2)), npix_for_page);
+    pixmask_array_chunk = repelem(mask_array(idx(1):idx(2)), npix_for_page);
 
-    data = data(:, mask_array_chunk);
+    data = data(:, pixmask_array_chunk);
 
     obj_out.data_range = obj_out.pix_minmax_ranges(data, ...
         obj_out.data_range);
