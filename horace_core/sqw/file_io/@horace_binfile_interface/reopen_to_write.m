@@ -73,7 +73,7 @@ else
     permissions = 'wb+';
     obj.data_in_file_ = false;
 end
-obj.file_id_ = fopen(fname,permissions);
+obj.file_id_ = fopen(fname,permissions,'l','Windows-1252');
 %
 if obj.file_id_ < 1
     error('HORACE:horace_binfile_interface:runtime_error',...

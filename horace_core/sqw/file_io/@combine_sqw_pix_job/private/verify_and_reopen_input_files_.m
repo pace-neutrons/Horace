@@ -23,7 +23,7 @@ function fid = verify_and_reopen_input_files_(obj)
 %
 % Output:
 % fid            array of handles of files open for read operations.
-% Throws SQW_FILE:runtime_error if files were not opened sucessfully
+% Throws SQW_FILE:runtime_error if files were not opened successfully
 %
 pix_comb_info = obj.pix_combine_info_;
 nfiles = pix_comb_info.nfiles;
@@ -43,7 +43,7 @@ if isnumeric(pix_comb_info.infiles)
 else
     fid=zeros(nfiles,1);
     for i=1:nfiles
-        [fid(i),mess]=fopen(pix_comb_info.infiles{i},'r');
+        [fid(i),mess]=fopen(pix_comb_info.infiles{i},'r','l','Windows-1252');
         if fid(i)<0
             for j=1:i-1; fclose(fid(j)); end    % close all the open input files
             error('SQW_FILE_IO:runtime_error',...

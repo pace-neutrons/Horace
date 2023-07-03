@@ -22,7 +22,7 @@ if ~isempty(obj.file_closer_)
     obj.file_closer_ = [];
 end
 
-obj.file_id_ = fopen(obj.full_filename, permission);
+obj.file_id_ = fopen(obj.full_filename, permission,'l','Windows-1252');
 if obj.file_id_ < 1
     error('HORACE:horace_binfile_interface:runtime_error',...
         'Can not open file %s at location %s',...

@@ -61,7 +61,7 @@ while ntry<=ntry_max
             fid_old = fid;
             fclose(fid);
             pause(pause_time);
-            fid=fopen(flname,mode);
+            fid=fopen(flname,mode,'l','Windows-1252');
             if fid~=fid_old
                 if ~exist('data','var'), data=[]; end
                 if ~exist('count_out','var'), count_out=[]; end
