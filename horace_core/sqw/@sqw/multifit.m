@@ -30,16 +30,10 @@ function varargout = multifit (varargin)
 %
 %
 %
-%[Help for legacy use (2017 and earlier):
-%   If you are still using the legacy version then it is strongly recommended
-%   that you change to the new operation. Help for the legacy operation can
-%   be <a href="matlab:help('sqw/multifit_legacy');">found here</a>]
-
 %-------------------------------------------------------------------------------
 % <#doc_def:>
 %   class_name = 'sqw'
 %   method_name = 'multifit'
-%   method_name_legacy = 'multifit_legacy'
 %   mfclass_name = 'mfclass_Horace'
 %   function_tag = ''
 %
@@ -49,7 +43,6 @@ function varargout = multifit (varargin)
 %
 %   doc_multifit_header = fullfile(multifit_doc,'doc_multifit_header.m')
 %   doc_fit_functions = fullfile(sqw_doc,'doc_multifit_fit_functions_for_sqw.m')
-%   doc_multifit_legacy_footnote = fullfile(multifit_doc,'doc_multifit_legacy_footnote.m')
 %
 %-------------------------------------------------------------------------------
 % <#doc_beg:> multifit
@@ -59,15 +52,10 @@ function varargout = multifit (varargin)
 %
 % See also multifit_sqw multifit_sqw_sqw
 %
-%   <#file:>  <doc_multifit_legacy_footnote>  <class_name>/<method_name_legacy>
 % <#doc_end:>
 %-------------------------------------------------------------------------------
 
+mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
+varargout{1} = mfclass_Horace (varargin{:}, 'sqw', mf_init);
 
-if ~mfclass.legacy(varargin{:})
-    mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
-    
-    varargout{1} = mfclass_Horace (varargin{:}, 'sqw', mf_init);
-else
-    [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy, varargin{:});
 end
