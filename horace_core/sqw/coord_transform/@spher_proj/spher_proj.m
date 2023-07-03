@@ -3,14 +3,14 @@ classdef spher_proj<aProjectionBase
     % to make spherical cuts.
     %
     % TODO: #954 NEEDS verification:
-    % The angular coordinates names and meanings are chosen according
+    % Default angular coordinates names and meanings are chosen according
     % to the conventions of inelastic spectrometry, i.e.:
     % |Q|     -- coordinate 1 is the module of the scattering momentum,
     % theta   -- coordinate 2, the angle between the beam direction (k_i)
     %            and the direction of the Q,
     % phi     -- coordinate 3 is the angle between the projection of the
-    %            scattering vector to the instrument plain (perpendicular
-    %            to k_i) and the crystal rotation plain.
+    %            scattering vector to the instrument plane (perpendicular
+    %            to k_i) and the crystal rotation plane.
     % dE      -- coordinate 4 the energy transfer direction
     %
     %
@@ -23,7 +23,7 @@ classdef spher_proj<aProjectionBase
         % Default direction is [1,0,0]
 
         ex; %[1x3] lattice vector together with z-axis defining the crystal
-        % rotation plain. Matlab names this angle atzimuth and it is phi
+        % rotation plane. Matlab names this angle azimuth and it is phi
         % angle in Horace/Mantid convention
         %
         % if z-axis of spherical coordinate system is directed along the beam
@@ -31,9 +31,10 @@ classdef spher_proj<aProjectionBase
         % used during sqw file generation
         %
         type;  % units of the projection. Default add -- inverse Angstrom, degree, degree
-        %      % possible options: rrr where first r is responsible for rlu
-        %      units and two other -- for radian e.g. 'rdr' or adr are
-        %      allowed combinations of letters
+        %      % possible options: arr where two letters r describe radian
+        %      e.g. adr is  allowed combinations of letters, indicating
+        %      that the phi angle is calculated in radian and theta -- in
+        %      degrees.
         %
     end
     properties(Access=private)
@@ -86,7 +87,10 @@ classdef spher_proj<aProjectionBase
                 if isstruct(varargin{1})
                     obj = serializable.loadobj(varargin{1});
                 else
+                    obj.do_check_combo_arg = false;
                     obj = obj.from_bare_struct(varargin{1});
+                    obj.do_check_combo_arg = true;
+                    obj = obj.check_combo_arg();
                 end
             else
                 opt =  [spher_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
@@ -131,7 +135,7 @@ classdef spher_proj<aProjectionBase
             obj = check_and_set_type_(obj,val);
         end
         function [rot_to_img,offset,theta_to_ang,phi_to_ang,offset_present]=...
-            get_pix_img_transformation(obj,ndim,varargin)
+                get_pix_img_transformation(obj,ndim,varargin)
             % Return the constants and parameters used for transformation
             % from Crystal Cartezian to spherical coordinate system and
             % back
@@ -159,7 +163,7 @@ classdef spher_proj<aProjectionBase
             %     -- depending on the projection type, the constant used to
             %        convert Phi angles in radians to Phi angles in
             %        degrees or vice versa.
-            % offset_present 
+            % offset_present
             %     -- boolean true if any offset is not equal to 0 and false
             %        if all offsets are zero
 
