@@ -72,7 +72,7 @@ switch type.name
     case {'serializable'}
         m = serialize_themselves(v,type);
     otherwise
-        error('MATLAB:hlp_serialize:invalid_argument', 'Cannot serialize type %s.', type.name);
+        error('MATLAB:serialize:invalid_argument', 'Cannot serialize type %s.', type.name);
 end
 end
 
@@ -253,7 +253,7 @@ switch rep.type
         m = [comb_tag; ... Tag
             serialize_cell(rep.parentage, hlp_serial_types.get_details('cell'))]; % Parentage
     otherwise
-        warn_once('hlp_serialize:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
+        warn_once('serialize:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
         m = serialize_string(['<<hlp_serialize: function handle of type ' rep.type ' unsupported>>']);
 end
 end
