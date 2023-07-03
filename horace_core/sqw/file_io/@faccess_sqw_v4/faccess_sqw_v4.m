@@ -191,7 +191,8 @@ classdef faccess_sqw_v4 < binfile_v4_common & sqw_file_interface
         function [obj,missinig_fields] = copy_contents(obj,other_obj,varargin)
             % Copy information, relevant to new file format from the old file format
             [obj,missinig_fields] = copy_contents@binfile_v4_common(obj,other_obj,varargin{:});
-            if ~PixelDataBase.do_filebacked(other_obj.npixels)
+            if ~PixelDataBase.do_filebacked(other_obj.npixels) || ...
+                obj.faccess_version == other_obj.faccess_version
                 return;
             end
             % Fix and freeze the position of the pixels data block
