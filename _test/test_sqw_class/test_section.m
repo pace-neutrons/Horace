@@ -12,7 +12,7 @@ classdef test_section < TestCase
 
 
             assertEqualToTol(test_sec, test_cut);
-            assertTrue(obj.is_bins_subset_of(test_sec.data.axes.p, w.data.axes.p))
+            assertTrue(obj.is_bins_subset_of(test_sec.data.axes.p, w.data.axes.p));
         end
 
         function obj = test_section_collapse_dim(obj)
@@ -24,7 +24,7 @@ classdef test_section < TestCase
 
             assertTrue(obj.is_bins_subset_of(...
                 [{test_sec.data.axes.iint'} test_sec.data.axes.p], ...
-                w.data.axes.p))
+                w.data.axes.p));
         end
 
         function obj = test_section_sqw_array(obj)
