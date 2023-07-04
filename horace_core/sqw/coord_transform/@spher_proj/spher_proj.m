@@ -3,51 +3,55 @@ classdef spher_proj<aProjectionBase
     % to make spherical cuts.
     %
     % TODO: #954 NEEDS verification:
-    % The angular coordinates names and meanings are chosen according
+    % Default angular coordinates names and meanings are chosen according
     % to the conventions of inelastic spectrometry, i.e.:
     % |Q|     -- coordinate 1 is the module of the scattering momentum,
     % theta   -- coordinate 2, the angle between the beam direction (k_i)
     %            and the direction of the Q,
     % phi     -- coordinate 3 is the angle between the projection of the
-    %            scattering vector to the instrument plain (perpendicular
-    %            to k_i) and the crystal rotation plain.
+    %            scattering vector to the instrument plane (perpendicular
+    %            to k_i) and the crystal rotation plane.
     % dE      -- coordinate 4 the energy transfer direction
     %
     %
     properties(Dependent)
-        ez; %[1x3] Unit vector of Z axis in spherical coordinate system
-        % where the elevation angle (MATLAB convention) is counted from.
-        % In Horace/Mantid convention this angle is named pi/2-theta.
-        % Default direction [0,0,1] is a beam direction for this coordinate system.
-        %
-        ey; %[1x3] unit vector of axis in spherical coordinate system
-        % where the theta angle is counted from. The direction coincides
-        % with the crystal rotation axis here.
+        ez;  % [1x3] unit vector specifying crystallographic direction of
+        % spherical coordinates Z-axis within the reciprocal lattice.
+        % Z-axis of spherical coordinate system is the axis where the
+        % elevation angle (MATLAB convention) is counted from.
+        % In Horace/Mantid convention this angle is named theta = pi/2-elevation.
+        % Default direction is [1,0,0]
 
+        ex; %[1x3] lattice vector together with z-axis defining the crystal
+        % rotation plane. Matlab names this angle azimuth and it is phi
+        % angle in Horace/Mantid convention
+        %
+        % if z-axis of spherical coordinate system is directed along the beam
+        % ez,ex vectors of spherical projection coincide with u,v vectors
+        % used during sqw file generation
         %
         type;  % units of the projection. Default add -- inverse Angstrom, degree, degree
-        %      % possible options: rrr where first r is responsible for rlu
-        %      units and two other -- for radian e.g. 'rdr' or adr are
-        %      allowed combinations of letters
+        %      % possible options: arr where two letters r describe radian
+        %      e.g. adr is  allowed combinations of letters, indicating
+        %      that the phi angle is calculated in radian and theta -- in
+        %      degrees.
         %
     end
     properties(Access=private)
         %
-        ez_ = [0,0,1]
-        ey_ = [0,1,0]
+        ez_ = [1,0,0]
+        ex_ = [0,1,0]
         %
         type_ = 'add' % A^{-1}, degree, degree
         %------------------------------------
         % For the future. See if we want spherical projection in hkl,
         % non-orthogonal
         %orhtonormal_ = true;
-        hor2matlab_transf_ = ...
-            [0,0,1;... % The transformation from
-            1 ,0,0;... % Horace pixel coordinate system to the axes above to
-            0 ,1,0];   % allow to use MATLAB sph2cart/cart2sph functions. 
-        % the matrix arranged in rows, as multipled by 3xNpix matrix of
-        % Q-coordinates
-
+        hor2matlab_transf_ = [...
+            0, 1, 0, 0;... % The transformation from
+            0, 0, 1, 0;... % Horace pixel coordinate system to the axes coordinates
+            1, 0, 0, 0;... % to allow using MATLAB sph2cart/cart2sph functions.
+            0, 0, 0, 1];
 
         pix_to_matlab_transf_ ; % the transformation used for conversion
         % from pix coordinate system to spherical coordinate system
@@ -76,6 +80,7 @@ classdef spher_proj<aProjectionBase
             % projection class.
             %
             if nargin == 1
+                obj = obj.check_combo_arg();
                 return
             end
             nargi = numel(varargin);
@@ -83,7 +88,10 @@ classdef spher_proj<aProjectionBase
                 if isstruct(varargin{1})
                     obj = serializable.loadobj(varargin{1});
                 else
+                    obj.do_check_combo_arg = false;
                     obj = obj.from_bare_struct(varargin{1});
+                    obj.do_check_combo_arg = true;
+                    obj = obj.check_combo_arg();
                 end
             else
                 opt =  [spher_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
@@ -103,30 +111,19 @@ classdef spher_proj<aProjectionBase
         end
         function obj = set.ez(obj,val)
             val = aProjectionBase.check_and_brush3vector(val);
-            if any(val ~= [0,0,1])
-                warning('HORACE:spher_proj:not_implemented', ...
-                    'changes in beam-axis direction is not yet implemented')
-                val = [0,0,1];
-            end
-
             obj.ez_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
         %
-        function u = get.ey(obj)
-            u = obj.ey_;
+        function u = get.ex(obj)
+            u = obj.ex_;
         end
-        function obj = set.ey(obj,val)
+        function obj = set.ex(obj,val)
             val = aProjectionBase.check_and_brush3vector(val);
-            if any(val ~= [0,1,0])
-                warning('HORACE:spher_proj:not_implemented', ...
-                    'changes in rotation-axis direction is not yet implemented')
-                val = [0,1,0];
-            end
-            
-            obj.ey_ = val;
+
+            obj.ex_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -138,7 +135,8 @@ classdef spher_proj<aProjectionBase
         function obj = set.type(obj,val)
             obj = check_and_set_type_(obj,val);
         end
-        function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation(obj,ndim,varargin)
+        function [rot_to_img,offset,theta_to_ang,phi_to_ang,offset_present]=...
+                get_pix_img_transformation(obj,ndim,varargin)
             % Return the constants and parameters used for transformation
             % from Crystal Cartezian to spherical coordinate system and
             % back
@@ -166,10 +164,13 @@ classdef spher_proj<aProjectionBase
             %     -- depending on the projection type, the constant used to
             %        convert Phi angles in radians to Phi angles in
             %        degrees or vice versa.
+            % offset_present
+            %     -- boolean true if any offset is not equal to 0 and false
+            %        if all offsets are zero
 
             %
-            % TODO: #954 NEEDS verification:
-            [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_(obj,ndim,varargin{:});
+            [rot_to_img,offset,theta_to_ang,phi_to_ang,offset_present] = ...
+                get_pix_img_transformation_(obj,ndim,varargin{:});
 
         end
         %------------------------------------------------------------------
@@ -180,7 +181,7 @@ classdef spher_proj<aProjectionBase
             ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
             ax_bl.angular_unit_is_rad = obj.type(2:3);
             %
-            %ax_bl.ulen  = [1,1,1,1]; ??? Usage not yet clear TODO: #954.
+            ax_bl.ulen  = [1,1,1,1];
         end
 
 
@@ -214,6 +215,9 @@ classdef spher_proj<aProjectionBase
     %=====================================================================
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
+    properties(Constant, Access=private)
+        fields_to_save_ = {'ez','ex','type'}
+    end
     methods
         % check interdependent projection arguments
         function obj = check_combo_arg (obj)
@@ -230,7 +234,7 @@ classdef spher_proj<aProjectionBase
             % successful
             %
             obj = check_combo_arg_(obj);
-            obj = check_combo_arg@aProjectionBase(obj);            
+            obj = check_combo_arg@aProjectionBase(obj);
         end
         %------------------------------------------------------------------
         function ver  = classVersion(~)
@@ -240,9 +244,6 @@ classdef spher_proj<aProjectionBase
             flds = saveableFields@aProjectionBase(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
-    end
-    properties(Constant, Access=private)
-        fields_to_save_ = {'ez','ey','type'}
     end
     methods(Static)
         function obj = loadobj(S)

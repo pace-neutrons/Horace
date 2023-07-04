@@ -10,7 +10,7 @@ function pix_cc = transform_spher_to_pix_(obj,pix_data)
 %           system
 
 ndim = size(pix_data,1);
-[rot_to_img,offset,theta_to_ang,phi_to_ang]=obj.get_pix_img_transformation(ndim);
+[rot_to_img,offset,theta_to_ang,phi_to_ang,offset_present]=obj.get_pix_img_transformation(ndim);
 
 %Original arrangement :  pix_transf = [r; pi/2-elevation; azimuth];
 %Requested arrangement:  [x,y,z] = sph2cart(azimuth,elevation,r);
@@ -18,9 +18,15 @@ ndim = size(pix_data,1);
 
 %
 if ndim == 3
-    pix_cc= (bsxfun(@plus,[x;y;z]'/rot_to_img,offset))';
+    if offset_present
+        pix_cc= bsxfun(@plus,rot_to_img\[x;y;z],offset(:));
+    else
+        pix_cc= rot_to_img\[x;y;z];
+    end
 else
-    pix_cc= (bsxfun(@plus,[x;y;z;pix_data(4,:)]'/rot_to_img,offset))';    
+    if offset_present
+        pix_cc= bsxfun(@plus,rot_to_img\[x;y;z;pix_data(4,:)],offset(:));
+    else
+        pix_cc= rot_to_img\[x;y;z;pix_data(4,:)];
+    end
 end
-
-
