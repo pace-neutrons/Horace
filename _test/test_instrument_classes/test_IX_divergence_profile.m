@@ -40,8 +40,8 @@ classdef test_IX_divergence_profile < TestCaseWithSave
 
         %--------------------------------------------------------------------------
         function test_3 (self)
-            ws = warning('off','HERBERT:IX_divergence_profile:deprecated');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:IX_divergence_profile:deprecated');
+
             div = IX_divergence_profile ('in-pile',self.ang, self.y);
             %             [~,mess_id] = lastwarn();
             %             assertEqual(mess_id,'HERBERT:IX_divergence_profile:deprecated');
@@ -125,4 +125,3 @@ classdef test_IX_divergence_profile < TestCaseWithSave
 
     end
 end
-

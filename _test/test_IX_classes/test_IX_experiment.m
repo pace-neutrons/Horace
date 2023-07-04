@@ -62,8 +62,7 @@ classdef test_IX_experiment <  TestCase
             assertEqual(exp,exp_rec);
 
             % TODO: temporary, until IX_experiment is propertly build class
-            ws = warning('off','MATLAB:structOnObject');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','MATLAB:structOnObject');
             assertEqual(struct(exp),struct(exp_rec));
         end
 
@@ -83,9 +82,9 @@ classdef test_IX_experiment <  TestCase
             assertEqual(angdeg,[90,90,90]);
             assertEqual(exp,exp_rec);
 
-            ws = warning('off','MATLAB:structOnObject');
-            clOb = onCleanup(@()warning(ws));
+
             % TODO: temporary, until IX_experiment is propertly build class
+            clOb = set_temporary_warning('off','MATLAB:structOnObject');
             assertEqual(struct(exp),struct(exp_rec));
         end
 
@@ -165,4 +164,3 @@ classdef test_IX_experiment <  TestCase
         end
     end
 end
-

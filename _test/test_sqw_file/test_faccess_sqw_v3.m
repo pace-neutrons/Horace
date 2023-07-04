@@ -54,12 +54,8 @@ classdef test_faccess_sqw_v3< TestCase
 
         end
         function obj = test_save_load_sqwV31_crossbuf(obj)
-            hc    = hor_config;
-            mchs  = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
-            ws = warning('off','HORACE:old_file_format');
-            clObW = onCleanup(@()warning(ws));
+            clob1 = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+            clObW = set_temporary_warning('off','HORACE:old_file_format');
 
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3_1.sqw');
@@ -200,8 +196,7 @@ classdef test_faccess_sqw_v3< TestCase
         function test_save_sqw2to3(obj)
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3.sqw');
-            warning('off','SQW_FILE_IO:legacy_data');
-            clob0 = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
+            clob0 = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             so = faccess_sqw_v2(samp_f);
             sqw_ob = so.get_sqw();

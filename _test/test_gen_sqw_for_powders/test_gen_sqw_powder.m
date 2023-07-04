@@ -33,10 +33,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             pths = horace_paths;
             common_data_dir = pths.test_common;
 
-            hcfg=hor_config();
-            current = hcfg.use_mex;
-            clob = onCleanup(@()set(hcfg,'use_mex',current));
-            hcfg.use_mex = false;
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
 
             % Create sqw file:
             en = 0:1:90;

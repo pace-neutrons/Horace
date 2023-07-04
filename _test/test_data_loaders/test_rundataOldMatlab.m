@@ -4,10 +4,7 @@ function  test_rundataOldMatlab()
 %run=rundata();
 pths = horace_paths;
 
-
-log_level = get(hor_config,'log_level');
-set(hor_config,'log_level',-1,'-buffer');
-cleanupObj = onCleanup(@() set(hor_config,'log_level',log_level,'-buffer'));
+cleanupObj = set_temporary_config_options(hor_config, 'log_level', -1);
 
 run=rundata(fullfile(pths.test_common,'MAP10001.spe'),fullfile(pths.test_common,'demo_par.PAR'));
 run.efix = 200;

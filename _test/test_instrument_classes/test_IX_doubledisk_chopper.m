@@ -43,8 +43,7 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
 
         %--------------------------------------------------------------------------
         function test_constructor_with_positional_names (self)
-            ws = warning('off','HERBERT:IX_doubledisk_chopper:deprecated');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:IX_doubledisk_chopper:deprecated');
             chop = IX_doubledisk_chopper ('Chopper_1',12,120,0.7,0.02,0.05);
             %
             %             [~,mess_id] = lastwarn();
@@ -58,8 +57,7 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
 
         %--------------------------------------------------------------------------
         function test_constructor_with_key_val (self)
-            ws = warning('off','HORACE:serializable:deprecated');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HORACE:serializable:deprecated');
 
             chop = IX_doubledisk_chopper (12,120,0.7,0.02,0.05,...
                 '-name','Chopper_1','-aperture_h',0.2);
@@ -128,4 +126,3 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
 
     end
 end
-
