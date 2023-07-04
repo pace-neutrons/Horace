@@ -31,10 +31,9 @@ function obj = set_bbind (obj,varargin)
 isfore = false;
 
 % Clear all bindings first
-[ok, mess, obj] = clear_bind_private_ (obj, isfore, {'all'});
-if ~ok, error(mess), end
+obj = clear_bind_private_ (obj, isfore, {'all'});
 
 % Add new bindings
-[ok, mess, obj] = add_bind_private_ (obj, isfore, varargin);
-if ~ok, error(mess), end
+obj = add_bind_private_ (obj, isfore, varargin);
 
+end

@@ -40,10 +40,7 @@ function [Sfun, cleared] = pin_alter (Sfun_in, isfore, indfun, pin, np)
 % It is assumed that the input is consistent with the information in Sfun_in
 % i.e. the number of parameters for each function, the number of functions etc.
 
-
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Fill output with default structure
@@ -62,16 +59,15 @@ end
 % Replace arrays, clearing the free/fixed status where the number of
 % parameters has changed
 if isfore
-    clear = (np~=Sfun.np_(indfun));
+    to_clear = np~=Sfun.np_(indfun);
     Sfun.pin_(indfun) = pin;
     Sfun.np_(indfun) = np;
-    Sfun.free_(indfun(clear)) = mat2cell(true(1,sum(np(clear))),1,np(clear));
+    Sfun.free_(indfun(to_clear)) = mat2cell(true(1,sum(np(to_clear))),1,np(to_clear));
 else
-    clear = (np~=Sfun.nbp_(indfun));
+    to_clear = np~=Sfun.nbp_(indfun);
     Sfun.bpin_(indfun) = pin;
     Sfun.nbp_(indfun) = np;
-    Sfun.bfree_(indfun(clear)) = mat2cell(true(1,sum(np(clear))),1,np(clear));
+    Sfun.bfree_(indfun(to_clear)) = mat2cell(true(1,sum(np(to_clear))),1,np(to_clear));
 end
 
-cleared = clear;
-
+cleared = to_clear;

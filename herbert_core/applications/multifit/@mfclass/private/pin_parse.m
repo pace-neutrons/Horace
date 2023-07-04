@@ -1,7 +1,7 @@
-function [ok,mess,pin,np]=pin_parse(pin_in,fun)
+function [pin, np]=pin_parse(pin_in, fun)
 % Check if form of parameter object is a valid parameter list for given functions
 %
-%   >> [ok,mess,np,pin]=pin_parse(pin_in,fun)
+%   >> [np, pin]=pin_parse(pin_in, fun)
 %
 % Input:
 % ------
@@ -25,8 +25,6 @@ function [ok,mess,pin,np]=pin_parse(pin_in,fun)
 %
 % Output:
 % -------
-%   ok          Status flag: =true if pin_in is valid; false otherwise
-%   mess        Error message: ='' if OK, contains error message if not OK
 %   pin         Array of valid parameter lists, one list per function. size(pin)==size(fun)
 %              (constructed from pin_in according to description below)
 %   np          Array of the number of parameters in the root numeric array for each function
@@ -37,57 +35,52 @@ function [ok,mess,pin,np]=pin_parse(pin_in,fun)
 % EXAMPLES of pin_in:
 % ---------------------
 %   If just one function (i.e. fun is scalar):
-%      [10,2]
-%     {[10,2],'filter',true}
-%    {{[10,2],'filter',true}}   % valid, but perhaps not what you might expect:
+%      [10, 2]
+%     {[10, 2], 'filter', true}
+%    {{[10, 2], 'filter', true}}   % valid, but perhaps not what you might expect:
 %                               % pin will have a single, non-numeric argument
-%                               % which is: {[10,2],'filter',true}
+%                               % which is: {[10, 2], 'filter', true}
 %
 %   If two functions:
-%      [10,5,2]                 % will apply to both functions
-%     {[10,5,2]}                % equivalent alternative syntax
-%     {[10,2],[15,3]}           % different parameters for each function
-%     {[10,2],'filter',true}    % *** NOT VALID: not a single parameter list
+%      [10, 5, 2]                 % will apply to both functions
+%     {[10, 5, 2]}                % equivalent alternative syntax
+%     {[10, 2], [15, 3]}           % different parameters for each function
+%     {[10, 2], 'filter', true}    % *** NOT VALID: not a single parameter list
 %                                (interpreted as three parameter lists, the first
-%                                 [10,2], the second 'filter', the third true)
-%     {{[10,2],'filter',true}}  % valid: now a single parameter list
+%                                 [10, 2], the second 'filter', the third true)
+%     {{[10, 2], 'filter', true}}  % valid: now a single parameter list
 %                               % and will apply to both functions
-%     {{[10,2],'filter',true},{[15,3],'hat',false}}  % different parameters for each function
+%     {{[10, 2], 'filter', true}, {[15, 3], 'hat', false}}  % different parameters for each function
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
+if ~isa(pin_in, 'mfclass_plist')
 
-ok=true;
-mess='';
-
-if ~isa(pin_in,'mfclass_plist')
-    if numel(fun)==0
+    switch numel(fun)
+      case 0
         % No functions, so only valid input is empty
-        if isempty(pin_in)
-            pin = repmat(mfclass_plist(),size(fun));
-        else
-            ok = false;
-            pin = repmat(mfclass_plist(),size(fun));
-            mess = 'There are no function handles or place holders, but parameters have been provided.';
+        if ~isempty(pin_in)
+            error('HERBERT:pin_parse:invalid_argument', ...
+                  'There are no function handles or place holders, but parameters have been provided.');
         end
-        
-    elseif numel(fun)==1
+
+        pin = repmat(mfclass_plist(), size(fun));
+      case 1
         % Single function
         % If the argument is a cell array containing a single cell array, assume that the
         % inner cell array is the argument; otherwise, assume that a single parameter list has
         % been given
         if iscell(pin_in) && isscalar(pin_in) && iscell(pin_in{1})
+
             if ~isempty(fun{1})
                 pin = mfclass_plist(pin_in{1});
             elseif isempty(pin_in{1})
                 pin = mfclass_plist();
+
             else
-                ok=false;
-                pin = repmat(mfclass_plist(),size(fun));
-                mess='A function has not been given, but parameters have been provided for it';
+                error('HERBERT:pin_parse:invalid_argument', ...
+                      'A function has not been given, but parameters have been provided for it');
             end
         else
             if ~isempty(fun{1})
@@ -95,78 +88,84 @@ if ~isa(pin_in,'mfclass_plist')
             elseif isempty(pin_in)
                 pin = mfclass_plist();
             else
-                ok=false;
-                pin = repmat(mfclass_plist(),size(fun));
-                mess='A function has not been given, but parameters have been provided for it';
+                error('HERBERT:pin_parse:invalid_argument', ...
+                      'A function has not been given, but parameters have been provided for it');
             end
         end
-        
-    else
+
+      otherwise
+
         % Multiple functions
         % If the argument is a cell array with the same size as the array of
         % function handles, then assume that a cell array of parameter lists
         % has been provided.
         % Otherwise assume that a single parameter list has been given.
-        if iscell(pin_in) && isequal(size(pin_in),size(fun))
-            pin = repmat(mfclass_plist(),size(fun));
+        if iscell(pin_in) && isequal(size(pin_in), size(fun))
+            pin = repmat(mfclass_plist(), size(fun));
             for i=1:numel(pin)
-                if ~isempty(fun{i})
-                    pin(i) = mfclass_plist(pin_in{i});
-                elseif ~isempty(pin_in{i})
-                    ok=false;
-                    pin = repmat(mfclass_plist(),size(fun));
-                    mess=['function ',arraystr(size(fun),i),...
-                        ' has not been given, but parameters have been provided for it'];
-                    break
+
+                if isempty(fun{i}) && ~isempty(pin_in{i})
+                    error('HERBERT:pin_parse:invalid_argument', ...
+                          'function %s has not been given, but parameters have been provided for it', ...
+                          arraystr(size(fun), i));
                 end
+
+                if isempty(fun{i})
+                    continue
+                end
+
+                pin(i) = mfclass_plist(pin_in{i});
             end
+
         elseif iscell(pin_in) && isscalar(pin_in) && iscell(pin_in{1})
             pin = repmat(mfclass_plist(pin_in{1}), size(fun));
-            empty_fun = cellfun(@(x)isempty(x), fun);
-            if any(empty_fun(:))
-                if isempty(pin_in{1})
-                    pin(empty_fun) = mfclass_plist();
-                else
-                    ok=false;
-                    pin = repmat(mfclass_plist(),size(fun));
-                    mess=['function ',arraystr(size(fun),find(empty_fun,1)),...
-                        ' has not been given, but parameters have been provided for it'];
+            empty_fun = cellfun(@isempty, fun);
+            if any(empty_fun, 'all')
+
+                if ~isempty(pin_in{1})
+                    error('HERBERT:pin_parse:invalid_argument', ...
+                          'function %s has not been given, but parameters have been provided for it', ...
+                          arraystr(size(fun), find(empty_fun, 1)));
                 end
+
+                pin(empty_fun) = mfclass_plist();
             end
         else
             pin = repmat(mfclass_plist(pin_in), size(fun));
-            empty_fun = cellfun(@(x)isempty(x), fun);
-            if any(empty_fun(:))
-                if isempty(pin_in)
-                    pin(empty_fun) = mfclass_plist();
-                else
-                    ok=false;
-                    pin = repmat(mfclass_plist(),size(fun));
-                    mess=['function ',arraystr(size(fun),find(empty_fun,1)),...
-                        ' has not been given, but parameters have been provided for it'];
+            empty_fun = cellfun(@isempty, fun);
+
+            if any(empty_fun, 'all')
+                if ~isempty(pin_in(empty_fun))
+                    error('HERBERT:pin_parse:invalid_argument', ...
+                          'function %s has not been given, but parameters have been provided for it', ...
+                          arraystr(size(fun), find(empty_fun, 1)));
                 end
+
+                pin(empty_fun) = mfclass_plist();
             end
         end
     end
 else
     % Array of mfclass_plist
     if numel(fun)==0
-        % Only valid input is empty array
-        pin = repmat(mfclass_plist(),size(fun));
+
         if ~isempty(pin_in)
-            ok = false;
-            mess = 'There are no function handles or place holders, but parameters have been provided.';
+            error('HERBERT:pin_parse:invalid_argument', ...
+                  'There are no function handles or place holders, but parameters have been provided.');
         end
+
+        % Only valid input is empty array
+        pin = repmat(mfclass_plist(), size(fun));
+
+    elseif numel(pin_in)==numel(fun)
+        pin = reshape(pin_in, size(fun));
+
+    elseif isscalar(pin_in)
+        pin = repmat(pin_in, size(fun));
+
     else
-        if numel(pin_in)==numel(fun)
-            pin = reshape(pin_in,size(fun));
-        elseif isscalar(pin_in)
-            pin = repmat(pin_in,size(fun));
-        else
-            ok = false;
-            pin = repmat(mfclass_plist(),size(fun));
-            mess = 'Number of elements in parameter list object array does not match the number of functions';
-        end
+        error('HERBERT:pin_parse:invalid_argument', ...
+              'Number of elements in parameter list object array does not match the number of functions');
     end
 end
 
@@ -176,3 +175,4 @@ for i=1:numel(fun)
     np(i)=pin(i).np;
 end
 
+end
