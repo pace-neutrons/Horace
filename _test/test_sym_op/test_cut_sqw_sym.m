@@ -94,24 +94,24 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                         obj.vbin2, obj.wbin2, obj.ebin2, ...
                         {SymopIdentity(), id});
 
-            assertEqualToTol(w1sym.data.s, w2sym.data.s, 'ignore_str', 1);
+            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1);
         end
 
         function test_cut_sym_reflect_half_to_whole_cut(obj)
-            op = SymopReflection([0 1 0], [0 0 1], [0 0 0]);
+            op = SymopReflection([0 0 1], [0 1 0], [0 0 0]);
 
-            wtmp = symmetrise_sqw(obj.data2, [0 1 0], [0 0 1], [0 0 0]);
+            wtmp = symmetrise_sqw(obj.data2, op);
             wtmp.pix = PixelDataMemory(wtmp.pix);
-            ubin_half = [0 0.05 0.5];
+            ubin_half = [-0.5 0.05 0];
 
-            w1sym = cut(wtmp, obj.proj2, obj.ubin_half, ...
+            w1sym = cut(wtmp, obj.proj2, ubin_half, ...
                         obj.vbin2, obj.wbin2, obj.ebin2);
 
             w2sym = cut(obj.data2, obj.proj2, ubin_half, ...
                         obj.vbin2, obj.wbin2, obj.ebin2, ...
                         {SymopIdentity(), op});
 
-            assertEqualToTol(w1sym.data.s, w2sym.data.s, 'ignore_str', 1);
+            assertEqualToTol(w1sym.data, w2sym.data, 'ignore_str', 1);
 
         end
 
