@@ -274,7 +274,7 @@ classdef test_unique_objects < TestCase
             uoc = unique_objects_container();
             uoc = uoc.add(obj.mi1);
             uoc = uoc.add(mi2);
-            voc = unique_objects_container('convert_to_stream_f',@hlp_serialise);
+            voc = unique_objects_container('convert_to_stream_f',@hlp_serialize);
             voc = voc.add(obj.mi1);
             voc = voc.add(mi2);
             ie = isequal( voc.stored_hashes(1,:), uoc.stored_hashes(1,:) );
@@ -315,7 +315,7 @@ classdef test_unique_objects < TestCase
             ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
             clOb = onCleanup(@()warning(ws));
 
-            uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialise);
+            uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialize);
 
             uoc = uoc.add(obj.mi1);
             uoc = uoc.add(obj.nul_sm1);
@@ -355,7 +355,7 @@ classdef test_unique_objects < TestCase
             ws = warning('off','HERBERT:unique_objects_container:invalid_argument');
             clOb = onCleanup(@()warning(ws));
 
-            uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialise);
+            uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialize);
             uoc{1} = obj.mi1;
             uoc{2} = obj.nul_sm1;
             [~,lw] = lastwarn;
@@ -374,7 +374,7 @@ classdef test_unique_objects < TestCase
             % additional tests for other subscript functions
             % NB horrible syntax but way to put assignments in anonymous
             % functions is worse! Replacements for assertExceptionThrown
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialise,'baseclass','IX_inst');
+            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
             function set_uoc()
                 uoc{2} = obj.mi1;
             end
@@ -382,7 +382,7 @@ classdef test_unique_objects < TestCase
             assertEqual(ex.message,'index outside legal range')
         end
         function test_subscripting_type_hlp_ser_wrong_subscript_minus(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialise,'baseclass','IX_inst');
+            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
             function set_uoc()
                 uoc{-1} = obj.mi1;
             end
@@ -403,7 +403,7 @@ classdef test_unique_objects < TestCase
 
         end
         function test_instr_replacement_with_duplicates_round(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialise,'baseclass','IX_inst');
+            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
             uoc(1) = obj.mi1;
             uoc(2) = IX_null_inst();
             assertEqual( uoc.n_duplicates,[1,1]);
@@ -425,7 +425,7 @@ classdef test_unique_objects < TestCase
         end
 
         function test_instr_replacement_with_duplicates_curly(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialise,'baseclass','IX_inst');
+            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
             uoc{1} = obj.mi1;
             uoc{2} = IX_null_inst();
             assertEqual( uoc.n_duplicates,[1,1]);

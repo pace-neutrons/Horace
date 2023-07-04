@@ -184,7 +184,6 @@ classdef test_serialize < TestCaseWithSave
         end
 
         function test_ser_datamessage_array(~)
-            skipTest('Old serialiser does not support serialising object arrays')
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                 'dee',struct('a',10),'ei',int32([9;8;7]));
             test_obj = [DataMessage(my_struc), DataMessage(10), DataMessage('Hello')];

@@ -10,7 +10,7 @@ end
 %
 out_struct = run.saveobj();
 %
-v = serialise(out_struct);
+v = serialize(out_struct);
 
 szv = uint64(numel(v));
 szvb = typecast(szv,'uint8')';

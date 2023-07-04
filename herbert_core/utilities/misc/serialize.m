@@ -1,11 +1,11 @@
-function ser = serialise(a)
+function ser = serialize(a)
 %Wrapper to handle mex/nomex
 [use_mex,fm] = config_store.instance().get_value('hor_config',...
     'use_mex','force_mex_if_use_mex');
 
 if use_mex
     try
-        ser = c_serialise(a);
+        ser = c_serialize(a);
         return
     catch ME
         if fm
@@ -21,4 +21,4 @@ if use_mex
     end
 end
 
-ser = hlp_serialise(a);
+ser = hlp_serialize(a);

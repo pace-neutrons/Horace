@@ -366,7 +366,7 @@ classdef test_faccess_sqw_v4< TestCase
         end
 
         %
-        function test_serialize_deserialise_faccess(obj)
+        function test_serialize_deserialize_faccess(obj)
             fo = faccess_sqw_v4();
             fo = fo.init(obj.sample_file);
 
@@ -376,7 +376,7 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqual(fo,fr);
         end
         %
-        function test_serialize_deserialise_empty_faccess(~)
+        function test_serialize_deserialize_empty_faccess(~)
             fo = faccess_sqw_v4();
 
             bys = fo.to_struct();

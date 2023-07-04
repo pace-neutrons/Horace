@@ -146,7 +146,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertTrue(isa(ldrs{1},'faccess_sqw_v2'));
             assertTrue(isa(ldrs{2},'faccess_sqw_v3'));
         end
-        function test_serialize_deserialise_emtpy_accessors(~)
+        function test_serialize_deserialize_emtpy_accessors(~)
 
             ldrs = sqw_formats_factory.instance().supported_accessors;
             for i=1:numel(ldrs)
@@ -160,4 +160,3 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
     end
 
 end
-

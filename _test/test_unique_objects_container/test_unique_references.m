@@ -346,7 +346,7 @@ function test_replace_unique_same_number_works(~)
             urc(1) = 'aaaaa';
             urc(2) = 'bbbb';
             urc(3) = 'bbbb';
-            
+
             uoc2 = unique_objects_container('baseclass','char');
             uoc2(1) = 'dd';
             uoc2(2) = 'cc';
@@ -508,7 +508,7 @@ function test_replace_unique_same_number_works(~)
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
             urc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS','IX_inst_DGfermi');
             glc = urc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS');
-            glc.convert_to_stream_f = @hlp_serialise;
+            glc.convert_to_stream_f = @hlp_serialize;
             urc.global_container('reset','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS',glc);
 
             mi2 = merlin_instrument(190, 700, 'g');
@@ -519,7 +519,7 @@ function test_replace_unique_same_number_works(~)
             unique_references_container.global_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2');
             vrc = unique_references_container('GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2','IX_inst_DGfermi');
             hlc = vrc.global_container('value','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_MERLINS2');
-            %hlc.convert_to_stream_f = @hlp_serialise;
+            %hlc.convert_to_stream_f = @hlp_serialize;
 
             vrc = vrc.add(obj.mi1);
             vrc = vrc.add(mi2);
