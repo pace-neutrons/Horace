@@ -54,7 +54,7 @@ right_type = arrayfun(@(x)has_pixels(x),inputs);
 if ~all(right_type)
     n_empty = numel(right_type)-sum(right_type);
     error('HORACE:combine_sqw:invalid_argument',...
-        'Input objects must be sqw type with detector pixel information. Input contans %d objects without pixels',...
+        'Input objects must be sqw type with detector pixel information. Input contains %d objects without pixels',...
         n_empty);
 end
 % Ignore empty datasets
@@ -125,6 +125,7 @@ end
 wout = copy(inputs(1));
 pix = arrayfun(@(x) x.pix, inputs, 'UniformOutput', false);
 
+% TODO: Re #1032 This is very inefficient and needs checks
 if wout.pix.is_filebacked
     [wout, ldr] = wout.get_new_handle();
     wout.pix = wout.pix.cat(pix{:}, ldr);

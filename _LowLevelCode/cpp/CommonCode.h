@@ -23,7 +23,7 @@ inline void omp_set_num_threads(int nThreads) {};
 #endif
 
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 extern "C" bool utIsInterruptPending();
 extern "C" bool ioFlush(void);
 #else
@@ -85,7 +85,7 @@ T getMatlabScalar(const mxArray* pPar, const char* const fieldName) {
     if (mxGetM(pPar) != 1 || mxGetN(pPar) != 1) {
         std::stringstream buf;
         buf << " The input variable: " << *fieldName << " has to be a scalar\n";
-        mexErrMsgIdAndTxt("HORACE:getMatlabScalar_mex:invalid_argument", 
+        mexErrMsgIdAndTxt("HORACE:getMatlabScalar_mex:invalid_argument",
             buf.str().c_str());
     }
     return static_cast<T>(*mxGetPr(pPar));
@@ -146,7 +146,7 @@ public:
                     se_vec_stor.assign(new_data_size, 0.);
                     largeMemory = &se_vec_stor[0];
                 }
-                catch (...) // no space on stack try heap, 
+                catch (...) // no space on stack try heap,
                 {
                     largeMemory = (double*)mxCalloc(new_data_size, sizeof(double));
                     if (!largeMemory)throw("Can not allocate memory for processing data on threads. Decrease number of threads");
@@ -214,4 +214,3 @@ private:
     double* largeMemory;
 
 };
-

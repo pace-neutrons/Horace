@@ -22,17 +22,17 @@ end
 
 % Use set_instrument &/or set_sample on object
 tmp=w;
+
 if ~no_inst, tmp=set_instrument(tmp,inst); end
 if ~no_samp, tmp=set_sample(tmp,samp); end
-[ok,mess]=equal_to_tol(wnew,tmp);
-if ~ok, assertTrue(false,mess), end
+assertEqualToTol(wnew, tmp, '-ignore_date');
 
 % Save to file and set object
 save(w,tmpsqwfile);
 if ~no_inst, set_instrument_horace(tmpsqwfile,inst); end
 if ~no_samp, set_sample_horace(tmpsqwfile,samp); end
 tmpfromfile=read_sqw(tmpsqwfile);
-% ignore file creation date
+% ignore file creation date by setting to match other's
 wnew.creation_date = tmpfromfile.creation_date;
 
 assertEqualToTol(wnew,tmpfromfile,[1.e-8,1.e-8],'ignore_str',1)

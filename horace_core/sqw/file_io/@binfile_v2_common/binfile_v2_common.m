@@ -387,6 +387,12 @@ classdef binfile_v2_common < horace_binfile_interface
             cdi = ismember(flds,'creation_date');
             flds = flds(~cdi);
             hd = struct();
+
+            % HACK. This should be dealt with some day. u_to_rlu should go
+            if ~isfield(data,'u_to_rlu') && isfield(data,'u_to_rlu_legacy')
+                data.u_to_rlu = data.u_to_rlu_legacy;
+            end
+
             for i=1:numel(flds)
                 fld = flds{i};
                 hd.(fld) = data.(fld);
@@ -478,7 +484,7 @@ classdef binfile_v2_common < horace_binfile_interface
             %   data.angdeg     Lattice angles for data field (degrees)
             %   data.offset    Offset of origin of projection axes in r.l.u.
             % and energy ie. [h; k; l; en] [column vector]
-            %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
+            %   data.u_to_rlu_legacy   Matrix (4x4) of projection axes in hkle representation
             %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
             %   data.ulen      Length of projection axes vectors in Ang^-1 or meV [row vector]
             %   data.label     Labels of the projection axes [1x4 cell array of character strings]

@@ -83,30 +83,22 @@ ind=cell2struct(num2cell(ind),xname,1);
 
 xpix=cell(1,numel(xlist));
 if ind.h||ind.k||ind.l||ind.Q
-    header_ave=w.header_average();   % get average header
     this_proj = w.data.proj;
-    hkl_proj = ortho_proj([1,0,0],[0,1,0], ...
-        'alatt',this_proj.alatt,'angdeg',this_proj.angdeg);
-    % TODO: The method below is for compartibility with current alignment
-    % implementation. It should change and disappear when alginment matrix
-    % is attached to pixels. In fact, it redefines b-matrix, which is the
-    % function of lattice and partially U-matix used for alignment)
-    % See ticket #885 to fix the alignment.
-    hkl_proj = hkl_proj.set_ub_inv_compat(header_ave.u_to_rlu(1:3,1:3));
-
+    hkl_proj = ortho_proj([1,0,0],[0,1,0],[0,0,1], ...
+        'alatt',this_proj.alatt,'angdeg',this_proj.angdeg);    
 
     % Matrix and translation to convert from pixel coords to hkl
-    % Example of the code to use dealing with #825
+    % Example of the code been here: (?) 
     % uhkl=header_ave.u_to_rlu(1:3,1:3)*w.pix.q_coordinates+repmat(header_ave.uoffset(1:3),[1,npixtot]);
-    uhkl = hkl_proj.transform_pix_to_img(w.pix.q_coordinates);
+    uhkl = hkl_proj.transform_pix_to_img(w.pix);
     if ind.Q
         % Get |Q| -- We would use pix coordinates directly, but the pix
         % coordinates may be invalid due to misalignment.
-        % See #885 to resolve alignment.
-        % Example of the code to use dealing with #825
+        % Example of the code here before refactoring:
         %B=bmatrix(header_ave.alatt, header_ave.angdeg);
         %qcryst=B*uhkl;
-        qcryst = hkl_proj.transform_img_to_pix(uhkl);
+        % Generic projection alternative:
+        qcryst = hkl_proj.transform_img_to_pix(uhkl(1:3,:));
         Q=sqrt(sum(qcryst.^2,1));
     end
     if ind.h, xpix{ind.h}=uhkl(1,:)'; end   % column vector
@@ -124,8 +116,8 @@ if ind.d1||ind.d2||ind.d3||ind.d4
     %     T=u_to_rlu (1:3,1:3)\(w.data.proj.offset(1:3)'-header_ave.uoffset(1:3));
     %     uproj=U*w.pix.q_coordinates-repmat(T,[1,npixtot]);  % pixel Q coordinates now in projection axes
     %     uproj=[uproj;w.pix.dE+header_ave.uoffset(4)];       % now append energy data
-    % Generic projection alternative
-    uproj = w.data.proj.transform_pix_to_img(w.pix.coordinates);
+    % Generic projection alternative:
+    uproj = w.data.proj.transform_pix_to_img(w.pix);
 
     % Get display axes
     pax=w.data.pax;

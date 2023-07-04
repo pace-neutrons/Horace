@@ -10,8 +10,6 @@ sample_properties  = containers.Map({'filename','filepath','title','alatt'},...
     {'aaa','bbb','title',[1,2,3]});
 sample_properties('angdeg') = [90,89,90];
 sample_properties('offset')=[1,0,0,0];
-%sample_properties('u_to_rlu')=eye(3);     | TODO?
-%sample_properties('ulen') = [1,2,3,1];    |
 sample_properties('label') = {'aaa','bbbb','cccc','e'};
 if isempty(box_size)
     val =0;
@@ -23,7 +21,7 @@ sample_properties('s') = val;
 sample_properties('e') = val;
 sample_properties('npix') = val;
 sample_properties('axes') = ortho_axes('nbins_all_dims',bs);
-sample_properties('proj') = ortho_proj('alatt',4);
+sample_properties('proj') = ortho_proj('alatt',4,'angdeg',90);
 
 sample_properties('dax') = 1:numel(box_size);
 

@@ -11,11 +11,9 @@ classdef ortho_projTester < ortho_proj
             obj = obj@ortho_proj(varargin{:});
         end
         %
-        function [rlu_to_ustep, u_to_rlu, ulen]=projaxes_to_rlu_public(obj,ustep)
-            if nargin == 1
-                ustep = [1,1,1];
-            end
-            [rlu_to_ustep, u_to_rlu, ulen] = obj.uv_to_rot(ustep);
+        function [img_to_u, q_to_img, ulen]=projaxes_to_rlu_public(obj,varargin)
+            [q_to_img,~,ulen]=obj.get_pix_img_transformation(3);
+            img_to_u = inv(q_to_img);
         end
         %
         function [u,v,w,type]=uv_from_data_rot_public(obj,u_to_rlu,ustep)
@@ -31,10 +29,11 @@ classdef ortho_projTester < ortho_proj
         function sh=get.ortho_ortho_offset(obj)
             sh = obj.ortho_ortho_offset_;
         end
-        function [rot_to_img,shift]=get_pix_img_transformation_public(obj,ndim,varargin)
-            [rot_to_img,shift]=obj.get_pix_img_transformation(ndim,varargin{:});
-            %
-        end
         %
+        function obj = build_from_old_struct_public(obj,inputs,varargin)
+            % Restore object from the legacy structure, stored in old sqw
+            % files
+            obj = obj.from_old_struct(inputs,varargin{:});
+        end
     end
 end

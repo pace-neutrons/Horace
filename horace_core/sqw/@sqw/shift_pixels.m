@@ -144,8 +144,12 @@ function wout = calc_shift_filebacked(win, dispreln, ave_pix, pars)
 
     [npix_chunks, idxs] = split_vector_fixed_sum(wout.data.npix(:), pg_size);
 
-    for i = 1:wout.pix.num_pages
-        [wout.pix, data] = wout.pix.load_page(i);
+    wout.pix.data_range = PixelDataBase.EMPTY_RANGE;
+
+    npg = wout.pix.num_pages
+    for i = 1:npg
+        wout.pix.page_num = i;
+
         npix_chunk = npix_chunks{i};
         qw = calculate_qw_pixels(wout);
 
@@ -159,10 +163,11 @@ function wout = calc_shift_filebacked(win, dispreln, ave_pix, pars)
         end
 
         wdisp = replicate_array(wdisp, npix_chunk);
-        data(e_ind, :) = wout.pix.dE - wdisp(:)';
-        wout.pix.format_dump_data(data);
+        wout.pix.dE = wout.pix.dE - wdisp(:)';
+        wout.pix = wout.pix.reset_changed_coord_range('all');
 
+        pix.format_dump_data(data);
     end
 
-    wout.pix = wout.pix.finalise();
+    wout.pix = pix.finalise();
 end

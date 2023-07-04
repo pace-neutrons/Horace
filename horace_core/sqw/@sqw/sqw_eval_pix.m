@@ -1,4 +1,4 @@
-function obj = sqw_eval_pix(obj, sqwfunc, ave_pix, pars, outfile, i)
+function obj = sqw_eval_pix(obj, sqwfunc, ave_pix, pars, outfile)
 %==================================================================================================
 % SQW_EVAL_PIX
 %

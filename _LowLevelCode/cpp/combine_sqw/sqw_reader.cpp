@@ -43,7 +43,7 @@ void sqw_reader::init(const fileParameters &fpar, bool changefileno, size_t pix_
         break;
     default:
         mexErrMsgTxt("Input multithreading parameter should be 0 (no multithreading) 1 (multithreading)"
-            ", 2 (debug mode, only bin thread used for reading ) or 3 (debug mode , use pix read thread, and disable bin reading)");
+            ", 2 (debug mode, only bin thread used for reading ) or 3 (debug mode , use pix read thread, and disable bin read threading)");
     }
 
     this->fileDescr = fpar;

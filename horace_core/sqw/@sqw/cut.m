@@ -38,15 +38,15 @@ function wout = cut(obj, varargin)
 %                               is 0, step is also taken from input data
 %                               (equivalent to [])
 %           - [plo, phi]        Integration axis: range of integration
-%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centers
+%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres
 %                              and step size
 %                              For example, [106, 4, 116] will define a plot
 %                              axis with bin edges 104-108, 108-112, 112-116.
 %                              if step is 0,
 %           - [plo, rdiff, phi, rwidth]
-%                                Integration axis: minimum range center,
-%                                distance between range centers, maximum range
-%                                center, range size for each cut.
+%                                Integration axis: minimum range centre,
+%                                distance between range centres, maximum range
+%                                centre, range size for each cut.
 %                                When using this syntax, an array of cuts is
 %                                outputted. The number of cuts produced will
 %                                be the number of rdiff sized steps between plo
@@ -68,7 +68,7 @@ function wout = cut(obj, varargin)
 %                              range of the input data is contained within
 %                              the bin boundaries.
 %           - [plo, phi]        Integration axis: range of integration
-%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centers
+%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres
 %                              and step size.
 %                               If pstep=0 then use bin size of the first
 %                              spe file and synchronize the output bin
@@ -77,8 +77,8 @@ function wout = cut(obj, varargin)
 %                              the energy range plo to phi is contained
 %                              within the bin boundaries.
 %           - [plo, rdiff, phi, rwidth]
-%                                Integration axis: minimum range center,
-%                                distance between range centers, maximum range
+%                                Integration axis: minimum range centre,
+%                                distance between range centres, maximum range
 %                                center, range size for each cut.
 %                                When using this syntax, an array of cuts is
 %                                outputted. The number of cuts produced will
@@ -111,23 +111,39 @@ if dnd_type
 end
 
 return_cut = nargout > 0;
+
+% verify if source projection is ortho_projection as 
+% it may contain legacy alignment, we do not want transfer to other 
+% projections. (TODO: need to be converted into recent alignment)
+source_is_ortho_proj = isa(obj.data.proj,'ortho_proj');
 %
-[targ_proj, pbin, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
-    obj.data,return_cut, varargin{:});
 % Set up new projection properties, related to lattice. This together with
 % projection inputs defines pixels-to-image transformation.
-header_av = header_average(obj);
-targ_proj.alatt  = header_av.alatt;
-targ_proj.angdeg = header_av.angdeg;
-% TODO: The method below is for compartibility with current alignment
-% implementation. It should change and disappear when alginment matrix
-% is attached to pixels. In fact, it redefines b-matrix, which is the 
-% function of lattice and partially U-matix used for alignment)
-% See ticket #885 to fix the alignment.
-if isa(targ_proj,'ortho_proj')
-    targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+[targ_proj, pbin, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
+    obj.data,return_cut, varargin{:});
+	
+% nasty legacy alignment business. TODO: deal with it
+target_is_ortho_proj = isa(targ_proj,'ortho_proj');	
+
+% if we are realigning old format file, legacy alignment matrix should be
+% ignored
+if source_is_ortho_proj && target_is_ortho_proj && targ_proj.ignore_legacy_alignment
+    obj.data.proj.ub_inv_legacy = [];
 end
 
+% old file format alignment. Only ortho_proj is supported
+if  source_is_ortho_proj && ~isempty(obj.data.proj.ub_inv_legacy) 
+    if target_is_ortho_proj % transfer legacy alignment matrix to 
+        % new projection to keep legacy alignment
+        targ_proj = targ_proj.set_ub_inv_compat(obj.data.proj.ub_inv_legacy);
+    else
+    warning('HORACE:old_file_format', ...
+        ['\n Non-triclinic projections are fully supported by version 4.0 and higher Horace sqw objects only.\n', ...
+        ' If you use aligned sqw object produced by old Horace version,\n', ...
+        ' the resulting cut with non-triclinic projection will be performed on misaligned data\n', ...
+        ' Convert old misaligned data into new file-format and realign these data again to use cuts with not-triclinic projections.']);
+    end
+end
 %
 sz = size(pbin);
 % This loop enables multi-cuts
@@ -136,7 +152,7 @@ if return_cut
 end
 for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
-    [targ_ax_block,targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp,header_av);
+    [targ_ax_block,targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp);
 
     args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile,log_level};
     if return_cut

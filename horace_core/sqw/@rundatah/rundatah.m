@@ -169,8 +169,8 @@ classdef rundatah < rundata
             %                         set up too)
             %
             % Usage:
-            %>> [data_range,u_to_rlu,pix,obj] = rh.calc_projections()
-            %>> [data_range,u_to_rlu,pix,obj] = rh.calc_projections(detchn)
+            %>> [data_range,pix,obj] = rh.calc_projections()
+            %>> [data_range,pix,obj] = rh.calc_projections(detchn)
             %
             % Inputs:
             % rh       -- fully defined (valid) rundatah object

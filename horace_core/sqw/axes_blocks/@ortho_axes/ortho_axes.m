@@ -75,9 +75,11 @@ classdef ortho_axes < AxesBlockBase
         function [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
                 data_plot_titles(~,dnd_obj)
             % Get titling and caption information for an sqw data structure
+
             data = dnd_obj.head();
+            proj = dnd_obj.proj;
             [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
-                data_plot_titles(data);
+                data_plot_titles(data,proj);
         end
 
         function cell = get.unit_cell(obj)

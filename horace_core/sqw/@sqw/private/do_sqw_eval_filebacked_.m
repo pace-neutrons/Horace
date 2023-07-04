@@ -38,26 +38,35 @@ img_signal = zeros(1, numel(npix));
 s_ind = wout.pix.check_pixel_fields('signal');
 v_ind = wout.pix.check_pixel_fields('variance');
 
-wout.pix.data_range = PixelDataBase.EMPTY_RANGE;
+pix = wout.pix;
+pix.data_range = PixelDataBase.EMPTY_RANGE;
 
-for i = 1:wout.pix.num_pages
-    [wout.pix, data] = wout.pix.load_page(i);
+npg = wout.pix.num_pages;
+
+proj    = win.data.proj;
+for i = 1:npg
+	pix.page_num = i;
+    data = pix.data;
     npix_chunk = npix_chunks{i};
     idx_chunk = idxs(:, i);
 
-    qw = calculate_qw_pixels(wout);
+    [qw,en] = proj.transform_pix_to_hkl(pix);
+    % package as cell array of column vectors for convenience with fitting routines etc.
+    qw = {qw(1,:)', qw(2,:)', qw(3,:)',en(:)};
+
     sig_chunk = sqwfunc(qw{:}, pars{:});
 
     data(s_ind, :) = sig_chunk;
     data(v_ind, :) = 0;
 
-    wout.pix.format_dump_data(data);
-    wout.pix.data_range = wout.pix.pix_minmax_ranges(data, ...
-                                                     wout.pix.data_range);
+    pix.format_dump_data(data);
+    pix.data_range = pix.pix_minmax_ranges(data, ...
+                                                pix.data_range);
 
     img_signal = increment_signal_sums_(img_signal, sig_chunk, ...
                                         npix_chunk, idx_chunk);
 end
+wout.pix = pix;
 
 % We're finished writing pixels
 wout.pix = wout.pix.finalise();

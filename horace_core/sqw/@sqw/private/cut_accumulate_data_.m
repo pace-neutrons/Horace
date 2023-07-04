@@ -7,7 +7,7 @@ function [s, e, npix, pix_out,unique_runid] = ...
 % targ_proj  A 'projection' object, defining the projection of the cut.
 % targ_axes  A 'AxesBlockBase' object defining the ranges, binning and geometry
 %            of the target cut
-% keep_pixels A boolean defining whether pixel data should be retained. If this
+% keep_pixels A Boolean defining whether pixel data should be retained. If this
 %            is false return variable 'pix_out' will be empty.
 % log_level  The verbosity of the log messages. The values correspond to those
 %            used in 'hor_config', see `help hor_config/log_level`.
@@ -46,8 +46,7 @@ npix = zeros(sz1);
 % Get bins that may contain pixels that contribute to the cut.
 % The bins selected are those that sit within (or intersect) the bounds of the
 % cut. See the relevant projection function for more details.
-%header_av = header_average(obj); % here is necessary to support current alignment algorithm.
-%sproj = obj.data.get_projection(header_av);
+
 sproj = obj.data.proj;
 saxes = obj.data.axes;
 
@@ -100,8 +99,11 @@ end
 if keep_pixels && use_tmp_files
     clearPixAccum = onCleanup(@()cut_data_from_file_job.accumulate_pix_to_file('cleanup'));
 end
-
-keep_precision = use_tmp_files && ~keep_pixels;
+% if we use tmp files, the pixels will be stored as single precision anyway
+% equally, if we do not keep pixels in memory, pix read as single precision
+% will be binned and dropped so no point of artificially boosting their
+% precision. Otherwise, cut in memory contains double precision pixels
+keep_precision = use_tmp_files || ~keep_pixels;
 
 pixel_contrib_name = report_cut_type(obj,log_level,use_tmp_files,keep_pixels);
 

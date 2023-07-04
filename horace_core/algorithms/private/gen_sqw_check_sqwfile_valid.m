@@ -1,4 +1,4 @@
-function [ok,mess,header,grid_size,img_db_range,data_range]=gen_sqw_check_sqwfile_valid(sqw_file)
+function [exper_info,grid_size,img_db_range,data_range]=gen_sqw_check_sqwfile_valid(sqw_file)
 % Check that the sqw file has the correct attributes to which to accumulate, and return useful information
 %
 %   >> [ok,mess,grid_size,img_db_range]=gen_sqw_check_sqwfile_valid(sqw_file)
@@ -9,8 +9,6 @@ function [ok,mess,header,grid_size,img_db_range,data_range]=gen_sqw_check_sqwfil
 %
 % Output:
 % -------
-%   ok          True of all OK, false otherwise
-%   mess        Error message if not OK; ='' if OK
 %   header      Header from the sqw data
 %   grid_size   Grid size [1,4] vector of number of bins along each axis
 %   img_db_range Actual limits of the pixels, where pixels are rebinned into
@@ -31,49 +29,37 @@ function [ok,mess,header,grid_size,img_db_range,data_range]=gen_sqw_check_sqwfil
 % Determine if the file contains sqw data, and dimensionality
 % -----------------------------------------------------------
 % (Note: as of 19 Mar 2013, this involves an implicit read of header if prototype sqw file format)
-try
-    ldr = sqw_formats_factory.instance().get_loader(sqw_file);
-    sqw_type = ldr.sqw_type;
-    ndims = ldr.num_dim;
-    mess = [];
-catch ME
-    mess = ME.message;
-end
-if ~isempty(mess)
-    ok=false;
-    header={}; grid_size=[]; img_db_range=[];
-    return
-end
+
+ldr = sqw_formats_factory.instance().get_loader(sqw_file);
+sqw_type = ldr.sqw_type;
+ndims = ldr.num_dim;
+
 if ~sqw_type || ndims~=4
-    ok=false;
-    mess='The file to which to accumulate does not hold sqw data, or does not have 4 dimensions';
-    header={};  grid_size=[]; img_db_range=[];
-    return
+    error('HORACE:algorithms:invalid_argument',...
+        'The file to which to accumulate does not hold sqw data, or does not have 4 dimensions');
 end
 
 % Get header information to check other fields
 % --------------------------------------------
-header = ldr.get_exp_info('-all');
+exper_info = ldr.get_exp_info('-all');
 data   = ldr.get_dnd_metadata();
 %[mess,main_header,header,detpar,data]=get_sqw (sqw_file,'-h');
-header_ave=header.header_average(data);
+header_ave=exper_info.header_average();
 
 tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
 % TGP (15/5/2015) I am not sure if this is necessary: both the header and data sections are saved as float32, so
 % should be rounded identically.
 ok =equal_to_relerr(header_ave.alatt, data.alatt, tol, 1) &...
     equal_to_relerr(header_ave.angdeg, data.angdeg, tol, 1) &...
-    equal_to_relerr(header_ave.offset, data.offset, tol, 1) &...
-    equal_to_relerr(header_ave.u_to_rlu(:), data.u_to_rlu(:), tol, 1) &...
+    equal_to_relerr(header_ave.uoffset, data.offset, tol, 1) &...
     equal_to_relerr(header_ave.ulen, data.ulen, tol, 1);
 if ~ok
-    ok=false;
-    mess='The sqw to which to accumulate does not have the correct projection axes for this operation.';
-    header={}; grid_size=[]; img_db_range=[];
-    return
+    error('HORACE:algorithms:invalid_argument',...
+        'the tmp file to combine: %s does not have the the projections for operations. Reason %s',...
+        ldr.filename,mess)
 end
 
-grid_size =data.nbins_all_dims;
+grid_size =data.axes.nbins_all_dims;
 
 img_db_range=data.img_range;
 data_range = ldr.get_data_range();

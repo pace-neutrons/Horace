@@ -83,13 +83,6 @@ if ~(opts.head || opts.his)
 end
 
 
-% CRYSTAL ALIGNMENT FIXTURE: #TODO: #892 modify  and remove!
-proj = sqw_skel.data.proj;
-if isa(proj,'ortho_proj')
-    header_av = sqw_skel.experiment_info.header_average(sqw_skel.data);
-    sqw_skel.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
-end
-
 if opts.nopix
     sqw_skel = rmfield(sqw_skel,'pix');
 else
@@ -115,9 +108,13 @@ if opts.legacy
     else
         varargout{4} = [];
     end
+    return
 elseif opts.head || opts.his
     sqw_object             = sqw_skel;
     sqw_object.num_pixels  = sqw_skel.pix.npix;
 else
     sqw_object = sqw(sqw_skel);
+end
+if nargout > 1
+    varargout{1} = obj;
 end

@@ -825,8 +825,8 @@ classdef test_ortho_axes < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
 
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
-            proj2 = ortho_proj([1,1,0],[1,-1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj2 = ortho_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
 
             tob = DnDBase.dnd(ab,proj1);
             bin = tob.targ_range(proj2,'-binning');
@@ -852,8 +852,8 @@ classdef test_ortho_axes < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
 
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
-            proj2 = ortho_proj([1,1,0],[1,-1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            proj2 = ortho_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
 
             tob = DnDBase.dnd(ab,proj1);
             bin = tob.targ_range(proj2,'-binning');
@@ -870,9 +870,9 @@ classdef test_ortho_axes < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
 
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             tob = DnDBase.dnd(ab,proj1);
-            proj2 = ortho_proj([1,0,0],[0,0,1]);
+            proj2 = ortho_proj([1,0,0],[0,0,1],'alatt',1,'angdeg',90);
 
             bin = tob.targ_range(proj2,'-binning');
 
@@ -893,7 +893,7 @@ classdef test_ortho_axes < TestCase
             assertEqual(ab.iax,[2,4]);
             assertEqual(ab.iint,[-2,0;2,10]);
 
-            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             tob = DnDBase.dnd(ab,proj1);
 
             bin = tob.targ_range(proj1,'-binning');

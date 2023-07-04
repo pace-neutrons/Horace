@@ -5,7 +5,6 @@ classdef IX_detector_bank < serializable
     % detector type. 
     
     properties (Access=private)
-        class_version_ = 1; % Class version number
         id_  = []        % Detector identifiers, integers greater than 0 (column vector, in ascending order)
         x2_  = []        % Sample-detector distance (m) (column vector)
         phi_ = []        % Scattering angle (degrees, in range 0 to 180) (column vector)

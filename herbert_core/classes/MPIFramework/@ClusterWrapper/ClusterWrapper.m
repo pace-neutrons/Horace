@@ -318,7 +318,7 @@ classdef ClusterWrapper
             addOptional(p, 'postfix_command', {}, @iscellstr);
             addOptional(p, 'matlab_extra'   , '', @isstring);
             addOptional(p, 'debug', par.debug, @islognumscalar);
-            addOptional(p, 'target_threads', par.par_threads, @isnumeric);
+            addOptional(p, 'target_threads', par.parallel_threads, @isnumeric);
             parse(p, varargin{:});
 
             prefix_command = p.Results.prefix_command;

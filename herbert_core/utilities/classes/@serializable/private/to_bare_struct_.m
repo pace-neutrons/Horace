@@ -1,37 +1,63 @@
-function struc = to_bare_struct_(obj,recursively)
-% Convert serializable object into a special structure, which allow
-% serialization and recovery using from_bare_struct operation
+function S = to_bare_struct_ (obj, recursive_bare)
+% Convert a serializable object or array of objects into a structure
 %
-% Inputs:
-% obj -- the instance of the object to convert to a structure.
-%        the fields to use
-% recursively -- if true, all serializable subobjects of the
-%                class are converted to bare structure,
-% add_version_to_subobjects -- if true, add class version to 
-%                serializable subobjects, which are the children of the
-%                current class version
-% Returns:
-% struc -- structure, containing information, fully defining the
-%          serializable class
-flds = saveableFields(obj(1));
+%   >> S = to_bare_struct_ (obj)
+%   >> S = to_bare_struct_ (obj, recursive_bare)
+%
+% Input:
+% ------
+%   obj             Object or array of objects which are serializable i.e.
+%                  which belong to a child class of serializable 
+%
+%   recursive_bare  Logical true or false
+%                   If false, nested properties that are serializable objects 
+%                  are converted to structures using the public method 
+%                  to_struct. That is, they contain the information about the
+%                  class name and version.
+%                   If true, then they are converted to the bare structure using
+%                  to_bare_struct.
+%
+% Output:
+% -------
+%   S               S is a structure array, each element of the array being the
+%                  structure created from one object. The field names match the
+%                  property names returned from the method saveableFields.
 
-cell_dat = cell(numel(flds),numel(obj));
-for j=1:numel(obj)
-    for i=1:numel(flds)
-        fldn = flds{i};
-        val = obj(j).(fldn);
-        if isa(val,'serializable') % else keep object as before. Serializer should handle it by its own way
-            if recursively
-                val= to_bare_struct_(val,recursively);
+
+% Get saveable fields
+field_names = saveableFields (obj(1));
+
+% Recursively turn serializable fields into structures
+cell_dat = cell (numel(field_names), numel(obj));
+for j = 1:numel(obj)
+    for i = 1:numel(field_names)
+        field_name = field_names{i};
+        val = obj(j).(field_name);
+        if isa(val,'serializable') 
+            % Recursively convert serializable objects to a structure
+            % Serializer will handle non-serializable objects by its own
+            % internal converters.
+            if recursive_bare
+                %
+                % === TGP 2023-06-04: ==========================================
+                % Change from calling to_bare_struct_ to the public (and
+                % therefore possibly overloaded) to_bare_struct.
+                % Makes consistent with behaviour using to_struct below, and
+                % with the call to to_bare_struct in to_struct_
+                val= to_bare_struct (val, recursive_bare);
             else
-                val= to_struct(val);
+                % Uses public (therefore possibly overloaded) method
+                % It contrasts with the original behaviour of calling
+                % to_bare_struct_ above, now changed.
+                val= to_struct (val);
             end
         end
         cell_dat{i,j} = val;
     end
 end
-struc = cell2struct(cell_dat,flds,1);
+
+% Package into output structure
+S = cell2struct (cell_dat, field_names, 1);
 if numel(obj)>1
-    struc = reshape(struc,size(obj));
+    S = reshape(S,size(obj));
 end
-%

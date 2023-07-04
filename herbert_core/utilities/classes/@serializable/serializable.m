@@ -1,249 +1,352 @@
 classdef (Abstract=true) serializable
-    % SERIALIZABLE interface:
-    %----------------------------------------------------------------------
-    % Class supports common interface to convert class or array of classes
-    % from/to structure used in serialization and defines the
-    % standard for any Horace/Herbert custom class loadobj/saveobj methods.
+    % Introduction
+    % ------------
+    % The serializable class defines a common interface to a class for saving and
+    % loading an object or array of objects, both to/from Matlab .mat files and
+    % to/from a serialised stream of bytes.
     %
-    % The class is necessary to provide common interface to loading and
-    % saving classes to Matlab .mat files and Horace sqw objects and to
-    % support old versions of the classes
+    % The benefits of using the interface are that:
+    % (1) It has a framework for managing class version numbering that simplifies
+    %    the implementation of backwards compatibility with earlier version of a
+    %    class;
+    % (2) It defines a protocol for validation of class properties, and utility
+    %    functions that simplify the writing of class constructors with a
+    %    standardised syntax;
+    % (3) The common interface to .mat file I/O and bytestream serialisation
+    %    simplifies the development of sophisticated data I/O management of classes
+    %    with a complex hierarchy of composition and inheritance, such as the Horace
+    %    sqw class.
     %
-    % A class needs to have two features to be able to become serializable:
-    % 1) An empty constructor which creates valid empty instance
-    %    of the class
-    % 2) A public interface (list of properties) which can fully define
-    %    the class contents by setting values of these properties to an
-    %    empty class instance.
+    % The seriablizable class is an abstract class that needs to be inherited by any
+    % class that wants to use these features. In general, it should be the default
+    % choice for Horace classes.
     %
-    % The public interface request (No 2) can be weakened by accurate
-    % overloading of to_bare_struct/from_bare_struct methods.
-    % (expert usage only)
     %
-    %----------------------------------------------------------------------
-    % VALIDATION interface:
-    %----------------------------------------------------------------------
-    % In addition to save/load interface the class defines and uses
-    % validation interface.
+    % Class requirements
+    % ------------------
+    % The following must be satisfied by a class if it is to inherit serializable:
     %
-    % one property and one method, namely protected property "do_check_combo_arg_"
-    % and "check_combo_arg" method are defined on this public interface.
+    % (1) The class constructor must be callable with no arguments, in which case it
+    %    must create a create a valid instance of the class.
     %
-    % By default, "do_check_combo_arg_" is set to true and the "check_combo_arg"
-    % method does nothing. Overload the "check_combo_arg" to throw if
-    % interdependent properties are inconsistent and throw invalid argument
-    % exception when this happens.
+    % (2) There must be a subset of the public properties which fully define the
+    %    class state. The set methods for those properties must enable an object to
+    %    be created by being called in an arbitrary sequence. (Note: the full set of
+    %    public properties may be larger; it is only a subset which is required to
+    %    fully define the object.)
+    %     Any interdependencies between the values of those properties that need to
+    %    be satisfied for the object to be valid will need to be checked outside the
+    %    individual property set methods. The serializable class includes a
+    %    validation interface that makes this straightforward to implement. Details
+    %    on how to do this are given below.
     %
-    % The serializable code sets do_check_combo_arg_ to false before
-    % setting the properties and checks interdependent properties after
-    % all properties were set. do_check_combo_arg_ is set to true after this.
+    % (3) Two public methods must be provided:
+    %    - A method that returns the class version number:
+    %       EXAMPLE:
+    %           function ver = classVersion (~)
+    %               % Return the class version number
+    %               ver = 2;
+    %           end
     %
-    % To work correctly, all interdependent properties setters in the child
-    % code must contain the check for validity of interdependent properties
-    % implemented as the following code block:
-    % if obj.do_check_combo_arg_
-    %    obj=check_combo_arg(obj);
-    % end
+    %    - A method that returns a cell array with the names of the public fields
+    %      that fully define the state of an object, and which therefore are the
+    %      only fields that need to be saved:
+    %       EXAMPLE:
+    %           function flds = saveableFields (~)
+    %               % Return cellarray of public properties defining the class
+    %               flds = {'dia','height','wall','atms'};
+    %           end
     %
-    properties(Dependent,Hidden)
-        % this is property for developers who wants to change number of
-        % interdependent properties one after another and do not want to
-        % overload the class. Use with caution, as you may get invalid
-        % object if the property is used incorrectly.
-        % It is also necessary to use when building and checking validity
-        % of serializable object from other serializable objects. In this
-        % case, set_do_check_combo_arg have to be overloaded appropriately.
-        do_check_combo_arg;
-    end
-    properties(Access=protected)
-        % Check interdependent properties and throw exception if
-        % de-serialized object validation shows that object is invalid
-        % Set it to "false" when changing
+    %
+    % Validation of properties of a serializable object
+    % -------------------------------------------------
+    % To write a class that satisfies the requirements of properties and their
+    % validation in item (2) of "Class requirements" above, use the serializable
+    % validation interface as follows:
+    %
+    %   - Write a public method for your class called check_combo_arg that checks
+    %     the mutual validity of interdependent properties, and throws an error
+    %     they are not:
+    %
+    %           function obj = check_combo_arg (obj)
+    %               :
+    %
+    %   - All interdependent properties setters in your class code must contain
+    %     the check for validity of interdependent properties implemented as the
+    %     following code block:
+    %               :
+    %           if obj.do_check_combo_arg_
+    %               obj = check_combo_arg (obj);
+    %           end
+    %               :
+    %
+    % By default, do_check_combo_arg_ is set to true, so that the validation method
+    % will be called. However, when loading an object from a .mat file or bytestream
+    % serializable sets do_check_combo_arg_ to false before setting properties, and
+    % only calls the method check_combo_arg after all properties are set. After this
+    % validation do_check_combo_arg_ is reset to true.
+    %
+    % Your validation method check_combo_arg can be very flexible. For example
+    %   - Update property values from the mutual interdepencies
+    %   - Recompute any cached properties that are derived from the set properties,
+    %     for example a probability distribution lookup table. Additional input
+    %     arguments can be provided to check_combo_arg ensure that this is only
+    %     done when necessary - for an example, see IX_fermi_chopper/check_combo_arg
+    %
+    % Serializable also provides a protected method to simplify the code of your
+    % class constructor, called set_positional_and_key_val_arguments. It also
+    % internally disables validation of interdependent properties until they have
+    % all been set.
+    %
+    % Typically you only need to query the value of do_check_combo_arg_ in your
+    % class set methods. Under some circumstances it may be useful to set it to
+    % false, set multiple properties, and then reset do_check_combo_arg_ to true.
+    % For an example see IX_moderator/set_mod_pulse.
+    %
+    %
+    % Supporting older class versions
+    % -------------------------------
+    % When serializable objects are written to a bytestream or a .mat file, they are
+    % first converted to a structure that also holds the class name and version
+    % number. This information is used when recovering the original object.
+    %
+    % To be able to recover an object from an earlier class version, there are three
+    % cases to consider:
+    %
+    % (1) In the simplest case of missing properties that can be set from the
+    %   default property values in the current class. This is handled by
+    %   serializable interface and no action is required.
+    %
+    % (2) In most other cases, all that is needed is to overload the default
+    %   serializable method convert_old_struct so that customised conversion is
+    %   performed for each of the previous supported class versions. For details see
+    %   <a href="matlab:help('serializable/convert_old_struct');">convert_old_struct</a>.
+    %
+    % (3) If the design pattern for your class is particularly complex, it might be
+    %   necessary to have a more sophisticated handling of earlier versions. This
+    %   can be done by overloading the default method from_old_struct. For details, see
+    %   <a href="matlab:help('serializable/from_old_struct');">from_old_struct</a>).
+    %
+    % In addition to whichever of the above three cases applies, if your class is
+    % going to recover a class from a .mat file in  which the saved object is
+    % sufficiently old that it was not based on the serializable class, then you
+    % need to overload the loadobj method. In your class definition file, add the
+    % following method, substituting the name of your class in place of "my_class"
+    % but otherwise leaving the code unchanged:
+    %
+    %      :
+    %   methods (Static)
+    %       function obj = loadobj (S)
+    %       % Boilerplate loadobj method, calling the generic loadobj method of
+    %       % the serializable class
+    %           obj = my_class();
+    %           obj = loadobj@serializable (S, obj);
+    %       end
+    %   end
+    %    :
+    %
+    %
+    % --------------------------------------------------------------------------
+    % Summary of methods a developer may need to customise
+    % --------------------------------------------------------------------------
+    % Serializable Methods:
+    %
+    % Required:
+    %   classVersion    - Return the current class version number
+    %   saveableFields  - Return the names of public properties which fully define the object state.
+    %
+    % If interdependent property values:
+    %   check_combo_arg - Check validity of interdependent properties
+    %
+    % If reading older class versions, then overload:
+    %   convert_old_struct - Update structure created from earlier class versions
+    %   from_old_struct    - Update earlier structures in complex design patterns
+    %   loadobj            - If an old class version pre-dates the serializable interface
+
+
+    properties (Access=protected)
+        % Flag to control validation checking of interdependent properties
+        % - Set to false to disable interdependent property checks for child
+        %   property setters
+        % - Set to true to enable those checks
         do_check_combo_arg_ = true;
     end
-    %----------------------------------------------------------------------
-    %   ABSTRACT INTERFACE TO DEFINE:
-    methods(Abstract,Access=public)
-        % define version of the class to store in mat-files
-        % and nxsqw data format. Each new version would presumably read
-        % the older version, so version substitution is based on this
-        % number
-        ver  = classVersion(obj);
-        % Return cellarray of public property names, which fully define
-        % the state of a serializable object, so when the field values are
-        % provided, the object can be fully restored from these values.
-        %
-        flds = saveableFields(obj);
+
+    properties (Dependent, Hidden)
+        % Developer property
+        % - Use when you wants to change a number of interdependent properties
+        %   one after another and do not want to overload the class. Use with
+        %   caution, as you may get an invalid object if the property is used
+        %   incorrectly.
+        % - Use when building and checking th evalidity of a serializable object
+        %   from other serializable objects. In this case, the method
+        %   set_do_check_combo_arg has to be overloaded appropriately.
+        do_check_combo_arg;
     end
-    % To support old class versions, generic static loadobj has to be
-    % overloaded by the children class (e.g. ChildClass) by uncommenting
-    % and appropriately modifying the following code:
-    %     methods(Static)
-    %         function obj = loadobj(S)
-    %            % boilerplate loadobj method, calling generic method of
-    %            % saveable class. Put it as it is replacing the
-    %            "ChildClass" name by the name of the class the loadobj is
-    %            the method of
-    %             obj = ChildClass();
-    %             obj = loadobj@serializable(S,obj);
-    %         end
-    %     end
-    %----------------------------------------------------------------------
-    % OPTIONAL:
-    % to support old file versions, one should also overload method
-    % "from_old_struct", which, by default, calls "from_bare_struct" method.
-    %----------------------------------------------------------------------
+
+
+    %---------------------------------------------------------------------------
+    % Constructor
+    %---------------------------------------------------------------------------
     methods
-        function strc = to_struct(obj)
-            % Convert serializable object into a special structure, which allow
-            % serialization and recovery using static "serializable.from_struct"
-            % operation.
-            %
-            % Uses internal class structure produced by "to_bare_struct"
-            % method and adds more fields, responsible for identifying class,
-            % and array information if array of objects is serialized.
-            %
-            % Adds the following fields to the structure, obtained from
-            %to_bare_struct function:
-            %.serial_name -- the name of the class to recover from the
-            %                structure when doing deserialize, loadobj or
-            %                from_struct operations
-            %.array_dat   -- this field appears only if conversion is
-            %                applied to the array of objects.
-            %.version     -- the class version, to be able to recover the
-            %                previous versions of the classes
-            % One can not add field containing single value to a structure
-            % array so this function returns the structure with two fields
-            % above  where "array_dat" field contains the structure
-            % array, produced by "to_bare_struct" function.
-            %
-            % Input:
-            % obj  -- class or array of classes object.
-            % Returns:
-            % struc -- structure, or structure, containing structure array
-            %          with all information, necessary to restore the
-            %          initial object
-            %
-            strc = to_struct_(obj);
-        end
-
-        function strc = to_bare_struct(obj,varargin)
-            % Convert serializable object into a special structure, which allow
-            % serialization and recovery using "from_bare_struct" operation
-            %
-            % Uses independent properties obtained from saveableFields method.
-            % in assumption that the properties, returned by this method
-            % fully define the public interface describing the state of the
-            % object.
-            %
-            % Input:
-            % obj  -- class or array of classes objects
-            % Optional:
-            % '-recursively' -- key-word '-recursively' or logical variable.
-            %                   true/false
-            %                   If provided and true, all 'serializable'
-            %                   subfields of the current object are also
-            %                   converted to bare structure. If false, or
-            %                   absent, they are converted using to_struct
-            %                   method
-            %
-            %
-            % Returns:
-            % struc -- structure, or structure array, containing the full
-            %          information, necessary to restore the initial object
-            if nargin>1
-                if isnumeric(varargin{1})
-                    recursively = logical(varargin{1});
-                elseif islogical(varargin{1})
-                    recursively = varargin{1};
-                elseif ischar(varargin{1}) && strncmpi(varargin{1},'-r',2)
-                    recursively = true;
-                else
-                    recursively = false;
-                end
-            else
-                recursively = false;
-            end
-            strc = to_bare_struct_(obj,recursively);
-        end
-
-        %------------------------------------------------------------------
-        function obj = from_bare_struct(obj,inputs)
-            % restore object or array of objects from a plain structure,
-            % previously obtained by to_bare_struct operation
-            % Inputs:
-            % obj    -- non-initialized instance of the object to build
-            % inputs -- the structure, obtained by to_bare_struct method,
-            %           and used as initialization for the object.
-            %
-            % The method takes the list of properties returned by saveableFields
-            % method of the class, and picks up the fields from the
-            % input structure if the fields with these names are present in
-            % the structure.
-            % Then it sets up the values of these fields as the values of
-            % the class properties using the public setters of the input
-            % class.
-            %
-            obj = from_bare_struct_(obj,inputs);
-        end
-
-        function ser_data = serialize(obj)
-            struc = to_struct(obj);
-            ser_data = serialise(struc);
-        end
-
-        function [size,struc] = serial_size(obj)
-            % Returns size of the serialized object
-            %
-            % Overload with specific function to avoid conversion to a
-            % structure, which may be expensive
-            struc = to_struct(obj);
-            size = serial_size(struc);
-        end
-
-        %======================================================================
-        % Generic loadobj and saveobj
-        % - to enable custom saving to .mat files and bytestreams
-        % - to enable older class definition compatibility
-        %------------------------------------------------------------------
-        function S = saveobj(obj)
-            % Method used my Matlab save function to support custom
-            % conversion to structure prior to saving.
-            %
-            %   >> S = saveobj(obj)
-            %
-            % Input:
-            % ------
-            %   obj     Scalar instance of the object class
-            %
-            % Output:
-            % -------
-            %   S       Structure created from obj that is to be saved
-            %
-            % Adds the field "version" to the result of 'to_struct
-            %                operation
-            %.version     -- containing result of getVersion
-            %                function, to distinguish between different
-            %                stored versions of a serializable class
-            %
-            S         = to_struct_(obj);
-        end
-
         function obj = serializable()
-            % generic class constructor. Does nothing
+            % Class constructor.
+            % Does nothing except enable methods of the base serializable class
+            % to be accessed.
         end
+    end
 
-        function obj = check_combo_arg(obj)
-            % verify interdependent variables and the validity of the
-            % obtained serializable object. Return the result of the check
-            %
-            % Overload to obtain information about the validity of
-            % interdependent properties and information about issues with
-            % interdependent properties
+    %---------------------------------------------------------------------------
+    %   ABSTRACT INTERFACE THAT MUST BE DEFINED IN CHILD CLASS
+    %---------------------------------------------------------------------------
+    methods (Abstract, Access=public)
+        % Returns the current class version number.
+        % It is presumed that each new version will be able to read older
+        % versions. The version number is stored when the object is saved or
+        % serialized, so conversion to the current version can be performed
+        % based on this number.
+        %
+        % EXAMPLE:
+        %       :
+        %   methods
+        %       function ver = classVersion(~)
+        %           ver = 2;
+        %       end
+        %        :
+        ver = classVersion (obj)
 
-            %Throw if the properties are inconsistent and return without
-            %problem it they are not.
-        end
+        % Return the names of public properties which fully define the object state.
+        %
+        % EXAMPLE:
+        %       :
+        %   methods
+        %       function flds = saveableFields(~)
+        %           flds = {'xaxis','yaxis','mosaic_pdf_string','parameters'};
+        %       end
+        %        :
+        flds = saveableFields (obj)
+    end
+
+
+    %---------------------------------------------------------------------------
+    %   INTERFACE
+    %---------------------------------------------------------------------------
+    %   Convert object or array of objects to/from a structure
+    %---------------------------------------------------------------------------
+    methods
+        % Convert a serializable object or array of objects into a structure
+        % The output is a structure array representation of the object array.
+        S = to_bare_struct (obj, varargin)
+
+        % Convert a serializable object or array of objects into a structure
+        % that includes fields with the class name and version, together with
+        % either:
+        % - the fields of the object (if scalar object)
+        % - a field called array_dat which is an array structure (if object array)
+        S = to_struct (obj)
+
+        % Restore object or object array from a structure created by to_bare_struct
+        % The input object defines the object class to be recovered, and any
+        % missing fields if recovering from an incomplete structure.
+        obj = from_bare_struct (obj_template, S)
+    end
+
+    methods (Static)
+        % Restore object or object array from a structure created by to_struct.
+        % The optional input object over-rides the object class type held in the
+        % structure, and provides any missing fields if recovering from an
+        % incomplete structure.
+        obj = from_struct (S, varargin)
+    end
+
+    methods
+        % Update structure created from earlier class versions to the current
+        % version. Converts the bare structure for a scalar instance of an object.
+        % Overload this method for customised
+        S_updated = convert_old_struct (obj, S, ver)
+    end
+
+    methods (Access=protected)
+        % Restore object from a structure which describes earlier versions of an
+        % object.
+        % Normally it is sufficient simply to overload convert_old_struct. If
+        % the class design is particularly complex it may be necessary to
+        % overload this method for the class you are writing to be able
+        % to read old structures.
+        obj = from_old_struct (obj_template, S)
+    end
+
+
+    %---------------------------------------------------------------------------
+    %   Save/load object or array of objects to file
+    %---------------------------------------------------------------------------
+    methods
+        % Used by Matlab to perform conversion to the custom serializable
+        % structure prior to saving with the Matlab intrinsic save function.
+        S = saveobj (obj)
+    end
+
+    methods (Static)
+        % Used by Matlab to restore objects using the Matlab intrinsic load
+        % function.
+        obj = loadobj (S, varargin)
+    end
+
+
+    %---------------------------------------------------------------------------
+    %   Serialization or deserialization of object or array of objects
+    %---------------------------------------------------------------------------
+    methods
+        % Serialize an object or array of objects
+        byte_array = serialize (obj)
+
+        % Return the size of the serialized object
+        [nbytes, S] = serial_size (obj)
+    end
+
+    methods (Static)
+        % Recover an object or array of objects that were serialized using the
+        % method serialize
+        [obj, nbytes] = deserialize (byte_array, pos)
+    end
+
+
+    %---------------------------------------------------------------------------
+    %   Testing equality of serializable objects
+    %---------------------------------------------------------------------------
+    methods
+        % Return logical variable stating if two serializable objects are equal
+        % or not
+        [iseq, mess] = eq (obj1, obj2, varargin)
+
+        % Return logical variable stating if two serializable objects are
+        % unequal or not
+        [isne, mess] = ne (obj1, obj2, varargin)
+    end
+
+    methods (Access=protected)
+        % Pre-comparison of objects in overloaded method eq for serializable
+        % objects in the case when the default method needs to be customised
+        [is, mess, name_a, name_b, namer, argi] = process_inputs_for_eq (...
+            lhs_obj, rhs_obj, narg_out, names, varargin)
+    end
+
+
+    %---------------------------------------------------------------------------
+    %   Object validation
+    %---------------------------------------------------------------------------
+    methods
+        % Check validity of interdependent properties
+        obj = check_combo_arg (obj)
+    end
+
+    methods (Access=protected)
+        % Utility to simplify the code of a class constructor
+        [obj, remains] = set_positional_and_key_val_arguments (obj, ...
+            positional_param_names_list, old_keyval_compat, varargin)
+    end
+
+    methods
         % Developer property. Intended for creating algorithms, which
         % change bunch of interdependent properties one after another
         % without overloading the class.
@@ -252,210 +355,24 @@ classdef (Abstract=true) serializable
         % properties to its values so if check_combo_arg throws the error,
         % the interdependent properties are inconsistent and the object is
         % invalid.
-        function do = get.do_check_combo_arg(obj)
-            do = obj.do_check_combo_arg_;
+        function obj = set.do_check_combo_arg (obj, val)
+            % Use a protected method so can overload this set method by children
+            obj = set_do_check_combo_arg (obj, val);
         end
-        function obj = set.do_check_combo_arg(obj,val)
-            %use set function to be able to overload this method by children
-            obj = set_do_check_combo_arg(obj,val);
-        end
-        function [is,mess] = eq(obj,other_obj,varargin)
-            % the generic equality operator, allowing comparison of
-            % serializable objects
-            %
-            % Inputs:
-            % other_obj -- the object or array of objects to compare with
-            % current object
-            % Optional:
-            % any set of parameters equal_to_tol function would accept
-            if nargout == 2
-                [is,mess] = eq_(obj,other_obj,varargin{:});
-            else
-                is = eq_(obj,other_obj,varargin{:});
-            end
-        end
-        function [nis,mess] = ne(obj,other_obj,varargin)
-            if nargout == 2
-                [is,mess] = eq_(obj,other_obj,varargin{:});
-            else
-                is = eq_(obj,other_obj,varargin{:});
-            end
-            nis = ~is;
+
+        function val = get.do_check_combo_arg (obj)
+            val = obj.do_check_combo_arg_;
         end
     end
 
-    methods (Static)
-        function obj = from_struct(in_struct,existing_obj)
-            % restore object or array of objects from a structure,
-            % previously obtained by to_struct operation.
-            % To work with a generic structure, the structure should
-            % contain fields:
-            % serial_name -- containing the name of the class, with empty
-            %                constructor
-            % Inputs:
-            % in_struct    -- the structure, obtained earlier using to_struct
-            %                 method of serializable class
-            % Optional:
-            % existing_obj -- the instance of a serializable
-            %                 object to recover from the structure. This
-            %                 instance of the object will be set as output to
-            %                 the state, defined by in_struct information.
-            %                 if such class is provided, the in_struct do
-            %                 not have to contain the "serial_name" field.
-            %                 Its assumed that the "in_struct" defines the
-            %                 state  of the "existing_obj"
-            % Returns:
-            % obj          -- initialized to the state, defined by in_struct
-            %                 structure, instance of the object, which
-            if nargin == 1
-                existing_obj = [];
-            end
-            obj = from_struct_(in_struct,existing_obj);
-        end
-
-        function [obj,nbytes] = deserialize(byte_array,pos)
-            % recover the object from the serialized into array of bytes
-            % Inputs:
-            % byte_array -- 1D array of bytes, obtained by some
-            %               serialization operation
-            % pos        -- the location of the initial position of
-            %               the sequence to deserialize in the input byte
-            %               array. If absent, assumed to be 1;
-            % Returns:
-            % obj        -- deserialized object
-            % nbytes     -- the number of bytes the object occupies in the
-            %               input array of bytes
-            if nargin==1
-                pos = 1;
-            end
-            [obj,nbytes] = deserialize_(byte_array,pos);
-        end
-
-        function obj = loadobj(S,varargin)
-            % Generic method, used by particular class loadobj method
-            % to recover any serializable class
-            %   >> obj = loadobj(S)
-            %
-            % Input:
-            % ------
-            %   S       Either (1) an object of the class, or (2) a structure
-            %           or structure array previously obtained by saveobj
-            %           method
-            %  class_instance -- the instance of a serializable class to
-            %          recover from input S
-            %
-            % Output:
-            % -------
-            %   obj     Either (1) the object passed without change, or (2) an
-            %           object (or object array) created from the input structure
-            %           or structure array)
-            obj = loadobj_(S,varargin{:});
-        end
-    end
     methods(Access=protected)
-        function obj = set_do_check_combo_arg(obj,val)
-            % overloadable setters for checking interdependent properties.
-            % May be overloaded by children for example to change the check
-            % in compositing properties which values are in turn
-            % serializable
-            obj.do_check_combo_arg_ = logical(val);
-        end
-        %------------------------------------------------------------------
-        function obj = from_old_struct(obj,inputs)
-            % Restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain a version or the version, stored
-            % in the structure does not correspond to the current version
-            % of the class.
-            %
-            % By default, this function interfaces the default from_bare_struct
-            % method, but when the old structure substantially differs from
-            % the modern structure, this method needs the specific overloading
-            % to allow loadobj to recover new structure from an old structure.
-            %
-            %if isfield(inputs,'version') % do checks for previous versions
-            %   Add appropriate code to convert from specific version to
-            %   modern version
-            %end
-            if isfield(inputs,'array_dat')
-                obj = obj.from_bare_struct(inputs.array_dat);
-            else
-                obj = obj.from_bare_struct(inputs);
-            end
-        end
-        function [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                positinal_param_names_list,old_keyval_compat,varargin)
-            % Utility method, to use in a serializable class constructor,
-            % allowing to specify the constructor parameters in the form:
-            %
-            % ObjConstructor(positional_par1,positional_par2,positional_par3,...
-            % positional_par...,key1,val1,key2,val2,...keyN,valN);
-            %
-            % The keys are the names of the properties and the values are
-            % the values of the properties to set.
-            % The positional parameters are intended to be the values of
-            % the properties with names defined in the
-            % positinal_param_names_list list.
-            %
-            % Everything not identified as positional parameters or
-            % Key-Value pair is returned in remains cellarray
-            %
-            % Inputs:
-            % positinal_param_names_list
-            %            -- cellarray of positional parameter names,
-            %               coinciding with the names of the properties the
-            %               function is called to set
-            % old_keyval_compat
-            %            -- if set to true, keys in varargin may have form
-            %               '-keyN' in addition to 'keyN'. Deprecation
-            %                warning is issued for this kind of names.
-            % varargin   -- cellarray of the constructor inputs, in the
-            %               form, described above.
-            %
-            % End of positional parameters list is established by finding
-            % in varargin the element, belonging to the
-            % positinal_param_names_list  (first key)
-            %
-            % If the same property is defined using positional parameter
-            % and as key-value pair, the key-val parameter value takes
-            % priority.
-            %
-            %
-            % EXAMPLE:
-            % if class have the properties {'a1'=1, 'a2'='blabla',
-            % 'a3'=sqw() 'a4=[1,1,1], 'a5'=something} and these properties
-            % are the independent properties defining the state of the
-            % object and provided in positional_param_names_list as:
-            % ppp = {'a1','a2','a3','a4','a5'}
-            % Then the call to the function with the list of input parameters:
-            % varargin = {1,'blabla',an_sqw_obj,'a4',[1,0,0],'blabla'}
-            % in the form:
-            %>> [obj,remains] = set_positional_and_key_val_arguments(obj,ppp,false,varargin{:});
-            %
-            % sets up the three first arguments as positional parameters,
-            % for properties a1,a2 and a3, a4 is set as key-value pair,
-            % 'blabla' is returned in remains and property a5 remains
-            % unset.
-            %
-            %
-            [obj,remains] = ...
-                set_positional_and_key_val_arguments_(obj,...
-                positinal_param_names_list,old_keyval_compat,varargin{:});
-            %
-            % Simple Code sample to insert into new object constructor
-            % to use this function as part of generic constructor:
-            %
-            % flds = obj.saveableFields();
-            % [obj,remains] = obj.set_positional_and_key_val_arguments(...
-            %        flds,false,varargin{:});
-            %  if ~isempty(remains) % process the parameters not recognized
-            %                       % as positional or key-value arguments
-            %      error('HORACE:class_name:invalid_argument',...
-            %           ' Class constructor has been invoked with non-recognized parameters: %s',...
-            %                         disp2str(remains));
-            %  end
+        function obj = set_do_check_combo_arg (obj, val)
+            % Allows overloading the property do_check_combo_arg_ over the tree
+            % of serializable objects where each contains its own 
+            % do_check_combo_ property or inheritance of different serializable
+            % objects where parent and a child have their own do_check_combo_arg_
+            % property.
+            obj.do_check_combo_arg_ = logical (val);
         end
     end
 end

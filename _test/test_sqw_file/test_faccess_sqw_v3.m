@@ -77,7 +77,7 @@ classdef test_faccess_sqw_v3< TestCase
             sqw_ob = sqw_ob.change_header(hdr);
 
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()file_delete(tf));
 
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob,tf);
@@ -221,7 +221,7 @@ classdef test_faccess_sqw_v3< TestCase
             tob = tob.init(sqw_ob);
 
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()file_delete(tf));
 
             tob = tob.set_file_to_update(tf);
             tob=tob.put_sqw();
@@ -251,7 +251,7 @@ classdef test_faccess_sqw_v3< TestCase
             sqw_ob = sqw_ob.change_header(hdr);
 
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()file_delete(tf));
 
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob,tf);
@@ -282,7 +282,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(isa(sqw_ob,'sqw'));
 
             tf = fullfile(tmp_dir,'test_save_sqwV3toV2.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()file_delete(tf));
 
             tob = faccess_sqw_v3(sqw_ob);
             tob = tob.set_file_to_update(tf);
@@ -330,9 +330,9 @@ classdef test_faccess_sqw_v3< TestCase
             test_name_2 = 'test_wrong_file_name_activated_2.sqw';
             targ_file_2 = fullfile(tmp_dir(),test_name_2);
             wrt.delete();
-            clob_for_tf1 = onCleanup(@()delete(targ_file));
+            clob_for_tf1 = onCleanup(@()file_delete(targ_file));
             copyfile(targ_file,targ_file_2);
-            clob_for_tf2 = onCleanup(@()delete(targ_file_2));
+            clob_for_tf2 = onCleanup(@()file_delete(targ_file_2));
 
             % test file has been recovered with the name test_name_2.
             ld = sqw_formats_factory.instance.get_loader(targ_file_2);
@@ -345,7 +345,7 @@ classdef test_faccess_sqw_v3< TestCase
             test_name = 'test_correct_activation.sqw';
             targ_file = fullfile(tmp_dir(),test_name);
             copyfile(obj.sample_file,targ_file);
-            clob = onCleanup(@()delete(targ_file));
+            clob = onCleanup(@()file_delete(targ_file));
 
             fo = faccess_sqw_v3();
             fo = fo.init(targ_file);

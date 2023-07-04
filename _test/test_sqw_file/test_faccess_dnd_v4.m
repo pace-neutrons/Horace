@@ -297,6 +297,11 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
             sldr = faccess_dnd_v4(test_file);
             sample_dnd = sldr.get_dnd('-ver');
             sldr.delete();
+            pix_cc = [eye(3),ones(3,1)];
+            orig_img = org_dnd.proj.transform_pix_to_img(pix_cc);
+            samp_img = sample_dnd.proj.transform_pix_to_img(pix_cc);
+            assertElementsAlmostEqual(orig_img,samp_img);
+            sample_dnd.proj = org_dnd.proj;
 
             assertEqualToTol(org_dnd,sample_dnd,'tol',1.e-12,'-ignore_date');
         end

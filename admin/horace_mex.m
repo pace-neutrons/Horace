@@ -178,8 +178,8 @@ function mex_single (in_rel_dir, out_rel_dir, varargin)
 %
 % mex a set of files to produce a single mex file, the file with the mex
 % function has to be first in the  list of the files to compile
-%
 
+fprintf('**** compiling: %s\n',varargin{1})
 curr_dir = pwd;
 if(nargin<1)
     error('MEX_SINGLE:invalid_arg',' request at leas one file name to process');

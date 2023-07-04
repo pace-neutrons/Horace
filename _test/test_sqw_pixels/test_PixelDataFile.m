@@ -1,8 +1,9 @@
-classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
+classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
 
     properties
         sample_dir;
         sample_file;
+        stored_config
     end
 
     methods
@@ -12,11 +13,20 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             hc = horace_paths;
             obj.sample_dir = hc.test_common;
             obj.sample_file  = fullfile(obj.sample_dir,'w2d_qe_sqw.sqw');
+            hc = hor_config;
+            obj.stored_config = hc.get_data_to_store();
+            hc.saveable = false;
+        end
+        function delete(obj)
+            hc = hor_config;
+            clear_config(obj,hc);
+            hc.saveable = true;
         end
 
         function test_get_raw_pix(obj)
             sw = warning('off','HORACE:old_file_format');
             clOb = onCleanup(@()warning(sw));
+
 
             df = PixelDataFileBacked(obj.sample_file);
             assertEqual(df.num_pixels,107130)
@@ -79,16 +89,86 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             assertEqual(df,df_rec);
         end
 
+        function test_construct_from_faccessor_keep_tail(obj)
+
+            hc = hor_config;
+            clOb = onCleanup(@()clear_config(obj,hc));
+
+            mchs = 10000;
+            hc.mem_chunk_size = mchs;
+            hc.log_level = -1;
+
+            wkf = fullfile(tmp_dir,'pix_data_with_tail.sqw');
+            clObF = onCleanup(@()file_delete(wkf));
+            copyfile(obj.sample_file,wkf,'f');
+
+
+            ldr = sqw_formats_factory.instance().get_loader(wkf);
+            ldr = ldr.upgrade_file_format();
+            assertTrue(PixelDataBase.do_filebacked(ldr.npixels));
+            ldr.delete();
+
+            pdf = PixelDataFileBacked(wkf);
+            pdf_copy = PixelDataFileBacked(pdf);
+
+            for i=1:pdf.num_pages
+                pdf.page_num = i;
+                pdf_copy.page_num = i;
+                assertEqual(pdf.page_num, i)
+
+                assertEqual(pdf.data,pdf_copy.data);
+            end
+            pdf.delete();
+            pdf_copy.delete();
+            clear_config(obj,hc);
+        end
+
+        function test_construct_from_data_loader_check_advance_with_tail(obj)
+
+            hc = hor_config;
+            clOb = onCleanup(@()clear_config(obj,hc));
+
+            mchs = 10000;
+            hc.mem_chunk_size = mchs;
+            hc.log_level = -1;
+
+            wkf = fullfile(tmp_dir,'pix_data_with_tail.sqw');
+            clObF = onCleanup(@()file_delete(wkf));
+            copyfile(obj.sample_file,wkf,'f');
+
+
+            ldr = sqw_formats_factory.instance().get_loader(wkf);
+            ldr = ldr.upgrade_file_format();
+            assertTrue(PixelDataBase.do_filebacked(ldr.npixels));
+
+            pdf = PixelDataFileBacked(wkf);
+
+            for i=1:pdf.num_pages
+                pdf.page_num = i;
+                assertEqual(pdf.page_num, i)
+
+                [pix_idx_start, pix_idx_end] = pdf.get_page_idx_;
+                pix_to_read = pix_idx_end - pix_idx_start + 1;
+
+                ref_data = double(ldr.get_pix_in_ranges(pix_idx_start,pix_to_read));
+
+                assertEqual(pdf.data,ref_data);
+            end
+            pdf.delete();
+            ldr.delete();
+            clear_config(obj,hc);
+        end
+
         function test_construct_from_data_loader_check_advance(obj)
             sw = warning('off','HORACE:old_file_format');
             clObW = onCleanup(@()warning(sw));
 
             hc = hor_config;
-            mem_ch = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mem_ch));
+            clOb = onCleanup(@()clear_config(obj,hc));
 
             mchs = 10000;
             hc.mem_chunk_size = mchs;
+            hc.log_level = -1;
 
             ldr = sqw_formats_factory.instance().get_loader(obj.sample_file);
             assertTrue(PixelDataBase.do_filebacked(ldr.npixels));
@@ -107,6 +187,7 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
                 assertEqual(pdf.data,ref_data);
             end
 
+            clear_config(obj,hc);
             ldr.delete();
         end
 
@@ -115,11 +196,11 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             clObW = onCleanup(@()warning(sw));
 
             hc = hor_config;
-            mem_ch = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mem_ch));
+            clOb = onCleanup(@()clear_config(obj,hc));
 
             mchs = 10000;
             hc.mem_chunk_size = mchs;
+            hc.log_level = -1;
 
             ldr = sqw_formats_factory.instance().get_loader(obj.sample_file);
             assertTrue(PixelDataBase.do_filebacked(ldr.npixels));
@@ -136,11 +217,11 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             ref_data = double(ldr.get_pix_in_ranges(10*mchs+1,ldr.npixels-10*mchs));
             assertEqual(pdf.data,ref_data);
 
+            clear_config(obj,hc);
             ldr.delete();
         end
 
         function test_empty_constructor(~)
-            hc = hor_config;
             pdf = PixelDataFileBacked();
             assertEqual(pdf.page_size,0);
             assertTrue(pdf.is_filebacked);
@@ -152,5 +233,10 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             assertEqual(pdf.pix_range,PixelDataBase.EMPTY_RANGE_)
             assertEqual(pdf.data_range,PixelDataBase.EMPTY_RANGE)
         end
+
+        function clear_config(obj,hc)
+            set(hc,obj.stored_config);
+        end
+
     end
 end

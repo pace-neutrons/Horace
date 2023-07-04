@@ -1,5 +1,5 @@
-function  [obj,remains] = set_positional_and_key_val_arguments_(obj,...
-    positional_arg_names,suport_dashed_keys,varargin)
+function  [obj, remains] = set_positional_and_key_val_arguments_ (obj, ...
+    positional_arg_names, suport_dashed_keys, varargin)
 % Utility function, to use in a serializable class constructor,
 % allowing to specify the constructor parameters in the form:
 %
@@ -36,7 +36,7 @@ function  [obj,remains] = set_positional_and_key_val_arguments_(obj,...
 % sets up the three first argument as positional parameters, for properties
 % a1,a2 and a3, a4 are set as positional arguments and 'a3' and 'a4' are
 % reset as key-value pair after this. `cccc` is returned in remains
-%
+
 
 if nargin == 1
     remains = {};
@@ -55,7 +55,7 @@ if any(is_positional)
             ' Looks like some keys from key-value pairs have been identified as property values'],...
             sum(is_positional),numel(positional_arg_names))
     end
-    pos_arg_val = argi(is_positional);
+    pos_arg_val   = argi(is_positional);
     pos_arg_names = positional_arg_names(1:numel(pos_arg_val));
     % Extract and set up positional arguments, which should always come
     % first
@@ -65,7 +65,7 @@ if any(is_positional)
         obj.(pos_arg_names{i}) = pos_arg_val{i};
     end
 end
-%
+
 for i=1:numel(keys_keyval)
     obj.(argi{keys_keyval(i)}) = argi{val_keyval(i)};
 end
@@ -74,13 +74,16 @@ end
 obj.do_check_combo_arg_ = true;
 obj=obj.check_combo_arg();
 
+end
 
 
+%-------------------------------------------------------------------------------
 function [obj,remains,key_pos,val_pos,is_positional,argi] = parse_keyval_argi( ...
     obj,arg_names,support_dash_option,varargin)
 % find keys, corresponding to key arguments and set up object to the values
 % which follow the keys in the cellarray of input arguments
-%
+
+
 [is_key,deprecated_fields,argi] = is_char_key_member(obj,arg_names,support_dash_option,varargin{:});
 if support_dash_option
     if ~isempty(deprecated_fields)
@@ -91,7 +94,6 @@ if support_dash_option
             class(obj),disp2str(deprecated_fields));
     end
 end
-
 
 is_positional = ~is_key;
 if ~any(is_key)
@@ -111,14 +113,19 @@ if val_pos(end)>numel(varargin) || any(ismember(key_pos,val_pos))
     error('HERBERT:serializable:invalid_argument', ...
         'should be even number of key-value pairs, but some keys do not have correspondent pair-value')
 end
+
 % find places of key-val pairs
 is_key(val_pos) = true;
 remains = varargin(~is_key & ~is_positional);
 
+end
+
+
+%-------------------------------------------------------------------------------
 function [is,deprecated_fields,argi] = is_char_key_member(obj,key_list,support_dash,varargin)
 % identify character keys belonging to the provided cellarray within the list of
 % the inputs parameters
-%
+
 is = false(1,numel(varargin));
 deprecated_fields = {};
 if support_dash
@@ -146,7 +153,7 @@ for i=1:numel(varargin)
         % character parameter may be a key for some property or character value
         % for a char positional parameter
 
-        % if char value starts with '-' its probablyt a key
+        % if char value starts with '-' its probabyt a key
         if ischar(obj.(key_list{i})) || isstring(obj.(key_list{i}))
             if strncmp(par,'-',1)
                 par = extractAfter(par,1);
@@ -157,7 +164,7 @@ for i=1:numel(varargin)
         end
 
     end
-    %
+    
     if support_dash
         is_key = cellfun(@(x)compare_par(par,x,min_comp_base),key_list);
         is_depr_key = cellfun(@(x)compare_par(par,['-',x],min_comp_base+1),key_list);
@@ -191,6 +198,10 @@ for i=1:numel(varargin)
     end
 end
 
+end
+
+
+%-------------------------------------------------------------------------------
 function eq = compare_par(par,key,min_comp)
 % let's prohibit keyword abbreviation to less then specified number of symbols.
 if isinf(min_comp)
@@ -203,3 +214,5 @@ if numel(par) < comp_base
     return;
 end
 eq = strncmp(par,key,numel(par));
+
+end

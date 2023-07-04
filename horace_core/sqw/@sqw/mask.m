@@ -5,16 +5,16 @@ function wout = mask (win, mask_array)
 %
 % Input:
 % ------
-%   win                 Input sqw object
+%   win                Input sqw object
 %
-%   mask_array          Array of 1 or 0 (or true or false) that indicate
+%   mask_array         Array of 1 or 0 (or true or false) that indicate
 %                      which points to retain (true to retain, false to ignore)
-%                       Numeric or logical array of same number of elements
-%                      as the data_.
+%                      Numeric or logical array of same number of elements
+%                      in the sqw.data.npix array.
 %                       Note: mask will be applied to the stored data array
 %                      according as the projection axes, not the display axes.
 %                      Thus permuting the display axes does not alter the
-%                      effect of masking the data_.
+%                      effect of masking the data.
 %
 % Output:
 % -------
@@ -24,11 +24,8 @@ function wout = mask (win, mask_array)
 %
 
 % Initialise output argument
-% if win.has_pixels()
-%     wout = copy(win, 'exclude_pix', true);  % pixels will be assigned later
-% else
 wout = copy(win);
-% end
+
 
 % Trivial case of empty or no mask arguments
 if nargin==1 || isempty(mask_array)

@@ -6,19 +6,35 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         VARIANCE_IDX = 9;
         ALL_IN_MEM_PG_SIZE = 1e12;
         FLOAT_TOLERANCE = 4.75e-4;
+        config_par
     end
 
     methods
 
         function obj = test_PixelData_operations(~)
             obj = obj@TestCase('test_PixelData_operations');
+            hc = hor_config;
+
+            obj.config_par = hc.get_data_to_store();
+            hc.saveable = false;
+
+        end
+        function delete(obj)
+            hc = hor_config;
+            hc.saveable = true;
+            if ~isempty(obj.config_par)
+                set(hc,obj.config_par);
+            end
         end
 
         function test_do_unary_op_cosine_filebacked(obj)
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWob = onCleanup(@()warning(ws));
+
 
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 50);
             npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             pix = pix.do_unary_op(@cos);
             % Loop back through and validate values
@@ -33,7 +49,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 expected_data(obj.VARIANCE_IDX, :);
 
             assertEqual(file_backed_data, expected_data, '', obj.FLOAT_TOLERANCE);
-
+            clear_config(obj,hc);
         end
 
         function test_do_unary_op_output_not_change_orig(~)
@@ -44,9 +60,14 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_tmp_file_redirected(obj)
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWob = onCleanup(@()warning(ws));
+
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 50);
             npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+            [pix,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
 
             % Make temp file
             sin_pix = pix.do_unary_op(@sin);
@@ -62,6 +83,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertTrue(is_file(sin_pix.full_filename))
             assertTrue(is_file(sin_pix_cpy.full_filename))
             assertEqualToTol(sin_pix_cpy.get_fields('all', 'all'), data)
+            clear_config(obj,hc);
         end
 
         function test_unary_op_memory_vs_filebacked(obj)
@@ -98,25 +120,35 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 @tanh, [0, 3], ...
                 };
 
+            % allow small pages, and clean-up these setting on completeon
+            hc = hor_config;
+            conf = hc.get_data_to_store();
+            clOb = onCleanup(@()set(hc,conf));
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWob = onCleanup(@()warning(ws));
+
             % For each unary operator, perform the operation on some file-backed
             % data and compare the result to the same operation used on the same
             % data all held in memory
-            num_pix = 7;
-            npix_in_page = 3;
+            num_pix = 55;
+            npix_in_page = 10;
             for i = 1:2:numel(unary_ops)
                 unary_op = unary_ops{i};
                 data_range = unary_ops{i+1};
 
                 data = get_random_data_in_range( ...
                     PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix, data_range);
-                pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+                [pix,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
                 pix = pix.do_unary_op(unary_op);
 
-                pix_in_mem = PixelDataBase.create(data);
+                pix_in_mem = PixelDataMemory(data);
                 pix_in_mem = pix_in_mem.do_unary_op(unary_op);
 
-                assertEqualToTol(pix, pix_in_mem, 'reltol',1e-4);
+                assertEqualToTol(pix, pix_in_mem, 'tol',[1e-6, 1e-4]);
             end
+            clear_config(obj,hc);
         end
 
         function test_mask_all_ones_memory(obj)
@@ -140,12 +172,17 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_raises_if_mask_array_len_neq_to_pg_size_or_num_pixels(obj)
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWob = onCleanup(@()warning(ws));
+
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 30);
             npix_in_page = 10;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
             mask_array = zeros(5);
             f = @() pix.mask(mask_array);
             assertExceptionThrown(f, 'HORACE:mask:invalid_argument');
+            clear_config(obj,hc);
         end
 
         function test_mask_all_specified_memory(obj)
@@ -174,10 +211,14 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_npix_filebacked(obj)
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWob = onCleanup(@()warning(ws));
 
             data = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 11;
-            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+            [pix,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
 
             mask_array = [0, 1, 1, 0, 1, 0];
             npix = [4, 5, 1, 2, 3, 5];
@@ -191,6 +232,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             actual_data = pix.get_fields('all', 1:pix.num_pixels);
             assertElementsAlmostEqual(actual_data, expected_data,'relative',4e-8);
             assertElementsAlmostEqual(pix.pix_range, ref_range,'relative',4e-8);
+            clear_config(obj,hc);
         end
 
         function test_mask_npix_memory(obj)
@@ -267,58 +309,77 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         end
 
         function test_equal_to_tol_same_data_filebacked(obj)
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWob = onCleanup(@()warning(ws));
 
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 10;
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix2,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
             assertTrue(equal_to_tol(pix1, pix2));
             assertTrue(equal_to_tol(pix2, pix1));
+            clear_config(obj,hc);
         end
 
         function test_equal_to_tol_w_tolerance_filebacked(obj)
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWob = onCleanup(@()warning(ws));
 
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 10;
             tol = 0.1;
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            pix2 = obj.get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
+            [pix2,~,hc] = obj.get_pix_with_fake_faccess(data - (tol - 0.01), npix_in_page);
+
             assertTrue(equal_to_tol(pix1, pix2, tol));
             assertTrue(equal_to_tol(pix2, pix1, tol));
+            clear_config(obj,hc);
         end
 
         function test_equal_to_tol_diff_data_filebacked(obj)
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWob = onCleanup(@()warning(ws));
+
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             data2 = data;
             data2(11) = 0.9;
             npix_in_page = 10;
 
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
-            pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page);
+            [pix2,~,hc] = obj.get_pix_with_fake_faccess(data2, npix_in_page);
             assertFalse(equal_to_tol(pix1, pix2));
             assertFalse(equal_to_tol(pix2, pix1));
+            clear_config(obj,hc);
         end
 
         function test_equal_to_tol_same_data_memory_filebacked(obj)
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWob = onCleanup(@()warning(ws));
+
 
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 6;
 
             pix1 = PixelDataBase.create(data);
-            pix2 = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            [pix2,~,hc] = obj.get_pix_with_fake_faccess(data, npix_in_page);
             assertTrue(equal_to_tol(pix1, pix2));
             assertTrue(equal_to_tol(pix2, pix1));
+            clear_config(obj,hc);
         end
 
         function test_equal_to_tol_diff_data_memory_filebacked(obj)
+            ws = warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clWob = onCleanup(@()warning(ws));
 
             data = ones(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 20);
             npix_in_page = 6;
 
             pix1 = PixelDataBase.create(data);
-            pix2 = obj.get_pix_with_fake_faccess(data - 1, npix_in_page);
+            [pix2,~,hc] = obj.get_pix_with_fake_faccess(data-1, npix_in_page);
             assertFalse(equal_to_tol(pix1, pix2));
             assertFalse(equal_to_tol(pix2, pix1));
+            clear_config(obj,hc);
         end
 
         function test_equal_to_tol_nan_equal_true_memory(~)
@@ -339,17 +400,19 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             assertFalse(equal_to_tol(pix1, pix2, 'nan_equal', false));
         end
 
+        function clear_config(obj,hc)
+            set(hc,obj.config_par);
+        end
     end
 
     methods (Static)
         % -- Helpers --
-        function [pix,pix_range] = get_pix_with_fake_faccess(data, npix_in_page)
+        function [pix,pix_range,hc] = get_pix_with_fake_faccess(data, npix_in_page)
+            hc = hor_config;
+            hc.saveable = false;
+            hc.mem_chunk_size = npix_in_page;
             pix = PixelDataFileBacked(data);
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
-%             faccess = FakeFAccess(data);
-            % give it a real file path to trick code into thinking it exists
-%             faccess = faccess.set_filepath('fake_file');
-%             mem_alloc = npix_in_page;
         end
 
         function ref_range = get_ref_range(data)

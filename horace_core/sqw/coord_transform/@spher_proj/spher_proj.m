@@ -44,7 +44,9 @@ classdef spher_proj<aProjectionBase
         hor2matlab_transf_ = ...
             [0,0,1;... % The transformation from
             1 ,0,0;... % Horace pixel coordinate system to the axes above to
-            0 ,1,0];   % allow to use MATLAB sph2cart/cart2sph functions.  
+            0 ,1,0];   % allow to use MATLAB sph2cart/cart2sph functions. 
+        % the matrix arranged in rows, as multipled by 3xNpix matrix of
+        % Q-coordinates
 
 
         pix_to_matlab_transf_ ; % the transformation used for conversion
@@ -84,7 +86,7 @@ classdef spher_proj<aProjectionBase
                     obj = obj.from_bare_struct(varargin{1});
                 end
             else
-                opt =  [ortho_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
+                opt =  [spher_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
                     opt,false,varargin{:});
@@ -136,7 +138,7 @@ classdef spher_proj<aProjectionBase
         function obj = set.type(obj,val)
             obj = check_and_set_type_(obj,val);
         end
-        function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation(obj,ndim)
+        function [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the constants and parameters used for transformation
             % from Crystal Cartezian to spherical coordinate system and
             % back
@@ -167,7 +169,7 @@ classdef spher_proj<aProjectionBase
 
             %
             % TODO: #954 NEEDS verification:
-            [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_(obj,ndim);
+            [rot_to_img,offset,theta_to_ang,phi_to_ang]=get_pix_img_transformation_(obj,ndim,varargin{:});
 
         end
         %------------------------------------------------------------------
@@ -208,15 +210,6 @@ classdef spher_proj<aProjectionBase
     end
 
     methods(Access = protected)
-        function mat = get_u_to_rlu_mat(obj)
-            % TODO: #954 NEEDS verification:
-            % u_to_rlu matrix used to tranfer offset expressed in Crystal Cartesian
-            % into rlu (normally this matrix contans inverse operation)
-            %
-            bm = bmatrix(obj.alatt,obj.angdeg);
-            mat = inv(bm);
-            mat = [mat,zeros(3,1);[0,0,0,1]];
-        end
     end
     %=====================================================================
     % SERIALIZABLE INTERFACE
@@ -237,6 +230,7 @@ classdef spher_proj<aProjectionBase
             % successful
             %
             obj = check_combo_arg_(obj);
+            obj = check_combo_arg@aProjectionBase(obj);            
         end
         %------------------------------------------------------------------
         function ver  = classVersion(~)
@@ -257,7 +251,5 @@ classdef spher_proj<aProjectionBase
             obj = spher_proj();
             obj = loadobj@serializable(S,obj);
         end
-    end
-    methods(Access=protected)
     end
 end

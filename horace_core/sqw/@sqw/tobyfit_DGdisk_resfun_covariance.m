@@ -112,6 +112,11 @@ for iw = 1:numel(win)
     spec_to_rlu = lookup.spec_to_rlu{iw};
 
     cov_hkle{iw} = transform_matrix (cov_x, dq_mat);
+    %TODO: Re #1040 this code is not consistent with generic projection:
+    if ~isa(wtmp.data.proj,'ortho_proj')
+        error('HORACE:sqw:not_implemented', ...
+            'resolution can not currently be calculated for any projection except linear projection')
+    end    
     cov_proj{iw} = transform_matrix (cov_hkle{iw}, inv(wtmp.data.u_to_rlu));
 
     rlu_to_spec = invert_matrix (spec_to_rlu);
@@ -131,13 +136,13 @@ end
 
 %=============================================================================
 function Cout = transform_matrix (C,B)
-% Compute the matrix product Cout = B * C * B' for nD matricies
+% Compute the matrix product Cout = B * C * B' for nD matrices
 % B can be a 2D matrix and dimension expansion is performed
 
 szC = size(C);
 szB = size(B);
 if numel(szC)==2 && numel(szB)==2
-    % Just do straighforward matlab matric multiplication
+    % Just do straightforward MATLAB matric multiplication
     Cout = B * C * B';
 else
     if numel(szB)==2

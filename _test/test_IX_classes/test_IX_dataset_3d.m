@@ -18,7 +18,7 @@ classdef test_IX_dataset_3d <  TestCase
         end
         function test_d3d_to_IX_dataset3D(~ )
             ax = ortho_axes([0,1],[0,0.1,1],[0,0.1,1],[5,1,10]);
-            proj = ortho_proj();
+            proj = ortho_proj('alatt',3,'angdeg',90);
             d3d_obj = d3d(ax,proj);
             d3d_obj.s = ones(11,11,6);
             d3d_obj.e = 2*ones(11,11,6);

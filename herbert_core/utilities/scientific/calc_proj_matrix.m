@@ -75,8 +75,8 @@ else % master mode, calculate whole transformation matrix
     angdeg = var2;
     % Get matrix to convert from rlu to orthonormal frame defined by u,v; and
     b_matrix  = bmatrix(alatt, angdeg);       % bmat takes Vrlu to Vxtal_cart
-    ub_matrix = ubmatrix(u, v, b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
-    u_matrix  = ub_matrix / b_matrix;         % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
+    [~,u_matrix] = ubmatrix(u, v, b_matrix);  % ubmat takes Vrlu to V in orthonormal frame defined by u, v
+     % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
 end
 
 % Matrix to convert coords in orthormal frame defined by notional directions of u, v, to

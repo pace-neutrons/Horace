@@ -171,19 +171,25 @@ img_signal = sqw_obj.data.s;
 data_range = PixelDataBase.EMPTY_RANGE;
 pix_out = PixelDataMemory();
 
-[npix_chunks, idxs] = split_vector_fixed_sum(sqw_obj.data.npix(:), pix_out.DEFAULT_PAGE_SIZE);
+[npix_chunks, idxs] = split_vector_fixed_sum(sqw_obj.data.npix(:), pix_out.default_page_size);
 
-for i=1:sqw_obj.pix.num_pages
-    [sqw_obj.pix, pix_out.data] = sqw_obj.pix.load_page(i);
+npg = sqw_obj.pix.num_pages;
+pix = sqw_obj.pix;
+pix_idx = 1;
+for i=1:npg
+    pix.page_num = i;
+    pix_out.data = pix.data;
     npix_chunk = npix_chunks{i};
     idx = idxs(:, i);
 
     pix_out.signal = repelem(img_signal(idx(1):idx(2)), npix_chunk);
     pix_out.variance = 0;
-    data_range = [min(data_range(1,:),pix_out.data_range(1,:));...
-                  max(data_range(2,:),pix_out.data_range(2,:))];
+    data = pix_out.data;
+	data_range = pix_out.pix_minmax_ranges(data, ...
+                                           data_range);
 
-    sqw_obj.pix.format_dump_data(pix_out.data);
+    sqw_obj.pix.format_dump_data(data,pix_idx);
+    pix_idx = pix_idx+pix_out.num_pixels;
 end
 sqw_obj.pix.data_range = data_range;
 sqw_obj.pix = sqw_obj.pix.finalise();

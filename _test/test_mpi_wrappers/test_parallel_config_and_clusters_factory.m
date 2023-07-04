@@ -182,7 +182,7 @@ classdef test_parallel_config_and_clusters_factory < TestCase
 
             pc.parallel_cluster='her';
             assertEqual(pc.parallel_cluster,'herbert');
-            all_clcfg = pc.known_clust_configs;
+            all_clcfg = pc.known_cluster_configs;
             clust = pc.cluster_config;
             assertEqual(numel(all_clcfg),1);
             assertEqual(all_clcfg{1},clust);
@@ -218,7 +218,7 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             end
             assertEqual(pc.parallel_cluster,'parpool');
 
-            all_clcfg = pc.known_clust_configs;
+            all_clcfg = pc.known_cluster_configs;
             cl_config = pc.cluster_config;
             assertEqual(numel(all_clcfg),1);
             assertEqual(all_clcfg{1},cl_config);
@@ -254,7 +254,7 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             end
             assertEqual(pc.parallel_cluster,'mpiexec_mpi');
 
-            all_clcfg = pc.known_clust_configs;
+            all_clcfg = pc.known_cluster_configs;
             cl_config = pc.cluster_config;
             assertTrue(numel(all_clcfg)>1);
 
@@ -303,7 +303,7 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             end
             assertEqual(pc.parallel_cluster,'slurm_mpi');
 
-            all_clcfg = pc.known_clust_configs;
+            all_clcfg = pc.known_cluster_configs;
             assertEqual(numel(all_clcfg),2);
 
             cl_config = pc.cluster_config;

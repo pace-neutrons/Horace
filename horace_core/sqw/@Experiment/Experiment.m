@@ -266,7 +266,7 @@ classdef Experiment < serializable
     methods
         %Change fields in the experiment with corrections related to aligned
         %crystal lattice parameters and orientation
-        obj=change_crystal(obj,alatt,angdeg,rlu_corr)
+        obj=change_crystal(obj,alignment_info,varargin)
 
         % add or reset instrument, related to the given experiment object
         % array of instruments, or function, which defines the instrument
@@ -433,15 +433,14 @@ classdef Experiment < serializable
                 avh.angdeg = angdeg;
             else % there is at least one run, get lattice parms from first sample
                 avh = avh.to_bare_struct();
-                sampl = obj.samples_{1};
-                if ~isempty(sampl)
-                    avh.alatt = sampl.alatt;
-                    avh.angdeg = sampl.angdeg;
-                else % but if that sample is empty (shouldn't happen, but
-                     % just in case) go back to the defaults from data
-                    avh.alatt = alatt;
-                    avh.angdeg = angdeg;
-                end
+            end
+            sampl = obj.samples_{1};
+            if ~isempty(sampl)
+                avh.alatt = sampl.alatt;
+                avh.angdeg = sampl.angdeg;
+            else
+                avh.alatt  = [];
+                avh.angdeg = [];
             end
         end
         %------------------------------------------------------------------
@@ -619,7 +618,7 @@ classdef Experiment < serializable
             [args,npar] = check_and_expand_function_args_(varargin{:});
         end
 
-        function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,drop_subzone_headers)
+        function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,keep_runid)
             % take cellarray of experiments (e.g., generated from each runfile build
             % during gen_sqw generation)
             % and combine then together into single Experiment info class
@@ -661,6 +660,9 @@ classdef Experiment < serializable
                     sampl{ic}  = exp_cellarray{i}.samples{j};
                     expinfo(ic)= exp_cellarray{i}.expdata(j);
                     detectors(ic) = exp_cellarray{i}.detector_arrays{j};
+                    if ~keep_runid
+                        expinfo(ic).run_id = ic;
+                    end                    
                     ic = ic+1;
                 end
             end

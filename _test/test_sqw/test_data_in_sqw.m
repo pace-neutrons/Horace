@@ -10,7 +10,7 @@ classdef test_data_in_sqw < TestCaseWithSave
     methods
         function obj=test_data_in_sqw(varargin)
             if nargin<1
-                name = 'test_data_sqw_dnd';
+                name = 'test_data_in_sqw';
             else
                 name = varargin{1};
             end
@@ -51,7 +51,7 @@ classdef test_data_in_sqw < TestCaseWithSave
         function test_loadobj_v0_v1(obj)
             ax = ortho_axes([ 1,0.01,2],[-1,1],[0,1],[0,1,10],...
                 'label',{'\zeta','\xi','\eta','E'});
-            ref_obj = data_sqw_dnd(ax,ortho_proj());
+            ref_obj = data_sqw_dnd(ax,ortho_proj('alatt',2*pi,'angdeg',90));
             % occasionally old objects contain npix == 1
             ref_obj.npix = ones(size(ref_obj.npix));
 
@@ -89,15 +89,17 @@ classdef test_data_in_sqw < TestCaseWithSave
             full_img_range = expand_box(img_range(1,:),img_range(2,:));
             full_pix_img_range = proj_0.transform_img_to_pix(full_img_range);
             eval_pix_range = [min(full_pix_img_range,[],2),max(full_pix_img_range,[],2)]';
-            ref_eval_range =  [-7.1945   -7.6191   -3.1416   -4.0000;...
+            ref_eval_range =  [...
+                -7.1945   -7.6191   -3.1416   -4.0000;...
                 14.0451   12.6648    3.1416    4.0000];
             assertElementsAlmostEqual(ref_eval_range,eval_pix_range,'absolute',9.e-5);
             real_pix_range = source_cut.pix.pix_range;
-            pix_ref_range = [-0.1238   -6.7724   -3.0949   -4.0000;...
-                5.6506   11.9775    3.0949    4.0000];
+            pix_ref_range = [...
+                -0.1238   -6.7724   -3.0949   -4.0000;...
+                +5.6506   11.9775    3.0949    4.0000];
+
             assertElementsAlmostEqual(pix_ref_range,real_pix_range,'absolute',9.e-5);
 
-            %             %
             %             % visualise correct image ranges if requested .
             %             co = source_cut.pix.q_coordinates;
             %             figure
@@ -122,25 +124,26 @@ classdef test_data_in_sqw < TestCaseWithSave
 
             full_pix_img_range = proj_r.transform_img_to_pix(full_img_range);
             pix_img_range = [min(full_pix_img_range,[],2),max(full_pix_img_range,[],2)]';
-            ref_imgpix_range = [  -0.0167   -2.7250   -2.7480   -8.0000;...
-                0.5185    2.7250    2.7480    8.0000];
+            ref_imgpix_range = [...
+                -0.0167   -2.7250   -2.7480   -8.0000;...
+                +0.5185    2.7250    2.7480    8.0000];
             assertElementsAlmostEqual(pix_img_range,ref_imgpix_range,'absolute',9.e-5);
 
             real_pix_range = ref_cut.pix.pix_range;
-            ref_pix_range = [  -0.0167   -2.6820   -2.7235   -4.0000;...
-                0.5172    2.7111    2.7227    4.0000];
+            ref_pix_range = [...
+                -0.0167   -2.6820   -2.7235   -4.0000;...
+                +0.5172    2.7111    2.7227    4.0000];
             assertElementsAlmostEqual(real_pix_range,ref_pix_range,'absolute',9.e-5);
 
-            %assertElementsAlmostEqual(real_pix_range,eval_pix_range);
-            %             % visualise correct image ranges if requested.
-            %             figure
-            %             co = ref_cut.pix.q_coordinates;
+            %                         % visualise correct image ranges if requested.
+            %                         figure
+            %                         co = ref_cut.pix.q_coordinates;
             %
-            %             scatter3(co(1,:),co(2,:),co(3,:),'.')
-            %             hold on
-            %             scatter3(full_pix_img_range(1,:),full_pix_img_range(2,:),full_pix_img_range(3,:),'go')
-            %             full_pix_range = expand_box(real_pix_range(1,:),real_pix_range(2,:));
-            %             scatter3(full_pix_range(1,:),full_pix_range(2,:),full_pix_img_range(3,:),'ro')
+            %                         scatter3(co(1,:),co(2,:),co(3,:),'.')
+            %                         hold on
+            %                         scatter3(full_pix_img_range(1,:),full_pix_img_range(2,:),full_pix_img_range(3,:),'go')
+            %                         full_pix_range = expand_box(real_pix_range(1,:),real_pix_range(2,:));
+            %                         scatter3(full_pix_range(1,:),full_pix_range(2,:),full_pix_img_range(3,:),'ro')
 
 
 

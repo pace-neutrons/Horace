@@ -3,8 +3,8 @@ classdef dnd_metadata < serializable
     %contains all information, describing this image.
     %
     % The purpose of this class is storing/restoring DnD object metadata
-    % into custom bindary file to separate dnd image, which may be accessed
-    % by external appliations and other information, serialized within Matlab   
+    % into custom binary file to separate dnd image, which may be accessed
+    % by external applications and other information, serialized within MATLAB   
     %
     properties(Dependent)
         %------------------------------------------------------------------
@@ -108,6 +108,8 @@ classdef dnd_metadata < serializable
                 obj.proj = dnd_obj.proj;
                 if dnd_obj.creation_date_defined
                     obj.creation_date_str = dnd_obj.creation_date;
+                else
+                    obj.creation_date_str = datetime('now');
                 end
             else
                 flds = obj.saveableFields();

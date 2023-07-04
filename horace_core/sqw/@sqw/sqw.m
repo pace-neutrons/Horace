@@ -25,15 +25,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         detpar;
 
         experiment_info;
-
         % The information about the N-D neutron image, containing
         % combined and bin-averaged information about the
         % neutron experiment.
         data;
 
         % access to pixel information, if any such information is
-        % stored within an object. May also return pix_combine_info or
-        % filebased pixels. (TODO -- this should be modified)
+        % stored within an object. May also contain pix_combine_info or
+        % filebased pixels.
         pix;
 
         % The date of the sqw object file creation. As the date is defined both
@@ -178,7 +177,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
 
         % smooth sqw object or array of sqw
-                % objects containing no pixels
+        % objects containing no pixels
         wout = smooth(win, varargin)
         %
         function wout = cut_dnd(obj,varargin)
@@ -204,10 +203,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
         %
-        function range = targ_range(obj,targ_proj)
+        function range = targ_range(obj,targ_proj,varargin)
             % calculate the maximal range of the image may be produced by
             % target projection applied to the current image.
-            range = obj.data.targ_range(targ_proj);
+            range = obj.data.targ_range(targ_proj,varargin{:});
         end
         function status = adjust_aspect(obj)
             % method reports if the plotting operation should adjust
@@ -232,6 +231,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %              some input parameters from source projection
             %              (e.g. lattice if undefined, etc)
             [targ_ax_block,targ_proj] = w.data_.define_target_axes_block(targ_proj, pbin,varargin{:});
+        end
+        function qw=calculate_qw_bins(win,varargin)
+            % Calculate qh,qk,ql,en for the centres of the bins of an
+            % n-dimensional sqw dataset
+            qw = win.data.calculate_qw_bins(varargin{:});
+        end
+        function [q,en]=calculate_q_bins(win)
+            [q,en] = win.data.calculate_q_bins();
         end
     end
     %======================================================================
@@ -267,9 +274,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 % loader
             elseif ~isempty(args.data_struct)
                 if isa(args.data_struct,'horace_binfile_interface')
-                    args.data_struct = obj.get_loader_struct_(...
-                        args.data_struct, args.file_backed);
-                    obj = from_bare_struct(obj,args.data_struct);
+                    if args.file_backed
+                        obj = args.data_struct.get_sqw('-file_backed');
+                    else
+                        obj = args.data_struct.get_sqw();                        
+                    end
                 elseif isfield(args.data_struct,'data')
                     if isfield(args.data_struct.data,'version')
                         obj = serializable.from_struct(args.data_struct);
@@ -453,7 +462,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % and npix array, saving in chunks so they do not need to be held in memory.
             ldr = sqw_formats_factory.instance().get_pref_access(obj);
             ldr = ldr.init(obj, outfile);
-            ldr.put_sqw('-nopix');
+            ldr =ldr.put_sqw('-nopix');
             obj.pix = obj.pix.get_new_handle(ldr);
 
         end
@@ -522,7 +531,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         obj = set_efix(obj,efix,emode);
 
         % Change the crystal lattice and orientation of an sqw object or array of objects
-        wout = change_crystal (obj,varargin)
+        wout = change_crystal (obj,alignment_info,varargin)
 
         %TODO: Special call on interface for different type of instruments
         %      from generic object, which may contain any instrument is
@@ -591,15 +600,24 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     'Data file: %s does not contain valid sqw-type object',...
                     in_filename);
             end
-            lds = obj.get_loader_struct_(ldr,file_backed);
-            obj = from_bare_struct(obj,lds);
+            if file_backed
+                [sqw_struc,ldr] = ldr.get_sqw('-file_backed','-sqw_struc');                
+            else
+                [sqw_struc,ldr] = ldr.get_sqw('-sqw_struc');
+            end
+            obj = init_from_loader_struct_(obj, sqw_struc);           
+            ldr.delete();            
         end
 
         function obj = init_from_loader_struct_(obj, data_struct)
             % initialize object contents using structure, obtained from
             % file loader
             obj.main_header = data_struct.main_header;
-            obj.header = data_struct.header;
+            if isfield(data_struct,'header') % support for old data
+                obj.experiment_info = data_struct.header;                
+            else
+                obj.experiment_info = data_struct.experiment_info;
+            end
             obj.detpar = data_struct.detpar;
             obj.data = data_struct.data;
             obj.pix = data_struct.pix;
@@ -625,7 +643,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 4;
+            ver = 5;
+            % version 5 -- support for loading previous version 
+            % data and setting ub_inv_legacy matrix in case if the data
+            % were realigned
         end
 
         function flds = saveableFields(~)
