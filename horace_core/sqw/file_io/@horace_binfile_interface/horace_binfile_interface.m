@@ -69,7 +69,7 @@ classdef horace_binfile_interface < serializable
         data_in_file;
 
         %
-        % get access to internal sqw object to store/resrore from hdd
+        % get access to internal sqw object to store/restore from hdd
         % if any is defined.
         % Normally it is necessary for testing purposes
         sqw_holder
@@ -383,12 +383,14 @@ classdef horace_binfile_interface < serializable
                     '%s -- Reason: %s',pos_mess,mess);
             end
         end
+    end
+    methods(Static,Access=protected)
         function  opts = parse_get_sqw_args(varargin)
             % processes keywords and input options of get_sqw function.
             % See get_sqw function for the description of the options
             % available
             opts = parse_get_sqw_args_(varargin{:});
-        end
+        end        
     end
     %======================================================================
     methods(Static) % helper methods used for binary IO
@@ -397,7 +399,7 @@ classdef horace_binfile_interface < serializable
             %
             % Inputs:
             % fid -- open file id
-            % pos -- potition from beginning of the file
+            % pos -- position from beginning of the file
             % error_message
             %     -- text to add to the error message in case of failure to
             %        identify the code, attempting the move
@@ -408,7 +410,7 @@ classdef horace_binfile_interface < serializable
             move_to_position_(fid,pos);
         end
         function check_write_error(fid)
-            % check if write operation have completed sucsesfully.
+            % check if write operation have completed successfully.
             %
             % Inputs:
             % fid -- open file id for write operation
@@ -419,7 +421,7 @@ classdef horace_binfile_interface < serializable
             check_io_error_(fid,'writing');
         end
         function check_read_error(fid)
-            % check if read operation have completed sucsesfully.
+            % check if read operation have completed successfully.
             %
             % Inputs:
             % fid -- open file id for write operation

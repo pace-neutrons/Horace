@@ -260,34 +260,27 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %
             % here we go through the various options for what can
             % initialise an sqw object
-            args = sqw.parse_sqw_args(varargin{:});
+            arg_struc = sqw.parse_sqw_args(varargin{:});
 
             % i) copy - it is an sqw
-            if ~isempty(args.sqw_obj)
-                obj = copy(args.sqw_obj);
-
-                % ii) filename - init from a file
-            elseif ~isempty(args.filename)
-                obj = obj.init_from_file_(args.filename, args.file_backed);
-
-                % iii) struct or data loader - a struct, pass to the struct
+            if ~isempty(arg_struc.sqw_obj)
+                obj = copy(arg_struc.sqw_obj);
+                % ii) filename - init from a file or file accessor
+            elseif ~isempty(arg_struc.file)
+                obj = obj.init_from_file(arg_struc);
+                % iii) struct a struct, pass to the struct
                 % loader
-            elseif ~isempty(args.data_struct)
-                if isa(args.data_struct,'horace_binfile_interface')
-                    if args.file_backed
-                        obj = args.data_struct.get_sqw('-file_backed');
+            elseif ~isempty(arg_struc.data_struct)
+                if isfield(arg_struc.data_struct,'data')
+                    if isfield(arg_struc.data_struct.data,'version')
+                        obj = serializable.from_struct(arg_struc.data_struct);
                     else
-                        obj = args.data_struct.get_sqw();
-                    end
-                elseif isfield(args.data_struct,'data')
-                    if isfield(args.data_struct.data,'version')
-                        obj = serializable.from_struct(args.data_struct);
-                    else
-                        obj = from_bare_struct(obj,args.data_struct);
+                        obj = from_bare_struct(obj,arg_struc.data_struct);
                     end
                 else
                     error('HORACE:sqw:invalid_argument',...
-                        'Unidentified input data structure');
+                        'Unidentified input data structure %s', ...
+                        disp2str(arg_struc.data_struct));
                 end
             end
         end
@@ -539,16 +532,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % algorithm
             [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
         end
+        function obj = init_from_file(obj, in_struc)
+            % Initialize SQW from file or file accessor
+            obj = init_sqw_from_file_(obj, in_struc);
+        end
     end
     methods(Static,Access=protected)
-        function arg = parse_sqw_arguments(varargin)
-            % function checks and validates arguments of sqw constructor or
-            % sqw init function
-            arg = parse_sqw_arguments_(varargin{:});
+        function arg = parse_sqw_args(varargin)
+            % process various inputs for the constructor or init function
+            % and return some standard output used in sqw construction or
+            % initialization
+            arg = parse_sqw_args_(varargin{:});
         end
-
     end
-
     %----------------------------------------------------------------------
     methods(Static, Access=private)
         % Signatures of private class functions declared in files
@@ -565,34 +561,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 ldr.get_sqw('-legacy','-noupgrade', ...
                 'file_backed', file_backed);
         end
-
-
     end
     %----------------------------------------------------------------------
     methods(Access=private)
-        % process various inputs for the constructor and return some
-        % standard output used in sqw construction
-        args = parse_sqw_args_(obj,varargin)
-
-        function obj = init_from_file_(obj, in_filename, file_backed)
-            % Parse SQW from file
-            %
-            % An error is raised if the data file is identified not a SQW object
-            ldr = sqw_formats_factory.instance().get_loader(in_filename);
-            if ~ldr.sqw_type % not a valid sqw-type structure
-                error('HORACE:sqw:invalid_argument',...
-                    'Data file: %s does not contain valid sqw-type object',...
-                    in_filename);
-            end
-            if file_backed
-                [sqw_struc,ldr] = ldr.get_sqw('-file_backed','-sqw_struc');
-            else
-                [sqw_struc,ldr] = ldr.get_sqw('-sqw_struc');
-            end
-            obj = init_from_loader_struct_(obj, sqw_struc);
-            ldr.delete();
-        end
-
         function obj = init_from_loader_struct_(obj, data_struct)
             % initialize object contents using structure, obtained from
             % file loader

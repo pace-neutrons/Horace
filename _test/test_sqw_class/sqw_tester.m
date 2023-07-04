@@ -12,6 +12,10 @@ classdef sqw_tester<sqw
             % Expose protected method get_proj_and_pbin()
             [proj, pbin] = obj.get_proj_and_pbin();
         end
+        function obj = init_from_file_public(obj, in_struc)
+            % Initialize SQW from file or file accessor
+            obj = obj.init_from_file(in_struc);
+        end
     end
     methods(Static)
         %
@@ -23,6 +27,5 @@ classdef sqw_tester<sqw
         function args = parse_sqw_args_public(varargin)
             args = sqw.parse_sqw_args(varargin{:});
         end
-
     end
 end

@@ -46,7 +46,7 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %
 % Original author: T.G.Perring
 %
-opts = obj.parse_get_sqw_args(varargin{:});
+opts = horace_binfile_interface.parse_get_sqw_args(varargin{:});
 
 sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[], ...
     'data',[],'pix',[]);
@@ -92,10 +92,18 @@ if ~opts.nopix && obj.npixels>0
     else
         argi = {};
     end
-    if opts.file_backed
-        argi = [argi(:),'-file_backed'];
+    if opts.force_pix_location
+        if opts.file_backed
+            sqw_struc.pix = PixelDataFileBacked(obj,argi{:});
+        else
+            sqw_struc.pix = PixelDataMemory(obj,argi{:});
+        end
+    else
+        if opts.file_backed
+            argi = [argi(:),'-filebacked'];
+        end
+        sqw_struc.pix = PixelDataBase.create(obj,argi{:});
     end
-    sqw_struc.pix = PixelDataBase.create(obj,argi{:});
 end
 
 sqw_struc.experiment_info = exp_info;
