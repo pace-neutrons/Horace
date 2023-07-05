@@ -232,11 +232,14 @@ classdef PixelDataMemory < PixelDataBase
 
             obj = PixelDataMemory();
 
+            obj.data_range = PixelDataBase.EMPTY_RANGE;
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
                 for page = 1:curr_pix.num_pages
-                                    curr_pix.page_num = page;
+                    curr_pix.page_num = page;
                     data = curr_pix.data;
+                    obj.data_range = ...
+                        obj.pix_minmax_ranges(data, obj.data_range);
                     obj.data = [obj.data, data];
                 end
             end
