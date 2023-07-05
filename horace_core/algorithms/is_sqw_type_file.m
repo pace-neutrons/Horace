@@ -1,7 +1,7 @@
-function [sqw_type, ndims, nfiles, filename, ld] = is_sqw_type_file(infile)
+function [sqw_type, num_dims, nfiles, filenames, ld] = is_sqw_type_file(infile)
 % Determine if file contains data of an sqw-type object or dnd-type sqw object
 %
-%   >> [sqw_type, ndims, nfiles, filename,ld] = is_sqw_type_file(w, infile)
+%   >> [sqw_type, num_dims, nfiles, filenames,ld] = is_sqw_type_file(w, infile)
 %
 % Input:
 % --------
@@ -11,9 +11,9 @@ function [sqw_type, ndims, nfiles, filename, ld] = is_sqw_type_file(infile)
 % Output:
 % --------
 %   sqw_type    =true  if sqw-type contents; =false if dnd-type contents (array)
-%   ndims       Number of dimensions (array if more than one file)
+%   num_dims    Number of dimensions (array if more than one file)
 %   nfiles      Number of contributing spe data sets (array if more than one file)
-%   filename    Cell array of file names (even if only one file, this is still a cell array)
+%   filenames   Cell array of file names (even if only one file, this is still a cell array)
 %   ld          list of loaders to get file information and load the file
 % Throws if some requested files are missing
 
@@ -22,47 +22,39 @@ function [sqw_type, ndims, nfiles, filename, ld] = is_sqw_type_file(infile)
 
 
 % Check input file argument
-if ischar(infile) && numel(size(infile))==2
-    filename=strtrim(cellstr(infile));
+if istext(infile) && ndims(infile) == 2
+    filenames = strtrim(cellstr(infile));
 elseif iscellstr(infile)
-    filename=strtrim(infile);
+    filenames = strtrim(infile);
 else
-    error('HORACE:algorithms:invalid_argumemt',...
-        'File name(s) must be character array or cell array of character strings');
+    error('HORACE:algorithms:invalid_argument',...
+          'File name(s) must be character array or cell array of character strings');
 end
 
-for i=1:numel(filename)
-    if length(size(filename{i}))~=2 || size(filename{i},1)~=1
-        error('HORACE:algorithms:invalid_argumemt',...
-            'File name(s) must be non-empty character array or cell array of character strings');
-    elseif ~exist(filename{i},'file')
-        error('HORACE:algorithms:invalid_argumemt',...
-            'File: %s does not exist. ',filename{i});
+for i=1:numel(filenames)
+    if ~isrow(filenames{i})
+        error('HORACE:algorithms:invalid_argument',...
+              'File name(s) must be non-empty character array or cell array of character strings');
+    elseif ~is_file(filenames{i})
+        error('HORACE:algorithms:invalid_argument',...
+              'File: %s does not exist. ',filenames{i});
     end
 end
 
 % Simply an interface to private function that we wish to keep hidden
-sqw_type=true(size(filename));
-ndims=zeros(size(filename));
-nfiles=zeros(size(filename));
-
-ld = sqw_formats_factory.instance().get_loader(filename);
+ld = sqw_formats_factory.instance().get_loader(filenames);
 if ~iscell(ld)
     ld = {ld};
 end
 
-for i=1:numel(filename)
-    [sqw_type_tmp, ndims_tmp, nfiles_tmp] = get_sqw_type_from_ld(ld{i});   % must use temporary output arguments as may be unfilled if error
-    sqw_type(i)=sqw_type_tmp;
-    ndims(i)=ndims_tmp;
-    nfiles(i)=nfiles_tmp;
+[sqw_type, num_dims, nfiles] = cellfun(@get_sqw_type_from_ld, ld);
+
 end
 
-
-function [sqw_type, ndims, nfiles] = get_sqw_type_from_ld(ld)
+function [sqw_type, num_dims, nfiles] = get_sqw_type_from_ld(ld)
 % Get sqw_type and dimensionality of an sqw file on disk
 %
-%   >> [sqw_type, ndims, nfiles] = get_sqw_type_from_loader (ld)
+%   >> [sqw_type, num_dims, nfiles] = get_sqw_type_from_loader (ld)
 %
 % Input:
 % --------
@@ -71,16 +63,18 @@ function [sqw_type, ndims, nfiles] = get_sqw_type_from_ld(ld)
 % Output:
 % --------
 %   sqw_type    =true  if sqw-type contents; =false if dnd-type contents
-%   ndims       Number of dimensions
+%   num_dims       Number of dimensions
 %   nfiles      Number of contributing spe data sets (=0 if not sqw-type)
 
 % Original author: T.G.Perring
 %
 
 sqw_type = ld.sqw_type;
-ndims = ld.num_dim;
+num_dims = ld.num_dim;
 if sqw_type
     nfiles = ld.num_contrib_files;
 else
     nfiles = 0;
+end
+
 end

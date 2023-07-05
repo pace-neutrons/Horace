@@ -35,6 +35,7 @@ addpath(horace_path)  % MUST have horace_path so that horace_init, horace_off in
 % Add admin functions to the path first
 addpath(fullfile(horace_path,'admin'));
 % add sqw immediately after dnd classes
+addpath_message (1,horace_path,'symop');
 addpath_message (1,horace_path,'sqw');
 addpath_message (1,horace_path,'algorithms');
 
