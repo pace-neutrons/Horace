@@ -52,22 +52,33 @@ if isempty(obj.file_handle_)
     obj = obj.get_new_handle();
 end
 
-mask_array = obj.logical_to_normal_index_(mask_array);
 obj.num_pixels_ = numel(mask_array);
 
 mem_chunk_size = obj.default_page_size;
 obj.data_range = obj.EMPTY_RANGE;
 
 curr = 1;
-for i = 1:mem_chunk_size:obj.num_pixels
-    block_size = min(obj.num_pixels - i + 1, mem_chunk_size);
-    data = obj.get_fields('all', mask_array(i:i+block_size));
+page = 1;
+npix = obj.num_pixels;
+for i = 1:mem_chunk_size:npix
+    obj.page_num = page;
+    block_size = min(mem_chunk_size,npix-i+1);
+    if islogical(mask_array)
+        page_mask = mask_array(i:i+block_size-1);
+    else
+        selection = mask_array >=i & mask_array <i+block_size;
+        page_mask = mask_array(selection);
+    end
+    data = obj.data(:,page_mask);
+
+    block_size= size(data,2);
 
     obj.format_dump_data(data, curr);
     obj.data_range = ...
         obj.pix_minmax_ranges(data, obj.data_range);
 
     curr = curr + block_size;
+    page = page+1;
 end
 
 obj = obj.finalise();
@@ -112,7 +123,7 @@ for i = 1:npg
 
     obj_out.format_dump_data(data, curr);
 
-    curr = curr + sum(pixmask_array_chunk);
+    curr = curr + size(data,2);
 end
 
 obj_out = obj_out.finalise();
@@ -146,7 +157,7 @@ elseif ~isempty(npix)
         error('HORACE:mask:invalid_argument', ...
             ['The sum of npix must be equal to number of pixels.\n' ...
             'Found sum(npix) = %i, %i pixels required.'], ...
-            sum(npix, 'all'), obj.num_pixels);
+            sum(npix(:)), obj.num_pixels);
     end
 end
 
