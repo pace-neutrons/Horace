@@ -38,7 +38,8 @@ function wout = mask_pixels (win, mask_array)
 
 % Check object to be masked is an sqw-type object
 if ~has_pixels(win)
-    error('Can mask pixels only in an sqw-type object')
+    error('HORACE:sqw:invalid_argument', ...
+        'Can mask pixels only in an sqw-type object')
 end
 
 % Initialise output argument
@@ -64,17 +65,20 @@ if isa(mask_array, 'SQWDnDBase')
         if isequal(nd,nd_msk) && isequal(sz,sz_msk) && isequal(win.data.npix,mask_array.data.npix)
             mask_array=logical(mask_array.pix.signal);
         else
-            error('Dimensionality, number of bins on each dimension and number of pixels in each bin of input and mask must match')
+            error('HORACE:sqw:invalid_argument', ...
+                'Dimensionality, number of bins on each dimension and number of pixels in each bin of input and mask must match')
         end
     else
-        error('If the mask object is a Horace object if must be sqw-type i.e. contain pixel information')
+        error('HORACE:sqw:invalid_argument', ...
+            'If the mask object is a Horace object if must be sqw-type i.e. contain pixel information')
     end
 elseif (isnumeric(mask_array) || islogical(mask_array)) && numel(mask_array)~=numel(win.data.s)
     if ~islogical(mask_array)
         mask_array=logical(mask_array);
     end
 else
-    error('Mask must provide a numeric or logical array with same number of elements as the data')
+    error('HORACE:sqw:invalid_argument', ...
+        'Mask must provide a numeric or logical array with same number of elements as the data')
 end
 
 % Section the pix array, if sqw type, and update pix_range and img_db_range(s)

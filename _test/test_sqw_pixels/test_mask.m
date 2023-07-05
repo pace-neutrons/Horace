@@ -276,8 +276,8 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             assertEqualToTol(new_sqw.data.img_range, sqw_obj.data.img_range, [0, 1e-7]);
         end
 
-        function test_mask_random_fraction_pixels_removes_percentage_of_pixels(obj)
-            sqw_obj = sqw(obj.sqw_2d_file_path);
+        function test_mask_random_fraction_pix_removes_perc_of_pix_in_mem(obj)
+            sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
 
             frac_to_keep = 0.8;
             new_sqw = mask_random_fraction_pixels(sqw_obj, frac_to_keep);
@@ -286,8 +286,8 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             assertEqual(new_sqw.pix.num_pixels, expected_num_pix);
         end
 
-        function test_mask_random_pixels_retains_correct_number_of_pixels(obj)
-            sqw_obj = sqw(obj.sqw_2d_file_path);
+        function test_mask_random_pixels_retains_correct_number_of_pixels_in_mem(obj)
+            sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
 
             num_pix_to_keep = 5000;
             new_sqw = mask_random_pixels(sqw_obj, num_pix_to_keep);

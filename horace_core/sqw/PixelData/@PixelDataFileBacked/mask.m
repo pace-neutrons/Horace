@@ -112,7 +112,7 @@ for i = 1:npg
 
     obj_out.format_dump_data(data, curr);
 
-    curr = curr + sum(mask_array_chunk);
+    curr = curr + sum(pixmask_array_chunk);
 end
 
 obj_out = obj_out.finalise();
