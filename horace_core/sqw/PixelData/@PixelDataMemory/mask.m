@@ -60,10 +60,13 @@ end
 
 
 function [mask_array, npix] = validate_input_args(obj, mask_array, npix)
-parser = inputParser();
-parser.addRequired('obj');
-parser.addRequired('mask_array');
-parser.addOptional('npix', []);
+persistent parser
+if isempty(parser)
+    parser = inputParser();
+    parser.addRequired('obj');
+    parser.addRequired('mask_array');
+    parser.addOptional('npix', []);
+end
 parser.parse(obj, mask_array, npix);
 
 mask_array = parser.Results.mask_array;

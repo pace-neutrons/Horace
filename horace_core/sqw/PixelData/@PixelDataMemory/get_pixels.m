@@ -39,7 +39,7 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
     obj.parse_get_pix_args(abs_pix_indices,varargin{:});
 
 
-pix_out = obj.data_(:, abs_pix_indices);
+pix_out = obj.data(:, abs_pix_indices);
 
 if ~keep_precision
     pix_out = double(pix_out);
