@@ -181,6 +181,9 @@ classdef ortho_proj<aProjectionBase
         %------------------------------------------------------------------
         % Interfaces:
         %------------------------------------------------------------------
+        % set u,v & w simultaneously
+        obj = set_axes (obj, u, v, w, offset)
+        %------------------------------------------------------------------
         function obj=ortho_proj(varargin)
             obj = obj@aProjectionBase();
             obj.label = {'\zeta','\xi','\eta','E'};
@@ -198,21 +201,13 @@ classdef ortho_proj<aProjectionBase
         function obj = init(obj,varargin)
             % initialization routine taking any parameters non-default
             % constructor would take and initiating internal state of the
-            % projection class.
+            % ortho_proj class.
             %
             narg = numel(varargin);
             if narg == 0
                 return
             end
-            if narg == 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjectionBase'))
-                if isstruct(varargin{1}) && isfield(varargin{1},'serial_name')
-                    obj = serializable.loadobj(varargin{1});
-                else
-                    obj = obj.from_old_struct(varargin{1});
-                end
-            else
-                obj = init_by_input_parameters_(obj,varargin{:});
-            end
+            obj = init_(obj,narg,varargin{:});
         end
         %-----------------------------------------------------------------
         %-----------------------------------------------------------------
@@ -368,9 +363,11 @@ classdef ortho_proj<aProjectionBase
             % pix_targ -- 4xNpix or 3xNpix array of pixel coordinates in
             %             hkl (physical) coordinate system (4-th
             %             coordinate, if requested, is the energy transfer)
-
-
-            pix_hkl = transform_img_to_hkl_(obj,img_coord,varargin{:});
+            if obj.disable_srce_to_targ_optimization
+                pix_hkl = transform_img_to_hkl@aProjectionBase(obj,img_coord,varargin{:});
+            else
+                pix_hkl = transform_img_to_hkl_(obj,img_coord,varargin{:});
+            end
         end
 
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
@@ -399,7 +396,7 @@ classdef ortho_proj<aProjectionBase
             % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
             %             expressed in crystal Cartesian coordinate system
             % Returns
-            % pix_cc -- pixels expressed in Crystal Cartesian coordinate
+            % pix_cc --  pixels expressed in Crystal Cartesian coordinate
             %            system
             %
             pix_cc = transform_img_to_pix_(obj,pix_hkl);

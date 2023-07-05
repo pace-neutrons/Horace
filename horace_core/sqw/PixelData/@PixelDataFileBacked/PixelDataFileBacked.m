@@ -174,10 +174,11 @@ classdef PixelDataFileBacked < PixelDataBase
             % 8: 3xNpix array
             %             -- initialize filebacked class from array of
             %                data provided as input
-
+            
+            % process possible update parameter
             obj = init_(obj,varargin{:});
         end
-
+        
         function obj = move_to_first_page(obj)
             % Reset the object to point to the first page of pixel data in the file
             % and clear the current cache
@@ -301,7 +302,6 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
                 fh = fopen(obj.tmp_pix_obj.file_name, 'wb+','l','Windows-1252');
-
                 if fh<1
                     error('HORACE:PixelDataFileBacked:runtime_error', ...
                         'Can not open data file %s for file-backed pixels',...
@@ -328,10 +328,14 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
 
-        function obj = finalise(obj)
+        function obj = finalise(obj, final_num_pixels)
             if isempty(obj.file_handle_)
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                     'Cannot finalise writing, object does not have open filehandle')
+            end
+
+            if exist('final_num_pixels', 'var')
+                obj.num_pixels_ = final_num_pixels;
             end
 
             if isa(obj.file_handle_, 'sqw_file_interface')
@@ -345,8 +349,12 @@ classdef PixelDataFileBacked < PixelDataBase
 
             else
                 fclose(obj.file_handle_);
-                obj.file_handle_ = [];
+                if obj.num_pixels_ == 0
+                    obj = PixelDataMemory();
+                    return;
+                end
 
+                obj.file_handle_ = [];
                 obj.f_accessor_ = [];
                 obj.offset_ = 0;
                 obj.full_filename = obj.tmp_pix_obj.file_name;
@@ -355,6 +363,7 @@ classdef PixelDataFileBacked < PixelDataBase
                     'Repeat', 1, ...
                     'Writable', true, ...
                     'offset', obj.offset_);
+
             end
         end
 
@@ -389,6 +398,18 @@ classdef PixelDataFileBacked < PixelDataBase
             % -------
             %   obj         A PixelData object containing all the pixels in the inputted
             %               PixelData objects
+
+            if isempty(varargin)
+                obj = PixelDataFileBacked();
+                return;
+            elseif numel(varargin) == 1
+                if isa(varargin{1}, 'PixelDataMemory')
+                    obj = PixelDataFileBacked(varargin{1});
+                elseif isa(varargin{1}, 'PixelDataFileBacked')
+                    obj = varargin{1};
+                end
+                return;
+            end
 
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
             if any(is_ldr)

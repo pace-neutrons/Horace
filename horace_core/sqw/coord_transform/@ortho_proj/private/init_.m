@@ -1,3 +1,20 @@
+function obj = init_(obj,narg,varargin)
+%INIT_ Main part of ortho_proj constructor
+%
+% initialization routine taking any parameters that non-default
+% constructor would take and initiating internal state of the
+% ortho_proj class.
+%
+if narg == 1 && (isstruct(varargin{1})||isa(varargin{1},'aProjectionBase'))
+    if isstruct(varargin{1}) && isfield(varargin{1},'serial_name')
+        obj = serializable.loadobj(varargin{1});
+    else
+        obj = obj.from_old_struct(varargin{1});
+    end
+else
+    obj = init_by_input_parameters_(obj,varargin{:});
+end
+
 function obj = init_by_input_parameters_(obj,varargin)
 %INIT_BY_INPUT_PARAMETERS_ is the helper allowing to support various mainly
 %outdated forms of input of the ortho_proj constructor.

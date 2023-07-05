@@ -60,7 +60,7 @@ classdef data_block < serializable
                 subobj = serializable.deserialize(bindata);
             catch ME
                 if strcmp(ME.identifier,'HERBERT:serializable:invalid_argument')
-                    subobj = deserialise(bindata);
+                    subobj = deserialize(bindata);
                 else
                     rethrow(ME);
                 end
@@ -125,7 +125,7 @@ classdef data_block < serializable
                 if is_serial
                     bindata = subobj.serialize();
                 else
-                    bindata = serialise(subobj);
+                    bindata = serialize(subobj);
                 end
                 obj.size_ = numel(bindata);
                 if nocache; return; end

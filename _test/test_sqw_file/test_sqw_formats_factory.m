@@ -47,8 +47,8 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
         %
         function test_selection_v3_old(obj)
 
-            warning('off','SQW_FILE_IO:legacy_data')
-            clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
+            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data')
+
             file_v3_old = fullfile(obj.test_folder,...
                 'test_sqw_file_read_write_v3.sqw');
 
@@ -84,8 +84,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
         function test_selection_v0(obj)
             file_v0 = fullfile(obj.test_folder,...
                 'test_sqw_read_write_v0_t.sqw');
-            warning('off','SQW_FILE_IO:legacy_data')
-            clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
+            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data')
 
             loader = sqw_formats_factory.instance().get_loader(file_v0);
             assertTrue(isa(loader,'faccess_sqw_prototype'));
@@ -146,7 +145,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertTrue(isa(ldrs{1},'faccess_sqw_v2'));
             assertTrue(isa(ldrs{2},'faccess_sqw_v3'));
         end
-        function test_serialize_deserialise_emtpy_accessors(~)
+        function test_serialize_deserialize_emtpy_accessors(~)
 
             ldrs = sqw_formats_factory.instance().supported_accessors;
             for i=1:numel(ldrs)
@@ -160,4 +159,3 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
     end
 
 end
-

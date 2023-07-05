@@ -37,8 +37,7 @@ classdef test_cut_parameters < TestCase
         %==================================================================
         function test_default_spher_from_ortho(obj)
             sqw_samp = obj.sample_files{4};
-            ws = warning('off','HORACE:targ_range');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HORACE:targ_range');
 
             img_block = sqw_samp.data;
             targ_proj = spher_proj();
@@ -87,12 +86,13 @@ classdef test_cut_parameters < TestCase
 
             bin_range = [50,50,1,1];
 
-            ax = spher_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            ax = spher_axes('img_range',data_range, ...
+                'nbins_all_dims',bin_range);
             proj = spher_proj();
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
-            targ_proj = ortho_proj();
+            targ_proj = ortho_proj('alatt',2*pi,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
             assertElementsAlmostEqual(range, ...
@@ -129,12 +129,13 @@ classdef test_cut_parameters < TestCase
 
             bin_range = [1,50,1,50];
 
-            ax = spher_axes('img_range',data_range,'nbins_all_dims',bin_range);
+            ax = spher_axes('img_range',data_range,'nbins_all_dims', ...
+                bin_range );
             proj = spher_proj();
 
             dnd_obj = DnDBase.dnd(ax,proj);
 
-            targ_proj = ortho_proj();
+            targ_proj = ortho_proj('alatt',2*pi,'angdeg',90);
 
             range = dnd_obj.targ_range(targ_proj);
             ref_range = [...

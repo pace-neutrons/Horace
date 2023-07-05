@@ -47,13 +47,8 @@ end
 %==============================================================================
 % Place list of test folders here (relative to the master _test folder)
 % -----------------------------------------------------------------------------
-if ~isempty(test_folders)
-    % normally run under cmake
-    % clear any previous configurations stored before and start tests from
-    % default configuration
-    config_store.instance().clear_all('-files');
-
-else % no tests specified on command line - run them all
+if isempty(test_folders)
+    % no tests specified on command line - run them all
     herbert_tests = {...
         'test_admin', ...
         'test_xunit_framework', ...
