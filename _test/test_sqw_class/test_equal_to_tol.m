@@ -79,6 +79,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             assertTrue(isa(new_sqw_paged.pix, 'PixelDataFileBacked'));
 
             assertFalse(equal_to_tol(new_sqw, new_sqw_paged));
+            assertFalse(equal_to_tol(new_sqw_paged, new_sqw));
         end
 
         function test_paged_sqw_objects_equal_if_pix_within_each_bin_shuffled(obj)
