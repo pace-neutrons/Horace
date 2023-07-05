@@ -66,6 +66,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
         function test_mem_fb_equal_after_mask(obj)
             masked_2d = mask(obj.sqw_2d, obj.mask_array_2d);
+            test_mask.check_filebacked_signal_averages(masked_2d);
             [~, masked_2d_paged,clPageConfig] = ...
                 obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
 
@@ -79,9 +80,11 @@ classdef test_mask < TestCase & common_pix_class_state_holder
                 [~, masked_2d_paged,clPageConfig] = ...
                     obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
                 obj.masked_2d_paged_cache = masked_2d_paged;
+                test_mask.check_filebacked_signal_averages(masked_2d_paged);
             else
                 masked_2d_paged = obj.masked_2d_paged_cache;
             end
+
 
             %function test_mask_sets_npix_in_masked_bins_to_zero_with_paged_pix(obj)
             assertEqual(sum(masked_2d_paged.data.npix(~obj.mask_array_2d)), 0);
@@ -223,9 +226,13 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             % masking has not changed binning, so img_range remains the
             % same
             assertEqualToTol(new_sqw.data.img_range, sqw_obj.data.img_range, [0, 1e-7]);
+            test_mask.check_filebacked_signal_averages(new_sqw);
         end
         function test_mask_works_in_memory(obj)
             masked_2d = mask(obj.sqw_2d, obj.mask_array_2d);
+
+            test_mask.check_filebacked_signal_averages(masked_2d);
+
             %mask_sets_npix_in_masked_bins_to_zero
             assertEqual(sum(masked_2d.data.npix(~obj.mask_array_2d)), 0);
             %test_mask_sets_signal_in_masked_bins_to_zero
@@ -284,11 +291,22 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             expected_num_pix = round(frac_to_keep*sqw_obj.pix.num_pixels);
             assertEqual(new_sqw.pix.num_pixels, expected_num_pix);
 
-            assertEqual(new_sqw.pix.num_pixels, sum(new_sqw.data.npix(:)));
-            assertEqual(sum(new_sqw.pix.signal), ...
-                sum(new_sqw.data.s(:).*new_sqw.data.npix(:)));
+            test_mask.check_filebacked_signal_averages(new_sqw);
 
         end
+        function test_mask_random_retains_correct_number_of_pix_on_file(obj)
+            sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',true);
+            new_pg_size = floor(obj.sqw_2d_num_pixels/6);
+            clOb  = set_temporary_config_options(hor_config(), 'mem_chunk_size',new_pg_size);
+
+            num_pix_to_keep = 5000;
+            new_sqw = mask_random_pixels(sqw_obj, num_pix_to_keep);
+
+            assertEqual(new_sqw.pix.num_pixels, num_pix_to_keep);
+
+            test_mask.check_filebacked_signal_averages(new_sqw);
+        end
+
 
         function test_mask_random_retains_correct_number_of_pix_in_mem(obj)
             sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
@@ -297,15 +315,27 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             new_sqw = mask_random_pixels(sqw_obj, num_pix_to_keep);
 
             assertEqual(new_sqw.pix.num_pixels, num_pix_to_keep);
-            assertEqual(new_sqw.pix.num_pixels, sum(new_sqw.data.npix(:)));
-            assertEqual(sum(new_sqw.pix.signal), ...
-                sum(new_sqw.data.s(:).*new_sqw.data.npix(:)));
+
+            test_mask.check_filebacked_signal_averages(new_sqw);
         end
 
 
     end
 
     methods (Static)
+        function check_filebacked_signal_averages(sqw_to_check)
+            assertEqual(sqw_to_check.pix.num_pixels, sum(sqw_to_check.data.npix(:)));
+            ssignal = 0;
+            pix = sqw_to_check.pix;
+            for i=1:pix.num_pages
+                pix.page_num = i;
+                ssignal = ssignal  + sum(pix.signal);
+            end
+            assertEqualToTol(ssignal, ...
+                sum(sqw_to_check.data.s(:).*sqw_to_check.data.npix(:)),'reltol',1.e-7);
+
+
+        end
         % -- Helpers --
         function [paged_sqw, masked_sqw,clOb] = get_paged_sqw(file_path, mask_array)
 
@@ -317,16 +347,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             hc.mem_chunk_size = new_pg_size;
             masked_sqw = mask(paged_sqw, mask_array);
 
-            assertEqual(paged_sqw.pix.num_pixels, sum(paged_sqw.data.npix(:)));
-            ssignal = 0;
-            pix = paged_sqw.pix;
-
-            for i=1:pix.num_pages
-                pix.page_num = i;
-                ssignal = ssignal  + sum(pix.signal);
-            end
-            assertEqualToTol(ssignal, ...
-                sum(paged_sqw.data.s(:).*paged_sqw.data.npix(:)),'reltol',1.e-7);
+            test_mask.check_filebacked_signal_averages(paged_sqw);
 
         end
 
