@@ -301,13 +301,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
                 obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
-                fh = fopen(obj.tmp_pix_obj.file_name, 'wb+','l','Windows-1252');
-                if fh<1
-                    error('HORACE:PixelDataFileBacked:runtime_error', ...
-                        'Can not open data file %s for file-backed pixels',...
-                        obj.tmp_pix_obj.file_name);
-                end
-
+                fh = sqw_fopen(obj.tmp_pix_obj.file_name, 'wb+');
                 obj.file_handle_ = fh;
             end
         end

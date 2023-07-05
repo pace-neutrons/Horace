@@ -7,8 +7,8 @@ n_runs = 100;
 npixels = 1000000;
 fh = cell(1,n_runs);
 for i=1:n_runs
-    fh{i} = fopen(fullfile(folder,...
-        sprintf('speed_test_N%d.bin',i)),'w+');
+    fh{i} = sqw_fopen(fullfile(folder,...
+        sprintf('speed_test_N%d.bin',i)), 'w+');
 end
 data = cell(1,n_runs);
 for i=1:n_runs

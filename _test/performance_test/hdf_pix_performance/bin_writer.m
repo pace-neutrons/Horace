@@ -16,10 +16,8 @@ t0 = tic;
 
 f_name = sprintf('block_%d.bin',id);
 
-fh = fopen(f_name,'wb');
-if fh<1
-    error('PARALLEL_WRITER:io_error','Can not open file %s',f_name);
-end
+fh = sqw_fopen(f_name,'wb');
+
 clob = onCleanup(@()fclose(fh));
 contents = single(id*ones(9,block_size));
 for i=1:n_blocks

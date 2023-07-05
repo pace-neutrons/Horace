@@ -32,13 +32,13 @@ classdef combine_sqw_pix_job < JobExecutor
         fid_
 
         %  the holder of the procedure, used to close the input
-        %  files at job completeon/class destruction
+        %  files at job completion/class destruction
         fid_closer_
         % open file handle, for target file
         fout_
 
         %  the holder of the procedure, used to close the input
-        %  files at job completeon/class destruction
+        %  files at job completion/class destruction
         fout_closer_
 
         % the structure, used as the payload for a data messages

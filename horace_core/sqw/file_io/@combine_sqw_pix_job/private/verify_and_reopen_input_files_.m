@@ -43,12 +43,14 @@ if isnumeric(pix_comb_info.infiles)
 else
     fid=zeros(nfiles,1);
     for i=1:nfiles
-        [fid(i),mess]=fopen(pix_comb_info.infiles{i},'r','l','Windows-1252');
-        if fid(i)<0
+        try
+             fid(i)=sqw_fopen(pix_comb_info.infiles{i},'r');
+        catch ME
             for j=1:i-1; fclose(fid(j)); end    % close all the open input files
             error('SQW_FILE_IO:runtime_error',...
-                'Unable to open all input files concurrently: %s',mess);
-        end
+                'Unable to open all input files concurrently. Fail file N%d, Name: %s Issue: %s',...
+            i,pix_comb_info.infiles{i},ME.message);
+         end
     end
 
     for i = 1:nfiles

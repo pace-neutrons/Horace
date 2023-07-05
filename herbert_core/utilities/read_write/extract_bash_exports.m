@@ -1,9 +1,9 @@
 function [set_vars_map,contents,set_ind_map] = extract_bash_exports(filename)
 % function reads bash file and parses it extracting part responsible for
-% enviromental variables exports.
+% environmental variables exports.
 %
-% The purpose of parsing is simple change to enviromental variables and
-% possibility to write absolutely the same file with different enviromental
+% The purpose of parsing is simple change to environmental variables and
+% possibility to write absolutely the same file with different environmental
 % variable values
 % Input:
 % filename -- name with full path to the bash file to process

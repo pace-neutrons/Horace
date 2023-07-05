@@ -16,10 +16,8 @@ t0 = tic;
 
 f_name = sprintf('block_%d.bin',id);
 
-fh = fopen(f_name,'rb');
-if fh<1
-    error('PARALLEL_WRITER:io_error','Can not open file %s',f_name);
-end
+
+fh = sqw_fopen(file, 'rb');
 clob = onCleanup(@()fclose(fh));
 %do_fseek(fh,0,'eof');
 %fsize = ftell(fh);

@@ -43,7 +43,7 @@ if isnumeric(file_name)
     fid=file_name;  % copy fid
     do_fseek(fid,0,'bof');  % set the file position indicator to the start of the file
 else
-    fid=fopen(file_name,permission_req,'l');
+    fid=sqw_fopen(file_name,permission_req);
     if fid<0
         mess=['Unable to open file: ',file_name];
         return
