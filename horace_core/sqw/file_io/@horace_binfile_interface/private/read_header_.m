@@ -12,7 +12,7 @@ function [stream,fid,mess] = read_header_(file_name,buf_size,varargin)
 % returns:
 % stream      -- buf_size uint8 array of bytes of size buf_size containing
 %                binary file header contents
-% fid         -- Matlab identifier of the opened file with binary data
+% fid         -- MATLAB identifier of the opened file with binary data
 % mess        -- empty if opening and initial read of the file was
 %                successful. If problem happened with operations, contains
 %                message, providing information about the problem.
@@ -43,7 +43,7 @@ if isnumeric(file_name)
     fid=file_name;  % copy fid
     do_fseek(fid,0,'bof');  % set the file position indicator to the start of the file
 else
-    fid=fopen(file_name,permission_req);
+    fid=fopen(file_name,permission_req,'l');
     if fid<0
         mess=['Unable to open file: ',file_name];
         return

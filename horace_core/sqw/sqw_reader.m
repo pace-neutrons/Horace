@@ -6,7 +6,6 @@ classdef sqw_reader<handle
     % cached in a buffer and provided from the buffer if available
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         filename % short name of the file, this reader reads
@@ -75,7 +74,7 @@ classdef sqw_reader<handle
                 self.fid_ = fname;
             elseif ischar(fname)
                 self.full_file_name_ = fname;
-                self.fid_ = fopen(fname,'r');
+                self.fid_ = fopen(fname,'r','l','Windows-1252');
                 if self.fid_ < 1
                     error('SQW_READER:constructor','Can not open file: %s',fname)
                 end

@@ -60,7 +60,7 @@ obj.convert_to_double_ = other_obj.convert_to_double_;
 function obj= open_obj_file(obj,file,mode)
 % open object's file with appropriate access rights.
 obj.full_filename = file;
-obj.file_id_ = fopen(file,mode);
+obj.file_id_ = fopen(file,mode,'l','Windows-1252');
 if obj.file_id_ <= 0
     error('HORACE:sqw_file_interface:io_error',...
         'Can not open file %s in %s mode',file,mode)

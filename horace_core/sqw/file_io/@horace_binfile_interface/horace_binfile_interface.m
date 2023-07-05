@@ -266,11 +266,11 @@ classdef horace_binfile_interface < serializable
         is_sqw = get_sqw_type(~)
         % getter for the object type
         obj_type = get_format_for_object(obj);
-        % main part of upgrade file format, which conputes and transforms missing
+        % main part of upgrade file format, which computes and transforms missing
         % properties from old file format to the new file format
         new_obj = do_class_dependent_updates(new_obj,old_obj,varargin);
 
-        % main part of the accessor to the npix array postion on hdd
+        % main part of the accessor to the npix array position on hdd
         pos = get_npix_position(obj);
     end
     %======================================================================
