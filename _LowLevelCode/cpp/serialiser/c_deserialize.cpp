@@ -371,6 +371,10 @@ mxArray* deserialize(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
 
     }
     break;
+    default:
+      mexErrMsgIdAndTxt("MATLAB:deserialize:invalid_argument",
+                        "Cannot deserialize tag with ID: %d.",
+                        tag.type);
     }
 
     /* Avoid making plhs persistent,
@@ -395,7 +399,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 #ifdef MX_COMPAT_32
     for (i = 0; i < nrhs; i++) {
         if (mxIsSparse(prhs[i])) {
-            mexErrMsgIdAndTxt("MATLAB:c_deserialize:NoSparseCompat",
+            mexErrMsgIdAndTxt("MATLAB:deserialize:NoSparseCompat",
                 "MEX-files compiled on a 64-bit platform that use sparse array functions "
                 "need to be compiled using -largeArrayDims.");
         }
@@ -404,10 +408,10 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 #endif
 
     if (nlhs > 2) {
-        mexErrMsgIdAndTxt("MATLAB:c_deserialize:badLHS", "Bad number of LHS arguments in c_deserialize");
+        mexErrMsgIdAndTxt("MATLAB:deserialize:badLHS", "Bad number of LHS arguments in c_deserialize");
     }
     if (nrhs < 1 || nrhs > 2) {
-        mexErrMsgIdAndTxt("MATLAB:c_deserialize:badRHS", "Bad number of RHS arguments in c_deserialize");
+        mexErrMsgIdAndTxt("MATLAB:deserialize:badRHS", "Bad number of RHS arguments in c_deserialize");
     }
 
     // the position of the data in the input bytes array. By default, it's 0
