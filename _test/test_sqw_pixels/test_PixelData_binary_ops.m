@@ -337,10 +337,8 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
 
             pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
             pix_per_page = ceil(pix.num_pixels/6);
-            hc = hor_config;
-            cmpp = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',cmpp));
-            hc.mem_chunk_size = pix_per_page;
+
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', pix_per_page);
 
             obj.check_adding_2Dsigvar_returns_correct_pix_filebased(pix,dnd_obj)
 
@@ -359,10 +357,7 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             npix = dnd_obj.npix;
 
             pix_per_page = floor(sum(npix(:)/6));
-            hc = hor_config;
-            cmpp = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',cmpp));
-            hc.mem_chunk_size = pix_per_page;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', pix_per_page);
 
             pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
             obj.check_mult_with_d2d_returns_correct_pix(pix,dnd_obj)

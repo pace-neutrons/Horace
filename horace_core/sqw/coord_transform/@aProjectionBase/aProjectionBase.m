@@ -374,6 +374,7 @@ classdef aProjectionBase < serializable
             obj.img_offset = val;
         end
     end
+
     %======================================================================
     % MAIN PROJECTION OPERATIONS
     methods
@@ -398,13 +399,16 @@ classdef aProjectionBase < serializable
                 targ_proj.targ_proj = obj;
                 obj.targ_proj = targ_proj;
             end
+
             contrib_ind= obj.get_contrib_cell_ind(...
                 cur_axes_block,targ_proj,targ_axes_block);
+
             if isempty(contrib_ind)
                 bl_start  = [];
                 bl_size = [];
                 return;
             end
+
             % Calculate pix indexes from cell indexes. Compress indexes of
             % contributing cells into bl_start:bl_start+bl_size-1 form if
             % it has not been done before.
@@ -413,6 +417,7 @@ classdef aProjectionBase < serializable
             [bl_start,bl_size] = obj.convert_contrib_cell_into_pix_indexes(...
                 contrib_ind,npix);
         end
+
         function   [may_contribND,may_contrib_dE] = may_contribute(obj, ...
                 cur_axes_block, targ_proj,targ_axes_block)
             % return logical array of size of the current axes block grid
@@ -470,7 +475,7 @@ classdef aProjectionBase < serializable
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
         %------------------------------------------------------------------
-        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj, ...
+        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj, ...
                 axes,pix_cand,npix,s,e,varargin)
             % Convert pixels into the coordinate system defined by the
             % projection and bin them into the coordinate system defined
@@ -510,12 +515,17 @@ classdef aProjectionBase < serializable
             %           PixelData object (as input pix_candidates) containing
             %           pixels contributing to the grid and sorted according
             %           to the axes block grid.
+            %           IF '-return_selected' passed and only npix,s,e requested
+            %            instead contains indices of kept pixels (cf. `selected`)
+            %
             % unique_runid -- the run-id (tags) for the runs, which
             %           contributed into the cut
             % pix_indx--indexes of the pix_ok coordinates according to the
             %           bin. If this index is requested, the pix_ok object
             %           remains unsorted according to the bins and the
             %           follow up sorting of data by the bins is expected
+            % selected  -- numerical array of indices of selected pixels after
+            %            binning
             %
             % Optional arguments transferred without any change to
             % AxesBlockBase.bin_pixels( ____ ) routine
@@ -530,7 +540,9 @@ classdef aProjectionBase < serializable
             %                 it gets on input, into double. if not, output
             %                 pixels will keep their initial type
             % -nomex and -force_mex options can not be used together.
-            %
+            % '-return_selected' -- returns `selected` in `pix_ok`
+            %             (For DnD only cuts fewer arguments are returned this uses
+            %              the pix_ok slot)
 
             pix_transformed = obj.transform_pix_to_img(pix_cand);
             switch(nargout)
@@ -551,9 +563,13 @@ classdef aProjectionBase < serializable
                     [npix,s,e,pix_ok,unique_runid,pix_indx]=...
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
+                case(7)
+                    [npix,s,e,pix_ok,unique_runid,pix_indx,selected]=...
+                        axes.bin_pixels(pix_transformed,...
+                        npix,s,e,pix_cand,varargin{:});
                 otherwise
                     error('HORACE:aProjectionBase:invalid_argument',...
-                        'This function requests 1,3,4,5 or 6 output arguments');
+                        'This function requests 1, 3, 4, 5, 6 or 7 output arguments');
             end
         end
         function [pix_hkl,en] = transform_pix_to_hkl(obj,pix_coord,varargin)
@@ -757,7 +773,7 @@ classdef aProjectionBase < serializable
         %
         function obj = check_and_set_do_generic(obj,val)
             % setter for do_generic method
-            if ~((islogical(val) || isnumeric(val)) && numel(val)==1)
+            if ~islognumscalar(val)
                 error('HORACE:aProjectionBase:invalid_argument',...
                     'you may set do_generic property into true or false state only');
             end
@@ -788,8 +804,9 @@ classdef aProjectionBase < serializable
             %                requested cells
             % bl_size     -- number of pixels, contributed into each
             %                block
-            pix_start = [0,cumsum(npix(:)')]; % pixel location in C-indexed
-            % array
+
+            % pixel location in C-indexed array
+            pix_start = [0,cumsum(npix(:)')];
             if iscell(cell_ind) % input contributing cell indexes arranged
                 % in the form of cellarray, containing cell_start:cell_end
                 bl_start = pix_start(cell_ind{1});

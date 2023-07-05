@@ -37,8 +37,7 @@ classdef test_cut_parameters < TestCase
         %==================================================================
         function test_default_spher_from_ortho(obj)
             sqw_samp = obj.sample_files{4};
-            ws = warning('off','HORACE:targ_range');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HORACE:targ_range');
 
             img_block = sqw_samp.data;
             targ_proj = spher_proj();

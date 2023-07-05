@@ -3,7 +3,7 @@ classdef (Abstract=true) serializable
     % ------------
     % The serializable class defines a common interface to a class for saving and
     % loading an object or array of objects, both to/from Matlab .mat files and
-    % to/from a serialised stream of bytes.
+    % to/from a serialized stream of bytes.
     %
     % The benefits of using the interface are that:
     % (1) It has a framework for managing class version numbering that simplifies

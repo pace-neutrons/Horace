@@ -1,4 +1,4 @@
-function [ser,nbytes] = deserialise(a,pos)
+function [ser,nbytes] = deserialize(a,pos)
 % Function used to deserialize object or array of objects serialized previously into
 % the array of bytes using serialize routine.
 % Inputs:
@@ -18,7 +18,7 @@ end
 
 if use_mex
     try
-        [ser,nbytes] = c_deserialise(a,pos);
+        [ser,nbytes] = c_deserialize(a,pos);
         return
     catch ME
         if fm
@@ -29,4 +29,4 @@ if use_mex
     end
 end
 
-[ser,nbytes] = hlp_deserialise(a,pos);
+[ser,nbytes] = hlp_deserialize(a,pos);

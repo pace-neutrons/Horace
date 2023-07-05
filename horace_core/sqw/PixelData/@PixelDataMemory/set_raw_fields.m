@@ -26,6 +26,10 @@ NO_INPUT_INDICES = -1;
 
 [field_indices, abs_pix_indices] = obj.parse_set_fields_args(pix_fields, data, varargin{:});
 
+if isempty(abs_pix_indices)
+    return;
+end
+
 obj.data_(field_indices, abs_pix_indices) = data;
 
 end  % function

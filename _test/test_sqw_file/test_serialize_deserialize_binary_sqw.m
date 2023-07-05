@@ -570,4 +570,3 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
 
     end
 end
-

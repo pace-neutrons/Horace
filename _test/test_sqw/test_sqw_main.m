@@ -47,13 +47,9 @@ classdef test_sqw_main < TestCase & common_state_holder
 
         function test_setting_pix_page_size_in_constructor_pages_pixels(~)
             % hide warnings when setting pixel page size very small
-
-            hc = hor_config;
-            mmc = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mmc));
             page_size = 1000;
-            hc.mem_chunk_size = page_size;
-            %
+            clObj = set_temporary_config_options(hor_config, 'mem_chunk_size', page_size);
+
             pths = horace_paths();
             fpath = fullfile(pths.test_common, 'sqw_1d_2.sqw');
 

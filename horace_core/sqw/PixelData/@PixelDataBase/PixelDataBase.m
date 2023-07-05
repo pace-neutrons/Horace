@@ -166,7 +166,7 @@ classdef (Abstract) PixelDataBase < serializable
     end
 
     methods (Static)
-        function isfb = do_filebacked(num_pixels)
+        function isfb = do_filebacked(num_pixels, scale_fac)
             % function defines the rule to make pixels filebased or memory
             % based
             if ~(isnumeric(num_pixels)&&isscalar(num_pixels)&&num_pixels>=0)
@@ -174,9 +174,13 @@ classdef (Abstract) PixelDataBase < serializable
                     'Input number of pixels should have single non-negative value. It is %s', ...
                     disp2str(num_pixels))
             end
+            if ~exist('scale_fac', 'var')
+                scale_fac = 3;
+            end
+
             mem_chunk_size = config_store.instance().get_value('hor_config','mem_chunk_size');
             % 3 should go to configuration too
-            isfb = num_pixels > 3*mem_chunk_size;
+            isfb = num_pixels > scale_fac*mem_chunk_size;
         end
 
         function obj = create(varargin)
@@ -341,6 +345,11 @@ classdef (Abstract) PixelDataBase < serializable
             %               PixelData objects
 
             % Take the dataclass of the first object.
+            if numel(varargin) == 1 && isa(varargin{1}, 'PixelDataBase')
+                obj = varargin{1};
+                return;
+            end
+
             obj = varargin{1}.cat(varargin{:});
         end
 
@@ -851,6 +860,9 @@ classdef (Abstract) PixelDataBase < serializable
             pix_fields = obj.check_pixel_fields(pix_fields);
 
             if exist('abs_pix_indices', 'var')
+                if isempty(abs_pix_indices)
+                    return;
+                end
                 if ~isindex(abs_pix_indices)
                     error('HORACE:PixelDataBase:invalid_argument', ...
                         'abs_pix_indices must be logical or numeric array of pixels to modify');

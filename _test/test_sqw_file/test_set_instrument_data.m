@@ -2,7 +2,7 @@ classdef test_set_instrument_data< TestCase
     properties
         data_inst;
         data_inst_ref;
-        clenup1
+        clob;
         w1;
     end
 
@@ -16,8 +16,7 @@ classdef test_set_instrument_data< TestCase
             end
             obj=obj@TestCase(name);
             data_dir = fileparts(which(mfilename));
-            wars = warning('off','SQW_FILE:old_version');
-            obj.clenup1= onCleanup(@()(warning(wars)));
+            obj.clob = set_temporary_warning('off','SQW_FILE:old_version');
 
             % Data file with 85 spe files, incident energies 100.1,100.2,...108.5 meV:
             % its the file containing old instrument and old sample.

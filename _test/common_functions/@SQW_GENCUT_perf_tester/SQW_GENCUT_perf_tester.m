@@ -244,10 +244,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             % n_workers>1 sets up parallel file combining.
             % if n_workers==0 or absent the class does not change the
             % number of workers defined by current Horace configuration.
-            pc = parallel_config;
-            ds = pc.get_data_to_store();
-            clob_par_config = onCleanup(@()set(pc,ds));
-            pc.working_directory=pwd;
+            clob_par_config = set_temporary_config_options(parallel_config, 'working_directory', pwd);
 
             if nargin <= 2
                 n_workers = 0;
@@ -350,28 +347,23 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             %
             hc = hpc_config;
             bsp = hc.build_sqw_in_parallel;
-            if n_workers == 0 % keep existing number of workers unchanged
+
+            if n_workers <= 0 % keep existing number of workers unchanged
+                % Because caller demands onCleanup object is returned, return null op
                 clob = onCleanup(@()(0));
+
                 if bsp
                     nwkc = num2str(hc.parallel_workers_number);
                 else
                     nwkc = '0';
                 end
                 return;
-            else
-                nwkc = num2str(n_workers);
             end
 
-            an = hc.parallel_workers_number;
-            if bsp && an > 1
-                clob = onCleanup(@()set(hc,'build_sqw_in_parallel',bsp,'parallel_workers_number',an));
-            else
-                clob = onCleanup(@()(an));
-            end
-            if (n_workers>0 )
-                hc.build_sqw_in_parallel = true;
-                hc.parallel_workers_number = n_workers;
-            end
+            nwkc = num2str(n_workers);
+            clob = set_temporary_config_options(hpc_config, ...
+                                                'build_sqw_in_parallel', true, ...
+                                                'parallel_workers_number', n_workers));
         end  %function
     end %Methods
 end

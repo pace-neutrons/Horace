@@ -22,8 +22,7 @@ classdef test_config_classes < TestCase
             set(tgp_test_class1,'default');
             set(tgp_test_class2,'default');
 
-            ws = warning('off','HERBERT:config_store:runtime_error');
-            clob = onCleanup(@()warning(ws));
+            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
 
             obj.s0_def = get(tgp_test_class);
             obj.s1_def = get(tgp_test_class1);
@@ -33,8 +32,7 @@ classdef test_config_classes < TestCase
 
         function obj = test_getstruct(obj)
             config_store.instance().clear_config(tgp_test_class2,'-files');
-            ws = warning('off','HERBERT:config_store:runtime_error');
-            clob = onCleanup(@()warning(ws));
+            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
 
             % ----------------------------------------------------------------------------
             % Test getting values from a configuration
@@ -54,8 +52,7 @@ classdef test_config_classes < TestCase
 
         function obj = test_get_wrongCase(obj)
             % This should fail because V3 is upper case, but the field is v3
-            ws = warning('off','HERBERT:config_store:runtime_error');
-            clob = onCleanup(@()warning(ws));
+            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
 
             try
                 [v1,v3] = get(tgp_test_class2,'v1','V3');
@@ -72,8 +69,7 @@ classdef test_config_classes < TestCase
             % Test getting values and saving
             % ----------------------------------------------------------------------------
             % Change the config without saving, change to default without saving - see that this is done properly
-            ws = warning('off','HERBERT:config_store:runtime_error');
-            clob = onCleanup(@()warning(ws));
+            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
 
             set(tgp_test_class2,'v1',55,'-buffer');
             s2_buf = get(tgp_test_class2);
@@ -106,9 +102,7 @@ classdef test_config_classes < TestCase
 
         function obj = test_set_tests(obj)
             % Use presence or otherwise of TestCaseWithSave as a proxy for xunit tests on
-            hc = hor_config;
-            old_config = hc.get_data_to_store();
-            clob = onCleanup(@()set(hc,old_config));
+            clob = set_temporary_config_options(hor_config);
             % Tests should be found as we are currently in a test suite
             found_on_entry = ~isempty(which('TestCaseWithSave.m'));
             assertTrue(found_on_entry);
@@ -127,9 +121,8 @@ classdef test_config_classes < TestCase
         end
 
         function obj = test_parallel_config_fake_worker(obj)
+            clob = set_temporary_config_options(parallel_config);
             pc = parallel_config_tester;
-            old_config = pc.get_data_to_store();
-            clob = onCleanup(@()set(pc,old_config));
 
             pc = pc.set_worker('non_existing_worker');
 
@@ -140,19 +133,16 @@ classdef test_config_classes < TestCase
         end
 
         function obj = test_parallel_config_missing_worker(obj)
-            pc = parallel_config;
-            old_config = pc.get_data_to_store();
-            clob = onCleanup(@()set(pc,old_config));
+            clob = set_temporary_config_options(parallel_config);
+            pc = parallel_config();
 
             f = @()set(pc,'worker','non_existing_worker');
             assertExceptionThrown(f,'HORACE:parallel_config:invalid_argument');
         end
 
         function obj = test_parallel_config_slurm_commands_parser(obj)
+            clob = set_temporary_config_options(parallel_config);
             pc = parallel_config();
-            old_config = pc.get_data_to_store();
-            clob = onCleanup(@()set(pc,old_config));
-            pc.saveable = false;
 
             % Sets for comparison
             new_commands = containers.Map({'-A' '-p'}, {'account' 'partition'});

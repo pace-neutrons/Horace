@@ -18,16 +18,9 @@ classdef test_dummy_sqw_bin_pix < TestCase
             end
             this = this@TestCase(name);
 
-            hc = hor_config;
-            par = parallel_config;
-            this.current_mex_state = hc.use_mex;
-            this.current_thread_state = par.threads;
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state));
-            cleanup_obj2=onCleanup(@()set(parallel_config,'threads',this.current_thread_state));
+            cleanup_obj_hc = set_temporary_config_options(hor_config, 'use_mex', true);
 
-            hc.use_mex = 1;
-
-            this.skip_tests = ~hc.use_mex;
+            this.skip_tests = ~get(hor_config, 'use_mex');
 
             this.tmp_data_folder = tmp_dir;
             pths = horace_paths;
@@ -38,8 +31,6 @@ classdef test_dummy_sqw_bin_pix < TestCase
             if this.skip_tests
                 skipTest('MEX not enabled')
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state));
-
 
             en=-80:8:760;
             par_file=fullfile(this.sample_dir,'map_4to1_dec09.par');
@@ -55,8 +46,8 @@ classdef test_dummy_sqw_bin_pix < TestCase
 
             psi=8;
 
-            hc=hor_config;
-            hc.use_mex = 1;
+            cleanup_obj = set_temporary_config_options(hor_config, 'use_mex', true);
+
             dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
 
@@ -68,7 +59,9 @@ classdef test_dummy_sqw_bin_pix < TestCase
             assertTrue(~any(w_mex.pix.energy_idx==0),'en bin id can not be equal to 0');
 
 
-            hc.use_mex = 0;
+            clear cleanup_obj;
+            cleanup_obj = set_temporary_config_options(hor_config, 'use_mex', false);
+
             dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
 
@@ -89,8 +82,6 @@ classdef test_dummy_sqw_bin_pix < TestCase
             if this.skip_tests
                 skipTest('MEX not enabled')
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state));
-            cleanup_obj2=onCleanup(@()set(parallel_config,'threads',this.current_thread_state));
 
             par_file=fullfile(this.sample_dir,'96dets.par');
 
@@ -111,11 +102,8 @@ classdef test_dummy_sqw_bin_pix < TestCase
             sqw_file_single=fullfile(this.tmp_data_folder,'test_bin_c_multithread_dummy_sqw.sqw');
             cleanup_files=onCleanup(@()delete(sqw_file_single));
 
-            hc=hor_config;
-            par = parallel_config;
-
-            hc.use_mex = 1;
-            par.threads = 1;
+            cleanup_obj_hc = set_temporary_config_options(hor_config, 'use_mex', true);
+            cleanup_obj_pc = set_temporary_config_options(parallel_config, 'threads', 1);
 
             dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
@@ -126,9 +114,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
                        'found detectors with ID-s outside the allowed range');
             assertTrue(~any(w_mex.pix.energy_idx==0),'en bin id can not be equal to 0');
 
-
-            hc.use_mex = 1;
-            par.threads = 8;
+            set(parallel_config, 'threads', 1);
 
             dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);

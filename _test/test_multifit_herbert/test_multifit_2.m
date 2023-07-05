@@ -28,8 +28,7 @@ end
 %% =====================================================================================================================
 %  Setup location of reference functions
 % ======================================================================================================================
-warning('off','MATLAB:unknownObjectNowStruct');
-clob = onCleanup(@()warning('on','MATLAB:unknownObjectNowStruct'));
+clob = set_temporary_warning('off','MATLAB:unknownObjectNowStruct');
 
 rootpath=fileparts(mfilename('fullpath'));
 ld = load(fullfile(rootpath,data_filename));
@@ -264,10 +263,9 @@ if ~ok, assertTrue(false,mess), end
 % ======================================================================================================================
 if ~save_output
     output_file=fullfile(rootpath,results_filename);
-    
-    warning('off','MATLAB:unknownObjectNowStruct');
-    clob = onCleanup(@()(warning('on','MATLAB:unknownObjectNowStruct')));
-    
+
+    clob = set_temporary_warning('off','MATLAB:unknownObjectNowStruct');
+
     old=load(output_file);
     nam=fieldnames(old);
     tol=[1e-10,1e-8];
@@ -292,7 +290,7 @@ if save_output
     disp('===========================')
     disp('    Save output')
     disp('===========================')
-    
+
     output_file=fullfile(tmp_dir,results_filename);
     save(output_file,...
         'ws1_ref','fs1_ref','ws1a','fs1a','ws1b','fs1b',...
@@ -302,9 +300,8 @@ if save_output
         'wm7_ref','fm7_ref','wm7a','fm7a','wm7b','fm7b',...
         'wm8_ref','fm8_ref','wm8','fm8',...
         'wm9_ref','fm9_ref','wm9','fm9');
-    
+
     disp(' ')
     disp(['Output saved to ',output_file])
     disp(' ')
 end
-

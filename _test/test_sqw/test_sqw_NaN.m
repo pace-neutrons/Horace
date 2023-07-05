@@ -6,11 +6,7 @@ function test_sqw_NaN
 
 banner_to_screen(mfilename)
 % this configuration value is responsible for Nan to be masked
-hc = hor_config;
-cl_val = hc.get_data_to_store();
-clObj = onCleanup(@()set(hc,cl_val));
-hc.ignore_nan = true;
-
+clObj = set_temporary_config_options(hor_config, 'ignore_nan', true);
 
 % Data
 spe_file=fullfile(tmp_dir,'test_sqw_NaN.spe');

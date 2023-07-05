@@ -18,8 +18,7 @@ classdef test_axes_block_integration < TestCase
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function test_4d_to2D_partial_region(~)
-            ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off', 'HORACE:realign_bin_edges:invalid_argument');
 
             dbr0 = [ -1,1;-2,2;-3,3;0,10]';
             dbr1 = [  0,1;-2,0;-2,2;2,8]';
@@ -88,8 +87,8 @@ classdef test_axes_block_integration < TestCase
             assertEqual(reb_data{1},ones(ab_r.dims_as_ssize))
         end
         function test_ab_alignment_iax_aligned(~)
-            ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HORACE:realign_bin_edges:invalid_argument');
+
             dbr0 = [-1,1;-2,2;-3,3;0,10]';
             dbr1 = [ 0,1;-1,1; -0.25,0.25; 0,1]';
             bin0 = {[dbr0(1,1),dbr0(2,1)];[dbr0(1,2),dbr0(2,2)];[dbr0(1,3),0.2,dbr0(2,3)];[dbr0(1,4),1,dbr0(2,4)]};
@@ -127,8 +126,7 @@ classdef test_axes_block_integration < TestCase
         end
         %
         function test_ab_alignment_pax_selected(~)
-            ws = warning('off','HORACE:realign_bin_edges:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HORACE:realign_bin_edges:invalid_argument');
 
             dbr0 = [-1,1;-2,2;-3,3;-1,11]';
             dbr1 = [ 0,1;-2,2;-5,5; 0,10]';

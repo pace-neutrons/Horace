@@ -78,7 +78,7 @@ classdef PixelDataMemory < PixelDataBase
             end
         end
         pix_out = get_fields(obj, fields, abs_pix_indices);
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);        
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);
 
         pix     = set_raw_data(obj,pix);
         obj     = set_raw_fields(obj, data, fields, abs_pix_indices);
@@ -157,35 +157,85 @@ classdef PixelDataMemory < PixelDataBase
         end
     end
 
+    methods
+        function obj = tag(obj, selected)
+        % Function to tag pixels to avoid e.g. duplicating pixels on
+        % cut. Returned pixels have negative sign on detector index. When
+        % operation is complete caller should discard pixels or use `untag`
+        % function (below).
+        %
+        % Input
+        % ------
+        %   selected     indices of pixels to be tagged
+            if ~exist('selected', 'var')
+                selected = [1:obj.num_pixels];
+            end
+
+            obj = obj.set_raw_fields(...
+                -obj.detector_idx(selected), ...
+                'detector_idx', selected);
+        end
+
+        function obj = untag(obj, selected)
+        % Function to untag pixels when operation finished.
+        %
+        % Should generally be called without `selected` specified to
+        % untag all pixels.
+        %
+        % Input
+        % ------
+        %   selected     indices of pixels to be untagged
+            if ~exist('selected', 'var')
+                selected = [1:obj.num_pixels];
+            end
+
+            obj.set_raw_fields(...
+                abs(obj.detector_idx(selected)), ...
+                'detector_idx', selected)
+        end
+
+    end
+
     methods(Static)
         function obj = cat(varargin)
-            % Concatenate the given PixelData objects' pixels. This function performs
-            % a straight-forward data concatenation.
-            %
-            %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
-            %
-            % Input:
-            % ------
-            %   varargin    A cell array of PixelData objects
-            %
-            % Output:
-            % -------
-            %   obj         A PixelData object containing all the pixels in the inputted
-            %               PixelData objects
+        % Concatenate the given PixelData objects' pixels. This function performs
+        % a straight-forward data concatenation.
+        %
+        %   >> joined_pix = PixelDataMemory.cat(pix_data1, pix_data2);
+        %
+        % Input:
+        % ------
+        %   varargin    A cell array of PixelData objects
+        %
+        % Output:
+        % -------
+        %   obj         A PixelData object containing all the pixels in the inputted
+        %               PixelData objects
+
+            if isempty(varargin)
+                obj = PixelDataMemory();
+                return;
+            elseif numel(varargin) == 1
+                if isa(varargin{1}, 'PixelDataFileBacked')
+                    obj = PixelDataMemory(varargin{1});
+                elseif isa(varargin{1}, 'PixelDataMemory')
+                    obj = varargin{1};
+                end
+                return;
+            end
 
             is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
-
             if any(is_ldr)
                 obj = PixelDataFileBacked(varargin);
                 return
             end
 
-            obj = PixelDataMemory();            
+            obj = PixelDataMemory();
 
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
                 for page = 1:curr_pix.num_pages
-				    curr_pix.page_num = page;
+                                    curr_pix.page_num = page;
                     data = curr_pix.data;
                     obj.data = [obj.data, data];
                 end
@@ -197,7 +247,7 @@ classdef PixelDataMemory < PixelDataBase
     methods(Access=protected)
         function obj = set_alignment_matrix(obj,val)
             % set new alignment matrix and recalculate new pixel ranges
-            % if alignment changes            
+            % if alignment changes
             obj = obj.set_alignment(val,@reset_changed_coord_range);
         end
         function num_pix = get_num_pixels(obj)

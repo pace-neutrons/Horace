@@ -16,8 +16,7 @@ classdef test_nxspepar_loader < TestCase
 
         function test_constr_missing_file_throws(~)
             par_file = 'missing_par_file.nxspe';
-            ws = warning('off','HERBERT:nxspepar_loader:invalid_argument');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:nxspepar_loader:invalid_argument');
             pl = nxspepar_loader(par_file);
             [~,mess_id]=lastwarn;
             assertEqual(mess_id,'HERBERT:nxspepar_loader:invalid_argument');

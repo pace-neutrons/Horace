@@ -75,7 +75,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             save(obj_to_save, file_path);
 
             function del_temp_file(tmp_file_path)
-                if exist(tmp_file_path, 'file')
+                if is_file(tmp_file_path)
                     open_fids = fopen('all');
                     for i = 1:numel(open_fids)
                         fpath = fopen(open_fids(i));

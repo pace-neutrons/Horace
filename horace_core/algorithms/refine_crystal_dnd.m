@@ -19,9 +19,7 @@ function varargout = refine_crystal_dnd(varargin)
 % The help is identical, except here the input object is a d0d, d1d,...d4d object
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
-[varargout,mess] = horace_function_call_method (nargout, @refine_crystal, '$dnd', varargin{:});
-if ~isempty(mess), error(mess), end
+varargout = horace_function_call_method (nargout, @refine_crystal, '$dnd', varargin{:});
 
+end

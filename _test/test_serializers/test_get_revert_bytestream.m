@@ -11,53 +11,55 @@ classdef test_get_revert_bytestream< TestCase
             end
             this = this@TestCase(name);
         end
+
         function test_num_conversion(~)
 
             x=1000;
-            bs = serialise(x);
+            bs = serialize(x);
             assertTrue(isa(bs(1),'uint8'));
             assertEqual(numel(bs),14);
 
-            xc = deserialise(bs);
+            xc = deserialize(bs);
 
             assertEqual(x,xc);
         end
+
         function test_string_conversion(~)
-            %-----------------
             y = 'abra_cadbra';
-            bs = serialise(y);
-            assertTrue(isa(bs(1),'uint8'));
+            bs = serialize(y);
+            assertTrue(isa(bs,'uint8'));
             assertEqual(numel(bs),17);
 
-            yc = deserialise(bs);
+            yc = deserialize(bs);
 
             assertEqual(y,yc);
-            %-----------------
         end
+
         function test_struct_conversion(~)
             x=1000;
             y = 'abra_cadbra';
             z=struct('yyy',y,'xx',x);
 
-            bs = serialise(z);
-            assertTrue(isa(bs(1),'uint8'));
+            bs = serialize(z);
+            assertTrue(isa(bs,'uint8'));
             assertEqual(numel(bs),64);
 
-            zc = deserialise(bs);
+            zc = deserialize(bs);
 
             assertEqual(z,zc);
-            %-----------------
         end
+
         function test_sobj_conversion(~)
             t= IX_fermi_chopper(10,50,10,1,0.1);
             t.radius = 10;
             t.name = 'sloppy';
 
-            bs = serialise(t);
-            assertTrue(isa(bs(1),'uint8'));
-            assertEqual(numel(bs),376);
+            bs = serialize(t);
+            assertTrue(isa(bs,'uint8'));
+            assertEqual(numel(bs),375);
 
-            tc = deserialise(bs);
+            tc = deserialize(bs);
+            tc = feval(tc.serial_name, tc);
 
             assertEqual(t,tc);
         end
@@ -72,19 +74,22 @@ classdef test_get_revert_bytestream< TestCase
             use_mex = hc.use_mex;
             clOb = onCleanup(@()set(hc,'use_mex',use_mex));
             hc.use_mex = true;
-            bs = serialise(mod);
+            bs = serialize(mod);
             hc.use_mex = false;
-            bsn = serialise(mod);
-            assertTrue(isa(bs(1),'uint8'));
-            assertEqual(numel(bs),343);
+            bsn = serialize(mod);
+            assertTrue(isa(bs,'uint8'));
+            assertEqual(numel(bs),342);
 
             assertEqual(bs,bsn);
 
             hc.use_mex = true;
-            modc = deserialise(bs);
+            modc = deserialize(bs);
+            modc = feval(modc.serial_name, modc);
+
             assertEqual(mod,modc);
             hc.use_mex = false;
-            modc = deserialise(bs);
+            modc = deserialize(bs);
+            modc = feval(modc.serial_name, modc);
             assertEqual(mod,modc);
 
         end

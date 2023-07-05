@@ -20,9 +20,7 @@ function varargout = refine_crystal_horace(varargin)
 %          :
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
-[varargout,mess] = horace_function_call_method (nargout, @refine_crystal, '$hor', varargin{:});
-if ~isempty(mess), error(mess), end
+varargout = horace_function_call_method (nargout, @refine_crystal, '$hor', varargin{:});
 
+end

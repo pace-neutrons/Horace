@@ -5,7 +5,7 @@ classdef sqw_serializer
     %
     % Used mainly by old sqw file formatters while more modern file formatters
     % inherit serializable class and deploy separate Horace serializer.
-    % 
+    %
     properties(Constant,Access=private)
         base_classes_ = {'double','single','int8','uint8','int16','uint16',...
             'int32','uint32','int64','uint64','float64'};
@@ -177,5 +177,3 @@ classdef sqw_serializer
 
 
 end
-
-
