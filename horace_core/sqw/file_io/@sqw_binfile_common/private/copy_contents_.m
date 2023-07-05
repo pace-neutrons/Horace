@@ -65,11 +65,8 @@ function obj= open_obj_file(obj,file,mode)
 [fp,fn,fe] = fileparts(file);
 obj.filename_ = [fn,fe];
 obj.filepath_ = [fp,filesep];
-obj.file_id_ = fopen(file,mode,'l','Windows-1252');
-if obj.file_id_ <= 0
-    error('SQW_FILE_IO:io_error',...
-        'Can not open file %s in %s mode',file,mode)
-end
+obj.file_id_ = sqw_fopen(file,mode);
+
 if isempty(obj.file_closer_)
     %obj.file_closer_ = onCleanup(@()obj.fclose());
 end

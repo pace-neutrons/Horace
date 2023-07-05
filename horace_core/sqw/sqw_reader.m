@@ -74,10 +74,7 @@ classdef sqw_reader<handle
                 self.fid_ = fname;
             elseif ischar(fname)
                 self.full_file_name_ = fname;
-                self.fid_ = fopen(fname,'r','l','Windows-1252');
-                if self.fid_ < 1
-                    error('SQW_READER:constructor','Can not open file: %s',fname)
-                end
+                self.fid_ = sqw_fopen(fname,'r');
             else
                 error('SQW_READER:constructor',' Input should be open file handle or the name of existing file')
             end
@@ -270,7 +267,7 @@ classdef sqw_reader<handle
         end
         function num_last_bin = read_bin_info_(self,num_loc_bin,varargin)
             % Method to read block of information about number of pixels
-            % stored according to bins starting with the bin number spefied
+            % stored according to bins starting with the bin number specified
             % as input
             %
             % nbin2read -- the bin within a block to read into the buffer

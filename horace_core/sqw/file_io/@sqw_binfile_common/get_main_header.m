@@ -25,7 +25,7 @@ function   main_head = get_main_header(obj,varargin)
 % Fields read from file are:
 % --------------------------
 %   main_header.filename   Name of sqw file that is being read, excluding
-%                          path. May be mangled with the data creatrion
+%                          path. May be mangled with the data creation
 %                          date
 %   main_header.filepath   Path to sqw file that is being read, including terminating file separator
 %   main_header.title      Title of sqw data structure

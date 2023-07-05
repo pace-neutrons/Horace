@@ -243,7 +243,7 @@ classdef test_data_block < TestCase
             dp2 = data_block('experiment_info','instruments');
 
             file = fullfile(tmp_dir(),'put_get_sqw_block.bin');
-            fid = fopen(file,'wb+');
+            fid = sqw_fopen(file,'wb+');
             clOb = onCleanup(@()file_deleter(obj,fid,file));
 
             tob = obj.sqw_obj_for_tests;
@@ -266,7 +266,7 @@ classdef test_data_block < TestCase
             dp = data_block('experiment_info','instruments');
 
             file = fullfile(tmp_dir(),'put_get_sqw_block.bin');
-            fid = fopen(file,'wb+');
+            fid = sqw_fopen(file,'wb+');
             clOb = onCleanup(@()file_deleter(obj,fid,file));
 
             tob = obj.sqw_obj_for_tests;

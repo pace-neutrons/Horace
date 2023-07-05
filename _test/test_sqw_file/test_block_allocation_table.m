@@ -381,7 +381,7 @@ classdef test_block_allocation_table < TestCase
             assertTrue(bac.initialized);
 
             file = fullfile(tmp_dir(),'put_get_bat.bin');
-            fid = fopen(file,'wb+');
+            fid = sqw_fopen(file,'wb+');
             clOb = onCleanup(@()file_deleter(obj,fid,file));
 
             bac = bac.put_bat(fid);

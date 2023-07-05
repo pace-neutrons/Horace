@@ -139,7 +139,7 @@ classdef horace_binfile_interface < serializable
     % Main class methods & constructor
     methods
         function obj = horace_binfile_interface(varargin)
-            % constructor. All operations are performed througn init
+            % constructor. All operations are performed through init
             % function.
             if nargin == 0
                 return;
