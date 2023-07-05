@@ -241,7 +241,8 @@ function [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(pix, bloc
 end
 
 function [npix, s, e, pix_out, unique_runid] = cut_filebacked_no_pixels(pix, block_starts, block_sizes, ...
-                                                                        targ_proj, targ_axes, npix, s, e, ll)
+                                                                        targ_proj, targ_axes, npix, s, e, ll, ...
+                                                                        pixel_contrib_name)
 
     hc = hor_config;
     chunk_size = hc.mem_chunk_size;

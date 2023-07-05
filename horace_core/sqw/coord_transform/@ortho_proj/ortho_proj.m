@@ -684,4 +684,24 @@ classdef ortho_proj<aProjectionBase
             obj = build_from_old_data_struct_(obj,inputs,header_av);
         end
     end
+    methods(Static,Access=private)
+        function names = extract_eq_neq_names(varargin)
+            % function helps to parse inputs of eq/neq functions in case
+            % when it called within the chain of other functions containing
+            % input parameters
+            % if varargin contains
+            names = cell(2,1);
+            argi = cellfun(@(x)char(string(x)),varargin,'UniformOutput',false);
+            is = ismember(argi,'name_a');
+            if any(is)
+                ind = find(is);
+                names{1} = varargin{ind+1};
+            end
+            is = ismember(argi,'name_b');
+            if any(is)
+                ind = find(is);
+                names{2} = varargin{ind+1};
+            end
+        end
+    end
 end
