@@ -85,7 +85,7 @@ obj = obj.finalise();
 
 end
 
-function obj_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
+function obj_out = do_mask_file_backed_with_npix(obj, keep_array, npix)
 % Perform a mask of a file-backed PixelData object with a mask array and
 % an npix array. The npix array should account for the full range of pixels
 % in the PixelData instance i.e. sum(npix) == pix.num_pixels.
@@ -103,20 +103,22 @@ if isempty(obj_out.file_handle_)
 end
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.default_page_size);
-obj_out.num_pixels_ = sum(npix .* mask_array, 'all');
+obj_out.num_pixels_ = sum(npix .* keep_array, 'all');
 obj_out.data_range = obj.EMPTY_RANGE;
 
 curr = 1;
 npg = obj.num_pages;
 for i = 1:npg
     obj.page_num = i;
-    data = obj.data;
     npix_for_page = npix_chunks{i};
     idx = idxs(:, i);
+    pixmask_array_chunk = repelem(keep_array(idx(1):idx(2)), npix_for_page);    
+    
+    data = obj.data(:, pixmask_array_chunk);
 
-    pixmask_array_chunk = repelem(mask_array(idx(1):idx(2)), npix_for_page);
-
-    data = data(:, pixmask_array_chunk);
+    if isempty(data)
+        continue;
+    end
 
     obj_out.data_range = obj_out.pix_minmax_ranges(data, ...
         obj_out.data_range);
@@ -131,10 +133,13 @@ obj_out = obj_out.finalise();
 end
 
 function [mask_array, npix] = validate_input_args(obj, mask_array, varargin)
-parser = inputParser();
-parser.addRequired('obj');
-parser.addRequired('mask_array');
-parser.addOptional('npix', []);
+persistent parser
+if isempty(parser)
+    parser = inputParser();
+    parser.addRequired('obj');
+    parser.addRequired('mask_array');
+    parser.addOptional('npix', []);
+end
 parser.parse(obj, mask_array, varargin{:});
 
 mask_array = parser.Results.mask_array;

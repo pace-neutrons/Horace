@@ -301,8 +301,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
                 obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
-                fh = sqw_fopen(obj.tmp_pix_obj.file_name, 'wb+');
-                obj.file_handle_ = fh;
+                obj.file_handle_ = sqw_fopen(obj.tmp_pix_obj.file_name, 'wb+');
             end
         end
 

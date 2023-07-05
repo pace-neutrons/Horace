@@ -3,6 +3,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
     properties
 
         sqw_2d_file_path;
+        sqw_2d_num_pixels
         sqw_2d;
         idxs_to_mask;
         mask_array_2d;
@@ -37,6 +38,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
             % 2D case setup
             obj.sqw_2d = sqw(obj.sqw_2d_file_path, 'file_backed', false);
+            obj.sqw_2d_num_pixels = obj.sqw_2d.pix.num_pixels;
             pix = obj.sqw_2d.pix;
             pix = pix.recalc_data_range();
             obj.sqw_2d.pix = pix;
@@ -205,7 +207,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
         function test_mask_pixels_removes_pixels_given_in_mask_array(obj)
-            sqw_obj = sqw(obj.sqw_2d_file_path);
+            sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
             mask_array = true(1, sqw_obj.pix.num_pixels);
 
             % Remove all pix where u1 greater than median u1
@@ -246,10 +248,6 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             assertEqual(masked_2d.pix.num_pixels, expected_num_pix);
 
             % test_img_range_recalculated_after_mask
-            % TODO: enable check when img_range is fully supported
-            obj.masked_2d_img_range = obj.sqw_2d.data.img_range;
-            %assertElementsAlmostEqual(original_pix_range(2:end), new_pix_range(2:end), ...
-            %    'absolute', 0.001);
 
             original_pix_range = obj.sqw_2d.pix.pix_range;
             new_pix_range = masked_2d.pix.pix_range;
@@ -277,7 +275,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
         end
 
 
-        function test_mask_random_fraction_pix_removes_perc_of_pix_in_mem(obj)
+        function test_mask_random_fraction_removes_perc_of_pix_in_mem(obj)
             sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
 
             frac_to_keep = 0.8;
@@ -285,15 +283,23 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
             expected_num_pix = round(frac_to_keep*sqw_obj.pix.num_pixels);
             assertEqual(new_sqw.pix.num_pixels, expected_num_pix);
+
+            assertEqual(new_sqw.pix.num_pixels, sum(new_sqw.data.npix(:)));
+            assertEqual(sum(new_sqw.pix.signal), ...
+                sum(new_sqw.data.s(:).*new_sqw.data.npix(:)));
+
         end
 
-        function test_mask_random_pixels_retains_correct_number_of_pixels_in_mem(obj)
+        function test_mask_random_retains_correct_number_of_pix_in_mem(obj)
             sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
 
             num_pix_to_keep = 5000;
             new_sqw = mask_random_pixels(sqw_obj, num_pix_to_keep);
 
             assertEqual(new_sqw.pix.num_pixels, num_pix_to_keep);
+            assertEqual(new_sqw.pix.num_pixels, sum(new_sqw.data.npix(:)));
+            assertEqual(sum(new_sqw.pix.signal), ...
+                sum(new_sqw.data.s(:).*new_sqw.data.npix(:)));
         end
 
 
@@ -310,6 +316,17 @@ classdef test_mask < TestCase & common_pix_class_state_holder
             clOb = onCleanup(@()set(hc,'mem_chunk_size',mcs));
             hc.mem_chunk_size = new_pg_size;
             masked_sqw = mask(paged_sqw, mask_array);
+
+            assertEqual(paged_sqw.pix.num_pixels, sum(paged_sqw.data.npix(:)));
+            ssignal = 0;
+            pix = paged_sqw.pix;
+
+            for i=1:pix.num_pages
+                pix.page_num = i;
+                ssignal = ssignal  + sum(pix.signal);
+            end
+            assertEqualToTol(ssignal, ...
+                sum(paged_sqw.data.s(:).*paged_sqw.data.npix(:)),'reltol',1.e-7);
 
         end
 
