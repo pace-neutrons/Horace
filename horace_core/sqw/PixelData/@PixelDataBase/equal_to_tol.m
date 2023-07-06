@@ -257,7 +257,7 @@ function mess = process_message(mess, offset, spacing, ix1, ix2)
     ind = str2num(match{1}{1});
 
     pix = floor(ind / 9);
-    col = PixelDataBase.COLS{mod(ind, 9)};
+    col = PixelDataBase.COLS{mod(ind-1, 9)+1};
 
     if ~exist('ix1', 'var')
         mess = sprintf([str{1} 'pixel %d (col=%s)'], offset + spacing*pix, col);
