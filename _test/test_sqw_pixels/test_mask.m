@@ -295,7 +295,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
         end
         function test_mask_random_retains_correct_number_of_pix_on_file(obj)
-            skipTest('Re #1081 The test issustrates broken filebacked masking. Should be enabled as part of fixing the ticket')
+            skipTest('Re #1081 The test illustrates broken filebacked masking. Should be enabled as part of fixing the ticket')
             sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',true);
             new_pg_size = floor(obj.sqw_2d_num_pixels/6);
             clOb  = set_temporary_config_options(hor_config(), 'mem_chunk_size',new_pg_size);
