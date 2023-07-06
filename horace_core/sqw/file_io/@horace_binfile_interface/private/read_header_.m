@@ -43,11 +43,11 @@ if isnumeric(file_name)
     fid=file_name;  % copy fid
     do_fseek(fid,0,'bof');  % set the file position indicator to the start of the file
 else
-    fid=sqw_fopen(file_name,permission_req);
-    if fid<0
-        mess=['Unable to open file: ',file_name];
-        return
+    if ~isfile(file_name)
+        error('HORACE:horace_binfile_interface:io_error',...        
+            'file %s does not exist',file_name);
     end
+    fid=sqw_fopen(file_name,permission_req);
 end
 % read enough data to understand the file is sqw file
 stream = fread(fid,buf_size,'*uint8');
