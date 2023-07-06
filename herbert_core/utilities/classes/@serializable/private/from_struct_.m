@@ -71,17 +71,6 @@ else
     % Structure was created from an earlier version of a serializable object, or
     % has a different provenance e.g. came from an older format that predates
     % the use of serializable
-    if isfield(S,'array_dat')
-        S = S.array_dat;
-    end
-    if numel(S)>1
-        obj = repmat(obj,size(S));
-    end
-    for i=1:numel(S)
-        obj(i).do_check_combo_arg = false;
-        obj(i) = obj(i).from_old_struct (S(i));
-        obj(i).do_check_combo_arg = true;
-        obj(i) = obj(i).check_combo_arg();
-    end
+    obj = obj.from_old_struct (S);
 
 end
