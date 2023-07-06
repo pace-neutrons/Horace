@@ -60,7 +60,7 @@ obj.convert_to_double_ = other_obj.convert_to_double_;
 function obj= open_obj_file(obj,file,mode)
 % open object's file with appropriate access rights.
 obj.full_filename = file;
-obj.file_id_ = sqw_fopen(file,mode,'l');
+obj.file_id_ = sqw_fopen(file,mode);
 if isempty(obj.file_closer_)
     obj.file_closer_ = onCleanup(@()obj.fclose());
 end
