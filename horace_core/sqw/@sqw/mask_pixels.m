@@ -2,8 +2,8 @@ function wout = mask_pixels (win, keep_obj)
 % Remove the pixels indicated by the mask array
 %
 %   >> wout = mask_pixels (win, keep_obj)     % Mask array
-%   >> wout = mask_pixels (win, wmask)          % Mask according to pixel array
-%                                               % contents
+%   >> wout = mask_pixels (win, wmask)        % Mask according to pixel array
+%                                             % contents
 %
 % Input:
 % ------
