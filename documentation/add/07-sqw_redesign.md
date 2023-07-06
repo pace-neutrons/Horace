@@ -15,8 +15,8 @@ The object provides an interface to the Horace file which can be interchanged wi
 
 The `sqw` object contains two information blocks, describing experiment from different sides and under different approximations:
 
-- `dnd-object` which is the part of the `SQW` object contains processed neutron image data, expressed in the system of coordinates, requested by the neutron physicist doing experiment. Very often its `hkl-dE` coordinate system, but it is possible to define other coordinate system of interest too.
-- `sqw-object` itself, in addition to the image data, contains the records of all neutron events occurred in the experiments and expressed (currently) in Crystal Cartesian coordinate system, the informations about all experimental runs the neutron events have been obtained from, information about the instrument and sample used in experiment, the instrument states during experiment and the information about detector pixel array, used to collect neutron events. This information is sufficient to calculate resolution function of the instrument. The neutron events are held in the `PixelData` class, and arranged in such a way, that selection of a part of the `dnd-object` neutron image allows the effective selection of the appropriate part of the `PixelData` contributed into this part of image.
+- `dnd-object` which is the part of the `SQW` object contains processed neutron image data, expressed in the system of coordinates, requested by the neutron physicist doing experiment. Very often its `hkl-dE` (three reciprocal lattice units and energy transfer) coordinate system, but it is possible to define other coordinate system of interest too. Later we will discuss different coordinate system, related to `dnd` object in more details.
+- `sqw-object` itself, in addition to the image data of `dnd` object, contains the records of all neutron events occurred in the experiments and expressed (currently) in Crystal Cartesian coordinate system, the information about all experimental runs the neutron events have been obtained from, information about the instrument and sample used in experiment, the instrument states during experiment and the information about detector pixel array, used to collect neutron events. This information is sufficient to calculate resolution function of the instrument. The neutron events are held in the `PixelDataBase` class children, and arranged in such a way, that selection of a part of the `dnd-object` neutron image allows the effective selection of the appropriate part of the `PixelDataBase` events contributed into this part of image.
 
 
 The two objects are treated by Horace as 'first class citizens'. The objects share a common API where that is appropriate. In an sqw object, operations are performed on the pixel array data and the `dnd` image data recalculated from this. For `dnd` objects the operations are performed directly on the image data.
@@ -32,17 +32,17 @@ The class diagram describing the relationship between main Horace classes is pro
 
 ### SQWDnDBase
 
-Abstract base class for the `sqw` and `dnd` objects, describing the interface common for both `sqw` and `dnd` objects.
+Abstract base class for the `sqw` and `dnd` objects, describing the interface and algorithms common for both `sqw` and `dnd` objects.
 
-May include code of the methods with work identically on both `sqw` and `dnd` objects.
+May include code of the methods which work identically on both `sqw` and `dnd` objects.
 
 Currently it also include common methods, in particular the large number of unary and binary operations which are implemented as calls to the operations managers defined in the children classes and implementing the particular behaviour, different for `sqw` and `dnd` objects.
 
 ### SQW
 
-The `sqw` object provides the public API to the all relevant experimental data. Main data manipulations are performed on the `PixelData` property `pix` and the `Image` stored in property `data` and containing `dnd` object corresponding to the `sqw` object is recalculated accordingly to the pixel operations.
+The `sqw` object provides the public API to the all relevant experimental data. Main data manipulations are performed on the `PixelDataBase` property `pix` and the `Image` stored in property `data` and containing `dnd` object corresponding to the `sqw` object is recalculated accordingly to the operations performed over the pixels.
 
-This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally very large dataset, `sqw` object in number of operations may be used leaving the `PixelData` untouched. Alternatively, when `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` can be performed on separate data chunks loaded and processed in memory, leaving the main `PixelData` arrays filebased.
+This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally very large dataset, `sqw` object in number of operations may be used leaving the `PixelData` untouched. Alternatively, when `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` can be performed on separate data chunks loaded and processed in memory, leaving the main `PixelData` arrays located in files.
 The structure of a generic `sqw` object is presented in Fig.2:
 
 ![Fig.2. SQW Class Overview](../diagrams/sqw.png)
@@ -55,17 +55,19 @@ An extract from the whole inheritance diagram for the `DnD` objects is presented
 
 ![Fig.3. DnD Class inheritance diagram](../diagrams/DND-inheritance.png)
 
-The diagram also shows `data_sqw_dnd` object inheriting from `DnDBase` and containing arbitrary number of dimensions unlike other `DnD` objects which define their specific number of dimensions.  This object left for IO compatibility with previous versions of Horace code and is not used in Horace for any other purpose except IO restoring old data.
+The diagram also shows `data_sqw_dnd` object inheriting from `DnDBase` and containing arbitrary number of dimensions unlike other `DnD` objects which define their specific number of dimensions.  This object left for IO compatibility with previous versions of Horace code and is not used in Horace for any other purpose except restoring an old data.
 
 The `DnDBase` base class is an abstract class holding the common data and common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing appropriate algorithms. The structure of `DnDBase` class together with its children, defining specific number of dimensions is presented in Fig.4:
 
 ![Fig.4. DND Class Overview](../diagrams/dnd.png)
 
-The diagram shows that any `DnD` object contains *signal*, *error* and *npix* arrays of appropriate dimensions plus  two additional properties, namely *proj* and *axes*. *npix* describes the number of pixels (neutron events) contributed to each area of the image according to the image axes scaling (described by `axes_block` below). *proj* field contains the instance of `aProjection` class, which defines the transformation from the coordinate system of `PixelData` class to the `Image` (`DnD` object) coordinate system. For example, in the most common case of `Image` coordinate system being `hkl-dE` coordinate system and `PixelData` class coordinate system being Crystal Cartesian coordinate system the transformation is the matrix multiplication of the `PixelData` coordinates by `UB` matrix of Bussing and Levy [^1].
+The diagram shows that any `DnD` object contains *signal*, *error* and *npix* arrays of appropriate dimensions plus  two additional properties, namely *proj* and *axes*.
+ *npix* describes the number of pixels (neutron events) contributed to each area of the image according to the image axes scaling (described by `AxesBlockBase` below). *proj* field contains a child  of `aProjectionBase` class, which defines the transformation from the coordinate system of `PixelDataBase` class to the `Image` (`DnD` object) coordinate system. For example, in the most common case of `Image` coordinate system being `hkl-dE` coordinate system and `PixelDataBase` class coordinate system being Crystal Cartesian coordinate system the transformation is the matrix multiplication of the `PixelData` coordinates by `UB` matrix of Bussing and Levy [^1].
 
-The `axes_block` class is closely related to the appropriate `aProjection` class and defines the coordinate system of the image, its binning axes and units along the axes scales.
+The `AxesBlockBase` class is closely related to the appropriate `aProjectionBase` class and defines the coordinate system of the image, its binning axes and units along the axes scales.
 
-In more details the `aProjection` class and `axes_block` classes are described below.
+In more details the `aProjectionBase` class and `AxesBlockBase` classes are described below.
+
 
 ### Plotting interface
 
