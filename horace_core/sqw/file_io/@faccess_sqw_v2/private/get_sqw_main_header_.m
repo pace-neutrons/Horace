@@ -30,8 +30,6 @@ function [mess, main_header, position] = get_sqw_main_header_(fid, opt)
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 mess='';
 main_header=[];

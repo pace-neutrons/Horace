@@ -346,7 +346,7 @@ classdef pix_combine_info < serializable
             if n_workers> n_tasks
                 n_workers = n_tasks;
             end
-            % caclulate the indexes of an array to divide job array among
+            % calculate the indexes of an array to divide job array among
             % all workers
             split_ind= calc_job_indexes_(n_tasks,n_workers);
             files   = obj.infiles;

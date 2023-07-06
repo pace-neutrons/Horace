@@ -451,7 +451,7 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             assertEqual(numel(bytes),pos-1);
 
             tf = fullfile(tmp_dir,'serialize_test_serialize_general_v3_with_file.bin');
-            fid = fopen(tf,'w+');
+            fid = sqw_fopen(tf,'w+');
             assertTrue(fid>0);
             clob = onCleanup(@()obj.clean_file(fid));
             sz = fwrite(fid,bytes,'uint8');

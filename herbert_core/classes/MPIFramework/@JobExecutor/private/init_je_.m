@@ -40,7 +40,7 @@ if ~isempty(obj.ext_log_fh) && isnumeric(obj.ext_log_fh)
     end
 end
 
-% set up message exchange framewor to be available in all places of the 
+% set up message exchange framework to be available in all places of the 
 % jobExecutor
 mis = MPI_State.instance();
 mis.mpi_framework = intercomm;

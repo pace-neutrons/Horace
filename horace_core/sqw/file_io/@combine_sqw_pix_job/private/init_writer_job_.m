@@ -8,11 +8,7 @@ function [obj] = init_writer_job_(obj)
 pix_comb_info = obj.pix_combine_info_;
 
 filename = pix_comb_info.fout_name;
-fout = fopen(filename,'rb+');
-if fout<=0
-    error('HORACE:combine_sqw_pix_job:runtime_error',...
-        'Can not open target file %s for writing',filename);
-end
+fout = sqw_fopen(filename,'rb+');
 
 pix_out_position = pix_comb_info.pix_out_pos;
 try

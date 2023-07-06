@@ -3,7 +3,7 @@ function [ok,file_exist,file_name,err_mess] = check_file_writable(input_file,req
 %
 % Input:
 % input_file -- input file with the path. If path is not provided, the
-%               working difectory is assumed as target directory
+%               working directory is assumed as target directory
 % require_existance -- if true, return if the file is not found.
 %                      default -- false
 % Outputs:
@@ -11,7 +11,7 @@ function [ok,file_exist,file_name,err_mess] = check_file_writable(input_file,req
 % file_exist -- true if file exist and false otherwise
 % file_name  -- the name of the file with full standard path, leading to
 %               it.
-% err_mess   -- the string, containg the reason for failure if ok== false
+% err_mess   -- the string, containing the reason for failure if ok== false
 %
 if ~exist('require_existance', 'var')
     require_existance = false;

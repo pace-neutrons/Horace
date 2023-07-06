@@ -35,7 +35,7 @@ if isnumeric(fout)
     filename = fopen(fout);
 else
     filename = fout;
-    fout = fopen(filename,'wb+');
+    fout = sqw_open(filename,'wb+');
 end
 
 try

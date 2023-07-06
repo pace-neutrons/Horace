@@ -174,79 +174,11 @@ classdef PixelDataFileBacked < PixelDataBase
             % 8: 3xNpix array
             %             -- initialize filebacked class from array of
             %                data provided as input
-
+            
             % process possible update parameter
-            is_bool = cellfun(@islogical,varargin);
-            log_par = [varargin{is_bool} false(1,2)]; % Pad with false
-            update  = log_par(1);
-            norange = log_par(2);
-            argi = varargin(~is_bool);
-
-            if isscalar(argi)
-                init = argi{1};
-            else
-                % build from data/metadata pair
-                init = argi;
-            end
-
-            if iscell(init)
-                flds = obj.saveableFields();
-                obj = obj.set_positional_and_key_val_arguments(flds,false,argi);
-
-            elseif isstruct(init)
-                obj = obj.loadobj(init);
-
-            elseif isa(init, 'PixelDataFileBacked')
-                obj.offset_       = init.offset_;
-                obj.full_filename = init.full_filename;
-                obj.num_pixels_   = init.num_pixels;
-                obj.data_range    = init.data_range;
-                obj.tmp_pix_obj   = init.tmp_pix_obj;
-                obj.f_accessor_   = memmapfile(obj.full_filename, ...
-                                               'Format', obj.get_memmap_format(), ...
-                                               'Repeat', 1, ...
-                                               'Writable', update, ...
-                                               'Offset', obj.offset_ );
-
-            elseif isa(init, 'PixelDataMemory')
-
-                if isempty(obj.full_filename_)
-                    obj.full_filename = 'from_mem';
-                end
-
-                obj = set_raw_data_(obj,init.data);
-
-            elseif istext(init)
-                if ~is_file(init)
-                    error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                        'Cannot find file to load (%s)', init)
-                end
-
-                init = sqw_formats_factory.instance().get_loader(init);
-                obj = init_from_file_accessor_(obj,init,update,norange);
-
-            elseif isa(init, 'sqw_file_interface')
-                obj = init_from_file_accessor_(obj,init,update,norange);
-
-            elseif isnumeric(init)
-                % this is usually option for testing filebacked operations
-                if isscalar(init)
-                    init = rand(PixelDataBase.DEFAULT_NUM_PIX_FIELDS,abs(floor(init)));
-                end
-
-                if isempty(obj.full_filename_)
-                    obj.full_filename = 'from_mem';
-                end
-
-                obj = set_raw_data_(obj,init);
-            else
-                error('HORACE:PixelDataFileBacked:invalid_argument', ...
-                    'Cannot construct PixelDataFileBacked from class (%s)', class(init))
-            end
-
-            obj.page_num = 1;
+            obj = init_(obj,varargin{:});
         end
-
+        
         function obj = move_to_first_page(obj)
             % Reset the object to point to the first page of pixel data in the file
             % and clear the current cache
@@ -369,13 +301,7 @@ classdef PixelDataFileBacked < PixelDataBase
                 end
                 obj.tmp_pix_obj = TmpFileHandler(obj.full_filename);
 
-                fh = fopen(obj.tmp_pix_obj.file_name, 'wb+');
-                if fh<1
-                    error('HORACE:PixelDataFileBacked:runtime_error', ...
-                        'Can not open data file %s for file-backed pixels',...
-                        obj.tmp_pix_obj.file_name);
-                end
-
+                fh = sqw_fopen(obj.tmp_pix_obj.file_name, 'wb+');
                 obj.file_handle_ = fh;
             end
         end
@@ -427,10 +353,10 @@ classdef PixelDataFileBacked < PixelDataBase
                 obj.offset_ = 0;
                 obj.full_filename = obj.tmp_pix_obj.file_name;
                 obj.f_accessor_ = memmapfile(obj.full_filename, ...
-                                             'format', obj.get_memmap_format(), ...
-                                             'Repeat', 1, ...
-                                             'Writable', true, ...
-                                             'offset', obj.offset_);
+                    'format', obj.get_memmap_format(), ...
+                    'Repeat', 1, ...
+                    'Writable', true, ...
+                    'offset', obj.offset_);
 
             end
         end
@@ -453,19 +379,19 @@ classdef PixelDataFileBacked < PixelDataBase
     end
     methods(Static)
         function obj = cat(varargin)
-        % Concatenate the given PixelData objects' pixels. This function performs
-        % a straight-forward data concatenation.
-        %
-        %   >> joined_pix = PixelDataBase.cat(pix_data1, pix_data2);
-        %
-        % Input:
-        % ------
-        %   varargin    A cell array of PixelData objects
-        %
-        % Output:
-        % -------
-        %   obj         A PixelData object containing all the pixels in the inputted
-        %               PixelData objects
+            % Concatenate the given PixelData objects' pixels. This function performs
+            % a straight-forward data concatenation.
+            %
+            %   >> joined_pix = PixelDataBase.cat(pix_data1, pix_data2);
+            %
+            % Input:
+            % ------
+            %   varargin    A cell array of PixelData objects
+            %
+            % Output:
+            % -------
+            %   obj         A PixelData object containing all the pixels in the inputted
+            %               PixelData objects
 
             if isempty(varargin)
                 obj = PixelDataFileBacked();
