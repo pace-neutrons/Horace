@@ -57,8 +57,8 @@ switch typeID
     case 32
         [v,pos] = obj_deserialize_itself(m,pos);
     otherwise
-        error('HORACE:hlp_deserialize:invalid_argument', ...
-            'Cannot deserialize tag with ID: %d at position %d.',typeID,pos);
+        error('HORACE:deserialize:invalid_argument', ...
+              'Cannot deserialize tag with ID: %d at position %d.',typeID,pos);
 end
 end
 
@@ -246,7 +246,7 @@ switch fTag
             try
                 v = arg_report('handle',v,parentage{k});
             catch
-                error('MATLAB:deserialize_function_handle:hlp_deserialize',...
+                error('MATLAB:deserialize:invalid_argument',...
                     'Cannot deserialize a function handle to a nested function.')
             end
         end
