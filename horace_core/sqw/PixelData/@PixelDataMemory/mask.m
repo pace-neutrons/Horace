@@ -1,11 +1,11 @@
-function pix_out = mask(obj, mask_array, npix)
+function pix_out = mask(obj, keep_array, npix)
 % MASK remove the pixels specified by the input logical array
 %
 % You must specify exactly one return argument when calling this function.
 %
 % Input:
 % ------
-% mask_array   A logical array specifying which pixels should be kept/removed
+% keep_array   A logical array specifying which pixels should be kept/removed
 %              from the PixelData object. Must be of length equal to the number
 %              of pixels in 'obj' or equal in size to the 'npix' argument. A
 %              true/1 in the array indicates that the pixel at that index
@@ -40,19 +40,19 @@ if ~exist('npix', 'var')
     npix = [];
 end
 
-[mask_array, npix] = validate_input_args(obj, mask_array, npix);
+[keep_array, npix] = validate_input_args(obj, keep_array, npix);
 
-if all(mask_array)
+if all(keep_array)
     pix_out = obj;
 
-elseif ~any(mask_array)
+elseif ~any(keep_array)
     pix_out = PixelDataBase.create();
 
-elseif numel(mask_array) == obj.num_pixels % all specified
-    pix_out = obj.get_pixels(mask_array);
+elseif numel(keep_array) == obj.num_pixels % all specified
+    pix_out = obj.get_pixels(keep_array);
 
 else
-    full_mask_array = repelem(mask_array, npix);
+    full_mask_array = repelem(keep_array, npix);
     pix_out = obj.get_pixels(full_mask_array);
 
 end

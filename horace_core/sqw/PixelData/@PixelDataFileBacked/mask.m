@@ -1,11 +1,11 @@
-function obj = mask(obj, mask_array, varargin)
+function obj = mask(obj, keep_array, varargin)
 % MASK remove the pixels specified by the input logical array
 %
 % You must specify exactly one return argument when calling this function.
 %
 % Input:
 % ------
-% mask_array   A logical array specifying which pixels should be kept/removed
+% keep_array   A logical array specifying which pixels should be kept/removed
 %              from the PixelData object. Must be of length equal to the number
 %              of pixels in 'obj' or equal in size to the 'npix' argument. A
 %              true/1 in the array indicates that the pixel at that index
@@ -30,20 +30,20 @@ function obj = mask(obj, mask_array, varargin)
 % -------
 % obj      A PixelData object containing only non-masked pixels.
 %
-[mask_array, npix] = validate_input_args(obj, mask_array, varargin{:});
+[keep_array, npix] = validate_input_args(obj, keep_array, varargin{:});
 
-if ~any(mask_array)
+if ~any(keep_array)
     obj = PixelDataBase.create();
-elseif numel(mask_array) == obj.num_pixels %all specified
-    obj = do_mask_file_backed_with_full_mask_array(obj, mask_array);
+elseif numel(keep_array) == obj.num_pixels %all specified
+    obj = do_mask_file_backed_with_full_mask_array(obj, keep_array);
 
 else
-    obj = do_mask_file_backed_with_npix(obj, mask_array, npix);
+    obj = do_mask_file_backed_with_npix(obj, keep_array, npix);
 end
 
 end
 
-function obj = do_mask_file_backed_with_full_mask_array(obj, mask_array)
+function obj = do_mask_file_backed_with_full_mask_array(obj, keep_array)
 % Perfrom a mask of a file-backed PixelData object with a mask array as
 % long as the full PixelData array i.e. numel(mask_array) == pix.num_pixels
 %
@@ -52,7 +52,7 @@ if isempty(obj.file_handle_)
     obj = obj.get_new_handle();
 end
 
-obj.num_pixels_ = numel(mask_array);
+obj.num_pixels_ = numel(keep_array);
 
 mem_chunk_size = obj.default_page_size;
 obj.data_range = obj.EMPTY_RANGE;
@@ -63,13 +63,13 @@ npix = obj.num_pixels;
 for i = 1:mem_chunk_size:npix
     obj.page_num = page;
     block_size = min(mem_chunk_size,npix-i+1);
-    if islogical(mask_array)
-        page_mask = mask_array(i:i+block_size-1);
+    if islogical(keep_array)
+        page_keep = keep_array(i:i+block_size-1);
     else
-        selection = mask_array >=i & mask_array <i+block_size;
-        page_mask = mask_array(selection);
+        selection = keep_array >=i & keep_array <i+block_size;
+        page_keep = keep_array(selection);
     end
-    data = obj.data(:,page_mask);
+    data = obj.data(:,page_keep);
 
     block_size= size(data,2);
 
@@ -113,7 +113,7 @@ for i = 1:npg
     npix_for_page = npix_chunks{i};
     idx = idxs(:, i);
     pixmask_array_chunk = repelem(keep_array(idx(1):idx(2)), npix_for_page);    
-    
+
     data = obj.data(:, pixmask_array_chunk);
 
     if isempty(data)
