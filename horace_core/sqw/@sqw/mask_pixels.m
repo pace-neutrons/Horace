@@ -1,4 +1,4 @@
-function wout = mask_pixels (win, keep_obj)
+function wout = mask_pixels (win, keep_info)
 % Remove the pixels indicated by the mask array
 %
 %   >> wout = mask_pixels (win, keep_obj)     % Mask array
@@ -7,9 +7,9 @@ function wout = mask_pixels (win, keep_obj)
 %
 % Input:
 % ------
-%   win                 Input sqw object
+%   win                Input sqw object
 %
-%   keep_obj          Array of 1 or 0 (or true or false) that indicate
+%   keep_info          Array of 1 or 0 (or true or false) that indicate
 %                      which pixels to retain (true to retain, false to ignore)
 %                      Numeric or logical array of same number of pixels
 %                      as the data.
@@ -46,7 +46,7 @@ end
 wout = copy(win);
 
 % Trivial case of empty or no mask arguments
-if nargin==1 || isempty(keep_obj)
+if nargin==1 || isempty(keep_info)
     return
 end
 
@@ -56,14 +56,14 @@ if numel(sz)==1
     sz=[sz,1];
 end
 
-if isa(keep_obj, 'SQWDnDBase')
-    if has_pixels(keep_obj)
-        [nd_msk,sz_msk]=dimensions(keep_obj);
+if isa(keep_info, 'SQWDnDBase')
+    if has_pixels(keep_info)
+        [nd_msk,sz_msk]=dimensions(keep_info);
         if numel(sz_msk)==1
             sz_msk=[sz_msk,1];
         end
-        if isequal(nd,nd_msk) && isequal(sz,sz_msk) && isequal(win.data.npix,keep_obj.data.npix)
-            keep_obj=logical(keep_obj.pix.signal);
+        if isequal(nd,nd_msk) && isequal(sz,sz_msk) && isequal(win.data.npix,keep_info.data.npix)
+            keep_info=logical(keep_info.pix.signal);
         else
             error('HORACE:sqw:invalid_argument', ...
                 'Dimensionality, number of bins on each dimension and number of pixels in each bin of input and mask must match')
@@ -72,9 +72,9 @@ if isa(keep_obj, 'SQWDnDBase')
         error('HORACE:sqw:invalid_argument', ...
             'If the mask object is a Horace object if must be sqw-type i.e. contain pixel information')
     end
-elseif (isnumeric(keep_obj) || islogical(keep_obj)) && numel(keep_obj)~=numel(win.data.s)
-    if ~islogical(keep_obj)
-        keep_obj=logical(keep_obj);
+elseif (isnumeric(keep_info) || islogical(keep_info)) && numel(keep_info)~=numel(win.data.s)
+    if ~islogical(keep_info)
+        keep_info=logical(keep_info);
     end
 else
     error('HORACE:sqw:invalid_argument', ...
@@ -83,8 +83,8 @@ end
 
 % Section the pix array, if sqw type, and update pix_range and img_range(s)
 ibin = replicate_array(1:prod(sz),win.data.npix);   % (linear) bin number for each pixel
-npix=accumarray(ibin(keep_obj),ones(1,sum(keep_obj)),[prod(sz),1]);
+npix=accumarray(ibin(keep_info),ones(1,sum(keep_info)),[prod(sz),1]);
 wout.data.npix=reshape(npix,sz);
 wout = wout.get_new_handle();
-wout.pix=win.pix.mask(keep_obj);
+wout.pix=win.pix.mask(keep_info);
 wout=recompute_bin_data(wout);

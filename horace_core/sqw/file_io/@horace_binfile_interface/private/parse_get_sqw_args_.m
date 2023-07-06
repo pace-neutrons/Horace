@@ -7,7 +7,7 @@ if nargin > 0
     if isstruct(varargin{1})
         argi = varargin{1};
     else
-        % replace single '-h' with his
+        % replace single '-h' with '-his'
         argi = cellfun(@replace_h, varargin, 'UniformOutput', false);
     end
 else

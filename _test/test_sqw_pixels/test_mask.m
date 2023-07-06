@@ -3,12 +3,12 @@ classdef test_mask < TestCase & common_pix_class_state_holder
     properties
 
         sqw_2d_file_path;
-        sqw_2d_num_pixels
+        sqw_2d_num_pixels;
         sqw_2d;
         idxs_to_mask;
         mask_array_2d;
-        masked_2d_pix_range
-        masked_2d_img_range
+        masked_2d_pix_range;
+        masked_2d_img_range;
         masked_2d_paged_cache;
 
         sqw_3d_file_path;
