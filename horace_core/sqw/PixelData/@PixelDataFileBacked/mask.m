@@ -53,6 +53,7 @@ if isempty(obj.file_handle_)
 end
 
 obj.num_pixels_ = numel(keep_array);
+keep_array = logical(keep_array);
 
 mem_chunk_size = obj.default_page_size;
 obj.data_range = obj.EMPTY_RANGE;
@@ -63,12 +64,7 @@ npix = obj.num_pixels;
 for i = 1:mem_chunk_size:npix
     obj.page_num = page;
     block_size = min(mem_chunk_size,npix-i+1);
-    if islogical(keep_array)
-        page_keep = keep_array(i:i+block_size-1);
-    else
-        selection = keep_array >=i & keep_array <i+block_size;
-        page_keep = keep_array(selection);
-    end
+    page_keep = keep_array(i:i+block_size-1);    
     data = obj.data(:,page_keep);
 
     block_size= size(data,2);
@@ -101,6 +97,7 @@ end
 if isempty(obj_out.file_handle_)
     obj_out = obj_out.get_new_handle();
 end
+keep_array = logical(keep_array);
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.default_page_size);
 obj_out.num_pixels_ = sum(npix .* keep_array, 'all');
