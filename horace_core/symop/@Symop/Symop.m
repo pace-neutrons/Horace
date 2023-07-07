@@ -152,11 +152,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         %   obj         Symmetry operator or array of symmetry operators
         %               If an array, then they are applied in order obj(1), obj(2),...
         %
-        %   upix_to_rlu Matrix to convert components of a vector in pixel coordinate
-        %              frame (which is an orthonormal frame) into rlu (3x3 matrix)
-        %
-        %   upix_offset Offset of origin of pixel coordinate frame (rlu) (vector length 3)
-        %
         %   pix         PixelData object
         %
         % Output:
@@ -177,6 +172,22 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
                 error('HORACE:Symop:not_implemented', ...
                       'filebacked pix symmetry reduction not possible')
             end
+
+        end
+
+        function w = transform_sqw(obj, w)
+        % Transform pixel coordinates in sqw into symmetry related coordinates
+        %
+        % Simple alias for transform_pix; transform_proj
+        % Binning and data should not need changing as entire system transformed?
+
+            if ~isa(w, 'sqw')
+                error('HORACE:Symop:invalid_argument', ...
+                      'transform_sqw requires sqw');
+            end
+
+            w.pix = obj.transform_pix(w.pix);
+            w.data.proj = obj.transform_proj(w.data.proj);
 
         end
 
