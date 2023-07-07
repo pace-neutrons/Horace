@@ -100,7 +100,7 @@ end
 keep_array = logical(keep_array);
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.default_page_size);
-obj_out.num_pixels_ = sum(npix .* keep_array, 'all');
+obj_out.num_pixels_ = sum(npix(:) .* keep_array(:), 'all');
 obj_out.data_range = obj.EMPTY_RANGE;
 
 curr = 1;

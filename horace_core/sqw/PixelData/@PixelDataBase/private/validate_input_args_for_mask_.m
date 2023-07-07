@@ -1,4 +1,4 @@
-function [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, npix)
+function [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, varargin)
 % check input arguments for masking routines
 % Inputs:
 % obj        -- an instance of PixelDataBase object
@@ -18,13 +18,17 @@ if isempty(parser)
     parser.addRequired('keep_array');
     parser.addOptional('npix', []);
 end
-parser.parse(obj, keep_array, npix);
+try
+    parser.parse(obj, keep_array, varargin{:});
+catch ME
+    error('HORACE:PixelDataBase:invalid_argument',ME.message)
+end
 
 keep_array = parser.Results.keep_array(:);
 npix = parser.Results.npix;
 
 if numel(keep_array) ~= obj.num_pixels && isempty(npix)
-    error('HORACE:PixelDataMemory:invalid_argument', ...
+    error('HORACE:PixelDataBase:invalid_argument', ...
         ['Error masking pixel data.\nThe input mask_array must have ' ...
         'number of elements equal to the number of pixels or must ' ...
         ' be accompanied by the npix argument. Found ''%i'' ' ...
@@ -32,11 +36,11 @@ if numel(keep_array) ~= obj.num_pixels && isempty(npix)
         numel(keep_array), obj.num_pixels, obj.page_size);
 elseif ~isempty(npix)
     if any(numel(npix) ~= numel(keep_array))
-        error('HORACE:PixelDataMemory:invalid_argument', ...
+        error('HORACE:PixelDataBase:invalid_argument', ...
             ['Number of elements in mask_array and npix must be equal.' ...
             '\nFound %i and %i elements'], numel(keep_array), numel(npix));
     elseif sum(npix(:)) ~= obj.num_pixels
-        error('HORACE:PixelDataMemory:invalid_argument', ...
+        error('HORACE:PixelDataBase:invalid_argument', ...
             ['The sum of npix must be equal to number of pixels.\n' ...
             'Found sum(npix) = %i, %i pixels required.'], ...
             sum(npix(:)), obj.num_pixels);

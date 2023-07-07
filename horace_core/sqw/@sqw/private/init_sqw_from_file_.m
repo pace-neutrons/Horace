@@ -22,9 +22,14 @@ end
 
 % An error is raised if the data file is identified not a SQW object
 if ~ldr.sqw_type % not a valid sqw-type structure
+    if ischar(in_struc.file)
+        filename = in_struc.file;
+    else
+        filename  = ldr.full_filename;
+    end
     error('HORACE:sqw:invalid_argument',...
         'Data file: %s does not contain valid sqw-type object',...
-        in_filename);
+        filename);
 end
 
 in_struc.sqw_struc = true;
