@@ -46,11 +46,11 @@ Listed here are all the functions and commands that can be used in Horace. Each 
 - :ref:`extract coordinates <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:hkle>`
 
 
-:ref:`Symmetrising etc <manual/Symmetrising_etc:Symmetrising etc>`
+:ref:`Symmetrising etc <manual/Symmetrising_etc:Symmetry Operations>`
 
-- :ref:`Symmetrise <Symmetrising_etc_symmetrise_sqw>`
-- :ref:`Combine <Symmetrising_etc_combine_sqw>`
-- :ref:`Rebin <Symmetrising_etc_rebin_sqw>`
+- :ref:`Symmetrise <manual/Symmetrising_etc:Symmetrising>`
+- :ref:`Combine <manual/Symmetrising_etc:Combining>`
+- :ref:`Rebin <manual/Symmetrising_etc:Rebinning>`
 
 
 :ref:`Simulation <manual/Simulation:Simulation>`

@@ -417,6 +417,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     methods(Access=private)
         function [obj, ldr] = get_new_handle(obj, outfile)
             if ~obj.pix.is_filebacked
+                ldr = [];
                 return;
             end
 
@@ -653,5 +654,4 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     methods(Static, Hidden)
         out = generate_cube_sqw(shape)
     end
-
 end
