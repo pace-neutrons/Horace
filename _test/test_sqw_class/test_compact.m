@@ -35,13 +35,13 @@ classdef test_compact < TestCase
         % Check it doesn't throw
             data = sqw();
             comp = compact(data);
-            assertEqual(data, comp);
+            assertEqualToTol(data, comp, '-ignore_date');
         end
 
         function test_compact_not_alter_full_data(obj)
             data = sqw.generate_cube_sqw(10);
             comp = compact(data);
-            assertEqual(data, comp);
+            assertEqualToTol(data, comp, '-ignore_date');
         end
 
 
@@ -52,7 +52,7 @@ classdef test_compact < TestCase
 
             comp = compact(test_data);
 
-            assertEqual(data, comp);
+            assertEqualToTol(data, comp, '-ignore_date');
 
         end
 

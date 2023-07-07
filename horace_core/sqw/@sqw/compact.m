@@ -1,5 +1,8 @@
 function wout = compact(win)
-% Squeezes the data range in an sqw or dnd object to eliminate empty bins
+% Squeezes the data range in an sqw object to eliminate empty bins on
+% borders
+%
+% Particularly of use for contracting dnds for plotting
 %
 % Syntax:
 %   >> wout = compact(win)
