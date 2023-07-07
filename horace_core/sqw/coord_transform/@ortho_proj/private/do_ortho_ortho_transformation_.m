@@ -8,7 +8,7 @@ function pix_transf = do_ortho_ortho_transformation_(...
 %
 
 ndim = size(img_input,1);
-if abs(obj.offset(4))>4*eps("single") && ndim > 3
+if abs(obj.offset(4))>4*eps('single') && ndim > 3
     shift_ei = true;
 else
     shift_ei = false;

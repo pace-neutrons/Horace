@@ -114,6 +114,7 @@ function [npix, s, e, pix_retained, unique_runid] = cut_in_memory_w_pixels(pix, 
                                                                            targ_proj, targ_axes, npix, s, e, ll, ...
                                                                            pixel_contrib_name)
 
+    % this returns pixel class with alignment matrix if one is available
     candidate_pix = pix.get_pix_in_ranges(block_starts, block_sizes, false, false);
 
     if ll >= 1
