@@ -6,17 +6,16 @@ function args = parse_sqw_args_(varargin)
 % args.sqw_obj   % SQW class instance
 % args.data_struct % generic struct, presumed to represent SQW
 % args.pixel_page_size % size of PixelData page in bytes
-persistent parser
 
-if isempty(parser)
-    parser = inputParser();
-    parser.KeepUnmatched = true;  % ignore unmatched parameters
-    parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || ...
-        is_string(x) || ...
-        isa(x,'horace_binfile_interface') || ...
-        isstruct(x)));
-    parser.addParameter('file_backed', false, @islognumscalar)
-end
+
+parser = inputParser();
+parser.KeepUnmatched = true;  % ignore unmatched parameters
+parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || ...
+    is_string(x) || ...
+    isa(x,'horace_binfile_interface') || ...
+    isstruct(x)));
+parser.addParameter('file_backed', false, @islognumscalar)
+
 
 parser.parse(varargin{:});
 if ~isempty(fieldnames(parser.Unmatched))

@@ -75,7 +75,7 @@ if keep_pix
     wout.main_header.nfiles  = exp_info.n_runs;
     % set new cut object creation date defined and equal to now if the
     % resulting cut contributing runs number is smaller then the original
-    % number different
+    % number
     if w.main_header.nfiles ~= wout.main_header.nfiles
         wout.main_header.creation_date = datetime('now');
     end

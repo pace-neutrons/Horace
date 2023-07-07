@@ -347,10 +347,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
 
             paged_sqw = sqw(file_path,'file_backed', true);
             new_pg_size = floor(paged_sqw.pix.num_pixels/6);
-            hc = hor_config;
-            mcs = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mcs));
-            hc.mem_chunk_size = new_pg_size;
+            clOb  = set_temporary_config_options(hor_config(), 'mem_chunk_size',new_pg_size);            
             masked_sqw = mask(paged_sqw, mask_array);
 
             test_mask.check_filebacked_signal_averages(paged_sqw);
