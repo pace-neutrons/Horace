@@ -279,7 +279,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     if args.file_backed
                         obj = args.data_struct.get_sqw('-file_backed');
                     else
-                        obj = args.data_struct.get_sqw();                        
+                        obj = args.data_struct.get_sqw();
                     end
                 elseif isfield(args.data_struct,'data')
                     if isfield(args.data_struct.data,'version')
@@ -424,6 +424,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     methods(Access=private)
         function [obj, ldr] = get_new_handle(obj, outfile)
             if ~obj.pix.is_filebacked
+                ldr = [];
                 return;
             end
 
@@ -579,12 +580,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     in_filename);
             end
             if file_backed
-                [sqw_struc,ldr] = ldr.get_sqw('-file_backed','-sqw_struc');                
+                [sqw_struc,ldr] = ldr.get_sqw('-file_backed','-sqw_struc');
             else
                 [sqw_struc,ldr] = ldr.get_sqw('-sqw_struc');
             end
-            obj = init_from_loader_struct_(obj, sqw_struc);           
-            ldr.delete();            
+            obj = init_from_loader_struct_(obj, sqw_struc);
+            ldr.delete();
         end
 
         function obj = init_from_loader_struct_(obj, data_struct)
@@ -592,7 +593,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % file loader
             obj.main_header = data_struct.main_header;
             if isfield(data_struct,'header') % support for old data
-                obj.experiment_info = data_struct.header;                
+                obj.experiment_info = data_struct.header;
             else
                 obj.experiment_info = data_struct.experiment_info;
             end
@@ -622,7 +623,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % the older version, so version substitution is based on this
             % number
             ver = 5;
-            % version 5 -- support for loading previous version 
+            % version 5 -- support for loading previous version
             % data and setting ub_inv_legacy matrix in case if the data
             % were realigned
         end
