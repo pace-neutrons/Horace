@@ -608,8 +608,8 @@ classdef mfclass
         [ok, mess, obj] = set_fun_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_fun_private_ (obj, isfore, ifun)
 
-        [ok, mess, obj] = set_pin_private_ (obj, isfore, args)
-        [ok, mess, obj] = clear_pin_private_ (obj, isfore, args)
+        obj = set_pin_private_ (obj, isfore, args)
+        obj = clear_pin_private_ (obj, isfore, args)
 
         [ok, mess, obj] = set_free_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_free_private_ (obj, isfore, args)

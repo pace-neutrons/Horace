@@ -1,7 +1,7 @@
-function [ok, mess, obj] = set_pin_private_ (obj, isfore, args)
+function obj = set_pin_private_ (obj, isfore, args)
 % Set foreground/background function parameter lists
 %
-%   >> [ok, mess, obj] = set_pin_private_(obj, isfore, args)
+%   >> obj = set_pin_private_(obj, isfore, args)
 %
 % Set for all functions
 %   args = {pin}        % Row vector (applies to all) or cell array (one per function)
@@ -25,13 +25,6 @@ else
     nfun = numel(obj.bfun_);
 end
 
-% Trivial case of no input arguments; just return without doing anything
-if numel(args)==0
-    ok = true;
-    mess = '';
-    return
-end
-
 % % Check there are function(s)
 % % ---------------------------
 % if nfun==0
@@ -42,16 +35,18 @@ end
 
 % Parse input arguments
 % ---------------------
-if numel(args)==1
+switch numel(args)
+  case 0 % Trivial case of no input arguments; just return without doing anything
+    return;
+  case 1
     ifun = 'all';
     pin=args{1};
-elseif numel(args)==2
+  case 2
     ifun = args{1};
     pin = args{2};
-else
-    ok = false;
-    mess = 'Check number of input arguments';
-    return
+  otherwise
+    error('HORACE:set_pin_private:invalid_argument', ...
+          'Check number of input arguments');
 end
 
 % Now check validity of input
@@ -82,3 +77,5 @@ end
 % -----------------
 obj = obj.set_fun_props_ (Sfun);
 obj = obj.set_constraints_props_ (Scon);
+
+end

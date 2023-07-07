@@ -1,7 +1,7 @@
-function [ok, mess, obj] = clear_pin_private_ (obj, isfore, args)
+function obj = clear_pin_private_ (obj, isfore, args)
 % Clear foreground/background function parameter lists
 %
-%   >> [ok, mess, obj] = set_pin_private_(obj, isfore, args)
+%   >> obj = clear_pin_private_(obj, isfore, args)
 %
 % Set for all functions
 %   args = {}        % All parameters cleared
@@ -33,14 +33,14 @@ end
 
 % Parse input arguments
 % ---------------------
-if numel(args)==0
+switch numel(args)
+  case 0
     ifun = 'all';
-elseif numel(args)==1
+  case 1
     ifun = args{1};
-else
-    ok = false;
-    mess = 'Check number of input arguments';
-    return
+  otherwise
+    error('HORACE:clear_pin_private:invalid_argument', ...
+          'Check number of input arguments');
 end
 
 % Now check validity of input
