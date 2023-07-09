@@ -26,7 +26,7 @@ function wout = mask_random_pixels(win,npix)
 
 if ~has_pixels(win)
     error('HORACE:sqw:invalid_argument', ...
-        'Can mask pixels only in an sqw-type object')
+        'Can not mask random pixels on sqw object not containing any pixels')
 end
 
 % Initialise output argument
