@@ -1,5 +1,5 @@
 function varargout = cut_sym (varargin)
-%% DEPRECATED USE CUT
+%% DEPRECATED; USE CUT
 %
 % Take a cut from an sqw object, with symmetrisation, by integrating over one or more axes.
 %
