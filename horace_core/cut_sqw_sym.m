@@ -1,17 +1,13 @@
 function varargout = cut_sqw_sym(varargin)
-% Take a cut from a file or files containing sqw data, with symmetrisation
+%% DEPRECATED; USE CUT
 %
-%   >> w=cut_sqw_sym (file, arg1, arg2, ...)
-%   >> [w,wsym]=cut_sqw_sym (file, arg1, arg2, ...)
+% Take a cut from an sqw object, with symmetrisation, by integrating over one or more axes.
 %
-% For full details of arguments for cut method, type:
-%
-%   >> help sqw/cut_sym         % cut for sqw objects
+% Simple alias to cut
 
+warning('HORACE:cut_sqw_sym:deprecated', ...
+        '`cut_sqw_sym` is deprecated in favour of `cut`');
 
-% Original author: T.G.Perring
-%
-
-varargout = horace_function_call_method (nargout, @cut_sym, '$sqw', varargin{:});
+varargout = cut(varargin{:});
 
 end
