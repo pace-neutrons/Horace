@@ -338,6 +338,18 @@ classdef unique_references_container < serializable
     end
 
     methods % overloaded indexers, subsets, find functions
+        
+        function field_vals = get_unique_field(self, field)
+            s1 = self.get(1);
+            v = s1.(field);
+            field_vals = unique_objects_container(class(v));
+            for ii=1:self.n_runs
+                sii = self.get(ii);
+                v = sii.(field);
+                field_vals = field_vals.add(v);
+            end
+        end
+        
         function varargout = subsref(self, idxstr)
             switch idxstr(1).type
                 case {'()','{}'}
