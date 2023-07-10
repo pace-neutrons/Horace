@@ -73,7 +73,7 @@ for i = 1:mem_chunk_size:npix
     page = page+1;
 end
 
-obj = obj.finalise(sum(keep_array));
+obj = obj.finish_dump(sum(keep_array));
 
 end
 
@@ -120,6 +120,6 @@ for i = 1:npg
 end
 
 obj_out.num_pixels_ = sum(npix(:) .* keep_array(:), 'all');
-obj_out = obj_out.finalise();
+obj_out = obj_out.finish_dump();
 
 end

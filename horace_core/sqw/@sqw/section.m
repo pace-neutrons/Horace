@@ -97,7 +97,7 @@ for n = 1:numel(win)
 
             end
             wout(n).pix.pix_range = new_pix_range;
-            wout(n).pix = wout(n).pix.finalise(pix_ind-1);
+            wout(n).pix = wout(n).pix.finish_dump(pix_ind-1);
 
         else
             wout(n).pix = win(n).pix.get_pix_in_ranges(bl_start,bl_size);

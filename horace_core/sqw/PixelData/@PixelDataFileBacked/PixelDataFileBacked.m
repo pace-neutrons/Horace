@@ -336,10 +336,10 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
 
-        function obj = finalise(obj, final_num_pixels)
+        function obj = finish_dump(obj, final_num_pixels)
             if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'Cannot finalise writing, object does not have open filehandle')
+                      'Cannot finish dump writing, object does not have open filehandle')
             end
 
             if exist('final_num_pixels', 'var')
@@ -447,7 +447,7 @@ classdef PixelDataFileBacked < PixelDataBase
                     start_idx = start_idx + size(data,2);
                 end
             end
-            obj = obj.finalise();
+            obj = obj.finish_dump();
         end
     end
 

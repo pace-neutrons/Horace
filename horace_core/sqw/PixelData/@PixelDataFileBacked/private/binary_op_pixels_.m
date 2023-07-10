@@ -70,6 +70,6 @@ else
 
     end
 end
-obj = obj.finalise();
+obj = obj.finish_dump();
 
 end  % function
