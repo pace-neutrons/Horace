@@ -35,7 +35,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertTrue(isa(sqw_obj, 'SQWDnDBase'));
         end
 
-        function setUp(obj)
+        function setUp(~)
             set(hor_config,'mem_chunk_size',1e6);
         end
 
@@ -139,6 +139,43 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             mat_stored_old.data.axes.img_range = sqw_obj.data.img_range;
             assertEqualToTol(mat_stored_old, sqw_obj,[1.e-15,1.e-15], ...
                 'ignore_str',true,'-ignore_date');
+        end
+        %------------------------------------------------------------------
+        function test_init_from_file_loader_membacked(obj)       
+            ld = sqw_formats_factory.instance().get_loader(obj.test_sqw_1d_fullpath);
+            in_data = struct('file',ld, ...
+                'file_backed',false,'force_pix_location',true);
+            so = sqw_tester();
+            so = so.init_from_file_public(in_data);
+            assertTrue(isa(so.pix,'PixelDataMemory'));
+
+        end
+        
+        function test_init_from_file_force_filebacked(obj)       
+            in_data = struct('file',obj.test_sqw_1d_fullpath, ...
+                'file_backed',true,'force_pix_location',true);
+            so = sqw_tester();
+            so = so.init_from_file_public(in_data);
+            assertTrue(isa(so.pix,'PixelDataFileBacked'));
+        end
+
+        %------------------------------------------------------------------
+        function test_input_args_filebacked_specified_false(obj)
+            args = sqw_tester.parse_sqw_args_public( ...
+                obj.test_sqw_1d_fullpath,'file_backed',false);
+            assertTrue(args.force_pix_location)
+            assertFalse(args.file_backed)
+        end        
+        function test_input_args_filebacked_specified_true(obj)
+            args = sqw_tester.parse_sqw_args_public( ...
+                obj.test_sqw_1d_fullpath,'file_backed',true);
+            assertTrue(args.force_pix_location)
+            assertTrue(args.file_backed)
+        end
+        function test_input_args_filebacked_default(~)
+            args = sqw_tester.parse_sqw_args_public();
+            assertFalse(args.force_pix_location)
+            assertFalse(args.file_backed)
         end
     end
 end

@@ -3,9 +3,13 @@ function opts = parse_get_sqw_args_(varargin)
 % See get_sqw function for the description of the options
 % available
 
-if nargin > 1
-    % replace single '-h' with his
-    argi = cellfun(@replace_h, varargin, 'UniformOutput', false);
+if nargin > 0
+    if isstruct(varargin{1})
+        argi = varargin{1};
+    else
+        % replace single '-h' with '-his'
+        argi = cellfun(@replace_h, varargin, 'UniformOutput', false);
+    end
 else
     argi = {};
 end
@@ -22,8 +26,12 @@ flags = { ...
     'nopix', ...
     'legacy', ...
     'sqw_struc',...
-    'file_backed'
-    };
+    'file_backed',...
+    'force_pix_location'... % the key which sets to true if file_backed   
+    }; %  key is explicitly present in the inputs and indicating that 
+    % file_backed true/false is explicitly requested. If file_backed is 
+    % not explicitly requested its value is false, but actual location of
+    % the pixel data (filebacked or memory) is determined by configuration.
 
 
 kwargs = struct('file_backed',false);
@@ -31,15 +39,22 @@ kwargs = struct('file_backed',false);
 for flag_idx = 1:numel(flags)
     kwargs.(flags{flag_idx}) = false;
 end
+if isstruct(argi) % presumably structure which have been already processed
+    % by other means. Assume it correct
+    fn = fieldnames(argi);
+    for i=1:numel(fn)
+        kwargs.(fn{i}) = argi.(fn{i});
+    end
+    opts = kwargs;
+else
+    parser_opts = struct('prefix', '-', 'prefix_req', false);
+    [~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwargs, flags, ...
+        parser_opts);
 
-parser_opts = struct('prefix', '-', 'prefix_req', false);
-[~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwargs, flags, ...
-    parser_opts);
-
-if ~ok
-    error('HORACE:faccess_sqw_v3_:invalid_argument', mess);
+    if ~ok
+        error('HORACE:horace_binfile_interface:invalid_argument', mess);
+    end
 end
-
 opts.verbatim = opts.verbatim || opts.hverbatim;
 
 

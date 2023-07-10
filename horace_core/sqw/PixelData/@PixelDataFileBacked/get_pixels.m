@@ -15,7 +15,7 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
 %
 % Input:
 % ------
-%   abs_pix_indices  A vector of positive integers or a vector of logicals.
+%   abs_pix_indices  A vector of positive integers or a vector of logical.
 %                    The syntax for these indices attempts to replicate indexing
 %                    into a regular Matlab array. You can use logical indices
 %                    as well as normal indices, and you can index into the array
@@ -40,6 +40,7 @@ function pix_out = get_pixels(obj, abs_pix_indices,varargin)
     obj.parse_get_pix_args(abs_pix_indices,varargin{:});
 
 mmf = obj.f_accessor_;
+% Return raw pixels
 pix_out = mmf.Data.data(:,abs_pix_indices);
 
 

@@ -803,6 +803,19 @@ classdef (Abstract) PixelDataBase < serializable
             %           of pixel averages
             obj = set_alignment_matr_(obj,val,pix_average_treatment_function);
         end
+        function [keep_array, npix] = validate_input_args_for_mask(obj, keep_array, varargin)
+            % check input arguments for masking routines
+            % Inputs:
+            % obj        -- an instance of PixelDataBase object
+            % keep_array -- logical array specifying which pixels to keep
+            % Optional:
+            % npix       -- if present, array specifying number of pixels
+            %               contriburing to each bin of DnD object image. 
+            % If npix is absent or empty, keep_array size should be equal
+            % to number of pixels and if present, numel(keep_array(:)) ==
+            % numel(npix(:));            
+            [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, varargin{:});
+        end
         
         function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
                 parse_get_pix_args(obj,varargin)
