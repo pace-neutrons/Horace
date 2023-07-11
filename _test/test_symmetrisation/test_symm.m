@@ -105,6 +105,24 @@ classdef test_symm < TestCase
             assertEqualToTol(d2d(cc1),d2d(cc2),-1e-6,'ignore_str', 1)
         end
 
+        function obj = test_sym_sqw_fb(obj)
+            w3d_sqw = sqw(fullfile(obj.testdir,'w3d_sqw.sqw'), 'file_backed', false);
+
+            sym = [SymopReflection([0,0,1],[-1,1,0]), ...
+                   SymopReflection([1,1,0],[0,0,1]), ...
+                   SymopReflection([0,0,1],[-1,1,0])];
+
+            w3d_sym_mb = symmetrise_sqw(w3d_sqw, sym);
+
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 10000);
+            w3d_sqw.pix = PixelDataFileBacked(w3d_sqw.pix);
+
+            w3d_sym_fb = symmetrise_sqw(w3d_sqw, sym);
+
+            assertEqualToTol(w3d_sym_mb, w3d_sym_fb, 1e-6, 'ignore_str', true);
+
+        end
+
         % ------------------------------------------------------------------------------------------------
         function this = test_sym_d2d(this)
             % d2d symmetrisation:
