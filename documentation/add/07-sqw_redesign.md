@@ -66,14 +66,48 @@ The diagram shows that any `DnD` object contains *signal*, *error* and *npix* ar
 
 The `AxesBlockBase` class is closely related to the appropriate `aProjectionBase` class and defines the coordinate system of the image, its binning axes and units along the axes scales.
 
-In more details the `aProjectionBase` class and `AxesBlockBase` classes are described below.
+In more details the the `projection` class and `axes_block` classes are described below.
 
+#### A projection class
+The family of existing projection classes is presented on the Fig.5:
+
+![Fig.5. Projections family](../diagrams/new_projection.png)
+
+All projections classes inherit from abstract `aProjectionBase` class and define their own transformations methods `transform_pix_to_img/tranform_img_to_pix` converting between source coordinate system and target coordinate system. The source coordinate system for majority of projections is the Crystal Cartesian coordinate system which is the main coordinate system for data stored in `PixelData` classes and the target coordinate system may be identified by the projection name. For example, `spher_proj` is the transformation from Crystal Cartesian to spherical coordinate system.  The exception is the `instrument_projection` which transform data obtained in instrument coordinate system (detector positions & Energy transfer) into  Crystal Cartesian coordinate system of `PixelData`.  
+`line_proj` class is related to the transformation into `hkl` coordinate system or the system, which is related to any direction in reciprocal space.
+
+Main properties and methods of `aProjectionBase` class and other projection classes presented on Fig 5. are summarized below:
+
+| Property | Type | Notes |
+| --- | --- | --- |
+| alatt | 1x3 vector of floats | 3 lattice parameters (in angstrom) |
+| angdeg |1x3 vector of floats | 3 lattice angles (deg) |
+| offset |1x4 vector of floats | offset of the centre of the coordinate system from the h=0,k=0,l=0,dE=0 position expressed in hkl coordinate system |
+| img_offset | 1x4 vector of floats | the same as offset but expressed in image coordinate system. (e.g. R,Theta,Phi dE for `spher_proj` or [hh,kk,l,dE] for `line_proj` rotated by 45 degrees vrt the h-axis |
+| label | 4x1 cellarray of strings | Labels to put along all 4 coordinate axes|
+| title|  string | title to place over the plots of the cuts build using this projection |
+| *Methods:*
+| **Method** | **Output type** | **Notes** |
+| get_nrange | [bl_start,bl_size] arrays | return the positions (wrt the position of the first pixel which is 1) and the sizes of the pixels blocks belonging to the cells which may contribute to the final cut. The cells are defined by the projections and axes block-s, provided as input.|
+| bin_pixels | Contributed pixels and various image averages | Convert pixels into the coordinate system defined by the projection and bin them into the coordinate system defined by the axes block, specified as input.|
+| transform_pix_to_hkl| pix_hkl 3xNpix or 4xNpix array of floats| Converts from pixel coordinate system (Crystal Cartesian) to `hkl` coordinate system 3xNpix or 4xNpix array of `PixelData` coordinates provided as input, where Npix is number of columns in the array provided |
+| tansform_img_to_hkl | pix_hkl 3xNpix or 4xNpix array of floats| Converts from image coordinate system to `hkl` coordinate system 3xNpix or 4xNpix array of image coordinates provided as input, where Npix is number of columns in the array provided. The array is expressed in the units of the image the projection defines | 
+| from_this_to_targ_coord | pix_target 3xNpix or 4xNpix array of floats | Converts input 4xNpix or 3xNpix array of coordinates expressed in this projection coordinate system to the coordinate system defined by other projection. The other projection have to be assigned to hidden property of this projection: `targ_proj` |
+| Abstract Methods:
+| **Method** | **Output type** | **Notes** |
+| get_proj_axes_block | an `AxesBlockBase` class instance | Construct the axes block, corresponding to this projection class. Returns generic `AxesBlockBase`, built from the block ranges or the binning ranges provided as input. | 
+| transform_pix_to_img | pix_transformed  3xNpix or 4xNpix array of pixel coordinates transformed into this projection coordinate system | 
+
+
+Another specific method of projection classes is `get_proj_axes_block` which returns the axes, specific for the projection transformation to the projection image. 
+
+`AxesBlockBase` instance class return
 
 ### Plotting interface
 
 The 1D-3D`sqw` and `dnd` Horace objects can be plotted with the appropriate dimensions plots. There is a large number of plotting functions so it is reasonable to extract these functions into a separate plotting interface. `sqw`, `dnd` and Herbert `IX_dataset` objects inherit `data_plot_interface` and implement particular plotting functions specific to the particular n-dimensional objects. The inheritance diagram of this plotting interface is presented in the Fig.5:
 
-![Fig.5. Plot Interface](../diagrams/sqw-dnd_plot_interface.png)
+![Fig.6. Plot Interface](../diagrams/sqw-dnd_plot_interface.png)
 
 The top level interface class defines all plotting functions as abstract (or rather throwing **not-implemented** exception), while actual 1D-3D objects implement their appropriate plotting functions (e.g. 1D objects -- 1D plotting, 2D objects -- 2D plotting etc.). The upper level objects add some wrapping to the plot, but mainly delegate plotting to the lower level objects (One can define objects level as the function of their complexity so the objects hierarchy looks `sqw`->`dnd`->`IX_dataset` following the decrease in the amount of information every object contains). The actual plotting functionality is implemented on Herbert `IX_dataset` objects.
 

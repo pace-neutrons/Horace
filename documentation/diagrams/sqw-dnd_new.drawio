@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2023-07-06T12:46:49.184Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.1 Chrome/112.0.5615.204 Electron/24.6.1 Safari/537.36" etag="Yj_N9BnCMlTlAZr37dxD" version="21.6.1" type="device" pages="9">
+<mxfile host="Electron" modified="2023-07-10T12:17:47.303Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.1 Chrome/112.0.5615.204 Electron/24.6.1 Safari/537.36" etag="5aodIppMBTDJ649ARm7Y" version="21.6.1" type="device" pages="9">
   <diagram id="QwqzA-jwFppYoHjZDij1" name="SQW">
-    <mxGraphModel dx="1927" dy="990" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="1" shadow="0">
+    <mxGraphModel dx="1417" dy="510" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="1" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -681,52 +681,73 @@
     </mxGraphModel>
   </diagram>
   <diagram id="HtsRI0D258YGki2pyC7I" name="projection">
-    <mxGraphModel dx="1089" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1088" dy="669" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-0" />
         <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-1" parent="ZMG8rREK3EcAr1F-6Y_Y-0" />
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-2" value="&lt;p style=&quot;margin: 0px ; margin-top: 4px ; text-align: center&quot;&gt;&lt;b&gt;aProjection&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ property1:&amp;nbsp;targ_proj&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method1:&amp;nbsp;&amp;nbsp;&lt;span&gt;get_nrange(npix,cur_axes_block,...&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; targ_axes_block,targ_proj)&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method2:&amp;nbsp;&lt;span&gt;bin_pixels(&lt;/span&gt;&lt;span&gt;axes,...)&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method3:&amp;nbsp;from_this_to_targ_coord&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;Abstract:&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method1:&amp;nbsp;get_proj_axes_block&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method2:&amp;nbsp;transform_pix_to_img&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method3:&amp;nbsp;transform_img_to_pix&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;" vertex="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1">
-          <mxGeometry x="200" y="80" width="270" height="200" as="geometry" />
+        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-2" value="&lt;p style=&quot;margin: 0px ; margin-top: 4px ; text-align: center&quot;&gt;&lt;b&gt;aProjectionBase&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ property1:&amp;nbsp;targ_proj&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ property: alatt, angdeg&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method1:&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#0000ff&quot;&gt;get_nrange&lt;/font&gt;(npix,cur_axes_block,...&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &lt;font color=&quot;#00ff00&quot;&gt;targ_axes_block&lt;/font&gt;,targ_proj)&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method2:&amp;nbsp;&lt;font color=&quot;#3333ff&quot;&gt;bin_pixels&lt;/font&gt;(axes,...)&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method3:&amp;nbsp;&lt;font color=&quot;#3333ff&quot;&gt;from_this_to_targ_coord&lt;/font&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;font color=&quot;#ff0000&quot;&gt;Abstract&lt;/font&gt;:&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method1:&amp;nbsp;&lt;font color=&quot;#ff0000&quot;&gt;get_proj_axes_block&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method2:&amp;nbsp;&lt;font color=&quot;#ff0000&quot;&gt;transform_pix_to_img&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method3:&amp;nbsp;&lt;font color=&quot;#ff0000&quot;&gt;transform_img_to_pix&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;" parent="ZMG8rREK3EcAr1F-6Y_Y-1" vertex="1">
+          <mxGeometry x="225" y="30" width="270" height="220" as="geometry" />
         </mxCell>
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-5" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;exitX=1.006;exitY=0.613;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="ZMG8rREK3EcAr1F-6Y_Y-2">
+        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-5" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;entryX=-0.017;entryY=0.71;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.989;exitY=0.709;exitDx=0;exitDy=0;exitPerimeter=0;" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="ZMG8rREK3EcAr1F-6Y_Y-2" edge="1" target="ZMG8rREK3EcAr1F-6Y_Y-2">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="390" y="460" as="sourcePoint" />
+            <mxPoint x="470" y="196" as="sourcePoint" />
             <mxPoint x="199" y="200" as="targetPoint" />
+            <Array as="points" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="ZMG8rREK3EcAr1F-6Y_Y-6" target="ZMG8rREK3EcAr1F-6Y_Y-2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-6" value="&lt;p style=&quot;margin: 0px ; margin-top: 4px ; text-align: center&quot;&gt;&lt;b&gt;ortho_proj&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ property1:&amp;nbsp;targ_proj (overloaded setter)&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;Redefined&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span&gt;+ method3:&amp;nbsp;from_this_to_targ_coord&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span&gt;Defined:&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method1:&amp;nbsp;get_proj_axes_block&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method2:&amp;nbsp;transform_pix_to_img&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method3:&amp;nbsp;transform_img_to_pix&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;" vertex="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1">
-          <mxGeometry x="20" y="320" width="230" height="170" as="geometry" />
-        </mxCell>
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="ZMG8rREK3EcAr1F-6Y_Y-2" target="ZMG8rREK3EcAr1F-6Y_Y-2">
+        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=none;endFill=0;" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="ZMG8rREK3EcAr1F-6Y_Y-6" target="ZMG8rREK3EcAr1F-6Y_Y-2" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="350" y="130" />
-              <mxPoint x="350" y="130" />
+              <mxPoint x="135" y="300" />
+              <mxPoint x="360" y="300" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;" edge="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="ZMG8rREK3EcAr1F-6Y_Y-8" target="ZMG8rREK3EcAr1F-6Y_Y-2">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-6" value="&lt;p style=&quot;margin: 0px ; margin-top: 4px ; text-align: center&quot;&gt;&lt;b&gt;line_proj&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ property1:&amp;nbsp;targ_proj (overloaded setter)&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ property2: u (cut direction)&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ property3: v (cut plane)&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Redefined&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span&gt;+ method3:&amp;nbsp;from_this_to_targ_coord&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span&gt;Defined:&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method1:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;get_proj_axes_block&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method2:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;transform_pix_to_img&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method3:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;transform_img_to_pix&lt;/font&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;" parent="ZMG8rREK3EcAr1F-6Y_Y-1" vertex="1">
+          <mxGeometry x="20" y="320" width="230" height="200" as="geometry" />
         </mxCell>
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-8" value="&lt;p style=&quot;margin: 0px ; margin-top: 4px ; text-align: center&quot;&gt;&lt;b&gt;instrument_proj&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span&gt;Defined:&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method1:&amp;nbsp;get_proj_axes_block&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method2:&amp;nbsp;transform_pix_to_img&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method3:&amp;nbsp;transform_img_to_pix&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;" vertex="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1">
-          <mxGeometry x="270" y="320" width="200" height="128" as="geometry" />
-        </mxCell>
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;endArrow=none;endFill=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="ZMG8rREK3EcAr1F-6Y_Y-9" target="ZMG8rREK3EcAr1F-6Y_Y-2">
+        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;endArrow=none;endFill=0;" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="ZMG8rREK3EcAr1F-6Y_Y-2" target="ZMG8rREK3EcAr1F-6Y_Y-2" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="340" y="280" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="225" y="100" />
+              <mxPoint x="495" y="100" />
+            </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-9" value="&lt;p style=&quot;margin: 0px ; margin-top: 4px ; text-align: center&quot;&gt;&lt;b&gt;spher_proj&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;dashed=1;" vertex="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1">
-          <mxGeometry x="500" y="320" width="140" height="50" as="geometry" />
+        <mxCell id="qoa_EHzsF_t_86U-u8Ke-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="ZMG8rREK3EcAr1F-6Y_Y-8" target="ZMG8rREK3EcAr1F-6Y_Y-2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="280" />
+              <mxPoint x="360" y="280" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;" edge="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="ZMG8rREK3EcAr1F-6Y_Y-10" target="ZMG8rREK3EcAr1F-6Y_Y-2">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-8" value="&lt;p style=&quot;margin: 0px ; margin-top: 4px ; text-align: center&quot;&gt;&lt;b&gt;instrument_proj&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;border-color: var(--border-color); margin: 0px 0px 0px 4px;&quot;&gt;+ property1: u (bream direction)&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;/p&gt;&lt;p style=&quot;border-color: var(--border-color); margin: 0px 0px 0px 4px;&quot;&gt;+ property2: v (rotation plane)&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;/p&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span&gt;Defined:&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method1:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;get_proj_axes_block&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method2:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;transform_pix_to_img&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method3:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;transform_img_to_pix&lt;/font&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;" parent="ZMG8rREK3EcAr1F-6Y_Y-1" vertex="1">
+          <mxGeometry x="260" y="320" width="200" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-10" value="&lt;p style=&quot;margin: 0px ; margin-top: 4px ; text-align: center&quot;&gt;&lt;b&gt;cyl_proj&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;dashed=1;" vertex="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1">
-          <mxGeometry x="660" y="320" width="140" height="50" as="geometry" />
+        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-13" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.493;exitY=-0.037;exitDx=0;exitDy=0;endArrow=none;endFill=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitPerimeter=0;edgeStyle=elbowEdgeStyle;elbow=vertical;" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="qoa_EHzsF_t_86U-u8Ke-0" target="ZMG8rREK3EcAr1F-6Y_Y-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340" y="280" as="targetPoint" />
+            <mxPoint x="570" y="320" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="470" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZMG8rREK3EcAr1F-6Y_Y-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=blockThin;endFill=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="ZMG8rREK3EcAr1F-6Y_Y-1" source="qoa_EHzsF_t_86U-u8Ke-3" target="ZMG8rREK3EcAr1F-6Y_Y-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="820" y="220" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="835" y="300" />
+              <mxPoint x="360" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qoa_EHzsF_t_86U-u8Ke-0" value="&lt;p style=&quot;margin: 0px ; margin-top: 4px ; text-align: center&quot;&gt;&lt;b&gt;spher_proj&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;border-color: var(--border-color); margin: 0px 0px 0px 4px;&quot;&gt;+ property1: ez (bream direction)&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;/p&gt;&lt;p style=&quot;border-color: var(--border-color); margin: 0px 0px 0px 4px;&quot;&gt;+ property2: ex (rotation plane)&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span&gt;Defined:&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method1:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;get_proj_axes_block&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method2:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;transform_pix_to_img&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method3:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;transform_img_to_pix&lt;/font&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;" vertex="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1">
+          <mxGeometry x="480" y="320" width="230" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="qoa_EHzsF_t_86U-u8Ke-3" value="&lt;p style=&quot;margin: 0px ; margin-top: 4px ; text-align: center&quot;&gt;&lt;b&gt;cyl_proj&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;border-color: var(--border-color); margin: 0px 0px 0px 4px;&quot;&gt;+ property1: ez (bream direction)&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&lt;/p&gt;&lt;p style=&quot;border-color: var(--border-color); margin: 0px 0px 0px 4px;&quot;&gt;+ property2: ex (rotation plane)&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;&lt;span&gt;Defined:&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method1:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;get_proj_axes_block&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method2:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;transform_pix_to_img&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin: 0px ; margin-left: 4px&quot;&gt;+ method3:&amp;nbsp;&lt;font color=&quot;#009900&quot;&gt;transform_img_to_pix&lt;/font&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;" vertex="1" parent="ZMG8rREK3EcAr1F-6Y_Y-1">
+          <mxGeometry x="720" y="320" width="230" height="150" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
