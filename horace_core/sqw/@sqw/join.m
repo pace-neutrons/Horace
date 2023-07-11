@@ -52,12 +52,12 @@ clear main_header;
 clear wi_main_header;
 
 % Start pulling in data
-header = cell(size(w));
+experiment = cell(size(w));
 detpar = cell(size(w));
 data = cell(size(w));
 pix = cell(size(w));
 for i = 1:nfiles
-    header{i} = w(i).header; % Will be used as is
+    experiment{i} = w(i).experiment_info; % Will be used as is
     detpar{i} = w(i).detpar; % Needs to be reduced to only a single struct
     data{i} = w(i).data;     % Needs to be combined
     pix{i} = w(i).pix;
@@ -86,13 +86,15 @@ main_header.nfiles = sum(run_contributes); % For the output structure
 
 data = data(run_contributes);
 pix = pix(run_contributes);
+experiment = experiment(run_contributes);
 
 for i = 1:numel(pix)
     pix{i}.run_idx = i; % repopulate individual run numbers
 end
 
 wout.main_header = main_header;
-wout.experiment_info = Experiment(header); % This should be a cell array of the individual headers
+ % This should be a cell array of the individual headers
+wout.experiment_info = Experiment.combine_experiments(experiment, false, true);
 wout.detpar = detpar0;
 
 wout.data = data{1};
@@ -108,10 +110,7 @@ for i = 1:numel(data)
     wout.data.npix = wout.data.npix + data{i}.npix;
 end
 
-wout.data.s = wout.data.s ./ wout.data.npix;
-wout.data.e = wout.data.e ./ (wout.data.npix .^ 2);
-wout.data.s(~wout.data.npix) = 0;
-wout.data.e(~wout.data.npix) = 0;
+[wout.data.s, wout.data.e] = normalize_signal(wout.data.s, wout.data.e, wout.data.npix);
 
 ind = zeros(sz);
 num_pix = sum(wout.data.npix, 'all');
