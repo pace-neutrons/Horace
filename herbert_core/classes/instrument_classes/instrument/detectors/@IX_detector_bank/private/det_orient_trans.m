@@ -1,138 +1,173 @@
-function varargout = det_orient_trans (val, type_in, type_out)
-% Check the detector orientation, or convert from one type to another
+function varargout = det_orient_trans (val_in, type_in, type_out)
+% Check the detector orientations, or convert from one type to another
 %
-% Convert:
-%   >> [ok,mess,ndet,val_out] = det_orient_trans (val_in, type_in, type_out)
+% Check validity of orientation information:
+%   >> ndet = det_orient_trans (val_in, type_in)
 %
-% Check validity:
-%   >> [ok,mess,ndet] = det_orient_trans (val_in, type_in)
+% Convert orientation information:
+%   >> [ndet, val_out] = det_orient_trans (val_in, type_in, type_out)
 %
-% List of options:
+% List of available orientation types:
 %   >> types = det_orient_trans
+%
 %
 % Input:
 % ------
-%   val_in      Detector orientation array
-%   type_in     Type of input. One of:
+%   val_in      Detector orientation information for one or more detectors
+%   type_in     Input detector orientation information type. One of:
 %                   'dmat' 'rotvec'
-%   type_out    Type of output requested. One of:
+%   type_out    Output detector orientation information type. One of:
 %                   'dmat' 'rotvec'
+%              [Default: same as type_in]
 %
-% The definitions of the various type are:
-%   'rotvec',V  Rotation vector(s) that gives the orientation of the detector
+% The definitions of the detector information types are:
+%   'rotvec'    Rotation vector(s) that gives the orientation of the detector
 %              coordinate frame(s) with respect to the secondary spectrometer
 %              frame. Vector length 3 or array size [3,ndet] (degrees).
 %               The detector frame is obtained by rotation according to the vector
 %              which has components in the secondary frame given by V
 %
-%   'dmat',D    Rotation matrix that gives components in secondary spectrometer
+%   'dmat'      Rotation matrix that gives components in secondary spectrometer
 %              frame given those in the detector frame:
 %                       x_f(i) = Sum_j [D(i,j) x_det(j)]
 %              [Note that this definition means that D is the inverse of the
 %               matrix obtained using rotmat_to_rotvec]
+%
+% Output:
+% -------
+%   ndet        Number of detectors for which detector orientation information
+%              is provided
+%   val_out     Detector information in the form of the requested output type
+%              (Note: rotation vector for a single detector is a column, so that
+%              if the input was a row for a single detector, and the requested
+%              output is also as a rotation vector, then the vector will have
+%              been transposed.)
 
 
-type = {'dmat','rotvec'};
+valid_types = {'dmat','rotvec'};
 
-% Catch case of requesting orientation types
+% Catch case of requesting available orientation types
 if nargin==0
-    varargout{1} = type;
+    varargout{1} = valid_types;
     return
 end
 
-% Default output
-ok = true;
-mess = '';
-ndet = [];
-val_out = [];
-
-% Validating or converting orientation type
+% Check input argument types
 if nargin==2 || nargin==3
     % Check arguments
-    if ~isnumeric(val)
-        error('Orientation data must be a numeric array')
+    if ~isnumeric(val_in)
+        error('HERBERT:IX_detector_bank:invalid_argument',...
+            'Detector orientation information data must be a numeric array')
     end
     
     if is_string(type_in) && ~isempty(type_in)
-        iin = stringmatchi(type_in,type);
+        iin = stringmatchi(type_in, valid_types);
         if ~isscalar(iin)
-            error('Unrecognised or ambiguous input orientation type')
+            error('HERBERT:IX_detector_bank:invalid_argument',...
+                ['Unrecognised or ambiguous input detector orientation ',...
+                'information type'])
         end
     else
-        error('Check input orientation type')
+        error('HERBERT:IX_detector_bank:invalid_argument',...
+            'Check input detector orientation information type')
     end
+    
     if nargin==3
         if is_string(type_out) && ~isempty(type_out)
-            iout = stringmatchi(type_out,type);
+            iout = stringmatchi(type_out, valid_types);
             if ~isscalar(iout)
-                error('Unrecognised or ambiguous output orientation type')
+                error('HERBERT:IX_detector_bank:invalid_argument',...
+                    ['Unrecognised or ambiguous input detector orientation ',...
+                    'information type'])
             end
         else
-            error('Check output orientation type')
+            error('HERBERT:IX_detector_bank:invalid_argument',...
+                'Check input detector orientation information type')
         end
+    else
+        iout = iin;
     end
     
 else
-    error('Check number of input arguments')
+    error('HERBERT:IX_detector_bank:invalid_argument',...
+        'Check number of input arguments')
 end
 
-% Check input
+% Check output arguments
+if nargout<=2
+    orientation_output = (nargout>1);   % flag if conversion output
+else
+    error('HERBERT:IX_detector_bank:invalid_argument',...
+        'Too many output arguments.')
+end
+
+% Perform calculations
 tol = 1e-13;
-if strcmp(type{iin},'dmat')
+if strcmp(valid_types{iin}, 'dmat')
     % Check that the input is [3,3,ndet] as a stack of 3x3 rotation matricies
-    if (numel(size(val))==2 || numel(size(val))==3) &&...
-            size(val,1)==3 && size(val,2)==3 && size(val,3)>0
-        diff_with_eye = mtimes_array(val,permute(val,[2,1,3])) - repmat(eye(3),[1,1,size(val,3)]);
-        if max(abs(diff_with_eye(:)))>tol
-            ok = false;
-            mess = 'Not all rotation matricies are valid';
+    % A rotation matrix has the property that its transpose is its inverse. To
+    % check the input has the this property for all detectors, permute the first
+    % two dimensions. Note, permute(val_in,[2,1,3]) works even if
+    % numel(size(val_in))=2, i.e. just a 3x3 matrix. Similarly, size(val_in,3)
+    % correctly return 1 for this case.
+    if (numel(size(val_in))==2 || numel(size(val_in))==3) &&...
+            size(val_in,1)==3 && size(val_in,2)==3 && size(val_in,3)>0
+        diff_with_eye = mtimesx_horace (val_in, permute(val_in,[2,1,3])) - ...
+            repmat(eye(3), [1,1,size(val_in,3)]);
+        if max(abs(diff_with_eye(:))) > tol
+            error('HERBERT:IX_detector_bank:invalid_argument',...
+                'Not all detector rotation matricies are valid');
         end
     else
-        ok = false;
-        mess = 'Rotation matrix array must have size [3,3,ndet]';
+        error('HERBERT:IX_detector_bank:invalid_argument',...
+            'Detector rotation matrix array must have size [3,3,ndet]');
     end
-    ndet = size(val,3);
+    ndet = size(val_in,3);      % works even if ndet==1
     
-    % Convert if requested
-    if nargin==3 && ok
-        if strcmp(type{iout},'dmat')
-            val_out = val;  % nothing to do
-        elseif strcmp(type{iout},'rotvec')
-            val_out = rotmat_to_rotvec(permute(val,[2,1,3]));
+    % Orientation output requested, with conversion if requested
+    if orientation_output
+        if strcmp(valid_types{iout}, 'dmat')
+            val_out = val_in;   % nothing to do
+        elseif strcmp(valid_types{iout}, 'rotvec')
+            val_out = rotmat_to_rotvec (permute (val_in, [2,1,3]));
         else
-            error('Conversion case not caught. Code error - contact developers.')
+            error('HERBERT:IX_detector_bank:invalid_argument',...
+                'Conversion case not caught. Code error - contact developers.')
         end
     end
     
-elseif strcmp(type{iin},'rotvec')
-    % Check size is [3,ndet]
-    if ~(numel(size(val))==2 && size(val,1)==3 && size(val,2)>0)
-        ok = false;
-        mess = 'Rotation vector array must have size [3,ndet]';
+elseif strcmp(valid_types{iin},'rotvec')
+    % Check size is [3,ndet], or [1,3] if a single detector is also valid
+    if ~numel(size(val_in))==2 || ~((size(val_in,1)==3 && size(val_in,2)>0) || ...
+            (size(val_in,1)==1 && size(val_in,2)==3))
+        error('HERBERT:IX_detector_bank:invalid_argument',...
+            'Rotation vector array must have size [3,ndet]');
     end
-    ndet = size(val,2);
+    if size(val_in,1)==3
+        ndet = size(val_in,2);
+    else
+        ndet = 1;
+        val_in = val_in(:);     % convert to column vector
+    end
     
     % Convert if requested
-    if nargin==3 && ok
-        if strcmp(type{iout},'dmat')
-            val_out = rotvec_to_rotmat(val);
-            val_out = permute(val_out,[2,1,3]);
-        elseif strcmp(type{iout},'rotvec')
-            val_out = val;  % nothing to do
+    if orientation_output
+        if strcmp(valid_types{iout}, 'dmat')
+            val_out = rotvec_to_rotmat (val_in);
+            val_out = permute (val_out, [2,1,3]);
+        elseif strcmp(valid_types{iout}, 'rotvec')
+            val_out = val_in;   % nothing to do
         else
-            error('Conversion case not caught. Code error - contact developers.')
+            error('HERBERT:IX_detector_bank:invalid_argument',...
+                'Conversion case not caught. Code error - contact developers.')
         end
     end
 end
 
 % Fill output
-varargout{1} = ok;
+if nargout>=0
+    varargout{1} = ndet;
+end
 if nargout>=2
-    varargout{2} = mess;
-end
-if nargout>=3
-    varargout{3} = ndet;
-end
-if nargin==3 && nargout>=4
-    varargout{4} = val_out;
+    varargout{2} = val_out;
 end

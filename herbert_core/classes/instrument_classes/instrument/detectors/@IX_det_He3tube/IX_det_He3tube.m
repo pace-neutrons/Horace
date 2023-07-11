@@ -20,17 +20,17 @@ classdef IX_det_He3tube < IX_det_abstractType
     end
 
     properties (Dependent)
-        % Mirrors of private properties
+        % Mirrors of private properties; these define object state:
         dia         % Outer diameter of tube (m) (column vector)
         height      % height (m) (column vector)
         wall        % Wall thickness (m) (column vector)
         atms        % 3He partial pressure (atmospheres) (column vector)
 
-        % Other dependent properties:
-        inner_rad   % Inner radius of tube(m)
+        % Other dependent properties: 
+        inner_rad   % Inner radius of tube (get access only) (m)
         
-        % Other dependent properties required by abstract template
-        ndet        % Number of detectors
+        % Other dependent properties required by abstract template:
+        ndet        % Number of detectors (get access only) (scalar)
     end
 
     methods
@@ -179,7 +179,7 @@ classdef IX_det_He3tube < IX_det_abstractType
             flds = obj.saveableFields();
             
             % Inherited method from IX_det_abstractType
-            obj = obj.expand_internal_properties_to_max_length(flds);
+            obj = obj.expand_internal_properties_to_max_length (flds);
             
             % Check the consistency of tube diameter and wall thickness
             if  ~all(obj.dia_>=2*obj.wall_)

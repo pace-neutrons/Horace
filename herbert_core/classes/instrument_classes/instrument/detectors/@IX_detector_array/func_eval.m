@@ -77,11 +77,11 @@ else
     val(:,ibeg(1):iend(1)) = reshape(val_tmp, [nel, ndet_bank(1)]);
     for i = 2:nbank
         if wvec_is_scalar
-            val{i} = func_eval (obj.det_bank_(ibank(i)), func_handle, ind{i}, wvec);
+            val_tmp = func_eval (obj.det_bank_(ibank(i)), func_handle, ind{i}, wvec);
         else
-            val{i} = func_eval (obj.det_bank_(ibank(i)), func_handle, ind{i}, wvec{i});
+            val_tmp = func_eval (obj.det_bank_(ibank(i)), func_handle, ind{i}, wvec{i});
         end
-        val(:,ibeg(i):iend(i)) = reshape(val_tmp, [nel, ndet_bank(1)]);
+        val(:,ibeg(i):iend(i)) = reshape(val_tmp, [nel, ndet_bank(i)]);
     end
     
     % Re-order and reshape to correct output size

@@ -19,12 +19,12 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
     end
 
     properties (Dependent)
-        % Mirrors of private properties
+        % Mirrors of private properties; these define object state:
         dia         % Outer diameter of tube (m) (column vector)
         height      % Height (m) (column vector)
         
-        % Other dependent properties required by abstract template
-        ndet        % Number of detectors
+        % Other dependent properties required by abstract template:
+        ndet        % Number of detectors (get access only) (scalar)
     end
 
     methods
@@ -54,6 +54,7 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
                 % consistency using public setters interface. Run
                 % check_combo_arg after all settings have been done.
                 % All is done within set_positional_and_key_val_arguments
+                options = struct('key_dash', true, 'mandatory_props', mandatory);
                 [obj, remains] = set_positional_and_key_val_arguments (obj, ...
                     property_names, options, varargin{:});
                 
@@ -135,7 +136,7 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
             flds = obj.saveableFields();
             
             % Inherited method from IX_det_abstractType
-            obj = obj.expand_internal_properties_to_max_length(flds);                        
+            obj = obj.expand_internal_properties_to_max_length (flds);                        
         end
     end
     

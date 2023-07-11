@@ -11,8 +11,8 @@ function obj_out = replicate (obj, n)
 % Output:
 % -------
 %   obj_out     Output array such that all internal data has been
-%               repeated n times, increasing the nmber of detectors by a
-%               facator of n
+%               repeated n times, increasing the number of detectors by a
+%               factor of n
 
 
 % Replicate the detector arrays

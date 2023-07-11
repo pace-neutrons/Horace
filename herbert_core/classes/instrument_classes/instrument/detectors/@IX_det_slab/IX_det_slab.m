@@ -18,14 +18,14 @@ classdef IX_det_slab < IX_det_abstractType
     end
 
     properties (Dependent)
-        % Mirrors of private properties
+        % Mirrors of private properties; these define object state:
         depth       % Detector element thicknesses (m) (column vector)
         width       % Detector element widths (m) (column vector)
         height      % Detector element heights (m) (column vector)
         atten       % Attenuation length (to 1/e) at 2200 m/s (m) (column vector)
 
-        % Other dependent properties required by abstract template
-        ndet        % Number of detectors        
+        % Other dependent properties required by abstract template:
+        ndet        % Number of detectors (get access only) (scalar)s        
     end
 
     methods
@@ -170,7 +170,7 @@ classdef IX_det_slab < IX_det_abstractType
             flds = obj.saveableFields();
             
             % Inherited method from IX_det_abstractType
-            obj = obj.expand_internal_properties_to_max_length(flds);            
+            obj = obj.expand_internal_properties_to_max_length (flds);            
         end
         
     end

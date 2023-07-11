@@ -31,6 +31,8 @@ classdef test_IX_det_He3tube < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
+        %   Test constructor
+        %--------------------------------------------------------------------------
         function test_det_constructor (obj)
             [~, det_array] = construct_detectors (obj);
             assertEqual (obj.dia(:), det_array.dia)
@@ -79,6 +81,8 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             assertEqual (det_array_ref, det_array)
         end
         
+        %--------------------------------------------------------------------------
+        %   Test methods
         %--------------------------------------------------------------------------
         function test_effic_1 (obj)
             % Test efficiency calculation
@@ -196,6 +200,26 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             assertEqualToTol (vars_d, var_d_array, 'tol', [1e-13,1e-13])
             assertEqualToTolWithSave (obj, var_d_array, 'tol', [1e-13,1e-13])
         end
+        
+        
+        
+        %--------------------------------------------------------------------------
+        %   Test random numbers
+        %--------------------------------------------------------------------------
+%         function test_random_points (obj)
+%             dia0 = 0.01; height0 = 0.03; wall0 = 0.0001; atms0 = 10;
+%             det = IX_det_He3tube (dia0, height0, wall0, atms0);
+%             
+%             X = det.rand(ones(1e5,1), [1,0,0], 10);
+%             [mean_val, sig_mean, sig_val, sig_sig, cov_val, minval, maxval] = ...
+%                 sampling_stats (X')
+%             
+%                         
+%             mean_pos = det.mean([1,0,0], 10)'
+% 
+%             
+%         end
+        
         
         %--------------------------------------------------------------------------
         % Utility methods

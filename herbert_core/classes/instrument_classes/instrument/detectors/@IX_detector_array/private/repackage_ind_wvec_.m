@@ -16,8 +16,10 @@ function [ix, ibank, nind_bank, ind, wvec] = repackage_ind_wvec_ (obj, ind_in, w
 %   ind_in      Indices of detectors for which to calculate. Scalar or array.
 %
 %   wvec_in     Wavevector of absorbed neutrons (Ang^-1). Scalar or array.
-%               If both ind and wvec are arrays, then they must have the same
-%               number of elements, but not necessarily the same shape.
+%               If both ind and wvec are arrays, then it is assumed they have
+%               the same number of elements, but not necessarily the same shape.
+%               That is, there is a one-to-one correspondence between elements
+%               of ind_in and wvec_in.
 %
 %
 % Output:
@@ -52,32 +54,17 @@ function [ix, ibank, nind_bank, ind, wvec] = repackage_ind_wvec_ (obj, ind_in, w
 %               Otherwise:
 %
 %               If the detector indices came from only one detector bank
-%               (that is, ibank is a scalar), then wvec is a column vector.
+%               (that is, ibank is a scalar), then wvec is the same as wvec_in.
 %
 %               If detector indices came from two or more detector banks,
 %               then wvec is a column cell array of column vectors, where
 %               the nth column vector gives the values of wvec for the
 %               corresponding detector indices in the nth column vector of 
 %               ind.
-%
-%
-%   An alternative summary of the output ind and wvec is
-%   - If ind_in and wvec_in were both scalar, then ind and wvec are both
-%     scalars.
-%   - If ind_in was scalar and wvec_in an array, then ind is a scalar and
-%     wvec is a column vector.
-%   - If ind_in was a vector and wvec_in a scalar, then ind_in is either a
-%     column vector (if all in the one detector bank) or a cell array of
-%     column vectors (if from two or more detector banks), and wvec is a
-%     scalar.
-%   - If ind_in and wvec were both arrays (and must have had the same
-%     number of elements), then they must have both be either column
-%     vectors (detectors all in in one bank) or both be a cell array of
-%     column vectors (detectors from two or more detector banks).
 
 
 % Get the array that gives detector bank for each detector in ind
-ndet_bank = arrayfun(@(x)(numel(x.id)), obj.det_bank_);
+ndet_bank = obj.ndet_bank;  % number of detectors in each bank
 ind2bank = replicate_iarray(1:numel(ndet_bank), ndet_bank);
 
 % Sort indices by bank index
@@ -90,16 +77,18 @@ ind2bank = replicate_iarray(1:numel(ndet_bank), ndet_bank);
 % bank because in that case ix = 1:numel(ind_in)
 ind_offset = cumsum(ndet_bank) - ndet_bank + 1;
 if numel(ibank) > 1
-    ind = arrayfun(@(ilo,ihi,ioffset)(ind_in(ix(ilo:ihi)) - ioffset + 1), ...
+    ind = arrayfun(...
+        @(ilo,ihi,ioffset)(reshape(ind_in(ix(ilo:ihi)),[],1) - ioffset + 1), ...
         nbeg, nend, ind_offset(ibank), 'uniformOutput', false);
 else 
-    ind = ind_in - ind_offset(ibank(1)) + 1;
+    ind = ind_in - ind_offset(ibank(1)) + 1; % retains same shape and size as input ind
 end
 
 % Repackage wvec_in
 if numel(ibank) > 1 && ~isscalar(wvec_in)
-    wvec = arrayfun(@(ilo,ihi,ioffset)(wvec_in(ix(ilo:ihi)) - ioffset + 1), ...
+    wvec = arrayfun(...
+        @(ilo,ihi,ioffset)(reshape(wvec_in(ix(ilo:ihi)),[],1)), ...
         nbeg, nend, ind_offset(ibank), 'uniformOutput', false);
 else
-    wvec = wvec_in;     % ix=[1,2,..]=>no indexing by ix needed
+    wvec = wvec_in;     % retains same shape and size as input wvec
 end

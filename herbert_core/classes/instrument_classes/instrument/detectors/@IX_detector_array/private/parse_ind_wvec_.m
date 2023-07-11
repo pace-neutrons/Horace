@@ -31,9 +31,9 @@ function [sz, ind, wvec] = parse_ind_wvec_ (obj, varargin)
 %   wvec        Wavevector of absorbed neutrons (Ang^-1). Scalar or array.
 
 
-% *** NOTE: this is identical to IX_detector_bank/parse_ind_wvec_
-%     In an ideal world we would have IX_detector_array inherit
-%     IX_detector_bank, but save that apple-polishing for later.
+% *** NOTE: this is identical to IX_det_abstractType/parse_ind_wvec_
+%     In an ideal world we would have IX_detector_array inherit somehow,
+%     but save that apple-polishing for later.
 
 
 % Check ind and wvec

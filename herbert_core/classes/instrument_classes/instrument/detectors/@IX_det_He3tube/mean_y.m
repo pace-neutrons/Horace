@@ -39,5 +39,5 @@ function val = mean_y (obj, varargin)
 % Original author: T.G.Perring
 
 
-sz = parse_ind_npath_ind_wvec_ (obj, varargin{:});
+sz = parse_ind_npath_wvec_ (obj, varargin{:});
 val = zeros(sz);

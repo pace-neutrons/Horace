@@ -34,6 +34,8 @@ classdef test_IX_detector_bank_1 < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
+        %   Test constructor
+        %--------------------------------------------------------------------------
         function test_constructor_1 (obj)
 
             bank = IX_detector_bank (obj.id, obj.x2, obj.phi, obj.azim, obj.dets);
@@ -53,9 +55,48 @@ classdef test_IX_detector_bank_1 < TestCaseWithSave
             assertEqual(bank.x2, obj.x2(:));
             assertEqual(bank.phi, obj.phi(:));
             assertEqual(bank.azim, obj.azim(:));
+            dmat = permute (rotvec_to_rotmat(obj.rotvec), [2,1,3]);
+            assertEqualToTol(bank.dmat, dmat, 'abstol', 1e-13);
+            assertEqualToTol(bank.rotvec, obj.rotvec, 'abstol', 1e-13);
             assertEqual(bank.det, obj.dets(:));
         end
         
+        %--------------------------------------------------------------------------
+        function test_constructor_3 (obj)
+            % Check alternative ways of giving detector orientation
+            dmat = permute (rotvec_to_rotmat(obj.rotvec), [2,1,3]);
+            bank = IX_detector_bank (obj.id, obj.x2, obj.phi, obj.azim, obj.dets, ...
+                'dmat', dmat);
+            assertEqual(bank.id, obj.id(:));
+            assertEqual(bank.x2, obj.x2(:));
+            assertEqual(bank.phi, obj.phi(:));
+            assertEqual(bank.azim, obj.azim(:));
+            assertEqualToTol(bank.dmat, dmat, 'abstol', 1e-13);
+            assertEqualToTol(bank.rotvec, obj.rotvec, 'abstol', 1e-13);
+            assertEqual(bank.det, obj.dets(:));
+        end
+        
+        %--------------------------------------------------------------------------
+        %   Test save and load
+        %--------------------------------------------------------------------------
+        function test_save_load_1 (obj)
+            % Test save and load: save then reload, and check identical
+            bank = IX_detector_bank (obj.id, obj.x2, obj.phi, obj.azim, obj.dets, ...
+                'rotvec', obj.rotvec);
+            
+            % Save detector bank
+            test_file = fullfile (tmp_dir(), 'test_save_load_1.mat');
+            cleanup = onCleanup(@()delete(test_file));
+            save (test_file, 'bank');
+            
+            % Recover detector bank
+            tmp = load (test_file);
+            
+            assertEqual (bank, tmp.bank)
+        end
+        
+        %--------------------------------------------------------------------------
+        %   Test methods
         %--------------------------------------------------------------------------
         function test_effic_1 (obj)
             % Test efficiency calculation
@@ -134,25 +175,6 @@ classdef test_IX_detector_bank_1 < TestCaseWithSave
             
             assertEqualToTol (effs, eff_array, 'tol',[1e-13,1e-13])
             assertEqualToTolWithSave (obj, eff_array, 'tol',[1e-13,1e-13])
-        end
-        
-        %--------------------------------------------------------------------------
-        function test_save_load_1 (obj)
-            % Test efficiency calculation for subset of dets and with
-            % different wavlengths
-            % Make ind and wvec matrices for good measure!s
-            bank = IX_detector_bank (obj.id, obj.x2, obj.phi, obj.azim, obj.dets, ...
-                'rotvec', obj.rotvec);
-            
-            % Save detector bank
-            test_file = fullfile (tmp_dir(), 'test_save_load_1.mat');
-            cleanup = onCleanup(@()delete(test_file));
-            save (test_file, 'bank');
-            
-            % Recover detector bank
-            tmp = load (test_file);
-            
-            assertEqual (bank, tmp.bank)
         end
         
     end
