@@ -343,11 +343,11 @@ classdef unique_objects_container < serializable
             switch idxstr(1).type
                 case {'()','{}'}
                     c = self.get(nuix);
-                    if numel(idxstr)>0
+                    if numel(idxstr)>1
                         idx2 = idxstr(2:end);
                         c = builtin('subsasgn',c,idx2,varargin{:});
-                        val = c;
                     end
+                    val = c;
                     self = self.replace(val,nuix);
                 case '.'
                     self = builtin('subsasgn',self,idxstr,varargin{:});
