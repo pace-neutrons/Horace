@@ -346,9 +346,10 @@ classdef unique_objects_container < serializable
                     if numel(idxstr)>1
                         idx2 = idxstr(2:end);
                         c = builtin('subsasgn',c,idx2,varargin{:});
+                        self = self.replace(c,nuix);
+                    else
+                        self = self.replace(val,nuix);
                     end
-                    val = c;
-                    self = self.replace(val,nuix);
                 case '.'
                     self = builtin('subsasgn',self,idxstr,varargin{:});
             end
