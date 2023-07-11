@@ -23,6 +23,12 @@ if(POLICY CMP0074)
     # Ignore warnings when setting <MODULE>_ROOT variables
     cmake_policy(SET CMP0074 NEW)
 endif()
+if(POLICY CMP0115)
+  cmake_policy(SET CMP0115 NEW)
+endif()
+if(POLICY CMP0109)
+  cmake_policy(SET CMP0109 OLD)
+endif()
 
 # Add cmake directory to CMake's path
 list(APPEND CMAKE_MODULE_PATH "${Horace_ROOT}/cmake"

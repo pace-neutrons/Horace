@@ -38,7 +38,7 @@ This script is based on the script given in the CMake guide on GoogleTest's
 GitHub https://github.com/google/googletest/blob/master/googletest/README.md.
 
 #]=======================================================================]
-set(GTEST_VERSION "1.10.0")
+set(GTEST_VERSION "1.12.1")
 
 set(GTEST_DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/googletest-download")
 # Copy the CMakeLists file that imports the external project
