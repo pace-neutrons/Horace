@@ -430,7 +430,7 @@ keep = true(size(sym));
 for i=1:numel(sym)
     sym{i} = make_row(sym{i});
     if ~isempty(sym{i}) && ~isa(sym{i}, 'Symop')
-        error('HORACE:cut_sqw_sym:invalid_argument', ...
+        error('HORACE:cut:invalid_argument', ...
               'Symmetry descriptor must be an symop object or array of symop objects, or a cell of those');
     end
 
