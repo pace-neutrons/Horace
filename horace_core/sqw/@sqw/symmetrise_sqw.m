@@ -98,9 +98,10 @@ if isa(sym, 'SymopReflection')
 
     for i = 1:fold
         % transform existing range into transformed range
-        idx = ~sym(i).in_irreducible(cc_exist_range);
+        idx = ~sym(i).in_irreducible(cc_exist_range, win.data.proj);
         cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
     end
+
 elseif isa(sym, 'SymopRotation')
     cc_exist_range = [cc_ranges]; % Keep old range
 end
