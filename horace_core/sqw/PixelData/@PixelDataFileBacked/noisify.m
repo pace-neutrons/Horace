@@ -65,9 +65,7 @@ end
 % value extracted above
 
 % If we're being called from tests
-if isempty(pix_out.file_handle_)
-    pix_out = pix_out.get_new_handle();
-end
+pix_out = pix_out.ready_dump();
 
 pix_out.data_range = PixelDataBase.EMPTY_RANGE;
 
