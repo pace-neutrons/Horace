@@ -19,12 +19,15 @@ function wout=symmetrise_sqw(win,varargin)
 %          to reduce data into the positive quadrant
 %          ** N.B. ** 360/theta_deg MUST be integral
 %
+% proj
+%    Projection axis for rotational reduction
+%
 % v1 and v2 are two vectors which lie in the plane of the reflection plane.
 % v3 is a vector connecting the plane to the origin (i.e. specifies an
 % offset).
 %
 % sym = SymopReflection([0,1,0],[0,0,1],[1,0,0]);
-% e.g. wout=symmetrise_sqw(win, sym)
+% e.g. wout=symmetrise_sqw(win, sym, proj)
 % The object win is symmetrised in the plane specified by [0,1,0] and
 % [0,0,1] (i.e a mirror plane which reflects [-1,0,0] on to [1,0,0]). v3
 % is [1,0,0], so the plane is offset from the origin. This means that
@@ -52,6 +55,20 @@ if ~has_pixels(win)
           'input object must be sqw type with detector pixel information');
 end
 
+if isa(varargin{end}, 'aProjection')
+    proj = varargin(end);
+    varargin = varargin(1:end-1);
+else
+    proj = {};
+end
+
+if ~proj.isorthogonal
+    error('HORACE:symmetrise_sqw:invalid_argument', ...
+          'Cannot symmetrise to non-orthogonal projection');
+end
+
+
+
 if numel(varargin) == 1 && isa(varargin{1}, 'Symop')
 
     sym = varargin{1};
@@ -72,6 +89,8 @@ wout = copy(win);
 transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
 wout = wout.apply(transforms, {win.data.proj}, false);
 
+wout.pix = sym.transform_pix(wout.pix, proj{:});
+
 %=========================================================================
 % Transform Ranges:
 %
@@ -85,7 +104,7 @@ exp_range = expand_box(existing_range(1,1:3), existing_range(2,1:3));
 cc_ranges = proj.transform_img_to_pix(exp_range);
 
 % identify intersection points between the image range and the symmetry plane
-if isa(sym, 'SymopReflection')
+if isa(sym, 'SymopReflection') && isempty(proj)
 
     cc_exist_range = [cc_ranges];
     for i = 1:fold
@@ -98,11 +117,11 @@ if isa(sym, 'SymopReflection')
 
     for i = 1:fold
         % transform existing range into transformed range
-        idx = ~sym(i).in_irreducible(cc_exist_range, win.data.proj);
+        idx = ~sym(i).in_irreducible(cc_exist_range);
         cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
     end
 
-elseif isa(sym, 'SymopRotation')
+else
     cc_exist_range = [cc_ranges]; % Keep old range
 end
 

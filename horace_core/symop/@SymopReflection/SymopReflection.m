@@ -99,7 +99,7 @@ classdef SymopReflection < Symop
         % ------
         %   obj     Symmetry operator object (scalar)
         %   Minv    Matrix to convert components of a vector given in rlu to those
-        %          in an orthonormal frame
+        %             in an orthonormal frame
         %
         % Output:
         % -------
