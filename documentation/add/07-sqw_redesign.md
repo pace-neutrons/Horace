@@ -77,7 +77,7 @@ Image pixel data is generated from the `PixelData` via one or more projections.
 |-----|---------|---|
 | signal[] | Mean intensity, calculated as `Sum(pix_signal(k))/npix(k)` | (1), (2) |
 | err[] | Average error, calculated as  `sqrt(Sum(pix_variance(k)/npix(k)))` |(1), (2) |
-| npix[] | Number of detector pixels contributing to each image pixel even if the signal on thiz pixel is equal to zero.||
+| npix[] | Number of detector pixels contributing to each image pixel even if the signal on this image pixel is equal to zero.||
 | proj | The instance of `aProjection` class, describing the transformation used for builing this image | |
 | axes | The instance of `AxesBlockBase` class, defining the shape and size of *signal* *err* and *npix* arrays and the units along their axes |(3) |
 
