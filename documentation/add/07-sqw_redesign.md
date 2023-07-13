@@ -95,7 +95,7 @@ The **DnD class** (current implementation of the image) contains a transformatio
 
 The Image block ( **DnD class**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
 
-The cut algorithm takes existing **sqw** object containing existing **projection** and **axes_block** classes. retrieves target **projection** and **axes_block** classes from the input binning parameters of the cut, and calculates *npix*, *signal* and *error* from the pixel information, present in the source **sqw** object or from  *npix*, *signal* and *error* of the source object if the pixel information is not present in the source object.
+The cut algorithm takes existing **sqw** object containing existing **projection** and **axes_block** classes, retrieves target **projection** and **axes_block** classes from the input binning parameters of the cut, and calculates *npix*, *signal* and *error* from the pixel information present in the source **sqw** object, or from  *npix*, *signal* and *error* of the source object if the pixel information is not present in the source object.
 
 #### A projection class
 The family of existing projection classes is presented on the Fig.5:
