@@ -408,6 +408,7 @@ classdef ortho_proj<aProjectionBase
             ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
             [~,~,scales]  = obj.get_pix_img_transformation(3);
             ax_bl.ulen  = scales;
+            ax_bl.hkle_axes_directions = obj.u_to_rlu;
             %
             if obj.nonorthogonal
                 ax_bl.unit_cell = obj.unit_cell;

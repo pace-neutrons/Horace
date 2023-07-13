@@ -22,12 +22,14 @@ classdef ortho_axes < AxesBlockBase
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Dependent)
-        nonorthogonal % true, if the coordinate system described by
-        %             % this axes block is non-orthogonal
-
         unit_cell     % four-vector describing primary unit cell of the
         % lattice. eye(4) in nonorthogonal == false and
         % four-vector of the cell vectors for non-orthogonal
+
+        % the matrix which describes the directions of the each axis in 
+        % hkl-dE coordinate system. Each column provides vector of the
+        % direction for each axis in hkl-dE system of coordinates
+        hkle_axes_directions
     end
     properties(Dependent,Hidden)
         % old interface to label
@@ -35,9 +37,9 @@ classdef ortho_axes < AxesBlockBase
     end
     properties(Access=protected)
         %
-        nonorthogonal_ = false
-        %
         unit_cell_ = [];
+        % the holder for axes direction matrix
+        hkle_axes_directions_ 
     end
 
     methods
@@ -73,13 +75,10 @@ classdef ortho_axes < AxesBlockBase
         end
 
         function [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
-                data_plot_titles(~,dnd_obj)
+                data_plot_titles(obj)
             % Get titling and caption information for an sqw data structure
-
-            data = dnd_obj.head();
-            proj = dnd_obj.proj;
             [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
-                data_plot_titles(data,proj);
+                data_plot_titles_(obj);
         end
 
         function cell = get.unit_cell(obj)
@@ -95,6 +94,16 @@ classdef ortho_axes < AxesBlockBase
                 obj = obj.check_combo_arg();
             end
         end
+        function mat = get.hkle_axes_directions(obj)
+            if isempty(obj.hkle_axes_directions_)
+                mat = eye(4);
+            else
+                mat = obj.hkle_axes_directions_;                
+            end
+        end
+        function obj = set.hkle_axes_directions(obj,val)
+            obj = check_and_set_hkle_axes_directions_(obj,val);
+        end
         %------------------------------------------------------------------
         % old interface
         function obj = set.ulabel(obj,val)
@@ -102,15 +111,6 @@ classdef ortho_axes < AxesBlockBase
         end
         function lab = get.ulabel(obj)
             lab  = obj.label_;
-        end
-        function non = get.nonorthogonal(obj)
-            non = obj.nonorthogonal_;
-        end
-        function obj = set.nonorthogonal(obj,val)
-            obj.nonorthogonal_ = logical(val);
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
         end
     end
     %----------------------------------------------------------------------
@@ -199,7 +199,8 @@ classdef ortho_axes < AxesBlockBase
         end
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % savable class
+            % savable class allowing loading ortho_axes from a suitable 
+            % structure (e.g. obtaned fron struct(ortho_axes) operation)
             obj = ortho_axes();
             obj = loadobj@serializable(S,obj);
         end
@@ -214,28 +215,6 @@ classdef ortho_axes < AxesBlockBase
             ver = 6;
         end
         %
-        function flds = saveableFields(obj,varargin)
-            % get independent fields, which fully define the state of the
-            % serializable object.
-            flds = saveableFields@AxesBlockBase(obj);
-            if nargin>1 || obj.nonorthogonal
-                flds = [flds(:);'nonorthogonal';'unit_cell'];
-            else
-                flds = [flds(:);'nonorthogonal'];
-            end
-        end
-        function obj = check_combo_arg(obj)
-            % verify interdependent variables and the validity of the
-            % obtained serializable object. Throw
-            % 'HORACE:AxesBlockBase:invalid_argument' if object is invalid.
-            obj = check_combo_arg@AxesBlockBase(obj);
-            if obj.nonorthogonal_ && isempty(obj.unit_cell_)
-                error('HORACE:ortho_axes:invalid_argument',...
-                    ['Unit cell have to be set for non-orthogonal ortho_axes.\n', ...
-                    ' Set up non-orthogonal unit cell before setting nonorthogonal property to true\n']);
-            end
-        end
-        %
     end
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
@@ -246,7 +225,7 @@ classdef ortho_axes < AxesBlockBase
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
             %
-            % Overloaded to accept Horace 3.6.2<version structure.
+            % Overloaded to accept Horace 3.6.3<version structure.
             %
             if isfield(inputs,'version') && (inputs.version == 1) || ...
                     isfield(inputs,'iint')
@@ -255,6 +234,9 @@ classdef ortho_axes < AxesBlockBase
             if isfield(inputs,'one_nb_is_iax')
                 inputs.single_bin_defines_iax = inputs.one_nb_is_iax;
                 inputs = rmfield(inputs,'one_nb_is_iax');
+            end
+            if isfield(inputs,'u_to_rlu')
+                inputs.hkle_axes_directions = inputs.u_to_rlu;
             end
             if isfield(inputs,'array_dat')
                 obj = obj.from_bare_struct(inputs.array_dat);

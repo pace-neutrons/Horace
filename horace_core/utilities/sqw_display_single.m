@@ -10,7 +10,7 @@ function sqw_display_single(din,npixtot,nfiles,type)
 %
 % Optionally:
 %   npixtot         total number of pixels if sqw type
-%   nfiles          number of contribuging files
+%   nfiles          number of contributing files
 %   type            data type: 'a' or 'b+'
 %                  
 %   If the optional parameters are given, then only the header information

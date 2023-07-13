@@ -1,8 +1,8 @@
-function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data,proj)
+function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj,proj)
 % Get titling and caption information for an sqw data structure
 %
 % Syntax:
-%   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data)
+%   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
 %
 % Input:
 % ------
@@ -26,33 +26,25 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 %
-% TODO: violates OOP design. Needs refactoring
 
 Angstrom=char(197);     % Angstrom symbol
 
 % Prepare input arguments
-file = fullfile(data.filepath,data.filename);
-title = data.title;
+file = fullfile(obj.filepath,obj.filename);
+title = obj.title;
 
-offset = data.offset;
-if isa(data,'DnDBase')
-    % every projections now have to have this, though it may have different
-    % meaning for different projecions
-    u_to_rlu = data.proj.u_to_rlu;
-    ulen = data.axes.ulen;
-else
-    u_to_rlu = data.u_to_rlu;
-    ulen = data.ulen;
-end
+offset = obj.offset;
+ulen = obj.ulen;
+u_to_rlu = obj.hkle_axes_directions;
 
-label = data.label;
-iax = data.iax;
-iint = data.iint;
-pax = data.pax;
+label = obj.label;
+iax = obj.iax;
+iint = obj.iint;
+pax = obj.pax;
 uplot = zeros(3,length(pax));
-dax = data.dax;
+dax = obj.dax;
 for i=1:length(pax)
-    pvals = data.p{i};
+    pvals = obj.p{i};
     uplot(1,dax(i)) = pvals(1);
     uplot(2,dax(i)) = (pvals(end)-pvals(1))/(length(pvals)-1);
     uplot(3,dax(i)) = pvals(end);
@@ -75,7 +67,7 @@ end
 if ~isempty(proj) && isa(proj,"aProjectionBase")
     offset_tot = proj.tansform_img_to_hkl(iint_offset(:));
 else
-    iint_hkle = data.u_to_rlu*iint_offset(:);
+    iint_hkle = obj.u_to_rlu*iint_offset(:);
     offset_tot= offset(:)' + iint_hkle(:)';    
 end
 % overal displacement of plot volume in hkle;
