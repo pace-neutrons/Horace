@@ -145,7 +145,7 @@ Inheritance diagram for `AxesBlockBase` classes family is presented on Fig.6.:
 
 **AxesBlockBase** class is overloaded for every coordinate system defined by a projection, with possibility to overload plot methods for the convenience of the plotting in the particular coordinate system and for generating the correct plot titles for each coordinate system.
 
-Operations using projections, and cut operations in particular, result in the creation of a new `sqw/dnd` object. They are performed to the Image Pixels using data from the original `PixelData` class. Similar operations are possible on images (`DnD` objects) themselves, but as these objects do not contain all necessary information, the cuts from `DnD` objects are only quantitative estimates for the cuts, obtained using full experiment information available from `sqw` objects.
+Operations using projections, and cut operations in particular, result in the creation of a new `sqw/dnd` object. They are performed on the Image pixels using data from the original `PixelData` class. Similar operations are possible on images (`DnD` objects) themselves, but as these objects do not contain all necessary information, the cuts from `DnD` objects are only quantitative estimates for the cuts obtained using full experiment information available from `sqw` objects.
 
 
 Another specific method of projection classes is `get_proj_axes_block` which returns the axes, specific for the projection transformation to the projection image. 
