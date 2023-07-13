@@ -135,7 +135,7 @@ The particular projection classes are the children of the abstract `aProjectionB
 
 
 **Notes**
-^1 Transformed from source `AxesBlockBase` coordinate system to the coordinate system, which is the target of the transformation. For operation being correct, the hypercube needs to be scaled so that at least one node of the generated grid would belong to a contributed cell of the original grid. E.g. if **a** is the size of the scaler cube with respect to **orhto_projection**, the hypercube should be rescaled as **a/sqrt(2)** |
+^1 Transformed from source `AxesBlockBase` coordinate system to the coordinate system, which is the target of the transformation. For operation being correct, the hypercube needs to be scaled so that at least one node of the generated grid would belong to a contributed cell of the original grid. E.g. if **a** is the size of the scalar cube with respect to **ortho_projection**, the hypercube should be rescaled as **a/sqrt(ndim)** where `ndim` is the number of dimensions of the hypercube |
 
 #### AxesBlockBase classes
 
