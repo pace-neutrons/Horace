@@ -114,7 +114,7 @@ Main properties and methods of `aProjectionBase` class and other projection clas
 | offset |1x4 vector of floats | offset of the centre of the coordinate system from the h=0,k=0,l=0,dE=0 position expressed in hkl coordinate system |
 | img_offset | 1x4 vector of floats | the same as offset but expressed in image coordinate system. (e.g. R,Theta,Phi dE for `spher_proj` or [hh,kk,l,dE] for `line_proj` rotated by 45 degrees vrt the h-axis |
 | label | 4x1 cellarray of strings | Labels to put along all 4 coordinate axes|
-| title|  string | title to place over the plots of the cuts build using this projection |
+| title|  string | title to place over the plots of the cuts built using this projection |
 | *Methods:*
 | **Method** | **Output type** | **Notes** |
 | get_nrange | [bl_start,bl_size] arrays | return the positions (wrt the position of the first pixel which is 1) and the sizes of the pixels blocks belonging to the cells which may contribute to the final cut. The cells are defined by the projections and axes block-s, provided as input.|
