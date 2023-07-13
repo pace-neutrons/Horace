@@ -70,7 +70,7 @@ In more details the the `projection` class and `axes_block` classes are describe
 
 #### Image (`DnDBase` class in more details)
 
-`DnDBase` class contains the n-dimensional arrays of image pixel data transformed into selected coordinate system with associated axis information related to this coordinate system. 
+`DnDBase` class contains the n-dimensional arrays of image pixel data transformed into the selected coordinate system with associated axis information related to this coordinate system. 
 Image pixel data is generated from the `PixelData` via one or more projections. 
 
 |  | Description | Notes |
