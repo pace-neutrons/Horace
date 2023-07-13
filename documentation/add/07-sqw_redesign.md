@@ -55,7 +55,7 @@ An extract from the whole inheritance diagram for the `DnD` objects is presented
 
 ![Fig.3. DnD Class inheritance diagram](../diagrams/DND-inheritance.png)
 
-The diagram also shows `data_sqw_dnd` object inheriting from `DnDBase` and containing arbitrary number of dimensions unlike other `DnD` objects which define their specific number of dimensions.  This object left for IO compatibility with previous versions of Horace code and is not used in Horace for any other purpose except restoring an old data.
+The diagram also shows `data_sqw_dnd` object inheriting from `DnDBase` and containing an arbitrary number of dimensions, unlike other `DnD` objects which define their specific number of dimensions.  This object is retained for IO compatibility with previous versions of Horace code, and is not used in Horace for any other purpose except restoring  old data.
 
 The `DnDBase` base class is an abstract class holding the common data and common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing appropriate algorithms. The structure of `DnDBase` class together with its children, defining specific number of dimensions is presented in Fig.4:
 
