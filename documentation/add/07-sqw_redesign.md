@@ -85,7 +85,7 @@ Image pixel data is generated from the `PixelData` via one or more projections.
 **Notes**
 (1): if the image data is updated, e.g. after a slice or projection, the backing pixel data must be updated/reordered
 (2): `pix_signal` represents the array of pixel signal data from which this image data was derived, `pix_variance` the array of pixel variance.
-(3): The `axes_block` classes describes image axes, namely
+(3): The `axes_block` classes describe image axes, namely
 - value range
 - unit vectors
 - units
