@@ -50,7 +50,7 @@ classdef test_change_crystal_bragg_fine < TestCase
             % Parameters of the true lattice
             alatt_true=[5.5,5.5,5.5];
             angdeg_true=[90,90,90];
-            obj.qfwhh=0.1;                  % Spread of Bragg peaks
+            obj.qfwhh=0.1;              % Spread of Bragg peaks
             efwhh=1;                    % Energy width of Bragg peaks
             rotvec=[10,10,0]*(pi/180);  % orientation of the true lattice w.r.t reference lattice
 

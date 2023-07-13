@@ -27,7 +27,7 @@ function wout = mask_random_pixels(win,npix)
 
 if ~has_pixels(win)
     error('HORACE:sqw:invalid_argument', ...
-          'Can not mask random pixels on sqw object not containing any pixels')
+        'Can not mask random pixels on sqw object not containing any pixels')
 end
 
 wout = copy(win);
@@ -40,17 +40,17 @@ end
 
 if numel(npix) ~= numel(win)
     error('HORACE:sqw:invalid_argument', ...
-          'npix must either be scalar or an array of the same size as input sqw object');
+        'npix must either be scalar or an array of the same size as input sqw object');
 end
 
 if any(npix == 0)
     error('HORACE:sqw:invalid_argument', ...
-          'Cannot mask every pixel');
+        'Cannot mask every pixel');
 end
 
 if any(npix > arrayfun(@(x) x.pix.num_pixels, win))
     error('HORACE:sqw:invalid_argument', ...
-          'Cannot retain greater number of pixels than data contains');
+        'Cannot retain greater number of pixels than data contains');
 end
 
 for i=1:sz
