@@ -410,9 +410,6 @@ classdef ortho_proj<aProjectionBase
             axes_bl.ulen  = scales;
             axes_bl.hkle_axes_directions = obj.u_to_rlu;
             %
-            if obj.nonorthogonal
-                axes_bl.unit_cell = obj.unit_cell;
-            end
         end
 
         %

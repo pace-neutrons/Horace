@@ -22,10 +22,6 @@ classdef ortho_axes < AxesBlockBase
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Dependent)
-        unit_cell     % four-vector describing primary unit cell of the
-        % lattice. eye(4) in nonorthogonal == false and
-        % four-vector of the cell vectors for non-orthogonal
-
         % the matrix which describes the directions of the each axis in
         % hkl-dE coordinate system. Each column provides vector of the
         % direction for each axis in hkl-dE system of coordinates
@@ -39,8 +35,6 @@ classdef ortho_axes < AxesBlockBase
         axes_directions_defined;
     end
     properties(Access=protected)
-        %
-        unit_cell_ = [];
         % the holder for axes direction matrix
         hkle_axes_directions_
     end
@@ -82,20 +76,6 @@ classdef ortho_axes < AxesBlockBase
             % Get titling and caption information for an sqw data structure
             [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
                 data_plot_titles_(obj);
-        end
-
-        function cell = get.unit_cell(obj)
-            if isempty(obj.unit_cell_)
-                cell = eye(4);
-            else
-                cell = obj.unit_cell_;
-            end
-        end
-        function obj = set.unit_cell(obj,val)
-            obj = check_and_set_unit_cell_(obj,val);
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
         end
         %
         function mat = get.hkle_axes_directions(obj)
@@ -245,6 +225,11 @@ classdef ortho_axes < AxesBlockBase
             if isfield(inputs,'u_to_rlu')
                 inputs.hkle_axes_directions = inputs.u_to_rlu;
             end
+            if isfield(inputs,'u_to_rlu_legacy')
+                inputs.hkle_axes_directions = inputs.u_to_rlu_legacy;
+            end
+           
+            
             if isfield(inputs,'array_dat')
                 obj = obj.from_bare_struct(inputs.array_dat);
             else

@@ -62,7 +62,8 @@ classdef spher_proj<aProjectionBase
     properties(Constant,Access = private)
         % cellarray describing what letters are available to assign for
         % type properties.
-        % 'a' -- Angstrom, 'd' - degree, 'r' -- radians
+        % 'a' -- Angstrom, 'd' - degree, 'r' -- radians, e-energy transfer
+        % in mEv;
         types_available_ = {'a',{'d','r'},{'d','r'}};
     end
 
@@ -180,7 +181,7 @@ classdef spher_proj<aProjectionBase
             % copy the properties, which are normally defined on projection
             % into the axes block provided as input
             axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
-            axes_bl.angular_unit_is_rad = obj.type(2:3);
+            axes_bl.axes_units = obj.type;
             %
             axes_bl.ulen  = [1,1,1,1];
         end

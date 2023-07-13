@@ -9,6 +9,7 @@ function obj = set_angles_in_rad_(obj,val)
 obj.old_angular_unit_is_rad_ = obj.angular_unit_is_rad_;
 if isempty(val)
     obj.angular_unit_is_rad_ = [false,false];
+    obj.axes_units_(2:3) = 'dd';
     return;
 end
 if isstring(val)
@@ -32,7 +33,17 @@ end
 %
 obj.angular_unit_is_rad_ = val;
 %
+i=1:2;
+sym = arrayfun(@(i)convert_bool_to_val(val(i)),i);
+obj.axes_units_(2:3) = sym;
+%
 
+function ch = convert_bool_to_val(val)
+if val
+    ch = 'r';
+else
+    ch = 'd';
+end
 
 function bv = convert_val_to_bool(val)
 if val=='r'

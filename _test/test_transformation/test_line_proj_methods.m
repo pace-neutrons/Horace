@@ -26,21 +26,7 @@ classdef test_line_proj_methods<TestCase
             this.fake_sqw_par{1} = en;
             this.fake_sqw_par{2} = this.par_file;
         end
-
         %------------------------------------------------------------------
-        function test_get_axes_block_nonortho(~)
-            alatt = [2.83,2,3.83];
-            angdeg = [95,85,97];
-            pra = ortho_proj([1,1,0],[0, 1,0],'w',[1,1,1],'alatt',alatt,'angdeg',angdeg);
-            pra.nonorthogonal = true;
-
-            binning = {[-1,1],[-2,0.2,2],[0,1],[0,0.1,10]};
-            ax = pra.get_proj_axes_block(binning,binning);
-
-            assertTrue(ax.nonorthogonal)
-            assertEqual(ax.unit_cell,[1,1,0,0;0,1,0,0;1,1,1,0;0,0,0,1]');
-        end
-
     end
     %------------------------------------------------------------------
     methods % Test offset

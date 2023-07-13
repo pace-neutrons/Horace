@@ -260,19 +260,22 @@ classdef aProjectionBase < serializable
         function uoffset = get.img_offset(obj)
             % convert hkl offset into Crystal Cartesian
             if ~isempty(obj.tmp_img_offset_holder_)
-                uoffset = obj.tmp_img_offset_holder_;
+                uoffset = obj.tmp_img_offset_holder_(:)';
                 return;
             end
             if ~obj.alatt_defined || ~obj.angdeg_defined
                 uoffset = [];
                 return;
             end
-            hkl_offset = obj.offset_(:);
-            % nullify internal offset to kill side effects of offset to
-            % pix->img transformation. Results are local anyway.
-            obj.offset = zeros(1,4);
-            pix_offset_cc = obj.bmatrix(4)*hkl_offset;
-            uoffset = (obj.transform_pix_to_img(pix_offset_cc))';
+            uoffset  = zeros(1,4);
+            hkl_offset = obj.offset_(:)';
+            if ~isequal(hkl_offset,uoffset)
+                % nullify internal offset to kill side effects of offset to
+                % pix->img transformation. Results are local anyway.
+                obj.offset = zeros(1,4);
+                pix_offset_cc = obj.bmatrix(4)*hkl_offset(:);
+                uoffset = (obj.transform_pix_to_img(pix_offset_cc))';
+            end
         end
         function obj = set.img_offset(obj,val)
             % check common offset properties (shape, size) numeric value
@@ -936,10 +939,11 @@ classdef aProjectionBase < serializable
             % hkl offset if all necessary class properties are defined
             if ~isempty(obj.tmp_img_offset_holder_) && obj.alatt_defined && obj.angdeg_defined
                 img_offset_ = obj.tmp_img_offset_holder_(:);
-                obj.offset  = zeros(0,4); % nullify any previous offset
-                % to avoid side effects from transformations
-                % Note the public interface -- necessary for
-                % clearing the children caches properly
+
+                % Extract existing offset here to add it in the transformation                
+                offset_cc = obj.bmatrix(4)*obj.offset_(:);
+                img_offset_here_ = obj.transform_pix_to_img(offset_cc);
+                img_offset_ = img_offset_- img_offset_here_;
 
                 % transform offset into hkl coordinate system and set it
                 % using public interface (check interdependent properties)

@@ -33,3 +33,9 @@ if any(sz ~=obj.axes.dims_as_ssize)
         'size of data arrays: [%s] different from the size of the grid, defined by axes: [%s]', ...
         num2str(sz),num2str(obj.axes.dims_as_ssize) )
 end
+if ~isa(obj.axes,obj.proj.axes_name)
+    error('HORACE:DnDBase:invalid_argument', ...
+        'Can not construct DND object with incompartible combination of the projection (class %s) and axes_block (class %s)', ...
+        class(obj.proj),class(obj.axes));
+end
+obj.axes_ = obj.proj.copy_proj_defined_properties_to_axes(obj.axes);

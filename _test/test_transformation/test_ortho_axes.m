@@ -16,28 +16,6 @@ classdef test_ortho_axes < TestCase
 
         end
         %------------------------------------------------------------------
-        function test_set_nonorthogonal_cell_throws_separately(~)
-            range= zeros(2,4);
-            range(2,:) = 1;
-            oa = ortho_axes('img_range',range,'nbins_all_dims', ...
-                [1,20,20,1]);
-            function thrower(cl,prop,val)
-                cl.(prop) = val;
-            end
-
-            assertExceptionThrown(@()thrower(oa,'nonorthogonal',true), ...
-                'HORACE:ortho_axes:invalid_argument');
-        end
-        %
-        function test_unit_cell_set_get(~)
-            range= zeros(2,4);
-            range(2,:) = 1;
-            oa = ortho_axes('img_range',range,'nbins_all_dims', ...
-                [1,20,20,1],'unit_cell',[eye(4)]);
-
-            assertEqual(oa.unit_cell,eye(4));
-        end
-        %------------------------------------------------------------------
         function test_correct_binning_and_indx_2D(~)
             dbr = [0,0.1,0,0.5;1,1.9,3,9.5];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
@@ -812,7 +790,7 @@ classdef test_ortho_axes < TestCase
                 [dbr(1,3),0.3,dbr(2,3)],[dbr(1,4),dbr(2,4)]};
             ab = ortho_axes(bin0{:});
 
-            tob = DnDBase.dnd(ab,ortho_proj());
+            tob = DnDBase.dnd(ab,ortho_proj('alatt',2.7,'angdeg',90));
             range  = tob.targ_range([],'-binning');
 
             assertEqual(bin0,range);

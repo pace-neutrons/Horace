@@ -212,6 +212,9 @@ classdef instr_proj<aProjectionBase
         %
     end
     methods(Access = protected)
+        function name = get_axes_name(~)
+            name = 'ortho_proj';
+        end
     end
     methods(Access = protected)
         function  alat = get_alatt_(obj)

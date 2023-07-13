@@ -402,13 +402,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             end
             % keep the state of the check_combo_arg synchronized with whole
             % class check_cobo_arg state
-            check_combo_ = obj.proj_.do_check_combo_arg;
             obj.proj_ = val;
-            obj.axes_.label = val.label;
-            if ~isempty(val.title)
-                obj.axes_.title = val.title;
+            if obj.do_check_combo_arg
+                obj = obj.check_combo_arg();
             end
-            obj.proj_.do_check_combo_arg = check_combo_;
         end
         function range = get.img_range(obj)
             range = obj.axes_.img_range;
