@@ -33,10 +33,9 @@ classdef test_ortho_axes < TestCase
             range= zeros(2,4);
             range(2,:) = 1;
             oa = ortho_axes('img_range',range,'nbins_all_dims', ...
-                [1,20,20,1],'nonorthogonal',true,'unit_cell',[eye(4)]);
+                [1,20,20,1],'unit_cell',[eye(4)]);
 
             assertEqual(oa.unit_cell,eye(4));
-            assertTrue(oa.nonorthogonal);            
         end
         %------------------------------------------------------------------
         function test_correct_binning_and_indx_2D(~)

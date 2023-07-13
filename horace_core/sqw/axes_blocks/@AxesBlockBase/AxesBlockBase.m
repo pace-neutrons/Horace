@@ -92,6 +92,10 @@ classdef AxesBlockBase < serializable
         % May be set up locally on an object but have defaults specific for
         % each axes block
         changes_aspect_ratio;
+
+        % shift between the origin of the axes block and the origin of
+        % hkl-dE coordinate system (in rlu-dE, hkl units, not rotated)
+        offset
     end
 
     properties(Access=protected)
@@ -115,6 +119,8 @@ classdef AxesBlockBase < serializable
         changes_aspect_ratio_=true;
         % maximal range the image can have
         max_img_range_ = [-inf,-inf,-inf,-inf;inf,inf,inf,inf];
+        %
+        offset_ = [0,0,0,0];
     end
     properties(Dependent,Hidden)
         full_filename % convenience property as fullfile(filepath, filename)
@@ -280,6 +286,13 @@ classdef AxesBlockBase < serializable
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
+        end
+        %
+        function off = get.offset(obj)
+            off = obj.offset_;
+        end
+        function obj = set.offset(obj,val)
+            obj = check_and_set_offset_(obj,val);
         end
         %
         function is = get.single_bin_defines_iax(obj)
@@ -752,7 +765,7 @@ classdef AxesBlockBase < serializable
         % recover it state by setting properties through public interface
         fields_to_save_ = {'title','filename','filepath',...
             'label','ulen','img_range','nbins_all_dims','single_bin_defines_iax',...
-            'dax','changes_aspect_ratio'};
+            'dax','offset','changes_aspect_ratio'};
     end
 
     methods

@@ -211,7 +211,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %
             % note: axes annotations correctly account for permutation in w.data_.dax
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = ...
-                obj.axes.data_plot_titles(obj);
+                obj.axes.data_plot_titles();
         end
 
         % calculate the range of the image to be produced by target

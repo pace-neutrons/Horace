@@ -94,11 +94,14 @@ classdef aProjectionBase < serializable
         angdeg_defined
         % old interface to img_offset for old data containing a
         % structure with the value of this property, or old user scripts
-		% which define structure with this value.
+        % which define structure with this value.
         uoffset
+        % Helper property, which specifies the name of the axes class,
+        % which corresponds to this projection
+        axes_name
     end
 
-    properties(Constant, Access=protected)
+    properties(Constant, Hidden)
         % minimal value of a vector norm e.g. how close couple of unit vectors
         % should be to be considered parallel. u*v are orthogonal if u*v'<tol
         % or they are parallel if the length of their vector product
@@ -305,7 +308,7 @@ classdef aProjectionBase < serializable
             if ~obj.alatt_defined||~obj.angdeg_defined
                 error('HORACE:aProjectionBase:runtime_error', ...
                     ['Attempt to use hkl-coordinate transformations before lattice',...
-					' parameters are defined.\n', ...
+                    ' parameters are defined.\n', ...
                     ' You have alatt= %s, angdeg = %s. Define lattice parameters first'], ...
                     mat2str(obj.alatt_),mat2str(obj.angdeg_))
             end
@@ -372,6 +375,9 @@ classdef aProjectionBase < serializable
         end
         function obj = set.uoffset(obj,val)
             obj.img_offset = val;
+        end
+        function name = get.axes_name(obj)
+            name = get_axes_name(obj);
         end
     end
 
@@ -674,15 +680,20 @@ classdef aProjectionBase < serializable
             % ax_bl -- initialized, i.e. containing defined ranges and
             %          numbers of  bins in each direction, AxesBlockBase
             %          corresponding to the projection
-            cl_name = class(obj);
-            cl_type = split(cl_name,'_');
-            proj_class_name = [cl_type{1},'_axes'];
+            ax_name = obj.axes_name;
             ax_bl = AxesBlockBase.build_from_input_binning(...
-                proj_class_name,def_bin_ranges,req_bin_ranges);
-            ax_bl.label = obj.label;
+                ax_name,def_bin_ranges,req_bin_ranges);
+            ax_bl = obj.copy_proj_defined_properties_to_axes(ax_bl);
+        end
+        %
+        function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
+            % copy the properties, which are normally defined on projection
+            % into the axes block provided as input
+            axes_bl.label = obj.label;
             if ~isempty(obj.title)
-                ax_bl.title = obj.title;
+                axes_bl.title = obj.title;
             end
+            axes_bl.offset = obj.offset;
         end
         %
         function targ_range = calc_pix_img_range(obj,pix_origin,varargin)
@@ -712,6 +723,13 @@ classdef aProjectionBase < serializable
     end
     %======================================================================
     methods(Access = protected)
+        function name = get_axes_name(obj)
+            % return the name of the axes class, which corresponds to this
+            % projection
+            cl_name = class(obj);
+            cl_type = split(cl_name,'_');
+            name = [cl_type{1},'_axes'];
+        end
         function  alat = get_alatt_(obj)
             % overloadable alatt accessor
             alat  = obj.alatt_;

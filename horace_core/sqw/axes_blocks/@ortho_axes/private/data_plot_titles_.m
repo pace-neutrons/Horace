@@ -64,12 +64,12 @@ for i=1:length(iax)
     end
     iint_offset(iax(i))= iint_ave;  % overall displacement of plot volume image coordinate system
 end
-if ~isempty(proj) && isa(proj,"aProjectionBase")
-    offset_tot = proj.tansform_img_to_hkl(iint_offset(:));
-else
-    iint_hkle = obj.u_to_rlu*iint_offset(:);
-    offset_tot= offset(:)' + iint_hkle(:)';    
+if ~isequal(iint_offset,zeros(4,1))
+    iint_offset = u_to_rlu*iint_offset(:);
 end
+offset_tot= offset(:)' + iint_offset(:)';    
+
+
 % overal displacement of plot volume in hkle;
 
 

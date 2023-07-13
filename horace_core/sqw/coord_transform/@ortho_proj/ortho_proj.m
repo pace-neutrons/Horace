@@ -401,20 +401,20 @@ classdef ortho_proj<aProjectionBase
             %
             pix_cc = transform_img_to_pix_(obj,pix_hkl);
         end
-
         %
-        function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
-            % return the axes block, corresponding to this projection class.
-            ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
+        function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
+            % copy the properties, which are normally defined on projection
+            % into the axes block provided as input
+            axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
             [~,~,scales]  = obj.get_pix_img_transformation(3);
-            ax_bl.ulen  = scales;
-            ax_bl.hkle_axes_directions = obj.u_to_rlu;
+            axes_bl.ulen  = scales;
+            axes_bl.hkle_axes_directions = obj.u_to_rlu;
             %
             if obj.nonorthogonal
-                ax_bl.unit_cell = obj.unit_cell;
-                ax_bl.nonorthogonal = true;
+                axes_bl.unit_cell = obj.unit_cell;
             end
         end
+
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
             % Converts from current to target projection coordinate system.

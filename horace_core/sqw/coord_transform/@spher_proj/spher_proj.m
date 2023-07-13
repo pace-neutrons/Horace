@@ -176,13 +176,15 @@ classdef spher_proj<aProjectionBase
         %------------------------------------------------------------------
         % Particular implementation of aProjectionBase abstract interface
         %------------------------------------------------------------------
-        function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
-            % return the axes block, corresponding to this projection class.
-            ax_bl = get_proj_axes_block@aProjectionBase(obj,default_binning_ranges,req_binning_ranges);
-            ax_bl.angular_unit_is_rad = obj.type(2:3);
+        function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
+            % copy the properties, which are normally defined on projection
+            % into the axes block provided as input
+            axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
+            axes_bl.angular_unit_is_rad = obj.type(2:3);
             %
-            ax_bl.ulen  = [1,1,1,1];
+            axes_bl.ulen  = [1,1,1,1];
         end
+
 
 
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)

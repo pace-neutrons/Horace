@@ -26,7 +26,7 @@ classdef ortho_axes < AxesBlockBase
         % lattice. eye(4) in nonorthogonal == false and
         % four-vector of the cell vectors for non-orthogonal
 
-        % the matrix which describes the directions of the each axis in 
+        % the matrix which describes the directions of the each axis in
         % hkl-dE coordinate system. Each column provides vector of the
         % direction for each axis in hkl-dE system of coordinates
         hkle_axes_directions
@@ -34,12 +34,15 @@ classdef ortho_axes < AxesBlockBase
     properties(Dependent,Hidden)
         % old interface to label
         ulabel
+        % service field, which specifies if hkle_axes_direction matrix is
+        % defined
+        axes_directions_defined;
     end
     properties(Access=protected)
         %
         unit_cell_ = [];
         % the holder for axes direction matrix
-        hkle_axes_directions_ 
+        hkle_axes_directions_
     end
 
     methods
@@ -94,15 +97,19 @@ classdef ortho_axes < AxesBlockBase
                 obj = obj.check_combo_arg();
             end
         end
+        %
         function mat = get.hkle_axes_directions(obj)
             if isempty(obj.hkle_axes_directions_)
                 mat = eye(4);
             else
-                mat = obj.hkle_axes_directions_;                
+                mat = obj.hkle_axes_directions_;
             end
         end
         function obj = set.hkle_axes_directions(obj,val)
             obj = check_and_set_hkle_axes_directions_(obj,val);
+        end
+        function is = get.axes_directions_defined(obj)
+            is = ~isempty(obj.hkle_axes_directions_);
         end
         %------------------------------------------------------------------
         % old interface
@@ -199,7 +206,7 @@ classdef ortho_axes < AxesBlockBase
         end
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % savable class allowing loading ortho_axes from a suitable 
+            % savable class allowing loading ortho_axes from a suitable
             % structure (e.g. obtaned fron struct(ortho_axes) operation)
             obj = ortho_axes();
             obj = loadobj@serializable(S,obj);

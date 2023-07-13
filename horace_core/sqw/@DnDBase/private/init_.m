@@ -27,27 +27,46 @@ for i=1:args.array_numel
         % ii) struct
     elseif ~isempty(args.data_struct)
         obj_in{i} = obj(i).from_bare_struct(args.data_struct{i});
+        if isfield(args.data_struct{i},'axes') && isfield(args.data_struct{i},'proj')
+            obj_in{i}.axes = synchronize_axes_and_projection(obj_in{i}.axes, ...
+                args.data_struct{i}.proj);
+        end
     elseif ~isempty(args.set_of_fields)
         if isempty(args.keys)
             keys = obj.saveableFields();
-            obj_in{i} = set_positional_and_key_val_arguments(obj,...
-                keys,false,args.set_of_fields{:});
-            % copy label from projection to axes block in case it
-            % has been redefined on projection
-            is_proj = cellfun(@(x)isa(x,'aProjectionBase'),args.set_of_fields);
-            if any(is_proj)
-                obj_in{i}.axes.label = args.set_of_fields{is_proj}.label;
-            end
         else
-            obj_in{i} = set_positional_and_key_val_arguments(obj,...
-                args.keys,false,args.set_of_fields{:});
+            keys = args.keys;
         end
+        obj_in{i} = set_positional_and_key_val_arguments(obj,...
+            keys,false,args.set_of_fields{:});
+        obj_in{i}.axes = synchronize_axes_and_projection(obj_in{i}.axes, ...
+            args.set_of_fields{:});
+
     elseif ~isempty(args.sqw_obj)
         obj_in{i} = args.sqw_obj(i).data;
     end
 end
 obj = [obj_in{:}];
 obj = reshape(obj,args.array_size);
+
+function ax_bl = synchronize_axes_and_projection(ax_bl,varargin)
+% copy label from projection to axes block in case it
+% has been redefined in projection
+%
+% Also define other axes parameters which normally retrieved from
+% projection when axes_block is obtained from get_proj_axes_block function
+%
+is_proj = cellfun(@(x)isa(x,'aProjectionBase'),varargin);
+if ~any(is_proj)
+    return
+end
+proj = varargin{is_proj};
+if ~isa(ax_bl,proj.axes_name)
+    error('HORACE:DnDBase:invalid_argument', ...
+        'Can not construct DND object with incompartible combination of the projection (class %s) and axes_block (class %s)', ...
+        class(proj),class(ax_bl));
+end
+ax_bl = proj.copy_proj_defined_properties_to_axes(ax_bl);
 
 function args = parse_args_(obj, varargin)
 % Parse the argument passed to the DnD constructor.
