@@ -15,7 +15,7 @@ The object provides an interface to the Horace file which can be interchanged wi
 
 The `sqw` object contains two information blocks, describing experiment from different sides and under different approximations:
 
-- `dnd-object` which is the part of the `SQW` object contains processed neutron image data, expressed in the system of coordinates, requested by the neutron physicist doing experiment. Very often its `hkl-dE` (three reciprocal lattice units and energy transfer) coordinate system, but it is possible to define other coordinate system of interest too. Later we will discuss different coordinate system, related to `dnd` object in more details.
+- `dnd-object` which is the part of the `SQW` object contains processed neutron image data, expressed in the system of coordinates, requested by the neutron physicist doing experiment. Very often its rotated `hkl-dE` (three reciprocal lattice units and energy transfer where reciprocal lattice is chosen along direction of interest in reciprocal space) coordinate systems, but it is possible to define other coordinate systems of interest too. Later we will discuss different coordinate systems, related to `dnd` object in more details.
 - `sqw-object` itself contains, in addition to the image data of `dnd` object,  (a) the records of all neutron events occurring in the experiments, expressed (currently) in Crystal Cartesian coordinate system, (b) the information about all experimental runs the neutron events have been obtained from, (c) information about the instrument and sample used in the experiment, (d) the instrument states during the experiment and (e) the information about detector pixel array used to collect neutron events. This information is sufficient to calculate the resolution function of the instrument. The neutron events are held in the relevant `PixelDataBase` child class (`PixelDataBaseFilebacked` or `PixelDataBaseMemory`), and arranged in such a way that selection of a part of the `dnd-object` neutron image allows the effective selection of the appropriate part of the `PixelDataBase` events contributing to this part of the image.
 
 
@@ -42,7 +42,8 @@ Currently it also include common methods, in particular the large number of unar
 
 The `sqw` object provides the public API to all the relevant experimental data. The main data manipulations are performed on the `PixelDataBase` property `pix` and the `Image` stored in property `data`,  containing the `dnd` object corresponding to the `sqw` object, which is recalculated according to the operations performed over the pixels.
 
-This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally very large dataset, `sqw` object in number of operations may be used leaving the `PixelData` untouched. Alternatively, when `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` can be performed on separate data chunks loaded and processed in memory, leaving the main `PixelData` arrays located in files.
+This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally very large dataset, operations on `sqw` object normally do not change this dataset and create new instance of modified dataset, which contains subset of initial but not modified `PiexlData`. When `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` are performed on data chunks loaded and processed in memory, leaving the original `PixelData` arrays located in files.
+
 The structure of a generic `sqw` object is presented in Fig.2:
 
 ![Fig.2. SQW Class Overview](../diagrams/sqw.png)
@@ -78,7 +79,7 @@ Image pixel data is generated from the `PixelData` via one or more projections.
 | signal[] | Mean intensity, calculated as `Sum(pix_signal(k))/npix(k)` | (1), (2) |
 | err[] | Average error, calculated as  `sqrt(Sum(pix_variance(k)/npix(k)))` |(1), (2) |
 | npix[] | Number of detector pixels contributing to each image pixel even if the signal on this image pixel is equal to zero.||
-| proj | The instance of `aProjection` class, describing the transformation used for builing this image | |
+| proj | The instance of `aProjection` class, describing the transformation used for building this image | |
 | axes | The instance of `AxesBlockBase` class, defining the shape and size of *signal* *err* and *npix* arrays and the units along their axes |(3) |
 
 
@@ -97,7 +98,7 @@ The Image block ( **DnD class**) consists of 1) an **axes_block** class, definin
 
 The cut algorithm takes existing **sqw** object containing existing **projection** and **axes_block** classes, retrieves target **projection** and **axes_block** classes from the input binning parameters of the cut, and calculates *npix*, *signal* and *error* from the pixel information present in the source **sqw** object, or from  *npix*, *signal* and *error* of the source object if the pixel information is not present in the source object.
 
-#### A projection class
+#### A Projection classes
 The family of existing projection classes is presented on the Fig.5:
 
 ![Fig.5. Projections family](../diagrams/new_projection.png)
