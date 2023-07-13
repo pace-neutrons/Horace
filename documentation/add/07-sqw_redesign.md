@@ -117,7 +117,7 @@ Main properties and methods of `aProjectionBase` class and other projection clas
 | title|  string | title to place over the plots of the cuts built using this projection |
 | *Methods:*
 | **Method** | **Output type** | **Notes** |
-| get_nrange | [bl_start,bl_size] arrays | return the positions (wrt the position of the first pixel which is 1) and the sizes of the pixels blocks belonging to the cells which may contribute to the final cut. The cells are defined by the projections and axes block-s, provided as input.|
+| get_nrange | [bl_start,bl_size] arrays | return the positions (wrt the position of the first pixel which is 1) and the sizes of the pixels blocks belonging to the cells which may contribute to the final cut. The cells are defined by the projections and axes blocks provided as input.|
 | bin_pixels | Contributed pixels and various image averages | Convert pixels into the coordinate system defined by the projection and bin them into the coordinate system defined by the axes block, specified as input.|
 | transform_pix_to_hkl| pix_hkl 3xNpix or 4xNpix array of floats| Converts from pixel coordinate system (Crystal Cartesian) to `hkl` coordinate system 3xNpix or 4xNpix array of `PixelData` coordinates provided as input, where Npix is number of columns in the array provided |
 | tansform_img_to_hkl | pix_hkl 3xNpix or 4xNpix array of floats| Converts from image coordinate system to `hkl` coordinate system 3xNpix or 4xNpix array of image coordinates provided as input, where Npix is number of columns in the array provided. The array is expressed in the units of the image the projection defines | 
