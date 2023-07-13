@@ -40,7 +40,7 @@ Currently it also include common methods, in particular the large number of unar
 
 ### SQW
 
-The `sqw` object provides the public API to the all relevant experimental data. Main data manipulations are performed on the `PixelDataBase` property `pix` and the `Image` stored in property `data` and containing `dnd` object corresponding to the `sqw` object is recalculated accordingly to the operations performed over the pixels.
+The `sqw` object provides the public API to all the relevant experimental data. The main data manipulations are performed on the `PixelDataBase` property `pix` and the `Image` stored in property `data`,  containing the `dnd` object corresponding to the `sqw` object, which is recalculated according to the operations performed over the pixels.
 
 This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally very large dataset, `sqw` object in number of operations may be used leaving the `PixelData` untouched. Alternatively, when `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` can be performed on separate data chunks loaded and processed in memory, leaving the main `PixelData` arrays located in files.
 The structure of a generic `sqw` object is presented in Fig.2:
