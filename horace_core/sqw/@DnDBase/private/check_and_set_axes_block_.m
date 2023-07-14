@@ -10,5 +10,5 @@ end
 %
 obj.axes_ = val;
 if obj.do_check_combo_arg_
-    obj = obj.check_combo_arg();
+    obj = obj.check_combo_arg('no_proj_copy');
 end
