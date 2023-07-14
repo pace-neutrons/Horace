@@ -127,10 +127,7 @@ classdef test_serialize < TestCaseWithSave
         end
 
         function test_ser_serializeble_obj(~)
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
             %--------------------------------------------------------------
             serCl = serializableTester2();
             serCl.Prop_class2_1=100;
@@ -184,7 +181,6 @@ classdef test_serialize < TestCaseWithSave
         end
 
         function test_ser_datamessage_array(~)
-            skipTest('Old serialiser does not support serialising object arrays')
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                 'dee',struct('a',10),'ei',int32([9;8;7]));
             test_obj = [DataMessage(my_struc), DataMessage(10), DataMessage('Hello')];

@@ -150,10 +150,6 @@ elseif numel(par)~=0
         'Check the number and type of optional arguments')
 end
 
-if ~isempty(proj) && ~isa(proj,'ortho_proj')
-    proj = ortho_proj(proj);
-end
-
 if ~(isnumeric(pax) && (numel(pax)==2 || numel(pax)==3) &&...
         numel(unique(pax))==numel(pax) && all(pax>=1) && all(pax<=4))
     error('HORACE:resolution_plot:invalid_argument',...
@@ -249,23 +245,42 @@ wres.detpar = detpar;
 
 
 % Make data structure
-if ~isempty(proj) 
-    proj.do_check_combo_arg = false;
-    proj.alatt = lat.alatt;
-    proj.angdeg = lat.angdeg;
-    proj.u = lat.u;
-    proj.v = lat.v;
-    proj.do_check_combo_arg = true;
-    proj = proj.check_combo_arg();
-else
-    proj = fudge_proj('alatt',lat.alatt,'angdeg',lat.angdeg); % deal with fuge_projection Ticket #840
-    proj.spec_to_rlu = spec_to_rlu;
-end
-%proj = proj.set_ub_inv_compat(spec_to_rlu); % This operation was in the
-%                                              previous code and it looks completely wrong
 ax = ortho_axes('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));
 ax.label = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 
+
+if isempty(proj)
+    proj = fudge_proj('alatt',lat.alatt,'angdeg',lat.angdeg); % deal with fuge_projection Ticket #840
+    proj.spec_to_rlu = spec_to_rlu;
+    % plot aspect ratio is adjusted only in case of projection provided
+else
+    % create ortho projection and assign lattice to it
+    if isa(proj,'ortho_proj')
+        if ~proj.alatt_defined
+            proj.alatt = alatt;
+        end
+        if ~proj.angdeg_defined
+            proj.angdeg = angdeg;
+        end
+    elseif isstruct(proj)
+        if ~isfield(proj,'alatt')
+            proj.alatt = alatt;
+        end
+        if ~isfield(proj,'angdeg')
+            proj.angdeg = angdeg;
+        end
+        proj = ortho_proj(proj);
+
+    else
+        error('HORACE:resolution_plot:invalid_argument',...
+            ['projection, if provided, must be an instance of ortho_proj ' ...
+            'class or structure convertable into it.\n' ...
+            ' Other types of projections have not been implemented']);
+    end
+    % plot aspect ratio is adjusted according to ulen
+    ax.ulen = proj.ulen;
+end
+%
 wres.data = DnDBase.dnd(ax,proj, ...
     [0,0,0; 0,NaN,0; 0,0,0],[0,0,0; 0,NaN,0; 0,0,0],[0,0,0; 0,1,0; 0,0,0]);
 wres.pix = PixelDataBase.create([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but this is OK
@@ -293,7 +308,7 @@ end
 
 % If newplot, then tidy up the plot
 if newplot
-    % Delete the meaningless colorslider and unwanted title
+    % Delete the meaningless colour-slider and unwanted title
     colorslider('delete')
     delete(get(gca,'title'))
 

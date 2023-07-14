@@ -54,12 +54,8 @@ classdef test_faccess_sqw_v3< TestCase
 
         end
         function obj = test_save_load_sqwV31_crossbuf(obj)
-            hc    = hor_config;
-            mchs  = hc.mem_chunk_size;
-            hc.mem_chunk_size = 1000;
-            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
-            ws = warning('off','HORACE:old_file_format');
-            clObW = onCleanup(@()warning(ws));
+            clob1 = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+            clObW = set_temporary_warning('off','HORACE:old_file_format');
 
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3_1.sqw');
@@ -77,7 +73,7 @@ classdef test_faccess_sqw_v3< TestCase
             sqw_ob = sqw_ob.change_header(hdr);
 
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()file_delete(tf));
 
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob,tf);
@@ -97,7 +93,7 @@ classdef test_faccess_sqw_v3< TestCase
             ver_obj.experiment_info.runid_recalculated = true;
             assertEqualToTol(sqw_ob,ver_obj,1.e-7,'-ignore_date','ignore_str',true);
         end
-        
+
         %
         function obj = test_init_and_get(obj)
             to = faccess_sqw_v3();
@@ -200,8 +196,7 @@ classdef test_faccess_sqw_v3< TestCase
         function test_save_sqw2to3(obj)
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3.sqw');
-            warning('off','SQW_FILE_IO:legacy_data');
-            clob0 = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
+            clob0 = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             so = faccess_sqw_v2(samp_f);
             sqw_ob = so.get_sqw();
@@ -221,7 +216,7 @@ classdef test_faccess_sqw_v3< TestCase
             tob = tob.init(sqw_ob);
 
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()file_delete(tf));
 
             tob = tob.set_file_to_update(tf);
             tob=tob.put_sqw();
@@ -251,7 +246,7 @@ classdef test_faccess_sqw_v3< TestCase
             sqw_ob = sqw_ob.change_header(hdr);
 
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()file_delete(tf));
 
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob,tf);
@@ -282,7 +277,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(isa(sqw_ob,'sqw'));
 
             tf = fullfile(tmp_dir,'test_save_sqwV3toV2.sqw');
-            clob = onCleanup(@()delete(tf));
+            clob = onCleanup(@()file_delete(tf));
 
             tob = faccess_sqw_v3(sqw_ob);
             tob = tob.set_file_to_update(tf);
@@ -305,7 +300,7 @@ classdef test_faccess_sqw_v3< TestCase
             tob1.delete();
         end
         %
-        function test_serialize_deserialise_faccess(obj)
+        function test_serialize_deserialize_faccess(obj)
             fo = faccess_sqw_v3();
             fo = fo.init(obj.sample_file);
 
@@ -330,9 +325,9 @@ classdef test_faccess_sqw_v3< TestCase
             test_name_2 = 'test_wrong_file_name_activated_2.sqw';
             targ_file_2 = fullfile(tmp_dir(),test_name_2);
             wrt.delete();
-            clob_for_tf1 = onCleanup(@()delete(targ_file));
+            clob_for_tf1 = onCleanup(@()file_delete(targ_file));
             copyfile(targ_file,targ_file_2);
-            clob_for_tf2 = onCleanup(@()delete(targ_file_2));
+            clob_for_tf2 = onCleanup(@()file_delete(targ_file_2));
 
             % test file has been recovered with the name test_name_2.
             ld = sqw_formats_factory.instance.get_loader(targ_file_2);
@@ -345,7 +340,7 @@ classdef test_faccess_sqw_v3< TestCase
             test_name = 'test_correct_activation.sqw';
             targ_file = fullfile(tmp_dir(),test_name);
             copyfile(obj.sample_file,targ_file);
-            clob = onCleanup(@()delete(targ_file));
+            clob = onCleanup(@()file_delete(targ_file));
 
             fo = faccess_sqw_v3();
             fo = fo.init(targ_file);

@@ -12,7 +12,7 @@ function [stream,fid,mess] = read_header_(file_name,buf_size,varargin)
 % returns:
 % stream      -- buf_size uint8 array of bytes of size buf_size containing
 %                binary file header contents
-% fid         -- Matlab identifier of the opened file with binary data
+% fid         -- MATLAB identifier of the opened file with binary data
 % mess        -- empty if opening and initial read of the file was
 %                successful. If problem happened with operations, contains
 %                message, providing information about the problem.
@@ -43,11 +43,11 @@ if isnumeric(file_name)
     fid=file_name;  % copy fid
     do_fseek(fid,0,'bof');  % set the file position indicator to the start of the file
 else
-    fid=fopen(file_name,permission_req);
-    if fid<0
-        mess=['Unable to open file: ',file_name];
-        return
+    if ~isfile(file_name)
+        error('HORACE:horace_binfile_interface:io_error',...        
+            'file %s does not exist',file_name);
     end
+    fid=sqw_fopen(file_name,permission_req);
 end
 % read enough data to understand the file is sqw file
 stream = fread(fid,buf_size,'*uint8');

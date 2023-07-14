@@ -50,7 +50,7 @@ end
 % Should be done elsewhere
 %[pix_starts, pix_bl_sizes] = merge_adjacent_ranges(pix_starts, pix_bl_sizes);
 
-% TODO: verify if there are any performance benifits from commented
+% TODO: verify if there are any performance benefits from commented
 % code or the currently enabled code. (see
 % [#686](https://github.com/pace-neutrons/Horace/issues/686))
 
@@ -65,7 +65,7 @@ end
 %     num_pix_to_read = pix_ends(i) - pix_starts(i) + 1;
 %
 %     read_size = [PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pix_to_read];
-%     %blocks{i} = fread_catch(obj.file_id_, read_size, '*float32');
+%     %blocks{i} = fread(obj.file_id_, read_size, '*float32');
 %     blocks{i} = fread(obj.file_id_,read_size, '*float32');
 %
 %     try

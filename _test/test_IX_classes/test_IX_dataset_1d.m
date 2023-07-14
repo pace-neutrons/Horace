@@ -16,7 +16,7 @@ classdef test_IX_dataset_1d <  TestCase
         end
         function test_d1d_to_IX_dataset1D(~ )
             ax = ortho_axes([0,1],[0,0.1,1],[0,1],[5,10]);
-            proj = ortho_proj();
+            proj = ortho_proj('alatt',3,'angdeg',90);
             d1d_obj = d1d(ax,proj);
             d1d_obj.s = 1:0.1:2;
             d1d_obj.e = 1:0.1:2;

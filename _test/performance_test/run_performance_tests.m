@@ -37,7 +37,7 @@ end
 if nargin == 2
     selected_tests = varargin{2};
 else
-    selected_tests = [];    
+    selected_tests = [];
 end
 
 %--------------------------------------------------------------------------
@@ -55,9 +55,8 @@ hor_tes.n_files_to_use = 50;
 % to test file combine operations separately.
 hc = hor_config;
 % get the data one needs to restore
-hcd = hc.get_data_to_store;
-clob_tmp = onCleanup(@()set(hc,hcd));
-hc.delete_tmp = 0;
+clob_tmp = set_temporary_config_options(hor_config, 'delete_tmp', false);
+
 %--------------------------------------------------------------------------
 % run performance tests for medium size file
 medium_perf = hor_tes.workflow_performance(n_workers,selected_tests);
@@ -81,5 +80,3 @@ perf_res.large_ds_perf = large_perf;
 %
 hor_tes.save_performance();
 hor_tes.save_to_csv();
-
-

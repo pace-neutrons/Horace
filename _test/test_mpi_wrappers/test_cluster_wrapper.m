@@ -156,8 +156,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             % clear configuration from memory to ensure the configuration
             % will be rebuild as Jenkins configuration
             config_store.instance().clear_all();
-            ws = warning('off','HERBERT:config_store:runtime_error');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HERBERT:config_store:runtime_error');
 
             obj.test_cluster_init();
 

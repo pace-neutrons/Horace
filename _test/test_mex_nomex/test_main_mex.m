@@ -59,14 +59,9 @@ classdef test_main_mex < TestCase
 
             [data,pix]=gen_fake_accum_cut_data(obj,[1,0,0],[0,1,0]);
 
-            hc = hor_config;
-            par = parallel_config;
-            hc.saveable = false;
-            ds = hc.get_data_to_store();
-            clOb = onCleanup(@()set(hc,ds));
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+            clObPar = set_temporary_config_options(parallel_config, 'threads', 1);
 
-            par.threads = 1;
-            hc.use_mex= true;
             [npix_1,s_1,e_1,pix_ok_1,unique_runid_1] = ...
                 cut_data_from_file_job.bin_pixels(data.proj,data.axes,pix);
 
@@ -167,13 +162,14 @@ classdef test_main_mex < TestCase
         end
 
         function test_recompute_bin_data(obj)
-            hc = hor_config;
-            par = parallel_config;
-            log_level = hc.log_level;
-            n_threads = par.threads;
 
-            cleanup_obj=onCleanup(@()set(hor_config,'log_level',log_level));
-            cleanup_obj2=onCleanup(@()set(parallel_config,'threads',n_threads));
+            hc = hor_config;
+            pc = parallel_config;
+            cleanup_obj_hc = set_temporary_config_options(hor_config, ...
+                                                          'log_level', -1, ...
+                                                          'use_mex', false ...
+                                                         );
+            cleanup_obj_pc = set_temporary_config_options(parallel_config, 'threads', 8);
 
             test_sqw = sqw();
             pix=PixelDataBase.create(ones(9,40000));
@@ -187,13 +183,11 @@ classdef test_main_mex < TestCase
             test_sqw.data.npix = npix;
             test_sqw.pix  = pix;
 
-            hc.use_mex = false;
             new_sqw = recompute_bin_data(test_sqw);
             s = new_sqw.data.s;
             e = new_sqw.data.e;
             assertElementsAlmostEqual(4*s,npix);
             assertElementsAlmostEqual((4*4)*e,npix);
-
 
             if obj.no_mex
                 skipTest('MEX code is broken and can not be used to check against Matlab for recompute_bin_data');
@@ -209,19 +203,18 @@ classdef test_main_mex < TestCase
             par.threads = 8;
             new_sqw2 = recompute_bin_data(test_sqw);
             assertElementsAlmostEqual(new_sqw2.data.s,s)
+
             assertElementsAlmostEqual(new_sqw2.data.e,e)
 
         end
 
         function test_sort_pix(obj)
             % prepare pixels to sort
-            hc = hor_config;
-            par = parallel_config;
-            log_level = hc.log_level;
-            n_threads = par.threads;
-
-            cleanup_obj=onCleanup(@()set(hor_config,'log_level',log_level));
-            cleanup_obj2=onCleanup(@()set(parallel_config,'threads',n_threads));
+            cleanup_obj_hc = set_temporary_config_options(hor_config, ...
+                                                          'log_level', -1, ...
+                                                          'use_mex', false ...
+                                                         );
+            cleanup_obj_pc = set_temporary_config_options(parallel_config, 'threads', 8);
 
             pix=ones(9,40000);
             xs = 9.6:-1:0.6;

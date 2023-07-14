@@ -39,7 +39,7 @@ classdef PixelDataMemory < PixelDataBase
     %                    Cartesian coordinates in projection axes, units are per Angstrom (1 x n arrays)
     %   dE             - The energy transfer value for each pixel in meV (1 x n array)
     %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
-    %   q_coordinates  - The spacial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
+    %   q_coordinates  - The spatial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
     %   run_idx        - The run index the pixel originated from (1 x n array)
     %   detector_idx   - The detector group number in the detector listing for the pixels (1 x n array)
     %   energy_idx     - The energy bin numbers (1 x n array)
@@ -57,18 +57,29 @@ classdef PixelDataMemory < PixelDataBase
         data_ = zeros(PixelDataBase.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
     end
 
-    properties
-        page_memory_size_ = inf;
-    end
-
     properties(Constant)
         is_filebacked = false;
         n_pages = 1;
     end
-
+    %======================================================================
+    % Implementing abstract PixelDataBase interface
     methods
-        % --- Pixel operations ---
         pix_out = append(obj, pix);
+        %
+        function data =  get_raw_data(obj,varargin)
+            % main part of get.data accessor
+            data = obj.data_;
+            if nargin>1
+                if iscell(varargin{1}) || istext(varargin{1})
+                    fld = varargin{1};
+                    idx = obj.FIELD_INDEX_MAP_(fld);
+                    data = data(idx,:);
+                end
+            end
+        end
+        pix_out = get_fields(obj, fields, abs_pix_indices);
+        pix_out = get_pixels(obj, abs_pix_indices,varargin);
+
         pix     = set_raw_data(obj,pix);
         obj     = set_raw_fields(obj, data, fields, abs_pix_indices);
 
@@ -76,13 +87,10 @@ classdef PixelDataMemory < PixelDataBase
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         pix_out = do_unary_op(obj, unary_op);
 
-        pix_out = get_pixels(obj, abs_pix_indices,varargin);
+
 
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
-
-        pix_out = get_fields(obj, fields, abs_pix_indices);
-
     end
 
     methods
@@ -120,27 +128,6 @@ classdef PixelDataMemory < PixelDataBase
             end
         end
 
-        function [page_number,total_num_pages] = move_to_page(~, page_number, varargin)
-            % Set the object to point at the given page number
-            %   This function does nothing if the object is not file-backed or is
-            %   already on the given page
-            %
-            % Inputs:
-            % page_number -- page number to move to
-            %
-            % Returns:
-            % page_number -- the page this routine moved to
-            % total_num_pages -- total number of pages, present in the file
-            %
-            total_num_pages = 1;
-            if page_number ~= 1
-                error('HORACE:PIXELDATA:move_to_page', ...
-                    'Cannot advance to page %i only %i pages of data found.', ...
-                    page_number, 1);
-            end
-
-        end
-
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
             pix_idx_start = 1;
             pix_idx_end   = obj.num_pixels;
@@ -170,6 +157,45 @@ classdef PixelDataMemory < PixelDataBase
         end
     end
 
+    methods
+        function obj = tag(obj, selected)
+        % Function to tag pixels to avoid e.g. duplicating pixels on
+        % cut. Returned pixels have negative sign on detector index. When
+        % operation is complete caller should discard pixels or use `untag`
+        % function (below).
+        %
+        % Input
+        % ------
+        %   selected     indices of pixels to be tagged
+            if ~exist('selected', 'var')
+                selected = [1:obj.num_pixels];
+            end
+
+            obj = obj.set_raw_fields(...
+                -obj.detector_idx(selected), ...
+                'detector_idx', selected);
+        end
+
+        function obj = untag(obj, selected)
+        % Function to untag pixels when operation finished.
+        %
+        % Should generally be called without `selected` specified to
+        % untag all pixels.
+        %
+        % Input
+        % ------
+        %   selected     indices of pixels to be untagged
+            if ~exist('selected', 'var')
+                selected = [1:obj.num_pixels];
+            end
+
+            obj.set_raw_fields(...
+                abs(obj.detector_idx(selected)), ...
+                'detector_idx', selected)
+        end
+
+    end
+
     methods(Static)
         function obj = cat(varargin)
         % Concatenate the given PixelData objects' pixels. This function performs
@@ -186,69 +212,79 @@ classdef PixelDataMemory < PixelDataBase
         %   obj         A PixelData object containing all the pixels in the inputted
         %               PixelData objects
 
-            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
+            if isempty(varargin)
+                obj = PixelDataMemory();
+                return;
+            elseif numel(varargin) == 1
+                if isa(varargin{1}, 'PixelDataFileBacked')
+                    obj = PixelDataMemory(varargin{1});
+                elseif isa(varargin{1}, 'PixelDataMemory')
+                    obj = varargin{1};
+                end
+                return;
+            end
 
+            is_ldr = cellfun(@(x) isa(x, 'sqw_file_interface'), varargin);
             if any(is_ldr)
                 obj = PixelDataFileBacked(varargin);
                 return
             end
 
-            if isempty(varargin)
-                obj = PixelDataMemory();
-            elseif numel(varargin) == 1
-                obj = PixelDataMemory(varargin{1});
-            end
-
             obj = PixelDataMemory();
+
             for i = 1:numel(varargin)
                 curr_pix = varargin{i};
                 for page = 1:curr_pix.num_pages
-                    [curr_pix,data] = curr_pix.load_page(page);
+                                    curr_pix.page_num = page;
+                    data = curr_pix.data;
                     obj.data = [obj.data, data];
                 end
             end
-            obj = obj.recalc_data_range();
         end
     end
-
+    %======================================================================
+    % implementation of PixelDataBase abstract protected interface
     methods(Access=protected)
-
-        function np = get_page_num(~)
-            np = 1;
+        function obj = set_alignment_matrix(obj,val)
+            % set new alignment matrix and recalculate new pixel ranges
+            % if alignment changes
+            obj = obj.set_alignment(val,@reset_changed_coord_range);
         end
-
-        function obj = set_page_num(obj,varargin)
-            % do nothing. Only 1 is pagenum in pixel_data
-        end
-
-        function  page_size = get_page_size(obj)
-            page_size = size(obj.data_,2);
-        end
-
-        function np = get_num_pages(~)
-            np = 1;
-        end
-
-        function data =  get_raw_data(obj)
-            % main part of get.data accessor
-            data = obj.data_;
-        end
-
         function num_pix = get_num_pixels(obj)
             % num_pixels getter
             num_pix = size(obj.data_,2);
         end
-
+        function ro = get_read_only(~)
+            % pixel data in memory are not read-obly
+            ro = false;
+        end
+        %
+        function prp = get_prop(obj, fld)
+            prp = get_prop_(obj, fld);
+        end
         function obj=set_prop(obj, fld, val)
             val = check_set_prop(obj,fld,val);
-            obj.data_(obj.FIELD_INDEX_MAP_(fld), :) = val;
+            idx = obj.FIELD_INDEX_MAP_(fld);
+            obj.data_(idx, :) = val;
+
+            % setting data property value removes misalignment. We do not
+            % consciously set misaligned data
+            if obj.is_misaligned_
+                obj.is_misaligned_ = false;
+                obj.alignment_matr_= eye(3);
+            end
             obj=obj.reset_changed_coord_range(fld);
         end
-
-        function prp = get_prop(obj, fld)
-            prp = obj.data_(obj.FIELD_INDEX_MAP_(fld), :);
+        %
+        function data  = get_data(obj,varargin)
+            % main part of data getter
+            data = obj.data_;
+            if obj.is_misaligned_
+                pix_coord = obj.alignment_matr_*data(1:3,:);
+                data(1:3,:) = pix_coord;
+            end
         end
-
+        %
         function obj=set_data_wrap(obj,val)
             % main part of pix_data_wrap setter overloaded for
             % PixDataMemory class
@@ -264,8 +300,24 @@ classdef PixelDataMemory < PixelDataBase
             end
             obj.data_ = val.data;
         end
+        %------------------------------------------------------------------
     end
-
+    %----------------------------------------------------------------------
+    % PAGING
+    methods(Access=protected)
+        function  page_size = get_page_size(obj)
+            page_size = size(obj.data_,2);
+        end
+        function np = get_page_num(~)
+            np = 1;
+        end
+        function obj = set_page_num(obj,varargin)
+            % do nothing. Only 1 is pagenum in pixel_data
+        end
+        function np = get_num_pages(~)
+            np = 1;
+        end
+    end
     %======================================================================
     % SERIALIZABLE INTERFACE
     methods(Static)

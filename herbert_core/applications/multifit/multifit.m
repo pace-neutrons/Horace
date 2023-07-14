@@ -34,16 +34,7 @@ function varargout = multifit (varargin)
 % <a href="matlab:edit('example_1d_function');">example_1d_function</a>
 % <a href="matlab:edit('example_2d_function');">example_2d_function</a>
 % <a href="matlab:edit('example_3d_function');">example_3d_function</a>
-%
-%
-%[Help for legacy use (2017 and earlier):
-%   If you are still using the legacy version then it is strongly recommended
-%   that you change to the new operation. Help for the legacy operation can
-%   be <a href="matlab:help('multifit_legacy');">found here</a>]
 
+varargout{1} = mfclass (varargin{:});
 
-if ~mfclass.legacy(varargin{:})
-    varargout{1} = mfclass (varargin{:});
-else
-    [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy, varargin{:});
 end

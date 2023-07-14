@@ -454,7 +454,7 @@ classdef AxesBlockBase < serializable
                 source_axes,source_proj, data,proj);
         end
         %
-        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,coord_transf,varargin)
+        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
             %
@@ -464,6 +464,7 @@ classdef AxesBlockBase < serializable
             % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
             % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
             % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
+            % >>[npix,s,e,pix_ok,unque_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
             % Where
             % Inputs:
             % coord_transf
@@ -499,7 +500,9 @@ classdef AxesBlockBase < serializable
             %              -- if provided, the routine changes type of pixels
             %                 it gets on input, into double. if not, output
             %                 pixels will keep their initial type
-            % -nomex and -force_mex options can not be used together.
+            %   N.B. -nomex and -force_mex options can not be used together.
+            % '-return_selected' -- Returns `selected` in `pix_ok`
+            %                       for use with DnD cuts where fewer args are requested
             %
             % Returns:
             % npix    -- the array, containing the numbers of pixels
@@ -523,6 +526,9 @@ classdef AxesBlockBase < serializable
             %            is requested, pixels_ok are not sorted according
             %            to bins, but every element of pix_ok array
             %            corresponds to the appropriate pix_indx.
+            % selected -- numerical array of indices of selected pixels after
+            %            binning
+            %
             % Note:
             % unique_runid argument needed to get pixels sorted according
             % to bins. If it is not requested, pix_ok are returned unsorted.
@@ -538,7 +544,7 @@ classdef AxesBlockBase < serializable
                 obj.normalize_bin_input(coord_transf,mode,varargin{:});
             %
             % bin pixels
-            [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels_(obj,coord_transf,mode,...
+            [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_(obj,coord_transf,mode,...
                 npix,s,e,pix_cand,unique_runid,argi{:});
         end
         %
@@ -575,6 +581,10 @@ classdef AxesBlockBase < serializable
             %           -- if present, return grid used to define density,
             %              bin centers for projection axes and bin edges for
             %              integrated dimensions.
+            % '-plot_edges' -- if present, return bin_edges as used for plotting dispersion
+            %              i.e. bin edges for plot axes and bin centers for integration
+            %              axes
+
             % '-axes_only'
             %           -- if provided, do not return 3D or 4D grid but
             %              just return the axes in each 3 or 4 dimensions
@@ -600,10 +610,10 @@ classdef AxesBlockBase < serializable
             %           4 dimensions
             %
             opt = {'-3D','-halo','-bin_edges','-bin_centre','-dens_interp',...
-                '-axes_only','-ngrid','-hull'};
+                '-plot_edges','-axes_only','-ngrid','-hull'};
             [ok,mess,...
                 do_3D,build_halo,bin_edges,bin_centre,dens_interp,...
-                axes_only,ngrid,hull,argi] ...
+                plot_edges,axes_only,ngrid,hull,argi] ...
                 = parse_char_options(varargin,opt);
             if ~ok
                 error('Horace:AxesBlockBase:invalid_argument',mess)
@@ -611,7 +621,7 @@ classdef AxesBlockBase < serializable
             [nodes,dE_edges,nbin_size,grid_cell_size] = ...
                 calc_bin_nodes_(obj,nargout,do_3D, ...
                 build_halo,bin_edges,bin_centre,dens_interp,...
-                axes_only,ngrid,hull,argi{:});
+                plot_edges,axes_only,ngrid,hull,argi{:});
         end
         %
         function nodes = dE_nodes(obj,varargin)
@@ -623,6 +633,12 @@ classdef AxesBlockBase < serializable
             nodes = dE_nodes_(obj,varargin{:});
         end
     end
+    methods(Abstract)
+        %
+        [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
+            data_plot_titles(obj,dnd_obj)
+    end
+
     methods(Abstract,Access=protected)
         % main setter for image range. Overloadable for different kind
         % of axes blocks.

@@ -21,26 +21,24 @@ classdef aProjectionTester < aProjectionBase
             % into the result.
         end
         function pix_cc = transform_pix_to_img(~,pix_cc,varargin)
-            % Transform pixels expressed in crystal cartezian coordinate systems
+            % Transform pixels expressed in crystal Cartesian coordinate systems
             % into image coordinate system
 
         end
         function pix_cc = transform_img_to_pix(~,pix_cc,varargin)
             % Transform pixels expressed in image coordinate coordinate systems
-            % into crystal cartezian system
+            % into crystal Cartesian system
+        end
+        %
+        function [u_to_img,shift,ulen,obj]=get_pix_img_transformation(obj,ndim,varargin)
+            u_to_img = eye(ndim);
+            shift    = zeros(1,ndim);
+            ulen     = ones(1,ndim);
         end
 
 
     end
     methods(Access = protected)
-        function mat = get_u_to_rlu_mat(obj)
-            % u_to_rlu matrix used to tranfer offset expressed in Crystal Cartesian
-            % into rlu (normally this matrix contans inverse operation)
-            %
-            bm = bmatrix(obj.alatt,obj.angdeg);
-            mat = inv(bm);
-            mat = [mat,zeros(3,1);[0,0,0,1]];
-        end
     end
 
     methods(Static)

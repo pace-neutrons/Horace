@@ -187,11 +187,11 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
             rd = rundatah(test_file,ds);
             rd = rd.load();
-            hc = hor_config;
-            dts = hc.get_data_to_store();
-            clob = onCleanup(@()set(hc,dts));
-            hc.use_mex = false;
-            hc.ignore_nan = true;
+
+            clob = set_temporary_config_options(hor_config, ...
+                                                'use_mex', false, ...
+                                                'ignore_nan', true ...
+                                                );
 
             [sq4,grid,data_range] = rd.calc_sqw();
             assertEqual(grid,[50,50,50,50]);
@@ -213,13 +213,10 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
             rd = rundatah(test_file,ds);
             rd = rd.load();
-            hc = hor_config;
-            dts = hc.get_data_to_store();
-            clob = onCleanup(@()set(hc,dts));
 
-            hc.use_mex = true;
+            clob = set_temporary_config_options(hor_config, 'use_mex', true);
             [sq4_mex,grid_mex,pix_range_mex] = rd.calc_sqw();
-            hc.use_mex = false;
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
             [sq4_nom,grid_nom,pix_range_nom] = rd.calc_sqw();
 
             assertEqual(grid_mex,grid_nom);

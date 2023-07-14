@@ -32,7 +32,7 @@ classdef test_dnd_metadata_data < TestCase
 
 
             dnd_obj_rec = DnDBase.dnd(dnd_met,dnd_dat);
-            assertEqual(dnd_obj,dnd_obj_rec )
+            assertEqualToTol(dnd_obj,dnd_obj_rec,'-ignore_date' )
         end
         function test_dnd_data_get_set(~)
             input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
@@ -67,15 +67,14 @@ classdef test_dnd_metadata_data < TestCase
             assertTrue(isa(dnd_obj,'d2d'));
 
             dnd_met = dnd_obj.metadata;
+            dtt = datetime("now");
+
 
             input{1}.label = dnd_obj.label;
             assertEqual(dnd_met.axes,input{1});
             assertEqual(dnd_met.proj,input{2});
-            assertFalse(dnd_met.creation_date_defined);
-
-            dtt = datetime("now");
-            dnd_met.creation_date_str =dtt;
-
+            % save or get_metadata operation generates metadata with current
+            % date  if it has not been defined earlier
             assertTrue(dnd_met.creation_date_defined);
 
             assertEqual(dnd_met.creation_date_str, ...

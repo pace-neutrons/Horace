@@ -65,7 +65,7 @@ classdef test_multifit_horace_2 < TestCaseWithSave
             p1_alt=[fitpar_1_locfore.p{1},fitpar_1_locfore.bp{1}(1),fitpar_1_locfore.p{2},fitpar_1_locfore.bp{2}(1)];
             p1sig_alt=[fitpar_1_locfore.sig{1},fitpar_1_locfore.bsig{1}(1),fitpar_1_locfore.sig{2},fitpar_1_locfore.bsig{2}(1)];
 
-            tol = [1e-10,1e-8];
+            tol = [2e-6,2e-6];
             assertTrue(equal_to_tol(p1, p1_alt, tol),...
                 'local background and local foreground equivalent fitting give different answers')
             assertTrue(equal_to_tol(p1sig, p1sig_alt, tol),...

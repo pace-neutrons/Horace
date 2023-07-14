@@ -15,8 +15,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         angdeg % Lattice angles for data field (degrees)
 
         offset % Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-        %u_to_rlu % Matrix (4x4) of projection axes in hkle representation
-        %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         %ulen % Length of projection axes vectors in Ang^-1 or meV [row vector]
         label  % Labels of the projection axes [1x4 cell array of character strings]
         iax % Index of integration axes into the projection axes  [row vector]
@@ -47,9 +45,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         % legacy operations, necessary for saving dnd object in the old sqw
         % data format. May be removed if old sqw format saving is not used
         % any more.
-        u_to_rlu;
+        u_to_rlu % Matrix (4x4) of projection axes in hkle representation
+        %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         ulen;
-        creation_date_defined;
+        u_to_rlu_legacy % old legacy u_to_rlu produced by Toby's code. 
+		% used in tests and loading old format files
+        % 
+        creation_date_defined; % True, if creation date is known and written with file
         %------------------------------------------------------------------
         % Two properties, responsible for storing/restoring dnd information
         % to/from binary hdd file format.
@@ -252,10 +254,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         function val = get.u_to_rlu(obj)
             val = obj.proj.u_to_rlu;
         end
-        %         function obj = set.u_to_rlu(obj, u_to_rlu)
-        %             obj.data_.u_to_rlu = u_to_rlu;
-        %         end
-        %         %
+        function val = get.u_to_rlu_legacy(obj)
+            val = obj.proj.u_to_rlu_legacy;
+        end
+        
+        %  
         function val = get.ulen(obj)
             val = obj.axes.ulen;
         end
@@ -378,7 +381,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                 error('HORACE:DnDBase:invalid_argument',...
                     'npix values can not be negative')
             end
-
             obj = set_senpix(obj,npix,'npix');
         end
         %

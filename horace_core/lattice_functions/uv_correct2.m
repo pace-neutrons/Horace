@@ -3,7 +3,7 @@ function [u_true, v_true, alatt_true, angdeg_true] = uv_correct2 (u, v, alatt, a
 %
 %   >> [u_true, v_true] = uv_correct2 (u, v, rlu_corr, alatt, angdeg)
 %
-% This function can be used to correct the scattering plane vectors to the true wectors once the
+% This function can be used to correct the scattering plane vectors to the true vectors once the
 % misorientation angles and true lattice parameters have been determined.
 %
 % In particular, this can be used to get the true u and v after determining the misorientation parameters
@@ -24,15 +24,15 @@ function [u_true, v_true, alatt_true, angdeg_true] = uv_correct2 (u, v, alatt, a
 % Output:
 % --------
 %   u_true, v_true      True directions of input u, v, as expressed using the true lattice parameters
-%                      These label data with the correct reciprocal lattice units if used with the same value of
-%                      psi.
-%   alatt_true          True values for lattice parmeters [a,b,c] (Ang)
+%                       These label data with the correct reciprocal lattice units if used with the same value of
+%                       psi.
+%   alatt_true          True values for lattice parameters [a,b,c] (Ang)
 %   angdeg_true         True calues of lattice angles [alf,bet,gam] (deg)
 
 u_true = rlu_corr * u(:); % make u a column vector
 v_true = rlu_corr * v(:); % make v a column vector
-[alatt_true, angdeg_true, rotmat, ok, mess] = rlu_corr_to_lattice(rlu_corr, alatt, angdeg);
-if ~ok, error(mess), end
+[alatt_true, angdeg_true, rotmat] = rlu_corr_to_lattice(rlu_corr, alatt, angdeg);
+
 
 % Reshape output
 u_true = reshape(u_true, size(u));

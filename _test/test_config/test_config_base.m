@@ -16,8 +16,7 @@ classdef test_config_base < TestCase
 
         function test_store_restore_in_memory(~)
             config = config_base_tester();
-            ws=warning('off','HERBERT:config_store:runtime_error');
-            clob = onCleanup(@()warning(ws));
+            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
 
 
             config_store.instance().clear_config(config)
@@ -91,8 +90,7 @@ classdef test_config_base < TestCase
         end
 
         function test_store_restore_in_file(~)
-            ws=warning('off','HERBERT:config_store:runtime_error');
-            clob = onCleanup(@()warning(ws));
+            clob = set_temporary_warning('off','HERBERT:config_store:runtime_error');
 
             config = config_base_tester();
 
@@ -134,4 +132,3 @@ classdef test_config_base < TestCase
     end
 
 end
-

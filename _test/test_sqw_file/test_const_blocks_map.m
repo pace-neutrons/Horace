@@ -77,8 +77,8 @@ classdef test_const_blocks_map <  TestCase
 
         function obj=test_sqw_2head_block_map_construct(obj)
 
-            warning('off','SQW_FILE_IO:legacy_data');
-            clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
+            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
+
             samp = fullfile(obj.test_folder,...
                 'test_sqw_read_write_v0_t.sqw');
 
@@ -159,4 +159,3 @@ classdef test_const_blocks_map <  TestCase
         end
     end
 end
-

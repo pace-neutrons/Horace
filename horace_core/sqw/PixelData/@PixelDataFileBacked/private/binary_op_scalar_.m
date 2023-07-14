@@ -9,9 +9,13 @@ end
 
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
-
-for i = 1:obj.num_pages
-    [obj, data] = obj.load_page(i);
+obj.data_range = PixelDataBase.EMPTY_RANGE;
+%
+% TODO: #975 loop have to be moved level up calculating image in single
+num_pages= obj.num_pages;
+for i = 1:num_pages
+    obj.page_num = i;
+    data = obj.data;
 
     pix_sigvar = sigvar(obj.signal, obj.variance);
     %scalar_sigvar = sigvar(scalar, []);
@@ -25,9 +29,10 @@ for i = 1:obj.num_pages
 
     obj.format_dump_data(data);
 
-end
+    obj.data_range = ...
+        obj.pix_minmax_ranges(data, obj.data_range);
 
+end
 obj = obj.finalise();
-obj = obj.recalc_data_range({'signal', 'variance'});
 
-end
+

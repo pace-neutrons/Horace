@@ -11,15 +11,14 @@ classdef test_hpc_works < TestCase
         end
 
         function test_load_config(obj)
+            clOb = set_temporary_config_options(hpc_config);
             pc = hpc_config();
-            data_2restore = pc.get_data_to_store();
-            clOb = onCleanup(@()set(pc,data_2restore));
-            pc.saveable = false;
+            old_data = pc.get_data_to_store();
 
             % Check HPC returns old object
             [old_config,new_hpc_config] = hpc();
             old_dte = old_config.get_data_to_store();
-            assertEqual(old_dte, data_2restore);
+            assertEqual(old_dte, old_data);
 
             % Check HPC off disables features
             hpc('off');

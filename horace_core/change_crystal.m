@@ -1,38 +1,21 @@
-function change_crystal(filenames,varargin)
+function out = change_crystal(in_data,alignment_info,varargin)
 % Change the crystal lattice and orientation of an sqw object stored in a file
 % or celarray of files
 %
-% Most commonly:
-%   >> change_crystal (filenames, rlu_corr)              % change lattice parameters and orientation
-%
-% OR
-%   >> change_crystal (filenames, alatt)                 % change just length of lattice vectors
-%   >> change_crystal (filenames, alatt, angdeg)         % change all lattice parameters
-%   >> change_crystal (filenames, alatt, angdeg, rotmat) % change lattice parameters and orientation
-%   >> change_crystal (filenames, alatt, angdeg, u, v)   % change lattice parameters and redefine u, v
+%   >> change_crystal (filenames, alignment_info) % change lattice parameters and orientation
+%                                                 % of the crystal according to the
+%                                                 % crystal alignment information provided
 %
 %
 % Input:
 % -----
 %   w           Input sqw object
 %
-%   rlu_corr    Matrix to convert notional rlu in the current crystal lattice to
-%              the rlu in the the new crystal lattice together with any re-orientation
-%              of the crystal. The matrix is defined by the matrix:
-%                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
-%               This matrix can be obtained from refining the lattice and
-%              orientation with the function refine_crystal (type
-%              >> help refine_crystal  for more details).
-% *OR*
-%   alatt       New lattice parameters [a,b,c] (Angstroms)
-%   angdeg      New lattice angles [alf,bet,gam] (degrees)
-%   rotmat      Rotation matrix that relates crystal Cartesian coordinate frame of the new
-%              lattice as a rotation of the current crystal frame. Orthonormal coordinates
-%              in the two frames are related by
-%                   v_new(i)= rotmat(i,j)*v_current(j)
-%   u, v        Redefine the two vectors that were used to determine the scattering plane
-%              These are the vectors at whatever disorientation angles dpsi, gl, gs (which
-%              cannot be changed).
+% alignment_info -- class helper containing all information about crystal
+%                   realignment, produced by refine_crystal procedure.
+%
+%              do:
+%              >> help refine_crystal  for more details.
 %
 % Output:
 % -------
@@ -52,32 +35,43 @@ function change_crystal(filenames,varargin)
 
 % Parse input
 % -----------
-if ischar(filenames)
-    filenames = {filenames};
+if ischar(in_data)
+    in_data = {in_data};
+end
+if ~isa(alignment_info,'crystal_alignment_info') || nargin>2
+    error('HORACE:change_crystal:invalid_argument',...
+        ['Old interface to modify the crystal alignment is deprecated.\n', ...
+        ' Use crystal_alignment_info object obtained from "refine_crystal" routine to realign crystal.\n', ...
+        ' Call >>help refine_crystal for the details']);
 end
 
 % Perform operations
-for i=1:numel(filenames)
-    ld = sqw_formats_factory.instance().get_loader(filenames{i});
-    data    = ld.get_dnd();
-    ld = ld.set_file_to_update();
-    alatt0 = data.alatt;
-    angdeg0 =data.angdeg;
-    if ld.sqw_type
-        exp_info= ld.get_exp_info('-all');
-        [alatt,angdeg,rlu_corr]=SQWDnDBase.parse_change_crystal_arguments(alatt0,angdeg0,exp_info,varargin{:});
-        exp_info = change_crystal(exp_info,alatt,angdeg,rlu_corr);
-        ld = ld.put_headers(exp_info);
-        ld = ld.put_samples(exp_info.samples);
+out = cell(1,numel(in_data));
+for i=1:numel(in_data)
+    if isa(in_data{i},'SQWDnDBase')
+        out{i} = in_data{i}.change_crystal(alignment_info);
     else
-        [alatt,angdeg,rlu_corr]=SQWDnDBase.parse_change_crystal_arguments(alatt0,angdeg0,[],varargin{:});
-    end
-    data= data.change_crystal(alatt,angdeg,rlu_corr,'-parsed');
-    if ld.sqw_type %TODO: #993 Remove this after sqw loader is updated
+        out{i} = in_data{i};
+        ld = sqw_formats_factory.instance().get_loader(in_data{i});
+        data    = ld.get_dnd();
+        ld = ld.set_file_to_update();
+        if ld.sqw_type
+            exp_info= ld.get_exp_info('-all');
+            exp_info = change_crystal(exp_info,alignment_info);
+            %
+            if alignment_info.legacy_mode
+                ld = ld.put_headers(exp_info);
+            else
+                pix_info = ld.get_pix_metadata();
+                pix_info.alignment_matr = alignment_info.rotmat;
+                ld = ld.put_pix_metadata(pix_info);
+            end
+            ld = ld.put_samples(exp_info.samples);
+        end
+        data= data.change_crystal(alignment_info);
         ld = ld.put_dnd_metadata(data);
-    else
-        ld = ld.put_dnd_metadata(data.metadata);
+
+        ld.delete();
+        clear ld;
     end
-    ld.delete();
-    clear ld;
 end

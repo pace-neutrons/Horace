@@ -1,14 +1,14 @@
-function obj=set_ortho_ortho_transf_(obj)
-% sets transformation, which convert image from one orhtonormal to another
-% orthonormal system coordinates.
+function source_proj=set_ortho_ortho_transf_(source_proj)
+% sets transformation, which convert image from one orthonormal (source) to another
+% orthonormal (target) coordinate system.
 %
-targ_proj = obj.targ_proj_;
+targ_proj = source_proj.targ_proj_;
 
 
-[rot_to_img_source,shift_source]=obj.get_pix_img_transformation(3);
-[rot_to_img_targ,shift_targ]=targ_proj.get_pix_img_transformation(3);
+[pix_to_img_source,shift_source]= source_proj.get_pix_img_transformation(3);
+[pix_to_img_targ,shift_targ]    = targ_proj.get_pix_img_transformation(3);
 
-obj.ortho_ortho_offset_ = (shift_source'-shift_targ')*rot_to_img_targ';
-obj.ortho_ortho_offset_ = [obj.ortho_ortho_offset_,obj.offset(4)-targ_proj.offset(4)];
+source_proj.ortho_ortho_offset_ = pix_to_img_targ*(shift_source(:)-shift_targ(:));
+source_proj.ortho_ortho_offset_ = [source_proj.ortho_ortho_offset_;source_proj.offset(4)-targ_proj.offset(4)];
 
-obj.ortho_ortho_transf_mat_ = rot_to_img_source'\rot_to_img_targ';
+source_proj.ortho_ortho_transf_mat_ = pix_to_img_targ/pix_to_img_source;

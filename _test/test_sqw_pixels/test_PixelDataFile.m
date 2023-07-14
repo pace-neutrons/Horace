@@ -1,22 +1,22 @@
-classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
+classdef test_PixelDataFile < TestCase & common_pix_class_state_holder
 
     properties
         sample_dir;
         sample_file;
+        stored_config
     end
 
     methods
 
         function obj = test_PixelDataFile(~)
             obj = obj@TestCase('test_PixelDataFile');
-            hc = horace_paths;
-            obj.sample_dir = hc.test_common;
+            pths = horace_paths;
+            obj.sample_dir = pths.test_common;
             obj.sample_file  = fullfile(obj.sample_dir,'w2d_qe_sqw.sqw');
         end
 
         function test_get_raw_pix(obj)
-            sw = warning('off','HORACE:old_file_format');
-            clOb = onCleanup(@()warning(sw));
+            clOb = set_temporary_warning('off','HORACE:old_file_format');
 
             df = PixelDataFileBacked(obj.sample_file);
             assertEqual(df.num_pixels,107130)
@@ -45,8 +45,7 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
         end
 
         function test_get_pix(obj)
-            sw = warning('off','HORACE:old_file_format');
-            clOb = onCleanup(@()warning(sw));
+            clOb = set_temporary_warning('off','HORACE:old_file_format');
 
             df = PixelDataFileBacked(obj.sample_file);
             assertEqual(df.num_pixels,107130)
@@ -60,8 +59,7 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
 
 
         function test_serialize_deserialize_full(obj)
-            sw = warning('off','HORACE:old_file_format');
-            clOb = onCleanup(@()warning(sw));
+            clOb = set_temporary_warning('off','HORACE:old_file_format');
 
             df = PixelDataFileBacked(obj.sample_file);
             assertEqual(df.num_pixels,107130)
@@ -79,16 +77,70 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             assertEqual(df,df_rec);
         end
 
-        function test_construct_from_data_loader_check_advance(obj)
-            sw = warning('off','HORACE:old_file_format');
-            clObW = onCleanup(@()warning(sw));
-
-            hc = hor_config;
-            mem_ch = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mem_ch));
+        function test_construct_from_faccessor_keep_tail(obj)
 
             mchs = 10000;
-            hc.mem_chunk_size = mchs;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', mchs, 'log_level', -1);
+
+            wkf = fullfile(tmp_dir,'pix_data_with_tail.sqw');
+            clObF = onCleanup(@()file_delete(wkf));
+            copyfile(obj.sample_file,wkf,'f');
+
+
+            ldr = sqw_formats_factory.instance().get_loader(wkf);
+            ldr = ldr.upgrade_file_format();
+            assertTrue(PixelDataBase.do_filebacked(ldr.npixels));
+            ldr.delete();
+
+            pdf = PixelDataFileBacked(wkf);
+            pdf_copy = PixelDataFileBacked(pdf);
+
+            for i=1:pdf.num_pages
+                pdf.page_num = i;
+                pdf_copy.page_num = i;
+                assertEqual(pdf.page_num, i)
+
+                assertEqual(pdf.data,pdf_copy.data);
+            end
+            pdf.delete();
+            pdf_copy.delete();
+        end
+
+        function test_construct_from_data_loader_check_advance_with_tail(obj)
+
+            mchs = 10000;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', mchs, 'log_level', -1);
+
+            wkf = fullfile(tmp_dir,'pix_data_with_tail.sqw');
+            clObF = onCleanup(@()file_delete(wkf));
+            copyfile(obj.sample_file,wkf,'f');
+
+            ldr = sqw_formats_factory.instance().get_loader(wkf);
+            ldr = ldr.upgrade_file_format();
+            assertTrue(PixelDataBase.do_filebacked(ldr.npixels));
+
+            pdf = PixelDataFileBacked(wkf);
+
+            for i=1:pdf.num_pages
+                pdf.page_num = i;
+                assertEqual(pdf.page_num, i)
+
+                [pix_idx_start, pix_idx_end] = pdf.get_page_idx_;
+                pix_to_read = pix_idx_end - pix_idx_start + 1;
+
+                ref_data = double(ldr.get_pix_in_ranges(pix_idx_start,pix_to_read));
+
+                assertEqual(pdf.data,ref_data);
+            end
+            pdf.delete();
+            ldr.delete();
+        end
+
+        function test_construct_from_data_loader_check_advance(obj)
+            clobW = set_temporary_warning('off','HORACE:old_file_format');
+
+            mchs = 10000;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', mchs, 'log_level', -1);
 
             ldr = sqw_formats_factory.instance().get_loader(obj.sample_file);
             assertTrue(PixelDataBase.do_filebacked(ldr.npixels));
@@ -111,15 +163,10 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
         end
 
         function test_construct_from_data_loader_check_pages(obj)
-            sw = warning('off','HORACE:old_file_format');
-            clObW = onCleanup(@()warning(sw));
-
-            hc = hor_config;
-            mem_ch = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',mem_ch));
+            clObW = set_temporary_warning('off','HORACE:old_file_format');
 
             mchs = 10000;
-            hc.mem_chunk_size = mchs;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', mchs, 'log_level', -1);
 
             ldr = sqw_formats_factory.instance().get_loader(obj.sample_file);
             assertTrue(PixelDataBase.do_filebacked(ldr.npixels));
@@ -140,7 +187,6 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
         end
 
         function test_empty_constructor(~)
-            hc = hor_config;
             pdf = PixelDataFileBacked();
             assertEqual(pdf.page_size,0);
             assertTrue(pdf.is_filebacked);
@@ -152,5 +198,6 @@ classdef test_PixelDataFile < TestCase %& common_pix_class_state_holder
             assertEqual(pdf.pix_range,PixelDataBase.EMPTY_RANGE_)
             assertEqual(pdf.data_range,PixelDataBase.EMPTY_RANGE)
         end
+
     end
 end

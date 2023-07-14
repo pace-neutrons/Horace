@@ -1,4 +1,4 @@
-function varargout = tobyfit (varargin)
+function obj = tobyfit (varargin)
 % Simultaneously fits resolution broadened S(Q,w) models to sqw objects.
 %
 % For a direct geometry Fermi chopper instrument:
@@ -32,73 +32,67 @@ function varargout = tobyfit (varargin)
 
 % Original author: T.G.Perring
 
-if ~mfclass.legacy(varargin{:})
-    % ------------------------------------------------------------------------------
-    % Tobyfit (1 Jan 2018 onwards)
-    % ----------------------------
-    % Get resolution function model type
-    
-    % Determine the instrument model
-    % There must be at least one sqw object in the argument list or this method
-    % would not have been called. However, it may not be the leading argument.
-    % We demand that the leading argument is an sqw object.
-    % The input could be any number of sqw object arrays, followed by other arguments
-    % hence the slightly involved procedure
-    is_sqw_object = cellfun(@(x)isa(x,'sqw'), varargin);
-    ind = find(~is_sqw_object,1);
-    if isempty(ind)
-        nsqw = numel(varargin);
-    else
-        nsqw = ind-1;
-    end
-    if nsqw>0
+% ------------------------------------------------------------------------------
+% Tobyfit (1 Jan 2018 onwards)
+% ----------------------------
+% Get resolution function model type
 
-        [inst, all_inst] = get_inst_class (varargin{1:nsqw});
-        if isempty(inst)
-            if all_inst
-                error('The instrument type must be the same for all datasets')
-            else
-                error('All sqw objects must now have the instrument type set as an instrument object')
-            end
-        end
-    else
-        error('There must be at least one leading sqw object in the input argument list to Tobyfit')
-    end
-    
-    % For not actually failing with old syntax where the instrument type was set
-    % by a character string
-    if numel(varargin)>1 && ischar(varargin{end})
-        valid_models = {'fermi','disk'};
-        ind = stringmatchi(varargin{end},valid_models);
-        if numel(ind)==1
-            model=valid_models{ind};
-        else
-            warning(['The instrument is determined from the sqw object. Redundant option ''',...
-                varargin{end},''' ignored'])
-        end
-    end
-    
-    % Initialise
-    if isa(inst,'IX_inst_DGfermi')
-        mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv, [], @func_eval, [],...
-            true, false, @tobyfit_DGfermi_resconv_init, []);
-    elseif isa(inst,'IX_inst_DGdisk')
-        mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
-            true, false, @tobyfit_DGdisk_resconv_init, []);
-    else
-        error('No resolution function model implemented for this instrument')
-    end
-    
-    % Construct
-    varargout{1} = mfclass_tobyfit (varargin{1:nsqw}, 'sqw', mf_init);
-    
-    % ------------------------------------------------------------------------------
-    
+% Determine the instrument model
+% There must be at least one sqw object in the argument list or this method
+% would not have been called. However, it may not be the leading argument.
+% We demand that the leading argument is an sqw object.
+% The input could be any number of sqw object arrays, followed by other arguments
+% hence the slightly involved procedure
+
+is_sqw_object = cellfun(@(x) isa(x,'sqw'), varargin);
+ind = find(~is_sqw_object,1);
+
+if isempty(ind)
+    nsqw = numel(varargin);
+    sqws = varargin;
+    argi = {};
 else
-    % Attempt to use the now obsolete Tobyfit syntax (the standard version until 31 Dec 2017)
-    mess = ['\nLikely use of obsolete Tobyfit syntax detected.',...
-        '\nPlease migrate to the new syntax supported since January 2018',...
-        '\nFor details of the new syntax:  <a href="matlab:doc(''sqw/tobyfit'');">Click here</a>']; 
-    error('Tobyfit:obsoleteSyntax',mess)
+    nsqw = ind-1;
+    sqws = varargin(1:nsqw);
+    argi = varargin(nsqw+1:end);
 end
 
+if isempty(sqws)
+    error('HORACE:tobyfit:invalid_argument', 'There must be at least one leading sqw object in the input argument list to Tobyfit')
+end
+
+[inst, all_inst] = get_inst_class(sqws{:});
+
+if isempty(inst)
+    if all_inst
+        error('HORACE:tobyfit:invalid_argument', 'The instrument type must be the same for all datasets')
+    else
+        error('HORACE:tobyfit:invalid_argument', 'All sqw objects must now have the instrument type set as an instrument object')
+    end
+end
+
+% For not actually failing with old syntax where the instrument type was set
+% by a character string
+if ~isempty(argi) && ischar(argi{end})
+    warning('HORACE:tobyfit:deprecated_argument', ...
+            'The instrument is determined from the sqw object. Redundant option ''%s'' ignored', argi{end})
+end
+
+% Initialise
+switch class(inst)
+  case 'IX_inst_DGfermi'
+    mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv, [], @func_eval, [],...
+                               true, false, @tobyfit_DGfermi_resconv_init, []);
+
+  case 'IX_inst_DGdisk'
+    mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
+                               true, false, @tobyfit_DGdisk_resconv_init, []);
+
+  otherwise
+    error('HORACE:tobyfit:invalid_argument', 'No resolution function model implemented for this instrument')
+end
+
+% Construct
+obj = mfclass_tobyfit (sqws{:}, 'sqw', mf_init);
+
+end

@@ -50,7 +50,7 @@ classdef MagneticIons
         % appropriate order for current ion.
         J0_ff_;J2_ff_;J4_ff_;J6_ff_;
         % matrix of coefficients used to convert hkl coordinates into A^(-1)
-        u_2_rlu_ = eye(3);
+        hkl_to_Qmat_ = eye(3);
     end
 
     methods

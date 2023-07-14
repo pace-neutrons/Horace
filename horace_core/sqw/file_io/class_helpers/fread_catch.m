@@ -30,7 +30,6 @@ function [data, count_out, status_ok, message] = fread_catch (fid, count_in, pre
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 ntry_retry=6;   % maximum number of attempts to read before trying to reopen
 ntry_reopen=6;  % further attempts with reopening
@@ -61,7 +60,7 @@ while ntry<=ntry_max
             fid_old = fid;
             fclose(fid);
             pause(pause_time);
-            fid=fopen(flname,mode);
+            fid=sqw_fopen(flname,mode);
             if fid~=fid_old
                 if ~exist('data','var'), data=[]; end
                 if ~exist('count_out','var'), count_out=[]; end

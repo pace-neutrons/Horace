@@ -38,25 +38,21 @@ elseif isscalar(init) && isnumeric(init) && floor(init) == init
 elseif isnumeric(init)
     obj.data = init;
 
-elseif isa(init, 'PixelDataFileBacked')
-
+elseif isa(init, 'PixelDataFileBacked') % usually happens in testing only
     data = zeros(obj.DEFAULT_NUM_PIX_FIELDS, init.num_pixels);
 
-    for i=1:init.num_pages
+    num_pages= init.num_pages;
+    for i=1:num_pages
+        init.page_num = i;        
         [sind, eind] = init.get_page_idx_(i);
-        [init, data(:, sind:eind)] = init.load_page(i);
+        data(:, sind:eind) = init.data ;
     end
 
+    if ~init.is_range_valid
+        obj.data_range = obj.pix_minmax_ranges(data);
+    end
+    
     obj.data_ = data;
-    init=init.move_to_first_page();
-    undef = init.data_range == PixelDataBase.EMPTY_RANGE;
-
-    if any(undef(:))
-        obj=obj.recalc_data_range();
-    else
-        obj.data_range_ = init.data_range;
-    end
-
     obj.full_filename = init.full_filename;
 
 else

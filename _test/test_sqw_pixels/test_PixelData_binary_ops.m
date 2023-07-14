@@ -18,6 +18,7 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
 
         ws_cache;
         stored_config;
+        mem_chunk_size
     end
 
     methods
@@ -35,19 +36,38 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
 
             hc = hor_config;
             obj.stored_config = hc.get_data_to_store();
-            hc.mem_chunk_size = 10000;
+            hc.saveable = false;
+
 
             % Load a 1D SQW file
+            mem_chunk_size = hc.mem_chunk_size;
+            hc.mem_chunk_size = 1000;
             sqw_test_obj = read_sqw(obj.test_sqw_file_path);
+            hc.mem_chunk_size = mem_chunk_size; % do local change, as it
+            % may affect all other test cases otherwise
             obj.pix_with_pages = sqw_test_obj.pix;
             obj.pix_in_memory  = PixelDataMemory(sqw_test_obj.pix);
             obj.ref_raw_pix_data   = obj.pix_in_memory.data;
             obj.ws_cache = warning('off','HORACE:old_file_format');
         end
+        function setUp(obj)
+            hc = hor_config;
+            obj.mem_chunk_size = hc.mem_chunk_size;
+            hc.mem_chunk_size = 10000;
+        end
+        function tearDown(obj)
+            hc = hor_config;
+            hc.mem_chunk_size = obj.mem_chunk_size;
+        end
 
         function delete(obj)
+            hc = hor_config;
             warning(obj.ws_cache);
-            set(hor_config, obj.stored_config);
+            hc.saveable = true;
+            if ~isempty(obj.stored_config)
+                set(hc, obj.stored_config);
+            end
+
         end
 
         function test_add_scalar_memory(obj)
@@ -246,7 +266,7 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             assertEqualToTol(pix1.get_fields('all', 'all'), data1);
             assertEqualToTol(pix2.get_fields('all', 'all'), data2);
             assertEqualToTol(pix3.get_fields('signal', 'all'), ...
-                             ones(1, pix3.num_pixels));
+                ones(1, pix3.num_pixels));
         end
 
         function test_add_double_npix_memory(obj)
@@ -317,10 +337,8 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
 
             pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
             pix_per_page = ceil(pix.num_pixels/6);
-            hc = hor_config;
-            cmpp = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',cmpp));
-            hc.mem_chunk_size = pix_per_page;
+
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', pix_per_page);
 
             obj.check_adding_2Dsigvar_returns_correct_pix_filebased(pix,dnd_obj)
 
@@ -339,10 +357,7 @@ classdef test_PixelData_binary_ops < TestCase % & common_pix_class_state_holder
             npix = dnd_obj.npix;
 
             pix_per_page = floor(sum(npix(:)/6));
-            hc = hor_config;
-            cmpp = hc.mem_chunk_size;
-            clOb = onCleanup(@()set(hc,'mem_chunk_size',cmpp));
-            hc.mem_chunk_size = pix_per_page;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', pix_per_page);
 
             pix = PixelDataFileBacked(obj.test_sqw_2d_file_path);
             obj.check_mult_with_d2d_returns_correct_pix(pix,dnd_obj)

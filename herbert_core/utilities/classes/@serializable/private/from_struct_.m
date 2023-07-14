@@ -72,4 +72,5 @@ else
     % has a different provenance e.g. came from an older format that predates
     % the use of serializable
     obj = obj.from_old_struct (S);
+
 end

@@ -31,7 +31,7 @@ for i=2:numel(win)
         alatt=[0,0,0];
         angdeg=[0,0,0];
         ok=false;
-        mess='Lattice parmaeters are not all the same in the array of objects';
+        mess='Lattice parameters are not all the same in the array of objects';
         if nargout<3, error(mess), else return, end
     end
 end

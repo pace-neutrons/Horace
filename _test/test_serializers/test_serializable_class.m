@@ -103,10 +103,7 @@ classdef test_serializable_class < TestCase
         end
 
         function test_ser_serializeble_obj_array_class2(~)
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
 
             %--------------------------------------------------------------
             % Prepare data
@@ -122,12 +119,12 @@ classdef test_serializable_class < TestCase
 
             %--------------------------------------------------------------
             % Serialize using Matlab
-            ser =  hlp_serialise(serCl);
-            serCl_rec = hlp_deserialise(ser);
+            ser =  hlp_serialize(serCl);
+            serCl_rec = hlp_deserialize(ser);
 
             assertEqual(serCl, serCl_rec)
 
-            data_size = hlp_serial_sise(serCl);
+            data_size = hlp_serial_size(serCl);
             assertEqual(data_size,numel(ser));
 
         end
@@ -138,10 +135,7 @@ classdef test_serializable_class < TestCase
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
             end
 
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = true;
+            clob = set_temporary_config_options(hor_config, 'use_mex', true);
 
             %--------------------------------------------------------------
             % Prepare data
@@ -158,18 +152,16 @@ classdef test_serializable_class < TestCase
             %--------------------------------------------------------------
             % Serialize using C++
             data_size_c = c_serial_size(serCl);
-            ser_c     = c_serialise(serCl);
-            serCl_rec = c_deserialise(ser_c);
+            ser_c     = c_serialize(serCl);
+            serCl_rec = c_deserialize(ser_c);
 
             assertEqual(serCl, serCl_rec)
             assertEqual(data_size_c,numel(ser_c));
         end
 
         function test_ser_serializeble_obj_array_class1_obj_class2(obj)
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
+
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
 
             %--------------------------------------------------------------
             % Prepare data
@@ -185,9 +177,9 @@ classdef test_serializable_class < TestCase
 
             %--------------------------------------------------------------
             % Serialize using Matlab
-            data_size = hlp_serial_sise(serCl);
-            ser =  hlp_serialise(serCl);
-            serCl_rec = hlp_deserialise(ser);
+            data_size = hlp_serial_size(serCl);
+            ser =  hlp_serialize(serCl);
+            serCl_rec = hlp_deserialize(ser);
 
             assertEqual(serCl, serCl_rec)
             assertEqual(data_size,numel(ser));
@@ -199,10 +191,7 @@ classdef test_serializable_class < TestCase
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
             end
 
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = true;
+            clob = set_temporary_config_options(hor_config, 'use_mex', true);
 
             %--------------------------------------------------------------
             % Prepare data
@@ -219,18 +208,15 @@ classdef test_serializable_class < TestCase
             % Serialize using C++
 
             data_size_c = c_serial_size(serCl);
-            ser_c     = c_serialise(serCl);
-            serCl_rec = c_deserialise(ser_c);
+            ser_c     = c_serialize(serCl);
+            serCl_rec = c_deserialize(ser_c);
 
             assertEqual(serCl, serCl_rec)
             assertEqual(data_size_c,numel(ser_c));
         end
 
         function test_ser_serializeble_obj_array_class1(~)
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
 
             %--------------------------------------------------------------
             % Prepare data
@@ -243,9 +229,9 @@ classdef test_serializable_class < TestCase
 
             %--------------------------------------------------------------
             % Serialize using Matlab
-            data_size = hlp_serial_sise(serCl);
-            ser =  hlp_serialise(serCl);
-            serCl_rec = hlp_deserialise(ser);
+            data_size = hlp_serial_size(serCl);
+            ser =  hlp_serialize(serCl);
+            serCl_rec = hlp_deserialize(ser);
 
             assertEqual(serCl, serCl_rec)
             assertEqual(data_size,numel(ser));
@@ -257,10 +243,7 @@ classdef test_serializable_class < TestCase
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
             end
 
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = true;
+            clob = set_temporary_config_options(hor_config, 'use_mex', true);
 
             %--------------------------------------------------------------
             % Prepare data
@@ -274,18 +257,16 @@ classdef test_serializable_class < TestCase
             %--------------------------------------------------------------
             % Serialize using C++
             data_size_c = c_serial_size(serCl);
-            ser_c     = c_serialise(serCl);
-            serCl_rec = c_deserialise(ser_c);
+            ser_c     = c_serialize(serCl);
+            serCl_rec = c_deserialize(ser_c);
 
             assertEqual(serCl, serCl_rec)
             assertEqual(data_size_c,numel(ser_c));
         end
 
         function test_ser_serializeble_obj(~)
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
+
             %--------------------------------------------------------------
             serCl = serializableTester2();
             serCl.Prop_class2_1=100;
@@ -294,10 +275,10 @@ classdef test_serializable_class < TestCase
             %--------------------------------------------------------------
             % Serialize using MATLAB
 
-            ser =  hlp_serialise(serCl);
-            data_size = hlp_serial_sise(serCl);
+            ser =  hlp_serialize(serCl);
+            data_size = hlp_serial_size(serCl);
             assertEqual(data_size,numel(ser));
-            [serCl_rec,nbytes] = hlp_deserialise(ser);
+            [serCl_rec,nbytes] = hlp_deserialize(ser);
 
             assertEqual(nbytes,numel(ser));
             assertEqual(serCl, serCl_rec)
@@ -309,10 +290,8 @@ classdef test_serializable_class < TestCase
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
             end
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = true;
+
+            clob = set_temporary_config_options(hor_config, 'use_mex', true);
 
             %--------------------------------------------------------------
             serCl = serializableTester2();
@@ -323,9 +302,9 @@ classdef test_serializable_class < TestCase
             % Serialize using C++
             data_size_c = c_serial_size(serCl);
 
-            ser_c     = c_serialise(serCl);
+            ser_c     = c_serialize(serCl);
 
-            [serCl_rec,nbytes] = c_deserialise(ser_c);
+            [serCl_rec,nbytes] = c_deserialize(ser_c);
 
             assertEqual(nbytes,numel(ser_c))
             assertEqual(serCl, serCl_rec)
@@ -336,10 +315,8 @@ classdef test_serializable_class < TestCase
 
         function test_ser_serializeble_obj_level0(~)
 
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
+            clob = set_temporary_config_options(hor_config, 'use_mex', false);
+
             %--------------------------------------------------------------
             serCl = serializableTester2();
             serCl.Prop_class2_1=100;
@@ -347,11 +324,11 @@ classdef test_serializable_class < TestCase
 
             %--------------------------------------------------------------
 
-            ser =  hlp_serialise(serCl);
-            data_size = hlp_serial_sise(serCl);
+            ser =  hlp_serialize(serCl);
+            data_size = hlp_serial_size(serCl);
             assertEqual(data_size,numel(ser));
 
-            [serCl_rec,nbytes] = hlp_deserialise(ser);
+            [serCl_rec,nbytes] = hlp_deserialize(ser);
 
             assertEqual(nbytes,numel(ser));
             assertEqual(serCl, serCl_rec)
@@ -363,10 +340,8 @@ classdef test_serializable_class < TestCase
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
             end
 
-            conf = hor_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = true;
+            clob = set_temporary_config_options(hor_config, 'use_mex', true);
+
             %--------------------------------------------------------------
             serCl = serializableTester2();
             serCl.Prop_class2_1=100;
@@ -376,9 +351,9 @@ classdef test_serializable_class < TestCase
             % Serialize using C++
             data_size_c = c_serial_size(serCl);
 
-            ser_c  = c_serialise(serCl);
+            ser_c  = c_serialize(serCl);
 
-            [serCl_rec,nbytes] = c_deserialise(ser_c);
+            [serCl_rec,nbytes] = c_deserialize(ser_c);
 
             assertEqual(nbytes,numel(ser_c))
             assertEqual(serCl, serCl_rec)
@@ -578,7 +553,7 @@ classdef test_serializable_class < TestCase
                 'tc.Prop_class1_1 and tc1.Prop_class1_1: Relative and absolute tolerance failure; max. error = 10 (absolute) at element (1)');
         end
 
-        
+
 
         %------------------------------------------------------------------
 
@@ -606,8 +581,8 @@ classdef test_serializable_class < TestCase
         end
 
         function test_deprecated_keys_provided(~)
-            ws = warning('off','HORACE:serializable:deprecated');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HORACE:serializable:deprecated');
+
             tc = serializableTesterWithInterdepProp( ...
                 'Prop_class2_1',2,'-Prop_class2_2',10,'-Prop_class2_3',[1,2,3]);
 
@@ -676,8 +651,7 @@ classdef test_serializable_class < TestCase
         end
 
         function test_key_val_constructor_m_keys_dash(~)
-            ws = warning('off','HORACE:serializable:deprecated');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HORACE:serializable:deprecated');
 
             tc = serializable_tester4setKeyValConstructor(true,'-prop3_char','a','-prop2_char','b','-prop1','c');
             [~,wi] = lastwarn;
@@ -710,8 +684,7 @@ classdef test_serializable_class < TestCase
         function test_key_val_constructor_m_keys_no_dash_throw(~)
             % throws as this form does not support dash at the beginning so
             % second property with dash outsied of positional parameters is not recognized
-            ws = warning('off','HORACE:serializable:deprecated');
-            clOb = onCleanup(@()warning(ws));
+            clOb = set_temporary_warning('off','HORACE:serializable:deprecated');
             ME=assertExceptionThrown( ...
                 @()serializable_tester4setKeyValConstructor(false,'-prop3','a','-prop2','b','-prop1','c'), ...
                 'HERBERT:serializable_class_tests:invalid_argument');

@@ -19,7 +19,8 @@ classdef loader_nxspe < a_loader
         % the structure, containing the folder structure of the nxspe file
         % as defined in hdf5 file
         nexus_dataset_info_ = [];
-        %
+        % a structure for instrument information
+        nexus_instrument_ = [];
     end
     
     methods(Static)
@@ -135,6 +136,16 @@ classdef loader_nxspe < a_loader
             else
                 obj.detpar_loader = full_par_file_name;
             end
+            % Checks if file has instrument info.
+            try
+                obj.nexus_instrument_ = obj.read_instrument_info_();
+            catch ME
+                if strcmp(ME.identifier, 'HERBERT:loader_nxspe:missing_instrument_fields')
+                    warning(ME.identifier, ME.message);
+                end
+                % Ignore all other errors; instrument info not guaranteed to
+                % be in all nxspe files; its absence is not an error.
+            end
             if ~isempty(fh) % call from loaders factory
                 defined_fields = fields(fh);
                 obj.do_check_combo_arg_ = false;
@@ -192,7 +203,7 @@ classdef loader_nxspe < a_loader
                 loader_nxspe.get_data_info(nxspe_file_name);
         end
         %
-        function obj=delete(obj)
+        function obj = delete(obj)
             % delete all memory demanding data/fields from memory and close all
             % open files (if any)
             %
@@ -207,11 +218,20 @@ classdef loader_nxspe < a_loader
                 end
             end
             if isempty(obj.file_name_)
-                obj.en_=[];
-                obj.n_detindata_=[];
+                obj.en_ = [];
+                obj.n_detindata_ = [];
             end
         end
-        
+        function rv = has_loaded_instrument(obj)
+            rv = ~isempty(obj.nexus_instrument_);
+        end
+        function instrument = get_instrument(obj)
+            if ~isempty(obj.nexus_instrument_)
+                instrument = obj.nexus_instrument_;
+            else
+                instrument = obj.read_instrument_info_();
+            end
+        end
     end
     %
     methods(Access=protected)
@@ -244,6 +264,87 @@ classdef loader_nxspe < a_loader
             else
                 obj = set_data_file_name@a_loader(obj,filename);
             end
+        end
+        function instrument = read_instrument_info_(obj)
+            if ~isempty(obj.file_name)
+                filename = obj.file_name;
+            else
+                filename = obj.par_file_name;
+            end
+            if ~isempty(obj.root_nexus_dir)
+                root_dir = obj.root_nexus_dir;
+            else
+                root_dir = find_root_nexus_dir(filename);
+            end
+            h5inst = h5info(filename, [root_dir '/instrument']);
+            dataset = read_nexus_groups_recursive(h5inst);
+            % Instrument we support must have 'moderator' and 'source' components
+            if ~any(isfield(dataset, {'moderator', 'source'}))
+                error('HERBERT:loader_nxspe:invalid_instrument', ...
+                      'nxspe file has instrument data incompatible with Horace');
+            end
+            source = IX_source(dataset.source.Name.value, '', double(dataset.source.frequency.value));
+            moderator = obj.read_inst_moderator_(dataset);
+            % NXSPE files *must* have a "fermi" component, so we distinguish
+            % instrument types based on presence of 'shaping_chopper' and 'mono_chopper'
+            % as we only have two types of instruments supported at present
+            if all(isfield(dataset, {'shaping_chopper', 'mono_chopper', ...
+                                     'horiz_div', 'vert_div'}))
+                instrument = obj.read_disk_inst_(dataset, source, moderator);
+            else
+                % The struct must at least have an 'aperture' field
+                if ~isfield(dataset, 'aperture')
+                    error('HERBERT:loader_nxspe:missing_instrument_fields', ...
+                          ['nxspe file has incomplete instrument data. Please manually ' ...
+                           'set instrument if you want to perform resolution convolution']);
+                end
+                instrument = obj.read_fermi_inst_(dataset, source, moderator);
+            end
+        end
+        function moderator = read_inst_moderator_(obj, ds)
+            % Construct an IX_moderator from a NeXus data structure
+            if isfield(ds.moderator, 'pulse_shape')
+                pulse_model = 'table';
+                parameters = {ds.moderator.pulse_shape.Time.value ...
+                              ds.moderator.pulse_shape.Intensity.value};
+            elseif isfield(ds.moderator, 'empirical_pulse_shape')
+                pulse_model = ds.moderator.empirical_pulse_shape.type.value;
+                parameters = ds.moderator.empirical_pulse_shape.data.value;
+            else
+                error('HERBERT:loader_nxspe:invalid_moderator', ...
+                      'moderator model in instrument info not understandable by Horace.');
+            end
+            moderator = IX_moderator(abs(ds.moderator.transforms.MOD_T_AXIS.value), ...
+                                     ds.moderator.transforms.MOD_R_AXIS.value, ...
+                                     pulse_model, parameters);
+        end
+        function instrument = read_fermi_inst_(obj, ds, src, mod)
+            % Construct an IX_inst_DGfermi from a NeXus data structure
+            aperture = IX_aperture(ds.aperture.transforms.AP_AXIS.value, ...
+                                   ds.aperture.x_gap.value, ds.aperture.y_gap.value);
+            fermi = IX_fermi_chopper(ds.fermi.type.value, abs(ds.fermi.distance.value), ...
+                                     ds.fermi.rotation_speed.value, ds.fermi.radius.value, ...
+                                     ds.fermi.r_slit.value, ds.fermi.slit.value);
+            ei = ds.fermi.energy.value;
+            name = ds.name.value;
+            instrument = IX_inst_DGfermi(mod, aperture, fermi, ei, 'name', name, 'source', src);
+        end
+        function instrument = read_disk_inst_(obj, ds, src, mod)
+            % Construct an IX_inst_DGdisk from a NeXus data structure
+            ch1 = ds.shaping_chopper;
+            slot_width = tand(abs(diff(ch1.slit_edges.value))) * ch1.radius.value;
+            ch1 = IX_doubledisk_chopper('chopper_1', abs(ch1.transforms.CH1_T_AXIS.value), ...
+                                        ch1.rotation_speed.value, ch1.radius.value, slot_width);
+            ch5 = ds.mono_chopper;
+            slot_width = tand(abs(diff(ch5.slit_edges.value))) * ch5.radius.value;
+            ch5 = IX_doubledisk_chopper('chopper_5', abs(ch5.transforms.CH5_T_AXIS.value), ...
+                                        ch5.rotation_speed.value, ch5.radius.value, slot_width);
+            ang = ds.horiz_div.data.Horizontal_Divergence.value / 180 * pi;
+            hdiv = IX_divergence_profile(ang, ds.horiz_div.data.Normalised_Beam_Profile.value);
+            ang = ds.vert_div.data.Vertical_Divergence.value / 180 * pi;
+            vdiv = IX_divergence_profile(ang, ds.vert_div.data.Normalised_Beam_Profile.value);
+            instrument = IX_inst_DGdisk(mod, ch1, ch5, hdiv, vdiv, ds.fermi.energy.value, ...
+                                        'name', ds.name.value, 'source', src);
         end
     end
     

@@ -257,10 +257,9 @@ if accumulate_old_sqw    % combine with existing sqw file
 
     else
         % Check that the sqw file has the correct type to which to accumulate
-        [ok,mess,header_sqw,grid_size_sqw,pix_db_range_sqw,data_range_present_sqw]=...
+        [header_sqw,grid_size_sqw,pix_db_range_sqw,data_range_present_sqw]=...
             gen_sqw_check_sqwfile_valid(sqw_file);
         % Check that the input spe data are distinct
-        if ~ok, error(mess), end
         % It is expected that one would not run replicate and accumulate
         % together and add replicated files without run_id changes after
         % first accumulation because the files with identical run-ids will
@@ -631,15 +630,11 @@ for i=1:numel(files_to_check)
                 ldr.filename)
         end
 
-        ok =equal_to_relerr(data_ref.alatt, data.alatt, tol, 1) &...
-            equal_to_relerr(data_ref.angdeg, data.angdeg, tol, 1) &...
-            equal_to_relerr(data_ref.uoffset, data.uoffset, tol, 1) &...
-            equal_to_relerr(data_ref.u_to_rlu(:), data.u_to_rlu(:), tol, 1) &...
-            equal_to_relerr(data_ref.ulen, data.ulen, tol, 1);
+        [ok,mess] =equal_to_tol(data_ref,data,'tol',tol);
         if ~ok
             error('HORACE:algorithms:invalid_argument',...
-                'the tmp file to combine: %s does not have the the correct projection axes for this operation',...
-                ldr.filename)
+                'the tmp file to combine: %s does not have the the projections for operations. Reason %s',...
+                ldr.filename,mess)
         end
 
     end

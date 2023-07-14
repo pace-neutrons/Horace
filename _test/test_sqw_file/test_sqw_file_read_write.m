@@ -156,17 +156,11 @@ classdef test_sqw_file_read_write < TestCase
             f1_2_i0s0=change_header_test(f1_2_i1s1,ins,sam);
         end
         function test_change_instrument(obj)
-            % TODO: constructor creates file_backed objects here.
-            % wref is filebacked.
-            % what to do about them? Without row 239 the file is not
-            % deleted as opened and filebacked.
-
-
-            % Use instrument function definition to change instrument
+             % Use instrument function definition to change instrument
             % -------------------------------------------------------
             % Create reference object, testing setting of array instrument on the way
             tmpsqwfile=fullfile(tmp_dir,'test_sqw_file_fileref_store.sqw');
-            clob1 = onCleanup(@()delete(tmpsqwfile));
+            clob1 = onCleanup(@()file_delete(tmpsqwfile));
 
             wref=obj.ds.f1_2;
             hdr = wref.experiment_info;

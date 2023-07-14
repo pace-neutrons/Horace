@@ -72,7 +72,7 @@ classdef test_faccess_sqw_v3_21< TestCase
             assertFalse(any(any(pix_range == PixelDataBase.EMPTY_RANGE_)));
             data_range = sqw_obj.pix.data_range;
             assertFalse(any(any(data_range == PixelDataBase.EMPTY_RANGE)));
-            
+
 
             % we can save the object as previous version of the file
             test_file=fullfile(obj.working_dir,'test_read_wr_upd_indirect_v3_2.sqw');
@@ -99,11 +99,15 @@ classdef test_faccess_sqw_v3_21< TestCase
 
             sqw1 = ldr.get_sqw();
             ldr.delete();
+            % old format object always recover w of the projection (from
+            % u_to_rlu matrix) as non-empty vector. Make it empty; here the
+            % projection units are 'aaa' so no problem with projection
+            % recovery.
+            sqw1.data.proj.w=[];
             % the recovered sqw object is equivalent to the generated sqw
             % object. Detpar accuacy is 5 digits
+
             assertEqualToTol(sqw1,sqw_obj,1e-5,'ignore_str',true)
-%             [ok,mess]=sqw_obj.equal_to_tol(sqw1,'tol',3.e-7,'ignore_str',true);
-%             assertTrue(ok,mess);
         end
         %
 

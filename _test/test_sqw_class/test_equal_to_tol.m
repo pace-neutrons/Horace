@@ -1,7 +1,7 @@
 classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
     properties
-        horace_config;
+        clOb;
 
         ALL_IN_MEM_PG_SIZE = 1e12;
 
@@ -18,8 +18,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         function obj = test_equal_to_tol(~)
             obj = obj@TestCase('test_equal_to_tol');
 
-            hc = hor_config();
-            obj.horace_config = hc.get_data_to_store();
+            obj.clOb = set_temporary_config_options(hor_config, 'log_level', -1);
 
             pths = horace_paths;
             obj.test_sqw_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
@@ -34,20 +33,6 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             assertTrue(pix.is_filebacked);
 
             obj.sqw_2d = sqw(obj.test_sqw_file_path);
-        end
-
-        function delete(obj)
-            set(hor_config, obj.horace_config);
-        end
-
-        function setUp(~)
-            hc = hor_config();
-            hc.saveable = false;
-            hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
-        end
-
-        function tearDown(obj)
-            set(hor_config,obj.horace_config);
         end
 
         function test_the_same_sqw_objects_are_equal(obj)
@@ -81,6 +66,20 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
             shuffled_sqw.pix = obj.shuffle_pixel_bin_rows(pix, npix);
 
             assertEqualToTol(shuffled_sqw, original_sqw);
+        end
+
+        function test_paged_mem_sqw_ne_change_2nd_page(obj)
+            new_sqw = sqw.generate_cube_sqw(10);
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 50);
+            new_sqw_paged = new_sqw.copy();
+            new_sqw_paged.pix.data(4, 180) = -1;
+            new_sqw_paged.pix = PixelDataFileBacked(new_sqw_paged.pix);
+
+            assertTrue(isa(new_sqw.pix, 'PixelDataMemory'));
+            assertTrue(isa(new_sqw_paged.pix, 'PixelDataFileBacked'));
+
+            assertFalse(equal_to_tol(new_sqw, new_sqw_paged));
+            assertFalse(equal_to_tol(new_sqw_paged, new_sqw));
         end
 
         function test_paged_sqw_objects_equal_if_pix_within_each_bin_shuffled(obj)
@@ -267,5 +266,4 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         end
 
     end
-
 end

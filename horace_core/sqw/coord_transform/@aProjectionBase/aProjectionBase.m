@@ -31,7 +31,9 @@ classdef aProjectionBase < serializable
         angdeg       % angles between the lattice edges
         %
         offset; % Offset of origin of the projection in r.l.u.
-        %         and energy ie. [h; k; l; en] [row vector]
+        %         and energy i.e. [h; k; l; en] [row vector]
+        img_offset; % Convenience property, providing/accepting the offset
+        %           % expressed in the image coordinate system.
         %---------------------------------
         label % the method which allows user to change labels present on a
         %      cut
@@ -44,21 +46,16 @@ classdef aProjectionBase < serializable
         %
         title % this method would allow change cut title if non-empty value
         %     % is provided to the projection, which defines title
+        %
     end
     properties(Dependent,Hidden)
         % Internal properties, used by algorithms and better not to be
         % exposed to users
         %
-        targ_proj;   % the target projection, used by cut to transform from
-        %              source to target coordinate system
+        targ_proj; % the target projection, used by cut to transform from
+        %            source to target coordinate system. Normally set
+        %            by cut algorithm.
         %
-        % Old confusing u_to_rlu matrix value
-        %
-        % Matrix to convert from Crystal Cartesian (pix coordinate system)
-        % to the image coordinate system (normally in rlu, except initially
-        % generated sqw file, when this image is also in Crystal Cartesian)
-        %
-        u_to_rlu
         %------------------------------------------------------------------
         % DEVELOPERS or FINE-TUNNING properties
         %------------------------------------------------------------------
@@ -68,12 +65,12 @@ classdef aProjectionBase < serializable
         % particular projection-projection pair of transformations,
         % optimized for specific projection-projection pair of classes
         do_generic;
-        % testing property. Normaly transformation from source to target
+        % testing property. Normally transformation from source to target
         % coordinate system in cut can be optimized as each transformation
         % is described by transformation matrices and the final
-        % transformation is the production of all these matrices.
+        % transformation is the product of all these matrices.
         % if the property set to true, the transformation performed in two
-        % steps, namely tranforming from image to pixel coordinate system
+        % steps, namely transforming from image to pixel coordinate system
         % and then from pixel to other image coordinate system.
         disable_srce_to_targ_optimization
         % check if a projection should use 3D transformation assuming that
@@ -84,7 +81,7 @@ classdef aProjectionBase < serializable
         % true, though testing or the projection used to identify position
         % of q-dE point in q-dE space may set this property to false.
         do_3D_transformation;
-        % Direct access to different parts of 4-component label celarray.
+        % Direct access to different parts of 4-component label cellarray.
         % sets up appropriate element of such array. Do not have a getter.
         % Do retrieve label as a whole.
         lab1;
@@ -95,6 +92,10 @@ classdef aProjectionBase < serializable
         alatt_defined
         % returns true if lattice angles have been set up
         angdeg_defined
+        % old interface to img_offset for old data containing a
+        % structure with the value of this property, or old user scripts
+		% which define structure with this value.
+        uoffset
     end
 
     properties(Constant, Access=protected)
@@ -107,8 +108,8 @@ classdef aProjectionBase < serializable
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
-        alatt_ = [2*pi,2*pi,2*pi]; %unit-sized lattice vector
-        angdeg_= [90,90,90];
+        alatt_ = []; % holder for lattice parameters
+        angdeg_= []; % holder for lattice angles
         % true if both alatt and angdeg have been correctly set-up
         lattice_defined_= [false,false];
         %------------------------------------
@@ -128,7 +129,7 @@ classdef aProjectionBase < serializable
         % specific pairs of the projection types if such optimization
         % is available
         do_generic_ = true;
-        % if true, disables optimization of the transfornation from source
+        % if true, disables optimization of the transformation from source
         % to target coordinate system.
         disable_srce_to_targ_optimization_ = false;
         % majority of projections have energy axis orthogonal to other
@@ -140,6 +141,10 @@ classdef aProjectionBase < serializable
         % algorithmically simpler so actively used in tests.
         do_3D_transformation_ = true;
         %------------------------------------------------------------------
+        % temporary variable used to keep img_offset if one is set to the
+        % projection, until hkl offset can be properly calculated (lattice
+        % and coordinate transformations are fully defined)
+        tmp_img_offset_holder_ = [];
     end
     %======================================================================
     % ACCESSORS AND CONSTRUCTION
@@ -236,12 +241,43 @@ classdef aProjectionBase < serializable
         function obj=set.label(obj,val)
             obj = check_and_set_labels_(obj,val);
         end
-        %
-        function uoffset = get.offset(this)
-            uoffset = this.offset_;
+        %------------------------------------------------------------------
+        function offset = get.offset(obj)
+            offset = obj.offset_;
         end
         function obj = set.offset(obj,val)
-            obj = check_and_set_offset_(obj,val);
+            obj.offset_ = check_offset_(obj,val);
+            obj.tmp_img_offset_holder_ = []; % just in case if you set up
+            % one and then another but reconciliation have not happened yet
+            if obj.do_check_combo_arg_ % does nothing here, but
+                % will recalculate caches in children
+                obj = obj.check_combo_arg();
+            end
+        end
+        function uoffset = get.img_offset(obj)
+            % convert hkl offset into Crystal Cartesian
+            if ~isempty(obj.tmp_img_offset_holder_)
+                uoffset = obj.tmp_img_offset_holder_;
+                return;
+            end
+            if ~obj.alatt_defined || ~obj.angdeg_defined
+                uoffset = [];
+                return;
+            end
+            hkl_offset = obj.offset_(:);
+            % nullify internal offset to kill side effects of offset to
+            % pix->img transformation. Results are local anyway.
+            obj.offset = zeros(1,4);
+            pix_offset_cc = obj.bmatrix(4)*hkl_offset;
+            uoffset = (obj.transform_pix_to_img(pix_offset_cc))';
+        end
+        function obj = set.img_offset(obj,val)
+            % check common offset properties (shape, size) numeric value
+            % and set offset_ in invalid units
+            obj.tmp_img_offset_holder_ = check_offset_(obj,val);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
         %
         function tl = get.title(obj)
@@ -255,9 +291,31 @@ classdef aProjectionBase < serializable
             end
             obj.title_ = val;
         end
-        function mat = get.u_to_rlu(obj)
+        function bm = bmatrix(obj,ndim)
+            % Return b-matrix defined on this projection lattice.
             %
-            mat = get_u_to_rlu_mat(obj);
+            % B-matrix is the Busing-Levy matrix which relates a vector,
+            % expressed in Crystal Cartesian coordinate system with a
+            % vector in the coordinate system attached to reciprocal lattice.
+            % Optional Input:
+            % ndim -- if provided and equal to 4, return the 4x4 matrix
+            %         rather then 3x3 standard matrix, with unit expansion
+            %         to fourth dimension (e.g. add rows/columns with 0
+            %         except 1 as 4th element of diagonal.
+            if ~obj.alatt_defined||~obj.angdeg_defined
+                error('HORACE:aProjectionBase:runtime_error', ...
+                    ['Attempt to use hkl-coordinate transformations before lattice',...
+					' parameters are defined.\n', ...
+                    ' You have alatt= %s, angdeg = %s. Define lattice parameters first'], ...
+                    mat2str(obj.alatt_),mat2str(obj.angdeg_))
+            end
+
+            bm = bmatrix(obj.alatt,obj.angdeg);
+            if nargin == 2 && ndim == 4
+                bm4 = eye(4);
+                bm4(1:3,1:3) = bm;
+                bm = bm4;
+            end
         end
 
         %----------------------------------------------------------------
@@ -308,7 +366,15 @@ classdef aProjectionBase < serializable
         function def = get.angdeg_defined(obj)
             def = obj.lattice_defined_(2);
         end
+        % OLD sqw object creation interface.
+        function off = get.uoffset(obj)
+            off = obj.img_offset;
+        end
+        function obj = set.uoffset(obj,val)
+            obj.img_offset = val;
+        end
     end
+
     %======================================================================
     % MAIN PROJECTION OPERATIONS
     methods
@@ -333,13 +399,16 @@ classdef aProjectionBase < serializable
                 targ_proj.targ_proj = obj;
                 obj.targ_proj = targ_proj;
             end
+
             contrib_ind= obj.get_contrib_cell_ind(...
                 cur_axes_block,targ_proj,targ_axes_block);
+
             if isempty(contrib_ind)
                 bl_start  = [];
                 bl_size = [];
                 return;
             end
+
             % Calculate pix indexes from cell indexes. Compress indexes of
             % contributing cells into bl_start:bl_start+bl_size-1 form if
             % it has not been done before.
@@ -348,6 +417,7 @@ classdef aProjectionBase < serializable
             [bl_start,bl_size] = obj.convert_contrib_cell_into_pix_indexes(...
                 contrib_ind,npix);
         end
+
         function   [may_contribND,may_contrib_dE] = may_contribute(obj, ...
                 cur_axes_block, targ_proj,targ_axes_block)
             % return logical array of size of the current axes block grid
@@ -405,7 +475,7 @@ classdef aProjectionBase < serializable
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
         %------------------------------------------------------------------
-        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj, ...
+        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj, ...
                 axes,pix_cand,npix,s,e,varargin)
             % Convert pixels into the coordinate system defined by the
             % projection and bin them into the coordinate system defined
@@ -445,12 +515,17 @@ classdef aProjectionBase < serializable
             %           PixelData object (as input pix_candidates) containing
             %           pixels contributing to the grid and sorted according
             %           to the axes block grid.
+            %           IF '-return_selected' passed and only npix,s,e requested
+            %            instead contains indices of kept pixels (cf. `selected`)
+            %
             % unique_runid -- the run-id (tags) for the runs, which
             %           contributed into the cut
             % pix_indx--indexes of the pix_ok coordinates according to the
             %           bin. If this index is requested, the pix_ok object
             %           remains unsorted according to the bins and the
             %           follow up sorting of data by the bins is expected
+            % selected  -- numerical array of indices of selected pixels after
+            %            binning
             %
             % Optional arguments transferred without any change to
             % AxesBlockBase.bin_pixels( ____ ) routine
@@ -465,7 +540,9 @@ classdef aProjectionBase < serializable
             %                 it gets on input, into double. if not, output
             %                 pixels will keep their initial type
             % -nomex and -force_mex options can not be used together.
-            %
+            % '-return_selected' -- returns `selected` in `pix_ok`
+            %             (For DnD only cuts fewer arguments are returned this uses
+            %              the pix_ok slot)
 
             pix_transformed = obj.transform_pix_to_img(pix_cand);
             switch(nargout)
@@ -486,10 +563,61 @@ classdef aProjectionBase < serializable
                     [npix,s,e,pix_ok,unique_runid,pix_indx]=...
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
+                case(7)
+                    [npix,s,e,pix_ok,unique_runid,pix_indx,selected]=...
+                        axes.bin_pixels(pix_transformed,...
+                        npix,s,e,pix_cand,varargin{:});
                 otherwise
                     error('HORACE:aProjectionBase:invalid_argument',...
-                        'This function requests 1,3,4,5 or 6 output arguments');
+                        'This function requests 1, 3, 4, 5, 6 or 7 output arguments');
             end
+        end
+        function [pix_hkl,en] = transform_pix_to_hkl(obj,pix_coord,varargin)
+            % Converts from pixel coordinate system (Crystal Cartesian)
+            % to hkl coordinate system
+            %
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in.
+            %
+            % pix_coord -- 4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system, defined by
+            %              this projection
+            %
+            % Output:
+            % pix_hkl  -- 4xNpix or 3xNpix array of pixel coordinates in
+            %             hkl (physical) coordinate system (4-th
+            %             coordinate, if requested, is the energy transfer)
+            [pix_hkl,en] = transform_pix_to_hkl_(obj,pix_coord,varargin{:});
+            if nargout == 1
+                pix_hkl = [pix_hkl;en];
+            end
+        end
+
+        function pix_hkl = tansform_img_to_hkl(obj,img_coord,varargin)
+            % Converts from image coordinate system to hkl coordinate
+            % system
+            %
+            % Should be overloaded to optimize for a particular case to
+            % improve efficiency.
+            %
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in. The target projection has to be
+            %              set up
+            %
+            % pix_origin-- 4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the coordinate system, defined by
+            %              this projection
+            %
+            % Output:
+            % pix_hkl   -- 4xNpix or 3xNpix array of pixel coordinates in
+            %               hkl (physical) coordinate system (4-th
+            %               coordinate, if requested, is the energy transfer)
+            ndim = size(img_coord,1);
+            pix_hkl = obj.bmatrix(ndim)\obj.transform_img_to_pix(img_coord,varargin{:});
         end
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
@@ -591,6 +719,10 @@ classdef aProjectionBase < serializable
         function obj = check_and_set_alatt(obj,val)
             [obj.alatt_,defined] = check_alatt_return_standard_val_(obj,val);
             obj.lattice_defined_(1) = defined;
+            if obj.do_check_combo_arg_ % it does nothing here, but
+                % will recalculate caches in children
+                obj = obj.check_combo_arg();
+            end
         end
         function   proj = get_target_proj(obj)
             proj = obj.targ_proj_;
@@ -602,6 +734,10 @@ classdef aProjectionBase < serializable
         function obj = check_and_set_andgdeg(obj,val)
             [obj.angdeg_,defined] = check_angdeg_return_standard_val_(obj,val);
             obj.lattice_defined_(2) = defined;
+            if obj.do_check_combo_arg_ % it does nothing here, but
+                % will recalculate caches in children
+                obj = obj.check_combo_arg();
+            end
         end
         %
         function obj = check_and_set_targ_proj(obj,val)
@@ -637,7 +773,7 @@ classdef aProjectionBase < serializable
         %
         function obj = check_and_set_do_generic(obj,val)
             % setter for do_generic method
-            if ~((islogical(val) || isnumeric(val)) && numel(val)==1)
+            if ~islognumscalar(val)
                 error('HORACE:aProjectionBase:invalid_argument',...
                     'you may set do_generic property into true or false state only');
             end
@@ -668,8 +804,9 @@ classdef aProjectionBase < serializable
             %                requested cells
             % bl_size     -- number of pixels, contributed into each
             %                block
-            pix_start = [0,cumsum(npix(:)')]; % pixel location in C-indexed
-            % array
+
+            % pixel location in C-indexed array
+            pix_start = [0,cumsum(npix(:)')];
             if iscell(cell_ind) % input contributing cell indexes arranged
                 % in the form of cellarray, containing cell_start:cell_end
                 bl_start = pix_start(cell_ind{1});
@@ -752,11 +889,12 @@ classdef aProjectionBase < serializable
         % into crystal Cartesian system or other source coordinate system,
         % defined by projection
         [pix_cc,varargout] = transform_img_to_pix(obj,pix_transformed,varargin);
+
+        % return parameters of transformation used for conversion from pixels
+        % to image coordinate system
+        varargout = get_pix_img_transformation(obj,ndim,varargin);
     end
     methods(Abstract,Access=protected)
-        % function returns u_to_rlu matrix for appropriate coordinate
-        % system
-        mat = get_u_to_rlu_mat(obj);
     end
     %======================================================================
     % Serializable interface
@@ -772,6 +910,23 @@ classdef aProjectionBase < serializable
             flds = {'alatt','angdeg','offset','label'};
             if ~isempty(obj.title)
                 flds = [flds(:);'title']';
+            end
+        end
+        % validation
+        function obj = check_combo_arg (obj)
+            % check if the img_offset has been set and transform it into
+            % hkl offset if all necessary class properties are defined
+            if ~isempty(obj.tmp_img_offset_holder_) && obj.alatt_defined && obj.angdeg_defined
+                img_offset_ = obj.tmp_img_offset_holder_(:);
+                obj.offset  = zeros(0,4); % nullify any previous offset
+                % to avoid side effects from transformations
+                % Note the public interface -- necessary for
+                % clearing the children caches properly
+
+                % transform offset into hkl coordinate system and set it
+                % using public interface (check interdependent properties)
+                obj.offset  = (obj.transform_img_to_hkl(img_offset_))';
+                obj.tmp_img_offset_holder_ = [];
             end
         end
     end

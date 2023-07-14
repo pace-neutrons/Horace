@@ -44,13 +44,11 @@ function  fint = getFF_calculator(self,win)
 %
 
 if isa(win,'sqw')
-    header_ave=header_average(win);
-    self.u_2_rlu_ = header_ave.u_to_rlu(1:3,1:3);
-    %self.u_2_rlu_ = win.data.u_to_rlu(1:3,1:3);
-elseif isnumeric(win) || size(win) == [3,3]
-    self.u_2_rlu_ = inv(win);
+    self.hkl_to_Qmat_ = win.data.proj.bmatrix();
+elseif isnumeric(win) || all(size(win) == [3,3])
+    self.hkl_to_Qmat_= win;
 else
-    self.u_2_rlu_ = win.u_to_rlu(1:3,1:3);
+    self.hkl_to_Qmat_ = win.proj.bmatrix();
 end
 
 

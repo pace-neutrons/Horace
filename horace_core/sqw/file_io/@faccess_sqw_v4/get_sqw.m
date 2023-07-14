@@ -13,9 +13,9 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 % Input:
 % --------
 %
-% infile      If present, the file name, or file identifier of an open file, 
-%             from which to read data. If absent, the accessor (obj) should be 
-%             initialized. 
+% infile      If present, the file name, or file identifier of an open file,
+%             from which to read data. If absent, the accessor (obj) should be
+%             initialized.
 %
 % Keyword Arguments:
 % ------------------
@@ -53,7 +53,7 @@ function [sqw_object,varargout] = get_sqw(obj, varargin)
 %
 % Original author: T.G.Perring
 %
-opts = obj.parse_get_sqw_args(varargin{:});
+opts = horace_binfile_interface.parse_get_sqw_args(varargin{:});
 
 
 sqw_skel = struct('main_header',[],'experiment_info',[],'detpar',[], ...
@@ -74,13 +74,6 @@ if ~(opts.head || opts.his)
 end
 
 
-% CRYSTAL ALIGNMENT FIXTURE: #TODO: #892 modify  and remove!
-proj = sqw_skel.data.proj;
-if isa(proj,'ortho_proj')
-    header_av = sqw_skel.experiment_info.header_average();
-    sqw_skel.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
-end
-
 if opts.nopix
     sqw_skel = rmfield(sqw_skel,'pix');
 else
@@ -89,12 +82,19 @@ else
     else
         argi = {};
     end
-    if opts.file_backed
-        argi = [argi(:),'-filebacked'];
+    if opts.force_pix_location
+        if opts.file_backed
+            sqw_skel.pix = PixelDataFileBacked(obj,argi{:});
+        else
+            sqw_skel.pix = PixelDataMemory(obj,argi{:});
+        end
+    else
+        if opts.file_backed
+            argi = [argi(:),'-filebacked'];
+        end
+        sqw_skel.pix = PixelDataBase.create(obj,argi{:});
     end
-    sqw_skel.pix = PixelDataBase.create(obj,argi{:});
 end
-
 
 if opts.legacy
     sqw_object   = sqw_skel.main_header;
@@ -106,9 +106,13 @@ if opts.legacy
     else
         varargout{4} = [];
     end
+    return
 elseif opts.head || opts.his
     sqw_object             = sqw_skel;
     sqw_object.num_pixels  = sqw_skel.pix.npix;
 else
     sqw_object = sqw(sqw_skel);
+end
+if nargout > 1
+    varargout{1} = obj;
 end

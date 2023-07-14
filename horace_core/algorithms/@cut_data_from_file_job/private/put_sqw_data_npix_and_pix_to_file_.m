@@ -41,11 +41,7 @@ else
     if exist(outfile,'file') == 2
         delete(outfile);
     end
-    fid=fopen(outfile,'A');    % no automatic flushing: can be faster
-    if fid<0
-        mess = ['Unable to open file ',outfile];
-        return
-    end
+    fid=sqw_fopen(outfile,'A');    % no automatic flushing: can be faster
     close_file = true;
 end
 

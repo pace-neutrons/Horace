@@ -14,6 +14,6 @@ function byte_array = serialize (obj)
 %               to_struct before calling the utility function serialize.
 
 S = to_struct (obj);
-byte_array = serialise (S);
+byte_array = serialize (S);
 
 end

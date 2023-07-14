@@ -29,6 +29,6 @@ end
 if any(val<obj.tol_)
     error('HORACE:aProjectionBase:invalid_argument',...
         'input value for lattice may be a single positive number or 3-element vector, with any element bigger then 0. In fact it is: %s',...
-        evalc('disp(val)'));
+        disp2str(val));
 end
 defined = true;

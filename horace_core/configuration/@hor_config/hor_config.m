@@ -34,10 +34,10 @@ classdef hor_config < config_base
     %
     %   force_mex_if_use_mex - Fail if mex can not be used. Used in mex files debugging
     %--
-    %   high_perf_config_info  - an interface, displaying high performance computing settings.
+    %   hpc_config       - an interface, displaying high performance computing settings.
     %                       Use hpc_config class directly to modify these
     %                       settings.
-    %   init_tests          Enable the unit test functions
+    %   init_tests       -  Enable the unit test functions
     %
     %
     properties(Dependent)
@@ -45,13 +45,13 @@ classdef hor_config < config_base
         % on usual machine with 16Gb of RAM it is 10^7  (higher value does
         % not provide obvious performance benefits) but on older machines
         % with ~4Gb it has to be reduced to 10^6
-        mem_chunk_size
+        mem_chunk_size;
 
         % ignore NaN values if pixels have them.  %  (default --true)
-        ignore_nan
+        ignore_nan;
 
         % ignore inf values if pixels have them. %  (default --false)
-        ignore_inf
+        ignore_inf;
 
         % The verbosity of the log messages
         %      The larger the value, the more information is printed, e.g.:
@@ -59,16 +59,16 @@ classdef hor_config < config_base
         %   0  Major information messages printed
         %   1  Minor information messages printed in addition
         %   2  Time of the run measured and printed as well.
-        log_level
+        log_level;
 
         % use mex-code for time-consuming operations
         % default -- true if mex files are compiled
-        use_mex
+        use_mex;
 
         % automatically delete temporary files after generating sqw files
         % by default its true, but you may set it to false to keep files
         % for later operations.
-        delete_tmp
+        delete_tmp;
 
         % the folder where tmp files should be stored.
         % by default gen_sqw sets this value to place where spe files are
@@ -78,17 +78,17 @@ classdef hor_config < config_base
         % parallel file system.
         % Assign empty value to restore it to default (system tmp
         % directory)
-        working_directory
+        working_directory;
 
         % testing and debugging option -- fail if mex can not be used
         % By default if mex file fails, program tries to use Matlab, but
         % if this option is set to true, the whole operation may fail.
-        force_mex_if_use_mex
+        force_mex_if_use_mex;
 
         % the property, related to high performance computing settings.
         % Here it provided for information only while changes to this
         % property should be made through hpc_config class setters directly.
-        high_perf_config_info
+        hpc_config;
 
         % add unit test folders to search path (option for testing)
         init_tests;
@@ -105,19 +105,23 @@ classdef hor_config < config_base
         % set horace_info_level method indicating how verbose Horace would be.
         %      The larger the value, the more information is printed.
         % See log_level for more details.
-        horace_info_level
+        horace_info_level;
 
         %   pixel_page_size   - Maximum memory size of pixel data array in
         %                       file-backed algorithms (units of bytes).
         % PixelData page size in bytes. Overrides mem_chunk_size for
         % filebased PixelData if pixel_page_size is smaller then
         % appropriate mem_chunk_size expressed in bytes.
-        pixel_page_size
+        pixel_page_size;
+
+        % Information field:
+        % true, if working directory has not ever been set
+        wkdir_is_default;
     end
 
     properties(Access=protected, Hidden=true)
         % private properties behind public interface
-        mem_chunk_size_ = 10000000;
+        mem_chunk_size_ = 1e7;
 
         ignore_nan_ = true;
         ignore_inf_ = false;
@@ -201,7 +205,7 @@ classdef hor_config < config_base
             doinit = get_or_restore_field(this,'init_tests');
         end
 
-        function is = wkdir_is_default(~)
+        function is = get.wkdir_is_default(~)
             % return true if working directory has not been set and refers
             % to default (system tmp) directory
             % Usage
@@ -211,7 +215,7 @@ classdef hor_config < config_base
             is = isempty(work_dir);
         end
 
-        function hpcc = get.high_perf_config_info(~)
+        function hpcc = get.hpc_config(~)
             hpcc = hpc_config;
         end
 

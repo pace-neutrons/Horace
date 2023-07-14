@@ -70,11 +70,11 @@ try % mex C++
     % build C++ files
     mex_single(fullfile(cpp_in_rel_dir,'get_ascii_file'), out_rel_dir,...
         'get_ascii_file.cpp','IIget_ascii_file.cpp')
-    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
-        'c_serialise.cpp')
-    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
-        'c_deserialise.cpp')
-    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
+    mex_single(fullfile(cpp_in_rel_dir,'serializer'), out_rel_dir,...
+        'c_serialize.cpp')
+    mex_single(fullfile(cpp_in_rel_dir,'serializer'), out_rel_dir,...
+        'c_deserialize.cpp')
+    mex_single(fullfile(cpp_in_rel_dir,'serializer'), out_rel_dir,...
         'c_serial_size.cpp')
 
 
@@ -178,8 +178,8 @@ function mex_single (in_rel_dir, out_rel_dir, varargin)
 %
 % mex a set of files to produce a single mex file, the file with the mex
 % function has to be first in the  list of the files to compile
-%
 
+fprintf('**** compiling: %s\n',varargin{1})
 curr_dir = pwd;
 if(nargin<1)
     error('MEX_SINGLE:invalid_arg',' request at leas one file name to process');

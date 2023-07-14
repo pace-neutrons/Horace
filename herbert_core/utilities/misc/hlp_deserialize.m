@@ -3,11 +3,12 @@ function [v,nbytes] = hlp_deserialize(m,pos)
 % Data = hlp_deserialize(Bytes)
 %
 % In:
-%   Bytes : a representation of the original data as a byte stream
-%
+%  m  :    a representation of the original data as a byte stream
+%  pos:    if present, the initial location of the data to deserise in
+%          within the byte array
 % Out:
-%   Data : some MATLAB data structure
-%
+%   Data  : some MATLAB data structure deseriaised from the bytes
+%  nbytes : number of bytes the structure occupies
 % See also:
 %   hlp_serialize
 %
@@ -16,420 +17,288 @@ function [v,nbytes] = hlp_deserialize(m,pos)
 %   ... e.g. transfer the 'bytes' array over the network ...
 %   mydata = hlp_deserialize(bytes);
 %
-%                                Christian Kothe, Swartz Center for Computational Neuroscience, UCSD
-%                                2010-04-02
+%   Jacob Wilkins, SCD, STFC RAL,
+%   2020-12-24
 %
-%                                adapted from deserialize.m
-%                                (C) 2010 Tim Hutt
-if nargin<2
+%   adapted from hlp_deserialize.m
+%   Christian Kothe, Swartz Center for Computational Neuroscience, UCSD
+%   2010-04-02
+%
+%   adapted from deserialize.m
+%   (C) 2010 Tim Hutt
+if nargin==1
     pos = 1;
 end
 pos0 = pos;
-% wrap dispatcher
-[v,pos] = deserialize_value(uint8(m(:)),pos);
-
+m = m(:); % Force column vector in-place
+[v,pos] = deserialize_value(m,pos);
 nbytes = pos-pos0;
 end
 
-% dispatch
 function [v,pos] = deserialize_value(m,pos)
-switch m(pos)
-    case {0,200}
-        [v,pos] = deserialize_string(m,pos);
-    case 128
-        [v,pos] = deserialize_struct(m,pos);
-    case {33,34,35,36,37,38,39}
+%type = bitand(31, m(pos));
+typeID = m(pos);
+
+switch typeID
+    case {0,1,2,3,4,5,6,7,8,9,10,11,12}
+        [v,pos] = deserialize_simple_data(m,pos);
+    case {13,14,15,16,17,18,19,20,21,22}
+        [v,pos] = deserialize_complex_data(m,pos);
+    case 23
         [v,pos] = deserialize_cell(m,pos);
-    case {1,2,3,4,5,6,7,8,9,10}
-        [v,pos] = deserialize_scalar(m,pos);
-    case 133
-        [v,pos] = deserialize_logical(m,pos);
-    case {151,152,153}
-        [v,pos] = deserialize_handle(m,pos);
-    case {17,18,19,20,21,22,23,24,25,26}
-        [v,pos] = deserialize_numeric_simple(m,pos);
-    case 130
-        [v,pos] = deserialize_sparse(m,pos);
-    case 131
-        [v,pos] = deserialize_complex(m,pos);
-    case 132
-        [v,pos] = deserialize_char(m,pos);
-    case 134
+    case {24}
+        [v,pos] = deserialize_struct(m,pos);
+    case {25, 25+64,25+128,25+192}
+        [v,pos] = deserialize_function_handle(m,pos);
+    case {26, 27}
         [v,pos] = deserialize_object(m,pos);
-    case {135,136}
+    case {29, 30, 31}
+        [v,pos] = deserialize_sparse(m,pos);
+    case 32
         [v,pos] = obj_deserialize_itself(m,pos);
     otherwise
-        error('MATLAB:deserialize_value:unrecognised_tag', 'Unsupported tag %s.', m(pos));
+        error('HORACE:deserialize:invalid_argument', ...
+              'Cannot deserialize tag with ID: %d at position %d.',typeID,pos);
 end
 end
 
-% individual scalar
-function [v,pos] = deserialize_scalar(m,pos)
-classes = {'double','single','int8','uint8','int16','uint16','int32','uint32','int64','uint64'};
-sizes = [8,4,1,1,2,2,4,4,8,8];
-sz = sizes(m(pos));
-% Data.
-v = typecast(m(pos+1:pos+sz),classes{m(pos)});
-pos = pos + 1 + sz;
+function [v,pos] = read_bytes(m, pos, type, n)
+compFac = 1;
+if startsWith(type, 'complex')
+    type = type(9:end);
+    compFac = 2;
 end
 
-% standard string
-function [v,pos] = deserialize_string(m,pos)
-if m(pos) == 0
-    % horizontal string: tag
-    pos = pos + 1;
-    % length (uint32)
-    nbytes = double(typecast(m(pos:pos+3),'uint32'));
-    pos = pos + 4;
-    % data (chars)
-    v = char(m(pos:pos+nbytes-1))';
-    pos = pos + nbytes;
-else
-    % proper empty string: tag
-    [v,pos] = deal('',pos+1);
-end
+type = hlp_serial_types.get_details(type);
+
+nBytes = double(type.size*n*compFac);
+v = typecast(m(pos:pos+nBytes-1), type.name).';
+pos = pos + nBytes;
 end
 
-% general char array
-function [v,pos] = deserialize_char(m,pos)
-pos = pos + 1;
-% Number of dims
-ndms = double(m(pos));
-pos = pos + 1;
-% Dimensions
-dms = double(typecast(m(pos:pos+ndms*4-1),'uint32')');
-pos = pos + ndms*4;
-nbytes = prod(dms);
-% Data.
-v = char(m(pos:pos+nbytes-1));
-pos = pos + nbytes;
-v = reshape(v,[dms 1 1]);
-end
+function [v,pos] = deserialize_simple_data(m, pos)
+[type, nDims,size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
 
-% general logical array
-function [v,pos] = deserialize_logical(m,pos)
-pos = pos + 1;
-% Number of dims
-ndms = double(m(pos));
-pos = pos + 1;
-% Dimensions
-dms = double(typecast(m(pos:pos+ndms*4-1),'uint32')');
-pos = pos + ndms*4;
-nbytes = prod(dms);
-% Data.
-v = logical(m(pos:pos+nbytes-1));
-pos = pos + nbytes;
-v = reshape(v,[dms 1 1]);
-end
-
-% simple numerical matrix
-function [v,pos] = deserialize_numeric_simple(m,pos)
-classes = {'double','single','int8','uint8','int16','uint16','int32','uint32','int64','uint64'};
-sizes = [8,4,1,1,2,2,4,4,8,8];
-cls = classes{m(pos)-16};
-sz = sizes(m(pos)-16);
-pos = pos + 1;
-% Number of dims
-ndms = double(m(pos));
-pos = pos + 1;
-% Dimensions
-dms = double(typecast(m(pos:pos+ndms*4-1),'uint32')');
-pos = pos + ndms*4;
-nbytes = prod(dms) * sz;
-% Data.
-v = typecast(m(pos:pos+nbytes-1),cls);
-pos = pos + nbytes;
-v = reshape(v,[dms 1 1]);
-end
-
-% complex matrix
-function [v,pos] = deserialize_complex(m,pos)
-pos = pos + 1;
-[re,pos] = deserialize_numeric_simple(m,pos);
-[im,pos] = deserialize_numeric_simple(m,pos);
-v = complex(re,im);
-end
-
-% sparse matrix
-function [v,pos] = deserialize_sparse(m,pos)
-pos = pos + 1;
-% matrix dims
-u = double(typecast(m(pos:pos+7),'uint64'));
-pos = pos + 8;
-v = double(typecast(m(pos:pos+7),'uint64'));
-pos = pos + 8;
-% index vectors
-[i,pos] = deserialize_numeric_simple(m,pos);
-[j,pos] = deserialize_numeric_simple(m,pos);
-if m(pos)
-    % real
-    pos = pos+1;
-    [s,pos] = deserialize_numeric_simple(m,pos);
-else
-    % complex
-    pos = pos+1;
-    [re,pos] = deserialize_numeric_simple(m,pos);
-    [im,pos] = deserialize_numeric_simple(m,pos);
-    s = complex(re,im);
-end
-v = sparse(i,j,s,u,v);
-end
-
-% struct array
-function [v,pos] = deserialize_struct(m,pos)
-pos = pos + 1;
-% Number of field names.
-nfields = double(typecast(m(pos:pos+3),'uint32'));
-pos = pos + 4;
-% Field name lengths
-fnLengths = double(typecast(m(pos:pos+nfields*4-1),'uint32'));
-pos = pos + nfields*4;
-% Field name char data
-fnChars = char(m(pos:pos+sum(fnLengths)-1)).';
-pos = pos + length(fnChars);
-% Number of dims
-ndms = double(typecast(m(pos:pos+3),'uint32'));
-pos = pos + 4;
-% Dimensions
-dms = typecast(m(pos:pos+ndms*4-1),'uint32')';
-pos = pos + ndms*4;
-% Field names.
-fieldNames = cell(length(fnLengths),1);
-splits = [0; cumsum(double(fnLengths))];
-for k=1:length(splits)-1
-    fieldNames{k} = fnChars(splits(k)+1:splits(k+1)); 
-end
-% Content.
-v = reshape(struct(),[dms 1 1]);
-if m(pos)
-    % using struct2cell
-    pos = pos + 1;
-    [contents,pos] = deserialize_cell(m,pos);
-    v = cell2struct(contents,fieldNames,1);
-else
-    % using per-field cell arrays
-    pos = pos + 1;
-    for ff = 1:nfields
-        [contents,pos] = deserialize_cell(m,pos);
-        [v.(fieldNames{ff})] = deal(contents{:});
-    end
-end
-end
-
-% cell array
-function [v,pos] = deserialize_cell(m,pos)
-kind = m(pos);
-pos = pos + 1;
-switch kind
-    case 33 % arbitrary/heterogenous cell array
-        % Number of dims
-        ndms = double(m(pos));
-        pos = pos + 1;
-        % Dimensions
-        dms = double(typecast(m(pos:pos+ndms*4-1),'uint32')');
-        pos = pos + ndms*4;
-        % Contents
-        v = cell([dms,1,1]);
-        for ii = 1:numel(v)
-            [v{ii},pos] = deserialize_value(m,pos); end
-    case 34 % cell scalars
-        [content,pos] = deserialize_value(m,pos);
-        v = cell(size(content));
-        for k=1:numel(v)
-            v{k} = content(k); end
-    case 35 % mixed-real cell scalars
-        [content,pos] = deserialize_value(m,pos);
-        v = cell(size(content));
-        for k=1:numel(v)
-            v{k} = content(k); end
-        [reality,pos] = deserialize_value(m,pos);
-    case 36 % cell array with horizontal or empty strings
-        [chars,pos] = deserialize_string(m,pos);
-        [lengths,pos] = deserialize_numeric_simple(m,pos);
-        [empty,pos] = deserialize_logical(m,pos);
-        v = cell(size(lengths));
-        splits = [0 cumsum(double(lengths(:)))'];
-        for k=1:length(lengths)
-            v{k} = chars(splits(k)+1:splits(k+1)); end
-        [v{empty}] = deal('');
-    case 37 % empty,known type
-        tag = m(pos);
-        pos = pos + 1;
-        switch tag
-            case 1   % double - []
-                prot = [];
-            case 33  % cell - {}
-                prot = {};
-            case 128 % struct - struct()
-                prot = struct();
-            otherwise
-                error('MATLAB:deserialize_cell:unrecognised_tag', 'Unsupported tag %s.', tag);
-        end
-        % Number of dims
-        ndms = double(m(pos));
-        pos = pos + 1;
-        % Dimensions
-        dms = typecast(m(pos:pos+ndms*4-1),'uint32')';
-        pos = pos + ndms*4;
-        % Create content
-        v = repmat({prot},dms);
-    case 38 % empty, prototype available
-        % Prototype.
-        [prot,pos] = deserialize_value(m,pos);
-        % Number of dims
-        ndms = double(m(pos));
-        pos = pos + 1;
-        % Dimensions
-        dms = typecast(m(pos:pos+ndms*4-1),'uint32')';
-        pos = pos + ndms*4;
-        % Create content
-        v = repmat({prot},dms);
-    case 39 % boolean flags
-        [content,pos] = deserialize_logical(m,pos);
-        v = cell(size(content));
-        for k=1:numel(v)
-            v{k} = content(k); end
+switch type.name
+    case {'logical', 'char', 'string'}
+        field_width = 'uint8';
     otherwise
-        error('HERBERT:hlp_deserialize:runtime_error',...
-            'Unsupported tag %d at position: %d', uint8(m(pos)),pos);
+        field_width = type.name;
 end
-end
-% object which can deserialize itself
-function [v,pos]=obj_deserialize_itself(m,pos)
-tag = m(pos);
-pos = pos + 1;
-if tag == 135
-    [cls,pos] = deserialize_string(m,pos);
-    instance = feval(cls);
-    [v,nbytes] = instance.deserialize(m(pos:end));
-    pos = pos+nbytes+8;
-elseif tag == 136
-    [v,nbytes] = serializable.deserialize(m(pos:end));
-    pos = pos+nbytes;
+
+if nDims > 0
+    nData = prod(size);
+    [v, pos] = read_bytes(m, pos, field_width, nData);
 else
-    error('HERBERT:hlp_deserialize:runtime_error',...
-        'Unsupported tag %d at position: %d', uint8(m(pos)),pos);
+    v = [];
+end
+
+switch type.name
+    case 'logical'
+        v = logical(v);
+    case 'char'
+        v = char(v);
+    case 'string'
+        v = convertCharsToStrings(char(v));
+end
+
+if nDims > 1
+    v = reshape(v, size);
 end
 end
-% object
-function [v,pos] = deserialize_object(m,pos)
-pos = pos + 1;
-% Get class name.
-[cls,pos] = deserialize_string(m,pos);
-% Get contents
-[conts,pos] = deserialize_value(m,pos);
-% construct object
-try
-    % try to use the loadobj function
-    v = eval([cls '.loadobj(conts)']);
-catch ME
-    try
-        % pass the struct directly to the constructor
-        v = eval([cls '(conts)']);
-    catch
-        try
-            % try to set the fields manually
-            v = feval(cls);
-            for fn=fieldnames(conts)'
-                try
-                    set(v,fn{1},conts.(fn{1}));
-                catch
-                    % Note: if this happens, your deserialized object might not be fully identical
-                    % to the original (if you are lucky, it didn't matter, through). Consider
-                    % relaxing the access rights to this property or add support for loadobj from
-                    % a struct.
-                    warn_once('hlp_deserialize:restricted_access','No permission to set property %s in object of type %s.',fn{1},cls);
-                end
-            end
-        catch
-            v = conts;
-            v.hlp_deserialize_failed = ['could not construct class: ' cls];
-        end
+
+function [v, pos] = deserialize_complex_data(m, pos)
+[type, nDims,size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
+
+if nDims == 0
+    v = [];
+else
+    totalElem = prod(size);
+    [data, pos] = read_bytes(m, pos, type.name, totalElem);
+    v = complex(data(1:totalElem), data(totalElem+1:end));
+end
+
+if nDims > 1
+    v = reshape(v, size);
+end
+end
+
+% Sparse data types
+function [v, pos] = deserialize_sparse(m, pos)
+% second value, nDims should be always 2
+[type, ~,sze,pos] = hlp_serial_types.unpack_data_tag(m,pos);
+
+
+[nElem, pos] = read_bytes(m, pos, 'uint32', 1);
+if isempty(sze)
+    v = sparse([],[],[]);
+    return;
+end
+
+switch type.name
+    case 'sparse_logical'
+        data_format = 'uint8';
+    otherwise
+        data_format = type.name(8:end);
+end
+
+
+[i, pos] = read_bytes(m, pos, 'uint64', nElem);
+[j, pos] = read_bytes(m, pos, 'uint64', nElem);
+% beware that C API which indexes from 0, not 1. Better to do alignment in
+% API itself, as C would do it quicker
+i = double(i);
+j = double(j);
+[data, pos] = read_bytes(m, pos, data_format, nElem);
+
+switch type.name
+    case 'sparse_logical'
+        data = logical(data);
+    case 'sparse_complex_double'
+        data = complex(data(1:nElem), data(nElem+1:end));
+    otherwise
+end
+
+v = sparse(i,j,data,sze(1),sze(2));
+end
+
+function [v, pos] = deserialize_cell(m, pos)
+[~, nDims,fh_size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
+
+if nDims == 0
+    v = {};
+else
+    totalElem = prod(fh_size);
+    v = cell(1,totalElem);
+    for i=1:totalElem
+        [v{i}, pos] = deserialize_value(m, pos);
     end
 end
+
+if nDims > 1
+    v = reshape(v,fh_size);
 end
 
-% function handle
-function [v,pos] = deserialize_handle(m,pos)
-% Tag
-kind = m(pos);
-pos = pos + 1;
-switch kind
-    case 151 % simple function
-        persistent db_simple; %#ok<TLEV> % database of simple functions (indexed by name)
-        % Name
-        [name,pos] = deserialize_string(m,pos);
-        try
-            % look up from table
-            v = db_simple.(name);
-        catch
-            % otherwise generate & fill table
-            v = str2func(name);
-            db_simple.(name) = v;
-        end
-    case 152 % anonymous function
-        % Function code
-        [code,pos] = deserialize_string(m,pos);
-        % Workspace
-        [wspace,pos] = deserialize_struct(m,pos);
-        % Construct
-        v = restore_function(code,wspace);
-    case 153 % scoped or nested function
-        persistent db_nested; %#ok<TLEV> % database of nested functions (indexed by name)
-        % Parents
-        [parentage,pos] = deserialize_cell(m,pos);
-        try
-            key = sprintf('%s_',parentage{:});
-            % look up from table
-            v = db_nested.(key);
-        catch
-            % recursively look up from parents, assuming that these support the arg system
-            v = parentage{end};
-            for k=length(parentage)-1:-1:1
-                % Note: if you get an error here, you are trying to deserialize a function handle
-                % to a nested function. This is not natively supported by MATLAB and can only be made
-                % to work if your function's parent implements some mechanism to return such a handle.
-                % The below call assumes that your function uses the BCILAB arg system to do this.
-                try
-                    v = arg_report('handle',v,parentage{k});
-                catch
-                    error('MATLAB:deserialise_function_handle:hlp_deserialise', 'Cannot deserialise a function handle to a nested function.')
-                end
-            end
-            db_nested.(key) = v;
-        end
-end
 end
 
-% helper for deserialize_handle
-function f = restore_function(decl__,workspace__)
-% create workspace
-for fn__=fieldnames(workspace__)'
-    % we use underscore names here to not run into conflicts with names defined in the workspace
-    eval([fn__{1} ' = workspace__.(fn__{1}) ;']);
-end
-clear workspace__ fn__;
-% evaluate declaration
-f = eval(decl__);
-end
+function [v, pos] = deserialize_struct(m, pos)
+[~, nDims,fh_size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
 
-% emit a specific warning only once (per MATLAB session)
-function warn_once(varargin)
-persistent displayed_warnings;
-% determine the message content
-if length(varargin) > 1 && any(varargin{1}==':') && ~any(varargin{1}==' ') && ischar(varargin{2})
-    message_content = [varargin{1} sprintf(varargin{2:end})];
+nElems = prod(fh_size);
+if nDims == 0 && isempty(fh_size)
+    v = struct([]);
+    return;
+elseif nDims == 1
+    if nElems == 0
+        v = struct();
+        return
+    else
+        %v = reshape(struct(), [1 nElems]);
+    end
 else
-    message_content = sprintf(varargin{1:end});
+    %v = reshape(struct(), [nElems 1 1]);
 end
-% generate a hash of of the message content
-str = java.lang.String(message_content);
-message_id = sprintf('x%.0f',str.hashCode()+2^31);
-% and check if it had been displayed before
-if ~isfield(displayed_warnings,message_id)
-    % emit the warning
-    warning(varargin{:});
-    % remember to not display the warning again
-    displayed_warnings.(message_id) = true;
+
+% Number of field names.
+[nFields, pos] = read_bytes(m, pos, 'uint32', 1);
+nFields = double(nFields);
+if nFields == 0
+    v = reshape(struct(), fh_size);
+    return;
+end
+
+% Field name lengths
+[fnLengths, pos] = read_bytes(m, pos, 'uint32', nFields);
+fnLengths = double(fnLengths);
+% Field name char data
+[fnChars, pos] = read_bytes(m, pos, 'uint8', sum(fnLengths));
+fnChars = char(fnChars);
+% Field names.
+splits = [0, cumsum(fnLengths)];
+fieldNames = arrayfun(@(start,size)(fnChars(start+1:start+size)),...
+    splits(1:end-1),fnLengths,'UniformOutput',false);
+%
+% using struct2cell
+[contents,pos] = deserialize_value(m,pos);
+v = cell2struct(contents,fieldNames,1);
+end
+
+function [v, pos] = deserialize_function_handle(m, pos)
+[~, ~,fTag,pos] = hlp_serial_types.unpack_data_tag(m,pos);
+
+switch fTag
+    case 64 % Simple
+        [name, pos] = deserialize_simple_data(m, pos);
+        v = str2func(name);
+    case 128 % Anonymous
+        [code, pos] = deserialize_simple_data(m, pos);
+        [workspace, pos] = deserialize_struct(m, pos);
+        v = restore_function(code, workspace);
+    case 192 % Scoped/Nested
+        [parentage, pos] = deserialize_cell(m, pos);
+        % recursively look up from parents, assuming that these support the arg system
+        v = parentage{end};
+        for k=length(parentage)-1:-1:1
+            % Note: if you get an error here, you are trying to deserialize a function handle
+            % to a nested function. This is not natively supported by MATLAB and can only be made
+            % to work if your function's parent implements some mechanism to return such a handle.
+            % The below call assumes that your function uses the BCILAB arg system to do this.
+            try
+                v = arg_report('handle',v,parentage{k});
+            catch
+                error('MATLAB:deserialize:invalid_argument',...
+                    'Cannot deserialize a function handle to a nested function.')
+            end
+        end
+end
+end
+
+function [v,pos]=obj_deserialize_itself(m,pos)
+% first position is the self-serialization tag. The serializable starts from
+% the following byte
+[v,nbytes] = serializable.deserialize(m,pos+1);
+pos = pos+1+nbytes;
+end
+
+
+function [v, pos] = deserialize_object(m, pos)
+[~, nDims,size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
+
+totalElem = prod(size);
+[class_name, pos] = deserialize_simple_data(m, pos);
+
+if totalElem == 0
+    v = feval(class_name);
+else
+    [ser_tag, pos] = read_bytes(m, pos, 'uint8', 1);
+
+    if strcmp(class_name, 'MException')
+        class_name = 'MException_her';
+        ser_tag = 2;
+    end
+
+    switch ser_tag
+        case 0 % Object serializes itself
+            v(1:totalElem) = feval(class_name);
+            for i=1:totalElem
+                [v(i),nbytes] = v(i).deserialize(m, pos);
+                pos = pos+nbytes;
+            end
+        case 1 % Serialize as saveobj (must have loadobj)
+            [conts, pos] = deserialize_value(m, pos);
+            % Preallocate
+            cls = str2func([class_name '.loadobj']);
+            v = arrayfun(cls, conts);
+        case 2 % Serialize as struct
+            [conts, pos] = deserialize_value(m, pos);
+            % Preallocate
+
+            cls = str2func(class_name);
+            v = arrayfun(cls, conts);
+    end
+end
+
+if nDims > 1
+    v = reshape(v, size);
 end
 end

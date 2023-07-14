@@ -87,19 +87,40 @@ classdef test_symm < TestCase
             % sqw symmetrisation:
             w3d_sqw=read_sqw(fullfile(this.testdir,'w3d_sqw.sqw'));
 
-            w3d_sqw_sym=symmetrise_sqw(w3d_sqw,[0,0,1],[-1,1,0],[0,0,0]);
+            sym = [SymopReflection([0,0,1],[-1,1,0]), ...
+                   SymopReflection([1,1,0],[0,0,1]), ...
+                   SymopReflection([0,0,1],[-1,1,0])];
+
+            w3d_sqw_sym=symmetrise_sqw(w3d_sqw,sym(1));
             % one pixel lost, pity, but bearable.
             assertEqual(w3d_sqw.pix.num_pixels-1,w3d_sqw_sym.pix.num_pixels);
-            w3d_sqw_sym2=symmetrise_sqw(w3d_sqw_sym,[1,1,0],[0,0,1],[0,0,0]);
+            w3d_sqw_sym2=symmetrise_sqw(w3d_sqw_sym,sym(2));
             assertEqual(w3d_sqw_sym.pix.num_pixels,w3d_sqw_sym2.pix.num_pixels);
-            w3d_sqw_sym3=symmetrise_sqw(w3d_sqw_sym2,[0,0,1],[-1,1,0],[0,0,0]);
+            w3d_sqw_sym3=symmetrise_sqw(w3d_sqw_sym2,sym(3));
             assertEqual(w3d_sqw_sym3.pix.num_pixels,w3d_sqw_sym2.pix.num_pixels);
 
             cc1=cut(w3d_sqw_sym,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
             cc2=cut(w3d_sqw_sym3,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
 
-            [ok,mess]=equal_to_tol(d2d(cc1),d2d(cc2),-1e-6,'ignore_str', 1);
-            assertTrue(ok,['sqw symmetrisation fails, most likely due to cut rounding problem: ',mess])
+            assertEqualToTol(d2d(cc1),d2d(cc2),-1e-6,'ignore_str', 1)
+        end
+
+        function obj = test_sym_sqw_fb(obj)
+            w3d_sqw = sqw(fullfile(obj.testdir,'w3d_sqw.sqw'), 'file_backed', false);
+
+            sym = [SymopReflection([0,0,1],[-1,1,0]), ...
+                   SymopReflection([1,1,0],[0,0,1]), ...
+                   SymopReflection([0,0,1],[-1,1,0])];
+
+            w3d_sym_mb = symmetrise_sqw(w3d_sqw, sym);
+
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 10000);
+            w3d_sqw.pix = PixelDataFileBacked(w3d_sqw.pix);
+
+            w3d_sym_fb = symmetrise_sqw(w3d_sqw, sym);
+
+            assertEqualToTol(w3d_sym_mb, w3d_sym_fb, 1e-6, 'ignore_str', true);
+
         end
 
         % ------------------------------------------------------------------------------------------------

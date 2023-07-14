@@ -1,4 +1,4 @@
-% helper for deserialise_handle
+% helper for deserialize_handle
 function f = restore_function(decl__,workspace__)
 % create workspace
     for fn__=fieldnames(workspace__)'

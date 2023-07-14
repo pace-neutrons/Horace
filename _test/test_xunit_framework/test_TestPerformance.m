@@ -2,7 +2,7 @@ classdef test_TestPerformance < TestCase
     properties
         this_path;
     end
-    
+
     methods
         function self = test_TestPerformance(name)
             if nargin<1
@@ -34,7 +34,7 @@ classdef test_TestPerformance < TestCase
             assertTrue(isfield(perf,'time_sec'));
             known_ds = tc.known_perf_data_names();
             assertEqual(numel(known_ds),1);
-            
+
             perf1  = tc.known_performance('some_test_3',known_ds{1});
             assertEqual(perf,perf1);
             if is_file('pTestPerformanceTester_PerfRez.xml')
@@ -79,18 +79,15 @@ classdef test_TestPerformance < TestCase
         end
         %
         function test_suite_nme_is_comp_nme_and_clstr_and_tst_clss_nme(~)
-            pc = parallel_config;
-            cur_config = pc.get_data_to_store();
-            clob = onCleanup(@()set(pc,cur_config));
             try
-                pc.parallel_cluster = 'mpiexec_mpi';
+                clob = set_temporary_config_options(parallel_config, 'parallel_cluster', 'mpiexec_mpi');
             catch
                 skipTest('mpiexec_mpi cluster is not available on the test machine');
             end
-            
+
             tc = pTestPerformanceTester();
             name = tc.build_test_suite_name('SomeName');
-            
+
             com_name = getComputerName();
             p_pos = strfind(com_name,'.');
             if ~isempty(p_pos)
@@ -98,23 +95,20 @@ classdef test_TestPerformance < TestCase
             end
             assertEqual(name,[com_name,'_','mpiexec_mpi_SomeName']);
         end
-        
+
         %
         function test_suite_name_is_computer_name_and_test_class_name_for_herbert(~)
-            pc = parallel_config;
-            cur_config = pc.get_data_to_store();
-            clob = onCleanup(@()set(pc,cur_config));
-            pc.parallel_cluster = 'herbert';
-            
+            clob = set_temporary_config_options(parallel_config, 'parallel_cluster', 'herbert');
+
             tc = pTestPerformanceTester();
             name = tc.build_test_suite_name('SomeName');
-            
+
             com_name = getComputerName();
             p_pos = strfind(com_name,'.');
             if ~isempty(p_pos)
                 com_name= com_name(1:p_pos(1)-1);
             end
-            
+
             assertEqual(name,[com_name,'_','SomeName']);
         end
         %

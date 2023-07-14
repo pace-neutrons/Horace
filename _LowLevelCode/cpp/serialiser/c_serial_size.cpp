@@ -1,7 +1,7 @@
 /*=========================================================
  * c_serial_size.cpp
  * Calculate the size (in bytes) of Matlab structure, which would be produced by
- *  hpl_serialize routine. Deduced from hlp_serialise
+ *  hpl_serialize routine. Deduced from hlp_serialize
  *
  * See also:
  * hlp_serialize
@@ -15,7 +15,7 @@
 #include <cmath>
 #include <vector>
 #include "../utility/version.h"
-#include "cpp_serialise.hpp"
+#include "cpp_serialize.hpp"
 
 size_t get_size(const mxArray *input) {
   size_t size = 0;
@@ -101,7 +101,7 @@ size_t get_size(const mxArray *input) {
     {
       mxArray* conts;
       mxArray* arr = const_cast<mxArray *>(input);
-      mexCallMATLAB(1, &conts, 1, &arr, "hlp_serial_sise");
+      mexCallMATLAB(1, &conts, 1, &arr, "hlp_serial_size");
       size += (size_t) mxGetPr(conts)[0];
     }
     break;
