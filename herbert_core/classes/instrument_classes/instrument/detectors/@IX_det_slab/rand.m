@@ -55,9 +55,10 @@ function X = rand (obj, varargin)
 
 
 [sz, ind, npath, wvec] = parse_ind_npath_wvec_ (obj, varargin{:});
-alf = macro_xs_thick (obj, ind, npath, wvec);
+[alf, atten] = macro_xs_thick (obj, ind, npath, wvec);
 
-xscalefactor = (obj.atten_(ind(:)).*npath(1,:)');
+xscalefactor = atten(:) .* npath(1,:)';
+
 thickness = obj.depth_(ind(:));
 width = obj.width_(ind(:));
 height = obj.height_(ind(:));

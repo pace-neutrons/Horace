@@ -1,10 +1,10 @@
-classdef test_IX_det_He3tube < TestCaseWithSave
-    % Test the calculation of quantities for IX_det_He3tube object
+classdef test_IX_det_slab < TestCaseWithSave
+    % Test the calculation of quantities for IX_det_slab object
     properties
-        dia
+        depth
+        width
         height
-        wall
-        atms
+        atten
         path
         
         seed
@@ -13,22 +13,22 @@ classdef test_IX_det_He3tube < TestCaseWithSave
     
     methods
         %--------------------------------------------------------------------------
-        function obj = test_IX_det_He3tube (name)
+        function obj = test_IX_det_slab (name)
             obj@TestCaseWithSave(name);
             
             % Arrays for construction of detectors
             % Note: have varying paths w.r.t. detector coordinate frame
-            dia(1) = 0.0254;  height(1) = 0.015; wall(1) = 6.35e-4; atms(1) = 10; th(1) = pi/2;
-            dia(2) = 0.0300;  height(2) = 0.025; wall(2) = 10.0e-4; atms(2) = 6;  th(2) = 0.9;
-            dia(3) = 0.0400;  height(3) = 0.035; wall(3) = 15.0e-4; atms(3) = 4;  th(3) = 0.775;
-            dia(4) = 0.0400;  height(4) = 0.035; wall(4) = 15.0e-4; atms(4) = 7;  th(4) = 0.775;
-            dia(5) = 0.0400;  height(5) = 0.035; wall(5) = 15.0e-4; atms(5) = 9;  th(5) = 0.775;
-            
-            obj.dia = dia;
+            depth(1) = 0.10; width(1) = 0.20; height(1) = 0.30; atten(1) = 0.10; th(1) = 0;
+            depth(2) = 0.12; width(2) = 0.22; height(2) = 0.32; atten(2) = 0.08; th(2) = 10;
+            depth(3) = 0.14; width(3) = 0.24; height(3) = 0.34; atten(3) = 0.06; th(3) = 20;
+            depth(4) = 0.16; width(4) = 0.26; height(4) = 0.36; atten(4) = 0.04; th(4) = 30;
+            depth(5) = 0.18; width(5) = 0.28; height(5) = 0.38; atten(5) = 0.02; th(5) = 40;
+
+            obj.depth = depth;
+            obj.width = width;
             obj.height = height;
-            obj.wall = wall;
-            obj.atms = atms;
-            obj.path = [sin(th); zeros(size(th)); cos(th)];
+            obj.atten = atten;
+            obj.path = [cos(th); zeros(size(th)); sin(th)];
             
             % Random numbers
             % --------------
@@ -51,27 +51,27 @@ classdef test_IX_det_He3tube < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_det_constructor (obj)
             [~, det_array] = construct_detectors (obj);
-            assertEqual (obj.dia(:), det_array.dia)
+            assertEqual (obj.depth(:), det_array.depth)
+            assertEqual (obj.width(:), det_array.width)
             assertEqual (obj.height(:), det_array.height)
-            assertEqual (obj.wall(:), det_array.wall)
-            assertEqual (obj.atms(:), det_array.atms)
+            assertEqual (obj.atten(:), det_array.atten)
         end
         
         function test_det_constructor_2 (obj)
             % Test constructor with one scalar argument input
             val = 0.00344;
-            det_array = IX_det_He3tube (obj.dia, obj.height, val, obj.atms);
-            assertEqual (obj.dia(:), det_array.dia)
-            assertEqual (obj.height(:), det_array.height)
-            assertEqual (val*ones(size(obj.dia(:))), det_array.wall)
-            assertEqual (obj.atms(:), det_array.atms)
+            det_array = IX_det_slab (obj.depth, obj.width, val, obj.atten);
+            assertEqual (obj.depth(:), det_array.depth)
+            assertEqual (obj.width(:), det_array.width)
+            assertEqual (val*ones(size(obj.depth(:))), det_array.height)
+            assertEqual (obj.atten(:), det_array.atten)
         end
         
         function test_det_constructor_3 (obj)
             % Test constructor with insufficient input arguments
             % Should throw error
             assertExceptionThrown( ...
-                @()IX_det_He3tube (obj.dia, obj.height, obj.wall), ...
+                @()IX_det_slab (obj.depth, obj.width, obj.height), ...
                 'HERBERT:serializable:invalid_argument');
         end
         
@@ -79,7 +79,7 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             % Test constructor with too many input arguments
             % Should throw error
             assertExceptionThrown( ...
-                @()IX_det_He3tube (obj.dia, obj.height, obj.wall), ...
+                @()IX_det_slab (obj.depth, obj.width, obj.height), ...
                 'HERBERT:serializable:invalid_argument');
         end
         
@@ -91,8 +91,8 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             [~, det_array_ref] = construct_detectors (obj);
             
             % Equivalent
-            det_array = IX_det_He3tube (obj.dia, obj.height, ...
-                'atms', obj.atms, 'wall', obj.wall);
+            det_array = IX_det_slab (obj.depth, obj.width, ...
+                'atten', obj.atten, 'height', obj.height);
             
             assertEqual (det_array_ref, det_array)
         end
@@ -218,14 +218,14 @@ classdef test_IX_det_He3tube < TestCaseWithSave
         end
         
         
-        
         %--------------------------------------------------------------------------
         %   Test random numbers
         %--------------------------------------------------------------------------
         function test_random_points_noAtten (~)
-            dia0 = 0.01; height0 = 0.03; wall0 = 0.0001; atms0 = 1e-8;
-            det = IX_det_He3tube (dia0, height0, wall0, atms0);
-
+            % Do for atten0 = 1e6, 1e-6, 0.05
+            depth0 = 0.1; width0 = 0.03; height0 = 0.5; atten0 = 1e-8;
+            det = IX_det_slab (depth0, width0, height0, atten0);
+            
             nsamples = 1e5;
             ntol = 3;
             npath = [1,1,0];
@@ -233,11 +233,12 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             [ok, mess] = validate_det_rand (det, nsamples, ntol, npath, wvec);
             assertTrue (ok, mess)
         end
-        
-        function test_random_points_fullAtten (~)
-            dia0 = 0.01; height0 = 0.03; wall0 = 0.0001; atms0 = 1e8;
-            det = IX_det_He3tube (dia0, height0, wall0, atms0);
 
+        function test_random_points_fullAtten (~)
+            % Do for atten0 = 1e6, 1e-6, 0.05
+            depth0 = 0.1; width0 = 0.03; height0 = 0.5; atten0 = 1e8;
+            det = IX_det_slab (depth0, width0, height0, atten0);
+            
             nsamples = 1e5;
             ntol = 3;
             npath = [1,1,0];
@@ -247,9 +248,10 @@ classdef test_IX_det_He3tube < TestCaseWithSave
         end
         
         function test_random_points_intermediateAtten (~)
-            dia0 = 0.01; height0 = 0.03; wall0 = 0.0001; atms0 = 10;
-            det = IX_det_He3tube (dia0, height0, wall0, atms0);
-
+            % Do for atten0 = 1e6, 1e-6, 0.05
+            depth0 = 0.1; width0 = 0.03; height0 = 0.5; atten0 = 0.05;
+            det = IX_det_slab (depth0, width0, height0, atten0);
+            
             nsamples = 1e5;
             ntol = 3;
             npath = [1,1,0];
@@ -263,15 +265,14 @@ classdef test_IX_det_He3tube < TestCaseWithSave
         % Utility methods
         %--------------------------------------------------------------------------
         function [dets, det_array] = construct_detectors (obj)
-            % Create array of single IX_det_He3tube objects, and the 
-            % equivalent IX_det_He3tube object containing an array of
+            % Create array of single IX_det_slab objects, and the 
+            % equivalent IX_det_slab object containing an array of
             % detectors.
-            dets = repmat(IX_det_He3tube, [1,5]);
+            dets = repmat(IX_det_slab, [1,5]);
             for i=1:5
-                dets(i) = IX_det_He3tube (obj.dia(i), obj.height(i), obj.wall(i), obj.atms(i));
+                dets(i) = IX_det_slab (obj.depth(i), obj.width(i), obj.height(i), obj.atten(i));
             end
-            det_array = IX_det_He3tube (obj.dia, obj.height, obj.wall, obj.atms);
-            
+            det_array = IX_det_slab (obj.depth, obj.width, obj.height, obj.atten);
         end
         
         %--------------------------------------------------------------------------

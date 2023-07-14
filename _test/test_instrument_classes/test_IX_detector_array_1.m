@@ -42,7 +42,10 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
             x2_3 = [2,2.1,2.2];
             phi_3 = [10,21,32];
             azim_3 = [180,180,180];
-            det_3 = IX_det_slab (0.01,0.03,0.2,0.005);
+            % Depth of detectors chosen so that front face at -[0.031, 0.032, 0.033]
+            % and attenuation length will force random points to be within about
+            % 10^-10 of those figures
+            det_3 = IX_det_slab ([0.062,0.064,0.066],0.03,0.2,1e-12);
             
             rotvec3 = [0,31,0; 0,28,0; 0,41,0]';
             obj.bank3 = IX_detector_bank (3001:3003,x2_3,phi_3,azim_3,det_3,'rotvec',rotvec3);
@@ -63,7 +66,11 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
             x2_5 = 2.5;
             phi_5 = [10,10,15,15,20,20];
             azim_5 = [0,22.5,45,67.5,90,90];
-            det_5 = IX_det_slab (0.2, 0.4:0.01:0.4501, 0.2:0.01:0.25001, 10);
+            % Depth of detectors chosen so that front face at -[0.051, 0.052, ...]
+            % and attenuation length will force random points to be within about
+            % 10^-10 of those figures
+            det_5 = IX_det_slab ([0.102,0.104,0.106,0.108,0.110,0.112], ...
+                0.4:0.01:0.4501, 0.2:0.01:0.25001, 1e-12);
             
             rotvec5 = [0,10,0; 0,23,0; 0,55,0; 0,60,0; 0,65,0; 0,80,0]';
             obj.bank5 = IX_detector_bank (2001:2006,x2_5,phi_5,azim_5,det_5,'rotvec',rotvec5);
@@ -200,7 +207,7 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
             try
                 D.phi = [101:102,231,104:113];
             catch ME
-                assertEqual(ME.identifier, 'HERBERT:IX_detector_array:invalid_argument')
+                assertEqual(ME.identifier, 'HERBERT:IX_detector_bank:invalid_argument')
                 return
             end
             error('Should have failed on invalid value of phi')
@@ -496,38 +503,51 @@ classdef test_IX_detector_array_1 < TestCaseWithSave
         end
         
         
-%         %--------------------------------------------------------------------------
-%         %   Test random numbers
-%         %--------------------------------------------------------------------------
-%         function test_random_points (obj)
-%             % Two detector banks; first has gas tubes dia 0.0254m, the second
-%             % has hardly absorbing slab detctors with size >10cm. Can use this
-%             % to test random numbers being selected from correct detector type
-%             D = IX_detector_array (obj.bank1, obj.bank5);
-%             
-%             % Get approx. np repetitions of each detector index
-%             ndet = D.ndet;
-%             np = 1000;  % number of points to sample from each detector
-%             ind = repmat(1:ndet, [2*np,1]);
-%             ind = ind(randperm(numel(ind),np*ndet));
-%             ind = reshape (ind, [25*ndet, 40]);
-%             
-%             % Constant wavevector
-%             wvec = 10;
-%             
-%             % Random points, from random order of detector indices
-%             X = D.rand (ind, wvec);
-%             assertEqual (size(X), [3, 25*ndet, 40])
-%             
-%             % Now unravel range of x, y, z for each detector
-%             X = reshape (X, [3, numel(X)/3]);
-%             Xmin = NaN(3,ndet);
-%             Xmax = NaN(3,ndet);
-%             for i=1:ndet
-%                 Xmin(:,i) = min(X(:,i), [], 2);
-%                 Xmax(:,i) = max(X(:,i), [], 2);
-%             end
-%         end
+        %--------------------------------------------------------------------------
+        %   Test random numbers
+        %--------------------------------------------------------------------------
+        function test_random_points (obj)
+            % Two detector banks each of slab detectors. First has half-thicknesses
+            % 0.031, 0-.032, 0.033, the second 0.051,0.052,..,0.056. The
+            % attenuation lengths are 1e-12 so all neutrons are absorbed at the
+            % front face. Can use this to test random numbers being selected 
+            % from the correct detector bank
+            D = IX_detector_array (obj.bank3, obj.bank5);
+            
+            % Get approx. np repetitions of each detector index, but not the
+            % same for every detector. Will exercise the sorting routines in the
+            % internals of the call to rand function.
+            % Make the detctor index array 2D to exercise dimensions handling.
+            sz = [25,40];
+            ndet = D.ndet;
+            np = prod(sz);  % number of points to sample from each detector
+            ind = repmat(1:ndet, [2*np,1]);
+            ind = ind(randperm(numel(ind),np*ndet));
+            ind = reshape (ind, [sz(1)*ndet, sz(2)]);
+            
+            % Constant wavevector
+            wvec = 2;
+            
+            % Random points, from random order of detector indices
+            X = D.rand (ind, wvec);
+            assertEqual (size(X), [3, size(ind)])
+            
+            % Now unravel range of x, y, z for each detector. THis checks that
+            % all the internal bank handling and algorithm calling is done
+            % correctly.
+            ind = ind(:)';  % make a row vector
+            X = reshape (X, [3, numel(ind)]);
+            Xmin = NaN(1,ndet);
+            Xmax = NaN(1,ndet);
+            for i=1:ndet
+                Xmin(i) = min(X(1,ind==i), [], 2);
+                Xmax(i) = max(X(1,ind==i), [], 2);
+            end
+            small = 1e-10;  % tiny, but still way larger than attenuation length
+            XFrontFace = -[0.031, 0.032, 0.033, 0.051, 0.052, 0.053, 0.054, 0.055, 0.056];
+            ok = all(Xmin > (XFrontFace-small) & Xmax < (XFrontFace+small));
+            assertTrue(ok,'Error computing random points for multiple detector arrays')
+        end
 
     end
     
