@@ -43,6 +43,8 @@ classdef dnd_metadata < serializable
         ulen;
         %
         creation_date;
+        % number of axes bins
+        nbins;
     end
     properties(Access=protected)
         axes_ = ortho_axes();
@@ -152,6 +154,9 @@ classdef dnd_metadata < serializable
             %            Used in titles
             obj.axes_.filepath = val;
         end
+        function nb = get.nbins(obj)
+            nb = obj.axes_.data_nbins;
+        end        
         %------------------------------------------------------------------
         function nd = get.dimensions(obj)
             if isempty(obj.axes_)
@@ -212,6 +217,14 @@ classdef dnd_metadata < serializable
                 obj.creation_date_defined_ = true;
             end
         end
+        function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
+                data_plot_titles(obj)
+            % Return main description of the dnd object used in plots
+            %
+            % note: axes annotations correctly account for permutation in w.data_.dax
+            [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = ...
+                obj.axes.data_plot_titles();
+        end        
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

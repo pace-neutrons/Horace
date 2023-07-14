@@ -39,14 +39,6 @@ if ~exist('npixtot','var') || isempty(npixtot)
     npixtot = sum(din.data.npix(:));
 end
 
-if ~exist('type','var') || isempty(type)
-    if isempty(din.pix)
-        type = 'b+';        
-    else
-        type = 'a';
-    end
-end
-
 if isa(din,'sqw') || isfield(din,'main_header')
     sqw_type=true;  % object will be dnd type
     nfiles = din.main_header.nfiles;
@@ -92,7 +84,7 @@ if sqw_type || exist('nfiles','var') && isnumeric(nfiles)
     disp(' ')
 end
 
-[title_main, title_pax, title_iax, display_pax, display_iax] = data_plot_titles (din);
+[title_main, title_pax, title_iax, display_pax, display_iax] = din.data_plot_titles;
 if ndim~=0
     sz = din.nbins;
     npchar = '[';
