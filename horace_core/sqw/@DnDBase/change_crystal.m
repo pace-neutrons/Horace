@@ -35,17 +35,28 @@ for i=1:numel(obj)
     legacy_mode = alignment_info.legacy_mode || ~isempty(obj(i).proj.ub_inv_legacy);
     this_alignment = alignment_info;
     this_alignment.legacy_mode  = true;
-    rlu_corr = this_alignment.get_corr_mat(obj.proj);
+
 
     if legacy_mode
+        rlu_corr = this_alignment.get_corr_mat(obj.proj);
         rlu_to_u = wout(i).proj.bmatrix();
         wout(i).img_offset(1:3)=rlu_corr*wout(i).img_offset(1:3)';
         wout(i).proj = wout(i).proj.set_ub_inv_compat(rlu_corr/rlu_to_u);
+        %
+        wout(i).alatt=alatt;
+        wout(i).angdeg=angdeg;
     else
-        hkl_directions = wout(i).axes.hkle_axes_directions(1:3,1:3);
-        hkl_aligned = rlu_corr*hkl_directions;
-        wout(i).axes.hkle_axes_directions = hkl_aligned;
+        wout(i).alatt=alatt;
+        wout(i).angdeg=angdeg;
+        if isa(wout(i).proj,'ortho_proj')
+            rlu_corr = this_alignment.get_corr_mat(wout(i).proj);
+            hkl_directions = wout(i).axes.hkle_axes_directions(1:3,1:3);
+            hkl_aligned = rlu_corr*hkl_directions;
+            ax = wout(i).axes;
+            ax.hkle_axes_directions = hkl_aligned;
+            [~,~,scales] = wout(i).proj.get_pix_img_transformation(4);
+            ax.ulen = scales;
+            wout(i).axes = ax;
+        end
     end
-    wout(i).alatt=alatt;
-    wout(i).angdeg=angdeg;
 end
