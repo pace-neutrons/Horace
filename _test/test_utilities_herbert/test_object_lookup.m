@@ -127,8 +127,9 @@ classdef test_object_lookup < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_recover_array_elements_1 (obj)
-            % Test recovery of selected elements from an original array
+        function test_recover_array_elements_1D_1 (obj)
+            % Test recovery of selected elements from an original vector
+            % carr1 is a row vector
             
             test_ref = obj.carr1([2,5,3]);
             test = obj.c_lookup1.object_elements (1, [2,5,3]);
@@ -137,13 +138,150 @@ classdef test_object_lookup < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_recover_array_elements_2 (obj)
-            % Test recovery of selected elements from an original array
+        function test_recover_array_elements_1D_2 (obj)
+            % Test recovery of selected elements from an original vector
+            % carr1 is a row vector
             
-            test_ref = obj.carr2([3,5]);
-            test = obj.c_lookup1.object_elements (2, [3,5]);
+            test_ref = obj.carr1([2,5,3]');
+            test = obj.c_lookup1.object_elements (1, [2,5,3]');
             
             assertEqual(test_ref, test)
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_recover_array_elements_1D_3 (obj)
+            % Test recovery of selected elements from an original vector
+            % carr1 is a row vector
+            
+            ind = [2,5,3,1;4,5,4,2];
+            test_ref = obj.carr1(ind);
+            test = obj.c_lookup1.object_elements (1, [2,5,3,1;4,5,4,2]);
+            
+            assertEqual(test_ref, test)
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_recover_array_elements_2D_1 (obj)
+            % Test recovery of selected elements from an original 2D array
+            % carr1 is an array size (2,3)
+            
+            ind = [3,1,6,1];
+            test_ref = obj.carr2(ind);
+            test = obj.c_lookup1.object_elements (2, ind);
+            
+            assertEqual(test_ref, test)
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_construct_nobj_1_nrep_1 (obj)
+            % Repeat input object array using implicit repmat
+            
+            Lref = object_lookup(obj.carr1);
+            [ok, mess] = check_size_and_type (Lref);
+            assertTrue(ok, mess)
+
+            Lref_nelmts = numel(obj.carr1);
+            Lref_sz = {size(obj.carr1)};
+            assertEqual(Lref.narray, 1)
+            assertEqual(Lref.nelmts, Lref_nelmts)
+            assertEqual(Lref.sz, Lref_sz)
+            
+            sz1 = [3,2];    % increase size of the input object array
+            L = object_lookup(obj.carr1, '-repeat', sz1);
+            [ok, mess] = check_size_and_type (L);
+            assertTrue(ok, mess)
+            
+            assertEqual(L.object_store, Lref.object_store)
+            assertEqual(L.indx{1}, repmat(Lref.indx{1}, [prod(sz1),1]))
+            assertEqual(L.narray, 1)
+            assertEqual(L.nelmts, prod(sz1)*Lref_nelmts)
+            assertEqual(L.sz{1}, size(repmat(ones(Lref_sz{1}),sz1)))
+
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_construct_nobj_1_nrep_2 (obj)
+            % Repeat input object array using multiple implicit repmat
+            
+            Lref = object_lookup(obj.carr1);
+            [ok, mess] = check_size_and_type (Lref);
+            assertTrue(ok, mess)
+
+            Lref_nelmts = numel(obj.carr1);
+            Lref_sz = size(obj.carr1);
+                     
+            sz1 = [3,2];
+            sz2 = [5,2,4];
+            sz12 = {sz1,sz2};    % create two increased-size input object arrays
+            L = object_lookup(obj.carr1, '-repeat', sz12);
+            [ok, mess] = check_size_and_type (L);
+            assertTrue(ok, mess)
+            
+            assertEqual(L.object_store, Lref.object_store)
+            assertEqual(L.indx{1}, repmat(Lref.indx{1}, [prod(sz1),1]))
+            assertEqual(L.indx{2}, repmat(Lref.indx{1}, [prod(sz2),1]))
+            assertEqual(L.narray, 2)
+            assertEqual(L.nelmts, [prod(sz1);prod(sz2)]*Lref_nelmts)
+            assertEqual(L.sz{1}, size(repmat(ones(Lref_sz),sz1)))
+            assertEqual(L.sz{2}, size(repmat(ones(Lref_sz),sz2)))
+            
+        end
+
+        %--------------------------------------------------------------------------
+        function test_construct_nobj_2_nrep_1 (obj)
+            % Repeat multiple input object arrays using implicit repmat
+            
+            Lref = object_lookup({obj.carr1, obj.carr2});
+            [ok, mess] = check_size_and_type (Lref);
+            assertTrue(ok, mess)
+
+            Lref_nelmts = [numel(obj.carr1),numel(obj.carr2)]';
+            Lref_sz = {size(obj.carr1), size(obj.carr2)}';
+            assertEqual(Lref.narray, 2)
+            assertEqual(Lref.nelmts, Lref_nelmts)
+            assertEqual(Lref.sz, Lref_sz)
+            
+            sz1 = [3,2];    % increase size of the input object array
+            L = object_lookup({obj.carr1, obj.carr2}, '-repeat', sz1);
+            [ok, mess] = check_size_and_type (L);
+            assertTrue(ok, mess)
+            
+            assertEqual(L.object_store, Lref.object_store)
+            assertEqual(L.indx{1}, repmat(Lref.indx{1}, [prod(sz1),1]))
+            assertEqual(L.indx{2}, repmat(Lref.indx{2}, [prod(sz1),1]))
+            assertEqual(L.narray, 2)
+            assertEqual(L.nelmts, prod(sz1).*Lref_nelmts)
+            assertEqual(L.sz{1}, size(repmat(ones(Lref_sz{1}),sz1)))
+            assertEqual(L.sz{2}, size(repmat(ones(Lref_sz{2}),sz1)))
+
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_construct_nobj_2_nrep_2 (obj)
+            % Repeat multiple input object array using multiple implicit repmat
+            
+            Lref = object_lookup({obj.carr1, obj.carr2});
+            [ok, mess] = check_size_and_type (Lref);
+            assertTrue(ok, mess)
+
+            Lref_nelmts = [numel(obj.carr1),numel(obj.carr2)]';
+            Lref_sz = {size(obj.carr1), size(obj.carr2)}';
+            
+            sz1 = [3,2];
+            sz2 = [5,2,4];
+            sz12 = {sz1,sz2};    % create two increased-size input object arrays
+            L = object_lookup({obj.carr1, obj.carr2}, '-repeat', sz12);
+            [ok, mess] = check_size_and_type (L);
+            assertTrue(ok, mess)
+            
+            assertEqual(L.object_store, Lref.object_store)
+            assertEqual(L.indx{1}, repmat(Lref.indx{1}, [prod(sz1),1]))
+            assertEqual(L.indx{2}, repmat(Lref.indx{2}, [prod(sz2),1]))
+            assertEqual(L.narray, 2)
+            assertEqual(L.nelmts, [prod(sz1);prod(sz2)].*Lref_nelmts)
+            assertEqual(L.sz{1}, size(repmat(ones(Lref_sz{1}),sz1)))
+            assertEqual(L.sz{2}, size(repmat(ones(Lref_sz{2}),sz2)))
+
         end
         
         %--------------------------------------------------------------------------
@@ -371,9 +509,78 @@ classdef test_object_lookup < TestCaseWithSave
             assertEqual (y_ref, yout)
         end
         
+        %======================================================================
+        function [ok, mess] = check_size_and_type (obj)
+            % Utility method that checks that the size and class of properties
+            % are correct.
+            ok = false;     % assume the worst
+            if ~iscolumn(obj.object_store)
+                mess = 'object_store must be a column vector';
+                return
+            end
+            if ~iscolumn(obj.indx) || ~iscell(obj.indx) || ...
+                    ~all(cellfun(@isnumeric,obj.indx)) ||...
+                    ~all(cellfun(@iscolumn,obj.indx))
+                mess = 'indx must be a column cellarray of numeric column vectors';
+                return
+            end
+            if ~isnumeric(obj.narray) || ~isscalar(obj.narray)
+                mess = 'narray must be a numeric scalar';
+                return
+            end
+            if ~isnumeric(obj.nelmts) || ~iscolumn(obj.nelmts)
+                mess = 'nelmts must be a numeric column vector';
+                return
+            end
+            if ~iscell(obj.sz) || ~iscolumn(obj.sz) || ...
+                    ~all(cellfun(@isnumeric,obj.sz)) ||...
+                    ~all(cellfun(@isroa,obj.sz))
+                mess = 'sz must be a column cellarray of numeric row vectors';
+                return
+            end
+            ok = true;
+            mess = '';
+            
+        end
+        
     end
 end
 
+
+
+%==========================================================================
+function [ok, mess] = check_size_and_type (obj)
+% Utility method that checks that the size and class of properties
+% are correct.
+ok = false;     % assume the worst
+if ~iscolumn(obj.object_store)
+    mess = 'object_store must be a column vector';
+    return
+end
+if ~iscolumn(obj.indx) || ~iscell(obj.indx) || ...
+        ~all(cellfun(@isnumeric,obj.indx)) ||...
+        ~all(cellfun(@iscolumn,obj.indx))
+    mess = 'indx must be a column cellarray of numeric column vectors';
+    return
+end
+if ~isnumeric(obj.narray) || ~isscalar(obj.narray)
+    mess = 'narray must be a numeric scalar';
+    return
+end
+if ~isnumeric(obj.nelmts) || ~iscolumn(obj.nelmts)
+    mess = 'nelmts must be a numeric column vector';
+    return
+end
+if ~iscell(obj.sz) || ~iscolumn(obj.sz) || ...
+        ~all(cellfun(@isnumeric,obj.sz)) ||...
+        ~all(cellfun(@isrow,obj.sz))
+    mess = 'sz must be a column cellarray of numeric row vectors';
+    return
+end
+ok = true;
+mess = '';
+
+end
 
 %==========================================================================
 function t = time_array (fermi_chopper, sz)

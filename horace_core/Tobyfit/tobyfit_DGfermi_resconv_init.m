@@ -197,12 +197,12 @@ aperture=cell(nw,1);    %       "
 chopper=cell(nw,1);     %       "
 ki=cell(nw,1);          %       "
 kf=cell(nw,1);          % element size [npix,1]
-sample=repmat(IX_sample,nw,1);
+sample=cell(nw,1);      % element size [nrun,1]
 s_mat=cell(nw,1);       % element size [3,3,nrun]
 spec_to_rlu=cell(nw,1); % element size [3,3,nrun]
 alatt=cell(nw,1);       % element size [1,3]
 angdeg=cell(nw,1);      % element size [1,3]
-detectors=repmat(IX_detector_array,nw,1);
+detectors=cell(nw,1);   % element size [nrun,1]
 f_mat=cell(nw,1);       % element size [3,3,ndet]
 d_mat=cell(nw,1);       % element size [3,3,ndet]
 detdcn=cell(nw,1);      % element size [3,ndet]
@@ -211,6 +211,7 @@ dt=cell(nw,1);          % element size [npix,1]
 qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
 dq_mat=cell(nw,1);      % element size [4,11,npix]
 
+n_runs = NaN(nw,1);
 for iw=1:nw
     % Get pointer to a specific sqw pobject
     if iscell(win)
@@ -218,7 +219,10 @@ for iw=1:nw
     else
         wtmp = win(iw);
     end
-
+    
+    % Get number of runs in the sqw object
+    n_runs(iw) = w.experiment_info.n_runs;
+    
     % Pixel indicies
     if all_pixels
         [irun,idet,ien] = parse_pixel_indices(wtmp);
@@ -248,24 +252,24 @@ for iw=1:nw
     kf{iw}=sqrt((ei{iw}(irun)-eps)/k_to_e);
 
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
-    [sample(iw),s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
+    [sample{iw},s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
 
     % Get detector information
     % Because detpar only contains minimal information, hardwire in the detector type here
     detpar = wtmp.detpar();   % just get a pointer
     if use_tubes
-        detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), ...
+        detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), ...
             detpar.phi(:), detpar.azim(:),...
             IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm
     else
-        detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
+        detectors{iw} = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
             IX_det_TobyfitClassic (detpar.width, detpar.height));
     end
-    x2{iw} = detectors(iw).x2;
-    d_mat{iw} = detectors(iw).dmat;
-    f_mat{iw} = spec_to_secondary(detectors(iw));
-    detdcn{iw} = det_direction(detectors(iw));
+    x2{iw} = detectors{iw}.x2;
+    d_mat{iw} = detectors{iw}.dmat;
+    f_mat{iw} = spec_to_secondary(detectors{iw});
+    detdcn{iw} = det_direction(detectors{iw});
 
     % Time width corresponding to energy bins for each pixel
     dt{iw} = deps_to_dt*(x2{iw}(idet).*deps(irun)./kf{iw}.^3);
@@ -292,8 +296,8 @@ if keywrd.tables    % lookup tables to minimise memory and optimise speed of ran
     lookup.moderator_table = object_lookup(moderator);
     lookup.aperture_table = object_lookup(aperture);
     lookup.fermi_table = object_lookup(chopper);
-    lookup.sample_table = object_lookup(sample);
-    lookup.detector_table = object_lookup(detectors);
+    lookup.sample_table = object_lookup(sample, n_runs);
+    lookup.detector_table = object_lookup(detectors, n_runs);
 end
 lookup.ei=ei;
 lookup.x0=x0;

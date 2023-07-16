@@ -4,20 +4,26 @@ function [is, mess, name_a, name_b, namer, argi] = process_inputs_for_eq (...
 % common eq or ne operator options and common comparison code,
 % i.e. comparison for object type and shapes
 %
-% Inputs:
+% Input:
+% ------
 % lhs_obj  -- left hand side object or array of objects to
 %             compare
 % rhs_obj  -- right hand side object or array of objects to
 %             compare
 % narg_out -- number of output arguments requested; defines the
 %             if non-equal result throws or returns message
-% names    -- 2-element cellarray of the names f the objects
-%             to be used as the base of the message, which
-%             explain difference between objects if found
+% names    -- 2-element cellarray of the names of the objects
+%             to be used in the output message should the object
+%             fail the equality requirement.
+%
 % Optional:
 % varargin -- list of optional parameters of comparison to
 %             process, as accepted by equal_to_tol operation.
-% Returns:
+%             Note: the default is tolerance (relative and absolute)
+%             of 1e-9 is acceptable
+%
+% Output:
+% -------
 % is       -- true if the objects precomparison is true and
 %             false if it is not. Precomparison checks object
 %             equality of the object types and the
@@ -25,7 +31,7 @@ function [is, mess, name_a, name_b, namer, argi] = process_inputs_for_eq (...
 %             reason why comparing objects are different.
 % name_a   -- the name the lhs object to compare
 % name_b   -- the name the rhs object to compare
-% namer    -- the function used to produce names of the objects
+% namer    -- a function used to produce names of the objects
 %             to compare in case of array of objects
 
 [is, mess, name_a, name_b, namer, argi] = process_inputs_for_eq_ (...
