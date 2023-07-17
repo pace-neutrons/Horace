@@ -6,7 +6,7 @@ function [ei,x0,xa,x1,mod_shape_mono,horiz_div,vert_div] =...
 %                                               instpars_DGdisk (header)
 % Input:
 % ------
-%   header      Header field from sqw object
+%   header      Header (experiment_info) object from sqw object
 %
 % Output: (arrays are column vectors with length equal to the number of contributing runs)
 % -------

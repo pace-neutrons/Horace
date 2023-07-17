@@ -100,7 +100,7 @@ classdef object_lookup
                 
                 if isa(objects, 'unique_objects_container')
                     
-                    nw = numel(objects); % number of unique-object-containers
+                    nw = numel(objects); % number of unique_object_containers
                     
                     % it is not possible to distinguish access of the first
                     % element of a scalar unique_objects_container from access of
@@ -112,8 +112,8 @@ classdef object_lookup
                         sz  = {objects.runs_sz};
                         obj_all = objects;
                     else
-                        nel = arrayfun( @(x)get_nruns(x), objects );
-                        sz = arrayfun( @(x)runs_sz(x), objects, 'uniformoutput',false );
+                        nel = arrayfun( @get_nruns(x), objects );
+                        sz = arrayfun( @runs_sz(x), objects, 'uniformoutput',false );
 
                         obj_all = unique_objects_container.concatenate(objects,'()');
                     end
@@ -129,10 +129,10 @@ classdef object_lookup
                     obj.indx_ = mat2cell(obj_all.idx(:),nel,1);
                     obj.sz_ = sz(:);
                     
-                elseif iscell(objects) && isa(objects{1}, 'unique_objects_container')
+                elseif iscell(objects) && all(cellfun(@(x) isa(x, 'unique_objects_container'), objects))
                     
-                    nel = cellfun( @(x)get_nruns(x), objects );
-                    sz = cellfun( @(x)runs_sz(x), objects, 'uniformoutput',false );
+                    nel = cellfun( @get_nruns(x), objects );
+                    sz = cellfun( @runs_sz(x), objects, 'uniformoutput',false );
                     obj_all = unique_objects_container.concatenate(objects,'{}');
 
                                         
