@@ -71,8 +71,9 @@ end
 n_candidate_pix = sum(block_sizes);
 
 
-cut_in_mem = ~obj.pix.is_filebacked || ~PixelDataBase.do_filebacked(n_candidate_pix);
-cut_to_file = ~return_cut && ~cut_in_mem;
+cut_to_file = ~return_cut || ~PixelDataBase.do_filebacked(n_candidate_pix);
+% Always cut in mem if not in file, leave as debugging option to compare with filebacked ops.
+cut_in_mem = ~cut_to_file;
 
 if ~cut_to_file && PixelDataBase.do_filebacked(n_candidate_pix, 10)
     warning('HORACE:cut:large_cut', ['Requested cut may retain up to %d pixel indices, which may exceed system memory\n', ...
@@ -348,7 +349,6 @@ function [npix, s, e, pix_out, unique_runid] = cut_tmp_files(pix, block_starts, 
 
     % store partial pixel_blocks remaining memory to tmp files
     % return pix_out which here is the pix_combine_info.
-    % clear pix_block from memory.
     pix_out = cut_data_from_file_job.accumulate_pix_to_file(pix_comb_info, true);
 end
 
