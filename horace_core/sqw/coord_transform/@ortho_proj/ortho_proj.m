@@ -176,14 +176,10 @@ classdef ortho_proj<aProjectionBase
         q_offset_cache_ = [];
         ulen_cache_     = [];
     end
-
+    %======================================================================
     methods
         %------------------------------------------------------------------
         % Interfaces:
-        %------------------------------------------------------------------
-        % set u,v & w simultaneously
-        obj = set_axes (obj, u, v, w, offset)
-        %------------------------------------------------------------------
         function obj=ortho_proj(varargin)
             obj = obj@aProjectionBase();
             obj.label = {'\zeta','\xi','\eta','E'};
@@ -277,19 +273,14 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %------------------------------------------------------------------
-        function mat = get.u_to_rlu(obj)
-            % get old u_to_rlu transformation matrix from current
-            % transformation matrix.
-            %
-            % u_to_rlu defines the transformation from coordinates in
-            % image coordinate system to pixels in hkl(dE) (rlu) coordinate
-            % system
-            %
-            mat = get_u_to_rlu_mat(obj);
-        end
-        % -----------------------------------------------------------------
-        % OLD sqw object interface compatibility functions
-        % -----------------------------------------------------------------
+        % set u,v & w simultaneously
+        obj = set_axes (obj, u, v, w, offset)
+        %------------------------------------------------------------------
+    end
+    %======================================================================
+    % OLD sqw object interface compatibility functions
+    % ---------------------------------------------------------------------
+    methods
         function obj = set_from_data_mat(obj,u_to_img,ulen)
             % build correct projection from input u_to_img transformation
             % and ulen matrices.
@@ -340,6 +331,10 @@ classdef ortho_proj<aProjectionBase
                 str.(flds{i}) = obj.(flds{i});
             end
         end
+    end
+    %======================================================================
+    % TRANSFORMATIONS:
+    methods
         %------------------------------------------------------------------
         % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
@@ -402,16 +397,6 @@ classdef ortho_proj<aProjectionBase
             pix_cc = transform_img_to_pix_(obj,pix_hkl);
         end
         %
-        function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
-            % copy the properties, which are normally defined on projection
-            % into the axes block provided as input
-            axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
-            [~,~,scales]  = obj.get_pix_img_transformation(3);
-            axes_bl.ulen  = scales;
-            axes_bl.hkle_axes_directions = obj.u_to_rlu;
-            %
-        end
-
         %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
             % Converts from current to target projection coordinate system.
@@ -469,7 +454,53 @@ classdef ortho_proj<aProjectionBase
             [q_to_img,shift,ulen,obj]=get_pix_img_transformation_(obj,ndim,varargin{:});
         end
     end
-    %----------------------------------------------------------------------
+    %======================================================================
+    % Related Axes and Alignment
+    methods
+        function axes_bl = copy_proj_defined_properties_to_axes(obj,axes_bl)
+            % copy the properties, which are normally defined on projection
+            % into the axes block provided as input
+            axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
+            [~,~,scales]  = obj.get_pix_img_transformation(3);
+            axes_bl.ulen  = scales;
+            axes_bl.hkle_axes_directions = obj.u_to_rlu;
+            %
+        end
+        function [obj,axes] = align_proj(obj,alignment_info,varargin)
+            % Apply crystal alignment information to the projection
+            % and optionally, to the axes block provided as input
+            % Inputs:
+            % obj -- initialized instance of the projection info
+            % alignment_info
+            %     -- crystal_alignment_info class, containign information
+            %        about new alignment
+            % Optional:
+            % axes -- ortho_axes class, containing information about
+            %         axes block, related to this projection.
+            % Returns:
+            % obj  -- the projection class, modified by information,
+            %         containing in the alignment info block
+            % optional
+            % axes -- the input ortho_axes, modified according to the
+            %         realigned projection.
+            [obj,axes] = align_proj_(obj,alignment_info,varargin{:});
+            [~,axes] = align_proj@aProjectionBase(obj,alignment_info,axes);
+        end
+        
+        %------------------------------------------------------------------
+        function mat = get.u_to_rlu(obj)
+            % get old u_to_rlu transformation matrix from current
+            % transformation matrix. Used in legacy code and axes captions
+            %
+            %
+            % u_to_rlu defines the transformation from coordinates in
+            % image coordinate system to pixels in hkl(dE) (rlu) coordinate
+            % system
+            %
+            mat = get_u_to_rlu_mat(obj);
+        end
+    end
+    %======================================================================
     methods(Access = protected)
         function  mat = get_u_to_rlu_mat(obj)
             % u_to_rlu defines the transformation from coordinates in

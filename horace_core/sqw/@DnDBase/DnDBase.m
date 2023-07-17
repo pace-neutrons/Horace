@@ -417,7 +417,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             % Set up new projection.
             %
             % Changes in projection cause changes in projection-dependent
-            % axes parameters, caluclated on check_combo_arg stage.
+            % axes parameters, calculated on check_combo_arg stage.
             %
             if ~isa(val,'aProjectionBase')
                 error('HORACE:DnDBase:invalid_argument',...

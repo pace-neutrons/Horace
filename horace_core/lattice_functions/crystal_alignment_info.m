@@ -42,14 +42,17 @@ classdef crystal_alignment_info < serializable
         rotangle %  Angle of rotation corresponding to rotmat (to give a
         %           measure of the misorientation) (degrees)
 
+        % True or false specifies if one wants to get corrections for image 
+        % or for pixel, where if true changes involve B-matrix together with 
+        % U matrix, wehere false retunrs only corrections for U-matrix
+        hkl_mode;
+        
     end
-    properties(Hidden)
-        % align crystal in legacy mode, changing b-matrix rather
-        % then rotating pixels and adjusting lattice separately.
-        legacy_mode = false;
+    properties(Dependent, Hidden)
+        legacy_mode % == hkl_mode
     end
     properties(Access = protected)
-        alatt_  = [1/pi,1/pi,1/pi]  % Refined lattice parameters [a,b,c] (Angstroms)
+        alatt_  = [2*pi,2*pi,2*pi]  % Refined lattice parameters [a,b,c] (Angstroms)
         angdeg_ = [90,90,90]; % Refined lattice angles [alf,bet,gam] (degrees)
         rotmat_ = eye(3) % Rotation matrix that relates crystal Cartesian coordinate
 
@@ -57,6 +60,7 @@ classdef crystal_alignment_info < serializable
         %          argument rlu, in the refined crystal lattice. (Ang^-1)
         rotvec_ =  zeros(3,1)% Angle of rotation corresponding to rotmat
         %          (to give a measure of the misorientation) (radia)
+        hkl_mode_ = false;        
     end
 
 
@@ -140,6 +144,19 @@ classdef crystal_alignment_info < serializable
             end
             obj.rotvec_= val;
         end
+        %
+        function mode = get.hkl_mode(obj)
+            mode = obj.hkl_mode_;
+        end
+        function mode = get.legacy_mode(obj)
+            mode = obj.hkl_mode_;
+        end
+        function obj = set.hkl_mode(obj,val)
+            obj.hkl_mode_ = logical(val);
+        end
+        function obj = set.legacy_mode(obj,val)
+            obj.hkl_mode = val;
+        end       
         %======================================================================
         function corr_mat = get_corr_mat(obj,varargin)
             % Return corrections, necessary for modifying sqw object
@@ -163,31 +180,32 @@ classdef crystal_alignment_info < serializable
             % Depending on alignment mode, (legacy_mode true of false) the
             % correction matrix takes form:
             % a)
-            %  legacy_mode == true -> corr_mat == rlu_corr
+            %  hkl_mode == true -> corr_mat == rlu_corr
             %
-            %   rlu_corr   Conversion matrix to relate notional rlu to true rlu, accounting for the the
-            %              refined crystal lattice parameters and orientation
+            %   rlu_corr   Conversion matrix to relate notional rlu to true
+            %              rlu, accounting for the the refined crystal 
+            %              lattice parameters and orientation
             %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
             % b)
-            %  legacy_mode == false -> corr_mat == the matrix which rotates
+            %  hkl_mode == false -> corr_mat == the matrix which rotates
             %                  misaligned q-coordinates (pixel coordinates)
             %                  to Crystal Cartesian coordinate system
             %
             %  qframe_corr  rotation matrix to
             if isa(varargin{1},'ortho_proj')
                 b0 = varargin{1}.bmatrix();
-                legacy_mode_ = obj.legacy_mode;
+                hkle_mode_ = obj.hkl_mode;
                 proj = varargin{1};
             elseif nargin == 3 && isnumeric(varargin{1}) && isnumeric(varargin{2})
                 b0 = bmatrix(varargin{:});
-                legacy_mode_ = true;
+                hkle_mode_ = true;
             else
                 error('HORACE:lattice_functions:invalid_argument', ...
                     'Method accepts either ortho_proj class instance, or two-element initial lattice parameters vector.\n Provided: %s', ...
                     disp2str(varargin));
             end
 
-            if legacy_mode_
+            if hkle_mode_
                 b  = bmatrix(obj.alatt,obj.angdeg);
                 corr_mat=b\obj.rotmat*b0;
             else

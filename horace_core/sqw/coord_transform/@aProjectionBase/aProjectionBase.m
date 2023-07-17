@@ -386,6 +386,7 @@ classdef aProjectionBase < serializable
 
     %======================================================================
     % MAIN PROJECTION OPERATIONS
+    % BINING:
     methods
         function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
                 targ_axes_block,targ_proj)
@@ -426,7 +427,7 @@ classdef aProjectionBase < serializable
             [bl_start,bl_size] = obj.convert_contrib_cell_into_pix_indexes(...
                 contrib_ind,npix);
         end
-
+        %
         function   [may_contribND,may_contrib_dE] = may_contribute(obj, ...
                 cur_axes_block, targ_proj,targ_axes_block)
             % return logical array of size of the current axes block grid
@@ -581,6 +582,10 @@ classdef aProjectionBase < serializable
                         'This function requests 1, 3, 4, 5, 6 or 7 output arguments');
             end
         end
+    end
+    %======================================================================
+    % TRANSFORMATIONS
+    methods
         function [pix_hkl,en] = transform_pix_to_hkl(obj,pix_coord,varargin)
             % Converts from pixel coordinate system (Crystal Cartesian)
             % to hkl coordinate system
@@ -659,6 +664,35 @@ classdef aProjectionBase < serializable
             pix_target  = targproj.transform_pix_to_img(pic_cc,varargin{:});
         end
         %
+        function targ_range = calc_pix_img_range(obj,pix_origin,varargin)
+            % Calculate and return the range of pixels in target coordinate
+            % system, i.e. the image coordinate system.
+            %
+            % Not very efficient in the generic form, but may be efficiently
+            % overloaded by children. (especially in mex-mode when transformed
+            % coordinates may not be stored and not occupy memory)
+            %
+            % Inputs:
+            % pix_origin -- the [4xNpix or 3xNpix] pixel coordinates array
+            %               or PixelData object
+            % Returns:
+            % targ_range  -- the range of the pixels, transformed to target
+            %                coordinate system.
+            % NOTE:
+            % Need verification for non ortho_proj
+            pix_transformed = obj.transform_pix_to_img(pix_origin,varargin{:});
+            if isa(pix_origin, 'PixelDataBase')
+                targ_range = pix_transformed.pixel_range;
+            else %Input is array and we want to know its ranges
+                targ_range = [min(pix_transformed,[],2),...
+                    max(pix_transformed,[],2)]';
+            end
+        end
+    end
+    %======================================================================
+    % Related Axes and Alignment
+    methods
+        %
         function ax_bl = get_proj_axes_block(obj,def_bin_ranges,req_bin_ranges)
             % Construct the axes block, corresponding to this projection class
             % Returns generic AxesBlockBase, built from the block ranges or the
@@ -699,29 +733,30 @@ classdef aProjectionBase < serializable
             axes_bl.offset = obj.offset;
         end
         %
-        function targ_range = calc_pix_img_range(obj,pix_origin,varargin)
-            % Calculate and return the range of pixels in target coordinate
-            % system, i.e. the image coordinate system.
-            %
-            % Not very efficient in the generic form, but may be efficiently
-            % overloaded by children. (especially in mex-mode when transformed
-            % coordinates may not be stored and not occupy memory)
-            %
+        function [obj,axes] = align_proj(obj,alignment_info,axes)
+            % Apply crystal alignment information to the projection
+            % and optionally, to the axes block provided as input
             % Inputs:
-            % pix_origin -- the [4xNpix or 3xNpix] pixel coordinates array
-            %               or PixelData object
+            % obj -- initialized instance of the projection info
+            % alignment_info
+            %     -- crystal_alignment_info class, containign information
+            %        about new alignment
+            % Optional:
+            % axes -- AxesBlockBase class, containing information about
+            %         axes block, related to this projection.
             % Returns:
-            % targ_range  -- the range of the pixels, transformed to target
-            %                coordinate system.
-            % NOTE:
-            % Need verification for non ortho_proj
-            pix_transformed = obj.transform_pix_to_img(pix_origin,varargin{:});
-            if isa(pix_origin, 'PixelDataBase')
-                targ_range = pix_transformed.pixel_range;
-            else %Input is array and we want to know its ranges
-                targ_range = [min(pix_transformed,[],2),...
-                    max(pix_transformed,[],2)]';
+            % obj  -- the projection class, modified by information,
+            %         containing in the alignment info block
+            % optional
+            % axes -- the input AxesBlockClass, modified according to the
+            %         realigned projection.
+            obj.alatt  = alignment_info.alatt;
+            obj.angdeg = alignment_info.angdeg;
+            if nargin <3
+                axes = [];
+                return;
             end
+            axes = obj.copy_proj_defined_properties_to_axes(axes);
         end
     end
     %======================================================================
@@ -940,7 +975,7 @@ classdef aProjectionBase < serializable
             if ~isempty(obj.tmp_img_offset_holder_) && obj.alatt_defined && obj.angdeg_defined
                 img_offset_ = obj.tmp_img_offset_holder_(:);
 
-                % Extract existing offset here to add it in the transformation                
+                % Extract existing offset here to add it in the transformation
                 offset_cc = obj.bmatrix(4)*obj.offset_(:);
                 img_offset_here_ = obj.transform_pix_to_img(offset_cc);
                 img_offset_ = img_offset_- img_offset_here_;
