@@ -65,7 +65,7 @@ end
 % value extracted above
 
 % If we're being called from tests
-pix_out = pix_out.ready_dump();
+pix_out = pix_out.prepare_dump();
 
 pix_out.data_range = PixelDataBase.EMPTY_RANGE;
 

@@ -20,7 +20,7 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
 % The double array must have length equal to the number of pixels.
 %
 
-obj = obj.ready_dump();
+obj = obj.prepare_dump();
 
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
@@ -69,7 +69,7 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
 % object.
 %
 
-obj = obj.ready_dump();
+obj = obj.prepare_dump();
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 obj.data_range = PixelDataBase.EMPTY_RANGE;

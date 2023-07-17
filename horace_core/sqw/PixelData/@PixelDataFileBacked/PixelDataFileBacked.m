@@ -296,7 +296,7 @@ classdef PixelDataFileBacked < PixelDataBase
     %======================================================================
     % File handling/migration
     methods
-        function obj = ready_dump(obj)
+        function obj = prepare_dump(obj)
         % Get new handle iff not already opened by sqw
             if ~obj.has_open_file_handle
                 obj = obj.get_new_handle();

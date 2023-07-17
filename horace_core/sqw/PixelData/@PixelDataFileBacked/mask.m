@@ -48,7 +48,7 @@ function obj = do_mask_file_backed_with_full_mask_array(obj, keep_array)
 % long as the full PixelData array i.e. numel(mask_array) == pix.num_pixels
 %
 
-obj = obj.ready_dump();
+obj = obj.prepare_dump();
 keep_array = logical(keep_array);
 
 mem_chunk_size = obj.default_page_size;
@@ -90,7 +90,7 @@ if obj_out.is_misaligned
     obj_out.alignment_matr = [];
 end
 
-obj_out = obj_out.ready_dump();
+obj_out = obj_out.prepare_dump();
 
 keep_array = logical(keep_array);
 

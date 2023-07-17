@@ -3,7 +3,7 @@ function obj = binary_op_scalar_(obj, scalar, binary_op, flip)
 % PixelData object and scalar.
 %
 
-obj = obj.ready_dump();
+obj = obj.prepare_dump();
 
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');

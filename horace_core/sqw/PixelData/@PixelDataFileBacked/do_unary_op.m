@@ -9,7 +9,7 @@ function pix_out = do_unary_op(obj, unary_op)
 
 pix_out = obj;
 
-pix_out = pix_out.ready_dump();
+pix_out = pix_out.prepare_dump();
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 
