@@ -1,4 +1,4 @@
-function out = generate_cube_sqw(shape)
+function out = generate_cube_sqw(shape,varargin)
 % Generate a cube of evenly-spaced SQW data
 %
 % For even counts these are:
@@ -29,9 +29,8 @@ if isscalar(shape) && isnumeric(shape)
     col = minloc:1:maxloc;
 
     % Calculate cartesian product of positions to generate all grid points
-    for dim = 1:ndim
-        pix_data(dim, :) = repmat(repelem(col, shape^(dim-1)), 1, shape^(ndim-dim));
-    end
+    [xx,yy,zz,ee] = ndgrid(col,col,col,col);
+    pix_data(1:4,:) = [xx(:),yy(:),zz(:),ee(:)]';
 
     % Set run_idxs to 1 (needs to be ones to avoid conflicts with expdata)
     pix_data(5, :) = ones(1, npix);
@@ -80,4 +79,7 @@ out = cut(out, proj, ...
     [minloc 1 maxloc], ...
     [minloc 1 maxloc], ...
     [minloc 1 maxloc]);
+
+if nargin > 1
+    out = sqw_eval(out,varargin{:},[]);
 end

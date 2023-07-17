@@ -20,7 +20,7 @@ sam = obj.samples;
 exper = obj.expdata;
 alatt = alignment_info.alatt;
 angdeg = alignment_info.angdeg;
-compat_mode = alignment_info.legacy_mode;
+compat_mode = alignment_info.hkl_mode;
 if compat_mode
     rlu_corr = alignment_info.get_corr_mat(proj);
 end

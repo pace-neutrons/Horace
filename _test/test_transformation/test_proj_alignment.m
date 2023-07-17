@@ -2,7 +2,9 @@ classdef test_proj_alignment<TestCase
     % testing ortho_proj class constructor
     %
     properties
-        tests_folder
+        h0 = 1.5;  % the position and the extend of the
+        k0 = 1.5;  % pseudo peak
+        sigma = 10;
     end
 
     methods
@@ -14,33 +16,82 @@ classdef test_proj_alignment<TestCase
             end
             this=this@TestCase(name);
         end
+        function test_align_simple_lat_change_alatt(obj)
+            w0 = sqw.generate_cube_sqw(10,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
 
-        function test_get_projection_from_legacy_sqw_data(~)
+            w2 = cut_sqw(w0,ortho_proj,[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]);
+            % this alignment moves the peak into actual [1,0,0] position where
+            % lattice parameters is previous lattice parameter divided by
+            % sqrt(2)
+            al_inf = crystal_alignment_info('alatt',[2,2,2],'rotvec',[0,0,pi/4]);
+            w2 = w2.change_crystal(al_inf);
+            % now we do normal cut and should find the peak in the
+            % [1,0,0] position
+            targ_proj = ortho_proj([1,0,0],[0,1,0], ...
+                'alatt',w2.data.alatt,'angdeg',w2.data.angdeg);
+            targ_ab   = targ_proj.get_proj_axes_block(cell(4,1), ...
+                {[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]});
+            [bl_start,bl_size] = w2.data.proj.get_nrange(w2.data.npix,w2.data.axes,...
+                targ_ab,targ_proj);
+            assertEqual(bl_start,1);
+            assertEqual(bl_size,sum(w2.data.npix(:)));
 
-            data = struct();
-            data.alatt = [2,3,4];
-            data.angdeg = [90,90,90];
+            w2m = cut_sqw(w2,targ_proj,[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]);
+            assertEqual(w2m.npixels,1408)
+        end
+
+        function test_align_simple_lattice_latt_no_change_with_offset(obj)
+            w0 = sqw.generate_cube_sqw(10,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
+
+            proj0 = ortho_proj([1,0,0],[0,1,0],'offset',[1.0,1.0,0,0]);
+            w2 = cut_sqw(w0,proj0,[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]);
             %
-            data.u_to_rlu = eye(4).*[1/pi;1.5/pi;2/pi;1]; %(4x4)
-            data.uoffset = zeros(1,4);      %(4x1)
-            data.ulabel = {'a','b','c','d'};
-            data.ulen = ones(4,1);
-            data.iax=[];
-            data.pax=[1,2,3,4];
-            data.iint=[];
-            data.p={1:10;1:20;1:30;1:40};
-            ax = ortho_axes.get_from_old_data(data);
-            proj0 = ortho_proj.get_from_old_data(data);
+            al_inf = crystal_alignment_info();
+            al_inf.rotvec  = [0,0,pi/4];
+            w2 = w2.change_crystal(al_inf);
+            %
+            targ_proj = ortho_proj([1,0,0],[0,1,0], ...
+                'alatt',w2.data.alatt,'angdeg',w2.data.angdeg);
+            targ_ab   = targ_proj.get_proj_axes_block(cell(4,1), ...
+                {[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]});
+            [bl_start,bl_size] = w2.data.proj.get_nrange(w2.data.npix,w2.data.axes,...
+                targ_ab,targ_proj);
+            assertEqual(bl_start(1),1);
+            assertEqual(sum(bl_size),sum(w2.data.npix(:)));
 
+            w2m = cut_sqw(w2,targ_proj,[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]);
+            assertEqual(w2m.npixels,1216)
+        end
+        
 
-            projr = ortho_proj('alatt',data.alatt,'angdeg',data.angdeg,...
-                'label',{'a','b','c','d'},'type','aaa');
+        function test_align_simple_lattice_latt_no_change(obj)
+            w0 = sqw.generate_cube_sqw(10,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
 
-            pix_cc = [eye(3),ones(3,1)];
-            % this is what is what is only important for any transformation
-            tpixo = proj0.transform_pix_to_img(pix_cc);
-            tpixr = projr.transform_pix_to_img(pix_cc);
-            assertElementsAlmostEqual(tpixo,tpixr);
+            w2 = cut_sqw(w0,ortho_proj,[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]);
+            % this alignment moves the peak into actual [1,0,0] position where
+            % lattice parameters is previous lattice parameter divided by
+            % sqrt(2)
+            al_inf = crystal_alignment_info();
+            al_inf.rotvec  = [0,0,pi/4];
+            w2 = w2.change_crystal(al_inf);
+            % now we do normal cut and should find the peak in the
+            % [1,0,0] position
+            targ_proj = ortho_proj([1,0,0],[0,1,0], ...
+                'alatt',w2.data.alatt,'angdeg',w2.data.angdeg);
+            targ_ab   = targ_proj.get_proj_axes_block(cell(4,1), ...
+                {[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]});
+            [bl_start,bl_size] = w2.data.proj.get_nrange(w2.data.npix,w2.data.axes,...
+                targ_ab,targ_proj);
+            assertEqual(bl_start,1);
+            assertEqual(bl_size,sum(w2.data.npix(:)));
+
+            w2m = cut_sqw(w2,targ_proj,[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]);
+            assertEqual(w2m.npixels,1408)
+        end
+
+        function f=sample_gaus(obj,h,k,l,en,varargin)
+            % bragg peak in notional 110 position.
+            f = exp(-((h-obj.h0).^2/obj.sigma+(k-obj.k0).^2/obj.sigma+l.^2+en.^2));
         end
     end
 end

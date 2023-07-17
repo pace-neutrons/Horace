@@ -483,10 +483,13 @@ classdef ortho_proj<aProjectionBase
             % optional
             % axes -- the input ortho_axes, modified according to the
             %         realigned projection.
-            [obj,axes] = align_proj_(obj,alignment_info,varargin{:});
-            [~,axes] = align_proj@aProjectionBase(obj,alignment_info,axes);
+            [al_proj,axes] = align_proj_(obj,alignment_info,varargin{:});
+            [~,axes] = align_proj@aProjectionBase(al_proj,alignment_info,axes);
+            %             [obj,axes] = align_proj_(obj,alignment_info,varargin{:});
+            %             [obj,axes] = align_proj@aProjectionBase(obj,alignment_info,axes);
+            obj = align_proj@aProjectionBase(obj,alignment_info);
         end
-        
+
         %------------------------------------------------------------------
         function mat = get.u_to_rlu(obj)
             % get old u_to_rlu transformation matrix from current

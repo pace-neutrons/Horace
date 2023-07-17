@@ -34,20 +34,24 @@ obj = obj.check_combo_arg();
 if isempty(varargin)
     ax_block = [];
     return
+else
+    ax_block = varargin{1};
 end
-ax_block = varargin{1};
-img_range = ax_block.img_range;
-full_range = expand_box(img_range(1:3,1),img_range(1:3,2));
-full_range_corr = rlu_corr*full_range; 
-
-corr_range = [min(full_range_corr,[],2);max(full_range_corr,[],2)];
-center = 0.5*(corr_range(1,:)+corr_range(2,:));
-spawn = corr_range(2,:)-corr_range(1,:);
-dist = norm(spawn,2);
-new_range = [center-0.5*dist;center+0.5*dist];
-img_range(:,1:3) = new_range;
-ax_block.img_range = img_range;
-
-if ~(all(abs(center)<4*eps('single')))
-    obj.img_offset(1:3) = obj.img_offset(1:3)+center;
-end
+% % Change Axes. Is not necessary?
+% 
+% ax_block = varargin{1};
+% img_range = ax_block.img_range;
+% full_range = expand_box(img_range(1,1:3),img_range(2,1:3));
+% full_range_corr = rlu_corr*full_range; 
+% 
+% corr_range = [min(full_range_corr,[],2),max(full_range_corr,[],2)]';
+% center = 0.5*(corr_range(1,:)+corr_range(2,:));
+% size = corr_range(2,:)-corr_range(1,:);
+% 
+% new_range = [center-0.5*size;center+0.5*size];
+% img_range(:,1:3) = new_range;
+% ax_block.img_range = img_range;
+% 
+% if ~(all(abs(center)<4*eps('single')))
+%     obj.img_offset(1:3) = obj.img_offset(1:3)+center;
+% end
