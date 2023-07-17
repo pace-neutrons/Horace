@@ -7,18 +7,21 @@ function dout = compact(din)
 % If an array of DnDs is provided, this will return a cell array
 % otherwise it will return a DnD scalar
 %
+% An equivalent method is provided for the sqw class to compact its
+% dnd sub-objects
+%
 % Syntax:
 %   >> dout = compact(din)
 %
 % Input:
 % ------
-%   din         Input object(s)
+%   din         Array of input object(s)
 %
 % Output:
 % -------
-%   dout        Output object(s), with length of axes reduced to yield the
-%               smallest cuboid for each input object that contains the non-empty bins.
-%
+%   dout       Scalar output object or cell array of output object(s), with length
+%              of axes reduced to yield the smallest cuboid for each input object
+%              that contains the non-empty bins.
 
 dout = cell(numel(din), 1);
 
