@@ -329,6 +329,11 @@ classdef unique_objects_container < serializable
                     error('HERBERT:unique_objects_container:invalid_argument', ...
                         'index outside legal range');
                 elseif nuix == numel(self.idx_)+1
+                    if numel(idxstr)>1
+                        error('HERBERT:unique_objects_container:invalid_subscript', ...has
+                              ['when adding to the end of a container, additionally setting ', ...
+                               'properties is not permitted']);
+                    end
                     self = self.add(val);
                     return;
                 end
@@ -521,8 +526,7 @@ classdef unique_objects_container < serializable
             % to put unique_objectss_container on the same footing as
             % array/cell in object_lookup
             
-            n = numel(self.idx_);
-            n = [n 1];
+            n = size(self.idx_);
         end
 
         function n = get.n_unique(self)

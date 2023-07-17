@@ -352,7 +352,9 @@ function test_replace_unique_same_number_works(~)
 
         function test_baseclass_issues(obj)
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
+            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:incomplete_setup');
+            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argment');
+            clOb1 = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argment');
 
             % legal constructor with no arguments but cannot be used until
             % populated e.g. with loadobj
@@ -666,6 +668,40 @@ function test_replace_unique_same_number_works(~)
             urc3 = unique_references_container('Joby3','double');
             urc3 = urc3.add([6 7 8]);
             urc4 = unique_references_container('Biby','IX_inst');
+        end
+        %-----------------------------------------------------------------
+        function test_use_properties(obj)
+            urc = unique_references_container('global_thingies','thingy');
+            urc{1} = thingy(111);
+            assertEqual(urc{1}, thingy(111));
+            assertEqual(urc{1}.data, 111);
+            urc{1}.data = 222;
+            function throw1()
+	            assertEqual(urc{1}, thingy(222));
+	            assertEqual(urc{1}.data, 222);
+                urc{2}.data = 666;
+            end
+            me = assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_subscript');
+            assertTrue(strcmp(me.message, ...
+            'when adding to the end of a container, additionally setting properties is not permitted'));
+        end
+        %-----------------------------------------------------------------
+        function test_arrays_of_containers(obj)
+            urc1 = unique_references_container('global_test_doubles','double');
+            urc1 = urc1.add([6 7]);
+            urc2 = unique_references_container('global_test_doubles','double');
+            urc2 = urc2.add([8 9]);
+            % make an array of unique_references_containers, test that
+            % subscripting it will give the individual container.
+            arr = [urc1 urc2];
+            assertTrue(isa(arr(2),'unique_references_container'));
+            % it is not possible to distinguish an array of one container
+            % from the container itself, so subscripting it may return
+            % element one of its contents.
+            % For this reason always prefer cellarrays of these containers;
+            % the next lines test the same thing for cells
+            arr = {urc1 urc2};
+            assertTrue(isa(arr{2},'unique_references_container'));
         end
     end
 end

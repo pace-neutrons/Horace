@@ -109,7 +109,7 @@ classdef object_lookup
                     % cases are distinguished in this code
                     if nw == 1
                         nel = objects.n_runs;
-                        sz  = objects.runs_sz;
+                        sz  = {objects.runs_sz};
                         obj_all = objects;
                     else
                         nel = arrayfun( @(x)get_nruns(x), objects );
@@ -125,7 +125,7 @@ classdef object_lookup
                     
                     % Fill lookup properties
                     tmp = obj_all.unique_objects;
-                    obj.object_store_ = [tmp{:}];
+                    obj.object_store_ = vertcat(tmp{:}); %same orientation as for ordinary cells
                     obj.indx_ = mat2cell(obj_all.idx(:),nel,1);
                     obj.sz_ = sz(:);
                     
@@ -143,7 +143,7 @@ classdef object_lookup
                     
                     % Fill lookup properties
                     tmp = obj_all.unique_objects;
-                    obj.object_store_ = [tmp{:}];
+                    obj.object_store_ = vertcat(tmp{:});
                     obj.indx_ = mat2cell(obj_all.idx(:),nel,1);
                     obj.sz_ = sz(:);
                     
@@ -247,6 +247,41 @@ classdef object_lookup
 
         function val=get.filled(obj)
             val=(numel(obj.object_store_)>0);
+        end
+        
+        function val = get_unique(obj,idx)
+            if (idx==0)
+                val = numel(obj.object_store_);
+                return;
+            end
+            val = obj.object_store_(idx);
+        end
+        
+        function obj = sort(obj)
+            N = numel(obj.object_store_);
+            hash1 = obj.hashify(obj.object_store_(1));
+            object_hashes = repmat({hash1},numel(obj.object_store_),1);
+            for ii=2:numel(obj.object_store)
+                object_hashes{ii} = obj.hashify(obj.object_store_(ii));
+            end
+            [sorted_hashes, sorted_idx] = sort(object_hashes);
+            obj.object_store_ = obj.object_store_(sorted_idx);
+            [present inverse_idx] = ismember([1:N], sorted_idx);
+            if any(~present)
+                error('BAD');
+            end
+            if numel(unique(inverse_idx))<numel(inverse_idx)
+                error('ALSO BAD');
+            end
+            if max(inverse_idx)>N || min(inverse_idx)>1
+                error('VERY BAD');
+            end
+            for ii=1:numel(obj.indx)
+                for jj=1:numel(obj.indx{ii})
+                    k = obj.indx{ii}(jj);
+                    obj.indx_{ii}(jj) = inverse_idx(k);
+                end
+            end
         end
 
         %------------------------------------------------------------------
@@ -493,6 +528,29 @@ classdef object_lookup
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
         end
+        
+        function hash = hashify(obj)
+            % makes a hash from the argument object
+            % which will be unique to any identical object
+            %
+            % Input:
+            % - obj : object to be hashed
+            % Output:
+            % - hash : the resulting has, a row vector of uint8's
+            %
+            Engine = java.security.MessageDigest.getInstance('MD5');
+            if isa(obj,'serializable') 
+                % use default serializer, build up by us for serializable objects
+                Engine.update(obj.serialize());
+            else
+                %convert_to_stream_f_ = @getByteStreamFromArray;
+                Engine.update(getByteStreamFromArray(obj));
+            end
+            hash = typecast(Engine.digest,'uint8');
+            hash = char(hash');
+        end
+
+
         %------------------------------------------------------------------
 
     end
