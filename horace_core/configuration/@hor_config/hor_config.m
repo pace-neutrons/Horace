@@ -47,6 +47,14 @@ classdef hor_config < config_base
         % with ~4Gb it has to be reduced to 10^6
         mem_chunk_size;
 
+        % Factor for determining whether to do certain operations
+        % as file-backed or memory-backed. The value is roughly equivalent
+        % to the number of "pages" which would need be produced before considering
+        % using file-backed algorithms (slower, but work for any sized object).
+        % i.e. if num_pixels > mem_chunk_size*fb_scale_factor => Do file-backed
+        % c.f. PixelDataBase.do_filebacked
+        fb_scale_factor;
+
         % ignore NaN values if pixels have them.  %  (default --true)
         ignore_nan;
 
@@ -122,6 +130,7 @@ classdef hor_config < config_base
     properties(Access=protected, Hidden=true)
         % private properties behind public interface
         mem_chunk_size_ = 1e7;
+        fb_scale_factor_ = 10;
 
         ignore_nan_ = true;
         ignore_inf_ = false;
@@ -139,6 +148,7 @@ classdef hor_config < config_base
         % get_storage_field_names function below
         saved_properties_list_ = {...
             'mem_chunk_size', ...
+            'fb_scale_factor', ...
             'ignore_nan',...
             'ignore_inf', ...
             'use_mex',...
@@ -156,8 +166,12 @@ classdef hor_config < config_base
         %-----------------------------------------------------------------
         % overloaded getters
 
-        function use = get.mem_chunk_size(obj)
-            use = get_or_restore_field(obj,'mem_chunk_size');
+        function mcs = get.mem_chunk_size(obj)
+            mcs = get_or_restore_field(obj,'mem_chunk_size');
+        end
+
+        function sf = get.fb_scale_factor(obj)
+            sf = get_or_restore_field(obj, 'fb_scale_factor');
         end
 
         function page_size = get.pixel_page_size(obj)
@@ -243,6 +257,15 @@ classdef hor_config < config_base
                 end
             end
             config_store.instance().store_config(obj,'mem_chunk_size',val);
+        end
+
+        function obj = set.fb_scale_factor(obj,val)
+            if val < 3
+                warning('HOR_CONFIG:set_fb_scale_factor',...
+                        [' fb_scale_factor in general should not be less than 3.\n', ...
+                         'Setting it to %d may cause performance degradation'], val);
+            end
+            config_store.instance().store_config(obj,'fb_scale_factor',val);
         end
 
         function obj = set.ignore_nan(obj,val)
