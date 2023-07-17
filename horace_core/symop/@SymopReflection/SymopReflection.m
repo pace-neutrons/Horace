@@ -124,4 +124,12 @@ classdef SymopReflection < Symop
                   Symop.is_3vector(argin{2});
         end
     end
+
+    % Serializable interface
+    methods
+        function flds = local_saveableFields(obj)
+            flds = {'u', 'v', 'offset'};
+        end
+    end
+
 end

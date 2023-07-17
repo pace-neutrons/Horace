@@ -67,4 +67,12 @@ classdef SymopIdentity < Symop
                  isequal(argin{1}, eye(3));
         end
     end
+
+    % Serializable interface
+    methods
+        function flds = local_saveableFields(obj)
+            flds = {};
+        end
+    end
+
 end
