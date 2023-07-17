@@ -130,7 +130,7 @@ classdef hor_config < config_base
     properties(Access=protected, Hidden=true)
         % private properties behind public interface
         mem_chunk_size_ = 1e7;
-        fb_scale_factor_ = 3;
+        fb_scale_factor_ = 10;
 
         ignore_nan_ = true;
         ignore_inf_ = false;
