@@ -71,7 +71,7 @@ end
 n_candidate_pix = sum(block_sizes);
 
 
-cut_to_file = ~return_cut || ~PixelDataBase.do_filebacked(n_candidate_pix);
+cut_to_file = ~return_cut || PixelDataBase.do_filebacked(n_candidate_pix);
 % Always cut in mem if not in file, leave as debugging option to compare with filebacked ops.
 cut_in_mem = ~cut_to_file;
 
