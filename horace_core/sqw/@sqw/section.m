@@ -77,6 +77,7 @@ for n = 1:numel(win)
 
             pix_ind = 1;
 
+            new_pix_range = [];
             for iter = 1:num_chunks
                 chunk = block_chunks{iter};
                 pix_start = chunk{1};
@@ -84,12 +85,14 @@ for n = 1:numel(win)
 
                 data = win(n).pix.get_pix_in_ranges(pix_start, block_sizes, false, false);
 
+                new_pix_range = minmax_ranges(new_pix_range, data.pix_range);
+
                 wout(n).pix.format_dump_data(data.data, pix_ind);
 
                 pix_ind = pix_ind + data.num_pixels;
 
             end
-
+            wout(n).pix.pix_range = new_pix_range;
             wout(n).pix = wout(n).pix.finalise(pix_ind-1);
 
         else
