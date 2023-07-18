@@ -652,6 +652,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     methods(Static, Hidden)
+        % Generate special sqw object with given properties. Used in tests.
         out = generate_cube_sqw(shape,varargin)
     end
 end

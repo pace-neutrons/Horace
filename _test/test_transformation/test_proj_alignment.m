@@ -2,8 +2,8 @@ classdef test_proj_alignment<TestCase
     % testing ortho_proj class constructor
     %
     properties
-        h0 = 1.5;  % the position and the extend of the
-        k0 = 1.5;  % pseudo peak
+        h0 = 2;  % the position and the extend of the
+        k0 = 2;  % pseudo peak
         sigma = 10;
     end
 
@@ -65,9 +65,10 @@ classdef test_proj_alignment<TestCase
         
 
         function test_align_simple_lattice_latt_no_change(obj)
-            w0 = sqw.generate_cube_sqw(10,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
+            %
+            ax = ortho_axes('img_range',[-5,-5,-2,-2;5,5,2,2],'nbins_all_dims',[100,100,1,1]);
+            w2 = sqw.generate_cube_sqw(ax,@(h,k,l,e,p)sample_gaus(obj,h,k,l,e,1));
 
-            w2 = cut_sqw(w0,ortho_proj,[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]);
             % this alignment moves the peak into actual [1,0,0] position where
             % lattice parameters is previous lattice parameter divided by
             % sqrt(2)
@@ -85,7 +86,7 @@ classdef test_proj_alignment<TestCase
             assertEqual(bl_start,1);
             assertEqual(bl_size,sum(w2.data.npix(:)));
 
-            w2m = cut_sqw(w2,targ_proj,[-4.5,1,4.5],[-4.5,1,4.5],[-2,2],[-2,2]);
+            w2m = cut_sqw(w2,targ_proj,[-4.5,0.1,4.5],[-4.5,0.1,4.5],[-2,2],[-2,2]);
             assertEqual(w2m.npixels,1408)
         end
 
