@@ -350,7 +350,7 @@ classdef AxesBlockBase < serializable
             % 1D array of the volumes of the cells. The number of elements
             % in the array is equal to the number of cells in the grid.
             % Inputs:
-            % obj   -- initialized instance of an axes_block class
+            % obj   -- initialized instance of an AxesBlockBase class
             % Optional:
             % axes  -- 4-element celarray, containig axes in all 4
             %          directions. If this argument is present, the
@@ -367,6 +367,31 @@ classdef AxesBlockBase < serializable
             end
 
         end
+
+        function steps = get_bin_step(obj)
+            % Return the step in each dimension in units of img_range units
+            % Inputs:
+            % obj   -- initialized instance of an AxesBlockBase class
+            steps = (obj.img_range(2,:) - obj.img_range(1,:)) ./ obj.nbins_all_dims;
+        end
+
+        function bin_idx = bin_points(obj, pts)
+            % Get the bin indices to which the points in pts would be binned
+            % Inputs:
+            % obj   -- initalized instance of an AxesBlockBase class
+            % pts   -- dim X N array of numeric points to bin, where dim is the
+            %            number of projection axes of the AxesBlockBase object
+            if size(pts, 2) ~= numel(obj.p)
+                error('HORACE:AxesBlockBase:invalid_argument', ...
+                      'Cannot bin point with different dimensionality.')
+            end
+
+            bin_idx = zeros(size(pts));
+            for i = 1:numel(obj.p)
+                bin_idx(:, i) = discretize(pts(:, i), obj.p{i});
+            end
+        end
+
         function data_out = rebin_data(obj,data_in,other_ax)
             % Rebin data,defined on this axes grid into other axes grid
             %
