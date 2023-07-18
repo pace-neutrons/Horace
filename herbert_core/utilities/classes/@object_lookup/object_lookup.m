@@ -112,8 +112,8 @@ classdef object_lookup
                         sz  = {objects.runs_sz};
                         obj_all = objects;
                     else
-                        nel = arrayfun( @get_nruns(x), objects );
-                        sz = arrayfun( @runs_sz(x), objects, 'uniformoutput',false );
+                        nel = arrayfun( @get_nruns, objects );
+                        sz = arrayfun( @runs_sz, objects, 'uniformoutput',false );
 
                         obj_all = unique_objects_container.concatenate(objects,'()');
                     end
@@ -131,8 +131,8 @@ classdef object_lookup
                     
                 elseif iscell(objects) && all(cellfun(@(x) isa(x, 'unique_objects_container'), objects))
                     
-                    nel = cellfun( @get_nruns(x), objects );
-                    sz = cellfun( @runs_sz(x), objects, 'uniformoutput',false );
+                    nel = cellfun( @get_nruns, objects );
+                    sz = cellfun( @runs_sz, objects, 'uniformoutput',false );
                     obj_all = unique_objects_container.concatenate(objects,'{}');
 
                                         

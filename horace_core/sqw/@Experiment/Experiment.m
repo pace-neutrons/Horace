@@ -633,8 +633,12 @@ classdef Experiment < serializable
                                                  'IX_inst'); %cell(1,n_tot);
             sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER', ...
                                                  'IX_samp'); %cell(1,n_tot);
+            %{
+            temporary suppression of use of compressed detectors until #959/PR999 is merged
+            here and in the for loop below
             detectors = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER', ...
                                                     'IX_detector_array');
+            %}
             %warning('stop here so you can check that instr and sampl should no longer be set as cells');
             expinfo= repmat(IX_experiment(),1,n_tot);
             ic = 1;
@@ -649,14 +653,15 @@ classdef Experiment < serializable
                     instr{ic}  = exp_cellarray{i}.instruments{j};
                     sampl{ic}  = exp_cellarray{i}.samples{j};
                     expinfo(ic)= exp_cellarray{i}.expdata(j);
-                    detectors(ic) = exp_cellarray{i}.detector_arrays{j};
+                    %detectors(ic) = exp_cellarray{i}.detector_arrays{j};
                     if ~keep_runid
                         expinfo(ic).run_id = ic;
                     end                    
                     ic = ic+1;
                 end
             end
-            exp = Experiment(detectors, instr, sampl,expinfo);
+            %exp = Experiment(detectors, instr, sampl,expinfo);
+            exp = Experiment([], instr, sampl,expinfo);
         end
     end
     %======================================================================

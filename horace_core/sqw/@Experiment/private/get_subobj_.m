@@ -52,7 +52,7 @@ info = cell(4,1);
 if numel(obj.detector_arrays_) == obj.n_runs
     info{1} = obj.detector_arrays_(head_num);
 else
-    if isempty(obj.detector_arrays_)
+    if isempty(obj.detector_arrays_) || obj.detector_arrays_.n_runs == 0
         info{1} = [];
     else
         info{1} = obj.detector_arrays_(1);
