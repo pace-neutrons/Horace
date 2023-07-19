@@ -89,6 +89,7 @@ classdef object_lookup
             % Input:
             % ------
             %   objects     Object array, or cell array of object arrays
+            %               or cell array of unique_objects_containers
 
 
             if nargin==1 && isstruct(objects)
@@ -96,48 +97,104 @@ classdef object_lookup
                 obj = object_lookup.loadobj(objects);
 
             elseif nargin>0
+                
+                if isa(objects, 'unique_objects_container')
+                    
+                    nw = numel(objects); % number of unique_object_containers
+                    
+                    % it is not possible to distinguish access of the first
+                    % element of a scalar unique_objects_container from access of
+                    % the first unique_objects_container in a
+                    % cell of such containers, when using a subscript. So the
+                    % cases are distinguished in this code
+                    if nw == 1
+                        nel = objects.n_runs;
+                        sz  = {objects.runs_sz};
+                        obj_all = objects;
+                    else
+                        nel = arrayfun( @get_nruns, objects );
+                        sz = arrayfun( @runs_sz, objects, 'uniformoutput',false );
 
-                % Make a cell array for convenience, if not already
-                if ~iscell(objects)
-                    objects = {objects};
-                end
-
-                % Check all arrays have the same class - requirement for sorting later on
-                if numel(objects)>1
-                    class_name = class(objects{1});
-                    tf = cellfun(@(x)(strcmp(class(x),class_name)),objects);
-                    if ~all(tf)
-                        error('HERBERT:object_lookup:invalid_argument', 'The classes of the object arrays are not all the same')
+                        obj_all = unique_objects_container.concatenate(objects,'()');
                     end
-                end
+                    
+                    if any(nel==0)
+                        error('HERBERT:object_lookup:invalid_argument', ...
+                              'Cannot have empty object containers');
+                    end
+                    
+                    % Fill lookup properties
+                    tmp = obj_all.unique_objects;
+                    obj.object_store_ = vertcat(tmp{:}); %same orientation as for ordinary cells
+                    obj.indx_ = mat2cell(obj_all.idx(:),nel,1);
+                    obj.sz_ = sz(:);
+                    
+                elseif iscell(objects) && all(cellfun(@(x) isa(x, 'unique_objects_container'), objects))
+                    
+                    nel = cellfun( @get_nruns, objects );
+                    sz = cellfun( @runs_sz, objects, 'uniformoutput',false );
+                    obj_all = unique_objects_container.concatenate(objects,'{}');
 
-                % Assemble the objects in one array
-                nw = numel(objects);
-                nel = cellfun(@numel,objects(:));
-                sz = cellfun(@size,objects(:),'uniformoutput',false);
-                if any(nel==0)
-                    error('HERBERT:object_lookup:invalid_argument', 'Cannot have any empty object arrays')
-                end
-                nend = cumsum(nel);
-                nbeg = nend - nel + 1;
-                ntot = nend(end);
+                                        
+                    if any(nel==0)
+                        error('HERBERT:object_lookup:invalid_argument', ...
+                              'Cannot have empty object containers');
+                    end
+                    
+                    % Fill lookup properties
+                    tmp = obj_all.unique_objects;
+                    obj.object_store_ = vertcat(tmp{:});
+                    obj.indx_ = mat2cell(obj_all.idx(:),nel,1);
+                    obj.sz_ = sz(:);
+                    
 
-                obj_all=repmat(objects{1}(1),[ntot,1]);
-                for i=1:nw
-                    obj_all(nbeg(i):nend(i))=objects{i}(:);
-                end
+                else % arrays, cells etc.
 
-                % Get unique entries
-                if fieldsNumLogChar (obj_all, 'indep')
-                    [obj_unique,~,ind] = uniqueObj(obj_all);    % simple object
-                else
-                    [obj_unique,~,ind] = genunique(obj_all,'resolve','indep');
-                end
+                    % Make a cell array for convenience, if not already
+                    if ~iscell(objects)
+                        objects = {objects};
+                    end
 
-                % Fill lookup properties
-                obj.object_store_ = obj_unique;
-                obj.indx_ = mat2cell(ind,nel,1);
-                obj.sz_ = sz;
+                    % Check all arrays have the same class - requirement for sorting later on
+                    if numel(objects)>1
+                        class_name = class(objects{1});
+                        tf = cellfun(@(x)(strcmp(class(x),class_name)),objects);
+                        if ~all(tf)
+                            error('HERBERT:object_lookup:invalid_argument', ...
+                                  ['The classes of the object arrays are not ', ...
+                                  'all the same']);
+                        end
+                    end
+
+                    % Assemble the objects in one array
+                    nw = numel(objects);
+                    nel = cellfun(@numel,objects(:));
+                    sz = cellfun(@size,objects(:),'uniformoutput',false);
+                    if any(nel==0)
+                        error('HERBERT:object_lookup:invalid_argument', ...
+                              'Cannot have any empty object arrays');
+                    end
+                    nend = cumsum(nel);
+                    nbeg = nend - nel + 1;
+                    ntot = nend(end);
+
+                    obj_all=repmat(objects{1}(1),[ntot,1]);
+                    for i=1:nw
+                        obj_all(nbeg(i):nend(i))=objects{i}(:);
+                    end
+
+                    % Get unique entries
+                    if fieldsNumLogChar (obj_all, 'indep')
+                        [obj_unique,~,ind] = uniqueObj(obj_all);    % simple object
+                    else
+                        [obj_unique,~,ind] = genunique(obj_all,'resolve','indep');
+                    end
+
+                    % Fill lookup properties
+                    obj.object_store_ = obj_unique;
+                    obj.indx_ = mat2cell(ind,nel,1);
+                    obj.sz_ = sz;
+                end
             end
 
         end
@@ -190,6 +247,41 @@ classdef object_lookup
 
         function val=get.filled(obj)
             val=(numel(obj.object_store_)>0);
+        end
+        
+        function val = get_unique(obj,idx)
+            if (idx==0)
+                val = numel(obj.object_store_);
+                return;
+            end
+            val = obj.object_store_(idx);
+        end
+        
+        function obj = sort(obj)
+            N = numel(obj.object_store_);
+            hash1 = obj.hashify(obj.object_store_(1));
+            object_hashes = repmat({hash1},numel(obj.object_store_),1);
+            for ii=2:numel(obj.object_store)
+                object_hashes{ii} = obj.hashify(obj.object_store_(ii));
+            end
+            [sorted_hashes, sorted_idx] = sort(object_hashes);
+            obj.object_store_ = obj.object_store_(sorted_idx);
+            [present inverse_idx] = ismember([1:N], sorted_idx);
+            if any(~present)
+                error('BAD');
+            end
+            if numel(unique(inverse_idx))<numel(inverse_idx)
+                error('ALSO BAD');
+            end
+            if max(inverse_idx)>N || min(inverse_idx)>1
+                error('VERY BAD');
+            end
+            for ii=1:numel(obj.indx)
+                for jj=1:numel(obj.indx{ii})
+                    k = obj.indx{ii}(jj);
+                    obj.indx_{ii}(jj) = inverse_idx(k);
+                end
+            end
         end
 
         %------------------------------------------------------------------
@@ -436,6 +528,29 @@ classdef object_lookup
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
         end
+        
+        function hash = hashify(obj)
+            % makes a hash from the argument object
+            % which will be unique to any identical object
+            %
+            % Input:
+            % - obj : object to be hashed
+            % Output:
+            % - hash : the resulting has, a row vector of uint8's
+            %
+            Engine = java.security.MessageDigest.getInstance('MD5');
+            if isa(obj,'serializable') 
+                % use default serializer, build up by us for serializable objects
+                Engine.update(obj.serialize());
+            else
+                %convert_to_stream_f_ = @getByteStreamFromArray;
+                Engine.update(getByteStreamFromArray(obj));
+            end
+            hash = typecast(Engine.digest,'uint8');
+            hash = char(hash');
+        end
+
+
         %------------------------------------------------------------------
 
     end
