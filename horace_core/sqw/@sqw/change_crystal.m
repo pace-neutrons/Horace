@@ -39,7 +39,7 @@ end
 % Perform operations
 % ------------------
 wout = obj;
-
+alignment_mat = alignment_info.rotmat;
 for i=1:numel(obj)
     proj = obj(i).data.proj;    % unmodified projection to change
     if ~isempty(proj.ub_inv_legacy)
@@ -51,6 +51,6 @@ for i=1:numel(obj)
     if ~alignment_info.legacy_mode
         % this invalidates q-range of pixels for filebacked pixels and
         % recalculates it for memory-based pixels
-        wout(i).pix.alignment_matr = alignment_info.rotmat;
+        wout(i).pix.alignment_matr = alignment_mat;
     end
 end
