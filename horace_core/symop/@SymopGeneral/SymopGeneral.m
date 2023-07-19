@@ -10,6 +10,27 @@ classdef SymopGeneral < Symop
 
     methods
 
+        function obj = SymopGeneral(W, offset)
+            if nargin == 0
+                return
+            end
+
+            if ~exist('offset', 'var')
+                offset = obj.offset;
+            end
+
+            if ~Symop.check_args({W, offset})
+                error('HORACE:symop:invalid_argument', ...
+                      ['Constructor arguments should be:\n', ...
+                       '- General:  Symop(3x3matrix, [3vector])\n', ...
+                       'Received: %s'], disp2str(W));
+            end
+
+            obj.W = W;
+            obj.offset = offset;
+
+        end
+
         function obj = set.W(obj, val)
             if  ~obj.is_3x3matrix(val) || abs(det(val)) - 1 > 1e-4
                 error('HORACE:symop:invalid_argument', ...
@@ -69,6 +90,14 @@ classdef SymopGeneral < Symop
                 fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(2, :));
                 fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(3, :));
             end
+        end
+
+    end
+
+    % Serializable interface
+    methods
+        function flds = local_saveableFields(obj)
+            flds = {'W', 'offset'};
         end
     end
 
