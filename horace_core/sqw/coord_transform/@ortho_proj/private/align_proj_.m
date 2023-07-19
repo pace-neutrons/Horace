@@ -1,5 +1,5 @@
 function [obj,ax_block] = align_proj_(obj,alignment_info,varargin)
-% Apply crystal alignment information to the projection and axes block 
+% Apply crystal alignment information to the projection and axes block
 % and realign it.
 % Inputs:
 % obj -- initialized instance of the projection info
@@ -16,6 +16,23 @@ else
     uvw = [obj.u_(:),obj.v_(:),obj.w_(:)];
     w_defined = true;
 end
+if isempty(varargin)
+    ax_block = [];
+else
+    ax_block = varargin{1};
+end
+% Change Axes. Need to axes scales in projection coordinate system
+if ~isempty(ax_block)
+    img_range = ax_block.img_range;
+    [full_range,perm] = expand_box(img_range(1,1:3),img_range(2,1:3));
+    % Transfer ranges into Crystal Cartesian coordinate system
+    range_in_cc  = obj.transform_img_to_pix(full_range); % axes_block sizes
+
+    %Identify nodes nearest to node 1:
+    perm_dist = perm - perm(:,1);
+    closest_nodes = sum(perm_dist,1)==1;
+end
+
 alignment_info.hkl_mode = true;
 rlu_corr = alignment_info.get_corr_mat(obj);
 uvw_corr = rlu_corr*uvw;
@@ -31,27 +48,20 @@ end
 obj.alatt_  = alignment_info.alatt;
 obj.angdeg_ = alignment_info.angdeg;
 obj = obj.check_combo_arg();
-if isempty(varargin)
-    ax_block = [];
+if isempty(ax_block)
     return
-else
-    ax_block = varargin{1};
 end
-% % Change Axes. Is not necessary?
-% 
-% ax_block = varargin{1};
-% img_range = ax_block.img_range;
-% full_range = expand_box(img_range(1,1:3),img_range(2,1:3));
-% full_range_corr = rlu_corr*full_range; 
-% 
-% corr_range = [min(full_range_corr,[],2),max(full_range_corr,[],2)]';
-% center = 0.5*(corr_range(1,:)+corr_range(2,:));
-% size = corr_range(2,:)-corr_range(1,:);
-% 
-% new_range = [center-0.5*size;center+0.5*size];
-% img_range(:,1:3) = new_range;
-% ax_block.img_range = img_range;
-% 
-% if ~(all(abs(center)<4*eps('single')))
-%     obj.img_offset(1:3) = obj.img_offset(1:3)+center;
-% end
+
+% Change Axes. Need to change axes scales in projection coordinate system
+% modified offset is accounted for within the transformation
+full_range_corr = obj.transform_pix_to_img(range_in_cc);
+corr_range = [min(full_range_corr,[],2),max(full_range_corr,[],2)];
+center = 0.5*(corr_range(:,1)+corr_range(:,2));
+%sizes of the modified box in image coordinate system
+size = vecnorm(full_range_corr(:,closest_nodes)-full_range_corr(:,1));
+
+new_range = [center-0.5*size(:),center+0.5*size(:)]';
+img_range(:,1:3)   = new_range;
+ax_block.img_range = img_range;
+
+

@@ -483,11 +483,8 @@ classdef ortho_proj<aProjectionBase
             % optional
             % axes -- the input ortho_axes, modified according to the
             %         realigned projection.
-            [al_proj,axes] = align_proj_(obj,alignment_info,varargin{:});
-            [~,axes] = align_proj@aProjectionBase(al_proj,alignment_info,axes);
-            %             [obj,axes] = align_proj_(obj,alignment_info,varargin{:});
-            %             [obj,axes] = align_proj@aProjectionBase(obj,alignment_info,axes);
-            obj = align_proj@aProjectionBase(obj,alignment_info);
+            [obj,axes] = align_proj_(obj,alignment_info,varargin{:});
+            [obj,axes] = align_proj@aProjectionBase(obj,alignment_info,axes);
         end
 
         %------------------------------------------------------------------

@@ -44,12 +44,13 @@ classdef crystal_alignment_info < serializable
 
         % True or false specifies if one wants to get corrections for image 
         % or for pixel, where if true changes involve B-matrix together with 
-        % U matrix, wehere false retunrs only corrections for U-matrix
+        % U matrix, wehere false retunrs only corrections to U-matrix
         hkl_mode;
         
     end
     properties(Dependent, Hidden)
-        legacy_mode % == hkl_mode
+        legacy_mode % == hkl_mode; legacy corrections were perfomed in hkl 
+        % mode only
     end
     properties(Access = protected)
         alatt_  = [2*pi,2*pi,2*pi]  % Refined lattice parameters [a,b,c] (Angstroms)

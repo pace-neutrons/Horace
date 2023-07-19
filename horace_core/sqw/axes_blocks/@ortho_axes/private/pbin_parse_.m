@@ -50,7 +50,11 @@ elseif isnumeric(p)
                 max_v = p(3)+p(2)/2;
                 nbin = floor((max_v-min_v)/p(2));
                 if min_v + nbin*p(2)< max_v
-                    nbin = nbin+1;
+                    if abs(max_v-min_v - nbin*p(2)) < eps('single')
+                        p(2) = (max_v-min_v)/nbin;
+                    else
+                        nbin = nbin+1;
+                    end
                 end
                 max_v = min_v+nbin*p(2); % bin edges provided
                 range=[min_v;max_v];
