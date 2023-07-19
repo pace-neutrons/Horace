@@ -244,7 +244,6 @@ classdef test_unique_objects < TestCase
         %----------------------------------------------------------------
         function test_add_different_types(obj)
             %disp('Test: test_add_different_types');
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             uoc = unique_objects_container();
             uoc = uoc.add(obj.mi1);
@@ -257,9 +256,11 @@ classdef test_unique_objects < TestCase
             [voc,nuix] = voc.add(obj.mi1);
 
             assertTrue( nuix>0 );
+            clOb = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
             [voc,nuix] = voc.add(obj.nul_sm1);
             [~,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
+            clear cl0b;
 
             assertFalse( nuix>0 );
             assertEqual( numel(voc.unique_objects), 1);
@@ -293,11 +294,11 @@ classdef test_unique_objects < TestCase
             assertEqual( numel(uoc.unique_objects), 2);
         end
         function test_constructor_arguments_with_type(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             uoc = unique_objects_container('baseclass','IX_inst');
             uoc = uoc.add(obj.mi1);
 
+            clOb = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
             uoc = uoc.add(obj.nul_sm1);
             [~,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
@@ -309,11 +310,11 @@ classdef test_unique_objects < TestCase
             %}
         end
         function test_constructor_arguments_type_serializer(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialize);
 
             uoc = uoc.add(obj.mi1);
+            clOb = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
             uoc = uoc.add(obj.nul_sm1);
             assertEqual( numel(uoc.unique_objects), 1);
             [~,lw] = lastwarn;
@@ -332,13 +333,14 @@ classdef test_unique_objects < TestCase
             assertEqual( numel(uoc.unique_objects), 2);
         end
         function test_subscripting_type(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');
 
             uoc = unique_objects_container('baseclass','IX_inst');
             uoc{1} = obj.mi1;
+            clOb = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
             uoc{2} = obj.nul_sm1;
-            [~,lw] = lastwarn;
+            [lwn,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
+            assertEqual(lwn,'not correct base class; object was not added');
             assertEqual( numel(uoc.unique_objects), 1);
             %{
             Turns out that hashes are not portable between all Matlab
@@ -352,8 +354,9 @@ classdef test_unique_objects < TestCase
             uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialize);
             uoc{1} = obj.mi1;
             uoc{2} = obj.nul_sm1;
-            [~,lw] = lastwarn;
+            [lwn,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
+            assertEqual(lwn,'not correct base class; object was not added');
             assertEqual( numel(uoc.unique_objects), 1);
             %{
             Turns out that hashes are not portable between all Matlab

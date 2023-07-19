@@ -351,15 +351,12 @@ function test_replace_unique_same_number_works(~)
         %}
 
         function test_baseclass_issues(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:incomplete_setup');
-            clOb1 = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argment');
-            clOb1 = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argment');
 
             % legal constructor with no arguments but cannot be used until
             % populated e.g. with loadobj
             urc1 = unique_references_container();
             % so this will throw
+            cl4b = set_temporary_warning('off','HERBERT:unique_references_container:incomplete_setup');                     
             function throw1()
                 urc1(1) = obj.mi1;
             end
@@ -368,6 +365,7 @@ function test_replace_unique_same_number_works(~)
             [lwn,lw] = lastwarn;
             assertEqual(lw,'HERBERT:unique_references_container:incomplete_setup');
             assertEqual(lwn, 'baseclass not initialised, using first assigned type');
+            clear cl4b;
 
             % setup container of char
             unique_references_container('CLEAR','GLOBAL_NAME_TEST_UNIQUE_REFERENCES_CONTAINER_CSTRINGS2');
@@ -377,14 +375,19 @@ function test_replace_unique_same_number_works(~)
             % fail extending with wrong type
             assertEqual(urc2.n_runs,1);
             assertEqual(urc2.n_objects,1);
+            cl2b = set_temporary_warning('off','HERBERT:unique_references_container:invalid_argument');            
             urc2(2) = obj.mi1;
             [lwn,lw] = lastwarn;
             assertEqual(lwn,'not correct stored base class; object was not added');
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             assertEqual(urc2.n_objects,1); % warning was issued and object was not added
+            clear cl2b;
 
             % fail inserting with wrong type
+            cl3b = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');            
             urc2(1) = obj.mi1;
+            [a,~]=lastwarn;
+            assertTrue(strcmp(a,'not correct base class; object was not added'));
             assertEqual( urc2(1),'aaaaa'); % warning was issued and object was not replaced
         end
 
