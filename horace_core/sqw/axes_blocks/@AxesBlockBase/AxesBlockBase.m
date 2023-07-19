@@ -266,7 +266,7 @@ classdef AxesBlockBase < serializable
         function obj = set.img_range(obj,val)
             obj = check_and_set_img_range(obj,val);
         end
-        %
+
         function nbin = get.nbins_all_dims(obj)
             nbin = obj.nbins_all_dims_;
         end
