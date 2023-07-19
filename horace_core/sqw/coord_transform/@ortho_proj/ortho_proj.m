@@ -175,6 +175,12 @@ classdef ortho_proj<aProjectionBase
         q_to_img_cache_ = [];
         q_offset_cache_ = [];
         ulen_cache_     = [];
+        % Internal property, which specifies if alignment algorithm has
+        % been applied to pixels. These two transformations are 
+        % equivalent, so if it was, pix_to_img transformation
+        % should use proj alignment rather then pix alignment provided to
+        % transformation
+        proj_aligned_ = false;
     end
     %======================================================================
     methods
@@ -485,6 +491,7 @@ classdef ortho_proj<aProjectionBase
             %         realigned projection.
             [obj,axes] = align_proj_(obj,alignment_info,varargin{:});
             [obj,axes] = align_proj@aProjectionBase(obj,alignment_info,axes);
+            obj.proj_aligned_ = true;
         end
 
         %------------------------------------------------------------------

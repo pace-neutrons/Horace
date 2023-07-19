@@ -21,7 +21,8 @@ classdef test_dnd_metadata_data < TestCase
         end
         function test_d2d_metadata_data_construct_reconstruct(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
+                ortho_proj('alatt',3,'angdeg',90),...
                 ones(11,11),2*ones(11,11),3*ones(11,11)};
             dnd_obj = d2d(input{:});
 
@@ -35,7 +36,8 @@ classdef test_dnd_metadata_data < TestCase
             assertEqualToTol(dnd_obj,dnd_obj_rec,'-ignore_date' )
         end
         function test_dnd_data_get_set(~)
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
+                ortho_proj('alatt',3,'angdeg',90),...
                 ones(11,11),2*ones(11,11),3*ones(11,11)};
             dnd_obj = d2d(input{:});
 
@@ -60,7 +62,8 @@ classdef test_dnd_metadata_data < TestCase
 
         function test_d2d_metadata_get_set(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
+                ortho_proj('alatt',3,'angdeg',90),...
                 ones(11,11),2*ones(11,11),3*ones(11,11)};
             dnd_obj = d2d(input{:});
 
@@ -117,7 +120,7 @@ classdef test_dnd_metadata_data < TestCase
 
         function test_dnd_metadata_serialization_with_date(~)
             ab = ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]);
-            pr = ortho_proj([1,1,0],[0,0,1]);
+            pr = ortho_proj([1,1,0],[0,0,1],'alatt',3,'angdeg',90);
             md = dnd_metadata(ab,pr,datetime(1900,01,01));
 
             mds = md.to_struct();

@@ -76,7 +76,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         e_    %cumulative variance size(data.e) == ortho_axes.dims_as_ssize
         npix_ %No. contributing pixels to each bin of the plot axes. size(data.npix) == ortho_axes.dims_as_ssize
         axes_ = ortho_axes(); % axes block describing size and shape of the dnd object.
-        proj_ = ortho_proj(); % Object defining the transformation, used to convert data from
+        proj_ = ortho_proj('alatt',2*pi,'angdeg',90); % Object defining the transformation, used to convert data from
         %                      crystal Cartesian coordinate system to this
         %                      image coordinate system.
         % The date when the object has been stored on hdd first time

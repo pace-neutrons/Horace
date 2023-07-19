@@ -118,7 +118,8 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
         function test_arg_constructor_from_ax_and_proj(~)
             ax = ortho_axes([-2,0.05,2],[-2,0.05,2],[0,1],[0,1]);
-            proj = ortho_proj('alatt',3.2,'offset',[0,1,1,0],'u',[1,0,0],'v',[0,1,0]);
+            proj = ortho_proj('alatt',3.2,'angdeg',90, ...
+                'offset',[0,1,1,0],'u',[1,0,0],'v',[0,1,0]);
             t2 = d2d(ax,proj,zeros(81,81),zeros(81,81),ones(81,81));
             assertTrue(isa(t2,'d2d'))
             assertEqual(t2.offset,[0,1,1,0]);
@@ -260,7 +261,8 @@ classdef test_dnd_constructor < TestCaseWithSave
         %-------------------------------------------------------------------
         % Non-empty constructor
         function test_d0d_generator(~)
-            input = {ortho_axes([0,1],[0,1],[0,1],[0,2]),ortho_proj(),...
+            input = {ortho_axes([0,1],[0,1],[0,1],[0,2]),...
+                ortho_proj('alatt',3,'angdeg',90),...
                 1,1,1};
             dnd_obj = DnDBase.dnd(input{:});
             assertTrue(isa(dnd_obj,'d0d'));
@@ -268,7 +270,8 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
 
         function test_d1d_generator(~)
-            input = {ortho_axes([0,1],[0,1],[0,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,1],[0,1],[0,1],[0,0.2,2]),...
+                ortho_proj('alatt',3,'angdeg',90),...
                 ones(11,1),ones(11,1),ones(11,1)};
             dnd_obj = DnDBase.dnd(input{:});
             assertTrue(isa(dnd_obj,'d1d'));
@@ -276,7 +279,8 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
 
         function test_d2d_generator(~)
-            input = {ortho_axes([0,0.1,1],[0,1],[0,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,0.1,1],[0,1],[0,1],[0,0.2,2]),...
+                ortho_proj('alatt',3,'angdeg',90),...
                 ones(11,11),ones(11,11),ones(11,11)};
             dnd_obj = DnDBase.dnd(input{:});
             assertTrue(isa(dnd_obj,'d2d'));
@@ -284,7 +288,8 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
 
         function test_d3d_generator(~)
-            input = {ortho_axes([0,0.1,1],[0,0.1,1],[0,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,0.1,1],[0,0.1,1],[0,1],[0,0.2,2]),...
+                ortho_proj('alatt',3,'angdeg',90),...
                 ones(11,11,11),ones(11,11,11),ones(11,11,11)};
             dnd_obj = DnDBase.dnd(input{:});
             assertTrue(isa(dnd_obj,'d3d'));
@@ -292,7 +297,8 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
 
         function test_d4d_generator(~)
-            input = {ortho_axes([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),...
+                ortho_proj(ortho_proj('alatt',3,'angdeg',90)),...
                 ones(11,11,11,11),ones(11,11,11,11),ones(11,11,11,11)};
             dnd_obj = DnDBase.dnd(input{:});
             assertTrue(isa(dnd_obj,'d4d'));
@@ -300,7 +306,8 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
         function test_d4d_non_empty(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),...
+                ortho_proj(ortho_proj('alatt',3,'angdeg',90)),...
                 ones(11,11,11,11),ones(11,11,11,11),ones(11,11,11,11)};
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d0d(input{:}),'MATLAB:class:mustReturnObject');
@@ -311,7 +318,8 @@ classdef test_dnd_constructor < TestCaseWithSave
 
         function test_d3d_non_empty(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,0.1,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,0.1,1],[0,1],[0,0.1,1],[0,0.2,2]),...
+                ortho_proj('alatt',3,'angdeg',90),...
                 ones(11,11,11),ones(11,11,11),ones(11,11,11)};
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d0d(input{:}),'MATLAB:class:mustReturnObject');
@@ -322,7 +330,8 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
         function test_d2d_ax_and_projy(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
+                ortho_proj('alatt',3,'angdeg',90),...
                 };
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d0d(input{:}),'MATLAB:class:mustReturnObject');
@@ -336,7 +345,8 @@ classdef test_dnd_constructor < TestCaseWithSave
 
         function test_d2d_non_empty(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),
+                ortho_proj('alatt',3,'angdeg',90),...
                 ones(11,11),ones(11,11),ones(11,11)};
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d0d(input{:}),'MATLAB:class:mustReturnObject');
@@ -348,7 +358,8 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
         function test_d1d_data_wrong_constructor_throws(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,2]),ortho_proj(),...
+            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,2]),...
+                ortho_proj('alatt',3,'angdeg',90),...
                 ones(1,11),ones(1,11),ones(1,11)};
             assertExceptionThrown(@()d2d(input{:}),'HORACE:DnDBase:invalid_argument');
 
@@ -356,13 +367,16 @@ classdef test_dnd_constructor < TestCaseWithSave
 
         function test_d1d_non_empty_constructor_works(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,2]),ortho_proj(),...
+            proj = ortho_proj('alatt',3,'angdeg',90);
+            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,2]),...
+                proj,...
                 ones(1,11),ones(1,11),ones(1,11)};
 
             obj = d1d(input{:});
 
             assertTrue(isa(obj,'d1d'));
             input{1}.label = {'\zeta'  '\xi'  '\eta'  'E'};
+            input{1}.s
             assertEqual(obj.axes,input{1});
             assertEqual(obj.proj,input{2});
             assertEqual(obj.s,input{3}');
@@ -371,7 +385,7 @@ classdef test_dnd_constructor < TestCaseWithSave
 
         function test_d0d_non_empty(~)
             % s,e,npix,axis, proj;
-            input = {ortho_axes(0),ortho_proj(),1,1,1};
+            input = {ortho_axes(0),ortho_proj('alatt',3,'angdeg',90),1,1,1};
             obj = d0d(input{:});
 
             assertTrue(isa(obj,'d0d'));
@@ -436,26 +450,26 @@ classdef test_dnd_constructor < TestCaseWithSave
 
         function test_d1d_get_returns_set_properties(obj)
             ab = ortho_axes('nbins_all_dims',[1,1,10,1]);
-            dnd_obj = d1d(ab,ortho_proj());
+            dnd_obj = d1d(ab,ortho_proj('alatt',3,'angdeg',90));
             obj.assert_dnd_get_returns_set_properties(dnd_obj,[10,1]);
         end
 
         function test_d2d_get_returns_set_properties(obj)
             ab = ortho_axes('nbins_all_dims',[1,20,10,1]);
-            dnd_obj = d2d(ab,ortho_proj());
+            dnd_obj = d2d(ab,ortho_proj('alatt',3,'angdeg',90));
 
             obj.assert_dnd_get_returns_set_properties(dnd_obj,[20,10]);
         end
 
         function test_d3d_get_returns_set_properties(obj)
             ab = ortho_axes('nbins_all_dims',[10,10,1,10]);
-            dnd_obj = d3d(ab,ortho_proj());
+            dnd_obj = d3d(ab,ortho_proj('alatt',3,'angdeg',90));
             obj.assert_dnd_get_returns_set_properties(dnd_obj,[10,10,10]);
         end
 
         function test_d4d_get_returns_set_properties(obj)
             ab = ortho_axes('nbins_all_dims',[10,11,5,8]);
-            dnd_obj = d4d(ab,ortho_proj());
+            dnd_obj = d4d(ab,ortho_proj('alatt',3,'angdeg',90));
             obj.assert_dnd_get_returns_set_properties(dnd_obj,[10,11,5,8]);
         end
 
