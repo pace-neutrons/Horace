@@ -24,9 +24,15 @@ if numel(win)~=1
 end
 
 
-proj    = win.data.proj;
-[qw,en] = proj.transform_pix_to_hkl(win.pix);
+proj = win.data.proj;
+qw = zeros(4, win.pix.num_pixels);
+for i = 1:win.pix.num_pages
+    win.pix.page_num = i;
+    [pix_start, pix_end] = win.pix.get_page_idx_();
+    [qw(1:3, pix_start:pix_end), qw(4, pix_start:pix_end)] = proj.transform_pix_to_hkl(win.pix);
+end
 
 % package as cell array of column vectors for convenience with fitting routines etc.
-qw = {qw(1,:)', qw(2,:)', qw(3,:)',en(:)};
+qw = num2cell(qw', 1);
 
+end

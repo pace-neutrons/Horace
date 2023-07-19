@@ -175,8 +175,18 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_cut_sqw_file_to_file_combined_mex(obj)
-            clear_fb_cut_buf_settings = set_temporary_config_options(hor_config, 'mem_chunk_size', 2000);
-            hpc_cleanup = set_temporary_config_options(hpc_config, 'combine_sqw_using', 'mex');
+
+            mem_chunk_size = 2000;
+            cleanup_hor_config = set_temporary_config_options( ...
+                hor_config, ...
+                'mem_chunk_size', mem_chunk_size, ...
+                'use_mex', true ...
+                );
+
+            cleanup_hpc_config = set_temporary_config_options( ...
+                hpc_config, ...
+                'combine_sqw_using', 'mex' ...
+                );
 
             ref_obj= copy(obj.sqw_4d); % it has been read in constructor
             %ref_obj.pix.signal = 1:ref_obj.pix.num_pixels;
@@ -203,7 +213,7 @@ classdef test_cut < TestCase & common_state_holder
 
         function test_cut_sqw_file_to_sqw_file_combined_nomex(obj)
 
-            mem_chunk_size = 4000;
+            mem_chunk_size = 2000;
             cleanup_hor_config = set_temporary_config_options( ...
                 hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
@@ -232,8 +242,14 @@ classdef test_cut < TestCase & common_state_holder
 
 
         function test_cut_sqw_object_to_file(obj)
-            cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 4000);
-            clWarn = set_temporary_warning('off','HORACE:old_file_format');
+
+            mem_chunk_size = 4000;
+            cleanup_config = set_temporary_config_options( ...
+                hor_config, ...
+                'mem_chunk_size', mem_chunk_size ...
+                );
+            ws = warning('off','HORACE:old_file_format');
+            clWarn = onCleanup(@()warning(ws));
 
             sqw_obj = read_sqw(obj.sqw_file);
 
@@ -614,7 +630,11 @@ classdef test_cut < TestCase & common_state_holder
         %------------------------------------------------------------------
 
         function test_cut_multiple_sqw_files(obj)
-            cleanup = set_temporary_config_options(hor_config, 'mem_chunk_size', 8000);
+            mem_chunk_size = 8000;
+            cleanup_config_handle = set_temporary_config_options( ...
+                hor_config, ...
+                'mem_chunk_size', mem_chunk_size ...
+                );
 
             files = {obj.sqw_file,obj.sqw_file};
             [sqw_cut1,sqw_cut2] = cut(files, obj.ref_params{:});

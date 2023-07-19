@@ -8,8 +8,8 @@ function obj = remove_data (obj, ind)
 % Remove one or more particular datasets (ind is a scalar or row vector):
 %   >> obj = obj.remove_data (ind)
 %
-% See also append_data replace_data set_data 
- 
+% See also append_data replace_data set_data
+
 
 % Note for developers:
 %   >> obj = obj.replace_data ([])      % Inert operation: does nothing
@@ -24,9 +24,8 @@ function obj = remove_data (obj, ind)
 if nargin==1
     ind = 'all';
 end
-[ok,mess,idata] = indicies_parse (ind, obj.ndatatot_, 'Dataset');
-if ~ok, error(mess), end
- 
+idata = indices_parse (ind, obj.ndatatot_, 'Dataset');
+
 
 % Set object properties
 % ---------------------
@@ -63,4 +62,3 @@ end
 
 obj = obj.set_fun_props_(Sfun);
 obj = obj.set_constraints_props_ (Scon);
-

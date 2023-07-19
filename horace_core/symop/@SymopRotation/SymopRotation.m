@@ -150,4 +150,12 @@ classdef SymopRotation < Symop
 
         end
     end
+
+    % Serializable interface
+    methods
+        function flds = local_saveableFields(obj)
+            flds = {'n', 'theta_deg', 'offset'};
+        end
+    end
+
 end

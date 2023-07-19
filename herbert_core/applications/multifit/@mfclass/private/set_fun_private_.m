@@ -41,17 +41,14 @@ if ~ok, return, end
 % -----------------------------------
 % Now check validity of input
 if ischar(ifun) && strcmp(ifun,'all')
-    nfun = max(numel(fun),nfun);
+    nfun = max(numel(fun), nfun);
 end
-[ok,mess,ifun] = indicies_parse (ifun, nfun, 'Function');
-if ~ok, return, end
+ifun = indices_parse(ifun, nfun, 'Function');
 
-[ok,mess,fun] = fun_parse(fun,size(ifun));
-if ~ok, return, end
+fun = fun_parse(fun, size(ifun));
 
 if present.pin
-    [ok,mess,pin,np] = pin_parse(pin,fun);
-    if ~ok, return, end
+    [pin,np] = pin_parse(pin, fun);
 else
     np = zeros(size(fun));  % need np for clearing constraints
 end
@@ -60,6 +57,7 @@ if present.free
     [ok,mess,free]=free_parse(free,np);
     if ~ok, return, end
 end
+
 
 % All arguments are valid, so populate the output object
 [Sfun, clr_fun] = fun_alter (obj.get_fun_props_, isfore, ifun, fun);
@@ -73,6 +71,7 @@ end
 if present.free
     Sfun = free_alter (Sfun, isfore, ifun, free);
 end
+
 
 % Now deal with constraints structure
 % -----------------------------------
@@ -99,7 +98,7 @@ if present.bind
         isfore, ifun, bind);
     if ~ok, return, end
     if ~isempty(mess), disp(mess), end
-    
+
     % Now update the constraints themselves
     [Scon,ok,mess] = binding_add (Scon, Sfun.np_, Sfun.nbp_,...
         ipb, ifunb, ipf, ifunf, R);
@@ -109,4 +108,3 @@ end
 % -----------------
 obj = obj.set_fun_props_ (Sfun);
 obj = obj.set_constraints_props_ (Scon);
-

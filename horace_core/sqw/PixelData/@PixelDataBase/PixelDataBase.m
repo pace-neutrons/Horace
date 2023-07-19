@@ -175,7 +175,7 @@ classdef (Abstract) PixelDataBase < serializable
                     disp2str(num_pixels))
             end
             if ~exist('scale_fac', 'var')
-                scale_fac = 3;
+                scale_fac = config_store.instance().get_value('hor_config','fb_scale_factor');
             end
 
             mem_chunk_size = config_store.instance().get_value('hor_config','mem_chunk_size');
@@ -422,7 +422,7 @@ classdef (Abstract) PixelDataBase < serializable
     end
     %======================================================================
     % the same interface on FB and MB files
-    methods       
+    methods
        function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
         end
@@ -433,7 +433,7 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_fields(obj, data, fields, abs_pix_indices);
 
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);        
+        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
             % to allow
@@ -810,13 +810,13 @@ classdef (Abstract) PixelDataBase < serializable
             % keep_array -- logical array specifying which pixels to keep
             % Optional:
             % npix       -- if present, array specifying number of pixels
-            %               contriburing to each bin of DnD object image. 
+            %               contriburing to each bin of DnD object image.
             % If npix is absent or empty, keep_array size should be equal
             % to number of pixels and if present, numel(keep_array(:)) ==
-            % numel(npix(:));            
+            % numel(npix(:));
             [keep_array, npix] = validate_input_args_for_mask_(obj, keep_array, varargin{:});
         end
-        
+
         function [abs_pix_indices,ignore_range,raw_data,keep_precision] = ...
                 parse_get_pix_args(obj,varargin)
 

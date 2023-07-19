@@ -390,7 +390,8 @@ classdef aProjectionBase < serializable
     methods
         function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
                 targ_axes_block,targ_proj)
-            % return the positions and the sizes of the pixels blocks
+            % return the positions (w.r.t the position of the first pixel which is 1)
+            % and the sizes of the pixels blocks
             % belonging to the cells which may contribute to the final cut.
             % The cells are defined by the projections and axes block-s,
             % provided as input.
@@ -949,8 +950,6 @@ classdef aProjectionBase < serializable
         % return parameters of transformation used for conversion from pixels
         % to image coordinate system
         varargout = get_pix_img_transformation(obj,ndim,varargin);
-    end
-    methods(Abstract,Access=protected)
     end
     %======================================================================
     % Serializable interface
