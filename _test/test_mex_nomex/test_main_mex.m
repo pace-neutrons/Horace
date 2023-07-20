@@ -179,7 +179,7 @@ classdef test_main_mex < TestCase
             pix.coordinates = [ux(:)';uy(:)';uz(:)';et(:)'];
             npix = 4*ones(10,10,10,10);
             ab = ortho_axes('nbins_all_dims',[10,10,10,10],'img_range',[0,0,0,0;2,2,2,2]);
-            test_sqw.data = DnDBase.dnd(ab,ortho_proj);
+            test_sqw.data = DnDBase.dnd(ab,ortho_proj('alatt',3,'angdeg',90));
             test_sqw.data.npix = npix;
             test_sqw.pix  = pix;
 
