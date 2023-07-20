@@ -20,44 +20,60 @@ classdef test_sqw_signal < TestCaseWithSave
             obj.sqw_2d = read_sqw(test_sqw_2d_fullpath);
             obj.save();
         end
+
+        function test_signal_fb(obj)
+            clObj = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+
+            w1modE = coordinates_calc(obj.sqw_2d, 'E');
+
+            fb_sqw = obj.sqw_2d.copy();
+            fb_sqw.pix = PixelDataFileBacked(fb_sqw.pix);
+
+            assertTrue(fb_sqw.pix.is_filebacked);
+
+            w1modE_fb = coordinates_calc(obj.sqw_2d, 'E');
+            assertEqualToTol(w1modE, w1modE_fb, '-ignore_date');
+
+        end
+
         function test_w2E_option(obj)
-            w1modE = signal(obj.sqw_2d,'E');
+            w1modE = coordinates_calc(obj.sqw_2d,'E');
 
             assertEqualToTolWithSave(obj,w1modE,'ignore_str',true, ...
                 'tol',[1.e-9,1.e-9],'-ignore_date');
-            
+
         end
 
         function test_w2Q_option(obj)
-            w1modQ = signal(obj.sqw_2d,'Q');
+            w1modQ = coordinates_calc(obj.sqw_2d,'Q');
 
             assertEqualToTolWithSave(obj,w1modQ,'ignore_str',true, ...
                 'tol',[3.e-7,3.e-7],'-ignore_date');
-            
+
         end
 
         function test_w2l_option(obj)
-            w2modL = signal(obj.sqw_2d,'l');
+            w2modL = coordinates_calc(obj.sqw_2d,'l');
 
             assertEqualToTolWithSave(obj,w2modL,'ignore_str',true, ...
                 'tol',[1.e-9,1.e-9],'-ignore_date');
 
         end
         function test_w2d2_option(obj)
-            w2modD2 = signal(obj.sqw_2d,'d2');
+            w2modD2 = coordinates_calc(obj.sqw_2d,'d2');
 
             assertEqualToTolWithSave(obj,w2modD2,'ignore_str',true, ...
                 'tol',[1.e-9,1.e-9],'-ignore_date');
-            
+
         end
 
         function test_w1d2_throws(obj)
-            assertExceptionThrown(@()signal(obj.sqw_1d,'d2'),...
+            assertExceptionThrown(@()coordinates_calc(obj.sqw_1d,'d2'),...
                 'HORACE:sqw:invalid_argument');
         end
 
         function test_w1d1_option(obj)
-            w1modP1 = signal(obj.sqw_1d,'d1');
+            w1modP1 = coordinates_calc(obj.sqw_1d,'d1');
 
             assertEqualToTolWithSave(obj,w1modP1,'ignore_str',true, ...
                 'tol',[1.e-9,1.e-9],'-ignore_date');
