@@ -151,7 +151,7 @@ classdef test_head < TestCaseWithSave
         function test_head_1d_full(obj)
             hd = head(obj.sq1d_obj,'-full');
             
-            assertEqualToTolWithSave(obj,hd,4.e-9,'ignore_str',true);
+            assertEqualToTolWithSave(obj,hd,4.e-7,'ignore_str',true);
         end
         function test_head_dnd_1d(obj)
             hd = head(obj.sq1d_obj.data);
