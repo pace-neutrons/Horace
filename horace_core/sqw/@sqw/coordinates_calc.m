@@ -156,6 +156,9 @@ if w.pix.is_filebacked
          w.data.e(indices(1, i):indices(2, i)), ...
          curr_pix.variance] = average_bin_data(chunks(i), curr_pix.signal);
 
+        w.pix.data_range = ...
+            w.pix.pix_minmax_ranges(curr_pix.data, w.pix.data_range);
+
         w.pix.format_dump_data(curr_pix.data);
 
         pix = pix + npix;
