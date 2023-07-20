@@ -4,7 +4,7 @@ classdef dnd_metadata < serializable
     %
     % The purpose of this class is storing/restoring DnD object metadata
     % into custom binary file to separate dnd image, which may be accessed
-    % by external applications and other information, serialized within MATLAB   
+    % by external applications and other information, serialized within MATLAB
     %
     properties(Dependent)
         %------------------------------------------------------------------
@@ -41,6 +41,7 @@ classdef dnd_metadata < serializable
         pax % Index of plot axes into the projection axes  [row vector]
         %
         ulen;
+        img_scales
         %
         creation_date;
         % number of axes bins
@@ -48,7 +49,7 @@ classdef dnd_metadata < serializable
     end
     properties(Access=protected)
         axes_ = ortho_axes();
-        proj_ = ortho_proj();
+        proj_ = ortho_proj('alatt',2*pi,'angdeg',90);
         %
         creation_date_ = '';
         creation_date_defined_ = false;
@@ -69,8 +70,12 @@ classdef dnd_metadata < serializable
             urlu = obj.proj_.u_to_rlu;
         end
         function ulen = get.ulen(obj)
-            ulen = obj.axes_.ulen;
+            ulen = obj.axes_.img_scales;
         end
+        function scale = get.img_scales(obj)
+            scale = obj.axes_.img_scales;
+        end
+
         function lbl = get.label(obj)
             lbl = obj.axes_.label;
         end
@@ -156,7 +161,7 @@ classdef dnd_metadata < serializable
         end
         function nb = get.nbins(obj)
             nb = obj.axes_.data_nbins;
-        end        
+        end
         %------------------------------------------------------------------
         function nd = get.dimensions(obj)
             if isempty(obj.axes_)
@@ -224,7 +229,14 @@ classdef dnd_metadata < serializable
             % note: axes annotations correctly account for permutation in w.data_.dax
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = ...
                 obj.axes.data_plot_titles();
-        end        
+        end
+        function str = head(obj)
+            flds = DnDBase.head_form(false);
+            str = struct();
+            for i=1:numel(flds )
+                str.(flds{i}) =  obj.(flds{i});
+            end
+        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

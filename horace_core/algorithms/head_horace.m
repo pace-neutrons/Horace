@@ -111,6 +111,11 @@ end
 
 for i=1:nfi
     vout{i} = info{i}.head(varargin{:});
+    if inputs{i}.sqw_type    
+        vout{i}.npixels = inputs{i}.npixels;
+        vout{i}.num_contrib_files = inputs{i}.num_contrib_files;
+        vout{i}.data_range = inputs{i}.get_data_range();
+    end
 end
 
 if cell_out
