@@ -42,8 +42,8 @@ alatt = [2*pi 2*pi 2*pi];
 angdeg = [90 90 90];
 if isscalar(shape) && isnumeric(shape)
     if mod(shape, 2) == 0
-        minloc = -shape/2 + 0.5;
-        maxloc = shape/2 - 0.5;
+        minloc = -shape/2;
+        maxloc = shape/2;
     else
         minloc = -(shape-1)/2;
         maxloc = (shape-1)/2;
