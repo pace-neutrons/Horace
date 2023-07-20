@@ -118,6 +118,9 @@ classdef dnd_metadata < serializable
                 else
                     obj.creation_date_str = datetime('now');
                 end
+            elseif nargin == 1 && isstruct(varargin{1})
+                obj = dnd_metadata();
+                obj = serializable.from_struct(varargin{1},obj);
             else
                 flds = obj.saveableFields();
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...
@@ -258,5 +261,40 @@ classdef dnd_metadata < serializable
             %
             flds = {'axes','proj','creation_date_str'};
         end
+    end
+    methods(Access=protected)
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by lodobj in the case if the input
+            % structure does not contain a version or the version, stored
+            % in the structure does not correspond to the current version
+            % of the class.
+            %
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
+            %
+            %if isfield(inputs,'version') % do checks for previous versions
+            %   Add appropriate code to convert from specific version to
+            %   modern version
+            %end
+            if numel(inputs)>1
+                out = cell(numel(inputs),1);
+                for i=1:numel(inputs)
+                    out{i} = modify_old_structure_(inputs(i));
+                end
+                outa = [out{:}];
+
+                out = struct('array_dat',[]);
+                out.array_dat = outa;
+            else
+                out = modify_old_structure_(inputs);
+            end
+            obj = from_old_struct@serializable(obj,out);
+        end
+
     end
 end
