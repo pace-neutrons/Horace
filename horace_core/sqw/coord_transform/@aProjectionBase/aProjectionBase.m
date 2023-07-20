@@ -94,7 +94,7 @@ classdef aProjectionBase < serializable
         angdeg_defined
         % old interface to img_offset for old data containing a
         % structure with the value of this property, or old user scripts
-		% which define structure with this value.
+        % which define structure with this value.
         uoffset
     end
 
@@ -305,7 +305,7 @@ classdef aProjectionBase < serializable
             if ~obj.alatt_defined||~obj.angdeg_defined
                 error('HORACE:aProjectionBase:runtime_error', ...
                     ['Attempt to use hkl-coordinate transformations before lattice',...
-					' parameters are defined.\n', ...
+                    ' parameters are defined.\n', ...
                     ' You have alatt= %s, angdeg = %s. Define lattice parameters first'], ...
                     mat2str(obj.alatt_),mat2str(obj.angdeg_))
             end
@@ -380,7 +380,8 @@ classdef aProjectionBase < serializable
     methods
         function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
                 targ_axes_block,targ_proj)
-            % return the positions and the sizes of the pixels blocks
+            % return the positions (w.r.t the position of the first pixel which is 1)
+            % and the sizes of the pixels blocks
             % belonging to the cells which may contribute to the final cut.
             % The cells are defined by the projections and axes block-s,
             % provided as input.
@@ -893,8 +894,6 @@ classdef aProjectionBase < serializable
         % return parameters of transformation used for conversion from pixels
         % to image coordinate system
         varargout = get_pix_img_transformation(obj,ndim,varargin);
-    end
-    methods(Abstract,Access=protected)
     end
     %======================================================================
     % Serializable interface

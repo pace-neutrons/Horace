@@ -51,7 +51,7 @@ classdef test_faccess_sqw_v4< TestCase
             ref_sqw = read_sqw(obj.sample_file);
             ref_sqw.data.s = ref_sqw.data.s*2; % do sample modification
 
-            clobConf = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+            clobConf = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000, 'fb_scale_factor', 3);
 
             % ensure filebacked operations for tests. Interface is generic
             assertTrue(PixelDataBase.do_filebacked(ref_sqw.npixels))
@@ -161,7 +161,7 @@ classdef test_faccess_sqw_v4< TestCase
             %------------ Now the test setting and test
 
             % 4324 pixels, let's ensure pixels in file are treated as filebacked
-            clObConfig = set_temporary_config_options(hor_config, 'mem_chunk_size', 500);
+            clobConf = set_temporary_config_options(hor_config, 'mem_chunk_size', 500, 'fb_scale_factor', 3);
 
             assertTrue(PixelDataBase.do_filebacked(4324));
 
@@ -512,7 +512,7 @@ classdef test_faccess_sqw_v4< TestCase
         end
         function obj = test_write_read_correctV4_filebacked(obj)
 
-            clobC = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
+            clobC = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000, 'fb_scale_factor', 3);
 
             samp_f = obj.sample_file;
             assertTrue(PixelDataBase.do_filebacked(4000))

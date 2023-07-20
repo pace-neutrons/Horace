@@ -1,4 +1,4 @@
-classdef(Abstract) Symop < matlab.mixin.Heterogeneous
+classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 % Symmetry operator describing equivalent points
 %
 % A symmetry operator object describes how equivalent points are defined by
@@ -51,27 +51,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
     end
 
     methods
-        function obj = Symop(W, offset)
-            if nargin == 0
-                return
-            end
-
-            if ~exist('offset', 'var')
-                offset = obj.offset;
-            end
-
-            if ~Symop.check_args({W, offset})
-                error('HORACE:symop:invalid_argument', ...
-                      ['Constructor arguments should be:\n', ...
-                       '- General:  Symop(3x3matrix, [3vector])\n', ...
-                       'Received: %s'], disp2str(W));
-            end
-
-            obj.W = W;
-            obj.offset = offset;
-
-        end
-
         function offset = get.offset(obj)
             offset = obj.offset_;
         end
@@ -366,4 +345,90 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous
         end
     end
 
+    % Serializable interface
+    methods(Sealed)
+        function ser = serialize(obj, varargin)
+            ser = serialize@serializable(obj, varargin{:});
+        end
+
+        function ser = deserialize(obj, varargin)
+            ser = deserialize@serializable(obj, varargin{:});
+        end
+
+        function out = to_struct(obj, varargin)
+            out = to_struct@serializable(obj, varargin{:});
+            out.serial_name = 'SymopIdentity';
+        end
+
+        function out = to_bare_struct(obj, bare)
+            out = struct('class', cell(numel(obj), 1), 'data', cell(numel(obj), 1));
+            for i = 1:numel(obj)
+                out(i) = struct('class', class(obj(i)), ...
+                                'data', {cellfun(@(x) obj(i).(x), obj(i).saveableFields, 'UniformOutput', false)});
+            end
+        end
+
+        function out = from_bare_struct(obj, array_dat)
+            out = arrayfun(@(x) feval(x.class, x.data{:}), array_dat, 'UniformOutput', false);
+            out = [out{:}];
+        end
+
+        function ver = classVersion(obj)
+            ver = 1;
+        end
+
+        function flds = saveableFields(obj)
+            flds = obj.local_saveableFields();
+        end
+
+        function [isne, mess] = ne(A, B, varargin)
+            isne = ~eq(A, B, varargin);
+            mess = '';
+        end
+
+        function [iseq, mess] = eq(A, B, varargin)
+
+            mess = '';
+            iseq = numel(A) == numel(B);
+            if ~iseq
+                mess = sprintf('Arrays not same size (%d, %d)', ...
+                               numel(objA), numel(objB));
+                return;
+            end
+
+            for i = 1:numel(A)
+                objA = A(i);
+                objB = B(i);
+
+                iseq = class(objA) == class(objB);
+                if ~iseq
+                    mess = sprintf('Objects not of same class (%s, %s)', ...
+                                   class(objA), class(objB));
+                    return;
+                end
+
+                iseq = equal_to_tol(objA.saveableFields(), objB.saveableFields());
+                if ~iseq
+                    mess = sprintf('Objects have mismatched fields (%s, %s)', ...
+                                   disp2str(objA.saveableFields()), ...
+                                   disp2str(objB.saveableFields()));
+                    return;
+                end
+
+                fld = objA.saveableFields();
+                for i = 1:numel(fld)
+                    iseq = objA.(fld{i}) == objB.(fld{i});
+                    if ~iseq
+                        mess = sprintf('Objects differ in field %s (%s, %s)', ...
+                                       fld{i}, ...
+                                       disp2str(objA.(fld{i})), ...
+                                       disp2str(objB.(fld{i})));
+                        return;
+                    end
+                end
+
+            end
+        end
+
+    end
 end

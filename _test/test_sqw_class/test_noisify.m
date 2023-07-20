@@ -20,7 +20,8 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
         function test_noisify_returns_equivalent_sqw_for_paged_pixel_data(obj)
             clob = set_temporary_config_options(hor_config, ...
                                                 'use_mex', 1, ...
-                                                'mem_chunk_size', floor(100337/5) ... % 5 or 6 pages
+                                                'mem_chunk_size', floor(100337/5), ... % 5 or 6 pages
+                                                'fb_scale_factor', 3 ...
                                                 );
 
             % we set up the test "random number generator" which is actually

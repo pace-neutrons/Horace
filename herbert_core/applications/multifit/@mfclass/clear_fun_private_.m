@@ -45,8 +45,7 @@ end
 
 % Now check validity of input
 % ---------------------------
-[ok,mess,ifun] = indicies_parse (ifun, nfun, 'Function');
-if ~ok, return, end
+ifun = indices_parse (ifun, nfun, 'Function');
 
 % All arguments are valid, so populate the output object
 % ------------------------------------------------------
@@ -68,4 +67,3 @@ end
 % -----------------
 obj = obj.set_fun_props_ (Sfun);
 obj = obj.set_constraints_props_ (Scon);
-

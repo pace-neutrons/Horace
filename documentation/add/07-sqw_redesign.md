@@ -15,8 +15,8 @@ The object provides an interface to the Horace file which can be interchanged wi
 
 The `sqw` object contains two information blocks, describing experiment from different sides and under different approximations:
 
-- `dnd-object` which is the part of the `SQW` object contains processed neutron image data, expressed in the system of coordinates, requested by the neutron physicist doing experiment. Very often its `hkl-dE` coordinate system, but it is possible to define other coordinate system of interest too.
-- `sqw-object` itself, in addition to the image data, contains the records of all neutron events occurred in the experiments and expressed (currently) in Crystal Cartesian coordinate system, the informations about all experimental runs the neutron events have been obtained from, information about the instrument and sample used in experiment, the instrument states during experiment and the information about detector pixel array, used to collect neutron events. This information is sufficient to calculate resolution function of the instrument. The neutron events are held in the `PixelData` class, and arranged in such a way, that selection of a part of the `dnd-object` neutron image allows the effective selection of the appropriate part of the `PixelData` contributed into this part of image.
+- `dnd-object` which is the part of the `SQW` object contains processed neutron image data, expressed in the system of coordinates, requested by the neutron physicist doing experiment. Very often its rotated `hkl-dE` (three reciprocal lattice units and energy transfer where reciprocal lattice is chosen along direction of interest in reciprocal space) coordinate systems, but it is possible to define other coordinate systems of interest too. Later we will discuss different coordinate systems, related to `dnd` object in more details.
+- `sqw-object` itself contains, in addition to the image data of `dnd` object,  (a) the records of all neutron events occurring in the experiments, expressed (currently) in Crystal Cartesian coordinate system, (b) the information about all experimental runs the neutron events have been obtained from, (c) information about the instrument and sample used in the experiment, (d) the instrument states during the experiment and (e) the information about detector pixel array used to collect neutron events. This information is sufficient to calculate the resolution function of the instrument. The neutron events are held in the relevant `PixelDataBase` child class (`PixelDataBaseFilebacked` or `PixelDataBaseMemory`), and arranged in such a way that selection of a part of the `dnd-object` neutron image allows the effective selection of the appropriate part of the `PixelDataBase` events contributing to this part of the image.
 
 
 The two objects are treated by Horace as 'first class citizens'. The objects share a common API where that is appropriate. In an sqw object, operations are performed on the pixel array data and the `dnd` image data recalculated from this. For `dnd` objects the operations are performed directly on the image data.
@@ -32,17 +32,18 @@ The class diagram describing the relationship between main Horace classes is pro
 
 ### SQWDnDBase
 
-Abstract base class for the `sqw` and `dnd` objects, describing the interface common for both `sqw` and `dnd` objects.
+Abstract base class for the `sqw` and `dnd` objects, describing the interface and algorithms common for both `sqw` and `dnd` objects.
 
-May include code of the methods with work identically on both `sqw` and `dnd` objects.
+May include code of the methods which work identically on both `sqw` and `dnd` objects.
 
 Currently it also include common methods, in particular the large number of unary and binary operations which are implemented as calls to the operations managers defined in the children classes and implementing the particular behaviour, different for `sqw` and `dnd` objects.
 
 ### SQW
 
-The `sqw` object provides the public API to the all relevant experimental data. Main data manipulations are performed on the `PixelData` property `pix` and the `Image` stored in property `data` and containing `dnd` object corresponding to the `sqw` object is recalculated accordingly to the pixel operations.
+The `sqw` object provides the public API to all the relevant experimental data. The main data manipulations are performed on the `PixelDataBase` property `pix` and the `Image` stored in property `data`,  containing the `dnd` object corresponding to the `sqw` object, which is recalculated according to the operations performed over the pixels.
 
-This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally very large dataset, `sqw` object in number of operations may be used leaving the `PixelData` untouched. Alternatively, when `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` can be performed on separate data chunks loaded and processed in memory, leaving the main `PixelData` arrays filebased.
+This class includes the full experiment data including the raw pixel data and the relevant to neutron scattering details of the sample, instrument and detectors. As the `PixelData` containing all information about neutron events is normally very large dataset, operations on `sqw` object normally do not change this dataset and create new instance of modified dataset, which contains subset of initial but not modified `PiexlData`. When `PixelData` is large and can not be loaded in memory, the operations on the `PixelData` are performed on data chunks loaded and processed in memory, leaving the original `PixelData` arrays located in read-only files.
+
 The structure of a generic `sqw` object is presented in Fig.2:
 
 ![Fig.2. SQW Class Overview](../diagrams/sqw.png)
@@ -55,23 +56,117 @@ An extract from the whole inheritance diagram for the `DnD` objects is presented
 
 ![Fig.3. DnD Class inheritance diagram](../diagrams/DND-inheritance.png)
 
-The diagram also shows `data_sqw_dnd` object inheriting from `DnDBase` and containing arbitrary number of dimensions unlike other `DnD` objects which define their specific number of dimensions.  This object left for IO compatibility with previous versions of Horace code and is not used in Horace for any other purpose except IO restoring old data.
+The diagram also shows `data_sqw_dnd` object inheriting from `DnDBase` and containing an arbitrary number of dimensions, unlike other `DnD` objects which define their specific number of dimensions.  This object is retained for IO compatibility with previous versions of Horace code, and is not used in Horace for any other purpose except restoring  old data.
 
 The `DnDBase` base class is an abstract class holding the common data and common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing appropriate algorithms. The structure of `DnDBase` class together with its children, defining specific number of dimensions is presented in Fig.4:
 
 ![Fig.4. DND Class Overview](../diagrams/dnd.png)
 
-The diagram shows that any `DnD` object contains *signal*, *error* and *npix* arrays of appropriate dimensions plus  two additional properties, namely *proj* and *axes*. *npix* describes the number of pixels (neutron events) contributed to each area of the image according to the image axes scaling (described by `axes_block` below). *proj* field contains the instance of `aProjection` class, which defines the transformation from the coordinate system of `PixelData` class to the `Image` (`DnD` object) coordinate system. For example, in the most common case of `Image` coordinate system being `hkl-dE` coordinate system and `PixelData` class coordinate system being Crystal Cartesian coordinate system the transformation is the matrix multiplication of the `PixelData` coordinates by `UB` matrix of Bussing and Levy [^1].
+The diagram shows that any `DnD` object contains *signal*, *error* and *npix* arrays of appropriate dimensions plus  two additional properties, namely *proj* and *axes*.
+ *npix* describes the number of pixels (neutron events) contributing to each area of the image according to the image axes scaling (described by `AxesBlockBase` below). *proj* field contains a child  of `aProjectionBase` class, which defines the transformation from the coordinate system of `PixelDataBase` class to the `Image` (`DnD` object) coordinate system. For example, in the most common case of `Image` coordinate system being `hkl-dE` coordinate system and `PixelDataBase` class coordinate system being Crystal Cartesian coordinate system, the transformation is the matrix multiplication of the `PixelData` coordinates by the `UB` matrix of Bussing and Levy [^1].
 
-The `axes_block` class is closely related to the appropriate `aProjection` class and defines the coordinate system of the image, its binning axes and units along the axes scales.
+The `AxesBlockBase` class is closely related to the appropriate `aProjectionBase` class and defines the coordinate system of the image, its binning axes and units along the axes scales.
 
-In more details the `aProjection` class and `axes_block` classes are described below.
+In more details the the `projection` class and `axes_block` classes are described below.
+
+#### Image (`DnDBase` class in more details)
+
+`DnDBase` class contains the n-dimensional arrays of image pixel data transformed into the selected coordinate system with associated axis information related to this coordinate system. 
+Image pixel data is generated from the `PixelData` via one or more projections. 
+
+|  | Description | Notes |
+|-----|---------|---|
+| signal[] | Mean intensity, calculated as `Sum(pix_signal(k))/npix(k)` | (1), (2) |
+| err[] | Average error, calculated as  `sqrt(Sum(pix_variance(k)/npix(k)))` |(1), (2) |
+| npix[] | Number of detector pixels contributing to each image pixel even if the signal on this image pixel is equal to zero.||
+| proj | The instance of `aProjection` class, describing the transformation used for building this image | |
+| axes | The instance of `AxesBlockBase` class, defining the shape and size of *signal* *err* and *npix* arrays and the units along their axes |(3) |
+
+
+**Notes**
+(1): if the image data is updated, e.g. after a slice or projection, the backing pixel data must be updated/reordered
+(2): `pix_signal` represents the array of pixel signal data from which this image data was derived, `pix_variance` the array of pixel variance.
+(3): The `axes_block` classes describe image axes, namely
+- value range
+- unit vectors
+- units
+
+
+The **DnD class** (current implementation of the image) contains a transformation defined by an instance of a generic projection and the methods, necessary to implement generic cut procedure.:
+
+The Image block ( **DnD class**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
+
+The cut algorithm takes existing **sqw** object containing existing **projection** and **axes_block** classes, retrieves target **projection** and **axes_block** classes from the input binning parameters of the cut, and calculates *npix*, *signal* and *error* from the pixel information present in the source **sqw** object, or from  *npix*, *signal* and *error* of the source object if the pixel information is not present in the source object.
+
+#### A Projection classes
+The family of existing projection classes is presented on the Fig.5:
+
+![Fig.5. Projections family](../diagrams/new_projection.png)
+
+All projections classes inherit from abstract `aProjectionBase` class and define their own transformations methods `transform_pix_to_img/tranform_img_to_pix` converting between a source coordinate system and a target coordinate system. The source coordinate system for the majority of projections is the Crystal Cartesian coordinate system, which is the main coordinate system for data stored in `PixelData` classes, and the target coordinate system may be identified by the projection name. For example, `spher_proj` is the transformation from Crystal Cartesian to spherical coordinate system.  The exception is the `instrument_projection`, which transforms data obtained in the instrument coordinate system (detector positions & Energy transfer) into  Crystal Cartesian coordinate system of `PixelData`.  
+`line_proj` class is related to the transformation into `hkl` coordinate system or the system, which is related to any direction in reciprocal space.
+
+Main properties and methods of `aProjectionBase` class and other projection classes presented on Fig 5. are summarized below:
+
+| Property | Type | Notes |
+| --- | --- | --- |
+| alatt | 1x3 vector of floats | 3 lattice parameters (in angstrom) |
+| angdeg |1x3 vector of floats | 3 lattice angles (deg) |
+| offset |1x4 vector of floats | offset of the centre of the coordinate system from the h=0,k=0,l=0,dE=0 position expressed in hkl coordinate system |
+| img_offset | 1x4 vector of floats | the same as offset but expressed in image coordinate system. (e.g. R,Theta,Phi dE for `spher_proj` or [hh,kk,l,dE] for `line_proj` rotated by 45 degrees vrt the h-axis |
+| label | 4x1 cellarray of strings | Labels to put along all 4 coordinate axes|
+| title|  string | title to place over the plots of the cuts built using this projection |
+| *Methods:*
+| **Method** | **Output type** | **Notes** |
+| get_nrange | [bl_start,bl_size] arrays | return the positions (wrt the position of the first pixel which is 1) and the sizes of the pixels blocks belonging to the cells which may contribute to the final cut. The cells are defined by the projections and axes blocks provided as input.|
+| bin_pixels | Contributed pixels and various image averages | Convert pixels into the coordinate system defined by the projection and bin them into the coordinate system defined by the axes block, specified as input.|
+| transform_pix_to_hkl| pix_hkl 3xNpix or 4xNpix array of floats| Converts from pixel coordinate system (Crystal Cartesian) to `hkl` coordinate system 3xNpix or 4xNpix array of `PixelData` coordinates provided as input, where Npix is number of columns in the array provided |
+| tansform_img_to_hkl | pix_hkl 3xNpix or 4xNpix array of floats| Converts from image coordinate system to `hkl` coordinate system 3xNpix or 4xNpix array of image coordinates provided as input, where Npix is number of columns in the array provided. The array is expressed in the units of the image the projection defines | 
+| from_this_to_targ_coord | pix_target 3xNpix or 4xNpix array of floats | Converts input 4xNpix or 3xNpix array of coordinates expressed in this projection coordinate system to the coordinate system defined by other projection. The other projection has to be assigned to the hidden property of this projection: `targ_proj` |
+| Abstract Methods:
+| **Method** | **Output type** | **Notes** |
+| get_proj_axes_block | an `AxesBlockBase` class instance | Construct the axes block, corresponding to this projection class. Returns generic `AxesBlockBase`, built from the block ranges or the binning ranges provided as input. | 
+| transform_pix_to_img | pix_transformed  3xNpix or 4xNpix array of pixel coordinates transformed into this projection coordinate system | Transforms coordinates of the pixels from pixels coordinate system (Often Crystal Cartesian) to image coordinate system |
+| transform_img_to_pixels | pix_cc  3xNpix or 4xNpix array of pixel coordinates transformed into Crystal Cartesian coordinate system | Transforms coordinates of the image into pixels coordinate system. (Often Crystal Cartesian) |
+
+The particular projection classes are the children of the abstract `aProjectionBase`class defining three abstract `aProjectionBase` methods, namely:
+
+`line_proj` class defines the transformation between Crystal Cartesian system of coordinates and the system of coordinates expressed in reciprocal units. 
+`spher_proj` transforms between Crystal Cartesian and spherical coordinate system.
+
+
+**Notes**
+^1 Transformed from source `AxesBlockBase` coordinate system to the coordinate system, which is the target of the transformation. For operation being correct, the hypercube needs to be scaled so that at least one node of the generated grid would belong to a contributed cell of the original grid. E.g. if **a** is the size of the scalar cube with respect to **ortho_projection**, the hypercube should be rescaled as **a/sqrt(ndim)** where `ndim` is the number of dimensions of the hypercube |
+
+#### AxesBlockBase classes
+
+Inheritance diagram for `AxesBlockBase` classes family is presented on Fig.6.:
+
+![Fig.6. Axes Blocks family](../diagrams/axes_block.png)
+
+**AxesBlockBase** class is overloaded for every coordinate system defined by a projection, with possibility to overload plot methods for the convenience of the plotting in the particular coordinate system and for generating the correct plot titles for each coordinate system.
+
+Operations using projections, and cut operations in particular, result in the creation of a new `sqw/dnd` object. They are performed on the Image pixels using data from the original `PixelData` class. Similar operations are possible on images (`DnD` objects) themselves, but as these objects do not contain all necessary information, the cuts from `DnD` objects are only quantitative estimates for the cuts obtained using full experiment information available from `sqw` objects.
+
+
+Another specific method of projection classes is `get_proj_axes_block` which returns the axes, specific for the projection transformation to the projection image. 
+
+`AxesBlockBase` instance class return
+The **axes_block** class contains three methods, necessary to implement the cut:
+
+| method | Description | Notes |
+|-----|---------|---|
+| *get_axes_scales* |  Return the array of vertices of a 4D cube, describing the grid cell of the axes block.  |  |
+| *get_bin_nodes* | accepts the hypercube, produced by *get_axes_scales* and generates the grid which covers all range, described by the current **axes_block** class |^1|
+| *bin_pixels* | takes the coordinates of the pixels, expressed in the **access_block** coordinate system and, optionally, signal and error for these pixels and calculates  *npix*, *signal* and *error* from these pixels to the **axes_block** cells |  |
+
+
 
 ### Plotting interface
 
 The 1D-3D`sqw` and `dnd` Horace objects can be plotted with the appropriate dimensions plots. There is a large number of plotting functions so it is reasonable to extract these functions into a separate plotting interface. `sqw`, `dnd` and Herbert `IX_dataset` objects inherit `data_plot_interface` and implement particular plotting functions specific to the particular n-dimensional objects. The inheritance diagram of this plotting interface is presented in the Fig.5:
 
-![Fig.5. Plot Interface](../diagrams/sqw-dnd_plot_interface.png)
+![Fig.6. Plot Interface](../diagrams/sqw-dnd_plot_interface.png)
 
 The top level interface class defines all plotting functions as abstract (or rather throwing **not-implemented** exception), while actual 1D-3D objects implement their appropriate plotting functions (e.g. 1D objects -- 1D plotting, 2D objects -- 2D plotting etc.). The upper level objects add some wrapping to the plot, but mainly delegate plotting to the lower level objects (One can define objects level as the function of their complexity so the objects hierarchy looks `sqw`->`dnd`->`IX_dataset` following the decrease in the amount of information every object contains). The actual plotting functionality is implemented on Herbert `IX_dataset` objects.
 
@@ -98,7 +193,7 @@ The specific subclasses contain a structured set of components that will be uniq
 #### Detector information (`IX_detector_array`)
 The detector information class contains information about individual detector elements and their geometry. The data in this object will change when calibrations are performed or elements replaced or serviced as part of regular maintenance tasks. 
 
-Multiple definitions can be defined in the `IX_detector_array` and indexes in the `header` class associate data points with specific values.
+Multiple definitions can be defined in the `IX_detector_array` and indexes in the `Experiment` class associate data points with specific values.
 
 #### Sample information (`IX_sample`) 
 This includes sample orientation, lattice angles and lattice description (Hall symbol).
@@ -115,9 +210,9 @@ Notes:
 
 (1): this is a new  `IX_xxx` class
 
-#### Header
+#### Experiment
 
-The `Header` object contains the mapping from the `PixelData` to the appropriate array elements of the instrument, detector, experiment and sample arrays specific to each contributing neutron measurement. This configuration supports recalibration of detectors and changing experiment conditions to be handled.
+The `Experiment` object contains the mapping from the `PixelData` to the appropriate array elements of the instrument, detector, experiment and sample arrays specific to each contributing neutron measurement. This configuration supports recalibration of detectors and changing experiment conditions to be handled.
 
 ### Pixel Block
 
@@ -132,7 +227,7 @@ The same `get_data(name)` method can be used to provide access to the "standard"
 |  | Description | Notes |
 |-----|---------|---|
 |u1, u2, u3, dE | coordinate in crystal Cartesian lattice (a\*, b\*, a\* x b*, dE) | (2) |
-| iRun | index into headers array for run (source file) |(1)|
+| iRun | index into the experiment array for run (source file) |(1)|
 | iDetector | index of pixel detector |(1)|
 | iEnergy | index of energy bin | (1) |
 | signal | Correlated intensity ||
@@ -144,77 +239,6 @@ The same `get_data(name)` method can be used to provide access to the "standard"
 (2): pixel data are ordered by IMAGE PIXEL. If projection is applied the IMAGE PIX ARRAY IS REORDERED
 
 (3): existing binary data format must be extended to include additional "number of columns" field (&ge;9) information and the file read/write routines updated to read from an array of `n` columns.
-
-
-### Image (`DnDBase` class in more details)
-
-`DnDBase` class contains the n-dimensional arrays of image pixel data transformed into selected coordinate system with associated axis information related to this coordinate system. 
-Image pixel data is generated from the `PixelData` via one or more projections. The class diagram for the image class is presented on Fig.4 above.
-
-|  | Description | Notes |
-|-----|---------|---|
-| signal[] | Mean intensity, calculated as `Sum(pix_signal(k))/npix(k)` | (1), (2) |
-| err[] | Average error, calculated as  `sqrt(Sum(pix_variance(k)/npix(k)))` |(1), (2) |
-| npix[] | Number of detector pixels contributing to each image pixel ||
-| proj | The instance of `aProjection` class, describing the transformation from Crystal Cartesian to Image coordinate system | |
-| axes | The instance of `axes_block` class, defining the shape and size of *signal* *err* and *npix* arrays and the units along their axes |(3) |
-
-
-
-
-**Notes**
-(1): if the image data is updated, e.g. after a slice or projection, the backing pixel data must be updated/reordered
-(2): `pix_signal` represents the array of pixel signal data from which this image data was derived, `pix_variance` the array of pixel variance.
-(3): The `axes_block` classes describes image axes, namely
-- value range
-- unit vectors
-- units
-
-
-The **DnD class** (current implementation of the image) contains a transformation defined by an instance of a generic projection and the methods, necessary to implement generic cut procedure.:
-
-The Image block ( **DnD class**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
-
-The cut algorithm takes existing **sqw** object containing existing **projection** and **axes_block** classes. retrieves target **projection** and **axes_block** classes from the input binning parameters of the cut, and calculates *npix*, *signal* and *error* from the pixel information, present in the source **sqw** object or from  *npix*, *signal* and *error* of the source object if the pixel information is not present in the source object.
-
-The **axes_block** class contains three methods, necessary to implement the cut:
-
-| method | Description | Notes |
-|-----|---------|---|
-| *get_axes_scales* |  Return the array of vertices of a 4D cube, describing the grid cell of the axes block.  |  |
-| *get_bin_nodes* | accepts the hypercube, produced by *get_axes_scales* and generates the grid which covers all range, described by the current **axes_block** class |^1|
-| *bin_pixels* | takes the coordinates of the pixels, expressed in the **access_block** coordinate system and, optionally, signal and error for these pixels and calculates  *npix*, *signal* and *error* from these pixels to the **axes_block** cells |  |
-
-
-The particular projection classes are the children of the abstract **aProjection** class defining three abstract **aProjection** methods, which should be defined by child classes.
-These methods are:
-
-| method | Description | Notes |
-|-----|---------|---|
-| *transform_pix_to_img* | Transforms the points(pixel coordinates) with the coordinates in the Crystal Cartesian coordinate system into the Image coordinate system | For **ortho_proj** class image coordinate system would be hkl, for **spher_proj**:  *Q,theta,phi,dE* |
-| *transform_img_to_pix* | Transform the points(pixel coordinates) with the coordinate in the Image coordinate system into Crystal Cartesian coordinate system. | Operation, opposite to *transform_pix_to_img* | 
-| *get_axes_block* | returns the particular **axes_block** class, specific for the coordinate system, defined by the specific projection class | |
-
-Other important methods, necessary for the analysis of different cuts from an sqw object, and implemented using these transformation can be defined using these three abstract methods. These methods together with their short descriptions provided in the table:
-
-| method | Description | Notes |
-|-----|---------|---|
-| *from_cur_to_targ_coord* | Transforms the pixels of the current image coordinate system into other coordinate system the requested cut is presented in. | |
-| *get_nrange* | return ranges of indexes of pixels which may contribute into current cut | |
-| *bin_pixels* | transform input pixels into the coordinate system defined by the target projection, and calculate the contribution from these pixels into the areas defined by the target **axes_block**. (namely calculate number of pixels (*npix*) contributing into each cell of the **axes_block** and sum pixels signal and error data into *s* and *err* accumulator arrays)| |
-
-The children of **aProjection** class (e.g. **ortho_proj** class, defining orthogonal projection), need to define the abstract methods and may redefine these methods for particular pairs of projections to optimize the performance of cuts.
-
-**Notes**
-^1 Transformed from source **axes_block** coordinate system to the coordinate system, which is the target of the transformation. For operation being correct, the hypercube needs to be scaled so that at least one node of the generated grid would belong to a contributed cell of the original grid. E.g. if **a** is the size of the scaler cube with respect to **orhto_projection**, the hypercube should be rescaled as **a/sqrt(2)** |
-
-**axes_block** should be overloaded for every coordinate system defined by a projection, with possibility to overload plot methods for the convenience of the plotting in the particular coordinate system.
-
-Operations using projections, and cut operations in particular, result in the creation of a new `sqw/dnd` object. They are performed to the Image Pixels using data from the original `PixelData` class. Similar operations are possible on images (`DnD` objects) themselves, but as these objects do not contain all necessary information, the cuts from `DnD` objects are only quantitative estimates for the cuts, obtained using full experiment information available from `sqw` objects.
-
-**Questions**
-
-1) Suggested projection classes currently are **ortho_proj**, **rect_proj**,  **cyl_proj**, **spher_proj**  -- are the names clear? New type projections: **dEfocus_proj**, **qdEmix_proj**.
 
 
 ### Operations
@@ -260,16 +284,6 @@ Note: future extensions may add support for projections for which `M > N`. These
 - Models may take additional resolution convolution function to remove artefacts from the image
 - Fit functions will be able to take Python or custom user functions
 
-## Migration Path
-
- *After each refactoring change it is essential that the unit and system tests pass; unit tests should be added for all new APIs.*
-
-1. Ensure system tests exist that cover the major end-to-end paths through the system (`gen_sqw`,`tobyfit`, `multifit`, `cut`, `symmetrize` etc.) and that these run and pass
-2. Extract small data and utility classes from existing SQW object updating APIs across Horace and Herbert code  where appropriate. New classes should be "new style" MATLAB classes.
-3. Extract `PixelData` into new class. All associated APIs updated.
-4. Migrate `SQW` and `DND` objects to new style classes.
-5. Review API and data in `SQW` and `DND`classes with a view to removing unrequested methods and data.
-6. Migrate save-data object to HDF format
 
 ## Implementation Decisions
 
