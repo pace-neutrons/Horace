@@ -211,6 +211,8 @@ dt=cell(nw,1);          % element size [npix,1]
 qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
 dq_mat=cell(nw,1);      % element size [4,11,npix]
 
+
+% Get quantities and derived quantities from the header
 n_runs = NaN(nw,1);
 for iw=1:nw
     % Get pointer to a specific sqw pobject
@@ -221,7 +223,7 @@ for iw=1:nw
     end
     
     % Get number of runs in the sqw object
-    n_runs(iw) = w.experiment_info.n_runs;
+    n_runs(iw) = wtmp.experiment_info.n_runs;
     
     % Pixel indicies
     if all_pixels
@@ -230,31 +232,31 @@ for iw=1:nw
         [irun,idet,ien] = parse_pixel_indices(wtmp,indx,iw);
     end
     npix(iw) = numel(irun);
-
+    
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
-
+    
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
-
+    
     if ne>1
         eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
     else
         eps=eps_lo;     % only one bin, so ne=1 eps_lo=eps_hi, and the above line fails
     end
-
+    
     % Get instrument information
     [ei{iw},x0{iw},xa{iw},x1{iw},thetam{iw},angvel{iw},...
         moderator{iw},aperture{iw},chopper{iw}] = instpars_DGfermi(wtmp.experiment_info);
-
+    
     % Compute ki and kf
     ki{iw}=sqrt(ei{iw}/k_to_e);
     kf{iw}=sqrt((ei{iw}(irun)-eps)/k_to_e);
-
+    
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
     [sample{iw},s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
         sample_coords_to_spec_to_rlu(wtmp.experiment_info);
-
+    
     % Get detector information
     % Because detpar only contains minimal information, hardwire in the detector type here
     detpar = wtmp.detpar();   % just get a pointer
@@ -270,21 +272,21 @@ for iw=1:nw
     d_mat{iw} = detectors{iw}.dmat;
     f_mat{iw} = spec_to_secondary(detectors{iw});
     detdcn{iw} = det_direction(detectors{iw});
-
+    
     % Time width corresponding to energy bins for each pixel
     dt{iw} = deps_to_dt*(x2{iw}(idet).*deps(irun)./kf{iw}.^3);
-
+    
     % Calculate h,k,l (symmetrised objects will not have true pixel coordinates)
     qw{iw} = cell(1,4);
     qw{iw}(1:3) = calculate_q (ki{iw}(irun), kf{iw}, detdcn{iw}(:,idet), spec_to_rlu{iw}(:,:,irun));
     qw{iw}{4} = eps;
-
+    
     % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
     dq_mat{iw} = dq_matrix_DGfermi (ki{iw}(irun), kf{iw},...
         x0{iw}(irun), xa{iw}(irun), x1{iw}(irun), x2{iw}(idet), thetam{iw}(irun), angvel{iw}(irun),...
         s_mat{iw}(:,:,irun), f_mat{iw}(:,:,idet), d_mat{iw}(:,:,idet),...
         spec_to_rlu{iw}(:,:,irun), k_to_v, k_to_e);
-
+    
 end
 
 % Package output as a structure, in cell array length unity if win was a cell array
@@ -292,12 +294,16 @@ ok=true;
 mess='';
 lookup = struct();    % reinitialise
 
-if keywrd.tables    % lookup tables to minimise memory and optimise speed of random sampling
+% Lookup tables to minimise memory and optimise speed of random sampling
+if keywrd.tables
     lookup.moderator_table = object_lookup(moderator);
     lookup.aperture_table = object_lookup(aperture);
     lookup.fermi_table = object_lookup(chopper);
-    lookup.sample_table = object_lookup(sample, n_runs);
-    lookup.detector_table = object_lookup(detectors, n_runs);
+    % Expand indexing of lookups to refer to n_runs copies (recall one element
+    % of n_runs per sqw object)
+    sz_cell = num2cell([n_runs, ones(nw,1)], 2);    % sz_repeat for object_lookup
+    lookup.sample_table = object_lookup(sample, '-repeat', sz_cell);
+    lookup.detector_table = object_lookup(detectors, '-repeat', sz_cell);
 end
 lookup.ei=ei;
 lookup.x0=x0;

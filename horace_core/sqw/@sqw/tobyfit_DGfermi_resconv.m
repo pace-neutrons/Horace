@@ -124,6 +124,7 @@ wout = copy(win);
 state_out = cell(size(win));    % create output argument
 store_out = [];
 
+
 % Create pointers to parts of lookup structure
 % --------------------------------------------
 moderator_table = lookup.moderator_table;
@@ -146,7 +147,7 @@ if ~iscell(pars), pars={pars}; end
 if refine_moderator
     % Get the (single) moderator to be refined. Assume that any checks
     % on moderator models in the sqw objects being fitted have been performed
-    % searlier on so that here all moderators are replaced by a single one
+    % earlier on so that here all moderators are replaced by a single one
     % derived from the first object in the lookup table.
     moderator = moderator_table.object_store(1);
 
@@ -228,7 +229,10 @@ for i=1:numel(ind)
 
     % Find out if the crystal has a mosaic spread
     % -------------------------------------------
-    mosaic_spread = mosaic_crystal(sample_table.object_elements(iw).eta);
+    % Get array of mosaic spreads for the runs, and determine if any of them
+    % have other than the default no spread
+    mosaic = arrayfun (@(x)(x.eta), sample_table.object_array(iw));
+    mosaic_spread = any(mosaic_crystal (mosaic));
 
     % Simulate the signal for the data set
     % ------------------------------------
@@ -237,18 +241,18 @@ for i=1:numel(ind)
 
         % Fill time deviations for moderator
         if mc_contributions.moderator
-            [~,mod_t_av] = moderator_table.func_eval_ind(iw,irun,@pulse_width);
-            yvec(1,1,:) = (1e-6)*(moderator_table.rand_ind(iw,irun) - mod_t_av);
+            [~,mod_t_av] = moderator_table.func_eval_ind(iw, irun, @pulse_width);
+            yvec(1,1,:) = (1e-6)*(moderator_table.rand_ind(iw, irun, @rand) - mod_t_av);
         end
 
         % Aperture deviations
         if mc_contributions.aperture
-            yvec(2:3,1,:) = aperture_table.rand_ind(iw,irun);
+            yvec(2:3,1,:) = aperture_table.rand_ind(iw, irun, @rand);
         end
 
         % Fermi chopper deviations
         if mc_contributions.chopper
-            yvec(4,1,:) = (1e-6)*(fermi_table.rand_ind(iw,irun));
+            yvec(4,1,:) = (1e-6)*(fermi_table.rand_ind(iw, irun, @rand));
         end
 
         % Sample deviations
@@ -270,7 +274,7 @@ for i=1:numel(ind)
 
         % Energy bin
         if mc_contributions.energy_bin
-            yvec(11,1,:) = dt'.*(rand(1,npix)-0.5);
+            yvec(11,1,:) = dt'.*(rand(1,npix) - 0.5);
         end
 
         % Calculate the deviations in Q and energy, and then the S(Q,w) intensity
