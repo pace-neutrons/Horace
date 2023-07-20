@@ -37,7 +37,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
 
         function test_datetime_equal_to_tol(obj)
             % Times within a minute of each other are equal
-            assertEqualToTol('2023-07-18T18:47:41', '2023-07-18T18:47:44');
+            assertEqualToTol('2023-07-18T18:47:01', '2023-07-18T18:47:59');
             [ok, mess] = equal_to_tol('2023-07-18T18:47:41', '2023-07-18T18:49:41');
             assertFalse(ok);
             assertEqual(mess, 'lhs_obj and rhs_obj: Character arrays being compared are not equal');
