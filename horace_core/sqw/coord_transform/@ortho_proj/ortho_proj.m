@@ -133,10 +133,12 @@ classdef ortho_proj<aProjectionBase
 
         % return set of vectors, which define primary lattice cell if
         % coordinate transformation is non-orthogonal
-        unit_cell;
+        unit_cell;        
         % scaling factors used in transformation from pix to image
         % coordinate system. Defined by type property
-        ulen
+        img_scales % new interface         
+        ulen       % old interface
+
     end
     properties(Hidden)
         % Developers option. Use old (v3 and below) sub-algorithm in
@@ -271,12 +273,15 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function ul = get.ulen(obj)
+        function ul = get.img_scales(obj)
             if isempty(obj.ulen_cache_)
                 ul = ones(1,4);
             else
                 ul = obj.ulen_cache_;
             end
+        end        
+        function ul = get.ulen(obj)
+            ul = obj.img_scales;
         end
         %------------------------------------------------------------------
         % set u,v & w simultaneously
@@ -433,7 +438,7 @@ classdef ortho_proj<aProjectionBase
             end
         end
         %
-        function [q_to_img,shift,ulen,obj]=get_pix_img_transformation(obj,ndim,varargin)
+        function [q_to_img,shift,img_scales,obj]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
             % to image coordinate system and vice-versa.
             %
@@ -454,10 +459,11 @@ classdef ortho_proj<aProjectionBase
             %             coordinate system
             % shift    -- [1 x ndim] array of the offsets of image coordinates
             %             expressed in Crystal Cartesian coordinate system
-            % ulen     -- [1 x ndim] array of scales along the image axes
+            % img_scales
+            %          -- [1 x ndim] array of scales along the image axes
             %             used in the transformation
             %
-            [q_to_img,shift,ulen,obj]=get_pix_img_transformation_(obj,ndim,varargin{:});
+            [q_to_img,shift,img_scales,obj]=get_pix_img_transformation_(obj,ndim,varargin{:});
         end
     end
     %======================================================================
@@ -468,7 +474,7 @@ classdef ortho_proj<aProjectionBase
             % into the axes block provided as input
             axes_bl = copy_proj_defined_properties_to_axes@aProjectionBase(obj,axes_bl);
             [~,~,scales]  = obj.get_pix_img_transformation(3);
-            axes_bl.ulen  = scales;
+            axes_bl.img_scales  = scales;
             axes_bl.hkle_axes_directions = obj.u_to_rlu;
             %
         end

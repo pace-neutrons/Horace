@@ -1,4 +1,4 @@
-function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj,proj)
+function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
 % Get titling and caption information for an sqw data structure
 %
 % Syntax:
@@ -6,8 +6,7 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %
 % Input:
 % ------
-%   data            Structure for which titles are to be created from the data in its fields.
-%                   Type >> help check_sqw_data for a full description of the fields
+%   obj            Instance of ortho_axes object
 %
 % Output:
 % -------
@@ -33,14 +32,14 @@ Angstrom=char(197);     % Angstrom symbol
 file = fullfile(obj.filepath,obj.filename);
 title = obj.title;
 
-offset = obj.offset;
-ulen = obj.ulen;
-u_to_rlu = obj.hkle_axes_directions;
+offset     = obj.offset;
+img_scales = obj.img_scales;
+u_to_rlu   = obj.hkle_axes_directions;
 
 label = obj.label;
-iax = obj.iax;
-iint = obj.iint;
-pax = obj.pax;
+iax   = obj.iax;
+iint  = obj.iint;
+pax   = obj.pax;
 uplot = zeros(3,length(pax));
 dax = obj.dax;
 for i=1:length(pax)
@@ -67,7 +66,7 @@ end
 if ~isequal(iint_offset,zeros(4,1))
     iint_offset = u_to_rlu*iint_offset(:);
 end
-offset_tot= offset(:)' + iint_offset(:)';    
+offset_tot= offset(:)' + iint_offset(:)';
 
 
 % overal displacement of plot volume in hkle;
@@ -170,8 +169,8 @@ for j=1:4
         % Create captioning
         if any(j==pax)   % j appears in the list of plot axes
             ipax = find(j==pax(dax));
-            if abs(ulen(j)-1) > small
-                title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' ',Angstrom,'^{-1}'];
+            if abs(img_scales(j)-1) > small
+                title_pax{ipax} = [totvector{j},' in ',num2str(img_scales(j)),' ',Angstrom,'^{-1}'];
             else
                 title_pax{ipax} = [totvector{j},' (',Angstrom,'^{-1})'];
             end
@@ -242,8 +241,8 @@ for j=1:4
 
         if any(j==pax)   % j appears in the list of plot axes
             ipax = find(j==pax(dax));
-            if abs(ulen(j)-1) > small
-                title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' meV'];
+            if abs(img_scales(j)-1) > small
+                title_pax{ipax} = [totvector{j},' in ',num2str(img_scales(j)),' meV'];
             else
                 title_pax{ipax} = [totvector{j},' (meV)'];
             end

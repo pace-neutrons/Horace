@@ -55,11 +55,11 @@ classdef AxesBlockBase < serializable
         %      i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
         %------------------------------------------------------------------
         %
-        ulen;   %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        %
         % The range (in axes coordinate system), the binning is made and the
         % axes block describes
         img_range;
+        %
+        img_scales  %Length of projection axes vectors in Ang^-1 or meV [row vector]
         %
         dimensions;  % Number of AxesBlockBase object dimensions
         %
@@ -104,7 +104,7 @@ classdef AxesBlockBase < serializable
         filepath_=''   % Path to sqw file that is being read, including terminating file separator.
         %               Used in titles
         label_  = {'Q_h','Q_k','Q_l','En'}; %Labels of the projection axes [1x4 cell array of character strings]
-        ulen_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        img_scales_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
         img_range_      = ... % 2x4 vector of min/max values in 4-dimensions
             PixelDataBase.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
 
@@ -127,6 +127,9 @@ classdef AxesBlockBase < serializable
         % are often used
         % Old name for img_range left for compartibility with old user code
         img_db_range;
+        %Old interface to Length of projection axes vectors
+        ulen;   % in Ang^-1 or meV [row vector]
+
     end
 
     methods
@@ -259,17 +262,23 @@ classdef AxesBlockBase < serializable
         end
         %
         function ul = get.ulen(obj)
-            ul = obj.ulen_;
+            ul = obj.img_scales_;
         end
         function obj = set.ulen(obj,val)
+            obj.img_scales = val;
+        end
+        function ul = get.img_scales(obj)
+            ul = obj.img_scales_;
+        end
+        function obj = set.img_scales(obj,val)
             if isnumeric(val) && numel(val) == 3
                 val = [val(:)',1];
             end
             if ~(isnumeric(val) && numel(val) == 4)
                 error('HORACE:AxesBlockBase:invalid_argument',...
-                    'ulen should be vector, containing 4 elements')
+                    'img_scale should be vector, containing 4 elements')
             end
-            obj.ulen_ = val(:)';
+            obj.img_scales_ = val(:)';
         end
         %
         function da = get.dax(obj)
@@ -764,11 +773,17 @@ classdef AxesBlockBase < serializable
         % fields which fully represent the state of the class and allow to
         % recover it state by setting properties through public interface
         fields_to_save_ = {'title','filename','filepath',...
-            'label','ulen','img_range','nbins_all_dims','single_bin_defines_iax',...
+            'label','img_scales','img_range','nbins_all_dims','single_bin_defines_iax',...
             'dax','offset','changes_aspect_ratio'};
     end
 
     methods
+        function S = convert_old_struct (~, S, varargin)
+            % Convert old 
+            if isfield(S,'ulen')
+                S.img_scale = S.ulen;
+            end
+        end
         %
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
