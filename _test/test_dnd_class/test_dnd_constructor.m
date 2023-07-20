@@ -345,7 +345,7 @@ classdef test_dnd_constructor < TestCaseWithSave
 
         function test_d2d_non_empty(~)
             %axis, proj, s,e,npix
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),
+            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,0.2,2]),...
                 ortho_proj('alatt',3,'angdeg',90),...
                 ones(11,11),ones(11,11),ones(11,11)};
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
@@ -368,15 +368,14 @@ classdef test_dnd_constructor < TestCaseWithSave
         function test_d1d_non_empty_constructor_works(~)
             %axis, proj, s,e,npix
             proj = ortho_proj('alatt',3,'angdeg',90);
-            input = {ortho_axes([0,1],[0,1],[0,0.1,1],[0,2]),...
-                proj,...
-                ones(1,11),ones(1,11),ones(1,11)};
+            ax = ortho_axes([0,1],[0,1],[0,0.1,1],[0,2]);
+            ax = proj.copy_proj_defined_properties_to_axes(ax);
+            input = {ax,proj,ones(1,11),ones(1,11),ones(1,11)};
 
             obj = d1d(input{:});
 
             assertTrue(isa(obj,'d1d'));
             input{1}.label = {'\zeta'  '\xi'  '\eta'  'E'};
-            input{1}.s
             assertEqual(obj.axes,input{1});
             assertEqual(obj.proj,input{2});
             assertEqual(obj.s,input{3}');
@@ -555,7 +554,7 @@ classdef test_dnd_constructor < TestCaseWithSave
         function assert_dnd_contains_expected_properties(~, dnd_obj)
             expected_props = { ...
                 'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
-                'label', 'iax','offset' ...
+                'label', 'iax','offset','img_offset' ...
                 'iint', 'pax', 'p', 'dax', 's', 'e', 'npix',...
                 'img_range','axes','proj','nbins','border_size','creation_date'};
             % moved elsewhere: 'uoffset', 'u_to_rlu', 'ulen',
