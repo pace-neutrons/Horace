@@ -1,6 +1,14 @@
 function [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin)
-% Make cut from an array of files or sqw objects,
-% add together, and compare with same cut for another array of files
+% Given two valid cut targets f1 & f2
+% apply a cut with the arguments in varargin (cut_args)
+% for each set of cut targets (f1 & f2) accumulate the resultant cuts into a single sqw
+% subsequently test the equality of these combined sqws.
+%
+% A valid cut target is any of the following:
+% - Single sqw object
+% - Array of sqw objects
+% - Char array with path to valid saved sqw
+% - Cell array of file-paths
 %
 %   >> [ok,mess]=is_cut_equal(f1, f2, cut_args)
 %   >> [ok,mess]=is_cut_equal(___, 'tol', [abs_err,rel_err])
@@ -15,12 +23,12 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin)
 % Example:
 %   >> f1={'sqw_12.sqw',sqw_34.sqw'};
 %   >> f2='sqw_1234.sqw';
-%   >> proj.u=[1,1,0]; proj.v=[0,0,1];
+%   >> proj = ortho_proj([1,1,0], [0,0,1]);
 %   >> w1_2=cut_sqw(f1,f2,proj,[-1.5,0.05,-0.5],[-0.6,-0.44],[-0.5,0.5],[5,10]);
 
-tol = [1.e-12,1.e-12];
+keyval_def = struct('tol',[1.e-12,1.e-12]);
 
-[cut_args,keyval,~,~,ok,mess]= parse_arguments (varargin, keyval_def);
+[cut_args,keyval,~,~,ok,mess]= parse_arguments(varargin, keyval_def);
 if ~ok
     error('HORACE:is_cut_equal:invalid_argument',mess);
 end
