@@ -552,7 +552,7 @@ elseif ischar(a) && ischar(b)
             name_a,name_b);
     end
 
-    if ~isempty(regexp(a, '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'))
+    if isrow(a) && ~isempty(regexp(a, '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'))
         % Probably Dealing with datetime string
         try
             a = main_header_cl.convert_datetime_from_str(a);
