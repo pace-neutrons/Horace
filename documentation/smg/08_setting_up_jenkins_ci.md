@@ -117,7 +117,7 @@ requests.
 These can be created by GitHub repository admins by opening the settings tab in
 the [main repo](https://github.com/pace-neutrons/Horace).
 
-<img src="./images/08_github_settings.png">
+![Fig.1. Github Settings](./images/08_github_settings.png)
 
 Then selecting the `Webhooks` menu item on the left-hand side.
 
@@ -190,7 +190,7 @@ The nightly build should run if there have been any code changes to the `master`
 - Add a `RELEASE_TYPE` string parameters and set to `nightly`
 
 Note: the Herbert build will trigger the downstream Horace build.
-To ensure the latest build artifacts are used,
+To ensure the latest build artefacts are used,
 the Horace build must be scheduled to trigger *after the Herbert build will
 have completed*.
 
@@ -208,29 +208,29 @@ have completed*.
     These are used to specify a particular branch of Herbert to use in the
     build.
 
-   <img src="./images/08_commit_sha.png">
+   ![Fig 2 ](./images/08_commit_sha.png)
 
 - Enter the token used when setting up the webhook in the `Token` section.
 
 - In the `Optional Filter` section, choose to only trigger builds if the
 action retrieved from GitHub matches the regex `(opened|synchronize)`.
 
-  <img src="./images/08_action_trigger.png">
+  ![Fig 3](./images/08_action_trigger.png)
 
 - Set up the `Pipeline` section as shown below to have Jenkins pull the PR
 branch and merge it into the pull request's base branch before building.
 
-  <img src="./images/08_git_pipeline.png">
+  ![Fig 4](./images/08_git_pipeline.png)
 
 #### Branch builds
 
 - Add a new string parameter called `BRANCH_NAME`, leave the default blank
 
-  <img src="./images/08_branch_parameter.png">
+  ![Fig 5](./images/08_branch_parameter.png)
 
 - Fill in the pipeline section as shown below to checkout the given branch
 
-  <img src="./images/08_branch_pipeline.png">
+  ![Fig 6](./images/08_branch_pipeline.png)
 
 When developers want to build a specific branch, they can navigate to the
 `Branch-*` Jenkins job, choose `Build with Parameters` in the panel on the
@@ -352,11 +352,11 @@ These diagrams show the process of triggering and running builds based on the cr
 
 #### Herbert
 
-<img src="./images/08_HerbertPR.svg">
+![Fig 7](./images/08_HerbertPR.svg)
 
 #### Horace
 
-<img src="./images/08_HoracePR.svg">
+![Fig 8](./images/08_HoracePR.svg)
 
 ### Nightly
 
@@ -364,11 +364,11 @@ These diagrams show the process of triggering and running builds of `master` bas
 
 #### Herbert
 
-<img src="./images/08_HerbertNightly.svg">
+![Fig 9](./images/08_HerbertNightly.svg)
 
 #### Horace
 
-<img src="./images/08_HoraceNightly.svg">
+![Fig 10](./images/08_HoraceNightly.svg)
 
 ### Release
 
@@ -376,11 +376,11 @@ These diagrams show the process of triggering and running builds for the purpose
 
 #### Herbert
 
-<img src="./images/08_HerbertRelease.svg">
+![Fig 11]./images/08_HerbertRelease.svg)
 
 #### Horace
 
-<img src="./images/08_HoraceRelease.svg">
+![Fig 12](./images/08_HoraceRelease.svg)
 
 ### Deploy
 
@@ -388,16 +388,16 @@ These diagrams show the process of triggering the automatic deployment of the re
 
 #### Herbert
 
-<img src="./images/08_HerbertDeploy.svg">
+![Fig 14](./images/08_HerbertDeploy.svg)
 
 #### Horace
 
-<img src="./images/08_HoraceDeploy.svg">
+![Fig 14](./images/08_HoraceDeploy.svg)
 
 ### Documentation
 
-<img src="./images/08_DocumentationPipeline.svg">
+![Fig 15](./images/08_DocumentationPipeline.svg)
 
 ## Legend for flow diagrams
 
-<img src="./images/08_Legend.svg">
+![Fig 16](./images/08_Legend.svg)
