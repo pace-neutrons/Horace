@@ -348,9 +348,9 @@ classdef IX_detector_array < serializable
         %---------------------------
         function obj = set.dmat (obj, val)
             ndets = arrayfun (@(O)(O.ndet), obj.det_bank_);
-            % Input must have size [3,3,ndet] or [3,3]
+            % Input must have size [3,3,ndet] or [3,3] (==[3,3,1])
             if ~isnumeric(val) || numel(size(val))>3 || ...
-                    ~all(size(val,[1,2])==[3,3]) || all(size(val,3)~=[1,sum(ndets)])
+                    (size(val,1)~=3 || size(val,2)~=3) || all(size(val,3)~=[1,sum(ndets)])
                 if sum(ndets)>1
                     error('HERBERT:IX_detector_array:invalid_argument',...
                         ['Detector orientation matrices must be a numeric array ',...

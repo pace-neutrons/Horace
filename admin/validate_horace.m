@@ -18,8 +18,9 @@ function err = validate_horace(varargin)
 %   >> validate_horace (...'-forcemex')            %  Enforce use of mex files only. The default
 %                                                  % otherwise for Horace to revert to using 
 %                                                  % matlab code.
-%   >> validate_horace (...'-nodisp_skipped')      %  Print only list of failed
-%                                                  % tests, ignoring skipped
+%   >> validate_horace (...'-disp_skipped')        %  Print list of both failed and skipped tests
+%   >> validate_horace (...'-nodisp_skipped')      %  Print only list of failed tests, ignoring
+%                                                  % This is the default behaviour
 %   >> validate_horace (...'-exit_on_completion')  %  Exit Matlab when test suite ends
 %   >> validate_horace (...'-no_system_tests')     %  Do not perform system tests (mpi, gen_sqw
 %                                                  % and Tobyfit tests)
@@ -35,10 +36,10 @@ end
 % Parse arguments
 % ---------------
 options = {'-parallel',  '-talkative',  '-nomex',  '-forcemex',...
-    '-nodisp_skipped','-exit_on_completion','-no_system_tests',...
+    '-disp_skipped','-nodisp_skipped','-exit_on_completion','-no_system_tests',...
     '-herbert_only', '-horace_only'};
 [ok, mess, parallel, talkative, nomex, forcemex, ...
- nodisp_skipped, exit_on_completion, no_system, ...
+ disp_skipped, nodisp_skipped, exit_on_completion, no_system, ...
  herbert_only, horace_only, test_folders] = ...
     parse_char_options(varargin, options);
 
@@ -137,8 +138,8 @@ test_folders_full = fullfile(test_path, test_folders);
 hor = hor_config();
 hpc = hpc_config();
 par = parallel_config();
-% (Validation must always return Horace and Herbert to their initial states, regardless
-%  of any changes made in the test routines)
+% Validation must always return Horace and Herbert to their initial states,
+% regardless of any changes made in the test routines)
 
 % On exit always revert to initial Horace and Herbert configurations
 % ------------------------------------------------------------------
@@ -164,9 +165,15 @@ cleanup_obj = onCleanup(@() ...
 
 % Run unit tests
 % --------------
-
-argi = {'-verbose'};
-if nodisp_skipped
+argi = {};
+if talkative
+    argi = [argi, {'-verbose'}];
+end
+if disp_skipped && nodisp_skipped    
+    % Asked for both, so inconsistent options requested
+    error('HORACE:validate_horace:invalid_argument', ...
+        'Cannot have both ''-disp_skipped'' and ''-nodisp_skipped'' as options')
+elseif ~disp_skipped
     argi = [argi, '-nodisp_skipped'];
 end
 
@@ -184,7 +191,7 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     time = bigtic();
 
     parfor i = 1:numel(test_folders_full)
-        test_stage_reset(hor, hpc, par, nomex, forcemex, talkative);
+        test_stage_reset(i, hor, hpc, par, nomex, forcemex, talkative);
         test_ok(i) = runtests(test_folders_full{i}, argi{:});
     end
 
@@ -196,7 +203,7 @@ else
     time = bigtic();
 
     for i = 1:numel(test_folders_full)
-        test_stage_reset(hor, hpc, par, nomex, forcemex, talkative);
+        test_stage_reset(i, hor, hpc, par, nomex, forcemex, talkative);
         test_ok(i) = runtests(test_folders_full{i}, argi{:});
     end
 
@@ -215,31 +222,46 @@ end
 
 end
 
-function test_stage_reset(hor, hpc, par, nomex, forcemex, talkative)
+
+%-------------------------------------------------------------------------------
+function test_stage_reset(icount, hor, hpc, par, nomex, forcemex, talkative)
 % Run before each stage
 % Set Horace configurations to the defaults (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
 
-    set(hor, 'defaults');
-    set(hpc, 'defaults');
-    % set(par, 'defaults');
+% Set the default configurations, printing warning only the first time round to
+% avoid copious warning messages
+warn_state = warning();
+cleanup_obj = onCleanup(@()warning(warn_state));
+if icount>1
+    warning('off',  'all');
+end
 
-    % Special unit tests settings.
-    hor.init_tests = true; % initialise unit tests
-    hor.use_mex = ~nomex;
-    hor.force_mex_if_use_mex = forcemex;
+set(hor, 'defaults');
+set(hpc, 'defaults');
+% set(par, 'defaults');
 
-    if talkative
-        hor.log_level = 1; % force log level high.
-    else
-        hor.log_level = -1; % turn off informational output
-    end
+% Return warning state to incoming state
+warning(warn_state)
+
+% Special unit tests settings.
+hor.init_tests = true; % initialise unit tests
+hor.use_mex = ~nomex;
+hor.force_mex_if_use_mex = forcemex;
+
+if talkative
+    hor.log_level = 1; % force log level high.
+else
+    hor.log_level = -1; % turn off informational output
+end
 
 end
 
 
-function validate_horace_cleanup(cur_horace_config, cur_hpc_config, cur_par_config, test_folders, initial_warn_state)
+%-------------------------------------------------------------------------------
+function validate_horace_cleanup(cur_horace_config, cur_hpc_config, ...
+    cur_par_config, test_folders, initial_warn_state)
 % Reset the configurations, and remove unit test folders from the path
 
 set(hor_config, cur_horace_config);
