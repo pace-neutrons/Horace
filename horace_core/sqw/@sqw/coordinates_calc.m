@@ -5,7 +5,7 @@ function w = coordinates_calc(w, name)
 %
 % Input:
 % -----
-%   w       Input sqw object
+%   w       Input sqw object or array of sqw objects
 %   name    Name of the parameter to use as the intensity
 %          Valid parameter names are:
 %               'd1','d2',...       Display axes (for as many dimensions as
@@ -17,10 +17,11 @@ function w = coordinates_calc(w, name)
 % Output:
 % -------
 %   w    Output sqw object with the signal and variance of the pixels set to the
-%          value of the input parameter name (also updates DND)
+%          value of the input parameter name
+%          (also updates attached DnD data object to reflect this)
 %
 % EXAMPLE
-%   >> wout=coordinates_calc(w,'h')   % set the intensity to the component along a*
+%   >> wout=coordinates_calc(w,'h')   % set the intensity to the Q-component along a*
 %
 % Formerly known as `signal`
 %
