@@ -41,9 +41,26 @@ classdef test_plot_sqw < TestCase
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
+            overplot_names = cellfun(@func2str,tstd.d2d_methods,'UniformOutput',false);
             for i=1:numel(other_methods)
+                curr_meth_name = func2str(other_methods{i});
+                is_overplot = ismember(curr_meth_name,overplot_names);
+
+                if is_overplot
+                    plot(obj.sqw_obj{2})
+                    fh = gcf;
+                else
+                    fh = [];
+                end
                 assertExceptionThrown(@()thrower(sqw4d_obj,other_methods{i}), ...
                     errors_list{err_ind(i)});
+
+                if ~isempty(fh)
+                    close(fh);
+                end
+
+
+
             end
         end
 
@@ -62,9 +79,24 @@ classdef test_plot_sqw < TestCase
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
+            overplot_names = cellfun(@func2str,tstd.d2d_methods,'UniformOutput',false);
             for i=1:numel(other_methods)
+                curr_meth_name = func2str(other_methods{i});
+                is_overplot = ismember(curr_meth_name,overplot_names);
+                if is_overplot
+                    plot(obj.sqw_obj{2})
+                    fh = gcf;
+                else
+                    fh = [];
+                end
+
                 assertExceptionThrown(@()thrower(sqw3d_obj,other_methods{i}), ...
                     errors_list{err_ind(i)});
+
+                if ~isempty(fh)
+                    close(fh);
+                end
+
             end
         end
         function test_sqw3d_plot3D_methods_work_on_array(obj)
@@ -192,10 +224,25 @@ classdef test_plot_sqw < TestCase
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
+            overplot_names = cellfun(@func2str,tstd.d2d_methods,'UniformOutput',false);
             for i=1:numel(other_methods)
+                curr_meth_name = func2str(other_methods{i});
+                is_overplot = ismember(curr_meth_name,overplot_names);
+
+                if is_overplot
+                    plot(obj.sqw_obj{2})
+                    fh = gcf;
+                else
+                    fh = [];
+                end
+
                 assertExceptionThrown(@()thrower(sqw1d_obj,other_methods{i}), ...
-                    errors_list{err_ind(i)} ...
-                    );
+                    errors_list{err_ind(i)} );
+
+                if ~isempty(fh)
+                    close(fh);
+                end
+
             end
 
         end
