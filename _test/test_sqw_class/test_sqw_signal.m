@@ -3,8 +3,8 @@ classdef test_sqw_signal < TestCaseWithSave
     properties
         sqw_1d
         sqw_2d
-        sqw_file_1d_name = 'sqw_1d_1.sqw';
-        sqw_file_2d_name = 'sqw_2d_1.sqw';
+        sqw_1d_path
+        sqw_2d_path
     end
 
 
@@ -13,26 +13,32 @@ classdef test_sqw_signal < TestCaseWithSave
             this_dir = fileparts(mfilename('fullpath'));
             argi = [varargin,{fullfile(this_dir,'test_sqw_signal.mat')}];
             obj = obj@TestCaseWithSave(argi{:});
+
             hp = horace_paths;
-            test_sqw_1d_fullpath = fullfile(hp.test_common,obj.sqw_file_1d_name);
-            test_sqw_2d_fullpath = fullfile(hp.test_common,obj.sqw_file_2d_name);
-            obj.sqw_1d = read_sqw(test_sqw_1d_fullpath);
-            obj.sqw_2d = read_sqw(test_sqw_2d_fullpath);
+            sqw_file_1d_name = 'sqw_1d_1.sqw';
+            sqw_file_2d_name = 'sqw_2d_1.sqw';
+
+            obj.sqw_1d_path = fullfile(hp.test_common, sqw_file_1d_name);
+            obj.sqw_2d_path = fullfile(hp.test_common, sqw_file_2d_name);
+
+            obj.sqw_1d = read_sqw(obj.sqw_1d_path);
+            obj.sqw_2d = read_sqw(obj.sqw_2d_path);
             obj.save();
         end
 
         function test_signal_fb(obj)
-            clObj = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
 
             w1modE = coordinates_calc(obj.sqw_2d, 'E');
 
-            fb_sqw = obj.sqw_2d.copy();
-            fb_sqw.pix = PixelDataFileBacked(fb_sqw.pix);
+            clObj = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000);
 
+            fb_sqw = sqw(obj.sqw_2d_path);
             assertTrue(fb_sqw.pix.is_filebacked);
 
-            w1modE_fb = coordinates_calc(obj.sqw_2d, 'E');
-            assertEqualToTol(w1modE, w1modE_fb, '-ignore_date');
+            w1modE_fb = coordinates_calc(fb_sqw, 'E');
+
+            assertEqualToTol(w1modE.data, w1modE_fb.data, 'ignore_str', true);
+            assertEqualToTol(w1modE.pix, w1modE_fb.pix, 'tol', [1e-8, 1e-5], 'ignore_str', true);
 
         end
 

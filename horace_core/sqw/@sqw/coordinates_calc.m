@@ -21,8 +21,9 @@ function w = coordinates_calc(w, name)
 %
 % EXAMPLE
 %   >> wout=coordinates_calc(w,'h')   % set the intensity to the component along a*
-
-
+%
+% Formerly known as `signal`
+%
 % Original author: T.G.Perring
 %
 
@@ -36,10 +37,6 @@ elseif isempty(name) || ~is_string(name)
 end
 
 for i=1:numel(w)
-    if w(i).pix.is_filebacked
-        w(i) = w(i).get_new_handle();
-    end
-
     w(i) = coordinates_calc_(w(i), name);
 end
 
@@ -139,32 +136,37 @@ switch name
 end
 
 if w.pix.is_filebacked
+
+    w = w.get_new_handle();
     mem_chunk_size = config_store.instance().get_value('hor_config', 'mem_chunk_size');
     [chunks, indices] = split_vector_max_sum(w.data.npix(:), mem_chunk_size);
 
     pix = 1;
     for i = 1:numel(chunks)
 
-        npix = sum(chunks(i));
+        chunk = chunks{i};
 
-        curr_pix = w.pix.get_pixels(pix:pix+npix, '-ignore_range');
+        npix = sum(chunk);
+
+        curr_pix = w.pix.get_pixels(pix:pix+npix-1, '-ignore_range');
 
         % Matrix and translation to convert from pixel coords to hkl
         curr_pix.signal = transform(curr_pix);
 
+
         [w.data.s(indices(1, i):indices(2, i)), ...
          w.data.e(indices(1, i):indices(2, i)), ...
-         curr_pix.variance] = average_bin_data(chunks(i), curr_pix.signal);
+         curr_pix.variance] = average_bin_data(chunk, curr_pix.signal);
 
         w.pix.data_range = ...
             w.pix.pix_minmax_ranges(curr_pix.data, w.pix.data_range);
 
-        w.pix.format_dump_data(curr_pix.data);
+        w.pix.format_dump_data(curr_pix.data, pix);
 
         pix = pix + npix;
     end
 
-    w.pix.finalise();
+    w.pix = w.pix.finalise();
 
 else
 
