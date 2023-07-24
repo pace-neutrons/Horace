@@ -85,7 +85,9 @@ classdef PixelDataMemory < PixelDataBase
 
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
-        [pix_out, data] = do_unary_op(obj, unary_op, data);
+        pix_out = do_unary_op(obj, unary_op);
+
+
 
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);

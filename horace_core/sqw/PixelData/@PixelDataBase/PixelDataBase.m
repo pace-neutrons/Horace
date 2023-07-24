@@ -386,6 +386,8 @@ classdef (Abstract) PixelDataBase < serializable
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         [pix_out, data] = do_unary_op(obj, unary_op, data);
 
+        [pix_out, data] = apply(obj, func_handle, args, data, compute_variance);
+
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
         [obj, data] = apply(obj, func_handle, args, data)

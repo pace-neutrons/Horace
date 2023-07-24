@@ -113,7 +113,7 @@ switch name
 
   case 'E'
 
-    transform = @(pix) plus(pix.dE, w.data.proj.offset(4));
+    transform = @(pix) E_transform(w.data.proj, pix);
 
   case 'Q'
 
@@ -134,59 +134,25 @@ switch name
     get_ind = pax(dax(get_ind));
 
     transform = @(pix) reg_transform(w.data.proj, get_ind, pix);
-end
-
-if w.pix.is_filebacked
-
-    w = w.get_new_handle();
-    mem_chunk_size = config_store.instance().get_value('hor_config', 'mem_chunk_size');
-    [chunks, indices] = split_vector_max_sum(w.data.npix(:), mem_chunk_size);
-
-    pix = 1;
-    for i = 1:numel(chunks)
-
-        chunk = chunks{i};
-
-        npix = sum(chunk);
-
-        curr_pix = w.pix.get_pixels(pix:pix+npix-1, '-ignore_range');
-
-        % Matrix and translation to convert from pixel coords to hkl
-        curr_pix.signal = transform(curr_pix);
-
-
-        [w.data.s(indices(1, i):indices(2, i)), ...
-         w.data.e(indices(1, i):indices(2, i)), ...
-         curr_pix.variance] = average_bin_data(chunk, curr_pix.signal);
-
-        w.pix.data_range = ...
-            w.pix.pix_minmax_ranges(curr_pix.data, w.pix.data_range);
-
-        w.pix.format_dump_data(curr_pix.data, pix);
-
-        pix = pix + npix;
-    end
-
-    w.pix = w.pix.finish_dump();
-
-else
-
-    w.pix.signal = transform(w.pix);
-    [w.data.s, w.data.e, w.pix.variance] = w.average_bin_data_(w.pix.signal);
 
 end
 
+w = w.apply(transform, {}, true, true);
+
 end
 
-function outvec = reg_transform(proj, ind, pix);
-    outvec = proj.transform_pix_to_img(pix);
-    outvec = outvec(ind, :);
+function pix = reg_transform(proj, ind, pix, npix);
+    uhkl = proj.transform_pix_to_img(pix);
+    pix.signal = uhkl(ind, :);
 end
 
-function Q = Q_transform(hkl_proj, pix)
+function pix = Q_transform(hkl_proj, pix, npix)
 
     uhkl = hkl_proj.transform_pix_to_img(pix.q_coordinates);
     uhkl = hkl_proj.transform_img_to_pix(uhkl);
-    Q = vecnorm(uhkl, 2, 1);
+    pix.signal = vecnorm(uhkl, 2, 1);
+end
 
+function pix = E_transform(proj, pix, npix)
+    pix.signal = pix.dE + proj.offset(4);
 end

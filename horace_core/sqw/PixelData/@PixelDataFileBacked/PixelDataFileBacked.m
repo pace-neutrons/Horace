@@ -117,7 +117,7 @@ classdef PixelDataFileBacked < PixelDataBase
         obj=set_raw_fields(obj, data, fields, varargin)
         [mean_signal, mean_variance] = compute_bin_data(obj, npix);
 
-        [pix_out, data] = do_unary_op(obj, unary_op, data);
+        pix_out = do_unary_op(obj, unary_op);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
 
         pix_out = get_pixels(obj, abs_pix_indices,varargin);
