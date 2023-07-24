@@ -191,6 +191,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         % Change the crystal lattice and orientation of an sqw object or array of objects
         wout = change_crystal(win,varargin);
+        % modify crystal lattice and orientation matrix to remove legacy
+        % alignment. 
+        [wout,al_info] = remove_legacy_alignment(obj,varargin)        
+        
         %
         function varargout = IX_dataset_1d(obj)
             error('HORACE:DnDBase:not_implemented', ...

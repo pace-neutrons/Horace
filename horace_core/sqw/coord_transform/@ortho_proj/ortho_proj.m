@@ -322,7 +322,8 @@ classdef ortho_proj<aProjectionBase
         function obj = set.ub_inv_legacy(obj,val)
             % no comprehensive checks performed here.  It is compatibility
             % with old file format. The method should be used
-            % by saveobj/loadobj only
+            % by saveobj/loadobj only. Use set_ub_inv_compat, which does all 
+            % necessary checks in any other case. 
             obj.ub_inv_legacy_ = val;
         end
         function obj = set_ub_inv_compat(obj,u_to_rlu)
@@ -478,6 +479,7 @@ classdef ortho_proj<aProjectionBase
             axes_bl.hkle_axes_directions = obj.u_to_rlu;
             %
         end
+        %
         function [obj,axes] = align_proj(obj,alignment_info,varargin)
             % Apply crystal alignment information to the projection
             % and optionally, to the axes block provided as input

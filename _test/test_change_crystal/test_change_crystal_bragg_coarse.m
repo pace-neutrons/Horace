@@ -130,6 +130,30 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(bragg_pos,rlu1_corr,'absolute',half_thick);
             assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
         end
+        function test_dealign_legacy(obj)
+            % testing the possibility to dealign the crystal, aligned by
+            % legacy algorithm.
+            test_obj = read_sqw(obj.misaligned_sqw_file);            
+            alatt0 = test_obj.data.alatt;
+            angdeg0 = test_obj.data.angdeg;            
+            corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250],[-0.0530 0.0519 0.0345]);
+            proj = test_obj.data.proj;
+            proj = proj.set_ub_inv_compat(inv(proj.bmatrix));
+
+            wout_legacy  = test_obj;
+            wout_legacy.data.proj = proj;
+            % get the crystal aligned according to legacy algorithm.
+            wout_legacy = change_crystal (wout_legacy,corrections);
+            
+            [obj_recovered,al_info] = remove_legacy_alignment(wout_legacy, ...
+                alatt0,angdeg0);
+
+            assertElementsAlmostEqual(al_info.rotvec,corrections.rotvec);
+            assertEqual(test_obj,obj_recovered);
+
+        end
+        
         function test_legacy_vs_pix_alignment(obj)
         % theoretical Bragg points positions
             bragg_pos=[...
