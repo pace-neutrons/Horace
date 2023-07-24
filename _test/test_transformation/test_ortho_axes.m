@@ -1017,9 +1017,9 @@ classdef test_ortho_axes < TestCase
         function test_ortho_axes_bin_points_multiple(~)
             ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
 
-            idx = ab.bin_points([5 -5 0 0
+            idx = ab.bin_points([5 -5 0 0; ...
                                  7 -3 1 1]);
-            assertEqual(idx, [6 6 2 2
+            assertEqual(idx, [6 6 2 2; ...
                               8 8 3 3])
         end
 

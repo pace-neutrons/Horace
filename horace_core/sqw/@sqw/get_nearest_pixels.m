@@ -87,8 +87,10 @@ if ~any(ok)
 end
 
 % Get coordinates of points along each projection axis
-step = win.data.axes.get_bin_step()';
-ustep = step(pax)';
+ustep = win.data.axes.step;
+step = zeros(4, 1);
+step(pax) = ustep;
+step(iax) = win.data.axes.img_range(2, iax) - win.data.axes.img_range(1, iax);
 xpstep = xp_ok ./ repmat(ustep,size(xp_ok,1),1);
 
 ipix = zeros(numel(ind),1);
