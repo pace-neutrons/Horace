@@ -48,10 +48,7 @@ function obj = do_mask_file_backed_with_full_mask_array(obj, keep_array)
 % long as the full PixelData array i.e. numel(mask_array) == pix.num_pixels
 %
 
-if isempty(obj.file_handle_)
-    obj = obj.get_new_handle();
-end
-
+obj = obj.prepare_dump();
 keep_array = logical(keep_array);
 
 mem_chunk_size = obj.default_page_size;
@@ -93,9 +90,8 @@ if obj_out.is_misaligned
     obj_out.alignment_matr = [];
 end
 
-if isempty(obj_out.file_handle_)
-    obj_out = obj_out.get_new_handle();
-end
+obj_out = obj_out.prepare_dump();
+
 keep_array = logical(keep_array);
 
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.default_page_size);
