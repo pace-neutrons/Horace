@@ -62,8 +62,7 @@ classdef spher_proj<aProjectionBase
     properties(Constant,Access = private)
         % cellarray describing what letters are available to assign for
         % type properties.
-        % 'a' -- Angstrom, 'd' - degree, 'r' -- radians, e-energy transfer
-        % in mEv;
+        % 'a' -- Angstrom, 'd' - degree, 'r' -- radians, e-energy transfer in mEv;
         types_available_ = {'a',{'d','r'},{'d','r'}};
     end
 

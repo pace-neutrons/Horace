@@ -276,7 +276,7 @@ classdef AxesBlockBase < serializable
             end
             if ~(isnumeric(val) && numel(val) == 4)
                 error('HORACE:AxesBlockBase:invalid_argument',...
-                    'img_scale should be vector, containing 4 elements')
+                    'img_scales should be vector, containing 4 elements')
             end
             obj.img_scales_ = val(:)';
         end

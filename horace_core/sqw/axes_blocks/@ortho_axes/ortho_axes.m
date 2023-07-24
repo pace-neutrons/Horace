@@ -186,8 +186,8 @@ classdef ortho_axes < AxesBlockBase
         end
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % savable class allowing loading ortho_axes from a suitable
-            % structure (e.g. obtaned fron struct(ortho_axes) operation)
+            % saveable class allowing loading ortho_axes from a suitable
+            % structure (e.g. obtaned from struct(ortho_axes) operation)
             obj = ortho_axes();
             obj = loadobj@serializable(S,obj);
         end
