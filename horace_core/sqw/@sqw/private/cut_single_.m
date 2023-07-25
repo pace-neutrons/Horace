@@ -37,7 +37,7 @@ if isa(pix_out, 'pix_combine_info')
 
     if ~outfile_specified
         tmp_file = TmpFileHandler(w.full_filename);
-        outfile = tmp_file.file_name;
+        opt.outfile = tmp_file.file_name;
         outfile_specified = true;
     end
 end
@@ -106,7 +106,7 @@ if outfile_specified
 end
 
 if exist('tmp_file', 'var')
-    wout = sqw(outfile);
+    wout = sqw(opt.outfile);
     wout.file_holder_ = tmp_file;
 end
 
