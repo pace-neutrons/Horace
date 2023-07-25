@@ -81,6 +81,6 @@ for i = 1:num_pages
     pix_out.format_dump_data(data);
 end
 
-pix_out = pix_out.finalise();
+pix_out = pix_out.finish_dump();
 
 end

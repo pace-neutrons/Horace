@@ -167,7 +167,7 @@ if w.pix.is_filebacked
         pix = pix + npix;
     end
 
-    w.pix = w.pix.finalise();
+    w.pix = w.pix.finish_dump();
 
 else
 

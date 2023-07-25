@@ -83,7 +83,7 @@ if wout.pix.is_filebacked
         end
         wout.pix.format_dump_data(curr_page);
     end
-    wout.pix = wout.pix.finalise();
+    wout.pix = wout.pix.finish_dump();
 
 else
 

@@ -69,7 +69,7 @@ end
 wout.pix = pix;
 
 % We're finished writing pixels
-wout.pix = wout.pix.finalise();
+wout.pix = wout.pix.finish_dump();
 
 [img_signal, img_error] = get_image_bin_averages_(img_signal, npix);
 wout.data.s = img_signal;

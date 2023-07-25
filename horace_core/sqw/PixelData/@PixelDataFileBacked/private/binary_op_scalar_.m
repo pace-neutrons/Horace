@@ -31,4 +31,6 @@ for i = 1:num_pages
         obj.pix_minmax_ranges(data, obj.data_range);
 
 end
-obj = obj.finalise();
+obj = obj.finish_dump();
+
+end

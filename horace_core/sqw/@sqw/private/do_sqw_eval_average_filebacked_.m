@@ -50,7 +50,7 @@ for i = 1:numel(npix_chunks)
 
 end
 
-wout.pix = wout.pix.finalise();
+wout.pix = wout.pix.finish_dump();
 wout = recompute_bin_data(wout);
 
 % Now go back and overwrite the old image in the file with new data

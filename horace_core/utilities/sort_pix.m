@@ -155,7 +155,7 @@ if ~use_mex
             pix.format_dump_data(data);
         end
 
-        pix = pix.finalise(numel(ind));
+        pix = pix.finish_dump(numel(ind));
 
     else
         pix=pix.get_pixels(ind); % reorders pix according to pix indices within bins
