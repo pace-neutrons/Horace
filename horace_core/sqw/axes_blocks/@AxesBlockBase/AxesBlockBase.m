@@ -72,15 +72,11 @@ classdef AxesBlockBase < serializable
         p;
 
         %------------------------------------------------------------------
-
-        %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        ulen;
-
         % The range (in axes coordinate system), the binning is made and the
         % axes block describes
         img_range;
-
-        img_scales  %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        %
+        img_scales   %Length of projection axes vectors in Ang^-1 or meV [row vector]
         %
         dimensions;  % Number of AxesBlockBase object dimensions
 
@@ -154,9 +150,9 @@ classdef AxesBlockBase < serializable
         % are often used
         % Old name for img_range left for compartibility with old user code
         img_db_range;
+
         %Old interface to Length of projection axes vectors
         ulen;   % in Ang^-1 or meV [row vector]
-
     end
 
     methods
@@ -429,7 +425,7 @@ classdef AxesBlockBase < serializable
             %            number of projection axes of the AxesBlockBase object
             if size(pts, 2) ~= numel(obj.p)
                 error('HORACE:AxesBlockBase:invalid_argument', ...
-                      'Cannot bin points with different dimensionality to the axes block.')
+                    'Cannot bin points with different dimensionality to the axes block.')
             end
 
             bin_idx = zeros(size(pts));
@@ -828,7 +824,7 @@ classdef AxesBlockBase < serializable
 
     methods
         function S = convert_old_struct (~, S, varargin)
-            % Convert old 
+            % Convert old
             if isfield(S,'ulen')
                 S.img_scale = S.ulen;
             end
