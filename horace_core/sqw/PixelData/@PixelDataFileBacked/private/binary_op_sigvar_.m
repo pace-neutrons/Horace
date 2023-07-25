@@ -3,9 +3,7 @@ function obj = binary_op_sigvar_(obj, operand, binary_op, flip, npix)
 %
 validate_inputs(obj, operand, npix);
 
-if isempty(obj.file_handle_)
-    obj = obj.get_new_handle();
-end
+obj = obj.prepare_dump();
 
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
@@ -41,7 +39,7 @@ for i = 1:num_pages
     obj.data_range = ...
         obj.pix_minmax_ranges(data, obj.data_range);
 end
-obj = obj.finalise();
+obj = obj.finish_dump();
 
 
 function validate_inputs(pix, operand, npix)
@@ -63,4 +61,3 @@ if num_pix ~= pix.num_pixels
         'Found ''%i'' pixels in npix but ''%i'' in PixelData.'], ...
         num_pix, pix.num_pixels);
 end
-

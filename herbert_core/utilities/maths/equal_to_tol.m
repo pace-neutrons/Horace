@@ -552,6 +552,19 @@ elseif ischar(a) && ischar(b)
             name_a,name_b);
     end
 
+    if isrow(a) && ~isempty(regexp(a, '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'))
+        % Probably dealing with datetime string
+        try
+            a = main_header_cl.convert_datetime_from_str(a);
+            b = main_header_cl.convert_datetime_from_str(b);
+            % Allow separation of up to 1 minute to be same
+            if abs(posixtime(a) - posixtime(b)) < 60
+                return
+            end
+        catch
+        end
+    end
+
     if ~strcmp(a,b)
         error('HERBERT:equal_to_tol:inputs_mismatch',...
             '%s and %s: Character arrays being compared are not equal',...
@@ -655,7 +668,7 @@ abs_tol = tol(1);
 rel_tol = tol(2);
 if ~isa(a,class(b))
     a = double(a);
-    b = double(b);    
+    b = double(b);
 end
 if abs_tol==0 && rel_tol==0
 

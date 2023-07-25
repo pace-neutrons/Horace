@@ -132,8 +132,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         wout=rebin_sqw(win,varargin);
         wout=symmetrise_sqw(win,v1,v2,v3);
-        [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
-        wtot=combine_cuts(w);
         wout=recompute_bin_data(sqw_obj);
 
         % return the header, common for all runs (average?)

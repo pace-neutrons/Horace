@@ -53,8 +53,8 @@ if raw_data
 end
 
 if ignore_range
-    pix_out = PixelDataMemory();
-    pix_out = pix_out.set_raw_data(pix_out);
+    pix = PixelDataMemory();
+    pix_out = pix.set_raw_data(pix_out);
 else
     pix_out = PixelDataMemory(pix_out);
 end

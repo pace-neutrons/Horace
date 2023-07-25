@@ -169,5 +169,5 @@ function wout = calc_shift_filebacked(win, dispreln, ave_pix, pars)
         pix.format_dump_data(data);
     end
 
-    wout.pix = pix.finalise();
+    wout.pix = pix.finish_dump();
 end

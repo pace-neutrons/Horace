@@ -983,7 +983,39 @@ classdef test_ortho_axes < TestCase
             assertEqual(ab.nbins_all_dims,ones(1,4))
             assertEqual(ab.single_bin_defines_iax,false(1,4))
         end
-        %
+
+        function test_ortho_axes_bin_points(~)
+            ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
+
+            idx = ab.bin_points([5 -5 0 0]);
+            assertEqual(idx, [6 6 2 2])
+    end
+
+        function test_ortho_axes_bin_points_multiple(~)
+            ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
+
+            idx = ab.bin_points([5 -5 0 0; ...
+                                 7 -3 1 1]);
+            assertEqual(idx, [6 6 2 2; ...
+                              8 8 3 3])
+end
+
+        function test_ortho_axes_bin_points_outside(~)
+            ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
+
+            idx = ab.bin_points([12 12 12 12]);
+            assertEqual(idx, [NaN NaN NaN NaN])
+        end
+
+        function test_ortho_axes_bin_points_wrong_dims(~)
+            ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
+
+            function thrower(~)
+                idx = ab.bin_points([12 12 12]);
+            end
+            assertExceptionThrown(@thrower, 'HORACE:AxesBlockBase:invalid_argument');
+
+        end
 
     end
 end

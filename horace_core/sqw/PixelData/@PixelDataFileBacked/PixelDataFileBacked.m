@@ -90,6 +90,10 @@ classdef PixelDataFileBacked < PixelDataBase
         offset;
     end
 
+    properties(Dependent, Hidden)
+        has_open_file_handle;
+    end
+
     properties (Constant)
         is_filebacked = true;
     end
@@ -174,11 +178,11 @@ classdef PixelDataFileBacked < PixelDataBase
             % 8: 3xNpix array
             %             -- initialize filebacked class from array of
             %                data provided as input
-            
+
             % process possible update parameter
             obj = init_(obj,varargin{:});
         end
-        
+
         function obj = move_to_first_page(obj)
             % Reset the object to point to the first page of pixel data in the file
             % and clear the current cache
@@ -283,11 +287,22 @@ classdef PixelDataFileBacked < PixelDataBase
         function offset = get.offset(obj)
             offset = obj.offset_;
         end
+
+        function has = get.has_open_file_handle(obj)
+            has = ~isempty(obj.file_handle_);
+        end
     end
 
     %======================================================================
     % File handling/migration
     methods
+        function obj = prepare_dump(obj)
+        % Get new handle iff not already opened by sqw
+            if ~obj.has_open_file_handle
+                obj = obj.get_new_handle();
+            end
+        end
+
         function obj = get_new_handle(obj, f_accessor)
             % Always create a new PixTmpFile object
             % If others point to it, file will be kept
@@ -306,7 +321,7 @@ classdef PixelDataFileBacked < PixelDataBase
         end
 
         function format_dump_data(obj, pix, start_idx)
-            if isempty(obj.file_handle_)
+            if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                     'Cannot dump data, object does not have open filehandle')
             end
@@ -321,10 +336,10 @@ classdef PixelDataFileBacked < PixelDataBase
             end
         end
 
-        function obj = finalise(obj, final_num_pixels)
-            if isempty(obj.file_handle_)
+        function obj = finish_dump(obj, final_num_pixels)
+            if ~obj.has_open_file_handle
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
-                    'Cannot finalise writing, object does not have open filehandle')
+                      'Cannot finish dump writing, object does not have open filehandle')
             end
 
             if exist('final_num_pixels', 'var')
@@ -432,7 +447,7 @@ classdef PixelDataFileBacked < PixelDataBase
                     start_idx = start_idx + size(data,2);
                 end
             end
-            obj = obj.finalise();
+            obj = obj.finish_dump();
         end
     end
 

@@ -192,7 +192,7 @@ for i=1:npg
     pix_idx = pix_idx+pix_out.num_pixels;
 end
 sqw_obj.pix.data_range = data_range;
-sqw_obj.pix = sqw_obj.pix.finalise();
+sqw_obj.pix = sqw_obj.pix.finish_dump();
 ldr.delete();
 
 end
@@ -209,7 +209,7 @@ sqw_obj.pix = PixelDataFileBacked();
 [sqw_obj, ldr] = sqw_obj.get_new_handle(outfile);
 
 sqw_obj.pix.format_dump_data(pix.data);
-sqw_obj.pix = sqw_obj.pix.finalise();
+sqw_obj.pix = sqw_obj.pix.finish_dump();
 
 sqw_obj.pix.data_range = pix.data_range;
 

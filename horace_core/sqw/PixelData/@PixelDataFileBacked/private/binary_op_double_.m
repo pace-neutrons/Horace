@@ -20,9 +20,8 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
 % The double array must have length equal to the number of pixels.
 %
 
-if isempty(obj.file_handle_)
-    obj = obj.get_new_handle();
-end
+obj = obj.prepare_dump();
+
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 obj.data_range = PixelDataBase.EMPTY_RANGE;
@@ -51,7 +50,7 @@ for i = 1:num_pages
 
 end
 
-obj = obj.finalise();
+obj = obj.finish_dump();
 
 end
 
@@ -70,9 +69,7 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
 % object.
 %
 
-if isempty(obj.file_handle_)
-    obj = obj.get_new_handle();
-end
+obj = obj.prepare_dump();
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 obj.data_range = PixelDataBase.EMPTY_RANGE;
@@ -107,7 +104,7 @@ for i = 1:num_pages
         obj.pix_minmax_ranges(data, obj.data_range);
 end
 
-obj = obj.finalise();
+obj = obj.finish_dump();
 end
 
 function validate_input_array(obj, double_array, npix)

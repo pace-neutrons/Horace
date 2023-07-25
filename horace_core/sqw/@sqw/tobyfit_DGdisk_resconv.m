@@ -328,7 +328,7 @@ for i=1:numel(ind)
 
             pix.format_dump_data(data);
         end
-        wout.pix = pix.finalise();
+        wout.pix = pix.finish_dump();
 
     else
         wout(i).pix.signal = stmp(:)'/mc_points;
