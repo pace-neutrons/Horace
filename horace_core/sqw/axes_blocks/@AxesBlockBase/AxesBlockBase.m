@@ -22,12 +22,19 @@ classdef AxesBlockBase < serializable
     %    -- particularly frequent case of building axes block (case 4)
     %       from the image range and number of bins in all directions.
     properties(Dependent)
-        title;      % Title of sqw data structure, displayed on plots.
-        filename;   % Name of sqw file that is being read, excluding path. Used in titles
-        filepath;   % Path to sqw file that is being read, including terminating file separator.
+        % Title of sqw data structure, displayed on plots.
+        title;
+
+        % Name of sqw file that is being read, excluding path.
         %            Used in titles
+        filename;
+
+        % Path to sqw file that is being read, including terminating file separator.
+        % Used in titles
+        filepath;
+
         % the cellarray of captions, displayed along various axes of plots
-        label;    % labels for u1,u2,u3,u4 as cell array
+        % labels for u1,u2,u3,u4 as cell array
         %               e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
         %                   *OR*
         %   access or set up the axes label separately using their indexes,
@@ -36,46 +43,62 @@ classdef AxesBlockBase < serializable
         %   label{2}  label for u2 axis
         %   label{3}  label for u3 axis
         %   label{4}  label for u4 axis (e.g. 'E' or 'En')
+        label;
 
-        iax;      %Index of integration axes into the projection axes  [row vector]
+        % Index of integration axes into the projection axes  [row vector]
         %          Always in increasing numerical order
         %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-        iint; %Integration range along each of the integration axes. [iint(2,length(iax))]
+        iax;
+
+        % Integration range along each of the integration axes. [iint(2,length(iax))]
         %     e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-        pax;   %Index of plot axes into the projection axes  [row vector]
+        iint;
+
+        % Index of plot axes into the projection axes  [row vector]
         %      Always in increasing numerical order
         %      e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
         %      2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-        dax;    %Index into data.pax of the axes for display purposes. For example we may have
+        pax;
+
+        % Index into data.pax of the axes for display purposes. For example we may have
         %      data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
         %      the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
         %      the display axes to be permuted but without the contents of the fields p, s,..pix needing to
         %      be reordered [row vector]
-        p;     %Cell array containing bin boundaries along the plot axes [column vectors]
-        %      i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
+        dax;
+
+        %Cell array containing bin boundaries along the plot axes [column vectors]
+        %   e.g. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
+        p;
+
         %------------------------------------------------------------------
-        %
         % The range (in axes coordinate system), the binning is made and the
         % axes block describes
         img_range;
         %
-        img_scales  %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        img_scales   %Length of projection axes vectors in Ang^-1 or meV [row vector]
         %
         dimensions;  % Number of AxesBlockBase object dimensions
-        %
+
         % binning along each dimension of an object assuming tha
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
         % x-direction would have binning [10,1,1,1] and 1D object with 10
         % bins in dE direction would have binning [1,1,1,10];
         nbins_all_dims;
+
         % number of bins for each non-unit dimension. This would be the
         % binning of the data arrays associated with the given AxesBlockBase
         data_nbins;
+
         % number of bins in each non-unit dimension presented in the form,
         % which allows you to allocate an array of the appropriate size
         % i.e. size(s) == dims_as_ssize and size(zeros(dims_as_ssize)) ==
         % size(s)
         dims_as_ssize;
+
+        % the step in each pax dimension in units of img_range units
+        step;
+
         % boolean row, identifying if a single bin direction (dir)
         % (nbins_all_dims(dir)==1) is integration axis or a projection
         % axis. By default, single nbins_all_dims direction is
@@ -127,9 +150,9 @@ classdef AxesBlockBase < serializable
         % are often used
         % Old name for img_range left for compartibility with old user code
         img_db_range;
+
         %Old interface to Length of projection axes vectors
         ulen;   % in Ang^-1 or meV [row vector]
-
     end
 
     methods
@@ -353,6 +376,10 @@ classdef AxesBlockBase < serializable
             obj.changes_aspect_ratio_ = logical(val);
         end
 
+        function steps = get.step(obj)
+            steps = (obj.img_range(2, obj.pax) - obj.img_range(1, obj.pax)) ./ (obj.nbins_all_dims(obj.pax)-1);
+        end
+
     end
     %======================================================================
     % Integration, interpolation and binning
@@ -372,7 +399,7 @@ classdef AxesBlockBase < serializable
             % 1D array of the volumes of the cells. The number of elements
             % in the array is equal to the number of cells in the grid.
             % Inputs:
-            % obj   -- initialized instance of an axes_block class
+            % obj   -- initialized instance of an AxesBlockBase class
             % Optional:
             % axes  -- 4-element celarray, containig axes in all 4
             %          directions. If this argument is present, the
@@ -389,6 +416,24 @@ classdef AxesBlockBase < serializable
             end
 
         end
+
+        function bin_idx = bin_points(obj, pts)
+            % Get the bin indices to which the points in pts would be binned
+            % Inputs:
+            % obj   -- initalized instance of an AxesBlockBase class
+            % pts   -- dim X N array of numeric points to bin, where dim is the
+            %            number of projection axes of the AxesBlockBase object
+            if size(pts, 2) ~= numel(obj.p)
+                error('HORACE:AxesBlockBase:invalid_argument', ...
+                    'Cannot bin points with different dimensionality to the axes block.')
+            end
+
+            bin_idx = zeros(size(pts));
+            for i = 1:numel(obj.p)
+                bin_idx(:, i) = discretize(pts(:, i), obj.p{i});
+            end
+        end
+
         function data_out = rebin_data(obj,data_in,other_ax)
             % Rebin data,defined on this axes grid into other axes grid
             %
@@ -779,7 +824,7 @@ classdef AxesBlockBase < serializable
 
     methods
         function S = convert_old_struct (~, S, varargin)
-            % Convert old 
+            % Convert old
             if isfield(S,'ulen')
                 S.img_scale = S.ulen;
             end

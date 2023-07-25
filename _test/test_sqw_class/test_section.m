@@ -15,6 +15,19 @@ classdef test_section < TestCase
             assertTrue(obj.is_bins_subset_of(test_sec.data.axes.p, w.data.axes.p));
         end
 
+        function obj = test_section_sqw_fb(obj)
+            w = sqw.generate_cube_sqw(10);
+            test_sec_mb = w.section([-3 3], [], [], []);
+
+            clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 500);
+            w.pix = PixelDataFileBacked(w.pix);
+
+            test_sec_fb = w.section([-3 3], [], [], []);
+
+            assertEqualToTol(test_sec_mb, test_sec_fb, 'ignore_str', true);
+
+        end
+
         function obj = test_section_collapse_dim(obj)
             w = sqw.generate_cube_sqw(10);
             test_sec = w.section([-1 0], [], [], []);

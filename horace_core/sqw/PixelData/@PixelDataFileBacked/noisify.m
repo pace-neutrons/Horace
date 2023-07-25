@@ -65,9 +65,7 @@ end
 % value extracted above
 
 % If we're being called from tests
-if isempty(pix_out.file_handle_)
-    pix_out = pix_out.get_new_handle();
-end
+pix_out = pix_out.prepare_dump();
 
 pix_out.data_range = PixelDataBase.EMPTY_RANGE;
 
@@ -83,6 +81,6 @@ for i = 1:num_pages
     pix_out.format_dump_data(data);
 end
 
-pix_out = pix_out.finalise();
+pix_out = pix_out.finish_dump();
 
 end

@@ -261,9 +261,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         function val = get.offset(obj)
             val = obj.proj_.offset;
         end
-%         function obj = set.offset(obj,val)
-%             obj.proj_.offset = val;
-%         end
+        %         function obj = set.offset(obj,val)
+        %             obj.proj_.offset = val;
+        %         end
 
         function val = get.u_to_rlu(obj)
             val = obj.proj.u_to_rlu;

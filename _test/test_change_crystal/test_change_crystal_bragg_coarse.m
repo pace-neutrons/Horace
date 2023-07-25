@@ -130,8 +130,37 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(bragg_pos,rlu1_corr,'absolute',half_thick);
             assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
         end
+        %
+        function test_upgrade_legacy_on_file(obj)
+            % testing the possibility to realign the crystal, aligned by
+            % legacy algorithm when object stored in sqw file.
+            test_path = fileparts(obj.misaligned_sqw_file);
+            tf_legacy_al = fullfile(test_path,'legacy_aligned_sqw.sqw');
+            tf_ref_al = fullfile(test_path,'ref_aligned_sqw.sqw');
+            %
+            copyfile(obj.misaligned_sqw_file,tf_legacy_al,'f');
+            clOb1 = onCleanup(@()delete(tf_legacy_al));
+            copyfile(obj.misaligned_sqw_file,tf_ref_al,'f');
+            clOb2 = onCleanup(@()delete(tf_ref_al));
 
-        function test_replace_legacy(obj)
+            corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
+                [90.1793 90.9652 89.9250],[-0.0530 0.0519 0.0345]);
+            % get the crystal aligned according to legacy algorithm.
+            change_crystal (tf_ref_al,corrections);
+            corrections.legacy_mode = true;
+            change_crystal (tf_legacy_al,corrections);
+
+            upgrade_legacy_alignment(tf_legacy_al, ...
+                obj.alatt,obj.angdeg);
+
+            test_obj = read_sqw(tf_legacy_al);
+            ref_obj  = read_sqw(tf_ref_al);
+
+            assertEqualToTol(test_obj,ref_obj  ,'tol',1.e-9,'ignore_str',true)
+        end
+
+
+        function test_upgrade_legacy(obj)
             % testing the possibility to realign the crystal, aligned by
             % legacy algorithm.
             test_obj = read_sqw(obj.misaligned_sqw_file);
@@ -152,10 +181,11 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             wout_modern = change_crystal (test_obj,corrections);
 
-             assertEqualToTol(al_info,corrections,'tol',1.e-9)
+            assertEqualToTol(al_info,corrections,'tol',1.e-9)
             assertEqual(wout_modern,obj_realigned);
         end
-        function test_remove_legacy_keep_lattice_change(obj)
+
+        function test_remove_legacy_keep_lattice_change_fails(obj)
             % testing the possibility to dealign the crystal, aligned by
             % legacy algorithm if original lattice is unknown
             test_obj = read_sqw(obj.misaligned_sqw_file);
@@ -174,13 +204,17 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             lat_corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
                 [90.1793 90.9652 89.9250],[0 0 0]);
-            wout_lat = change_crystal (test_obj,lat_corrections);            
+            wout_lat = change_crystal (test_obj,lat_corrections);
 
             assertElementsAlmostEqual(al_info.rotvec,corrections.rotvec);
+            % change legacy without lattice does not properly recover
+            % alignment
+            obj_recovered.experiment_info = wout_lat.experiment_info;
+            obj_recovered.data.proj = wout_lat.data.proj;
             assertEqual(wout_lat,obj_recovered);
         end
-        
-        
+
+
         function test_remove_legacy(obj)
             % testing the possibility to dealign the crystal, aligned by
             % legacy algorithm.
@@ -244,13 +278,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(pix_al,pix_leg);
 
             proj_leg = wout_legacy.data.proj;
-            % Re #1141 legacy alignment does not process image ranges
-            % correctly. This test should not hold. But it may be good test
-            % for proper data recovery from legacy alignment.
-            %leg_cut_range = wout_legacy.targ_range(proj_leg);
-            %proj_al = wout_align.data.proj;
-            %al_cut_range = wout_align.targ_range(proj_al);
-            %assertElementsAlmostEqual(leg_cut_range,al_cut_range);
 
             % This is not correct and should not. One projection contains
             % alignment matrix attached to B-matrix and another one does not
@@ -316,13 +343,10 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertEqualToTolWithSave(obj,wcut,1.e-6,'ignore_str',true);
             assertEqualToTolWithSave(obj,wpeak,1.e-6,'ignore_str',true);
         end
-
+        %
         function delete(obj)
-
             clob = set_temporary_warning('off','MATLAB:DELETE:Permission');
-
             delete(obj.misaligned_sqw_file);
-
             % Delete temporary nxs files
             for i=1:numel(obj.nxs_file)
                 try
@@ -338,7 +362,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
         function  obj=build_misaligned_source_file(obj,sim_sqw_file)
             % generate sqw file misaligned according to wrong gl, gs,dpsi.
             %
-
             obj.misaligned_sqw_file = sim_sqw_file;
 
             clob = set_temporary_config_options(hpc_config, ...
@@ -397,8 +420,6 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
                     obj.efix, obj.emode, obj.alatt, obj.angdeg,...
                     obj.u, obj.v, obj.psi, 0, 0, 0, 0);
             end
-
         end
-
     end
 end

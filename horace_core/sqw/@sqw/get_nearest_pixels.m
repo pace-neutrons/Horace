@@ -62,22 +62,17 @@ end
 % Get some 'pointers' to particular properties of the sqw object, for convenience
 iax = win.data.iax;
 pax = win.data.pax;
-p = win.data.p;
 npix = win.data.npix(:);
 
 % Find the bin corresponding to each point
-ix = cell(1,nd);
-ok = true(np,1);
-for i=1:nd
-    [~,~,ix{i}] = histcounts(xp(:,i),p{i});
-    ok = ok & ix{i}>0;
-end
+ix = win.data.axes.bin_points(xp);
+ok = ~any(isnan(ix), 2);
+ix = ix(ok, :);
+ix = num2cell(ix, 1);
 
-% Keep points where there is data
-for i=1:nd
-    ix{i} = ix{i}(ok);
-end
-ind = sub2ind (sz, ix{:});
+ind = sub2ind(sz, ix{:});
+
+
 keep = (npix(ind)>0);
 ok(ok) = keep;
 xp_ok = xp(ok,:);
@@ -92,27 +87,34 @@ if ~any(ok)
 end
 
 % Get coordinates of points along each projection axis
-step = (win.data.axes.img_range(2,:)-win.data.axes.img_range(1,:))./win.data.axes.nbins_all_dims;
-ustep = step(pax);
+ustep = win.data.axes.step;
+step = zeros(4, 1);
+step(pax) = ustep;
+step(iax) = win.data.axes.img_range(2, iax) - win.data.axes.img_range(1, iax);
 xpstep = xp_ok ./ repmat(ustep,size(xp_ok,1),1);
-
-% Get components along projection axes of the pixels in the sqw object
-uprojstep = calculate_uproj_pixels (win, step);   % in units of steps
-uprojstep = uprojstep';
 
 ipix = zeros(numel(ind),1);
 nend = cumsum(npix);
 nbeg = nend - npix + 1;
+
 ucent = zeros(1,4);
 for i=1:numel(ind)
     % Projections for pixels in the bin
-    uprojstep_bin = uprojstep(nbeg(ind(i)):nend(ind(i)),:);
+    curr_pix = win.pix.get_pix_in_ranges(nbeg(ind(i)), npix(ind(i)));
+
+    % Get components along projection axes of the pixels in the sqw object
+    uprojstep_bin = (win.data.proj.transform_pix_to_img(curr_pix) ./ step)';
+
     % Point in steps: median coordinates along integration axes
     ucent(iax) = median(uprojstep_bin(:,iax),1);
     ucent(pax) = xpstep(i,:);
+
     % Distance of all pixels to point:
-    dist = uprojstep_bin - repmat(ucent,npix(ind(i)),1);
-    [~,ipix(i)] = min(sum(dist.^2,2));
+    dist = vecnorm(uprojstep_bin - ucent, 2, 2);
+
+    [~,ipix(i)] = min(dist);
 end
 
 ipix = nbeg(ind) + ipix - 1;    % to get index in the full pixels array
+
+end

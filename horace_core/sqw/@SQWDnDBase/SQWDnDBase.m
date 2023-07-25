@@ -28,6 +28,7 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = cut_sqw(obj,varargin); % legacy entrance for cut for sqw objects
         %
         wout = func_eval(win, func_handle, pars, varargin);
+
     end
     %======================================================================
     % METHODS, Available on SQW but requesting only DND object for
@@ -40,6 +41,8 @@ classdef (Abstract) SQWDnDBase < serializable
         %                             % coordinates along each of the axes
         %                             % of the smallest cuboid that contains
         %                             % bins with non-zero values of contributing pixels.
+        wout = compact(win)           % Compress DnD to remove empty bins on border
+        wout = section(win, varargin) % Cut a subsection of the bins without rebinning
         %------------------------------------------------------------------
         % sigvar block
         wout              = sigvar(w); % Create sigvar object from sqw or dnd object
@@ -70,15 +73,15 @@ classdef (Abstract) SQWDnDBase < serializable
         %                             % of the bins of an n-dimensional sqw
         %                             % or dnd dataset
         %------------------------------------------------------------------
-        % Change the crystal lattice and orientation of an sqw object or 
+        % Change the crystal lattice and orientation of an sqw object or
         % array of objects
         varargout = change_crystal (varargin);
         % modify crystal lattice and orientation matrix to remove legacy
         % alignment.
         [wout,al_info] = remove_legacy_alignment(obj,varargin)
         % remove legacy alignment and put modern alignment instead
-        [wout,al_info] = upgrade_legacy_alignment(obj,varargin)        
-        %------------------------------------------------------------------        
+        [wout,al_info] = upgrade_legacy_alignment(obj,varargin)
+        %------------------------------------------------------------------
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
