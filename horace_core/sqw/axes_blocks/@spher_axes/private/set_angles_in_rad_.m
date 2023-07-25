@@ -33,9 +33,7 @@ end
 %
 obj.angular_unit_is_rad_ = val;
 %
-i=1:2;
-sym = arrayfun(@(i)convert_bool_to_val(val(i)),i);
-obj.axes_units_(2:3) = sym;
+obj.axes_units_(2:3) = arrayfun(@convert_bool_to_val,val(1:2));
 %
 
 function ch = convert_bool_to_val(val)

@@ -1,14 +1,21 @@
 function [obj,ax_block] = align_proj_(obj,alignment_info,varargin)
 % Apply crystal alignment information to the projection and axes block
-% and realign it.
+% and realign them.
 % Inputs:
-% obj -- initialized instance of the projection info
+% obj -- initialized instance of the projection class.
 % alignment_info
-%     -- crystal_alignment_info class, containign information
+%     -- crystal_alignment_info class, containing information
 %        about new alignment
+% Optional:
+% ax_block
+%     -- instance of the axes_block class
 % Returns:
 % obj  -- the ortho_proj class, modified by information,
-%         containing in the alignment info block
+%         containing in the alignment info class
+% ax_block
+%      -- instance of the input axes_block class,with the ranges, modified
+%         according to alignment information
+%
 if isempty(obj.w_)
     uvw = [obj.u_(:),obj.v_(:)];
     w_defined = false;
@@ -21,7 +28,7 @@ if isempty(varargin)
 else
     ax_block = varargin{1};
 end
-% Change Axes. Need to axes scales in projection coordinate system
+% Change Axes. Need to change axes scales in projection coordinate system
 if ~isempty(ax_block)
     img_range = ax_block.img_range;
     [full_range,perm] = expand_box(img_range(1,1:3),img_range(2,1:3));
@@ -52,16 +59,15 @@ if isempty(ax_block)
     return
 end
 
-% Change Axes. Need to change axes scales in projection coordinate system
-% modified offset is accounted for within the transformation
+% Change Axes. Need to change axes scales in projection coordinate system.
+% Modified offset is accounted for within the transformation.
 full_range_corr = obj.transform_pix_to_img(range_in_cc);
 corr_range = [min(full_range_corr,[],2),max(full_range_corr,[],2)];
-center = 0.5*(corr_range(:,1)+corr_range(:,2));
-%sizes of the modified box in image coordinate system
+centre = 0.5*(corr_range(:,1)+corr_range(:,2));
+%sizes of the modified box in the image coordinate system
 size = vecnorm(full_range_corr(:,closest_nodes)-full_range_corr(:,1));
 
-new_range = [center-0.5*size(:),center+0.5*size(:)]';
+new_range = [centre-0.5*size(:),centre+0.5*size(:)]';
 img_range(:,1:3)   = new_range;
 ax_block.img_range = img_range;
-
 

@@ -11,7 +11,7 @@ if isstring(val)
 end
 if ~ischar(val)
     error('HORACE:spher_axes:invalid_argument',...
-        'Axes units should be a 4-symbol text describing spherical axes units.\n Attempt to set: %s', ...
+        'Axes units should be a 4-character char array describing spherical axes units.\n Attempt to set: %s', ...
         disp2str(val));
 end
 if numel(val)<3||numel(val)>4
@@ -22,8 +22,7 @@ end
 if numel(val) == 3
     val = [val,'e'];
 end
-i = 1:4;
-arrayfun(@(i)check_type(obj,val(i),i),i);
+arrayfun(@(i)check_type(obj,val(i),i),1:4);
 obj.axes_units_ = val;
 obj.do_check_combo_arg_ = false;
 obj.angular_unit_is_rad = val(2:3);
@@ -36,7 +35,7 @@ choice = obj.types_available_{i};
 is  = ismember(val,choice);
 if ~is
     error('HORACE:spher_axes:invalid_argument',...
-        'Symbol N%d of the axes units can be only %s. It is %s',...
+        'Symbol N%d of the axes units can be only %s. It is: %s',...
         i,disp2str(choice),val);
 end
 

@@ -386,7 +386,7 @@ classdef aProjectionBase < serializable
 
     %======================================================================
     % MAIN PROJECTION OPERATIONS
-    % BINING:
+    % BINNING:
     methods
         function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
                 targ_axes_block,targ_proj)

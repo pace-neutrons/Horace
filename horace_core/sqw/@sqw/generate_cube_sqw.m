@@ -22,11 +22,12 @@ function out = generate_cube_sqw(shape,varargin)
 % proj_instance
 % --   intialized instance of aProjectionBase class, which defines the
 %      image transformation, used by sqw object.
-% func_hanlde
+% func_handle
 % --  the handle to the function which calculates signal on sqw object.
 %     The function must obey the requests for the function used by sqw_eval
 %     and accept no external parameters. (all parameters are inside the
 %     function)
+%     If no handle is provided the signal will be initialised to `1`
 %
 % NOTE:
 % numeric shape used for TESTING CUT/SYMMETRISE
@@ -112,17 +113,19 @@ out.experiment_info.expdata = IX_experiment(expdata);
 ax0  = ortho_axes('img_range',img_range,'nbins_all_dims',ones(1,4));
 out.data = DnDBase.dnd(ax0,proj,npix,npix,npix);
 
-% Shape data to the requested form
-cut_range = sqw_axes.get_cut_range('-full_range');
-out = cut(out, proj, cut_range{:});
-
 % evaluate signal on the sqw object if this is requested
 if numel(argi) > 0  && isa(argi{1},'function_handle')
     out = sqw_eval(out,argi{1},[]);
     out_err = sqw_eval(out,@(h,k,l,e,p)ones(numel(h),1),[]);
     out.pix.variance = out_err.pix.signal;
-    out.data.e = out_err.data.e;
+    out.data.e = out_err.data.s;
 end
+
+
+% Shape data to the requested form
+cut_range = sqw_axes.get_cut_range('-full_range');
+out = cut(out, proj, cut_range{:});
+
 
 
 function [proj,alatt,angdeg,argi] = get_projection(alatt,angdeg,varargin)
