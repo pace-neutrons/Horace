@@ -23,8 +23,8 @@ function wout = rebin_sqw(win, varargin)
 % RAE 21/1/10
 
     if ~isa(win, 'sqw')
-        %what we should actually do here is go to the dnd-rebin of correct
-        %dimensionality
+        %% TODO what we should actually do here is go to the dnd-rebin of correct
+        % dimensionality
         error('HORACE:rebin_sqw:invalid_argument', ...
               'input object must be sqw type with detector pixel information');
     end
@@ -45,7 +45,7 @@ function wout = rebin_sqw(win, varargin)
 
         if ~isscalar(varargin) || ~isscalar(varargin{1})
             error('HORACE:rebin_sqw:invalid_argument', ...
-                  'If using template argument, only one should be supplied');
+                  'If using template argument, only one argument should be supplied');
         end
 
         w2 = varargin{1};
@@ -115,7 +115,8 @@ function wout = rebin_sqw(win, varargin)
 
     end
 
-    % Pad with empty bins
+    % Pad with same-bin specifier so if the variable "bins" under-sized
+    % it uses the original binning for unspecified bins
     bins = {bins{:} [] [] [] []};
 
     wout = cut(win, bins{1:ndims});

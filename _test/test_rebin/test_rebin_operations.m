@@ -118,7 +118,7 @@ classdef test_rebin_operations < TestCase
             assertEqualToTol(w2d_qq_sqw_reb_check,w2d_qq_sqw_reb,-obj.FLOAT_TOL,'ignore_str', 1);
         end
 
-        function obj = test_rebin_dnd_steps(obj)
+        function obj = test_rebin_dnd_lo_step_hi(obj)
             skipTest('DND rebinning disabled unil #798 is fixed')
             % dnd rebinning
             w2d_qe_sqw=sqw(fullfile(obj.data_dir,'w2d_qe_sqw.sqw'));
@@ -144,7 +144,7 @@ classdef test_rebin_operations < TestCase
             assertEqualToTol(fitdata1.p,fitdata2.p,-5e-3,'ignore_str', 1);
         end
 
-        function obj = test_rebin_d1d(obj)
+        function obj = test_rebin_d1d_step(obj)
             skipTest('Needs fit_sqw to be implemented.')
 
             % Special case of d1d rebin
