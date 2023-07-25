@@ -2,17 +2,17 @@ classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
 
     properties(Access=private)
-        % if no other instrument input is provided Exeriment instrument
+        % if no other instrument input is provided Experiment instrument
         % remain empty.
         instruments_ = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
         detector_arrays_ = []
         samples_ = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
-        samples_set_ = false; % Two prperties used to harmonize lattice
+        samples_set_ = false; % Two properties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set
         old_lattice_holder_ = [];
         % NOTE: Not yet implemented
-        % if both sample and expdata are set, all conain lattice and
+        % if both sample and expdata are set, all contain lattice and
         % lattices are different, expdata_ lattice takes priority
         expdata_ = [];
 
@@ -273,7 +273,7 @@ classdef Experiment < serializable
         end
         %
         function obj = set_sample(obj,val)
-            % compartibility with sqw interface
+            % compatibility with sqw interface
             obj.samples = val;
         end
     end

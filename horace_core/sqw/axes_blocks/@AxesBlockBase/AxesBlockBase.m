@@ -26,7 +26,7 @@ classdef AxesBlockBase < serializable
         title;
 
         % Name of sqw file that is being read, excluding path.
-        % Used in titles
+        %            Used in titles
         filename;
 
         % Path to sqw file that is being read, including terminating file separator.
@@ -46,25 +46,25 @@ classdef AxesBlockBase < serializable
         label;
 
         % Index of integration axes into the projection axes  [row vector]
-        % Always in increasing numerical order
-        %    e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+        %          Always in increasing numerical order
+        %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
         iax;
 
         % Integration range along each of the integration axes. [iint(2,length(iax))]
-        % e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
+        %     e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
         iint;
 
         % Index of plot axes into the projection axes  [row vector]
-        % Always in increasing numerical order
-        %   e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-        %   2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
+        %      Always in increasing numerical order
+        %      e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
+        %      2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
         pax;
 
         % Index into data.pax of the axes for display purposes. For example we may have
-        % data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-        % the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-        % the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-        % be reordered [row vector]
+        %      data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
+        %      the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
+        %      the display axes to be permuted but without the contents of the fields p, s,..pix needing to
+        %      be reordered [row vector]
         dax;
 
         %Cell array containing bin boundaries along the plot axes [column vectors]
@@ -72,14 +72,12 @@ classdef AxesBlockBase < serializable
         p;
 
         %------------------------------------------------------------------
-
-        %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        ulen;
-
         % The range (in axes coordinate system), the binning is made and the
         % axes block describes
         img_range;
-
+        %
+        img_scales   %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        %
         dimensions;  % Number of AxesBlockBase object dimensions
 
         % binning along each dimension of an object assuming tha
@@ -117,6 +115,10 @@ classdef AxesBlockBase < serializable
         % May be set up locally on an object but have defaults specific for
         % each axes block
         changes_aspect_ratio;
+
+        % shift between the origin of the axes block and the origin of
+        % hkl-dE coordinate system (in rlu-dE, hkl units, not rotated)
+        offset
     end
 
     properties(Access=protected)
@@ -125,7 +127,7 @@ classdef AxesBlockBase < serializable
         filepath_=''   % Path to sqw file that is being read, including terminating file separator.
         %               Used in titles
         label_  = {'Q_h','Q_k','Q_l','En'}; %Labels of the projection axes [1x4 cell array of character strings]
-        ulen_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        img_scales_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
         img_range_      = ... % 2x4 vector of min/max values in 4-dimensions
             PixelDataBase.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
 
@@ -140,12 +142,17 @@ classdef AxesBlockBase < serializable
         changes_aspect_ratio_=true;
         % maximal range the image can have
         max_img_range_ = [-inf,-inf,-inf,-inf;inf,inf,inf,inf];
+        %
+        offset_ = [0,0,0,0];
     end
     properties(Dependent,Hidden)
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
         % Old name for img_range left for compartibility with old user code
         img_db_range;
+
+        %Old interface to Length of projection axes vectors
+        ulen;   % in Ang^-1 or meV [row vector]
     end
 
     methods
@@ -278,17 +285,23 @@ classdef AxesBlockBase < serializable
         end
         %
         function ul = get.ulen(obj)
-            ul = obj.ulen_;
+            ul = obj.img_scales_;
         end
         function obj = set.ulen(obj,val)
+            obj.img_scales = val;
+        end
+        function ul = get.img_scales(obj)
+            ul = obj.img_scales_;
+        end
+        function obj = set.img_scales(obj,val)
             if isnumeric(val) && numel(val) == 3
                 val = [val(:)',1];
             end
             if ~(isnumeric(val) && numel(val) == 4)
                 error('HORACE:AxesBlockBase:invalid_argument',...
-                    'ulen should be vector, containing 4 elements')
+                    'img_scales should be vector, containing 4 elements')
             end
-            obj.ulen_ = val(:)';
+            obj.img_scales_ = val(:)';
         end
         %
         function da = get.dax(obj)
@@ -305,6 +318,13 @@ classdef AxesBlockBase < serializable
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
+        end
+        %
+        function off = get.offset(obj)
+            off = obj.offset_;
+        end
+        function obj = set.offset(obj,val)
+            obj = check_and_set_offset_(obj,val);
         end
         %
         function is = get.single_bin_defines_iax(obj)
@@ -405,7 +425,7 @@ classdef AxesBlockBase < serializable
             %            number of projection axes of the AxesBlockBase object
             if size(pts, 2) ~= numel(obj.p)
                 error('HORACE:AxesBlockBase:invalid_argument', ...
-                      'Cannot bin points with different dimensionality to the axes block.')
+                    'Cannot bin points with different dimensionality to the axes block.')
             end
 
             bin_idx = zeros(size(pts));
@@ -798,11 +818,17 @@ classdef AxesBlockBase < serializable
         % fields which fully represent the state of the class and allow to
         % recover it state by setting properties through public interface
         fields_to_save_ = {'title','filename','filepath',...
-            'label','ulen','img_range','nbins_all_dims','single_bin_defines_iax',...
-            'dax','changes_aspect_ratio'};
+            'label','img_scales','img_range','nbins_all_dims','single_bin_defines_iax',...
+            'dax','offset','changes_aspect_ratio'};
     end
 
     methods
+        function S = convert_old_struct (~, S, varargin)
+            % Convert old
+            if isfield(S,'ulen')
+                S.img_scale = S.ulen;
+            end
+        end
         %
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the

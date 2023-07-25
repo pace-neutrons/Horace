@@ -33,7 +33,7 @@ classdef test_rebin < TestCase
         function test_rebin1d0d_keep_contents(obj)
             d1d_obj = read_dnd(obj.test_sqw_1d_fullpath);
             d_base = d0d();
-            d_base.npix = 1;
+
             dsum = d_base.rebin(d1d_obj,'-keep_contents');
 
             assertEqual(dsum.npix,sum(d1d_obj.npix(:))+1);

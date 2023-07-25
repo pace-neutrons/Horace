@@ -12,7 +12,7 @@ classdef test_sigvar_set < TestCase
             sqw_obj = sqw();
             sqw_obj.data = d2d( ...
                 ortho_axes('nbins_all_dims',[1,3,5,1],'img_range',[-1,-1,-1,-1;1,1,1,1]), ...
-                ortho_proj());
+                ortho_proj('alatt',3,'angdeg',90));
 
             sqw_obj.data.s = zeros(3, 5);
             sqw_obj.data.e = zeros(3,5);
@@ -30,7 +30,7 @@ classdef test_sigvar_set < TestCase
             sqw_obj = sqw();
             sqw_obj.data = d2d( ...
                 ortho_axes('nbins_all_dims',[3,5,1,1],'img_range',[-1,-1,-1,-1;1,1,1,1]), ...
-                ortho_proj());
+                ortho_proj('alatt',3,'angdeg',90));
 
             sqw_obj.data.s = zeros(3,5);
             sqw_obj.data.e = zeros(3,5);
@@ -48,7 +48,7 @@ classdef test_sigvar_set < TestCase
             sqw_obj = sqw();
             sqw_obj.data = d2d( ...
                 ortho_axes('nbins_all_dims',[2,3,1,1],'img_range',[-1,-1,-1,-1;1,1,1,1]), ...
-                ortho_proj());
+                ortho_proj('alatt',3,'angdeg',90));
 
             sqw_obj.data.s = zeros(2,3);
             sqw_obj.data.e = zeros(2,3);
@@ -67,7 +67,7 @@ classdef test_sigvar_set < TestCase
             sqw_obj = sqw();
             sqw_obj.data = d1d( ...
                 ortho_axes('nbins_all_dims',[1,3,1,1],'img_range',[-1,-1,-1,-1;1,1,1,1]), ...
-                ortho_proj());
+                ortho_proj('alatt',3,'angdeg',90));
 
             sqw_obj.data.s = zeros(1,3);
             sqw_obj.data.e = zeros(1,3);
@@ -89,7 +89,7 @@ classdef test_sigvar_set < TestCase
             sqw_obj = sqw();
             sqw_obj.data = d1d( ...
                 ortho_axes('nbins_all_dims',[1,3,1,1],'img_range',[-1,-1,-1,-1;1,1,1,1]), ...
-                ortho_proj());
+                ortho_proj('alatt',3,'angdeg',90));
             sqw_obj.data.s = zeros(1,3);
             sqw_obj.data.e = zeros(1,3);
             sqw_obj.data.npix = [3, 0, 1];

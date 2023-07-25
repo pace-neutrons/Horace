@@ -209,7 +209,7 @@ dt=cell(nw,1);          % element size [npix,1]
 qw=cell(nw,1);          % element is cell array size [1,4], each element size [npix,1]
 dq_mat=cell(nw,1);      % element size [4,11,npix]
 
-% Get quantities and dervied quantities from the header
+% Get quantities and derived quantities from the header
 for iw=1:nw
     % Get pointer to a specific sqw pobject
     if iscell(win)

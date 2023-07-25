@@ -16,29 +16,6 @@ classdef test_ortho_axes < TestCase
 
         end
         %------------------------------------------------------------------
-        function test_set_nonorthogonal_cell_throws_separately(~)
-            range= zeros(2,4);
-            range(2,:) = 1;
-            oa = ortho_axes('img_range',range,'nbins_all_dims', ...
-                [1,20,20,1]);
-            function thrower(cl,prop,val)
-                cl.(prop) = val;
-            end
-
-            assertExceptionThrown(@()thrower(oa,'nonorthogonal',true), ...
-                'HORACE:ortho_axes:invalid_argument');
-        end
-        %
-        function test_unit_cell_set_get(~)
-            range= zeros(2,4);
-            range(2,:) = 1;
-            oa = ortho_axes('img_range',range,'nbins_all_dims', ...
-                [1,20,20,1],'nonorthogonal',true,'unit_cell',[eye(4)]);
-
-            assertEqual(oa.unit_cell,eye(4));
-            assertTrue(oa.nonorthogonal);
-        end
-        %------------------------------------------------------------------
         function test_correct_binning_and_indx_2D(~)
             dbr = [0,0.1,0,0.5;1,1.9,3,9.5];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
@@ -646,15 +623,15 @@ classdef test_ortho_axes < TestCase
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
-                % Define 2-dimensional grid.
+	        % Define 2-dimensional grid.
             ab = ortho_axes(bin0{:});
 
-            % create multiplier to produce 4-dimensional grid
-                        % with requested number of bins (10x10x10x10)
+            % create multiplier to produce 4-dimensional grid 
+			% with requested number of bins (10x10x10x10)
             char_size_des = (dbr(2,:)-dbr(1,:))/10;
             char_size_ex  = (ab.img_range(2,:)-ab.img_range(1,:))./ab.nbins_all_dims;
             mult = ceil(char_size_ex./char_size_des);
-                        % ensure multiplier is never smaller then 1
+			% ensure multiplier is never smaller then 1
             mult(mult<1) = 1;
             [nodes,en,nbins] = ab.get_bin_nodes('-bin_centre',mult);
             assertEqual(size(nodes,1),4);
@@ -700,9 +677,9 @@ classdef test_ortho_axes < TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = ortho_axes(bin0{:});
-                        % procedure to produce multiplier, which gives requested number of bins
-                        % does not used here but left for correct code execution in case of
-                        % the requested exception is not thrown
+			% procedure to produce multiplier, which gives requested number of bins
+			% does not used here but left for correct code execution in case of 
+			% the requested exception is not thrown 
             char_size_des = (dbr(2,:)-dbr(1,:))'/10;
             char_size_ex  = (dbr(2,:)-dbr(1,:))'./ab.nbins_all_dims;
             mult = ceil(char_size_ex./char_size_des);
@@ -813,7 +790,7 @@ classdef test_ortho_axes < TestCase
                 [dbr(1,3),0.3,dbr(2,3)],[dbr(1,4),dbr(2,4)]};
             ab = ortho_axes(bin0{:});
 
-            tob = DnDBase.dnd(ab,ortho_proj());
+            tob = DnDBase.dnd(ab,ortho_proj('alatt',2.7,'angdeg',90));
             range  = tob.targ_range([],'-binning');
 
             assertEqual(bin0,range);
@@ -1012,7 +989,7 @@ classdef test_ortho_axes < TestCase
 
             idx = ab.bin_points([5 -5 0 0]);
             assertEqual(idx, [6 6 2 2])
-        end
+    end
 
         function test_ortho_axes_bin_points_multiple(~)
             ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
@@ -1021,7 +998,7 @@ classdef test_ortho_axes < TestCase
                                  7 -3 1 1]);
             assertEqual(idx, [6 6 2 2; ...
                               8 8 3 3])
-        end
+end
 
         function test_ortho_axes_bin_points_outside(~)
             ab = ortho_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);

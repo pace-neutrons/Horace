@@ -218,6 +218,7 @@ classdef horace_binfile_interface < serializable
         %                                           nothing is stored. Always empty for dnd objects.
         [sqw_obj,varargout] = get_sqw(obj,varargin); % retrieve the whole sqw or dnd object from properly initialized sqw file
         [dnd_obj,varargout] = get_dnd(obj,varargin); % retrieve any sqw/dnd object as dnd object
+        [dnd_meta,obj] = get_dnd_metadata(obj,varargin) % retrieve dnd object metadata (all data stored in dnd object except data arrays)
 
         % -----------------------------------------------------------------
         % get [2x4] array of min/max ranges of the pixels contributing into
@@ -390,7 +391,7 @@ classdef horace_binfile_interface < serializable
             % See get_sqw function for the description of the options
             % available
             opts = parse_get_sqw_args_(varargin{:});
-        end        
+        end
     end
     %======================================================================
     methods(Static) % helper methods used for binary IO
