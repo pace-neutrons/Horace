@@ -1,5 +1,5 @@
-function [obj,al_info] = remove_legacy_alignment(obj,varargin)
-%REMOVE_LEGACY_ALIGNMENT:  modify crystal lattice and orientation matrix
+function [obj,al_info] = upgrade_legacy_alignment(obj,varargin)
+%UPGRADE_LEGACY_ALIGNMENT:  modify crystal lattice and orientation matrix
 % to remove legacy alignment applied to the crystal earlier.
 % Inputs:
 % obj    -- legacy aligned sqw object. Algorithm throws if the object has
@@ -21,9 +21,13 @@ function [obj,al_info] = remove_legacy_alignment(obj,varargin)
 % Perform operations
 % ------------------
 for i=1:numel(obj)
-    [data,al_info] = remove_legacy_alignment(obj(i).data,varargin{:});
+    [data,al_info,no_alignment_found,alatt0,angdeg0] = upgrade_legacy_alignment(obj(i).data,varargin{:});
+    if no_alignment_found
+        continue;
+    end
     obj(i).data = data;
     exper = obj(i).experiment_info;
-    exper = exper.remove_legacy_alignment(al_info);
+    exper = exper.upgrade_legacy_alignment(al_info,alatt0,angdeg0);
     obj(i).experiment_info = exper;
+    obj(i).pix.alignment_matr = al_info.rotmat;
 end

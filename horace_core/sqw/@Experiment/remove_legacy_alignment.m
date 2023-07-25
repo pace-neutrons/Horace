@@ -6,6 +6,9 @@ function obj=remove_legacy_alignment(obj,al_info)
 % Inputs:
 % obj    -- legacy realigned dnd object. Algorithm throws if the object has
 %           not been realigned using legacy algorithm.
+% al_info 
+%       -- instance of crystal_alignment_info class, containing information
+%          about the alignment
 % Optional
 % alatt   -- lattice parameters with new values for lattice. (presumably
 %            before alignment)

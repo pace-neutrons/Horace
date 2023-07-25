@@ -76,6 +76,9 @@ classdef (Abstract) SQWDnDBase < serializable
         % modify crystal lattice and orientation matrix to remove legacy
         % alignment.
         [wout,al_info] = remove_legacy_alignment(obj,varargin)
+        % remove legacy alignment and put modern alignment instead
+        [wout,al_info] = upgrade_legacy_alignment(obj,varargin)        
+        %------------------------------------------------------------------        
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
