@@ -33,10 +33,10 @@ try
     [obj,al_info,alatt0,angdeg0] = remove_legacy_alignment(obj,varargin{:});
 catch ME
     if strcmp(ME.identifier,'HORACE:DnDBase:invalid_argument') && ...
-        contains(ME.message,'Nothing to do')
+            contains(ME.message,'Nothing to do')
         no_alignment  = true;
         alatt0 = [];
-        angdeg0 = [];        
+        angdeg0 = [];
         return
     else
         rethrow(ME);

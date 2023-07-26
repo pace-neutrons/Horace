@@ -28,6 +28,8 @@ if any(numarg)
 end
 head_provided = cellfun(@(x)(isa(x,'Experiment')||isa(x,'sqw')||is_sqw_struct(x)), ...
     argi);
+% avoid side effects from subsequent calls
+keep_holder = obj.sqw_holder_;
 if any(head_provided)
     obj.sqw_holder_ = argi{head_provided};
     argi = argi(~head_provided);
@@ -38,3 +40,4 @@ if ~no_samp_inst
     obj = obj.put_block_data('bl_experiment_info_samples');
 end
 obj = obj.put_block_data('bl_experiment_info_expdata');
+obj.sqw_holder_ = keep_holder;

@@ -57,13 +57,13 @@ for i=1:numel(in_data)
         end
         ld = ld.set_file_to_update();
 
-        ld.put_dnd_metadata(data);        
+        ld = ld.put_dnd_metadata(data);
         if ld.sqw_type
             exp_info= ld.get_exp_info('-all');
             exp_info = exp_info.upgrade_legacy_alignment(al_info,alatt0,angdeg0);
 
-            ld.put_headers(exp_info,'-no_sampinst');
-            ld.put_samples(exp_info.samples);
+            ld= ld.put_headers(exp_info,'-no_sampinst');
+            ld= ld.put_samples(exp_info.samples);
             %
             pix_info = ld.get_pix_metadata();
             pix_info.alignment_matr = al_info.rotmat;

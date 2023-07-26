@@ -145,8 +145,9 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
                 [90.1793 90.9652 89.9250],[-0.0530 0.0519 0.0345]);
-            % get the crystal aligned according to legacy algorithm.
+            % apply new crystal alignment
             change_crystal (tf_ref_al,corrections);
+            % get the crystal aligned according to legacy algorithm.
             corrections.legacy_mode = true;
             change_crystal (tf_legacy_al,corrections);
 

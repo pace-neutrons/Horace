@@ -7,17 +7,17 @@ function S = to_bare_struct (obj, varargin)
 %
 % To recover the input object, use the method from_bare_struct.
 %
-% Uses independent properties obtained from method saveableFields on the 
+% Uses independent properties obtained from method saveableFields on the
 % assumption that the properties returned by this method fully define the public
 % interface describing the state of the object.
 %
-% The object is recursively explored to convert all properties which are 
+% The object is recursively explored to convert all properties which are
 % serializable objects into structures. Properties that are other objects remain
 % as objects. Note that this means that if those objects have properties that
 % are serializable, they will not be converted into structures.
 %
 % By default, properties that are serializable objects are recursively converted
-% using the public method to_struct, which adds fields that contain the class 
+% using the public method to_struct, which adds fields that contain the class
 % name and version. To recursively force bare structures use the (deceptively
 % ill-named option '-recursive_bare'. In that case, the public method
 % to_bare_struct is used recursively.
@@ -32,7 +32,7 @@ function S = to_bare_struct (obj, varargin)
 % Input:
 % ------
 %   obj             Object or array of objects which are serializable i.e.
-%                  which belong to a child class of serializable 
+%                  which belong to a child class of serializable
 %
 % Optional:
 %   recursive_bare  Logical true or false
@@ -41,8 +41,8 @@ function S = to_bare_struct (obj, varargin)
 %
 %                   Default if no option given: false
 %
-%                   If false, nested properties that are serializable objects 
-%                  are converted to structures using the public method 
+%                   If false, nested properties that are serializable objects
+%                  are converted to structures using the public method
 %                  to_struct. That is, they contain the information about the
 %                  class name and version.
 %                   If true, then they are converted to the bare structure using
