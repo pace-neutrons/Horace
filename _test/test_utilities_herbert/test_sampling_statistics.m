@@ -14,7 +14,7 @@ classdef test_sampling_statistics < TestCaseWithSave
             obj@TestCaseWithSave(name);
             
             % Mean and covariance for multivariate Gaussian
-            obj.mean_ref = [2,4,5]';
+            obj.mean_ref = [2;4;5];
             obj.cov_ref = [...
                 4,2,3;
                 2,7,5;

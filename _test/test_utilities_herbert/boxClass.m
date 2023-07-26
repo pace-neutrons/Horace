@@ -36,7 +36,7 @@ classdef boxClass
             if nargin==2
                 if numel(position)==3
                     position = position(:);
-                elseif ~(numel(size(position))==2 && size(position,1)==3 && size(position,2)>=1)
+                elseif ~ismatrix(position) || isempty(position) || size(position,1)~=3
                     error('HERBERT:boxClass:invalid_argument', ...
                         'Check size of ''position'' argument')
                 end
@@ -44,7 +44,7 @@ classdef boxClass
                 nbox = size(position,2);
                 if numel(sides)==3
                     sides = repmat(sides(:),[1,nbox]);
-                elseif ~(numel(size(sides))==2 && size(sides,1)==3 && size(position,2)==nbox)
+                elseif ~isequal(size(sides), [3, nbox])
                     error('HERBERT:boxClass:invalid_argument', ...
                         'Check size of ''sides'' argument matches that of ''position''')
                 end

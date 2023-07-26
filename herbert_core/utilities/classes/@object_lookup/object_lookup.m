@@ -355,16 +355,7 @@ classdef object_lookup
         
         %------------------------------------------------------------------
     end
-    
-    %======================================================================
-    methods(Static)
-        function varargout = test_gateway (func_name, varargin)
-            % Access functions in the /private folder for testing purposes
-            varargout = cell(1, nargout);
-            [varargout{:}] = test_gateway_to_private_folder (func_name, varargin{:});
-        end
-    end
-    
+
     
     %======================================================================
     % Methods for fast construction of structure with independent properties

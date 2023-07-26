@@ -231,7 +231,7 @@ classdef IX_detector_array < serializable
         % Generic properties across all detector banks:
         % ---------------------------------------------
         function obj = set.id (obj, val)
-            ndets = arrayfun (@(O)(O.ndet), obj.det_bank_);
+            ndets = obj.ndet_bank;
             % Input must be an array with ndet elements
             if ~isnumeric(val) || numel(val)~=sum(ndets)
                 error('HERBERT:IX_detector_array:invalid_argument',...
@@ -260,7 +260,7 @@ classdef IX_detector_array < serializable
         
         %---------------------------
         function obj = set.x2 (obj, val)
-            ndets = arrayfun (@(O)(O.ndet), obj.det_bank_);
+            ndets = obj.ndet_bank;
             % Input must be scalar or an array with ndet elements
             if ~isnumeric(val) || ~(numel(val)==sum(ndets) || isscalar(val))
                 error('HERBERT:IX_detector_array:invalid_argument',...
@@ -289,7 +289,7 @@ classdef IX_detector_array < serializable
         
         %---------------------------
         function obj = set.phi (obj, val)
-            ndets = arrayfun (@(O)(O.ndet), obj.det_bank_);
+            ndets = obj.ndet_bank;
             % Input must be scalar or an array with ndet elements
             if ~isnumeric(val) || ~(numel(val)==sum(ndets) || isscalar(val))
                 error('HERBERT:IX_detector_array:invalid_argument',...
@@ -318,7 +318,7 @@ classdef IX_detector_array < serializable
         
         %---------------------------
         function obj = set.azim (obj, val)
-            ndets = arrayfun (@(O)(O.ndet), obj.det_bank_);
+            ndets = obj.ndet_bank;
             % Input must be scalar or an array with ndet elements
             if ~isnumeric(val) || ~(numel(val)==sum(ndets) || isscalar(val))
                 error('HERBERT:IX_detector_array:invalid_argument',...
@@ -347,7 +347,7 @@ classdef IX_detector_array < serializable
         
         %---------------------------
         function obj = set.dmat (obj, val)
-            ndets = arrayfun (@(O)(O.ndet), obj.det_bank_);
+            ndets = obj.ndet_bank;
             % Input must have size [3,3,ndet] or [3,3] (==[3,3,1])
             if ~isnumeric(val) || numel(size(val))>3 || ...
                     (size(val,1)~=3 || size(val,2)~=3) || all(size(val,3)~=[1,sum(ndets)])
@@ -383,14 +383,14 @@ classdef IX_detector_array < serializable
         
         %---------------------------
         function obj = set.rotvec (obj, val)
-            ndets = arrayfun (@(O)(O.ndet), obj.det_bank_);
+            ndets = obj.ndet_bank;
             % Input must have size [3,ndet], [3,1] or [1,3]
-            if ~isnumeric(val) || ~numel(size(val))==2 || ...
-                    ~(numel(val)==3 || (size(val,1)==3 && size(val,2)==sum(ndets)))
+            if ~isnumeric(val) || ~((isvector(val) && numel(val)==3) || ...
+                    isequal(size(val), [3,sum(ndets)]))
                 if sum(ndets)>1
                     error('HERBERT:IX_detector_array:invalid_argument',...
                         ['Detector orientation rotation vectors must be a numeric ',...
-                        'array with size [3,', num2str(sum(ndets)), ']'])
+                        'array with size [3,%d]'], sum(ndets))
                 else
                     error('HERBERT:IX_detector_array:invalid_argument',...
                         ['Detector orientation rotation vector must be a numeric ',...
