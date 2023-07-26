@@ -9,8 +9,8 @@ function [sample_properties,dependent_properties,const_prop ]=dnd_object_sample_
 sample_properties  = containers.Map({'filename','filepath','title','alatt'},...
     {'aaa','bbb','title',[1,2,3]});
 sample_properties('angdeg') = [90,89,90];
-sample_properties('offset')=[1,0,0,0];
-sample_properties('img_offset') = [0,1,0,0];
+%sample_properties('offset')=[1,0,0,0];
+%sample_properties('img_offset') = [0,1,0,0];
 sample_properties('label') = {'aaa','bbbb','cccc','e'};
 if isempty(box_size)
     val =0;
@@ -27,4 +27,6 @@ sample_properties('proj') = ortho_proj('alatt',4,'angdeg',90);
 sample_properties('dax') = 1:numel(box_size);
 
 dependent_properties = {'iint','iax','p','pax','img_range','nbins'};
-const_prop = {'border_size','creation_date'}; % creation date is not constant but we do not care here
+const_prop = {'border_size','creation_date','offset','img_offset'};
+% all except border_size are not constant but we do not care here. You can
+% not set them up from dnd object
