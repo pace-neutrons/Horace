@@ -70,7 +70,7 @@ else
     vals_av=reshape(vals_av,size(npix));
     vals_av(nopix)=0;
     if stddev_request
-        vals_devsqr=(vals(:)-replicate_array(vals_av, npix)).^2;    % square of deviations
+        vals_devsqr=(vals(:)-replicate_array(vals_av,npix)).^2;    % square of deviations
         vals_var=accumarray(ind,vals_devsqr,[nbin,1])./(npix(:).^2);
         vals_var=reshape(vals_var,size(npix));
         vals_var(nopix)=0;

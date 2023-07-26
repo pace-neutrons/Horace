@@ -63,7 +63,8 @@ w = w1;
 for i=1:numel(w1)
     if has_pixels(w1(i))
         w(i) = w(i).get_new_handle();
-        [w(i).pix, w(i).data] = w(i).pix.do_unary_op(unary_op, w(i).data);
+        w(i).pix = w(i).pix.do_unary_op(unary_op);
+        w(i) = recompute_bin_data(w(i));
     else
         result = unary_op(sigvar(w1(i)));
         w(i) = sigvar_set(w(i),result);
