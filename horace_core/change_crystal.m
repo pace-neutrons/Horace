@@ -58,15 +58,14 @@ for i=1:numel(in_data)
         if ld.sqw_type
             exp_info= ld.get_exp_info('-all');
             exp_info = change_crystal(exp_info,alignment_info);
+            ld.put_headers(exp_info,'-no_sampinst');
+            ld.put_samples(exp_info.samples);
             %
-            if alignment_info.legacy_mode
-                ld = ld.put_headers(exp_info);
-            else
+            if ~alignment_info.legacy_mode
                 pix_info = ld.get_pix_metadata();
                 pix_info.alignment_matr = alignment_info.rotmat;
                 ld = ld.put_pix_metadata(pix_info);
             end
-            ld = ld.put_samples(exp_info.samples);
         end
         data= data.change_crystal(alignment_info);
         ld = ld.put_dnd_metadata(data);

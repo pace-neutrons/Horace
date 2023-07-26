@@ -236,7 +236,7 @@ function [npix, s, e, pix_out, unique_runid] = cut_filebacked_w_pixels(pix, bloc
 
     end  % loop over pixel blocks
 
-    pix_retained = pix_retained.finalise(npix_tot_retained);
+    pix_retained = pix_retained.finish_dump(npix_tot_retained);
     pix_out = sort_pix(pix_retained, pix_ix_retained, npix);
 
 end

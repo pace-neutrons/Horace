@@ -170,11 +170,13 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(pix_al,pix_leg);
 
             proj_leg = wout_legacy.data.proj;
-            leg_cut_range = wout_legacy.targ_range(proj_leg);
-
-            proj_al = wout_align.data.proj;
-            al_cut_range = wout_align.targ_range(proj_al);
-            assertElementsAlmostEqual(leg_cut_range,al_cut_range);
+            % Re #1141 legacy alignment does not process image ranges
+            % correctly. This test should not hold. But it may be good test
+            % for proper data recovery from legacy alignment.
+            %leg_cut_range = wout_legacy.targ_range(proj_leg);
+            %proj_al = wout_align.data.proj;
+            %al_cut_range = wout_align.targ_range(proj_al);
+            %assertElementsAlmostEqual(leg_cut_range,al_cut_range);
 
             % This is not correct and should not. One projection contains
             % alignment matrix attached to B-matrix and another one does not

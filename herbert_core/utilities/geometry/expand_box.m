@@ -1,4 +1,4 @@
-function nodes = expand_box(min_value,max_value)
+function [nodes,perm] = expand_box(min_value,max_value)
 % Build array of nodes of 2D, 3D or 4D box based on its minimal and maximal 
 % points. The node is the column vector with n-rows (N-dimensions)
 %
@@ -7,6 +7,8 @@ function nodes = expand_box(min_value,max_value)
 % max_point -- the vector of maximal coordinates values
 % Output:
 % nodes     -- 2x4, 3x8 or 4x16 nodes of the box, defined by min/max values
+% perm      -- nnodes x nDimensions array of permutations, used to produce
+%              nodes where nnodes is the number of nodes 
 %
 if size(min_value,2)>1
     min_value = min_value';
@@ -49,3 +51,6 @@ end
 sp = cellfun(shape_fun,perm, 'UniformOutput',false);
 
 nodes = [sp{:}];
+if nargout>1
+    perm = reshape([perm{:}],ndims,size(nodes,2));
+end

@@ -304,7 +304,7 @@ classdef test_cut_parameters < TestCase
             assertEqual(numel(pbin),4)
             assertElementsAlmostEqual(pbin{1},[-0.05,0.1,1.05])
             assertEqual(pbin{2},[-1,0])
-            assertElementsAlmostEqual(pbin{3},[-0.105,0.01,0.115])
+            assertElementsAlmostEqual(pbin{3},[-0.105,0.01,0.105])
             assertEqual(pbin{4},[0,10])
 
             assertTrue(isa(proj,'ortho_proj'));

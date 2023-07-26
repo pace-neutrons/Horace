@@ -11,9 +11,7 @@ if obj.num_pixels ~= pixel_data.num_pixels
         pixel_data.num_pixels, obj.num_pixels);
 end
 
-if isempty(obj.file_handle_)
-    obj = obj.get_new_handle();
-end
+obj = obj.prepare_dump();
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 
@@ -72,6 +70,6 @@ else
 
     end
 end
-obj = obj.finalise();
+obj = obj.finish_dump();
 
 end  % function

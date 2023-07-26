@@ -132,8 +132,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         end
         wout=rebin_sqw(win,varargin);
         wout=symmetrise_sqw(win,v1,v2,v3);
-        [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
-        wtot=combine_cuts(w);
         wout=recompute_bin_data(sqw_obj);
 
         % return the header, common for all runs (average?)
@@ -195,7 +193,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 data_plot_titles(obj)
             % get titles used to display sqw object
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
-                data_plot_titles(obj.data);
+                obj.data.data_plot_titles();
         end
         %------------------------------------------------------------------
         % construct dataset from appropriately sized dnd part of an object
@@ -652,6 +650,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     methods(Static, Hidden)
-        out = generate_cube_sqw(shape)
+        % Generate special sqw object with given properties. Used in tests.
+        out = generate_cube_sqw(shape,varargin)
     end
 end

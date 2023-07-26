@@ -14,8 +14,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         alatt % Lattice parameters for data field (Ang^-1)
         angdeg % Lattice angles for data field (degrees)
 
-        offset % Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-        %ulen % Length of projection axes vectors in Ang^-1 or meV [row vector]
+        offset % Offset of origin of the image in hkl and energy ie. [h; k; l; en]
+        img_offset  % Offset of origin of the image in projection axes units
+        %
         label  % Labels of the projection axes [1x4 cell array of character strings]
         iax % Index of integration axes into the projection axes  [row vector]
         %     Always in increasing numerical order, data.iax=[1,3] means summation has been performed along u1 and u3 axes
@@ -36,7 +37,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         npix % Number of contributing pixels to each bin of the plot axes
 
         axes % access to the axes block class directly
-        proj % access to projection class directly
+        proj % access to projection class directly. Changes in projection
+        % causes changes in the dependent axes parameters, so if these axes
+        % parameters need to be changed on axes, the change to the
+        % projection need to be performed first.
+
         % The date when the object has been stored on hdd first time
         % if it have not been ever stored, returns current date
         creation_date;
@@ -48,9 +53,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         u_to_rlu % Matrix (4x4) of projection axes in hkle representation
         %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         ulen;
-        u_to_rlu_legacy % old legacy u_to_rlu produced by Toby's code. 
-		% used in tests and loading old format files
-        % 
+        u_to_rlu_legacy % old legacy u_to_rlu produced by Toby's code.
+        % used in tests and loading old format files
+        %
         creation_date_defined; % True, if creation date is known and written with file
         %------------------------------------------------------------------
         % Two properties, responsible for storing/restoring dnd information
@@ -64,13 +69,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %------------------------------------------------------------------
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
+        uoffset % old interface to img_offset
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == ortho_axes.dims_as_ssize)
         e_    %cumulative variance size(data.e) == ortho_axes.dims_as_ssize
         npix_ %No. contributing pixels to each bin of the plot axes. size(data.npix) == ortho_axes.dims_as_ssize
         axes_ = ortho_axes(); % axes block describing size and shape of the dnd object.
-        proj_ = ortho_proj(); % Object defining the transformation, used to convert data from
+        proj_ = ortho_proj('alatt',2*pi,'angdeg',90); % Object defining the transformation, used to convert data from
         %                      crystal Cartesian coordinate system to this
         %                      image coordinate system.
         % The date when the object has been stored on hdd first time
@@ -211,7 +217,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %
             % note: axes annotations correctly account for permutation in w.data_.dax
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = ...
-                obj.axes.data_plot_titles(obj);
+                obj.axes.data_plot_titles();
         end
 
         % calculate the range of the image to be produced by target
@@ -257,8 +263,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         function val = get.u_to_rlu_legacy(obj)
             val = obj.proj.u_to_rlu_legacy;
         end
-        
-        %  
+
+        %
         function val = get.ulen(obj)
             val = obj.axes.ulen;
         end
@@ -297,6 +303,19 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function obj = set.dax(obj, dax)
             obj.axes_.dax = dax;
+        end
+        %
+        function val = get.img_offset(obj)
+            val = obj.proj.img_offset;
+        end
+        function val = get.uoffset(obj)
+            val = obj.proj.img_offset;
+        end
+        function obj = set.img_offset(obj,val)
+            obj.proj.img_offset =val;
+        end
+        function obj = set.uoffset(obj,val)
+            obj.proj.img_offset =val;
         end
     end
     %======================================================================
@@ -395,6 +414,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             pr = obj.proj_;
         end
         function obj = set.proj(obj,val)
+            % Set up new projection.
+            %
+            % Changes in projection cause changes in projection-dependent
+            % axes parameters, calculated on check_combo_arg stage.
+            %
             if ~isa(val,'aProjectionBase')
                 error('HORACE:DnDBase:invalid_argument',...
                     'input for proj property has to be an instance of aProjectionBase class only. It is %s',...
@@ -402,13 +426,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             end
             % keep the state of the check_combo_arg synchronized with whole
             % class check_cobo_arg state
-            check_combo_ = obj.proj_.do_check_combo_arg;
             obj.proj_ = val;
-            obj.axes_.label = val.label;
-            if ~isempty(val.title)
-                obj.axes_.title = val.title;
+            if obj.do_check_combo_arg
+                obj = obj.check_combo_arg();
             end
-            obj.proj_.do_check_combo_arg = check_combo_;
         end
         function range = get.img_range(obj)
             range = obj.axes_.img_range;
@@ -577,12 +598,21 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             end
         end
         %
-        function obj = check_combo_arg(obj)
+        function obj = check_combo_arg(obj,varargin)
             % verify interdependent variables and the validity of the
             % obtained dnd object. Return the result of the check and the
             % reason for failure.
+            % In addition Copy appropriate axes settings from projection
+            % class to axes class
+            % Inputs:
+            % obj    -- initalized instance of dnd base class
+            % Optional:
+            % 'no_proj_copy'
+            %        -- if this parameter is present (any additional parameter
+            %           is present), copying parameters from projection to
+            %           axes does not occur.
             %
-            obj = check_combo_arg_(obj);
+            obj = check_combo_arg_(obj,varargin{:});
         end
     end
     %----------------------------------------------------------------------

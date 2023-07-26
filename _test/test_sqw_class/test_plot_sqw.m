@@ -33,18 +33,34 @@ classdef test_plot_sqw < TestCase
                 tstd.d1d_mthods_oveplot(:);...
                 tstd.d2d_methods(:);tstd.d3d_methods(:)];
             errors_list = {'HORACE:DnDBase:not_implemented',...
-                'HERBERT:graphics:invalid_argument','HORACE:d4d:invalid_argument'};
+                'HORACE:d4d:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(26) = 2;
-            err_ind(28) = 3;
-            err_ind(29) = 3;
-            
+            err_ind(28) = 2;
+            err_ind(29) = 2;
+
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
+            overplot_names = cellfun(@func2str,tstd.d2d_methods,'UniformOutput',false);
             for i=1:numel(other_methods)
+                curr_meth_name = func2str(other_methods{i});
+                is_overplot = ismember(curr_meth_name,overplot_names);
+
+                if is_overplot
+                    plot(obj.sqw_obj{2})
+                    fh = gcf;
+                else
+                    fh = [];
+                end
                 assertExceptionThrown(@()thrower(sqw4d_obj,other_methods{i}), ...
                     errors_list{err_ind(i)});
+
+                if ~isempty(fh)
+                    close(fh);
+                end
+
+
+
             end
         end
 
@@ -56,17 +72,31 @@ classdef test_plot_sqw < TestCase
                 [tstd.d1d_methods(:);...
                 tstd.d1d_mthods_oveplot(:);...
                 tstd.d2d_methods(:)];
-            errors_list = {'HORACE:DnDBase:not_implemented',...
-                'HERBERT:graphics:invalid_argument'};
+            errors_list = {'HORACE:DnDBase:not_implemented'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(26) = 2;
-            
+
+
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
+            overplot_names = cellfun(@func2str,tstd.d2d_methods,'UniformOutput',false);
             for i=1:numel(other_methods)
+                curr_meth_name = func2str(other_methods{i});
+                is_overplot = ismember(curr_meth_name,overplot_names);
+                if is_overplot
+                    plot(obj.sqw_obj{2})
+                    fh = gcf;
+                else
+                    fh = [];
+                end
+
                 assertExceptionThrown(@()thrower(sqw3d_obj,other_methods{i}), ...
-                     errors_list{err_ind(i)});
+                    errors_list{err_ind(i)});
+
+                if ~isempty(fh)
+                    close(fh);
+                end
+
             end
         end
         function test_sqw3d_plot3D_methods_work_on_array(obj)
@@ -123,7 +153,7 @@ classdef test_plot_sqw < TestCase
             err_ind = ones(numel(other_methods),1);
             err_ind(19) = 2;
             err_ind(20) = 2;
-            
+
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
@@ -186,19 +216,33 @@ classdef test_plot_sqw < TestCase
             tstd = obj.interface_tester;
             other_methods = [tstd.d2d_methods(:);tstd.d3d_methods(:)];
             errors_list = {'HORACE:DnDBase:not_implemented',...
-                'HERBERT:graphics:invalid_argument','HORACE:d1d:invalid_argument'};
+                'HORACE:d1d:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(8) = 2;
-            err_ind(10) = 3;
-            err_ind(11) = 3;
-            
+            err_ind(10) = 2;
+            err_ind(11) = 2;
+
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
+            overplot_names = cellfun(@func2str,tstd.d2d_methods,'UniformOutput',false);
             for i=1:numel(other_methods)
+                curr_meth_name = func2str(other_methods{i});
+                is_overplot = ismember(curr_meth_name,overplot_names);
+
+                if is_overplot
+                    plot(obj.sqw_obj{2})
+                    fh = gcf;
+                else
+                    fh = [];
+                end
+
                 assertExceptionThrown(@()thrower(sqw1d_obj,other_methods{i}), ...
-                   errors_list{err_ind(i)} ...
-                    );
+                    errors_list{err_ind(i)} );
+
+                if ~isempty(fh)
+                    close(fh);
+                end
+
             end
 
         end

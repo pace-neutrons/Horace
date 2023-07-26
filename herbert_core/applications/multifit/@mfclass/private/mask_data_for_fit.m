@@ -25,13 +25,11 @@ function [wmask,msk_out] = mask_data_for_fit (w,msk_in)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
     sz = size(w);
     wmask = w;
     msk_out = cell(size(w));
-
     for i = 1:numel(w)
         % Accumulate bad points (y = NaN, zero error bars etc.) to the mask array
         if isstruct(w{i})    % xye triple
@@ -42,7 +40,9 @@ function [wmask,msk_out] = mask_data_for_fit (w,msk_in)
         end
         if ~isempty(mess_tmp)
             mess = [data_id_mess(sz,i),mess_tmp];
-            mess = [mess{:}];
+            if iscell(mess)
+                mess = [mess{:}];
+            end
             warning('HERBERT:mask_data_for_fit:bad_points', mess);
         end
 

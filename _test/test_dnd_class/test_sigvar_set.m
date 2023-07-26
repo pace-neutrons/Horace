@@ -11,7 +11,7 @@ classdef test_sigvar_set < TestCase
         function test_sigvar_set_raises_error_if_e_not_same_size_as_dnd_object(~)
             ab = ortho_axes([0,0.5,1],[0,1],[0,0.5,1],[0,1], ...
                 'single_bin_defines_iax',[false,true,true,true]);
-            pr = ortho_proj();
+            pr = ortho_proj('alatt',3,'angdeg',90);
             d2d_obj = d2d(ab,pr);
             d2d_obj.npix = ones(d2d_obj.axes.dims_as_ssize);
 
@@ -27,7 +27,7 @@ classdef test_sigvar_set < TestCase
         function test_sigvar_set_s_and_e_nopix_gives_zero(~)
             ab = ortho_axes([0,0.5,1],[0,1],[0,0.5,1],[0,1], ...
                 'single_bin_defines_iax',[false,true,true,true]);
-            pr = ortho_proj();
+            pr = ortho_proj('alatt',3,'angdeg',90);
             d2d_obj = d2d(ab,pr);
             d2d_obj.npix = zeros(2,3);
 
@@ -46,7 +46,7 @@ classdef test_sigvar_set < TestCase
         function test_sigvar_set_updates_s_and_e_values(~)
             ab = ortho_axes([0,0.5,1],[0,1],[0,0.5,1],[0,1], ...
                 'single_bin_defines_iax',[false,true,true,true]);
-            pr = ortho_proj();
+            pr = ortho_proj('alatt',3,'angdeg',90);
             d2d_obj = d2d(ab,pr);
             d2d_obj.npix = ones(d2d_obj.axes.dims_as_ssize);            
 
@@ -61,7 +61,7 @@ classdef test_sigvar_set < TestCase
 
         function test_sigvar_set_zero_s_and_e_where_npix_zero(~)
             ab = ortho_axes([0,0.5,1],[0,1],[0,1],[0,1]);
-            pr = ortho_proj();
+            pr = ortho_proj('alatt',3,'angdeg',90);
             d1d_obj = d1d(ab,pr);
             d1d_obj.s = ones(1,3);
             d1d_obj.e = ones(1,3);

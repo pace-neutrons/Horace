@@ -9,9 +9,7 @@ function pix_out = do_unary_op(obj, unary_op)
 
 pix_out = obj;
 
-if isempty(pix_out.file_handle_)
-    pix_out = pix_out.get_new_handle();
-end
+pix_out = pix_out.prepare_dump();
 s_ind = obj.check_pixel_fields('signal');
 v_ind = obj.check_pixel_fields('variance');
 
@@ -33,7 +31,7 @@ for i = 1:n_pages
     pix_out.format_dump_data(data);
 end
 
-pix_out = pix_out.finalise();
+pix_out = pix_out.finish_dump();
 
 
 end
