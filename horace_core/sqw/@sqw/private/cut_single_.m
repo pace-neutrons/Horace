@@ -24,7 +24,8 @@ function [wout,log_info] = cut_single_(w, targ_proj, targ_axes, opt, log_level)
 
 % Rework of legacy function cut_sqw_main_single
 return_cut = nargout > 0;
-outfile_specified = exist('outfile', 'var') && ~isempty(outfile);
+
+outfile_specified = isfield(opt, 'outfile') && ~isempty(opt.outfile);
 
 % Accumulate image and pixel data for cut
 [s, e, npix, pix_out,runid_contributed] = cut_accumulate_data_( ...

@@ -106,19 +106,19 @@ classdef test_symm < TestCase
         end
 
         function obj = test_sym_sqw_fb(obj)
-            w3d_sqw = sqw(fullfile(obj.testdir,'w3d_sqw.sqw'), 'file_backed', false);
+            w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'), 'file_backed', false);
 
             sym = [SymopReflection([0,0,1],[-1,1,0]), ...
                    SymopReflection([1,1,0],[0,0,1]), ...
                    SymopReflection([0,0,1],[-1,1,0])];
 
-            w3d_sym_mb = symmetrise_sqw(w3d_sqw, sym);
+            w2d_sym_mb = symmetrise_sqw(w2d_sqw, sym);
 
             clob = set_temporary_config_options(hor_config, 'mem_chunk_size', 100000);
-            w3d_sqw.pix = PixelDataFileBacked(w3d_sqw.pix);
+            w2d_sqw.pix = PixelDataFileBacked(w2d_sqw.pix);
+            w2d_sym_fb = symmetrise_sqw(w2d_sqw, sym);
 
-            w3d_sym_fb = symmetrise_sqw(w3d_sqw, sym);
-            assertEqualToTol(w3d_sym_mb, w3d_sym_fb, 1e-3, 'ignore_str', true, '-ignore_date');
+            assertEqualToTol(w2d_sym_mb, w2d_sym_fb, 1e-3, 'ignore_str', true, '-ignore_date');
 
         end
 
