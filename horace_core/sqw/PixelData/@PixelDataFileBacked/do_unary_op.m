@@ -1,4 +1,4 @@
-function pix_out = do_unary_op(obj, unary_op)
+function [pix_out, data] = do_unary_op(obj, unary_op, data)
 % Perform a unary operation on this object's signal and variance arrays
 %
 % Input:
@@ -6,22 +6,22 @@ function pix_out = do_unary_op(obj, unary_op)
 % unary_op   Function handle pointing to the operation to perform. This
 %            operation should take a sigvar object as an argument.
 %
+% data       dnd object containing npix information
 
 pix_out = obj;
 
 pix_out = pix_out.prepare_dump();
-s_ind = obj.check_pixel_fields('signal');
-v_ind = obj.check_pixel_fields('variance');
 
-n_pages = obj.num_pages;
-obj.data_range = PixelDataBase.EMPTY_RANGE;
+if exist('data', 'var')
+    [pix_out, data] = unary_op_dnd(pix_out, unary_op, data);
+else
+    pix_out = unary_op_no_dnd(pix_out, unary_op);
+    data = [];
+end
 
-for i = 1:n_pages
-    obj.page_num = i;
-    data = obj.data;
+end
 
-    pix_sigvar = sigvar(data(s_ind,:), data(v_ind,:));
-    pg_result  = unary_op(pix_sigvar);
+function [pix_out, data] = unary_op_dnd(pix_out, unary_op, data)
 
     pix_out = pix_out.prepare_dump();
 
@@ -78,10 +78,9 @@ function pix_out = unary_op_no_dnd(pix_out, unary_op)
         pix_out.data_range = ...
             pix_out.pix_minmax_ranges(data, pix_out.data_range);
 
-    pix_out.format_dump_data(data);
-end
+        pix_out.format_dump_data(data);
+    end
 
-pix_out = pix_out.finish_dump();
-
+    pix_out = pix_out.finish_dump();
 
 end

@@ -388,6 +388,7 @@ classdef (Abstract) PixelDataBase < serializable
 
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
+        [obj, data] = apply(obj, func_handle, args, data)
 
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);

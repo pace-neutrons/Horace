@@ -37,7 +37,7 @@ function [obj, data] = apply(obj, func_handle, args, data)
         args = repmat(args, numel(func_handle), 1);
     elseif numel(args) ~= numel(func_handle)
         error('HORACE:apply:invalid_argument', ...
-              'Number of arguments does not match function handle')
+              'Number of arguments does not match number of function handles')
     end
 
     for i = 1:numel(func_handle)
