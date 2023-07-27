@@ -30,8 +30,7 @@ for i=1:numel(w)
         % Delegate to PixelData to noisify that object on a page-by-page
         % basis using the Herbert noisify.
         wout(i) = wout(i).get_new_handle();
-        wout(i).pix = w(i).pix.noisify(varargin{:});
-        wout(i) = recompute_bin_data(wout(i));
+        [wout(i).pix, wout(i).data] = w(i).pix.noisify(w(i).data, varargin{:});
     else
         % Noisify the dnd data directly with the Herbert noisify.
         [wout(i).data.s,wout(i).data.e]=noisify(w(i).data.s,w(i).data.e,varargin{:});

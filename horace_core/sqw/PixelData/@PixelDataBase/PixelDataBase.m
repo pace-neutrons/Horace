@@ -390,7 +390,6 @@ classdef (Abstract) PixelDataBase < serializable
 
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
-        [obj, data] = apply(obj, func_handle, args, data)
 
         obj = recalc_data_range(obj);
         [obj,varargout] = reset_changed_coord_range(obj,range_type);
@@ -422,6 +421,7 @@ classdef (Abstract) PixelDataBase < serializable
         obj = set_page_num(obj,val);
         np = get_num_pages(obj);
     end
+
     %======================================================================
     % the same interface on FB and MB files
     methods
@@ -433,6 +433,7 @@ classdef (Abstract) PixelDataBase < serializable
             recalculate_pix_ranges,keep_precision);
 
         obj = set_fields(obj, data, fields, abs_pix_indices);
+        [pix_out, data] = noisify(obj, varargin);
 
         [pix_idx_start, pix_idx_end] = get_page_idx_(obj, varargin)
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
