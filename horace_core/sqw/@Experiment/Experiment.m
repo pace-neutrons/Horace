@@ -204,9 +204,9 @@ classdef Experiment < serializable
         obj=change_crystal(obj,alignment_info,varargin)
         % modify crystal lattice and orientation matrix to remove legacy
         % alignment.
-        obj = remove_legacy_alignment(obj,al_info)
+        obj = remove_legacy_alignment(obj,deal_info)
         % remove legacy alignment and put modern alignment instead
-        wout = upgrade_legacy_alignment(obj,al_info,varargin)
+        wout = upgrade_legacy_alignment(obj,deal_info,varargin)
         %------------------------------------------------------------------
         % add or reset instrument, related to the given experiment object
         % array of instruments, or function, which defines the instrument

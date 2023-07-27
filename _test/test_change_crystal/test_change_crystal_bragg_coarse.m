@@ -131,7 +131,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
         end
         %
-        function test_upgrade_legacy_on_file(obj)
+        function test_upgrade_legacy_alignment_on_file(obj)
             % testing the possibility to realign the crystal, aligned by
             % legacy algorithm when object stored in sqw file.
             test_path = fileparts(obj.misaligned_sqw_file);
@@ -161,7 +161,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
         end
 
 
-        function test_upgrade_legacy(obj)
+        function test_upgrade_legacy_alignment(obj)
             % testing the possibility to realign the crystal, aligned by
             % legacy algorithm.
             test_obj = read_sqw(obj.misaligned_sqw_file);
@@ -177,12 +177,12 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % get the crystal aligned according to legacy algorithm.
             wout_legacy = change_crystal (wout_legacy,corrections);
 
-            [obj_realigned,al_info] = upgrade_legacy_alignment(wout_legacy, ...
+            [obj_realigned,deal_info] = upgrade_legacy_alignment(wout_legacy, ...
                 alatt0,angdeg0);
 
             wout_modern = change_crystal (test_obj,corrections);
 
-            assertEqualToTol(al_info,corrections,'tol',1.e-9)
+            assertEqualToTol(deal_info.rotvec,-corrections.rotvec,'tol',1.e-9)
             assertEqual(wout_modern,obj_realigned);
         end
 
@@ -201,13 +201,13 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % get the crystal aligned according to legacy algorithm.
             wout_legacy = change_crystal (wout_legacy,corrections);
 
-            [obj_recovered,al_info] = remove_legacy_alignment(wout_legacy);
+            [obj_recovered,deal_info] = remove_legacy_alignment(wout_legacy);
 
             lat_corrections = crystal_alignment_info([5.0191 4.9903 5.0121], ...
                 [90.1793 90.9652 89.9250],[0 0 0]);
             wout_lat = change_crystal (test_obj,lat_corrections);
 
-            assertElementsAlmostEqual(al_info.rotvec,corrections.rotvec);
+            assertElementsAlmostEqual(deal_info.rotvec,-corrections.rotvec);
             % change legacy without lattice does not properly recover
             % alignment
             obj_recovered.experiment_info = wout_lat.experiment_info;
@@ -216,7 +216,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
         end
 
 
-        function test_remove_legacy(obj)
+        function test_remove_legacy_alignment(obj)
             % testing the possibility to dealign the crystal, aligned by
             % legacy algorithm.
             test_obj = read_sqw(obj.misaligned_sqw_file);
@@ -232,10 +232,10 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             % get the crystal aligned according to legacy algorithm.
             wout_legacy = change_crystal (wout_legacy,corrections);
 
-            [obj_recovered,al_info] = remove_legacy_alignment(wout_legacy, ...
+            [obj_recovered,deal_info] = remove_legacy_alignment(wout_legacy, ...
                 alatt0,angdeg0);
 
-            assertElementsAlmostEqual(al_info.rotvec,corrections.rotvec);
+            assertElementsAlmostEqual(deal_info.rotvec,-corrections.rotvec);
             assertEqual(test_obj,obj_recovered);
         end
 

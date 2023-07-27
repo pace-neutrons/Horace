@@ -3,14 +3,14 @@ function out = upgrade_legacy_alignment(in_data,alatt0,angdeg0)
 % or celarray of files
 %
 %   >> upgrade_legacy_alignment(filenames, alatt0,angdeg0)
-% modify legacy alignment previously
-%                                                 % of the crystal according to the
-%                                                 % crystal alignment information provided
+%                     modify legacy alignment previously
+%                     applied to the crystal and change its format to
+%                     the modern format.
 %
 %
 % Input:
 % -----
-%   w          cellarray of Input sqw objects or file names for sqw files,
+%   w          cellarray of Input sqw objects and/or file names for sqw files,
 %              containing sqw objects, aligned using legacy alignment
 %
 %  alatt0   -- vector of lattice parameters for initial not aligned file
@@ -19,15 +19,15 @@ function out = upgrade_legacy_alignment(in_data,alatt0,angdeg0)
 
 % Output:
 % -------
-%   wout      cellarray of iutput sqw objects and filename containing sqw
-%             objects modified
+%    out      cellarray of output sqw objects and/or filenames (according to
+%             the input) containing sqw objects modified by the algorithm.
 %
 
 % This routine used to change the crystal in sqw files, when it overwrites the input file.
 
 % Parse input
 % -----------
-if ischar(in_data) % process single file
+if istext(in_data) % process single file
     in_data = {in_data};
 end
 if ~isnumeric(alatt0) || ~isnumeric(angdeg0) || numel(alatt0) ~= 3 || numel(angdeg0) ~= 3 || nargin < 3
@@ -46,7 +46,9 @@ for i=1:numel(in_data)
         out{i} = in_data{i};
         ld = sqw_formats_factory.instance().get_loader(in_data{i});
         data    = ld.get_dnd();
-        [data,al_info,no_alignment_found,alatt0,angdeg0] = upgrade_legacy_alignment(data,alatt0,angdeg0);
+        alatt_al  = data.proj.alatt;
+        angdeg_al = data.proj.angdeg;        
+        [data,deal_info,no_alignment_found] = upgrade_legacy_alignment(data,alatt0,angdeg0);
         if no_alignment_found
             ld.delete();
             if ll>0
@@ -60,13 +62,14 @@ for i=1:numel(in_data)
         ld = ld.put_dnd_metadata(data);
         if ld.sqw_type
             exp_info= ld.get_exp_info('-all');
-            exp_info = exp_info.upgrade_legacy_alignment(al_info,alatt0,angdeg0);
+            exp_info = exp_info.upgrade_legacy_alignment(deal_info,alatt_al,angdeg_al);
 
             ld= ld.put_headers(exp_info,'-no_sampinst');
             ld= ld.put_samples(exp_info.samples);
             %
             pix_info = ld.get_pix_metadata();
-            pix_info.alignment_matr = al_info.rotmat;
+            % alignment matrix is inverse of dealignment matrix
+            pix_info.alignment_matr = deal_info.rotmat';
             ld = ld.put_pix_metadata(pix_info);
         end
 

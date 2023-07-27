@@ -1,4 +1,4 @@
-function [obj,al_info] = upgrade_legacy_alignment(obj,varargin)
+function [obj,deal_info] = upgrade_legacy_alignment(obj,varargin)
 %UPGRADE_LEGACY_ALIGNMENT:  modify crystal lattice and orientation matrix
 % to remove legacy alignment applied to the crystal earlier.
 % Inputs:
@@ -21,13 +21,16 @@ function [obj,al_info] = upgrade_legacy_alignment(obj,varargin)
 % Perform operations
 % ------------------
 for i=1:numel(obj)
-    [data,al_info,no_alignment_found,alatt0,angdeg0] = upgrade_legacy_alignment(obj(i).data,varargin{:});
+    alatt_al  = obj.data.proj.alatt;
+    angdeg_al = obj.data.proj.angdeg;
+    [data,deal_info,no_alignment_found] = upgrade_legacy_alignment(obj(i).data,varargin{:});
     if no_alignment_found
         continue;
     end
     obj(i).data = data;
     exper = obj(i).experiment_info;
-    exper = exper.upgrade_legacy_alignment(al_info,alatt0,angdeg0);
+    exper = exper.upgrade_legacy_alignment(deal_info,alatt_al,angdeg_al);
     obj(i).experiment_info = exper;
-    obj(i).pix.alignment_matr = al_info.rotmat;
+    % set up inverted dealignment matrix as alignment matrix
+    obj(i).pix.alignment_matr = deal_info.rotmat';
 end
