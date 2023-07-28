@@ -2101,6 +2101,36 @@ routine. Type:</p>
 experiment.</p>
 </dd></dl>
 
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.upgrade_legacy_alignment">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">upgrade_legacy_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">deal_info</span></em>, <em class="sig-param"><span class="pre">alatt</span></em>, <em class="sig-param"><span class="pre">angdeg</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.upgrade_legacy_alignment" title="Permalink to this definition"></a></dt>
+<dd><p>UPGRADE_LEGACY_ALIGNMENT Change fields in the experiment with correction
+to remove legacy alignment applied to the crystal earlier and apply
+modern alignment to it.</p>
+<p>Inputs:
+obj    – legacy realigned dnd object. Algorithm throws if the object has</p>
+<blockquote>
+<div><p>not been realigned using legacy algorithm.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>deal_info</dt><dd><dl class="simple">
+<dt>–  instance of crystal_alignment_info class, containing information</dt><dd><p>about dealignment of the legacy-aligned crystal</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Optional
+alatt   – lattice parameters with values for aligned lattice to be set.
+angdeg  – lattice angles with values for aligned lattice to be set.</p>
+<blockquote>
+<div><p>If one is present, another one have to be present.
+If these values are missing, assumes that the lattice have not
+been changed.</p>
+</div></blockquote>
+<p>Outputs:
+wout    – dnd object according to the new alignment algorithm.</p>
+</dd></dl>
+
 <dl class="mat class">
 <dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">Experiment</span></span><a class="headerlink" href="#sqw.@Experiment.Experiment" title="Permalink to this definition"></a></dt>
@@ -2111,6 +2141,27 @@ experiment.</p>
 <dt class="sig sig-object mat" id="sqw.&#64;Experiment.set_instrument">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">set_instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">instr_or_fun</span></em>, <em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.set_instrument" title="Permalink to this definition"></a></dt>
 <dd><p>add or reset instrument, related to the given experiment class</p>
+</dd></dl>
+
+<dl class="mat function">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.remove_legacy_alignment">
+<span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">remove_legacy_alignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">deal_info</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.remove_legacy_alignment" title="Permalink to this definition"></a></dt>
+<dd><p>REMOVE_LEGACY_ALIGNMENT Change fields in the experiment with correction
+to remove legacy alignment applied to the crystal earlier.</p>
+<p>Inputs:
+obj    – legacy realigned dnd object. Algorithm throws if the object has</p>
+<blockquote>
+<div><p>not been realigned using legacy algorithm.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>deal_info</dt><dd><dl class="simple">
+<dt>– instance of crystal_alignment_info class, containing information</dt><dd><p>about de-alignment</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Outputs:
+obj     – Experiment object with alignment removed</p>
 </dd></dl>
 
 </section>
@@ -2131,7 +2182,7 @@ experiment.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2023, STFC RAL.
-      <span class="lastupdated">Last updated on Jul 27, 2023, 1:55:32 PM.
+      <span class="lastupdated">Last updated on Jul 28, 2023, 8:23:51 AM.
       </span></p>
   </div>
 
