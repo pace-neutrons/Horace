@@ -57,9 +57,13 @@ for i=1:numel(in_data)
         ld = ld.set_file_to_update();
         if ld.sqw_type
             exp_info= ld.get_exp_info('-all');
-            exp_info = change_crystal(exp_info,alignment_info);
-            ld.put_headers(exp_info,'-no_sampinst');
-            ld.put_samples(exp_info.samples);
+            if alignment_info.legacy_mode
+                exp_info = change_crystal(exp_info,alignment_info,data.proj);
+            else
+                exp_info = change_crystal(exp_info,alignment_info);
+            end
+            ld=ld.put_headers(exp_info,'-no_sampinst');
+            ld=ld.put_samples(exp_info.samples);
             %
             if ~alignment_info.legacy_mode
                 pix_info = ld.get_pix_metadata();

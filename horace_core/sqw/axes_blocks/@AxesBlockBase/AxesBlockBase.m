@@ -824,7 +824,7 @@ classdef AxesBlockBase < serializable
 
     methods
         function S = convert_old_struct (~, S, varargin)
-            % Convert old
+            % Convert old AxesBlock structure to the modern form
             if isfield(S,'ulen')
                 S.img_scale = S.ulen;
             end

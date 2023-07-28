@@ -198,10 +198,16 @@ classdef Experiment < serializable
     % legacy instrument methods interface
     %----------------------------------------------------------------------
     methods
+        %------------------------------------------------------------------
         %Change fields in the experiment with corrections related to aligned
         %crystal lattice parameters and orientation
         obj=change_crystal(obj,alignment_info,varargin)
-
+        % modify crystal lattice and orientation matrix to remove legacy
+        % alignment.
+        obj = remove_legacy_alignment(obj,deal_info)
+        % remove legacy alignment and put modern alignment instead
+        wout = upgrade_legacy_alignment(obj,deal_info,varargin)
+        %------------------------------------------------------------------
         % add or reset instrument, related to the given experiment object
         % array of instruments, or function, which defines the instrument
         % with its possible parameters
@@ -499,7 +505,7 @@ classdef Experiment < serializable
                     expinfo(ic)= exp_cellarray{i}.expdata(j);
                     if ~keep_runid
                         expinfo(ic).run_id = ic;
-                    end                    
+                    end
                     ic = ic+1;
                 end
             end

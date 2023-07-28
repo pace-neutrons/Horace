@@ -14,7 +14,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         alatt % Lattice parameters for data field (Ang^-1)
         angdeg % Lattice angles for data field (degrees)
 
-        offset % Offset of origin of the image in hkl and energy ie. [h; k; l; en]
+        % Setting offset on an object anywhere except the recovery
+        % operation or construction breaks its integrity as the axes
+        % ranges, binning and image need to be changed accordingly, and set
+        % operation can not do it.
+        offset      % Offset of origin of the image in hkl and energy ie. [h; k; l; en]
         img_offset  % Offset of origin of the image in projection axes units
         %
         label  % Labels of the projection axes [1x4 cell array of character strings]
@@ -188,9 +192,16 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         s=xye(w, null_value);   % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
         % smooth dnd object or array of dnd objects
         wout = smooth(win, varargin)
-
-        % Change the crystal lattice and orientation of an sqw object or array of objects
+        %------------------------------------------------------------------
+        % Change the crystal lattice and orientation of an sqw object or
+        % array of objects
         wout = change_crystal(win,varargin);
+        % modify crystal lattice and orientation matrix to remove legacy
+        % alignment.
+        [wout,al_info,alatt0,angdeg0] = remove_legacy_alignment(obj,varargin)
+        % remove legacy alignment and put modern alignment instead
+        [wout,al_info,no_alignment,alatt0,angdeg0] = upgrade_legacy_alignment(obj,varargin)
+        %------------------------------------------------------------------
         %
         function varargout = IX_dataset_1d(obj)
             error('HORACE:DnDBase:not_implemented', ...
@@ -250,12 +261,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         function val = get.offset(obj)
             val = obj.proj_.offset;
         end
-        function obj = set.offset(obj,val)
-            obj.proj_.offset = val;
-            % Very questionable operation.
-            % It breaks the object integrity in half of usage scenario. See #955
-            obj.axes_.img_range = obj.axes_.img_range+obj.proj_.offset;
-        end
+        %         function obj = set.offset(obj,val)
+        %             obj.proj_.offset = val;
+        %         end
 
         function val = get.u_to_rlu(obj)
             val = obj.proj.u_to_rlu;
@@ -266,14 +274,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         %
         function val = get.ulen(obj)
-            val = obj.axes.ulen;
+            val = obj.axes.img_scales;
         end
-        %         function obj = set.ulen(obj, ulen)
-        %         % This probably also incorrect and should be validated
-        %         % according to #955
-        %             obj.data_.ulen = ulen;
-        %         end
-        %         %
+        function obj = set.ulen(obj, ulen)
+            obj.axes.img_scales = ulen;
+        end
+        %
         function val = get.label(obj)
             val = obj.axes_.label;
         end
@@ -310,12 +316,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function val = get.uoffset(obj)
             val = obj.proj.img_offset;
-        end
-        function obj = set.img_offset(obj,val)
-            obj.proj.img_offset =val;
-        end
-        function obj = set.uoffset(obj,val)
-            obj.proj.img_offset =val;
         end
     end
     %======================================================================
