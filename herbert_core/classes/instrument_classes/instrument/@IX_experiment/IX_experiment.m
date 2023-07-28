@@ -10,16 +10,17 @@ classdef IX_experiment < serializable
         %         % providing connection between the particular pixel and
         %         % the experiment info
 
+        efix;
         en;  % array of all energy transfers, present in the experiment
+        cu;
+        cv;
+    end
+    properties(Dependent,Hidden)
         u_to_rlu;
     end
 
     properties
-        efix = []
         emode=1
-
-        cu=[1,0,0];
-        cv=[0,1,0];
         psi=0;
         omega=0;
         dpsi=0;
@@ -35,21 +36,33 @@ classdef IX_experiment < serializable
         filepath_='';
         run_id_ = NaN;
         en_ = zeros(0,1);
+        efix_ = [];
+        cu_ = [1,0,0];
+        cv_ = [0,1,0];
         u_to_rlu_ = eye(3);
     end
-    properties(Constant,Access=private)
-        % fields, which fully define public interface to the class
-        fields_to_save_ = {'filename','filepath','run_id','efix','emode','cu',...
-            'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
-            'u_to_rlu','ulen','ulabel'};
+    properties(Access= private)
+        % the hash used to compare IX_experiments for equality
+        hash_valid_ = false;
+        equality_hash_
     end
     methods
-        function flds = saveableFields(~)
-            flds = IX_experiment.fields_to_save_;
+        function obj = IX_experiment(varargin)
+            % IX_EXPERIMENT Construct an instance of this class
+            if nargin==0
+                return
+            end
+            obj = obj.init(varargin{:});
         end
-        function ver  = classVersion(~)
-            % return the version of the IX-experiment class
-            ver = 2;
+
+        function obj = init(obj,varargin)
+            % construcnt non-empty instance of this class
+            % Usage:
+            %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,...
+            %               omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,...
+            %               ulabel,run_id)
+            %
+            obj = init_(obj,varargin{:});
         end
         %------------------------------------------------------------------
         % ACCESSORS:
@@ -62,7 +75,8 @@ classdef IX_experiment < serializable
                     'filename can be only character array or string. It is %s',...
                     class(val))
             end
-            obj.filename_ = val;
+            obj.filename_     = val;
+            obj.hash_valid_  = false;
         end
         %
         function fn = get.filepath(obj)
@@ -75,6 +89,7 @@ classdef IX_experiment < serializable
                     class(val))
             end
             obj.filepath_ = val;
+            obj.hash_valid_  = false;
         end
         %
         function id = get.run_id(obj)
@@ -107,6 +122,18 @@ classdef IX_experiment < serializable
             obj.en_ = val(:);
         end
         %
+        function ef = get.efix(obj)
+            ef = obj.efix_;
+        end
+        function obj = set.efix(obj,val)
+            if val<=0
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'efix (incident energy) have to be positive')
+            end
+            obj.efix_ = val;
+            obj.hash_valid_  = false;
+        end
+        %
         function mat = get.u_to_rlu(obj)
             mat = eye(4);
             mat(1:3,1:3) = obj.u_to_rlu_;
@@ -121,8 +148,26 @@ classdef IX_experiment < serializable
             end
             obj.u_to_rlu_ = val;
         end
+        %
+        function u = get.cu(obj)
+            u = obj.cu_;
+        end
+        function obj = set.cu(obj,val)
+            obj.cu_ = val(:)';
+            obj.hash_valid_  = false;
+        end
+        %
+        function v = get.cv(obj)
+            v = obj.cv_;
+        end
+        function obj = set.cv(obj,val)
+            obj.cv_ = val(:)';
+            obj.hash_valid_  = false;
+        end
 
-        %------------------------------------------------------------------
+    end
+    %----------------------------------------------------------------------
+    methods
         % SQW_binfile_common methods related to saving to binfile and
         % run_id scrambling:
         function old_hdr = convert_to_binfile_header(obj,mode,arg1,arg2,nomangle)
@@ -158,86 +203,60 @@ classdef IX_experiment < serializable
             if ~exist('nomangle','var')
                 nomangle = false;
             end
-            old_hdr = obj.to_bare_struct();
-            if ~isnan(old_hdr.run_id) && ~nomangle
-                old_hdr.filename = sprintf('%s$id$%d',old_hdr.filename,old_hdr.run_id);
-            end
-            old_hdr = rmfield(old_hdr,'run_id');
-            if strcmp( mode, '-inst_samp')
-                old_hdr.instrument = arg1;
-                old_hdr.sample     = arg2;
-                old_hdr.alatt      = arg2.alatt;
-                old_hdr.angdeg     = arg2.angdeg;
-            elseif strcmp( mode, '-alatt_angdeg')
-                old_hdr.instrument = IX_null_inst();
-                old_hdr.sample = IX_null_sample('',arg1,arg2);
-                old_hdr.alatt      = arg1;
-                old_hdr.angdeg     = arg2;
-            else
-                error('HERBERT:IX_experiment:invalid_argument',...
-                    'mode arg is not "-inst_samp" or "-alatt_angdeg". It is: %s', ...
-                    disp2str(mode));
-            end
+            old_hdr = convert_to_binfile_header_(obj,mode,arg1,arg2,nomangle);
         end
-        function obj = IX_experiment(varargin)
-            if nargin==0
-                return
-            end
-            obj = obj.init(varargin{:});
-        end
+        %
+        function [hash,obj] = get_eq_hash(obj)
+            % get hash used for comparison of IX_experiment objects against
+            % equality while building sqw objects
 
-        function obj = init(obj,varargin)
-            % Usage:
-            %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,...
-            %               omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,...
-            %               ulabel,run_id)
+
+            % list of properties which can not be all equal for
+            % experiments to be diffetent
             %
-            %   IX_EXPERIMENT Construct an instance of this class
+            eq_properties = {'filename','cu','cv','efix', 'psi', 'omega', 'dpsi', 'gl', 'gs'};
 
-            % the list of the fieldnames, which may appear in constructor
-            % in the order they may appear in the constructor.
-            flds = {'filename', 'filepath', 'efix','emode','cu',...
-                'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
-                'u_to_rlu','ulen','ulabel','run_id'};
+            persistent engine;
+            if isempty(engine)
+                engine= java.security.MessageDigest.getInstance('MD5');
+            end
+            if obj.hash_valid_
+                hash = obj.equality_hash_;
+                return;
+            end
+            n_par = numel(eq_properties);
+            contents = cell(1,n_par);
+            for i=1:n_par
+                contents{i} = typecast(obj.(eq_properties{i}),'uint8');
+            end
+            contents = [contents{:}];
+            Engine.update(contents);
+            hash = typecast(Engine.digest,'uint8');
+            hash = char(hash');
+            obj.equality_hash_ = hash;
+            obj.hash_valid_ = true;
+        end
+        %
 
-            if nargin == 2
-                input = varargin{1};
-                if isa(input,'IX_experiment')
-                    obj = input ;
-                    return
-                elseif isstruct(input)
-                    % constructor
-                    % The constructor parameters names in the order, then can
-                    % appear in constructor
-                    obj = IX_experiment.loadobj(input);
-                else
-                    error('HERBERT:IX_experiment:invalid_argument',...
-                        'Unrecognised single input argument of class %s',...
-                        class(input));
-                end
-            elseif nargin > 2
-                % list of crude validators, checking the type of all input
-                % parameters for constructor. Mainly used to identify the
-                % end of positional arguments and the beginning of the
-                % key-value pairs. The accurate validation should occur on
-                % setters.
-                [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                    flds,false,varargin{:});
-                if ~isempty(remains)
-                    error('HERBERT:IX_experiment:invalid_argument',...
-                        'Non-recognized extra-arguments provided as input for constructor for IX_experiemt: %s', ...
-                        disp2str(remains));
-                end
-            else
-                error('HERBERT:IX_experiment:invalid_argument',...
-                    'unrecognised number of input arguments: %d',nargin);
-            end
-            if isempty(obj)
-                error('HERBERT:IX_experiment:invalid_argument',...
-                    'initialized IX_experiment can not be empty')
-            end
+    end
+    %----------------------------------------------------------------------
+    % SERIALIZABLE interface
+    properties(Constant,Access=private)
+        % fields, which fully define public interface to the class
+        fields_to_save_ = {'filename','filepath','run_id','efix','emode','cu',...
+            'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
+            'u_to_rlu','ulen','ulabel'};
+    end
+    methods
+        function flds = saveableFields(~)
+            flds = IX_experiment.fields_to_save_;
+        end
+        function ver  = classVersion(~)
+            % return the version of the IX-experiment class
+            ver = 2;
         end
     end
+
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
             % recover the object from old structure

@@ -471,7 +471,7 @@ classdef Experiment < serializable
         end
 
         function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,keep_runid)
-            % take cellarray of experiments (e.g., generated from each runfile build
+            % Take cellarray of experiments (e.g., generated from each runfile build
             % during gen_sqw generation)
             % and combine then together into single Experiment info class
             %
@@ -485,6 +485,13 @@ classdef Experiment < serializable
             %      appropriately
             %TODO: repeat at least the logic within sqw_header helper class
             %      and write_nsqw_to_sqw combine/check headers operation
+
+% Check experiment consistency:
+% At present, we insist that the contributing spe data are distinct in that:
+%   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
+%   - emode, lattice parameters, u, v, sample must be the same for all spe data input
+
+
             n_contrib = numel(exp_cellarray);
             nspe = zeros(n_contrib,1);
             for i=1:n_contrib

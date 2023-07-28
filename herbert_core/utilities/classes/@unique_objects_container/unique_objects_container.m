@@ -397,7 +397,10 @@ classdef unique_objects_container < serializable
             % Output:
             % - hash : the resulting has, a row vector of uint8's
             %
-            Engine = java.security.MessageDigest.getInstance('MD5');
+            persistent Engine;
+            if isempty(Engine)
+                Engine = java.security.MessageDigest.getInstance('MD5');
+            end
             if isa(obj,'serializable') && ~self.non_default_f_conversion_set_
                 % use default serializer, build up by us for serializable objects
                 Engine.update(obj.serialize());
