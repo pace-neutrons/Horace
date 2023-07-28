@@ -499,10 +499,16 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [efix,emode,ok,mess,en] = get_efix(obj,tol);
         % Set the fixed neutron energy for an array of sqw objects.
         obj = set_efix(obj,efix,emode);
-
-        % Change the crystal lattice and orientation of an sqw object or array of objects
+        %------------------------------------------------------------------
+        % Change the crystal lattice and orientation of an sqw object or
+        % array of objects to apply alignment corrections
         wout = change_crystal (obj,alignment_info,varargin)
-
+        % modify crystal lattice and orientation matrix to remove legacy
+        % alignment.
+        [wout,al_info] = remove_legacy_alignment(obj,varargin)
+        % remove legacy alignment and put modern alignment instead
+        [wout,al_info] = upgrade_legacy_alignment(obj,varargin)
+        %------------------------------------------------------------------
         %TODO: Special call on interface for different type of instruments
         %      from generic object, which may contain any instrument is
         %      incorrect. It should be resfun covariance here, if it is needs
@@ -514,6 +520,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
+
+        function obj = apply(obj, func_handle, args, recompute_bins)
+            if ~exist('args', 'var')
+                args = {};
+            end
+            if ~exist('recompute_bins', 'var')
+                recompute_bins = true;
+            end
+            if recompute_bins
+                [obj.pix, obj.data] = obj.pix.apply(func_handle, args, obj.data);
+            else
+                obj.pix = obj.pix.apply(func_handle, args);
+            end
+        end
 
     end
 

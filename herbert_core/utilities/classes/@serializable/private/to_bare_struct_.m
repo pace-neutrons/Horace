@@ -7,11 +7,11 @@ function S = to_bare_struct_ (obj, recursive_bare)
 % Input:
 % ------
 %   obj             Object or array of objects which are serializable i.e.
-%                  which belong to a child class of serializable 
+%                  which belong to a child class of serializable
 %
 %   recursive_bare  Logical true or false
-%                   If false, nested properties that are serializable objects 
-%                  are converted to structures using the public method 
+%                   If false, nested properties that are serializable objects
+%                  are converted to structures using the public method
 %                  to_struct. That is, they contain the information about the
 %                  class name and version.
 %                   If true, then they are converted to the bare structure using
@@ -33,7 +33,7 @@ for j = 1:numel(obj)
     for i = 1:numel(field_names)
         field_name = field_names{i};
         val = obj(j).(field_name);
-        if isa(val,'serializable') 
+        if isa(val,'serializable')
             % Recursively convert serializable objects to a structure
             % Serializer will handle non-serializable objects by its own
             % internal converters.

@@ -273,7 +273,7 @@ classdef AxesBlockBase < serializable
         function obj = set.img_range(obj,val)
             obj = check_and_set_img_range(obj,val);
         end
-        %
+
         function nbin = get.nbins_all_dims(obj)
             nbin = obj.nbins_all_dims_;
         end
@@ -824,7 +824,7 @@ classdef AxesBlockBase < serializable
 
     methods
         function S = convert_old_struct (~, S, varargin)
-            % Convert old
+            % Convert old AxesBlock structure to the modern form
             if isfield(S,'ulen')
                 S.img_scale = S.ulen;
             end

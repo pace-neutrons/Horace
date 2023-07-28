@@ -4,7 +4,7 @@ function obj = check_combo_arg_(obj,do_rehashify,with_checks)
 % properties
 %
 % Inputs:
-% do_rehashify -- if true, run rehashify procedure. 
+% do_rehashify -- if true, run rehashify procedure.
 %
 % with_checks  -- if true, each following hash is compared with
 %                 the previous hashes and if coincedence found,

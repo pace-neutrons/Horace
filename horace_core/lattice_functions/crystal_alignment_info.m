@@ -143,7 +143,7 @@ classdef crystal_alignment_info < serializable
                     disp2str(val));
 
             end
-            obj.rotvec_= val;
+            obj.rotvec_= val(:)';
         end
         %
         function mode = get.hkl_mode(obj)
