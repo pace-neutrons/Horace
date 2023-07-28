@@ -72,6 +72,16 @@ classdef (Abstract) SQWDnDBase < serializable
         [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
         %                             % of the bins of an n-dimensional sqw
         %                             % or dnd dataset
+        %------------------------------------------------------------------
+        % Change the crystal lattice and orientation of an sqw object or
+        % array of objects
+        varargout = change_crystal (varargin);
+        % modify crystal lattice and orientation matrix to remove legacy
+        % alignment.
+        [wout,al_info] = remove_legacy_alignment(obj,varargin)
+        % remove legacy alignment and put modern alignment instead
+        [wout,al_info] = upgrade_legacy_alignment(obj,varargin)
+        %------------------------------------------------------------------
     end
     properties(Constant)
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
@@ -109,8 +119,6 @@ classdef (Abstract) SQWDnDBase < serializable
 
     methods  % Public
         [sel,ok,mess] = mask_points(win, varargin);
-        % Change the crystal lattice and orientation of an sqw object or array of objects
-        varargout = change_crystal (varargin);
 
         cl = save(w, varargin);
 

@@ -30,16 +30,16 @@ classdef spher_axes < AxesBlockBase
         % caption.
         capt_units = containers.Map({'a','r','d','e'}, ...
             {[char(197),'^{-1}'],'rad','^{o}','mEv'})
-        default_img_range_ = ...
-            [0,  0,-180,0;...  % the range, a object defined with dimensions
-            1 ,180, 180,1];    % only would have
+        default_img_range_ =[ ...
+            0,   0, -180,0;...  % the range, a object defined with dimensions
+            1 ,180,  180,1];    % only would have
         % what symbols axes_units can have
-        types_available_ = {'a',{'d','r'},{'d','r'},'e'};        
+        types_available_ = {'a',{'d','r'},{'d','r'},'e'};
 
     end
     properties(Dependent)
         % what each axes units are
-        axes_units                
+        axes_units
         % if angular dimensions of the axes are expressed in radians or degrees
         angular_unit_is_rad
 
@@ -79,9 +79,9 @@ classdef spher_axes < AxesBlockBase
             %                                       from binning parameters
             %
 
-            obj.max_img_range_ = ...
-                [0 ,  0,-180,-inf;...
-                inf,180, 180, inf];
+            obj.max_img_range_ = [...
+                0  ,  0, -180, -inf;...
+                inf,180,  180,  inf];
             % empty spherical range:
             obj.img_range_ = [obj.max_img_range_(2,:);obj.max_img_range_(1,:)];
 
@@ -140,11 +140,11 @@ classdef spher_axes < AxesBlockBase
             val = obj.axes_units_;
         end
         function obj = set.axes_units(obj,val)
-            obj = set_axes_units_(obj,val);            
+            obj = set_axes_units_(obj,val);
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
-        end        
+        end
         %
         function range = get.default_img_range(obj)
             range  = obj.default_img_range_;
@@ -158,12 +158,12 @@ classdef spher_axes < AxesBlockBase
     %----------------------------------------------------------------------
     methods(Access=protected)
         function  volume = calc_bin_volume(obj,axis_cell)
-            % calculate bin volume from the  axes of the axes block or input 
+            % calculate bin volume from the  axes of the axes block or input
             % axis organized in cellarray of 4 axis. Will return array of
-            % bin volumes 
+            % bin volumes
             volume = calc_bin_volume_(obj,axis_cell);
         end
-        
+
         function  obj = check_and_set_img_range(obj,val)
             % main setter for spherical image range.
             obj = check_and_set_img_range_(obj,val);
@@ -234,10 +234,10 @@ classdef spher_axes < AxesBlockBase
                 end
                 if inputs.angular_unit_is_rad(2)
                     ax_unit{3} = 'r';
-                end                
+                end
                 inputs.axes_units = [ax_unit{:}];
             end
-            obj = obj.from_bare_struct(inputs);            
+            obj = obj.from_bare_struct(inputs);
         end
-    end        
+    end
 end

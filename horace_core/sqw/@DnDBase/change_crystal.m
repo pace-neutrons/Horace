@@ -39,8 +39,10 @@ for i=1:numel(obj)
         this_alignment.hkl_mode  = true;        
         rlu_corr = this_alignment.get_corr_mat(obj.proj);
         rlu_to_u = wout(i).proj.bmatrix();
-        wout(i).img_offset(1:3)=rlu_corr*wout(i).img_offset(1:3)';
-        wout(i).proj = wout(i).proj.set_ub_inv_compat(rlu_corr/rlu_to_u);
+        proj = wout(i).proj;
+        proj.img_offset(1:3)=rlu_corr*wout(i).img_offset(1:3)';
+        proj = proj.set_ub_inv_compat(rlu_corr/rlu_to_u);
+        wout(i).proj = proj;
         %
         wout(i).alatt=alatt;
         wout(i).angdeg=angdeg;
