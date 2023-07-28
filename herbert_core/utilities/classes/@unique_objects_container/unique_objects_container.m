@@ -434,7 +434,6 @@ classdef unique_objects_container < serializable
     end
 
     methods
-
         function [ix, hash] = find_in_container(self,obj)
             %FIND_IN_CONTAINER Finds if obj is contained in self
             % Input:

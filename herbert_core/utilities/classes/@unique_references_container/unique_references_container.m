@@ -108,7 +108,7 @@ classdef unique_references_container < serializable
         unique_objects; % returns unique_objects_container
 
         % other dependent properties
-        n_unique_objects; % size of unique_objects (without creating it)
+        n_unique_objects; % number of unique_objects (without creating it)
         idx; % object indices into the global unique objects container.
         n_objects; % numel(idx)
     end
