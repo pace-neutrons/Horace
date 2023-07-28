@@ -1,14 +1,19 @@
 function [is,val,argi] = check_angular_units_present_(obj,varargin)
 %
-if nargin == 2 && isstruct(varargin{1})
+if nargin == 2 && (isstruct(varargin{1}) || isa(varargin{1},'goniometer'))
     argi = varargin{1};
-    if isfield(argi,'angular_units')
+    if isa(argi,'goniometer')
         is = true;
         val = argi.angular_units;
-        argi= rmfield(argi,'angular_units');
     else
-        is = false;
-        val = [];
+        if isfield(argi,'angular_units')
+            is = true;
+            val = argi.angular_units;
+            argi= rmfield(argi,'angular_units');
+        else
+            is = false;
+            val = [];
+        end
     end
 else
     pos_par_names = obj.saveableFields();
