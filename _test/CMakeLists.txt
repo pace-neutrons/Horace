@@ -110,7 +110,7 @@ foreach(_test_dir ${TEST_DIRECTORIES_HORACE})
     set(TEST_NAME "Matlab.${_test_dir}")
     matlab_add_unit_test(
         NAME "${TEST_NAME}"
-        CUSTOM_TEST_COMMAND "validate_horace ${_test_dir} -talkative -forcemex -exit_on_completion"
+        CUSTOM_TEST_COMMAND "validate_horace ${_test_dir} -talkative -disp_skipped -forcemex -exit_on_completion"
         ADDITIONAL_PATH "${Horace_ROOT}/admin"
         TIMEOUT ${TEST_TIMEOUT_LENGTH})
     set_tests_properties("${TEST_NAME}"

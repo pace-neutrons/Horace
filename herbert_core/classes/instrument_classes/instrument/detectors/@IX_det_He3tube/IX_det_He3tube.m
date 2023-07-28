@@ -58,7 +58,8 @@ classdef IX_det_He3tube < IX_det_abstractType
                 % Define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
                 % provided without their names
-                [property_names, mandatory] = obj.saveableFields();
+                property_names ={'dia', 'height', 'wall', 'atms'};
+                mandatory = [true, true, true, true];
                 
                 % Set positional parameters and key-value pairs and check their
                 % consistency using public setters interface. Run
@@ -160,10 +161,9 @@ classdef IX_det_He3tube < IX_det_abstractType
             ver = 2;
         end
         
-        function [flds, mandatory] = saveableFields(~)
+        function flds = saveableFields(~)
             % Return cellarray of properties defining the class
             flds = {'dia', 'height', 'wall', 'atms'};
-            mandatory = true(1,4);
         end
 
         function obj = check_combo_arg(obj)

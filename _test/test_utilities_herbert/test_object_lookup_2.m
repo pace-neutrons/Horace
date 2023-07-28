@@ -1,4 +1,4 @@
-classdef test_object_lookup_2 < TestCaseWithSave
+classdef test_object_lookup_2 < TestCase
     % Class that tests object_lookup methods rand_ind and func_eval_ind
     %
     % Uses the boxClass and boxArrayClass classes defined elsewhere as
@@ -42,7 +42,7 @@ classdef test_object_lookup_2 < TestCaseWithSave
     methods
         %------------------------------------------------------------------
         function obj = test_object_lookup_2 (name)
-            obj@TestCaseWithSave(name);
+            obj = obj@TestCase(name);
             
             % Four boxes with extents much less than unity along each side
             % and which have no overlap.
@@ -141,8 +141,6 @@ classdef test_object_lookup_2 < TestCaseWithSave
             obj.bAarrCell = bAarrCell;
             
             obj.bAlook = bAlook;
-
-            obj.save()
         end
         
         %------------------------------------------------------------------
@@ -251,8 +249,7 @@ classdef test_object_lookup_2 < TestCaseWithSave
             % validity of the function validate_boxClass_rand_ind defined
             % in this test class file
             iarray = 2;
-            ind = [5, 3, 3, 5, 3; ...
-                3, 5, 5, 5, 3];     % has size [2,5]
+            ind = [5,3,3,5,3; 3,5,5,5,3];     % has size [2,5]
             [x1col, x1row, x12] = rand_ind (obj.blook, iarray, ind, @rand_position);
             
             % Handcrafted validation
@@ -422,8 +419,7 @@ classdef test_object_lookup_2 < TestCaseWithSave
             % iarray 2, index 5: this is box 4
             % iarray 2, index 3: this is box 2
             iarray = 2;
-            ind = [5, 3, 3, 5, 3; ...
-                3, 5, 5, 5, 3];     % has size [2,5]
+            ind = [5,3,3,5,3; 3,5,5,5,3];     % has size [2,5]
             shift1c = [5,50,500];
             shift1r = [-5,-50,-500];
             shift12 = [0,5,100];
@@ -449,7 +445,8 @@ classdef test_object_lookup_2 < TestCaseWithSave
             % iarray 2, index 5: this is box 4
             % iarray 2, index 3: this is box 2
             iarray = 2;
-            ind = [5     5     5     5     3     5     3 ...
+            ind = [...
+                5     5     5     5     3     5     3 ...
                 3     3     5     5     5     3     5 ...
                 5     3     3     5     5     3     3 ...
                 3     5     3     5     5     3     5 ...
@@ -482,7 +479,8 @@ classdef test_object_lookup_2 < TestCaseWithSave
             % iarray 2, index 5: this is box 4
             % iarray 2, index 3: this is box 2
             iarray = 2;
-            ind = [5     5     5     5     3     5     3 ...
+            ind = [...
+                5     5     5     5     3     5     3 ...
                 3     3     5     5     5     3     5 ...
                 5     3     3     5     5     3     3 ...
                 3     5     3     5     5     3     5 ...
@@ -519,7 +517,7 @@ classdef test_object_lookup_2 < TestCaseWithSave
             % then ielmts 4 & 6 are boxes 2 & 8
             iarray = 2;
             ind = 5*ones(2,5);
-            ielmts = [6 6 4 6 4; 4 4 6 4 4];
+            ielmts = [6,6,4,6,4; 4,4,6,4,4];
             shift1c = [5,50,500];
             shift1r = [-5,-50,-500];
             shift12 = [0,5,100];
@@ -562,7 +560,7 @@ classdef test_object_lookup_2 < TestCaseWithSave
 
             iarray = 2;
             ind = [5,3,3,5,3; 5,5,5,3,3];
-            ielmts = [4 4 1 6 2; 4 4 6 2 4];
+            ielmts = [4,4,1,6,2; 4,4,6,2,4];
             yshift_only = false;
             [shift1c, ~, shift12] = shifts_boxes_no_overlaps (size(ind), yshift_only);
             shift1r = [3,0,23];
@@ -646,8 +644,7 @@ classdef test_object_lookup_2 < TestCaseWithSave
             % validity of the function validate_boxClass_rand_ind defined
             % in this test class file
             iarray = 2;
-            ind = [5, 3, 3, 5, 3; ...
-                3, 5, 5, 5, 3];     % has size [2,5]
+            ind = [5,3,3,5,3; 3,5,5,5,3];     % has size [2,5]
             shift1c = [5,50,500];
             shift1r = [-5,-50,-500];
             shift12 = [0,5,100];

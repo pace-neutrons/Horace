@@ -235,8 +235,8 @@ classdef IX_detector_array < serializable
             % Input must be an array with ndet elements
             if ~isnumeric(val) || numel(val)~=sum(ndets)
                 error('HERBERT:IX_detector_array:invalid_argument',...
-                    ['Detector indices must be a numeric array with ',...
-                    num2str(sum(ndets)), ' elements'])
+                    'Detector indices must be a numeric array with %d elements', ...
+                    sum(ndets))
             end
             % Check all id are unique positive integers
             [ok, mess] = is_integer_id (val);
@@ -265,7 +265,7 @@ classdef IX_detector_array < serializable
             if ~isnumeric(val) || ~(numel(val)==sum(ndets) || isscalar(val))
                 error('HERBERT:IX_detector_array:invalid_argument',...
                     ['Sample - detector distance(s) must be a scalar or a ',...
-                    'numeric array with ', num2str(sum(ndets)), ' elements'])
+                    'numeric array with %d elements'], sum(ndets))
             end
             % Alter every bank
             tmp = obj.det_bank_;
@@ -294,7 +294,7 @@ classdef IX_detector_array < serializable
             if ~isnumeric(val) || ~(numel(val)==sum(ndets) || isscalar(val))
                 error('HERBERT:IX_detector_array:invalid_argument',...
                     ['Scattering angle(s) must be a scalar or a ',...
-                    'numeric array with ', num2str(sum(ndets)), ' elements'])
+                    'numeric array with %d elements'], sum(ndets))
             end
             % Alter every bank
             tmp = obj.det_bank_;
@@ -323,7 +323,7 @@ classdef IX_detector_array < serializable
             if ~isnumeric(val) || ~(numel(val)==sum(ndets) || isscalar(val))
                 error('HERBERT:IX_detector_array:invalid_argument',...
                     ['Azimuthal angle(s) must be a scalar or a ',...
-                    'numeric array with ', num2str(sum(ndets)), ' elements'])
+                    'numeric array with %d elements'], sum(ndets))
             end
             % Alter every bank
             tmp = obj.det_bank_;
@@ -349,12 +349,12 @@ classdef IX_detector_array < serializable
         function obj = set.dmat (obj, val)
             ndets = obj.ndet_bank;
             % Input must have size [3,3,ndet] or [3,3] (==[3,3,1])
-            if ~isnumeric(val) || numel(size(val))>3 || ...
-                    (size(val,1)~=3 || size(val,2)~=3) || all(size(val,3)~=[1,sum(ndets)])
-                if sum(ndets)>1
+            ndetTot = sum(ndets);
+            if ~(isnumeric(val) || (isequal(size(val), [3,3]) || isequal(size(val), [3,3,ndetTot])))
+                if ndetTot>1
                     error('HERBERT:IX_detector_array:invalid_argument',...
                         ['Detector orientation matrices must be a numeric array ',...
-                        'with size [3,3] or [3,3,', num2str(sum(ndets)), ']'])
+                        'with size [3,3] or [3,3,%d]'], ndetTot)
                 else
                     error('HERBERT:IX_detector_array:invalid_argument',...
                         ['Detector orientation matrix must be a numeric array ',...

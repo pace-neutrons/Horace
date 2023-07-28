@@ -43,22 +43,22 @@ elseif narg==3
     [sz, ind, wvec] = parse_ind_wvec_ (obj, varargin{1}, varargin{3});
     npath = varargin{2};
 else
-    error ('parse_ind_npath_wvec_:invalid_arguments', ['Check the size and ',...
+    error ('parse_ind_npath_wvec_:invalid_argument', ['Check the size and ',...
         'shape of ''npath'': must a vector length 3 or array size [3,n]'])
 end
 
 % Check the neutron path unit vectors
 if numel(npath)==3
     npath = npath(:);   % make column vector
-elseif ~numel(size(npath))==2 || ~size(npath,1)==3 || size(npath,2)~=numel(ind)
-    error ('parse_ind_npath_wvec_:invalid_arguments', ['Check the size and ',...
+elseif ~ismatrix(npath) || ~isequal(size(npath), [3,numel(ind)])
+    error ('parse_ind_npath_wvec_:invalid_argument', ['Check the size and ',...
         'shape of ''npath'': must a vector length 3 or array size [3,n]'])
 end
 
-nlen = sqrt(sum(npath.^2,1));
-if all(nlen>0)
+nlen = vecnorm(npath, 2, 1);
+if all(nlen>1e-12)
     npath = npath./(repmat(nlen,3,1));
 else
-    error ('parse_ind_npath_wvec_:invalid_arguments',...
-        'One or more neutron path direction vectors has zero length')
+    error ('parse_ind_npath_wvec_:invalid_argument',...
+        'One or more neutron path direction vectors has (near) zero length')
 end

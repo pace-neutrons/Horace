@@ -1,4 +1,4 @@
-classdef test_sampling_statistics < TestCaseWithSave
+classdef test_sampling_statistics < TestCase
     % Test the calculation of quantities for IX_det_He3tube object
     properties
         mean_ref
@@ -11,7 +11,7 @@ classdef test_sampling_statistics < TestCaseWithSave
     methods
         %--------------------------------------------------------------------------
         function obj = test_sampling_statistics (name)
-            obj@TestCaseWithSave(name);
+            obj = obj@TestCase(name);
             
             % Mean and covariance for multivariate Gaussian
             obj.mean_ref = [2;4;5];
@@ -23,7 +23,6 @@ classdef test_sampling_statistics < TestCaseWithSave
             % Random number seed
             % ------------------
             obj.seed = 0;
-            obj.save()
         end
         
         function obj = setUp(obj)

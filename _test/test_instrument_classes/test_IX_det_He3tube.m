@@ -18,16 +18,11 @@ classdef test_IX_det_He3tube < TestCaseWithSave
             
             % Arrays for construction of detectors
             % Note: have varying paths w.r.t. detector coordinate frame
-            dia(1) = 0.0254;  height(1) = 0.015; wall(1) = 6.35e-4; atms(1) = 10; th(1) = pi/2;
-            dia(2) = 0.0300;  height(2) = 0.025; wall(2) = 10.0e-4; atms(2) = 6;  th(2) = 0.9;
-            dia(3) = 0.0400;  height(3) = 0.035; wall(3) = 15.0e-4; atms(3) = 4;  th(3) = 0.775;
-            dia(4) = 0.0400;  height(4) = 0.035; wall(4) = 15.0e-4; atms(4) = 7;  th(4) = 0.775;
-            dia(5) = 0.0400;  height(5) = 0.035; wall(5) = 15.0e-4; atms(5) = 9;  th(5) = 0.775;
-            
-            obj.dia = dia;
-            obj.height = height;
-            obj.wall = wall;
-            obj.atms = atms;
+            obj.dia =    [0.0254 , 0.0300 , 0.0400 , 0.0400 , 0.0400 ];
+            obj.height = [0.015  , 0.025  , 0.035  , 0.035  , 0.035  ];
+            obj.wall =   [6.35e-4, 10.0e-4, 15.0e-4, 15.0e-4, 15.0e-4];
+            obj.atms =   [10     , 6      , 4      , 7      , 9      ];
+            th =         [pi/2   , 0.9    , 0.775  , 0.775  , 0.775  ];
             obj.path = [sin(th); zeros(size(th)); cos(th)];
             
             % Random numbers

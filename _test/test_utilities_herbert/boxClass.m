@@ -33,7 +33,10 @@ classdef boxClass
             %               Array size [3,nbox] where nbox is the number of
             %               boxes
             
-            if nargin==2
+            if nargin==0
+                return
+                
+            elseif nargin==2
                 if numel(position)==3
                     position = position(:);
                 elseif ~ismatrix(position) || isempty(position) || size(position,1)~=3
@@ -59,7 +62,7 @@ classdef boxClass
                     obj.sides = sides;
                 end
                 
-            elseif nargin~=0
+            else
                 error('HERBERT:boxClass:invalid_argument', ...
                     'Check number of input arguments')
             end
@@ -137,13 +140,14 @@ classdef boxClass
                     'Must be a single box i.e. scalar instance of boxClass')
             end
             
+            if ~(nargin==2 || nargin==5)
+                error ('HERBERT:boxClass:invalid_argument', ...
+                    'Check number of shift arguments')
+            end
+            
             if nargin==2
                 % No shifts given; use optimised method
                 [x1col, x1row, x12] = rand_position_single_shift (obj, sz);
-                
-            elseif nargin~=5
-                error ('HERBERT:boxClass:invalid_argument', ...
-                    'Check number of shift arguments')
                 
             elseif numel(shift1col)==3 && numel(shift1row)==3 && numel(shift12)==3
                 % Single vector given for each shift; use optimised method
@@ -241,8 +245,7 @@ classdef boxClass
                 % No shifts given
                 [r1col, r1row, r12] = range_single_shift (obj);
                 
-            elseif numel(varargin)==3 && numel(varargin{1})==3 ...
-                    && numel(varargin{2})==3 && numel(varargin{3})==3
+            elseif isequal(cellfun(@numel, varargin), [3 3 3])
                 % Single vector given for each shift; use optimised method
                 [r1col, r1row, r12] = range_single_shift (obj, ...
                     varargin{1}, varargin{2}, varargin{3});

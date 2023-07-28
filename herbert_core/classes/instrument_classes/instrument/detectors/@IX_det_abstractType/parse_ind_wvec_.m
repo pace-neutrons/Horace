@@ -35,47 +35,43 @@ function [sz, ind, wvec] = parse_ind_wvec_ (obj, varargin)
 if numel(varargin)==1
     % Only wvec given; ind will be made the default 1:ndet
     wvec = varargin{1};
-    if ~isempty(wvec)
-        ind = 1:obj.ndet;
-        if isscalar(ind) || isscalar(wvec) || numel(ind)==numel(wvec)
-            if ~isscalar(wvec)
-                sz = size(wvec);
-            else
-                sz = size(ind);
-            end
-        else
-            error ('HERBERT:parse_ind_wvec_:invalid_arguments',...
-                ['If ''wvec'' only is provided, and it is an array, then ',...
-                 'the number of elements must equal the number of detectors',...
-                 'if there is more than one']);
-        end
-    else
-        error ('HERBERT:parse_ind_wvec_:invalid_arguments',...
+    if isempty(wvec)
+        error ('HERBERT:parse_ind_wvec_:invalid_argument',...
             'Input argument(s) must not be empty');
+    end
+    ind = 1:obj.ndet;
+    if ~isscalar(ind) && ~isscalar(wvec) && numel(ind) ~= numel(wvec)
+        error ('HERBERT:parse_ind_wvec_:invalid_argument',...
+            ['If ''wvec'' only is provided, and it is an array, then ',...
+            'the number of elements must equal the number of detectors',...
+            'if there is more than one']);
+    end
+    if ~isscalar(wvec)
+        sz = size(wvec);
+    else
+        sz = size(ind);
     end
     
 elseif numel(varargin)==2
     % Both ind and wvec are given
     ind = varargin{1};
     wvec = varargin{2};
-    if ~(isempty(ind) || isempty(wvec))
-        if isscalar(ind) || isscalar(wvec) || numel(ind)==numel(wvec)
-            if ~isscalar(wvec)
-                sz = size(wvec);
-            else
-                sz = size(ind);
-            end
-        else
-            error ('HERBERT:parse_ind_wvec_:invalid_arguments',...
-                ['If ''ind'' and ''wvec'' are both arrays, they must ', ...
-                'have the same number of elements']);
-        end
-    else
-        error ('HERBERT:parse_ind_wvec_:invalid_arguments',...
+    if isempty(ind) || isempty(wvec)
+        error ('HERBERT:parse_ind_wvec_:invalid_argument',...
             'Input argument(s) must not be empty');
+    end
+    if ~isscalar(ind) && ~isscalar(wvec) && numel(ind) ~= numel(wvec)
+        error ('HERBERT:parse_ind_wvec_:invalid_argument',...
+            ['If ''ind'' and ''wvec'' are both arrays, they must ', ...
+            'have the same number of elements']);
+    end
+    if ~isscalar(wvec)
+        sz = size(wvec);
+    else
+        sz = size(ind);
     end
     
 else
-    error ('HERBERT:parse_ind_wvec_:invalid_arguments',...
+    error ('HERBERT:parse_ind_wvec_:invalid_argument',...
         'Check the number of input arguments')
 end

@@ -19,8 +19,7 @@ function err = validate_horace(varargin)
 %                                                  % otherwise for Horace to revert to using 
 %                                                  % matlab code.
 %   >> validate_horace (...'-disp_skipped')        %  Print list of both failed and skipped tests
-%   >> validate_horace (...'-nodisp_skipped')      %  Print only list of failed tests, ignoring
-%                                                  % This is the default behaviour
+%                                                  % (the default is not to print skipped test listing)
 %   >> validate_horace (...'-exit_on_completion')  %  Exit Matlab when test suite ends
 %   >> validate_horace (...'-no_system_tests')     %  Do not perform system tests (mpi, gen_sqw
 %                                                  % and Tobyfit tests)
@@ -36,10 +35,10 @@ end
 % Parse arguments
 % ---------------
 options = {'-parallel',  '-talkative',  '-nomex',  '-forcemex',...
-    '-disp_skipped','-nodisp_skipped','-exit_on_completion','-no_system_tests',...
+    '-disp_skipped','-exit_on_completion','-no_system_tests',...
     '-herbert_only', '-horace_only'};
 [ok, mess, parallel, talkative, nomex, forcemex, ...
- disp_skipped, nodisp_skipped, exit_on_completion, no_system, ...
+ disp_skipped, exit_on_completion, no_system, ...
  herbert_only, horace_only, test_folders] = ...
     parse_char_options(varargin, options);
 
@@ -139,7 +138,7 @@ hor = hor_config();
 hpc = hpc_config();
 par = parallel_config();
 % Validation must always return Horace and Herbert to their initial states,
-% regardless of any changes made in the test routines)
+% regardless of any changes made in the test routines
 
 % On exit always revert to initial Horace and Herbert configurations
 % ------------------------------------------------------------------
@@ -169,11 +168,7 @@ argi = {};
 if talkative
     argi = [argi, {'-verbose'}];
 end
-if disp_skipped && nodisp_skipped    
-    % Asked for both, so inconsistent options requested
-    error('HORACE:validate_horace:invalid_argument', ...
-        'Cannot have both ''-disp_skipped'' and ''-nodisp_skipped'' as options')
-elseif ~disp_skipped
+if ~disp_skipped
     argi = [argi, '-nodisp_skipped'];
 end
 

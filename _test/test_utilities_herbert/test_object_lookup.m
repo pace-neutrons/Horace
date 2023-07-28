@@ -1,4 +1,4 @@
-classdef test_object_lookup < TestCaseWithSave
+classdef test_object_lookup < TestCase
     % Test of object_lookup class
     properties
         c1
@@ -32,7 +32,7 @@ classdef test_object_lookup < TestCaseWithSave
     methods
         %--------------------------------------------------------------------------
         function obj = test_object_lookup (name)
-            obj@TestCaseWithSave(name);
+            obj = obj@TestCase(name);
             
             % Make some test data
             c1=IX_fermi_chopper(10, 150, 0.049, 1.3, 0.003, Inf, 0, 0, 50, 1, 0, 'Chopper 1');
@@ -95,20 +95,16 @@ classdef test_object_lookup < TestCaseWithSave
             obj.c_lookup1 = c_lookup1;
             
             obj.seed = 0;   % seed for random numbers at start of each test
-            
-            obj.save()
         end
         
         function obj = setUp(obj)
             % Save current rng state and force random seed and method
             obj.rng_state = rng(obj.seed, 'twister');
-            warning('off', 'HERBERT:mask_data_for_fit:bad_points')
         end
         
         function obj = tearDown(obj)
             % Undo rng state
             rng(obj.rng_state);
-            warning('on', 'HERBERT:mask_data_for_fit:bad_points')
         end
                    
         %--------------------------------------------------------------------------

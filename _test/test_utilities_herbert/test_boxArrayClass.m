@@ -1,6 +1,6 @@
-classdef boxArrayClass_test < TestCaseWithSave
+classdef test_boxArrayClass < TestCase
     % Test boxArrayClass, a class created to test object_lookup methods
-    % rand_ind and func_eval_ for objects with inner arrays
+    % rand_ind and func_eval_ind for objects with inner arrays
     %
     % Forms a pair with boxArrayClass defined elsewhere
     
@@ -15,8 +15,8 @@ classdef boxArrayClass_test < TestCaseWithSave
     
     methods
         %--------------------------------------------------------------------------
-        function obj = boxArrayClass_test (name)
-            obj@TestCaseWithSave(name);
+        function obj = test_boxArrayClass (name)
+            obj = obj@TestCase(name);
             
             % Create boxArray with three different boxes
             position = [[11;21;31], [111;121;131], [1011;1021;1031], [700;30;100]];
@@ -40,13 +40,12 @@ classdef boxArrayClass_test < TestCaseWithSave
             obj.x1row_ref = x1row;
             obj.x12_ref = x12;
             
-            obj.save()
         end
         
         %--------------------------------------------------------------------------
         % Test constructor
         %--------------------------------------------------------------------------
-        function test_boxArrayClass_1 (~)
+        function test_boxArrayClass_constructor_no_arguments (~)
             % Test constructor with no arguments
             box_tmp = boxArrayClass();
             box_array = boxClass();
@@ -54,14 +53,14 @@ classdef boxArrayClass_test < TestCaseWithSave
             assertEqual (box_tmp.nbox, 1)
         end
         
-        function test_boxArrayClass_2 (~)
+        function test_boxArrayClass_constructor_one_box (~)
             % Test constructor with one box
             box_tmp = boxArrayClass ([5,1000,10000], [1,40,200]);
             box_array = boxClass ([5,1000,10000], [1,40,200]);
             assertEqual (box_tmp.box, box_array)
         end
         
-        function test_boxArrayClass_3 (~)
+        function test_boxArrayClass_constructor_array_of_boxes (~)
             % Test constructor of array of boxes
             pos1 = [101,102,103];
             sides1 = [11,22,33];
@@ -72,8 +71,9 @@ classdef boxArrayClass_test < TestCaseWithSave
             assertEqual (box_tmp.box, box_array)
         end
         
-        function test_boxArrayClass_4 (~)
-            % Test failure with invalid input
+        function test_boxArrayClass_constructor_expand_sides_arg (~)
+            % Test constructor with expansion of single side argument to match
+            % number of position arguments
             pos1 = [101,102,103];
             sides1 = [11,22,33];
             pos2 = [5,1000,10000];
@@ -82,10 +82,10 @@ classdef boxArrayClass_test < TestCaseWithSave
             assertEqual (box_tmp.box, box_array)
         end
         
-        function test_boxArrayClass_5 (~)
-            % Test failure with invalid input
+        function test_boxArrayClass_constructor_invalid_element_count (~)
+            % Test failure with invalid input:
             pos1 = [101,102,103];
-            sides1 = [11,22,33,44];     % too many elements
+            sides1 = [11,22,33,44];     % too many elements (should only be 3)
             pos2 = [5,1000,10000];
             
             f = @()boxArrayClass ([pos1(:),pos2(:)], sides1(:));
@@ -95,7 +95,7 @@ classdef boxArrayClass_test < TestCaseWithSave
         %--------------------------------------------------------------------------
         % Test sizes of arrays produced by rand_elmts_position output
         %--------------------------------------------------------------------------
-        function test_size_1 (obj)
+        function test_output_size_rowVectorStacking (obj)
             % Test size of output arrays when stacked [1,10]
             ielmts = [1,3,1,3,3,3,2,2,1,2];
             [x1col, x1row, x12] = rand_elmts_position (obj.boxArray, ielmts);
@@ -104,7 +104,7 @@ classdef boxArrayClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,10])
         end
         
-        function test_size_2 (obj)
+        function test_output_size_columnVectorStacking (obj)
             % Test size of output arrays when stacked [10,1]
             ielmts = [1,3,1,3,3,3,2,2,1,2]';
             [x1col, x1row, x12] = rand_elmts_position (obj.boxArray, ielmts);
@@ -113,7 +113,7 @@ classdef boxArrayClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,10])
         end
         
-        function test_size_3 (obj)
+        function test_output_size_arrayStacking (obj)
             % Test size of output arrays when stacked [2,5]
             ielmts = [1,3,1,3,3;3,2,2,1,2];
             [x1col, x1row, x12] = rand_elmts_position (obj.boxArray, ielmts);
@@ -125,7 +125,7 @@ classdef boxArrayClass_test < TestCaseWithSave
         %--------------------------------------------------------------------------
         % Test validate_points_in boxArray
         %--------------------------------------------------------------------------
-        function test_validate_points_in_boxArray_1 (obj)
+        function test_validate_points_in_boxArray (obj)
             % Test points are really in boxes as designed
             for i=1:obj.boxArray.nbox
                 [ok, mess] = validate_points_in_boxArray (obj.boxArray, i, ...
@@ -134,7 +134,7 @@ classdef boxArrayClass_test < TestCaseWithSave
             end
         end
         
-        function test_validate_points_in_boxArray_2 (obj)
+        function test_validate_points_in_boxArray_THROW (obj)
             % Make a point outside the range - validate_points_in_boxArray
             % should fail
             i = 3;
@@ -146,7 +146,7 @@ classdef boxArrayClass_test < TestCaseWithSave
                 ' due to x12 being out of range'])
         end
         
-        function test_validate_points_in_boxArray_3a (obj)
+        function test_validate_points_in_boxArray_shifted (obj)
             % Test points in box with shifts bigger than box sides
             shift1c = [1000; 1200; 1400];
             shift1r = [1100; 1120; 1140];
@@ -160,7 +160,7 @@ classdef boxArrayClass_test < TestCaseWithSave
             assertTrue (ok, mess)
         end
         
-        function test_validate_points_in_boxArray_3b (obj)
+        function test_validate_points_in_boxArray_shifted_BADTEST (obj)
             % Test failure if do not test with shifted x1col, x1row, x12
             shift1c = [1000; 1200; 1400];
             shift1r = [1100; 1120; 1140];
@@ -174,7 +174,7 @@ classdef boxArrayClass_test < TestCaseWithSave
                 ' due to points being out of range'])
         end
         
-        function test_validate_points_in_boxArray_4 (obj)
+        function test_validate_points_in_boxArray_ielmts (obj)
             % Test multiple points in box without shift
             ielmts = [4,2,3,1,4,2,4,2,3,2,3,3,3,1];
             x1col = obj.x1col_ref(:,ielmts);
@@ -186,7 +186,7 @@ classdef boxArrayClass_test < TestCaseWithSave
             assertTrue (ok, mess)
         end
         
-        function test_validate_points_in_boxArray_5 (obj)
+        function test_validate_points_in_boxArray_ielmts_oneShift (obj)
             % Test multiple points in box with single shift
             ielmts = [4,2,3,1,4,2,4; 2,3,2,3,3,3,1];
             sz = size(ielmts);
@@ -234,7 +234,7 @@ classdef boxArrayClass_test < TestCaseWithSave
             assertFalse (ok, 'ERROR: validate_points_in_boxArray should have returned false')
         end
         
-        function test_validate_points_in_boxArray_6 (obj)
+        function test_validate_points_in_boxArray_ielmts_multiShift (obj)
             % Test multiple points in box with multiple shifts
             ielmts = [4,2,3,1,4,2,4; 2,3,2,3,3,3,1];
             sz = size(ielmts);
@@ -290,7 +290,7 @@ classdef boxArrayClass_test < TestCaseWithSave
         % Test sizes of arrays produced by rand_elmts_position output
         % Assumes that validate_rand_elmts_position works correctly
         %--------------------------------------------------------------------------
-        function test_rand_elmts_position_1 (obj)
+        function test_rand_elmts_position_oneShift (obj)
             % Test rand_position, duplicating call to rand_pos with just
             % one shift vector
             shift1c = [10,12,14];
@@ -306,7 +306,7 @@ classdef boxArrayClass_test < TestCaseWithSave
             assertTrue(ok, mess)
         end
         
-        function test_rand_elmts_position_2 (obj)
+        function test_rand_elmts_position_multiShift (obj)
             % Test rand_position, duplicating call to rand_pos with
             % different shift vector for each point
             
@@ -330,7 +330,7 @@ classdef boxArrayClass_test < TestCaseWithSave
         %------------------------------------------------------------------
         % Test object_lookup with boxArrayClass
         %------------------------------------------------------------------
-        function test_create_object_lookup_1 (~)
+        function test_create_object_lookup_singleArray (~)
             % Create an object_lookup with a single array input
             b1 = boxArrayClass(rand(3,6), rand(3,6));
             b2 = boxArrayClass(rand(3,8), rand(3,8));
@@ -348,7 +348,7 @@ classdef boxArrayClass_test < TestCaseWithSave
             
         end
                 
-        function test_create_object_lookup_2 (~)
+        function test_create_object_lookup_arrayFetchERROR (~)
             % Create an object_lookup with a single array input
             b1 = boxArrayClass(rand(3,6), rand(3,6));
             b2 = boxArrayClass(rand(3,8), rand(3,8));
@@ -364,7 +364,7 @@ classdef boxArrayClass_test < TestCaseWithSave
             
         end
                 
-        function test_create_object_lookup_3 (~)
+        function test_create_object_lookup_arrayFetch (~)
             % Create an object_lookup with three array inputs
             b1 = boxArrayClass(rand(3,6), rand(3,6));
             b2 = boxArrayClass(rand(3,8), rand(3,8));

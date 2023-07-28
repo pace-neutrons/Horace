@@ -1,8 +1,8 @@
-classdef boxClass_test < TestCaseWithSave
+classdef test_boxClass < TestCase
     % Test boxClass, a class created to test object_lookup methods
     % rand_ind and func_eval_ind
     %
-    % Forms a pair with boxArrayClass defined elsewhere
+    % Forms a pair with boxClass defined elsewhere
     
     properties
         box
@@ -10,32 +10,31 @@ classdef boxClass_test < TestCaseWithSave
     
     methods
         %--------------------------------------------------------------------------
-        function obj = boxClass_test (name)
-            obj@TestCaseWithSave(name);
+        function obj = test_boxClass (name)
+            obj = obj@TestCase(name);
             
             obj.box = boxClass ([5,1000,10000], [1,40,200]);
             
-            obj.save()
         end
         
         %--------------------------------------------------------------------------
         % Test constructor
         %--------------------------------------------------------------------------
-        function test_boxClass_1 (~)
+        function test_boxClass_constructor_noArgs (~)
             % Test constructor with no arguments
             box_tmp = boxClass();
             assertEqual (box_tmp.position, [0;0;0])
             assertEqual (box_tmp.sides, [0;0;0])
         end
         
-        function test_boxClass_2 (~)
+        function test_boxClass_constructor_oneBox (~)
             % Test constructor of one box
             box_tmp = boxClass ([5,1000,10000], [1,40,200]);
             assertEqual (box_tmp.position, [5;1000;10000])
             assertEqual (box_tmp.sides, [1;40;200])
         end
         
-        function test_boxClass_3 (~)
+        function test_boxClass_constructor_multipleBoxes (~)
             % Test constructor of array of boxes
             pos1 = [101,102,103];
             sides1 = [11,22,33];
@@ -47,12 +46,11 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (box_tmp, [box1_tmp, box2_tmp])
         end
         
-        function test_boxClass_4 (~)
-            % Test constructor of array of boxes
+        function test_boxClass_constructor_multiplePosn_singleSide (~)
+            % Test constructor of array of boxes with same side lengths
             pos1 = [101,102,103];
             sides1 = [11,22,33];
             pos2 = [5,1000,10000];
-            sides2 = [1,40,200];
             box1_tmp = boxClass (pos1, sides1);
             box2_tmp = boxClass (pos2, sides1);
             box_tmp = boxClass ([pos1(:),pos2(:)], sides1(:));
@@ -62,7 +60,7 @@ classdef boxClass_test < TestCaseWithSave
         %--------------------------------------------------------------------------
         % Test sizes of arrays produced by rand_position
         %--------------------------------------------------------------------------
-        function test_size_1a (obj)
+        function test_output_size_noShifts (obj)
             % Test size of output arrays when stacked [2,4]
             [x1col, x1row, x12] = rand_position (obj.box, [2,4]);
             assertEqual (size(x1col), [3,2,4])
@@ -70,7 +68,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,2,4])
         end
         
-        function test_size_1b (obj)
+        function test_outputSize_zeroShifts (obj)
             % Test size of output arrays when stacked [2,4]
             [x1col, x1row, x12] = rand_position (obj.box, [2,4], ...
                 [0,0,0], [0,0,0], [0,0,0]);
@@ -79,7 +77,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,2,4])
         end
         
-        function test_size_1c (obj)
+        function test_outputSize_stackedShift (obj)
             % Test size of output arrays when stacked [2,4]
             % Different branch is followed if one or more shifts are
             % stacks of vectors
@@ -90,7 +88,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,2,4])
         end
         
-        function test_size_2a (obj)
+        function test_output_size_shift_arraySampling (obj)
             % Test with shift and size of output arrays when stacked [4,5]
             shift1c = [10,12,14];
             shift1r = [110,112,114];
@@ -102,7 +100,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,4,5])
         end
         
-        function test_size_2b (obj)
+        function test_outputSize_stackedShifts_arraySampling (obj)
             % Test with shift and size of output arrays when stacked [4,5]
             % Different branch is followed if one or more shifts are
             % stacks of vectors
@@ -116,7 +114,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,4,5])
         end
         
-        function test_size_3a (obj)
+        function test_outputSize_shift_rowVectorSampling (obj)
             % Test with shift and size of output arrays when stacked [1,5]
             shift1c = [10,12,14];
             shift1r = [110,112,114];
@@ -128,7 +126,7 @@ classdef boxClass_test < TestCaseWithSave
             assertEqual (size(x12), [3,2,5])
         end
         
-        function test_size_3b (obj)
+        function test_outputSize_stackedShift_rowVectorSampling (obj)
             % Test with shift and size of output arrays when stacked [1,5]
             % Different branch is followed if one or more shifts are
             % stacks of vectors
