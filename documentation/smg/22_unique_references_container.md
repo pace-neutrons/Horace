@@ -28,7 +28,7 @@ the container has a singleton instance of unique_objects_container for that type
 The singleton is accessed via the static method `global_container(...)` (corresponds to above design pattern method `instance()`).
 Singleton instances of all types are stored in a struct which is the persistent variable `glcontainer`, 
 corresponding to `uniqueInstance` in the above example.
-For type `IX_inst the singleton’s name is `GLOBAL_NAME_INSTRUMENTS_CONTAINER`.
+For type `IX_inst` the singleton’s name is `GLOBAL_NAME_INSTRUMENTS_CONTAINER`.
 The singleton is stored in the struct as the field `glcontainer.GLOBAL_NAME_INSTRUMENTS_CONTAINER`.
 Other types will have other struct fields.
 The name is not the same as `IX_inst` to allow other singleton containers for `IX_inst` if that is required.
