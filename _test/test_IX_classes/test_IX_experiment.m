@@ -60,10 +60,6 @@ classdef test_IX_experiment <  TestCase
             assertEqual(alatt,[1,2,3]);
             assertEqual(angdeg,[90,90,90]);
             assertEqual(exp,exp_rec);
-
-            % TODO: temporary, until IX_experiment is propertly build class
-            clOb = set_temporary_warning('off','MATLAB:structOnObject');
-            assertEqual(struct(exp),struct(exp_rec));
         end
 
 
@@ -82,10 +78,6 @@ classdef test_IX_experiment <  TestCase
             assertEqual(angdeg,[90,90,90]);
             assertEqual(exp,exp_rec);
 
-
-            % TODO: temporary, until IX_experiment is propertly build class
-            clOb = set_temporary_warning('off','MATLAB:structOnObject');
-            assertEqual(struct(exp),struct(exp_rec));
         end
 
         function test_recover_from_v1_structure_array(~)

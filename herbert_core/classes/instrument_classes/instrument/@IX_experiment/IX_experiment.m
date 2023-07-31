@@ -1,5 +1,9 @@
-classdef IX_experiment < serializable
-    %IX_EXPERIMENT
+classdef IX_experiment < goniometer
+    %IX_EXPERIMENT -- transient class which describes transformation of a
+    %single run into Crystal Cartesian coordinate system during sqw file
+    %generation
+    %
+    % Should be replaced by instr_proj in a future.
 
     properties(Dependent)
         filename; % name of the file which was the source of data for this
@@ -21,11 +25,6 @@ classdef IX_experiment < serializable
 
     properties
         emode=1
-        psi=0;
-        omega=0;
-        dpsi=0;
-        gl=0;
-        gs=0;
         uoffset=[0,0,0,0];
 
         ulen=[];
@@ -37,8 +36,6 @@ classdef IX_experiment < serializable
         run_id_ = NaN;
         en_ = zeros(0,1);
         efix_ = [];
-        cu_ = [1,0,0];
-        cv_ = [0,1,0];
         u_to_rlu_ = eye(3);
     end
     properties(Access= private)
@@ -49,6 +46,7 @@ classdef IX_experiment < serializable
     methods
         function obj = IX_experiment(varargin)
             % IX_EXPERIMENT Construct an instance of this class
+            obj.angular_units = 'deg';
             if nargin==0
                 return
             end
@@ -150,18 +148,18 @@ classdef IX_experiment < serializable
         end
         %
         function u = get.cu(obj)
-            u = obj.cu_;
+            u = obj.u_;
         end
         function obj = set.cu(obj,val)
-            obj.cu_ = val(:)';
+            obj.u = val;
             obj.hash_valid_  = false;
         end
         %
         function v = get.cv(obj)
-            v = obj.cv_;
+            v = obj.v_;
         end
         function obj = set.cv(obj,val)
-            obj.cv_ = val(:)';
+            obj.v = val;
             obj.hash_valid_  = false;
         end
 
@@ -239,6 +237,14 @@ classdef IX_experiment < serializable
         %
 
     end
+    methods(Access=protected)
+        function [val,obj] = check_angular_val(obj,val)
+            % main overloadable setter function for goniometer angles
+            [val,obj] = check_angular_val@goniometer(obj,val);
+            obj.hash_valid_ = false;
+        end
+
+    end
     %----------------------------------------------------------------------
     % SERIALIZABLE interface
     properties(Constant,Access=private)
@@ -286,7 +292,7 @@ classdef IX_experiment < serializable
             % Inputs: the old header structure, stored in binfile
             old_fldnms = {'filename','filepath','efix','emode','cu',...
                 'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
-                'u_to_rlu','ulen','ulabel'};
+                'ulen','ulabel'};
             obj = IX_experiment();
             for i=1:numel(old_fldnms)
                 obj.(old_fldnms{i}) = inputs.(old_fldnms{i});

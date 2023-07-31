@@ -124,7 +124,7 @@ classdef goniometer < serializable
         end
         %
         function obj = set.psi(obj,val)
-            obj.psi_=check_angular_set_(obj,val);
+            obj.psi_=check_angular_val(obj,val);
             % psi is third in the list of fields to be defined
             if isnan(obj.psi_)
                 obj.psi_defined_ = false;
@@ -137,16 +137,16 @@ classdef goniometer < serializable
         end
         %
         function obj = set.omega(obj,val)
-            obj.omega_=check_angular_set_(obj,val);
+            obj.omega_=check_angular_val(obj,val);
         end
         function obj  = set.dpsi(obj,val)
-            obj.dpsi_=check_angular_set_(obj,val);
+            obj.dpsi_=check_angular_val(obj,val);
         end
         function obj =set.gl(obj,val)
-            obj.gl_=check_angular_set_(obj,val);
+            obj.gl_=check_angular_val(obj,val);
         end
         function obj =set.gs(obj,val)
-            obj.gs_=check_angular_set_(obj,val);
+            obj.gs_=check_angular_val(obj,val);
         end
         %-----------------------------------------------------------------
         function u=get.u(obj)
@@ -228,6 +228,10 @@ classdef goniometer < serializable
 
     end
     methods(Access=protected)
+        function [val,obj] = check_angular_val(obj,val)
+            % main overloadable setter function for goniometer angles
+            val = check_angular_set_(obj,val);
+        end
         function uf = get_undef_fields(obj)
             % get list of undefined fields
             if obj.psi_defined_
@@ -276,11 +280,11 @@ classdef goniometer < serializable
     %---------------------------------------------------------------------
     methods(Static)
         function fields = fields_with_defaults()
-            % List of fields which have default values and do not have 
-            % to be always defined by either file or command arguments;            
+            % List of fields which have default values and do not have
+            % to be always defined by either file or command arguments;
             fields ={'omega','dpsi','gl','gs','u','v'};
         end
-        
+
         function obj = loadobj(input)
             obj = goniometer();
             obj = loadobj@serializable(input,obj);
