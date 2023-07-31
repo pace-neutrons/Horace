@@ -474,49 +474,23 @@ classdef Experiment < serializable
             % Take cellarray of experiments (e.g., generated from each runfile build
             % during gen_sqw generation)
             % and combine then together into single Experiment info class
+            % Inputs:
+            % exp_cellarray -- cellarray of Experiment classes, related to
+            %                  different runs or combination of runs
+            % allow_equal_headers
+            %               -- if true, equal runs are allowed.
+            % At present, we insist that the contributing spe data are distinct
+            % in that:
+            %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be
+            %     equal for two spe data input. If allow_equal_headers is
+            %     set to true, this check is disabled
             %
-            %This is the HACK, providing only basic functionality. Previous
-            %header-s on the basis of sqw_header and part, present in
-            %write_nsqw_to_sqw implementation offers much more.
-            %
-            %TODO: Do proper optimization on the way. See
-            % sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
-            %TODO: use allow_equal_headers,drop_subzone_headers variables
-            %      appropriately
-            %TODO: repeat at least the logic within sqw_header helper class
-            %      and write_nsqw_to_sqw combine/check headers operation
-
-% Check experiment consistency:
-% At present, we insist that the contributing spe data are distinct in that:
-%   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
-%   - emode, lattice parameters, u, v, sample must be the same for all spe data input
-
-
-            n_contrib = numel(exp_cellarray);
-            nspe = zeros(n_contrib,1);
-            for i=1:n_contrib
-                nspe(i) = exp_cellarray{i}.n_runs;
-            end
-            n_tot = sum(nspe);
-            instr  = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst'); %cell(1,n_tot);
-            sampl  = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp'); %cell(1,n_tot);
-            %warning('stop here so you can check that instr and sampl should no longer be set as cells');
-            expinfo= repmat(IX_experiment(),1,n_tot);
-            ic = 1;
-            %TODO: combine instruments using unique_objects_container
-            %      rather than doing a complete unpack and repack
-            for i=1:n_contrib
-                for j=1:exp_cellarray{i}.n_runs
-                    instr{ic}  = exp_cellarray{i}.instruments{j};
-                    sampl{ic}  = exp_cellarray{i}.samples{j};
-                    expinfo(ic)= exp_cellarray{i}.expdata(j);
-                    if ~keep_runid
-                        expinfo(ic).run_id = ic;
-                    end
-                    ic = ic+1;
-                end
-            end
-            exp = Experiment([], instr, sampl,expinfo);
+            % keep_runid    -- if true, the procedure keeps run_id-s
+            %                  defined for contributing experiments.
+            %                  if false, the run-ids are reset from 1 for
+            %                  first contributed run to n_runs for the
+            %                  last contributing run (nxspe file)
+            [exp,nspe] = combine_experiments_(exp_cellarray,allow_equal_headers,keep_runid);
         end
     end
     %======================================================================

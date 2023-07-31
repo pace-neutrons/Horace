@@ -217,29 +217,52 @@ classdef IX_experiment < goniometer
             end
             old_hdr = convert_to_binfile_header_(obj,mode,arg1,arg2,nomangle);
         end
-        %
-        function [hash,obj] = get_comparison_hash(obj)
+        %        
+        function [hash,obj] = get_neq_hash(obj)
             % get hash used for comparison of IX_experiment objects against
             % equality while building sqw objects
+
+            % At present, we insist that the contributing spe data are distinct in that:
+            %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
 
             if obj.hash_valid_
                 hash = obj.comparison_hash_;
                 return;
             end
+            % list of properties which can not be all equal for
+            % experiments to be diffetent
+            neq_properties = {'filename','cu','cv','efix',...
+                'psi', 'omega', 'dpsi', 'gl', 'gs'};
+
+            hash = obj.get_comparison_hash(neq_properties);
+            if nargout>1
+                obj.comparison_hash_ =  hash;
+                obj.hash_valid_      = true;
+            end
+        end
+        %
+
+    end
+    methods(Access=protected)
+        function [val,obj] = check_angular_val(obj,val)
+            % main overloadable setter function for goniometer angles
+            [val,obj] = check_angular_val@goniometer(obj,val);
+            obj.hash_valid_ = false;
+        end
+        function hash = get_comparison_hash(obj,prop_list)
+            % get hash to check partial set of properties for comparison
+            % Inputs:
+            % prop_list -- the list of properties to compare agains
+            %
             persistent engine;
             if isempty(engine)
                 engine= java.security.MessageDigest.getInstance('MD5');
             end
 
-            % list of properties which can not be all equal for
-            % experiments to be diffetent
-            eq_properties = {'filename','cu','cv','efix',...
-                'psi', 'omega', 'dpsi', 'gl', 'gs'};
-
-            n_par = numel(eq_properties);
+            n_par = numel(prop_list);
             contents = cell(1,n_par);
             for i=1:n_par
-                contents{i} = obj.(eq_properties{i});
+                contents{i} = obj.(prop_list{i});
                 if istext(contents{i})
                     contents{i} = uint8(contents{i});
                 elseif isnumeric(contents{i})
@@ -252,17 +275,6 @@ classdef IX_experiment < goniometer
             engine.update(contents);
             hash = typecast(engine.digest,'uint8');
             hash = char(hash');
-            obj.comparison_hash_ = hash;
-            obj.hash_valid_ = true;
-        end
-        %
-
-    end
-    methods(Access=protected)
-        function [val,obj] = check_angular_val(obj,val)
-            % main overloadable setter function for goniometer angles
-            [val,obj] = check_angular_val@goniometer(obj,val);
-            obj.hash_valid_ = false;
         end
 
     end
