@@ -14,6 +14,7 @@ classdef IX_experiment < goniometer
         %         % providing connection between the particular pixel and
         %         % the experiment info
 
+        emode;
         efix;
         en;  % array of all energy transfers, present in the experiment
         cu;
@@ -23,8 +24,7 @@ classdef IX_experiment < goniometer
         u_to_rlu;
     end
 
-    properties
-        emode=1
+    properties(Hidden)
         uoffset=[0,0,0,0];
 
         ulen=[];
@@ -34,6 +34,7 @@ classdef IX_experiment < goniometer
         filename_=''
         filepath_='';
         run_id_ = NaN;
+        emode_ = 1;
         en_ = zeros(0,1);
         efix_ = [];
         u_to_rlu_ = eye(3);
@@ -107,6 +108,19 @@ classdef IX_experiment < goniometer
             ind = 1:numel(obj);
             ids = arrayfun(@(in)(obj(in).run_id_),ind);
         end
+        %
+        function mode = get.emode(obj)
+            mode = obj.emode_;
+        end
+        function obj = set.emode(obj,val)
+            if ~isnumeric(val) || val<0 || val>2
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'Transformation mode can be numeric in range from 0 to 2. It is %s',...
+                    disp2str(val));
+            end
+            obj.emode_ = val;
+        end
+
         %
         function en = get.en(obj)
             en = obj.en_;
@@ -250,8 +264,7 @@ classdef IX_experiment < goniometer
     properties(Constant,Access=private)
         % fields, which fully define public interface to the class
         fields_to_save_ = {'filename','filepath','run_id','efix','emode','cu',...
-            'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
-            'u_to_rlu','ulen','ulabel'};
+            'cv','psi','omega','dpsi','gl','gs','en','uoffset'};
     end
     methods
         function flds = saveableFields(~)
@@ -259,20 +272,29 @@ classdef IX_experiment < goniometer
         end
         function ver  = classVersion(~)
             % return the version of the IX-experiment class
-            ver = 2;
+            ver = 3;
         end
     end
 
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
             % recover the object from old structure
-            if isfield(inputs,'version') && inputs.version == 1
-                for i=1:numel(inputs)
-                    inputs(i).run_id = NaN;
+            if isfield(inputs,'version')
+                if inputs.version == 1
+                    % version 1 does not contain run_id so it is set to NaN
+                    % and recalculated on sqw object level
+                    for i=1:numel(inputs)
+                        inputs(i).run_id = NaN;
+                    end
+                    inputs.version = 2;
+                    obj = obj.from_struct(inputs);
+                    return;
+                elseif inputs.version == 2
+                    % version 3 does not save/load u_to_rlu, ulen, ulabel
+                    % These fields are redundant for instr_proj and moved
+                    % to sqw.data (DnD object)
+                    inputs.version = 3;
                 end
-                inputs.version = 2;
-                obj = obj.from_struct(inputs);
-                return;
             end
             obj = from_old_struct@serializable(obj,inputs);
         end
